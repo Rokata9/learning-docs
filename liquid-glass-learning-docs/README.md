@@ -18,15 +18,16 @@ No local web server is required. Every lesson is self-contained and works from `
 - Glossary starter
 - Chapter 1 hub
 - Lesson 1.1: **Name the visible ingredients**
+- Lesson 1.2: **Observe the transition one state at a time**
 - Updated curriculum and conversation handoff
 
 ## Current lesson
 
 ```text
-course/chapters/chapter-01/lesson-01-01-visible-ingredients.html
+course/chapters/chapter-01/lesson-01-02-observe-the-transition.html
 ```
 
-Lesson 1.1 does not require an Android project change. It contains a small Kotlin syntax challenge inside the page. The first real Android project setup happens in Lesson 1.3.
+Lesson 1.2 does not require an Android project change. It contains a manual transition stepper, an optional local video scrubber, and a small Kotlin data-model challenge. The first real Android project setup happens in Lesson 1.3.
 
 ## Naming rule
 

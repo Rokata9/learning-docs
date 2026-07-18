@@ -2,7 +2,7 @@
 
 **Version:** 1.2  
 **Updated:** 2026-07-18  
-**Current course position:** Lesson 1.1 has been generated and delivered. The learner has not completed its checkpoint yet.  
+**Current course position:** Lesson 1.1 is complete by learner confirmation. Lesson 1.2 has been generated and delivered. Its checkpoint is not complete yet.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -732,10 +732,19 @@ Exercises should distinguish translucency from blur and refraction.
 
 Interactive scene:
 
-- A manual eight-step timeline: rest, contact, compression, early expansion, middle expansion, content reveal, settled sheet, closing.
-- Exactly one visible change per step.
-- Two note fields: “visible fact” and “implementation hypothesis.”
-- An optional scrubber appears only after the stepper.
+- A manual eight-step timeline: rest, contact, press response, early expansion, middle expansion, content reveal, settled sheet, closing.
+- A source-side guide and an optional dashed overlay of the previous sampled boundary.
+- Separate observation passes for boundary, background detail, menu content, light and shadow, and event order.
+- An optional slow stage playback appears only after the manual stepper.
+- An optional local video loader provides a time scrubber and approximate 1/60-second nudging. The selected file stays local to the browser.
+- A worksheet records visible facts against a selected stage and time.
+
+Coding challenge:
+
+- Edit an isolated Kotlin data model so an `ObservationFrame` represents `MenuStage.MIDDLE_EXPANSION` with `menuRowsVisible = false`.
+- The page parses the two assigned values and updates a browser preview. It clearly states that the parser does not compile Kotlin.
+
+Exercises distinguish a frame from a stage, test the misconception that named stages imply pauses, and separate visible distortion from a claim about AGSL.
 
 The page must not present a guessed Apple implementation as fact.
 
@@ -956,17 +965,18 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 ## 14. Generated artifact status
 
-The first delivery package now contains:
+The cumulative delivery package through Lesson 1.2 contains:
 
 - `liquid-glass-course.html`;
 - `course/glossary.html`;
 - `course/chapters/chapter-01/lesson-a-transparent-panel-is-not-yet-liquid-glass.html`;
 - `course/chapters/chapter-01/lesson-01-01-visible-ingredients.html`;
+- `course/chapters/chapter-01/lesson-01-02-observe-the-transition.html`;
 - the updated curriculum and handoff;
 - learner-work folders;
 - a small desktop verification script.
 
-Lesson 1.1 is delivered but not marked complete. Completion requires the learner to use the ingredient explorer, finish the coding challenge, answer the final exercises in chat, and copy the lesson record.
+Lesson 1.1 is marked complete from the learner’s explicit confirmation that the lesson is finished and no questions remain. Exercise answers were not submitted for conversational grading, so the handoff records completion as learner-confirmed rather than graded. Lesson 1.2 is delivered and is the current lesson.
 
 ---
 

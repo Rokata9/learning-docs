@@ -10,6 +10,7 @@
 - The main learning path uses `minSdk = 33` for Android `RuntimeShader` and Android Graphics Shading Language (AGSL).
 - The learner is a senior web engineer and an absolute beginner in mathematics, graphics programming, shaders, graphics processing unit (GPU) concepts, and Android rendering internals.
 - Explanations use short declarative sentences and plain English.
+- At the end of every response, state a clearly labelled best-effort estimate of the remaining conversation context window in tokens. The number is approximate, not exact.
 - Each lesson introduces one main graphics idea and at most one main mathematical idea.
 - The course does not use a third-party glass-effect library for the main implementation.
 - The course does not claim to know Apple’s private Liquid Glass implementation.
@@ -67,12 +68,17 @@ chapter_1_hub_file: course/chapters/chapter-01/lesson-a-transparent-panel-is-not
 chapter_1_hub_generated: true
 lesson_01_01_file: course/chapters/chapter-01/lesson-01-01-visible-ingredients.html
 lesson_01_01_generated: true
-lesson_01_01_completed_by_learner: false
+lesson_01_01_completed_by_learner: true
+lesson_01_01_completion_basis: learner explicitly reported completion and no questions; exercise answers were not submitted for conversational grading
+lesson_01_02_file: course/chapters/chapter-01/lesson-01-02-observe-the-transition.html
+lesson_01_02_generated: true
+lesson_01_02_completed_by_learner: false
+lesson_01_02_android_source_changed: false
 chapter_1_completed_by_learner: false
 current_chapter: 1
-current_lesson: 1.1
-current_lesson_file: course/chapters/chapter-01/lesson-01-01-visible-ingredients.html
-next_required_output: review learner answers and completion record for Lesson 1.1
+current_lesson: 1.2
+current_lesson_file: course/chapters/chapter-01/lesson-01-02-observe-the-transition.html
+next_required_output: review the learner's Lesson 1.2 answers, completion record, visual issue, or question; then update progress
 ```
 
 ## Required Chapter 1 file set
@@ -118,22 +124,31 @@ Chapter 1 is complete only when:
 Open and complete:
 
 ```text
-course/chapters/chapter-01/lesson-01-01-visible-ingredients.html
-```
-
-Lesson 1.1 is already generated. Do not generate Lesson 1.2 until the learner has:
-
-- used the ingredient explorer;
-- completed the in-lesson Kotlin syntax challenge;
-- answered the four final exercises in chat without opening the hidden answers;
-- copied the lesson completion record;
-- reported any unclear wording or visual behavior.
-
-After grading and updating this handoff, generate:
-
-```text
 course/chapters/chapter-01/lesson-01-02-observe-the-transition.html
 ```
+
+Lesson 1.2 is already generated. It includes:
+
+- definitions of frame, transition, and stage;
+- a manual eight-state transition stepper;
+- a previous-sampled-boundary overlay;
+- separate focus modes for boundary, background, content, light, and shadow;
+- an optional local video scrubber with approximate 1/60-second nudging;
+- a visible fact versus implementation hypothesis check;
+- an isolated Kotlin data-model challenge;
+- four final exercises and a copyable completion record.
+
+No Android source changes are required for Lesson 1.2.
+
+Do not generate Lesson 1.3 until the learner reports that Lesson 1.2 is complete or supplies answers, a completion record, a visual problem, or a question for review.
+
+After Lesson 1.2 is complete, generate:
+
+```text
+course/chapters/chapter-01/lesson-01-03-create-the-android-project.html
+```
+
+Lesson 1.3 is the first lesson that creates or changes the separate Android Studio project.
 
 ## Reusable continuation prompt
 
@@ -147,6 +162,7 @@ Read these two files first:
 Assume I am a senior web engineer and an absolute beginner in mathematics, graphics programming, shaders, graphics processing unit (GPU) concepts, and Android rendering internals.
 
 Use simple English. Define each new graphics or math term at first use. Use short sentences. Explain one actual value through input → operation → output.
+At the end of every response, include a clearly labelled best-effort estimate of the remaining conversation context window in tokens. State that the number is approximate.
 
 Course file rules:
 - The master curriculum is a plan. Do not put full lessons into it.

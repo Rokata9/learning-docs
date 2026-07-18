@@ -49,3 +49,7 @@ Before delivery:
 - capture the initial state at `1920×1080` or larger;
 - capture at least one changed interactive state;
 - inspect for clipped labels, overlapping controls, unreadable text, and JavaScript errors.
+## Response context estimate
+
+At the end of every response, add a clearly labelled best-effort estimate of the remaining conversation context window in tokens, for example: `Estimated remaining context: ~120,000 tokens`; treat the number as approximate, not exact.
+

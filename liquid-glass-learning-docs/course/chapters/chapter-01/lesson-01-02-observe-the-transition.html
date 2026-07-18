@@ -1,0 +1,1514 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 1.2 — Observe the transition one state at a time</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #5c687a;
+      --line: #d8e0ea;
+      --paper: #ffffff;
+      --soft: #f5f7fb;
+      --green: #059669;
+      --green-soft: #ecfdf5;
+      --indigo: #4338ca;
+      --indigo-soft: #eef2ff;
+      --amber: #d97706;
+      --amber-soft: #fef3c7;
+      --pink: #be185d;
+      --pink-soft: #fce7f3;
+      --blue: #1e40af;
+      --blue-soft: #dbeafe;
+      --red: #dc2626;
+      --red-soft: #fee2e2;
+      --gray-soft: #f3f4f6;
+      --shadow: 0 18px 52px rgba(30, 41, 59, .09);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: linear-gradient(180deg, #f8fafc 0%, #edf2f7 100%);
+      font: 16px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    a { color: var(--blue); }
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .48; }
+    code, pre, .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    code { background: var(--indigo-soft); color: #312e81; padding: .12em .36em; border-radius: 6px; }
+
+    .page {
+      width: min(1820px, calc(100% - 64px));
+      margin: 0 auto;
+      padding: 28px 0 90px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 22px;
+    }
+
+    .crumbs { color: var(--muted); }
+    .lesson-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      border: 1px solid #a7f3d0;
+      color: #065f46;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(390px, .65fr);
+      gap: 28px;
+      padding: 42px;
+    }
+
+    .eyebrow {
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 850;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: .35rem 0 1rem;
+      font-size: clamp(44px, 4vw, 68px);
+      line-height: 1.03;
+      letter-spacing: -.045em;
+    }
+
+    h2 { margin: 0 0 .8rem; font-size: 30px; line-height: 1.18; letter-spacing: -.018em; }
+    h3 { margin: 0 0 .55rem; font-size: 21px; line-height: 1.25; }
+    p { max-width: 84ch; }
+    .lead { font-size: 19px; color: #3f4a5c; }
+
+    .goal-box {
+      align-self: stretch;
+      padding: 24px;
+      border-radius: 18px;
+      border: 1px solid #c7d2fe;
+      background: linear-gradient(145deg, #eef2ff, #f8fafc);
+    }
+    .goal-box ul { margin: .6rem 0 0; padding-left: 1.25rem; }
+
+    .section { margin-top: 24px; padding: 32px; }
+    .section-intro { display: flex; justify-content: space-between; gap: 24px; align-items: start; margin-bottom: 22px; }
+    .section-intro p { margin: 0; color: var(--muted); }
+    .section-number { color: var(--indigo); font-weight: 850; letter-spacing: .03em; }
+
+    .three-column { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .definition-card {
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fbfcfe;
+    }
+    .definition-card h3 { color: var(--indigo); }
+    .definition-card p:last-child { margin-bottom: 0; }
+    .definition-card .test { padding: 12px 14px; border-radius: 10px; background: var(--green-soft); color: #065f46; font-weight: 700; }
+
+    .warning {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      border-left: 5px solid var(--amber);
+      background: var(--amber-soft);
+      color: #78350f;
+    }
+
+    .timeline-strip {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .timeline-card {
+      position: relative;
+      min-height: 124px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #f8fafc;
+    }
+    .timeline-card:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -11px;
+      top: 44%;
+      z-index: 2;
+      color: var(--pink);
+      font-weight: 900;
+      font-size: 20px;
+    }
+    .timeline-card strong { display: block; color: var(--indigo); margin-bottom: 7px; }
+    .timeline-card span { color: var(--muted); font-size: 14px; }
+
+    .stage-lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.56fr) minmax(430px, .64fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .scene-card, .stage-inspector, .video-card, .worksheet-card, .preview-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fbfcfe;
+      overflow: hidden;
+    }
+
+    .scene-wrap { padding: 16px; background: #e8edf4; }
+    #transitionScene {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 14px;
+      background: white;
+      box-shadow: 0 9px 30px rgba(15, 23, 42, .14);
+    }
+    .scene-caption { padding: 14px 18px 18px; color: var(--muted); }
+
+    .stepper-controls {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 16px;
+      border-top: 1px solid var(--line);
+      background: white;
+    }
+    .step-dots { display: grid; grid-template-columns: repeat(8, minmax(48px, 1fr)); gap: 7px; }
+    .step-dot {
+      min-height: 44px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: white;
+      color: #475569;
+      font-weight: 850;
+    }
+    .step-dot[aria-current="step"] { background: var(--indigo); color: white; border-color: var(--indigo); box-shadow: 0 7px 16px rgba(67,56,202,.20); }
+    .nav-button, .primary-button, .secondary-button, .small-button {
+      min-height: 42px;
+      border-radius: 11px;
+      padding: 9px 14px;
+      font-weight: 800;
+    }
+    .nav-button, .secondary-button, .small-button { border: 1px solid #cbd5e1; background: white; color: #334155; }
+    .primary-button { border: 1px solid var(--blue); background: var(--blue); color: white; }
+    .small-button.selected { border-color: var(--indigo); background: var(--indigo-soft); color: #312e81; }
+
+    .lab-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 18px;
+      align-items: center;
+      padding: 14px 16px;
+      border-top: 1px solid var(--line);
+      background: #f8fafc;
+    }
+    .check-inline { display: inline-flex; align-items: center; gap: 8px; font-weight: 720; color: #334155; }
+    .focus-buttons { display: flex; gap: 7px; flex-wrap: wrap; }
+
+    .stage-inspector { padding: 24px; background: white; }
+    .stage-kicker { color: var(--green); font-weight: 850; text-transform: uppercase; letter-spacing: .07em; font-size: 13px; }
+    .stage-inspector h3 { margin-top: 7px; font-size: 27px; }
+    .stage-count { display: inline-flex; border-radius: 999px; padding: 5px 9px; background: var(--indigo-soft); color: #312e81; font-weight: 850; font-size: 13px; }
+    .stage-inspector dl { display: grid; gap: 10px; margin: 20px 0; }
+    .stage-inspector dl > div { padding-bottom: 10px; border-bottom: 1px solid #edf0f4; }
+    .stage-inspector dt { font-weight: 850; }
+    .stage-inspector dd { margin: 3px 0 0; color: var(--muted); }
+    .change-box { padding: 14px 16px; border-radius: 12px; background: var(--green-soft); border-left: 4px solid var(--green); color: #065f46; }
+    .model-note { padding: 14px 16px; background: var(--amber-soft); border-left: 4px solid var(--amber); border-radius: 10px; color: #78350f; }
+
+    .comparison-table { width: 100%; border-collapse: collapse; margin-top: 18px; }
+    .comparison-table th, .comparison-table td { text-align: left; vertical-align: top; padding: 13px 14px; border: 1px solid var(--line); }
+    .comparison-table th { background: #f8fafc; color: #334155; }
+    .comparison-table td:first-child { width: 190px; font-weight: 820; color: var(--indigo); }
+
+    .method-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+    .method-card { padding: 18px; border-radius: 15px; border: 1px solid var(--line); background: #fbfcfe; }
+    .method-card strong { display: block; color: var(--indigo); margin-bottom: 7px; }
+    .method-card p { margin: 0; color: var(--muted); }
+
+    .video-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(430px, .85fr); gap: 20px; }
+    .video-card { padding: 18px; background: #0f172a; color: #e2e8f0; }
+    .video-shell {
+      min-height: 360px;
+      display: grid;
+      place-items: center;
+      border: 1px dashed #64748b;
+      border-radius: 14px;
+      background: linear-gradient(145deg, #111827, #1e293b);
+      overflow: hidden;
+    }
+    #referenceVideo { display: none; width: 100%; max-height: 520px; background: black; }
+    .video-placeholder { max-width: 620px; padding: 30px; text-align: center; color: #cbd5e1; }
+    .video-controls { display: grid; gap: 12px; margin-top: 14px; }
+    .video-controls input[type="range"] { width: 100%; accent-color: #60a5fa; }
+    .video-button-row { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; }
+    .video-button { min-height: 40px; border-radius: 10px; border: 1px solid #64748b; background: #1e293b; color: #f8fafc; padding: 8px 12px; font-weight: 760; }
+    .time-readout { margin-left: auto; font: 750 14px/1.4 "SFMono-Regular", Consolas, monospace; color: #bfdbfe; }
+    .worksheet-card { padding: 22px; background: white; }
+    label { font-weight: 780; color: #334155; }
+    select, input[type="text"], textarea {
+      width: 100%;
+      padding: 12px 13px;
+      border: 1px solid #bdc7d5;
+      border-radius: 11px;
+      color: var(--ink);
+      background: white;
+    }
+    textarea { min-height: 105px; resize: vertical; }
+    .field { display: grid; gap: 6px; margin-top: 13px; }
+    .marker-list { display: grid; gap: 9px; margin-top: 15px; }
+    .marker {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: start;
+      padding: 11px 12px;
+      border-radius: 11px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+    }
+    .marker time { font: 800 13px/1.4 "SFMono-Regular", Consolas, monospace; color: var(--indigo); }
+    .marker p { margin: 0; color: var(--muted); }
+    .marker button { border: 0; background: transparent; color: var(--red); font-weight: 850; }
+
+    .classify-list { display: grid; gap: 12px; }
+    .classify-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: center;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fbfcfe;
+    }
+    .choice-group { display: flex; gap: 8px; }
+    .button-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .result-box { min-height: 46px; margin-top: 14px; padding: 12px 14px; border-radius: 11px; background: var(--gray-soft); color: var(--muted); }
+    .result-box.success { background: var(--green-soft); color: #065f46; border: 1px solid #a7f3d0; }
+    .result-box.error { background: var(--red-soft); color: #7f1d1d; border: 1px solid #fecaca; }
+
+    .challenge-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(420px, .72fr); gap: 20px; }
+    .code-editor {
+      width: 100%;
+      min-height: 330px;
+      padding: 18px;
+      border-radius: 14px;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: #e2e8f0;
+      font: 16px/1.55 "SFMono-Regular", Consolas, monospace;
+      tab-size: 4;
+    }
+    .preview-card { padding: 18px; background: #f8fafc; }
+    .mini-timeline { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; margin: 14px 0 18px; }
+    .mini-stage { min-height: 46px; border-radius: 9px; border: 1px solid #cbd5e1; background: white; display: grid; place-items: center; text-align: center; padding: 5px; font-size: 11px; font-weight: 820; color: #64748b; }
+    .mini-stage.active { border-color: var(--indigo); background: var(--indigo-soft); color: #312e81; }
+    #miniPreview { display: block; width: 100%; height: auto; border-radius: 13px; border: 1px solid var(--line); background: white; }
+
+    .evidence-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .evidence-card { padding: 20px; border-radius: 16px; border: 1px solid var(--line); background: #fbfcfe; }
+    .evidence-card.fact { border-left: 5px solid var(--green); }
+    .evidence-card.hypothesis { border-left: 5px solid var(--amber); }
+
+    details { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: #fbfcfe; }
+    details + details { margin-top: 10px; }
+    summary { cursor: pointer; font-weight: 800; color: var(--indigo); }
+
+    .exercise-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .exercise { padding: 20px; border-radius: 16px; border: 1px solid var(--line); background: #fbfcfe; }
+    .exercise textarea { min-height: 112px; }
+    .answer-area { margin-top: 18px; }
+
+    .record-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 20px; }
+    .checklist { display: grid; gap: 12px; }
+    .check-row { display: flex; gap: 10px; align-items: start; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: #fbfcfe; }
+    .record-output { min-height: 310px; font-size: 14px; }
+
+    .lesson-nav { margin-top: 24px; display: flex; justify-content: space-between; gap: 16px; align-items: center; padding: 20px 24px; }
+    .next-disabled { color: var(--muted); font-weight: 750; }
+    .inline-status { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 6px 10px; font-size: 13px; font-weight: 850; background: var(--gray-soft); color: #4b5563; }
+    .inline-status.good { background: var(--green-soft); color: #065f46; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+    @media (max-width: 1460px) {
+      .hero, .stage-lab, .video-grid, .challenge-grid, .record-grid { grid-template-columns: 1fr; }
+      .timeline-strip { grid-template-columns: repeat(4, minmax(150px, 1fr)); }
+      .method-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .stepper-controls { grid-template-columns: auto minmax(0, 1fr) auto; }
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="../../../liquid-glass-course.html">Course home</a>
+      · <a href="lesson-a-transparent-panel-is-not-yet-liquid-glass.html">Chapter 1</a>
+      · Lesson 1.2
+    </nav>
+    <span class="lesson-chip">Observation lesson · No Android setup required</span>
+  </div>
+
+  <header class="panel hero">
+    <div>
+      <div class="eyebrow">Chapter 1 · Lesson 1.2</div>
+      <h1>Observe the transition one state at a time</h1>
+      <p class="lead">A fast animation hides useful detail. This lesson slows the event down and gives each visible change a clear name.</p>
+      <p>You will not guess how Apple built the effect. You will first record what the screen actually shows. Those observations will later become acceptance criteria for the Android implementation.</p>
+    </div>
+    <aside class="goal-box">
+      <h2>Lesson goal</h2>
+      <p>After this lesson, you should be able to:</p>
+      <ul>
+        <li>separate a transition into useful observation stages;</li>
+        <li>compare one sampled state with the previous sampled state;</li>
+        <li>describe boundary, background, content, light, and shadow separately;</li>
+        <li>keep a visible fact separate from an implementation hypothesis.</li>
+      </ul>
+    </aside>
+  </header>
+
+  <section class="panel section" id="terms">
+    <div class="section-intro">
+      <div><div class="section-number">1 · Three terms</div><h2>Frame, transition, and stage</h2></div>
+      <p><strong>New graphics idea:</strong> a fast visual change can be inspected as ordered states.<br><strong>New math idea:</strong> none. We only use before and after.</p>
+    </div>
+
+    <div class="three-column">
+      <article class="definition-card">
+        <h3>Frame</h3>
+        <p>A frame is one complete image shown by the screen at one moment.</p>
+        <p class="test"><strong>Concrete test:</strong> pause a recording. The single paused image is one frame.</p>
+      </article>
+      <article class="definition-card">
+        <h3>Transition</h3>
+        <p>A transition is the sequence of visible changes between one stable state and another stable state.</p>
+        <p class="test"><strong>Concrete test:</strong> the control starts small and ends as a menu. Everything between those two states belongs to the transition.</p>
+      </article>
+      <article class="definition-card">
+        <h3>Stage</h3>
+        <p>A stage is a name that we give to a useful group of nearby frames. The name helps us study one purpose, such as press response or content reveal.</p>
+        <p class="test"><strong>Concrete test:</strong> several frames can all belong to the “middle expansion” stage.</p>
+      </article>
+    </div>
+
+    <div class="warning">
+      <strong>A stage is an analysis label.</strong> The real animation does not need to pause at a stage boundary. A smooth transition can still be divided into stages for study.
+    </div>
+
+    <div class="timeline-strip" aria-label="Eight observation stages">
+      <article class="timeline-card"><strong>1 · Rest</strong><span>The small control is stable.</span></article>
+      <article class="timeline-card"><strong>2 · Contact</strong><span>The finger reaches the control.</span></article>
+      <article class="timeline-card"><strong>3 · Press response</strong><span>The material compresses or brightens.</span></article>
+      <article class="timeline-card"><strong>4 · Early expansion</strong><span>The boundary starts growing from the source.</span></article>
+      <article class="timeline-card"><strong>5 · Middle expansion</strong><span>The moving material is neither a button nor a finished sheet.</span></article>
+      <article class="timeline-card"><strong>6 · Content reveal</strong><span>Menu rows begin to appear.</span></article>
+      <article class="timeline-card"><strong>7 · Settled sheet</strong><span>The menu reaches its stable result.</span></article>
+      <article class="timeline-card"><strong>8 · Closing</strong><span>The sequence reverses toward the source.</span></article>
+    </div>
+  </section>
+
+  <section class="panel section" id="stepper">
+    <div class="section-intro">
+      <div><div class="section-number">2 · Manual stepper</div><h2>Inspect one sampled state at a time</h2></div>
+      <p>Use <strong>Previous state</strong> and <strong>Next state</strong>. The optional slow playback comes after the manual controls.</p>
+    </div>
+
+    <div class="stage-lab">
+      <div class="scene-card">
+        <div class="scene-wrap">
+          <svg id="transitionScene" viewBox="0 0 1240 720" role="img" aria-labelledby="sceneTitle sceneDescription">
+            <title id="sceneTitle">A teaching model of a small overflow control expanding into a rounded menu</title>
+            <desc id="sceneDescription">A detailed page sits behind a translucent rounded shape. The shape changes across eight manually selected observation stages.</desc>
+            <defs>
+              <linearGradient id="pageBackground" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#eef2ff"/>
+                <stop offset=".48" stop-color="#f8fafc"/>
+                <stop offset="1" stop-color="#ecfdf5"/>
+              </linearGradient>
+              <linearGradient id="imageGradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#fb7185"/>
+                <stop offset=".48" stop-color="#fbbf24"/>
+                <stop offset="1" stop-color="#38bdf8"/>
+              </linearGradient>
+              <linearGradient id="glassTint" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#ffffff" stop-opacity=".56"/>
+                <stop offset=".48" stop-color="#e0f2fe" stop-opacity=".24"/>
+                <stop offset="1" stop-color="#ffffff" stop-opacity=".36"/>
+              </linearGradient>
+              <linearGradient id="rimGradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#ffffff" stop-opacity=".96"/>
+                <stop offset=".32" stop-color="#dbeafe" stop-opacity=".70"/>
+                <stop offset=".72" stop-color="#64748b" stop-opacity=".32"/>
+                <stop offset="1" stop-color="#ffffff" stop-opacity=".78"/>
+              </linearGradient>
+              <filter id="glassShadow" x="-35%" y="-35%" width="170%" height="190%">
+                <feDropShadow id="shadowNode" dx="0" dy="16" stdDeviation="18" flood-color="#0f172a" flood-opacity=".25"/>
+              </filter>
+              <filter id="backdropFilter" x="-20%" y="-20%" width="140%" height="140%">
+                <feTurbulence type="fractalNoise" baseFrequency=".010 .016" numOctaves="1" seed="23" result="noise"/>
+                <feDisplacementMap id="displacementNode" in="SourceGraphic" in2="noise" scale="5" xChannelSelector="R" yChannelSelector="G" result="shifted"/>
+                <feGaussianBlur id="blurNode" in="shifted" stdDeviation=".6" result="softened"/>
+                <feColorMatrix in="softened" type="saturate" values="1.08"/>
+              </filter>
+              <clipPath id="glassClip"><rect id="glassClipRect" x="1050" y="92" width="86" height="86" rx="43"/></clipPath>
+              <clipPath id="contentClip"><rect id="contentClipRect" x="1050" y="92" width="86" height="86" rx="43"/></clipPath>
+
+              <g id="sceneArtwork">
+                <rect x="0" y="0" width="1240" height="720" fill="url(#pageBackground)"/>
+                <rect x="0" y="0" width="1240" height="78" fill="#ffffff" opacity=".95"/>
+                <line x1="0" y1="78" x2="1240" y2="78" stroke="#cbd5e1" stroke-width="2"/>
+                <circle cx="38" cy="39" r="9" fill="#fb7185"/>
+                <circle cx="66" cy="39" r="9" fill="#fbbf24"/>
+                <circle cx="94" cy="39" r="9" fill="#34d399"/>
+                <rect x="204" y="20" width="742" height="38" rx="19" fill="#eef2f7"/>
+                <text x="238" y="46" font-size="17" font-family="system-ui, sans-serif" fill="#64748b">A detailed page makes movement and distortion visible</text>
+
+                <text x="72" y="150" font-size="42" font-weight="850" font-family="system-ui, sans-serif" fill="#172033">A calm page behind moving glass</text>
+                <text x="74" y="188" font-size="20" font-family="system-ui, sans-serif" fill="#64748b">Sharp text, straight rules, and strong colors act as measuring marks.</text>
+
+                <rect x="72" y="236" width="520" height="188" rx="28" fill="#ffffff" stroke="#d8e0ea" stroke-width="2"/>
+                <circle cx="146" cy="304" r="42" fill="#a7f3d0"/>
+                <rect x="214" y="270" width="300" height="18" rx="9" fill="#4338ca" opacity=".86"/>
+                <rect x="214" y="306" width="250" height="12" rx="6" fill="#94a3b8"/>
+                <rect x="214" y="334" width="320" height="12" rx="6" fill="#cbd5e1"/>
+                <rect x="110" y="382" width="420" height="12" rx="6" fill="#cbd5e1"/>
+
+                <rect x="624" y="224" width="520" height="278" rx="34" fill="url(#imageGradient)"/>
+                <circle cx="760" cy="346" r="84" fill="#ffffff" opacity=".36"/>
+                <path d="M632 452 C754 330 848 538 1140 280" fill="none" stroke="#ffffff" stroke-width="20" opacity=".56"/>
+                <path d="M622 388 C790 226 970 566 1146 340" fill="none" stroke="#1e40af" stroke-width="9" opacity=".76"/>
+
+                <g opacity=".88">
+                  <line x1="708" y1="88" x2="708" y2="642" stroke="#1e40af" stroke-width="5"/>
+                  <line x1="792" y1="88" x2="792" y2="642" stroke="#059669" stroke-width="4"/>
+                  <line x1="876" y1="88" x2="876" y2="642" stroke="#d97706" stroke-width="5"/>
+                  <line x1="960" y1="88" x2="960" y2="642" stroke="#be185d" stroke-width="4"/>
+                  <line x1="1044" y1="88" x2="1044" y2="642" stroke="#1e40af" stroke-width="5"/>
+                  <line x1="1128" y1="88" x2="1128" y2="642" stroke="#059669" stroke-width="4"/>
+                  <line x1="662" y1="150" x2="1178" y2="150" stroke="#334155" stroke-width="4"/>
+                  <line x1="662" y1="244" x2="1178" y2="244" stroke="#334155" stroke-width="4"/>
+                  <line x1="662" y1="338" x2="1178" y2="338" stroke="#334155" stroke-width="4"/>
+                  <line x1="662" y1="432" x2="1178" y2="432" stroke="#334155" stroke-width="4"/>
+                  <line x1="662" y1="526" x2="1178" y2="526" stroke="#334155" stroke-width="4"/>
+                  <line x1="662" y1="620" x2="1178" y2="620" stroke="#334155" stroke-width="4"/>
+                </g>
+
+                <rect x="72" y="466" width="520" height="176" rx="28" fill="#ffffff" stroke="#d8e0ea" stroke-width="2"/>
+                <rect x="110" y="506" width="164" height="96" rx="18" fill="#dbeafe"/>
+                <rect x="306" y="506" width="238" height="18" rx="9" fill="#059669" opacity=".8"/>
+                <rect x="306" y="542" width="198" height="12" rx="6" fill="#94a3b8"/>
+                <rect x="306" y="570" width="224" height="12" rx="6" fill="#cbd5e1"/>
+              </g>
+            </defs>
+
+            <g id="backgroundLayer"><use href="#sceneArtwork"/></g>
+
+            <g id="previousBoundaryLayer" opacity="0">
+              <rect id="previousBoundary" x="1050" y="92" width="86" height="86" rx="43" fill="none" stroke="#d97706" stroke-width="5" stroke-dasharray="14 10"/>
+              <text id="previousBoundaryLabel" x="1136" y="82" text-anchor="end" font-size="17" font-weight="850" font-family="system-ui, sans-serif" fill="#92400e">previous sampled boundary</text>
+            </g>
+
+            <g id="shadowLayer">
+              <rect id="glassShadowShape" x="1050" y="92" width="86" height="86" rx="43" fill="#ffffff" fill-opacity=".02" filter="url(#glassShadow)"/>
+            </g>
+
+            <g id="backdropLayer" clip-path="url(#glassClip)">
+              <use id="glassSample" href="#sceneArtwork" filter="url(#backdropFilter)"/>
+            </g>
+
+            <g id="materialLayer">
+              <rect id="glassTintShape" x="1050" y="92" width="86" height="86" rx="43" fill="url(#glassTint)" opacity=".72"/>
+            </g>
+
+            <g id="boundaryLayer">
+              <rect id="glassRimShape" x="1050" y="92" width="86" height="86" rx="43" fill="none" stroke="url(#rimGradient)" stroke-width="3"/>
+              <path id="specularPath" d="M1093 95 C1110 95 1128 103 1133 120" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity=".54"/>
+            </g>
+
+            <g id="contentLayer" clip-path="url(#contentClip)">
+              <g id="menuRows" opacity="0">
+                <g id="menuRowsPosition">
+                  <text x="0" y="0" font-size="20" font-weight="850" font-family="system-ui, sans-serif" fill="#172033">Page actions</text>
+                  <line x1="0" y1="26" x2="330" y2="26" stroke="#64748b" stroke-opacity=".22" stroke-width="2"/>
+                  <g transform="translate(0 62)">
+                    <circle cx="18" cy="0" r="14" fill="#dbeafe"/>
+                    <text x="48" y="7" font-size="21" font-family="system-ui, sans-serif" fill="#172033">Find on page</text>
+                  </g>
+                  <g transform="translate(0 126)">
+                    <circle cx="18" cy="0" r="14" fill="#dcfce7"/>
+                    <text x="48" y="7" font-size="21" font-family="system-ui, sans-serif" fill="#172033">Add bookmark</text>
+                  </g>
+                  <g transform="translate(0 190)">
+                    <circle cx="18" cy="0" r="14" fill="#fef3c7"/>
+                    <text x="48" y="7" font-size="21" font-family="system-ui, sans-serif" fill="#172033">Share page</text>
+                  </g>
+                  <g transform="translate(0 254)">
+                    <circle cx="18" cy="0" r="14" fill="#fce7f3"/>
+                    <text x="48" y="7" font-size="21" font-family="system-ui, sans-serif" fill="#172033">Page settings</text>
+                  </g>
+                </g>
+              </g>
+
+              <g id="overflowDots" opacity="1">
+                <circle cx="1075" cy="135" r="5.8" fill="#172033"/>
+                <circle cx="1093" cy="135" r="5.8" fill="#172033"/>
+                <circle cx="1111" cy="135" r="5.8" fill="#172033"/>
+              </g>
+            </g>
+
+            <g id="touchLayer" opacity="0">
+              <circle id="touchHalo" cx="1093" cy="135" r="54" fill="#ffffff" fill-opacity=".18" stroke="#ffffff" stroke-opacity=".68" stroke-width="3"/>
+              <circle id="touchPoint" cx="1093" cy="135" r="11" fill="#be185d"/>
+            </g>
+
+            <g id="anchorGuideLayer" opacity=".72">
+              <line x1="1136" y1="80" x2="1136" y2="610" stroke="#1e40af" stroke-width="2" stroke-dasharray="9 9"/>
+              <text x="1124" y="108" text-anchor="end" font-size="15" font-family="system-ui, sans-serif" fill="#1e40af">source-side guide</text>
+            </g>
+          </svg>
+        </div>
+        <div class="scene-caption" id="sceneCaption">Stage 1 shows the stable small control. The vertical guide lets you see which side remains near the source as the shape grows.</div>
+
+        <div class="stepper-controls">
+          <button class="nav-button" id="previousStage">← Previous state</button>
+          <div class="step-dots" id="stepDots" aria-label="Choose a sampled transition state"></div>
+          <button class="nav-button" id="nextStage">Next state →</button>
+        </div>
+        <div class="lab-options">
+          <button class="secondary-button" id="playStages">Play stages slowly</button>
+          <button class="secondary-button" id="resetStage">Reset to rest</button>
+          <label class="check-inline"><input type="checkbox" id="showPrevious"> Show the previous sampled boundary</label>
+          <label class="check-inline"><input type="checkbox" id="reduceMotion"> Change states without animated movement</label>
+          <div class="focus-buttons" aria-label="Focus the scene on one observation category">
+            <span><strong>Focus:</strong></span>
+            <button class="small-button selected" data-focus="all">All</button>
+            <button class="small-button" data-focus="boundary">Boundary</button>
+            <button class="small-button" data-focus="background">Background</button>
+            <button class="small-button" data-focus="content">Content</button>
+            <button class="small-button" data-focus="light">Light and shadow</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="stage-inspector">
+        <div class="stage-kicker">Current sampled state</div>
+        <h3 id="stageTitle">Rest</h3>
+        <span class="stage-count" id="stageCount">State 1 of 8</span>
+        <p id="stageSummary">The small control is stable. No touch response is visible.</p>
+        <dl>
+          <div><dt>Input or event</dt><dd id="stageEvent">No touch input is visible.</dd></div>
+          <div><dt>Boundary</dt><dd id="stageBoundary">A small circular boundary surrounds the three dots.</dd></div>
+          <div><dt>Background detail</dt><dd id="stageBackground">Straight lines remain easy to inspect behind the surface.</dd></div>
+          <div><dt>Menu content</dt><dd id="stageContent">Menu rows are hidden.</dd></div>
+          <div><dt>Light and shadow</dt><dd id="stageLight">A mild rim and a compact shadow separate the control from the page.</dd></div>
+        </dl>
+        <div class="change-box"><strong>Change from the previous sampled state:</strong><br><span id="stageChange">There is no previous state. This is the baseline.</span></div>
+        <p class="model-note"><strong>Browser teaching model:</strong> this SVG uses an invented backdrop distortion, tint, rim, and shadow. It demonstrates what to inspect. It does not reveal Apple’s private geometry, timing, shader, spring, or layer architecture.</p>
+      </aside>
+    </div>
+
+    <table class="comparison-table" aria-label="Previous and current sampled state comparison">
+      <thead><tr><th>Observation category</th><th id="previousColumnTitle">Previous: none</th><th id="currentColumnTitle">Current: Rest</th></tr></thead>
+      <tbody>
+        <tr><td>Boundary</td><td id="comparePreviousBoundary">No earlier sample.</td><td id="compareCurrentBoundary">Small circular boundary.</td></tr>
+        <tr><td>Background detail</td><td id="comparePreviousBackground">No earlier sample.</td><td id="compareCurrentBackground">Mostly sharp and stable.</td></tr>
+        <tr><td>Menu content</td><td id="comparePreviousContent">No earlier sample.</td><td id="compareCurrentContent">Hidden.</td></tr>
+        <tr><td>Light and shadow</td><td id="comparePreviousLight">No earlier sample.</td><td id="compareCurrentLight">Mild rim and compact shadow.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="panel section" id="method">
+    <div class="section-intro">
+      <div><div class="section-number">3 · Observation method</div><h2>Run five separate passes</h2></div>
+      <p>Do not try to notice everything at once. Rewatch the same transition for one category at a time.</p>
+    </div>
+    <div class="method-grid">
+      <article class="method-card"><strong>Pass 1 · Boundary</strong><p>Watch only the outside edge. Record which edges move and which edge stays near the source control.</p></article>
+      <article class="method-card"><strong>Pass 2 · Background</strong><p>Watch one sharp line behind the material. Record whether the line stays sharp, softens, shifts, or bends.</p></article>
+      <article class="method-card"><strong>Pass 3 · Content</strong><p>Watch icons and menu rows. Record when each item first becomes visible and when it becomes stable.</p></article>
+      <article class="method-card"><strong>Pass 4 · Light and shadow</strong><p>Watch bright edges and dark regions. Record whether their position or strength changes.</p></article>
+      <article class="method-card"><strong>Pass 5 · Order</strong><p>Record the order of events. Do not assume two changes start at the same moment unless the frames support that claim.</p></article>
+    </div>
+    <div class="warning"><strong>Real-world pressure test:</strong> a recreation can look correct at rest and after settling while looking wrong during expansion. The middle samples therefore need their own acceptance criteria.</div>
+  </section>
+
+  <section class="panel section" id="reference-clip">
+    <div class="section-intro">
+      <div><div class="section-number">4 · Optional real recording</div><h2>Load a local clip and nudge through time</h2></div>
+      <p>This tool uses a video file that stays on your computer. Use a recording you captured or are allowed to study.</p>
+    </div>
+
+    <div class="video-grid">
+      <div class="video-card">
+        <div class="video-shell">
+          <video id="referenceVideo" controls preload="metadata"></video>
+          <div class="video-placeholder" id="videoPlaceholder">
+            <h3>Optional reference clip</h3>
+            <p>Select an MP4 or another format that your browser can decode. The browser does not upload the file.</p>
+            <input id="videoFile" type="file" accept="video/*">
+          </div>
+        </div>
+        <div class="video-controls">
+          <input id="videoScrubber" type="range" min="0" max="1000" value="0" step="1" disabled aria-label="Video time">
+          <div class="video-button-row">
+            <button class="video-button" id="backOneFrame" disabled>− about 1/60 second</button>
+            <button class="video-button" id="forwardOneFrame" disabled>+ about 1/60 second</button>
+            <button class="video-button" id="pauseVideo" disabled>Pause</button>
+            <span class="time-readout" id="videoTime">00:00.000 / 00:00.000</span>
+          </div>
+        </div>
+        <p style="color:#cbd5e1;margin-bottom:0"><strong>Why “about” 1/60 second?</strong> The buttons move the playback time by 0.0167 seconds. A video file may use a different frame rate or variable frame timing, so this is not guaranteed to land on exactly one encoded frame.</p>
+      </div>
+
+      <aside class="worksheet-card">
+        <h3>Mark one visible observation</h3>
+        <div class="field"><label for="markerStage">Stage name</label><select id="markerStage"></select></div>
+        <div class="field"><label for="markerCategory">Observation category</label>
+          <select id="markerCategory">
+            <option>Boundary</option><option>Background detail</option><option>Menu content</option><option>Light and shadow</option><option>Event order</option>
+          </select>
+        </div>
+        <div class="field"><label for="markerNote">Visible fact</label><textarea id="markerNote" placeholder="Example: The left edge moves away from the source while the right edge stays near the vertical guide."></textarea></div>
+        <div class="button-row">
+          <button class="primary-button" id="addMarker">Add observation at current time</button>
+          <button class="secondary-button" id="copyMarkers">Copy observation log</button>
+        </div>
+        <div class="result-box" id="markerResult">You can use this worksheet with the built-in model even when no video is loaded.</div>
+        <div class="marker-list" id="markerList"></div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="panel section" id="classify">
+    <div class="section-intro">
+      <div><div class="section-number">5 · Observation check</div><h2>Visible fact or implementation hypothesis?</h2></div>
+      <p>A visible fact names a change that can be pointed to in sampled frames. An implementation hypothesis names software that might have produced it.</p>
+    </div>
+    <div class="classify-list" id="classifyList">
+      <div class="classify-row" data-answer="fact"><span>Between the early and middle expansion samples, the boundary becomes wider and taller.</span><div class="choice-group"><button class="small-button" data-choice="fact">Visible fact</button><button class="small-button" data-choice="hypothesis">Implementation hypothesis</button></div></div>
+      <div class="classify-row" data-answer="hypothesis"><span>The app uses a spring with a damping ratio of 0.8.</span><div class="choice-group"><button class="small-button" data-choice="fact">Visible fact</button><button class="small-button" data-choice="hypothesis">Implementation hypothesis</button></div></div>
+      <div class="classify-row" data-answer="fact"><span>In this teaching model, the menu rows start appearing after the boundary has already expanded.</span><div class="choice-group"><button class="small-button" data-choice="fact">Visible fact</button><button class="small-button" data-choice="hypothesis">Implementation hypothesis</button></div></div>
+      <div class="classify-row" data-answer="hypothesis"><span>A fragment shader reads background pixels from displaced coordinates.</span><div class="choice-group"><button class="small-button" data-choice="fact">Visible fact</button><button class="small-button" data-choice="hypothesis">Implementation hypothesis</button></div></div>
+      <div class="classify-row" data-answer="fact"><span>The source-side edge stays near the blue guide while the left and bottom edges move farther away.</span><div class="choice-group"><button class="small-button" data-choice="fact">Visible fact</button><button class="small-button" data-choice="hypothesis">Implementation hypothesis</button></div></div>
+    </div>
+    <div class="button-row"><button class="primary-button" id="checkClassify">Check labels</button><button class="secondary-button" id="resetClassify">Reset</button></div>
+    <div class="result-box" id="classifyResult">No answers checked yet.</div>
+  </section>
+
+  <section class="panel section" id="coding-challenge">
+    <div class="section-intro">
+      <div><div class="section-number">6 · Coding challenge</div><h2>Represent the middle sample without revealing menu rows</h2></div>
+      <p>This is an isolated Kotlin teaching fragment. It is not yet an Android project file.</p>
+    </div>
+
+    <div class="challenge-grid">
+      <div>
+        <p>The code currently describes the later <code>CONTENT_REVEAL</code> stage. Change exactly two assigned values so that the object describes <code>MIDDLE_EXPANSION</code> before the menu rows appear.</p>
+        <textarea class="code-editor" id="codeEditor" spellcheck="false">enum class MenuStage {
+    REST,
+    PRESS_RESPONSE,
+    EARLY_EXPANSION,
+    MIDDLE_EXPANSION,
+    CONTENT_REVEAL,
+    SETTLED,
+    CLOSING,
+}
+
+data class ObservationFrame(
+    val stage: MenuStage,
+    val menuRowsVisible: Boolean,
+)
+
+val inspectedFrame = ObservationFrame(
+    stage = MenuStage.CONTENT_REVEAL,
+    menuRowsVisible = true,
+)</textarea>
+        <div class="button-row"><button class="primary-button" id="checkCode">Check code</button><button class="secondary-button" id="resetCode">Reset code</button></div>
+        <div class="result-box" id="codeResult">The preview currently represents content reveal, so the rows are visible.</div>
+        <details style="margin-top:14px"><summary>Show the reference answer</summary><pre><code>val inspectedFrame = ObservationFrame(
+    stage = MenuStage.MIDDLE_EXPANSION,
+    menuRowsVisible = false,
+)</code></pre><p>The stage name identifies the sampled part of the sequence. The Boolean value <code>false</code> records the visible fact that the menu rows have not appeared yet.</p></details>
+      </div>
+
+      <aside class="preview-card">
+        <h3>Code-driven teaching preview</h3>
+        <div class="mini-timeline" id="miniTimeline"></div>
+        <svg id="miniPreview" viewBox="0 0 560 320" role="img" aria-label="A compact menu preview controlled by the Kotlin-like values in the editor">
+          <defs>
+            <linearGradient id="miniBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dbeafe"/><stop offset=".5" stop-color="#fef3c7"/><stop offset="1" stop-color="#dcfce7"/></linearGradient>
+          </defs>
+          <rect x="0" y="0" width="560" height="320" fill="url(#miniBg)"/>
+          <line x1="30" y1="72" x2="530" y2="72" stroke="#1e40af" stroke-width="8"/>
+          <line x1="30" y1="160" x2="530" y2="160" stroke="#059669" stroke-width="8"/>
+          <line x1="30" y1="248" x2="530" y2="248" stroke="#be185d" stroke-width="8"/>
+          <rect x="178" y="28" width="330" height="262" rx="36" fill="#ffffff" fill-opacity=".66" stroke="#ffffff" stroke-width="4"/>
+          <g id="miniRows" opacity="1" transform="translate(218 94)">
+            <rect x="0" y="0" width="245" height="34" rx="12" fill="#ffffff" fill-opacity=".8"/>
+            <rect x="0" y="58" width="245" height="34" rx="12" fill="#ffffff" fill-opacity=".8"/>
+            <rect x="0" y="116" width="245" height="34" rx="12" fill="#ffffff" fill-opacity=".8"/>
+          </g>
+          <text id="miniStageLabel" x="204" y="272" font-size="17" font-weight="850" font-family="system-ui, sans-serif" fill="#172033">CONTENT_REVEAL · rows visible</text>
+        </svg>
+        <p id="miniPreviewText"><strong>Input:</strong> <code>CONTENT_REVEAL</code> and <code>true</code>.<br><strong>Operation:</strong> the browser reads those two assigned values.<br><strong>Output:</strong> the timeline selects content reveal and the preview shows menu rows.</p>
+        <p class="model-note"><strong>Evidence limit:</strong> this browser parser only demonstrates a data model. It does not compile Kotlin and does not show Android rendering.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="panel section" id="evidence">
+    <div class="section-intro">
+      <div><div class="section-number">7 · Evidence boundary</div><h2>What this lesson proves and what it does not prove</h2></div>
+      <p>Observation gives strong acceptance criteria. Observation does not expose private source code.</p>
+    </div>
+    <div class="evidence-grid">
+      <article class="evidence-card fact">
+        <h3>Supported by visible evidence</h3>
+        <p>You can compare the size and position of the boundary. You can record when menu rows appear. You can track one background line. You can compare edge brightness and shadow strength.</p>
+      </article>
+      <article class="evidence-card hypothesis">
+        <h3>Not proven by visible evidence alone</h3>
+        <p>You cannot name the exact spring constants, shader code, number of render layers, sampling texture, blur kernel, or internal coordinate system merely by watching the animation.</p>
+      </article>
+    </div>
+    <p class="warning"><strong>What evidence would reduce the uncertainty?</strong> Official implementation documentation, framework source code, private application source code, graphics traces, performance captures, or controlled measurements could support a stronger claim. The unknown does not block the Android design. Our implementation can target the visible behavior and then be measured on the Pixel 8 Pro.</p>
+  </section>
+
+  <section class="panel section" id="android">
+    <div class="section-intro">
+      <div><div class="section-number">8 · Android connection</div><h2>No Android source change in Lesson 1.2</h2></div>
+      <p>The first Android project is created in Lesson 1.3.</p>
+    </div>
+    <div class="evidence-grid">
+      <article class="evidence-card fact"><h3>Why we are not coding the menu yet</h3><p>The transition depends on shapes, coordinates, backdrop pixels, refraction, lighting, and motion. Those concepts are taught later. Starting with the final menu would hide the reason behind most lines of code.</p></article>
+      <article class="evidence-card hypothesis"><h3>What this observation work becomes later</h3><p>The stage notes become visual acceptance criteria. For example: “During middle expansion, the container is larger, the source-side edge remains anchored, and the menu rows are still hidden.” Later code must satisfy that statement.</p></article>
+    </div>
+  </section>
+
+  <section class="panel section" id="exercises">
+    <div class="section-intro">
+      <div><div class="section-number">9 · Final exercises</div><h2>Answer in chat before opening the solutions</h2></div>
+      <p>Exercise 2 targets the most common misunderstanding in this lesson.</p>
+    </div>
+
+    <div class="exercise-grid">
+      <article class="exercise"><h3>Exercise 1</h3><p>What is the difference between one frame and one stage?</p><textarea id="answer1" placeholder="Your answer..."></textarea></article>
+      <article class="exercise"><h3>Exercise 2 · Diagnostic</h3><p>Does naming a “middle expansion” stage mean that the real animation pauses there? Explain why or why not.</p><textarea id="answer2" placeholder="Your answer..."></textarea></article>
+      <article class="exercise"><h3>Exercise 3</h3><p>At one sampled moment, the boundary is larger than the source control and the menu rows are still hidden. Write one visible fact and one implementation hypothesis about that moment.</p><textarea id="answer3" placeholder="Your answer..."></textarea></article>
+      <article class="exercise"><h3>Exercise 4</h3><p>A straight background line appears bent near the moving boundary. What can you claim with confidence? What additional evidence would you need before claiming that an AGSL shader caused the bend?</p><textarea id="answer4" placeholder="Your answer..."></textarea></article>
+    </div>
+    <div class="button-row"><button class="primary-button" id="copyAnswers">Copy my answers for chat</button></div>
+    <div class="result-box" id="answersResult">Write all four answers before copying.</div>
+
+    <div class="answer-area">
+      <details><summary>Answer 1</summary><p>A frame is one complete image at one moment. A stage is a human-chosen label for a useful group of nearby frames that share a visible purpose.</p></details>
+      <details><summary>Answer 2</summary><p>No. The stage is an analysis label. A smooth animation can pass continuously through the frames that we call middle expansion without stopping.</p></details>
+      <details><summary>Answer 3</summary><p><strong>Visible fact:</strong> the boundary is larger than the source control and the rows are hidden. <strong>Implementation hypothesis:</strong> the software may delay the row opacity animation until enough space exists. The second statement needs code, tracing, or measurement to prove.</p></details>
+      <details><summary>Answer 4</summary><p>You can claim that the line’s visible position or shape differs near the boundary. You cannot identify AGSL from the pixels alone. Stronger evidence would include source code, a graphics trace that shows a runtime shader, official documentation, or a controlled experiment that isolates the effect.</p></details>
+    </div>
+  </section>
+
+  <section class="panel section" id="record">
+    <div class="section-intro">
+      <div><div class="section-number">10 · Completion record</div><h2>Prepare the handoff for Lesson 1.3</h2></div>
+      <span class="inline-status" id="completionBadge">Lesson in progress</span>
+    </div>
+
+    <div class="record-grid">
+      <div class="checklist">
+        <label class="check-row"><input type="checkbox" id="checkStepper"> <span>I inspected all eight sampled states with the manual stepper.</span></label>
+        <label class="check-row"><input type="checkbox" id="checkPrevious"> <span>I used the previous-boundary overlay on at least two stages.</span></label>
+        <label class="check-row"><input type="checkbox" id="checkClassification"> <span>I completed the visible fact versus implementation hypothesis check.</span></label>
+        <label class="check-row"><input type="checkbox" id="checkCoding"> <span>I completed the Kotlin data-model challenge.</span></label>
+        <label class="check-row"><input type="checkbox" id="checkExercises"> <span>I answered all four exercises without opening the hidden answers first.</span></label>
+        <label class="check-row"><input type="checkbox" id="checkQuestions"> <span>I recorded any unclear wording or visual behavior below.</span></label>
+        <div class="field"><label for="remainingQuestions">Remaining questions or “none”</label><textarea id="remainingQuestions" placeholder="Write questions, confusing terms, visual problems, or none."></textarea></div>
+      </div>
+      <div>
+        <textarea class="record-output mono" id="recordOutput" readonly></textarea>
+        <div class="button-row"><button class="primary-button" id="copyRecord">Copy lesson record</button><button class="secondary-button" id="refreshRecord">Refresh record</button></div>
+        <div class="result-box" id="recordResult">The record updates from the checklist.</div>
+      </div>
+    </div>
+  </section>
+
+  <nav class="panel lesson-nav" aria-label="Lesson navigation">
+    <a href="lesson-01-01-visible-ingredients.html">← Lesson 1.1 · Visible ingredients</a>
+    <a href="lesson-a-transparent-panel-is-not-yet-liquid-glass.html">Chapter 1 hub</a>
+    <span class="next-disabled">Next: Lesson 1.3 · Create the Android project</span>
+  </nav>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  const STATES = [
+    {
+      id: 'rest', short: 'Rest', title: 'Rest',
+      x: 1050, y: 92, w: 86, h: 86, rx: 43,
+      sampleScale: 1.004, displacement: 2, blur: .35, tint: .58, rim: .65, highlight: .48, shadow: .20, shadowBlur: 11, shadowY: 8,
+      dots: 1, rows: 0, touch: 0,
+      summary: 'The small control is stable. No touch response is visible.',
+      event: 'No touch input is visible.',
+      boundary: 'A small circular boundary surrounds the three dots.',
+      background: 'Straight lines remain mostly sharp and stable behind the surface.',
+      content: 'Menu rows are hidden.',
+      light: 'A mild rim and a compact shadow separate the control from the page.',
+      change: 'There is no previous state. This is the baseline.',
+      caption: 'Stage 1 shows the stable small control. The vertical guide lets you see which side remains near the source as the shape grows.',
+      compareBoundary: 'Small circular boundary.', compareBackground: 'Mostly sharp and stable.', compareContent: 'Hidden.', compareLight: 'Mild rim and compact shadow.'
+    },
+    {
+      id: 'contact', short: 'Contact', title: 'Initial finger contact',
+      x: 1050, y: 92, w: 86, h: 86, rx: 43,
+      sampleScale: 1.006, displacement: 3, blur: .45, tint: .62, rim: .75, highlight: .62, shadow: .18, shadowBlur: 10, shadowY: 7,
+      dots: 1, rows: 0, touch: .76,
+      summary: 'The contact point appears before the main shape change.',
+      event: 'The pointer reaches the control.',
+      boundary: 'The outside boundary has not changed size yet.',
+      background: 'The same sharp lines remain visible through the small surface.',
+      content: 'Menu rows remain hidden.',
+      light: 'A local bright response starts near the contact point.',
+      change: 'A visible contact cue appears. The boundary remains the same size.',
+      caption: 'Stage 2 separates finger contact from geometry change. That separation may be only a few real frames.',
+      compareBoundary: 'Same small circular boundary.', compareBackground: 'Mostly sharp and stable.', compareContent: 'Hidden.', compareLight: 'Local contact highlight begins.'
+    },
+    {
+      id: 'press', short: 'Press', title: 'Press response',
+      x: 1056, y: 98, w: 74, h: 74, rx: 37,
+      sampleScale: 1.012, displacement: 6, blur: .60, tint: .68, rim: .90, highlight: .88, shadow: .13, shadowBlur: 8, shadowY: 5,
+      dots: 1, rows: 0, touch: 1,
+      summary: 'The material compresses and brightens around the contact.',
+      event: 'The press is held.',
+      boundary: 'The circle becomes slightly smaller around the same source area.',
+      background: 'The line positions change only slightly inside the compressed surface.',
+      content: 'Menu rows remain hidden.',
+      light: 'The contact highlight is stronger while the shadow becomes tighter.',
+      change: 'The boundary compresses. The local highlight becomes stronger.',
+      caption: 'Stage 3 isolates press feedback. Compression and illumination can be observed separately from menu expansion.',
+      compareBoundary: 'Slightly compressed circle.', compareBackground: 'Small local shift.', compareContent: 'Hidden.', compareLight: 'Strong contact highlight and tighter shadow.'
+    },
+    {
+      id: 'early', short: 'Early', title: 'Early expansion',
+      x: 930, y: 92, w: 206, h: 132, rx: 44,
+      sampleScale: 1.018, displacement: 10, blur: .85, tint: .72, rim: .94, highlight: .82, shadow: .21, shadowBlur: 14, shadowY: 11,
+      dots: .62, rows: 0, touch: .46,
+      summary: 'The boundary begins growing leftward and downward from the source area.',
+      event: 'The expansion begins after the press response.',
+      boundary: 'The right edge stays near the guide while the left and bottom edges move outward.',
+      background: 'Straight lines begin to look shifted inside the growing surface.',
+      content: 'Menu rows remain hidden.',
+      light: 'The rim spreads over a larger boundary and the shadow begins to deepen.',
+      change: 'The material changes from a compressed circle into a wider rounded form.',
+      caption: 'Stage 4 makes source anchoring visible. The source-side edge stays close to the guide while most growth travels left and down.',
+      compareBoundary: 'Wider rounded form, still close to the source edge.', compareBackground: 'Visible local shifting begins.', compareContent: 'Hidden.', compareLight: 'Rim spreads; shadow grows.'
+    },
+    {
+      id: 'middle', short: 'Middle', title: 'Middle expansion',
+      x: 760, y: 92, w: 376, h: 288, rx: 38,
+      sampleScale: 1.032, displacement: 18, blur: 1.25, tint: .76, rim: 1, highlight: .96, shadow: .30, shadowBlur: 20, shadowY: 17,
+      dots: .16, rows: 0, touch: .12,
+      summary: 'The material is no longer a small button and is not yet a settled menu.',
+      event: 'Expansion continues.',
+      boundary: 'The left and bottom edges travel farther while the source-side edge remains near the guide.',
+      background: 'The line pattern is visibly shifted and softened inside the moving shape.',
+      content: 'Menu rows are still hidden in this sample.',
+      light: 'The bright rim and the deeper shadow make the moving surface appear thicker.',
+      change: 'The surface becomes much larger, but content reveal has not started.',
+      caption: 'Stage 5 is the important middle sample. Start and end states can both look correct while this state still looks wrong.',
+      compareBoundary: 'Large intermediate rounded shape.', compareBackground: 'Stronger shift and softening.', compareContent: 'Still hidden.', compareLight: 'Bright rim and deeper, wider shadow.'
+    },
+    {
+      id: 'reveal', short: 'Reveal', title: 'Menu-content reveal',
+      x: 740, y: 92, w: 396, h: 430, rx: 36,
+      sampleScale: 1.026, displacement: 14, blur: 1.55, tint: .80, rim: .96, highlight: .82, shadow: .32, shadowBlur: 22, shadowY: 19,
+      dots: 0, rows: .72, touch: 0,
+      summary: 'The container already has useful space, so menu rows begin to appear.',
+      event: 'The boundary continues settling while content reveal starts.',
+      boundary: 'The sheet becomes taller and approaches its final width.',
+      background: 'The backdrop remains softened and shifted inside the sheet.',
+      content: 'Menu rows fade into view after the container has expanded.',
+      light: 'The strongest traveling highlight begins to calm.',
+      change: 'Menu content becomes visible. The boundary had already grown before this event.',
+      caption: 'Stage 6 separates container growth from content reveal. That ordering prevents labels from appearing inside a shape that is still too small.',
+      compareBoundary: 'Near-final width and greater height.', compareBackground: 'Softened and shifted.', compareContent: 'Rows begin appearing.', compareLight: 'Highlight begins to calm; shadow stays broad.'
+    },
+    {
+      id: 'settled', short: 'Settled', title: 'Settled sheet',
+      x: 720, y: 92, w: 416, h: 492, rx: 34,
+      sampleScale: 1.018, displacement: 10, blur: 1.75, tint: .84, rim: .84, highlight: .66, shadow: .28, shadowBlur: 21, shadowY: 18,
+      dots: 0, rows: 1, touch: 0,
+      summary: 'The sheet and its menu rows reach a stable resting state.',
+      event: 'The opening transition finishes.',
+      boundary: 'The rounded sheet has its final sampled size and corner shape.',
+      background: 'The background remains present but quieter inside the material.',
+      content: 'All menu rows are visible and stable.',
+      light: 'The rim and shadow settle into less dramatic values.',
+      change: 'The final size, content, and lighting become stable.',
+      caption: 'Stage 7 is the stable end state. Do not use only this frame when judging the quality of the full transition.',
+      compareBoundary: 'Final rounded sheet.', compareBackground: 'Quiet, softened backdrop.', compareContent: 'All rows visible.', compareLight: 'Stable rim and broad shadow.'
+    },
+    {
+      id: 'closing', short: 'Closing', title: 'Closing transition',
+      x: 820, y: 94, w: 316, h: 330, rx: 40,
+      sampleScale: 1.030, displacement: 17, blur: 1.15, tint: .74, rim: .98, highlight: .90, shadow: .25, shadowBlur: 18, shadowY: 15,
+      dots: .10, rows: .18, touch: 0,
+      summary: 'The material moves back toward the source and the content disappears.',
+      event: 'A close action starts the reverse journey.',
+      boundary: 'The left and bottom edges move back toward the source-side guide.',
+      background: 'Distortion becomes stronger again while the boundary is moving.',
+      content: 'Menu rows are almost hidden.',
+      light: 'The moving rim becomes more pronounced before returning to the small control.',
+      change: 'The sheet shrinks toward the source while content visibility falls.',
+      caption: 'Stage 8 samples the closing path. A production implementation must also handle rapid reversal and interruption, which are taught later.',
+      compareBoundary: 'Shrinking rounded shape.', compareBackground: 'Movement-related shift grows again.', compareContent: 'Rows nearly hidden.', compareLight: 'Moving rim becomes stronger.'
+    }
+  ];
+
+  const numericKeys = ['x','y','w','h','rx','sampleScale','displacement','blur','tint','rim','highlight','shadow','shadowBlur','shadowY','dots','rows','touch'];
+  let currentIndex = 0;
+  let visual = Object.fromEntries(numericKeys.map(key => [key, STATES[0][key]]));
+  let animationFrame = 0;
+  let playTimer = 0;
+  let playing = false;
+  let focusMode = 'all';
+  const visitedStates = new Set([0]);
+  let previousOverlayUsed = false;
+  let classificationComplete = false;
+  let codingComplete = false;
+
+  const $ = id => document.getElementById(id);
+  const clamp01 = value => Math.max(0, Math.min(1, value));
+  const mix = (a, b, t) => a + (b - a) * t;
+  const ease = t => 1 - Math.pow(1 - t, 3);
+
+  const els = {
+    clip: $('glassClipRect'), contentClip: $('contentClipRect'), shadowShape: $('glassShadowShape'), tintShape: $('glassTintShape'), rimShape: $('glassRimShape'),
+    sample: $('glassSample'), displacement: $('displacementNode'), blur: $('blurNode'), shadow: $('shadowNode'), specular: $('specularPath'),
+    rows: $('menuRows'), rowsPosition: $('menuRowsPosition'), dots: $('overflowDots'), touchLayer: $('touchLayer'), touchHalo: $('touchHalo'), touchPoint: $('touchPoint'),
+    previousLayer: $('previousBoundaryLayer'), previousBoundary: $('previousBoundary'), previousLabel: $('previousBoundaryLabel')
+  };
+
+  function setRect(node, v) {
+    node.setAttribute('x', v.x);
+    node.setAttribute('y', v.y);
+    node.setAttribute('width', v.w);
+    node.setAttribute('height', v.h);
+    node.setAttribute('rx', Math.min(v.rx, v.w / 2, v.h / 2));
+  }
+
+  function renderVisual(v) {
+    [els.clip, els.contentClip, els.shadowShape, els.tintShape, els.rimShape].forEach(node => setRect(node, v));
+
+    const cx = v.x + v.w / 2;
+    const cy = v.y + v.h / 2;
+    els.sample.setAttribute('transform', `translate(${cx} ${cy}) scale(${v.sampleScale}) translate(${-cx} ${-cy})`);
+    els.displacement.setAttribute('scale', v.displacement.toFixed(2));
+    els.blur.setAttribute('stdDeviation', v.blur.toFixed(2));
+    els.shadow.setAttribute('flood-opacity', v.shadow.toFixed(3));
+    els.shadow.setAttribute('stdDeviation', v.shadowBlur.toFixed(2));
+    els.shadow.setAttribute('dy', v.shadowY.toFixed(2));
+    els.tintShape.setAttribute('opacity', v.tint.toFixed(3));
+    els.rimShape.setAttribute('opacity', v.rim.toFixed(3));
+
+    const radius = Math.min(v.rx, v.w / 2, v.h / 2);
+    const startX = v.x + radius * .62;
+    const endX = v.x + v.w - radius * .28;
+    const endY = v.y + Math.min(54, v.h * .28);
+    els.specular.setAttribute('d', `M${startX.toFixed(1)} ${(v.y + 4).toFixed(1)} C${(v.x + v.w * .42).toFixed(1)} ${(v.y - 2).toFixed(1)} ${endX.toFixed(1)} ${(v.y + 7).toFixed(1)} ${(v.x + v.w - 5).toFixed(1)} ${endY.toFixed(1)}`);
+    els.specular.setAttribute('opacity', v.highlight.toFixed(3));
+
+    const dotsY = v.y + Math.min(v.h / 2, 45);
+    const dotsX = v.x + v.w - Math.min(v.w / 2, 43);
+    els.dots.setAttribute('transform', `translate(${dotsX - 1093} ${dotsY - 135})`);
+    els.dots.setAttribute('opacity', v.dots.toFixed(3));
+
+    els.rowsPosition.setAttribute('transform', `translate(${v.x + 34} ${v.y + 78})`);
+    els.rows.setAttribute('opacity', v.rows.toFixed(3));
+
+    els.touchLayer.setAttribute('opacity', v.touch.toFixed(3));
+    els.touchHalo.setAttribute('cx', dotsX.toFixed(1));
+    els.touchHalo.setAttribute('cy', dotsY.toFixed(1));
+    els.touchPoint.setAttribute('cx', dotsX.toFixed(1));
+    els.touchPoint.setAttribute('cy', dotsY.toFixed(1));
+
+    applyFocus();
+  }
+
+  function applyFocus() {
+    const values = {
+      all:        { background:1, backdrop:1, shadow:1, material:1, boundary:1, content:1, touch:1, guide:.72 },
+      boundary:   { background:.52, backdrop:.40, shadow:.45, material:.42, boundary:1, content:.25, touch:.45, guide:1 },
+      background: { background:1, backdrop:1, shadow:.25, material:.38, boundary:.48, content:.18, touch:.20, guide:.35 },
+      content:    { background:.42, backdrop:.34, shadow:.24, material:.42, boundary:.48, content:1, touch:.20, guide:.30 },
+      light:      { background:.55, backdrop:.50, shadow:1, material:.82, boundary:1, content:.22, touch:.70, guide:.35 }
+    }[focusMode];
+    $('backgroundLayer').style.opacity = values.background;
+    $('backdropLayer').style.opacity = values.backdrop;
+    $('shadowLayer').style.opacity = values.shadow;
+    $('materialLayer').style.opacity = values.material;
+    $('boundaryLayer').style.opacity = values.boundary;
+    $('contentLayer').style.opacity = values.content;
+    $('touchLayer').style.opacity = visual.touch * values.touch;
+    $('anchorGuideLayer').style.opacity = values.guide;
+  }
+
+  function updatePreviousBoundary() {
+    const checked = $('showPrevious').checked;
+    if (!checked || currentIndex === 0) {
+      els.previousLayer.setAttribute('opacity', '0');
+      return;
+    }
+    const previous = STATES[currentIndex - 1];
+    setRect(els.previousBoundary, previous);
+    els.previousLabel.setAttribute('x', previous.x + previous.w);
+    els.previousLabel.setAttribute('y', Math.max(24, previous.y - 10));
+    els.previousLayer.setAttribute('opacity', '1');
+    previousOverlayUsed = true;
+    updateRecord();
+  }
+
+  function updateStageText(index) {
+    const state = STATES[index];
+    $('stageTitle').textContent = state.title;
+    $('stageCount').textContent = `State ${index + 1} of ${STATES.length}`;
+    $('stageSummary').textContent = state.summary;
+    $('stageEvent').textContent = state.event;
+    $('stageBoundary').textContent = state.boundary;
+    $('stageBackground').textContent = state.background;
+    $('stageContent').textContent = state.content;
+    $('stageLight').textContent = state.light;
+    $('stageChange').textContent = state.change;
+    $('sceneCaption').textContent = state.caption;
+    $('previousStage').disabled = index === 0;
+    $('nextStage').disabled = index === STATES.length - 1;
+
+    document.querySelectorAll('.step-dot').forEach((button, buttonIndex) => {
+      if (buttonIndex === index) button.setAttribute('aria-current', 'step');
+      else button.removeAttribute('aria-current');
+    });
+
+    const previous = index > 0 ? STATES[index - 1] : null;
+    $('previousColumnTitle').textContent = previous ? `Previous: ${previous.title}` : 'Previous: none';
+    $('currentColumnTitle').textContent = `Current: ${state.title}`;
+    $('comparePreviousBoundary').textContent = previous ? previous.compareBoundary : 'No earlier sample.';
+    $('comparePreviousBackground').textContent = previous ? previous.compareBackground : 'No earlier sample.';
+    $('comparePreviousContent').textContent = previous ? previous.compareContent : 'No earlier sample.';
+    $('comparePreviousLight').textContent = previous ? previous.compareLight : 'No earlier sample.';
+    $('compareCurrentBoundary').textContent = state.compareBoundary;
+    $('compareCurrentBackground').textContent = state.compareBackground;
+    $('compareCurrentContent').textContent = state.compareContent;
+    $('compareCurrentLight').textContent = state.compareLight;
+    updatePreviousBoundary();
+  }
+
+  function stopPlaying() {
+    playing = false;
+    clearTimeout(playTimer);
+    $('playStages').textContent = 'Play stages slowly';
+  }
+
+  function goTo(index, animate = true) {
+    index = Math.max(0, Math.min(STATES.length - 1, index));
+    cancelAnimationFrame(animationFrame);
+    const target = STATES[index];
+    const start = { ...visual };
+    currentIndex = index;
+    visitedStates.add(index);
+    updateStageText(index);
+    updateRecord();
+
+    const shouldAnimate = animate && !$('reduceMotion').checked && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!shouldAnimate) {
+      numericKeys.forEach(key => { visual[key] = target[key]; });
+      renderVisual(visual);
+      return;
+    }
+
+    const started = performance.now();
+    const duration = 900;
+    function tick(now) {
+      const t = clamp01((now - started) / duration);
+      const e = ease(t);
+      numericKeys.forEach(key => { visual[key] = mix(start[key], target[key], e); });
+      renderVisual(visual);
+      if (t < 1) animationFrame = requestAnimationFrame(tick);
+    }
+    animationFrame = requestAnimationFrame(tick);
+  }
+
+  function buildStepper() {
+    const host = $('stepDots');
+    STATES.forEach((state, index) => {
+      const button = document.createElement('button');
+      button.className = 'step-dot';
+      button.type = 'button';
+      button.textContent = index + 1;
+      button.title = state.title;
+      button.setAttribute('aria-label', `State ${index + 1}: ${state.title}`);
+      button.addEventListener('click', () => { stopPlaying(); goTo(index); });
+      host.appendChild(button);
+    });
+  }
+
+  $('previousStage').addEventListener('click', () => { stopPlaying(); goTo(currentIndex - 1); });
+  $('nextStage').addEventListener('click', () => { stopPlaying(); goTo(currentIndex + 1); });
+  $('resetStage').addEventListener('click', () => { stopPlaying(); goTo(0); });
+  $('showPrevious').addEventListener('change', updatePreviousBoundary);
+  $('reduceMotion').addEventListener('change', () => goTo(currentIndex, false));
+  $('playStages').addEventListener('click', () => {
+    if (playing) { stopPlaying(); return; }
+    playing = true;
+    $('playStages').textContent = 'Pause slow playback';
+    let next = currentIndex >= STATES.length - 1 ? 0 : currentIndex;
+    const advance = () => {
+      if (!playing) return;
+      goTo(next);
+      next += 1;
+      if (next >= STATES.length) {
+        playTimer = setTimeout(stopPlaying, 1700);
+      } else {
+        playTimer = setTimeout(advance, 1700);
+      }
+    };
+    advance();
+  });
+
+  document.querySelectorAll('[data-focus]').forEach(button => {
+    button.addEventListener('click', () => {
+      focusMode = button.dataset.focus;
+      document.querySelectorAll('[data-focus]').forEach(candidate => candidate.classList.toggle('selected', candidate === button));
+      applyFocus();
+    });
+  });
+
+  // Optional local video workspace.
+  let videoUrl = '';
+  const video = $('referenceVideo');
+  const scrubber = $('videoScrubber');
+  const markerEntries = [];
+
+  function formatTime(seconds) {
+    if (!Number.isFinite(seconds)) seconds = 0;
+    const minutes = Math.floor(seconds / 60);
+    const remaining = seconds - minutes * 60;
+    return `${String(minutes).padStart(2, '0')}:${remaining.toFixed(3).padStart(6, '0')}`;
+  }
+
+  function updateVideoTime() {
+    const duration = Number.isFinite(video.duration) ? video.duration : 0;
+    $('videoTime').textContent = `${formatTime(video.currentTime)} / ${formatTime(duration)}`;
+    if (duration > 0 && !scrubber.matches(':active')) scrubber.value = Math.round((video.currentTime / duration) * 1000);
+  }
+
+  $('videoFile').addEventListener('change', event => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    if (videoUrl) URL.revokeObjectURL(videoUrl);
+    videoUrl = URL.createObjectURL(file);
+    video.src = videoUrl;
+    video.style.display = 'block';
+    $('videoPlaceholder').style.display = 'none';
+    video.addEventListener('loadedmetadata', () => {
+      scrubber.disabled = false;
+      $('backOneFrame').disabled = false;
+      $('forwardOneFrame').disabled = false;
+      $('pauseVideo').disabled = false;
+      updateVideoTime();
+    }, { once: true });
+  });
+
+  video.addEventListener('timeupdate', updateVideoTime);
+  video.addEventListener('seeked', updateVideoTime);
+  scrubber.addEventListener('input', () => {
+    if (Number.isFinite(video.duration) && video.duration > 0) {
+      video.currentTime = (Number(scrubber.value) / 1000) * video.duration;
+      video.pause();
+    }
+  });
+  function nudge(seconds) {
+    if (!Number.isFinite(video.duration)) return;
+    video.pause();
+    video.currentTime = Math.max(0, Math.min(video.duration, video.currentTime + seconds));
+  }
+  $('backOneFrame').addEventListener('click', () => nudge(-1 / 60));
+  $('forwardOneFrame').addEventListener('click', () => nudge(1 / 60));
+  $('pauseVideo').addEventListener('click', () => video.pause());
+
+  STATES.forEach((state, index) => {
+    const option = document.createElement('option');
+    option.value = state.title;
+    option.textContent = `${index + 1}. ${state.title}`;
+    $('markerStage').appendChild(option);
+  });
+
+  function renderMarkers() {
+    const host = $('markerList');
+    host.textContent = '';
+    markerEntries.forEach((entry, index) => {
+      const row = document.createElement('div');
+      row.className = 'marker';
+      const time = document.createElement('time');
+      time.textContent = formatTime(entry.time);
+      const text = document.createElement('p');
+      text.textContent = `${entry.stage} · ${entry.category}: ${entry.note}`;
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.textContent = 'Remove';
+      remove.addEventListener('click', () => { markerEntries.splice(index, 1); renderMarkers(); });
+      row.append(time, text, remove);
+      host.appendChild(row);
+    });
+  }
+
+  $('addMarker').addEventListener('click', () => {
+    const note = $('markerNote').value.trim();
+    if (!note) {
+      $('markerResult').className = 'result-box error';
+      $('markerResult').textContent = 'Write one visible fact before adding the observation.';
+      return;
+    }
+    markerEntries.push({
+      time: Number.isFinite(video.duration) ? video.currentTime : currentIndex,
+      stage: $('markerStage').value,
+      category: $('markerCategory').value,
+      note
+    });
+    $('markerNote').value = '';
+    $('markerResult').className = 'result-box success';
+    $('markerResult').textContent = 'Observation added. The time uses the video when loaded, or the current teaching-model state number otherwise.';
+    renderMarkers();
+  });
+
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      const helper = document.createElement('textarea');
+      helper.value = text;
+      helper.style.position = 'fixed';
+      helper.style.opacity = '0';
+      document.body.appendChild(helper);
+      helper.select();
+      const ok = document.execCommand('copy');
+      helper.remove();
+      return ok;
+    }
+  }
+
+  $('copyMarkers').addEventListener('click', async () => {
+    if (!markerEntries.length) {
+      $('markerResult').className = 'result-box error';
+      $('markerResult').textContent = 'Add at least one observation first.';
+      return;
+    }
+    const text = ['# Lesson 1.2 observation log', '', ...markerEntries.map(entry => `- ${formatTime(entry.time)} · ${entry.stage} · ${entry.category}: ${entry.note}`)].join('\n');
+    const ok = await copyText(text);
+    $('markerResult').className = ok ? 'result-box success' : 'result-box error';
+    $('markerResult').textContent = ok ? 'Observation log copied.' : 'Copy failed. Select the entries manually.';
+  });
+
+  // Fact versus hypothesis challenge.
+  document.querySelectorAll('.classify-row').forEach(row => {
+    row.querySelectorAll('[data-choice]').forEach(button => {
+      button.addEventListener('click', () => {
+        row.dataset.choice = button.dataset.choice;
+        row.querySelectorAll('[data-choice]').forEach(candidate => candidate.classList.toggle('selected', candidate === button));
+      });
+    });
+  });
+
+  $('checkClassify').addEventListener('click', () => {
+    const rows = [...document.querySelectorAll('.classify-row')];
+    const missing = rows.filter(row => !row.dataset.choice).length;
+    const correct = rows.filter(row => row.dataset.choice === row.dataset.answer).length;
+    if (missing) {
+      $('classifyResult').className = 'result-box error';
+      $('classifyResult').textContent = `Choose a label for all five statements. ${missing} remain.`;
+      return;
+    }
+    classificationComplete = correct === rows.length;
+    $('classifyResult').className = classificationComplete ? 'result-box success' : 'result-box error';
+    $('classifyResult').textContent = classificationComplete
+      ? 'All five are correct. You kept visible evidence separate from internal implementation claims.'
+      : `${correct} of ${rows.length} are correct. Recheck whether the sentence names visible pixels or hidden software.`;
+    updateRecord();
+  });
+
+  $('resetClassify').addEventListener('click', () => {
+    document.querySelectorAll('.classify-row').forEach(row => {
+      delete row.dataset.choice;
+      row.querySelectorAll('[data-choice]').forEach(button => button.classList.remove('selected'));
+    });
+    classificationComplete = false;
+    $('classifyResult').className = 'result-box';
+    $('classifyResult').textContent = 'No answers checked yet.';
+    updateRecord();
+  });
+
+  // Kotlin teaching challenge.
+  const defaultCode = $('codeEditor').value;
+  const miniStages = ['REST','PRESS_RESPONSE','EARLY_EXPANSION','MIDDLE_EXPANSION','CONTENT_REVEAL','SETTLED','CLOSING'];
+  miniStages.forEach(name => {
+    const item = document.createElement('div');
+    item.className = 'mini-stage';
+    item.dataset.stage = name;
+    item.textContent = name.replaceAll('_', ' ');
+    $('miniTimeline').appendChild(item);
+  });
+
+  function parseTeachingCode() {
+    const code = $('codeEditor').value;
+    const stageMatch = code.match(/stage\s*=\s*MenuStage\.([A-Z_]+)/);
+    const rowsMatch = code.match(/menuRowsVisible\s*=\s*(true|false)/);
+    return {
+      stage: stageMatch ? stageMatch[1] : null,
+      rowsVisible: rowsMatch ? rowsMatch[1] === 'true' : null
+    };
+  }
+
+  function updateCodePreview() {
+    const parsed = parseTeachingCode();
+    document.querySelectorAll('.mini-stage').forEach(item => item.classList.toggle('active', item.dataset.stage === parsed.stage));
+    $('miniRows').setAttribute('opacity', parsed.rowsVisible === true ? '1' : parsed.rowsVisible === false ? '0' : '.25');
+    const stageText = parsed.stage || 'stage not found';
+    const rowText = parsed.rowsVisible === true ? 'rows visible' : parsed.rowsVisible === false ? 'rows hidden' : 'row value not found';
+    $('miniStageLabel').textContent = `${stageText} · ${rowText}`;
+    $('miniPreviewText').innerHTML = `<strong>Input:</strong> <code>${stageText}</code> and <code>${parsed.rowsVisible === null ? 'not found' : parsed.rowsVisible}</code>.<br><strong>Operation:</strong> the browser reads those two assigned values.<br><strong>Output:</strong> the timeline selects the named stage and the preview ${parsed.rowsVisible ? 'shows' : 'hides'} menu rows.`;
+  }
+
+  $('codeEditor').addEventListener('input', updateCodePreview);
+  $('checkCode').addEventListener('click', () => {
+    const parsed = parseTeachingCode();
+    const correctStage = parsed.stage === 'MIDDLE_EXPANSION';
+    const correctRows = parsed.rowsVisible === false;
+    codingComplete = correctStage && correctRows;
+    $('codeResult').className = codingComplete ? 'result-box success' : 'result-box error';
+    if (codingComplete) {
+      $('codeResult').textContent = 'Correct. The object now represents middle expansion with the menu rows still hidden.';
+    } else {
+      const problems = [];
+      if (!correctStage) problems.push('set stage to MenuStage.MIDDLE_EXPANSION');
+      if (!correctRows) problems.push('set menuRowsVisible to false');
+      $('codeResult').textContent = `Not complete yet: ${problems.join('; ')}.`;
+    }
+    updateRecord();
+  });
+  $('resetCode').addEventListener('click', () => {
+    $('codeEditor').value = defaultCode;
+    codingComplete = false;
+    $('codeResult').className = 'result-box';
+    $('codeResult').textContent = 'The preview currently represents content reveal, so the rows are visible.';
+    updateCodePreview();
+    updateRecord();
+  });
+
+  // Exercise copying.
+  $('copyAnswers').addEventListener('click', async () => {
+    const answers = [1,2,3,4].map(number => $(`answer${number}`).value.trim());
+    if (answers.some(answer => !answer)) {
+      $('answersResult').className = 'result-box error';
+      $('answersResult').textContent = 'Write all four answers before copying.';
+      return;
+    }
+    const text = [
+      '# Lesson 1.2 answers', '',
+      ...answers.flatMap((answer, index) => [`## Exercise ${index + 1}`, answer, ''])
+    ].join('\n');
+    const ok = await copyText(text);
+    $('answersResult').className = ok ? 'result-box success' : 'result-box error';
+    $('answersResult').textContent = ok ? 'Answers copied for chat.' : 'Copy failed. Select the text manually.';
+  });
+
+  // Completion record.
+  const checkIds = ['checkStepper','checkPrevious','checkClassification','checkCoding','checkExercises','checkQuestions'];
+  function updateRecord() {
+    const status = {
+      stepper: $('checkStepper').checked,
+      previous: $('checkPrevious').checked,
+      classification: $('checkClassification').checked,
+      coding: $('checkCoding').checked,
+      exercises: $('checkExercises').checked,
+      questions: $('checkQuestions').checked
+    };
+    const allChecked = Object.values(status).every(Boolean);
+    $('completionBadge').textContent = allChecked ? 'Lesson marked complete' : 'Lesson in progress';
+    $('completionBadge').className = `inline-status${allChecked ? ' good' : ''}`;
+    const questions = $('remainingQuestions').value.trim() || 'not recorded';
+    $('recordOutput').value = [
+      '# Liquid Glass course progress', '',
+      'lesson: 1.2',
+      'title: Observe the transition one state at a time',
+      'file: course/chapters/chapter-01/lesson-01-02-observe-the-transition.html',
+      `status: ${allChecked ? 'complete' : 'in progress'}`,
+      `sampled_states_visited: ${visitedStates.size}/8`,
+      `previous_boundary_overlay_used: ${previousOverlayUsed}`,
+      `fact_vs_hypothesis_check_passed: ${classificationComplete}`,
+      `coding_challenge_passed: ${codingComplete}`,
+      `final_exercises_self_reported_complete: ${status.exercises}`,
+      `remaining_questions: ${questions}`,
+      'android_source_changed: false',
+      'next_lesson: 1.3 — Create LiquidGlassLab'
+    ].join('\n');
+  }
+
+  checkIds.forEach(id => $(id).addEventListener('change', updateRecord));
+  $('remainingQuestions').addEventListener('input', updateRecord);
+  $('refreshRecord').addEventListener('click', updateRecord);
+  $('copyRecord').addEventListener('click', async () => {
+    updateRecord();
+    const ok = await copyText($('recordOutput').value);
+    $('recordResult').className = ok ? 'result-box success' : 'result-box error';
+    $('recordResult').textContent = ok ? 'Lesson record copied.' : 'Copy failed. Select the record manually.';
+  });
+
+  // Keyboard stepping is active when the user is not typing into a field.
+  document.addEventListener('keydown', event => {
+    const tag = document.activeElement && document.activeElement.tagName;
+    if (['INPUT','TEXTAREA','SELECT'].includes(tag)) return;
+    if (event.key === 'ArrowRight') { stopPlaying(); goTo(currentIndex + 1); }
+    if (event.key === 'ArrowLeft') { stopPlaying(); goTo(currentIndex - 1); }
+  });
+
+  buildStepper();
+  updateCodePreview();
+  updateStageText(0);
+  renderVisual(visual);
+  updateRecord();
+})();
+</script>
+</body>
+</html>
