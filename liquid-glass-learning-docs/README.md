@@ -15,20 +15,32 @@ No local web server is required. Every lesson is self-contained and works from `
 ## Current delivery
 
 - Course home
-- Glossary starter
+- Canonical glossary
 - Chapter 1 hub
 - Lesson 1.1: **Name the visible ingredients**
 - Lesson 1.2: **Observe the transition one state at a time**
 - Lesson 1.3: **Create the Android project and prove the path to pixels**
+- Lesson 1.4: **Build a study background**
 - Updated curriculum and conversation handoff
 
 ## Current lesson
 
 ```text
-course/chapters/chapter-01/lesson-01-03-create-the-android-project.html
+course/chapters/chapter-01/lesson-01-04-build-a-study-background.html
 ```
 
-Lesson 1.3 creates the separate `LiquidGlassLab` project. Run the untouched Empty Activity template on the Pixel 8 Pro first. Then apply `LiquidGlassLab-lesson-01-03-source-overlay.zip`. The overlay contains only `MainActivity.kt` and `Chapter01Screen.kt`; it does not replace the generated Gradle, manifest, resource, or theme files. The learning-docs repository still contains no Android source tree.
+Lesson 1.4 adds a controlled background to the separate `LiquidGlassLab` project. The Android code-change archive contains only the two files changed by this lesson:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter01/StudyBackground.kt
+```
+
+The learning-docs repository still contains no Android source tree.
+
+## Incremental delivery rule
+
+New lesson archives contain only files created or modified for that lesson. They preserve repository-relative paths so they can be extracted over the existing learning-docs repository and Android project. Cumulative copies are not produced unless explicitly requested.
 
 ## Naming rule
 
@@ -41,7 +53,7 @@ lesson-a-transparent-panel-is-not-yet-liquid-glass.html
 Sub-lessons use numbered descriptive names such as:
 
 ```text
-lesson-01-01-visible-ingredients.html
+lesson-01-04-build-a-study-background.html
 ```
 
 Generic chapter `index.html` files are not used.

@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 1.3  
+**Version:** 1.4  
 **Updated:** 2026-07-19  
-**Current course position:** Lessons 1.1 and 1.2 are complete by learner progression. Lesson 1.3 has been generated and is the current checkpoint.  
+**Current course position:** Lessons 1.1 through 1.3 are complete by learner progression. Lesson 1.4 has been generated and is the current checkpoint.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -10,7 +10,7 @@
 
 ---
 
-## 1. What changed through version 1.3
+## 1. What changed through version 1.4
 
 Version 1.0 placed the complete Chapter 1 teaching text and its large Compose example inside this master Markdown file. That was a bundled-document structure.
 
@@ -38,6 +38,16 @@ Version 1.3 adds the first Android project lesson:
 - The Android companion package contains only `MainActivity.kt` and `chapter01/Chapter01Screen.kt`. It deliberately leaves the template-generated Gradle and theme files in place.
 - `MainActivity` calls `Chapter01Screen` directly. A route abstraction is not added while the app has one destination.
 - The lesson introduces a manual source-to-pixels pipeline, a project-configuration laboratory, USB and Wi-Fi ADB paths, an editor-driven coding challenge, exercises, and a completion record.
+
+Version 1.4 adds the first controlled Android graphics scene:
+
+- Lesson 1.3 is marked complete by learner progression because the learner explicitly requested Lesson 1.4 without reporting a remaining issue.
+- Lesson 1.4 introduces a study background made from a diagonal gradient, four opaque color regions, four circle silhouettes, eleven sharp lines, and two text scales.
+- `Chapter01Screen.kt` is replaced with a small delegation to `StudyBackground`.
+- `StudyBackground.kt` is added as a separate cumulative Android source file.
+- The browser lesson compares a flat background and the study background under the same blur, shift, and tint teaching operations.
+- The lesson uses a manual layer-building stepper, a code-and-button synchronized coding challenge, four diagnostic exercises, and a Pixel 8 Pro checkpoint.
+- Delivery changes from cumulative archives to incremental archives. Each ZIP contains only files created or modified for the current lesson while preserving repository-relative paths.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -209,6 +219,15 @@ A lesson that changes Android code must include:
 - a suggested Git commit or tag.
 
 The HTML lesson must not assume a fixed filesystem relationship between the document repository and the Android project. It states paths as text unless the learner later chooses and records a stable relative layout.
+
+### 5.3 Incremental lesson archives
+
+After the initial repository package, every lesson delivery uses incremental archives:
+
+- The learning-docs ZIP contains only learning-document files created or modified for that lesson. Paths start beneath `liquid-glass-learning-docs/`.
+- The Android ZIP contains only Android project files created or modified for that lesson. Paths start beneath `LiquidGlassLab/`.
+- Unchanged files, cumulative course copies, duplicate standalone downloads, verification screenshots, and complete Android projects are excluded unless the learner explicitly requests them.
+- A lesson that changes no Android source does not receive an empty Android ZIP.
 
 ---
 
@@ -798,6 +817,40 @@ course: create Compose project baseline
 course: add chapter 1 Android baseline screen
 ```
 
+
+### `lesson-01-04-build-a-study-background.html`
+
+**New graphics idea:** A controlled background needs known visual clues so later effects can be inspected reliably.  
+**New math idea:** None.
+
+Interactive explanation:
+
+- A side-by-side Canvas comparison applies the same no-op, soft blur, small horizontal shift, or pale-blue tint to a flat color and to the study background.
+- A clue isolator explains the separate jobs and limitations of the gradient, solid color regions, circles, sharp lines, and text.
+- A real-value trace follows `SharpLineCount = 11` through `repeat(SharpLineCount)` to eleven line composables with indexes `0` through `10`.
+- A seven-step manual build sequence reveals the gradient, safe drawing area, color regions, circles, lines, and text one layer at a time.
+- Complete source tabs show the two Android files changed by the lesson.
+- A coding challenge lets direct editor changes and clickable call buttons share one preview state. The learner restores `SharpLineClues()` and `TextClues()` while preserving the existing calls.
+- Four exercises test whether the learner understands why a flat color hides blur and displacement, how a circle reveals uneven distortion, how `repeat(11)` behaves, and why safe-drawing padding applies only to important content.
+- A copyable completion record captures build, clue, line-count, screenshot, and commit status.
+
+Android code delivery:
+
+```text
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/StudyBackground.kt
+```
+
+`Chapter01Screen.kt` delegates the full available size to `StudyBackground`. `StudyBackground.kt` uses standard `Box`, `Column`, and `Row` layout composables rather than custom `Canvas` drawing because Chapter 2 has not yet introduced coordinate math. The scene is static and small. No measured performance problem currently justifies a lower-level drawing implementation.
+
+No alpha values, blur, refraction, shadow, highlight, or animation are added to the Android project in this lesson.
+
+Suggested commit:
+
+```text
+course: add chapter 1 study background
+```
+
 ---
 
 ## 10. Android source organization for Chapter 1
@@ -809,7 +862,7 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
 ├── MainActivity.kt
 └── chapter01/
     ├── Chapter01Screen.kt
-    ├── StudyBackground.kt          # introduced later
+    ├── StudyBackground.kt          # introduced in Lesson 1.4
     └── TranslucentPanel.kt         # introduced later
 ```
 
@@ -886,6 +939,7 @@ At the end of every response, include a clearly labelled best-effort estimate of
 
 Course file rules:
 - The master curriculum is a plan. Do not put full lessons into it.
+- Deliver only incremental ZIPs containing files created or modified for the current lesson. Preserve paths beneath `liquid-glass-learning-docs/` and `LiquidGlassLab/`. Do not include cumulative copies unless explicitly requested.
 - Every chapter hub is named `lesson-[chapter-name].html`; do not create generic chapter `index.html` files.
 - Every sub-lesson has one standalone interactive HTML file named `lesson-[chapter-number]-[lesson-number]-[lesson-name].html`.
 - HTML must work from file:// with inline CSS, JavaScript, SVG, Canvas, or WebGL2.
@@ -917,7 +971,9 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 ## 14. Generated artifact status
 
-The cumulative delivery package through Lesson 1.3 contains:
+The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
+
+Generated and available lesson files:
 
 - `liquid-glass-course.html`;
 - `course/glossary.html`;
@@ -925,19 +981,24 @@ The cumulative delivery package through Lesson 1.3 contains:
 - `course/chapters/chapter-01/lesson-01-01-visible-ingredients.html`;
 - `course/chapters/chapter-01/lesson-01-02-observe-the-transition.html`;
 - `course/chapters/chapter-01/lesson-01-03-create-the-android-project.html`;
-- the updated curriculum and handoff;
-- learner-work folders;
-- a small desktop verification script.
+- `course/chapters/chapter-01/lesson-01-04-build-a-study-background.html`.
 
-Lesson 1.1 is complete by explicit learner confirmation. Lesson 1.2 is complete by learner progression after its code-preview defect was fixed. Neither lesson was conversationally graded from submitted exercise answers.
+Lessons 1.1 through 1.3 are complete by explicit confirmation or learner progression. Exercise answers were not submitted for conversational grading.
 
-Lesson 1.3 is generated and is the current lesson. Its separate Android companion ZIP contains `README-APPLY.md`, `MainActivity.kt`, and `Chapter01Screen.kt`. The Android ZIP is not nested in the learning-docs repository.
+Lesson 1.4 is generated and is the current checkpoint. Its Android changed-file ZIP contains only:
+
+```text
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/StudyBackground.kt
+```
+
+Its learning-docs changed-file ZIP contains only files created or modified for Lesson 1.4. Verification screenshots are not included in either archive.
 
 ---
 
 ## 15. Primary references
 
-The course plan was checked against these public primary sources on 2026-07-18:
+The course plan was checked against these public primary sources through 2026-07-19:
 
 - Apple, **Meet Liquid Glass**, WWDC25: https://developer.apple.com/videos/play/wwdc2025/219/
 - Apple, **Get to know the new design system**, WWDC25: https://developer.apple.com/videos/play/wwdc2025/356/
@@ -947,6 +1008,8 @@ The course plan was checked against these public primary sources on 2026-07-18:
 - Android, **RuntimeShader**: https://developer.android.com/reference/android/graphics/RuntimeShader
 - Android, **RenderEffect**: https://developer.android.com/reference/android/graphics/RenderEffect
 - Android, **Brush: gradients and shaders**: https://developer.android.com/develop/ui/compose/graphics/draw/brush
+- Android, **Compose layout basics**: https://developer.android.com/develop/ui/compose/layouts/basics
+- Android, **Window insets in Compose**: https://developer.android.com/develop/ui/compose/system/insets
 - Android, **Using AGSL in your Android app**: https://developer.android.com/develop/ui/views/graphics/agsl/using-agsl
 - Android, **Graphics modifiers**: https://developer.android.com/develop/ui/compose/graphics/draw/modifiers
 - Android, **GraphicsLayer**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/layer/GraphicsLayer

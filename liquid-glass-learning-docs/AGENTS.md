@@ -53,3 +53,12 @@ Before delivery:
 
 At the end of every response, add a clearly labelled best-effort estimate of the remaining conversation context window in tokens, for example: `Estimated remaining context: ~120,000 tokens`; treat the number as approximate, not exact.
 
+
+## Incremental delivery packages
+
+After the initial repository package, deliver only incremental ZIP archives for each new lesson.
+
+- The learning-docs ZIP contains only files created or modified for that lesson. Preserve their paths beneath `liquid-glass-learning-docs/`.
+- The Android code ZIP contains only Android project files created or modified for that lesson. Preserve their paths beneath `LiquidGlassLab/`.
+- Do not include unchanged files, cumulative course copies, duplicate standalone downloads, verification screenshots, or a complete Android project unless the user explicitly requests them.
+- When a lesson changes no Android source, state that fact and do not create an empty Android ZIP.
