@@ -329,9 +329,51 @@
       tab-size: 4;
     }
     .preview-card { padding: 18px; background: #f8fafc; }
-    .mini-timeline { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; margin: 14px 0 18px; }
-    .mini-stage { min-height: 46px; border-radius: 9px; border: 1px solid #cbd5e1; background: white; display: grid; place-items: center; text-align: center; padding: 5px; font-size: 11px; font-weight: 820; color: #64748b; }
-    .mini-stage.active { border-color: var(--indigo); background: var(--indigo-soft); color: #312e81; }
+    .mini-preview-instruction { margin: 6px 0 0; color: var(--muted); }
+    .mini-timeline { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; margin: 14px 0 12px; }
+    .mini-stage {
+      min-height: 58px;
+      appearance: none;
+      border-radius: 9px;
+      border: 1px solid #cbd5e1;
+      background: white;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 6px 4px;
+      font-size: 10px;
+      line-height: 1.18;
+      font-weight: 820;
+      color: #64748b;
+    }
+    .mini-stage:hover { border-color: #818cf8; background: #f8faff; color: #3730a3; }
+    .mini-stage:focus-visible, .mini-value-button:focus-visible { outline: 3px solid #93c5fd; outline-offset: 2px; }
+    .mini-stage.active { border-color: var(--indigo); background: var(--indigo-soft); color: #312e81; box-shadow: inset 0 0 0 1px var(--indigo); }
+    .mini-input-row {
+      display: grid;
+      grid-template-columns: minmax(145px, auto) 1fr;
+      gap: 12px;
+      align-items: center;
+      margin: 0 0 14px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: white;
+    }
+    .mini-input-label { font-weight: 820; color: #334155; }
+    .mini-value-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+    .mini-value-button {
+      appearance: none;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
+      background: white;
+      color: #475569;
+      padding: 7px 11px;
+      font-size: 13px;
+      font-weight: 820;
+    }
+    .mini-value-button:hover { border-color: #818cf8; color: #3730a3; }
+    .mini-value-button.active { border-color: var(--indigo); background: var(--indigo-soft); color: #312e81; box-shadow: inset 0 0 0 1px var(--indigo); }
     #miniPreview { display: block; width: 100%; height: auto; border-radius: 13px; border: 1px solid var(--line); background: white; }
 
     .evidence-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
@@ -737,6 +779,7 @@
         <p>The code currently describes the later <code>CONTENT_REVEAL</code> stage. Change exactly two assigned values so that the object describes <code>MIDDLE_EXPANSION</code> before the menu rows appear.</p>
         <textarea class="code-editor" id="codeEditor" spellcheck="false">enum class MenuStage {
     REST,
+    INITIAL_CONTACT,
     PRESS_RESPONSE,
     EARLY_EXPANSION,
     MIDDLE_EXPANSION,
@@ -764,25 +807,49 @@ val inspectedFrame = ObservationFrame(
 
       <aside class="preview-card">
         <h3>Code-driven teaching preview</h3>
-        <div class="mini-timeline" id="miniTimeline"></div>
+        <p class="mini-preview-instruction">Use either route. Edit the two assignments on the left, or click the controls below. A click rewrites the matching Kotlin-like assignment. Both routes then render the same preview state.</p>
+        <div class="mini-timeline" id="miniTimeline" aria-label="Select the MenuStage value"></div>
+        <div class="mini-input-row">
+          <span class="mini-input-label"><code>menuRowsVisible</code></span>
+          <div class="mini-value-buttons" aria-label="Select the menuRowsVisible Boolean value">
+            <button type="button" class="mini-value-button" id="miniRowsHidden" data-rows-visible="false">false · rows hidden</button>
+            <button type="button" class="mini-value-button" id="miniRowsShown" data-rows-visible="true">true · rows visible</button>
+          </div>
+        </div>
         <svg id="miniPreview" viewBox="0 0 560 320" role="img" aria-label="A compact menu preview controlled by the Kotlin-like values in the editor">
           <defs>
             <linearGradient id="miniBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dbeafe"/><stop offset=".5" stop-color="#fef3c7"/><stop offset="1" stop-color="#dcfce7"/></linearGradient>
+            <linearGradient id="miniGlassFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".82"/><stop offset="1" stop-color="#ffffff" stop-opacity=".56"/></linearGradient>
+            <filter id="miniShadow" x="-30%" y="-30%" width="170%" height="180%"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#0f172a" flood-opacity=".22"/></filter>
+            <clipPath id="miniGlassClip"><rect id="miniClipRect" x="204" y="24" width="308" height="232" rx="34"/></clipPath>
           </defs>
           <rect x="0" y="0" width="560" height="320" fill="url(#miniBg)"/>
-          <line x1="30" y1="72" x2="530" y2="72" stroke="#1e40af" stroke-width="8"/>
-          <line x1="30" y1="160" x2="530" y2="160" stroke="#059669" stroke-width="8"/>
-          <line x1="30" y1="248" x2="530" y2="248" stroke="#be185d" stroke-width="8"/>
-          <rect x="178" y="28" width="330" height="262" rx="36" fill="#ffffff" fill-opacity=".66" stroke="#ffffff" stroke-width="4"/>
-          <g id="miniRows" opacity="1" transform="translate(218 94)">
-            <rect x="0" y="0" width="245" height="34" rx="12" fill="#ffffff" fill-opacity=".8"/>
-            <rect x="0" y="58" width="245" height="34" rx="12" fill="#ffffff" fill-opacity=".8"/>
-            <rect x="0" y="116" width="245" height="34" rx="12" fill="#ffffff" fill-opacity=".8"/>
+          <line x1="28" y1="72" x2="532" y2="72" stroke="#1e40af" stroke-width="8"/>
+          <line x1="28" y1="158" x2="532" y2="158" stroke="#059669" stroke-width="8"/>
+          <line x1="28" y1="244" x2="532" y2="244" stroke="#be185d" stroke-width="8"/>
+          <line x1="512" y1="14" x2="512" y2="278" stroke="#1e40af" stroke-width="2" stroke-dasharray="7 7" opacity=".62"/>
+          <text x="505" y="18" text-anchor="end" font-size="12" font-weight="800" font-family="system-ui, sans-serif" fill="#1e40af">source-side guide</text>
+
+          <rect id="miniGlassShadowRect" x="204" y="24" width="308" height="232" rx="34" fill="#ffffff" opacity=".01" filter="url(#miniShadow)"/>
+          <g clip-path="url(#miniGlassClip)">
+            <rect id="miniGlassBackdrop" x="204" y="24" width="308" height="232" rx="34" fill="#ffffff" fill-opacity=".24"/>
+            <g id="miniRows" opacity="1" transform="translate(232 94)">
+              <g transform="translate(0 0)"><rect class="mini-row-bg" x="0" y="0" width="252" height="32" rx="11" fill="#ffffff" fill-opacity=".84"/><circle cx="16" cy="16" r="6" fill="#4338ca"/><line class="mini-row-line" x1="34" y1="16" x2="226" y2="16" stroke="#64748b" stroke-width="5" stroke-linecap="round"/></g>
+              <g transform="translate(0 52)"><rect class="mini-row-bg" x="0" y="0" width="252" height="32" rx="11" fill="#ffffff" fill-opacity=".84"/><circle cx="16" cy="16" r="6" fill="#059669"/><line class="mini-row-line" x1="34" y1="16" x2="226" y2="16" stroke="#64748b" stroke-width="5" stroke-linecap="round"/></g>
+              <g transform="translate(0 104)"><rect class="mini-row-bg" x="0" y="0" width="252" height="32" rx="11" fill="#ffffff" fill-opacity=".84"/><circle cx="16" cy="16" r="6" fill="#be185d"/><line class="mini-row-line" x1="34" y1="16" x2="226" y2="16" stroke="#64748b" stroke-width="5" stroke-linecap="round"/></g>
+            </g>
           </g>
-          <text id="miniStageLabel" x="204" y="272" font-size="17" font-weight="850" font-family="system-ui, sans-serif" fill="#172033">CONTENT_REVEAL · rows visible</text>
+          <rect id="miniGlassRect" x="204" y="24" width="308" height="232" rx="34" fill="url(#miniGlassFill)" stroke="#ffffff" stroke-width="4"/>
+          <path id="miniSpecular" d="M228 29 C330 18 460 20 507 54" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity=".86"/>
+          <circle id="miniTouchHalo" cx="477" cy="59" r="29" fill="#ffffff" opacity="0"/>
+          <g id="miniDots" transform="translate(477 59)" fill="#334155">
+            <circle cx="-12" cy="0" r="4"/><circle cx="0" cy="0" r="4"/><circle cx="12" cy="0" r="4"/>
+          </g>
+          <rect x="0" y="282" width="560" height="38" fill="#ffffff" fill-opacity=".90"/>
+          <text id="miniStageLabel" x="280" y="307" text-anchor="middle" font-size="15" font-weight="850" font-family="system-ui, sans-serif" fill="#172033">CONTENT_REVEAL · rows visible</text>
         </svg>
-        <p id="miniPreviewText"><strong>Input:</strong> <code>CONTENT_REVEAL</code> and <code>true</code>.<br><strong>Operation:</strong> the browser reads those two assigned values.<br><strong>Output:</strong> the timeline selects content reveal and the preview shows menu rows.</p>
-        <p class="model-note"><strong>Evidence limit:</strong> this browser parser only demonstrates a data model. It does not compile Kotlin and does not show Android rendering.</p>
+        <p id="miniPreviewText"><strong>Input:</strong> <code>CONTENT_REVEAL</code> and <code>true</code>.<br><strong>Operation:</strong> the stage value selects one boundary record. The Boolean value sets the row group opacity.<br><strong>Output:</strong> the preview uses the selected boundary and shows the menu rows.</p>
+        <p class="model-note"><strong>Evidence limit:</strong> this browser parser only demonstrates a data model. It does not compile Kotlin and does not show Android rendering. The stage dimensions are teaching values chosen for this small SVG, not measurements from iOS or Android.</p>
       </aside>
     </div>
   </section>
@@ -1381,13 +1448,51 @@ val inspectedFrame = ObservationFrame(
 
   // Kotlin teaching challenge.
   const defaultCode = $('codeEditor').value;
-  const miniStages = ['REST','PRESS_RESPONSE','EARLY_EXPANSION','MIDDLE_EXPANSION','CONTENT_REVEAL','SETTLED','CLOSING'];
+  const miniStages = ['REST','INITIAL_CONTACT','PRESS_RESPONSE','EARLY_EXPANSION','MIDDLE_EXPANSION','CONTENT_REVEAL','SETTLED','CLOSING'];
+
+  // These are SVG teaching coordinates. Every stage keeps its right edge at x = 512,
+  // so the source-side guide stays fixed while the left and bottom edges move.
+  const MINI_STAGE_VISUALS = {
+    REST:             { x: 442, y: 24, w: 70,  h: 70,  rx: 35, dots: 1.00, touch: 0.00, fill: .62, specular: .54 },
+    INITIAL_CONTACT:  { x: 442, y: 24, w: 70,  h: 70,  rx: 35, dots: 1.00, touch: .52, fill: .65, specular: .68 },
+    PRESS_RESPONSE:   { x: 450, y: 32, w: 62,  h: 62,  rx: 31, dots: 1.00, touch: .78, fill: .69, specular: .86 },
+    EARLY_EXPANSION:  { x: 346, y: 24, w: 166, h: 108, rx: 38, dots: .68, touch: .34, fill: .72, specular: .82 },
+    MIDDLE_EXPANSION: { x: 224, y: 24, w: 288, h: 190, rx: 34, dots: .18, touch: .10, fill: .76, specular: .94 },
+    CONTENT_REVEAL:   { x: 204, y: 24, w: 308, h: 232, rx: 34, dots: 0.00, touch: 0.00, fill: .80, specular: .78 },
+    SETTLED:          { x: 184, y: 24, w: 328, h: 250, rx: 32, dots: 0.00, touch: 0.00, fill: .84, specular: .64 },
+    CLOSING:          { x: 266, y: 24, w: 246, h: 196, rx: 36, dots: .12, touch: 0.00, fill: .74, specular: .88 }
+  };
+
+  function replaceTeachingAssignment(pattern, replacement) {
+    const editor = $('codeEditor');
+    if (!pattern.test(editor.value)) {
+      $('codeResult').className = 'result-box error';
+      $('codeResult').textContent = 'The matching assignment could not be found. Reset the code, then try the preview control again.';
+      return;
+    }
+    editor.value = editor.value.replace(pattern, replacement);
+    editor.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
   miniStages.forEach(name => {
-    const item = document.createElement('div');
+    const item = document.createElement('button');
+    item.type = 'button';
     item.className = 'mini-stage';
     item.dataset.stage = name;
     item.textContent = name.replaceAll('_', ' ');
+    item.setAttribute('aria-label', `Set stage to MenuStage.${name}`);
+    item.setAttribute('aria-pressed', 'false');
+    item.addEventListener('click', () => {
+      replaceTeachingAssignment(/(stage\s*=\s*MenuStage\.)[A-Z_]+/, `$1${name}`);
+    });
     $('miniTimeline').appendChild(item);
+  });
+
+  document.querySelectorAll('[data-rows-visible]').forEach(button => {
+    button.setAttribute('aria-pressed', 'false');
+    button.addEventListener('click', () => {
+      replaceTeachingAssignment(/(menuRowsVisible\s*=\s*)(true|false)/, `$1${button.dataset.rowsVisible}`);
+    });
   });
 
   function parseTeachingCode() {
@@ -1400,14 +1505,84 @@ val inspectedFrame = ObservationFrame(
     };
   }
 
+  function setMiniRect(node, visual) {
+    node.setAttribute('x', visual.x);
+    node.setAttribute('y', visual.y);
+    node.setAttribute('width', visual.w);
+    node.setAttribute('height', visual.h);
+    node.setAttribute('rx', Math.min(visual.rx, visual.w / 2, visual.h / 2));
+  }
+
+  function renderMiniStage(visual) {
+    setMiniRect($('miniClipRect'), visual);
+    setMiniRect($('miniGlassShadowRect'), visual);
+    setMiniRect($('miniGlassBackdrop'), visual);
+    setMiniRect($('miniGlassRect'), visual);
+    $('miniGlassRect').setAttribute('fill-opacity', visual.fill.toFixed(2));
+
+    const dotsX = visual.x + visual.w - Math.min(35, visual.w / 2);
+    const dotsY = visual.y + Math.min(35, visual.h / 2);
+    $('miniDots').setAttribute('transform', `translate(${dotsX} ${dotsY})`);
+    $('miniDots').setAttribute('opacity', visual.dots.toFixed(2));
+    $('miniTouchHalo').setAttribute('cx', dotsX);
+    $('miniTouchHalo').setAttribute('cy', dotsY);
+    $('miniTouchHalo').setAttribute('opacity', visual.touch.toFixed(2));
+
+    const rowWidth = Math.max(44, visual.w - 56);
+    const rowStartX = visual.x + 28;
+    const rowStartY = visual.y + 70;
+    $('miniRows').setAttribute('transform', `translate(${rowStartX} ${rowStartY})`);
+    document.querySelectorAll('.mini-row-bg').forEach(row => row.setAttribute('width', rowWidth));
+    document.querySelectorAll('.mini-row-line').forEach(line => line.setAttribute('x2', Math.max(42, rowWidth - 26)));
+
+    const radius = Math.min(visual.rx, visual.w / 2, visual.h / 2);
+    const startX = visual.x + Math.max(12, radius * .55);
+    const endX = visual.x + visual.w - 5;
+    const endY = visual.y + Math.min(48, visual.h * .42);
+    $('miniSpecular').setAttribute('d', `M${startX} ${visual.y + 5} C${visual.x + visual.w * .42} ${visual.y - 3} ${visual.x + visual.w * .84} ${visual.y + 2} ${endX} ${endY}`);
+    $('miniSpecular').setAttribute('opacity', visual.specular.toFixed(2));
+  }
+
   function updateCodePreview() {
     const parsed = parseTeachingCode();
-    document.querySelectorAll('.mini-stage').forEach(item => item.classList.toggle('active', item.dataset.stage === parsed.stage));
+    const visual = parsed.stage ? MINI_STAGE_VISUALS[parsed.stage] : null;
+
+    codingComplete = false;
+    $('codeResult').className = 'result-box';
+    $('codeResult').textContent = visual && parsed.rowsVisible !== null
+      ? `The preview now represents ${parsed.stage} with menuRowsVisible = ${parsed.rowsVisible}. Press “Check code” when the two assignments match the challenge.`
+      : 'The preview input is incomplete. Repair the two assignments or press “Reset code”.';
+    updateRecord();
+
+    document.querySelectorAll('.mini-stage').forEach(item => {
+      const active = item.dataset.stage === parsed.stage;
+      item.classList.toggle('active', active);
+      item.setAttribute('aria-pressed', String(active));
+    });
+    document.querySelectorAll('[data-rows-visible]').forEach(button => {
+      const active = parsed.rowsVisible !== null && button.dataset.rowsVisible === String(parsed.rowsVisible);
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+
+    if (visual) renderMiniStage(visual);
     $('miniRows').setAttribute('opacity', parsed.rowsVisible === true ? '1' : parsed.rowsVisible === false ? '0' : '.25');
+
     const stageText = parsed.stage || 'stage not found';
     const rowText = parsed.rowsVisible === true ? 'rows visible' : parsed.rowsVisible === false ? 'rows hidden' : 'row value not found';
     $('miniStageLabel').textContent = `${stageText} · ${rowText}`;
-    $('miniPreviewText').innerHTML = `<strong>Input:</strong> <code>${stageText}</code> and <code>${parsed.rowsVisible === null ? 'not found' : parsed.rowsVisible}</code>.<br><strong>Operation:</strong> the browser reads those two assigned values.<br><strong>Output:</strong> the timeline selects the named stage and the preview ${parsed.rowsVisible ? 'shows' : 'hides'} menu rows.`;
+
+    if (!visual) {
+      $('miniPreviewText').innerHTML = `<strong>Input:</strong> the browser could not find a supported <code>MenuStage</code> assignment.<br><strong>Operation:</strong> no boundary record can be selected.<br><strong>Output:</strong> the preview keeps the last valid boundary until the assignment is repaired.`;
+      return;
+    }
+
+    const rowOperation = parsed.rowsVisible === true
+      ? 'sets the row group opacity to 1, so the rows are drawn'
+      : parsed.rowsVisible === false
+        ? 'sets the row group opacity to 0, so the rows are not drawn'
+        : 'cannot set a final row opacity because the Boolean assignment was not found';
+    $('miniPreviewText').innerHTML = `<strong>Input:</strong> <code>${stageText}</code> and <code>${parsed.rowsVisible === null ? 'not found' : parsed.rowsVisible}</code>.<br><strong>Operation:</strong> <code>${stageText}</code> selects x=${visual.x}, y=${visual.y}, width=${visual.w}, height=${visual.h}, and corner radius=${visual.rx}. The Boolean ${rowOperation}.<br><strong>Output:</strong> the boundary changes to the selected stage geometry, while row visibility follows the separate Boolean value.`;
   }
 
   $('codeEditor').addEventListener('input', updateCodePreview);

@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Updated:** 2026-07-18  
+**Updated:** 2026-07-19  
 **Course plan version:** 1.2
 
 ## Stable course decisions
@@ -72,6 +72,8 @@ lesson_01_01_completed_by_learner: true
 lesson_01_01_completion_basis: learner explicitly reported completion and no questions; exercise answers were not submitted for conversational grading
 lesson_01_02_file: course/chapters/chapter-01/lesson-01-02-observe-the-transition.html
 lesson_01_02_generated: true
+lesson_01_02_revision: 2026-07-19-code-preview-geometry-and-controls-fix
+lesson_01_02_revision_validated: true
 lesson_01_02_completed_by_learner: false
 lesson_01_02_android_source_changed: false
 chapter_1_completed_by_learner: false
@@ -127,7 +129,9 @@ Open and complete:
 course/chapters/chapter-01/lesson-01-02-observe-the-transition.html
 ```
 
-Lesson 1.2 is already generated. It includes:
+Lesson 1.2 is already generated. It was revised on 2026-07-19 after the learner reported that changing `MenuStage` only changed text and did not change the small preview boundary. The revision also made the preview controls clickable. The code editor, eight stage buttons, and two Boolean buttons now write into one shared preview state.
+
+It includes:
 
 - definitions of frame, transition, and stage;
 - a manual eight-state transition stepper;
@@ -136,6 +140,9 @@ Lesson 1.2 is already generated. It includes:
 - an optional local video scrubber with approximate 1/60-second nudging;
 - a visible fact versus implementation hypothesis check;
 - an isolated Kotlin data-model challenge;
+- a code-driven preview whose boundary geometry changes for every stage;
+- eight clickable stage buttons that rewrite the `stage` assignment;
+- clickable `true` and `false` buttons that rewrite `menuRowsVisible`;
 - four final exercises and a copyable completion record.
 
 No Android source changes are required for Lesson 1.2.

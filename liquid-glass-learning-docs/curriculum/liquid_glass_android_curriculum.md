@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
 **Version:** 1.2  
-**Updated:** 2026-07-18  
-**Current course position:** Lesson 1.1 is complete by learner confirmation. Lesson 1.2 has been generated and delivered. Its checkpoint is not complete yet.  
+**Updated:** 2026-07-19  
+**Current course position:** Lesson 1.1 is complete by learner confirmation. Lesson 1.2 has been generated, delivered, and revised after a code-preview interaction defect was reported. Its checkpoint is not complete yet.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -977,6 +977,8 @@ The cumulative delivery package through Lesson 1.2 contains:
 - a small desktop verification script.
 
 Lesson 1.1 is marked complete from the learner’s explicit confirmation that the lesson is finished and no questions remain. Exercise answers were not submitted for conversational grading, so the handoff records completion as learner-confirmed rather than graded. Lesson 1.2 is delivered and is the current lesson.
+
+Lesson 1.2 was revised on 2026-07-19. The coding preview now changes the rounded boundary geometry when the `MenuStage` assignment changes. All eight stage controls are real buttons. Clicking a stage button rewrites the `stage` assignment. Two additional buttons rewrite `menuRowsVisible`. The editor and the controls therefore feed one shared preview state.
 
 ---
 
