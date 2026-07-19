@@ -1,13 +1,14 @@
 # Liquid Glass on Android — Conversation Handoff
 
 **Updated:** 2026-07-19  
-**Course plan version:** 1.2
+**Course plan version:** 1.3
 
 ## Stable course decisions
 
 - Kotlin and Jetpack Compose are the Android implementation path.
 - The Pixel 8 Pro is the physical learning and verification device.
 - The main learning path uses `minSdk = 33` for Android `RuntimeShader` and Android Graphics Shading Language (AGSL).
+- Lesson 1.3 uses the dated 2026-07-19 toolchain snapshot `compileSdk = 37`, `targetSdk = 37`, and `minSdk = 33`. Keep the current Android Studio template's generated plugin and dependency versions.
 - The learner is a senior web engineer and an absolute beginner in mathematics, graphics programming, shaders, graphics processing unit (GPU) concepts, and Android rendering internals.
 - Explanations use short declarative sentences and plain English.
 - At the end of every response, state a clearly labelled best-effort estimate of the remaining conversation context window in tokens. The number is approximate, not exact.
@@ -56,10 +57,13 @@ The actual curriculum map contains **216 lessons**. An earlier conversational su
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 1.2
+course_version: 1.3
 platform: Kotlin + Jetpack Compose
 learning_device: Pixel 8 Pro
 learning_min_sdk: 33
+toolchain_snapshot_date: 2026-07-19
+compile_sdk: 37
+target_sdk: 37
 delivery_format: HTML-first
 learning_docs_repo_contains_android_project: false
 course_home_file: liquid-glass-course.html
@@ -74,13 +78,22 @@ lesson_01_02_file: course/chapters/chapter-01/lesson-01-02-observe-the-transitio
 lesson_01_02_generated: true
 lesson_01_02_revision: 2026-07-19-code-preview-geometry-and-controls-fix
 lesson_01_02_revision_validated: true
-lesson_01_02_completed_by_learner: false
+lesson_01_02_completed_by_learner: true
+lesson_01_02_completion_basis: learner confirmed the reported defect was fixed and explicitly requested Lesson 1.3; exercise answers were not submitted for conversational grading
 lesson_01_02_android_source_changed: false
+lesson_01_03_file: course/chapters/chapter-01/lesson-01-03-create-the-android-project.html
+lesson_01_03_generated: true
+lesson_01_03_android_source_changed: true
+lesson_01_03_android_companion: LiquidGlassLab-lesson-01-03-source-overlay.zip
+lesson_01_03_android_files:
+  - app/src/main/java/com/example/liquidglasslab/MainActivity.kt
+  - app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
+lesson_01_03_completed_by_learner: false
 chapter_1_completed_by_learner: false
 current_chapter: 1
-current_lesson: 1.2
-current_lesson_file: course/chapters/chapter-01/lesson-01-02-observe-the-transition.html
-next_required_output: review the learner's Lesson 1.2 answers, completion record, visual issue, or question; then update progress
+current_lesson: 1.3
+current_lesson_file: course/chapters/chapter-01/lesson-01-03-create-the-android-project.html
+next_required_output: review the learner's Lesson 1.3 build result, Pixel screenshot, completion record, source problem, or question; do not generate Lesson 1.4 until Lesson 1.3 is complete
 ```
 
 ## Required Chapter 1 file set
@@ -98,13 +111,78 @@ course/chapters/chapter-01/
 └── lesson-01-08-diagnosis-and-checkpoint.html
 ```
 
-The related Android source lives in a separate project and will use paths under:
+The related Android source lives in the separate project:
 
 ```text
-LiquidGlassLab/app/src/main/java/<package>/chapter01/
+LiquidGlassLab/
+└── app/src/main/java/com/example/liquidglasslab/
+    ├── MainActivity.kt
+    └── chapter01/
+        └── Chapter01Screen.kt
 ```
 
-The learning-document package does not contain this Android project.
+Lesson 1.3 deliberately does not create `Chapter01Route.kt`. The app has one destination, so `MainActivity` calls `Chapter01Screen` directly. A navigation abstraction will be introduced only when a second destination creates a routing requirement.
+
+## Lesson 1.3 delivery details
+
+The lesson file is:
+
+```text
+course/chapters/chapter-01/lesson-01-03-create-the-android-project.html
+```
+
+It includes:
+
+- a known-good baseline explanation;
+- exact project-wizard values for `LiquidGlassLab` and `com.example.liquidglasslab`;
+- a live `compileSdk`, `minSdk`, and `targetSdk` laboratory;
+- direct editor changes and clickable presets that share one SDK preview state;
+- a clickable generated-project tree with exact file responsibilities;
+- the complete `MainActivity.kt` and `Chapter01Screen.kt` source;
+- a browser illustration of the expected three-line Pixel result;
+- a manual eight-step source-to-pixels pipeline;
+- exact input → operation → output descriptions for every pipeline stage;
+- USB and wireless debugging paths for the Pixel 8 Pro;
+- a Windows versus WSL ADB warning tailored to the learner’s setup;
+- troubleshooting grouped by build, authorization, installation, launch, and visible-result boundaries;
+- one editor-driven SDK coding challenge;
+- four exercises with hidden answers;
+- a copyable completion record;
+- official Android source links and a concrete browser-model limitation.
+
+The separate Android companion ZIP contains:
+
+```text
+README-APPLY.md
+CHECKPOINT.md
+reference/APP_BUILD_GRADLE_CHECK.txt
+app/src/main/java/com/example/liquidglasslab/MainActivity.kt
+app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
+```
+
+It contains no complete Gradle build file. The learner must first create and run the current Empty Activity template, then overlay these source files.
+
+## Lesson 1.3 checkpoint
+
+Lesson 1.3 is complete only when:
+
+- [ ] `LiquidGlassLab` was created with the Empty Activity Compose template.
+- [ ] The package is `com.example.liquidglasslab`, or every supplied package declaration, import, and source path was deliberately adjusted to one consistent alternative.
+- [ ] `compileSdk = 37`, `minSdk = 33`, and `targetSdk = 37` were verified for the 2026-07-19 course snapshot.
+- [ ] The untouched generated template ran on the Pixel 8 Pro before course source was applied.
+- [ ] The companion `MainActivity.kt` and `Chapter01Screen.kt` files compile.
+- [ ] ADB lists the Pixel with the state `device`, not `unauthorized`.
+- [ ] The Pixel shows the exact lines `Liquid Glass Lab`, `Chapter 1 · Android baseline`, and `No glass effect is implemented yet.`
+- [ ] A screenshot was saved.
+- [ ] The learner can name the last proven boundary when a later run fails.
+- [ ] The Android work is committed to Git.
+
+Suggested commits:
+
+```text
+course: create Compose project baseline
+course: add chapter 1 Android baseline screen
+```
 
 ## Chapter 1 checkpoint
 
@@ -126,36 +204,50 @@ Chapter 1 is complete only when:
 Open and complete:
 
 ```text
-course/chapters/chapter-01/lesson-01-02-observe-the-transition.html
-```
-
-Lesson 1.2 is already generated. It was revised on 2026-07-19 after the learner reported that changing `MenuStage` only changed text and did not change the small preview boundary. The revision also made the preview controls clickable. The code editor, eight stage buttons, and two Boolean buttons now write into one shared preview state.
-
-It includes:
-
-- definitions of frame, transition, and stage;
-- a manual eight-state transition stepper;
-- a previous-sampled-boundary overlay;
-- separate focus modes for boundary, background, content, light, and shadow;
-- an optional local video scrubber with approximate 1/60-second nudging;
-- a visible fact versus implementation hypothesis check;
-- an isolated Kotlin data-model challenge;
-- a code-driven preview whose boundary geometry changes for every stage;
-- eight clickable stage buttons that rewrite the `stage` assignment;
-- clickable `true` and `false` buttons that rewrite `menuRowsVisible`;
-- four final exercises and a copyable completion record.
-
-No Android source changes are required for Lesson 1.2.
-
-Do not generate Lesson 1.3 until the learner reports that Lesson 1.2 is complete or supplies answers, a completion record, a visual problem, or a question for review.
-
-After Lesson 1.2 is complete, generate:
-
-```text
 course/chapters/chapter-01/lesson-01-03-create-the-android-project.html
 ```
 
-Lesson 1.3 is the first lesson that creates or changes the separate Android Studio project.
+Lesson 1.3 is the first Android implementation checkpoint. It creates a separate `LiquidGlassLab` project. It first runs the untouched Empty Activity template. It then applies the companion source overlay.
+
+The lesson includes:
+
+- exact Android Studio wizard values;
+- an interactive `compileSdk`, `minSdk`, and `targetSdk` laboratory;
+- a clickable generated-project map;
+- two complete Kotlin files with input → operation → output traces;
+- a manual eight-step source-to-pixels stepper;
+- USB and wireless debugging paths for the Pixel 8 Pro;
+- troubleshooting grouped by build, authorization, installation, launch, and visible-result boundaries;
+- one editor-driven SDK coding challenge;
+- four final exercises and a copyable completion record.
+
+The separate Android companion ZIP is:
+
+```text
+LiquidGlassLab-lesson-01-03-source-overlay.zip
+```
+
+It contains:
+
+```text
+README-APPLY.md
+CHECKPOINT.md
+reference/APP_BUILD_GRADLE_CHECK.txt
+app/src/main/java/com/example/liquidglasslab/MainActivity.kt
+app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
+```
+
+The companion is a source overlay, not a complete generated Android Studio project. The learner must keep the Gradle wrapper, current plugin declarations, dependency versions, manifest, resources, and generated theme from the locally installed Android Studio template.
+
+Lesson 1.3 deliberately does not add `Chapter01Route.kt`. The app has one destination. `MainActivity` calls `Chapter01Screen` directly. A route or navigation abstraction is deferred until it owns real state or selects between real destinations.
+
+Do not generate Lesson 1.4 until the learner reports that the project builds and the exact three-line baseline appears on the Pixel, or supplies a build error, screenshot, source problem, exercise answers, completion record, or question for review.
+
+After Lesson 1.3 is complete, generate:
+
+```text
+course/chapters/chapter-01/lesson-01-04-build-a-study-background.html
+```
 
 ## Reusable continuation prompt
 
@@ -190,7 +282,7 @@ Course file rules:
 
 Read the current progress in the handoff.
 
-If the current lesson file is missing, generate that one lesson file and any Android source or patch it needs. Keep the Android files outside the learning-docs tree.
+If the current lesson file is missing, generate that one lesson file and any Android source or patch it needs. Keep Android files outside the learning-docs tree.
 If the lesson exists but the checkpoint is incomplete, review my result and teach the next smallest missing step.
 If the checkpoint is complete, update the handoff and move to the next lesson.
 

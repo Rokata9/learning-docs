@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 1.2  
+**Version:** 1.3  
 **Updated:** 2026-07-19  
-**Current course position:** Lesson 1.1 is complete by learner confirmation. Lesson 1.2 has been generated, delivered, and revised after a code-preview interaction defect was reported. Its checkpoint is not complete yet.  
+**Current course position:** Lessons 1.1 and 1.2 are complete by learner progression. Lesson 1.3 has been generated and is the current checkpoint.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -10,7 +10,7 @@
 
 ---
 
-## 1. What changed in version 1.2
+## 1. What changed through version 1.3
 
 Version 1.0 placed the complete Chapter 1 teaching text and its large Compose example inside this master Markdown file. That was a bundled-document structure.
 
@@ -29,6 +29,15 @@ Version 1.2 adds these decisions:
 - Kotlin and AGSL source code lives in the separate Android project. A lesson quotes the exact lines it teaches and states the complete target file path.
 - Static SVG, PNG, Mermaid, or Markdown files are used only when they explain the topic better than an interactive page.
 - The conversation handoff remains a separate Markdown file because it records course state for the next conversation.
+
+Version 1.3 adds the first Android project lesson:
+
+- Lesson 1.2 is marked complete because the learner confirmed the reported defect was fixed and explicitly requested Lesson 1.3.
+- Lesson 1.3 creates the separate `LiquidGlassLab` project with the exact course package `com.example.liquidglasslab`.
+- The lesson first runs the untouched Empty Activity template. This establishes a known-good build and device baseline before course code is copied.
+- The Android companion package contains only `MainActivity.kt` and `chapter01/Chapter01Screen.kt`. It deliberately leaves the template-generated Gradle and theme files in place.
+- `MainActivity` calls `Chapter01Screen` directly. A route abstraction is not added while the app has one destination.
+- The lesson introduces a manual source-to-pixels pipeline, a project-configuration laboratory, USB and Wi-Fi ADB paths, an editor-driven coding challenge, exercises, and a completion record.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -85,6 +94,15 @@ This means:
 - `minSdk = 33` during the main learning path
 - Latest stable compile SDK and target SDK installed in Android Studio
 - No third-party glass-effect library during the main course
+
+Toolchain snapshot for Lesson 1.3, checked on 2026-07-19:
+
+- Android Studio Quail 2 | 2026.1.2 is the stable Android Studio release used as the documentation reference.
+- `compileSdk = 37` and `targetSdk = 37` are the course values for the current Android 17 platform.
+- `minSdk = 33` remains the learning floor.
+- The generated Android Studio template owns the Android Gradle Plugin, Gradle, Compose, and dependency versions.
+- Android Gradle Plugin 9 and newer include built-in Kotlin support. Do not add an older `org.jetbrains.kotlin.android` plugin line to a current template unless the generated project explicitly requires it.
+- These compile and target values are a dated snapshot. A later lesson delivery may move both to a newer stable API while keeping the learning floor at 33.
 
 `RuntimeShader` is available from API 33. Basic `RenderEffect` blur starts at API 31. The course uses API 33 so the early lessons do not need fallback branches while the graphics concepts are still new. Older-device behavior is handled in the production chapter.
 
@@ -750,102 +768,34 @@ The page must not present a guessed Apple implementation as fact.
 
 ### `lesson-01-03-create-the-android-project.html`
 
-**New graphics idea:** The Android screen is the final rendering target.  
+**New graphics idea:** The physical Android screen is the final rendering target.  
 **New math idea:** None.
 
 Interactive explanation:
 
-- A clickable project tree.
-- A small flow from `MainActivity` to a Compose screen to pixels.
-- Exact project settings: Kotlin, Compose, `minSdk = 33`, latest installed stable compile and target SDK.
-- Complete `MainActivity.kt` shown and linked to the Android project.
-- A device checklist for the Pixel 8 Pro.
+- A live project-configuration laboratory for project name, package, Empty Activity, Kotlin, and `minSdk = 33`.
+- A manual eight-step source-to-pixels pipeline: saved source, Gradle sync, compilation and resource processing, debug APK packaging, ADB installation and launch, Activity and Compose startup, and the displayed frame.
+- Exact input, operation, and output text for every pipeline step.
+- USB and Wi-Fi device-connection paths for the Pixel 8 Pro.
+- A failure-boundary guide that separates build, connection, installation, and runtime problems.
+- A clickable project tree and two complete Kotlin files.
+- An editable Gradle Kotlin DSL fragment in which direct edits, four presets, and six plus-or-minus controls share one SDK state.
+- Four exercises with hidden answers and a copyable lesson record.
 
-The lesson ends when the untouched project runs on the physical device.
-
-### `lesson-01-04-build-a-study-background.html`
-
-**New graphics idea:** A detailed background acts as a measuring surface.  
-**New math idea:** None.
-
-Interactive scene:
-
-- Toggles for sharp lines, large text, gradients, colored circles, light regions, and dark regions.
-- A “bad test background” preset with one flat color.
-- A “useful test background” preset with all measurement features.
-- A side-by-side explanation of which future effect each feature reveals.
-
-Android work introduces the study background composable.
-
-### `lesson-01-05-translucent-rounded-panel.html`
-
-**New graphics idea:** Translucency mixes the panel color with the background at the same position.  
-**New math idea:** Opacity as a number from 0 to 1.
-
-Interactive scene:
-
-- A rounded panel over the study background.
-- An alpha slider from 0 to 1.
-- White and pale-blue tint presets.
-- A magnifier that shows the same-position background and foreground colors.
-- Blur and refraction controls are visible but disabled, with a sentence explaining why.
-
-Android work adds the rounded panel and slider.
-
-### `lesson-01-06-alpha-mixture.html`
-
-**New graphics idea:** Compositing uses the foreground and background colors at one pixel position.  
-**New math idea:** Weighted mixture.
-
-Interactive scene:
-
-- Foreground, background, and alpha controls.
-- Live formula:
+Android companion delivery:
 
 ```text
-result = foreground × alpha + background × (1 - alpha)
+app/src/main/java/com/example/liquidglasslab/MainActivity.kt
+app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
 ```
 
-- A substituted numeric example that updates during interaction.
-- A row of neighboring pixels that remain untouched.
-- A counterexample showing that blur would need nearby pixels.
-- Another counterexample showing that refraction would read a shifted position.
+The learner must run the untouched generated template before applying these files. The Android package contains no Gradle files. This avoids pinning the course to a stale Android Gradle Plugin, Kotlin, or Compose template version.
 
-The page traces one actual channel value from input to final result.
-
-### `lesson-01-07-pixel-8-pro-experiment.html`
-
-**New graphics idea:** A controlled comparison changes one variable at a time.  
-**New math idea:** Percent and decimal representations of the same alpha value.
-
-Interactive worksheet:
-
-- Presets for 0%, 25%, 50%, 75%, and 100%.
-- A prediction field before each result.
-- A checklist for bright region, dark region, thin line, and text edge.
-- A place to record screenshot filenames.
-- A button that exports the observations as Markdown.
-
-The Android task repeats the same test on the Pixel 8 Pro.
-
-### `lesson-01-08-diagnosis-and-checkpoint.html`
-
-**New graphics idea:** A partial result can be diagnosed by naming the operations it contains and the operations it lacks.  
-**New math idea:** None.
-
-Interactive scene:
-
-- An ingredient checklist.
-- The current panel on the left.
-- A conceptual complete material on the right.
-- Selecting a missing ingredient highlights the visible difference without revealing future implementation code.
-- Two to four exercises with hidden answers.
-- A copyable Chapter 1 completion record.
-
-The page suggests the Git commit:
+Suggested commits:
 
 ```text
-course: complete chapter 1 transparency baseline
+course: create Compose project baseline
+course: add chapter 1 Android baseline screen
 ```
 
 ---
@@ -855,18 +805,19 @@ course: complete chapter 1 transparency baseline
 The Chapter 1 HTML files refer to one cumulative Android implementation in the separate `LiquidGlassLab` project:
 
 ```text
-LiquidGlassLab/app/src/main/java/<package>/chapter01/
-├── Chapter01Route.kt
-├── Chapter01Screen.kt
-├── StudyBackground.kt
-└── TranslucentPanel.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
+├── MainActivity.kt
+└── chapter01/
+    ├── Chapter01Screen.kt
+    ├── StudyBackground.kt          # introduced later
+    └── TranslucentPanel.kt         # introduced later
 ```
 
-The exact split may change if a smaller file structure makes the code easier to understand. Any change must be recorded in the chapter hub and handoff.
+Lesson 1.3 does not create `Chapter01Route.kt`. There is only one destination, so `MainActivity` calls `Chapter01Screen` directly. A route or navigation abstraction will be added only when a real second destination creates a routing problem.
 
 The source is cumulative:
 
-- Lesson 1.3 creates the project and route.
+- Lesson 1.3 creates the project and stable screen entry point.
 - Lesson 1.4 adds the study background.
 - Lesson 1.5 adds the translucent panel and alpha control.
 - Lesson 1.6 explains the math already visible in Lesson 1.5.
@@ -931,6 +882,7 @@ Read these two files first:
 Assume I am a senior web engineer and an absolute beginner in mathematics, graphics programming, shaders, GPU concepts, and Android rendering internals.
 
 Use simple English. Define each new graphics or math term at first use. Use short sentences. Explain one actual value through input → operation → output.
+At the end of every response, include a clearly labelled best-effort estimate of the remaining conversation context window in tokens. State that the number is approximate.
 
 Course file rules:
 - The master curriculum is a plan. Do not put full lessons into it.
@@ -965,20 +917,21 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 ## 14. Generated artifact status
 
-The cumulative delivery package through Lesson 1.2 contains:
+The cumulative delivery package through Lesson 1.3 contains:
 
 - `liquid-glass-course.html`;
 - `course/glossary.html`;
 - `course/chapters/chapter-01/lesson-a-transparent-panel-is-not-yet-liquid-glass.html`;
 - `course/chapters/chapter-01/lesson-01-01-visible-ingredients.html`;
 - `course/chapters/chapter-01/lesson-01-02-observe-the-transition.html`;
+- `course/chapters/chapter-01/lesson-01-03-create-the-android-project.html`;
 - the updated curriculum and handoff;
 - learner-work folders;
 - a small desktop verification script.
 
-Lesson 1.1 is marked complete from the learner’s explicit confirmation that the lesson is finished and no questions remain. Exercise answers were not submitted for conversational grading, so the handoff records completion as learner-confirmed rather than graded. Lesson 1.2 is delivered and is the current lesson.
+Lesson 1.1 is complete by explicit learner confirmation. Lesson 1.2 is complete by learner progression after its code-preview defect was fixed. Neither lesson was conversationally graded from submitted exercise answers.
 
-Lesson 1.2 was revised on 2026-07-19. The coding preview now changes the rounded boundary geometry when the `MenuStage` assignment changes. All eight stage controls are real buttons. Clicking a stage button rewrites the `stage` assignment. Two additional buttons rewrite `menuRowsVisible`. The editor and the controls therefore feed one shared preview state.
+Lesson 1.3 is generated and is the current lesson. Its separate Android companion ZIP contains `README-APPLY.md`, `MainActivity.kt`, and `Chapter01Screen.kt`. The Android ZIP is not nested in the learning-docs repository.
 
 ---
 
@@ -997,3 +950,8 @@ The course plan was checked against these public primary sources on 2026-07-18:
 - Android, **Using AGSL in your Android app**: https://developer.android.com/develop/ui/views/graphics/agsl/using-agsl
 - Android, **Graphics modifiers**: https://developer.android.com/develop/ui/compose/graphics/draw/modifiers
 - Android, **GraphicsLayer**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/layer/GraphicsLayer
+- Android, **Create a project**: https://developer.android.com/studio/projects/create-project
+- Android, **Jetpack Compose quick start**: https://developer.android.com/develop/ui/compose/setup
+- Android, **Run apps on a hardware device**: https://developer.android.com/studio/run/device
+- Android, **Configure on-device developer options**: https://developer.android.com/studio/debug/dev-options
+- Android, **Android Debug Bridge**: https://developer.android.com/tools/adb
