@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 1.4  
+**Version:** 1.5  
 **Updated:** 2026-07-19  
-**Current course position:** Lessons 1.1 through 1.3 are complete by learner progression. Lesson 1.4 has been generated and is the current checkpoint.  
+**Current course position:** Lessons 1.1 through 1.4 are complete by learner confirmation or progression. Lesson 1.5 has been generated and is the current checkpoint.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -10,7 +10,7 @@
 
 ---
 
-## 1. What changed through version 1.4
+## 1. What changed through version 1.5
 
 Version 1.0 placed the complete Chapter 1 teaching text and its large Compose example inside this master Markdown file. That was a bundled-document structure.
 
@@ -48,6 +48,17 @@ Version 1.4 adds the first controlled Android graphics scene:
 - The browser lesson compares a flat background and the study background under the same blur, shift, and tint teaching operations.
 - The lesson uses a manual layer-building stepper, a code-and-button synchronized coding challenge, four diagnostic exercises, and a Pixel 8 Pro checkpoint.
 - Delivery changes from cumulative archives to incremental archives. Each ZIP contains only files created or modified for the current lesson while preserving repository-relative paths.
+
+Version 1.5 adds the first translucent Android foreground:
+
+- Lesson 1.4 is marked complete because the learner reported that it was finished, clear, and tested.
+- Lesson 1.5 keeps `StudyBackground.kt` unchanged.
+- `Chapter01Screen.kt` now uses one parent `Box`, draws the study background first, and places the panel second at the center.
+- `TranslucentRoundedPanel.kt` is added. It owns `PanelFillAlpha = 0.25f`, `RoundedCornerShape(32.dp)`, and the white `Modifier.background` fill.
+- The Android panel requests fixed bounds of `328.dp × 190.dp` for this controlled experiment.
+- The lesson adds no blur, refraction, border, shadow, highlight, foreground content, or animation.
+- The browser lesson exposes the background layer, panel layer, and final composite separately. It also includes a sharp-edge diagnostic, a manual construction stepper, and a synchronized alpha coding challenge.
+- The alpha-mixture arithmetic remains deliberately deferred to Lesson 1.6.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -851,6 +862,39 @@ Suggested commit:
 course: add chapter 1 study background
 ```
 
+
+### `lesson-01-05-translucent-rounded-panel.html`
+
+**New graphics idea:** A translucent foreground fill changes visible colors without moving or softening the background geometry.  
+**New math idea:** No compositing formula yet. The lesson only maps `0.25f` to 25% opacity.
+
+Interactive explanation:
+
+- A live browser Canvas changes only the white panel alpha while preserving panel size, shape, layer order, and background content.
+- A three-view layer inspector shows the unchanged study background, the transparent panel layer on a checkerboard teaching surface, and the final composite.
+- A sharp-edge diagnostic distinguishes lower contrast from actual spatial blur. Its optional blur mode is clearly labelled as a counterexample rather than Android lesson code.
+- A value trace follows `PanelFillAlpha = 0.25f` into `Color.White.copy(alpha = PanelFillAlpha)` and then into `Modifier.background(color, shape)`.
+- A seven-step manual build sequence starts with the existing background and adds the parent `Box`, exact preview bounds, rounded shape, white alpha value, final fill, and diagnosis.
+- Complete source tabs show the two Android files changed by the lesson.
+- The coding challenge accepts direct editor changes and clickable opacity presets. Both paths update the same preview geometry and alpha state.
+- Four exercises test the distinction between lower contrast and blur, child order in the parent `Box`, the visible meanings of alpha 0 and 1, and the material operations still missing.
+- A copyable completion record captures the Pixel build, visible panel, sharp background, screenshot, and commit status.
+
+Android code delivery:
+
+```text
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/TranslucentRoundedPanel.kt
+```
+
+`StudyBackground.kt` is unchanged and is deliberately excluded from the incremental Android ZIP.
+
+Suggested commit:
+
+```text
+course: add translucent chapter 1 panel
+```
+
 ---
 
 ## 10. Android source organization for Chapter 1
@@ -863,7 +907,7 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
 └── chapter01/
     ├── Chapter01Screen.kt
     ├── StudyBackground.kt          # introduced in Lesson 1.4
-    └── TranslucentPanel.kt         # introduced later
+    └── TranslucentRoundedPanel.kt  # introduced in Lesson 1.5
 ```
 
 Lesson 1.3 does not create `Chapter01Route.kt`. There is only one destination, so `MainActivity` calls `Chapter01Screen` directly. A route or navigation abstraction will be added only when a real second destination creates a routing problem.
@@ -872,7 +916,7 @@ The source is cumulative:
 
 - Lesson 1.3 creates the project and stable screen entry point.
 - Lesson 1.4 adds the study background.
-- Lesson 1.5 adds the translucent panel and alpha control.
+- Lesson 1.5 adds the fixed 25% translucent rounded panel.
 - Lesson 1.6 explains the math already visible in Lesson 1.5.
 - Lesson 1.7 runs the controlled device experiment.
 - Lesson 1.8 records the checkpoint.
@@ -981,18 +1025,19 @@ Generated and available lesson files:
 - `course/chapters/chapter-01/lesson-01-01-visible-ingredients.html`;
 - `course/chapters/chapter-01/lesson-01-02-observe-the-transition.html`;
 - `course/chapters/chapter-01/lesson-01-03-create-the-android-project.html`;
-- `course/chapters/chapter-01/lesson-01-04-build-a-study-background.html`.
+- `course/chapters/chapter-01/lesson-01-04-build-a-study-background.html`;
+- `course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html`.
 
-Lessons 1.1 through 1.3 are complete by explicit confirmation or learner progression. Exercise answers were not submitted for conversational grading.
+Lessons 1.1 through 1.4 are complete by explicit confirmation or learner progression. Exercise answers were not submitted for conversational grading.
 
-Lesson 1.4 is generated and is the current checkpoint. Its Android changed-file ZIP contains only:
+Lesson 1.5 is generated and is the current checkpoint. Its Android changed-file ZIP contains only:
 
 ```text
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/StudyBackground.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/TranslucentRoundedPanel.kt
 ```
 
-Its learning-docs changed-file ZIP contains only files created or modified for Lesson 1.4. Verification screenshots are not included in either archive.
+`StudyBackground.kt` remains cumulative source in the Android project but is unchanged and excluded from the Lesson 1.5 incremental ZIP. The learning-docs changed-file ZIP contains only files created or modified for Lesson 1.5. Verification screenshots are not included in either archive.
 
 ---
 
@@ -1012,6 +1057,9 @@ The course plan was checked against these public primary sources through 2026-07
 - Android, **Window insets in Compose**: https://developer.android.com/develop/ui/compose/system/insets
 - Android, **Using AGSL in your Android app**: https://developer.android.com/develop/ui/views/graphics/agsl/using-agsl
 - Android, **Graphics modifiers**: https://developer.android.com/develop/ui/compose/graphics/draw/modifiers
+- Android, **Compose modifier list**: https://developer.android.com/develop/ui/compose/modifiers-list
+- Android, **Compose Color reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color
+- Android, **Constraints and modifier order**: https://developer.android.com/develop/ui/compose/layouts/constraints-modifiers
 - Android, **GraphicsLayer**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/layer/GraphicsLayer
 - Android, **Create a project**: https://developer.android.com/studio/projects/create-project
 - Android, **Jetpack Compose quick start**: https://developer.android.com/develop/ui/compose/setup

@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Conversation Handoff
 
 **Updated:** 2026-07-19  
-**Course plan version:** 1.4
+**Course plan version:** 1.5
 
 ## Stable course decisions
 
@@ -63,7 +63,7 @@ The actual curriculum map contains **216 lessons**. An earlier conversational su
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 1.4
+course_version: 1.5
 platform: Kotlin + Jetpack Compose
 learning_device: Pixel 8 Pro
 learning_min_sdk: 33
@@ -102,12 +102,24 @@ lesson_01_04_android_source_changed: true
 lesson_01_04_android_changed_files:
   - app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
   - app/src/main/java/com/example/liquidglasslab/chapter01/StudyBackground.kt
-lesson_01_04_completed_by_learner: false
+lesson_01_04_completed_by_learner: true
+lesson_01_04_completion_basis: learner explicitly reported that Lesson 1.4 was finished, clear, and tested; exercise answers and a completion record were not submitted for conversational grading
+lesson_01_05_file: course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html
+lesson_01_05_generated: true
+lesson_01_05_android_source_changed: true
+lesson_01_05_android_changed_files:
+  - app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
+  - app/src/main/java/com/example/liquidglasslab/chapter01/TranslucentRoundedPanel.kt
+lesson_01_05_panel_width_dp: 328
+lesson_01_05_panel_height_dp: 190
+lesson_01_05_panel_corner_dp: 32
+lesson_01_05_panel_fill_alpha: 0.25
+lesson_01_05_completed_by_learner: false
 chapter_1_completed_by_learner: false
 current_chapter: 1
-current_lesson: 1.4
-current_lesson_file: course/chapters/chapter-01/lesson-01-04-build-a-study-background.html
-next_required_output: review the learner's Lesson 1.4 Pixel result, code, completion record, exercise answers, question, or build error; do not generate Lesson 1.5 until Lesson 1.4 is complete
+current_lesson: 1.5
+current_lesson_file: course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html
+next_required_output: review the learner's Lesson 1.5 Pixel result, code, completion record, exercise answers, question, or build error; do not generate Lesson 1.6 until Lesson 1.5 is complete
 ```
 
 ## Required Chapter 1 file set
@@ -133,86 +145,93 @@ LiquidGlassLab/
     ├── MainActivity.kt
     └── chapter01/
         ├── Chapter01Screen.kt
-        └── StudyBackground.kt
+        ├── StudyBackground.kt
+        └── TranslucentRoundedPanel.kt
 ```
 
 Lesson 1.3 deliberately did not create `Chapter01Route.kt`. The app has one destination, so `MainActivity` calls `Chapter01Screen` directly. A navigation abstraction will be introduced only when a second destination creates a routing requirement.
 
-## Lesson 1.4 delivery details
+## Lesson 1.5 delivery details
 
 The lesson file is:
 
 ```text
-course/chapters/chapter-01/lesson-01-04-build-a-study-background.html
+course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html
 ```
 
-The new graphics idea is that a useful test background contains known visual clues. No new mathematical formula is introduced.
+The main graphics idea is translucency from one foreground fill. No compositing formula is introduced yet.
 
 The lesson includes:
 
-- plain definitions of study background, visual clue, edge, gradient, silhouette, opaque color, Compose `Brush`, inset, and safe drawing area;
-- a side-by-side Canvas comparison of a flat background and the controlled study background;
-- browser-only no-op, soft-blur, small-shift, and pale-blue-tint test modes;
-- a clue isolator for gradient, solid color regions, circles, sharp lines, and text;
-- a real value trace from `SharpLineCount = 11` through `repeat` to eleven line children with indexes `0` through `10`;
+- plain definitions of panel, bounds, fill, opacity, foreground layer, density-independent pixels, and rounded corner shape;
+- a browser Canvas laboratory in which only the white fill alpha changes;
+- clickable 0%, 25%, 50%, 75%, and 100% presets plus a direct slider;
+- a three-view layer inspector for the study background, the transparent panel layer, and the final image;
+- a sharp-edge diagnostic that distinguishes lower contrast from blur;
+- an optional blur counterexample that is clearly excluded from the Android code;
+- a value trace from `PanelFillAlpha = 0.25f` through `Color.White.copy` to `Modifier.background`;
 - a seven-step manual build sequence with exact input, operation, and output text;
 - complete source tabs for the two changed Android files;
-- a code-driven challenge in which editor changes and clickable buttons share one preview state;
+- a coding challenge whose editor and clickable presets share the same parsed alpha and preview;
 - four exercises with hidden answers;
 - a copyable completion record;
 - official Android source links and a concrete browser-versus-Android evidence boundary.
 
-The browser blur, shift, and tint operations are visibility demonstrations. They are not an Android glass pipeline and do not claim to reveal Apple's implementation.
+The browser uses a `412 × 915` teaching canvas because those are the exact dimensions declared by the Compose preview. The browser's centered `328 × 190` panel therefore begins at x = 42 and y = 362.5 in that preview-local model. The real Pixel app-window height may differ. Chapter 2 teaches runtime coordinate measurement.
 
-## Lesson 1.4 Android code
+## Lesson 1.5 Android code
 
 The Android changed-file ZIP contains only:
 
 ```text
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/StudyBackground.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/TranslucentRoundedPanel.kt
 ```
 
-`Chapter01Screen.kt` delegates its full available size to `StudyBackground`.
+`StudyBackground.kt` is cumulative source from Lesson 1.4. It is unchanged and is not duplicated in the Lesson 1.5 ZIP.
 
-`StudyBackground.kt` creates:
+`Chapter01Screen.kt` now creates one full-size parent `Box`. It draws `StudyBackground()` first. It then centers `TranslucentRoundedPanel()` with fixed bounds of `328.dp × 190.dp`.
 
-- one full-window diagonal gradient;
-- four opaque color regions;
-- four circle silhouettes;
-- eleven sharp lines;
-- one large monospace text row;
-- one small monospace text row.
+`TranslucentRoundedPanel.kt` declares:
 
-The important clue content uses `safeDrawingPadding()`. The gradient still fills the complete app window.
+```kotlin
+internal const val PanelFillAlpha = 0.25f
+private val PanelShape = RoundedCornerShape(32.dp)
+```
 
-The lesson deliberately uses standard `Box`, `Column`, and `Row` composables. A custom Compose `Canvas` would introduce coordinate math before Chapter 2 teaches it. The scene is static and small. No measured performance problem currently justifies lower-level drawing code.
+The panel uses:
 
-No alpha value, blur, refraction, highlight, shadow, or animation is added to the Android project in Lesson 1.4.
+```kotlin
+Modifier.background(
+    color = Color.White.copy(alpha = PanelFillAlpha),
+    shape = PanelShape,
+)
+```
 
-## Lesson 1.4 checkpoint
+The panel has no child content. No blur, refraction, border, shadow, highlight, animation, or adaptive behavior is present.
 
-Lesson 1.4 is complete only when:
+## Lesson 1.5 checkpoint
+
+Lesson 1.5 is complete only when:
 
 - [ ] The incremental learning-docs ZIP was extracted over the existing learning-docs repository.
 - [ ] The incremental Android ZIP was extracted over the parent directory that contains `LiquidGlassLab`.
 - [ ] `Chapter01Screen.kt` was replaced.
-- [ ] `StudyBackground.kt` was added.
+- [ ] `TranslucentRoundedPanel.kt` was added.
+- [ ] `StudyBackground.kt` remained unchanged.
 - [ ] The Android project builds without a Kotlin compiler error.
-- [ ] The Pixel 8 Pro shows the full-window gradient.
-- [ ] Four color regions are visible.
-- [ ] Four circles are visible.
-- [ ] Exactly eleven sharp lines are visible.
-- [ ] Large and small monospace text are visible.
-- [ ] No glass panel is present yet.
+- [ ] The Pixel 8 Pro shows a centered rounded panel.
+- [ ] The study background remains visible through the panel.
+- [ ] Lines and text under the panel remain sharp and stay in place.
+- [ ] No blur, refraction, border, shadow, highlight, or animation appeared.
 - [ ] A Pixel screenshot was saved.
-- [ ] The learner can explain why the flat background hides a small blur or positional shift.
+- [ ] The learner can explain why lower contrast is not sufficient evidence of blur.
 - [ ] The Android change was committed to Git.
 
 Suggested commit:
 
 ```text
-course: add chapter 1 study background
+course: add translucent chapter 1 panel
 ```
 
 ## Chapter 1 checkpoint
@@ -235,20 +254,20 @@ Chapter 1 is complete only when:
 Open and complete:
 
 ```text
-course/chapters/chapter-01/lesson-01-04-build-a-study-background.html
+course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html
 ```
 
 Apply the separate Android changed-file ZIP. Run the result on the Pixel 8 Pro. Return with the completion record, screenshot observations, exercise answers, source question, or build error.
 
-Do not generate Lesson 1.5 until Lesson 1.4 is complete.
+Do not generate Lesson 1.6 until Lesson 1.5 is complete.
 
-After Lesson 1.4 is complete, generate:
+After Lesson 1.5 is complete, generate:
 
 ```text
-course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html
+course/chapters/chapter-01/lesson-01-06-alpha-mixture.html
 ```
 
-Lesson 1.5 must add only a rounded translucent panel and its alpha control. It must not add blur or refraction.
+Lesson 1.6 must explain the first alpha-mixture formula with live arithmetic. It must use the panel and study-background values already visible in Lesson 1.5. It must not add blur or refraction.
 
 ## Reusable continuation prompt
 

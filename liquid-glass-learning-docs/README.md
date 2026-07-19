@@ -21,20 +21,23 @@ No local web server is required. Every lesson is self-contained and works from `
 - Lesson 1.2: **Observe the transition one state at a time**
 - Lesson 1.3: **Create the Android project and prove the path to pixels**
 - Lesson 1.4: **Build a study background**
+- Lesson 1.5: **Draw a translucent rounded panel**
 - Updated curriculum and conversation handoff
 
 ## Current lesson
 
 ```text
-course/chapters/chapter-01/lesson-01-04-build-a-study-background.html
+course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html
 ```
 
-Lesson 1.4 adds a controlled background to the separate `LiquidGlassLab` project. The Android code-change archive contains only the two files changed by this lesson:
+Lesson 1.5 keeps `StudyBackground.kt` unchanged. It replaces the chapter screen and adds one panel file in the separate `LiquidGlassLab` project:
 
 ```text
 app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
-app/src/main/java/com/example/liquidglasslab/chapter01/StudyBackground.kt
+app/src/main/java/com/example/liquidglasslab/chapter01/TranslucentRoundedPanel.kt
 ```
+
+The panel is a centered `328.dp × 190.dp` rounded white fill at `0.25f` opacity. It adds no blur, refraction, border, shadow, highlight, or animation.
 
 The learning-docs repository still contains no Android source tree.
 
@@ -53,7 +56,7 @@ lesson-a-transparent-panel-is-not-yet-liquid-glass.html
 Sub-lessons use numbered descriptive names such as:
 
 ```text
-lesson-01-04-build-a-study-background.html
+lesson-01-05-translucent-rounded-panel.html
 ```
 
 Generic chapter `index.html` files are not used.
