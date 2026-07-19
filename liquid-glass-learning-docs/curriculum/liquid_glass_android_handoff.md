@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Conversation Handoff
 
 **Updated:** 2026-07-19  
-**Course plan version:** 1.5
+**Course plan version:** 1.6
 
 ## Stable course decisions
 
@@ -63,7 +63,7 @@ The actual curriculum map contains **216 lessons**. An earlier conversational su
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 1.5
+course_version: 1.6
 platform: Kotlin + Jetpack Compose
 learning_device: Pixel 8 Pro
 learning_min_sdk: 33
@@ -114,12 +114,24 @@ lesson_01_05_panel_width_dp: 328
 lesson_01_05_panel_height_dp: 190
 lesson_01_05_panel_corner_dp: 32
 lesson_01_05_panel_fill_alpha: 0.25
-lesson_01_05_completed_by_learner: false
+lesson_01_05_completed_by_learner: true
+lesson_01_05_completion_basis: learner explicitly reported no questions, confirmed the lesson was clear and tested, and requested the next lesson; exercise answers and a completion record were not submitted for conversational grading
+lesson_01_06_file: course/chapters/chapter-01/lesson-01-06-alpha-mixture.html
+lesson_01_06_generated: true
+lesson_01_06_android_source_changed: false
+lesson_01_06_android_changed_files: []
+lesson_01_06_foreground_channel_teaching_value: 1.00
+lesson_01_06_background_channel_teaching_value: 0.20
+lesson_01_06_panel_alpha: 0.25
+lesson_01_06_foreground_contribution: 0.25
+lesson_01_06_background_contribution: 0.15
+lesson_01_06_result_channel_teaching_value: 0.40
+lesson_01_06_completed_by_learner: false
 chapter_1_completed_by_learner: false
 current_chapter: 1
-current_lesson: 1.5
-current_lesson_file: course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html
-next_required_output: review the learner's Lesson 1.5 Pixel result, code, completion record, exercise answers, question, or build error; do not generate Lesson 1.6 until Lesson 1.5 is complete
+current_lesson: 1.6
+current_lesson_file: course/chapters/chapter-01/lesson-01-06-alpha-mixture.html
+next_required_output: review the learner's Lesson 1.6 completion record, exercise answers, question, or reported defect; do not generate Lesson 1.7 until Lesson 1.6 is complete
 ```
 
 ## Required Chapter 1 file set
@@ -234,6 +246,73 @@ Suggested commit:
 course: add translucent chapter 1 panel
 ```
 
+## Lesson 1.6 delivery details
+
+The lesson file is:
+
+```text
+course/chapters/chapter-01/lesson-01-06-alpha-mixture.html
+```
+
+The main graphics idea is same-position source-over compositing. The main mathematical idea is a weighted mixture whose two weights add to 1.
+
+The lesson includes:
+
+- canonical definitions of color channel, normalized value, weight, contribution, source, destination, sample, and source-over compositing;
+- a three-slider one-channel formula laboratory for foreground `F`, background `B`, and alpha `A`;
+- live substituted arithmetic for `R = F × A + B × (1 − A)`;
+- the exact course calculation `1.00 × 0.25 + 0.20 × 0.75 = 0.40`;
+- a seven-step manual derivation that exposes the selected output position, both same-position inputs, both weights, both contributions, and the result;
+- a six-position background strip proving that one shared alpha still produces different outputs over different background values;
+- a sampling comparison that distinguishes same-position alpha compositing from future blur and refraction operations;
+- an Android trace from `PanelFillAlpha` through `Color.White.copy`, draw order, and the default source-over blend;
+- a production warning showing why one Kotlin `mixChannel` result cannot replace per-position renderer compositing over a varying background;
+- an isolated Kotlin coding challenge that changes `backgroundShare` from `alpha` to `1f - alpha`;
+- four hidden-answer exercises and a copyable completion record;
+- an explicit evidence boundary for color space, numeric rounding, screenshot conversion, and rounded-edge coverage.
+
+The browser model uses deliberately chosen normalized channel values. `B = 0.20` is not claimed to be a sampled Pixel 8 Pro channel value. The model is a causal arithmetic bridge. The Android code supplies white and alpha `0.25f`; the actual destination value varies by output position.
+
+## Lesson 1.6 Android code
+
+No Android source file changes.
+
+The cumulative app remains:
+
+```text
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
+├── MainActivity.kt
+└── chapter01/
+    ├── Chapter01Screen.kt
+    ├── StudyBackground.kt
+    └── TranslucentRoundedPanel.kt
+```
+
+No Android ZIP is produced. An empty ZIP would conflict with the incremental-delivery rule.
+
+The isolated `mixChannel` function in the HTML is syntax and arithmetic practice. It is not production panel code and is not copied into `LiquidGlassLab`.
+
+## Lesson 1.6 checkpoint
+
+Lesson 1.6 is complete only when:
+
+- [ ] The incremental learning-docs ZIP was extracted over the existing learning-docs repository.
+- [ ] The formula laboratory was restored to `F = 1.00`, `B = 0.20`, and `A = 0.25`.
+- [ ] The learner can calculate foreground contribution `0.25`.
+- [ ] The learner can calculate background share `0.75` and background contribution `0.15`.
+- [ ] The learner can calculate final result `0.40`.
+- [ ] The learner can explain why the background is read at the same output position.
+- [ ] The learner can name the neighboring or shifted samples required by blur or refraction.
+- [ ] The unchanged Lesson 1.5 app was inspected over both a dark and a light background area on the Pixel 8 Pro.
+- [ ] No Android source file was changed for Lesson 1.6.
+- [ ] The learning-docs change was committed to Git.
+
+Suggested learning-docs commit:
+
+```text
+course: add chapter 1 alpha mixture lesson
+```
+
 ## Chapter 1 checkpoint
 
 Chapter 1 is complete only when:
@@ -254,20 +333,20 @@ Chapter 1 is complete only when:
 Open and complete:
 
 ```text
-course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html
-```
-
-Apply the separate Android changed-file ZIP. Run the result on the Pixel 8 Pro. Return with the completion record, screenshot observations, exercise answers, source question, or build error.
-
-Do not generate Lesson 1.6 until Lesson 1.5 is complete.
-
-After Lesson 1.5 is complete, generate:
-
-```text
 course/chapters/chapter-01/lesson-01-06-alpha-mixture.html
 ```
 
-Lesson 1.6 must explain the first alpha-mixture formula with live arithmetic. It must use the panel and study-background values already visible in Lesson 1.5. It must not add blur or refraction.
+No Android code archive is required. Run the unchanged Lesson 1.5 app on the Pixel 8 Pro only for the dark-versus-light background comparison. Return with the completion record, exercise answers, question, or reported HTML defect.
+
+Do not generate Lesson 1.7 until Lesson 1.6 is complete.
+
+After Lesson 1.6 is complete, generate:
+
+```text
+course/chapters/chapter-01/lesson-01-07-pixel-8-pro-experiment.html
+```
+
+Lesson 1.7 must add the controlled 0%, 25%, 50%, 75%, and 100% opacity experiment. It must keep blur and refraction absent so only alpha changes.
 
 ## Reusable continuation prompt
 

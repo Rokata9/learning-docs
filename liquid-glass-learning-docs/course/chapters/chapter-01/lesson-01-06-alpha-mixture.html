@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 1.6 — Learn the first alpha-mixture formula</title>
+  <style>
+    :root {
+      color-scheme:light;
+      --ink:#172033; --muted:#5c687a; --line:#d8e0ea; --paper:#fff; --soft:#f5f7fb;
+      --green:#059669; --green-soft:#ecfdf5; --indigo:#4338ca; --indigo-soft:#eef2ff;
+      --amber:#d97706; --amber-soft:#fef3c7; --pink:#be185d; --pink-soft:#fce7f3;
+      --blue:#1e40af; --blue-soft:#dbeafe; --red:#dc2626; --red-soft:#fee2e2;
+      --shadow:0 18px 52px rgba(30,41,59,.09);
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;color:var(--ink);background:linear-gradient(180deg,#f8fafc 0%,#edf2f7 100%);font:16px/1.62 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    a{color:var(--blue)} button,input,textarea{font:inherit} button{cursor:pointer} code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
+    code{background:var(--indigo-soft);color:#312e81;padding:.12em .36em;border-radius:6px}
+    .page{width:min(1820px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:22px}.crumbs{color:var(--muted)}
+    .lesson-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:var(--green-soft);border:1px solid #a7f3d0;color:#065f46;font-weight:800;white-space:nowrap}
+    .panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+    .hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(390px,.65fr);gap:28px;padding:42px}
+    .eyebrow{color:var(--green);font-size:13px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+    h1{margin:.35rem 0 1rem;font-size:clamp(44px,4vw,68px);line-height:1.03;letter-spacing:-.045em}
+    h2{margin:0 0 .8rem;font-size:30px;line-height:1.18;letter-spacing:-.018em} h3{margin:0 0 .55rem;font-size:21px;line-height:1.25}
+    p{max-width:92ch}.lead{font-size:19px;color:#3f4a5c}.goal-box{padding:24px;border-radius:18px;border:1px solid #c7d2fe;background:linear-gradient(145deg,#eef2ff,#f8fafc)}
+    .goal-box ul{margin:.6rem 0 0;padding-left:1.25rem}.section{margin-top:24px;padding:32px}.section-intro{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:22px}
+    .section-intro p{margin:0;color:var(--muted)}.section-number{color:var(--indigo);font-weight:850;letter-spacing:.03em}
+    .two-column{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.three-column{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.four-column{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+    .card{padding:20px;border:1px solid var(--line);border-radius:16px;background:#fbfcfe}.card p:last-child{margin-bottom:0}.card.green{background:var(--green-soft);border-color:#a7f3d0}.card.indigo{background:var(--indigo-soft);border-color:#c7d2fe}.card.amber{background:var(--amber-soft);border-color:#fcd34d}.card.blue{background:var(--blue-soft);border-color:#bfdbfe}.card.red{background:var(--red-soft);border-color:#fecaca}
+    .note,.warning,.success-note{margin-top:18px;padding:16px 18px;border-radius:14px}.note{border-left:5px solid var(--blue);background:var(--blue-soft);color:#1e3a8a}.warning{border-left:5px solid var(--amber);background:var(--amber-soft);color:#78350f}.success-note{border-left:5px solid var(--green);background:var(--green-soft);color:#065f46}
+    .primary-button,.secondary-button,.preset-button,.step-button,.toggle-button,.mode-button{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:800}
+    .primary-button{border:1px solid var(--blue);background:var(--blue);color:white}.secondary-button,.preset-button,.step-button,.toggle-button,.mode-button{border:1px solid #cbd5e1;background:white;color:#334155}
+    .secondary-button:hover,.preset-button:hover,.step-button:hover,.toggle-button:hover,.mode-button:hover{border-color:#94a3b8;background:#f8fafc}.selected{border-color:var(--indigo)!important;background:var(--indigo-soft)!important;color:#312e81!important}
+    .controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center}.lab-shell{border:1px solid var(--line);border-radius:19px;overflow:hidden;background:#fbfcfe}.lab-toolbar{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:16px 18px;background:white;border-bottom:1px solid var(--line)}
+    .formula-lab{display:grid;grid-template-columns:minmax(480px,.42fr) minmax(650px,.58fr);gap:22px;padding:20px;align-items:start}.control-panel{display:grid;gap:14px}.slider-box{padding:17px;border:1px solid var(--line);border-radius:15px;background:white}.slider-row{display:grid;grid-template-columns:190px minmax(240px,1fr) 82px;gap:14px;align-items:center}.slider-row input{width:100%;accent-color:var(--indigo)}.live-value{font-weight:900;color:var(--indigo);text-align:right}.preset-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .formula-stage{display:grid;gap:14px}.formula-canvas{display:block;width:100%;height:auto;border:1px solid #cbd5e1;border-radius:17px;background:white}.equation-stack{display:grid;gap:8px;padding:17px;border:1px solid #c7d2fe;border-radius:15px;background:var(--indigo-soft)}.equation-line{font:700 17px/1.5 "SFMono-Regular",Consolas,monospace;color:#312e81;overflow-wrap:anywhere}.equation-line.final{font-size:22px;color:#065f46;background:var(--green-soft);border:1px solid #a7f3d0;border-radius:11px;padding:9px 12px}
+    .swatch-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.swatch-card{padding:13px;border:1px solid var(--line);border-radius:13px;background:white}.swatch{height:54px;border-radius:10px;border:1px solid #94a3b8;margin-bottom:8px}.swatch-card strong{display:block;color:var(--indigo)}
+    .stepper-layout{display:grid;grid-template-columns:minmax(720px,.62fr) minmax(430px,.38fr);gap:22px;align-items:start}.step-figure{border:1px solid var(--line);border-radius:18px;background:#fbfcfe;padding:14px;overflow:auto}.step-figure svg{display:block;width:100%;height:auto;min-width:690px}.stepper-card{border:1px solid var(--line);border-radius:18px;background:#fbfcfe;overflow:hidden}.stepper-nav{display:flex;flex-wrap:wrap;gap:8px;padding:15px;border-bottom:1px solid var(--line);background:white}.step-button{min-width:44px;padding:8px 12px}.step-body{padding:22px}.step-title{color:var(--indigo);font-weight:900;font-size:22px}.step-caption{min-height:100px}.code-excerpt{margin:14px 0;padding:16px;background:#111827;color:#e5e7eb;border-radius:13px;overflow:auto;white-space:pre-wrap;font:14px/1.58 "SFMono-Regular",Consolas,monospace}.io-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.io-box{padding:14px;border-radius:12px;border:1px solid var(--line);background:white}.io-box strong{color:var(--indigo);display:block;margin-bottom:5px}.step-actions{display:flex;gap:10px;margin-top:18px}
+    .position-lab{display:grid;grid-template-columns:minmax(720px,.66fr) minmax(360px,.34fr);gap:20px;align-items:start}.position-strip{display:grid;grid-template-columns:repeat(6,minmax(110px,1fr));gap:10px}.position-button{padding:12px;border:2px solid transparent;border-radius:15px;background:white;min-height:150px;text-align:left;box-shadow:0 6px 18px rgba(30,41,59,.06)}.position-button:hover{border-color:#94a3b8}.position-button.selected{border-color:var(--indigo)!important}.position-tone{height:62px;border-radius:10px;border:1px solid rgba(15,23,42,.25);margin-bottom:10px}.position-button strong,.position-button span{display:block}.position-button span{font-size:14px;color:#475569}.position-readout{padding:20px;border:1px solid #c7d2fe;border-radius:17px;background:var(--indigo-soft);min-height:268px}.position-readout .big{font:800 23px/1.45 "SFMono-Regular",Consolas,monospace;color:#312e81}
+    .sampling-layout{display:grid;grid-template-columns:minmax(760px,.69fr) minmax(360px,.31fr);gap:20px;align-items:start}.sampling-canvas-wrap{border:1px solid var(--line);border-radius:17px;overflow:hidden;background:white}.sampling-canvas-wrap canvas{display:block;width:100%;height:auto}.sampling-copy{display:grid;gap:12px}.sampling-detail{padding:17px;border:1px solid var(--line);border-radius:14px;background:white;min-height:122px}.sampling-detail strong{display:block;color:var(--indigo);margin-bottom:6px}
+    .trace-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:16px}.trace-box{padding:15px;border-radius:13px;border:1px solid var(--line);background:white;min-height:184px}.trace-box strong{display:block;color:var(--indigo);margin-bottom:7px}.trace-code{display:block;margin-top:8px;padding:12px;background:#111827;color:#e5e7eb;border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere}.flow-arrow{text-align:center;color:var(--pink);font-size:28px;font-weight:900;align-self:center}.code-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:12px;align-items:stretch;margin-top:18px}.flow-card{padding:18px;border:1px solid var(--line);border-radius:15px;background:#fbfcfe}.flow-card strong{display:block;color:var(--indigo);margin-bottom:6px}
+    .challenge-grid{display:grid;grid-template-columns:minmax(540px,.50fr) minmax(540px,.50fr);gap:20px;align-items:start}.editor-card,.challenge-preview{border:1px solid var(--line);border-radius:18px;background:#fbfcfe;overflow:hidden}.card-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 18px;border-bottom:1px solid var(--line);background:white}.editor-wrap{padding:16px}.code-editor{display:block;width:100%;min-height:330px;resize:vertical;border:1px solid #cbd5e1;border-radius:13px;background:#111827;color:#e5e7eb;padding:18px;font:15px/1.6 "SFMono-Regular",Consolas,monospace;tab-size:4}.challenge-buttons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}.challenge-stage{padding:18px}.challenge-canvas{display:block;width:100%;height:auto;border:1px solid #cbd5e1;border-radius:14px;background:white}.challenge-readout{margin-top:12px;padding:13px;border-radius:12px;border:1px solid var(--line);background:white;font-weight:800}.challenge-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}.result-message{min-height:28px;font-weight:800}
+    .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.check-item{display:flex;align-items:flex-start;gap:10px;padding:13px 14px;border:1px solid var(--line);border-radius:12px;background:#fbfcfe}.check-item input{margin-top:5px;accent-color:var(--green)}
+    .exercise-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.exercise{padding:20px;border:1px solid var(--line);border-radius:16px;background:#fbfcfe}.exercise .number{color:var(--indigo);font-weight:900}.exercise details{margin-top:12px;padding:10px 12px;border-radius:10px;background:white;border:1px solid var(--line)}.exercise summary{cursor:pointer;font-weight:800;color:var(--blue)}
+    .answer-template,.record{display:block;width:100%;min-height:190px;resize:vertical;border:1px solid #cbd5e1;border-radius:13px;background:#fff;padding:16px;font:14px/1.55 "SFMono-Regular",Consolas,monospace}.record{min-height:360px;background:#f8fafc}.copy-status{color:#065f46;font-weight:800}.footer-nav{display:flex;justify-content:space-between;gap:20px;margin-top:24px;padding:18px 22px;border:1px solid var(--line);border-radius:16px;background:white}.footer-nav a{font-weight:800;text-decoration:none}
+    @media(max-width:1450px){.formula-lab,.stepper-layout,.position-lab,.sampling-layout,.challenge-grid{grid-template-columns:1fr}.trace-grid{grid-template-columns:repeat(2,1fr)}.position-strip{grid-template-columns:repeat(3,1fr)}}
+  </style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <nav class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-a-transparent-panel-is-not-yet-liquid-glass.html">Chapter 1</a> · <a href="../../glossary.html">Glossary</a> · <a href="lesson-01-05-translucent-rounded-panel.html">Lesson 1.5</a></nav>
+    <span class="lesson-chip">Lesson 1.6 · No Android source changes</span>
+  </div>
+
+  <header class="panel hero">
+    <div>
+      <div class="eyebrow">Chapter 1 · First mathematical model</div>
+      <h1>Learn the first alpha-mixture formula</h1>
+      <p class="lead">The panel from Lesson 1.5 contains white with alpha <code>0.25f</code>. This lesson follows one color-channel value through the mixture. You will see exactly why the background still contributes 75% at that position.</p>
+      <div class="warning"><strong>Scope:</strong> we calculate one position well inside the panel. We do not calculate a rounded edge pixel. Edge antialiasing adds another coverage amount. Chapter 4 explains that later.</div>
+    </div>
+    <aside class="goal-box">
+      <h2>By the end</h2>
+      <ul>
+        <li>You can explain every symbol in <code>R = F × A + B × (1 − A)</code>.</li>
+        <li>You can calculate the course example: <code>1.00 × 0.25 + 0.20 × 0.75 = 0.40</code>.</li>
+        <li>You can explain why alpha compositing reads the background at the same image position.</li>
+        <li>You can explain why the Android renderer performs this work instead of one Kotlin helper call.</li>
+      </ul>
+    </aside>
+  </header>
+
+  <section class="panel section" id="vocabulary">
+    <div class="section-intro"><div><div class="section-number">1 · Four values</div><h2>Name each number before using the formula</h2></div><p>The lesson uses values from 0 to 1. This keeps the arithmetic small.</p></div>
+    <div class="four-column">
+      <article class="card green"><h3>Foreground channel · <code>F</code></h3><p>A <strong>color channel</strong> is one numeric component of a color. We inspect only one channel. The white panel has the value <code>1.00</code> in each red, green, and blue channel.</p></article>
+      <article class="card blue"><h3>Background channel · <code>B</code></h3><p>This is the channel value already stored at the same image position behind the panel. The teaching example uses <code>0.20</code>.</p></article>
+      <article class="card amber"><h3>Alpha · <code>A</code></h3><p>Alpha is the foreground opacity amount. In this simplified mixture, it is also the foreground weight. Lesson 1.5 supplies <code>0.25</code>.</p></article>
+      <article class="card indigo"><h3>Result channel · <code>R</code></h3><p>This is the final channel value produced for that one output position. It is calculated from the other three values.</p></article>
+    </div>
+    <div class="note"><strong>Normalized value:</strong> a normalized value has been mapped into a standard range. Here <code>0</code> is the low end and <code>1</code> is the high end. Chapter 3 will introduce complete red, green, and blue colors. This lesson deliberately follows only one channel.</div>
+  </section>
+
+  <section class="panel section" id="formula-laboratory">
+    <div class="section-intro"><div><div class="section-number">2 · Interactive formula</div><h2>Two weighted contributions become one result</h2></div><p>The canvas geometry is calculated from the live values. The default numbers are the course example.</p></div>
+    <div class="lab-shell">
+      <div class="lab-toolbar"><strong>One-channel mixture laboratory</strong><div class="controls"><button class="preset-button selected" type="button" data-formula-preset="course">Course values</button><button class="preset-button" type="button" data-formula-preset="transparent">Alpha 0</button><button class="preset-button" type="button" data-formula-preset="half">Alpha 0.5</button><button class="preset-button" type="button" data-formula-preset="opaque">Alpha 1</button><button class="preset-button" type="button" data-formula-preset="light">Light background</button></div></div>
+      <div class="formula-lab">
+        <div class="control-panel">
+          <div class="slider-box"><div class="slider-row"><label for="foregroundSlider"><strong>Foreground channel F</strong></label><input id="foregroundSlider" type="range" min="0" max="1" step="0.01" value="1"><output class="live-value" id="foregroundValue">1.00</output></div><p>The Android panel is white, so the course value is <code>1.00</code>.</p></div>
+          <div class="slider-box"><div class="slider-row"><label for="backgroundSlider"><strong>Background channel B</strong></label><input id="backgroundSlider" type="range" min="0" max="1" step="0.01" value="0.20"><output class="live-value" id="backgroundValue">0.20</output></div><p>This is one deliberately chosen teaching value. It is not a measured Pixel 8 Pro value.</p></div>
+          <div class="slider-box"><div class="slider-row"><label for="alphaSlider"><strong>Foreground alpha A</strong></label><input id="alphaSlider" type="range" min="0" max="1" step="0.01" value="0.25"><output class="live-value" id="alphaValue">0.25</output></div><p>The background share is not another independent control. It is calculated as <code>1 − A</code>.</p></div>
+          <div class="swatch-row">
+            <div class="swatch-card"><div class="swatch" id="foregroundSwatch"></div><strong>Foreground</strong><span id="foregroundSwatchText">1.00</span></div>
+            <div class="swatch-card"><div class="swatch" id="backgroundSwatch"></div><strong>Background</strong><span id="backgroundSwatchText">0.20</span></div>
+            <div class="swatch-card"><div class="swatch" id="resultSwatch"></div><strong>Result</strong><span id="resultSwatchText">0.40</span></div>
+          </div>
+        </div>
+        <div class="formula-stage">
+          <canvas class="formula-canvas" id="formulaCanvas" width="1000" height="570" aria-label="Visual alpha mixture calculation"></canvas>
+          <div class="equation-stack" aria-live="polite">
+            <div class="equation-line" id="equationGeneral">R = F × A + B × (1 − A)</div>
+            <div class="equation-line" id="equationNumbers"></div>
+            <div class="equation-line" id="equationContributions"></div>
+            <div class="equation-line final" id="equationResult"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="success-note"><strong>Course calculation:</strong> foreground contribution = <code>1.00 × 0.25 = 0.25</code>. Background contribution = <code>0.20 × 0.75 = 0.15</code>. Final result = <code>0.25 + 0.15 = 0.40</code>.</div>
+  </section>
+
+  <section class="panel section" id="formula-stepper">
+    <div class="section-intro"><div><div class="section-number">3 · Manual derivation</div><h2>Follow one output position from input to result</h2></div><p>Press the numbered steps. Each step adds one operation.</p></div>
+    <div class="stepper-layout">
+      <div class="step-figure"><svg id="formulaSvg" viewBox="0 0 920 560" role="img" aria-label="Step-by-step same-position alpha mixture"></svg></div>
+      <div class="stepper-card">
+        <div class="stepper-nav" id="stepButtons" aria-label="Formula steps"></div>
+        <div class="step-body">
+          <div class="step-title" id="stepTitle"></div><p class="step-caption" id="stepCaption"></p><pre class="code-excerpt" id="stepCode"></pre>
+          <div class="io-row"><div class="io-box"><strong>Input</strong><span id="stepInput"></span></div><div class="io-box"><strong>Operation</strong><span id="stepOperation"></span></div><div class="io-box"><strong>Output</strong><span id="stepOutput"></span></div></div>
+          <div class="step-actions"><button class="secondary-button" id="stepBack" type="button">Back</button><button class="primary-button" id="stepNext" type="button">Next</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="note"><strong>Image position:</strong> the diagram names the selected horizontal position <code>x = 3</code>. The number is only a label for one cell in this teaching row. Chapter 2 introduces real Android coordinates.</div>
+  </section>
+
+  <section class="panel section" id="varying-background">
+    <div class="section-intro"><div><div class="section-number">4 · Same alpha, different background</div><h2>The panel does not produce one uniform final color</h2></div><p>Click a background position. Every position uses white foreground and alpha 0.25, but its background input differs.</p></div>
+    <div class="position-lab">
+      <div class="position-strip" id="positionStrip"></div>
+      <aside class="position-readout">
+        <h3 id="positionTitle">Position 2</h3>
+        <p>The selected position has background channel <strong id="selectedBackground">0.20</strong>.</p>
+        <div class="big" id="positionFormula">1.00 × 0.25 + 0.20 × 0.75 = 0.40</div>
+        <p id="positionMeaning">The result is closer to the darker background than to white because the background receives 75% of the weight.</p>
+      </aside>
+    </div>
+    <div class="warning"><strong>Important:</strong> <code>PanelFillAlpha = 0.25f</code> is one shared source alpha. It does not force every covered output position to the same color. Each position begins with its own background channel value.</div>
+  </section>
+
+  <section class="panel section" id="sampling-boundary">
+    <div class="section-intro"><div><div class="section-number">5 · Spatial boundary</div><h2>Alpha reads the same position; blur and refraction do not</h2></div><p>A <strong>sample</strong> is one read of a stored image value at a chosen image position.</p></div>
+    <div class="sampling-layout">
+      <div class="sampling-canvas-wrap"><canvas id="samplingCanvas" width="1200" height="470" aria-label="Comparison of same-position and neighboring image reads"></canvas></div>
+      <div class="sampling-copy">
+        <div class="controls" id="samplingModes"><button class="mode-button selected" type="button" data-sampling-mode="alpha">Translucency</button><button class="mode-button" type="button" data-sampling-mode="blur">Blur · future</button><button class="mode-button" type="button" data-sampling-mode="refraction">Refraction · future</button></div>
+        <div class="sampling-detail"><strong id="samplingTitle">Translucency</strong><span id="samplingText">For output position x = 3, the formula reads background B[3]. It combines that value with foreground F[3].</span></div>
+        <div class="sampling-detail"><strong>Positions read</strong><span class="mono" id="samplingReads">foreground[3], background[3]</span></div>
+        <div class="sampling-detail"><strong>Visible consequence</strong><span id="samplingConsequence">The color changes at x = 3. Nearby boundaries keep their original positions.</span></div>
+      </div>
+    </div>
+    <div class="success-note"><strong>Diagnostic conclusion:</strong> the alpha formula contains no term such as <code>B[x − 1]</code>, <code>B[x + 1]</code>, or <code>B[x + offset]</code>. It cannot spread or move background detail by itself.</div>
+  </section>
+
+  <section class="panel section" id="android-map">
+    <div class="section-intro"><div><div class="section-number">6 · Map the model back to Android</div><h2>The renderer performs the per-position mixture</h2></div><p>No Android source file changes in Lesson 1.6.</p></div>
+    <div class="trace-grid">
+      <div class="trace-box"><strong>Input · source alpha</strong><span>The existing Kotlin constant supplies 0.25.</span><span class="trace-code">internal const val PanelFillAlpha = 0.25f</span></div>
+      <div class="trace-box"><strong>Input · source color</strong><span><code>copy</code> preserves white's color components and replaces its alpha component.</span><span class="trace-code">Color.White.copy(
+    alpha = PanelFillAlpha,
+)</span></div>
+      <div class="trace-box"><strong>Input · destination</strong><span><code>StudyBackground()</code> was drawn first. Its existing value at each covered position is the destination, often described as the background.</span><span class="trace-code">StudyBackground(...)
+TranslucentRoundedPanel(...)</span></div>
+      <div class="trace-box"><strong>Operation · source over destination</strong><span>The normal drawing algorithm places the source over the destination. Transparent source areas allow the destination to remain visible.</span><span class="trace-code">R = F × A
+  + B × (1 − A)</span></div>
+    </div>
+    <div class="code-flow">
+      <div class="flow-card"><strong>Kotlin creates a color description</strong><p>White channels plus alpha <code>0.25f</code>.</p></div><div class="flow-arrow">→</div>
+      <div class="flow-card"><strong>Compose records the panel draw</strong><p><code>Modifier.background</code> asks for that color inside the rounded shape.</p></div><div class="flow-arrow">→</div>
+      <div class="flow-card"><strong>The graphics pipeline composites covered positions</strong><p>Each position uses the source value and the destination already behind it.</p></div>
+    </div>
+    <div class="note"><strong>What official Android documentation establishes:</strong> Compose <code>Color.copy</code> copies a color while replacing the supplied components. Compose defines the default <code>SrcOver</code> blend mode as placing the source over the destination. See <a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color">Compose Color</a> and <a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode">Compose BlendMode</a>.</div>
+    <div class="warning"><strong>Evidence limit:</strong> the arithmetic laboratory is a one-channel teaching model with an opaque background. Exact captured Pixel values can also depend on the working color space, numeric rounding, display or screenshot conversion, and shape-edge coverage. Those details do not change the spatial conclusion: ordinary alpha compositing uses source and destination values for the same output position. It does not request neighboring background positions.</div>
+  </section>
+
+  <section class="panel section" id="production-boundary">
+    <div class="section-intro"><div><div class="section-number">7 · Production boundary</div><h2>Do not replace the renderer with one Kotlin calculation</h2></div><p>The formula is necessary knowledge. A single helper call is not the correct panel implementation.</p></div>
+    <div class="two-column">
+      <article class="card red"><h3>Incorrect architecture for the real panel</h3><pre class="code-excerpt">val oneBackgroundValue = 0.20f
+val oneResult = mixChannel(
+    foreground = 1.00f,
+    background = oneBackgroundValue,
+    alpha = 0.25f,
+)
+
+Box(Modifier.background(Color(oneResult, oneResult, oneResult)))</pre><p>This creates one opaque grayscale color. It cannot preserve the many different colors and shapes behind the panel.</p></article>
+      <article class="card green"><h3>Existing Android architecture</h3><pre class="code-excerpt">Box(
+    modifier = modifier.background(
+        color = Color.White.copy(
+            alpha = PanelFillAlpha,
+        ),
+        shape = PanelShape,
+    ),
+)</pre><p>The panel supplies a translucent source color. The renderer applies the blend separately wherever the rounded shape covers the already drawn background.</p></article>
+    </div>
+    <div class="success-note"><strong>Why this matters later:</strong> when we add real backdrop blur and refraction, we will need an explicit background image input. Ordinary alpha compositing does not expose that image as a Kotlin array. Chapter 6 builds the required Android backdrop architecture.</div>
+  </section>
+
+  <section class="panel section" id="coding-challenge">
+    <div class="section-intro"><div><div class="section-number">8 · Coding challenge</div><h2>Repair the background share</h2></div><p>This isolated Kotlin helper exists only to practise the arithmetic. It is not added to <code>LiquidGlassLab</code>.</p></div>
+    <div class="challenge-grid">
+      <div class="editor-card">
+        <div class="card-header"><strong>Editable Kotlin fragment</strong><button class="secondary-button" id="resetChallenge" type="button">Reset</button></div>
+        <div class="editor-wrap">
+          <textarea class="code-editor" id="challengeEditor" spellcheck="false">fun mixChannel(
+    foreground: Float,
+    background: Float,
+    alpha: Float,
+): Float {
+    val foregroundContribution = foreground * alpha
+    val backgroundShare = alpha
+    val backgroundContribution = background * backgroundShare
+    return foregroundContribution + backgroundContribution
+}
+
+val result = mixChannel(
+    foreground = 1.00f,
+    background = 0.20f,
+    alpha = 0.25f,
+)</textarea>
+          <p><strong>Task:</strong> change only the expression assigned to <code>backgroundShare</code>. The result must become <code>0.40</code>.</p>
+          <div class="challenge-buttons" id="challengeButtons">
+            <button class="toggle-button selected" type="button" data-share-expression="alpha">alpha</button>
+            <button class="toggle-button" type="button" data-share-expression="1f - alpha">1f − alpha</button>
+            <button class="toggle-button" type="button" data-share-expression="1f + alpha">1f + alpha</button>
+            <button class="toggle-button" type="button" data-share-expression="0f">0f</button>
+          </div>
+          <div class="challenge-actions"><button class="primary-button" id="checkChallenge" type="button">Check challenge</button><span class="result-message" id="challengeResult"></span></div>
+        </div>
+      </div>
+      <div class="challenge-preview">
+        <div class="card-header"><strong>Code-driven teaching preview</strong><span class="mono" id="challengeExpression">backgroundShare = alpha</span></div>
+        <div class="challenge-stage"><canvas class="challenge-canvas" id="challengeCanvas" width="900" height="460" aria-label="Coding challenge contribution preview"></canvas><div class="challenge-readout" id="challengeReadout"></div></div>
+      </div>
+    </div>
+    <div class="warning"><strong>Parser boundary:</strong> this page reads a small expected assignment pattern. It does not compile Kotlin. Android Studio and Gradle remain the source of truth for real project code.</div>
+  </section>
+
+  <section class="panel section" id="checkpoint">
+    <div class="section-intro"><div><div class="section-number">9 · Lesson checkpoint</div><h2>Explain the existing Pixel result with numbers</h2></div><p>There is no Android ZIP for this lesson because no Android file changes.</p></div>
+    <div class="check-grid">
+      <label class="check-item"><input type="checkbox" data-record="course"><span>I restored the formula laboratory to <code>F = 1.00</code>, <code>B = 0.20</code>, and <code>A = 0.25</code>.</span></label>
+      <label class="check-item"><input type="checkbox" data-record="calculation"><span>I can calculate <code>0.25 + 0.15 = 0.40</code> and explain where both contributions came from.</span></label>
+      <label class="check-item"><input type="checkbox" data-record="weights"><span>I can explain why foreground weight is 25% and background weight is 75%.</span></label>
+      <label class="check-item"><input type="checkbox" data-record="spatial"><span>I can explain why the formula reads <code>B[x]</code>, not neighboring positions.</span></label>
+      <label class="check-item"><input type="checkbox" data-record="pixel"><span>I ran the unchanged Lesson 1.5 app on the Pixel 8 Pro and compared a dark background area with a light background area beneath the panel.</span></label>
+      <label class="check-item"><input type="checkbox" data-record="unchanged"><span>I made no Android source change for Lesson 1.6.</span></label>
+      <label class="check-item"><input type="checkbox" data-record="commit"><span>I committed the Lesson 1.6 learning-document changes in the learning-docs repository.</span></label>
+    </div>
+    <div class="note"><strong>Suggested learning-docs commit:</strong> <code>course: add chapter 1 alpha mixture lesson</code>. Lesson 1.7 will add the device experiment and its opacity controls.</div>
+  </section>
+
+  <section class="panel section" id="exercises">
+    <div class="section-intro"><div><div class="section-number">10 · Exercises</div><h2>Answer before opening the hidden solutions</h2></div><p>Reply in chat for grading, or store the answers in your completion record.</p></div>
+    <div class="exercise-grid">
+      <article class="exercise"><div class="number">Exercise 1 · Calculate</div><h3>Course values</h3><p>Use <code>F = 1.00</code>, <code>B = 0.20</code>, and <code>A = 0.25</code>. Write the foreground contribution, background contribution, and final result.</p><details><summary>Show answer</summary><p>Foreground contribution: <code>1.00 × 0.25 = 0.25</code>. Background share: <code>1 − 0.25 = 0.75</code>. Background contribution: <code>0.20 × 0.75 = 0.15</code>. Result: <code>0.25 + 0.15 = 0.40</code>.</p></details></article>
+      <article class="exercise"><div class="number">Exercise 2 · Endpoints</div><h3>What happens at alpha 0 and alpha 1?</h3><p>Keep <code>F = 1.00</code> and <code>B = 0.20</code>. Calculate both results and explain them in words.</p><details><summary>Show answer</summary><p>At <code>A = 0</code>, <code>R = 1 × 0 + 0.20 × 1 = 0.20</code>. The foreground contributes nothing. At <code>A = 1</code>, <code>R = 1 × 1 + 0.20 × 0 = 1.00</code>. The foreground completely replaces the opaque background at that position.</p></details></article>
+      <article class="exercise"><div class="number">Exercise 3 · Same alpha, two backgrounds</div><h3>Compare dark and light inputs</h3><p>With white foreground and alpha <code>0.25</code>, calculate the result for <code>B = 0.20</code> and for <code>B = 0.80</code>. Why are the results different?</p><details><summary>Show answer</summary><p>For <code>B = 0.20</code>, the result is <code>0.40</code>. For <code>B = 0.80</code>, the result is <code>1 × 0.25 + 0.80 × 0.75 = 0.25 + 0.60 = 0.85</code>. The source alpha is the same, but each output position begins with its own background value.</p></details></article>
+      <article class="exercise"><div class="number">Exercise 4 · Diagnostic</div><h3>Can this formula bend or soften a line?</h3><p>Answer yes or no. Name the exact missing input that blur or refraction would require.</p><details><summary>Show answer</summary><p>No. The formula reads the background at the same position only. Blur would need nearby background samples such as <code>B[x − 1]</code> and <code>B[x + 1]</code>. Refraction would need a background sample from a shifted position such as <code>B[x + offset]</code>.</p></details></article>
+    </div>
+    <textarea class="answer-template" id="exerciseAnswers" spellcheck="false">Lesson 1.6 answers
+
+1. Foreground contribution:
+   Background contribution:
+   Result:
+
+2. Alpha 0 result and explanation:
+   Alpha 1 result and explanation:
+
+3. B = 0.20 result:
+   B = 0.80 result:
+   Why different:
+
+4. Can the formula bend or soften a line?
+   Exact missing input:</textarea>
+    <div class="challenge-actions"><button class="primary-button" id="copyAnswers" type="button">Copy answers for chat</button><span class="copy-status" id="answerCopyStatus"></span></div>
+  </section>
+
+  <section class="panel section" id="completion-record">
+    <div class="section-intro"><div><div class="section-number">11 · Handoff record</div><h2>Copy this after completing the checkpoint</h2></div><p>The checkboxes above update this Markdown-compatible record.</p></div>
+    <textarea class="record" id="completionRecord" readonly></textarea><div class="challenge-actions"><button class="primary-button" id="copyRecord" type="button">Copy completion record</button><span class="copy-status" id="recordCopyStatus"></span></div>
+  </section>
+
+  <div class="footer-nav"><a href="lesson-01-05-translucent-rounded-panel.html">← Review Lesson 1.5</a><span>Next: Lesson 1.7 · Run the controlled Pixel 8 Pro opacity experiment</span></div>
+</main>
+
+<script>
+(() => {
+  'use strict';
+  const clamp = value => Math.max(0, Math.min(1, value));
+  const fmt = value => Number(value).toFixed(2);
+  const gray = value => { const c = Math.round(clamp(value) * 255); return `rgb(${c},${c},${c})`; };
+  let foreground = 1.00;
+  let background = 0.20;
+  let alpha = 0.25;
+  let currentStep = 0;
+  let selectedPosition = 1;
+  let samplingMode = 'alpha';
+  let challengeSucceeded = false;
+
+  const formulaPresets = {
+    course:{foreground:1,background:.2,alpha:.25},
+    transparent:{foreground:1,background:.2,alpha:0},
+    half:{foreground:1,background:.2,alpha:.5},
+    opaque:{foreground:1,background:.2,alpha:1},
+    light:{foreground:1,background:.8,alpha:.25},
+  };
+
+  function formulaValues(){
+    const backgroundShare = 1 - alpha;
+    const foregroundContribution = foreground * alpha;
+    const backgroundContribution = background * backgroundShare;
+    const result = foregroundContribution + backgroundContribution;
+    return {backgroundShare, foregroundContribution, backgroundContribution, result};
+  }
+
+  function drawRoundedRect(ctx,x,y,w,h,r,fill,stroke,lineWidth=1){
+    const radius=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+radius,y);ctx.arcTo(x+w,y,x+w,y+h,radius);ctx.arcTo(x+w,y+h,x,y+h,radius);ctx.arcTo(x,y+h,x,y,radius);ctx.arcTo(x,y,x+w,y,radius);ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lineWidth;ctx.stroke()}
+  }
+
+  function drawBar(ctx, x, y, width, height, value, fill, label, detail){
+    drawRoundedRect(ctx,x,y,width,height,12,'#f1f5f9','#cbd5e1',1);
+    const filled=Math.max(0,width*clamp(value));
+    if(filled>0) drawRoundedRect(ctx,x,y,filled,height,Math.min(12,filled/2),fill,null,0);
+    ctx.fillStyle='#172033';ctx.font='800 17px system-ui,sans-serif';ctx.fillText(label,x,y-12);
+    ctx.fillStyle='#475569';ctx.font='600 15px system-ui,sans-serif';ctx.textAlign='right';ctx.fillText(detail,x+width,y-12);ctx.textAlign='left';
+  }
+
+  function drawFormulaCanvas(){
+    const canvas=document.getElementById('formulaCanvas');const ctx=canvas.getContext('2d');const v=formulaValues();
+    ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#172033';ctx.font='900 25px system-ui,sans-serif';ctx.fillText('One output channel at one covered position',34,45);
+    ctx.fillStyle='#64748b';ctx.font='500 15px system-ui,sans-serif';ctx.fillText('Every bar uses the same 0..1 scale.',34,70);
+    drawBar(ctx,34,116,920,42,foreground,'#059669','Foreground channel F',fmt(foreground));
+    drawBar(ctx,34,204,920,42,background,'#1e40af','Background channel B',fmt(background));
+    drawBar(ctx,34,306,920,42,alpha,'#d97706','Foreground weight A',fmt(alpha));
+    drawBar(ctx,34,394,920,42,v.backgroundShare,'#6b7280','Background weight 1 − A',fmt(v.backgroundShare));
+    const totalWidth=920;drawRoundedRect(ctx,34,492,totalWidth,48,13,'#f1f5f9','#94a3b8',1);
+    const fgWidth=totalWidth*v.foregroundContribution;const bgWidth=totalWidth*v.backgroundContribution;
+    if(fgWidth>0) drawRoundedRect(ctx,34,492,fgWidth,48,Math.min(13,fgWidth/2),'#059669',null,0);
+    if(bgWidth>0){ctx.fillStyle='#1e40af';ctx.fillRect(34+fgWidth,492,bgWidth,48)}
+    ctx.fillStyle='#172033';ctx.font='800 17px system-ui,sans-serif';ctx.fillText('Contributions added',34,477);ctx.textAlign='right';ctx.fillText(`result ${fmt(v.result)}`,954,477);ctx.textAlign='left';
+    ctx.fillStyle='#fff';ctx.font='800 14px system-ui,sans-serif';if(fgWidth>72)ctx.fillText(`F×A ${fmt(v.foregroundContribution)}`,45,522);if(bgWidth>78)ctx.fillText(`B×(1−A) ${fmt(v.backgroundContribution)}`,44+fgWidth,522);
+  }
+
+  function renderFormula(){
+    const v=formulaValues();
+    document.getElementById('foregroundSlider').value=foreground;document.getElementById('backgroundSlider').value=background;document.getElementById('alphaSlider').value=alpha;
+    document.getElementById('foregroundValue').textContent=fmt(foreground);document.getElementById('backgroundValue').textContent=fmt(background);document.getElementById('alphaValue').textContent=fmt(alpha);
+    document.getElementById('foregroundSwatch').style.background=gray(foreground);document.getElementById('backgroundSwatch').style.background=gray(background);document.getElementById('resultSwatch').style.background=gray(v.result);
+    document.getElementById('foregroundSwatchText').textContent=fmt(foreground);document.getElementById('backgroundSwatchText').textContent=fmt(background);document.getElementById('resultSwatchText').textContent=fmt(v.result);
+    document.getElementById('equationNumbers').textContent=`= ${fmt(foreground)} × ${fmt(alpha)} + ${fmt(background)} × (1 − ${fmt(alpha)})`;
+    document.getElementById('equationContributions').textContent=`= ${fmt(v.foregroundContribution)} + ${fmt(v.backgroundContribution)}`;
+    document.getElementById('equationResult').textContent=`R = ${fmt(v.result)}`;
+    document.querySelectorAll('[data-formula-preset]').forEach(button=>{const p=formulaPresets[button.dataset.formulaPreset];const on=Math.abs(p.foreground-foreground)<.001&&Math.abs(p.background-background)<.001&&Math.abs(p.alpha-alpha)<.001;button.classList.toggle('selected',on);button.setAttribute('aria-pressed',String(on))});
+    drawFormulaCanvas();renderPositions();
+  }
+
+  ['foreground','background','alpha'].forEach(name=>document.getElementById(`${name}Slider`).addEventListener('input',event=>{const value=clamp(Number(event.target.value));if(name==='foreground')foreground=value;if(name==='background')background=value;if(name==='alpha')alpha=value;renderFormula()}));
+  document.querySelector('.lab-toolbar').addEventListener('click',event=>{const button=event.target.closest('[data-formula-preset]');if(!button)return;const p=formulaPresets[button.dataset.formulaPreset];foreground=p.foreground;background=p.background;alpha=p.alpha;renderFormula()});
+
+  const stepBackground=[.08,.52,.72,.20,.61,.34,.86];
+  const steps=[
+    {title:'Choose one output position',caption:'We inspect output position x = 3. The selected output cell is inside the panel, away from the rounded edge.',code:'output position: x = 3',input:'One requested output position.',operation:'Select one position for the calculation.',output:'The calculation target is fixed at x = 3.',mode:'target'},
+    {title:'Read the foreground channel',caption:'The panel is white. At the selected position its channel value is F[3] = 1.00.',code:'F = 1.00',input:'White panel channel at x = 3.',operation:'Read the foreground value at the selected position.',output:'F = 1.00.',mode:'foreground'},
+    {title:'Read the background channel',caption:'The teaching row stores B[3] = 0.20 behind the panel. Neighboring values are visible but are not inputs to this alpha calculation.',code:'B = background[3] = 0.20',input:'Background row at x = 3.',operation:'Read the destination value at the same position.',output:'B = 0.20.',mode:'background'},
+    {title:'Calculate the foreground contribution',caption:'Alpha A = 0.25 gives the foreground a weight of 0.25. Multiply F by that weight.',code:`foregroundContribution
+    = F × A
+    = 1.00 × 0.25
+    = 0.25`,input:'F = 1.00 and A = 0.25.',operation:'Multiply the foreground channel by alpha.',output:'Foreground contribution = 0.25.',mode:'foregroundContribution'},
+    {title:'Calculate the background share',caption:'The two weights must add to 1. The background receives the remainder: 1 − 0.25 = 0.75.',code:`backgroundShare
+    = 1 − A
+    = 1 − 0.25
+    = 0.75`,input:'A = 0.25.',operation:'Subtract alpha from 1.',output:'Background share = 0.75.',mode:'backgroundShare'},
+    {title:'Calculate the background contribution',caption:'Multiply the same-position background value by its 0.75 share.',code:`backgroundContribution
+    = B × (1 − A)
+    = 0.20 × 0.75
+    = 0.15`,input:'B = 0.20 and background share = 0.75.',operation:'Multiply the background channel by its share.',output:'Background contribution = 0.15.',mode:'backgroundContribution'},
+    {title:'Add both contributions',caption:'The final output channel is the sum of the two contributions. No neighboring position enters the sum.',code:`R = 0.25 + 0.15
+R = 0.40`,input:'Foreground contribution 0.25 and background contribution 0.15.',operation:'Add the contributions.',output:'The output channel at x = 3 is 0.40.',mode:'result'},
+  ];
+
+  function svgCell(x,y,value,{selected=false,muted=false,label=''}={}){
+    const px=112+x*94;const fill=gray(value);const stroke=selected?'#4338ca':'#94a3b8';const width=selected?4:1.5;const opacity=muted?.34:1;
+    return `<g opacity="${opacity}"><rect x="${px}" y="${y}" width="72" height="62" rx="10" fill="${fill}" stroke="${stroke}" stroke-width="${width}"/><text x="${px+36}" y="${y+84}" text-anchor="middle" font-size="15" font-weight="700" fill="#334155">x=${x}</text>${label?`<text x="${px+36}" y="${y+38}" text-anchor="middle" font-size="15" font-weight="850" fill="${value>.55?'#172033':'#fff'}">${label}</text>`:''}</g>`;
+  }
+
+  function renderStepSvg(){
+    const step=steps[currentStep];const svg=document.getElementById('formulaSvg');const selected=3;const result=.4;
+    const foregroundActive=['foreground','foregroundContribution','backgroundShare','backgroundContribution','result'].includes(step.mode);
+    const backgroundActive=['background','foregroundContribution','backgroundShare','backgroundContribution','result'].includes(step.mode);
+    const resultActive=step.mode==='result';
+    let content=`<defs><marker id="arrowHead" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L9,4.5 L0,9 z" fill="#be185d"/></marker></defs><rect width="920" height="560" fill="#fbfcfe"/><text x="30" y="38" font-size="23" font-weight="900" fill="#172033">Same-position calculation</text><text x="30" y="65" font-size="15" fill="#64748b">Only x = 3 is selected. Other cells show the surrounding image row.</text><text x="30" y="132" font-size="17" font-weight="850" fill="#059669">Foreground row F[x]</text><text x="30" y="292" font-size="17" font-weight="850" fill="#1e40af">Background row B[x]</text><text x="30" y="466" font-size="17" font-weight="850" fill="#4338ca">Output row R[x]</text>`;
+    for(let x=0;x<7;x++)content+=svgCell(x,150,1,{selected:x===selected&&foregroundActive,muted:x!==selected&&foregroundActive,label:x===selected&&foregroundActive?'1.00':''});
+    for(let x=0;x<7;x++)content+=svgCell(x,310,stepBackground[x],{selected:x===selected&&backgroundActive,muted:x!==selected&&backgroundActive,label:x===selected&&backgroundActive?fmt(stepBackground[x]):''});
+    content+=svgCell(selected,484,result,{selected:true,muted:!resultActive,label:resultActive?'0.40':'?'});
+    if(step.mode==='target')content+=`<rect x="${112+selected*94-8}" y="128" width="88" height="438" rx="16" fill="none" stroke="#be185d" stroke-width="3" stroke-dasharray="10 7"/><text x="${112+selected*94+36}" y="112" text-anchor="middle" font-size="16" font-weight="900" fill="#831843">selected x = 3</text>`;
+    if(foregroundActive)content+=`<line x1="${112+selected*94+36}" y1="214" x2="${112+selected*94+36}" y2="295" stroke="#be185d" stroke-width="4" marker-end="url(#arrowHead)"/>`;
+    if(backgroundActive)content+=`<line x1="${112+selected*94+36}" y1="374" x2="${112+selected*94+36}" y2="469" stroke="#be185d" stroke-width="4" marker-end="url(#arrowHead)"/>`;
+    if(['foregroundContribution','backgroundShare','backgroundContribution','result'].includes(step.mode))content+=`<rect x="704" y="86" width="182" height="174" rx="14" fill="#fef3c7" stroke="#d97706" stroke-width="2"/><text x="722" y="116" font-size="16" font-weight="900" fill="#78350f">Weights</text><text x="722" y="150" font-size="16" fill="#78350f">A = 0.25</text><text x="722" y="182" font-size="16" fill="#78350f">1 − A = 0.75</text><text x="722" y="222" font-size="14" fill="#78350f">0.25 + 0.75 = 1.00</text>`;
+    if(['foregroundContribution','backgroundContribution','result'].includes(step.mode))content+=`<rect x="704" y="286" width="182" height="132" rx="14" fill="#ecfdf5" stroke="#059669" stroke-width="2"/><text x="722" y="316" font-size="16" font-weight="900" fill="#064e3b">Contributions</text><text x="722" y="350" font-size="16" fill="#064e3b">F × A = 0.25</text>${['backgroundContribution','result'].includes(step.mode)?'<text x="722" y="382" font-size="16" fill="#1e3a8a">B × 0.75 = 0.15</text>':''}`;
+    if(step.mode==='result')content+=`<rect x="684" y="438" width="202" height="94" rx="14" fill="#eef2ff" stroke="#4338ca" stroke-width="2"/><text x="704" y="473" font-size="17" font-weight="900" fill="#312e81">0.25 + 0.15</text><text x="704" y="507" font-size="20" font-weight="900" fill="#065f46">R[3] = 0.40</text>`;
+    svg.innerHTML=content;
+  }
+
+  function renderStep(){const step=steps[currentStep];renderStepSvg();document.getElementById('stepTitle').textContent=`Step ${currentStep+1} · ${step.title}`;document.getElementById('stepCaption').textContent=step.caption;document.getElementById('stepCode').textContent=step.code;document.getElementById('stepInput').textContent=step.input;document.getElementById('stepOperation').textContent=step.operation;document.getElementById('stepOutput').textContent=step.output;document.getElementById('stepBack').disabled=currentStep===0;document.getElementById('stepNext').disabled=currentStep===steps.length-1;document.querySelectorAll('[data-step]').forEach(button=>{const on=Number(button.dataset.step)===currentStep;button.classList.toggle('selected',on);button.setAttribute('aria-current',on?'step':'false')})}
+  const stepButtons=document.getElementById('stepButtons');steps.forEach((_,index)=>{const button=document.createElement('button');button.type='button';button.className='step-button';button.dataset.step=String(index);button.textContent=String(index+1);stepButtons.appendChild(button)});stepButtons.addEventListener('click',event=>{const button=event.target.closest('[data-step]');if(!button)return;currentStep=Number(button.dataset.step);renderStep()});document.getElementById('stepBack').addEventListener('click',()=>{if(currentStep>0){currentStep--;renderStep()}});document.getElementById('stepNext').addEventListener('click',()=>{if(currentStep<steps.length-1){currentStep++;renderStep()}});
+
+  const positionBackgrounds=[.05,.20,.35,.50,.70,.90];
+  function renderPositions(){
+    const strip=document.getElementById('positionStrip');strip.innerHTML='';positionBackgrounds.forEach((b,index)=>{const r=1*.25+b*.75;const button=document.createElement('button');button.type='button';button.className='position-button'+(index===selectedPosition?' selected':'');button.dataset.position=String(index);button.innerHTML=`<div class="position-tone" style="background:${gray(b)}"></div><strong>Position ${index+1}</strong><span>B = ${fmt(b)}</span><span>R = ${fmt(r)}</span>`;strip.appendChild(button)});
+    const b=positionBackgrounds[selectedPosition];const r=.25+b*.75;document.getElementById('positionTitle').textContent=`Position ${selectedPosition+1}`;document.getElementById('selectedBackground').textContent=fmt(b);document.getElementById('positionFormula').textContent=`1.00 × 0.25 + ${fmt(b)} × 0.75 = ${fmt(r)}`;document.getElementById('positionMeaning').textContent=b<.5?'The result remains closer to the darker background because the background receives 75% of the weight.':'The result is already light because the background begins with a large value and still receives 75% of the weight.';
+  }
+  document.getElementById('positionStrip').addEventListener('click',event=>{const button=event.target.closest('[data-position]');if(!button)return;selectedPosition=Number(button.dataset.position);renderPositions()});
+
+  const samplingBackground=[.10,.82,.18,.20,.88,.38,.72];
+  function drawSampling(){
+    const canvas=document.getElementById('samplingCanvas');const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#172033';ctx.font='900 25px system-ui,sans-serif';ctx.fillText('Which background positions feed output x = 3?',34,46);ctx.fillStyle='#64748b';ctx.font='500 15px system-ui,sans-serif';ctx.fillText('Highlighted cells are read by the selected operation.',34,73);
+    const start=105,cellW=118,gap=16,y=160;const readIndexes=samplingMode==='alpha'?[3]:samplingMode==='blur'?[2,3,4]:[5];
+    samplingBackground.forEach((value,index)=>{const x=start+index*(cellW+gap);const read=readIndexes.includes(index);drawRoundedRect(ctx,x,y,cellW,92,14,gray(value),read?(samplingMode==='alpha'?'#059669':samplingMode==='blur'?'#d97706':'#be185d'):'#94a3b8',read?5:1.5);ctx.fillStyle=value>.58?'#172033':'#fff';ctx.font='850 16px system-ui,sans-serif';ctx.textAlign='center';ctx.fillText(`B[${index}]`,x+cellW/2,y+39);ctx.fillText(fmt(value),x+cellW/2,y+66);ctx.fillStyle='#475569';ctx.font='700 14px system-ui,sans-serif';ctx.fillText(`x=${index}`,x+cellW/2,y+118)});ctx.textAlign='left';
+    const outputX=start+3*(cellW+gap);drawRoundedRect(ctx,outputX,354,cellW,78,14,'#eef2ff','#4338ca',4);ctx.fillStyle='#312e81';ctx.font='900 17px system-ui,sans-serif';ctx.textAlign='center';ctx.fillText('output x=3',outputX+cellW/2,387);ctx.font='800 15px system-ui,sans-serif';ctx.fillText(samplingMode==='alpha'?'same-position mix':samplingMode==='blur'?'neighbor average':'shifted read',outputX+cellW/2,414);
+    ctx.strokeStyle=samplingMode==='alpha'?'#059669':samplingMode==='blur'?'#d97706':'#be185d';ctx.lineWidth=4;readIndexes.forEach(index=>{const x=start+index*(cellW+gap)+cellW/2;ctx.beginPath();ctx.moveTo(x,y+96);ctx.bezierCurveTo(x,300,outputX+cellW/2,300,outputX+cellW/2,344);ctx.stroke()});ctx.textAlign='left';
+    const data={alpha:{title:'Translucency',text:'For output position x = 3, the formula reads background B[3]. It combines that value with foreground F[3].',reads:'foreground[3], background[3]',consequence:'The color changes at x = 3. Nearby boundaries keep their original positions.'},blur:{title:'Blur · future operation',text:'A simple blur model reads several background positions around x = 3. The exact kernel and weights arrive in Chapter 7.',reads:'background[2], background[3], background[4]',consequence:'A sharp change can spread across nearby output positions and become spatially wider.'},refraction:{title:'Refraction · future operation',text:'A simple refraction model can produce output x = 3 by reading a shifted background position such as x = 5.',reads:'background[5] for output[3]',consequence:'A recognizable feature can appear moved or bent because the read position differs from the output position.'}}[samplingMode];
+    document.getElementById('samplingTitle').textContent=data.title;document.getElementById('samplingText').textContent=data.text;document.getElementById('samplingReads').textContent=data.reads;document.getElementById('samplingConsequence').textContent=data.consequence;document.querySelectorAll('[data-sampling-mode]').forEach(button=>{const on=button.dataset.samplingMode===samplingMode;button.classList.toggle('selected',on);button.setAttribute('aria-pressed',String(on))});
+  }
+  document.getElementById('samplingModes').addEventListener('click',event=>{const button=event.target.closest('[data-sampling-mode]');if(!button)return;samplingMode=button.dataset.samplingMode;drawSampling()});
+
+  const challengeEditor=document.getElementById('challengeEditor');
+  function stripComments(text){return text.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/.*$/gm,'')}
+  function parseChallenge(){
+    const text=stripComments(challengeEditor.value);const match=text.match(/\bval\s+backgroundShare\s*=\s*([^\n\r]+)/);
+    const number='((?:\\d+(?:\\.\\d*)?|\\.\\d+))f';
+    const foregroundMatch=text.match(new RegExp('\\bforeground\\s*=\\s*'+number));
+    const backgroundMatch=text.match(new RegExp('\\bbackground\\s*=\\s*'+number));
+    const alphaMatch=text.match(new RegExp('\\balpha\\s*=\\s*'+number));
+    const structureValid=/\bval\s+foregroundContribution\s*=\s*foreground\s*\*\s*alpha/.test(text)&&/\bval\s+backgroundContribution\s*=\s*background\s*\*\s*backgroundShare/.test(text)&&/\breturn\s+foregroundContribution\s*\+\s*backgroundContribution/.test(text);
+    if(!match||!foregroundMatch||!backgroundMatch||!alphaMatch)return {valid:false,structureValid,expression:match?match[1].trim():'missing',share:NaN};
+    const foregroundValue=Number(foregroundMatch[1]),backgroundValue=Number(backgroundMatch[1]),alphaValue=Number(alphaMatch[1]);const expression=match[1].trim().replace(/\s+/g,'');
+    let share=NaN;if(expression==='alpha')share=alphaValue;else if(['1f-alpha','1.0f-alpha','1-alpha'].includes(expression))share=1-alphaValue;else if(expression==='1f+alpha')share=1+alphaValue;else if(['0f','0.0f'].includes(expression))share=0;
+    return {valid:Number.isFinite(share),structureValid,expression:match[1].trim(),normalized:expression,share,foregroundValue,backgroundValue,alphaValue};
+  }
+  function rewriteChallenge(expression){const value=challengeEditor.value;if(/\bval\s+backgroundShare\s*=\s*[^\n\r]+/.test(value))challengeEditor.value=value.replace(/\bval\s+backgroundShare\s*=\s*[^\n\r]+/,`val backgroundShare = ${expression}`)}
+  function invalidateChallenge(){if(challengeSucceeded||document.getElementById('challengeResult').textContent){challengeSucceeded=false;const result=document.getElementById('challengeResult');result.textContent='Expression changed. Check the challenge again.';result.style.color='#78350f'}}
+  function drawChallenge(parsed){
+    const canvas=document.getElementById('challengeCanvas');const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#172033';ctx.font='900 23px system-ui,sans-serif';ctx.fillText('Contribution result from the parsed expression',28,42);
+    if(!parsed.valid){drawRoundedRect(ctx,28,82,844,130,16,'#fee2e2','#dc2626',2);ctx.fillStyle='#7f1d1d';ctx.font='850 18px system-ui,sans-serif';ctx.fillText('The backgroundShare expression is not recognized.',50,128);ctx.font='500 15px system-ui,sans-serif';ctx.fillText('Use one of the buttons or restore a simple expression.',50,164);return}
+    const fg=parsed.foregroundValue*parsed.alphaValue,bg=parsed.backgroundValue*parsed.share,result=fg+bg;drawBar(ctx,35,108,830,48,fg,'#059669','foreground × alpha',`${fmt(parsed.foregroundValue)} × ${fmt(parsed.alphaValue)} = ${fmt(fg)}`);drawBar(ctx,35,222,830,48,bg,'#1e40af','background × backgroundShare',`${fmt(parsed.backgroundValue)} × ${fmt(parsed.share)} = ${fmt(bg)}`);drawBar(ctx,35,344,830,54,result,'#4338ca','returned result',fmt(result));
+  }
+  function renderChallenge(){const parsed=parseChallenge();const foregroundContribution=parsed.valid?parsed.foregroundValue*parsed.alphaValue:NaN;const backgroundContribution=parsed.valid?parsed.backgroundValue*parsed.share:NaN;const resultValue=foregroundContribution+backgroundContribution;document.getElementById('challengeExpression').textContent=`backgroundShare = ${parsed.expression}`;document.getElementById('challengeReadout').textContent=parsed.valid?`foregroundContribution ${fmt(foregroundContribution)} + backgroundContribution ${fmt(backgroundContribution)} = ${fmt(resultValue)}`:'No result. The assignment or one numeric call argument could not be interpreted.';document.querySelectorAll('[data-share-expression]').forEach(button=>{const normalized=button.dataset.shareExpression.replace(/\s+/g,'');const on=parsed.valid&&parsed.normalized===normalized;button.classList.toggle('selected',on);button.setAttribute('aria-pressed',String(on))});drawChallenge(parsed)}
+  challengeEditor.addEventListener('input',()=>{invalidateChallenge();renderChallenge()});document.getElementById('challengeButtons').addEventListener('click',event=>{const button=event.target.closest('[data-share-expression]');if(!button)return;rewriteChallenge(button.dataset.shareExpression);invalidateChallenge();renderChallenge()});document.getElementById('resetChallenge').addEventListener('click',()=>{challengeEditor.value=`fun mixChannel(\n    foreground: Float,\n    background: Float,\n    alpha: Float,\n): Float {\n    val foregroundContribution = foreground * alpha\n    val backgroundShare = alpha\n    val backgroundContribution = background * backgroundShare\n    return foregroundContribution + backgroundContribution\n}\n\nval result = mixChannel(\n    foreground = 1.00f,\n    background = 0.20f,\n    alpha = 0.25f,\n)`;challengeSucceeded=false;document.getElementById('challengeResult').textContent='';renderChallenge()});document.getElementById('checkChallenge').addEventListener('click',()=>{const parsed=parseChallenge();const result=document.getElementById('challengeResult');if(!parsed.valid){challengeSucceeded=false;result.textContent='The backgroundShare assignment or a numeric call argument is missing or unsupported.';result.style.color='#7f1d1d'}else if(!parsed.structureValid){challengeSucceeded=false;result.textContent='Restore the two contribution lines and the return statement. Change only backgroundShare.';result.style.color='#7f1d1d'}else if(Math.abs(parsed.foregroundValue-1)>.0001||Math.abs(parsed.backgroundValue-.2)>.0001||Math.abs(parsed.alphaValue-.25)>.0001){challengeSucceeded=false;result.textContent='Restore foreground 1.00f, background 0.20f, and alpha 0.25f.';result.style.color='#7f1d1d'}else if(Math.abs(parsed.share-(1-parsed.alphaValue))>.0001){challengeSucceeded=false;result.textContent=`This expression gives background share ${fmt(parsed.share)}. The target is 0.75.`;result.style.color='#7f1d1d'}else{challengeSucceeded=true;result.textContent='Correct. 1f − alpha gives 0.75, so the function returns 0.40.';result.style.color='#065f46'}renderChallenge()});
+
+  async function copyText(text,status){try{await navigator.clipboard.writeText(text);if(status){status.textContent='Copied.';setTimeout(()=>status.textContent='',1800)}}catch{const helper=document.createElement('textarea');helper.value=text;document.body.appendChild(helper);helper.select();document.execCommand('copy');helper.remove();if(status){status.textContent='Copied.';setTimeout(()=>status.textContent='',1800)}}}
+  const recordChecks=[...document.querySelectorAll('[data-record]')];function yesNo(key){const checkbox=recordChecks.find(item=>item.dataset.record===key);return checkbox&&checkbox.checked?'true':'false'}
+  function updateRecord(){const all=recordChecks.every(item=>item.checked);document.getElementById('completionRecord').value=`lesson_01_06:\n  title: Learn the first alpha-mixture formula\n  completed_by_learner: ${all}\n  course_values_restored: ${yesNo('course')}\n  calculation_explained: ${yesNo('calculation')}\n  foreground_and_background_weights_explained: ${yesNo('weights')}\n  same_position_read_explained: ${yesNo('spatial')}\n  unchanged_pixel_8_pro_app_checked: ${yesNo('pixel')}\n  android_source_unchanged: ${yesNo('unchanged')}\n  learning_docs_commit_created: ${yesNo('commit')}\n  foreground_channel: 1.00\n  background_channel_teaching_value: 0.20\n  panel_alpha: 0.25\n  calculated_result_channel: 0.40\n  android_files_changed: []\n  questions_or_observations: ""\nnext_requested_lesson: 1.7`;}
+  recordChecks.forEach(item=>item.addEventListener('change',updateRecord));document.getElementById('copyAnswers').addEventListener('click',()=>copyText(document.getElementById('exerciseAnswers').value,document.getElementById('answerCopyStatus')));document.getElementById('copyRecord').addEventListener('click',()=>copyText(document.getElementById('completionRecord').value,document.getElementById('recordCopyStatus')));
+
+  const params=new URLSearchParams(location.search);if(params.has('alpha')){const value=Number(params.get('alpha'));if(Number.isFinite(value))alpha=clamp(value)}if(params.has('background')){const value=Number(params.get('background'));if(Number.isFinite(value))background=clamp(value)}if(params.has('foreground')){const value=Number(params.get('foreground'));if(Number.isFinite(value))foreground=clamp(value)}if(params.has('step')){const value=Number(params.get('step'));if(Number.isInteger(value))currentStep=Math.max(0,Math.min(steps.length-1,value))}if(['alpha','blur','refraction'].includes(params.get('sampling')))samplingMode=params.get('sampling');
+  renderFormula();renderStep();drawSampling();renderChallenge();updateRecord();
+})();
+</script>
+</body>
+</html>

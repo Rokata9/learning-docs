@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 1.5  
+**Version:** 1.6  
 **Updated:** 2026-07-19  
-**Current course position:** Lessons 1.1 through 1.4 are complete by learner confirmation or progression. Lesson 1.5 has been generated and is the current checkpoint.  
+**Current course position:** Lessons 1.1 through 1.5 are complete by learner confirmation. Lesson 1.6 has been generated and is the current checkpoint.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -10,7 +10,7 @@
 
 ---
 
-## 1. What changed through version 1.5
+## 1. What changed through version 1.6
 
 Version 1.0 placed the complete Chapter 1 teaching text and its large Compose example inside this master Markdown file. That was a bundled-document structure.
 
@@ -59,6 +59,17 @@ Version 1.5 adds the first translucent Android foreground:
 - The lesson adds no blur, refraction, border, shadow, highlight, foreground content, or animation.
 - The browser lesson exposes the background layer, panel layer, and final composite separately. It also includes a sharp-edge diagnostic, a manual construction stepper, and a synchronized alpha coding challenge.
 - The alpha-mixture arithmetic remains deliberately deferred to Lesson 1.6.
+
+Version 1.6 explains the first compositing formula without changing Android source:
+
+- Lesson 1.5 is marked complete because the learner reported that the pace and explanations were clear, the lesson had no remaining questions, and the Android result was tested.
+- Lesson 1.6 follows one fully covered panel position and one normalized color channel.
+- The teaching formula is `R = F × A + B × (1 − A)` for a translucent source over an opaque destination.
+- The course example uses `F = 1.00`, `B = 0.20`, and `A = 0.25`, producing foreground contribution `0.25`, background contribution `0.15`, and result `0.40`.
+- The lesson distinguishes same-position alpha compositing from blur, which reads neighboring positions, and refraction, which can read shifted positions.
+- The browser model names its evidence limits. Exact device values can also depend on color space, rounding, screenshot conversion, and shape-edge coverage. Those details do not change the same-position sampling conclusion.
+- No Android source file changes. The renderer already performs the per-position source-over operation for the Lesson 1.5 panel.
+- The coding challenge repairs `backgroundShare = 1f - alpha` in an isolated teaching helper. The helper is not added to `LiquidGlassLab`.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -895,6 +906,38 @@ Suggested commit:
 course: add translucent chapter 1 panel
 ```
 
+
+### `lesson-01-06-alpha-mixture.html`
+
+**New graphics idea:** Ordinary translucency combines the source and destination values at the same output position.  
+**New math idea:** A weighted mixture whose two weights add to 1.
+
+Interactive explanation:
+
+- A three-slider one-channel laboratory controls foreground channel `F`, background channel `B`, and alpha `A`.
+- Live bars and substituted equations show `R = F × A + B × (1 − A)`.
+- The default course values calculate `1.00 × 0.25 + 0.20 × 0.75 = 0.40`.
+- A seven-step manual derivation selects one teaching position, reads the foreground and destination at that same position, calculates both weights, calculates both contributions, and adds them.
+- A six-position strip shows why one shared alpha does not produce one uniform final color over a varying background.
+- A sampling comparison shows the exact image positions read by translucency, a future blur model, and a future refraction model.
+- The Android mapping traces `PanelFillAlpha`, `Color.White.copy`, the existing draw order, and the default source-over operation.
+- A production boundary explains why calculating one opaque Kotlin color would destroy the varying study background instead of implementing translucency.
+- The coding challenge repairs the background share in an isolated `mixChannel` helper. Direct editor changes and clickable expression buttons share one preview state.
+- Four exercises test the course calculation, alpha endpoints, two different background inputs, and the misconception that alpha alone can bend or soften a line.
+- A copyable completion record explicitly records that Android source remains unchanged.
+
+Android code delivery:
+
+```text
+No Android files changed. No Android ZIP is produced.
+```
+
+Suggested learning-docs commit:
+
+```text
+course: add chapter 1 alpha mixture lesson
+```
+
 ---
 
 ## 10. Android source organization for Chapter 1
@@ -917,7 +960,7 @@ The source is cumulative:
 - Lesson 1.3 creates the project and stable screen entry point.
 - Lesson 1.4 adds the study background.
 - Lesson 1.5 adds the fixed 25% translucent rounded panel.
-- Lesson 1.6 explains the math already visible in Lesson 1.5.
+- Lesson 1.6 explains the math already visible in Lesson 1.5 and changes no Android source.
 - Lesson 1.7 runs the controlled device experiment.
 - Lesson 1.8 records the checkpoint.
 
@@ -1026,18 +1069,19 @@ Generated and available lesson files:
 - `course/chapters/chapter-01/lesson-01-02-observe-the-transition.html`;
 - `course/chapters/chapter-01/lesson-01-03-create-the-android-project.html`;
 - `course/chapters/chapter-01/lesson-01-04-build-a-study-background.html`;
-- `course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html`.
+- `course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html`;
+- `course/chapters/chapter-01/lesson-01-06-alpha-mixture.html`.
 
-Lessons 1.1 through 1.4 are complete by explicit confirmation or learner progression. Exercise answers were not submitted for conversational grading.
+Lessons 1.1 through 1.5 are complete by explicit confirmation or learner progression. Exercise answers were not submitted for conversational grading.
 
-Lesson 1.5 is generated and is the current checkpoint. Its Android changed-file ZIP contains only:
+Lesson 1.6 is generated and is the current checkpoint. It changes no Android source, so no Android ZIP is produced. The cumulative Android implementation remains the Lesson 1.5 result. The Lesson 1.5 Android changed-file ZIP contained only:
 
 ```text
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/TranslucentRoundedPanel.kt
 ```
 
-`StudyBackground.kt` remains cumulative source in the Android project but is unchanged and excluded from the Lesson 1.5 incremental ZIP. The learning-docs changed-file ZIP contains only files created or modified for Lesson 1.5. Verification screenshots are not included in either archive.
+`StudyBackground.kt` remains cumulative source in the Android project. The Lesson 1.6 learning-docs ZIP contains only files created or modified for Lesson 1.6. Verification screenshots are not included in the archive.
 
 ---
 
@@ -1059,6 +1103,7 @@ The course plan was checked against these public primary sources through 2026-07
 - Android, **Graphics modifiers**: https://developer.android.com/develop/ui/compose/graphics/draw/modifiers
 - Android, **Compose modifier list**: https://developer.android.com/develop/ui/compose/modifiers-list
 - Android, **Compose Color reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color
+- Android, **Compose BlendMode reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode
 - Android, **Constraints and modifier order**: https://developer.android.com/develop/ui/compose/layouts/constraints-modifiers
 - Android, **GraphicsLayer**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/layer/GraphicsLayer
 - Android, **Create a project**: https://developer.android.com/studio/projects/create-project

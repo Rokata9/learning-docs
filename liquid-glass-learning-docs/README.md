@@ -22,22 +22,24 @@ No local web server is required. Every lesson is self-contained and works from `
 - Lesson 1.3: **Create the Android project and prove the path to pixels**
 - Lesson 1.4: **Build a study background**
 - Lesson 1.5: **Draw a translucent rounded panel**
+- Lesson 1.6: **Learn the first alpha-mixture formula**
 - Updated curriculum and conversation handoff
 
 ## Current lesson
 
 ```text
-course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html
+course/chapters/chapter-01/lesson-01-06-alpha-mixture.html
 ```
 
-Lesson 1.5 keeps `StudyBackground.kt` unchanged. It replaces the chapter screen and adds one panel file in the separate `LiquidGlassLab` project:
+Lesson 1.6 explains the one-channel teaching formula already visible in the Lesson 1.5 panel:
 
 ```text
-app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
-app/src/main/java/com/example/liquidglasslab/chapter01/TranslucentRoundedPanel.kt
+result = foreground × alpha + background × (1 − alpha)
 ```
 
-The panel is a centered `328.dp × 190.dp` rounded white fill at `0.25f` opacity. It adds no blur, refraction, border, shadow, highlight, or animation.
+The course example uses `foreground = 1.00`, `background = 0.20`, and `alpha = 0.25`, which produces `result = 0.40`. The lesson also shows why ordinary alpha compositing reads the background at the same image position.
+
+Lesson 1.6 changes no Android source. The cumulative `LiquidGlassLab` project remains at the Lesson 1.5 implementation.
 
 The learning-docs repository still contains no Android source tree.
 
