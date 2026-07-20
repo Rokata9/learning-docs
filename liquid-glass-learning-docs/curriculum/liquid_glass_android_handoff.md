@@ -1,392 +1,129 @@
 # Liquid Glass on Android — Conversation Handoff
 
 **Updated:** 2026-07-19  
-**Course plan version:** 1.6
+**Course plan version:** 1.7
 
 ## Stable course decisions
 
 - Kotlin and Jetpack Compose are the Android implementation path.
 - The Pixel 8 Pro is the physical learning and verification device.
-- The main learning path uses `minSdk = 33` for Android `RuntimeShader` and Android Graphics Shading Language, abbreviated AGSL.
-- The dated 2026-07-19 toolchain snapshot uses `compileSdk = 37`, `targetSdk = 37`, and `minSdk = 33`. Keep the locally generated Android Studio template's plugin and dependency versions.
-- The learner is a senior web engineer and an absolute beginner in mathematics, graphics programming, shaders, graphics processing unit concepts, and Android rendering internals.
-- Explanations use short declarative sentences and plain English.
-- At the end of every response, state a clearly labelled best-effort estimate of the remaining conversation context window in tokens. The number is approximate, not exact.
-- Each lesson introduces one main graphics idea and at most one main mathematical idea.
-- The course does not use a third-party glass-effect library for the main implementation.
-- The course does not claim to know Apple’s private Liquid Glass implementation.
-- The long-term capstone is a Safari-style three-dot control that expands into a rounded Liquid Glass menu with convincing middle frames, source anchoring, refraction, diffusion, edge lighting, shadow, depth, interruption handling, accessibility, and performance work.
+- The main path uses `minSdk = 33`.
+- The dated toolchain snapshot uses `compileSdk = 37` and `targetSdk = 37`. Keep locally generated plugin and dependency versions.
+- The learner is a senior web engineer and a mathematics and graphics beginner.
+- Use short declarative sentences. Define each graphics, rendering, coordinate, and math term at first use.
+- Trace one actual value through input → operation → output.
+- Every response ends with a clearly labelled best-effort estimate of remaining context tokens.
+- Do not use a third-party glass-effect library for the main implementation.
+- Do not claim to know Apple’s private rendering implementation.
 
-## Course file and delivery decisions
+## Delivery rules
 
-The master curriculum Markdown file is a plan and file manifest. It is not the lesson bundle.
+- The learning-docs and Android repositories are separate.
+- Chapter hubs use `lesson-[chapter-name].html`, never `index.html`.
+- Each lesson is one standalone HTML file with inline CSS and JavaScript and must work from `file://`.
+- Light desktop layout only. Verify at 1920×1080 and at 5120×1440 when the wide layout benefits.
+- Each lesson includes a coding challenge, two to four hidden-answer exercises, and a copyable completion record.
+- Incremental ZIPs contain only files changed by that lesson and preserve the repository root path.
+- Do not create an empty Android ZIP when a lesson changes no Android source.
 
-The course content uses:
+## Progress truth
 
-- one descriptively named course home: `liquid-glass-course.html`;
-- one descriptively named chapter hub: `lesson-[chapter-name].html`;
-- no generic chapter `index.html` files;
-- one numbered, descriptive, standalone `.html` file per sub-lesson;
-- a separate Android Studio project containing Kotlin and AGSL source;
-- no Android source directory inside the learning-docs repository;
-- this handoff Markdown file as the authoritative progress record.
-
-Starting with Lesson 1.4, delivery is incremental:
-
-- The learning-docs ZIP contains only files created or modified for the current lesson. It preserves paths beneath `liquid-glass-learning-docs/`.
-- The Android code ZIP contains only Android files created or modified for the current lesson. It preserves paths beneath `LiquidGlassLab/`.
-- Do not include unchanged files, cumulative copies, duplicate standalone downloads, verification screenshots, or a complete Android project unless the learner explicitly asks for them.
-- When a lesson changes no Android source, state that fact and do not create an empty Android ZIP.
-
-Every lesson HTML file must:
-
-- work from `file://`;
-- use inline CSS and JavaScript;
-- use inline SVG, Canvas, or WebGL2 when needed;
-- use a light desktop layout;
-- render correctly at `1920×1080` or larger;
-- use `5120×1440` for an intentionally ultrawide explanation;
-- show a meaningful initial state;
-- use manual steppers for sequences before free-running animation;
-- include live numbers and formulas when math is introduced;
-- quote the exact Kotlin or AGSL lines it teaches;
-- state where the browser model differs from Android;
-- include at least one small coding challenge before the final exercises;
-- end with two to four exercises and hidden answers;
-- provide a copyable lesson record.
-
-## Count correction
-
-The actual curriculum map contains **216 lessons**. An earlier conversational summary said 226. The chapter lists add up to 216, so 216 is the correct count.
-
-## Current progress
+The learner asked for four lessons to be generated before being away from chat. Generation and completion are separate states.
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 1.6
-platform: Kotlin + Jetpack Compose
-learning_device: Pixel 8 Pro
-learning_min_sdk: 33
-toolchain_snapshot_date: 2026-07-19
-compile_sdk: 37
-target_sdk: 37
-delivery_format: HTML-first
-incremental_archives_only: true
-learning_docs_repo_contains_android_project: false
-course_home_file: liquid-glass-course.html
-course_home_generated: true
-chapter_1_hub_file: course/chapters/chapter-01/lesson-a-transparent-panel-is-not-yet-liquid-glass.html
-chapter_1_hub_generated: true
-lesson_01_01_file: course/chapters/chapter-01/lesson-01-01-visible-ingredients.html
-lesson_01_01_generated: true
-lesson_01_01_completed_by_learner: true
-lesson_01_01_completion_basis: learner explicitly reported completion and no questions; exercise answers were not submitted for conversational grading
-lesson_01_02_file: course/chapters/chapter-01/lesson-01-02-observe-the-transition.html
-lesson_01_02_generated: true
-lesson_01_02_revision: 2026-07-19-code-preview-geometry-and-controls-fix
-lesson_01_02_revision_validated: true
-lesson_01_02_completed_by_learner: true
-lesson_01_02_completion_basis: learner confirmed the reported defect was fixed and explicitly requested Lesson 1.3; exercise answers were not submitted for conversational grading
-lesson_01_02_android_source_changed: false
-lesson_01_03_file: course/chapters/chapter-01/lesson-01-03-create-the-android-project.html
-lesson_01_03_generated: true
-lesson_01_03_android_source_changed: true
-lesson_01_03_android_files:
-  - app/src/main/java/com/example/liquidglasslab/MainActivity.kt
-  - app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
-lesson_01_03_completed_by_learner: true
-lesson_01_03_completion_basis: learner explicitly requested Lesson 1.4 without reporting a remaining Lesson 1.3 problem; exercise answers and a completion record were not submitted for conversational grading
-lesson_01_04_file: course/chapters/chapter-01/lesson-01-04-build-a-study-background.html
-lesson_01_04_generated: true
-lesson_01_04_android_source_changed: true
-lesson_01_04_android_changed_files:
-  - app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
-  - app/src/main/java/com/example/liquidglasslab/chapter01/StudyBackground.kt
-lesson_01_04_completed_by_learner: true
-lesson_01_04_completion_basis: learner explicitly reported that Lesson 1.4 was finished, clear, and tested; exercise answers and a completion record were not submitted for conversational grading
-lesson_01_05_file: course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html
-lesson_01_05_generated: true
-lesson_01_05_android_source_changed: true
-lesson_01_05_android_changed_files:
+course_version: 1.7
+generated_frontier: 1.7
+next_learner_checkpoint: 1.7
+required_order:
+  - 1.7
+  - 1.8
+  - 2.1
+  - 2.2
+lessons_01_01_through_01_06_completed_by_learner: true
+lesson_01_06_completion_basis: learner reported everything else clear; the remaining question about channel value 0.40 was answered and inserted into the lesson
+lesson_01_07_generated: true
+lesson_01_07_completed_by_learner: false
+lesson_01_07_android_changed_files:
   - app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
   - app/src/main/java/com/example/liquidglasslab/chapter01/TranslucentRoundedPanel.kt
-lesson_01_05_panel_width_dp: 328
-lesson_01_05_panel_height_dp: 190
-lesson_01_05_panel_corner_dp: 32
-lesson_01_05_panel_fill_alpha: 0.25
-lesson_01_05_completed_by_learner: true
-lesson_01_05_completion_basis: learner explicitly reported no questions, confirmed the lesson was clear and tested, and requested the next lesson; exercise answers and a completion record were not submitted for conversational grading
-lesson_01_06_file: course/chapters/chapter-01/lesson-01-06-alpha-mixture.html
-lesson_01_06_generated: true
-lesson_01_06_android_source_changed: false
-lesson_01_06_android_changed_files: []
-lesson_01_06_foreground_channel_teaching_value: 1.00
-lesson_01_06_background_channel_teaching_value: 0.20
-lesson_01_06_panel_alpha: 0.25
-lesson_01_06_foreground_contribution: 0.25
-lesson_01_06_background_contribution: 0.15
-lesson_01_06_result_channel_teaching_value: 0.40
-lesson_01_06_completed_by_learner: false
-chapter_1_completed_by_learner: false
-current_chapter: 1
-current_lesson: 1.6
-current_lesson_file: course/chapters/chapter-01/lesson-01-06-alpha-mixture.html
-next_required_output: review the learner's Lesson 1.6 completion record, exercise answers, question, or reported defect; do not generate Lesson 1.7 until Lesson 1.6 is complete
+  - app/src/main/java/com/example/liquidglasslab/chapter01/OpacityExperimentControls.kt
+lesson_01_08_android_source_changed: false
 ```
 
-## Required Chapter 1 file set
+Do not mark Lessons 1.7, 1.8, 2.1, or 2.2 complete merely because their files exist.
+
+## Clarification added to Lesson 1.6
+
+`0.40` is one normalized red, green, or blue channel value at one image position. It is not a complete color. RGBA still contains red, green, blue, and alpha. The same structure can be written with normalized floats or integer channels.
 
 ```text
-course/chapters/chapter-01/
-├── lesson-a-transparent-panel-is-not-yet-liquid-glass.html
-├── lesson-01-01-visible-ingredients.html
-├── lesson-01-02-observe-the-transition.html
-├── lesson-01-03-create-the-android-project.html
-├── lesson-01-04-build-a-study-background.html
-├── lesson-01-05-translucent-rounded-panel.html
-├── lesson-01-06-alpha-mixture.html
-├── lesson-01-07-pixel-8-pro-experiment.html
-└── lesson-01-08-diagnosis-and-checkpoint.html
+normalized RGBA: (0.40, 0.65, 0.90, 1.00)
+approximate 8-bit RGBA: (102, 166, 230, 255)
 ```
 
-The cumulative Android source now lives in the separate project:
+If all three color channels are `0.40` and alpha is `1.00`, the complete color is approximately opaque gray `#666666`.
 
-```text
-LiquidGlassLab/
-└── app/src/main/java/com/example/liquidglasslab/
-    ├── MainActivity.kt
-    └── chapter01/
-        ├── Chapter01Screen.kt
-        ├── StudyBackground.kt
-        └── TranslucentRoundedPanel.kt
-```
+## Generated files
 
-Lesson 1.3 deliberately did not create `Chapter01Route.kt`. The app has one destination, so `MainActivity` calls `Chapter01Screen` directly. A navigation abstraction will be introduced only when a second destination creates a routing requirement.
+- Lesson 1.7: `course/chapters/chapter-01/lesson-01-07-pixel-8-pro-experiment.html`
+- Lesson 1.8: `course/chapters/chapter-01/lesson-01-08-diagnosis-and-checkpoint.html`
 
-## Lesson 1.5 delivery details
+## Lesson sequence
 
-The lesson file is:
+### Lesson 1.7 — controlled Pixel 8 Pro opacity experiment
 
-```text
-course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html
-```
+Change only panel alpha. Capture 0%, 25%, 50%, 75%, and 100%. Keep the background, bounds, corner radius, source color, orientation, and window fixed. Android adds `OpacityExperimentControls.kt` and makes panel alpha state-driven.
 
-The main graphics idea is translucency from one foreground fill. No compositing formula is introduced yet.
+### Lesson 1.8 — diagnosis and Chapter 1 checkpoint
 
-The lesson includes:
+Use observations and source traces to classify translucency as present and blur, refraction, highlight, shadow, and morphing as absent. No Android source changes.
 
-- plain definitions of panel, bounds, fill, opacity, foreground layer, density-independent pixels, and rounded corner shape;
-- a browser Canvas laboratory in which only the white fill alpha changes;
-- clickable 0%, 25%, 50%, 75%, and 100% presets plus a direct slider;
-- a three-view layer inspector for the study background, the transparent panel layer, and the final image;
-- a sharp-edge diagnostic that distinguishes lower contrast from blur;
-- an optional blur counterexample that is clearly excluded from the Android code;
-- a value trace from `PanelFillAlpha = 0.25f` through `Color.White.copy` to `Modifier.background`;
-- a seven-step manual build sequence with exact input, operation, and output text;
-- complete source tabs for the two changed Android files;
-- a coding challenge whose editor and clickable presets share the same parsed alpha and preview;
-- four exercises with hidden answers;
-- a copyable completion record;
-- official Android source links and a concrete browser-versus-Android evidence boundary.
+### Lesson 2.1 — what a pixel is
 
-The browser uses a `412 × 915` teaching canvas because those are the exact dimensions declared by the Compose preview. The browser's centered `328 × 190` panel therefore begins at x = 42 and y = 362.5 in that preview-local model. The real Pixel app-window height may differ. Chapter 2 teaches runtime coordinate measurement.
+Switch the app to `Chapter02Screen`. Draw an enlarged 8×8 raster teaching image. One large cell represents one raster position. It is not one physical Pixel 8 Pro display pixel.
 
-## Lesson 1.5 Android code
+### Lesson 2.2 — the X axis
 
-The Android changed-file ZIP contains only:
-
-```text
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/TranslucentRoundedPanel.kt
-```
-
-`StudyBackground.kt` is cumulative source from Lesson 1.4. It is unchanged and is not duplicated in the Lesson 1.5 ZIP.
-
-`Chapter01Screen.kt` now creates one full-size parent `Box`. It draws `StudyBackground()` first. It then centers `TranslucentRoundedPanel()` with fixed bounds of `328.dp × 190.dp`.
-
-`TranslucentRoundedPanel.kt` declares:
-
-```kotlin
-internal const val PanelFillAlpha = 0.25f
-private val PanelShape = RoundedCornerShape(32.dp)
-```
-
-The panel uses:
-
-```kotlin
-Modifier.background(
-    color = Color.White.copy(alpha = PanelFillAlpha),
-    shape = PanelShape,
-)
-```
-
-The panel has no child content. No blur, refraction, border, shadow, highlight, animation, or adaptive behavior is present.
-
-## Lesson 1.5 checkpoint
-
-Lesson 1.5 is complete only when:
-
-- [ ] The incremental learning-docs ZIP was extracted over the existing learning-docs repository.
-- [ ] The incremental Android ZIP was extracted over the parent directory that contains `LiquidGlassLab`.
-- [ ] `Chapter01Screen.kt` was replaced.
-- [ ] `TranslucentRoundedPanel.kt` was added.
-- [ ] `StudyBackground.kt` remained unchanged.
-- [ ] The Android project builds without a Kotlin compiler error.
-- [ ] The Pixel 8 Pro shows a centered rounded panel.
-- [ ] The study background remains visible through the panel.
-- [ ] Lines and text under the panel remain sharp and stay in place.
-- [ ] No blur, refraction, border, shadow, highlight, or animation appeared.
-- [ ] A Pixel screenshot was saved.
-- [ ] The learner can explain why lower contrast is not sufficient evidence of blur.
-- [ ] The Android change was committed to Git.
-
-Suggested commit:
-
-```text
-course: add translucent chapter 1 panel
-```
-
-## Lesson 1.6 delivery details
-
-The lesson file is:
-
-```text
-course/chapters/chapter-01/lesson-01-06-alpha-mixture.html
-```
-
-The main graphics idea is same-position source-over compositing. The main mathematical idea is a weighted mixture whose two weights add to 1.
-
-The lesson includes:
-
-- canonical definitions of color channel, normalized value, weight, contribution, source, destination, sample, and source-over compositing;
-- a three-slider one-channel formula laboratory for foreground `F`, background `B`, and alpha `A`;
-- live substituted arithmetic for `R = F × A + B × (1 − A)`;
-- the exact course calculation `1.00 × 0.25 + 0.20 × 0.75 = 0.40`;
-- a seven-step manual derivation that exposes the selected output position, both same-position inputs, both weights, both contributions, and the result;
-- a six-position background strip proving that one shared alpha still produces different outputs over different background values;
-- a sampling comparison that distinguishes same-position alpha compositing from future blur and refraction operations;
-- an Android trace from `PanelFillAlpha` through `Color.White.copy`, draw order, and the default source-over blend;
-- a production warning showing why one Kotlin `mixChannel` result cannot replace per-position renderer compositing over a varying background;
-- an isolated Kotlin coding challenge that changes `backgroundShare` from `alpha` to `1f - alpha`;
-- four hidden-answer exercises and a copyable completion record;
-- an explicit evidence boundary for color space, numeric rounding, screenshot conversion, and rounded-edge coverage.
-
-The browser model uses deliberately chosen normalized channel values. `B = 0.20` is not claimed to be a sampled Pixel 8 Pro channel value. The model is a causal arithmetic bridge. The Android code supplies white and alpha `0.25f`; the actual destination value varies by output position.
-
-## Lesson 1.6 Android code
-
-No Android source file changes.
-
-The cumulative app remains:
-
-```text
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
-├── MainActivity.kt
-└── chapter01/
-    ├── Chapter01Screen.kt
-    ├── StudyBackground.kt
-    └── TranslucentRoundedPanel.kt
-```
-
-No Android ZIP is produced. An empty ZIP would conflict with the incremental-delivery rule.
-
-The isolated `mixChannel` function in the HTML is syntax and arithmetic practice. It is not production panel code and is not copied into `LiquidGlassLab`.
-
-## Lesson 1.6 checkpoint
-
-Lesson 1.6 is complete only when:
-
-- [ ] The incremental learning-docs ZIP was extracted over the existing learning-docs repository.
-- [ ] The formula laboratory was restored to `F = 1.00`, `B = 0.20`, and `A = 0.25`.
-- [ ] The learner can calculate foreground contribution `0.25`.
-- [ ] The learner can calculate background share `0.75` and background contribution `0.15`.
-- [ ] The learner can calculate final result `0.40`.
-- [ ] The learner can explain why the background is read at the same output position.
-- [ ] The learner can name the neighboring or shifted samples required by blur or refraction.
-- [ ] The unchanged Lesson 1.5 app was inspected over both a dark and a light background area on the Pixel 8 Pro.
-- [ ] No Android source file was changed for Lesson 1.6.
-- [ ] The learning-docs change was committed to Git.
-
-Suggested learning-docs commit:
-
-```text
-course: add chapter 1 alpha mixture lesson
-```
-
-## Chapter 1 checkpoint
-
-Chapter 1 is complete only when:
-
-- [ ] All eight lesson HTML files exist and open from `file://`.
-- [ ] The chapter hub lists every lesson and every enabled link works.
-- [ ] The HTML lessons have been screenshot-checked at desktop size.
-- [ ] `LiquidGlassLab` runs on the Pixel 8 Pro.
-- [ ] A slider changes a white rounded panel fill from 0% to 100% opacity.
-- [ ] Screenshots exist around 0%, 25%, 50%, 75%, and 100%.
-- [ ] At least five observations have been written.
-- [ ] The learner can explain the alpha mixture in simple words.
-- [ ] The learner can explain why transparency alone is not blur or refraction.
-- [ ] The Android work is committed to Git.
+Keep the selected row fixed at 3. Move the selected column from X = 0 through X = 7. Separate the grid coordinate from SVG-local drawing pixels and physical screen pixels.
 
 ## Next action
 
-Open and complete:
+Apply and complete the generated updates in exactly this order:
 
 ```text
-course/chapters/chapter-01/lesson-01-06-alpha-mixture.html
+1. Lesson 1.7 learning-docs ZIP
+2. Lesson 1.7 Android code ZIP
+3. Complete and test Lesson 1.7
+4. Lesson 1.8 learning-docs ZIP
+5. Complete Lesson 1.8
+6. Lesson 2.1 learning-docs ZIP
+7. Lesson 2.1 Android code ZIP
+8. Complete and test Lesson 2.1
+9. Lesson 2.2 learning-docs ZIP
+10. Lesson 2.2 Android code ZIP
+11. Complete and test Lesson 2.2
 ```
 
-No Android code archive is required. Run the unchanged Lesson 1.5 app on the Pixel 8 Pro only for the dark-versus-light background comparison. Return with the completion record, exercise answers, question, or reported HTML defect.
-
-Do not generate Lesson 1.7 until Lesson 1.6 is complete.
-
-After Lesson 1.6 is complete, generate:
-
-```text
-course/chapters/chapter-01/lesson-01-07-pixel-8-pro-experiment.html
-```
-
-Lesson 1.7 must add the controlled 0%, 25%, 50%, 75%, and 100% opacity experiment. It must keep blur and refraction absent so only alpha changes.
+Lesson 1.8 has no Android archive because it changes no Android source.
 
 ## Reusable continuation prompt
 
 ```text
 We are continuing my “Liquid Glass on Android” beginner-to-expert course.
 
-Read these two files first:
-1. liquid_glass_android_curriculum.md
-2. liquid_glass_android_handoff.md
+Read liquid_glass_android_curriculum.md and liquid_glass_android_handoff.md first.
 
-Assume I am a senior web engineer and an absolute beginner in mathematics, graphics programming, shaders, graphics processing unit concepts, and Android rendering internals.
+Assume I am a senior web engineer and an absolute beginner in mathematics, graphics programming, shaders, GPU concepts, and Android rendering internals. Use simple English. Define each new term. Use short declarative sentences. Trace one real value through input → operation → output.
 
-Use simple English. Define each new graphics or math term at first use. Use short sentences. Explain one actual value through input → operation → output.
-At the end of every response, include a clearly labelled best-effort estimate of the remaining conversation context window in tokens. State that the number is approximate.
+The course files may be generated ahead of my completion. Follow `next_learner_checkpoint` and `required_order` from the handoff. Do not infer completion from file existence.
 
-Course file rules:
-- The master curriculum is a plan. Do not put full lessons into it.
-- Every chapter hub is named `lesson-[chapter-name].html`; do not create generic chapter `index.html` files.
-- Every sub-lesson has one standalone interactive HTML file named `lesson-[chapter-number]-[lesson-number]-[lesson-name].html`.
-- HTML must work from file:// with inline CSS, JavaScript, SVG, Canvas, or WebGL2.
-- Light theme only. Desktop only. Verify at 1920×1080 or larger.
-- Use 5120×1440 for an intentionally ultrawide explanation.
-- Use a manual stepper before any free-running sequence animation.
-- Clearly label browser approximations. Android behavior must be tested on the Pixel 8 Pro.
-- Kotlin and AGSL source lives in the separate Android project.
-- Deliver only two incremental archives when both repositories change: one learning-docs ZIP and one Android code ZIP.
-- Each ZIP contains only files created or modified for the current lesson and preserves paths beneath `liquid-glass-learning-docs/` or `LiquidGlassLab/`.
-- Do not include cumulative copies, duplicate direct downloads, unchanged files, screenshots, or complete projects unless I explicitly request them.
-- Include at least one small coding challenge before the final exercises. End each lesson with two to four exercises and hidden answers.
-- Provide a copyable lesson record for the handoff.
-- Do not use a third-party glass library for the main implementation.
-- Do not claim to know Apple’s private implementation.
+Use one standalone interactive HTML file per lesson. Use inline CSS and JavaScript. Light desktop layout only. Use manual steppers for sequences. Include a coding challenge, two to four hidden-answer exercises, and a copyable completion record.
 
-Read the current progress in the handoff.
+Kotlin and AGSL live in the separate LiquidGlassLab project. Deliver only incremental ZIPs containing files changed by the lesson. Do not create an empty Android ZIP.
 
-If the current lesson exists but its checkpoint is incomplete, review my result and teach the next smallest missing step.
-If the checkpoint is complete, update the handoff and generate only the next lesson's changed files.
+At the end of every response, include a clearly labelled best-effort estimate of the remaining conversation context window in tokens and state that it is approximate.
 
-Do not jump to the Safari menu capstone.
-
-CURRENT CODE, SCREENSHOT, OBSERVATION, COMPLETION RECORD, EXERCISE ANSWERS, OR ERROR:
+CURRENT COMPLETION RECORD, CODE, SCREENSHOT, OBSERVATION, EXERCISE ANSWERS, OR ERROR:
 [paste here]
 ```

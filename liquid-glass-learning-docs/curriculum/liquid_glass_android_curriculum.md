@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 1.6  
+**Version:** 1.7  
 **Updated:** 2026-07-19  
-**Current course position:** Lessons 1.1 through 1.5 are complete by learner confirmation. Lesson 1.6 has been generated and is the current checkpoint.  
+**Current course position:** Lessons 1.1 through 1.6 are complete by learner confirmation. Lesson 1.7 is the next learner checkpoint. Files are generated through Lesson 1.7 for offline sequential study.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -70,6 +70,15 @@ Version 1.6 explains the first compositing formula without changing Android sour
 - The browser model names its evidence limits. Exact device values can also depend on color space, rounding, screenshot conversion, and shape-edge coverage. Those details do not change the same-position sampling conclusion.
 - No Android source file changes. The renderer already performs the per-position source-over operation for the Lesson 1.5 panel.
 - The coding challenge repairs `backgroundShare = 1f - alpha` in an isolated teaching helper. The helper is not added to `LiquidGlassLab`.
+
+
+Version 1.7 answers the remaining Lesson 1.6 channel-value question and adds the controlled device experiment:
+
+- A value such as `0.40` is identified as one normalized red, green, or blue channel value, not a complete color.
+- Normalized RGBA and integer RGBA are two numeric scales for the same four-component structure. The example `(0.40, 0.65, 0.90, 1.00)` is approximately `(102, 166, 230, 255)`.
+- Lesson 1.6 is marked complete after this clarification because the learner reported that the rest of the lesson was clear and requested progression.
+- Lesson 1.7 adds exact 0%, 25%, 50%, 75%, and 100% alpha states, a controlled screenshot protocol, and a live Android control panel.
+- Android changes: `Chapter01Screen.kt`, `TranslucentRoundedPanel.kt`, and new `OpacityExperimentControls.kt`.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -938,6 +947,33 @@ Suggested learning-docs commit:
 course: add chapter 1 alpha mixture lesson
 ```
 
+
+### `lesson-01-07-pixel-8-pro-experiment.html`
+
+**New graphics idea:** A controlled graphics experiment changes one input and keeps the other relevant inputs fixed.  
+**New math idea:** Convert between percentages and normalized alpha with `percentage ÷ 100`.
+
+Android code delivery:
+
+```text
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/TranslucentRoundedPanel.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/OpacityExperimentControls.kt
+```
+
+The five exact states are 0%, 25%, 50%, 75%, and 100%. No blur or refraction is added.
+
+### `lesson-01-08-diagnosis-and-checkpoint.html`
+
+**New graphics idea:** Diagnose an implementation by connecting each claim to visible or source-level evidence.  
+**New math idea:** None.
+
+Android code delivery:
+
+```text
+No Android files changed. No Android ZIP is produced.
+```
+
 ---
 
 ## 10. Android source organization for Chapter 1
@@ -950,7 +986,8 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
 └── chapter01/
     ├── Chapter01Screen.kt
     ├── StudyBackground.kt          # introduced in Lesson 1.4
-    └── TranslucentRoundedPanel.kt  # introduced in Lesson 1.5
+    ├── TranslucentRoundedPanel.kt  # introduced in Lesson 1.5
+    └── OpacityExperimentControls.kt # introduced in Lesson 1.7
 ```
 
 Lesson 1.3 does not create `Chapter01Route.kt`. There is only one destination, so `MainActivity` calls `Chapter01Screen` directly. A route or navigation abstraction will be added only when a real second destination creates a routing problem.

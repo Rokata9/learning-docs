@@ -4,61 +4,47 @@ This repository contains the interactive course documents. The Android Studio pr
 
 ## Start here
 
-Open this file directly in a Chromium-based browser:
+Open `liquid-glass-course.html` directly in a Chromium-based browser. No local server is required. Every lesson is self-contained and works from `file://`.
 
-```text
-liquid-glass-course.html
-```
-
-No local web server is required. Every lesson is self-contained and works from `file://`.
-
-## Current delivery
+## Generated delivery frontier
 
 - Course home
 - Canonical glossary
 - Chapter 1 hub
-- Lesson 1.1: **Name the visible ingredients**
-- Lesson 1.2: **Observe the transition one state at a time**
-- Lesson 1.3: **Create the Android project and prove the path to pixels**
-- Lesson 1.4: **Build a study background**
-- Lesson 1.5: **Draw a translucent rounded panel**
-- Lesson 1.6: **Learn the first alpha-mixture formula**
+- Lessons 1.1 through 1.7
 - Updated curriculum and conversation handoff
 
-## Current lesson
+## Next learner checkpoint
 
 ```text
-course/chapters/chapter-01/lesson-01-06-alpha-mixture.html
+course/chapters/chapter-01/lesson-01-07-pixel-8-pro-experiment.html
 ```
 
-Lesson 1.6 explains the one-channel teaching formula already visible in the Lesson 1.5 panel:
+Lessons 1.1 through 1.6 are complete by learner confirmation. The question about `0.40` has been answered inside the revised Lesson 1.6: it is one normalized channel value, not a complete color.
+
+Files after Lesson 1.7 were generated in advance. Complete them in this order:
 
 ```text
-result = foreground × alpha + background × (1 − alpha)
+1.7 → 1.8 → 2.1 → 2.2
 ```
 
-The course example uses `foreground = 1.00`, `background = 0.20`, and `alpha = 0.25`, which produces `result = 0.40`. The lesson also shows why ordinary alpha compositing reads the background at the same image position.
+Generated availability is not learner completion.
 
-Lesson 1.6 changes no Android source. The cumulative `LiquidGlassLab` project remains at the Lesson 1.5 implementation.
+## Android progression
 
-The learning-docs repository still contains no Android source tree.
+- Lesson 1.7 adds exact 0%, 25%, 50%, 75%, and 100% controls.
+- Lesson 1.8 changes no Android source.
+- Lesson 2.1 switches the app entry point to `Chapter02Screen` and adds an enlarged 8×8 teaching grid.
+- Lesson 2.2 adds an X-axis explorer and makes the selected column movable from 0 through 7.
 
 ## Incremental delivery rule
 
-New lesson archives contain only files created or modified for that lesson. They preserve repository-relative paths so they can be extracted over the existing learning-docs repository and Android project. Cumulative copies are not produced unless explicitly requested.
+Each lesson archive contains only files created or modified for that lesson. Paths are preserved beneath `liquid-glass-learning-docs/` or `LiquidGlassLab/`. A lesson with no Android source change has no empty Android ZIP.
 
 ## Naming rule
 
-Chapter hubs use descriptive names such as:
-
-```text
-lesson-a-transparent-panel-is-not-yet-liquid-glass.html
-```
-
-Sub-lessons use numbered descriptive names such as:
-
-```text
-lesson-01-05-translucent-rounded-panel.html
-```
+Course home: `liquid-glass-course.html`  
+Chapter hub: `lesson-[chapter-name].html`  
+Sub-lesson: `lesson-[chapter-number]-[lesson-number]-[lesson-name].html`
 
 Generic chapter `index.html` files are not used.
