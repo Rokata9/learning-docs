@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 1.7  
+**Version:** 1.8  
 **Updated:** 2026-07-19  
-**Current course position:** Lessons 1.1 through 1.6 are complete by learner confirmation. Lesson 1.7 is the next learner checkpoint. Files are generated through Lesson 1.7 for offline sequential study.  
+**Current course position:** Lessons 1.1 through 1.6 are complete by learner confirmation. Lesson 1.7 is the next learner checkpoint. Files are generated through Lesson 1.8 for offline sequential study.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -79,6 +79,13 @@ Version 1.7 answers the remaining Lesson 1.6 channel-value question and adds the
 - Lesson 1.6 is marked complete after this clarification because the learner reported that the rest of the lesson was clear and requested progression.
 - Lesson 1.7 adds exact 0%, 25%, 50%, 75%, and 100% alpha states, a controlled screenshot protocol, and a live Android control panel.
 - Android changes: `Chapter01Screen.kt`, `TranslucentRoundedPanel.kt`, and new `OpacityExperimentControls.kt`.
+
+Version 1.8 generates the Chapter 1 diagnosis and checkpoint lesson in advance:
+
+- Lesson 1.8 distinguishes an observation, a claim, evidence, and a diagnosis.
+- The learner must support every present-or-absent material claim with a specific visual clue or source trace.
+- No Android source changes. The Lesson 1.7 app is the Chapter 1 final Android state.
+- Lesson 1.8 is generated but is not marked complete before the learner finishes it.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 

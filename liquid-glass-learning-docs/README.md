@@ -11,7 +11,7 @@ Open `liquid-glass-course.html` directly in a Chromium-based browser. No local s
 - Course home
 - Canonical glossary
 - Chapter 1 hub
-- Lessons 1.1 through 1.7
+- Lessons 1.1 through 1.7 and 1.8
 - Updated curriculum and conversation handoff
 
 ## Next learner checkpoint

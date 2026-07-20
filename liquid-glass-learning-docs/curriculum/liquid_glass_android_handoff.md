@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Conversation Handoff
 
 **Updated:** 2026-07-19  
-**Course plan version:** 1.7
+**Course plan version:** 1.8
 
 ## Stable course decisions
 
@@ -32,8 +32,8 @@ The learner asked for four lessons to be generated before being away from chat. 
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 1.7
-generated_frontier: 1.7
+course_version: 1.8
+generated_frontier: 1.8
 next_learner_checkpoint: 1.7
 required_order:
   - 1.7
@@ -44,6 +44,8 @@ lessons_01_01_through_01_06_completed_by_learner: true
 lesson_01_06_completion_basis: learner reported everything else clear; the remaining question about channel value 0.40 was answered and inserted into the lesson
 lesson_01_07_generated: true
 lesson_01_07_completed_by_learner: false
+lesson_01_08_generated: true
+lesson_01_08_completed_by_learner: false
 lesson_01_07_android_changed_files:
   - app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
   - app/src/main/java/com/example/liquidglasslab/chapter01/TranslucentRoundedPanel.kt
