@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Conversation Handoff
 
 **Updated:** 2026-07-21  
-**Course plan version:** 2.3
+**Course plan version:** 2.4
 
 ## Stable course decisions
 
@@ -11,9 +11,19 @@
 - The learner is a senior web engineer and a mathematics and graphics beginner.
 - Use short declarative sentences. Define each graphics, rendering, coordinate, and math term at first use.
 - Trace one actual value through input → operation → output.
-- Every response ends with a clearly labelled best-effort estimate of remaining context tokens.
 - Do not use a third-party glass-effect library for the main implementation.
 - Do not claim to know Apple’s private rendering implementation.
+
+## Response footer rules
+
+Every response must end with both lines:
+
+```text
+Course progress: X of 216 lessons completed.
+Estimated remaining context: ~N tokens. This is a best-effort approximation, not an exact measurement.
+```
+
+Use only learner-confirmed completion for X. A generated lesson does not count until the learner reports it complete.
 
 ## Delivery rules
 
@@ -27,104 +37,106 @@
 
 ## Progress truth
 
-The learner explicitly clarified that all four previously generated lessons were completed: 1.7, 1.8, 2.1, and 2.2.
+The learner explicitly reported Lesson 2.3 complete.
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 2.3
-generated_frontier: 2.3
-completed_through: 2.2
-next_learner_checkpoint: 2.3
-lesson_01_07_completed_by_learner: true
-lesson_01_08_completed_by_learner: true
+course_version: 2.4
+course_lessons_total: 216
+course_lessons_completed_by_learner: 11
+completed_lessons:
+  - 1.1-1.8
+  - 2.1-2.3
+completed_through: 2.3
+generated_frontier: 2.4
+next_learner_checkpoint: 2.4
 chapter_01_completed_by_learner: true
-lesson_02_01_completed_by_learner: true
-lesson_02_02_completed_by_learner: true
-lesson_02_03_generated: true
-lesson_02_03_completed_by_learner: false
-completion_basis_for_01_07_through_02_02: learner explicitly reported completion; exercise answers were not submitted for conversational grading
-lesson_02_03_android_changed_files:
+lesson_02_03_completed_by_learner: true
+lesson_02_04_generated: true
+lesson_02_04_completed_by_learner: false
+completion_basis_for_02_03: learner explicitly reported completion; exercise answers were not submitted for conversational grading
+lesson_02_04_android_changed_files:
   - app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
-  - app/src/main/java/com/example/liquidglasslab/chapter02/EnlargedPixelGrid.kt
-  - app/src/main/java/com/example/liquidglasslab/chapter02/YAxisExplorer.kt
+  - app/src/main/java/com/example/liquidglasslab/chapter02/BoundsCenterExplorer.kt
 ```
 
-## Lesson 2.3 — The Y axis
+## Lesson 2.4 — Width, height, edges, and center
 
-The lesson keeps `X = 4` fixed and changes only Y from 0 through 7.
+The lesson keeps the rectangle’s top-left origin fixed at `(0, 0)`. Width and height can change independently.
 
-The central direction rule is:
+Central formulas:
 
 ```text
-move down → Y + 1
-move up   → Y - 1
+width = right - left
+height = bottom - top
+
+centerX = left + width / 2
+centerY = top + height / 2
 ```
 
-The lesson distinguishes four related values:
+Because left and top are 0 in the first model:
 
 ```text
-grid-row coordinate:             Y = 5
-Android grid-local row center:   187.dp
-browser SVG-local handle center: 356 SVG-local px
-physical Pixel 8 Pro position:   not calculated yet
+centerX = width / 2
+centerY = height / 2
 ```
 
-The Android grid uses 34.dp cells. For Y = 5:
+The main examples are:
 
 ```text
-row top    = 5 × 34.dp = 170.dp
-row center = 170.dp + 17.dp = 187.dp
+8 × 6 → center (4, 3)
+7 × 5 → center (3.5, 2.5)
+4 × 4 → center (2, 2)
 ```
 
-The browser’s 356-pixel value comes from a separate teaching formula:
+The diagnostic distinction is:
 
 ```text
-96 + 5 × 52 = 356 SVG-local px
+width 8 → right edge X = 8
+width 8 → cell indexes 0 through 7
 ```
 
-These numbers must not be treated as interchangeable.
+Edge 8 closes cell 7. It is not a ninth cell.
 
-## Lesson 2.3 files
+## Lesson 2.4 files
 
 Learning file:
 
 ```text
-course/chapters/chapter-02/lesson-02-03-the-y-axis.html
+course/chapters/chapter-02/lesson-02-04-width-height-edges-and-center.html
 ```
 
 Android changes:
 
 ```text
 app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
-app/src/main/java/com/example/liquidglasslab/chapter02/EnlargedPixelGrid.kt
-app/src/main/java/com/example/liquidglasslab/chapter02/YAxisExplorer.kt
+app/src/main/java/com/example/liquidglasslab/chapter02/BoundsCenterExplorer.kt
 ```
 
-`MainActivity.kt` and `XAxisExplorer.kt` remain unchanged.
+Earlier Chapter 2 files remain unchanged.
 
-## Lesson 2.3 checkpoint
+## Lesson 2.4 checkpoint
 
-Lesson 2.3 is complete only when:
+Lesson 2.4 is complete only when:
 
-- [ ] The learning-docs update was applied after Lesson 2.2.
-- [ ] The Android code update was applied after Lesson 2.2.
-- [ ] The learner can define vertical, Y axis, and coordinate system.
-- [ ] The learner can explain that increasing Y moves downward in Android screen coordinates.
-- [ ] X remains fixed at 4 while Y changes.
-- [ ] Grid Y, Android grid-local dp, browser SVG-local pixels, and physical display pixels remain separate concepts.
-- [ ] The slider and both movement buttons were tested on the Pixel 8 Pro.
-- [ ] Y remains within 0 through 7.
+- [ ] The learning-docs and Android updates were applied after Lesson 2.3.
+- [ ] The app builds and opens Lesson 2.4 on the Pixel 8 Pro.
+- [ ] The learner can define bounds, edge, width, height, and center.
+- [ ] The learner can calculate the center of 8 × 6 and 7 × 5 rectangles.
+- [ ] The learner can explain right edge 8 versus last cell index 7.
+- [ ] The width and height controls were tested independently.
+- [ ] The green marker remains at the visual center.
 - [ ] The work was committed to Git.
 
 ## Next action
 
-Apply the Lesson 2.3 learning-docs ZIP and Android code ZIP. Then open:
+Open:
 
 ```text
-course/chapters/chapter-02/lesson-02-03-the-y-axis.html
+course/chapters/chapter-02/lesson-02-04-width-height-edges-and-center.html
 ```
 
-After Lesson 2.3 is complete, generate Lesson 2.4: **Width, height, edges, and center**.
+After Lesson 2.4 is complete, generate Lesson 2.5: **Pixels, dp, and density**.
 
 ## Reusable continuation prompt
 
@@ -139,7 +151,7 @@ Use one standalone interactive HTML file per lesson. Use inline CSS and JavaScri
 
 Kotlin and AGSL live in the separate LiquidGlassLab project. Deliver only incremental ZIPs containing files changed by the lesson. Do not create an empty Android ZIP.
 
-At the end of every response, include a clearly labelled best-effort estimate of the remaining conversation context window in tokens and state that it is approximate.
+At the end of every response, state `Course progress: X of 216 lessons completed.` using learner-confirmed completion only. Then include a clearly labelled best-effort estimate of the remaining conversation context window in tokens.
 
 CURRENT COMPLETION RECORD, CODE, SCREENSHOT, OBSERVATION, EXERCISE ANSWERS, OR ERROR:
 [paste here]

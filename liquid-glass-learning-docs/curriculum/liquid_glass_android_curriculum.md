@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 2.3  
+**Version:** 2.4  
 **Updated:** 2026-07-21  
-**Current course position:** Lessons 1.1 through 2.2 are complete by learner confirmation. Lesson 2.3 is the next learner checkpoint and the generated frontier.  
+**Current course position:** Lessons 1.1 through 2.3 are complete by learner confirmation. **11 of 216 lessons are complete.** Lesson 2.4 is the next learner checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -110,6 +110,18 @@ Version 2.3 records completion through Lesson 2.2 and adds the Y-axis lesson:
 - The lesson traces Y = 5 through the real 34.dp Android cell size: row top 170.dp and row center 187.dp.
 - It keeps browser SVG-local pixels, Android dp, grid coordinates, and physical display pixels separate.
 - Android changes: `Chapter02Screen.kt`, `EnlargedPixelGrid.kt`, and new `YAxisExplorer.kt`.
+
+
+Version 2.4 records completion of Lesson 2.3 and adds bounds and center:
+
+- The learner explicitly reported Lesson 2.3 complete.
+- Learner-confirmed course completion is now **11 of 216 lessons**.
+- Lesson 2.4 introduces bounds, four edges, width, height, and center.
+- The rectangle-local model keeps left = 0 and top = 0, then varies width from 2 through 8 and height from 2 through 6.
+- The lesson calculates `centerX = width / 2` and `centerY = height / 2`, including half-unit results for odd dimensions.
+- It distinguishes a right edge at X = 8 from the last cell index 7.
+- Android changes: `Chapter02Screen.kt` and new `BoundsCenterExplorer.kt`.
+- `AGENTS.md` now requires every response to report `Course progress: X of 216 lessons completed` using learner-confirmed completion only.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -1044,12 +1056,44 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── Chapter02Screen.kt                  # introduced in Lesson 2.1
     ├── EnlargedPixelGrid.kt                # introduced in Lesson 2.1, updated in 2.2 and 2.3
     ├── XAxisExplorer.kt                    # introduced in Lesson 2.2
-    └── YAxisExplorer.kt                    # introduced in Lesson 2.3
+    ├── YAxisExplorer.kt                    # introduced in Lesson 2.3
+    └── BoundsCenterExplorer.kt             # introduced in Lesson 2.4
 ```
 
-Lessons through 2.2 are complete. Lesson 2.3 is the current checkpoint.
+Lessons through 2.3 are complete. Lesson 2.4 is the current checkpoint.
 
 ---
+
+
+### `lesson-02-04-width-height-edges-and-center.html`
+
+**New graphics idea:** Bounds are the rectangular area enclosed by left, top, right, and bottom edges.  
+**New math idea:** The center is halfway across width and halfway down height.
+
+Interactive explanation:
+
+- A resizable SVG rectangle exposes all four edge values.
+- Width and height can be changed by sliders, exact presets, or a draggable bottom-right handle.
+- Live formulas calculate `width = right - left`, `height = bottom - top`, `centerX = width / 2`, and `centerY = height / 2` for the origin-based model.
+- An edge-versus-index strip shows why width 8 has boundary coordinates 0 through 8 but cell indexes 0 through 7.
+- A seven-step derivation moves from bounds to the center of 8 × 6, then tests the odd-sized 7 × 5 rectangle.
+- The Android trace maps 7 × 5 abstract units to a requested 210.dp × 150.dp drawing surface without prematurely converting dp to physical pixels.
+- The coding challenge repairs an incorrect `centerY = width / 2f` expression. Editor changes and clickable controls share one preview state.
+- Four hidden-answer exercises test center arithmetic, non-zero bounds, the edge-versus-index distinction, and half-unit centers.
+
+Android code delivery:
+
+```text
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter02/BoundsCenterExplorer.kt
+```
+
+Suggested commits:
+
+```text
+course: add bounds and center lesson
+course: add bounds and center explorer
+```
 
 ## 11. Exercises and grading
 
@@ -1105,7 +1149,7 @@ Read these two files first:
 Assume I am a senior web engineer and an absolute beginner in mathematics, graphics programming, shaders, GPU concepts, and Android rendering internals.
 
 Use simple English. Define each new graphics or math term at first use. Use short sentences. Explain one actual value through input → operation → output.
-At the end of every response, include a clearly labelled best-effort estimate of the remaining conversation context window in tokens. State that the number is approximate.
+At the end of every response, state `Course progress: X of 216 lessons completed.` using learner-confirmed completion only. Then include a clearly labelled best-effort estimate of the remaining conversation context window in tokens. State that the number is approximate.
 
 Course file rules:
 - The master curriculum is a plan. Do not put full lessons into it.
@@ -1143,14 +1187,15 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Learner completion is confirmed through Lesson 2.2. Lesson 2.3 is generated and pending.
+Learner completion is confirmed through Lesson 2.3. Lesson 2.4 is generated and pending. The learner-confirmed total is 11 of 216 lessons.
 
 Current Chapter 2 lesson files:
 
 - `course/chapters/chapter-02/lesson-the-screen-is-a-grid.html`;
 - `course/chapters/chapter-02/lesson-02-01-what-a-pixel-is.html`;
 - `course/chapters/chapter-02/lesson-02-02-the-x-axis.html`;
-- `course/chapters/chapter-02/lesson-02-03-the-y-axis.html`.
+- `course/chapters/chapter-02/lesson-02-03-the-y-axis.html`;
+- `course/chapters/chapter-02/lesson-02-04-width-height-edges-and-center.html`.
 
 Current cumulative Chapter 2 Android source:
 
@@ -1161,10 +1206,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── Chapter02Screen.kt
     ├── EnlargedPixelGrid.kt
     ├── XAxisExplorer.kt
-    └── YAxisExplorer.kt
+    ├── YAxisExplorer.kt
+    └── BoundsCenterExplorer.kt
 ```
 
-The Lesson 2.3 Android ZIP contains only the three files changed by Lesson 2.3. The unchanged `MainActivity.kt` and `XAxisExplorer.kt` files are not duplicated.
+The Lesson 2.4 Android ZIP contains only `Chapter02Screen.kt` and the new `BoundsCenterExplorer.kt`. Earlier Chapter 2 files are unchanged and are not duplicated.
 
 ---
 

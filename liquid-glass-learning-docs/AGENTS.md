@@ -49,9 +49,15 @@ Before delivery:
 - capture the initial state at `1920×1080` or larger;
 - capture at least one changed interactive state;
 - inspect for clipped labels, overlapping controls, unreadable text, and JavaScript errors.
-## Response context estimate
+## Response progress and context footer
 
-At the end of every response, add a clearly labelled best-effort estimate of the remaining conversation context window in tokens, for example: `Estimated remaining context: ~120,000 tokens`; treat the number as approximate, not exact.
+At the end of every response:
+
+1. State the learner-confirmed course completion count in the exact form `Course progress: X of 216 lessons completed.`
+2. Count only lessons that the learner has explicitly completed. A generated but unfinished lesson does not increase X.
+3. Then add a clearly labelled best-effort estimate of the remaining conversation context window in tokens, for example: `Estimated remaining context: ~120,000 tokens`; treat the number as approximate, not exact.
+
+Update the handoff whenever the learner completes a lesson so the count remains reliable across conversations.
 
 
 ## Incremental delivery packages
