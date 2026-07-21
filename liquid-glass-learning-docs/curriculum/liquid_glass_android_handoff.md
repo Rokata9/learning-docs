@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Conversation Handoff
 
 **Updated:** 2026-07-19  
-**Course plan version:** 2.1
+**Course plan version:** 2.2
 
 ## Stable course decisions
 
@@ -32,8 +32,8 @@ The learner asked for four lessons to be generated before being away from chat. 
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 2.1
-generated_frontier: 2.1
+course_version: 2.2
+generated_frontier: 2.2
 next_learner_checkpoint: 1.7
 required_order:
   - 1.7
@@ -48,6 +48,8 @@ lesson_01_08_generated: true
 lesson_01_08_completed_by_learner: false
 lesson_02_01_generated: true
 lesson_02_01_completed_by_learner: false
+lesson_02_02_generated: true
+lesson_02_02_completed_by_learner: false
 lesson_01_07_android_changed_files:
   - app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
   - app/src/main/java/com/example/liquidglasslab/chapter01/TranslucentRoundedPanel.kt
@@ -57,6 +59,10 @@ lesson_02_01_android_changed_files:
   - app/src/main/java/com/example/liquidglasslab/MainActivity.kt
   - app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
   - app/src/main/java/com/example/liquidglasslab/chapter02/EnlargedPixelGrid.kt
+lesson_02_02_android_changed_files:
+  - app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
+  - app/src/main/java/com/example/liquidglasslab/chapter02/EnlargedPixelGrid.kt
+  - app/src/main/java/com/example/liquidglasslab/chapter02/XAxisExplorer.kt
 ```
 
 Do not mark Lessons 1.7, 1.8, 2.1, or 2.2 complete merely because their files exist.
@@ -78,6 +84,7 @@ If all three color channels are `0.40` and alpha is `1.00`, the complete color i
 - Lesson 1.8: `course/chapters/chapter-01/lesson-01-08-diagnosis-and-checkpoint.html`
 - Lesson 2.1: `course/chapters/chapter-02/lesson-02-01-what-a-pixel-is.html`
 - Chapter 2 hub: `course/chapters/chapter-02/lesson-the-screen-is-a-grid.html`
+- Lesson 2.2: `course/chapters/chapter-02/lesson-02-02-the-x-axis.html`
 
 ## Lesson sequence
 

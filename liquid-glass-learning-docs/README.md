@@ -14,6 +14,7 @@ Open `liquid-glass-course.html` directly in a Chromium-based browser. No local s
 - Lessons 1.1 through 1.7 and 1.8
 - Chapter 2 hub
 - Lesson 2.1: **What a pixel is**
+- Lesson 2.2: **The X axis**
 - Updated curriculum and conversation handoff
 
 ## Next learner checkpoint

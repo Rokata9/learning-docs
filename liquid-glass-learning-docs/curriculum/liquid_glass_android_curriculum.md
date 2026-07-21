@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 2.1  
+**Version:** 2.2  
 **Updated:** 2026-07-19  
-**Current course position:** Lessons 1.1 through 1.6 are complete by learner confirmation. Lesson 1.7 is the next learner checkpoint. Files are generated through Lesson 2.1 for offline sequential study.  
+**Current course position:** Lessons 1.1 through 1.6 are complete by learner confirmation. Lesson 1.7 is the next learner checkpoint. Files are generated through Lesson 2.2 for offline sequential study.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -94,6 +94,13 @@ Version 2.1 starts Chapter 2 and generates the pixel lesson in advance:
 - `MainActivity.kt` switches from `Chapter01Screen` to `Chapter02Screen`.
 - New Android files: `chapter02/Chapter02Screen.kt` and `chapter02/EnlargedPixelGrid.kt`.
 - Lesson 2.1 remains pending until Lessons 1.7 and 1.8 are completed first.
+
+Version 2.2 generates the X-axis lesson in advance:
+
+- Lesson 2.2 keeps the selected row fixed and changes only the selected grid column.
+- It separates the grid-column coordinate from the SVG-local teaching position and from physical screen pixels.
+- Android changes: `Chapter02Screen.kt`, `EnlargedPixelGrid.kt`, and new `XAxisExplorer.kt`.
+- Valid X values for the 8-column teaching grid are 0 through 7.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -1027,6 +1034,7 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
 └── chapter02/
     ├── Chapter02Screen.kt                  # introduced in Lesson 2.1
     ├── EnlargedPixelGrid.kt                # introduced in Lesson 2.1, updated in 2.2
+    └── XAxisExplorer.kt                   # introduced in Lesson 2.2
 ```
 
 The generated Chapter 2 files do not override the learning order. Lesson 1.7 and Lesson 1.8 remain the next checkpoints.
