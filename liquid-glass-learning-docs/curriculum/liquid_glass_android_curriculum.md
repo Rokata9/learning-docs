@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 1.8  
+**Version:** 2.1  
 **Updated:** 2026-07-19  
-**Current course position:** Lessons 1.1 through 1.6 are complete by learner confirmation. Lesson 1.7 is the next learner checkpoint. Files are generated through Lesson 1.8 for offline sequential study.  
+**Current course position:** Lessons 1.1 through 1.6 are complete by learner confirmation. Lesson 1.7 is the next learner checkpoint. Files are generated through Lesson 2.1 for offline sequential study.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -86,6 +86,14 @@ Version 1.8 generates the Chapter 1 diagnosis and checkpoint lesson in advance:
 - The learner must support every present-or-absent material claim with a specific visual clue or source trace.
 - No Android source changes. The Lesson 1.7 app is the Chapter 1 final Android state.
 - Lesson 1.8 is generated but is not marked complete before the learner finishes it.
+
+Version 2.1 starts Chapter 2 and generates the pixel lesson in advance:
+
+- Lesson 2.1 treats a raster image as a rectangular grid of addressable positions and stored samples.
+- The Android preview uses enlarged teaching cells. It explicitly does not claim that one large square equals one physical Pixel 8 Pro display pixel.
+- `MainActivity.kt` switches from `Chapter01Screen` to `Chapter02Screen`.
+- New Android files: `chapter02/Chapter02Screen.kt` and `chapter02/EnlargedPixelGrid.kt`.
+- Lesson 2.1 remains pending until Lessons 1.7 and 1.8 are completed first.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -1009,6 +1017,19 @@ The source is cumulative:
 - Lesson 1.8 records the checkpoint.
 
 A lesson must not duplicate the entire Android project inside the HTML file. It should quote the relevant lines and state the complete target path and include the complete file or patch in that lesson delivery.
+
+
+## 10A. Android source organization for the generated start of Chapter 2
+
+```text
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
+├── MainActivity.kt                         # switches to Chapter02Screen in Lesson 2.1
+└── chapter02/
+    ├── Chapter02Screen.kt                  # introduced in Lesson 2.1
+    ├── EnlargedPixelGrid.kt                # introduced in Lesson 2.1, updated in 2.2
+```
+
+The generated Chapter 2 files do not override the learning order. Lesson 1.7 and Lesson 1.8 remain the next checkpoints.
 
 ---
 
