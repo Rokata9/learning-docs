@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 2.2  
-**Updated:** 2026-07-19  
-**Current course position:** Lessons 1.1 through 1.6 are complete by learner confirmation. Lesson 1.7 is the next learner checkpoint. Files are generated through Lesson 2.2 for offline sequential study.  
+**Version:** 2.3  
+**Updated:** 2026-07-21  
+**Current course position:** Lessons 1.1 through 2.2 are complete by learner confirmation. Lesson 2.3 is the next learner checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -101,6 +101,15 @@ Version 2.2 generates the X-axis lesson in advance:
 - It separates the grid-column coordinate from the SVG-local teaching position and from physical screen pixels.
 - Android changes: `Chapter02Screen.kt`, `EnlargedPixelGrid.kt`, and new `XAxisExplorer.kt`.
 - Valid X values for the 8-column teaching grid are 0 through 7.
+
+Version 2.3 records completion through Lesson 2.2 and adds the Y-axis lesson:
+
+- The learner explicitly reported Lessons 1.7, 1.8, 2.1, and 2.2 complete.
+- Lesson 2.3 keeps the selected column fixed at X = 4 and changes only the selected row.
+- In the Android-style coordinate system used by the lesson, Y = 0 is the top row and larger Y values move downward.
+- The lesson traces Y = 5 through the real 34.dp Android cell size: row top 170.dp and row center 187.dp.
+- It keeps browser SVG-local pixels, Android dp, grid coordinates, and physical display pixels separate.
+- Android changes: `Chapter02Screen.kt`, `EnlargedPixelGrid.kt`, and new `YAxisExplorer.kt`.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -1033,11 +1042,12 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
 ├── MainActivity.kt                         # switches to Chapter02Screen in Lesson 2.1
 └── chapter02/
     ├── Chapter02Screen.kt                  # introduced in Lesson 2.1
-    ├── EnlargedPixelGrid.kt                # introduced in Lesson 2.1, updated in 2.2
-    └── XAxisExplorer.kt                   # introduced in Lesson 2.2
+    ├── EnlargedPixelGrid.kt                # introduced in Lesson 2.1, updated in 2.2 and 2.3
+    ├── XAxisExplorer.kt                    # introduced in Lesson 2.2
+    └── YAxisExplorer.kt                    # introduced in Lesson 2.3
 ```
 
-The generated Chapter 2 files do not override the learning order. Lesson 1.7 and Lesson 1.8 remain the next checkpoints.
+Lessons through 2.2 are complete. Lesson 2.3 is the current checkpoint.
 
 ---
 
@@ -1133,28 +1143,28 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Generated and available lesson files:
+Learner completion is confirmed through Lesson 2.2. Lesson 2.3 is generated and pending.
 
-- `liquid-glass-course.html`;
-- `course/glossary.html`;
-- `course/chapters/chapter-01/lesson-a-transparent-panel-is-not-yet-liquid-glass.html`;
-- `course/chapters/chapter-01/lesson-01-01-visible-ingredients.html`;
-- `course/chapters/chapter-01/lesson-01-02-observe-the-transition.html`;
-- `course/chapters/chapter-01/lesson-01-03-create-the-android-project.html`;
-- `course/chapters/chapter-01/lesson-01-04-build-a-study-background.html`;
-- `course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html`;
-- `course/chapters/chapter-01/lesson-01-06-alpha-mixture.html`.
+Current Chapter 2 lesson files:
 
-Lessons 1.1 through 1.5 are complete by explicit confirmation or learner progression. Exercise answers were not submitted for conversational grading.
+- `course/chapters/chapter-02/lesson-the-screen-is-a-grid.html`;
+- `course/chapters/chapter-02/lesson-02-01-what-a-pixel-is.html`;
+- `course/chapters/chapter-02/lesson-02-02-the-x-axis.html`;
+- `course/chapters/chapter-02/lesson-02-03-the-y-axis.html`.
 
-Lesson 1.6 is generated and is the current checkpoint. It changes no Android source, so no Android ZIP is produced. The cumulative Android implementation remains the Lesson 1.5 result. The Lesson 1.5 Android changed-file ZIP contained only:
+Current cumulative Chapter 2 Android source:
 
 ```text
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/Chapter01Screen.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter01/TranslucentRoundedPanel.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
+├── MainActivity.kt
+└── chapter02/
+    ├── Chapter02Screen.kt
+    ├── EnlargedPixelGrid.kt
+    ├── XAxisExplorer.kt
+    └── YAxisExplorer.kt
 ```
 
-`StudyBackground.kt` remains cumulative source in the Android project. The Lesson 1.6 learning-docs ZIP contains only files created or modified for Lesson 1.6. Verification screenshots are not included in the archive.
+The Lesson 2.3 Android ZIP contains only the three files changed by Lesson 2.3. The unchanged `MainActivity.kt` and `XAxisExplorer.kt` files are not duplicated.
 
 ---
 

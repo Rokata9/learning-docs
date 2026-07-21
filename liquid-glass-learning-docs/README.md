@@ -6,39 +6,25 @@ This repository contains the interactive course documents. The Android Studio pr
 
 Open `liquid-glass-course.html` directly in a Chromium-based browser. No local server is required. Every lesson is self-contained and works from `file://`.
 
-## Generated delivery frontier
+## Current course state
 
-- Course home
-- Canonical glossary
-- Chapter 1 hub
-- Lessons 1.1 through 1.7 and 1.8
-- Chapter 2 hub
-- Lesson 2.1: **What a pixel is**
-- Lesson 2.2: **The X axis**
-- Updated curriculum and conversation handoff
+- Chapter 1 is complete.
+- Lessons 2.1 and 2.2 are complete.
+- Lesson 2.3 is generated and is the next learner checkpoint.
+- The generated frontier is Lesson 2.3.
 
-## Next learner checkpoint
+Open:
 
 ```text
-course/chapters/chapter-01/lesson-01-07-pixel-8-pro-experiment.html
+course/chapters/chapter-02/lesson-02-03-the-y-axis.html
 ```
-
-Lessons 1.1 through 1.6 are complete by learner confirmation. The question about `0.40` has been answered inside the revised Lesson 1.6: it is one normalized channel value, not a complete color.
-
-Files after Lesson 1.7 were generated in advance. Complete them in this order:
-
-```text
-1.7 → 1.8 → 2.1 → 2.2
-```
-
-Generated availability is not learner completion.
 
 ## Android progression
 
-- Lesson 1.7 adds exact 0%, 25%, 50%, 75%, and 100% controls.
-- Lesson 1.8 changes no Android source.
-- Lesson 2.1 switches the app entry point to `Chapter02Screen` and adds an enlarged 8×8 teaching grid.
-- Lesson 2.2 adds an X-axis explorer and makes the selected column movable from 0 through 7.
+- Lesson 2.1 introduced the enlarged 8×8 teaching grid.
+- Lesson 2.2 kept row 3 fixed and moved the selected X coordinate through columns 0 through 7.
+- Lesson 2.3 keeps column 4 fixed and moves the selected Y coordinate through rows 0 through 7.
+- The Lesson 2.3 Android update adds `YAxisExplorer.kt` and updates `Chapter02Screen.kt` and `EnlargedPixelGrid.kt`.
 
 ## Incremental delivery rule
 
