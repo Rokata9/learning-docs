@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Conversation Handoff
 
 **Updated:** 2026-07-22  
-**Course plan version:** 2.5
+**Course plan version:** 2.6
 
 ## Stable course decisions
 
@@ -37,121 +37,111 @@ Use only learner-confirmed completion for X. A generated lesson does not count u
 
 ## Progress truth
 
-The learner explicitly reported Lesson 2.4 complete.
+The learner explicitly reported Lesson 2.5 complete.
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 2.5
+course_version: 2.6
 course_lessons_total: 216
-course_lessons_completed_by_learner: 12
+course_lessons_completed_by_learner: 13
 completed_lessons:
   - 1.1-1.8
-  - 2.1-2.4
-completed_through: 2.4
-generated_frontier: 2.5
-next_learner_checkpoint: 2.5
+  - 2.1-2.5
+completed_through: 2.5
+generated_frontier: 2.6
+next_learner_checkpoint: 2.6
 chapter_01_completed_by_learner: true
-lesson_02_04_completed_by_learner: true
-lesson_02_05_generated: true
-lesson_02_05_completed_by_learner: false
-completion_basis_for_02_04: learner explicitly said ready for the next lesson; exercise answers were not submitted for conversational grading
-lesson_02_05_android_changed_files:
+lesson_02_05_completed_by_learner: true
+lesson_02_06_generated: true
+lesson_02_06_completed_by_learner: false
+completion_basis_for_02_05: learner explicitly said ready and asked to proceed with the next lesson
+lesson_02_06_android_changed_files:
   - app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
-  - app/src/main/java/com/example/liquidglasslab/chapter02/DensityExplorer.kt
+  - app/src/main/java/com/example/liquidglasslab/chapter02/LocalCoordinatesExplorer.kt
 ```
 
-## Lesson 2.5 — Pixels, dp, and density
+## Lesson 2.6 — Local coordinates
 
-The lesson keeps these three values separate:
+A **local coordinate system** is the coordinate system owned by one specific element. In this lesson, the element's top-left corner is local `(0, 0)`.
+
+The lesson keeps these objects separate:
 
 ```text
-dp       = Android layout unit
-px       = Canvas and raster drawing coordinate unit
-density  = runtime px-per-dp conversion scale
+parent-local child origin
+    The child's top-left position measured from the parent origin.
+
+child-local point
+    The selected point measured from the child's own origin.
+
+parent-local point
+    The same selected point measured from the parent origin.
 ```
 
-Central formulas:
+Central conversions:
 
 ```text
-px = dp × density
-dp = px ÷ density
+point in parent = child origin in parent + point in child
+point in child  = point in parent − child origin in parent
 ```
 
-The browser begins with this teaching example:
+Fixed derivation example:
 
 ```text
-96 dp × 2.75 px per dp = 264 px
+child origin in parent = (180, 100)
+point in parent        = (340, 220)
+
+point in child
+= (340, 220) − (180, 100)
+= (160, 120)
 ```
 
-The Android app does not assume that the Pixel 8 Pro uses density 2.75. It reads:
-
-```kotlin
-val density = LocalDensity.current
-```
-
-The Android trace is:
+The Android value path is:
 
 ```text
-selectedDp = 96
+pointerInput is attached to the child Box
     ↓
-requestedSize = 96.dp
+detectTapGestures supplies localOffset
     ↓
-LocalDensity.current
+selectedLocalPx = localOffset
     ↓
-requestedSize.toPx()        // Float px distance
-requestedSize.roundToPx()   // Int px count
+Canvas fills the same child bounds
     ↓
-Modifier.size(requestedSize)
-    ↓
-onSizeChanged { measured px size }
-    ↓
-Canvas size.width and size.height in px
+drawCircle(center = selectedPoint)
 ```
 
-A 16.dp drawing inset is converted before it is used in Canvas-local coordinates:
+The child can move between Placement A and Placement B. The implementation uses `absoluteOffset` so positive placement X always moves right. The green point moves with the child on the device. The stored child-local X and Y values stay unchanged.
 
-```kotlin
-val canvasInsetPx = with(density) {
-    16.dp.toPx()
-}
-```
+Parent, window, and physical-screen coordinates are not inspected in Lesson 2.6. Lesson 2.7 introduces the APIs and conversions needed for those coordinate systems.
 
-The lesson also compares:
-
-```text
-red line   = 1 px
-green line = 1 dp converted to px
-```
-
-## Lesson 2.5 files
+## Lesson 2.6 files
 
 Learning file:
 
 ```text
-course/chapters/chapter-02/lesson-02-05-pixels-dp-and-density.html
+course/chapters/chapter-02/lesson-02-06-local-coordinates.html
 ```
 
 Android changes:
 
 ```text
 app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
-app/src/main/java/com/example/liquidglasslab/chapter02/DensityExplorer.kt
+app/src/main/java/com/example/liquidglasslab/chapter02/LocalCoordinatesExplorer.kt
 ```
 
-Earlier Chapter 2 files remain unchanged.
+Earlier Chapter 2 Android files remain unchanged.
 
-## Lesson 2.5 checkpoint
+## Lesson 2.6 checkpoint
 
-Lesson 2.5 is complete only when:
+Lesson 2.6 is complete only when:
 
-- [ ] The learning-docs and Android updates were applied after Lesson 2.4.
-- [ ] The app builds and opens Lesson 2.5 on the Pixel 8 Pro.
-- [ ] The learner can define dp, px, and density.
-- [ ] The learner recorded the runtime density reported by the app.
-- [ ] The 48.dp, 72.dp, 96.dp, and 120.dp presets were tested.
-- [ ] The measured integer px size agrees with the rounded conversion shown by the app.
-- [ ] The red 1 px and green 1 dp lines were compared.
-- [ ] The learner can explain why a dp design distance must be converted before use as a Canvas or shader distance.
+- [ ] Both incremental archives were applied after the completed Lesson 2.5 state.
+- [ ] The app builds and opens Lesson 2.6 on the Pixel 8 Pro.
+- [ ] Several points were tapped inside the child.
+- [ ] The child was moved between Placement A and Placement B.
+- [ ] The same child-local point remained unchanged while its visible parent-local position changed.
+- [ ] The learner can identify the origin for a child-local value.
+- [ ] The learner can calculate one parent-to-child conversion by subtraction.
+- [ ] The coding challenge and final exercises were completed.
 - [ ] The work was committed to Git.
 
 ## Next action
@@ -159,10 +149,10 @@ Lesson 2.5 is complete only when:
 Open:
 
 ```text
-course/chapters/chapter-02/lesson-02-05-pixels-dp-and-density.html
+course/chapters/chapter-02/lesson-02-06-local-coordinates.html
 ```
 
-After Lesson 2.5 is complete, generate Lesson 2.6: **Local coordinates**.
+After Lesson 2.6 is complete, generate Lesson 2.7: **Parent and screen coordinates**.
 
 ## Reusable continuation prompt
 
@@ -173,7 +163,7 @@ Read liquid_glass_android_curriculum.md and liquid_glass_android_handoff.md firs
 
 Assume I am a senior web engineer and an absolute beginner in mathematics, graphics programming, shaders, GPU concepts, and Android rendering internals. Use simple English. Define each new term. Use short declarative sentences. Trace one real value through input → operation → output.
 
-Use one standalone interactive HTML file per lesson. Use inline CSS and JavaScript. Light desktop layout only. Use manual steppers for sequences. Include a coding challenge, two to four hidden-answer exercises, and a copyable completion record.
+Use one standalone interactive HTML file per lesson. Use inline CSS and JavaScript. Use a light desktop layout only. Use manual steppers for sequences. Include a coding challenge, two to four hidden-answer exercises, and a copyable completion record.
 
 Kotlin and AGSL live in the separate LiquidGlassLab project. Deliver only incremental ZIPs containing files changed by the lesson. Do not create an empty Android ZIP.
 

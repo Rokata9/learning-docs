@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 2.5  
+**Version:** 2.6  
 **Updated:** 2026-07-22  
-**Current course position:** Lessons 1.1 through 2.4 are complete by learner confirmation. **12 of 216 lessons are complete.** Lesson 2.5 is the next learner checkpoint and the generated frontier.  
+**Current course position:** Lessons 1.1 through 2.5 are complete by learner confirmation. **13 of 216 lessons are complete.** Lesson 2.6 is the next learner checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -134,6 +134,19 @@ Version 2.5 records completion of Lesson 2.4 and adds dp, px, and density:
 - It traces a `96.dp` request through runtime conversion, `Modifier.size`, `onSizeChanged`, and Canvas-local `size.width`.
 - It converts a `16.dp` Canvas inset with `16.dp.toPx()` and compares a one-pixel stroke with a one-dp stroke.
 - Android changes: `Chapter02Screen.kt` and new `DensityExplorer.kt`.
+
+
+Version 2.6 records completion of Lesson 2.5 and adds local coordinates:
+
+- The learner explicitly reported Lesson 2.5 complete.
+- Learner-confirmed course completion is now **13 of 216 lessons**.
+- Lesson 2.6 defines a local coordinate system as the coordinate system owned by one specific element.
+- The child element's top-left corner is child-local `(0, 0)` in this lesson.
+- The central conversions are `pointInParent = childOriginInParent + pointInChild` and `pointInChild = pointInParent - childOriginInParent`.
+- The browser laboratory uses SVG-local teaching units. It moves the child while preserving the same child-local point. The point's parent-local position changes because the child origin changes.
+- The Android implementation uses `absoluteOffset` for the controlled placement, attaches `pointerInput` to the child `Box`, stores the tap callback's `Offset` directly, and consumes it in a `Canvas` that fills the same child bounds.
+- Parent, window, and physical-screen coordinates are explicitly deferred to Lesson 2.7.
+- Android changes: `Chapter02Screen.kt` and new `LocalCoordinatesExplorer.kt`.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -1070,10 +1083,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── XAxisExplorer.kt                    # introduced in Lesson 2.2
     ├── YAxisExplorer.kt                    # introduced in Lesson 2.3
     ├── BoundsCenterExplorer.kt             # introduced in Lesson 2.4
-    └── DensityExplorer.kt                  # introduced in Lesson 2.5
+    ├── DensityExplorer.kt                  # introduced in Lesson 2.5
+    └── LocalCoordinatesExplorer.kt         # introduced in Lesson 2.6
 ```
 
-Lessons through 2.4 are complete. Lesson 2.5 is the current learner checkpoint.
+Lessons through 2.5 are complete. Lesson 2.6 is the current learner checkpoint.
 
 ---
 
@@ -1107,6 +1121,61 @@ Suggested commits:
 course: add bounds and center lesson
 course: add bounds and center explorer
 ```
+
+
+
+### `lesson-02-05-pixels-dp-and-density.html`
+
+**New graphics idea:** Android layout distances and Canvas drawing distances can use different units at the API boundary.  
+**New math idea:** Convert with `px = dp × density` and `dp = px ÷ density`.
+
+Interactive explanation:
+
+- Adjustable dp and teaching-density controls show the conversion using substituted values.
+- A comparison keeps dp fixed across densities and then keeps px fixed across densities.
+- A seven-step derivation follows `96.dp` through `LocalDensity`, `toPx`, `roundToPx`, layout measurement, and Canvas-local drawing.
+- The Android trace compares a one-pixel line with a one-dp line converted at runtime.
+- The coding challenge replaces a raw `16f` Canvas inset with `16.dp.toPx()` inside a density scope.
+- Four hidden-answer exercises test the units and conversions.
+
+Android code delivery:
+
+```text
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter02/DensityExplorer.kt
+```
+
+### `lesson-02-06-local-coordinates.html`
+
+**New graphics idea:** A child element owns a local coordinate system whose origin is the child's top-left corner.  
+**New math idea:** Translate between a parent-local point and a child-local point by adding or subtracting the child's parent-local origin.
+
+Interactive explanation:
+
+- A parent scene contains one movable child rectangle. Browser positions use SVG-local teaching units, not measured device pixels.
+- Four controls change the child's parent-local origin and one point's child-local coordinates independently.
+- Dragging the green point changes the child-local X and Y values.
+- Moving the child changes the point's parent-local position while preserving the child-local values.
+- A same-number comparison shows why `(48, 36)` is incomplete unless its coordinate system is named.
+- A seven-step derivation calculates child-local `(160, 120)` from parent-local point `(340, 220)` and child origin `(180, 100)`.
+- The Android trace follows `localOffset` from `detectTapGestures` into state and then into a child-filling Canvas.
+- The coding challenge removes an incorrect addition of `childOriginInParent` to a value that is already child-local.
+- Four hidden-answer exercises test local origins, conversion direction, moving-child behavior, and the code-space mismatch.
+
+Android code delivery:
+
+```text
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter02/LocalCoordinatesExplorer.kt
+```
+
+Suggested commits:
+
+```text
+course: add local coordinates lesson
+course: add local coordinates explorer
+```
+
 
 ## 11. Exercises and grading
 
@@ -1200,7 +1269,7 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Learner completion is confirmed through Lesson 2.4. Lesson 2.5 is generated and pending. The learner-confirmed total is 12 of 216 lessons.
+Learner completion is confirmed through Lesson 2.5. Lesson 2.6 is generated and pending. The learner-confirmed total is 13 of 216 lessons.
 
 Current Chapter 2 lesson files:
 
@@ -1209,7 +1278,8 @@ Current Chapter 2 lesson files:
 - `course/chapters/chapter-02/lesson-02-02-the-x-axis.html`;
 - `course/chapters/chapter-02/lesson-02-03-the-y-axis.html`;
 - `course/chapters/chapter-02/lesson-02-04-width-height-edges-and-center.html`;
-- `course/chapters/chapter-02/lesson-02-05-pixels-dp-and-density.html`.
+- `course/chapters/chapter-02/lesson-02-05-pixels-dp-and-density.html`;
+- `course/chapters/chapter-02/lesson-02-06-local-coordinates.html`.
 
 Current cumulative Chapter 2 Android source:
 
@@ -1222,10 +1292,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── XAxisExplorer.kt
     ├── YAxisExplorer.kt
     ├── BoundsCenterExplorer.kt
-    └── DensityExplorer.kt
+    ├── DensityExplorer.kt
+    └── LocalCoordinatesExplorer.kt
 ```
 
-The Lesson 2.5 Android ZIP contains only `Chapter02Screen.kt` and the new `DensityExplorer.kt`. Earlier Chapter 2 files are unchanged and are not duplicated.
+The Lesson 2.6 Android ZIP contains only `Chapter02Screen.kt` and the new `LocalCoordinatesExplorer.kt`. Earlier Chapter 2 files are unchanged and are not duplicated.
 
 ---
 
