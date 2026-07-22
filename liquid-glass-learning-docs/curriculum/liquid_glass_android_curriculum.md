@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 2.4  
-**Updated:** 2026-07-21  
-**Current course position:** Lessons 1.1 through 2.3 are complete by learner confirmation. **11 of 216 lessons are complete.** Lesson 2.4 is the next learner checkpoint and the generated frontier.  
+**Version:** 2.5  
+**Updated:** 2026-07-22  
+**Current course position:** Lessons 1.1 through 2.4 are complete by learner confirmation. **12 of 216 lessons are complete.** Lesson 2.5 is the next learner checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -122,6 +122,18 @@ Version 2.4 records completion of Lesson 2.3 and adds bounds and center:
 - It distinguishes a right edge at X = 8 from the last cell index 7.
 - Android changes: `Chapter02Screen.kt` and new `BoundsCenterExplorer.kt`.
 - `AGENTS.md` now requires every response to report `Course progress: X of 216 lessons completed` using learner-confirmed completion only.
+
+Version 2.5 records completion of Lesson 2.4 and adds dp, px, and density:
+
+- The learner explicitly reported Lesson 2.4 complete.
+- Learner-confirmed course completion is now **12 of 216 lessons**.
+- Lesson 2.5 defines dp as an Android layout unit, px as the unit used by Compose Canvas drawing coordinates, and density as the runtime px-per-dp conversion scale.
+- The central formulas are `px = dp × density` and `dp = px ÷ density`.
+- The browser laboratory uses adjustable teaching densities. The Android implementation reads `LocalDensity.current` on the Pixel 8 Pro instead of assuming a device value.
+- The lesson distinguishes `Dp.toPx()` returning a `Float` distance from `Dp.roundToPx()` returning an integer pixel count.
+- It traces a `96.dp` request through runtime conversion, `Modifier.size`, `onSizeChanged`, and Canvas-local `size.width`.
+- It converts a `16.dp` Canvas inset with `16.dp.toPx()` and compares a one-pixel stroke with a one-dp stroke.
+- Android changes: `Chapter02Screen.kt` and new `DensityExplorer.kt`.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -1053,14 +1065,15 @@ A lesson must not duplicate the entire Android project inside the HTML file. It 
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
 ├── MainActivity.kt                         # switches to Chapter02Screen in Lesson 2.1
 └── chapter02/
-    ├── Chapter02Screen.kt                  # introduced in Lesson 2.1
+    ├── Chapter02Screen.kt                  # introduced in Lesson 2.1; selects the current Chapter 2 explorer
     ├── EnlargedPixelGrid.kt                # introduced in Lesson 2.1, updated in 2.2 and 2.3
     ├── XAxisExplorer.kt                    # introduced in Lesson 2.2
     ├── YAxisExplorer.kt                    # introduced in Lesson 2.3
-    └── BoundsCenterExplorer.kt             # introduced in Lesson 2.4
+    ├── BoundsCenterExplorer.kt             # introduced in Lesson 2.4
+    └── DensityExplorer.kt                  # introduced in Lesson 2.5
 ```
 
-Lessons through 2.3 are complete. Lesson 2.4 is the current checkpoint.
+Lessons through 2.4 are complete. Lesson 2.5 is the current learner checkpoint.
 
 ---
 
@@ -1187,7 +1200,7 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Learner completion is confirmed through Lesson 2.3. Lesson 2.4 is generated and pending. The learner-confirmed total is 11 of 216 lessons.
+Learner completion is confirmed through Lesson 2.4. Lesson 2.5 is generated and pending. The learner-confirmed total is 12 of 216 lessons.
 
 Current Chapter 2 lesson files:
 
@@ -1195,7 +1208,8 @@ Current Chapter 2 lesson files:
 - `course/chapters/chapter-02/lesson-02-01-what-a-pixel-is.html`;
 - `course/chapters/chapter-02/lesson-02-02-the-x-axis.html`;
 - `course/chapters/chapter-02/lesson-02-03-the-y-axis.html`;
-- `course/chapters/chapter-02/lesson-02-04-width-height-edges-and-center.html`.
+- `course/chapters/chapter-02/lesson-02-04-width-height-edges-and-center.html`;
+- `course/chapters/chapter-02/lesson-02-05-pixels-dp-and-density.html`.
 
 Current cumulative Chapter 2 Android source:
 
@@ -1207,10 +1221,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── EnlargedPixelGrid.kt
     ├── XAxisExplorer.kt
     ├── YAxisExplorer.kt
-    └── BoundsCenterExplorer.kt
+    ├── BoundsCenterExplorer.kt
+    └── DensityExplorer.kt
 ```
 
-The Lesson 2.4 Android ZIP contains only `Chapter02Screen.kt` and the new `BoundsCenterExplorer.kt`. Earlier Chapter 2 files are unchanged and are not duplicated.
+The Lesson 2.5 Android ZIP contains only `Chapter02Screen.kt` and the new `DensityExplorer.kt`. Earlier Chapter 2 files are unchanged and are not duplicated.
 
 ---
 

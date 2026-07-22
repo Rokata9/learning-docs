@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Updated:** 2026-07-21  
-**Course plan version:** 2.4
+**Updated:** 2026-07-22  
+**Course plan version:** 2.5
 
 ## Stable course decisions
 
@@ -37,95 +37,121 @@ Use only learner-confirmed completion for X. A generated lesson does not count u
 
 ## Progress truth
 
-The learner explicitly reported Lesson 2.3 complete.
+The learner explicitly reported Lesson 2.4 complete.
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 2.4
+course_version: 2.5
 course_lessons_total: 216
-course_lessons_completed_by_learner: 11
+course_lessons_completed_by_learner: 12
 completed_lessons:
   - 1.1-1.8
-  - 2.1-2.3
-completed_through: 2.3
-generated_frontier: 2.4
-next_learner_checkpoint: 2.4
+  - 2.1-2.4
+completed_through: 2.4
+generated_frontier: 2.5
+next_learner_checkpoint: 2.5
 chapter_01_completed_by_learner: true
-lesson_02_03_completed_by_learner: true
-lesson_02_04_generated: true
-lesson_02_04_completed_by_learner: false
-completion_basis_for_02_03: learner explicitly reported completion; exercise answers were not submitted for conversational grading
-lesson_02_04_android_changed_files:
+lesson_02_04_completed_by_learner: true
+lesson_02_05_generated: true
+lesson_02_05_completed_by_learner: false
+completion_basis_for_02_04: learner explicitly said ready for the next lesson; exercise answers were not submitted for conversational grading
+lesson_02_05_android_changed_files:
   - app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
-  - app/src/main/java/com/example/liquidglasslab/chapter02/BoundsCenterExplorer.kt
+  - app/src/main/java/com/example/liquidglasslab/chapter02/DensityExplorer.kt
 ```
 
-## Lesson 2.4 — Width, height, edges, and center
+## Lesson 2.5 — Pixels, dp, and density
 
-The lesson keeps the rectangle’s top-left origin fixed at `(0, 0)`. Width and height can change independently.
+The lesson keeps these three values separate:
+
+```text
+dp       = Android layout unit
+px       = Canvas and raster drawing coordinate unit
+density  = runtime px-per-dp conversion scale
+```
 
 Central formulas:
 
 ```text
-width = right - left
-height = bottom - top
-
-centerX = left + width / 2
-centerY = top + height / 2
+px = dp × density
+dp = px ÷ density
 ```
 
-Because left and top are 0 in the first model:
+The browser begins with this teaching example:
 
 ```text
-centerX = width / 2
-centerY = height / 2
+96 dp × 2.75 px per dp = 264 px
 ```
 
-The main examples are:
+The Android app does not assume that the Pixel 8 Pro uses density 2.75. It reads:
+
+```kotlin
+val density = LocalDensity.current
+```
+
+The Android trace is:
 
 ```text
-8 × 6 → center (4, 3)
-7 × 5 → center (3.5, 2.5)
-4 × 4 → center (2, 2)
+selectedDp = 96
+    ↓
+requestedSize = 96.dp
+    ↓
+LocalDensity.current
+    ↓
+requestedSize.toPx()        // Float px distance
+requestedSize.roundToPx()   // Int px count
+    ↓
+Modifier.size(requestedSize)
+    ↓
+onSizeChanged { measured px size }
+    ↓
+Canvas size.width and size.height in px
 ```
 
-The diagnostic distinction is:
+A 16.dp drawing inset is converted before it is used in Canvas-local coordinates:
+
+```kotlin
+val canvasInsetPx = with(density) {
+    16.dp.toPx()
+}
+```
+
+The lesson also compares:
 
 ```text
-width 8 → right edge X = 8
-width 8 → cell indexes 0 through 7
+red line   = 1 px
+green line = 1 dp converted to px
 ```
 
-Edge 8 closes cell 7. It is not a ninth cell.
-
-## Lesson 2.4 files
+## Lesson 2.5 files
 
 Learning file:
 
 ```text
-course/chapters/chapter-02/lesson-02-04-width-height-edges-and-center.html
+course/chapters/chapter-02/lesson-02-05-pixels-dp-and-density.html
 ```
 
 Android changes:
 
 ```text
 app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
-app/src/main/java/com/example/liquidglasslab/chapter02/BoundsCenterExplorer.kt
+app/src/main/java/com/example/liquidglasslab/chapter02/DensityExplorer.kt
 ```
 
 Earlier Chapter 2 files remain unchanged.
 
-## Lesson 2.4 checkpoint
+## Lesson 2.5 checkpoint
 
-Lesson 2.4 is complete only when:
+Lesson 2.5 is complete only when:
 
-- [ ] The learning-docs and Android updates were applied after Lesson 2.3.
-- [ ] The app builds and opens Lesson 2.4 on the Pixel 8 Pro.
-- [ ] The learner can define bounds, edge, width, height, and center.
-- [ ] The learner can calculate the center of 8 × 6 and 7 × 5 rectangles.
-- [ ] The learner can explain right edge 8 versus last cell index 7.
-- [ ] The width and height controls were tested independently.
-- [ ] The green marker remains at the visual center.
+- [ ] The learning-docs and Android updates were applied after Lesson 2.4.
+- [ ] The app builds and opens Lesson 2.5 on the Pixel 8 Pro.
+- [ ] The learner can define dp, px, and density.
+- [ ] The learner recorded the runtime density reported by the app.
+- [ ] The 48.dp, 72.dp, 96.dp, and 120.dp presets were tested.
+- [ ] The measured integer px size agrees with the rounded conversion shown by the app.
+- [ ] The red 1 px and green 1 dp lines were compared.
+- [ ] The learner can explain why a dp design distance must be converted before use as a Canvas or shader distance.
 - [ ] The work was committed to Git.
 
 ## Next action
@@ -133,10 +159,10 @@ Lesson 2.4 is complete only when:
 Open:
 
 ```text
-course/chapters/chapter-02/lesson-02-04-width-height-edges-and-center.html
+course/chapters/chapter-02/lesson-02-05-pixels-dp-and-density.html
 ```
 
-After Lesson 2.4 is complete, generate Lesson 2.5: **Pixels, dp, and density**.
+After Lesson 2.5 is complete, generate Lesson 2.6: **Local coordinates**.
 
 ## Reusable continuation prompt
 
