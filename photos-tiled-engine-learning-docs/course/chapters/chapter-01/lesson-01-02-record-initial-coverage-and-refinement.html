@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lesson 1.2 — Record initial coverage and refinement</title>
+  <style>
+    :root{
+      color-scheme:light;
+      --ink:#172033;--muted:#5c687a;--line:#d8e0ea;--paper:#fff;--soft:#f7fafc;
+      --green:#059669;--green-soft:#ecfdf5;--indigo:#4338ca;--indigo-soft:#eef2ff;
+      --amber:#d97706;--amber-soft:#fef3c7;--blue:#1e40af;--blue-soft:#dbeafe;
+      --pink:#be185d;--red:#dc2626;--red-soft:#fee2e2;--gray:#6b7280;
+      --code-bg:#f8fafc;--code-border:#cbd5e1;--code-ink:#1e293b;
+      --syntax-comment:#64748b;--syntax-keyword:#6d28d9;--syntax-string:#047857;
+      --syntax-number:#b45309;--syntax-type:#1d4ed8;--syntax-function:#be123c;
+      --syntax-property:#0f766e;--syntax-command:#7c2d12;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#f8fafc,#eef2f7);color:var(--ink);font:17px/1.62 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+    a{color:var(--blue)}
+    main{width:min(1880px,calc(100% - 88px));margin:auto;padding:38px 0 90px}
+    .crumbs{margin-bottom:22px;color:var(--muted)}
+    .panel,.hero,.stepper,details{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:0 16px 44px rgba(30,41,59,.065)}
+    .hero{padding:42px;display:grid;grid-template-columns:1.25fr .75fr;gap:32px}
+    .eyebrow{font-size:13px;font-weight:900;letter-spacing:.085em;text-transform:uppercase;color:var(--green)}
+    h1{font-size:56px;line-height:1.04;letter-spacing:-.045em;margin:.45rem 0 1rem}
+    h2{font-size:31px;line-height:1.2;margin:0 0 .75rem}
+    h3{font-size:20px;line-height:1.25;margin:.1rem 0 .55rem}
+    p{margin:.55rem 0}
+    .lead{font-size:20px;max-width:1100px;color:#334155}
+    .chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+    .chip{padding:7px 11px;border-radius:999px;font-size:13px;font-weight:850;border:1px solid transparent}
+    .chip.green{background:var(--green-soft);color:#065f46;border-color:#a7f3d0}
+    .chip.indigo{background:var(--indigo-soft);color:#312e81;border-color:#c7d2fe}
+    .chip.amber{background:var(--amber-soft);color:#78350f;border-color:#fcd34d}
+    .scope{background:#f8fafc;border:1px solid #cbd5e1;border-radius:18px;padding:24px}
+    .scope ul{padding-left:22px;margin:.55rem 0 0}
+    .scope li{margin:.35rem 0}
+    .panel,.stepper{margin-top:24px;padding:30px}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .three{display:grid;grid-template-columns:repeat(3,minmax(260px,1fr));gap:16px}
+    .callout{border:1px solid var(--line);border-radius:16px;padding:20px;background:#fff}
+    .callout.direct{border-left:6px solid var(--green)}
+    .callout.warning{border-left:6px solid var(--amber);background:#fffbeb}
+    .callout.excluded{border-left:6px solid var(--gray);background:#f8fafc}
+    .callout.danger{border-left:6px solid var(--red);background:#fff7f7}
+    code:not(pre code){background:#f1f5f9;padding:.12em .38em;border-radius:6px;color:#1e293b}
+    .code-card{border:1px solid var(--code-border);border-radius:16px;overflow:hidden;background:#fff}
+    .code-head{padding:10px 14px;background:#e2e8f0;color:#334155;font-weight:850;font-size:13px;text-transform:uppercase;letter-spacing:.05em}
+    pre.highlight{margin:0;padding:19px 21px;overflow:auto;background:var(--code-bg);color:var(--code-ink);font:15px/1.62 ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;tab-size:4}
+    .c1{color:var(--syntax-comment);font-style:italic}.k{color:var(--syntax-keyword);font-weight:700}.s{color:var(--syntax-string)}.m{color:var(--syntax-number)}.t{color:var(--syntax-type);font-weight:650}.f{color:var(--syntax-function)}.p{color:var(--syntax-property)}.cmd{color:var(--syntax-command);font-weight:700}.op{color:#475569}.n{color:#1e293b}
+    .code-note{padding:13px 16px;margin:0;border-top:1px solid var(--code-border);background:#fff;color:#475569}
+    .terms{display:grid;grid-template-columns:repeat(5,minmax(210px,1fr));gap:14px;margin-top:18px}
+    .term{border:1px solid var(--line);border-radius:15px;padding:18px;background:#fff}
+    .term strong{display:block;color:#312e81;margin-bottom:6px}
+    .math-strip{display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:12px;margin-top:16px}
+    .math-cell{border:1px solid var(--line);border-radius:15px;padding:17px;background:#f8fafc}
+    .math-cell b{display:block;color:#78350f;margin-bottom:5px}
+    .formula{font:700 16px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#1e293b}
+    .visual-wrap{display:grid;grid-template-columns:minmax(980px,1.6fr) minmax(390px,.7fr);gap:22px;align-items:start;margin-top:20px}
+    .canvas-shell{border:1px solid var(--line);border-radius:18px;background:#f8fafc;padding:14px;overflow:auto}
+    canvas{display:block;width:100%;height:auto;min-width:980px;background:#fff;border-radius:12px}
+    .readout{border:1px solid #c7d2fe;background:var(--indigo-soft);border-radius:18px;padding:22px;min-height:585px}
+    .readout h3{color:#312e81;font-size:24px}
+    .readout .formula-box{margin-top:14px;padding:16px;border-radius:13px;background:#fff;border:1px solid #c7d2fe;font:15px/1.62 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap}
+    .readout ul{padding-left:20px}
+    .caption{margin-top:18px;min-height:108px;border-radius:16px;background:var(--amber-soft);border:1px solid #fcd34d;padding:20px}
+    .caption strong{display:block;color:#78350f;font-size:19px;margin-bottom:5px}
+    .controls{display:flex;align-items:center;gap:12px;margin-top:16px}
+    button{appearance:none;border:1px solid #cbd5e1;background:#fff;color:#1e293b;border-radius:11px;padding:10px 16px;font:inherit;font-weight:850;cursor:pointer}
+    button.primary{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+    button:disabled{opacity:.42;cursor:not-allowed}
+    .dots{display:flex;gap:7px;margin-left:auto}
+    .dot{width:10px;height:10px;border-radius:50%;background:#cbd5e1}.dot.active{background:var(--indigo)}
+    .tasks{display:grid;grid-template-columns:repeat(4,minmax(250px,1fr));gap:14px;margin-top:18px}
+    .task{border:1px solid var(--line);border-radius:16px;padding:20px;background:#fff}
+    .task b{color:#065f46}
+    table{width:100%;border-collapse:separate;border-spacing:0;margin-top:16px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+    th,td{text-align:left;vertical-align:top;padding:14px 16px;border-bottom:1px solid var(--line)}
+    th{background:#f1f5f9;color:#334155;font-size:14px}tr:last-child td{border-bottom:0}
+    .checklist{columns:2;column-gap:44px;padding-left:22px}.checklist li{break-inside:avoid;margin:.48rem 0}
+    details{margin-top:14px;padding:20px 22px;box-shadow:none}summary{cursor:pointer;font-weight:900;color:#312e81}details p{margin-bottom:0}
+    .completion{border-left:6px solid var(--green)}
+    .footer-nav{display:flex;justify-content:space-between;gap:20px;margin-top:28px;padding:22px;border-top:1px solid var(--line)}
+    .evidence-label{display:inline-block;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:900;margin-right:6px}.source{background:#dbeafe;color:#1e3a8a}.device{background:#ecfdf5;color:#065f46}.unknown{background:#fef3c7;color:#78350f}
+    @media(min-width:2800px){body{font-size:19px}main{width:min(4300px,calc(100% - 120px))}.visual-wrap{grid-template-columns:minmax(1800px,2.3fr) minmax(620px,.7fr)}.readout{min-height:720px}.terms{grid-template-columns:repeat(5,minmax(300px,1fr))}.tasks{grid-template-columns:repeat(4,minmax(340px,1fr))}}
+    @media(max-width:1550px){.terms{grid-template-columns:repeat(3,minmax(230px,1fr))}.math-strip,.tasks{grid-template-columns:repeat(2,minmax(260px,1fr))}.visual-wrap{grid-template-columns:1fr}.readout{min-height:0}.three{grid-template-columns:1fr}}
+    @media(max-width:1100px){.hero,.two{grid-template-columns:1fr}.terms{grid-template-columns:repeat(2,minmax(230px,1fr))}.checklist{columns:1}}
+  </style>
+</head>
+<body>
+<main>
+  <nav class="crumbs"><a href="../../../photos-tiled-engine-course.html">Course home</a> · <a href="lesson-preserve-erase-and-establish-the-rebuild-baseline.html">Chapter 1 map</a> · <a href="../../../curriculum/photos_tiled_engine_curriculum.md">Curriculum</a> · <a href="../../../curriculum/photos_tiled_engine_handoff.md">Handoff</a> · <a href="../../glossary.html">Glossary</a></nav>
+
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Chapter 1 · Lesson 1.2 · Observation only</div>
+      <h1>Record initial coverage and refinement</h1>
+      <p class="lead">Separate two visible facts. First, determine whether the displayed photo rectangle is completely covered by image pixels. Then determine whether higher-detail regions replace coarser regions without moving the intended framing.</p>
+      <div class="chips"><span class="chip green">No Android changes</span><span class="chip indigo">Real test-image geometry</span><span class="chip amber">Lessons 1.1 and 1.2 remain incomplete</span></div>
+    </div>
+    <aside class="scope">
+      <h2>Scope for this lesson</h2>
+      <ul>
+        <li><strong>Observe:</strong> fit-scale coverage and one deep-zoom refinement sequence.</li>
+        <li><strong>Inspect:</strong> the generated coordinate grid around one known tile boundary.</li>
+        <li><strong>Do not infer:</strong> the exact decoder, scheduler, or pyramid-level-selection algorithm.</li>
+        <li><strong>Keep sealed:</strong> every implementation file under <code>tiled-engine/src/</code>.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section class="panel">
+    <div class="eyebrow">Where this fits</div>
+    <h2>Lesson 1.1 recorded the broad journey. Lesson 1.2 isolates image quality.</h2>
+    <div class="two">
+      <article class="callout direct">
+        <h3>Coverage question</h3>
+        <p>Inside the displayed photo rectangle, does every visible position contain pixels from the focused photo?</p>
+        <p>A region may be blurry and still provide complete coverage.</p>
+      </article>
+      <article class="callout warning">
+        <h3>Refinement question</h3>
+        <p>After coverage exists, do higher-detail regions appear in the same screen positions?</p>
+        <p>Sharpness may change. The photo scale, centre, grid alignment, and tile-edge alignment should not jump.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="eyebrow">Surviving host evidence</div>
+    <h2>The test activity was designed to make these two facts visible</h2>
+    <div class="two">
+      <article class="code-card">
+        <div class="code-head">Kotlin · NativeTestingActivity.kt:27–42</div>
+        <pre class="highlight" data-language="Kotlin"><code><span class="c1">// NativeTestingActivity.kt — class documentation</span>
+<span class="c1">/**</span>
+<span class="c1"> * On first run it renders three large (3008x2008) synthetic JPEGs into the</span>
+<span class="c1"> * cache directory — each a distinctly hued gradient with a 256px coordinate</span>
+<span class="c1"> * grid and a big page label — and shows them through the engine's filmstrip</span>
+<span class="c1"> * pager, so that:</span>
+<span class="c1"> *  * every 512px tile boundary is visually obvious,</span>
+<span class="c1"> *  * blurry-to-sharp tile loading is easy to observe while zooming,</span>
+<span class="c1"> *  * any tile misplacement/seam bug would be immediately visible as a</span>
+<span class="c1"> *    misaligned grid line or wrong coordinate label,</span>
+<span class="c1"> *</span>
+<span class="c1"> * The size gives each pyramid 4 levels (3008 → 1504 → 752 → 376),</span>
+<span class="c1"> */</span></code></pre>
+        <p class="code-note"><span class="evidence-label source">SOURCE</span>The host comment establishes the intended diagnostic geometry. It does not prove which level is visible in a particular frame.</p>
+      </article>
+      <article class="code-card">
+        <div class="code-head">Kotlin · NativeTestingActivity.kt:128–148, 163–167</div>
+        <pre class="highlight" data-language="Kotlin"><code><span class="c1">// NativeTestingActivity.kt — ensureTestImage()</span>
+<span class="k">for</span> <span class="n">(x</span> <span class="k">in</span> <span class="m">0</span> <span class="k">until</span> <span class="n">TEST_IMAGE_W</span> <span class="k">step</span> <span class="m">256</span><span class="n">)</span> <span class="op">{</span>
+    <span class="n">canvas.</span><span class="f">drawLine</span><span class="n">(x.</span><span class="f">toFloat</span><span class="n">(), </span><span class="m">0f</span><span class="n">, x.</span><span class="f">toFloat</span><span class="n">(), TEST_IMAGE_H.</span><span class="f">toFloat</span><span class="n">(), paint)</span>
+<span class="op">}</span>
+<span class="k">for</span> <span class="n">(y</span> <span class="k">in</span> <span class="m">0</span> <span class="k">until</span> <span class="n">TEST_IMAGE_H</span> <span class="k">step</span> <span class="m">256</span><span class="n">)</span> <span class="op">{</span>
+    <span class="n">canvas.</span><span class="f">drawLine</span><span class="n">(</span><span class="m">0f</span><span class="n">, y.</span><span class="f">toFloat</span><span class="n">(), TEST_IMAGE_W.</span><span class="f">toFloat</span><span class="n">(), y.</span><span class="f">toFloat</span><span class="n">(), paint)</span>
+<span class="op">}</span>
+<span class="k">for</span> <span class="n">(y</span> <span class="k">in</span> <span class="m">0</span> <span class="k">until</span> <span class="n">TEST_IMAGE_H</span> <span class="k">step</span> <span class="m">256</span><span class="n">)</span> <span class="op">{</span>
+    <span class="k">for</span> <span class="n">(x</span> <span class="k">in</span> <span class="m">0</span> <span class="k">until</span> <span class="n">TEST_IMAGE_W</span> <span class="k">step</span> <span class="m">256</span><span class="n">)</span> <span class="op">{</span>
+        <span class="n">canvas.</span><span class="f">drawText</span><span class="n">(</span><span class="s">"$x,$y"</span><span class="n">, x + </span><span class="m">12f</span><span class="n">, y + </span><span class="m">48f</span><span class="n">, paint)</span>
+    <span class="op">}</span>
+<span class="op">}</span>
+
+<span class="k">const val</span> <span class="p">TEST_IMAGE_W</span> <span class="op">=</span> <span class="m">3008</span>
+<span class="k">const val</span> <span class="p">TEST_IMAGE_H</span> <span class="op">=</span> <span class="m">2008</span></code></pre>
+        <p class="code-note"><span class="evidence-label source">SOURCE</span>The coordinate labels are part of the image pixels themselves. A later renderer cannot move a label independently without displaying the wrong source region or mapping it incorrectly.</p>
+      </article>
+    </div>
+    <article class="callout warning" style="margin-top:18px">
+      <h3>Evidence limit</h3>
+      <p><span class="evidence-label unknown">UNKNOWN UNTIL DEVICE CHECK</span>The source does not tell us whether the first visible frame looks coarse on your Pixel 8 Pro. Decoding may finish before the display presents the frame. Existing caches, process timing, and screen-recording compression can also hide refinement.</p>
+      <p>No visible blur-to-sharp change means “not observed in this run.” It does not prove that the engine skipped lower-resolution coverage.</p>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="eyebrow">Vocabulary</div>
+    <h2>Five terms for this observation</h2>
+    <div class="terms">
+      <article class="term"><strong>Displayed photo rectangle</strong>The screen rectangle occupied by the photo after fitting or zooming. Black area outside this rectangle is not missing photo coverage.</article>
+      <article class="term"><strong>Coverage</strong>Every position inside the displayed photo rectangle contains some pixels from the correct focused photo, even when those pixels are not yet the highest useful detail.</article>
+      <article class="term"><strong>Refinement</strong>A higher-detail image region replaces or covers a coarser displayed region while preserving the intended scale and position.</article>
+      <article class="term"><strong>Source coordinate</strong>A position measured in the generated image's own pixel grid. For example, <code>x = 1024</code> means 1024 source pixels from the image's left edge.</article>
+      <article class="term"><strong>Tile boundary</strong>The shared edge between two independently handled rectangular image regions. A correct boundary has no gap, overlap, or coordinate discontinuity.</article>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="eyebrow">One real value trace</div>
+    <h2>Use source coordinate <code>x = 1024</code> as the diagnostic boundary</h2>
+    <p>The activity's grid uses a 256-pixel interval. Its documentation identifies 512-pixel tile boundaries. The value <code>1024</code> belongs to both systems.</p>
+    <div class="math-strip">
+      <article class="math-cell"><b>Diagnostic grid</b><div class="formula">1024 ÷ 256 = 4</div><p><code>x = 1024</code> is the fourth 256-pixel grid interval from the left.</p></article>
+      <article class="math-cell"><b>Tile boundary</b><div class="formula">1024 ÷ 512 = 2</div><p><code>x = 1024</code> is the boundary after two 512-pixel tile columns.</p></article>
+      <article class="math-cell"><b>Neighboring source regions</b><div class="formula">512…1023 | 1024…1535</div><p>The left region ends at source pixel 1023. The next region begins at 1024.</p></article>
+      <article class="math-cell"><b>Right edge</b><div class="formula">3008 = 5 × 512 + 448</div><p>Five full-width regions leave a final 448-pixel edge region.</p></article>
+    </div>
+    <article class="callout direct" style="margin-top:18px">
+      <h3>What consumes this value</h3>
+      <p>During the deep-zoom check, the black grid line at <code>x = 1024</code> is the visible marker. Both neighboring regions must place that same source boundary at the same screen position.</p>
+      <p>A gap, double line, shifted label, or hue discontinuity is an observable defect. The observation alone does not identify the faulty internal function.</p>
+    </article>
+  </section>
+
+  <section class="stepper" aria-labelledby="stepper-title">
+    <div class="eyebrow">Interactive model</div>
+    <h2 id="stepper-title">Coverage can exist before final detail</h2>
+    <p>The blur is intentionally exaggerated so the states remain visible in a teaching diagram. The source dimensions, 256-pixel grid, 512-pixel boundaries, and arithmetic are real. The diagram viewport and timing are illustrative.</p>
+    <div class="visual-wrap">
+      <div class="canvas-shell"><canvas id="model" width="1540" height="760" aria-label="Interactive model of source image coverage and refinement"></canvas></div>
+      <aside class="readout">
+        <div class="eyebrow">Current step</div>
+        <h3 id="readout-title"></h3>
+        <p id="readout-text"></p>
+        <div class="formula-box" id="formula-box"></div>
+        <ul id="readout-list"></ul>
+      </aside>
+    </div>
+    <div class="caption" id="caption" aria-live="polite"></div>
+    <div class="controls"><button id="back" type="button">Back</button><button id="next" class="primary" type="button">Next</button><div class="dots" id="dots" aria-hidden="true"></div></div>
+  </section>
+
+  <section class="panel">
+    <div class="eyebrow">Device check</div>
+    <h2>One prepared-file run can satisfy Lesson 1.2</h2>
+    <p>A <strong>prepared-file run</strong> means the generated JPEG/WebP files already exist in the app cache before the measured launch. This avoids mixing bitmap generation with the visual engine observation.</p>
+    <div class="tasks">
+      <article class="task"><b>1. Prepare once</b><p>Open <code>NativeTestingActivity</code> once and wait until Photo 1 is visible. This creates the synthetic files when they do not already exist.</p></article>
+      <article class="task"><b>2. Relaunch cleanly</b><p>Force-stop the app. Start a recording, then launch the activity directly. Keep the first two seconds after photo pixels appear.</p></article>
+      <article class="task"><b>3. Hold fit scale</b><p>Do not touch the screen for about two seconds. Observe holes inside the photo rectangle, visible sharpening, and any scale or centre jump.</p></article>
+      <article class="task"><b>4. Deep zoom</b><p>Pinch toward the grid around <code>1024,1024</code> until labels are legible. Release and hold still for about two seconds.</p></article>
+    </div>
+    <div class="two" style="margin-top:18px">
+      <article class="code-card">
+        <div class="code-head">Shell · clean relaunch</div>
+        <pre class="highlight" data-language="Shell"><code><span class="cmd">adb</span> <span class="n">shell am force-stop</span> <span class="s">com.example.photos</span>
+<span class="cmd">adb</span> <span class="n">shell am start -n</span> <span class="s">com.example.photos/.NativeTestingActivity</span></code></pre>
+        <p class="code-note">Reuse an existing recording when it clearly contains the same current build and both observation windows. A new recording is not mandatory.</p>
+      </article>
+      <article class="callout excluded">
+        <h3>Do not count these as holes</h3>
+        <p>Top and bottom black bars may exist because the landscape photo is fitted inside a portrait viewport. Those bars are outside the displayed photo rectangle.</p>
+        <p>The translucent status label is also ordinary activity UI above the surface. Ignore that covered area when judging photo detail.</p>
+      </article>
+    </div>
+    <table>
+      <thead><tr><th>Observation</th><th>Record only this</th><th>Valid values</th></tr></thead>
+      <tbody>
+        <tr><td>First fit-scale coverage</td><td>Were there empty or wrong-photo regions inside the displayed photo rectangle?</td><td><code>complete</code> / <code>incomplete</code> / <code>unclear</code></td></tr>
+        <tr><td>Fit-scale refinement</td><td>Did any region become visibly sharper while its grid position stayed fixed?</td><td><code>observed</code> / <code>not observed</code> / <code>unclear</code></td></tr>
+        <tr><td>Deep-zoom boundary</td><td>At <code>x = 1024</code> or <code>y = 1024</code>, did the line and labels remain continuous?</td><td><code>continuous</code> / <code>defect</code> / <code>unclear</code></td></tr>
+        <tr><td>Refinement motion</td><td>Did the scale, centre, or selected source region jump when detail changed?</td><td><code>stable</code> / <code>jumped</code> / <code>unclear</code></td></tr>
+      </tbody>
+    </table>
+    <p>Worksheet: <a href="../../../learner-work/observations/lesson-01-02-initial-coverage-and-refinement.md"><code>learner-work/observations/lesson-01-02-initial-coverage-and-refinement.md</code></a></p>
+  </section>
+
+  <section class="panel">
+    <div class="eyebrow">Interpretation guardrails</div>
+    <h2>Record the visible result without claiming an unseen cause</h2>
+    <div class="three">
+      <article class="callout direct"><h3>Safe claim</h3><p>“At 00:01.32, the region around <code>1024,1024</code> became sharper without a visible position change.”</p></article>
+      <article class="callout danger"><h3>Unsupported claim</h3><p>“Level 2 finished decoding at 00:01.32.” The video does not identify the selected pyramid level or internal completion event.</p></article>
+      <article class="callout warning"><h3>When nothing changes visibly</h3><p>Record “not observed.” Later traces can determine whether refinement completed before presentation, came from cache, or did not occur.</p></article>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="eyebrow">Completion requirements</div>
+    <h2>Lesson 1.2 remains incomplete until you confirm it</h2>
+    <ul class="checklist">
+      <li>The same immutable Android baseline as Lesson 1.1 is identified.</li>
+      <li>The test files existed before the observed relaunch.</li>
+      <li>Fit-scale coverage is recorded as complete, incomplete, or unclear.</li>
+      <li>Fit-scale refinement is recorded as observed, not observed, or unclear.</li>
+      <li>One deep-zoom 512-pixel boundary is checked for continuity.</li>
+      <li>Any scale, centre, or region jump has an exact artifact timestamp.</li>
+      <li>The 448-pixel right-edge arithmetic is understood.</li>
+      <li>No Android source was changed.</li>
+      <li>The original native implementation remained sealed.</li>
+      <li>Exercise answers are submitted in chat without opening the answers.</li>
+    </ul>
+  </section>
+
+  <section class="panel">
+    <div class="eyebrow">Exercises</div>
+    <h2>Four diagnostic checks</h2>
+    <details><summary>Exercise 1 — The landscape photo has black bars above and below it at fit scale. Is fit-scale coverage incomplete?</summary><p><strong>Answer:</strong> No. Coverage is judged only inside the displayed photo rectangle. The black bars are outside the fitted photo because the photo and portrait viewport have different aspect ratios.</p></details>
+    <details><summary>Exercise 2 — The full-resolution width is 3008 pixels and the intended tile width is 512 pixels. How wide is the final right-edge tile?</summary><p><strong>Answer:</strong> <code>448</code> pixels. Five full tiles cover <code>5 × 512 = 2560</code> pixels. The remaining width is <code>3008 − 2560 = 448</code>.</p></details>
+    <details><summary>Exercise 3 — A region becomes sharper, but the <code>x = 1024</code> line shifts three screen pixels at that moment. Is that normal refinement?</summary><p><strong>Answer:</strong> No. Refinement may change detail, but the same source boundary should remain at the same screen position when the transform is unchanged. The observation proves a visible continuity or placement defect. It does not yet prove which internal layer caused it.</p></details>
+    <details><summary>Exercise 4 — The recording shows the first photo already sharp. Does that prove the engine never used coarser coverage?</summary><p><strong>Answer:</strong> No. Coarser work may have completed before the first presented recording frame, higher-detail content may already have been available, or recording compression may hide the change. A trace is required to identify the internal level sequence.</p></details>
+  </section>
+
+  <section class="panel completion">
+    <div class="eyebrow">Completion record</div>
+    <h2>Copy only after review and your explicit confirmation</h2>
+    <pre class="highlight" data-language="Markdown"><code><span class="k">##</span> <span class="n">Lesson 1.2 — Record initial coverage and refinement</span>
+
+<span class="op">-</span> <span class="n">Android baseline:</span> <span class="s">&lt;same commit or immutable ZIP as Lesson 1.1&gt;</span>
+<span class="op">-</span> <span class="n">Evidence artifact:</span> <span class="s">&lt;existing or new video/screenshot path&gt;</span>
+<span class="op">-</span> <span class="n">Prepared-file relaunch:</span> <span class="s">passed / failed</span>
+<span class="op">-</span> <span class="n">Fit-scale coverage:</span> <span class="s">complete / incomplete / unclear</span>
+<span class="op">-</span> <span class="n">Fit-scale refinement:</span> <span class="s">observed / not observed / unclear</span>
+<span class="op">-</span> <span class="n">Checked boundary:</span> <span class="s">x = 1024 / y = 1024 / other</span>
+<span class="op">-</span> <span class="n">Boundary continuity:</span> <span class="s">continuous / defect / unclear</span>
+<span class="op">-</span> <span class="n">Framing during refinement:</span> <span class="s">stable / jumped / unclear</span>
+<span class="op">-</span> <span class="n">Visible anomalies:</span> <span class="s">none observed / exact artifact + timestamp</span>
+<span class="op">-</span> <span class="n">Right-edge tile arithmetic:</span> <span class="s">448 px</span>
+<span class="op">-</span> <span class="n">Android source changed:</span> <span class="s">no</span>
+<span class="op">-</span> <span class="n">Original tiled-engine source remained sealed:</span> <span class="s">yes</span>
+<span class="op">-</span> <span class="n">Exercises submitted in chat:</span> <span class="s">yes</span>
+<span class="op">-</span> <span class="n">Learner confirms Lesson 1.2 completion:</span> <span class="s">yes</span></code></pre>
+  </section>
+
+  <nav class="footer-nav"><a href="lesson-01-01-record-native-viewer-baseline.html">← Lesson 1.1</a><a href="lesson-preserve-erase-and-establish-the-rebuild-baseline.html">Chapter 1 map</a><span>Next prepared lesson: none yet</span></nav>
+</main>
+<script>
+(() => {
+  const sourceW = 3008;
+  const sourceH = 2008;
+  const tile = 512;
+  const grid = 256;
+  const canvas = document.getElementById('model');
+  const ctx = canvas.getContext('2d');
+  const title = document.getElementById('readout-title');
+  const text = document.getElementById('readout-text');
+  const formula = document.getElementById('formula-box');
+  const list = document.getElementById('readout-list');
+  const caption = document.getElementById('caption');
+  const back = document.getElementById('back');
+  const next = document.getElementById('next');
+  const dots = document.getElementById('dots');
+
+  const sharp = document.createElement('canvas');
+  sharp.width = 752;
+  sharp.height = 502;
+  const sctx = sharp.getContext('2d');
+  const sx = sharp.width / sourceW;
+  const sy = sharp.height / sourceH;
+
+  for (let y = 0; y < sourceH; y += 64) {
+    for (let x = 0; x < sourceW; x += 64) {
+      const hue = (360 * (x + y) / (sourceW + sourceH)) % 360;
+      sctx.fillStyle = `hsl(${hue} 55% 72%)`;
+      sctx.fillRect(x * sx, y * sy, 64 * sx + 1, 64 * sy + 1);
+    }
+  }
+  sctx.strokeStyle = '#111827';
+  sctx.lineWidth = 1;
+  for (let x = 0; x < sourceW; x += grid) {
+    sctx.beginPath(); sctx.moveTo(x * sx, 0); sctx.lineTo(x * sx, sharp.height); sctx.stroke();
+  }
+  for (let y = 0; y < sourceH; y += grid) {
+    sctx.beginPath(); sctx.moveTo(0, y * sy); sctx.lineTo(sharp.width, y * sy); sctx.stroke();
+  }
+  sctx.fillStyle = '#111827';
+  sctx.font = '10px ui-monospace, monospace';
+  for (let y = 0; y < sourceH; y += grid) {
+    for (let x = 0; x < sourceW; x += grid) {
+      sctx.fillText(`${x},${y}`, x * sx + 3, y * sy + 12);
+    }
+  }
+  sctx.font = '700 58px system-ui, sans-serif';
+  sctx.textAlign = 'center';
+  sctx.fillText('PHOTO 1', sharp.width / 2, sharp.height / 2);
+
+  const coarse = document.createElement('canvas');
+  coarse.width = 94;
+  coarse.height = 63;
+  const cctx = coarse.getContext('2d');
+  cctx.imageSmoothingEnabled = true;
+  cctx.imageSmoothingQuality = 'high';
+  cctx.drawImage(sharp, 0, 0, coarse.width, coarse.height);
+
+  const sourceMap = {x:44,y:72,w:900,h:602};
+  const phone = {x:1080,y:42,w:390,h:680};
+  const fit = Math.min(phone.w / sourceW, phone.h / sourceH);
+  const fitPhoto = {w:sourceW * fit,h:sourceH * fit};
+  fitPhoto.x = phone.x + (phone.w - fitPhoto.w) / 2;
+  fitPhoto.y = phone.y + (phone.h - fitPhoto.h) / 2;
+
+  const steps = [
+    {
+      title:'1. The source image carries its own diagnostics',
+      text:'The left panel is the generated 3008 × 2008 image. Thin black lines are 256-pixel diagnostic intervals. Indigo lines mark the intended 512-pixel boundaries. The amber line is x = 1024.',
+      formula:'1024 = 4 × 256 = 2 × 512\n3008 = 5 × 512 + 448',
+      bullets:['The 256-pixel grid is stored in the image itself.','Every second diagnostic line coincides with a 512-pixel boundary.','The final column is narrower because 3008 is not divisible by 512.'],
+      caption:'Start with the source coordinate system. The test pattern gives you known positions before the image reaches the screen.'
+    },
+    {
+      title:'2. Coarse pixels can still provide complete fit coverage',
+      text:'The right panel shows the complete photo fitted into an illustrative portrait viewport. The image is deliberately blurred, but every point inside the displayed photo rectangle contains Photo 1 pixels.',
+      formula:`diagram fit = min(${phone.w}/3008, ${phone.h}/2008)\n             = ${fit.toFixed(4)} screen px/source px\ndisplayed photo ≈ ${fitPhoto.w.toFixed(1)} × ${fitPhoto.h.toFixed(1)} diagram px`,
+      bullets:['Coverage is judged inside the displayed photo rectangle.','Black letterbox area is outside the photo.','This diagram viewport is illustrative; it is not a Pixel 8 Pro measurement.'],
+      caption:'Blurry is a quality state. A hole is a coverage failure. Do not treat them as the same observation.'
+    },
+    {
+      title:'3. One region can refine without moving the photo',
+      text:'A sharp 512 × 512 source region is drawn over the same coarse fit-scale image. The photo bounds, fit scale, translation, and neighboring grid lines remain unchanged.',
+      formula:`refined source region:\nx = 1024…1535\ny = 512…1023\nprojected width = 512 × ${fit.toFixed(4)} ≈ ${(512*fit).toFixed(1)} diagram px`,
+      bullets:['Only displayed detail changes.','The same source coordinates must land at the same screen coordinates.','At fit scale, a refined tile can be visually small.'],
+      caption:'This is refinement: higher-detail pixels replace a coarser stand-in in the same screen rectangle.'
+    },
+    {
+      title:'4. Deep zoom reduces the visible source rectangle',
+      text:'The viewport now looks near source coordinate 1024,1024 at an illustrative scale of 0.65 screen pixels per source pixel. Fewer source pixels fit on screen, so missing detail becomes easier to see.',
+      formula:`visible source width  = ${phone.w}/0.65 ≈ ${(phone.w/0.65).toFixed(1)} px\nvisible source height = ${phone.h}/0.65 ≈ ${(phone.h/0.65).toFixed(1)} px`,
+      bullets:['Zoom changes which source rectangle is visible.','The amber x = 1024 boundary crosses the viewport.','The scale value is illustrative; your device run supplies the real visual evidence.'],
+      caption:'At deeper zoom, the same 512-source-pixel region occupies more screen pixels. Sharpness and alignment defects become easier to inspect.'
+    },
+    {
+      title:'5. Deep-zoom refinement must preserve boundary continuity',
+      text:'The deep-zoom crop becomes sharp. The x = 1024 line stays fixed. Neighboring colors and coordinate labels meet without a gap, overlap, duplicate edge, or wrong-region jump.',
+      formula:'expected visible change: detail only\nforbidden visible change: scale, centre, or boundary position',
+      bullets:['A continuous line supports correct visible placement.','A defect is observable even before its internal cause is known.','No visible change remains a valid “not observed” result.'],
+      caption:'The final check is simple: detail may change; source-to-screen placement must remain coherent.'
+    }
+  ];
+
+  let index = 0;
+  steps.forEach((_,i)=>{const d=document.createElement('span');d.className='dot';d.dataset.dot=i;dots.appendChild(d)});
+
+  function drawSourceMap(visibleRect = null) {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(sourceMap.x-8, sourceMap.y-8, sourceMap.w+16, sourceMap.h+16);
+    ctx.drawImage(sharp, sourceMap.x, sourceMap.y, sourceMap.w, sourceMap.h);
+    const mx = sourceMap.w / sourceW;
+    const my = sourceMap.h / sourceH;
+    ctx.save();
+    ctx.strokeStyle = '#4338ca';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([8,6]);
+    for (let x=0;x<=sourceW;x+=tile) {
+      const px=sourceMap.x+x*mx;
+      ctx.beginPath();ctx.moveTo(px,sourceMap.y);ctx.lineTo(px,sourceMap.y+sourceMap.h);ctx.stroke();
+    }
+    for (let y=0;y<=sourceH;y+=tile) {
+      const py=sourceMap.y+y*my;
+      ctx.beginPath();ctx.moveTo(sourceMap.x,py);ctx.lineTo(sourceMap.x+sourceMap.w,py);ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 5;
+    const boundaryX = sourceMap.x + 1024 * mx;
+    ctx.beginPath();ctx.moveTo(boundaryX,sourceMap.y);ctx.lineTo(boundaryX,sourceMap.y+sourceMap.h);ctx.stroke();
+    ctx.fillStyle = '#78350f';
+    ctx.font = '700 17px system-ui, sans-serif';
+    ctx.fillText('x = 1024', boundaryX + 9, sourceMap.y - 17);
+    if (visibleRect) {
+      ctx.fillStyle = 'rgba(190,24,93,.13)';
+      ctx.strokeStyle = '#be185d';
+      ctx.lineWidth = 4;
+      const rx=sourceMap.x+visibleRect.x*mx, ry=sourceMap.y+visibleRect.y*my;
+      const rw=visibleRect.w*mx, rh=visibleRect.h*my;
+      ctx.fillRect(rx,ry,rw,rh);ctx.strokeRect(rx,ry,rw,rh);
+      ctx.fillStyle='#831843';ctx.fillText('visible source rectangle',rx+9,ry+25);
+    }
+    ctx.restore();
+    ctx.fillStyle='#334155';ctx.font='700 18px system-ui, sans-serif';
+    ctx.fillText('SOURCE IMAGE · 3008 × 2008 source pixels',sourceMap.x,34);
+  }
+
+  function drawPhoneFrame() {
+    ctx.fillStyle='#020617';ctx.fillRect(phone.x,phone.y,phone.w,phone.h);
+    ctx.strokeStyle='#334155';ctx.lineWidth=8;ctx.strokeRect(phone.x-4,phone.y-4,phone.w+8,phone.h+8);
+    ctx.fillStyle='#334155';ctx.font='700 18px system-ui, sans-serif';ctx.fillText('ILLUSTRATIVE VIEWPORT',phone.x,28);
+  }
+
+  function drawFit(useRefinedTile) {
+    drawPhoneFrame();
+    ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+    ctx.drawImage(coarse,fitPhoto.x,fitPhoto.y,fitPhoto.w,fitPhoto.h);
+    if (useRefinedTile) {
+      const src={x:1024,y:512,w:512,h:512};
+      const dx=fitPhoto.x+src.x*fit,dy=fitPhoto.y+src.y*fit,dw=src.w*fit,dh=src.h*fit;
+      ctx.drawImage(sharp,src.x*sx,src.y*sy,src.w*sx,src.h*sy,dx,dy,dw,dh);
+      ctx.strokeStyle='#059669';ctx.lineWidth=4;ctx.strokeRect(dx,dy,dw,dh);
+      ctx.fillStyle='#065f46';ctx.font='700 15px system-ui, sans-serif';ctx.fillText('refined region',dx,dy-8);
+    }
+    ctx.strokeStyle='#ffffff';ctx.lineWidth=2;ctx.strokeRect(fitPhoto.x,fitPhoto.y,fitPhoto.w,fitPhoto.h);
+    ctx.fillStyle='#e2e8f0';ctx.font='16px system-ui, sans-serif';ctx.fillText('black area is outside photo bounds',phone.x+22,phone.y+phone.h-22);
+  }
+
+  function deepVisibleRect(scale=0.65) {
+    const w=phone.w/scale,h=phone.h/scale;
+    return {x:1024-w/2,y:1024-h/2,w,h};
+  }
+
+  function drawDeep(sharpMode) {
+    drawPhoneFrame();
+    const rect=deepVisibleRect();
+    const sourceCanvas=sharpMode?sharp:coarse;
+    const sourceScaleX=sourceCanvas.width/sourceW;
+    const sourceScaleY=sourceCanvas.height/sourceH;
+    ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+    ctx.drawImage(sourceCanvas,rect.x*sourceScaleX,rect.y*sourceScaleY,rect.w*sourceScaleX,rect.h*sourceScaleY,phone.x,phone.y,phone.w,phone.h);
+    const bx=phone.x+(1024-rect.x)/rect.w*phone.w;
+    const by=phone.y+(1024-rect.y)/rect.h*phone.h;
+    ctx.strokeStyle='#d97706';ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(bx,phone.y);ctx.lineTo(bx,phone.y+phone.h);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(phone.x,by);ctx.lineTo(phone.x+phone.w,by);ctx.stroke();
+    ctx.fillStyle='#fef3c7';ctx.fillRect(phone.x+12,phone.y+12,154,36);
+    ctx.fillStyle='#78350f';ctx.font='700 16px system-ui, sans-serif';ctx.fillText('1024,1024',phone.x+22,phone.y+36);
+    return rect;
+  }
+
+  function render() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#f8fafc';ctx.fillRect(0,0,canvas.width,canvas.height);
+    let visible=null;
+    if(index>=3) visible=deepVisibleRect();
+    drawSourceMap(visible);
+    if(index===0) {
+      drawPhoneFrame();
+      ctx.fillStyle='#cbd5e1';ctx.font='700 24px system-ui, sans-serif';ctx.textAlign='center';
+      ctx.fillText('No screen state yet',phone.x+phone.w/2,phone.y+phone.h/2-10);
+      ctx.font='17px system-ui, sans-serif';ctx.fillText('Start from known source coordinates.',phone.x+phone.w/2,phone.y+phone.h/2+24);
+      ctx.textAlign='start';
+    } else if(index===1) drawFit(false);
+    else if(index===2) drawFit(true);
+    else if(index===3) drawDeep(false);
+    else drawDeep(true);
+
+    const step=steps[index];
+    title.textContent=step.title;
+    text.textContent=step.text;
+    formula.textContent=step.formula;
+    list.innerHTML=step.bullets.map(item=>`<li>${item}</li>`).join('');
+    caption.innerHTML=`<strong>${step.title}</strong><span>${step.caption}</span>`;
+    [...dots.children].forEach((d,i)=>d.classList.toggle('active',i===index));
+    back.disabled=index===0;next.disabled=index===steps.length-1;
+  }
+  back.addEventListener('click',()=>{if(index>0){index--;render();}});
+  next.addEventListener('click',()=>{if(index<steps.length-1){index++;render();}});
+  render();
+})();
+</script>
+</body>
+</html>

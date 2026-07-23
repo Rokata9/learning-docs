@@ -24,9 +24,10 @@ Then read:
 - Scope: native tiled-image engine only.
 - Total: 216 lessons in 24 chapters.
 - **0 of 216 lessons are complete.**
-- Next learner checkpoint: **1.1 — Record the isolated native-viewer baseline**.
-- Prepared lesson: `course/chapters/chapter-01/lesson-01-01-record-native-viewer-baseline.html`.
-- Lesson 1.1 uses `NativeTestingActivity`. It does not use the photo grid or transition framework.
+- Lessons available for the current study round: **1.1 — Record the isolated native-viewer baseline** and **1.2 — Record initial coverage and refinement**.
+- Both lessons remain incomplete until the learner explicitly confirms them.
+- Next unprepared lesson: **1.3 — Record interaction and lifecycle behavior**.
+- Both available lessons use `NativeTestingActivity`. They do not use the photo grid or transition framework.
 
 ## Canonical test harness
 

@@ -11,6 +11,7 @@
 - The Android project and this learning-docs repository remain separate.
 - The course covers `tiled-engine` and the smallest Android host boundary needed to run it.
 - The canonical harness is `NativeTestingActivity`, which launches `TiledImageView` directly.
+- Kotlin code is in scope whenever it changes what the viewer draws, when it draws, which photo it draws, how gestures change framing, or how native resources follow lifecycle events. Chapter 2 creates a Kotlin responsibility ledger so every behavior-bearing method, listener, callback, and saved-state path is assigned to a later lesson or deliberately classified as boilerplate.
 - `PhotosListFragment`, grid navigation, `transition-framework`, overlay clones, scrims, HQ/LQ transition-image loading, and return animation are outside the course.
 - The original `tiled-engine/` module is deleted from the rebuild branch after the isolated native baseline is recorded.
 - The original native source remains sealed in an immutable baseline until Lesson 24.9.
@@ -94,9 +95,11 @@ course_lessons_total: 216
 course_lessons_completed_by_learner: 0
 completed_lessons: []
 completed_through: null
-prepared_frontier: 1.1
-next_lesson_to_prepare: 1.2
-next_learner_checkpoint: 1.1
+prepared_frontier: 1.2
+prepared_lessons: [1.1, 1.2]
+lessons_awaiting_learner_confirmation: [1.1, 1.2]
+next_lesson_to_prepare: 1.3
+current_study_frontier: 1.2
 android_project_learning_chapters_canonical: false
 all_new_android_project_code_authored_by_learner: true
 android_code_archives_allowed: false
@@ -104,28 +107,22 @@ original_tiled_engine_sealed_until: 24.9
 transition_framework_in_course: false
 ```
 
-## Next lesson
+## Current study frontier
 
-**Current learner checkpoint: Lesson 1.1 — Record the isolated native-viewer baseline**
+**Lessons 1.1 and 1.2 are prepared. Neither lesson is complete.**
 
-Lesson 1.1 is prepared at `course/chapters/chapter-01/lesson-01-01-record-native-viewer-baseline.html`.
+- Lesson 1.1: `course/chapters/chapter-01/lesson-01-01-record-native-viewer-baseline.html`
+- Lesson 1.2: `course/chapters/chapter-01/lesson-01-02-record-initial-coverage-and-refinement.html`
 
-It uses:
+The learner asked to continue to Lesson 1.2 before confirming Lesson 1.1. Preserve both as awaiting explicit confirmation. Do not infer completion from exercise answers, device observations, or moving to a later lesson.
 
-```text
-adb shell am start -n com.example.photos/.NativeTestingActivity
-```
+Lesson 1.2 uses the same isolated `NativeTestingActivity` harness. It separates two visible properties:
 
-The lesson records only:
+- complete image coverage inside the displayed photo rectangle;
+- higher-detail refinement that preserves source-to-screen placement.
 
-- the first visible image-content frame;
-- whether the fit framing changes during initial refinement;
-- one pinch or double-tap refinement observation;
-- one page change;
-- any obvious seam, stale tile, wrong page, or black-frame anomaly.
+The lesson uses the host-defined `3008 × 2008` synthetic image, 256-pixel coordinate grid, documented 512-pixel tile boundaries, and the `x = 1024` diagnostic boundary. It does not expose native implementation or change Android source.
 
-It asks only for the isolated viewer baseline and does not change Android source.
-
-The actual `tiled-engine` deletion occurs in Lesson 1.6.
+The next unprepared lesson is **1.3 — Record interaction and lifecycle behavior**. The actual `tiled-engine` deletion still occurs in Lesson 1.6.
 
 Course progress: 0 of 216 lessons completed.

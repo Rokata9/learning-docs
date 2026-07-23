@@ -217,7 +217,7 @@ Every HTML lesson is standalone, light-theme only, desktop-first, and verified a
 
 **Purpose:** Understand the complete external contract of `tiled-engine` before implementing C++, image decoding, threads, or graphics APIs.
 
-1. **2.1 [Learner] — Map the four engine-side components.** Separate `TiledImageView`, `TileEngineNative`, the JNI bridge, and the C++ engine. State which component owns Android input, boundary conversion, native state, and frame production.
+1. **2.1 [Learner] — Map the four engine-side components and start the Kotlin responsibility ledger.** Separate `TiledImageView`, `TileEngineNative`, the JNI bridge, and the C++ engine. State which component owns Android input, boundary conversion, native state, and frame production. Create a ledger that assigns every behavior-bearing `TiledImageView` method, inner gesture listener, surface callback, saved-state path, memory callback, and native callback to a later rebuild/test lesson or explicitly classifies it as boilerplate.
 2. **2.2 [Learner] — Trace `setPhotos(files, startIndex)`.** Follow the immutable file list, initial index, document identifiers, focused document, and bounded neighbor window without entering decoder internals.
 3. **2.3 [Learner] — Combine document input with surface availability.** Treat image preparation, `surfaceCreated`, `surfaceChanged`, and viewport size as independently arriving inputs that must eventually form one renderable state.
 4. **2.4 [Learner] — Define one prepared document.** Name the file descriptor, file length, sniffed format, stored dimensions, EXIF orientation, and logical display dimensions required before native scheduling can begin.
@@ -227,7 +227,7 @@ Every HTML lesson is standalone, light-theme only, desktop-first, and verified a
 8. **2.8 [Learner] — Trace filmstrip state.** Follow focused document, neighbor documents, page gap, and pager offset as values that place several photos inside one surface.
 9. **2.9 [Learner] — Map lifecycle, memory, and error outputs.** Trace surface destruction, reattachment, saved framing, trim requests, readiness, image metadata, photo changes, and load errors across the public contract.
 
-**Chapter checkpoint:** The learner can narrate files plus surface events into a first image-content frame, then narrate gestures and paging into later frames through the native viewer's public contract.
+**Chapter checkpoint:** The learner can narrate files plus surface events into a first image-content frame, then narrate gestures and paging into later frames through the native viewer's public contract. The Kotlin responsibility ledger proves that every behavior-bearing host path is assigned to a rebuild, test, or deliberate boilerplate classification.
 
 ### Chapter 3 — C++ first contact: compilation, values, and control flow
 
