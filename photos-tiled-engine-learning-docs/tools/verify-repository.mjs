@@ -6,9 +6,9 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
 const required = [
-  '.gitattributes','AGENTS.md','README.md','LEARNER_AUTHORSHIP.md','COURSE_STATE.json','photos-tiled-engine-course.html',
-  'curriculum/photos_transition_tiled_engine_curriculum.md',
-  'curriculum/photos_transition_tiled_engine_handoff.md',
+  '.gitattributes','AGENTS.md','README.md','SCOPE_RESET.md','LEARNER_AUTHORSHIP.md','COURSE_STATE.json','photos-tiled-engine-course.html',
+  'curriculum/photos_tiled_engine_curriculum.md',
+  'curriculum/photos_tiled_engine_handoff.md',
   'course/glossary.html','course/templates/lesson-template.html',
   'course/templates/chapter-hub-template.html','course/templates/completion-record-template.md',
   'learner-work/implementation-log.md','tools/verify-lesson.mjs'
@@ -21,13 +21,20 @@ for (let chapter=1; chapter<=24; chapter++) {
   const dir = join(root,'course','chapters',`chapter-${String(chapter).padStart(2,'0')}`);
   if (!existsSync(dir)) { console.error(`missing chapter directory: ${relative(root,dir)}`); failed = true; }
 }
-const curriculumPath = join(root,'curriculum','photos_transition_tiled_engine_curriculum.md');
+const curriculumPath = join(root,'curriculum','photos_tiled_engine_curriculum.md');
 if (existsSync(curriculumPath)) {
   const text = readFileSync(curriculumPath,'utf8');
   const learnerCount = (text.match(/\[Learner\]/g) ?? []).length;
   if (learnerCount !== 216) { console.error(`curriculum has ${learnerCount} [Learner] lesson markers; expected 216`); failed = true; }
   for (const forbidden of ['[M]','[G]','Exact 50/50','Generated implementation','OWNERSHIP_LEDGER.md']) {
     if (text.includes(forbidden)) { console.error(`curriculum contains forbidden old ownership wording: ${forbidden}`); failed = true; }
+  }
+  const forbiddenScopeLessons = [
+    'Follow the thumbnail click','Understand the overlay and scrim','Model the HQ/LQ request race',
+    'Validate the entry-photo return transition','Audit and harden the transition framework'
+  ];
+  for (const phrase of forbiddenScopeLessons) {
+    if (text.includes(phrase)) { console.error(`curriculum contains out-of-scope transition lesson: ${phrase}`); failed = true; }
   }
   const chapterCount = (text.match(/^### Chapter \d+ —/gm) ?? []).length;
   if (chapterCount !== 24) { console.error(`curriculum has ${chapterCount} chapter headings; expected 24`); failed = true; }

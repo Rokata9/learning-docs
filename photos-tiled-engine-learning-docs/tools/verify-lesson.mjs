@@ -19,6 +19,24 @@ if (!existsSync(htmlPath)) {
   process.exit(1);
 }
 const html = readFileSync(htmlPath, 'utf8');
+
+const codeBlocks = [...html.matchAll(/<pre\b([^>]*)>\s*<code\b[^>]*>([\s\S]*?)<\/code>\s*<\/pre>/g)];
+const invalidCodeBlocks = codeBlocks
+  .map((match, index) => ({ index: index + 1, attrs: match[1], body: match[2] }))
+  .filter(block => {
+    const isMultiline = block.body.includes('\n');
+    if (!isMultiline) return false;
+    const hasHighlightClass = /class="[^"]*\bhighlight\b[^"]*"/.test(block.attrs);
+    const hasLanguage = /data-language="[^"]+"/.test(block.attrs);
+    const hasTokenSpans = /<span\s+class="[^"]+">/.test(block.body);
+    return !hasHighlightClass || !hasLanguage || !hasTokenSpans;
+  });
+if (invalidCodeBlocks.length) {
+  console.error('Multi-line code blocks must use static syntax highlighting and a data-language label:');
+  for (const block of invalidCodeBlocks) console.error(`  code block ${block.index}`);
+  process.exit(4);
+}
+
 const hrefs = [...html.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
 const broken = [];
 for (const href of hrefs) {

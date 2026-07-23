@@ -8,7 +8,7 @@ node tools/verify-repository.mjs
 
 This checks the required repository structure, all 24 chapter directories, exactly 216 `[Learner]` curriculum markers, removal of the old 50/50 markers, absence of Android/native source files and a `tiled-engine` directory, and enabled local HTML links.
 
-Check one HTML artifact:
+Check one HTML artifact. The lesson verifier also rejects multi-line code blocks that lack a language label, static token spans, or the shared `highlight` class:
 
 ```text
 node tools/verify-lesson.mjs photos-tiled-engine-course.html --links-only

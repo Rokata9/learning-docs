@@ -1,8 +1,8 @@
-# AGENTS.md — Photos Transition and Tiled Engine Learning Documents
+# AGENTS.md — Photos Native Tiled-Image Engine Learning Documents
 
 ## Scope
 
-This repository contains the interactive learning documents for rebuilding the Photos app transition and native tiled image engine. The Android Studio project is separate. Do not copy the Android project or the erased `tiled-engine` module into this repository.
+This repository contains the interactive learning documents for rebuilding the Photos app native tiled-image engine. The Android Studio project is separate. Do not copy the Android project or the erased `tiled-engine` module into this repository.
 
 The Android project's existing learning chapters are non-canonical for this course. Do not link to them, import them, summarize them as prerequisites, or rely on them. The curriculum and lessons in this repository are the sole teaching path.
 
@@ -35,9 +35,17 @@ You may provide:
 
 When the learner is blocked, first restate the invariant and trace a concrete value. Then identify the failing boundary. Then give a conceptual hint. Review the learner's own code before offering a syntax-only example. The learner still writes the correction.
 
+## Native-only scope boundary
+
+The course covers `TiledImageView`, its Android `SurfaceView` and gesture/lifecycle responsibilities, `TileEngineNative`, JNI, C++, image decoding, EGL/OpenGL rendering, tiling, caching, paging, synchronization, lifecycle recovery, and performance.
+
+The canonical harness is `NativeTestingActivity`. Use it whenever the lesson does not specifically require another host call site.
+
+Do not create lessons about `PhotosListFragment`, grid navigation, `transition-framework`, overlay clones, scrims, HQ/LQ transition-image loading, or animated return behavior. These systems may remain in the Android project, but they are outside the curriculum. Mention them only to state that they are excluded.
+
 ## Source policy
 
-- `app/` and `transition-framework/` remain visible because their existing code defines the live contracts.
+- Only app code that directly constructs, configures, or consumes `TiledImageView` defines the course host contract. The transition framework is outside the course.
 - The original `tiled-engine` remains sealed in the immutable baseline until Lesson 24.9.
 - The instructor may use the sealed baseline privately to verify contracts and evidence limits. Do not expose its implementation as a shortcut.
 - Distinguish source-proven facts, framework-owned behavior, reasoned hypotheses, device observations, and measured results.
@@ -52,6 +60,8 @@ When the learner is blocked, first restate the invariant and trace a concrete va
 ## Lesson requirements
 
 Every lesson must be one standalone HTML file that works from `file://`. Use inline CSS and JavaScript. Use inline SVG, Canvas, or WebGL2 when they improve the explanation. Do not use external libraries or content delivery networks.
+
+Every multi-line code block must identify its language and use real syntax highlighting. Use statically generated token spans or an inline highlighter. The rendered block must remain readable without JavaScript. Use an explicit light code background, dark base text, and distinct colors for comments, keywords, strings, numbers, types, and function names. Do not ship monochrome snippets or low-contrast light-gray text on white.
 
 Every lesson must:
 
@@ -104,6 +114,6 @@ Count only lessons the learner explicitly confirms as completed. A prepared less
 
 ## Incremental delivery packages
 
-After the initial repository package, deliver only an incremental ZIP containing learning-repository files created or modified for the new lesson. Preserve paths beneath `photos-tiled-engine-learning-docs/`.
+After the native-only scope-reset package, deliver only an incremental ZIP containing learning-repository files created or modified for the new lesson. Preserve paths beneath `photos-tiled-engine-learning-docs/`.
 
 Do not include unchanged files, cumulative repository copies, verification screenshots, the Android project, Android source patches, or an empty Android ZIP.

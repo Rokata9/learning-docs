@@ -64,7 +64,7 @@ The learner writes the final correction.
 
 ## Existing code and final comparison
 
-The surviving `app/` and `transition-framework/` code remains available because the rebuilt module must satisfy those real call sites.
+The surviving app code that directly hosts `TiledImageView` remains available because the rebuilt module must satisfy those real call sites. The custom transition framework is outside the course and is not a source of lesson work.
 
 The original `tiled-engine` source stays sealed in the immutable baseline. It may be opened only after the Lesson 24.9 independent reconstruction is complete. The final review compares design choices and behavior. It is not a source for code to copy.
 
