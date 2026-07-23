@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Updated:** 2026-07-22  
-**Course plan version:** 2.6
+**Updated:** 2026-07-23  
+**Course plan version:** 2.7
 
 ## Stable course decisions
 
@@ -37,122 +37,126 @@ Use only learner-confirmed completion for X. A generated lesson does not count u
 
 ## Progress truth
 
-The learner explicitly reported Lesson 2.5 complete.
+The learner completed Lesson 2.6 and asked to continue with the next lesson.
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 2.6
+course_version: 2.7
 course_lessons_total: 216
-course_lessons_completed_by_learner: 13
+course_lessons_completed_by_learner: 14
 completed_lessons:
   - 1.1-1.8
-  - 2.1-2.5
-completed_through: 2.5
-generated_frontier: 2.6
-next_learner_checkpoint: 2.6
+  - 2.1-2.6
+completed_through: 2.6
+generated_frontier: 2.7
+next_learner_checkpoint: 2.7
 chapter_01_completed_by_learner: true
-lesson_02_05_completed_by_learner: true
-lesson_02_06_generated: true
-lesson_02_06_completed_by_learner: false
-completion_basis_for_02_05: learner explicitly said ready and asked to proceed with the next lesson
-lesson_02_06_android_changed_files:
+lesson_02_06_completed_by_learner: true
+lesson_02_07_generated: true
+lesson_02_07_completed_by_learner: false
+completion_basis_for_02_06: learner asked to continue with the next lesson after Lesson 2.6
+lesson_02_07_android_changed_files:
   - app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
-  - app/src/main/java/com/example/liquidglasslab/chapter02/LocalCoordinatesExplorer.kt
+  - app/src/main/java/com/example/liquidglasslab/chapter02/ParentScreenCoordinatesExplorer.kt
 ```
 
-## Lesson 2.6 — Local coordinates
+## Lesson 2.7 — Parent, window, and screen coordinates
 
-A **local coordinate system** is the coordinate system owned by one specific element. In this lesson, the element's top-left corner is local `(0, 0)`.
+The measured object is one concrete position: the control's top-left corner.
 
-The lesson keeps these objects separate:
+The lesson names three larger coordinate systems:
 
 ```text
-parent-local child origin
-    The child's top-left position measured from the parent origin.
+parent-local position
+    The control top-left measured from the parent content origin.
 
-child-local point
-    The selected point measured from the child's own origin.
+window-relative position
+    The control top-left measured from the application-window origin.
 
-parent-local point
-    The same selected point measured from the parent origin.
+screen-relative position
+    The control top-left measured from the device-screen origin.
 ```
 
-Central conversions:
+The controlled teaching derivation uses:
 
 ```text
-point in parent = child origin in parent + point in child
-point in child  = point in parent − child origin in parent
-```
+control in parent = (130, 90)
+parent in window  = (180, 120)
+window on screen  = (40, 60)
 
-Fixed derivation example:
+control in window
+= parent in window + control in parent
+= (180 + 130, 120 + 90)
+= (310, 210)
 
-```text
-child origin in parent = (180, 100)
-point in parent        = (340, 220)
-
-point in child
-= (340, 220) − (180, 100)
-= (160, 120)
+control on screen
+= window on screen + control in window
+= (40 + 310, 60 + 210)
+= (350, 270)
 ```
 
 The Android value path is:
 
 ```text
-pointerInput is attached to the child Box
+onGloballyPositioned receives final LayoutCoordinates
     ↓
-detectTapGestures supplies localOffset
+positionInParent() returns the control top-left relative to the parent
+positionInWindow() returns the control top-left relative to the app window
+positionOnScreen() returns the control top-left relative to the device screen
     ↓
-selectedLocalPx = localOffset
+state stores the three readings
     ↓
-Canvas fills the same child bounds
+text rows display each value with its coordinate-system name
     ↓
-drawCircle(center = selectedPoint)
+independent addition checks compare calculated and measured positions
 ```
 
-The child can move between Placement A and Placement B. The implementation uses `absoluteOffset` so positive placement X always moves right. The green point moves with the child on the device. The stored child-local X and Y values stay unchanged.
+`positionOnScreen()` can return `Offset.Unspecified` when the conversion cannot be performed. The explorer treats non-finite components as unavailable. It displays `not available`. It does not replace unavailable data with the valid position `(0, 0)`.
 
-Parent, window, and physical-screen coordinates are not inspected in Lesson 2.6. Lesson 2.7 introduces the APIs and conversions needed for those coordinate systems.
+A full-screen phone window can begin at the screen origin. In that case, window-relative and screen-relative numbers can be equal. Equal values do not make the two coordinate systems identical.
 
-## Lesson 2.6 files
+Lesson 2.8 introduces normalized coordinates. It is not generated yet.
+
+## Lesson 2.7 files
 
 Learning file:
 
 ```text
-course/chapters/chapter-02/lesson-02-06-local-coordinates.html
+course/chapters/chapter-02/lesson-02-07-parent-window-and-screen-coordinates.html
 ```
 
 Android changes:
 
 ```text
 app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
-app/src/main/java/com/example/liquidglasslab/chapter02/LocalCoordinatesExplorer.kt
+app/src/main/java/com/example/liquidglasslab/chapter02/ParentScreenCoordinatesExplorer.kt
 ```
 
 Earlier Chapter 2 Android files remain unchanged.
 
-## Lesson 2.6 checkpoint
+## Lesson 2.7 checkpoint
 
-Lesson 2.6 is complete only when:
+Lesson 2.7 is complete only when:
 
-- [ ] Both incremental archives were applied after the completed Lesson 2.5 state.
-- [ ] The app builds and opens Lesson 2.6 on the Pixel 8 Pro.
-- [ ] Several points were tapped inside the child.
-- [ ] The child was moved between Placement A and Placement B.
-- [ ] The same child-local point remained unchanged while its visible parent-local position changed.
-- [ ] The learner can identify the origin for a child-local value.
-- [ ] The learner can calculate one parent-to-child conversion by subtraction.
-- [ ] The coding challenge and final exercises were completed.
-- [ ] The work was committed to Git.
+- [ ] Both incremental archives were applied after the completed Lesson 2.6 state.
+- [ ] The app builds and opens Lesson 2.7 on the Pixel 8 Pro.
+- [ ] Placement A and Placement B both move the measured control.
+- [ ] The three coordinate readings are inspected for both placements.
+- [ ] The learner identifies the origin used by every displayed pair.
+- [ ] The parent-to-window calculated value agrees with the measured value.
+- [ ] The window-to-screen result is inspected, including any `not available` state.
+- [ ] The coding challenge and final exercises are completed.
+- [ ] The work is committed to Git.
 
 ## Next action
 
 Open:
 
 ```text
-course/chapters/chapter-02/lesson-02-06-local-coordinates.html
+course/chapters/chapter-02/lesson-02-07-parent-window-and-screen-coordinates.html
 ```
 
-After Lesson 2.6 is complete, generate Lesson 2.7: **Parent and screen coordinates**.
+After Lesson 2.7 is complete, generate Lesson 2.8: **Normalized coordinates**.
 
 ## Reusable continuation prompt
 

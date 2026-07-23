@@ -9,15 +9,15 @@ Open `liquid-glass-course.html` directly in a Chromium-based browser. No local s
 ## Current course state
 
 - Chapter 1 is complete.
-- Lessons 2.1 through 2.5 are complete.
-- **13 of 216 lessons are complete.**
-- Lesson 2.6 is generated and is the next learner checkpoint.
-- The generated frontier is Lesson 2.6.
+- Lessons 2.1 through 2.6 are complete.
+- **14 of 216 lessons are complete.**
+- Lesson 2.7 is generated and is the next learner checkpoint.
+- The generated frontier is Lesson 2.7.
 
 Open:
 
 ```text
-course/chapters/chapter-02/lesson-02-06-local-coordinates.html
+course/chapters/chapter-02/lesson-02-07-parent-window-and-screen-coordinates.html
 ```
 
 ## Android progression
@@ -27,8 +27,9 @@ course/chapters/chapter-02/lesson-02-06-local-coordinates.html
 - Lesson 2.3 kept column 4 fixed and moved the selected Y coordinate through rows 0 through 7.
 - Lesson 2.4 introduced rectangle bounds, width, height, and center.
 - Lesson 2.5 read the current Compose density, converted dp to px, compared floating-point and rounded px values, and showed that Canvas drawing coordinates use px.
-- Lesson 2.6 introduces a coordinate system owned by a child element. It keeps one point child-local while the child moves inside its parent.
-- The Lesson 2.6 Android update adds `LocalCoordinatesExplorer.kt` and updates `Chapter02Screen.kt`.
+- Lesson 2.6 introduced a coordinate system owned by a child element. It kept one point child-local while the child moved inside its parent.
+- Lesson 2.7 measures the same control top-left relative to its parent, the application window, and the device screen.
+- The Lesson 2.7 Android update adds `ParentScreenCoordinatesExplorer.kt` and updates `Chapter02Screen.kt`.
 
 ## Incremental delivery rule
 

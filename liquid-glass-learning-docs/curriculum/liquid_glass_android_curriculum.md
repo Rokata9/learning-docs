@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 2.6  
-**Updated:** 2026-07-22  
-**Current course position:** Lessons 1.1 through 2.5 are complete by learner confirmation. **13 of 216 lessons are complete.** Lesson 2.6 is the next learner checkpoint and the generated frontier.  
+**Version:** 2.7  
+**Updated:** 2026-07-23  
+**Current course position:** Lessons 1.1 through 2.6 are complete by learner confirmation. **14 of 216 lessons are complete.** Lesson 2.7 is the next learner checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -147,6 +147,19 @@ Version 2.6 records completion of Lesson 2.5 and adds local coordinates:
 - The Android implementation uses `absoluteOffset` for the controlled placement, attaches `pointerInput` to the child `Box`, stores the tap callback's `Offset` directly, and consumes it in a `Canvas` that fills the same child bounds.
 - Parent, window, and physical-screen coordinates are explicitly deferred to Lesson 2.7.
 - Android changes: `Chapter02Screen.kt` and new `LocalCoordinatesExplorer.kt`.
+
+Version 2.7 records completion of Lesson 2.6 and adds parent, window, and screen coordinates:
+
+- The learner explicitly requested the next lesson after completing Lesson 2.6.
+- Learner-confirmed course completion is now **14 of 216 lessons**.
+- Lesson 2.7 follows one concrete object: the measured control's top-left corner.
+- `positionInParent()` measures that corner from the parent content origin.
+- `positionInWindow()` measures that corner from the application-window origin.
+- `positionOnScreen()` measures that corner from the device-screen origin when the conversion is available.
+- The lesson derives `controlInWindow = parentInWindow + controlInParent` and `controlOnScreen = windowOriginOnScreen + controlInWindow` in a controlled layout without rotation or scaling.
+- The Android implementation obtains final `LayoutCoordinates` with `onGloballyPositioned` and compares calculated positions with measured positions.
+- `Offset.Unspecified` is treated as unavailable data. It is not silently replaced by `(0, 0)`.
+- Android changes: `Chapter02Screen.kt` and new `ParentScreenCoordinatesExplorer.kt`.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -1084,10 +1097,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── YAxisExplorer.kt                    # introduced in Lesson 2.3
     ├── BoundsCenterExplorer.kt             # introduced in Lesson 2.4
     ├── DensityExplorer.kt                  # introduced in Lesson 2.5
-    └── LocalCoordinatesExplorer.kt         # introduced in Lesson 2.6
+    ├── LocalCoordinatesExplorer.kt         # introduced in Lesson 2.6
+    └── ParentScreenCoordinatesExplorer.kt  # introduced in Lesson 2.7
 ```
 
-Lessons through 2.5 are complete. Lesson 2.6 is the current learner checkpoint.
+Lessons through 2.6 are complete. Lesson 2.7 is the current learner checkpoint.
 
 ---
 
@@ -1174,6 +1188,39 @@ Suggested commits:
 ```text
 course: add local coordinates lesson
 course: add local coordinates explorer
+```
+
+
+### `lesson-02-07-parent-window-and-screen-coordinates.html`
+
+**New graphics idea:** One visible control can be measured from several nested coordinate-system origins.  
+**New math idea:** Moving from a smaller coordinate system to a larger one adds each intermediate origin offset once.
+
+Interactive explanation:
+
+- A nested SVG scene shows the device screen, application window, parent scene, and draggable control as separate rectangles with separate origins.
+- The browser values are explicitly SVG-local teaching units, not measured Pixel 8 Pro pixels.
+- Moving only the control, parent, or window reveals which coordinate readings should change and which should remain fixed.
+- A manual derivation calculates control-in-window `(310, 210)` from parent-in-window `(180, 120)` plus control-in-parent `(130, 90)`, then adds window-on-screen `(40, 60)` to obtain control-on-screen `(350, 270)`.
+- The Android trace follows `LayoutCoordinates` from `onGloballyPositioned` into `positionInParent()`, `positionInWindow()`, and `positionOnScreen()`.
+- The Android screen calculates the same conversions independently and compares them with the measured API results.
+- The lesson states that a full-screen window can start at screen `(0, 0)`. Equal numbers in that case do not make the window and screen coordinate systems identical.
+- The lesson treats `Offset.Unspecified` as unavailable. It never changes unavailable screen data into the valid position `(0, 0)`.
+- The coding challenge replaces `positionInParent()` with `positionOnScreen()` in a function whose name promises a screen-relative result.
+- Four hidden-answer exercises test offset addition, equal-number versus equal-system reasoning, movement diagnosis, and unavailable screen coordinates.
+
+Android code delivery:
+
+```text
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter02/ParentScreenCoordinatesExplorer.kt
+```
+
+Suggested commits:
+
+```text
+course: add parent window and screen coordinates lesson
+course: add parent window and screen coordinates explorer
 ```
 
 
@@ -1269,7 +1316,7 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Learner completion is confirmed through Lesson 2.5. Lesson 2.6 is generated and pending. The learner-confirmed total is 13 of 216 lessons.
+Learner completion is confirmed through Lesson 2.6. Lesson 2.7 is generated and pending. The learner-confirmed total is 14 of 216 lessons.
 
 Current Chapter 2 lesson files:
 
@@ -1279,7 +1326,8 @@ Current Chapter 2 lesson files:
 - `course/chapters/chapter-02/lesson-02-03-the-y-axis.html`;
 - `course/chapters/chapter-02/lesson-02-04-width-height-edges-and-center.html`;
 - `course/chapters/chapter-02/lesson-02-05-pixels-dp-and-density.html`;
-- `course/chapters/chapter-02/lesson-02-06-local-coordinates.html`.
+- `course/chapters/chapter-02/lesson-02-06-local-coordinates.html`;
+- `course/chapters/chapter-02/lesson-02-07-parent-window-and-screen-coordinates.html`.
 
 Current cumulative Chapter 2 Android source:
 
@@ -1293,16 +1341,17 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── YAxisExplorer.kt
     ├── BoundsCenterExplorer.kt
     ├── DensityExplorer.kt
-    └── LocalCoordinatesExplorer.kt
+    ├── LocalCoordinatesExplorer.kt
+    └── ParentScreenCoordinatesExplorer.kt
 ```
 
-The Lesson 2.6 Android ZIP contains only `Chapter02Screen.kt` and the new `LocalCoordinatesExplorer.kt`. Earlier Chapter 2 files are unchanged and are not duplicated.
+The Lesson 2.7 Android ZIP contains only `Chapter02Screen.kt` and the new `ParentScreenCoordinatesExplorer.kt`. Earlier Chapter 2 files are unchanged and are not duplicated.
 
 ---
 
 ## 15. Primary references
 
-The course plan was checked against these public primary sources through 2026-07-19:
+The course plan was checked against these public primary sources through 2026-07-23:
 
 - Apple, **Meet Liquid Glass**, WWDC25: https://developer.apple.com/videos/play/wwdc2025/219/
 - Apple, **Get to know the new design system**, WWDC25: https://developer.apple.com/videos/play/wwdc2025/356/
@@ -1317,6 +1366,8 @@ The course plan was checked against these public primary sources through 2026-07
 - Android, **Using AGSL in your Android app**: https://developer.android.com/develop/ui/views/graphics/agsl/using-agsl
 - Android, **Graphics modifiers**: https://developer.android.com/develop/ui/compose/graphics/draw/modifiers
 - Android, **Compose modifier list**: https://developer.android.com/develop/ui/compose/modifiers-list
+- Android, **Compose LayoutCoordinates reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/LayoutCoordinates
+- Android, **Compose OnGloballyPositionedModifier reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/OnGloballyPositionedModifier
 - Android, **Compose Color reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color
 - Android, **Compose BlendMode reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode
 - Android, **Constraints and modifier order**: https://developer.android.com/develop/ui/compose/layouts/constraints-modifiers
