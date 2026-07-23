@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lesson 1.1 — Record the current user journey</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink:#172033;
+      --muted:#5c687a;
+      --line:#d8e0ea;
+      --paper:#ffffff;
+      --soft:#f6f8fb;
+      --green:#059669;
+      --green-soft:#ecfdf5;
+      --indigo:#4338ca;
+      --indigo-soft:#e0e7ff;
+      --amber:#d97706;
+      --amber-soft:#fef3c7;
+      --blue:#1e40af;
+      --blue-soft:#dbeafe;
+      --pink:#be185d;
+      --pink-soft:#fce7f3;
+      --red:#dc2626;
+      --red-soft:#fee2e2;
+      --gray:#6b7280;
+      --gray-soft:#f3f4f6;
+      --shadow:0 18px 52px rgba(30,41,59,.08);
+    }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body {
+      margin:0;
+      background:linear-gradient(180deg,#f8fafc 0,#eef2f7 100%);
+      color:var(--ink);
+      font:16px/1.62 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    }
+    a { color:var(--blue); }
+    button { font:inherit; }
+    main { width:min(1700px,calc(100% - 88px)); margin:auto; padding:34px 0 88px; }
+    nav { margin-bottom:18px; color:var(--muted); }
+    nav a { font-weight:750; }
+    header,section,aside.card {
+      background:var(--paper);
+      border:1px solid var(--line);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+    }
+    header { padding:42px; display:grid; grid-template-columns:minmax(0,1.35fr) minmax(390px,.65fr); gap:34px; }
+    section { padding:30px; margin-top:20px; }
+    h1 { font-size:58px; line-height:1.02; letter-spacing:-.045em; margin:.35rem 0 1rem; max-width:1050px; }
+    h2 { font-size:30px; line-height:1.15; letter-spacing:-.025em; margin:0 0 14px; }
+    h3 { font-size:21px; line-height:1.25; margin:0 0 10px; }
+    p { margin:.55rem 0; }
+    ul,ol { margin:.6rem 0; }
+    li + li { margin-top:.35rem; }
+    code { background:#f1f5f9; border:1px solid #e2e8f0; padding:.08em .35em; border-radius:6px; font-size:.94em; }
+    pre { margin:12px 0 0; background:#111827; color:#e5e7eb; border-radius:14px; padding:17px 18px; overflow:auto; font:14px/1.55 ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace; white-space:pre-wrap; }
+    .eyebrow { color:var(--green); text-transform:uppercase; font-size:13px; font-weight:900; letter-spacing:.09em; }
+    .lead { max-width:1000px; font-size:19px; color:#354154; }
+    .status-panel { background:#eef2ff; border:1px solid #c7d2fe; border-radius:18px; padding:24px; align-self:stretch; }
+    .status-panel strong.big { display:block; color:#312e81; font-size:34px; line-height:1.1; margin:.3rem 0 .7rem; }
+    .status-panel ul { padding-left:20px; color:#374151; }
+    .chips { display:flex; flex-wrap:wrap; gap:9px; margin-top:18px; }
+    .chip,.badge { display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:6px 10px; font-size:12px; font-weight:850; }
+    .chip.green,.badge.source { background:var(--green-soft); color:#065f46; border:1px solid #a7f3d0; }
+    .chip.indigo { background:var(--indigo-soft); color:#312e81; border:1px solid #c7d2fe; }
+    .chip.amber,.badge.device { background:var(--amber-soft); color:#78350f; border:1px solid #fde68a; }
+    .chip.gray,.badge.unknown { background:var(--gray-soft); color:#4b5563; border:1px solid #d1d5db; }
+    .callout { border-left:6px solid var(--amber); background:#fffbeb; box-shadow:none; }
+    .callout.red { border-left-color:var(--red); background:#fff7f7; }
+    .callout.green { border-left-color:var(--green); background:#f0fdf4; }
+    .two-col { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    .three-col { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+    .four-col { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+    .mini-card { border:1px solid var(--line); border-radius:16px; padding:20px; background:#fff; }
+    .mini-card p { color:var(--muted); }
+    .term-card { border-top:5px solid var(--green); }
+    .term-card h3 a { color:inherit; text-decoration:none; }
+    .term-card h3 a:hover { text-decoration:underline; }
+    .object-card { position:relative; padding-top:46px; }
+    .object-number { position:absolute; top:16px; left:18px; width:28px; height:28px; display:grid; place-items:center; border-radius:50%; background:var(--indigo-soft); color:#312e81; font-weight:900; }
+    .object-card .owner { display:inline-block; margin-top:8px; color:var(--blue); font-size:13px; font-weight:850; }
+    .stepper-shell { display:grid; grid-template-columns:760px minmax(0,1fr); gap:28px; align-items:start; }
+    .stage-card { border:1px solid var(--line); border-radius:20px; background:#f8fafc; padding:22px; min-height:790px; }
+    .stage-title { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+    .stage-title strong { font-size:15px; }
+    .device-wrap { display:grid; grid-template-columns:390px minmax(0,1fr); gap:18px; align-items:start; }
+    .phone-device { width:390px; height:690px; margin:auto; border:12px solid #111827; border-radius:42px; background:#111827; box-shadow:0 24px 50px rgba(15,23,42,.24); position:relative; overflow:hidden; }
+    .speaker { position:absolute; z-index:20; top:8px; left:50%; transform:translateX(-50%); width:96px; height:21px; border-radius:0 0 14px 14px; background:#111827; }
+    .screen { position:absolute; inset:0; overflow:hidden; border-radius:29px; background:#fff; }
+    .grid-layer,.detail-root,.scrim-layer,.clone-layer { position:absolute; inset:0; }
+    .grid-layer { z-index:1; background:#f8fafc; transition:opacity .18s linear; }
+    .grid-toolbar { height:66px; background:#fff; display:flex; align-items:end; padding:0 18px 11px; font-weight:900; font-size:21px; border-bottom:1px solid #e5e7eb; }
+    .grid-date { padding:15px 16px 8px; color:#475569; font-size:13px; font-weight:850; }
+    .thumb-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; padding:0 5px; }
+    .thumb { aspect-ratio:1; border-radius:3px; position:relative; overflow:hidden; background:linear-gradient(145deg,#c7d2fe,#fbcfe8 48%,#bbf7d0); }
+    .thumb::before { content:""; position:absolute; left:-10%; right:-10%; bottom:-8%; height:58%; background:linear-gradient(145deg,#14532d,#34d399); clip-path:polygon(0 100%,28% 37%,50% 66%,72% 18%,100% 100%); opacity:.8; }
+    .thumb::after { content:""; position:absolute; width:24px; height:24px; border-radius:50%; background:#fef3c7; right:12px; top:12px; box-shadow:0 0 0 7px rgba(255,255,255,.22); }
+    .thumb:nth-child(2) { background:linear-gradient(145deg,#bfdbfe,#e9d5ff 48%,#fed7aa); }
+    .thumb:nth-child(3) { background:linear-gradient(145deg,#fecdd3,#fde68a 50%,#bbf7d0); }
+    .thumb:nth-child(4) { background:linear-gradient(145deg,#a7f3d0,#bfdbfe 52%,#ddd6fe); }
+    .thumb:nth-child(5) { background:linear-gradient(145deg,#fde68a,#fecdd3 52%,#bfdbfe); }
+    .thumb:nth-child(6) { background:linear-gradient(145deg,#ddd6fe,#bbf7d0 52%,#fed7aa); }
+    .source-thumb { transition:opacity .16s linear; outline:4px solid var(--green); outline-offset:-4px; }
+    .detail-root { z-index:2; opacity:0; background:transparent; transition:opacity .16s linear,background .16s linear; }
+    .surface-layer,.placeholder-layer { position:absolute; inset:0; opacity:0; transition:opacity .16s linear,transform .18s ease; }
+    .surface-layer { z-index:1; background:#050b16; overflow:hidden; }
+    .surface-photo { position:absolute; left:33px; right:33px; top:114px; bottom:116px; border-radius:5px; overflow:hidden; background:linear-gradient(145deg,#bfdbfe,#ddd6fe 43%,#fbcfe8 70%,#bbf7d0); transform-origin:55% 42%; }
+    .surface-photo::before,.placeholder-photo::before,.clone-layer::before { content:""; position:absolute; left:-8%; right:-8%; bottom:-2%; height:62%; background:linear-gradient(150deg,#14532d,#059669 52%,#86efac); clip-path:polygon(0 100%,24% 40%,43% 66%,63% 19%,78% 50%,100% 13%,100% 100%); opacity:.9; }
+    .surface-photo::after,.placeholder-photo::after,.clone-layer::after { content:""; position:absolute; width:50px; height:50px; border-radius:50%; background:#fef3c7; right:38px; top:46px; box-shadow:0 0 0 15px rgba(255,255,255,.20); }
+    .tile-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.2) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.2) 1px,transparent 1px); background-size:70px 70px; mix-blend-mode:overlay; }
+    .surface-badge { position:absolute; left:50%; bottom:36px; transform:translateX(-50%); white-space:nowrap; color:#dbeafe; background:rgba(15,23,42,.86); border:1px solid #334155; border-radius:999px; padding:7px 11px; font-size:12px; font-weight:850; }
+    .placeholder-layer { z-index:2; background:#000; }
+    .placeholder-photo { position:absolute; inset:114px 33px 116px; border-radius:5px; overflow:hidden; background:linear-gradient(145deg,#bfdbfe,#ddd6fe 43%,#fbcfe8 70%,#bbf7d0); }
+    .placeholder-label { position:absolute; left:50%; bottom:38px; transform:translateX(-50%); white-space:nowrap; background:rgba(255,255,255,.94); color:#1f2937; border:1px solid #d1d5db; border-radius:999px; padding:7px 11px; font-size:12px; font-weight:850; }
+    .scrim-layer { z-index:3; pointer-events:none; background:#000; opacity:0; transition:opacity .18s linear; }
+    .clone-layer { z-index:4; inset:auto; opacity:0; overflow:hidden; border-radius:3px; background:linear-gradient(145deg,#bfdbfe,#ddd6fe 43%,#fbcfe8 70%,#bbf7d0); box-shadow:0 12px 34px rgba(0,0,0,.28); transition:left .18s ease,top .18s ease,width .18s ease,height .18s ease,opacity .15s linear,border-radius .18s ease; }
+    .clone-label { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:2; background:rgba(255,255,255,.94); color:#312e81; border-radius:999px; padding:6px 10px; white-space:nowrap; font-size:11px; font-weight:900; }
+    .load-badge { position:absolute; z-index:8; top:76px; left:50%; transform:translateX(-50%); max-width:330px; text-align:center; background:#fff; border:1px solid var(--line); border-radius:12px; padding:8px 10px; font-size:12px; font-weight:850; box-shadow:0 8px 22px rgba(15,23,42,.12); opacity:0; transition:opacity .15s linear; }
+    .state-rail { display:flex; flex-direction:column; gap:11px; }
+    .state-item { border:1px solid var(--line); border-radius:14px; padding:12px 13px; background:#fff; }
+    .state-item strong { display:block; font-size:13px; }
+    .state-item span { color:var(--muted); font-size:13px; }
+    .state-item.on { border-color:#86efac; background:#f0fdf4; }
+    .state-item.prepared { border-color:#c7d2fe; background:#eef2ff; }
+    .state-item.off { opacity:.55; }
+    .timeline { margin-top:18px; border:1px solid var(--line); border-radius:16px; padding:14px; background:#fff; }
+    .timeline-track { height:8px; background:#e5e7eb; border-radius:999px; position:relative; margin:28px 24px 34px; }
+    .timeline-progress { position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(90deg,var(--green),var(--indigo)); border-radius:999px; transition:width .2s ease; }
+    .marker { position:absolute; top:50%; width:14px; height:14px; border-radius:50%; background:#fff; border:3px solid #94a3b8; transform:translate(-50%,-50%); }
+    .marker.active { border-color:var(--indigo); box-shadow:0 0 0 6px rgba(67,56,202,.14); }
+    .marker.fixed { border-color:var(--amber); }
+    .marker-label { position:absolute; top:15px; transform:translateX(-50%); width:132px; text-align:center; color:#475569; font-size:11px; line-height:1.3; }
+    .step-panel { border:1px solid var(--line); border-radius:20px; padding:24px; background:#fff; min-height:790px; display:flex; flex-direction:column; }
+    .step-kicker { color:var(--indigo); font-weight:900; text-transform:uppercase; font-size:12px; letter-spacing:.08em; }
+    #stepTitle { font-size:30px; line-height:1.12; margin:.45rem 0 .8rem; }
+    #stepCaption { min-height:150px; color:#354154; font-size:17px; }
+    .fact-row { display:grid; grid-template-columns:145px 1fr; gap:10px; padding:12px 0; border-top:1px solid var(--line); }
+    .fact-row:first-of-type { border-top:0; }
+    .fact-label { color:#64748b; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:.06em; }
+    .fact-value { color:#263244; }
+    .step-controls { margin-top:auto; padding-top:22px; border-top:1px solid var(--line); }
+    .buttons { display:flex; align-items:center; gap:12px; }
+    button.control,button.scenario-button {
+      border:1px solid var(--line);
+      border-radius:11px;
+      background:#fff;
+      color:var(--ink);
+      font-weight:850;
+      padding:10px 15px;
+      cursor:pointer;
+    }
+    button.control:hover,button.scenario-button:hover { border-color:#94a3b8; }
+    button.control:disabled { opacity:.4; cursor:not-allowed; }
+    #counter { min-width:90px; text-align:center; font-weight:850; color:#475569; }
+    .dots { display:flex; flex-wrap:wrap; gap:7px; margin-top:14px; }
+    .dot { width:13px; height:13px; padding:0; border-radius:50%; border:2px solid #94a3b8; background:#fff; cursor:pointer; }
+    .dot.active { background:var(--indigo); border-color:var(--indigo); }
+    .source-anchor { margin-top:16px; border-left:4px solid var(--blue); background:#eff6ff; padding:13px 14px; border-radius:0 12px 12px 0; font-size:14px; }
+    .source-anchor code { background:#fff; }
+    .formula { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; align-items:stretch; margin-top:18px; }
+    .formula-part { border:1px solid var(--line); border-radius:15px; padding:17px; background:#fff; position:relative; }
+    .formula-part + .formula-part::before { content:"+"; position:absolute; left:-19px; top:50%; transform:translateY(-50%); width:26px; height:26px; display:grid; place-items:center; border-radius:50%; background:#fff; border:1px solid var(--line); color:#475569; font-weight:900; }
+    .formula-part strong { display:block; font-size:20px; color:#312e81; }
+    .formula-part.fixed strong { color:#92400e; }
+    .formula-total { margin-top:14px; border:2px solid #c7d2fe; background:#eef2ff; border-radius:16px; padding:16px; font:16px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    .code-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    .code-card { border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#fff; }
+    .code-head { padding:11px 14px; background:#f8fafc; border-bottom:1px solid var(--line); font-size:13px; font-weight:850; color:#475569; }
+    .code-card pre { margin:0; border-radius:0; min-height:170px; }
+    .tension { border-top:5px solid var(--red); }
+    .scenario-buttons { display:flex; flex-wrap:wrap; gap:10px; margin:12px 0 18px; }
+    button.scenario-button.active { background:var(--indigo-soft); color:#312e81; border-color:#a5b4fc; }
+    .scenario-view { display:grid; grid-template-columns:330px 1fr; gap:18px; border:1px solid var(--line); border-radius:18px; padding:20px; background:#f8fafc; }
+    .branch-visual { min-height:280px; border-radius:16px; background:#fff; border:1px solid var(--line); padding:18px; display:flex; flex-direction:column; justify-content:center; gap:10px; }
+    .branch-node { border:2px solid var(--indigo); background:var(--indigo-soft); color:#312e81; border-radius:12px; padding:12px; text-align:center; font-weight:850; }
+    .branch-arrow { text-align:center; color:var(--pink); font-size:24px; font-weight:900; }
+    .branch-node.result.animated { border-color:var(--green); background:var(--green-soft); color:#065f46; }
+    .branch-node.result.plain { border-color:var(--amber); background:var(--amber-soft); color:#78350f; }
+    .run-card { border-top:5px solid var(--indigo); }
+    .run-card h3 span { color:var(--indigo); }
+    .checklist { list-style:none; padding:0; }
+    .checklist li { position:relative; padding-left:28px; }
+    .checklist li::before { content:"□"; position:absolute; left:0; top:-1px; color:var(--indigo); font-size:20px; }
+    table { width:100%; border-collapse:collapse; margin-top:14px; }
+    th,td { border:1px solid var(--line); padding:12px 13px; text-align:left; vertical-align:top; }
+    th { background:#f8fafc; font-size:13px; color:#475569; text-transform:uppercase; letter-spacing:.05em; }
+    .path-list { display:grid; grid-template-columns:1fr 1fr; gap:10px 22px; }
+    .path-list code { display:inline-block; }
+    details { border:1px solid var(--line); border-radius:14px; padding:14px 16px; background:#fff; }
+    details + details { margin-top:10px; }
+    summary { cursor:pointer; font-weight:850; }
+    details p { color:#354154; }
+    .completion { background:#f8fafc; border:1px solid var(--line); color:#172033; }
+    .footer-nav { display:flex; justify-content:space-between; gap:20px; align-items:center; }
+    .disabled-link { color:#7a8494; font-weight:750; }
+    .small { font-size:13px; color:var(--muted); }
+    @media (min-width:2800px) {
+      body { font-size:18px; }
+      main { width:min(3900px,calc(100% - 96px)); padding-top:44px; }
+      header { grid-template-columns:minmax(0,1.5fr) minmax(520px,.5fr); }
+      h1 { font-size:68px; max-width:1500px; }
+      h2 { font-size:34px; }
+      .lead { max-width:1500px; font-size:21px; }
+      .term-grid { grid-template-columns:repeat(6,minmax(0,1fr)); }
+      .stepper-shell { grid-template-columns:minmax(1220px,1.05fr) minmax(0,1.45fr); }
+      .device-wrap { grid-template-columns:430px minmax(0,1fr); }
+      .code-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+      .scenario-view { grid-template-columns:430px minmax(0,1fr); }
+      .path-list { grid-template-columns:repeat(3,minmax(0,1fr)); }
+      #stepTitle { font-size:34px; }
+      #stepCaption { font-size:19px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <nav>
+    <a href="../../../photos-tiled-engine-course.html">Course home</a> ·
+    <a href="lesson-preserve-erase-and-establish-the-rebuild-baseline.html">Chapter 1 map</a> ·
+    <a href="../../../curriculum/photos_transition_tiled_engine_curriculum.md">Curriculum</a> ·
+    <a href="../../../curriculum/photos_transition_tiled_engine_handoff.md">Handoff</a> ·
+    <a href="../../glossary.html">Glossary</a>
+  </nav>
+
+  <header>
+    <div>
+      <div class="eyebrow">Chapter 1 · Lesson 1.1 · Learner evidence</div>
+      <h1>Record the current user journey</h1>
+      <p class="lead">Create a repeatable before-state for the grid-to-detail experience. Record what the current app shows, which action caused each change, and which claims still need proof.</p>
+      <div class="chips">
+        <span class="chip green">Prepared lesson</span>
+        <span class="chip indigo">No Android source changes</span>
+        <span class="chip amber">Physical Pixel 8 Pro</span>
+        <span class="chip gray">Native source stays sealed</span>
+      </div>
+    </div>
+    <aside class="status-panel">
+      <span class="eyebrow">Completion gate</span>
+      <strong class="big">Three controlled runs</strong>
+      <ul>
+        <li>Forward handoff and animated return to the entry photo.</li>
+        <li>Paging to a neighbor and exiting with a plain back-stack pop.</li>
+        <li>Rotation, framing check, and exiting with a plain back-stack pop.</li>
+        <li>A filled baseline worksheet, visual evidence, and filtered Logcat output.</li>
+      </ul>
+      <p><strong>Course progress:</strong> 0 of 216 lessons complete.</p>
+    </aside>
+  </header>
+
+  <section>
+    <div class="eyebrow">Where this lesson fits</div>
+    <h2>Preserve behavior before reconstruction begins</h2>
+    <p>A <strong>baseline</strong> is a recorded before-state. It gives the later rebuild something concrete to match. This lesson records user actions, visible frames, and logs. It does not explain the native engine's internal C++ implementation.</p>
+    <p>The principal idea is simple: <strong>an expectation from source code is not the same thing as a result observed on the device.</strong> Record both. Do not merge them.</p>
+    <div class="two-col" style="margin-top:16px">
+      <div class="mini-card">
+        <h3>This lesson changes</h3>
+        <p>Learning-repository evidence only. You fill <a href="../../../learner-work/observations/lesson-01-01-current-user-journey.md"><code>learner-work/observations/lesson-01-01-current-user-journey.md</code></a> and add your own screenshots, recordings, and logs.</p>
+      </div>
+      <div class="mini-card">
+        <h3>This lesson does not change</h3>
+        <p>No Kotlin, C++, Java Native Interface (JNI), CMake, Gradle, XML, tests, or Android-project scripts. The complete <code>tiled-engine/</code> directory remains present and sealed until Lesson 1.6.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="callout red">
+    <div class="eyebrow">Non-negotiable boundary</div>
+    <h2>Do not inspect the native implementation</h2>
+    <p>You may run the current app and inspect the surviving call sites in <code>app/</code> and <code>transition-framework/</code>. Do not open files under <code>tiled-engine/src/</code>. The engine remains a black box in this lesson. A <strong>black box</strong> is a component whose inputs and outputs are observed while its internal implementation is deliberately hidden.</p>
+    <p>Also ignore the older learning chapters inside the Android project. This repository is the canonical course path.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">Terms used in this lesson</div>
+    <h2>Exact meanings</h2>
+    <div class="three-col term-grid">
+      <article class="mini-card term-card">
+        <h3><a href="../../glossary.html#baseline">Baseline</a></h3>
+        <p>A recorded before-state used for later comparison. Here it includes actions, visible outcomes, logs, environment, and anomalies.</p>
+      </article>
+      <article class="mini-card term-card">
+        <h3><a href="../../glossary.html#observable-contract">Observable contract</a></h3>
+        <p>The behavior a user or test can observe without knowing the internal implementation. Example: pressing Back on the entry photo morphs the image toward its grid cell.</p>
+      </article>
+      <article class="mini-card term-card">
+        <h3><a href="../../glossary.html#configured-duration">Configured duration</a></h3>
+        <p>A time value supplied to an animation or timer. It is not automatically the total time the user waits.</p>
+      </article>
+      <article class="mini-card term-card">
+        <h3><a href="../../glossary.html#measured-latency">Measured latency</a></h3>
+        <p>Elapsed time between two recorded events. Example: the time from the tap log to the native-ready log.</p>
+      </article>
+      <article class="mini-card term-card">
+        <h3><a href="../../glossary.html#first-live-tiled-frame">First live tiled frame</a></h3>
+        <p>The first frame after <code>TiledImageView</code> reports readiness and the fragment hides the temporary detail <code>ImageView</code>. From that point, the visible image responds to the tiled viewer's gestures.</p>
+      </article>
+      <article class="mini-card term-card">
+        <h3><a href="../../glossary.html#plain-back-stack-pop">Plain back-stack pop</a></h3>
+        <p>Removing the detail fragment without morphing a transition clone back into a grid cell.</p>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Objects visible during the journey</div>
+    <h2>Four image-bearing objects, not one image view</h2>
+    <p>These names identify concrete Android objects. They prevent vague statements such as “the image becomes sharp.”</p>
+    <div class="four-col">
+      <article class="mini-card object-card">
+        <span class="object-number">1</span>
+        <h3>Grid thumbnail</h3>
+        <p>The original <code>ImageView</code> inside the photo grid. It owns the tapped grid-cell bounds.</p>
+        <span class="owner">PhotosListFragment.kt</span>
+      </article>
+      <article class="mini-card object-card">
+        <span class="object-number">2</span>
+        <h3>Transition overlay clone</h3>
+        <p>A temporary full-window <code>ImageView</code> copy. Android Transition moves its bounds and image matrix.</p>
+        <span class="owner">transition-framework</span>
+      </article>
+      <article class="mini-card object-card">
+        <span class="object-number">3</span>
+        <h3>Detail transition image</h3>
+        <p>The destination fragment's full-screen <code>ImageView</code>. It covers the native surface after the clone animation ends.</p>
+        <span class="owner">fragment_photo_detail.xml</span>
+      </article>
+      <article class="mini-card object-card">
+        <span class="object-number">4</span>
+        <h3>Live tiled surface</h3>
+        <p>The <code>TiledImageView</code> beneath the detail transition image. Its internal native implementation remains sealed.</p>
+        <span class="owner">TiledImageView call site only</span>
+      </article>
+    </div>
+  </section>
+
+  <section id="forward-handoff">
+    <div class="eyebrow">Interactive sequence</div>
+    <h2>Forward handoff, one state change at a time</h2>
+    <p>Use <strong>Back</strong> and <strong>Next</strong>. The phone drawing shows the object that is visible to the user. The rail beside it also exposes invisible preparation state.</p>
+
+    <div class="stepper-shell">
+      <div class="stage-card">
+        <div class="stage-title"><strong>Conceptual device view</strong><span class="small">Not a performance simulation</span></div>
+        <div class="device-wrap">
+          <div class="phone-device" aria-label="Conceptual phone screen showing the transition layers">
+            <div class="speaker"></div>
+            <div class="screen">
+              <div class="grid-layer" id="gridLayer">
+                <div class="grid-toolbar">Photos</div>
+                <div class="grid-date">July 23</div>
+                <div class="thumb-grid">
+                  <div class="thumb"></div>
+                  <div class="thumb source-thumb" id="sourceThumb"></div>
+                  <div class="thumb"></div>
+                  <div class="thumb"></div>
+                  <div class="thumb"></div>
+                  <div class="thumb"></div>
+                </div>
+              </div>
+              <div class="detail-root" id="detailRoot">
+                <div class="surface-layer" id="surfaceLayer">
+                  <div class="surface-photo" id="surfacePhoto"><div class="tile-grid"></div></div>
+                  <div class="surface-badge" id="surfaceBadge">native surface</div>
+                </div>
+                <div class="placeholder-layer" id="placeholderLayer">
+                  <div class="placeholder-photo"></div>
+                  <div class="placeholder-label">detail transition ImageView</div>
+                </div>
+              </div>
+              <div class="scrim-layer" id="scrimLayer"></div>
+              <div class="clone-layer" id="cloneLayer"><div class="clone-label">overlay clone</div></div>
+              <div class="load-badge" id="loadBadge"></div>
+            </div>
+          </div>
+          <div class="state-rail">
+            <div class="state-item" id="stateGrid"><strong>Grid thumbnail</strong><span>Original cell</span></div>
+            <div class="state-item" id="stateClone"><strong>Overlay clone</strong><span>Temporary animation object</span></div>
+            <div class="state-item" id="statePlaceholder"><strong>Detail transition image</strong><span>Opaque placeholder</span></div>
+            <div class="state-item" id="stateSurface"><strong>Live tiled surface</strong><span>Native-rendered image</span></div>
+            <div class="state-item" id="stateTimer"><strong>Loader state</strong><span id="stateTimerText">Idle</span></div>
+          </div>
+        </div>
+        <div class="timeline">
+          <strong>Configured and variable timing</strong>
+          <div class="timeline-track">
+            <div class="timeline-progress" id="timelineProgress"></div>
+            <span class="marker" data-marker="0" style="left:0%"><span class="marker-label">Tap</span></span>
+            <span class="marker fixed" data-marker="1" style="left:25%"><span class="marker-label">75 ms timeout decision</span></span>
+            <span class="marker" data-marker="2" style="left:46%"><span class="marker-label">Drawable ready<br>variable</span></span>
+            <span class="marker fixed" data-marker="3" style="left:72%"><span class="marker-label">300 ms clone animation</span></span>
+            <span class="marker" data-marker="4" style="left:100%"><span class="marker-label">onReady<br>variable</span></span>
+          </div>
+          <p class="small">The positions of variable markers are illustrative. This lesson records their real order, not exact scale.</p>
+        </div>
+      </div>
+
+      <div class="step-panel">
+        <div class="step-kicker" id="stepKicker">Step 1</div>
+        <h3 id="stepTitle"></h3>
+        <div id="stepCaption"></div>
+        <div class="fact-row"><div class="fact-label">Visible object</div><div class="fact-value" id="visibleObject"></div></div>
+        <div class="fact-row"><div class="fact-label">Source status</div><div class="fact-value" id="sourceStatus"></div></div>
+        <div class="fact-row"><div class="fact-label">Device prompt</div><div class="fact-value" id="devicePrompt"></div></div>
+        <div class="source-anchor" id="sourceAnchor"></div>
+        <div class="step-controls">
+          <div class="buttons">
+            <button class="control" id="backButton" type="button">Back</button>
+            <span id="counter"></span>
+            <button class="control" id="nextButton" type="button">Next</button>
+          </div>
+          <div class="dots" id="dots" aria-label="Stepper positions"></div>
+          <p class="small">Keyboard: Left Arrow and Right Arrow. A URL such as <code>?step=7</code> opens a specific state.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Trace one real value</div>
+    <h2>What the configured 300 milliseconds actually controls</h2>
+    <div class="code-grid">
+      <article class="code-card">
+        <div class="code-head">app/src/main/java/com/example/photos/PhotosListFragment.kt:250–267</div>
+        <pre><code>// onPhotoThumbImageClicked(...)
+tfSetTransitionSet(
+    TfTransitionSet(
+        duration = 300,
+        interpolator = FastOutSlowInInterpolator()
+    ).apply {
+        addTransition(/* ChangeBounds */)
+        addTransition(/* ChangeImageTransform */)
+    }
+)</code></pre>
+      </article>
+      <article class="code-card">
+        <div class="code-head">transition-framework/.../TfTransitionSet.kt:77–93</div>
+        <pre><code>// toAndroidTransitionSet(...)
+return TransitionSet().apply {
+    this.duration = this@TfTransitionSet.duration
+    this.interpolator = this@TfTransitionSet.interpolator
+    // Child transitions target the overlay clone.
+}</code></pre>
+      </article>
+      <article class="code-card">
+        <div class="code-head">app/src/main/java/com/example/photos/PhotoDetailFragment.kt:228–246</div>
+        <pre><code>// onTransitionImageReady(...)
+tfOnTransitionEnd {
+    // Copy clone into destination ImageView.
+    // Reveal TiledImageView behind it.
+    loadFullResolutionImage()
+}
+
+tfStartTransition()</code></pre>
+      </article>
+      <article class="code-card">
+        <div class="code-head">transition-framework/.../TransitionExecutor.kt:170–184</div>
+        <pre><code>// runTransition(...)
+TransitionManager.beginDelayedTransition(
+    overlay,
+    transitionSet
+)
+// Applying end states triggers the 300 ms animation.</code></pre>
+      </article>
+    </div>
+    <p>The value starts in <code>PhotosListFragment</code>. It becomes the duration of the Android <code>TransitionSet</code>. The transition does not begin at the original tap. <code>PhotoDetailFragment</code> first waits for a transition drawable, configures the start and end states, and then calls <code>tfStartTransition()</code>.</p>
+    <div class="formula">
+      <div class="formula-part"><span>Segment 1</span><strong>Variable</strong><p>Navigation, destination layout, and transition-image acquisition.</p></div>
+      <div class="formula-part fixed"><span>Segment 2</span><strong>300 ms</strong><p>Overlay-clone bounds and image-matrix animation.</p></div>
+      <div class="formula-part"><span>Segment 3</span><strong>Variable</strong><p>Engine startup after <code>setPhotos(...)</code>.</p></div>
+      <div class="formula-part"><span>Result</span><strong>Variable total</strong><p>Tap until the first live tiled frame is revealed.</p></div>
+    </div>
+    <div class="formula-total">tap-to-live latency = pre-transition wait + 300 ms clone animation + setPhotos-to-onReady wait</div>
+    <p><strong>The 75 ms timeout is not an extra fixed segment.</strong> It is a decision point inside the pre-transition wait. At 75 ms, the low-quality request may start. The low-quality drawable can become ready later.</p>
+  </section>
+
+  <section class="callout">
+    <div class="eyebrow">Current debug configuration</div>
+    <h2>The baseline is intentionally biased toward the low-quality transition drawable</h2>
+    <div class="code-grid">
+      <article class="code-card">
+        <div class="code-head">app/src/main/java/com/example/photos/glide/LoadBitmapWithTimeout.kt:22–42</div>
+        <pre><code>private const val DEBUG_LOAD_ONLY_HQ = false
+private const val DEBUG_DELAY_HQ = true
+private const val HIGH_QUALITY_TIMEOUT_MS = 75L</code></pre>
+      </article>
+      <article class="code-card">
+        <div class="code-head">LoadBitmapWithTimeout.kt:137–195</div>
+        <pre><code>handler.runWithDelayIfEnabled(2000L, DEBUG_DELAY_HQ) {
+    // Deliver HQ success.
+}
+
+handler.postDelayed({
+    // Start LQ fallback if HQ is still in progress.
+}, options.timeout)</code></pre>
+      </article>
+    </div>
+    <p>The high-quality request asks Glide for a drawable near the destination view size. It is not the original file decoded byte-for-byte. Because the high-quality success callback is delayed by 2,000 ms while the fallback decision occurs after 75 ms, the low-quality path is the expected ordinary outcome in this attached baseline.</p>
+    <p><span class="badge source">Source-proven expectation</span> The timing constants and callback order are visible in source. <span class="badge device">Device evidence required</span> Logcat must confirm which drawable actually won in your run.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">Pressure-test the source</div>
+    <h2>Three inconsistencies must remain explicit</h2>
+    <div class="three-col">
+      <article class="mini-card tension">
+        <h3>Warm-up timing</h3>
+        <p>The XML comment says the engine decodes while the shared-element animation runs. The current call order invokes <code>loadFullResolutionImage()</code> inside <code>tfOnTransitionEnd</code>. That is after the animation ends.</p>
+        <p><strong>Course wording:</strong> the engine warms behind the destination placeholder after the clone animation.</p>
+      </article>
+      <article class="mini-card tension">
+        <h3>Navigation documentation</h3>
+        <p><code>tfNavigateToDestination</code> says it uses an “add/hide” transaction. Its implementation calls <code>add(...)</code> and <code>addToBackStack(...)</code>; it does not call <code>hide(...)</code>.</p>
+        <p><strong>Evidence limit:</strong> record the visible result. Do not claim the source fragment is hidden.</p>
+      </article>
+      <article class="mini-card tension">
+        <h3>“Both return paths”</h3>
+        <p>Only the entry-photo path performs a return animation. Paging or rotation performs a plain pop.</p>
+        <p><strong>Course wording:</strong> one animated return outcome and two causes for the plain-exit outcome.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="back-branches">
+    <div class="eyebrow">Back-navigation branches</div>
+    <h2>Choose a scenario</h2>
+    <p>The same <code>handleBackNavigation()</code> method chooses between two outcomes. Use the buttons to compare the exact condition and the evidence you must capture.</p>
+    <div class="scenario-buttons">
+      <button class="scenario-button active" type="button" data-scenario="entry">Same entry photo</button>
+      <button class="scenario-button" type="button" data-scenario="paged">Paged to a neighbor</button>
+      <button class="scenario-button" type="button" data-scenario="rotated">Rotated or recreated</button>
+    </div>
+    <div class="scenario-view">
+      <div class="branch-visual">
+        <div class="branch-node" id="branchCondition"></div>
+        <div class="branch-arrow">↓</div>
+        <div class="branch-node result" id="branchResult"></div>
+      </div>
+      <div>
+        <span class="badge source" id="scenarioBadge">Source path</span>
+        <h3 id="scenarioTitle" style="margin-top:12px"></h3>
+        <p id="scenarioExplanation"></p>
+        <div class="fact-row"><div class="fact-label">Source anchor</div><div class="fact-value" id="scenarioSource"></div></div>
+        <div class="fact-row"><div class="fact-label">Capture</div><div class="fact-value" id="scenarioCapture"></div></div>
+        <div class="fact-row"><div class="fact-label">Do not claim</div><div class="fact-value" id="scenarioLimit"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Predict before running</div>
+    <h2>Write predictions before the evidence can influence them</h2>
+    <p>Use the worksheet. A wrong prediction is useful. It exposes the mental model that the device test corrected.</p>
+    <ol>
+      <li>Will the transition use the screen-resolution high-quality drawable or the low-quality fallback?</li>
+      <li>Will any black frame appear between the moving clone, the destination placeholder, and the live surface?</li>
+      <li>Will the switch at <code>onReady()</code> be visually detectable at fit scale?</li>
+      <li>After pinch zoom, will the point under the fingers stay visually anchored?</li>
+      <li>After paging to a neighboring photo, will Back animate that neighboring photo into a grid cell?</li>
+      <li>After rotation, will zoom and center survive, and will Back animate or pop plainly?</li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="eyebrow">Preparation</div>
+    <h2>Create a controlled but non-destructive baseline setup</h2>
+    <div class="two-col">
+      <div class="mini-card">
+        <h3>Android project</h3>
+        <ul class="checklist">
+          <li>Use the untouched project state that still contains <code>tiled-engine/</code>.</li>
+          <li>Record <code>git rev-parse HEAD</code>, <code>git branch --show-current</code>, and <code>git status --short</code>.</li>
+          <li>Do not clear application data. The app stores its captured photos in its internal files directory.</li>
+          <li>Build the current baseline before recording.</li>
+        </ul>
+        <pre><code>./gradlew :app:assembleDebug
+# Install only when the device does not already have this exact build.
+# Do not uninstall first; uninstalling would erase the app's stored photos.
+./gradlew :app:installDebug
+
+# PowerShell or cmd alternatives:
+gradlew.bat :app:assembleDebug
+gradlew.bat :app:installDebug</code></pre>
+      </div>
+      <div class="mini-card">
+        <h3>Device and photo set</h3>
+        <ul class="checklist">
+          <li>Use the physical Pixel 8 Pro.</li>
+          <li>Enable normal device rotation for Run C.</li>
+          <li>Keep Android animation-scale settings unchanged and record their values.</li>
+          <li>Have at least three photos. Use a middle photo as the entry photo so paging can move in either direction.</li>
+          <li>Prefer one portrait, one landscape, and one high-detail photo.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="small">Screen recording adds CPU, GPU, memory, and encoding work. Use it as visual evidence. Do not treat the recording's frame pacing as a performance measurement. Repeat the flows once without recording and write a separate subjective note.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">Learner-authored evidence task</div>
+    <h2>Run A — forward handoff, gestures, and animated return</h2>
+    <article class="mini-card run-card">
+      <h3><span>A1.</span> Start from a stable grid</h3>
+      <ol>
+        <li>Force-stop and relaunch the app without clearing data.</li>
+        <li>Choose a middle photo. Record its filename or a human-readable identifier in the worksheet.</li>
+        <li>Capture the grid before tapping. The complete grid cell must be visible.</li>
+      </ol>
+    </article>
+    <article class="mini-card run-card" style="margin-top:14px">
+      <h3><span>A2.</span> Record the forward handoff</h3>
+      <ol>
+        <li>Start the filtered Logcat capture shown below.</li>
+        <li>Begin a short screen recording.</li>
+        <li>Tap the selected grid photo once.</li>
+        <li>Keep both hands off the screen until the <code>Target: tile engine ready, swapping in surface</code> log appears.</li>
+        <li>Record whether the clone-to-placeholder and placeholder-to-surface boundaries show a flash, jump, scale mismatch, or color change.</li>
+      </ol>
+    </article>
+    <article class="mini-card run-card" style="margin-top:14px">
+      <h3><span>A3.</span> Exercise the live viewer</h3>
+      <ol>
+        <li>Pinch in and out slowly. Watch one recognizable feature under the focal point.</li>
+        <li>Pan in both axes while zoomed.</li>
+        <li>Double-tap once.</li>
+        <li>Perform one moderate fling.</li>
+        <li>Record behavior only. Do not diagnose native internals in this lesson.</li>
+      </ol>
+    </article>
+    <article class="mini-card run-card" style="margin-top:14px">
+      <h3><span>A4.</span> Return while still on the entry photo</h3>
+      <ol>
+        <li>Press Back without paging to another photo and without rotating.</li>
+        <li>Record whether the image morphs toward the original grid cell.</li>
+        <li>Confirm that the original grid thumbnail is visible and has normal opacity after the animation.</li>
+      </ol>
+    </article>
+  </section>
+
+  <section>
+    <div class="eyebrow">Learner-authored evidence task</div>
+    <h2>Run B — page to a neighbor, then exit plainly</h2>
+    <ol>
+      <li>Open the same middle entry photo and wait for the live tiled frame.</li>
+      <li>Swipe horizontally until a neighboring photo becomes the current photo.</li>
+      <li>Record the direction, final photo identifier, and whether the page snap is complete.</li>
+      <li>Press Back.</li>
+      <li>Confirm whether the detail fragment disappears without a morph animation.</li>
+      <li>Confirm that the entry photo's original grid thumbnail is restored. Do not claim that the grid located the neighboring photo's cell; the current code does not implement that behavior.</li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="eyebrow">Learner-authored evidence task</div>
+    <h2>Run C — rotate, check framing, then exit plainly</h2>
+    <ol>
+      <li>Open the entry photo and wait for the live tiled frame.</li>
+      <li>Zoom and pan until the viewport has a recognizable off-center framing.</li>
+      <li>Rotate to landscape. Wait for the detail view to become usable.</li>
+      <li>Record whether the same logical photo area remains visible. “Logical photo area” means the same subject region after accounting for the new viewport shape.</li>
+      <li>Rotate back to portrait and record the result again.</li>
+      <li>Press Back. Confirm whether the screen pops plainly instead of running the return clone.</li>
+    </ol>
+    <p><span class="badge source">Source expectation</span> A recreated fragment sets <code>enteredViaTransition = false</code> and bypasses the return animation. <span class="badge device">Device evidence required</span> The surviving app comment says framing is restored, but the mechanism lives in the sealed viewer and must be observed rather than assumed.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">Logs and evidence files</div>
+    <h2>Capture the sequence without modifying the app</h2>
+    <p>Run the command from the learning-repository root. Stop it with <code>Ctrl+C</code> after all three runs.</p>
+    <pre><code>mkdir -p learner-work/traces/lesson-01-01
+adb logcat -c
+adb logcat -v threadtime \
+  "TransitionDebug:D" \
+  "TransitionFramework:D" \
+  "PhotoDetailFragment:D" \
+  "*:S" \
+  &gt; learner-work/traces/lesson-01-01/transition-logcat.txt</code></pre>
+    <p>On PowerShell, create the folder with <code>New-Item -ItemType Directory -Force learner-work\traces\lesson-01-01</code>, then use the same <code>adb logcat</code> filters and redirect to a Windows path.</p>
+    <div class="two-col" style="margin-top:16px">
+      <div class="mini-card">
+        <h3>Required commit-friendly evidence</h3>
+        <ul>
+          <li>Filled baseline worksheet.</li>
+          <li>Filtered Logcat text file.</li>
+          <li>At least six still images. Use normal screenshots for stable states and frames extracted from a recording for transient handoffs. Cover the grid, placeholder/live detail, gesture framing, paged state, rotated state, and final grid restoration.</li>
+        </ul>
+      </div>
+      <div class="mini-card">
+        <h3>Recommended motion evidence</h3>
+        <ul>
+          <li>One short clip for Run A.</li>
+          <li>One short clip for Run B.</li>
+          <li>One short clip for Run C.</li>
+          <li>Keep clips small. Store an external path in the worksheet instead of committing very large files.</li>
+        </ul>
+      </div>
+    </div>
+    <p>Suggested paths:</p>
+    <div class="path-list">
+      <p><code>learner-work/screenshots/lesson-01-01/run-a-01-grid.png</code></p>
+      <p><code>learner-work/screenshots/lesson-01-01/run-a-02-live-detail.png</code></p>
+      <p><code>learner-work/screenshots/lesson-01-01/run-a-03-zoomed.png</code></p>
+      <p><code>learner-work/screenshots/lesson-01-01/run-b-01-neighbor.png</code></p>
+      <p><code>learner-work/screenshots/lesson-01-01/run-c-01-landscape.png</code></p>
+      <p><code>learner-work/screenshots/lesson-01-01/run-c-02-portrait-restored.png</code></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Initial evidence labels</div>
+    <h2>Use only three labels for now</h2>
+    <p>Lesson 1.3 creates the formal evidence matrix. In this lesson, annotate each worksheet claim with one of these temporary labels.</p>
+    <table>
+      <thead><tr><th>Label</th><th>Meaning</th><th>Example in this lesson</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge source">SOURCE</span></td><td>The inspected surviving source directly establishes the configuration or call order.</td><td>The clone transition duration is configured as 300 ms.</td></tr>
+        <tr><td><span class="badge device">DEVICE</span></td><td>You saw the result on the Pixel 8 Pro or captured it in logs.</td><td>A black frame did or did not appear at the placeholder-to-surface handoff.</td></tr>
+        <tr><td><span class="badge unknown">UNKNOWN</span></td><td>Neither the allowed source nor the current observation establishes the claim.</td><td>Which internal tile was decoded first.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="callout green">
+    <div class="eyebrow">Completion checklist</div>
+    <h2>Lesson 1.1 is ready for review when all items are true</h2>
+    <ul class="checklist">
+      <li>The Android project's production-source diff is empty.</li>
+      <li>The original <code>tiled-engine/src/</code> files were not opened or copied.</li>
+      <li>The worksheet records the Android commit, branch, device, build, dataset, animation settings, and predictions.</li>
+      <li>Runs A, B, and C are complete.</li>
+      <li>The filtered log contains the transition-image and native-ready markers.</li>
+      <li>Each observed mismatch is written as an observation, not explained with an invented native cause.</li>
+      <li>At least six screenshots or equivalent visual evidence exist.</li>
+      <li>You answer the four exercises below in chat without opening their answers.</li>
+    </ul>
+  </section>
+
+  <section id="exercises">
+    <div class="eyebrow">Exercises</div>
+    <h2>Answer in chat before opening the details</h2>
+    <details>
+      <summary>Exercise 1 — Does 300 ms mean tap-to-live latency?</summary>
+      <p><strong>Answer:</strong> No. The 300 ms value controls the overlay clone's Android transition after the transition drawable is ready and the start/end states have been configured. Tap-to-live latency also includes destination layout, transition-image acquisition, and the later <code>setPhotos(...)</code>-to-<code>onReady()</code> wait.</p>
+    </details>
+    <details>
+      <summary>Exercise 2 — Diagnostic: what is visible immediately after the clone animation ends but before <code>onReady()</code>?</summary>
+      <p><strong>Answer:</strong> The destination fragment's <code>transitionImage</code> <code>ImageView</code>. The fragment copies the clone's drawable and matrix into it. The native view has <code>View.VISIBLE</code>, but its pixels are visually covered by the opaque destination <code>ImageView</code>. The surface is not yet the image-bearing object the user can see. The overlay clone is removed during transition cleanup.</p>
+    </details>
+    <details>
+      <summary>Exercise 3 — What does the 75 ms timeout guarantee?</summary>
+      <p><strong>Answer:</strong> It guarantees neither a displayed low-quality drawable nor a 75 ms total wait. It only schedules the low-quality fallback request if the high-quality request is still considered in progress and no fallback is active when the timer fires.</p>
+    </details>
+    <details>
+      <summary>Exercise 4 — What happens after paging to a neighbor and pressing Back?</summary>
+      <p><strong>Answer:</strong> The condition <code>currentIndex != startIndex</code> selects the plain-exit path. The framework state is reset, the grid receives a fragment result so it can restore the hidden entry thumbnail, and the back stack is popped. The neighboring photo does not morph into its own grid cell.</p>
+    </details>
+  </section>
+
+  <section>
+    <div class="eyebrow">Completion record</div>
+    <h2>Copy this after the evidence and exercise review are complete</h2>
+    <pre class="completion"><code>## Lesson 1.1 — Record the current user journey
+
+- Learning-repository commit: &lt;hash after committing evidence&gt;
+- Android baseline commit: &lt;hash&gt;
+- Android branch: &lt;branch&gt;
+- Android production files changed: none
+- Device: Pixel 8 Pro
+- Android build / OS: &lt;value&gt;
+- Photo dataset: &lt;portrait / landscape / high-detail identifiers&gt;
+- Run A: &lt;complete / incomplete&gt;
+- Run B: &lt;complete / incomplete&gt;
+- Run C: &lt;complete / incomplete&gt;
+- Transition drawable observed: &lt;HQ / LQ / uncertain&gt;
+- Animated return observed: &lt;yes / no + note&gt;
+- Paged plain pop observed: &lt;yes / no + note&gt;
+- Rotation plain pop observed: &lt;yes / no + note&gt;
+- Framing survived rotation: &lt;yes / partly / no + note&gt;
+- Handoff anomalies: &lt;none or exact observations&gt;
+- Evidence paths: &lt;worksheet / screenshots / recordings / log&gt;
+- Assistance level used: &lt;0–6 from LEARNER_AUTHORSHIP.md&gt;
+- Original tiled-engine source remained sealed: yes
+- Learner confirmation: I did not copy or transcribe generated Android implementation code.
+- Ready to mark complete: yes</code></pre>
+  </section>
+
+  <section>
+    <div class="footer-nav">
+      <div><strong>Previous:</strong> <span class="disabled-link">Course setup</span></div>
+      <div><a href="lesson-preserve-erase-and-establish-the-rebuild-baseline.html">Chapter 1 map</a></div>
+      <div><strong>Next:</strong> <span class="disabled-link">Lesson 1.2 is not prepared yet</span></div>
+    </div>
+  </section>
+</main>
+<script>
+const steps = [
+  {
+    title: 'Grid at rest',
+    caption: '<p>The original grid thumbnail is the only image-bearing object involved in the future transition. No clone has been registered. The destination fragment does not exist yet.</p>',
+    visible: 'Original grid thumbnail.',
+    sourceStatus: '<span class="badge source">SOURCE</span> The click listener passes this exact <code>ImageView</code> to <code>onPhotoThumbImageClicked(...)</code>.',
+    devicePrompt: 'Capture the complete entry cell before the tap.',
+    anchor: '<code>PhotosAdapter.kt:202–206</code> and <code>PhotosListFragment.kt:234–239</code>.',
+    grid:1, sourceThumb:1, detail:0, black:0, surface:0, placeholder:0, clone:0, scrim:0, loader:'', timer:'Idle', states:{grid:'on',clone:'off',placeholder:'off',surface:'off',timer:'off'}, progress:0, marker:0
+  },
+  {
+    title: 'The tap prepares a hidden clone and adds the destination fragment',
+    caption: '<p><code>tfAddImageView(...)</code> creates a clone, but the clone stays invisible until the executor positions it. Navigation adds <code>PhotoDetailFragment</code> to the back stack. The current implementation does not call <code>hide(...)</code> on the source fragment.</p>',
+    visible: 'The grid can remain visible. The clone exists but is hidden.',
+    sourceStatus: '<span class="badge source">SOURCE</span> Clone creation and <code>add(...)</code> navigation are directly visible in surviving source.',
+    devicePrompt: 'The interval may be too short to see. The screen recording can still reveal a stall or flash.',
+    anchor: '<code>PhotosListFragment.kt:234–288</code>; <code>TransitionExtensions.kt:92–95</code> and <code>270–288</code>.',
+    grid:1, sourceThumb:1, detail:.18, black:0, surface:0, placeholder:0, clone:0, clonePrepared:1, scrim:0, loader:'Destination added · clone prepared but invisible', timer:'Preparing', states:{grid:'on',clone:'prepared',placeholder:'off',surface:'off',timer:'prepared'}, progress:10, marker:0
+  },
+  {
+    title: 'The destination view lays out and starts the transition-image request',
+    caption: '<p>The destination <code>transitionImage</code> is laid out but remains invisible. Its measured width and height become the target size for Glide. The overlay clone is the request target, so the drawable that will animate is installed on that clone.</p>',
+    visible: 'Normally still the grid beneath a transparent destination root.',
+    sourceStatus: '<span class="badge source">SOURCE</span> The request begins from <code>doOnLayout</code>. <span class="badge device">DEVICE</span> The exact pixels visible while waiting must be captured.',
+    devicePrompt: 'Watch for a blank, black, or transparent wait before the clone appears.',
+    anchor: '<code>PhotoDetailFragment.kt:131–140</code> and <code>156–184</code>.',
+    grid:1, sourceThumb:1, detail:.3, black:0, surface:0, placeholder:0, clone:0, scrim:0, loader:'HQ transition drawable request in progress', timer:'HQ request active', states:{grid:'on',clone:'prepared',placeholder:'off',surface:'off',timer:'on'}, progress:18, marker:0
+  },
+  {
+    title: 'At 75 ms, the low-quality fallback becomes eligible',
+    caption: '<p>The timeout checks whether the high-quality request is still marked in progress and whether a fallback is already active. If both checks pass, the low-quality request starts. This step does not mean that a low-quality drawable is already visible.</p>',
+    visible: 'The previous visible object remains on screen while the LQ request runs.',
+    sourceStatus: '<span class="badge source">SOURCE</span> The 75 ms timer and branch are explicit. The request completion time is variable.',
+    devicePrompt: 'Find <code>HIGH quality TIMEOUT! Initiating LOW quality fallback.</code> in Logcat.',
+    anchor: '<code>LoadBitmapWithTimeout.kt:187–195</code>.',
+    grid:1, sourceThumb:1, detail:.3, black:0, surface:0, placeholder:0, clone:0, scrim:0, loader:'75 ms decision passed · LQ fallback requested', timer:'LQ request active', states:{grid:'on',clone:'prepared',placeholder:'off',surface:'off',timer:'on'}, progress:25, marker:1
+  },
+  {
+    title: 'A transition drawable arrives and the 300 ms clone animation begins',
+    caption: '<p>The fragment gives the clone a grid-like start matrix and a detail-like end matrix and bounds. The executor makes the clone visible, hides the original thumbnail, starts the black scrim fade, and applies the end state through Android Transition.</p>',
+    visible: 'The full-window overlay clone moving over a darkening scrim.',
+    sourceStatus: '<span class="badge source">SOURCE</span> Bounds and image-matrix transitions are configured for 300 ms. <span class="badge device">DEVICE</span> Confirm whether the drawable is LQ or HQ.',
+    devicePrompt: 'Inspect the moving image for a crop jump, aspect-ratio change, or stale thumbnail content.',
+    anchor: '<code>PhotoDetailFragment.kt:198–246</code>; <code>TransitionExecutor.kt:64–145</code>.',
+    grid:1, sourceThumb:0, detail:.4, black:0, surface:0, placeholder:0, clone:1, cloneRect:{left:56,top:168,width:280,height:370}, scrim:.58, loader:'300 ms overlay-clone transition', timer:'Transition running', states:{grid:'prepared',clone:'on',placeholder:'off',surface:'off',timer:'on'}, progress:72, marker:3
+  },
+  {
+    title: 'The clone animation ends and the destination transition ImageView takes over',
+    caption: '<p>The fragment copies the clone drawable and image matrix into <code>binding.transitionImage</code>. It makes the root black and shows the destination <code>ImageView</code>. Transition cleanup then removes the overlay clone and scrim.</p>',
+    visible: 'The destination fragment\'s opaque full-screen transition <code>ImageView</code>.',
+    sourceStatus: '<span class="badge source">SOURCE</span> The clone-to-destination copy occurs in the forward transition end callback.',
+    devicePrompt: 'Look for a single-frame position, scale, or color mismatch at the ownership change.',
+    anchor: '<code>PhotoDetailFragment.kt:228–241</code>; <code>TransitionExecutor.kt:129–138</code>.',
+    grid:1, sourceThumb:0, detail:1, black:1, surface:.15, placeholder:1, clone:0, scrim:0, loader:'Destination placeholder owns the visible image', timer:'Clone transition complete', states:{grid:'prepared',clone:'off',placeholder:'on',surface:'prepared',timer:'prepared'}, progress:82, marker:3
+  },
+  {
+    title: 'The native viewer starts behind the opaque placeholder',
+    caption: '<p>The same transition-end callback makes <code>TiledImageView</code> visible and calls <code>setPhotos(...)</code>. The placeholder remains above it. The user should continue seeing the destination <code>ImageView</code> while the viewer prepares its first frame.</p>',
+    visible: 'Still the destination transition <code>ImageView</code>. The surface is hidden by z-order, not by <code>visibility</code>.',
+    sourceStatus: '<span class="badge source">SOURCE</span> The XML order places the <code>ImageView</code> after the <code>SurfaceView</code>, so it draws above the surface hole.',
+    devicePrompt: 'The native work is invisible. Use the ready log rather than guessing when it starts.',
+    anchor: '<code>fragment_photo_detail.xml:7–36</code>; <code>PhotoDetailFragment.kt:236–242</code> and <code>294–302</code>.',
+    grid:1, sourceThumb:0, detail:1, black:1, surface:.9, placeholder:1, clone:0, scrim:0, loader:'setPhotos(...) called · first native frame pending', timer:'Native viewer preparing', states:{grid:'prepared',clone:'off',placeholder:'on',surface:'prepared',timer:'on'}, progress:92, marker:4
+  },
+  {
+    title: 'onReady() hides the placeholder and reveals the first live tiled frame',
+    caption: '<p>The viewer calls the fragment listener. The fragment sets <code>transitionImage.visibility = INVISIBLE</code>. The already-present surface becomes the visible image-bearing object. This is the baseline handoff point.</p>',
+    visible: 'The live tiled surface.',
+    sourceStatus: '<span class="badge source">SOURCE</span> The visibility change is explicit. <span class="badge device">DEVICE</span> Visual continuity still requires a real-device observation.',
+    devicePrompt: 'Record whether the image shifts, sharpness changes, black appears, or framing stays stable.',
+    anchor: '<code>PhotoDetailFragment.kt:98–108</code>.',
+    grid:1, sourceThumb:0, detail:1, black:1, surface:1, placeholder:0, clone:0, scrim:0, loader:'onReady received · placeholder hidden', timer:'Live tiled frame visible', states:{grid:'prepared',clone:'off',placeholder:'off',surface:'on',timer:'on'}, progress:100, marker:4
+  },
+  {
+    title: 'Gestures now act on the live tiled viewer',
+    caption: '<p>Pinch, pan, double-tap, and fling now change the live viewer rather than the transition clone or placeholder. In this lesson, observe the result. Do not infer which native tile, thread, or cache entry produced it.</p>',
+    visible: 'A zoomed or panned live tiled surface.',
+    sourceStatus: '<span class="badge device">DEVICE</span> Gesture quality is observed here. Internal gesture and rendering mechanics remain sealed.',
+    devicePrompt: 'Track one recognizable photo feature through pinch and pan. Record exact drift or snapping.',
+    anchor: '<code>PhotoDetailFragment.kt:95–117</code> exposes only the public view configuration and callbacks.',
+    grid:1, sourceThumb:0, detail:1, black:1, surface:1, surfaceZoom:1, placeholder:0, clone:0, scrim:0, loader:'Gesture-driven live surface', timer:'Interactive', states:{grid:'prepared',clone:'off',placeholder:'off',surface:'on',timer:'on'}, progress:100, marker:4
+  }
+];
+
+const els = {
+  gridLayer:document.querySelector('#gridLayer'), sourceThumb:document.querySelector('#sourceThumb'), detailRoot:document.querySelector('#detailRoot'),
+  surfaceLayer:document.querySelector('#surfaceLayer'), surfacePhoto:document.querySelector('#surfacePhoto'), placeholderLayer:document.querySelector('#placeholderLayer'),
+  scrimLayer:document.querySelector('#scrimLayer'), cloneLayer:document.querySelector('#cloneLayer'), loadBadge:document.querySelector('#loadBadge'),
+  stepKicker:document.querySelector('#stepKicker'), stepTitle:document.querySelector('#stepTitle'), stepCaption:document.querySelector('#stepCaption'),
+  visibleObject:document.querySelector('#visibleObject'), sourceStatus:document.querySelector('#sourceStatus'), devicePrompt:document.querySelector('#devicePrompt'),
+  sourceAnchor:document.querySelector('#sourceAnchor'), counter:document.querySelector('#counter'), dots:document.querySelector('#dots'),
+  timelineProgress:document.querySelector('#timelineProgress'), stateTimerText:document.querySelector('#stateTimerText')
+};
+const stateEls = {grid:document.querySelector('#stateGrid'),clone:document.querySelector('#stateClone'),placeholder:document.querySelector('#statePlaceholder'),surface:document.querySelector('#stateSurface'),timer:document.querySelector('#stateTimer')};
+const params = new URLSearchParams(location.search);
+function updateQueryParameter(name,value){
+  try {
+    const nextUrl=new URL(location.href);
+    nextUrl.searchParams.set(name,String(value));
+    history.replaceState(null,'',nextUrl.href);
+  } catch (_) {
+    // The lesson still works when a browser restricts History API writes for file:// pages.
+  }
+}
+const requestedStep = Number(params.get('step'));
+let stepIndex = Number.isFinite(requestedStep) && requestedStep >= 1
+  ? Math.max(0, Math.min(steps.length - 1, requestedStep - 1))
+  : 0;
+
+steps.forEach((_,i)=>{
+  const dot=document.createElement('button');
+  dot.type='button'; dot.className='dot'; dot.setAttribute('aria-label',`Open step ${i+1}`);
+  dot.addEventListener('click',()=>{stepIndex=i;renderStep();});
+  els.dots.appendChild(dot);
+});
+
+function setStateClass(el,value){ el.classList.remove('on','off','prepared'); el.classList.add(value || 'off'); }
+function renderStep(){
+  const s=steps[stepIndex];
+  els.gridLayer.style.opacity=s.grid;
+  els.sourceThumb.style.opacity=s.sourceThumb;
+  els.detailRoot.style.opacity=s.detail;
+  els.detailRoot.style.background=s.black?'#000':'transparent';
+  els.surfaceLayer.style.opacity=s.surface;
+  els.surfacePhoto.style.transform=s.surfaceZoom?'scale(1.55) translate(-8%,7%)':'scale(1) translate(0,0)';
+  els.placeholderLayer.style.opacity=s.placeholder;
+  els.scrimLayer.style.opacity=s.scrim;
+  els.cloneLayer.style.opacity=s.clone;
+  const r=s.cloneRect || {left:130,top:210,width:122,height:122};
+  Object.assign(els.cloneLayer.style,{left:`${r.left}px`,top:`${r.top}px`,width:`${r.width}px`,height:`${r.height}px`,borderRadius:s.clone?'7px':'3px'});
+  els.loadBadge.textContent=s.loader;
+  els.loadBadge.style.opacity=s.loader?1:0;
+  els.stepKicker.textContent=`Step ${stepIndex+1} of ${steps.length}`;
+  els.stepTitle.textContent=s.title;
+  els.stepCaption.innerHTML=s.caption;
+  els.visibleObject.innerHTML=s.visible;
+  els.sourceStatus.innerHTML=s.sourceStatus;
+  els.devicePrompt.innerHTML=s.devicePrompt;
+  els.sourceAnchor.innerHTML=s.anchor;
+  els.counter.textContent=`${stepIndex+1} / ${steps.length}`;
+  document.querySelector('#backButton').disabled=stepIndex===0;
+  document.querySelector('#nextButton').disabled=stepIndex===steps.length-1;
+  [...els.dots.children].forEach((dot,i)=>dot.classList.toggle('active',i===stepIndex));
+  Object.entries(s.states).forEach(([key,value])=>setStateClass(stateEls[key],value));
+  els.stateTimerText.textContent=s.timer;
+  els.timelineProgress.style.width=`${s.progress}%`;
+  document.querySelectorAll('.marker').forEach((m,i)=>m.classList.toggle('active',i===s.marker));
+  updateQueryParameter('step',stepIndex+1);
+}
+
+document.querySelector('#backButton').addEventListener('click',()=>{if(stepIndex>0){stepIndex--;renderStep();}});
+document.querySelector('#nextButton').addEventListener('click',()=>{if(stepIndex<steps.length-1){stepIndex++;renderStep();}});
+document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'&&stepIndex>0){stepIndex--;renderStep();} if(e.key==='ArrowRight'&&stepIndex<steps.length-1){stepIndex++;renderStep();}});
+
+const scenarios = {
+  entry:{
+    condition:'enteredViaTransition == true AND currentIndex == startIndex',
+    result:'Animated return transition', resultClass:'animated',
+    title:'Same entry photo: the clone returns toward the original cell',
+    explanation:'The detail fragment configures the clone\'s final bounds from the original grid view, hides the detail views when the return begins, and asks the framework to run the reversed transition. The framework restores the source thumbnail\'s saved opacity after the animation.',
+    source:'PhotoDetailFragment.kt:249–291; TransitionExtensions.kt:339–383.',
+    capture:'Record the moving clone, fading black scrim, final cell alignment, and restored thumbnail opacity.',
+    limit:'Do not claim pixel-perfect alignment from source alone. The original grid cell may move or be recycled in other scenarios.'
+  },
+  paged:{
+    condition:'currentIndex != startIndex',
+    result:'Plain back-stack pop', resultClass:'plain',
+    title:'Paged neighbor: no return clone is used',
+    explanation:'The registered clone belongs to the entry photo. Morphing a different current photo into the entry cell would be incorrect. The fragment resets transition state, sends a result so the grid restores the hidden entry thumbnail, and pops the back stack.',
+    source:'PhotoDetailFragment.kt:252–268; PhotosListFragment.kt:117–127.',
+    capture:'Record that the detail screen disappears plainly and that the original entry thumbnail becomes visible again.',
+    limit:'Do not claim Google Photos parity. The current code does not locate or scroll to the neighbor\'s grid cell.'
+  },
+  rotated:{
+    condition:'enteredViaTransition == false after recreation',
+    result:'Plain back-stack pop', resultClass:'plain',
+    title:'Rotated or recreated detail: old transition objects no longer apply',
+    explanation:'The clone and overlay belonged to the old window. The recreated fragment shows the viewer directly and marks that it did not enter through the live transition. Back therefore resets any remaining framework state and pops plainly.',
+    source:'PhotoDetailFragment.kt:73–81, 119–129, and 252–268.',
+    capture:'Record logical framing before and after rotation and the absence of the return morph on Back.',
+    limit:'The app comment predicts restored zoom and center. Only device evidence can validate the sealed viewer\'s saved-state behavior.'
+  }
+};
+let scenarioKey=params.get('scenario') in scenarios?params.get('scenario'):'entry';
+function renderScenario(){
+  const s=scenarios[scenarioKey];
+  document.querySelectorAll('.scenario-button').forEach(b=>b.classList.toggle('active',b.dataset.scenario===scenarioKey));
+  document.querySelector('#branchCondition').textContent=s.condition;
+  const result=document.querySelector('#branchResult'); result.textContent=s.result; result.className=`branch-node result ${s.resultClass}`;
+  document.querySelector('#scenarioTitle').textContent=s.title;
+  document.querySelector('#scenarioExplanation').textContent=s.explanation;
+  document.querySelector('#scenarioSource').textContent=s.source;
+  document.querySelector('#scenarioCapture').textContent=s.capture;
+  document.querySelector('#scenarioLimit').textContent=s.limit;
+  updateQueryParameter('scenario',scenarioKey);
+}
+document.querySelectorAll('.scenario-button').forEach(b=>b.addEventListener('click',()=>{scenarioKey=b.dataset.scenario;renderScenario();}));
+renderStep(); renderScenario();
+</script>
+</body>
+</html>

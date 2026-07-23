@@ -63,8 +63,8 @@ course_lessons_total: 216
 course_lessons_completed_by_learner: 0
 completed_lessons: []
 completed_through: null
-prepared_frontier: curriculum-only
-next_lesson_to_prepare: 1.1
+prepared_frontier: 1.1
+next_lesson_to_prepare: 1.2
 next_learner_checkpoint: 1.1
 android_project_learning_chapters_canonical: false
 all_new_android_project_code_authored_by_learner: true
@@ -74,17 +74,27 @@ original_tiled_engine_sealed_until: 24.9
 
 ## Next lesson
 
-**Lesson 1.1 — Record the current user journey**
+**Current learner checkpoint: Lesson 1.1 — Record the current user journey**
 
-The lesson creates baseline evidence only. It does not modify production source and does not delete `tiled-engine` yet.
+Lesson 1.1 is prepared at `course/chapters/chapter-01/lesson-01-01-record-current-user-journey.html`. It creates baseline evidence only. It does not modify production source and does not delete `tiled-engine` yet.
 
 Expected learner artifacts:
 
-- a written journey inventory;
-- screen recordings or screenshots of the current baseline;
-- a list of device actions covering transition, first native frame, zoom, paging, rotation, and both back paths;
-- an initial evidence classification.
+- a filled `learner-work/observations/lesson-01-01-current-user-journey.md`;
+- filtered transition Logcat output;
+- screenshots or short recordings for three controlled runs;
+- device actions covering the forward handoff, first live tiled frame, gestures, paging, rotation, one animated return outcome, and the two causes for a plain exit;
+- four exercise answers and a learner completion record submitted in chat.
 
 The actual `tiled-engine` deletion occurs in Lesson 1.6 after the baseline and quarantine rules are recorded.
+
+## Lesson 1.1 source findings that must remain explicit
+
+- The overlay-clone transition is configured for 300 ms. That value does not include destination layout, transition-image acquisition, or native-engine readiness.
+- The transition-image loader uses a 75 ms fallback decision. The current debug configuration delays high-quality success delivery by 2,000 ms, so the low-quality path is expected but still must be confirmed in Logcat.
+- `fragment_photo_detail.xml` says native work warms during the shared-element animation, but `PhotoDetailFragment` calls `loadFullResolutionImage()` only from the transition-end callback. Course wording follows the call order: native work begins after the clone animation and remains covered by the destination placeholder.
+- `tfNavigateToDestination` is documented as add/hide navigation, while its implementation calls `add(...)` without `hide(...)`. Do not claim that the source fragment is hidden.
+- Back navigation has one animated-return outcome. Paging or recreation selects the plain-pop outcome.
+- The native implementation remains sealed. Lesson 1.1 uses only public call sites, visible behavior, and logs.
 
 Course progress: 0 of 216 lessons completed.

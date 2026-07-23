@@ -19,8 +19,9 @@ Then read:
 - Course plan version: 2.0.
 - Total: 216 lessons in 24 chapters.
 - **0 of 216 lessons are complete.**
-- Next lesson: **1.1 — Record the current user journey**.
-- No individual lesson has been prepared yet.
+- Next learner checkpoint: **1.1 — Record the current user journey**.
+- Prepared lesson: `course/chapters/chapter-01/lesson-01-01-record-current-user-journey.html`.
+- Lesson 1.1 is prepared and awaiting learner evidence, exercise answers, and explicit completion confirmation.
 
 ## Repository boundary
 
@@ -42,7 +43,7 @@ Manual authorship means creating the solution from understanding. It does not me
 - `course/glossary.html` — canonical terminology.
 - `course/chapters/` — chapter hubs and prepared lessons.
 - `course/templates/` — reusable artifact templates.
-- `learner-work/` — exercises, observations, screenshots, traces, measurements, exports, and implementation log.
+- `learner-work/` — exercises, observations, recordings, screenshots, traces, measurements, exports, and implementation log.
 - `tools/` — learning-document verification helpers.
 
 ## Incremental delivery rule
