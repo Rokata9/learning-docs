@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Updated:** 2026-07-23  
-**Course plan version:** 2.7
+**Updated:** 2026-07-24  
+**Course plan version:** 2.8
 
 ## Stable course decisions
 
@@ -37,115 +37,107 @@ Use only learner-confirmed completion for X. A generated lesson does not count u
 
 ## Progress truth
 
-The learner completed Lesson 2.6 and asked to continue with the next lesson.
+The learner completed Lesson 2.7 and asked to continue.
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 2.7
+course_version: 2.8
 course_lessons_total: 216
-course_lessons_completed_by_learner: 14
+course_lessons_completed_by_learner: 15
 completed_lessons:
   - 1.1-1.8
-  - 2.1-2.6
-completed_through: 2.6
-generated_frontier: 2.7
-next_learner_checkpoint: 2.7
+  - 2.1-2.7
+completed_through: 2.7
+generated_frontier: 2.8
+next_learner_checkpoint: 2.8
 chapter_01_completed_by_learner: true
-lesson_02_06_completed_by_learner: true
-lesson_02_07_generated: true
-lesson_02_07_completed_by_learner: false
-completion_basis_for_02_06: learner asked to continue with the next lesson after Lesson 2.6
-lesson_02_07_android_changed_files:
+lesson_02_07_completed_by_learner: true
+lesson_02_08_generated: true
+lesson_02_08_completed_by_learner: false
+completion_basis_for_02_07: learner asked to continue with the next lesson after Lesson 2.7
+lesson_02_08_android_changed_files:
   - app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
-  - app/src/main/java/com/example/liquidglasslab/chapter02/ParentScreenCoordinatesExplorer.kt
+  - app/src/main/java/com/example/liquidglasslab/chapter02/NormalizedCoordinatesExplorer.kt
 ```
 
-## Lesson 2.7 — Parent, window, and screen coordinates
+## Lesson 2.8 — Normalized coordinates
 
-The measured object is one concrete position: the control's top-left corner.
+A normalized coordinate describes a local point as a fraction of the drawing area.
 
-The lesson names three larger coordinate systems:
+The formulas are:
 
 ```text
-parent-local position
-    The control top-left measured from the parent content origin.
+normalizedX = localX / width
+normalizedY = localY / height
 
-window-relative position
-    The control top-left measured from the application-window origin.
-
-screen-relative position
-    The control top-left measured from the device-screen origin.
+localX = normalizedX * width
+localY = normalizedY * height
 ```
 
-The controlled teaching derivation uses:
+The fixed teaching example is:
 
 ```text
-control in parent = (130, 90)
-parent in window  = (180, 120)
-window on screen  = (40, 60)
+rectangle size = 640 × 360 px
+local point    = (160, 270) px
 
-control in window
-= parent in window + control in parent
-= (180 + 130, 120 + 90)
-= (310, 210)
+normalizedX = 160 / 640 = 0.25
+normalizedY = 270 / 360 = 0.75
 
-control on screen
-= window on screen + control in window
-= (40 + 310, 60 + 210)
-= (350, 270)
+normalized point = (0.25, 0.75)
 ```
 
 The Android value path is:
 
 ```text
-onGloballyPositioned receives final LayoutCoordinates
+onSizeChanged stores the real drawing size in px
     ↓
-positionInParent() returns the control top-left relative to the parent
-positionInWindow() returns the control top-left relative to the app window
-positionOnScreen() returns the control top-left relative to the device screen
+detectTapGestures supplies one point in the rectangle's local px system
     ↓
-state stores the three readings
+X is divided by measured width
+Y is divided by measured height
     ↓
-text rows display each value with its coordinate-system name
+coerceIn(0f, 1f) enforces the inside-rectangle range
     ↓
-independent addition checks compare calculated and measured positions
+normalizedX and normalizedY are stored as relative state
+    ↓
+Canvas multiplies them by its current width and height
+    ↓
+the marker is drawn at the new local px position
 ```
 
-`positionOnScreen()` can return `Offset.Unspecified` when the conversion cannot be performed. The explorer treats non-finite components as unavailable. It displays `not available`. It does not replace unavailable data with the valid position `(0, 0)`.
+Division performs the normalization. Clamping does not normalize. Clamping only limits a result to a minimum and maximum.
 
-A full-screen phone window can begin at the screen origin. In that case, window-relative and screen-relative numbers can be equal. Equal values do not make the two coordinate systems identical.
+The right and bottom boundaries map to normalized 1. A width-8 rectangle has its right boundary at local X = 8. The last pixel index is 7 and is not the right boundary coordinate.
 
-Lesson 2.8 introduces normalized coordinates. It is not generated yet.
-
-## Lesson 2.7 files
+## Lesson 2.8 files
 
 Learning file:
 
 ```text
-course/chapters/chapter-02/lesson-02-07-parent-window-and-screen-coordinates.html
+course/chapters/chapter-02/lesson-02-08-normalized-coordinates.html
 ```
 
 Android changes:
 
 ```text
 app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
-app/src/main/java/com/example/liquidglasslab/chapter02/ParentScreenCoordinatesExplorer.kt
+app/src/main/java/com/example/liquidglasslab/chapter02/NormalizedCoordinatesExplorer.kt
 ```
 
 Earlier Chapter 2 Android files remain unchanged.
 
-## Lesson 2.7 checkpoint
+## Lesson 2.8 checkpoint
 
-Lesson 2.7 is complete only when:
+Lesson 2.8 is complete only when:
 
-- [ ] Both incremental archives were applied after the completed Lesson 2.6 state.
-- [ ] The app builds and opens Lesson 2.7 on the Pixel 8 Pro.
-- [ ] Placement A and Placement B both move the measured control.
-- [ ] The three coordinate readings are inspected for both placements.
-- [ ] The learner identifies the origin used by every displayed pair.
-- [ ] The parent-to-window calculated value agrees with the measured value.
-- [ ] The window-to-screen result is inspected, including any `not available` state.
-- [ ] The coding challenge and final exercises are completed.
+- [ ] Both incremental archives were applied after the completed Lesson 2.7 state.
+- [ ] The app builds and opens Lesson 2.8 on the Pixel 8 Pro.
+- [ ] The actual measured pixel size was recorded for at least one drawing-area preset.
+- [ ] Tapping inside the rectangle updates both local and normalized values.
+- [ ] Normalized `(0.25, 0.75)` remains unchanged when the rectangle size changes, while the local px point changes.
+- [ ] The edge meanings of 0, 0.5, and 1 are understood.
+- [ ] Division-to-normalize and multiplication-to-denormalize are explained in the learner's own words.
+- [ ] The coding challenge and four exercises are complete.
 - [ ] The work is committed to Git.
 
 ## Next action
@@ -153,10 +145,10 @@ Lesson 2.7 is complete only when:
 Open:
 
 ```text
-course/chapters/chapter-02/lesson-02-07-parent-window-and-screen-coordinates.html
+course/chapters/chapter-02/lesson-02-08-normalized-coordinates.html
 ```
 
-After Lesson 2.7 is complete, generate Lesson 2.8: **Normalized coordinates**.
+After Lesson 2.8 is complete, generate Lesson 2.9: **Build a coordinate inspector**.
 
 ## Reusable continuation prompt
 

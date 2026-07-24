@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 2.7  
-**Updated:** 2026-07-23  
-**Current course position:** Lessons 1.1 through 2.6 are complete by learner confirmation. **14 of 216 lessons are complete.** Lesson 2.7 is the next learner checkpoint and the generated frontier.  
+**Version:** 2.8  
+**Updated:** 2026-07-24  
+**Current course position:** Lessons 1.1 through 2.7 are complete by learner confirmation. **15 of 216 lessons are complete.** Lesson 2.8 is the next learner checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -160,6 +160,16 @@ Version 2.7 records completion of Lesson 2.6 and adds parent, window, and screen
 - The Android implementation obtains final `LayoutCoordinates` with `onGloballyPositioned` and compares calculated positions with measured positions.
 - `Offset.Unspecified` is treated as unavailable data. It is not silently replaced by `(0, 0)`.
 - Android changes: `Chapter02Screen.kt` and new `ParentScreenCoordinatesExplorer.kt`.
+
+Version 2.8 records completion of Lesson 2.7 and adds normalized coordinates:
+
+- The learner asked to continue after Lesson 2.7, so Lesson 2.7 is marked complete.
+- Learner-confirmed course completion is now **15 of 216 lessons**.
+- Lesson 2.8 keeps one local origin and converts between local pixel coordinates and normalized values from 0 through 1.
+- The central formulas are `normalizedX = localX / width`, `normalizedY = localY / height`, `localX = normalizedX * width`, and `localY = normalizedY * height`.
+- The lesson distinguishes normalization from clamping. Division changes the numeric scale. `coerceIn(0f, 1f)` only enforces the inside-rectangle range.
+- A boundary diagnostic reinforces that normalized X = 1 maps to the right edge at local X = width, not to the last pixel index.
+- Android changes: `Chapter02Screen.kt` and new `NormalizedCoordinatesExplorer.kt`.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -1098,10 +1108,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── BoundsCenterExplorer.kt             # introduced in Lesson 2.4
     ├── DensityExplorer.kt                  # introduced in Lesson 2.5
     ├── LocalCoordinatesExplorer.kt         # introduced in Lesson 2.6
-    └── ParentScreenCoordinatesExplorer.kt  # introduced in Lesson 2.7
+    ├── ParentScreenCoordinatesExplorer.kt  # introduced in Lesson 2.7
+    └── NormalizedCoordinatesExplorer.kt    # introduced in Lesson 2.8
 ```
 
-Lessons through 2.6 are complete. Lesson 2.7 is the current learner checkpoint.
+Lessons through 2.7 are complete. Lesson 2.8 is the current learner checkpoint.
 
 ---
 
@@ -1316,7 +1327,7 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Learner completion is confirmed through Lesson 2.6. Lesson 2.7 is generated and pending. The learner-confirmed total is 14 of 216 lessons.
+Learner completion is confirmed through Lesson 2.7. Lesson 2.8 is generated and pending. The learner-confirmed total is 15 of 216 lessons.
 
 Current Chapter 2 lesson files:
 
@@ -1327,7 +1338,8 @@ Current Chapter 2 lesson files:
 - `course/chapters/chapter-02/lesson-02-04-width-height-edges-and-center.html`;
 - `course/chapters/chapter-02/lesson-02-05-pixels-dp-and-density.html`;
 - `course/chapters/chapter-02/lesson-02-06-local-coordinates.html`;
-- `course/chapters/chapter-02/lesson-02-07-parent-window-and-screen-coordinates.html`.
+- `course/chapters/chapter-02/lesson-02-07-parent-window-and-screen-coordinates.html`;
+- `course/chapters/chapter-02/lesson-02-08-normalized-coordinates.html`.
 
 Current cumulative Chapter 2 Android source:
 
@@ -1342,16 +1354,17 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── BoundsCenterExplorer.kt
     ├── DensityExplorer.kt
     ├── LocalCoordinatesExplorer.kt
-    └── ParentScreenCoordinatesExplorer.kt
+    ├── ParentScreenCoordinatesExplorer.kt
+    └── NormalizedCoordinatesExplorer.kt
 ```
 
-The Lesson 2.7 Android ZIP contains only `Chapter02Screen.kt` and the new `ParentScreenCoordinatesExplorer.kt`. Earlier Chapter 2 files are unchanged and are not duplicated.
+The Lesson 2.8 Android ZIP contains only `Chapter02Screen.kt` and the new `NormalizedCoordinatesExplorer.kt`. Earlier Chapter 2 files are unchanged and are not duplicated.
 
 ---
 
 ## 15. Primary references
 
-The course plan was checked against these public primary sources through 2026-07-23:
+The course plan was checked against these public primary sources through 2026-07-24:
 
 - Apple, **Meet Liquid Glass**, WWDC25: https://developer.apple.com/videos/play/wwdc2025/219/
 - Apple, **Get to know the new design system**, WWDC25: https://developer.apple.com/videos/play/wwdc2025/356/
@@ -1368,6 +1381,9 @@ The course plan was checked against these public primary sources through 2026-07
 - Android, **Compose modifier list**: https://developer.android.com/develop/ui/compose/modifiers-list
 - Android, **Compose LayoutCoordinates reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/LayoutCoordinates
 - Android, **Compose OnGloballyPositionedModifier reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/OnGloballyPositionedModifier
+- Android, **Compose DrawScope reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/drawscope/DrawScope
+- Android, **Compose onSizeChanged reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/onSizeChanged.modifier
+- Android, **Compose gestures reference**: https://developer.android.com/reference/kotlin/androidx/compose/foundation/gestures/package-summary
 - Android, **Compose Color reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color
 - Android, **Compose BlendMode reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode
 - Android, **Constraints and modifier order**: https://developer.android.com/develop/ui/compose/layouts/constraints-modifiers

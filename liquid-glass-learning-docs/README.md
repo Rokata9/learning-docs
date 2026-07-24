@@ -9,27 +9,28 @@ Open `liquid-glass-course.html` directly in a Chromium-based browser. No local s
 ## Current course state
 
 - Chapter 1 is complete.
-- Lessons 2.1 through 2.6 are complete.
-- **14 of 216 lessons are complete.**
-- Lesson 2.7 is generated and is the next learner checkpoint.
-- The generated frontier is Lesson 2.7.
+- Lessons 2.1 through 2.7 are complete.
+- **15 of 216 lessons are complete.**
+- Lesson 2.8 is generated and is the next learner checkpoint.
+- The generated frontier is Lesson 2.8.
 
 Open:
 
 ```text
-course/chapters/chapter-02/lesson-02-07-parent-window-and-screen-coordinates.html
+course/chapters/chapter-02/lesson-02-08-normalized-coordinates.html
 ```
 
 ## Android progression
 
 - Lesson 2.1 introduced the enlarged 8×8 teaching grid.
-- Lesson 2.2 kept row 3 fixed and moved the selected X coordinate through columns 0 through 7.
-- Lesson 2.3 kept column 4 fixed and moved the selected Y coordinate through rows 0 through 7.
+- Lesson 2.2 introduced the X axis.
+- Lesson 2.3 introduced the Y axis.
 - Lesson 2.4 introduced rectangle bounds, width, height, and center.
-- Lesson 2.5 read the current Compose density, converted dp to px, compared floating-point and rounded px values, and showed that Canvas drawing coordinates use px.
-- Lesson 2.6 introduced a coordinate system owned by a child element. It kept one point child-local while the child moved inside its parent.
-- Lesson 2.7 measures the same control top-left relative to its parent, the application window, and the device screen.
-- The Lesson 2.7 Android update adds `ParentScreenCoordinatesExplorer.kt` and updates `Chapter02Screen.kt`.
+- Lesson 2.5 separated dp layout units from px drawing units.
+- Lesson 2.6 introduced child-local coordinates.
+- Lesson 2.7 compared parent-local, window-relative, and screen-relative coordinates.
+- Lesson 2.8 converts local pixel positions into normalized values from 0 through 1 and converts them back for drawing.
+- The Lesson 2.8 Android update adds `NormalizedCoordinatesExplorer.kt` and updates `Chapter02Screen.kt`.
 
 ## Incremental delivery rule
 
