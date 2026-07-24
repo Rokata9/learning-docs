@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 1.1 — Register the empty :tiled-engine Gradle subproject</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #5c667a;
+      --line: #d8e0ea;
+      --paper: #ffffff;
+      --bg: #f5f7fb;
+      --green: #047857;
+      --green-soft: #ecfdf5;
+      --indigo: #4338ca;
+      --indigo-soft: #eef2ff;
+      --amber: #b45309;
+      --amber-soft: #fef3c7;
+      --pink: #be185d;
+      --pink-soft: #fce7f3;
+      --blue: #1e40af;
+      --blue-soft: #dbeafe;
+      --red: #b91c1c;
+      --red-soft: #fee2e2;
+      --slate-soft: #f8fafc;
+      --shadow: 0 16px 44px rgba(30, 41, 59, .08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: linear-gradient(180deg, #f8fafc 0%, #edf2f7 100%);
+      font: 16px/1.62 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    a { color: var(--blue); }
+    button { font: inherit; cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .46; }
+    code, pre, .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    code:not(pre code) { background: var(--indigo-soft); color: #312e81; padding: .1em .34em; border-radius: 5px; }
+
+    .page { width: min(3600px, calc(100% - 96px)); margin: 0 auto; padding: 28px 0 84px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 20px; max-width: 1840px; margin: 0 auto 20px; }
+    .crumbs { color: var(--muted); }
+    .status-chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; border: 1px solid #fcd34d; background: #fffbeb; color: #78350f; font-weight: 800; }
+
+    .panel { max-width: 1840px; margin-left: auto; margin-right: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); }
+    .panel.wide { max-width: 3200px; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1.34fr) minmax(420px, .66fr); gap: 28px; padding: 40px; }
+    .eyebrow { color: var(--green); font-size: 13px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { margin: .35rem 0 1rem; font-size: clamp(42px, 3.7vw, 64px); line-height: 1.04; letter-spacing: -.042em; }
+    h2 { margin: 0 0 .75rem; font-size: 29px; line-height: 1.2; letter-spacing: -.018em; }
+    h3 { margin: 0 0 .5rem; font-size: 20px; line-height: 1.25; }
+    p { max-width: 92ch; }
+    .lead { color: #3f4a5c; font-size: 19px; }
+    .goal { padding: 24px; border: 1px solid #c7d2fe; border-radius: 17px; background: linear-gradient(145deg, #eef2ff, #f8fafc); }
+    .goal p { margin-bottom: 0; }
+    .stats { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; }
+    .pill { display: inline-flex; border: 1px solid #cbd5e1; border-radius: 999px; background: #fff; padding: 6px 10px; font-weight: 750; color: #334155; }
+
+    .section { margin-top: 22px; padding: 30px; }
+    .section-head { display: flex; justify-content: space-between; align-items: start; gap: 28px; margin-bottom: 20px; }
+    .section-head p { margin: 0; color: var(--muted); }
+    .section-no { flex: 0 0 auto; color: var(--indigo); font-weight: 900; letter-spacing: .04em; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+    .card { padding: 19px; border: 1px solid var(--line); border-radius: 15px; background: #fbfcfe; }
+    .card p:last-child, .card ul:last-child { margin-bottom: 0; }
+    .card.green { background: var(--green-soft); border-color: #a7f3d0; }
+    .card.indigo { background: var(--indigo-soft); border-color: #c7d2fe; }
+    .card.amber { background: var(--amber-soft); border-color: #fcd34d; }
+    .card.red { background: var(--red-soft); border-color: #fecaca; }
+    .label { display: inline-block; margin-bottom: 8px; font-size: 12px; font-weight: 850; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    .note, .warning, .success { margin-top: 16px; padding: 15px 17px; border-radius: 13px; }
+    .note { background: var(--blue-soft); border-left: 5px solid var(--blue); color: #1e3a8a; }
+    .warning { background: var(--amber-soft); border-left: 5px solid var(--amber); color: #78350f; }
+    .success { background: var(--green-soft); border-left: 5px solid var(--green); color: #065f46; }
+
+    .code-block { margin: 14px 0; border: 1px solid #cbd5e1; border-radius: 13px; overflow: hidden; background: #fff; }
+    .code-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 9px 13px; border-bottom: 1px solid #dbe3ed; background: #eef2f7; color: #475569; font-size: 13px; font-weight: 800; }
+    pre.highlight { margin: 0; padding: 16px 18px; overflow: auto; background: #f8fafc; color: #1f2937; font: 14.5px/1.62 "SFMono-Regular", Consolas, "Liberation Mono", monospace; tab-size: 4; }
+    .tok-key { color: #7c3aed; font-weight: 650; }
+    .tok-type { color: #1d4ed8; }
+    .tok-str { color: #047857; }
+    .tok-num { color: #b45309; }
+    .tok-com { color: #6b7280; font-style: italic; }
+    .tok-fn { color: #be185d; }
+    .tok-prop { color: #0f766e; }
+    .tok-op { color: #9f1239; }
+    .tok-cmd { color: #1d4ed8; font-weight: 700; }
+    .tok-path { color: #047857; }
+
+    .correction { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 15px; align-items: start; padding: 18px; border: 1px solid #fcd34d; background: #fffbeb; border-radius: 15px; }
+    .correction-mark { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: #fff; border: 1px solid #fcd34d; color: var(--amber); font-size: 25px; font-weight: 900; }
+
+    .stepper { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(440px, .65fr); gap: 20px; }
+    .stage { min-height: 520px; padding: 22px; border: 1px solid var(--line); border-radius: 17px; background: linear-gradient(155deg, #f8fafc, #eef2ff); }
+    .stage-title { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
+    .stage-title strong { font-size: 18px; }
+    .stage-grid { display: grid; grid-template-columns: minmax(0, 1fr) 78px minmax(0, 1fr); gap: 16px; align-items: stretch; }
+    .model-pane { min-height: 370px; padding: 18px; border: 1px solid #cbd5e1; border-radius: 15px; background: #fff; }
+    .model-pane h3 { display: flex; justify-content: space-between; gap: 12px; }
+    .model-list { display: grid; gap: 10px; margin-top: 15px; }
+    .model-node { padding: 11px 13px; border: 2px solid #cbd5e1; border-radius: 12px; background: #fff; transition: opacity .15s ease, border-color .15s ease, background .15s ease, transform .15s ease; }
+    .model-node.root { border-color: var(--blue); background: var(--blue-soft); }
+    .model-node.live { border-color: var(--green); background: var(--green-soft); }
+    .model-node.new { border-color: var(--pink); background: var(--pink-soft); transform: translateY(-1px); }
+    .model-node.muted-node { opacity: .44; }
+    .node-sub { display: block; margin-top: 3px; color: var(--muted); font-size: 13px; }
+    .arrow { display: grid; place-items: center; color: var(--pink); font-size: 34px; font-weight: 900; }
+    .terminal { margin-top: 14px; padding: 13px; border: 1px solid #94a3b8; border-radius: 11px; background: #111827; color: #e5e7eb; font: 13.5px/1.55 "SFMono-Regular", Consolas, monospace; white-space: pre-wrap; }
+    .terminal .good { color: #6ee7b7; }
+    .step-info { padding: 22px; border: 1px solid var(--line); border-radius: 17px; background: #fff; }
+    .step-info h3 { font-size: 24px; }
+    .trace-row { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 12px; padding: 11px 0; border-bottom: 1px solid #e5e7eb; }
+    .trace-row:last-child { border-bottom: 0; }
+    .trace-row strong { color: var(--indigo); }
+    .step-controls { display: flex; align-items: center; gap: 10px; margin-top: 17px; }
+    .step-button { min-height: 42px; padding: 8px 14px; border-radius: 10px; border: 1px solid #cbd5e1; background: #fff; color: #334155; font-weight: 800; }
+    .step-button:hover { border-color: #94a3b8; background: #f8fafc; }
+    .step-button.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+    .dots { display: flex; gap: 7px; margin-left: auto; }
+    .dot { width: 13px; height: 13px; border-radius: 999px; border: 1px solid #94a3b8; background: #fff; padding: 0; min-height: 0; }
+    .dot.active { background: var(--indigo); border-color: var(--indigo); }
+
+    .trace-table { width: 100%; border-collapse: collapse; margin-top: 14px; }
+    .trace-table th, .trace-table td { text-align: left; vertical-align: top; padding: 12px 13px; border-bottom: 1px solid #e3e8ef; }
+    .trace-table th { background: #eef2f7; color: #334155; }
+    .trace-table tr:last-child td { border-bottom: 0; }
+    .manual-list { counter-reset: work; display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+    .manual-list > li { counter-increment: work; position: relative; padding: 18px 18px 18px 66px; border: 1px solid var(--line); border-radius: 14px; background: #fbfcfe; }
+    .manual-list > li::before { content: counter(work); position: absolute; left: 17px; top: 17px; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--indigo-soft); border: 1px solid #c7d2fe; color: var(--indigo); font-weight: 900; }
+    .manual-list h3 { margin-top: 1px; }
+
+    .verify-grid { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(420px, .88fr); gap: 17px; }
+    .checklist { display: grid; gap: 9px; padding: 0; margin: 13px 0 0; list-style: none; }
+    .checklist li { position: relative; padding-left: 28px; }
+    .checklist li::before { content: "✓"; position: absolute; left: 0; top: 0; color: var(--green); font-weight: 900; }
+    .trouble { width: 100%; border-collapse: collapse; }
+    .trouble th, .trouble td { text-align: left; vertical-align: top; padding: 11px 12px; border-bottom: 1px solid #e5e7eb; }
+    .trouble th { background: #eef2f7; }
+
+    details { margin: 11px 0; padding: 13px 15px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+    summary { cursor: pointer; font-weight: 800; color: #334155; }
+    details[open] summary { margin-bottom: 9px; }
+    .completion { display: grid; grid-template-columns: minmax(0, 1fr) minmax(410px, .62fr); gap: 18px; }
+    .footer-nav { display: flex; justify-content: space-between; gap: 20px; max-width: 1840px; margin: 28px auto 0; }
+    .footer-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 15px; border: 1px solid #cbd5e1; border-radius: 11px; background: #fff; text-decoration: none; font-weight: 800; }
+  </style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <div class="crumbs"><a href="../../../photos-tiled-engine-course.html">Course home</a> · <a href="index.html">Chapter 1</a></div>
+    <div class="status-chip">Prepared · not completed</div>
+  </div>
+
+  <section class="panel hero">
+    <div>
+      <div class="eyebrow">Phase 1 · Chapter 1 · Lesson 1.1</div>
+      <h1>Register the empty <code>:tiled-engine</code> Gradle subproject</h1>
+      <p class="lead">You will recreate only the project identity that Gradle needs. You will not configure Android, restore Kotlin, or add C++ in this lesson.</p>
+      <div class="stats">
+        <span class="pill">Primary concept: Gradle project registration</span>
+        <span class="pill">Lesson-owned files: 2</span>
+        <span class="pill">Verification: <code>gradlew projects</code></span>
+      </div>
+    </div>
+    <aside class="goal">
+      <h2>Outcome</h2>
+      <p>At the end, the filesystem contains a new <code>tiled-engine/</code> shell with only <code>.gitignore</code>, and Gradle lists one subproject with the exact project path <code>:tiled-engine</code>. Here “empty” means that no build logic or source code exists yet.</p>
+      <p><strong>It is not an Android library yet.</strong> Lesson 1.2 applies the Android library plugin and SDK configuration.</p>
+    </aside>
+  </section>
+
+  <section class="panel section">
+    <div class="section-head">
+      <div><div class="section-no">01 · POSITION IN THE CHAIN</div><h2>What exists before and after this lesson</h2></div>
+      <p>No earlier course lesson is assumed.</p>
+    </div>
+    <div class="correction">
+      <div class="correction-mark">!</div>
+      <div>
+        <h3>Terminology correction</h3>
+        <p>The earlier curriculum title called the result of Lesson 1.1 an “Android library module.” That was one step too early. A registered Gradle subproject becomes an Android library only after the Android library plugin is applied in Lesson 1.2. A Gradle plugin is software that adds behavior and tasks to a project.</p>
+      </div>
+    </div>
+    <div class="grid-3" style="margin-top:16px">
+      <article class="card red">
+        <span class="label">Starting state</span>
+        <h3>The old integration is absent</h3>
+        <p>The reference <code>tiled-engine/</code> directory is deleted from the rebuild branch. Its old settings registration and app dependency are also removed. The app is intentionally not buildable yet.</p>
+      </article>
+      <article class="card green">
+        <span class="label">Ending state</span>
+        <h3>Gradle discovers one empty subproject</h3>
+        <p>The new directory exists. The root settings script registers <code>:tiled-engine</code>. Gradle can print that project in its project hierarchy.</p>
+      </article>
+      <article class="card indigo">
+        <span class="label">Explicitly deferred</span>
+        <h3>No Android or native configuration</h3>
+        <p>No plugin, namespace, SDK number, manifest, dependency, Kotlin source, CMake file, or C++ source is added in Lesson 1.1.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="panel section">
+    <div class="section-head">
+      <div><div class="section-no">02 · DEFINITIONS</div><h2>The ten terms used in this lesson</h2></div>
+      <p>These definitions are also added to the course glossary.</p>
+    </div>
+    <div class="grid-4">
+      <article class="card"><h3>Gradle</h3><p>The build-automation tool used by this project. Gradle reads configuration files, creates a build model—an in-memory description of projects and tasks—and runs requested tasks. A task is one named unit of build work.</p></article>
+      <article class="card"><h3>Root project</h3><p>The top-level Gradle project for the repository. In this source tree its name is <code>Photos</code>.</p></article>
+      <article class="card"><h3>Subproject</h3><p>One registered build unit inside the root build. Gradle documentation also uses this term for what Android Studio commonly calls a module.</p></article>
+      <article class="card"><h3>Settings script</h3><p>The root <code>settings.gradle.kts</code> file. Gradle reads it to discover which projects belong to the build.</p></article>
+      <article class="card"><h3>Project path</h3><p>Gradle’s identifier for a project inside one build. <code>:tiled-engine</code> is a Gradle project path, not a filesystem path.</p></article>
+      <article class="card"><h3>Project directory</h3><p>The physical directory assigned to a Gradle project. The default directory for <code>:tiled-engine</code> is <code>&lt;Photos root&gt;/tiled-engine</code>.</p></article>
+      <article class="card"><h3>Registration</h3><p>The act of adding a project path to the Gradle build model through the settings script. Creating a directory alone does not register it.</p></article>
+      <article class="card"><h3>Kotlin DSL</h3><p>Gradle configuration written with Kotlin script syntax. The suffix <code>.gradle.kts</code> identifies a Gradle Kotlin DSL script.</p></article>
+      <article class="card"><h3>Gradle plugin</h3><p>Software applied to a project to add and configure capabilities and tasks. The Android library plugin is deliberately applied in Lesson 1.2.</p></article>
+      <article class="card"><h3>Build script</h3><p>A project-level file such as <code>build.gradle.kts</code> that applies plugins and configures that project. Lesson 1.1 does not create this file.</p></article>
+    </div>
+    <div class="warning"><strong>Keep three facts separate:</strong> a directory can exist, a Gradle subproject can be registered, and an Android plugin can be applied. Lesson 1.1 makes the first two facts true. The third remains false.</div>
+  </section>
+
+  <section class="panel section wide">
+    <div class="section-head">
+      <div><div class="section-no">03 · INTERACTIVE MODEL</div><h2>One state change per step</h2></div>
+      <p>The names come from the attached Photos project. The diagram does not simulate Android or Gradle internals.</p>
+    </div>
+    <div class="stepper">
+      <div class="stage">
+        <div class="stage-title"><strong id="stageHeading">Step 1 of 4</strong><span class="pill" id="stageBadge">Clean rebuild branch</span></div>
+        <div class="stage-grid">
+          <section class="model-pane">
+            <h3>Filesystem <span class="mono" style="font-size:13px;color:var(--muted)">&lt;Photos root&gt;</span></h3>
+            <div class="model-list" id="fileModel"></div>
+          </section>
+          <div class="arrow">→</div>
+          <section class="model-pane">
+            <h3>Gradle project hierarchy <span class="mono" style="font-size:13px;color:var(--muted)">settings.gradle.kts</span></h3>
+            <div class="model-list" id="gradleModel"></div>
+            <div class="terminal" id="terminalModel"></div>
+          </section>
+        </div>
+      </div>
+      <aside class="step-info">
+        <h3 id="stepTitle">Start without the old module</h3>
+        <p id="stepCaption"></p>
+        <div class="trace-row"><strong>Input</strong><span id="stepInput"></span></div>
+        <div class="trace-row"><strong>Operation</strong><span id="stepOperation"></span></div>
+        <div class="trace-row"><strong>Output</strong><span id="stepOutput"></span></div>
+        <div class="trace-row"><strong>Still false</strong><span id="stepDeferred"></span></div>
+        <div class="step-controls">
+          <button class="step-button" id="stepBack" type="button">Back</button>
+          <button class="step-button primary" id="stepNext" type="button">Next</button>
+          <div class="dots" id="stepDots" aria-label="Stepper position"></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="panel section">
+    <div class="section-head">
+      <div><div class="section-no">04 · SOURCE-DERIVED CONTRACT</div><h2>The root build already establishes the naming pattern</h2></div>
+      <p>The reference native implementation remains sealed. These excerpts are from root integration files, not from the native implementation.</p>
+    </div>
+    <div class="grid-2">
+      <article class="card">
+        <h3>Clean starting form of <code>settings.gradle.kts</code></h3>
+        <p>The existing root project name and the two surviving subprojects remain. The stale <code>:tiled-engine</code> registration is removed during the one-time reset.</p>
+        <div class="code-block">
+          <div class="code-head"><span>settings.gradle.kts:19–21 · baseline-derived clean starting form</span><span>Kotlin DSL</span></div>
+          <pre class="highlight" data-language="kotlin"><code><span class="tok-prop">rootProject</span>.<span class="tok-prop">name</span> <span class="tok-op">=</span> <span class="tok-str">"Photos"</span>
+<span class="tok-fn">include</span>(<span class="tok-str">":app"</span>)
+<span class="tok-fn">include</span>(<span class="tok-str">":transition-framework"</span>)</code></pre>
+        </div>
+      </article>
+      <article class="card">
+        <h3>The registration you manually add</h3>
+        <p>This statement adds one project path to the Gradle build model. It does not apply the Android library plugin. It does not make the app depend on the project.</p>
+        <div class="code-block">
+          <div class="code-head"><span>settings.gradle.kts · re-create the baseline project path</span><span>Kotlin DSL</span></div>
+          <pre class="highlight" data-language="kotlin"><code><span class="tok-fn">include</span>(<span class="tok-str">":tiled-engine"</span>)</code></pre>
+        </div>
+      </article>
+    </div>
+    <div class="note"><strong>Evidence boundary:</strong> the attached <code>settings.gradle.kts:19–22</code> proves that the build is named <code>Photos</code>, uses explicit <code>include(...)</code> calls, and previously referred to the exact path <code>:tiled-engine</code>. The attached <code>gradle/wrapper/gradle-wrapper.properties:4</code> selects Gradle 9.3.1. Gradle’s official multi-project-build contract explains how an included path maps to a project directory and why that directory must exist. None of these sources says that Lesson 1.1 has applied an Android plugin; it has not.</div>
+  </section>
+
+  <section class="panel section">
+    <div class="section-head">
+      <div><div class="section-no">05 · EXACT VALUE TRACE</div><h2>Follow <code>:tiled-engine</code> from text to a discovered project</h2></div>
+      <p>No image, graphics, or coordinate concept appears here.</p>
+    </div>
+    <table class="trace-table">
+      <thead><tr><th>Stage</th><th>Exact value</th><th>What Gradle uses it for</th><th>Later consumer</th></tr></thead>
+      <tbody>
+        <tr><td>Input in settings</td><td><code>":tiled-engine"</code></td><td>The leading colon identifies the root of this Gradle build. <code>tiled-engine</code> is one project-name segment.</td><td><code>include(...)</code></td></tr>
+        <tr><td>Registered identity</td><td><code>:tiled-engine</code></td><td>This is the project path stored in Gradle’s project hierarchy.</td><td>The <code>projects</code> task prints it.</td></tr>
+        <tr><td>Default directory mapping</td><td><code>&lt;Photos root&gt;/tiled-engine</code></td><td>Because this build does not override the directory mapping, the one path segment maps to the same-named child directory.</td><td>Gradle looks there for the future subproject build script.</td></tr>
+        <tr><td>Future dependency lookup</td><td><code>:tiled-engine</code></td><td>Lesson 1.3 will use the same project path to make <code>:app</code> depend on this subproject.</td><td><code>app/build.gradle.kts</code></td></tr>
+      </tbody>
+    </table>
+    <div class="success"><strong>Why the directory is created before registration:</strong> this project uses Gradle 9.3.1. Gradle 9 and later require an included project’s directory to exist and be writable. The sequence is therefore directory first, <code>include(...)</code> second.</div>
+  </section>
+
+  <section class="panel section">
+    <div class="section-head">
+      <div><div class="section-no">06 · MANUAL WORK</div><h2>Make only the two lesson-owned file changes</h2></div>
+      <p>You author every line. Do not restore a file from the sealed reference module.</p>
+    </div>
+    <div class="warning"><strong>One-time precondition, not a Lesson 1.1 output:</strong> keep the sealed reference copy outside the rebuild branch. Remove the old <code>tiled-engine/</code> directory, the old <code>include(":tiled-engine")</code> line from <code>settings.gradle.kts:22</code>, and the old <code>implementation(project(":tiled-engine"))</code> app dependency from <code>app/build.gradle.kts:73</code>. Unresolved tiled-engine imports in <code>:app</code> are expected during the early reconstruction.</div>
+    <ol class="manual-list" style="margin-top:16px">
+      <li>
+        <h3>Create the new project directory</h3>
+        <p>Create <code>&lt;Photos root&gt;/tiled-engine/</code>. Inside it, create <code>.gitignore</code> with one line:</p>
+        <div class="code-block">
+          <div class="code-head"><span>tiled-engine/.gitignore</span><span>gitignore</span></div>
+          <pre class="highlight" data-language="gitignore"><code><span class="tok-path">/build</span></code></pre>
+        </div>
+        <p>The file gives Git something real to track before the module has a build script. It also excludes the generated <code>tiled-engine/build/</code> directory once builds begin.</p>
+      </li>
+      <li>
+        <h3>Register the exact Gradle project path</h3>
+        <p>Open the root <code>settings.gradle.kts</code>. Add one <code>include(...)</code> call for <code>:tiled-engine</code> next to the existing project registrations.</p>
+      </li>
+      <li>
+        <h3>Stop at the intended boundary</h3>
+        <p>The new directory must not yet contain <code>build.gradle.kts</code>, <code>src/</code>, a manifest, Kotlin, CMake, or C++ files. Those belong to later lessons.</p>
+      </li>
+    </ol>
+    <div class="code-block">
+      <div class="code-head"><span>Expected tree after your changes</span><span>text</span></div>
+      <pre class="highlight" data-language="text"><code><span class="tok-type">Photos/</span>
+├── <span class="tok-path">settings.gradle.kts</span>
+├── <span class="tok-type">app/</span>
+├── <span class="tok-type">transition-framework/</span>
+└── <span class="tok-type">tiled-engine/</span>
+    └── <span class="tok-path">.gitignore</span></code></pre>
+    </div>
+    <details>
+      <summary>Optional shell commands for creating the directory and <code>.gitignore</code></summary>
+      <p>The IDE file explorer is equally valid. These commands do not change the required Gradle line.</p>
+      <div class="grid-2">
+        <div class="code-block">
+          <div class="code-head"><span>WSL / Bash · run from the Photos root</span><span>shell</span></div>
+          <pre class="highlight" data-language="shell"><code><span class="tok-cmd">mkdir</span> <span class="tok-key">-p</span> <span class="tok-path">tiled-engine</span>
+<span class="tok-cmd">printf</span> <span class="tok-str">'/build\n'</span> <span class="tok-op">&gt;</span> <span class="tok-path">tiled-engine/.gitignore</span></code></pre>
+        </div>
+        <div class="code-block">
+          <div class="code-head"><span>PowerShell · run from the Photos root</span><span>PowerShell</span></div>
+          <pre class="highlight" data-language="powershell"><code><span class="tok-cmd">New-Item</span> <span class="tok-key">-ItemType</span> Directory <span class="tok-key">-Force</span> <span class="tok-path">tiled-engine</span>
+<span class="tok-cmd">Set-Content</span> <span class="tok-path">tiled-engine/.gitignore</span> <span class="tok-str">"/build"</span></code></pre>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <section class="panel section">
+    <div class="section-head">
+      <div><div class="section-no">07 · VERIFICATION</div><h2>Ask Gradle to print the project hierarchy</h2></div>
+      <p>This verifies registration. It deliberately does not compile the app.</p>
+    </div>
+    <div class="verify-grid">
+      <article class="card">
+        <h3>Run from the Photos project root</h3>
+        <div class="code-block">
+          <div class="code-head"><span>WSL / Bash</span><span>shell</span></div>
+          <pre class="highlight" data-language="shell"><code><span class="tok-cmd">./gradlew</span> <span class="tok-fn">projects</span> <span class="tok-key">--console=plain</span></code></pre>
+        </div>
+        <div class="code-block">
+          <div class="code-head"><span>Windows PowerShell</span><span>PowerShell</span></div>
+          <pre class="highlight" data-language="powershell"><code><span class="tok-cmd">.\gradlew.bat</span> <span class="tok-fn">projects</span> <span class="tok-key">--console=plain</span></code></pre>
+        </div>
+        <p>Tree-drawing characters and project ordering may differ. These exact facts must appear:</p>
+        <ul class="checklist">
+          <li>The command exits successfully.</li>
+          <li>The output identifies <code>Root project 'Photos'</code>.</li>
+          <li>The project hierarchy contains <code>Project ':tiled-engine'</code>.</li>
+          <li>The module directory still has no <code>build.gradle.kts</code>.</li>
+        </ul>
+      </article>
+      <aside class="card indigo">
+        <h3>What this proves</h3>
+        <p>Gradle read the settings script, found the directory required by the registered path, and created a subproject entry named <code>:tiled-engine</code>.</p>
+        <h3 style="margin-top:18px">What this does not prove</h3>
+        <p>It does not prove that the project is an Android library, that it has Android tasks, that the app compiles, or that any native library exists.</p>
+      </aside>
+    </div>
+    <h3 style="margin-top:22px">Focused troubleshooting</h3>
+    <table class="trouble">
+      <thead><tr><th>Result</th><th>Concrete cause to check</th></tr></thead>
+      <tbody>
+        <tr><td>Gradle reports that the project directory does not exist.</td><td>Confirm the physical directory is exactly <code>tiled-engine</code>, with the hyphen, directly below the Photos root.</td></tr>
+        <tr><td>The command succeeds but <code>:tiled-engine</code> is absent.</td><td>Confirm the <code>include(":tiled-engine")</code> call is in the root <code>settings.gradle.kts</code>, not in a project build script.</td></tr>
+        <tr><td>The settings script has a parse error.</td><td>Check the opening and closing parenthesis and the two double quotes around <code>:tiled-engine</code>.</td></tr>
+        <tr><td>Android Studio shows unresolved tiled-engine imports in <code>:app</code>.</td><td>That is expected at this stage. Lesson 1.1 verifies only the Gradle project hierarchy.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="panel section">
+    <div class="section-head">
+      <div><div class="section-no">08 · EXERCISES</div><h2>Answer without opening the hidden answers</h2></div>
+      <p>Send your answers in chat when you complete the lesson.</p>
+    </div>
+    <details>
+      <summary>Exercise 1 — A <code>tiled-engine/</code> directory exists, but there is no matching <code>include(...)</code> call. What does Gradle know?</summary>
+      <p><strong>Answer:</strong> Gradle does not know that the directory is a normal subproject in this build. The operating system can see a directory. Gradle registration is a separate fact established by the settings script.</p>
+    </details>
+    <details>
+      <summary>Exercise 2 — The settings script registers <code>:tiled-engine</code>, but the directory is named <code>tiled_engine</code>. Why does the default mapping fail?</summary>
+      <p><strong>Answer:</strong> The registered project path contains the segment <code>tiled-engine</code>. With no custom <code>projectDir</code> mapping, Gradle expects the same-named child directory <code>&lt;Photos root&gt;/tiled-engine</code>. The underscore names a different directory.</p>
+    </details>
+    <details>
+      <summary>Exercise 3 — After Lesson 1.1, can the project be called an Android library? Explain the missing fact.</summary>
+      <p><strong>Answer:</strong> No. It is a registered Gradle subproject. The Android library plugin has not been applied, so Android-specific configuration and Android build tasks do not exist yet. Lesson 1.2 adds that fact.</p>
+    </details>
+    <details>
+      <summary>Exercise 4 — What single claim does a successful <code>gradlew projects</code> check support, and what tempting claim does it not support?</summary>
+      <p><strong>Answer:</strong> It supports the claim that <code>:tiled-engine</code> belongs to Gradle’s project hierarchy. It does not support the claim that the Android app or the future native engine builds.</p>
+    </details>
+  </section>
+
+  <section class="panel section completion">
+    <div>
+      <div class="section-no">09 · COMPLETION GATE</div>
+      <h2>Lesson 1.1 is complete only when all conditions are true</h2>
+      <ul class="checklist">
+        <li>The old module implementation remains deleted from the rebuild branch and sealed elsewhere.</li>
+        <li><code>tiled-engine/.gitignore</code> exists and contains only <code>/build</code>.</li>
+        <li>The root settings script registers the exact path <code>:tiled-engine</code>.</li>
+        <li><code>./gradlew projects --console=plain</code> lists <code>Project ':tiled-engine'</code>.</li>
+        <li>No Android plugin, build script, manifest, source directory, Kotlin, CMake, or C++ file has been added yet.</li>
+        <li>You have answered the four exercises in chat and explicitly confirmed completion.</li>
+      </ul>
+    </div>
+    <aside class="card amber">
+      <h3>Progress state</h3>
+      <p>This lesson is prepared, not completed.</p>
+      <p><strong>Course progress:</strong> 0 of 539 lessons completed.</p>
+      <p><strong>Next after completion:</strong> Lesson 1.2 applies the Android library plugin and defines the namespace, compile SDK, and minimum SDK.</p>
+    </aside>
+  </section>
+
+  <section class="panel section">
+    <div class="section-head">
+      <div><div class="section-no">REFERENCES</div><h2>What this lesson is based on</h2></div>
+    </div>
+    <ul>
+      <li>Attached Photos source: root <code>settings.gradle.kts</code> and <code>app/build.gradle.kts</code>.</li>
+      <li><a href="https://docs.gradle.org/current/userguide/multi_project_builds.html">Gradle User Manual — Multi-Project Builds</a>: root/subproject structure, <code>include(...)</code>, default directory mapping, and the Gradle 9 directory requirement.</li>
+      <li><a href="../../../curriculum/lesson_delivery_contract.md">Course lesson-delivery contract</a> and <a href="../../../LEARNER_AUTHORSHIP.md">learner-authorship boundary</a>.</li>
+    </ul>
+  </section>
+
+  <nav class="footer-nav">
+    <a href="index.html">← Chapter 1 map</a>
+    <span class="pill">Lesson 1.2 remains planned</span>
+  </nav>
+</main>
+
+<script>
+(() => {
+  const steps = [
+    {
+      badge: 'Clean rebuild branch',
+      title: 'Start without the old module',
+      caption: 'The root project still contains the app and transition-framework subprojects. The old tiled-engine directory and both stale Gradle references are absent.',
+      input: 'The cleaned rebuild branch.',
+      operation: 'Read the current filesystem and settings declarations.',
+      output: 'No tiled-engine directory and no :tiled-engine entry.',
+      deferred: 'Nothing has been recreated yet.',
+      files: ['settings.gradle.kts', 'app/', 'transition-framework/'],
+      gradle: ["Root project 'Photos'", ':app', ':transition-framework'],
+      terminal: '$ ./gradlew projects\n(project query not run yet)',
+      newFile: null,
+      newGradle: null
+    },
+    {
+      badge: 'Filesystem state',
+      title: 'Create the directory first',
+      caption: 'The operating system now has a tiled-engine directory. Gradle’s registered project hierarchy is unchanged because the settings script has not registered that name.',
+      input: '<Photos root>/tiled-engine/.gitignore',
+      operation: 'Create the directory and the /build ignore rule.',
+      output: 'A trackable directory exists at the default path Gradle will expect.',
+      deferred: 'Gradle still has no :tiled-engine subproject.',
+      files: ['settings.gradle.kts', 'app/', 'transition-framework/', 'tiled-engine/  (.gitignore)'],
+      gradle: ["Root project 'Photos'", ':app', ':transition-framework'],
+      terminal: '$ ./gradlew projects\n(project query not run yet)',
+      newFile: 'tiled-engine/  (.gitignore)',
+      newGradle: null
+    },
+    {
+      badge: 'Settings state',
+      title: 'Register the project path',
+      caption: 'The include call adds :tiled-engine to the Gradle project hierarchy. The default path mapping connects that identity to the directory created in the previous step.',
+      input: 'include(":tiled-engine") in settings.gradle.kts.',
+      operation: 'Register one subproject path in the root settings script.',
+      output: 'Gradle’s model contains :tiled-engine.',
+      deferred: 'No Android plugin or build script exists.',
+      files: ['settings.gradle.kts  (+ include)', 'app/', 'transition-framework/', 'tiled-engine/  (.gitignore)'],
+      gradle: ["Root project 'Photos'", ':app', ':transition-framework', ':tiled-engine  (registered)'],
+      terminal: '$ ./gradlew projects\n(project query not run yet)',
+      newFile: 'settings.gradle.kts  (+ include)',
+      newGradle: ':tiled-engine  (registered)'
+    },
+    {
+      badge: 'Verified project hierarchy',
+      title: 'Ask Gradle to print the registered hierarchy',
+      caption: 'The projects task reads the settings script and prints the registered project hierarchy. Seeing :tiled-engine verifies only that Gradle registered the subproject.',
+      input: './gradlew projects --console=plain.',
+      operation: 'Run Gradle’s project-hierarchy report.',
+      output: 'The command prints Project \':tiled-engine\'.',
+      deferred: 'Android configuration, compilation, and native output remain untested.',
+      files: ['settings.gradle.kts  (+ include)', 'app/', 'transition-framework/', 'tiled-engine/  (.gitignore)'],
+      gradle: ["Root project 'Photos'", ':app', ':transition-framework', ':tiled-engine  (registered)'],
+      terminal: "$ ./gradlew projects --console=plain\nRoot project 'Photos'\n+--- Project ':app'\n+--- Project ':tiled-engine'\n\\--- Project ':transition-framework'\n\nBUILD SUCCESSFUL",
+      newFile: null,
+      newGradle: ':tiled-engine  (registered)'
+    }
+  ];
+
+  let index = 0;
+  const $ = id => document.getElementById(id);
+
+  function node(label, kind, isNew) {
+    const div = document.createElement('div');
+    div.className = `model-node ${kind}${isNew ? ' new' : ''}`;
+    const strong = document.createElement('strong');
+    strong.textContent = label;
+    div.appendChild(strong);
+    if (label.startsWith("Root project")) {
+      const sub = document.createElement('span');
+      sub.className = 'node-sub';
+      sub.textContent = 'Gradle project path :';
+      div.appendChild(sub);
+    } else if (label.includes(':tiled-engine')) {
+      const sub = document.createElement('span');
+      sub.className = 'node-sub';
+      sub.textContent = 'Gradle project path';
+      div.appendChild(sub);
+    } else if (label.includes('tiled-engine/')) {
+      const sub = document.createElement('span');
+      sub.className = 'node-sub';
+      sub.textContent = 'physical project directory';
+      div.appendChild(sub);
+    }
+    return div;
+  }
+
+  function render() {
+    const step = steps[index];
+    $('stageHeading').textContent = `Step ${index + 1} of ${steps.length}`;
+    $('stageBadge').textContent = step.badge;
+    $('stepTitle').textContent = step.title;
+    $('stepCaption').textContent = step.caption;
+    $('stepInput').textContent = step.input;
+    $('stepOperation').textContent = step.operation;
+    $('stepOutput').textContent = step.output;
+    $('stepDeferred').textContent = step.deferred;
+
+    const fileHost = $('fileModel');
+    fileHost.innerHTML = '';
+    step.files.forEach((name, i) => fileHost.appendChild(node(name, i === 0 ? 'root' : 'live', name === step.newFile)));
+
+    const gradleHost = $('gradleModel');
+    gradleHost.innerHTML = '';
+    step.gradle.forEach((name, i) => gradleHost.appendChild(node(name, i === 0 ? 'root' : 'live', name === step.newGradle)));
+
+    $('terminalModel').innerHTML = step.terminal
+      .replace(/BUILD SUCCESSFUL/g, '<span class="good">BUILD SUCCESSFUL</span>')
+      .replace(/Project ':tiled-engine'/g, '<span class="good">Project \'\:tiled-engine\'</span>');
+
+    $('stepBack').disabled = index === 0;
+    $('stepNext').disabled = index === steps.length - 1;
+    document.querySelectorAll('.dot').forEach((dot, i) => {
+      dot.classList.toggle('active', i === index);
+      dot.setAttribute('aria-current', i === index ? 'step' : 'false');
+    });
+  }
+
+  steps.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'dot';
+    dot.setAttribute('aria-label', `Open step ${i + 1}`);
+    dot.addEventListener('click', () => { index = i; render(); });
+    $('stepDots').appendChild(dot);
+  });
+  $('stepBack').addEventListener('click', () => { if (index > 0) { index -= 1; render(); } });
+  $('stepNext').addEventListener('click', () => { if (index < steps.length - 1) { index += 1; render(); } });
+  render();
+})();
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@ This table assigns each behavior-bearing native/build responsibility to a teachi
 
 | Responsibility | Source anchors | Course coverage | What is rebuilt |
 |---|---|---|---|
-| Module packaging and native target | `build.gradle.kts`, manifest, CMake, shrinker rules | Ch. 1–2, 5 | Library configuration, native target, app dependency, JNI preservation. |
+| Module packaging and native target | Gradle wrapper, root settings, `build.gradle.kts`, manifest, CMake, shrinker rules | Ch. 1–2, 5 | Subproject registration, library configuration, native target, app dependency, JNI preservation. |
 | C++ language, logging, lifetime, and ownership | constructs used across all native files; `log.h` | Ch. 2–3; just-in-time additions in Ch. 12, 28–34, 54–58 | Source model, scalars, overflow, classes, RAII, smart ownership, containers, threads, polymorphism, casts, dynamic symbols. |
 | JNI bridge and native object lifetime | `TileEngineNative.kt`, `jni_bridge.cpp` | Ch. 4–5, 14, 17, 27, 31, 51 | Load, create/destroy, handles, references, callbacks, native-thread attachment, surfaces, descriptors, exceptions. |
 | Raster, stride, rectangles, and resizing | `geometry.h`, decoder results, bitmap and upload paths | Ch. 6–10 | RGBA pixels, row-major bytes, stride, capacity, half-open rectangles, nearest/linear/bilinear resampling, encoded/decoded boundary. |

@@ -37,11 +37,11 @@ The curriculum reconstructs only `tiled-engine` and the Kotlin code that directl
 
 ## Chapter 1 — Recreate the Android library and native build shell
 
-**Purpose:** Restore the Android library shell first. The native target is introduced only after the first C++ toolchain lesson.
+**Purpose:** Restore the Gradle subproject shell first. Lesson 1.2 turns it into an Android library. The native target is introduced only after the first C++ toolchain lesson.
 
 **Source anchors:** `settings.gradle.kts`, `app/build.gradle.kts`, `tiled-engine/build.gradle.kts`, `AndroidManifest.xml`
 
-1.1. **1.1 — Create and register the empty `:tiled-engine` Android library module after the reference module has been deleted**
+1.1. **1.1 — Register the empty `:tiled-engine` Gradle subproject**
 1.2. **1.2 — Configure the Android library plugin, namespace, compile SDK, and minimum SDK**
 1.3. **1.3 — Add the component-free manifest and the app-to-module dependency**
 1.4. **1.4 — Build the empty Kotlin-only Android library before adding native code**

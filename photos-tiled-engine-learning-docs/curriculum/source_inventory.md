@@ -7,6 +7,7 @@ This inventory is limited to the deleted module and the Kotlin/C++ contracts tha
 | File | Lines | Responsibility |
 |---|---:|---|
 | `tiled-engine/build.gradle.kts` | 72 | Android library configuration, SDK bounds, CMake connection, Java/Kotlin targets, dependencies, and tests. |
+| `gradle/wrapper/gradle-wrapper.properties` | 6 | Gradle distribution selected by the root build; the attached project uses Gradle 9.3.1. |
 | `tiled-engine/src/main/AndroidManifest.xml` | 3 | Component-free Android library manifest. |
 | `tiled-engine/src/main/cpp/CMakeLists.txt` | 29 | C++17 shared library, source list, warnings, and Android/EGL/GLES/JNI/dynamic-loader libraries. |
 | `consumer-rules.pro`, `proguard-rules.pro` | small | Preservation of JNI-called classes and methods. |

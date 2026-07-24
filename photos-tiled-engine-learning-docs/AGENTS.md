@@ -69,4 +69,4 @@ Light theme only. Desktop only. Verify at 1920×1080. Verify wide system diagram
 
 ## Progress
 
-`COURSE_STATE.json` is authoritative. Current progress is 0 of 539. No superseded lesson is completed, prepared, or pending.
+`COURSE_STATE.json` is authoritative. Current progress is 0 of 539. Lesson 1.1 is prepared and awaiting learner confirmation. No superseded lesson is completed, prepared, or pending.

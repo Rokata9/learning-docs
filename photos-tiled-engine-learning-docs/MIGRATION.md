@@ -27,10 +27,13 @@ The `-A` records obsolete-file deletions as well as additions.
 - journals, scratchpads, evidence matrices, and implementation ledgers;
 - prepared or pending status from superseded plans.
 
-## Resulting state
+## Android project starting state
+
+Before starting Lesson 1.1 on the rebuild branch, delete the original `tiled-engine/` directory and remove both stale root references: `include(":tiled-engine")` from `settings.gradle.kts` and `implementation(project(":tiled-engine"))` from `app/build.gradle.kts`. Keep the reference implementation sealed elsewhere.
+
+## Resulting learning-repository state
 
 - 0 lessons completed;
-- 0 lessons prepared;
-- no lesson awaiting confirmation;
-- Lesson 1.1 is next;
+- Lesson 1.1 prepared;
+- Lesson 1.1 awaiting learner implementation and confirmation;
 - the original native implementation stays sealed until Lesson 60.13.

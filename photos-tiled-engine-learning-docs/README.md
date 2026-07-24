@@ -40,13 +40,19 @@ The number 539 was counted after the prerequisite audit. It was not selected in 
 
 ## Starting condition
 
-Delete the original `tiled-engine/` directory from the rebuild branch before Lesson 1.1.
+Before Lesson 1.1, establish a clean rebuild state in the Android project:
 
-Keep one sealed copy outside that branch. Do not inspect its implementation bodies until Lesson 60.13. Surviving app call sites may be inspected only when they define a public contract the rebuilt module must satisfy.
+1. delete the original `tiled-engine/` directory;
+2. remove the stale `include(":tiled-engine")` registration from the root `settings.gradle.kts`;
+3. remove the stale `implementation(project(":tiled-engine"))` dependency from `app/build.gradle.kts`.
 
-## First lesson
+Keep one sealed copy outside that branch. Do not inspect its implementation bodies until Lesson 60.13. Surviving app call sites may be inspected only when they define a public contract the rebuilt module must satisfy. The app is intentionally not buildable during the early reconstruction lessons.
 
-**1.1 — Create and register the empty `:tiled-engine` Android library module after the reference module has been deleted**
+## Current lesson
+
+**1.1 — Register the empty `:tiled-engine` Gradle subproject**
+
+Status: prepared, awaiting learner implementation and confirmation.
 
 The first lesson changes the project. It is not an observation lesson.
 
