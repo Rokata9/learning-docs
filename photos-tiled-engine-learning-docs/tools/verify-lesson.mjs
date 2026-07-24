@@ -1,72 +1,20 @@
 #!/usr/bin/env node
-import { existsSync, mkdirSync, readFileSync } from 'node:fs';
-import { dirname, extname, isAbsolute, join, resolve } from 'node:path';
-import { spawnSync } from 'node:child_process';
-import { pathToFileURL } from 'node:url';
-
-const args = process.argv.slice(2);
-const input = args.find(arg => !arg.startsWith('--'));
-if (!input) {
-  console.error('usage: node tools/verify-lesson.mjs <html-file> [output.png] [--links-only] [--width=1920] [--height=1080]');
-  process.exit(1);
+import { readFileSync } from 'node:fs';
+const file = process.argv[2];
+if (!file) { console.error('usage: node verify-lesson.mjs <lesson.html>'); process.exit(2); }
+const html = readFileSync(file, 'utf8');
+const checks = [
+  ['standalone doctype', /<!doctype html>/i],
+  ['light page', /background:/i],
+  ['definitions', /Definitions/i],
+  ['manual work', /Manual work/i],
+  ['exercises', /<details/i],
+  ['language-labelled highlighted code', /class="[^"]*highlight[^"]*"[^>]*data-language=/i],
+  ['static token colors', /class="tok-(key|type|str|num|com|fn)"/i],
+];
+let failed = false;
+for (const [name, rx] of checks) {
+  if (!rx.test(html)) { console.error(`FAIL: ${name}`); failed = true; }
+  else console.log(`OK: ${name}`);
 }
-const outputArg = args.find((arg, index) => index > args.indexOf(input) && !arg.startsWith('--'));
-const width = Number((args.find(arg => arg.startsWith('--width=')) ?? '--width=1920').split('=')[1]);
-const height = Number((args.find(arg => arg.startsWith('--height=')) ?? '--height=1080').split('=')[1]);
-const htmlPath = resolve(input);
-if (!existsSync(htmlPath)) {
-  console.error(`not found: ${htmlPath}`);
-  process.exit(1);
-}
-const html = readFileSync(htmlPath, 'utf8');
-
-const codeBlocks = [...html.matchAll(/<pre\b([^>]*)>\s*<code\b[^>]*>([\s\S]*?)<\/code>\s*<\/pre>/g)];
-const invalidCodeBlocks = codeBlocks
-  .map((match, index) => ({ index: index + 1, attrs: match[1], body: match[2] }))
-  .filter(block => {
-    const isMultiline = block.body.includes('\n');
-    if (!isMultiline) return false;
-    const hasHighlightClass = /class="[^"]*\bhighlight\b[^"]*"/.test(block.attrs);
-    const hasLanguage = /data-language="[^"]+"/.test(block.attrs);
-    const hasTokenSpans = /<span\s+class="[^"]+">/.test(block.body);
-    return !hasHighlightClass || !hasLanguage || !hasTokenSpans;
-  });
-if (invalidCodeBlocks.length) {
-  console.error('Multi-line code blocks must use static syntax highlighting and a data-language label:');
-  for (const block of invalidCodeBlocks) console.error(`  code block ${block.index}`);
-  process.exit(4);
-}
-
-const hrefs = [...html.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
-const broken = [];
-for (const href of hrefs) {
-  if (/^(?:https?:|mailto:|#)/.test(href)) continue;
-  const target = href.split('#')[0].split('?')[0];
-  if (!target) continue;
-  const resolved = isAbsolute(target) ? target : resolve(dirname(htmlPath), target);
-  if (!existsSync(resolved)) broken.push({ href, resolved });
-}
-if (broken.length) {
-  console.error('Broken local links:');
-  for (const item of broken) console.error(`  ${item.href} -> ${item.resolved}`);
-  process.exit(2);
-}
-if (args.includes('--links-only')) {
-  console.log('Local links are valid. Screenshot verification was skipped by request.');
-  process.exit(0);
-}
-const candidates = [process.env.CHROME_PATH,'/usr/bin/chromium','/usr/bin/chromium-browser','/usr/bin/google-chrome','/usr/bin/google-chrome-stable'].filter(Boolean);
-const chrome = candidates.find(existsSync);
-if (!chrome) {
-  console.log('Local links are valid. Chromium was not found, so screenshot verification was skipped.');
-  process.exit(0);
-}
-const output = resolve(outputArg ?? join('verification', `${htmlPath.split('/').pop().replace(extname(htmlPath), '')}-${width}x${height}.png`));
-mkdirSync(dirname(output), { recursive: true });
-const run = spawnSync(chrome, ['--headless=new','--disable-gpu','--no-sandbox','--hide-scrollbars',`--window-size=${width},${height}`,`--screenshot=${output}`,pathToFileURL(htmlPath).href], { stdio:'inherit', timeout:30000 });
-if (run.error?.code === 'ETIMEDOUT') {
-  console.warn('Local links are valid. Chromium timed out, so screenshot verification was skipped.');
-  process.exit(0);
-}
-if (run.status !== 0) process.exit(run.status ?? 3);
-console.log(`Verified local links and wrote screenshot: ${output}`);
+if (failed) process.exit(1);

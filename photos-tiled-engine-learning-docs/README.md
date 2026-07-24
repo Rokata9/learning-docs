@@ -1,89 +1,72 @@
-# Photos Native Tiled-Image Engine — Learning Documents
+# Photos Tiled Engine — manual reconstruction course
 
-This repository contains the self-contained learning artifacts for rebuilding the Photos app's native tiled-image viewer.
+This repository is the canonical learning path for manually rebuilding the Android `tiled-engine` module.
 
-The course is limited to `tiled-engine` and the smallest Android host boundary needed to run it. The photo grid, custom transition framework, temporary HQ/LQ transition image, scrim, clone animation, and return animation are outside the curriculum.
+**Course version:** 4.0  
+**Current plan:** **539 small lessons**, **60 chapters**, **9 phases**  
+**Completed:** 0  
+**Android implementation ownership:** 100% learner-authored
 
-The Android Studio project is intentionally separate. This repository contains no copy of the Android project and no generated Android implementation.
+## Design reset
 
-## Start here
+This plan replaces every earlier transition-oriented, observation-led, or fixed-count plan.
 
-For the change from the earlier transition-oriented draft, read `SCOPE_RESET.md`.
+It was rebuilt from:
 
-Open `photos-tiled-engine-course.html` directly in a Chromium-based browser. No local server is required.
+1. all four Kotlin source files inside `tiled-engine`;
+2. all seven C++ headers and five C++ implementation files;
+3. Gradle, CMake, manifest, and shrinker contracts;
+4. only the prerequisite C++, image-processing, Android-surface, EGL, OpenGL ES, JNI, memory, and concurrency knowledge needed to reconstruct those files.
 
-Then read:
+The number 539 was counted after the prerequisite audit. It was not selected in advance and is not tied to the Liquid Glass lesson count. It remains legal to split a future lesson when its finished explanation would otherwise rely on an undefined term, object, unit, coordinate space, ownership rule, or thread.
 
-1. `LEARNER_AUTHORSHIP.md`
-2. `curriculum/photos_tiled_engine_curriculum.md`
-3. `curriculum/photos_tiled_engine_handoff.md`
+## Included
 
-## Current course state
+- the C++ tiled renderer;
+- `TiledImageView`, `TileEngineNative`, `RegionDecodeShim`, and `ImageFormat` because they directly control or support that renderer;
+- native build and JNI;
+- pixels, memory layout, image resizing, decoding, geometry, EGL, OpenGL ES, threads, scheduling, caching, gestures, paging, lifecycle, tracing, and the optional hardware-buffer path.
 
-- Course plan version: 3.0.
-- Scope: native tiled-image engine only.
-- Total: 216 lessons in 24 chapters.
-- **0 of 216 lessons are complete.**
-- Lessons available for the current study round: **1.1 — Record the isolated native-viewer baseline** and **1.2 — Record initial coverage and refinement**.
-- Both lessons remain incomplete until the learner explicitly confirms them.
-- Next unprepared lesson: **1.3 — Record interaction and lifecycle behavior**.
-- Both available lessons use `NativeTestingActivity`. They do not use the photo grid or transition framework.
+## Excluded
 
-## Canonical test harness
+- the photo grid and navigation;
+- transition-framework internals;
+- unrelated app architecture;
+- project tours;
+- baseline-observation lessons;
+- videos, screenshot catalogues, journals, scratchpads, evidence diaries, and implementation logs.
 
-The course starts the existing isolated activity directly:
+`NativeTestingActivity` is only a launch and focused verification harness. Its routine activity code is not a teaching topic.
 
-```text
-adb shell am start -n com.example.photos/.NativeTestingActivity
-```
+## Starting condition
 
-That activity supplies synthetic large images to `TiledImageView`. It makes first-frame behavior, coarse-to-sharp refinement, tile alignment, zoom, pan, paging, format changes, and rotation observable without any navigation animation.
+Delete the original `tiled-engine/` directory from the rebuild branch before Lesson 1.1.
 
-## Repository boundary
+Keep one sealed copy outside that branch. Do not inspect its implementation bodies until Lesson 60.13. Surviving app call sites may be inspected only when they define a public contract the rebuilt module must satisfy.
 
-The original Android project contains older learning chapters. Ignore them for this course. They are not prerequisites and this repository does not link to them.
+## First lesson
 
-The original `tiled-engine` implementation stays only in an immutable baseline outside the rebuild branch. It remains sealed until the final discrepancy review in Lesson 24.9.
+**1.1 — Create and register the empty `:tiled-engine` Android library module after the reference module has been deleted**
 
-The surrounding app may keep `transition-framework`, but no course lesson explains, tests, or modifies it unless a build dependency unexpectedly proves that it is required for the isolated native test harness.
+The first lesson changes the project. It is not an observation lesson.
 
-## 100% learner-authored Android code
+## Repository map
 
-The learner writes every new Kotlin, C++, JNI, CMake, Gradle, test, benchmark, and Android-project helper-script line. Lessons provide explanation, behavioral contracts, test cases, review, and hints. They do not provide project-ready implementation patches.
+- `photos-tiled-engine-course.html` — visual course index.
+- `curriculum/tiled_engine_curriculum.md` — all 539 lessons.
+- `curriculum/source_inventory.md` — exact source files used to design the plan.
+- `curriculum/source_coverage_matrix.md` — native/build responsibility coverage.
+- `curriculum/kotlin_coverage_matrix.md` — behavior-bearing Kotlin path coverage.
+- `curriculum/prerequisite_gates.md` — ordering rules that prevent undefined concepts.
+- `curriculum/design_method.md` — source-derived facts versus course-added prerequisites.
+- `curriculum/lesson_delivery_contract.md` — rules for future lesson artifacts.
+- `course/glossary.html` — canonical definitions.
+- `course/chapters/` — one hub per chapter.
+- `course/templates/` — future lesson templates.
+- `tools/verify-course.mjs` — structural checks.
 
-Manual authorship means creating the solution from understanding. It does not mean manually typing a generated answer.
+## Progress rule
 
-## Learning artifact layout
+A lesson is complete only after the learner manually writes its requested implementation, passes its focused verification, answers its exercises, and explicitly confirms completion.
 
-- `photos-tiled-engine-course.html` — course home.
-- `COURSE_STATE.json` — machine-readable progress and policy state.
-- `curriculum/` — master plan and conversation handoff.
-- `course/glossary.html` — canonical terminology.
-- `course/chapters/` — chapter hubs and prepared lessons.
-- `course/templates/` — reusable artifact templates.
-- `learner-work/` — exercises, observations, recordings, screenshots, traces, measurements, exports, and implementation log.
-- `tools/` — learning-document verification helpers.
-
-## Incremental delivery rule
-
-After this scope-reset package, each lesson ZIP contains only files created or modified for that lesson. Paths remain rooted beneath `photos-tiled-engine-learning-docs/`.
-
-There is no Android-code ZIP. The lesson names exact target paths and behavior, and the learner makes every Android-project change manually.
-
-## Naming rule
-
-- Course home: `photos-tiled-engine-course.html`
-- Chapter hub: `lesson-[chapter-name].html`
-- Sub-lesson: `lesson-[chapter-number]-[lesson-number]-[lesson-name].html`
-- Generic chapter `index.html` files are not used.
-
-## Verify
-
-From the repository root:
-
-```text
-node tools/verify-repository.mjs
-node tools/verify-lesson.mjs photos-tiled-engine-course.html --links-only
-```
-
-When Chromium is available, omit `--links-only` to capture a `1920×1080` screenshot.
+No superseded lesson is carried forward as completed, prepared, or pending.

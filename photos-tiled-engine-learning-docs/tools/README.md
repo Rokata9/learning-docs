@@ -1,35 +1,10 @@
-# Learning-document verification helpers
+# Verification tools
 
-From the repository root:
+Run from the repository root:
 
-```text
-node tools/verify-repository.mjs
+```bash
+node tools/verify-course.mjs .
+node tools/verify-lesson.mjs path/to/lesson.html
 ```
 
-This checks the required repository structure, all 24 chapter directories, exactly 216 `[Learner]` curriculum markers, removal of the old 50/50 markers, absence of Android/native source files and a `tiled-engine` directory, and enabled local HTML links.
-
-Check one HTML artifact. The lesson verifier also rejects multi-line code blocks that lack a language label, static token spans, or the shared `highlight` class:
-
-```text
-node tools/verify-lesson.mjs photos-tiled-engine-course.html --links-only
-```
-
-Capture its initial state when Chromium is installed:
-
-```text
-node tools/verify-lesson.mjs \
-  photos-tiled-engine-course.html \
-  verification/course-home-1920x1080.png
-```
-
-For an intentionally ultrawide artifact:
-
-```text
-node tools/verify-lesson.mjs \
-  course/chapters/chapter-NN/lesson-NN-NN-name.html \
-  verification/lesson-NN-NN-5120x1440.png \
-  --width=5120 \
-  --height=1440
-```
-
-The helpers verify learning artifacts only. They never read or modify the Android project.
+The course verifier checks structure and progress state. The lesson verifier enforces the minimum standalone HTML and static syntax-coloring contract.

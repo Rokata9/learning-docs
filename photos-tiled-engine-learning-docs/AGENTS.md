@@ -1,119 +1,72 @@
-# AGENTS.md — Photos Native Tiled-Image Engine Learning Documents
+# AGENTS.md — Photos tiled-engine learning repository
 
-## Scope
+## Canonical scope
 
-This repository contains the interactive learning documents for rebuilding the Photos app native tiled-image engine. The Android Studio project is separate. Do not copy the Android project or the erased `tiled-engine` module into this repository.
+Teach only the Android `tiled-engine` C++ implementation and the Kotlin code that directly controls or supports it.
 
-The Android project's existing learning chapters are non-canonical for this course. Do not link to them, import them, summarize them as prerequisites, or rely on them. The curriculum and lessons in this repository are the sole teaching path.
+Do not teach the photo grid, transition-framework internals, unrelated app architecture, project tours, baseline observation, recording catalogues, journals, scratchpads, evidence diaries, or implementation logs.
 
-## Learner-authorship rule
+## Learner calibration
 
-The learner authors and types **100% of every new Android-project implementation line**. This includes Kotlin, C++, JNI, CMake, Gradle, tests, benchmarks, tracing scripts, project helper scripts, and implementation comments.
+The learner is a senior web engineer and experienced general programmer.
 
-Manual authorship means creating the solution from understanding. It does not mean manually typing a generated answer.
+Treat the learner as a total beginner in C++, native toolchains, application binary interfaces, JNI, image processing, decoding, memory layout, Android native surfaces, EGL, OpenGL ES, GPU resources, low-level concurrency, and synchronization.
 
-Do not provide:
+Do not allocate standalone lessons to ordinary programming ideas such as what a branch or loop is. Teach their C++ form inside an engine-motivated task. Explain every unfamiliar low-level, image, graphics, memory, coordinate, ownership, or threading concept from first principles.
 
-- complete Android-project files;
-- replacement function bodies;
-- implementation patches or diffs that solve the lesson;
-- complete test bodies;
-- near-transcribable pseudocode for the current task;
-- excerpts from the erased native implementation before Lesson 24.9;
-- an Android code ZIP.
+## Lesson size
 
-You may provide:
+The current plan contains 539 lessons. That number is not a quota.
 
-- exact behavior contracts and invariants;
-- required names or signatures already imposed by surviving call sites or framework APIs;
-- input/output examples and test cases in prose;
-- diagrams and interactive models;
-- build, test, log, and tracing commands;
-- short isolated syntax examples that do not solve the current project task;
-- line-by-line review of code written by the learner;
-- progressively narrower hints.
+Each lesson has one primary concept and one independently verifiable contribution. Split a lesson when it relies on an undefined object, term, unit, coordinate space, ownership rule, thread, or API; combines two independent algorithms; or requires arithmetic whose inputs are not already established.
 
-When the learner is blocked, first restate the invariant and trace a concrete value. Then identify the failing boundary. Then give a conceptual hint. Review the learner's own code before offering a syntax-only example. The learner still writes the correction.
+## Explanation rules
 
-## Native-only scope boundary
-
-The course covers `TiledImageView`, its Android `SurfaceView` and gesture/lifecycle responsibilities, `TileEngineNative`, JNI, C++, image decoding, EGL/OpenGL rendering, tiling, caching, paging, synchronization, lifecycle recovery, and performance.
-
-The canonical harness is `NativeTestingActivity`. Use it whenever the lesson does not specifically require another host call site.
-
-Do not create lessons about `PhotosListFragment`, grid navigation, `transition-framework`, overlay clones, scrims, HQ/LQ transition-image loading, or animated return behavior. These systems may remain in the Android project, but they are outside the curriculum. Mention them only to state that they are excluded.
+- Define every term and acronym before use.
+- Use short declarative sentences. Give one idea per sentence.
+- Never substitute a metaphor or slogan for a causal explanation.
+- Trace one real value through input → operation → output for math, memory, coordinates, ownership, or thread handoffs.
+- Name the file and later consumer of every traced value.
+- Introduce each coordinate space only when the object that owns that space has already been defined.
+- Keep stored-image, logical-image, pyramid-level, tile-local, texture, view-local, Android screen, and normalized-device coordinates separate.
+- Use source constants and runtime dimensions. Never invent an HTML viewport and present arithmetic from it as engine behavior.
+- Use toy values only as explicitly labelled bridges. Map them to a real source constant or runtime value in the same lesson before drawing a design conclusion.
+- Introduce a complete pyramid level before a tile cut from that level.
+- Introduce geometry before decoder requests.
+- Prove the CPU-buffer-to-texture copy path before the optional hardware-buffer path.
+- Distinguish behavior proven by inspected source from prerequisite teaching added by the course.
+- State explicit deferrals when an Android or C++ API must temporarily be treated as a black box.
 
 ## Source policy
 
-- Only app code that directly constructs, configures, or consumes `TiledImageView` defines the course host contract. The transition framework is outside the course.
-- The original `tiled-engine` remains sealed in the immutable baseline until Lesson 24.9.
-- The instructor may use the sealed baseline privately to verify contracts and evidence limits. Do not expose its implementation as a shortcut.
-- Distinguish source-proven facts, framework-owned behavior, reasoned hypotheses, device observations, and measured results.
+The original implementation remains sealed until Lesson 60.13.
 
-## File naming
+Before that lesson, use the source to design contracts and tests. Do not reveal original implementation bodies or provide project-ready generated code. Surviving app call sites may be shown only when they define the module's public contract.
 
-- Course home: `photos-tiled-engine-course.html`.
-- Chapter hub: `lesson-[chapter-name].html`.
-- Sub-lesson: `lesson-[chapter-number]-[lesson-number]-[lesson-name].html`.
-- Do not create generic chapter `index.html` files.
+## Lesson artifact contract
 
-## Lesson requirements
+Every lesson is a standalone light-theme desktop HTML file containing:
 
-Every lesson must be one standalone HTML file that works from `file://`. Use inline CSS and JavaScript. Use inline SVG, Canvas, or WebGL2 when they improve the explanation. Do not use external libraries or content delivery networks.
+1. placement in the prerequisite chain;
+2. one primary outcome;
+3. definitions;
+4. a small source-derived contract or surviving call-site excerpt;
+5. an exact value trace when applicable;
+6. exact learner-authored file changes;
+7. build, test, trace, or focused device verification of the code written in that lesson;
+8. two to four exercises with hidden answers;
+9. objective completion criteria.
 
-Every multi-line code block must identify its language and use real syntax highlighting. Use statically generated token spans or an inline highlighter. The rendered block must remain readable without JavaScript. Use an explicit light code background, dark base text, and distinct colors for comments, keywords, strings, numbers, types, and function names. Do not ship monochrome snippets or low-contrast light-gray text on white.
+Do not assign observation journals.
 
-Every lesson must:
+## Code presentation
 
-1. Introduce one principal idea and at most one principal mathematical idea.
-2. Define every new C++, JNI, image, memory, operating-system, Android, GPU, rendering, geometry, and mathematical term at first use.
-3. Use short declarative sentences. One idea per sentence.
-4. Separate observation, source evidence, framework ownership, inference, and measurement.
-5. Trace one actual value through exact input → operation → intermediate state → output → later consumer.
-6. Include an interactive explanation when the concept is spatial, sequential, concurrent, or otherwise invisible.
-7. State the exact Android target paths and behavior contract, without supplying project-ready implementation code.
-8. Include a prediction before the learner changes or runs the project.
-9. Include a learner-authored coding task when the lesson changes the Android project.
-10. End with two to four exercises. Hide answers in `<details>` elements. Include at least one diagnostic misconception check.
-11. Include a copyable Markdown completion record with learner commit, changed files, evidence tier, and assistance level.
-12. Link the chapter hub, adjacent prepared lessons, curriculum, handoff, and glossary.
-
-Sequence explanations use a Back/Next stepper with exactly one state change per step. Code anchors include only surviving source excerpts or learner-written code. Image lessons expose buffers, bounds, coordinate origins, row stride, texture storage, and transparency before showing the final composite.
+Every multi-line code block labels its language, uses readable light-theme syntax coloring, and works without a content delivery network.
 
 ## Visual target
 
-- Light theme only.
-- Desktop only.
-- Verify at `1920×1080` or larger.
-- Use `5120×1440` when an intentionally ultrawide explanation benefits.
-- Keep prose in readable columns.
-- Use manual steppers before free-running animation when a sequence must be understood.
-- Do not hide essential information behind hover.
+Light theme only. Desktop only. Verify at 1920×1080. Verify wide system diagrams at 5120×1440 when horizontal space improves clarity. Use steppers for sequences and interactive HTML/SVG for spatial or mathematical explanations. Draw geometry from actual formulas.
 
-## Verification
+## Progress
 
-Before delivery:
-
-- open every changed HTML file from `file://`;
-- check all enabled relative links;
-- capture the initial state at `1920×1080` or larger;
-- capture at least one changed interactive state;
-- inspect for clipped labels, overlapping controls, unreadable text, and JavaScript errors;
-- verify that the curriculum still contains exactly 216 `[Learner]` lessons and no `[M]` or `[G]` ownership markers.
-
-## Progress truth
-
-At the end of every course response, state both lines:
-
-```text
-Course progress: X of 216 lessons completed.
-Estimated remaining context: ~N tokens. This is a best-effort approximation, not an exact measurement.
-```
-
-Count only lessons the learner explicitly confirms as completed. A prepared lesson does not increase X. Update the handoff after each learner-confirmed completion.
-
-## Incremental delivery packages
-
-After the native-only scope-reset package, deliver only an incremental ZIP containing learning-repository files created or modified for the new lesson. Preserve paths beneath `photos-tiled-engine-learning-docs/`.
-
-Do not include unchanged files, cumulative repository copies, verification screenshots, the Android project, Android source patches, or an empty Android ZIP.
+`COURSE_STATE.json` is authoritative. Current progress is 0 of 539. No superseded lesson is completed, prepared, or pending.
