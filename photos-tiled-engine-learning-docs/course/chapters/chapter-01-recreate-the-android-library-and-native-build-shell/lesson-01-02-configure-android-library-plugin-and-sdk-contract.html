@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 1.2 — Configure the Android library plugin and SDK contract</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #5c667a;
+      --line: #d8e0ea;
+      --paper: #ffffff;
+      --bg: #f5f7fb;
+      --green: #047857;
+      --green-soft: #ecfdf5;
+      --indigo: #4338ca;
+      --indigo-soft: #eef2ff;
+      --amber: #b45309;
+      --amber-soft: #fef3c7;
+      --pink: #be185d;
+      --pink-soft: #fce7f3;
+      --blue: #1e40af;
+      --blue-soft: #dbeafe;
+      --red: #b91c1c;
+      --red-soft: #fee2e2;
+      --slate-soft: #f8fafc;
+      --shadow: 0 16px 44px rgba(30, 41, 59, .08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: linear-gradient(180deg, #f8fafc 0%, #edf2f7 100%);
+      font: 16px/1.62 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    a { color: var(--blue); }
+    button { font: inherit; cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .46; }
+    code, pre, .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    code:not(pre code) { background: var(--indigo-soft); color: #312e81; padding: .1em .34em; border-radius: 5px; }
+
+    .page { width: min(3600px, calc(100% - 96px)); margin: 0 auto; padding: 28px 0 84px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 20px; max-width: 1840px; margin: 0 auto 20px; }
+    .crumbs { color: var(--muted); }
+    .status-chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; border: 1px solid #fcd34d; background: #fffbeb; color: #78350f; font-weight: 800; }
+
+    .panel { max-width: 1840px; margin-left: auto; margin-right: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); }
+    .panel.wide { max-width: 3200px; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1.34fr) minmax(420px, .66fr); gap: 28px; padding: 40px; }
+    .eyebrow { color: var(--green); font-size: 13px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { margin: .35rem 0 1rem; font-size: clamp(42px, 3.7vw, 64px); line-height: 1.04; letter-spacing: -.042em; }
+    h2 { margin: 0 0 .75rem; font-size: 29px; line-height: 1.2; letter-spacing: -.018em; }
+    h3 { margin: 0 0 .5rem; font-size: 20px; line-height: 1.25; }
+    p { max-width: 92ch; }
+    .lead { color: #3f4a5c; font-size: 19px; }
+    .goal { padding: 24px; border: 1px solid #c7d2fe; border-radius: 17px; background: linear-gradient(145deg, #eef2ff, #f8fafc); }
+    .goal p { margin-bottom: 0; }
+    .stats { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; }
+    .pill { display: inline-flex; border: 1px solid #cbd5e1; border-radius: 999px; background: #fff; padding: 6px 10px; font-weight: 750; color: #334155; }
+
+    .section { margin-top: 22px; padding: 30px; }
+    .section-head { display: flex; justify-content: space-between; align-items: start; gap: 28px; margin-bottom: 20px; }
+    .section-head p { margin: 0; color: var(--muted); }
+    .section-no { flex: 0 0 auto; color: var(--indigo); font-weight: 900; letter-spacing: .04em; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+    .card { padding: 19px; border: 1px solid var(--line); border-radius: 15px; background: #fbfcfe; }
+    .card p:last-child, .card ul:last-child { margin-bottom: 0; }
+    .card.green { background: var(--green-soft); border-color: #a7f3d0; }
+    .card.indigo { background: var(--indigo-soft); border-color: #c7d2fe; }
+    .card.amber { background: var(--amber-soft); border-color: #fcd34d; }
+    .card.red { background: var(--red-soft); border-color: #fecaca; }
+    .label { display: inline-block; margin-bottom: 8px; font-size: 12px; font-weight: 850; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    .note, .warning, .success { margin-top: 16px; padding: 15px 17px; border-radius: 13px; }
+    .note { background: var(--blue-soft); border-left: 5px solid var(--blue); color: #1e3a8a; }
+    .warning { background: var(--amber-soft); border-left: 5px solid var(--amber); color: #78350f; }
+    .success { background: var(--green-soft); border-left: 5px solid var(--green); color: #065f46; }
+
+    .code-block { margin: 14px 0; border: 1px solid #cbd5e1; border-radius: 13px; overflow: hidden; background: #fff; }
+    .code-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 9px 13px; border-bottom: 1px solid #dbe3ed; background: #eef2f7; color: #475569; font-size: 13px; font-weight: 800; }
+    pre.highlight { margin: 0; padding: 16px 18px; overflow: auto; background: #f8fafc; color: #1f2937; font: 14.5px/1.62 "SFMono-Regular", Consolas, "Liberation Mono", monospace; tab-size: 4; }
+    .tok-key { color: #7c3aed; font-weight: 650; }
+    .tok-type { color: #1d4ed8; }
+    .tok-str { color: #047857; }
+    .tok-num { color: #b45309; }
+    .tok-com { color: #6b7280; font-style: italic; }
+    .tok-fn { color: #be185d; }
+    .tok-prop { color: #0f766e; }
+    .tok-op { color: #9f1239; }
+    .tok-cmd { color: #1d4ed8; font-weight: 700; }
+    .tok-path { color: #047857; }
+
+    .correction { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 15px; align-items: start; padding: 18px; border: 1px solid #fcd34d; background: #fffbeb; border-radius: 15px; }
+    .correction-mark { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: #fff; border: 1px solid #fcd34d; color: var(--amber); font-size: 25px; font-weight: 900; }
+
+    .stepper { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(440px, .65fr); gap: 20px; }
+    .stage { min-height: 520px; padding: 22px; border: 1px solid var(--line); border-radius: 17px; background: linear-gradient(155deg, #f8fafc, #eef2ff); }
+    .stage-title { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
+    .stage-title strong { font-size: 18px; }
+    .stage-grid { display: grid; grid-template-columns: minmax(0, 1fr) 78px minmax(0, 1fr); gap: 16px; align-items: stretch; }
+    .model-pane { min-height: 370px; padding: 18px; border: 1px solid #cbd5e1; border-radius: 15px; background: #fff; }
+    .model-pane h3 { display: flex; justify-content: space-between; gap: 12px; }
+    .model-list { display: grid; gap: 10px; margin-top: 15px; }
+    .model-node { padding: 11px 13px; border: 2px solid #cbd5e1; border-radius: 12px; background: #fff; transition: opacity .15s ease, border-color .15s ease, background .15s ease, transform .15s ease; }
+    .model-node.root { border-color: var(--blue); background: var(--blue-soft); }
+    .model-node.live { border-color: var(--green); background: var(--green-soft); }
+    .model-node.new { border-color: var(--pink); background: var(--pink-soft); transform: translateY(-1px); }
+    .model-node.muted-node { opacity: .44; }
+    .node-sub { display: block; margin-top: 3px; color: var(--muted); font-size: 13px; }
+    .arrow { display: grid; place-items: center; color: var(--pink); font-size: 34px; font-weight: 900; }
+    .terminal { margin-top: 14px; padding: 13px; border: 1px solid #94a3b8; border-radius: 11px; background: #111827; color: #e5e7eb; font: 13.5px/1.55 "SFMono-Regular", Consolas, monospace; white-space: pre-wrap; }
+    .terminal .good { color: #6ee7b7; }
+    .step-info { padding: 22px; border: 1px solid var(--line); border-radius: 17px; background: #fff; }
+    .step-info h3 { font-size: 24px; }
+    .trace-row { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 12px; padding: 11px 0; border-bottom: 1px solid #e5e7eb; }
+    .trace-row:last-child { border-bottom: 0; }
+    .trace-row strong { color: var(--indigo); }
+    .step-controls { display: flex; align-items: center; gap: 10px; margin-top: 17px; }
+    .step-button { min-height: 42px; padding: 8px 14px; border-radius: 10px; border: 1px solid #cbd5e1; background: #fff; color: #334155; font-weight: 800; }
+    .step-button:hover { border-color: #94a3b8; background: #f8fafc; }
+    .step-button.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+    .dots { display: flex; gap: 7px; margin-left: auto; }
+    .dot { width: 13px; height: 13px; border-radius: 999px; border: 1px solid #94a3b8; background: #fff; padding: 0; min-height: 0; }
+    .dot.active { background: var(--indigo); border-color: var(--indigo); }
+
+    .trace-table { width: 100%; border-collapse: collapse; margin-top: 14px; }
+    .trace-table th, .trace-table td { text-align: left; vertical-align: top; padding: 12px 13px; border-bottom: 1px solid #e3e8ef; }
+    .trace-table th { background: #eef2f7; color: #334155; }
+    .trace-table tr:last-child td { border-bottom: 0; }
+    .manual-list { counter-reset: work; display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+    .manual-list > li { counter-increment: work; position: relative; padding: 18px 18px 18px 66px; border: 1px solid var(--line); border-radius: 14px; background: #fbfcfe; }
+    .manual-list > li::before { content: counter(work); position: absolute; left: 17px; top: 17px; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--indigo-soft); border: 1px solid #c7d2fe; color: var(--indigo); font-weight: 900; }
+    .manual-list h3 { margin-top: 1px; }
+
+    .verify-grid { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(420px, .88fr); gap: 17px; }
+    .checklist { display: grid; gap: 9px; padding: 0; margin: 13px 0 0; list-style: none; }
+    .checklist li { position: relative; padding-left: 28px; }
+    .checklist li::before { content: "✓"; position: absolute; left: 0; top: 0; color: var(--green); font-weight: 900; }
+    .trouble { width: 100%; border-collapse: collapse; }
+    .trouble th, .trouble td { text-align: left; vertical-align: top; padding: 11px 12px; border-bottom: 1px solid #e5e7eb; }
+    .trouble th { background: #eef2f7; }
+
+    details { margin: 11px 0; padding: 13px 15px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+    summary { cursor: pointer; font-weight: 800; color: #334155; }
+    details[open] summary { margin-bottom: 9px; }
+    .completion { display: grid; grid-template-columns: minmax(0, 1fr) minmax(410px, .62fr); gap: 18px; }
+    .footer-nav { display: flex; justify-content: space-between; gap: 20px; max-width: 1840px; margin: 28px auto 0; }
+    .footer-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 15px; border: 1px solid #cbd5e1; border-radius: 11px; background: #fff; text-decoration: none; font-weight: 800; }
+  
+    .contract-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .chain { display: grid; grid-template-columns: repeat(4, minmax(230px, 1fr)); gap: 12px; align-items: stretch; }
+    .chain-card { position: relative; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+    .chain-card:not(:last-child)::after { content: "→"; position: absolute; right: -18px; top: 50%; transform: translateY(-50%); z-index: 2; color: var(--pink); font-size: 27px; font-weight: 900; }
+    .do-not-copy { border: 1px solid #fecaca; background: #fff7f7; border-radius: 14px; padding: 17px; }
+    .two-axis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .axis { border: 2px solid #cbd5e1; border-radius: 15px; padding: 19px; background: #fff; }
+    .axis.compile { border-color: #93c5fd; background: #eff6ff; }
+    .axis.minimum { border-color: #a7f3d0; background: #ecfdf5; }
+    .big-value { display: block; margin: 8px 0 4px; font: 800 36px/1 "SFMono-Regular", Consolas, monospace; }
+    .evidence { margin: 12px 0 0; padding: 12px 14px; border-left: 4px solid var(--indigo); background: var(--indigo-soft); border-radius: 9px; }
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <div class="crumbs"><a href="../../../photos-tiled-engine-course.html">Course home</a> · <a href="index.html">Chapter 1</a></div>
+    <div class="status-chip">Prepared · not completed</div>
+  </div>
+
+  <section class="panel hero">
+    <div>
+      <div class="eyebrow">Phase 1 · Chapter 1 · Lesson 1.2</div>
+      <h1>Configure the Android library plugin and SDK contract</h1>
+      <p class="lead">You will turn the registered <code>:tiled-engine</code> Gradle subproject into a minimally configured Android library. You will create one build script and nothing else.</p>
+      <div class="stats">
+        <span class="pill">Primary concept: minimal Android-library configuration</span>
+        <span class="pill">Lesson-owned files: 1</span>
+        <span class="pill">Verification: Android tasks exist</span>
+      </div>
+    </div>
+    <aside class="goal">
+      <h2>Outcome</h2>
+      <p>At the end, Gradle applies Android Gradle Plugin <code>9.1.1</code> to <code>:tiled-engine</code> as a library plugin. The module has the namespace required by the surviving app call sites, compiles against Android API level <code>36</code>, and declares API level <code>23</code> as its device floor.</p>
+      <p><strong>The module still has no manifest, app dependency, source code, or native target.</strong></p>
+    </aside>
+  </section>
+
+  <section class="panel section">
+    <div class="section-head">
+      <div><div class="section-no">01 · POSITION IN THE CHAIN</div><h2>Lesson 1.1 supplied identity; Lesson 1.2 supplies Android behavior</h2></div>
+      <p>Completed prerequisite: Lesson 1.1.</p>
+    </div>
+    <div class="grid-3">
+      <article class="card green">
+        <span class="label">Already true</span>
+        <h3>Gradle knows <code>:tiled-engine</code></h3>
+        <p>The directory exists. The root settings script registers its project path. The directory contains only <code>.gitignore</code>.</p>
+      </article>
+      <article class="card indigo">
+        <span class="label">This lesson adds</span>
+        <h3>Android-library build behavior</h3>
+        <p>A new module build script applies the Android library plugin and supplies the three project-specific Android values needed at this stage.</p>
+      </article>
+      <article class="card amber">
+        <span class="label">Still deferred</span>
+        <h3>No package is built yet</h3>
+        <p>Lesson 1.3 adds the manifest and app dependency. Lesson 1.4 performs the first library build and checks the produced Android Archive.</p>
+      </article>
+    </div>
+    <div class="warning"><strong>Scope guard:</strong> do not restore the old module build file. Do not add dependencies, CMake, C++, Kotlin source, compiler options, build types, shrinking rules, View Binding, or test configuration. Those concerns have their own lessons.</div>
+  </section>
+
+  <section class="panel section">
+    <div class="section-head">
+      <div><div class="section-no">02 · DEFINITIONS</div><h2>The terms needed for this configuration</h2></div>
+      <p>These definitions describe the build model. They do not explain image rendering yet.</p>
+    </div>
+    <div class="grid-4">
+      <article class="card"><h3>Android Gradle Plugin (AGP)</h3><p>Google's Gradle plugin for Android builds. It adds Android-specific configuration and tasks to a Gradle project.</p></article>
+      <article class="card"><h3>Plugin ID</h3><p>A stable string that identifies a Gradle plugin. The Android library plugin ID is <code>com.android.library</code>.</p></article>
+      <article class="card"><h3>Version catalog</h3><p>The project file <code>gradle/libs.versions.toml</code>. It gives dependencies and plugins central names and versions.</p></article>
+      <article class="card"><h3>Plugin alias</h3><p>A generated Kotlin DSL accessor that refers to one plugin entry in the version catalog. Here the accessor is <code>libs.plugins.android.library</code>.</p></article>
+      <article class="card"><h3><code>apply false</code></h3><p>A root-build declaration that makes a plugin and version available without applying that plugin to the root project itself.</p></article>
+      <article class="card"><h3>Android library</h3><p>An Android-aware Gradle project whose packaged output is an Android Archive, abbreviated <strong>AAR</strong>, rather than an installable application package.</p></article>
+      <article class="card"><h3><code>android</code> extension</h3><p>The Android configuration object added by AGP. The <code>android { ... }</code> block configures that object.</p></article>
+      <article class="card"><h3>Namespace</h3><p>The package used for Android-generated classes such as the module's future <code>R</code> class. It is not the installed app's identity.</p></article>
+      <article class="card"><h3>API level</h3><p>An integer that identifies one Android platform API surface. The project uses API levels <code>36</code> and <code>23</code> for different purposes.</p></article>
+      <article class="card"><h3>Compile SDK</h3><p>The Android API level whose declarations are available while compiling the module. It does not define the oldest supported device.</p></article>
+      <article class="card"><h3>Minimum SDK</h3><p>The oldest Android API level that the library declares it supports. A normal consuming app must use an equal or higher minimum.</p></article>
+      <article class="card"><h3><code>defaultConfig</code></h3><p>The Android configuration block for values shared by every future build variant. In this lesson it contains only <code>minSdk</code>.</p></article>
+    </div>
+  </section>
+
+  <section class="panel section wide">
+    <div class="section-head">
+      <div><div class="section-no">03 · INTERACTIVE MODEL</div><h2>Watch one build-model fact appear at a time</h2></div>
+      <p>The model shows Gradle configuration. It does not run a compiler or produce an AAR.</p>
+    </div>
+    <div class="stepper">
+      <div class="stage">
+        <div class="stage-title"><strong id="stageHeading">Step 1 of 7</strong><span class="pill" id="stageBadge">Registered only</span></div>
+        <div class="stage-grid">
+          <section class="model-pane">
+            <h3>Build declarations <span class="label">files</span></h3>
+            <div class="model-list" id="fileModel"></div>
+          </section>
+          <div class="arrow" aria-hidden="true">→</div>
+          <section class="model-pane">
+            <h3>Gradle model <span class="label">in memory</span></h3>
+            <div class="model-list" id="gradleModel"></div>
+            <div class="terminal" id="terminalModel"></div>
+          </section>
+        </div>
+      </div>
+      <aside class="step-info">
+        <h3 id="stepTitle"></h3>
+        <p id="stepCaption"></p>
+        <div class="trace-row"><strong>Input</strong><span id="stepInput"></span></div>
+        <div class="trace-row"><strong>Operation</strong><span id="stepOperation"></span></div>
+        <div class="trace-row"><strong>Output</strong><span id="stepOutput"></span></div>
+        <div class="trace-row"><strong>Not yet</strong><span id="stepDeferred"></span></div>
+        <div class="step-controls">
+          <button class="step-button" id="stepBack" type="button">Back</button>
+          <button class="step-button primary" id="stepNext" type="button">Next</button>
+          <div class="dots" id="stepDots" aria-label="Lesson steps"></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="panel section">
+    <div class="section-head">
+      <div><div class="section-no">04 · SOURCE-DERIVED CONTRACT</div><h2>Derive every configuration value from surviving project files</h2></div>
+      <p>The sealed <code>tiled-engine</code> implementation is not shown.</p>
+    </div>
+
+    <div class="contract-grid">
+      <article class="card">
+        <span class="label">Root build · <code>build.gradle.kts:2–5</code></span>
+        <h3>The library plugin is already declared centrally</h3>
+        <div class="code-block"><div class="code-head"><span>Root plugin declaration</span><span>Kotlin DSL</span></div><pre class="highlight" data-language="kotlin"><code><span class="tok-key">plugins</span> {
+    <span class="tok-fn">alias</span>(<span class="tok-prop">libs</span>.<span class="tok-prop">plugins</span>.<span class="tok-prop">android</span>.<span class="tok-prop">library</span>) <span class="tok-key">apply</span> <span class="tok-key">false</span>
+}</code></pre></div>
+        <p><code>apply false</code> means that the root build declares the plugin and version but does not turn the root project into an Android library.</p>
+      </article>
+
+      <article class="card">
+        <span class="label">Version catalog · <code>gradle/libs.versions.toml:2, 51–55</code></span>
+        <h3>The alias resolves to one plugin ID and one version</h3>
+        <div class="code-block"><div class="code-head"><span>Plugin mapping</span><span>TOML</span></div><pre class="highlight" data-language="toml"><code><span class="tok-key">[versions]</span>
+<span class="tok-prop">agp</span> <span class="tok-op">=</span> <span class="tok-str">"9.1.1"</span>
+
+<span class="tok-key">[plugins]</span>
+<span class="tok-prop">android-library</span> <span class="tok-op">=</span> { <span class="tok-prop">id</span> <span class="tok-op">=</span> <span class="tok-str">"com.android.library"</span>, <span class="tok-prop">version.ref</span> <span class="tok-op">=</span> <span class="tok-str">"agp"</span> }</code></pre></div>
+        <p>Gradle generates the dotted accessor <code>libs.plugins.android.library</code> from the hyphenated catalog name <code>android-library</code>.</p>
+      </article>
+
+      <article class="card">
+        <span class="label">Surviving app call sites</span>
+        <h3>The caller fixes the library namespace</h3>
+        <div class="code-block"><div class="code-head"><span><code>PhotoDetailFragment.kt:17</code></span><span>Kotlin</span></div><pre class="highlight" data-language="kotlin"><code><span class="tok-key">import</span> <span class="tok-path">com.example.androiduisamples.tiledengine</span>.<span class="tok-type">TiledImageView</span></code></pre></div>
+        <div class="code-block"><div class="code-head"><span><code>activity_native_testing.xml:14</code></span><span>XML</span></div><pre class="highlight" data-language="xml"><code><span class="tok-op">&lt;</span><span class="tok-type">com.example.androiduisamples.tiledengine.TiledImageView</span></code></pre></div>
+        <p>Both callers expect the future class under <code>com.example.androiduisamples.tiledengine</code>. That same base package becomes this module's namespace.</p>
+      </article>
+
+      <article class="card">
+        <span class="label">App module · <code>app/build.gradle.kts:26–32</code></span>
+        <h3>The app fixes the current SDK pair</h3>
+        <div class="code-block"><div class="code-head"><span>Relevant app values</span><span>Kotlin DSL</span></div><pre class="highlight" data-language="kotlin"><code><span class="tok-prop">namespace</span> <span class="tok-op">=</span> <span class="tok-str">"com.example.photos"</span>
+<span class="tok-prop">compileSdk</span> <span class="tok-op">=</span> <span class="tok-num">36</span>
+
+<span class="tok-fn">defaultConfig</span> {
+    <span class="tok-prop">applicationId</span> <span class="tok-op">=</span> <span class="tok-str">"com.example.photos"</span>
+    <span class="tok-prop">minSdk</span> <span class="tok-op">=</span> <span class="tok-num">23</span>
+    <span class="tok-prop">targetSdk</span> <span class="tok-op">=</span> <span class="tok-num">36</span>
+}</code></pre></div>
+        <p>The library shares <code>compileSdk = 36</code> and <code>minSdk = 23</code>. It does <strong>not</strong> copy the app namespace, <code>applicationId</code>, or <code>targetSdk</code>.</p>
+      </article>
+    </div>
+
+    <div class="note"><strong>Built-in Kotlin:</strong> this project uses AGP <code>9.1.1</code>. AGP 9 enables Kotlin support in Android modules by default. Do not apply <code>libs.plugins.kotlin.android</code> in <code>:tiled-engine</code>. The root build still declares that older alias with <code>apply false</code>, but no current module needs to apply it. Cleaning the unused root declaration is outside this lesson.</div>
+    <div class="evidence"><strong>Evidence boundary:</strong> the surviving root build and version catalog prove the plugin alias and version. The app build proves the current SDK values. The surviving Kotlin import and XML class name prove the expected package. These files do not prove that an AAR can already be assembled; Lesson 1.4 performs that build.</div>
+  </section>
+
+  <section class="panel section">
+    <div class="section-head">
+      <div><div class="section-no">05 · EXACT VALUE TRACES</div><h2>Follow the plugin alias and keep the two SDK numbers separate</h2></div>
+      <p>No arithmetic is needed. The important work is tracing who supplies and consumes each value.</p>
+    </div>
+
+    <h3>Trace A — <code>libs.plugins.android.library</code></h3>
+    <div class="chain">
+      <article class="chain-card"><span class="label">Module input</span><strong><code>libs.plugins.android.library</code></strong><p>The new module build script requests one generated catalog accessor.</p></article>
+      <article class="chain-card"><span class="label">Catalog lookup</span><strong><code>android-library</code></strong><p>The accessor maps to the plugin entry with this catalog key.</p></article>
+      <article class="chain-card"><span class="label">Resolved value</span><strong><code>com.android.library</code> · <code>9.1.1</code></strong><p>The entry supplies the plugin ID and follows <code>version.ref = "agp"</code>.</p></article>
+      <article class="chain-card"><span class="label">Consumer</span><strong>Project <code>:tiled-engine</code></strong><p>AGP adds the <code>android</code> extension and Android-library tasks to this project.</p></article>
+    </div>
+
+    <h3 style="margin-top:26px">Trace B — the namespace</h3>
+    <table class="trace-table">
+      <thead><tr><th>Stage</th><th>Exact value</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>Surviving caller input</td><td><code>com.example.androiduisamples.tiledengine.TiledImageView</code></td><td>The app expects a class with this fully qualified name.</td></tr>
+        <tr><td>Base package</td><td><code>com.example.androiduisamples.tiledengine</code></td><td>Remove the class name. The remaining package is the library contract.</td></tr>
+        <tr><td>Module configuration</td><td><code>namespace = "com.example.androiduisamples.tiledengine"</code></td><td>AGP will place future Android-generated classes, including the future <code>R</code> class, in this namespace.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:26px">Trace C — two independent SDK decisions</h3>
+    <div class="two-axis">
+      <article class="axis compile">
+        <span class="label">Compilation API surface</span>
+        <span class="big-value">36</span>
+        <p><code>compileSdk = 36</code> tells AGP which Android API declarations the module may reference while compiling.</p>
+        <p><strong>It does not say that the device must run API 36.</strong></p>
+      </article>
+      <article class="axis minimum">
+        <span class="label">Oldest supported device API</span>
+        <span class="big-value">23</span>
+        <p><code>minSdk = 23</code> states the lowest Android API level supported by the library contract.</p>
+        <p><strong>It does not limit which API declarations the compiler can see.</strong></p>
+      </article>
+    </div>
+    <div class="success"><strong>Why these values are kept instead of upgraded:</strong> the goal is behavioral reconstruction of the attached project. The app currently uses <code>compileSdk = 36</code> and <code>minSdk = 23</code>. AGP 9.1.1 can support newer compile platforms, but changing the project baseline is a separate upgrade decision.</div>
+  </section>
+
+  <section class="panel section">
+    <div class="section-head">
+      <div><div class="section-no">06 · MANUAL WORK</div><h2>Create one minimal module build script</h2></div>
+      <p>You author every line. The outline below shows DSL nesting, not a finished file.</p>
+    </div>
+
+    <ol class="manual-list">
+      <li><h3>Create <code>tiled-engine/build.gradle.kts</code></h3><p>This is the only file created or edited by Lesson 1.2.</p></li>
+      <li><h3>Apply the catalog's Android library plugin alias</h3><p>Use the accessor traced in Section 5. Do not apply the Android application plugin. Do not apply the Kotlin Android plugin.</p></li>
+      <li><h3>Configure the namespace</h3><p>Use the base package derived from the surviving <code>TiledImageView</code> import and XML class name.</p></li>
+      <li><h3>Configure the compile SDK</h3><p>Use the same compile API level as the current app module.</p></li>
+      <li><h3>Configure the minimum SDK inside <code>defaultConfig</code></h3><p>Use the same device floor as the app module.</p></li>
+    </ol>
+
+    <div class="code-block"><div class="code-head"><span>Required DSL nesting — replace each comment from the contracts above</span><span>Kotlin DSL</span></div><pre class="highlight" data-language="kotlin"><code><span class="tok-key">plugins</span> {
+    <span class="tok-fn">alias</span>(<span class="tok-com">/* library plugin accessor */</span>)
+}
+
+<span class="tok-fn">android</span> {
+    <span class="tok-prop">namespace</span> <span class="tok-op">=</span> <span class="tok-com">/* library base package */</span>
+    <span class="tok-prop">compileSdk</span> <span class="tok-op">=</span> <span class="tok-com">/* app compile API level */</span>
+
+    <span class="tok-fn">defaultConfig</span> {
+        <span class="tok-prop">minSdk</span> <span class="tok-op">=</span> <span class="tok-com">/* app minimum API level */</span>
+    }
+}</code></pre></div>
+
+    <div class="do-not-copy">
+      <h3>Do not add these app-only or later-lesson declarations</h3>
+      <div class="grid-3">
+        <div><strong>App identity</strong><p><code>applicationId</code>, <code>versionCode</code>, and <code>versionName</code> belong to the installable app.</p></div>
+        <div><strong>App behavior target</strong><p>Do not copy <code>targetSdk</code>. The current app owns the final application's target value.</p></div>
+        <div><strong>Later build concerns</strong><p>No dependencies, manifest, build types, shrinker rules, Java target, Kotlin compiler block, CMake, or tests yet.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel section">
+    <div class="section-head">
+      <div><div class="section-no">07 · VERIFICATION</div><h2>Ask Gradle which tasks now belong to <code>:tiled-engine</code></h2></div>
+      <p>This verifies configuration only. It deliberately does not assemble the library.</p>
+    </div>
+    <div class="verify-grid">
+      <div class="card">
+        <h3>WSL, Linux, or macOS</h3>
+        <div class="code-block"><div class="code-head"><span>Run from the Photos project root</span><span>Shell</span></div><pre class="highlight" data-language="shell"><code><span class="tok-cmd">./gradlew</span> <span class="tok-path">:tiled-engine:tasks</span> <span class="tok-key">--all</span> <span class="tok-key">--provenance</span> <span class="tok-key">--console=plain</span></code></pre></div>
+        <h3>Windows PowerShell</h3>
+        <div class="code-block"><div class="code-head"><span>Run from the Photos project root</span><span>PowerShell</span></div><pre class="highlight" data-language="powershell"><code><span class="tok-cmd">.\gradlew.bat</span> <span class="tok-path">:tiled-engine:tasks</span> <span class="tok-key">--all</span> <span class="tok-key">--provenance</span> <span class="tok-key">--console=plain</span></code></pre></div>
+      </div>
+      <aside class="card green">
+        <h3>Required result</h3>
+        <ul class="checklist">
+          <li>The command ends with <code>BUILD SUCCESSFUL</code>.</li>
+          <li>The report is for project <code>:tiled-engine</code>.</li>
+          <li>An Android debug assembly task such as <code>assembleDebug</code> is listed.</li>
+          <li>The report contains no namespace or compile-SDK configuration error.</li>
+          <li>No APK or AAR is claimed as produced. The <code>tasks</code> report lists work; it does not execute that work.</li>
+        </ul>
+      </aside>
+    </div>
+
+    <table class="trace-table">
+      <thead><tr><th>Failure</th><th>What the failure means here</th></tr></thead>
+      <tbody>
+        <tr><td><code>Unresolved reference: android</code></td><td>The Android library plugin was not applied successfully before the <code>android { ... }</code> block was evaluated.</td></tr>
+        <tr><td><code>Namespace not specified</code></td><td>The namespace assignment is absent, misspelled, or outside the Android configuration block.</td></tr>
+        <tr><td><code>compileSdk is not specified</code></td><td>The compile API level is absent or outside the Android configuration block.</td></tr>
+        <tr><td>A message says <code>org.jetbrains.kotlin.android</code> is no longer required</td><td>The Kotlin Android plugin was applied. Remove it; AGP 9.1.1 already provides built-in Kotlin support.</td></tr>
+        <tr><td>The app fails with unresolved <code>TiledImageView</code></td><td>You ran a broader app build. That failure remains expected because the app dependency and class source have not been restored.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="panel section">
+    <div class="section-head">
+      <div><div class="section-no">08 · EXERCISES</div><h2>Answer without opening the hidden answers</h2></div>
+      <p>Exercise 2 targets the most likely SDK misconception.</p>
+    </div>
+    <details>
+      <summary>Exercise 1 — Trace <code>libs.plugins.android.library</code> to the exact plugin ID and version that Gradle applies.</summary>
+      <p><strong>Answer:</strong> The generated accessor maps to the <code>android-library</code> entry in <code>libs.versions.toml</code>. That entry specifies plugin ID <code>com.android.library</code> and follows <code>version.ref = "agp"</code>. The <code>agp</code> version is <code>9.1.1</code>.</p>
+    </details>
+    <details>
+      <summary>Exercise 2 — The module uses <code>compileSdk = 36</code>. Does that prevent it from running inside the app on an API 23 device? Explain which value decides the device floor.</summary>
+      <p><strong>Answer:</strong> No. <code>compileSdk = 36</code> selects the Android API declarations visible while compiling. <code>minSdk = 23</code> declares the oldest supported device API level. Using a newer API at runtime still requires version-aware code, but the compile SDK number alone does not raise the device floor.</p>
+    </details>
+    <details>
+      <summary>Exercise 3 — Why is <code>com.example.androiduisamples.tiledengine</code> a namespace but not an <code>applicationId</code> in this module?</summary>
+      <p><strong>Answer:</strong> The namespace owns the module's Android-generated classes and matches the package expected by surviving callers. The library is not installed as a separate app, so it does not define the installed application's identity. The <code>:app</code> module owns <code>applicationId = "com.example.photos"</code>.</p>
+    </details>
+    <details>
+      <summary>Exercise 4 — The root build already contains <code>alias(libs.plugins.android.library) apply false</code>. Why must the module still apply the alias without <code>apply false</code>?</summary>
+      <p><strong>Answer:</strong> The root declaration makes the plugin version available but deliberately does not apply its behavior to the root. The module-level declaration actually applies the plugin to <code>:tiled-engine</code>, which adds the Android extension and Android-library tasks there.</p>
+    </details>
+  </section>
+
+  <section class="panel section completion">
+    <div>
+      <div class="section-no">09 · COMPLETION GATE</div>
+      <h2>Lesson 1.2 is complete only when all conditions are true</h2>
+      <ul class="checklist">
+        <li>Lesson 1.1 remains complete.</li>
+        <li><code>tiled-engine/build.gradle.kts</code> exists.</li>
+        <li>The module applies only the Android library plugin alias at this stage.</li>
+        <li>The namespace is <code>com.example.androiduisamples.tiledengine</code>.</li>
+        <li><code>compileSdk</code> is <code>36</code>.</li>
+        <li><code>minSdk</code> is <code>23</code> inside <code>defaultConfig</code>.</li>
+        <li>No manifest, dependency, source directory, Kotlin class, CMake file, or C++ file has been added.</li>
+        <li>The focused task report succeeds and lists Android tasks for <code>:tiled-engine</code>.</li>
+        <li>You have completed the exercises and explicitly confirm readiness for Lesson 1.3.</li>
+      </ul>
+    </div>
+    <aside class="card amber">
+      <h3>Progress state</h3>
+      <p>This lesson is prepared, not completed.</p>
+      <p><strong>Course progress:</strong> 1 of 539 lessons completed.</p>
+      <p><strong>Next after completion:</strong> Lesson 1.3 adds the component-free manifest and reconnects the app to the module.</p>
+    </aside>
+  </section>
+
+  <section class="panel section">
+    <div class="section-head"><div><div class="section-no">REFERENCES</div><h2>What this lesson is based on</h2></div></div>
+    <ul>
+      <li>Attached Photos source: root <code>build.gradle.kts</code>, <code>gradle/libs.versions.toml</code>, <code>app/build.gradle.kts</code>, <code>PhotoDetailFragment.kt</code>, and <code>activity_native_testing.xml</code>.</li>
+      <li><a href="https://developer.android.com/build/migrate-to-catalogs">Android Developers — Migrate your build to version catalogs</a>.</li>
+      <li><a href="https://developer.android.com/studio/projects/android-library">Android Developers — Create an Android library</a>.</li>
+      <li><a href="https://developer.android.com/build/configure-app-module#set-namespace">Android Developers — Set the namespace</a>.</li>
+      <li><a href="https://developer.android.com/build/migrate-to-built-in-kotlin">Android Developers — Migrate to built-in Kotlin</a>.</li>
+      <li><a href="https://developer.android.com/build/releases/agp-9-1-0-release-notes">Android Developers — Android Gradle Plugin 9.1.1 compatibility</a>.</li>
+      <li><a href="https://docs.gradle.org/current/userguide/command_line_interface.html#sec:listing_tasks">Gradle User Manual — Listing tasks and provenance</a>.</li>
+    </ul>
+  </section>
+
+  <nav class="footer-nav">
+    <a href="lesson-01-01-register-empty-gradle-subproject.html">← Lesson 1.1</a>
+    <a href="index.html">Chapter 1 map</a>
+    <span class="pill">Lesson 1.3 remains planned</span>
+  </nav>
+</main>
+
+<script>
+(() => {
+  const steps = [
+    {
+      badge: 'Registered only',
+      title: 'Begin with a generic Gradle subproject',
+      caption: 'Lesson 1.1 gave the project an identity and directory. No module build script exists, so no Android plugin is applied.',
+      input: 'Registered project path :tiled-engine.',
+      operation: 'Read the current module directory and Gradle project model.',
+      output: 'A generic Gradle subproject with no Android behavior.',
+      deferred: 'No build script, Android extension, SDK values, or Android tasks.',
+      files: ['settings.gradle.kts  (includes :tiled-engine)', 'tiled-engine/.gitignore'],
+      model: ['Project :tiled-engine', 'Plugin: none', 'Android extension: absent'],
+      terminal: `$ ./gradlew :tiled-engine:tasks
+(not run in this state)`,
+      newFile: null,
+      newModel: null
+    },
+    {
+      badge: 'Build script exists',
+      title: 'Create the module build script',
+      caption: 'Gradle now has a project-level script to evaluate for :tiled-engine. An empty script alone still adds no Android behavior.',
+      input: 'Physical file tiled-engine/build.gradle.kts.',
+      operation: 'Gradle associates the script with project :tiled-engine.',
+      output: 'The project has a configuration script.',
+      deferred: 'No plugin has been applied yet.',
+      files: ['settings.gradle.kts  (includes :tiled-engine)', 'tiled-engine/.gitignore', 'tiled-engine/build.gradle.kts  (empty)'],
+      model: ['Project :tiled-engine', 'Build script: present', 'Plugin: none', 'Android extension: absent'],
+      terminal: `$ ./gradlew :tiled-engine:tasks
+(generic Gradle tasks only)`,
+      newFile: 'tiled-engine/build.gradle.kts  (empty)',
+      newModel: 'Build script: present'
+    },
+    {
+      badge: 'Plugin applied',
+      title: 'Resolve and apply the Android library plugin',
+      caption: 'The module alias resolves through the version catalog to com.android.library version 9.1.1. Applying that plugin adds Android build behavior to this project.',
+      input: 'alias(libs.plugins.android.library) in the module plugins block.',
+      operation: 'Resolve catalog key android-library, plugin ID com.android.library, and version 9.1.1; then apply the plugin to :tiled-engine.',
+      output: 'The android extension and Android-library tasks exist.',
+      deferred: 'The Android extension still lacks project-specific values.',
+      files: ['gradle/libs.versions.toml', 'root build.gradle.kts  (apply false)', 'tiled-engine/build.gradle.kts  (plugin alias)'],
+      model: ['Project :tiled-engine', 'Plugin: com.android.library 9.1.1', 'Android extension: present'],
+      terminal: `$ ./gradlew :tiled-engine:tasks
+(configuration still incomplete)`,
+      newFile: 'tiled-engine/build.gradle.kts  (plugin alias)',
+      newModel: 'Plugin: com.android.library 9.1.1'
+    },
+    {
+      badge: 'Namespace configured',
+      title: 'Give generated Android code its package',
+      caption: 'The namespace matches the package expected by the surviving TiledImageView import and XML class name.',
+      input: 'com.example.androiduisamples.tiledengine.',
+      operation: 'Assign the string to android.namespace.',
+      output: 'Future generated Android classes belong to that namespace.',
+      deferred: 'The compile API level and device floor are still absent.',
+      files: ['tiled-engine/build.gradle.kts  (+ namespace)'],
+      model: ['Project :tiled-engine', 'Plugin: com.android.library 9.1.1', 'Namespace: com.example.androiduisamples.tiledengine', 'compileSdk: absent', 'minSdk: absent'],
+      terminal: `$ ./gradlew :tiled-engine:tasks
+(compileSdk still required)`,
+      newFile: 'tiled-engine/build.gradle.kts  (+ namespace)',
+      newModel: 'Namespace: com.example.androiduisamples.tiledengine'
+    },
+    {
+      badge: 'Compile API configured',
+      title: 'Select the Android declarations visible to the compiler',
+      caption: 'compileSdk 36 matches the current app. It selects the compile-time Android API surface; it does not set the device floor.',
+      input: 'Integer 36 from app/build.gradle.kts.',
+      operation: 'Assign 36 to android.compileSdk.',
+      output: 'AGP can configure compilation against Android API level 36.',
+      deferred: 'The minimum supported device API is still absent.',
+      files: ['app/build.gradle.kts  (compileSdk = 36)', 'tiled-engine/build.gradle.kts  (+ compileSdk)'],
+      model: ['Project :tiled-engine', 'Plugin: com.android.library 9.1.1', 'Namespace: configured', 'compileSdk: 36', 'minSdk: absent'],
+      terminal: `$ ./gradlew :tiled-engine:tasks
+(minSdk contract not set yet)`,
+      newFile: 'tiled-engine/build.gradle.kts  (+ compileSdk)',
+      newModel: 'compileSdk: 36'
+    },
+    {
+      badge: 'Device floor configured',
+      title: 'Declare the oldest supported Android API level',
+      caption: 'minSdk 23 matches the consuming app. This is a separate decision from compileSdk 36.',
+      input: 'Integer 23 from app/build.gradle.kts.',
+      operation: 'Assign 23 inside android.defaultConfig.',
+      output: 'The minimal Android-library configuration is complete.',
+      deferred: 'The manifest, app dependency, sources, and native target are still absent.',
+      files: ['app/build.gradle.kts  (minSdk = 23)', 'tiled-engine/build.gradle.kts  (+ defaultConfig/minSdk)'],
+      model: ['Project :tiled-engine', 'Plugin: com.android.library 9.1.1', 'Namespace: configured', 'compileSdk: 36', 'minSdk: 23'],
+      terminal: `$ ./gradlew :tiled-engine:tasks
+(ready for focused task report)`,
+      newFile: 'tiled-engine/build.gradle.kts  (+ defaultConfig/minSdk)',
+      newModel: 'minSdk: 23'
+    },
+    {
+      badge: 'Configuration verified',
+      title: 'List the Android tasks without building the library',
+      caption: 'The focused tasks report configures :tiled-engine and lists work added by the Android library plugin. It does not execute assembleDebug.',
+      input: './gradlew :tiled-engine:tasks --all --provenance --console=plain.',
+      operation: 'Configure the project and print its task report.',
+      output: 'BUILD SUCCESSFUL and Android tasks such as assembleDebug are listed. The task description can vary by plugin version.',
+      deferred: 'No AAR has been produced; the first assembly is Lesson 1.4.',
+      files: ['tiled-engine/build.gradle.kts  (minimal Android library configuration)'],
+      model: ['Project :tiled-engine', 'Plugin: com.android.library 9.1.1', 'Namespace: configured', 'compileSdk: 36', 'minSdk: 23', 'Task: assembleDebug  (listed, not run)'],
+      terminal: `$ ./gradlew :tiled-engine:tasks --all --provenance --console=plain
+...
+assembleDebug  ...
+...
+BUILD SUCCESSFUL`,
+      newFile: null,
+      newModel: 'Task: assembleDebug  (listed, not run)'
+    }
+  ];
+
+  let index = 0;
+  const $ = id => document.getElementById(id);
+
+  function node(label, kind, isNew) {
+    const div = document.createElement('div');
+    div.className = `model-node ${kind}${isNew ? ' new' : ''}`;
+    const strong = document.createElement('strong');
+    strong.textContent = label;
+    div.appendChild(strong);
+    if (label.includes('build.gradle.kts') || label.includes('libs.versions.toml') || label.includes('settings.gradle.kts')) {
+      const sub = document.createElement('span');
+      sub.className = 'node-sub';
+      sub.textContent = 'build declaration';
+      div.appendChild(sub);
+    } else if (label.startsWith('Plugin:')) {
+      const sub = document.createElement('span');
+      sub.className = 'node-sub';
+      sub.textContent = 'behavior applied to :tiled-engine';
+      div.appendChild(sub);
+    } else if (label.startsWith('compileSdk:')) {
+      const sub = document.createElement('span');
+      sub.className = 'node-sub';
+      sub.textContent = 'compile-time Android API level';
+      div.appendChild(sub);
+    } else if (label.startsWith('minSdk:')) {
+      const sub = document.createElement('span');
+      sub.className = 'node-sub';
+      sub.textContent = 'oldest supported device API level';
+      div.appendChild(sub);
+    }
+    return div;
+  }
+
+  function render() {
+    const step = steps[index];
+    $('stageHeading').textContent = `Step ${index + 1} of ${steps.length}`;
+    $('stageBadge').textContent = step.badge;
+    $('stepTitle').textContent = step.title;
+    $('stepCaption').textContent = step.caption;
+    $('stepInput').textContent = step.input;
+    $('stepOperation').textContent = step.operation;
+    $('stepOutput').textContent = step.output;
+    $('stepDeferred').textContent = step.deferred;
+
+    const fileHost = $('fileModel');
+    fileHost.innerHTML = '';
+    step.files.forEach((name, i) => fileHost.appendChild(node(name, i === 0 ? 'root' : 'live', name === step.newFile)));
+
+    const gradleHost = $('gradleModel');
+    gradleHost.innerHTML = '';
+    step.model.forEach((name, i) => gradleHost.appendChild(node(name, i === 0 ? 'root' : 'live', name === step.newModel)));
+
+    $('terminalModel').innerHTML = step.terminal
+      .replace(/BUILD SUCCESSFUL/g, '<span class="good">BUILD SUCCESSFUL</span>')
+      .replace(/assembleDebug/g, '<span class="good">assembleDebug</span>');
+
+    $('stepBack').disabled = index === 0;
+    $('stepNext').disabled = index === steps.length - 1;
+    document.querySelectorAll('.dot').forEach((dot, i) => {
+      dot.classList.toggle('active', i === index);
+      dot.setAttribute('aria-current', i === index ? 'step' : 'false');
+    });
+  }
+
+  steps.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'dot';
+    dot.setAttribute('aria-label', `Open step ${i + 1}`);
+    dot.addEventListener('click', () => { index = i; render(); });
+    $('stepDots').appendChild(dot);
+  });
+  $('stepBack').addEventListener('click', () => { if (index > 0) { index -= 1; render(); } });
+  $('stepNext').addEventListener('click', () => { if (index < steps.length - 1) { index += 1; render(); } });
+  render();
+})();
+</script>
+</body>
+</html>

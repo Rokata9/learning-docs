@@ -69,4 +69,13 @@ Light theme only. Desktop only. Verify at 1920×1080. Verify wide system diagram
 
 ## Progress
 
-`COURSE_STATE.json` is authoritative. Current progress is 0 of 539. Lesson 1.1 is prepared and awaiting learner confirmation. No superseded lesson is completed, prepared, or pending.
+`COURSE_STATE.json` is authoritative. Current progress is 1 of 539. Lesson 1.1 is complete. Lesson 1.2 is prepared and awaiting learner confirmation. No superseded lesson is completed, prepared, or pending.
+
+
+## Conversation continuity
+
+End every visible assistant message in this course conversation with a best-effort estimate in this exact form:
+
+`Estimated remaining context window: ~N tokens.`
+
+When moving to a new chat, use `CHAT_HANDOFF_PROMPT.md`. The new chat should receive the latest full learning-repository ZIP, the original Photos project ZIP, and the user's global `AGENTS.md`. The original source remains sealed from the learner until Lesson 60.13 even though the assistant may inspect it privately to derive contracts and coverage.

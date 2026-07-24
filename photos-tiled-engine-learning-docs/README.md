@@ -4,7 +4,7 @@ This repository is the canonical learning path for manually rebuilding the Andro
 
 **Course version:** 4.0  
 **Current plan:** **539 small lessons**, **60 chapters**, **9 phases**  
-**Completed:** 0  
+**Completed:** 1  
 **Android implementation ownership:** 100% learner-authored
 
 ## Design reset
@@ -50,9 +50,9 @@ Keep one sealed copy outside that branch. Do not inspect its implementation bodi
 
 ## Current lesson
 
-**1.1 — Register the empty `:tiled-engine` Gradle subproject**
+**1.2 — Configure the Android library plugin, namespace, compile SDK, and minimum SDK**
 
-Status: prepared, awaiting learner implementation and confirmation.
+Status: prepared, awaiting learner implementation and confirmation. Lesson 1.1 is complete.
 
 The first lesson changes the project. It is not an observation lesson.
 
@@ -70,6 +70,7 @@ The first lesson changes the project. It is not an observation lesson.
 - `course/chapters/` — one hub per chapter.
 - `course/templates/` — future lesson templates.
 - `tools/verify-course.mjs` — structural checks.
+- `CHAT_HANDOFF_PROMPT.md` — pasteable continuation prompt and required attachments for a new chat.
 
 ## Progress rule
 
