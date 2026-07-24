@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Lesson 2.9 — Build a coordinate inspector</title>
+<style>
+:root{color-scheme:light;--ink:#172033;--muted:#5c687a;--line:#d8e0ea;--paper:#fff;--soft:#f5f7fb;--green:#059669;--green-soft:#ecfdf5;--indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;--pink:#be185d;--pink-soft:#fce7f3;--blue:#1e40af;--blue-soft:#dbeafe;--red:#dc2626;--red-soft:#fee2e2;--shadow:0 18px 52px rgba(30,41,59,.09)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:linear-gradient(180deg,#f8fafc 0%,#edf2f7 100%);font:16px/1.62 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.48}code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}code{background:var(--indigo-soft);color:#312e81;padding:.12em .36em;border-radius:6px}.page{width:min(4860px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:22px}.crumbs{color:var(--muted)}.lesson-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:var(--green-soft);border:1px solid #a7f3d0;color:#065f46;font-weight:800;white-space:nowrap}.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.hero{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(460px,.7fr);gap:30px;padding:42px}.eyebrow{color:var(--green);font-size:13px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}h1{margin:.35rem 0 1rem;font-size:clamp(44px,4vw,72px);line-height:1.03;letter-spacing:-.045em}h2{margin:0 0 .8rem;font-size:30px;line-height:1.18;letter-spacing:-.018em}h3{margin:0 0 .55rem;font-size:21px;line-height:1.25}p{max-width:105ch}.lead{font-size:19px;color:#3f4a5c}.goal-box{padding:24px;border-radius:18px;border:1px solid #c7d2fe;background:linear-gradient(145deg,#eef2ff,#f8fafc)}.goal-box ul{margin:.6rem 0 0;padding-left:1.25rem}.progress-line{margin-top:16px;padding:12px 14px;border-radius:12px;background:white;border:1px solid #c7d2fe;font-weight:850;color:#3730a3}.section{margin-top:24px;padding:32px}.section-intro{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:22px}.section-intro p{margin:0;color:var(--muted)}.section-number{color:var(--indigo);font-weight:850;letter-spacing:.03em}.two-column{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.four-column{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.card{padding:20px;border:1px solid var(--line);border-radius:16px;background:#fbfcfe}.card p:last-child{margin-bottom:0}.card.green{background:var(--green-soft);border-color:#a7f3d0}.card.indigo{background:var(--indigo-soft);border-color:#c7d2fe}.card.amber{background:var(--amber-soft);border-color:#fcd34d}.card.blue{background:var(--blue-soft);border-color:#bfdbfe}.card.red{background:var(--red-soft);border-color:#fecaca}.note,.warning,.success-note{margin-top:18px;padding:16px 18px;border-radius:14px}.note{border-left:5px solid var(--blue);background:var(--blue-soft);color:#1e3a8a}.warning{border-left:5px solid var(--amber);background:var(--amber-soft);color:#78350f}.success-note{border-left:5px solid var(--green);background:var(--green-soft);color:#065f46}.primary-button,.secondary-button,.preset-button,.step-button,.mode-button{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:800}.primary-button{border:1px solid var(--blue);background:var(--blue);color:white}.secondary-button,.preset-button,.step-button,.mode-button{border:1px solid #cbd5e1;background:white;color:#334155}.secondary-button:hover,.preset-button:hover,.step-button:hover,.mode-button:hover{border-color:#94a3b8;background:#f8fafc}.selected{border-color:var(--indigo)!important;background:var(--indigo-soft)!important;color:#312e81!important}.controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center}.formula{padding:14px 16px;border-radius:13px;background:var(--indigo-soft);border:1px solid #c7d2fe;color:#312e81;font:800 16px/1.55 "SFMono-Regular",Consolas,monospace}.io-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.io-box{padding:14px;border-radius:12px;border:1px solid var(--line);background:white}.io-box strong{color:var(--indigo);display:block;margin-bottom:5px}.lab-shell{border:1px solid var(--line);border-radius:19px;overflow:hidden;background:#fbfcfe}.lab-toolbar{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:16px 18px;background:white;border-bottom:1px solid var(--line)}.lab-layout{display:grid;grid-template-columns:minmax(1120px,1.8fr) minmax(540px,.7fr);align-items:stretch}.lab-stage{padding:18px;border-right:1px solid var(--line);background:white;overflow:auto}.lab-stage svg{display:block;width:100%;height:auto;min-height:700px}.lab-controls{padding:24px}.range-row{display:grid;grid-template-columns:175px minmax(200px,1fr) 120px;gap:14px;align-items:center;margin-bottom:13px}.range-row input{width:100%}.metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}.metric{padding:13px;border:1px solid var(--line);border-radius:12px;background:white}.metric strong{display:block;color:var(--indigo);font-size:13px}.metric span{display:block;margin-top:5px;font:850 16px/1.35 "SFMono-Regular",Consolas,monospace;overflow-wrap:anywhere}.toggle-row{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}.toggle-row label{display:flex;align-items:center;gap:7px;padding:8px 11px;border:1px solid var(--line);border-radius:10px;background:white;font-weight:700}.snapshot{overflow:auto;border:1px solid var(--line);border-radius:16px}.snapshot table{min-width:1200px}.stepper-layout{display:grid;grid-template-columns:minmax(900px,1.2fr) minmax(560px,.8fr);gap:22px;align-items:start}.step-figure{border:1px solid var(--line);border-radius:18px;background:#fbfcfe;padding:14px;overflow:auto}.step-figure svg{display:block;width:100%;height:auto;min-height:610px}.stepper-card{border:1px solid var(--line);border-radius:18px;background:#fbfcfe;overflow:hidden}.stepper-nav{display:flex;flex-wrap:wrap;gap:8px;padding:15px;border-bottom:1px solid var(--line);background:white}.step-button{min-width:44px;padding:8px 12px}.step-body{padding:22px}.step-title{color:var(--indigo);font-weight:900;font-size:22px}.step-caption{min-height:130px}.code-excerpt{margin:14px 0;padding:16px;background:#111827;color:#e5e7eb;border-radius:13px;overflow:auto;white-space:pre-wrap;font:14px/1.58 "SFMono-Regular",Consolas,monospace}.step-actions{display:flex;gap:10px;margin-top:18px}.trace-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px;margin-top:16px}.trace-box{padding:14px;border-radius:13px;border:1px solid var(--line);background:white;min-height:285px}.trace-box strong{display:block;color:var(--indigo);margin-bottom:7px}.trace-code{display:block;margin-top:8px;padding:11px;background:#111827;color:#e5e7eb;border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}.spaces-table{margin-top:18px;overflow:auto;border:1px solid var(--line);border-radius:15px}table{border-collapse:collapse;width:100%;background:white}th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{background:#f8fafc;color:#334155}tr:last-child td{border-bottom:0}.source-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.source-pane{display:none}.source-pane.active{display:block}.source-code{max-height:820px;overflow:auto;padding:18px;border-radius:14px;background:#111827;color:#e5e7eb;white-space:pre;font:14px/1.55 "SFMono-Regular",Consolas,monospace}.challenge-grid{display:grid;grid-template-columns:minmax(660px,1fr) minmax(660px,1fr);gap:20px;align-items:start}.editor-card,.challenge-preview{border:1px solid var(--line);border-radius:18px;background:#fbfcfe;overflow:hidden}.card-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 18px;border-bottom:1px solid var(--line);background:white}.editor-wrap,.challenge-body{padding:18px}.code-editor{display:block;width:100%;min-height:310px;resize:vertical;border:1px solid #cbd5e1;border-radius:13px;background:#111827;color:#e5e7eb;padding:18px;font:15px/1.6 "SFMono-Regular",Consolas,monospace;tab-size:4}.challenge-result{min-height:58px;margin-top:12px;padding:13px 15px;border-radius:12px;background:white;border:1px solid var(--line);font-weight:750}.challenge-stage{height:470px;border:1px solid var(--line);border-radius:16px;background:#fff;display:grid;place-items:center;overflow:hidden}.challenge-stage svg{width:100%;height:100%}.checklist{display:grid;gap:10px}.check-row{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:white}.check-row input{margin-top:4px;transform:scale(1.15)}details{border:1px solid var(--line);border-radius:14px;background:#fbfcfe;padding:14px 16px}details+details{margin-top:10px}summary{cursor:pointer;font-weight:850;color:#312e81}.record-area{display:block;width:100%;min-height:330px;resize:vertical;border:1px solid #cbd5e1;border-radius:13px;padding:16px;background:#f8fafc;font:14px/1.55 "SFMono-Regular",Consolas,monospace}.footer-nav{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-top:24px;padding:22px 26px;background:white;border:1px solid var(--line);border-radius:18px}.footer-nav a{font-weight:850}.small{font-size:14px;color:var(--muted)}@media(max-width:2100px){.four-column{grid-template-columns:repeat(2,minmax(0,1fr))}.trace-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.lab-layout,.stepper-layout,.challenge-grid{grid-template-columns:1fr}.lab-stage{border-right:0;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<main class="page">
+<nav class="topbar"><div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-the-screen-is-a-grid.html">Chapter 2</a> · <a href="../../glossary.html">Glossary</a></div><span class="lesson-chip">Lesson 2.9 · Chapter checkpoint</span></nav>
+<header class="hero panel"><div><div class="eyebrow">Chapter 2 · The screen is a grid</div><h1>Build a coordinate inspector</h1><p class="lead">A <strong>coordinate inspector</strong> is a diagnostic view that shows one selected point together with the exact coordinate system and unit used by each number. You will combine the nine Chapter 2 ideas into one Android tool.</p><div class="formula">one visible point → several named descriptions</div></div><aside class="goal-box"><h2>Lesson goal</h2><ul><li>Draw a grid, local origin, bounds, center, crosshair, and point marker.</li><li>Read the point as local px, local dp, normalized coordinates, parent px, window px, and screen px.</li><li>Explain why the numbers differ without saying that the point moved.</li><li>Trace the real Pixel 8 Pro values from input to drawing.</li></ul><div class="progress-line">16 of 216 lessons were complete before this lesson.</div></aside></header>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">1 · New input words</div><h2>Define the objects before using them</h2></div><p>The tool needs one small amount of pointer vocabulary.</p></div><div class="four-column"><article class="card green"><h3>Pointer</h3><p>A <strong>pointer</strong> is a physical object that can point at a screen coordinate. On the Pixel 8 Pro, the pointer is normally your finger. A stylus or mouse can also be a pointer.</p></article><article class="card indigo"><h3>Pointer event</h3><p>A <strong>pointer event</strong> is one data record produced when a pointer goes down, moves, or goes up. The event contains a position relative to the element receiving it.</p></article><article class="card amber"><h3>Crosshair</h3><p>A <strong>crosshair</strong> is one horizontal guide and one vertical guide that meet at the selected point. It makes the point’s X and Y distances visible.</p></article><article class="card blue"><h3>Inspector bounds</h3><p>The <strong>inspector bounds</strong> are the rectangle occupied by the diagnostic drawing area. Its local left and top are 0. Its local right and bottom equal its measured width and height.</p></article></div><div class="note"><strong>Evidence limit:</strong> the browser laboratory below uses teaching coordinates. The Android readout uses the size, density, and placement measured by Compose on your Pixel 8 Pro.</div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">2 · Interactive inspector laboratory</div><h2>Drag one point and read every description</h2></div><p>All positions are calculated from the visible dimensions and origins.</p></div><div class="lab-shell"><div class="lab-toolbar"><strong>Nested screen → window → parent → inspector → point</strong><div class="controls"><button class="preset-button" data-point="origin" type="button">Origin</button><button class="preset-button" data-point="center" type="button">Center</button><button class="preset-button selected" data-point="quarter" type="button">Quarter / three-quarter</button><button class="preset-button" data-point="bottom" type="button">Bottom-right boundary</button></div></div><div class="lab-layout"><div class="lab-stage"><svg id="mainSvg" viewBox="0 0 1500 760" aria-label="Interactive coordinate inspector"></svg></div><aside class="lab-controls"><h3>Inspector size and point</h3><div class="range-row"><label for="widthRange">Width</label><input id="widthRange" type="range" min="480" max="960" step="40" value="640"><strong id="widthValue"></strong></div><div class="range-row"><label for="heightRange">Height</label><input id="heightRange" type="range" min="280" max="560" step="40" value="360"><strong id="heightValue"></strong></div><div class="range-row"><label for="xRange">Pointer local X</label><input id="xRange" type="range" min="0" max="640" step="1" value="160"><strong id="xValue"></strong></div><div class="range-row"><label for="yRange">Pointer local Y</label><input id="yRange" type="range" min="0" max="360" step="1" value="270"><strong id="yValue"></strong></div><div class="range-row"><label for="densityRange">Density</label><input id="densityRange" type="range" min="1" max="4" step="0.25" value="2.5"><strong id="densityValue"></strong></div><h3>Placement experiments</h3><div class="controls"><button class="preset-button selected" data-placement="baseline" type="button">Baseline origins</button><button class="preset-button" data-placement="moveInspector" type="button">Move only inspector</button><button class="preset-button" data-placement="fullScreen" type="button">Window starts at screen (0, 0)</button></div><div class="toggle-row"><label><input id="showGrid" type="checkbox" checked> Show grid</label><label><input id="showCenter" type="checkbox" checked> Show center</label><label><input id="showBounds" type="checkbox" checked> Show bounds</label></div><div class="metric-grid"><div class="metric"><strong>Local bounds</strong><span id="mBounds"></span></div><div class="metric"><strong>Local center</strong><span id="mCenter"></span></div><div class="metric"><strong>Pointer local px</strong><span id="mLocal"></span></div><div class="metric"><strong>Pointer local dp</strong><span id="mDp"></span></div><div class="metric"><strong>Pointer normalized</strong><span id="mNormalized"></span></div><div class="metric"><strong>Pointer in parent</strong><span id="mParent"></span></div><div class="metric"><strong>Pointer in window</strong><span id="mWindow"></span></div><div class="metric"><strong>Pointer on screen</strong><span id="mScreen"></span></div></div><div class="formula" id="liveFormula"></div></aside></div></div><div class="warning"><strong>Do not add unlike units.</strong> A normalized value such as <code>0.25</code> is unitless. It cannot be added directly to a screen origin measured in pixels. Convert it to local pixels first.</div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">3 · Read the default snapshot</div><h2>Follow one complete set of numbers</h2></div><p>The default values are the bridge between the diagrams and the Android code.</p></div><div class="snapshot"><table><thead><tr><th>Description</th><th>Input</th><th>Operation</th><th>Output</th></tr></thead><tbody><tr><td>Local bounds</td><td>width 640 px, height 360 px</td><td>left = 0, top = 0, right = width, bottom = height</td><td>(0, 0, 640, 360) px</td></tr><tr><td>Local center</td><td>640 × 360 px</td><td>(640 ÷ 2, 360 ÷ 2)</td><td>(320, 180) px</td></tr><tr><td>Pointer normalized</td><td>local (160, 270) px</td><td>(160 ÷ 640, 270 ÷ 360)</td><td>(0.25, 0.75)</td></tr><tr><td>Pointer local dp</td><td>local (160, 270) px, density 2.5 px/dp</td><td>(160 ÷ 2.5, 270 ÷ 2.5)</td><td>(64, 108) dp</td></tr><tr><td>Pointer in parent</td><td>inspector origin in parent (120, 80) px</td><td>(120, 80) + (160, 270)</td><td>(280, 350) px</td></tr><tr><td>Pointer in window</td><td>parent in window (180, 100) px</td><td>(180, 100) + (280, 350)</td><td>(460, 450) px</td></tr><tr><td>Pointer on screen</td><td>window on screen (40, 60) px</td><td>(40, 60) + (460, 450)</td><td>(500, 510) px</td></tr></tbody></table></div><div class="success-note"><strong>The point did not move.</strong> Every row describes the same visible point. The origin, unit, or numeric scale changed.</div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">4 · One number can refer to different objects</div><h2>Name the value before reading it</h2></div><p>The label is part of the data.</p></div><div class="four-column"><article class="card indigo"><h3><code>160 px</code></h3><p>This is the local horizontal distance from the inspector’s left edge to the point.</p></article><article class="card green"><h3><code>64 dp</code></h3><p>This is the same local horizontal distance after division by the teaching density 2.5 px per dp.</p></article><article class="card amber"><h3><code>0.25</code></h3><p>This is the unitless horizontal fraction of the inspector width.</p></article><article class="card blue"><h3><code>500 px</code></h3><p>This is the point’s horizontal screen-relative position in the default nested example.</p></article></div><div class="warning"><strong>Diagnostic question:</strong> is <code>0.25</code> “smaller” than <code>160 px</code>? That comparison has no useful meaning. The two values use different numeric scales and describe the distance in different ways.</div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">5 · Manual construction</div><h2>Build the inspector one operation at a time</h2></div><p>Use Back and Next. Each step adds one new responsibility.</p></div><div class="stepper-layout"><div class="step-figure"><svg id="stepSvg" viewBox="0 0 1040 650"></svg></div><div class="stepper-card"><div class="stepper-nav" id="stepButtons"></div><div class="step-body"><div class="step-title" id="stepTitle"></div><p class="step-caption" id="stepCaption"></p><pre class="code-excerpt" id="stepCode"></pre><div class="io-row"><div class="io-box"><strong>Input</strong><span id="stepInput"></span></div><div class="io-box"><strong>Operation</strong><span id="stepOperation"></span></div><div class="io-box"><strong>Output</strong><span id="stepOutput"></span></div></div><div class="step-actions"><button class="secondary-button" id="stepBack" type="button">Back</button><button class="primary-button" id="stepNext" type="button">Next</button></div></div></div></div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">6 · Android value trace</div><h2>Follow one finger position to every readout</h2></div><p>The code stores immutable numbers, not a long-lived <code>LayoutCoordinates</code> object.</p></div><div class="trace-grid"><article class="trace-box"><strong>1 · Read density</strong><p><code>LocalDensity.current</code> supplies the current px-per-dp conversion scale.</p><span class="trace-code">val density = LocalDensity.current</span></article><article class="trace-box"><strong>2 · Measure geometry</strong><p><code>onGloballyPositioned</code> copies size and three origins into <code>InspectorGeometry</code>.</p><span class="trace-code">sizePx = coordinates.size
+originInWindowPx = coordinates.positionInWindow()</span></article><article class="trace-box"><strong>3 · Receive pointer input</strong><p><code>awaitFirstDown</code> receives the first pressed pointer inside the inspector.</p><span class="trace-code">val down = awaitFirstDown(...)</span></article><article class="trace-box"><strong>4 · Clamp to bounds</strong><p>The point is restricted to local X from 0 through width and local Y from 0 through height.</p><span class="trace-code">down.position.clampTo(geometry.sizePx)</span></article><article class="trace-box"><strong>5 · Store normalized state</strong><p>Division converts local pixels into a pair that survives a later size change.</p><span class="trace-code">normalizedX = value / width
+normalizedY = value / height</span></article><article class="trace-box"><strong>6 · Rebuild local px</strong><p>The current width and height convert the stored fractions back into drawing coordinates.</p><span class="trace-code">Offset(
+ x = normalizedX * widthPx,
+ y = normalizedY * heightPx,
+)</span></article><article class="trace-box"><strong>7 · Derive other spaces</strong><p>Density division produces dp. Origin addition produces parent, window, and screen positions.</p><span class="trace-code">localPx / density
+originInWindowPx + localPointPx</span></article><article class="trace-box"><strong>8 · Draw the evidence</strong><p>The Canvas consumes the grid, bounds, center, and point values. The text rows consume the same state.</p><span class="trace-code">drawInspectorGrid(
+ localPointPx,
+ localCenterPx,
+ pointerPressed,
+)</span></article></div><div class="formula" style="margin-top:18px">pointer event → local px → normalized state → current local px → dp and larger spaces → Canvas + text readouts</div><div class="note"><strong>Why raw pointer input is used here:</strong> this teaching tool needs the exact down position and every movement position. The implementation uses one custom pointer handler and consumes its active changes so dragging inside the inspector does not become vertical page scrolling. Gesture design in a production control requires additional accessibility and interaction semantics; this diagnostic surface is not a general-purpose button.</div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">7 · Complete changed source</div><h2>Read the Android implementation</h2></div><p>The source below exactly matches the two files in the Android ZIP.</p></div><div class="source-tabs"><button class="mode-button selected" data-source="screen" type="button">Chapter02Screen.kt</button><button class="mode-button" data-source="inspector" type="button">CoordinateInspector.kt</button></div><div class="source-pane active" id="source-screen"><pre class="source-code">package com.example.liquidglasslab.chapter02
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.liquidglasslab.ui.theme.LiquidGlassLabTheme
+
+@Composable
+fun Chapter02Screen(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = Color(0xFFF8FAFC),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .safeDrawingPadding()
+                .padding(horizontal = 24.dp, vertical = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Text(
+                text = &quot;THE SCREEN IS A GRID&quot;,
+                color = Color(0xFF059669),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = &quot;Lesson 2.9 · Coordinate inspector&quot;,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = &quot;Touch or drag inside the inspector. Read the same point as local pixels, &quot; +
+                    &quot;dp, normalized coordinates, and positions in larger coordinate systems.&quot;,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+
+            CoordinateInspector()
+        }
+    }
+}
+
+@Preview(
+    name = &quot;Lesson 2.9 coordinate inspector&quot;,
+    showBackground = true,
+    widthDp = 412,
+    heightDp = 915,
+)
+@Composable
+private fun Chapter02ScreenPreview() {
+    LiquidGlassLabTheme {
+        Chapter02Screen()
+    }
+}
+</pre></div><div class="source-pane" id="source-inspector"><pre class="source-code">package com.example.liquidglasslab.chapter02
+
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.matchParentSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.weight
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.layout.positionOnScreen
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import java.util.Locale
+
+private val InspectorShape = RoundedCornerShape(22.dp)
+private val ReadoutShape = RoundedCornerShape(14.dp)
+
+private data class InspectorGeometry(
+    val sizePx: IntSize = IntSize.Zero,
+    val originInParentPx: Offset = Offset.Zero,
+    val originInWindowPx: Offset = Offset.Zero,
+    val originOnScreenPx: Offset? = null,
+)
+
+private enum class InspectorPointPreset(
+    val buttonLabel: String,
+    val normalizedX: Float,
+    val normalizedY: Float,
+) {
+    Origin(
+        buttonLabel = &quot;Origin&quot;,
+        normalizedX = 0f,
+        normalizedY = 0f,
+    ),
+    Center(
+        buttonLabel = &quot;Center&quot;,
+        normalizedX = 0.5f,
+        normalizedY = 0.5f,
+    ),
+    QuarterThreeQuarter(
+        buttonLabel = &quot;Quarter / three-quarter&quot;,
+        normalizedX = 0.25f,
+        normalizedY = 0.75f,
+    ),
+    BottomRight(
+        buttonLabel = &quot;Bottom-right boundary&quot;,
+        normalizedX = 1f,
+        normalizedY = 1f,
+    ),
+}
+
+@Composable
+internal fun CoordinateInspector(
+    modifier: Modifier = Modifier,
+) {
+    val density = LocalDensity.current
+    val densityScale = density.density
+
+    var geometry by remember {
+        mutableStateOf(InspectorGeometry())
+    }
+    var normalizedX by rememberSaveable {
+        mutableFloatStateOf(0.25f)
+    }
+    var normalizedY by rememberSaveable {
+        mutableFloatStateOf(0.75f)
+    }
+    var pointerPressed by remember {
+        mutableStateOf(false)
+    }
+
+    val widthPx = geometry.sizePx.width.toFloat()
+    val heightPx = geometry.sizePx.height.toFloat()
+    val localPointPx = Offset(
+        x = normalizedX * widthPx,
+        y = normalizedY * heightPx,
+    )
+    val localCenterPx = Offset(
+        x = widthPx / 2f,
+        y = heightPx / 2f,
+    )
+    val localPointDp = Offset(
+        x = divideByDensity(localPointPx.x, densityScale),
+        y = divideByDensity(localPointPx.y, densityScale),
+    )
+    val pointInParentPx = geometry.originInParentPx + localPointPx
+    val pointInWindowPx = geometry.originInWindowPx + localPointPx
+    val pointOnScreenPx = geometry.originOnScreenPx?.plus(localPointPx)
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        Text(
+            text = &quot;One point. Several descriptions.&quot;,
+            color = Color(0xFF4338CA),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Black,
+        )
+        Text(
+            text = &quot;Touch or drag inside the rectangle. The crosshair marks one point. Every &quot; +
+                &quot;readout below describes that same point from a named origin or with a named unit.&quot;,
+            style = MaterialTheme.typography.bodyLarge,
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(340.dp)
+                .background(
+                    color = Color.White,
+                    shape = InspectorShape,
+                )
+                .border(
+                    width = 1.dp,
+                    color = Color(0xFFCBD5E1),
+                    shape = InspectorShape,
+                )
+                .onGloballyPositioned { coordinates -&gt;
+                    geometry = InspectorGeometry(
+                        sizePx = coordinates.size,
+                        originInParentPx = coordinates.positionInParent(),
+                        originInWindowPx = coordinates.positionInWindow(),
+                        originOnScreenPx = coordinates
+                            .positionOnScreen()
+                            .toFiniteOffsetOrNull(),
+                    )
+                }
+                .pointerInput(geometry.sizePx) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        val downPoint = down.position.clampTo(geometry.sizePx)
+                        normalizedX = normalize(downPoint.x, geometry.sizePx.width)
+                        normalizedY = normalize(downPoint.y, geometry.sizePx.height)
+                        pointerPressed = true
+                        down.consume()
+
+                        try {
+                            var anyPointerPressed = true
+                            while (anyPointerPressed) {
+                                val event = awaitPointerEvent()
+                                val trackedChange = event.changes.firstOrNull {
+                                    it.id == down.id
+                                }
+
+                                if (trackedChange != null) {
+                                    val trackedPoint = trackedChange.position
+                                        .clampTo(geometry.sizePx)
+                                    normalizedX = normalize(
+                                        value = trackedPoint.x,
+                                        size = geometry.sizePx.width,
+                                    )
+                                    normalizedY = normalize(
+                                        value = trackedPoint.y,
+                                        size = geometry.sizePx.height,
+                                    )
+                                    trackedChange.consume()
+                                }
+
+                                anyPointerPressed = event.changes.any { it.pressed }
+                            }
+                        } finally {
+                            pointerPressed = false
+                        }
+                    }
+                }
+                .semantics {
+                    contentDescription =
+                        &quot;Coordinate inspector. Local point ${formatOffset(localPointPx)} pixels. &quot; +
+                        &quot;Normalized point ${formatNormalizedPair(normalizedX, normalizedY)}.&quot;
+                },
+        ) {
+            Canvas(
+                modifier = Modifier.matchParentSize(),
+            ) {
+                drawInspectorGrid(
+                    localPointPx = localPointPx,
+                    localCenterPx = localCenterPx,
+                    pointerPressed = pointerPressed,
+                )
+            }
+
+            Text(
+                text = &quot;origin (0, 0)&quot;,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(10.dp),
+                color = Color(0xFF1E3A8A),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = &quot;right = ${formatCoordinate(widthPx)} px&quot;,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(10.dp),
+                color = Color(0xFF92400E),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = &quot;bottom = ${formatCoordinate(heightPx)} px&quot;,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(10.dp),
+                color = Color(0xFF92400E),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Black,
+            )
+        }
+
+        Text(
+            text = if (pointerPressed) {
+                &quot;Pointer state: pressed. The inspector is receiving movement events.&quot;
+            } else {
+                &quot;Pointer state: released. Touch inside the rectangle to update the point.&quot;
+            },
+            color = if (pointerPressed) Color(0xFFBE185D) else Color(0xFF5C687A),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold,
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            InspectorPointPreset.entries.take(2).forEach { preset -&gt;
+                InspectorPresetButton(
+                    preset = preset,
+                    selected = normalizedX == preset.normalizedX &amp;&amp;
+                        normalizedY == preset.normalizedY,
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        normalizedX = preset.normalizedX
+                        normalizedY = preset.normalizedY
+                    },
+                )
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            InspectorPointPreset.entries.drop(2).forEach { preset -&gt;
+                InspectorPresetButton(
+                    preset = preset,
+                    selected = normalizedX == preset.normalizedX &amp;&amp;
+                        normalizedY == preset.normalizedY,
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        normalizedX = preset.normalizedX
+                        normalizedY = preset.normalizedY
+                    },
+                )
+            }
+        }
+
+        InspectorReadouts(
+            geometry = geometry,
+            densityScale = densityScale,
+            localPointPx = localPointPx,
+            localPointDp = localPointDp,
+            localCenterPx = localCenterPx,
+            normalizedX = normalizedX,
+            normalizedY = normalizedY,
+            pointInParentPx = pointInParentPx,
+            pointInWindowPx = pointInWindowPx,
+            pointOnScreenPx = pointOnScreenPx,
+        )
+
+        Text(
+            text = &quot;The parent, window, and screen calculations below assume this lesson&#x27;s &quot; +
+                &quot;inspector is not rotated or scaled. A later transform would require a coordinate &quot; +
+                &quot;conversion API instead of simple addition.&quot;,
+            style = MaterialTheme.typography.bodySmall,
+            color = Color(0xFF5C687A),
+        )
+    }
+}
+
+@Composable
+private fun InspectorPresetButton(
+    preset: InspectorPointPreset,
+    selected: Boolean,
+    modifier: Modifier,
+    onClick: () -&gt; Unit,
+) {
+    if (selected) {
+        Button(
+            modifier = modifier,
+            onClick = onClick,
+        ) {
+            Text(preset.buttonLabel)
+        }
+    } else {
+        OutlinedButton(
+            modifier = modifier,
+            onClick = onClick,
+        ) {
+            Text(preset.buttonLabel)
+        }
+    }
+}
+
+@Composable
+private fun InspectorReadouts(
+    geometry: InspectorGeometry,
+    densityScale: Float,
+    localPointPx: Offset,
+    localPointDp: Offset,
+    localCenterPx: Offset,
+    normalizedX: Float,
+    normalizedY: Float,
+    pointInParentPx: Offset,
+    pointInWindowPx: Offset,
+    pointOnScreenPx: Offset?,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        InspectorReadout(
+            label = &quot;Local bounds&quot;,
+            value = &quot;left 0 · top 0 · right ${formatCoordinate(
+                geometry.sizePx.width.toFloat(),
+            )} · bottom ${formatCoordinate(geometry.sizePx.height.toFloat())} px&quot;,
+            explanation = &quot;Origin: inspector top-left. Right and bottom are boundary coordinates.&quot;,
+        )
+        InspectorReadout(
+            label = &quot;Local center&quot;,
+            value = &quot;${formatOffset(localCenterPx)} px&quot;,
+            explanation = &quot;Operation: width ÷ 2 and height ÷ 2.&quot;,
+        )
+        InspectorReadout(
+            label = &quot;Pointer in local pixels&quot;,
+            value = &quot;${formatOffset(localPointPx)} px&quot;,
+            explanation = &quot;Origin: inspector top-left. Unit: px.&quot;,
+        )
+        InspectorReadout(
+            label = &quot;Pointer in local dp&quot;,
+            value = &quot;${formatOffset(localPointDp)} dp&quot;,
+            explanation = &quot;Operation: each local px value ÷ density ${formatDensity(densityScale)}.&quot;,
+        )
+        InspectorReadout(
+            label = &quot;Pointer normalized&quot;,
+            value = formatNormalizedPair(normalizedX, normalizedY),
+            explanation = &quot;Operation: local X ÷ width and local Y ÷ height.&quot;,
+        )
+        InspectorReadout(
+            label = &quot;Inspector origin in parent&quot;,
+            value = &quot;${formatOffset(geometry.originInParentPx)} px&quot;,
+            explanation = &quot;Origin: the immediate parent content area.&quot;,
+        )
+        InspectorReadout(
+            label = &quot;Pointer in parent&quot;,
+            value = &quot;${formatOffset(pointInParentPx)} px&quot;,
+            explanation = &quot;Inspector origin in parent + pointer local px.&quot;,
+        )
+        InspectorReadout(
+            label = &quot;Pointer in window&quot;,
+            value = &quot;${formatOffset(pointInWindowPx)} px&quot;,
+            explanation = &quot;Inspector origin in window + pointer local px.&quot;,
+        )
+        InspectorReadout(
+            label = &quot;Pointer on screen&quot;,
+            value = pointOnScreenPx?.let { &quot;${formatOffset(it)} px&quot; } ?: &quot;not available&quot;,
+            explanation = &quot;Inspector origin on screen + pointer local px, when available.&quot;,
+        )
+    }
+}
+
+@Composable
+private fun InspectorReadout(
+    label: String,
+    value: String,
+    explanation: String,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = Color.White,
+                shape = ReadoutShape,
+            )
+            .border(
+                width = 1.dp,
+                color = Color(0xFFCBD5E1),
+                shape = ReadoutShape,
+            )
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(3.dp),
+    ) {
+        Text(
+            text = label,
+            fontWeight = FontWeight.Black,
+        )
+        Text(
+            text = value,
+            color = Color(0xFF4338CA),
+            fontWeight = FontWeight.Black,
+        )
+        Text(
+            text = explanation,
+            style = MaterialTheme.typography.bodySmall,
+        )
+    }
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawInspectorGrid(
+    localPointPx: Offset,
+    localCenterPx: Offset,
+    pointerPressed: Boolean,
+) {
+    val gridSpacingPx = 32.dp.toPx()
+    val gridStrokePx = 1.dp.toPx()
+    val centerStrokePx = 2.dp.toPx()
+    val pointerStrokePx = 2.dp.toPx()
+    val boundaryStrokePx = 3.dp.toPx()
+    val dashEffect = PathEffect.dashPathEffect(
+        intervals = floatArrayOf(10.dp.toPx(), 7.dp.toPx()),
+    )
+
+    var gridX = gridSpacingPx
+    while (gridX &lt; size.width) {
+        drawLine(
+            color = Color(0xFFDCE6F5),
+            start = Offset(gridX, 0f),
+            end = Offset(gridX, size.height),
+            strokeWidth = gridStrokePx,
+        )
+        gridX += gridSpacingPx
+    }
+
+    var gridY = gridSpacingPx
+    while (gridY &lt; size.height) {
+        drawLine(
+            color = Color(0xFFDCE6F5),
+            start = Offset(0f, gridY),
+            end = Offset(size.width, gridY),
+            strokeWidth = gridStrokePx,
+        )
+        gridY += gridSpacingPx
+    }
+
+    drawLine(
+        color = Color(0xFF4338CA),
+        start = Offset(localCenterPx.x, 0f),
+        end = Offset(localCenterPx.x, size.height),
+        strokeWidth = centerStrokePx,
+        pathEffect = dashEffect,
+    )
+    drawLine(
+        color = Color(0xFF4338CA),
+        start = Offset(0f, localCenterPx.y),
+        end = Offset(size.width, localCenterPx.y),
+        strokeWidth = centerStrokePx,
+        pathEffect = dashEffect,
+    )
+
+    drawLine(
+        color = Color(0xFFBE185D),
+        start = Offset(0f, localPointPx.y),
+        end = localPointPx,
+        strokeWidth = pointerStrokePx,
+    )
+    drawLine(
+        color = Color(0xFF1E40AF),
+        start = Offset(localPointPx.x, 0f),
+        end = localPointPx,
+        strokeWidth = pointerStrokePx,
+    )
+
+    val inset = boundaryStrokePx / 2f
+    drawRect(
+        color = Color(0xFFD97706),
+        topLeft = Offset(inset, inset),
+        size = Size(
+            width = (size.width - boundaryStrokePx).coerceAtLeast(0f),
+            height = (size.height - boundaryStrokePx).coerceAtLeast(0f),
+        ),
+        style = Stroke(width = boundaryStrokePx),
+    )
+
+    drawCircle(
+        color = if (pointerPressed) Color(0xFFBE185D) else Color(0xFF059669),
+        radius = 12.dp.toPx(),
+        center = localPointPx,
+    )
+    drawCircle(
+        color = Color.White,
+        radius = 5.dp.toPx(),
+        center = localPointPx,
+    )
+    drawCircle(
+        color = Color(0xFF4338CA),
+        radius = 5.dp.toPx(),
+        center = localCenterPx,
+    )
+}
+
+private fun normalize(
+    value: Float,
+    size: Int,
+): Float = if (size &gt; 0) {
+    (value / size.toFloat()).coerceIn(0f, 1f)
+} else {
+    0f
+}
+
+private fun divideByDensity(
+    valuePx: Float,
+    densityScale: Float,
+): Float = if (densityScale &gt; 0f) {
+    valuePx / densityScale
+} else {
+    0f
+}
+
+private fun Offset.clampTo(size: IntSize): Offset = Offset(
+    x = x.coerceIn(0f, size.width.toFloat()),
+    y = y.coerceIn(0f, size.height.toFloat()),
+)
+
+private fun Offset.toFiniteOffsetOrNull(): Offset? =
+    takeIf { it.x.isFinite() &amp;&amp; it.y.isFinite() }
+
+private fun formatOffset(offset: Offset): String =
+    &quot;(${formatCoordinate(offset.x)}, ${formatCoordinate(offset.y)})&quot;
+
+private fun formatNormalizedPair(
+    x: Float,
+    y: Float,
+): String = &quot;(${formatNormalized(x)}, ${formatNormalized(y)})&quot;
+
+private fun formatCoordinate(value: Float): String =
+    String.format(Locale.US, &quot;%.1f&quot;, value)
+
+private fun formatNormalized(value: Float): String =
+    String.format(Locale.US, &quot;%.3f&quot;, value)
+
+private fun formatDensity(value: Float): String =
+    String.format(Locale.US, &quot;%.3f px/dp&quot;, value)
+</pre></div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">8 · Coding challenge</div><h2>Do not add normalized values to pixel origins</h2></div><p>The function name promises a screen-relative pixel result. The current implementation adds the wrong object.</p></div><div class="challenge-grid"><div class="editor-card"><div class="card-header"><strong>Editable Kotlin</strong><div class="controls"><button class="preset-button" data-addend="normalizedPoint" type="button">normalizedPoint · wrong unit</button><button class="preset-button" data-addend="pointerLocalPx" type="button">pointerLocalPx · correct unit</button></div></div><div class="editor-wrap"><textarea class="code-editor" id="codeEditor" spellcheck="false">fun pointerOnScreen(
+    inspectorOriginOnScreenPx: Offset,
+    pointerLocalPx: Offset,
+    normalizedPoint: Offset,
+): Offset {
+    return inspectorOriginOnScreenPx + normalizedPoint
+}</textarea><button class="primary-button" id="checkChallenge" type="button" style="margin-top:12px">Check repair</button><div class="challenge-result" id="challengeResult">Choose the value whose unit and coordinate system match the required addition.</div></div></div><div class="challenge-preview"><div class="card-header"><strong>Code-driven teaching preview</strong><span class="small">screen origin (40, 60) px · local point (160, 270) px</span></div><div class="challenge-body"><div class="challenge-stage"><svg id="challengeSvg" viewBox="0 0 820 470"></svg></div><div class="formula" id="challengeFormula" style="margin-top:14px"></div><div class="io-row" style="margin-top:14px"><div class="io-box"><strong>Input</strong><span id="challengeInput"></span></div><div class="io-box"><strong>Operation</strong><span id="challengeOperation"></span></div><div class="io-box"><strong>Output</strong><span id="challengeOutput"></span></div></div></div></div></div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">9 · Pixel 8 Pro checkpoint</div><h2>Verify the combined tool</h2></div><p>The Pixel supplies the real density, measured bounds, and placement values.</p></div><div class="checklist"><label class="check-row"><input data-check="archives" type="checkbox"><span>I applied both Lesson 2.9 incremental archives after the completed Lesson 2.8 state.</span></label><label class="check-row"><input data-check="build" type="checkbox"><span>The app builds and opens Lesson 2.9 on the Pixel 8 Pro.</span></label><label class="check-row"><input data-check="visual" type="checkbox"><span>I can see the grid, orange bounds, dashed center guides, pointer crosshair, and marker.</span></label><label class="check-row"><input data-check="drag" type="checkbox"><span>Touching and dragging inside the inspector updates the local point continuously.</span></label><label class="check-row"><input data-check="center" type="checkbox"><span>I selected <strong>Center</strong> and confirmed that local X is half the measured width, local Y is half the measured height, and normalized is (0.5, 0.5).</span></label><label class="check-row"><input data-check="boundary" type="checkbox"><span>I selected <strong>Bottom-right boundary</strong> and can explain why local X equals width and local Y equals height.</span></label><label class="check-row"><input data-check="spaces" type="checkbox"><span>I can explain why the parent, window, and screen numbers can differ while the visible point is unchanged.</span></label><label class="check-row"><input data-check="units" type="checkbox"><span>I can explain why normalized values cannot be added directly to pixel origins.</span></label><label class="check-row"><input data-check="challenge" type="checkbox"><span>I completed the coding challenge and the four exercises.</span></label><label class="check-row"><input data-check="commit" type="checkbox"><span>I committed the Lesson 2.9 Android work to Git.</span></label></div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">10 · Exercises</div><h2>Answer before opening the solutions</h2></div><p>Exercise 4 targets the most likely unit-mixing mistake.</p></div><details><summary>Exercise 1 · Bounds, center, and normalized point</summary><p>An inspector measures 640 × 360 px. The pointer-local point is (160, 270) px. State the local bounds, local center, and normalized point.</p><hr><p><strong>Answer:</strong> bounds are left 0, top 0, right 640, bottom 360 px. Center is <code>(320, 180) px</code>. Normalized point is <code>(160 ÷ 640, 270 ÷ 360) = (0.25, 0.75)</code>.</p></details><details><summary>Exercise 2 · Convert local pixels to dp</summary><p>The pointer-local point is (180, 270) px. Density is 3 px per dp. What is the local dp pair?</p><hr><p><strong>Answer:</strong> <code>(180 ÷ 3, 270 ÷ 3) = (60, 90) dp</code>.</p></details><details><summary>Exercise 3 · Move through the larger coordinate systems</summary><p>Inspector origin in parent is (120, 80) px. Parent origin in window is (180, 100) px. Window origin on screen is (40, 60) px. Pointer local is (160, 270) px. Find pointer in parent, window, and screen.</p><hr><p><strong>Answer:</strong> parent is <code>(120, 80) + (160, 270) = (280, 350) px</code>. Window is <code>(180, 100) + (280, 350) = (460, 450) px</code>. Screen is <code>(40, 60) + (460, 450) = (500, 510) px</code>.</p></details><details><summary>Exercise 4 · Diagnostic: which pair may be added?</summary><p>An inspector origin on screen is (40, 60) px. The point is local (160, 270) px and normalized (0.25, 0.75). Which pair must be added to the screen origin, and why?</p><hr><p><strong>Answer:</strong> add the local pixel pair: <code>(40, 60) + (160, 270) = (200, 330) px</code>. Both operands are pixel offsets. The normalized pair is unitless and cannot be added directly to a pixel origin.</p></details></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">11 · Evidence and deferrals</div><h2>What this checkpoint proves</h2></div><p>Keep the design conclusion separate from framework details that were not measured.</p></div><div class="two-column"><article class="card green"><h3>The running app can prove</h3><p>It can prove the inspector’s measured pixel size, runtime density, pointer-local positions, normalized results, and the positions returned by the Compose coordinate APIs on your current device and window configuration.</p></article><article class="card amber"><h3>This lesson does not prove</h3><p>It does not prove how Android converts physical touch-sensor data into app-window coordinates, how the system compositor places every surface, or how transformed descendants should be mapped. Those questions require framework source, tracing, or later transform APIs.</p></article></div><div class="note"><strong>Design conclusion:</strong> later blur, refraction, and shader sampling code must name its coordinate system and unit. The inspector gives us a reusable way to verify that mapping before blaming a shader formula.</div><p class="small">Official references used for the Android behavior: <a href="https://developer.android.com/develop/ui/compose/touch-input/pointer-input/understand-gestures">Understand gestures</a>, <a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/LayoutCoordinates">LayoutCoordinates</a>, and <a href="https://developer.android.com/develop/ui/compose/graphics/draw/overview">Compose drawing overview</a>.</p></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">12 · Completion record</div><h2>Copy this into the next conversation</h2></div><button class="primary-button" id="copyRecord" type="button">Copy record</button></div><textarea class="record-area" id="completionRecord" readonly></textarea><p class="small" id="copyStatus"></p></section>
+
+<nav class="footer-nav"><a href="lesson-02-08-normalized-coordinates.html">← Lesson 2.8</a><a href="lesson-the-screen-is-a-grid.html">Chapter 2 hub</a><span><strong>After completion:</strong> Chapter 3 · Lesson 3.1</span></nav>
+</main>
+<script>
+const $=id=>document.getElementById(id);const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));const f1=n=>Number(n).toFixed(1);const f2=n=>Number(n).toFixed(2);const f3=n=>Number(n).toFixed(3);const pair=(x,y,d=1)=>`(${Number(x).toFixed(d)}, ${Number(y).toFixed(d)})`;
+const state={width:640,height:360,x:160,y:270,density:2.5,inspectorParentX:120,inspectorParentY:80,parentWindowX:180,parentWindowY:100,windowScreenX:40,windowScreenY:60,showGrid:true,showCenter:true,showBounds:true};
+function derived(){const u=state.width?state.x/state.width:0,v=state.height?state.y/state.height:0;const center={x:state.width/2,y:state.height/2};const dp={x:state.x/state.density,y:state.y/state.density};const parent={x:state.inspectorParentX+state.x,y:state.inspectorParentY+state.y};const inspectorWindow={x:state.parentWindowX+state.inspectorParentX,y:state.parentWindowY+state.inspectorParentY};const win={x:inspectorWindow.x+state.x,y:inspectorWindow.y+state.y};const screen={x:state.windowScreenX+win.x,y:state.windowScreenY+win.y};return {u,v,center,dp,parent,inspectorWindow,win,screen};}
+function stageGeometry(){const logicalW=state.windowScreenX+state.parentWindowX+state.inspectorParentX+state.width+110;const logicalH=state.windowScreenY+state.parentWindowY+state.inspectorParentY+state.height+90;const scale=Math.min(1400/logicalW,660/logicalH);return {ox:50,oy:50,scale,screenW:logicalW,screenH:logicalH,windowX:state.windowScreenX,parentX:state.windowScreenX+state.parentWindowX,parentY:state.windowScreenY+state.parentWindowY,inspectorX:state.windowScreenX+state.parentWindowX+state.inspectorParentX,inspectorY:state.windowScreenY+state.parentWindowY+state.inspectorParentY};}
+function drawMain(){const d=derived(),g=stageGeometry(),s=g.scale,ix=g.ox+g.inspectorX*s,iy=g.oy+g.inspectorY*s,iw=state.width*s,ih=state.height*s,px=ix+state.x*s,py=iy+state.y*s,cx=ix+d.center.x*s,cy=iy+d.center.y*s;const wx=g.ox+state.windowScreenX*s,wy=g.oy+state.windowScreenY*s,pax=g.ox+g.parentX*s,pay=g.oy+g.parentY*s;let grid='';if(state.showGrid){const spacing=40*s;for(let x=ix+spacing;x<ix+iw;x+=spacing)grid+=`<line x1="${x}" y1="${iy}" x2="${x}" y2="${iy+ih}" stroke="#dce6f5" stroke-width="1.5"/>`;for(let y=iy+spacing;y<iy+ih;y+=spacing)grid+=`<line x1="${ix}" y1="${y}" x2="${ix+iw}" y2="${y}" stroke="#dce6f5" stroke-width="1.5"/>`;}
+let center='';if(state.showCenter)center=`<line x1="${cx}" y1="${iy}" x2="${cx}" y2="${iy+ih}" stroke="#4338ca" stroke-width="3" stroke-dasharray="12 9"/><line x1="${ix}" y1="${cy}" x2="${ix+iw}" y2="${cy}" stroke="#4338ca" stroke-width="3" stroke-dasharray="12 9"/><circle cx="${cx}" cy="${cy}" r="7" fill="#4338ca"/>`;
+let bounds=state.showBounds?`<rect x="${ix}" y="${iy}" width="${iw}" height="${ih}" rx="14" fill="none" stroke="#d97706" stroke-width="5"/>`:'';
+$('mainSvg').innerHTML=`<defs><marker id="arrowPink" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#be185d"/></marker></defs><rect x="${g.ox}" y="${g.oy}" width="${g.screenW*s}" height="${g.screenH*s}" rx="28" fill="#eff6ff" stroke="#1e40af" stroke-width="5"/><text x="${g.ox+15}" y="${g.oy+30}" font-size="19" font-weight="900" fill="#1e3a8a">screen origin (0, 0)</text><rect x="${wx}" y="${wy}" width="${(g.screenW-state.windowScreenX-20)*s}" height="${(g.screenH-state.windowScreenY-20)*s}" rx="25" fill="#f8fafc" stroke="#64748b" stroke-width="4" stroke-dasharray="14 10"/><text x="${wx+15}" y="${wy+31}" font-size="18" font-weight="900" fill="#475569">window origin ${pair(state.windowScreenX,state.windowScreenY,0)} screen px</text><rect x="${pax}" y="${pay}" width="${(state.inspectorParentX+state.width+70)*s}" height="${(state.inspectorParentY+state.height+60)*s}" rx="22" fill="#fef3c7" fill-opacity=".42" stroke="#d97706" stroke-width="4"/><text x="${pax+14}" y="${pay+30}" font-size="18" font-weight="900" fill="#92400e">parent origin in window ${pair(state.parentWindowX,state.parentWindowY,0)} px</text><rect x="${ix}" y="${iy}" width="${iw}" height="${ih}" rx="14" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>${grid}${center}${bounds}<circle cx="${ix}" cy="${iy}" r="8" fill="#1e40af"/><text x="${ix+14}" y="${iy-14}" font-size="18" font-weight="900" fill="#1e3a8a">inspector origin in parent ${pair(state.inspectorParentX,state.inspectorParentY,0)} px</text><line x1="${ix}" y1="${py}" x2="${px}" y2="${py}" stroke="#be185d" stroke-width="4"/><line x1="${px}" y1="${iy}" x2="${px}" y2="${py}" stroke="#1e40af" stroke-width="4"/><circle id="mainHandle" cx="${px}" cy="${py}" r="17" fill="#059669" stroke="#fff" stroke-width="5" style="cursor:grab"/><text x="${px+22}" y="${py-18}" font-size="18" font-weight="900" fill="#065f46">local ${pair(state.x,state.y,1)} px</text><text x="${px+22}" y="${py+10}" font-size="18" font-weight="900" fill="#065f46">normalized ${pair(d.u,d.v,3)}</text><path d="M${g.ox+12} ${g.oy+58} L${wx+8} ${wy+58} L${pax+8} ${pay+58} L${ix+8} ${iy+58}" fill="none" stroke="#be185d" stroke-width="4" marker-end="url(#arrowPink)"/>`;
+$('widthValue').textContent=`${state.width} px`;$('heightValue').textContent=`${state.height} px`;$('xValue').textContent=`${f1(state.x)} px`;$('yValue').textContent=`${f1(state.y)} px`;$('densityValue').textContent=`${f2(state.density)} px/dp`;$('xRange').max=state.width;$('yRange').max=state.height;$('xRange').value=state.x;$('yRange').value=state.y;$('mBounds').textContent=`(0, 0, ${state.width}, ${state.height}) px`;$('mCenter').textContent=`${pair(d.center.x,d.center.y,1)} px`;$('mLocal').textContent=`${pair(state.x,state.y,1)} px`;$('mDp').textContent=`${pair(d.dp.x,d.dp.y,1)} dp`;$('mNormalized').textContent=pair(d.u,d.v,3);$('mParent').textContent=`${pair(d.parent.x,d.parent.y,1)} px`;$('mWindow').textContent=`${pair(d.win.x,d.win.y,1)} px`;$('mScreen').textContent=`${pair(d.screen.x,d.screen.y,1)} px`;$('liveFormula').innerHTML=`normalized = (${f1(state.x)} ÷ ${state.width}, ${f1(state.y)} ÷ ${state.height}) = ${pair(d.u,d.v,3)}<br>screen = ${pair(state.windowScreenX,state.windowScreenY,0)} + ${pair(d.win.x,d.win.y,1)} = ${pair(d.screen.x,d.screen.y,1)} px`;document.querySelectorAll('[data-point]').forEach(b=>{const key=b.dataset.point;const selected=(key==='origin'&&d.u===0&&d.v===0)||(key==='center'&&d.u===.5&&d.v===.5)||(key==='quarter'&&Math.abs(d.u-.25)<.0001&&Math.abs(d.v-.75)<.0001)||(key==='bottom'&&d.u===1&&d.v===1);b.classList.toggle('selected',selected);});}
+function setNormalized(u,v){state.x=clamp(u,0,1)*state.width;state.y=clamp(v,0,1)*state.height;drawMain();}
+document.querySelectorAll('[data-point]').forEach(b=>b.addEventListener('click',()=>{({origin:()=>setNormalized(0,0),center:()=>setNormalized(.5,.5),quarter:()=>setNormalized(.25,.75),bottom:()=>setNormalized(1,1)})[b.dataset.point]();}));
+$('widthRange').addEventListener('input',e=>{const d=derived();state.width=Number(e.target.value);state.x=d.u*state.width;drawMain();});$('heightRange').addEventListener('input',e=>{const d=derived();state.height=Number(e.target.value);state.y=d.v*state.height;drawMain();});$('xRange').addEventListener('input',e=>{state.x=Number(e.target.value);drawMain();});$('yRange').addEventListener('input',e=>{state.y=Number(e.target.value);drawMain();});$('densityRange').addEventListener('input',e=>{state.density=Number(e.target.value);drawMain();});
+document.querySelectorAll('[data-placement]').forEach(b=>b.addEventListener('click',()=>{const p=b.dataset.placement;if(p==='baseline'){state.inspectorParentX=120;state.inspectorParentY=80;state.parentWindowX=180;state.parentWindowY=100;state.windowScreenX=40;state.windowScreenY=60;}if(p==='moveInspector'){state.inspectorParentX=220;state.inspectorParentY=140;state.parentWindowX=180;state.parentWindowY=100;state.windowScreenX=40;state.windowScreenY=60;}if(p==='fullScreen'){state.inspectorParentX=120;state.inspectorParentY=80;state.parentWindowX=180;state.parentWindowY=100;state.windowScreenX=0;state.windowScreenY=0;}document.querySelectorAll('[data-placement]').forEach(x=>x.classList.toggle('selected',x===b));drawMain();}));
+['showGrid','showCenter','showBounds'].forEach(id=>$(id).addEventListener('change',e=>{state[id]=e.target.checked;drawMain();}));
+let dragging=false;function eventToInspectorPoint(e){const svg=$('mainSvg'),pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const p=pt.matrixTransform(svg.getScreenCTM().inverse()),g=stageGeometry(),ix=g.ox+g.inspectorX*g.scale,iy=g.oy+g.inspectorY*g.scale;return {x:(p.x-ix)/g.scale,y:(p.y-iy)/g.scale};}function movePoint(e){const p=eventToInspectorPoint(e);state.x=clamp(p.x,0,state.width);state.y=clamp(p.y,0,state.height);drawMain();}$('mainSvg').addEventListener('pointerdown',e=>{const p=eventToInspectorPoint(e);if(p.x<0||p.x>state.width||p.y<0||p.y>state.height)return;dragging=true;$('mainSvg').setPointerCapture(e.pointerId);movePoint(e);});$('mainSvg').addEventListener('pointermove',e=>{if(dragging)movePoint(e);});$('mainSvg').addEventListener('pointerup',e=>{dragging=false;if($('mainSvg').hasPointerCapture(e.pointerId))$('mainSvg').releasePointerCapture(e.pointerId);});$('mainSvg').addEventListener('pointercancel',()=>{dragging=false;});
+const steps=[
+{title:'Measure the real inspector',caption:'Compose finishes layout, then onGloballyPositioned copies the inspector size and its origins. These numbers belong to the inspector that actually appears on the Pixel.',code:'// CoordinateInspector.kt — onGloballyPositioned\ngeometry = InspectorGeometry(\n    sizePx = coordinates.size,\n    originInParentPx = coordinates.positionInParent(),\n    originInWindowPx = coordinates.positionInWindow(),\n)',input:'Final Compose layout coordinates',operation:'Copy measured values into immutable state',output:'size and origins in px',stage:0},
+{title:'Declare the local bounds and origin',caption:'The inspector owns a local coordinate system. Its top-left is local (0, 0). Its right and bottom boundaries equal its measured width and height.',code:'left = 0\ntop = 0\nright = widthPx\nbottom = heightPx',input:'640 × 360 px',operation:'Use the inspector-local origin',output:'bounds (0, 0, 640, 360)',stage:1},
+{title:'Calculate the center',caption:'The center is a derived position. It does not come from the pointer event.',code:'val localCenterPx = Offset(\n    x = widthPx / 2f,\n    y = heightPx / 2f,\n)',input:'width 640, height 360',operation:'Divide each dimension by 2',output:'center (320, 180) px',stage:2},
+{title:'Receive the local pointer point',caption:'awaitFirstDown returns a pointer change. Its position is relative to the inspector because pointerInput belongs to that inspector.',code:'// CoordinateInspector.kt — pointerInput\nval down = awaitFirstDown(...)\nval downPoint = down.position.clampTo(geometry.sizePx)',input:'finger down at local (160, 270) px',operation:'Read and clamp local position',output:'safe local point (160, 270) px',stage:3},
+{title:'Store the normalized pair',caption:'Division changes local pixels into fractions of the current width and height.',code:'normalizedX = normalize(downPoint.x, width)\nnormalizedY = normalize(downPoint.y, height)',input:'local (160, 270), size 640 × 360',operation:'(160 ÷ 640, 270 ÷ 360)',output:'normalized (0.25, 0.75)',stage:4},
+{title:'Convert local pixels to dp',caption:'The density scale says how many pixels represent one dp. Division converts the two local pixel distances.',code:'val localPointDp = Offset(\n    x = localPointPx.x / densityScale,\n    y = localPointPx.y / densityScale,\n)',input:'local (160, 270) px, density 2.5 px/dp',operation:'divide each component by 2.5',output:'local (64, 108) dp',stage:5},
+{title:'Add larger-space origins',caption:'Each origin offset is added once. Every addition combines pixel values.',code:'pointInParentPx = originInParentPx + localPointPx\npointInWindowPx = originInWindowPx + localPointPx\npointOnScreenPx = originOnScreenPx + localPointPx',input:'local point and measured px origins',operation:'add matching pixel offsets',output:'parent, window, and screen positions',stage:6},
+{title:'Draw and display the shared state',caption:'The Canvas draws the grid, bounds, center, crosshair, and marker. Text rows display the same values. The drawing and text should agree because they consume the same state.',code:'drawInspectorGrid(\n    localPointPx = localPointPx,\n    localCenterPx = localCenterPx,\n    pointerPressed = pointerPressed,\n)',input:'measured geometry and derived point values',operation:'draw overlays and format readouts',output:'one inspectable coordinate snapshot',stage:7}
+];let stepIndex=0;$('stepButtons').innerHTML=steps.map((_,i)=>`<button class="step-button" type="button" data-step="${i}">${i+1}</button>`).join('');document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{stepIndex=Number(b.dataset.step);drawStep();}));$('stepBack').addEventListener('click',()=>{stepIndex=clamp(stepIndex-1,0,steps.length-1);drawStep();});$('stepNext').addEventListener('click',()=>{stepIndex=clamp(stepIndex+1,0,steps.length-1);drawStep();});
+function drawStep(){const s=steps[stepIndex],x=90,y=90,w=650,h=365,cx=x+w/2,cy=y+h/2,px=x+160,py=y+270;let c=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="22" fill="#fff" stroke="#cbd5e1" stroke-width="3"/>`;if(s.stage>=0)c+=`<rect x="62" y="42" width="710" height="470" rx="25" fill="none" stroke="#64748b" stroke-width="3" stroke-dasharray="13 9"/><text x="80" y="70" font-size="19" font-weight="900" fill="#475569">measured Compose element: 640 × 360 px</text>`;if(s.stage>=1)c+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="22" fill="none" stroke="#d97706" stroke-width="5"/><circle cx="${x}" cy="${y}" r="8" fill="#1e40af"/><text x="${x+14}" y="${y-14}" font-size="19" font-weight="900" fill="#1e3a8a">local origin (0, 0)</text><text x="${x+w-190}" y="${y+30}" font-size="18" font-weight="900" fill="#92400e">right = 640</text><text x="${x+14}" y="${y+h-14}" font-size="18" font-weight="900" fill="#92400e">bottom = 360</text>`;if(s.stage>=2)c+=`<line x1="${cx}" y1="${y}" x2="${cx}" y2="${y+h}" stroke="#4338ca" stroke-width="4" stroke-dasharray="12 9"/><line x1="${x}" y1="${cy}" x2="${x+w}" y2="${cy}" stroke="#4338ca" stroke-width="4" stroke-dasharray="12 9"/><circle cx="${cx}" cy="${cy}" r="8" fill="#4338ca"/><text x="${cx+16}" y="${cy-14}" font-size="19" font-weight="900" fill="#312e81">center (320, 180)</text>`;if(s.stage>=3)c+=`<line x1="${x}" y1="${py}" x2="${px}" y2="${py}" stroke="#be185d" stroke-width="4"/><line x1="${px}" y1="${y}" x2="${px}" y2="${py}" stroke="#1e40af" stroke-width="4"/><circle cx="${px}" cy="${py}" r="16" fill="#059669" stroke="#fff" stroke-width="5"/><text x="${px+22}" y="${py-16}" font-size="19" font-weight="900" fill="#065f46">local (160, 270) px</text>`;if(s.stage>=4)c+=`<rect x="790" y="90" width="220" height="78" rx="14" fill="#ecfdf5" stroke="#059669" stroke-width="3"/><text x="900" y="120" text-anchor="middle" font-size="17" font-weight="900" fill="#065f46">normalized</text><text x="900" y="151" text-anchor="middle" font-size="25" font-weight="900" fill="#065f46">(0.25, 0.75)</text>`;if(s.stage>=5)c+=`<rect x="790" y="184" width="220" height="78" rx="14" fill="#eef2ff" stroke="#4338ca" stroke-width="3"/><text x="900" y="214" text-anchor="middle" font-size="17" font-weight="900" fill="#312e81">local dp</text><text x="900" y="245" text-anchor="middle" font-size="25" font-weight="900" fill="#312e81">(64, 108)</text>`;if(s.stage>=6)c+=`<rect x="790" y="278" width="220" height="174" rx="14" fill="#dbeafe" stroke="#1e40af" stroke-width="3"/><text x="900" y="308" text-anchor="middle" font-size="17" font-weight="900" fill="#1e3a8a">larger spaces</text><text x="810" y="343" font-size="17" font-weight="800" fill="#1e3a8a">parent (280, 350)</text><text x="810" y="379" font-size="17" font-weight="800" fill="#1e3a8a">window (460, 450)</text><text x="810" y="415" font-size="17" font-weight="800" fill="#1e3a8a">screen (500, 510)</text>`;if(s.stage>=7)c+=`<text x="520" y="565" text-anchor="middle" font-size="23" font-weight="900" fill="#065f46">Canvas overlays and text readouts consume the same state</text>`;$('stepSvg').innerHTML=c;$('stepTitle').textContent=s.title;$('stepCaption').textContent=s.caption;$('stepCode').textContent=s.code;$('stepInput').textContent=s.input;$('stepOperation').textContent=s.operation;$('stepOutput').textContent=s.output;document.querySelectorAll('[data-step]').forEach(b=>b.classList.toggle('selected',Number(b.dataset.step)===stepIndex));$('stepBack').disabled=stepIndex===0;$('stepNext').disabled=stepIndex===steps.length-1;}
+document.querySelectorAll('[data-source]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-source]').forEach(b=>b.classList.remove('selected'));button.classList.add('selected');document.querySelectorAll('.source-pane').forEach(p=>p.classList.remove('active'));$(`source-${button.dataset.source}`).classList.add('active');}));
+const editor=$('codeEditor');let challengeWasCorrect=false;function stripComments(code){return code.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/.*$/gm,'');}function parseAddend(){const code=stripComments(editor.value);return (code.match(/return\s+inspectorOriginOnScreenPx\s*\+\s*(pointerLocalPx|normalizedPoint)/)||[])[1]||'unrecognized';}
+function drawChallenge(){const addend=parseAddend(),origin={x:40,y:60},local={x:160,y:270},norm={x:.25,y:.75},chosen=addend==='pointerLocalPx'?local:addend==='normalizedPoint'?norm:null,out=chosen?{x:origin.x+chosen.x,y:origin.y+chosen.y}:null,correct=addend==='pointerLocalPx';const marker=out?`<circle cx="${80+out.x}" cy="${40+out.y}" r="15" fill="${correct?'#059669':'#dc2626'}" stroke="#fff" stroke-width="5"/><text x="${80+out.x+20}" y="${40+out.y-16}" font-size="18" font-weight="900" fill="${correct?'#065f46':'#7f1d1d'}">${pair(out.x,out.y,2)} px</text>`:`<text x="410" y="245" text-anchor="middle" font-size="22" font-weight="900" fill="#7f1d1d">Unrecognized expression</text>`;$('challengeSvg').innerHTML=`<rect x="80" y="40" width="650" height="390" rx="24" fill="#eff6ff" stroke="#1e40af" stroke-width="5"/><circle cx="120" cy="100" r="9" fill="#1e40af"/><text x="138" y="92" font-size="18" font-weight="900" fill="#1e3a8a">inspector origin on screen (40, 60) px</text><line x1="120" y1="100" x2="280" y2="370" stroke="#be185d" stroke-width="5" stroke-dasharray="12 9"/><circle cx="280" cy="370" r="12" fill="#d97706"/><text x="300" y="397" font-size="18" font-weight="900" fill="#92400e">correct local displacement (160, 270) px</text>${marker}`;$('challengeFormula').innerHTML=out?`(${origin.x}, ${origin.y}) px + ${addend==='pointerLocalPx'?`(${local.x}, ${local.y}) px`:`(${norm.x}, ${norm.y}) unitless`} = ${pair(out.x,out.y,2)} px`:'The return expression was not recognized.';$('challengeInput').textContent='screen origin (40, 60) px; local (160, 270) px; normalized (0.25, 0.75)';$('challengeOperation').textContent=addend==='pointerLocalPx'?'add two pixel offsets':addend==='normalizedPoint'?'incorrectly add a unitless pair to px':'unrecognized';$('challengeOutput').textContent=out?`${pair(out.x,out.y,2)} px`:'no output';document.querySelectorAll('[data-addend]').forEach(b=>b.classList.toggle('selected',b.dataset.addend===addend));if(challengeWasCorrect){challengeWasCorrect=false;$('challengeResult').textContent='The code changed after the successful check. Check the repair again.';$('challengeResult').style.background='#fff';}}
+editor.addEventListener('input',drawChallenge);document.querySelectorAll('[data-addend]').forEach(button=>button.addEventListener('click',()=>{editor.value=editor.value.replace(/inspectorOriginOnScreenPx\s*\+\s*(pointerLocalPx|normalizedPoint)/,`inspectorOriginOnScreenPx + ${button.dataset.addend}`);drawChallenge();}));$('checkChallenge').addEventListener('click',()=>{if(parseAddend()==='pointerLocalPx'){challengeWasCorrect=true;$('challengeResult').textContent='Correct. The origin and the displacement are both measured in pixels. Their sum is a screen-relative pixel position.';$('challengeResult').style.background='#ecfdf5';}else{$('challengeResult').textContent='Not repaired yet. Convert the relative point to local pixels before adding it to a pixel origin.';$('challengeResult').style.background='#fee2e2';}});
+const checkboxes=[...document.querySelectorAll('[data-check]')];function updateRecord(){const done=checkboxes.filter(c=>c.checked).map(c=>c.dataset.check),all=done.length===checkboxes.length;$('completionRecord').value=`lesson_id: 02-09\nlesson_title: Build a coordinate inspector\nstatus: ${all?'completed':'in_progress'}\ncourse_lessons_completed_before_this_lesson: 16\ncourse_lessons_completed_after_completion: ${all?17:16}\ncourse_lessons_total: 216\nchapter_02_completed_after_this_lesson: ${all}\nandroid_files_applied:\n  - app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt\n  - app/src/main/java/com/example/liquidglasslab/chapter02/CoordinateInspector.kt\npixel_8_pro_tested: ${done.includes('build')&&done.includes('visual')&&done.includes('drag')}\ncheckpoint_items_complete: ${done.length}/${checkboxes.length}\ncan_explain_local_bounds_and_center: ${done.includes('center')&&done.includes('boundary')}\ncan_explain_units_and_larger_spaces: ${done.includes('spaces')&&done.includes('units')}\nnext_lesson_after_completion: 3.1 — Red, green, and blue channels\nremaining_questions:\n  - none`;}
+checkboxes.forEach(c=>c.addEventListener('change',updateRecord));$('copyRecord').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('completionRecord').value);$('copyStatus').textContent='Copied.';}catch{$('completionRecord').select();document.execCommand('copy');$('copyStatus').textContent='Copied using the browser fallback.';}});
+drawMain();drawStep();drawChallenge();updateRecord();
+</script>
+</body>
+</html>

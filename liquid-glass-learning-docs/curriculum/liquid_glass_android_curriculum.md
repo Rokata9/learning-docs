@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 2.8  
+**Version:** 2.9  
 **Updated:** 2026-07-24  
-**Current course position:** Lessons 1.1 through 2.7 are complete by learner confirmation. **15 of 216 lessons are complete.** Lesson 2.8 is the next learner checkpoint and the generated frontier.  
+**Current course position:** Lessons 1.1 through 2.8 are complete by learner confirmation. **16 of 216 lessons are complete.** Lesson 2.9 is the next learner checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -170,6 +170,20 @@ Version 2.8 records completion of Lesson 2.7 and adds normalized coordinates:
 - The lesson distinguishes normalization from clamping. Division changes the numeric scale. `coerceIn(0f, 1f)` only enforces the inside-rectangle range.
 - A boundary diagnostic reinforces that normalized X = 1 maps to the right edge at local X = width, not to the last pixel index.
 - Android changes: `Chapter02Screen.kt` and new `NormalizedCoordinatesExplorer.kt`.
+
+Version 2.9 records completion of Lesson 2.8 and adds the Chapter 2 coordinate inspector:
+
+- The learner asked to continue after Lesson 2.8, so Lesson 2.8 is marked complete.
+- Learner-confirmed course completion is now **16 of 216 lessons**.
+- Lesson 2.9 combines the earlier Chapter 2 concepts in one diagnostic surface instead of introducing another independent coordinate system.
+- A pointer is defined as a physical input object that can point at a coordinate. A pointer event is defined as one low-level data record produced when a pointer goes down, moves, or goes up.
+- The inspector draws its local grid, origin, rectangular bounds, center guides, pointer crosshair, and point marker.
+- The inspector reports the same point as local px, local dp, normalized coordinates, parent-relative px, window-relative px, and screen-relative px.
+- The Android implementation copies immutable values from `LayoutCoordinates` during `onGloballyPositioned`. It does not keep a long-lived `LayoutCoordinates` reference in state.
+- The pointer handler uses `awaitEachGesture` and `awaitFirstDown`, clamps positions to the inspector bounds, stores normalized state, and consumes active changes so dragging the teaching surface does not become parent scrolling.
+- Simple origin addition is explicitly limited to this lesson's unrotated and unscaled inspector. Later transformed elements require a coordinate-conversion API.
+- The coding challenge rejects adding a unitless normalized pair directly to a pixel origin.
+- Android changes: `Chapter02Screen.kt` and new `CoordinateInspector.kt`.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -1109,10 +1123,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── DensityExplorer.kt                  # introduced in Lesson 2.5
     ├── LocalCoordinatesExplorer.kt         # introduced in Lesson 2.6
     ├── ParentScreenCoordinatesExplorer.kt  # introduced in Lesson 2.7
-    └── NormalizedCoordinatesExplorer.kt    # introduced in Lesson 2.8
+    ├── NormalizedCoordinatesExplorer.kt    # introduced in Lesson 2.8
+    └── CoordinateInspector.kt              # introduced in Lesson 2.9
 ```
 
-Lessons through 2.7 are complete. Lesson 2.8 is the current learner checkpoint.
+Lessons through 2.8 are complete. Lesson 2.9 is the current learner checkpoint.
 
 ---
 
@@ -1235,6 +1250,68 @@ course: add parent window and screen coordinates explorer
 ```
 
 
+### `lesson-02-08-normalized-coordinates.html`
+
+**New graphics idea:** A point can preserve its relative position when an element changes size.  
+**New math idea:** Divide local coordinates by width and height to normalize; multiply by current width and height to convert back.
+
+Interactive explanation:
+
+- A resizable rectangle exposes local px and normalized values at the same time.
+- A draggable marker and exact presets update one shared point state.
+- The central formulas are `normalizedX = localX / width`, `normalizedY = localY / height`, `localX = normalizedX * width`, and `localY = normalizedY * height`.
+- A boundary diagnostic distinguishes normalized 1 at local X = width from the final pixel index at width − 1.
+- A seven-step derivation follows local `(160, 270)` inside `640 × 360` to normalized `(0.25, 0.75)`, then reconstructs a local point for a new size.
+- The Android implementation reads the measured drawing size, normalizes a local tap, stores the normalized pair, and multiplies by the current Canvas dimensions for drawing.
+- The coding challenge replaces multiplication with division inside `normalizePoint`.
+- Four hidden-answer exercises test normalization, conversion back, resize behavior, and boundary-versus-index reasoning.
+
+Android code delivery:
+
+```text
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter02/NormalizedCoordinatesExplorer.kt
+```
+
+Suggested commits:
+
+```text
+course: add normalized coordinates lesson
+course: add normalized coordinates explorer
+```
+
+
+### `lesson-02-09-build-a-coordinate-inspector.html`
+
+**New graphics idea:** A coordinate inspector makes invisible coordinate-system and unit differences visible in one diagnostic drawing.  
+**New math idea:** Derive several descriptions of one point by division, density conversion, and origin addition without mixing units.
+
+Interactive explanation:
+
+- A nested SVG scene shows screen, window, parent, inspector, local grid, local bounds, center, crosshair, and pointer marker.
+- The marker can be dragged. Exact point presets and placement experiments use the same state.
+- Live readouts show local bounds, local center, local px, local dp, normalized values, parent-relative px, window-relative px, and screen-relative px.
+- The default snapshot follows a `640 × 360 px` inspector, local point `(160, 270) px`, density `2.5 px/dp`, inspector-in-parent `(120, 80) px`, parent-in-window `(180, 100) px`, and window-on-screen `(40, 60) px`.
+- An eight-step construction maps every output to an exact Kotlin excerpt and input → operation → output record.
+- The Android implementation reads density with `LocalDensity`, copies measured geometry in `onGloballyPositioned`, receives one pointer through `awaitEachGesture`, stores normalized state, derives all readouts, and draws the visual evidence with Canvas.
+- The coding challenge replaces `normalizedPoint` with `pointerLocalPx` when adding a displacement to a screen-relative pixel origin.
+- Four hidden-answer exercises test bounds and center, px-to-dp conversion, nested origin addition, and unit compatibility.
+
+Android code delivery:
+
+```text
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter02/CoordinateInspector.kt
+```
+
+Suggested commits:
+
+```text
+course: add coordinate inspector lesson
+course: add coordinate inspector checkpoint
+```
+
+
 ## 11. Exercises and grading
 
 Every lesson contains at least one small coding challenge before the final exercise section. Every lesson then ends with two to four exercises.
@@ -1327,7 +1404,7 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Learner completion is confirmed through Lesson 2.7. Lesson 2.8 is generated and pending. The learner-confirmed total is 15 of 216 lessons.
+Learner completion is confirmed through Lesson 2.8. Lesson 2.9 is generated and pending. The learner-confirmed total is 16 of 216 lessons.
 
 Current Chapter 2 lesson files:
 
@@ -1339,7 +1416,8 @@ Current Chapter 2 lesson files:
 - `course/chapters/chapter-02/lesson-02-05-pixels-dp-and-density.html`;
 - `course/chapters/chapter-02/lesson-02-06-local-coordinates.html`;
 - `course/chapters/chapter-02/lesson-02-07-parent-window-and-screen-coordinates.html`;
-- `course/chapters/chapter-02/lesson-02-08-normalized-coordinates.html`.
+- `course/chapters/chapter-02/lesson-02-08-normalized-coordinates.html`;
+- `course/chapters/chapter-02/lesson-02-09-build-a-coordinate-inspector.html`.
 
 Current cumulative Chapter 2 Android source:
 
@@ -1355,10 +1433,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── DensityExplorer.kt
     ├── LocalCoordinatesExplorer.kt
     ├── ParentScreenCoordinatesExplorer.kt
-    └── NormalizedCoordinatesExplorer.kt
+    ├── NormalizedCoordinatesExplorer.kt
+    └── CoordinateInspector.kt
 ```
 
-The Lesson 2.8 Android ZIP contains only `Chapter02Screen.kt` and the new `NormalizedCoordinatesExplorer.kt`. Earlier Chapter 2 files are unchanged and are not duplicated.
+The Lesson 2.9 Android ZIP contains only `Chapter02Screen.kt` and the new `CoordinateInspector.kt`. Earlier Chapter 2 files are unchanged and are not duplicated.
 
 ---
 
@@ -1384,6 +1463,7 @@ The course plan was checked against these public primary sources through 2026-07
 - Android, **Compose DrawScope reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/drawscope/DrawScope
 - Android, **Compose onSizeChanged reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/onSizeChanged.modifier
 - Android, **Compose gestures reference**: https://developer.android.com/reference/kotlin/androidx/compose/foundation/gestures/package-summary
+- Android, **Understand gestures and raw pointer events**: https://developer.android.com/develop/ui/compose/touch-input/pointer-input/understand-gestures
 - Android, **Compose Color reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color
 - Android, **Compose BlendMode reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode
 - Android, **Constraints and modifier order**: https://developer.android.com/develop/ui/compose/layouts/constraints-modifiers

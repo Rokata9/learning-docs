@@ -9,15 +9,15 @@ Open `liquid-glass-course.html` directly in a Chromium-based browser. No local s
 ## Current course state
 
 - Chapter 1 is complete.
-- Lessons 2.1 through 2.7 are complete.
-- **15 of 216 lessons are complete.**
-- Lesson 2.8 is generated and is the next learner checkpoint.
-- The generated frontier is Lesson 2.8.
+- Lessons 2.1 through 2.8 are complete.
+- **16 of 216 lessons are complete.**
+- Lesson 2.9 is generated and is the next learner checkpoint.
+- The generated frontier is Lesson 2.9.
 
 Open:
 
 ```text
-course/chapters/chapter-02/lesson-02-08-normalized-coordinates.html
+course/chapters/chapter-02/lesson-02-09-build-a-coordinate-inspector.html
 ```
 
 ## Android progression
@@ -30,7 +30,8 @@ course/chapters/chapter-02/lesson-02-08-normalized-coordinates.html
 - Lesson 2.6 introduced child-local coordinates.
 - Lesson 2.7 compared parent-local, window-relative, and screen-relative coordinates.
 - Lesson 2.8 converts local pixel positions into normalized values from 0 through 1 and converts them back for drawing.
-- The Lesson 2.8 Android update adds `NormalizedCoordinatesExplorer.kt` and updates `Chapter02Screen.kt`.
+- Lesson 2.9 combines the Chapter 2 concepts in one coordinate inspector.
+- The Lesson 2.9 Android update adds `CoordinateInspector.kt` and updates `Chapter02Screen.kt`.
 
 ## Incremental delivery rule
 
