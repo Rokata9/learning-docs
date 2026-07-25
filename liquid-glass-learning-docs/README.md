@@ -9,29 +9,30 @@ Open `liquid-glass-course.html` directly in a Chromium-based browser. No local s
 ## Current course state
 
 - Chapter 1 is complete.
-- Lessons 2.1 through 2.8 are complete.
-- **16 of 216 lessons are complete.**
-- Lesson 2.9 is generated and is the next learner checkpoint.
-- The generated frontier is Lesson 2.9.
+- Chapter 2 is complete.
+- **18 of 216 lessons are complete.**
+- Lesson 3.1 is complete.
+- Lesson 3.2 is generated and is the next learner checkpoint.
+- The generated frontier is Lesson 3.2.
 
 Open:
 
 ```text
-course/chapters/chapter-02/lesson-02-09-build-a-coordinate-inspector.html
+course/chapters/chapter-03/lesson-03-02-alpha.html
 ```
 
 ## Android progression
 
-- Lesson 2.1 introduced the enlarged 8×8 teaching grid.
-- Lesson 2.2 introduced the X axis.
-- Lesson 2.3 introduced the Y axis.
-- Lesson 2.4 introduced rectangle bounds, width, height, and center.
-- Lesson 2.5 separated dp layout units from px drawing units.
-- Lesson 2.6 introduced child-local coordinates.
-- Lesson 2.7 compared parent-local, window-relative, and screen-relative coordinates.
-- Lesson 2.8 converts local pixel positions into normalized values from 0 through 1 and converts them back for drawing.
-- Lesson 2.9 combines the Chapter 2 concepts in one coordinate inspector.
-- The Lesson 2.9 Android update adds `CoordinateInspector.kt` and updates `Chapter02Screen.kt`.
+- Chapter 1 built and diagnosed the first translucent panel.
+- Chapter 2 built the coordinate vocabulary and the final coordinate inspector.
+- Lesson 3.1 switched the app entry point to `Chapter03Screen` and added `RgbChannelsExplorer.kt`.
+- Lesson 3.2 keeps `RGB(0.80, 0.25, 0.60)` fixed and adds `AlphaExplorer.kt`.
+- The explorer varies alpha from `0.00` through `1.00` and compares the same source over a checkerboard, dark navy, and pale yellow.
+- `Chapter03Screen.kt` now opens Lesson 3.2.
+
+## Theme rule from Lesson 3.1 onward
+
+New lesson HTML follows the operating-system light or dark preference automatically. Android screens use the project theme and `MaterialTheme.colorScheme` for interface chrome. Instructional color values remain exact across themes.
 
 ## Incremental delivery rule
 

@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 3.1.1  
+**Version:** 3.2  
 **Updated:** 2026-07-25  
-**Current course position:** Lessons 1.1 through 2.9 are complete by learner confirmation. **17 of 216 lessons are complete.** Lesson 3.1 is the next learner checkpoint and the generated frontier.  
+**Current course position:** Lessons 1.1 through 3.1 are complete by learner confirmation. **18 of 216 lessons are complete.** Lesson 3.2 is the next learner checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -208,6 +208,20 @@ Version 3.1.1 revises Lesson 3.1 and establishes the forward theme rule:
 - Starting with Lesson 3.1, every new lesson must support both OS theme modes automatically.
 - Lessons 1.1 through 2.9 remain unchanged. They are not retrofitted only for dark mode.
 - Changed Lesson 3.1-or-later HTML files must be verified in both light and dark OS preferences.
+
+Version 3.2 records completion of Lesson 3.1 and isolates alpha:
+
+- The learner reported readiness after completing and testing the OS-theme revision of Lesson 3.1. Lesson 3.1 is therefore marked complete.
+- Learner-confirmed course completion is now **18 of 216 lessons**.
+- Lesson 3.2 keeps the source RGB fixed at `RGB(0.80, 0.25, 0.60)` and changes only alpha from `0.00` through `1.00`.
+- Alpha is defined as the source-opacity channel for this lesson. The transparent background opening is shown as `1 - alpha`.
+- The lesson explicitly rejects the claim that lower alpha always makes a result brighter or darker. Lower alpha reveals more of the named background.
+- The same RGBA source is compared over a fixed checkerboard, dark navy `#0F172A`, and pale yellow `#FDE68A`.
+- The lesson explains that straight RGBA can retain non-zero RGB values when alpha is zero. Premultiplied storage remains deferred to Lesson 3.5.
+- The full source-over output arithmetic remains deferred to Lesson 3.3 so Lesson 3.2 can isolate the meaning and data path of alpha.
+- Android changes: `Chapter03Screen.kt` now opens Lesson 3.2, and new `chapter03/AlphaExplorer.kt` implements the controlled experiment.
+- `MainActivity.kt` and `RgbChannelsExplorer.kt` remain unchanged and are not included in the Lesson 3.2 Android incremental archive.
+- All changed shared HTML navigation pages and Lesson 3.2 follow the OS theme. Exact instructional colors remain unchanged across themes.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -1159,17 +1173,18 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
 
 Lessons through 2.9 are complete. Chapter 2 is complete.
 
-## 10B. Android source organization for the generated start of Chapter 3
+## 10B. Android source organization for the current Chapter 3 state
 
 ```text
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
 ├── MainActivity.kt                         # switches to Chapter03Screen in Lesson 3.1
 └── chapter03/
-    ├── Chapter03Screen.kt                  # introduced in Lesson 3.1
-    └── RgbChannelsExplorer.kt              # introduced in Lesson 3.1
+    ├── Chapter03Screen.kt                  # introduced in Lesson 3.1; switches to AlphaExplorer in Lesson 3.2
+    ├── RgbChannelsExplorer.kt              # introduced in Lesson 3.1; unchanged in Lesson 3.2
+    └── AlphaExplorer.kt                    # introduced in Lesson 3.2
 ```
 
-Lesson 3.1 is generated and is the current learner checkpoint. Alpha remains fixed at `1f` until Lesson 3.2.
+Lesson 3.1 is complete. Lesson 3.2 is generated and is the current learner checkpoint. It keeps RGB fixed and changes only alpha.
 
 ---
 
@@ -1396,6 +1411,105 @@ The next conversation updates `liquid_glass_android_handoff.md`. Browser-local s
 
 ---
 
+
+## 12C. Lesson 3.2 generated details
+
+### Learning file
+
+```text
+course/chapters/chapter-03/lesson-03-02-alpha.html
+```
+
+### Main graphics idea
+
+Alpha is the fourth RGBA channel. In Lesson 3.2 it stores source opacity as a normalized number from `0.00` through `1.00`.
+
+The fixed source is:
+
+```text
+RGB = (0.80, 0.25, 0.60)
+```
+
+The changing tuple is:
+
+```text
+RGBA(0.80, 0.25, 0.60, alpha)
+```
+
+The lesson uses:
+
+```text
+source opacity = alpha
+background opening = 1 - alpha
+```
+
+This is not yet the complete source-over color formula. Lesson 3.3 calculates the final output channels.
+
+### Key diagnostic
+
+Lower alpha does not directly mean darker or lighter.
+
+```text
+alpha decreases
+    ↓
+less source influence
+    ↓
+more of the named background remains visible
+```
+
+The same source and alpha can therefore look different over dark navy and pale yellow.
+
+### Android value path
+
+```text
+preset or Slider
+    ↓
+alpha state
+    ↓
+Color(
+    red = 0.80f,
+    green = 0.25f,
+    blue = 0.60f,
+    alpha = alpha,
+)
+    ↓
+Canvas.drawRect(color = sourceColor)
+    ↓
+source-over drawing over the existing checkerboard or fixed background
+```
+
+### Android files changed
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter03/AlphaExplorer.kt
+```
+
+`MainActivity.kt` and `RgbChannelsExplorer.kt` are unchanged.
+
+### Lesson checkpoint
+
+Lesson 3.2 is complete only when:
+
+- [ ] The incremental learning-docs and Android archives were applied after Lesson 3.1.
+- [ ] The app builds and opens Lesson 3.2 on the Pixel 8 Pro.
+- [ ] The 0%, 25%, 50%, 75%, and 100% presets work.
+- [ ] Changing alpha leaves the displayed RGB values unchanged.
+- [ ] The same alpha visibly differs over dark navy and pale yellow.
+- [ ] Alpha zero reveals the unchanged checkerboard while the straight-RGBA tuple still displays non-zero RGB.
+- [ ] The learner can explain why alpha is not a brightness control.
+- [ ] Browser and Android chrome follow OS light and dark modes while exact teaching colors remain fixed.
+- [ ] The coding challenge and four exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 19 of 216.
+Next lesson becomes 3.3 — The “over” operation.
+```
+
+
 ## 13. Reusable continuation prompt
 
 ```text
@@ -1446,7 +1560,7 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Learner completion is confirmed through Lesson 2.9. Chapter 2 is complete. Lesson 3.1 is generated and pending. The learner-confirmed total is 17 of 216 lessons.
+Learner completion is confirmed through Lesson 3.1. Chapters 1 and 2 are complete. Lesson 3.2 is generated and pending. The learner-confirmed total is 18 of 216 lessons.
 
 Current Chapter 2 lesson files:
 
@@ -1484,7 +1598,8 @@ The Lesson 2.9 Android ZIP contains only `Chapter02Screen.kt` and the new `Coord
 Current Chapter 3 lesson files:
 
 - `course/chapters/chapter-03/lesson-color-opacity-and-compositing.html`;
-- `course/chapters/chapter-03/lesson-03-01-red-green-and-blue-channels.html`.
+- `course/chapters/chapter-03/lesson-03-01-red-green-and-blue-channels.html`;
+- `course/chapters/chapter-03/lesson-03-02-alpha.html`.
 
 Current generated Chapter 3 Android source:
 
@@ -1493,16 +1608,17 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
 ├── MainActivity.kt
 └── chapter03/
     ├── Chapter03Screen.kt
-    └── RgbChannelsExplorer.kt
+    ├── RgbChannelsExplorer.kt
+    └── AlphaExplorer.kt
 ```
 
-The revised Lesson 3.1 Android ZIP contains those same three files with OS-theme support. The revised learning-docs ZIP changes only Lesson 3.1 and course-management files. No Lesson 1.x or 2.x HTML file is changed by the theme revision.
+The Lesson 3.2 Android ZIP contains only the changed `Chapter03Screen.kt` and the new `AlphaExplorer.kt`. The learning-docs ZIP contains only files added or modified for Lesson 3.2.
 
 ---
 
 ## 15. Primary references
 
-The course plan was checked against these public primary sources through 2026-07-24:
+The course plan was checked against these public primary sources through 2026-07-25:
 
 - Apple, **Meet Liquid Glass**, WWDC25: https://developer.apple.com/videos/play/wwdc2025/219/
 - Apple, **Get to know the new design system**, WWDC25: https://developer.apple.com/videos/play/wwdc2025/356/
@@ -1522,6 +1638,7 @@ The course plan was checked against these public primary sources through 2026-07
 - Android, **Compose DrawScope reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/drawscope/DrawScope
 - Android, **Compose Color reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color
 - Android, **Compose Slider**: https://developer.android.com/develop/ui/compose/components/slider
+- Android, **Material Design 3 in Compose**: https://developer.android.com/develop/ui/compose/designsystems/material3
 - Android, **Compose onSizeChanged reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/onSizeChanged.modifier
 - Android, **Compose gestures reference**: https://developer.android.com/reference/kotlin/androidx/compose/foundation/gestures/package-summary
 - Android, **Understand gestures and raw pointer events**: https://developer.android.com/develop/ui/compose/touch-input/pointer-input/understand-gestures
