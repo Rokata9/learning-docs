@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 2.9  
-**Updated:** 2026-07-24  
-**Current course position:** Lessons 1.1 through 2.8 are complete by learner confirmation. **16 of 216 lessons are complete.** Lesson 2.9 is the next learner checkpoint and the generated frontier.  
+**Version:** 3.1.1  
+**Updated:** 2026-07-25  
+**Current course position:** Lessons 1.1 through 2.9 are complete by learner confirmation. **17 of 216 lessons are complete.** Lesson 3.1 is the next learner checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -185,6 +185,30 @@ Version 2.9 records completion of Lesson 2.8 and adds the Chapter 2 coordinate i
 - The coding challenge rejects adding a unitless normalized pair directly to a pixel origin.
 - Android changes: `Chapter02Screen.kt` and new `CoordinateInspector.kt`.
 
+Version 3.1 records completion of Chapter 2 and starts the color chapter:
+
+- The learner asked for the next lesson after Lesson 2.9, so Lesson 2.9 and Chapter 2 are marked complete.
+- Learner-confirmed course completion is now **17 of 216 lessons**.
+- Lesson 3.1 defines a color channel as one named numeric component inside a color.
+- The lesson keeps alpha fixed at `1.00` and changes red, green, and blue independently.
+- The default example is `RGB(0.80, 0.25, 0.60)`, approximately `RGB(204, 64, 153)` or `#CC4099` on an 8-bit scale.
+- The browser laboratory exposes isolated red, green, and blue contributions and the final combined swatch.
+- The lesson explicitly states that normalized channel values describe a numeric scale. They do not by themselves measure physical light output or perceived brightness.
+- The coding challenge repairs a green-blue channel swap by mapping each input to the matching named `Color` argument.
+- `MainActivity.kt` switches to `Chapter03Screen`.
+- New Android files: `chapter03/Chapter03Screen.kt` and `chapter03/RgbChannelsExplorer.kt`.
+
+Version 3.1.1 revises Lesson 3.1 and establishes the forward theme rule:
+
+- Lesson 3.1 now follows the operating-system light or dark preference in both its standalone HTML and Android UI.
+- The HTML uses `prefers-color-scheme`. It has no manual theme switch.
+- `MainActivity` passes `isSystemInDarkTheme()` to `LiquidGlassLabTheme`.
+- Ordinary Android interface chrome uses `MaterialTheme.colorScheme` instead of hardcoded light colors.
+- Exact RGB teaching swatches remain unchanged across themes. They are numeric color data, not theme chrome.
+- Starting with Lesson 3.1, every new lesson must support both OS theme modes automatically.
+- Lessons 1.1 through 2.9 remain unchanged. They are not retrofitted only for dark mode.
+- Changed Lesson 3.1-or-later HTML files must be verified in both light and dark OS preferences.
+
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
 ---
@@ -314,6 +338,9 @@ liquid-glass-learning-docs/
 │       ├── chapter-02/
 │       │   ├── lesson-the-screen-is-a-grid.html
 │       │   └── lesson-02-*.html
+│       ├── chapter-03/
+│       │   ├── lesson-color-opacity-and-compositing.html
+│       │   └── lesson-03-*.html
 │       └── ...
 ├── learner-work/
 │   ├── observations/
@@ -378,8 +405,11 @@ Every lesson HTML file must:
 - use inline SVG or Canvas when needed;
 - use no content delivery network and no external JavaScript library;
 - render a meaningful initial state before the learner touches anything;
-- use a light theme;
 - target desktop only;
+- for Lessons 1.1 through 2.9, preserve the existing light-only files unless a separate defect requires a revision;
+- starting with Lesson 3.1, follow the operating-system light or dark preference automatically with `prefers-color-scheme`;
+- adapt interface chrome, ordinary text, controls, borders, and diagram scaffolding;
+- keep instructional color data numerically exact instead of recoloring it for the theme;
 - work at `1920×1080` or larger;
 - use the full width of a `5120×1440` ultrawide display when the diagram benefits from it;
 - keep normal prose at a readable width rather than stretching paragraphs across the whole monitor.
@@ -1109,7 +1139,7 @@ The source is cumulative:
 A lesson must not duplicate the entire Android project inside the HTML file. It should quote the relevant lines and state the complete target path and include the complete file or patch in that lesson delivery.
 
 
-## 10A. Android source organization for the generated start of Chapter 2
+## 10A. Android source organization for Chapter 2
 
 ```text
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
@@ -1127,7 +1157,19 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     └── CoordinateInspector.kt              # introduced in Lesson 2.9
 ```
 
-Lessons through 2.8 are complete. Lesson 2.9 is the current learner checkpoint.
+Lessons through 2.9 are complete. Chapter 2 is complete.
+
+## 10B. Android source organization for the generated start of Chapter 3
+
+```text
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
+├── MainActivity.kt                         # switches to Chapter03Screen in Lesson 3.1
+└── chapter03/
+    ├── Chapter03Screen.kt                  # introduced in Lesson 3.1
+    └── RgbChannelsExplorer.kt              # introduced in Lesson 3.1
+```
+
+Lesson 3.1 is generated and is the current learner checkpoint. Alpha remains fixed at `1f` until Lesson 3.2.
 
 ---
 
@@ -1374,7 +1416,7 @@ Course file rules:
 - Every chapter hub is named `lesson-[chapter-name].html`; do not create generic chapter `index.html` files.
 - Every sub-lesson has one standalone interactive HTML file named `lesson-[chapter-number]-[lesson-number]-[lesson-name].html`.
 - HTML must work from file:// with inline CSS, JavaScript, SVG, Canvas, or WebGL2.
-- Light theme only. Desktop only. Verify at 1920×1080 or larger.
+- Desktop only. Lessons 1.1–2.9 remain legacy light-only files. Starting with Lesson 3.1, follow the OS light/dark preference automatically and verify both modes at 1920×1080 or larger.
 - Use 5120×1440 for an intentionally ultrawide explanation.
 - Use a manual stepper before any free-running sequence animation.
 - Use interactive SVG for math-heavy geometry.
@@ -1404,7 +1446,7 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Learner completion is confirmed through Lesson 2.8. Lesson 2.9 is generated and pending. The learner-confirmed total is 16 of 216 lessons.
+Learner completion is confirmed through Lesson 2.9. Chapter 2 is complete. Lesson 3.1 is generated and pending. The learner-confirmed total is 17 of 216 lessons.
 
 Current Chapter 2 lesson files:
 
@@ -1439,6 +1481,23 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
 
 The Lesson 2.9 Android ZIP contains only `Chapter02Screen.kt` and the new `CoordinateInspector.kt`. Earlier Chapter 2 files are unchanged and are not duplicated.
 
+Current Chapter 3 lesson files:
+
+- `course/chapters/chapter-03/lesson-color-opacity-and-compositing.html`;
+- `course/chapters/chapter-03/lesson-03-01-red-green-and-blue-channels.html`.
+
+Current generated Chapter 3 Android source:
+
+```text
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
+├── MainActivity.kt
+└── chapter03/
+    ├── Chapter03Screen.kt
+    └── RgbChannelsExplorer.kt
+```
+
+The revised Lesson 3.1 Android ZIP contains those same three files with OS-theme support. The revised learning-docs ZIP changes only Lesson 3.1 and course-management files. No Lesson 1.x or 2.x HTML file is changed by the theme revision.
+
 ---
 
 ## 15. Primary references
@@ -1461,6 +1520,8 @@ The course plan was checked against these public primary sources through 2026-07
 - Android, **Compose LayoutCoordinates reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/LayoutCoordinates
 - Android, **Compose OnGloballyPositionedModifier reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/OnGloballyPositionedModifier
 - Android, **Compose DrawScope reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/drawscope/DrawScope
+- Android, **Compose Color reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color
+- Android, **Compose Slider**: https://developer.android.com/develop/ui/compose/components/slider
 - Android, **Compose onSizeChanged reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/onSizeChanged.modifier
 - Android, **Compose gestures reference**: https://developer.android.com/reference/kotlin/androidx/compose/foundation/gestures/package-summary
 - Android, **Understand gestures and raw pointer events**: https://developer.android.com/develop/ui/compose/touch-input/pointer-input/understand-gestures

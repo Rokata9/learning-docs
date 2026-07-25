@@ -32,10 +32,15 @@ Every lesson must:
 
 ## Visual target
 
-- Light theme only.
 - Desktop only.
-- Verify at `1920×1080` or larger.
-- Use up to `5120×1440` for deliberately ultrawide explanations.
+- Lessons 1.1 through 2.9 are legacy light-only files. Do not revise them only to add dark mode.
+- Starting with Lesson 3.1, every new lesson and every revision of Lesson 3.1 or later must follow the operating-system light or dark preference automatically with `prefers-color-scheme`.
+- Do not add a manual theme switch unless a lesson specifically teaches theme switching.
+- Starting with Lesson 3.1, Android lesson screens must also follow the OS theme through the project theme root and `MaterialTheme.colorScheme`. Do not hardcode light-only page, panel, border, or ordinary text colors.
+- Theme-dependent interface chrome includes page backgrounds, panels, borders, ordinary text, controls, code containers, and diagram scaffolding.
+- Instructional color data must remain numerically exact. Do not recolor RGB swatches, sampled pixels, tint samples, masks, shader outputs, or other data merely to fit the theme. Adapt labels and surrounding chrome instead.
+- Verify each changed Lesson 3.1-or-later HTML file in both OS theme modes at `1920×1080` or larger.
+- Use up to `5120×1440` for deliberately ultrawide explanations. Verify both OS theme modes there when the lesson uses that width.
 - Keep prose in readable columns.
 - Use manual steppers before automatic animation when a sequence must be understood.
 - Do not hide essential information behind hover.
@@ -47,8 +52,10 @@ Before delivery:
 - open every changed HTML file from `file://`;
 - check all enabled relative links;
 - capture the initial state at `1920×1080` or larger;
+- for Lesson 3.1 and later, capture the initial state in both OS light and dark preferences;
 - capture at least one changed interactive state;
-- inspect for clipped labels, overlapping controls, unreadable text, and JavaScript errors.
+- confirm that theme chrome changes while instructional color data remains numerically unchanged;
+- inspect for clipped labels, overlapping controls, unreadable text, insufficient contrast, and JavaScript errors.
 ## Response progress and context footer
 
 At the end of every response:

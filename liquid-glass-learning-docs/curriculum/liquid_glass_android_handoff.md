@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Updated:** 2026-07-24  
-**Course plan version:** 2.9
+**Updated:** 2026-07-25  
+**Course plan version:** 3.1.1
 
 ## Stable course decisions
 
@@ -9,7 +9,7 @@
 - The Pixel 8 Pro is the physical learning and verification device.
 - The main path uses `minSdk = 33`.
 - The learner is a senior web engineer and a mathematics and graphics beginner.
-- Use short declarative sentences. Define each graphics, rendering, coordinate, input, and math term at first use.
+- Use short declarative sentences. Define each graphics, rendering, coordinate, input, color, and math term at first use.
 - Trace one actual value through input → operation → output.
 - Do not use a third-party glass-effect library for the main implementation.
 - Do not claim to know Apple’s private rendering implementation.
@@ -30,211 +30,245 @@ Use only learner-confirmed completion for X. A generated lesson does not count u
 - The learning-docs and Android repositories are separate.
 - Chapter hubs use `lesson-[chapter-name].html`, never `index.html`.
 - Each lesson is one standalone HTML file with inline CSS and JavaScript and must work from `file://`.
-- Light desktop layout only. Verify at 1920×1080 and at 5120×1440 when the wide layout benefits.
+- Desktop layout only.
+- Lessons 1.1 through 2.9 remain legacy light-only files. Do not revise them only to add dark mode.
+- Starting with Lesson 3.1, every new lesson follows the operating-system light or dark preference automatically through `prefers-color-scheme`.
+- Theme chrome adapts. Instructional color data remains numerically exact.
+- Verify each changed Lesson 3.1-or-later HTML file in both OS theme modes at 1920×1080 and at 5120×1440 when the wide layout benefits.
 - Each lesson includes a coding challenge, two to four hidden-answer exercises, and a copyable completion record.
 - Incremental ZIPs contain only files changed by that lesson and preserve the repository root path.
 - Do not create an empty Android ZIP when a lesson changes no Android source.
 
 ## Progress truth
 
-The learner completed Lesson 2.8 and asked to continue.
+The learner requested the next lesson after Lesson 2.9. Record Lesson 2.9 and Chapter 2 as completed.
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 2.9
+course_version: 3.1.1
 course_lessons_total: 216
-course_lessons_completed_by_learner: 16
+course_lessons_completed_by_learner: 17
 completed_lessons:
   - 1.1-1.8
-  - 2.1-2.8
-completed_through: 2.8
-generated_frontier: 2.9
-next_learner_checkpoint: 2.9
+  - 2.1-2.9
+completed_through: 2.9
+generated_frontier: 3.1
+next_learner_checkpoint: 3.1
 chapter_01_completed_by_learner: true
-chapter_02_completed_by_learner: false
-lesson_02_08_completed_by_learner: true
-lesson_02_09_generated: true
-lesson_02_09_completed_by_learner: false
-completion_basis_for_02_08: learner said they were ready and asked for the next lesson after Lesson 2.8
-lesson_02_09_android_changed_files:
-  - app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
-  - app/src/main/java/com/example/liquidglasslab/chapter02/CoordinateInspector.kt
+chapter_02_completed_by_learner: true
+chapter_03_completed_by_learner: false
+lesson_02_09_completed_by_learner: true
+lesson_03_01_generated: true
+lesson_03_01_completed_by_learner: false
+lesson_03_01_theme_revision_applied: pending_learner_application
+html_theme_rule_from_lesson: 3.1
+legacy_light_only_lessons: 1.1-2.9
+completion_basis_for_02_09: learner asked to generate the next lesson after receiving Lesson 2.9
+lesson_03_01_android_changed_files:
+  - app/src/main/java/com/example/liquidglasslab/MainActivity.kt
+  - app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt
+  - app/src/main/java/com/example/liquidglasslab/chapter03/RgbChannelsExplorer.kt
 ```
 
-## Lesson 2.9 — Build a coordinate inspector
+## Lesson 3.1 — Red, green, and blue channels
 
-A coordinate inspector is a diagnostic view that shows one point together with the coordinate system and unit used by every number.
+A color channel is one named numeric component inside a color.
 
-The Android inspector displays:
+Lesson 3.1 uses three channels:
 
 ```text
-local bounds
-local center
-pointer in local px
-pointer in local dp
-pointer normalized
-inspector origin in parent
-pointer in parent
-pointer in window
-pointer on screen, when available
+R = red
+G = green
+B = blue
 ```
 
-The visual drawing contains:
+The default normalized values are:
 
 ```text
-local grid
-local origin at (0, 0)
-orange rectangular bounds
-indigo dashed center guides
-pink and blue pointer crosshair
-selected point marker
+R = 0.80
+G = 0.25
+B = 0.60
 ```
 
-The main default teaching snapshot is:
+The complete opaque color is:
 
 ```text
-inspector size             = 640 × 360 px
-pointer local              = (160, 270) px
-density                    = 2.5 px/dp
-inspector origin in parent = (120, 80) px
-parent origin in window    = (180, 100) px
-window origin on screen    = (40, 60) px
+RGB(0.80, 0.25, 0.60)
 ```
 
-The derived values are:
+A normalized value uses the range `0.00` through `1.00`.
+
+The approximate 8-bit values are:
 
 ```text
-local center
-= (640 / 2, 360 / 2)
-= (320, 180) px
-
-normalized pointer
-= (160 / 640, 270 / 360)
-= (0.25, 0.75)
-
-local dp
-= (160 / 2.5, 270 / 2.5)
-= (64, 108) dp
-
-pointer in parent
-= (120, 80) + (160, 270)
-= (280, 350) px
-
-pointer in window
-= (180, 100) + (280, 350)
-= (460, 450) px
-
-pointer on screen
-= (40, 60) + (460, 450)
-= (500, 510) px
+red8   = round(0.80 × 255) = 204
+green8 = round(0.25 × 255) = 64
+blue8  = round(0.60 × 255) = 153
 ```
 
-The visible point does not move between these rows. The origin, unit, or numeric scale changes.
+The approximate representations are:
 
-## Pointer-input terms
-
-A pointer is a physical object that can point at a coordinate. On the Pixel 8 Pro, it is normally the learner's finger.
-
-A pointer event is one low-level data record produced when a pointer goes down, moves, or goes up.
-
-The Android implementation uses:
-
-```kotlin
-.pointerInput(geometry.sizePx) {
-    awaitEachGesture {
-        val down = awaitFirstDown(requireUnconsumed = false)
-        // Read and clamp the position, then track movement events.
-    }
-}
+```text
+Normalized RGB: RGB(0.80, 0.25, 0.60)
+8-bit RGB:      RGB(204, 64, 153)
+Hexadecimal:    #CC4099
 ```
 
-The active pointer changes are consumed. This keeps a drag inside the teaching inspector from becoming vertical scrolling in the parent screen.
+These are different numeric scales for the same three named channel positions.
+
+## Important lesson limit
+
+Alpha is fixed at:
+
+```text
+alpha = 1.00
+```
+
+Lesson 3.1 does not vary opacity. Lesson 3.2 teaches alpha as a separate number.
+
+The phrase `0.80` means 80% of the allowed numeric channel range in this representation. It does not by itself mean 80% physical screen light output or 80% perceived brightness. Those questions require color-space, display, and luminance knowledge that is taught later.
+
+## Theme behavior added in revision 3.1.1
+
+The operating-system preference is the input:
+
+```text
+OS light or dark preference
+    ↓
+isSystemInDarkTheme()
+    ↓
+LiquidGlassLabTheme(darkTheme = ...)
+    ↓
+MaterialTheme.colorScheme
+    ↓
+page, panel, border, text, and control chrome
+```
+
+The exact RGB swatches are excluded from theme recoloring:
+
+```text
+RGB(0.80, 0.25, 0.60)
+    ↓
+Color(red = 0.80, green = 0.25, blue = 0.60, alpha = 1.00)
+    ↓
+the same swatch in light and dark themes
+```
+
+This separation is required. The surrounding interface may adapt. The color data under study must not change.
 
 ## Android value path
 
 ```text
-LocalDensity.current supplies px per dp
+MainActivity calls Chapter03Screen
     ↓
-onGloballyPositioned copies size and origin positions
+RgbChannelsExplorer stores red, green, and blue independently
     ↓
-awaitFirstDown supplies one inspector-local pointer position
+one Slider changes one matching state value
     ↓
-the point is clamped to local bounds
+Color receives named arguments
     ↓
-local X is divided by width
-local Y is divided by height
+Color(
+    red = red,
+    green = green,
+    blue = blue,
+    alpha = 1f,
+)
     ↓
-normalized X and Y are stored
+Modifier.background consumes finalColor
     ↓
-current width and height reconstruct local px
-    ↓
-local px is divided by density for dp
-    ↓
-local px is added to parent, window, and screen origins
-    ↓
-Canvas draws the grid, bounds, center, crosshair, and marker
-    ↓
-text rows display the same state
+the large swatch displays the three-channel result
 ```
 
-The implementation copies immutable values from `LayoutCoordinates` during `onGloballyPositioned`. It does not keep the `LayoutCoordinates` object in long-lived state.
+The Android explorer also displays:
 
-Simple addition between local and larger coordinates is valid in this lesson because the inspector is not rotated or scaled. Later transformed layouts require a coordinate-conversion API.
+```text
+isolated red contribution:   RGB(R, 0, 0)
+isolated green contribution: RGB(0, G, 0)
+isolated blue contribution:  RGB(0, 0, B)
+complete color:              RGB(R, G, B)
+```
+
+The exact presets are:
+
+```text
+Mixed
+Red
+Green
+Blue
+Black
+White
+```
 
 ## Coding challenge
 
-The defective function adds a normalized pair directly to a screen-relative pixel origin:
+The defective code swaps green and blue:
 
 ```kotlin
-return inspectorOriginOnScreenPx + normalizedPoint
+return Color(
+    red = red,
+    green = blue,
+    blue = green,
+    alpha = 1f,
+)
 ```
 
 The repair is:
 
 ```kotlin
-return inspectorOriginOnScreenPx + pointerLocalPx
+return Color(
+    red = red,
+    green = green,
+    blue = blue,
+    alpha = 1f,
+)
 ```
 
-Both operands in the repaired addition are pixel offsets.
+Each input must reach the matching named channel argument.
 
-## Lesson 2.9 files
+## Lesson 3.1 files
 
-Learning file:
+Learning files created or changed:
 
 ```text
+README.md
+liquid-glass-course.html
+course/glossary.html
+course/chapters/chapter-02/lesson-the-screen-is-a-grid.html
 course/chapters/chapter-02/lesson-02-09-build-a-coordinate-inspector.html
+course/chapters/chapter-03/lesson-color-opacity-and-compositing.html
+course/chapters/chapter-03/lesson-03-01-red-green-and-blue-channels.html
+curriculum/liquid_glass_android_curriculum.md
+curriculum/liquid_glass_android_handoff.md
 ```
 
 Android changes:
 
 ```text
-app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt
-app/src/main/java/com/example/liquidglasslab/chapter02/CoordinateInspector.kt
+app/src/main/java/com/example/liquidglasslab/MainActivity.kt
+app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter03/RgbChannelsExplorer.kt
 ```
 
-Earlier Chapter 2 Android files remain unchanged.
+Earlier Android files remain unchanged.
 
-## Lesson 2.9 checkpoint
+## Lesson 3.1 checkpoint
 
-Lesson 2.9 is complete only when:
+Lesson 3.1 is complete only when:
 
-- [ ] Both incremental archives were applied after the completed Lesson 2.8 state.
-- [ ] The app builds and opens Lesson 2.9 on the Pixel 8 Pro.
-- [ ] The grid, orange bounds, dashed center guides, crosshair, and marker are visible.
-- [ ] Touching and dragging inside the inspector updates the local point.
-- [ ] The Center preset produces local half-width and half-height and normalized `(0.5, 0.5)`.
-- [ ] The Bottom-right boundary preset produces local X = width, local Y = height, and normalized `(1, 1)`.
-- [ ] Parent, window, and screen values can be explained without claiming that the point moved.
-- [ ] The learner can explain why a normalized pair cannot be added directly to a pixel origin.
+- [ ] Both incremental archives were applied after the completed Lesson 2.9 state.
+- [ ] The app builds and opens Lesson 3.1 on the Pixel 8 Pro.
+- [ ] Red, Green, Blue, Black, White, and Mixed presets work.
+- [ ] Changing one slider leaves the other two displayed channel values unchanged.
+- [ ] The learner can explain why one channel number is not a complete color.
+- [ ] The learner can explain why equal RGB values produce gray in this model.
 - [ ] The coding challenge and four exercises are complete.
 - [ ] The work is committed to Git.
 
 After completion:
 
 ```text
-Chapter 2 becomes complete.
-Course progress becomes 17 of 216.
-Next lesson becomes 3.1 — Red, green, and blue channels.
+Course progress becomes 18 of 216.
+Next lesson becomes 3.2 — Alpha.
 ```
 
 ## Next action
@@ -242,10 +276,10 @@ Next lesson becomes 3.1 — Red, green, and blue channels.
 Open:
 
 ```text
-course/chapters/chapter-02/lesson-02-09-build-a-coordinate-inspector.html
+course/chapters/chapter-03/lesson-03-01-red-green-and-blue-channels.html
 ```
 
-After Lesson 2.9 is complete, generate Lesson 3.1: **Red, green, and blue channels**.
+First apply the Lesson 3.1 OS-theme revision. After Lesson 3.1 is complete, generate Lesson 3.2: **Alpha**. Every Lesson 3.2-or-later HTML file must support both OS theme modes automatically.
 
 ## Reusable continuation prompt
 
@@ -254,9 +288,9 @@ We are continuing my “Liquid Glass on Android” beginner-to-expert course.
 
 Read liquid_glass_android_curriculum.md and liquid_glass_android_handoff.md first.
 
-Assume I am a senior web engineer and an absolute beginner in mathematics, graphics programming, shaders, GPU concepts, and Android rendering internals. Use simple English. Define each new term. Use short declarative sentences. Trace one real value through input → operation → output.
+Assume I am a senior web engineer and an absolute beginner in mathematics, graphics programming, shaders, GPU concepts, color science, and Android rendering internals. Use simple English. Define each new term. Use short declarative sentences. Trace one real value through input → operation → output.
 
-Use one standalone interactive HTML file per lesson. Use inline CSS and JavaScript. Use a light desktop layout only. Use manual steppers for sequences. Include a coding challenge, two to four hidden-answer exercises, and a copyable completion record.
+Use one standalone interactive HTML file per lesson. Use inline CSS and JavaScript. Use a desktop layout. Starting with Lesson 3.1, follow the OS light/dark preference automatically with `prefers-color-scheme`; preserve Lessons 1.1–2.9 as legacy light-only files. Keep instructional color data exact while adapting only interface chrome. Use manual steppers for sequences. Include a coding challenge, two to four hidden-answer exercises, and a copyable completion record.
 
 Kotlin and AGSL live in the separate LiquidGlassLab project. Deliver only incremental ZIPs containing files changed by the lesson. Do not create an empty Android ZIP.
 
