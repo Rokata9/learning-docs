@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 3.2  
+**Version:** 3.3  
 **Updated:** 2026-07-25  
-**Current course position:** Lessons 1.1 through 3.1 are complete by learner confirmation. **18 of 216 lessons are complete.** Lesson 3.2 is the next learner checkpoint and the generated frontier.  
+**Current course position:** Lessons 1.1 through 3.2 are complete by learner confirmation. **19 of 216 lessons are complete.** Lesson 3.3 is the next learner checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -222,6 +222,20 @@ Version 3.2 records completion of Lesson 3.1 and isolates alpha:
 - Android changes: `Chapter03Screen.kt` now opens Lesson 3.2, and new `chapter03/AlphaExplorer.kt` implements the controlled experiment.
 - `MainActivity.kt` and `RgbChannelsExplorer.kt` remain unchanged and are not included in the Lesson 3.2 Android incremental archive.
 - All changed shared HTML navigation pages and Lesson 3.2 follow the OS theme. Exact instructional colors remain unchanged across themes.
+
+Version 3.3 records completion of Lesson 3.2 and formalizes source-over compositing:
+
+- The learner explicitly asked to proceed after Lesson 3.2, so Lesson 3.2 is marked complete.
+- Learner-confirmed course completion is now **19 of 216 lessons**.
+- Lesson 3.3 names the source as the RGBA value drawn now, the destination as the RGBA value already present at the same drawing-target position, and the output as the replacement RGBA value.
+- The course reuses source `RGBA(0.90, 0.10, 0.80, 0.50)` and destination `RGBA(0.10, 0.90, 0.40, 0.60)` from the earlier clarification.
+- Output alpha is calculated as `As + Ad × (1 − As)`, producing `0.80` for the course values.
+- Red, green, and blue are calculated separately. The weighted totals are `(0.48, 0.32, 0.52)`. Dividing by output alpha produces straight RGB `(0.60, 0.40, 0.65)`.
+- The Android explorer compares two draw calls using `BlendMode.SrcOver` with one flattened RGBA color calculated by the same operation.
+- The implementation guards output alpha zero and returns transparent black as a deterministic teaching fallback instead of dividing by zero.
+- Draw-order reversal remains deferred to Lesson 3.4. Premultiplied buffer storage and edge halos remain deferred to Lesson 3.5.
+- Android changes: `Chapter03Screen.kt` and new `chapter03/OverOperationExplorer.kt`.
+- `MainActivity.kt`, `RgbChannelsExplorer.kt`, and `AlphaExplorer.kt` remain unchanged and are not included in the Lesson 3.3 Android archive.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -561,7 +575,7 @@ The Android result must also be tested on the Pixel 8 Pro at the lesson checkpoi
 2. **3.2 — Alpha.** Treat opacity as a number from 0 to 1.
 3. **3.3 — The “over” operation.** Combine one translucent color over another.
 4. **3.4 — Draw order matters.** Reverse two layers and observe a different result.
-5. **3.5 — Why transparent edges can look wrong.** Introduce premultiplied alpha only through a visible halo problem.
+5. **3.5 — Why transparent edges can look wrong.** Apply alpha-weighted color values to a visible halo problem and explain the storage representation precisely.
 6. **3.6 — Brightness and luminance.** Estimate whether a background region is light or dark.
 7. **3.7 — Foreground contrast.** Choose dark or light icons from measured background brightness.
 8. **3.8 — Tint.** Add a controlled color influence without replacing the background.
@@ -1177,14 +1191,15 @@ Lessons through 2.9 are complete. Chapter 2 is complete.
 
 ```text
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
-├── MainActivity.kt                         # switches to Chapter03Screen in Lesson 3.1
+├── MainActivity.kt                         # switches to Chapter03Screen in Lesson 3.1; unchanged in Lesson 3.3
 └── chapter03/
-    ├── Chapter03Screen.kt                  # introduced in Lesson 3.1; switches to AlphaExplorer in Lesson 3.2
-    ├── RgbChannelsExplorer.kt              # introduced in Lesson 3.1; unchanged in Lesson 3.2
-    └── AlphaExplorer.kt                    # introduced in Lesson 3.2
+    ├── Chapter03Screen.kt                  # introduced in Lesson 3.1; switches to OverOperationExplorer in Lesson 3.3
+    ├── RgbChannelsExplorer.kt              # introduced in Lesson 3.1; unchanged in Lesson 3.3
+    ├── AlphaExplorer.kt                    # introduced in Lesson 3.2; unchanged in Lesson 3.3
+    └── OverOperationExplorer.kt            # introduced in Lesson 3.3
 ```
 
-Lesson 3.1 is complete. Lesson 3.2 is generated and is the current learner checkpoint. It keeps RGB fixed and changes only alpha.
+Lessons 3.1 and 3.2 are complete. Lesson 3.3 is generated and is the current learner checkpoint. It calculates source-over output RGBA and compares a renderer stack with a flattened output color.
 
 ---
 
@@ -1510,6 +1525,107 @@ Next lesson becomes 3.3 — The “over” operation.
 ```
 
 
+## 12D. Lesson 3.3 generated details
+
+### Learning file
+
+```text
+course/chapters/chapter-03/lesson-03-03-the-over-operation.html
+```
+
+### Main graphics idea
+
+Source-over compositing combines one source RGBA value with one destination RGBA value at the same drawing-target position.
+
+The course inputs are:
+
+```text
+source      = RGBA(0.90, 0.10, 0.80, 0.50)
+destination = RGBA(0.10, 0.90, 0.40, 0.60)
+```
+
+The opening left by the source is:
+
+```text
+1 - 0.50 = 0.50
+```
+
+The surviving destination alpha is:
+
+```text
+0.60 × 0.50 = 0.30
+```
+
+The output alpha is:
+
+```text
+0.50 + 0.30 = 0.80
+```
+
+The weighted RGB totals are:
+
+```text
+red   = 0.90 × 0.50 + 0.10 × 0.60 × 0.50 = 0.48
+green = 0.10 × 0.50 + 0.90 × 0.60 × 0.50 = 0.32
+blue  = 0.80 × 0.50 + 0.40 × 0.60 × 0.50 = 0.52
+```
+
+Dividing each weighted total by output alpha produces:
+
+```text
+output = RGBA(0.60, 0.40, 0.65, 0.80)
+```
+
+### Android value path
+
+```text
+source-alpha and destination-alpha controls
+    ↓
+StraightRgba source and destination
+    ↓
+sourceOver(source, destination)
+    ↓
+remaining opening, surviving destination alpha, output alpha, weighted RGB
+    ↓
+straight output RGBA
+    ↓
+compare:
+  destination then source with BlendMode.SrcOver
+  one calculated flattened output color
+```
+
+### Android files changed
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter03/OverOperationExplorer.kt
+```
+
+`MainActivity.kt`, `RgbChannelsExplorer.kt`, and `AlphaExplorer.kt` are unchanged.
+
+### Lesson checkpoint
+
+Lesson 3.3 is complete only when:
+
+- [ ] The incremental learning-docs and Android archives were applied after Lesson 3.2.
+- [ ] The app builds and opens Lesson 3.3 on the Pixel 8 Pro.
+- [ ] The course inputs produce output `RGBA(0.60, 0.40, 0.65, 0.80)`.
+- [ ] The renderer stack and calculated flattened color look the same over the checkerboard.
+- [ ] The learner can calculate output alpha and all three RGB channels.
+- [ ] The learner can explain why destination contribution uses both `Ad` and `1 - As`.
+- [ ] Opaque-source and all-transparent boundary cases are tested.
+- [ ] Browser and Android chrome follow OS light and dark modes while exact teaching colors remain fixed.
+- [ ] The coding challenge and four exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 20 of 216.
+Next lesson becomes 3.4 — Draw order matters.
+```
+
+
 ## 13. Reusable continuation prompt
 
 ```text
@@ -1560,7 +1676,7 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Learner completion is confirmed through Lesson 3.1. Chapters 1 and 2 are complete. Lesson 3.2 is generated and pending. The learner-confirmed total is 18 of 216 lessons.
+Learner completion is confirmed through Lesson 3.2. Chapters 1 and 2 are complete. Lesson 3.3 is generated and pending. The learner-confirmed total is 19 of 216 lessons.
 
 Current Chapter 2 lesson files:
 
@@ -1599,7 +1715,8 @@ Current Chapter 3 lesson files:
 
 - `course/chapters/chapter-03/lesson-color-opacity-and-compositing.html`;
 - `course/chapters/chapter-03/lesson-03-01-red-green-and-blue-channels.html`;
-- `course/chapters/chapter-03/lesson-03-02-alpha.html`.
+- `course/chapters/chapter-03/lesson-03-02-alpha.html`;
+- `course/chapters/chapter-03/lesson-03-03-the-over-operation.html`.
 
 Current generated Chapter 3 Android source:
 
@@ -1609,10 +1726,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
 └── chapter03/
     ├── Chapter03Screen.kt
     ├── RgbChannelsExplorer.kt
-    └── AlphaExplorer.kt
+    ├── AlphaExplorer.kt
+    └── OverOperationExplorer.kt
 ```
 
-The Lesson 3.2 Android ZIP contains only the changed `Chapter03Screen.kt` and the new `AlphaExplorer.kt`. The learning-docs ZIP contains only files added or modified for Lesson 3.2.
+The Lesson 3.3 Android ZIP contains only the changed `Chapter03Screen.kt` and the new `OverOperationExplorer.kt`. The learning-docs ZIP contains only files added or modified for Lesson 3.3.
 
 ---
 
@@ -1644,6 +1762,7 @@ The course plan was checked against these public primary sources through 2026-07
 - Android, **Understand gestures and raw pointer events**: https://developer.android.com/develop/ui/compose/touch-input/pointer-input/understand-gestures
 - Android, **Compose Color reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color
 - Android, **Compose BlendMode reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode
+- AndroidX source, **Color.compositeOver implementation**: https://github.com/androidx/androidx/blob/androidx-main/compose/ui/ui-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/Color.kt
 - Android, **Constraints and modifier order**: https://developer.android.com/develop/ui/compose/layouts/constraints-modifiers
 - Android, **GraphicsLayer**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/layer/GraphicsLayer
 - Android, **Create a project**: https://developer.android.com/studio/projects/create-project

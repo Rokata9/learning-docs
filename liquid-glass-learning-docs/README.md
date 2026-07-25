@@ -10,15 +10,15 @@ Open `liquid-glass-course.html` directly in a Chromium-based browser. No local s
 
 - Chapter 1 is complete.
 - Chapter 2 is complete.
-- **18 of 216 lessons are complete.**
-- Lesson 3.1 is complete.
-- Lesson 3.2 is generated and is the next learner checkpoint.
-- The generated frontier is Lesson 3.2.
+- **19 of 216 lessons are complete.**
+- Lessons 3.1 and 3.2 are complete.
+- Lesson 3.3 is generated and is the next learner checkpoint.
+- The generated frontier is Lesson 3.3.
 
 Open:
 
 ```text
-course/chapters/chapter-03/lesson-03-02-alpha.html
+course/chapters/chapter-03/lesson-03-03-the-over-operation.html
 ```
 
 ## Android progression
@@ -26,9 +26,10 @@ course/chapters/chapter-03/lesson-03-02-alpha.html
 - Chapter 1 built and diagnosed the first translucent panel.
 - Chapter 2 built the coordinate vocabulary and the final coordinate inspector.
 - Lesson 3.1 switched the app entry point to `Chapter03Screen` and added `RgbChannelsExplorer.kt`.
-- Lesson 3.2 keeps `RGB(0.80, 0.25, 0.60)` fixed and adds `AlphaExplorer.kt`.
-- The explorer varies alpha from `0.00` through `1.00` and compares the same source over a checkerboard, dark navy, and pale yellow.
-- `Chapter03Screen.kt` now opens Lesson 3.2.
+- Lesson 3.2 kept `RGB(0.80, 0.25, 0.60)` fixed and added `AlphaExplorer.kt`.
+- Lesson 3.3 keeps two different RGB colors fixed, varies their alpha values, and adds `OverOperationExplorer.kt`.
+- `Chapter03Screen.kt` now opens Lesson 3.3.
+- The Android lesson compares two paths: destination then source with `BlendMode.SrcOver`, and one flattened RGBA color calculated by the same source-over structure.
 
 ## Theme rule from Lesson 3.1 onward
 
