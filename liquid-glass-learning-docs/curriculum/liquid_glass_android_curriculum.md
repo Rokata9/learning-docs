@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 3.3  
+**Version:** 3.4  
 **Updated:** 2026-07-25  
-**Current course position:** Lessons 1.1 through 3.2 are complete by learner confirmation. **19 of 216 lessons are complete.** Lesson 3.3 is the next learner checkpoint and the generated frontier.  
+**Current course position:** Lessons 1.1 through 3.3 are complete by learner confirmation. **20 of 216 lessons are complete.** Lesson 3.4 is the next learner checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -236,6 +236,19 @@ Version 3.3 records completion of Lesson 3.2 and formalizes source-over composit
 - Draw-order reversal remains deferred to Lesson 3.4. Premultiplied buffer storage and edge halos remain deferred to Lesson 3.5.
 - Android changes: `Chapter03Screen.kt` and new `chapter03/OverOperationExplorer.kt`.
 - `MainActivity.kt`, `RgbChannelsExplorer.kt`, and `AlphaExplorer.kt` remain unchanged and are not included in the Lesson 3.3 Android archive.
+
+Version 3.4 records completion of Lesson 3.3 and isolates draw order:
+
+- The learner explicitly asked to proceed with Lesson 3.4, so Lesson 3.3 is marked complete.
+- Learner-confirmed course completion is now **20 of 216 lessons**.
+- Lesson 3.4 keeps both translucent RGBA values, shape sizes, shape positions, and lower checkerboard fixed. Only the order of the two colored draw calls changes.
+- Magenta over green produces `RGBA(0.60, 0.40, 0.65, 0.80)`.
+- Green over magenta produces `RGBA(0.30, 0.70, 0.50, 0.80)`.
+- Both orders produce output alpha `0.80`. Output alpha alone therefore does not identify draw order.
+- The lesson defines a commutative operation as one whose result remains unchanged when the inputs exchange places. Source-over compositing is not commutative.
+- The lesson treats draw order per image position. A position covered by only one colored shape is unchanged by reversing the two colored calls. An overlap position receives both calls and can change.
+- Android changes: `Chapter03Screen.kt` now opens Lesson 3.4, and new `chapter03/DrawOrderExplorer.kt` implements the order toggle, overlap drawing, output comparison, and exact arithmetic.
+- `MainActivity.kt`, `RgbChannelsExplorer.kt`, `AlphaExplorer.kt`, and `OverOperationExplorer.kt` remain unchanged and are not included in the Lesson 3.4 Android archive.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -1191,15 +1204,16 @@ Lessons through 2.9 are complete. Chapter 2 is complete.
 
 ```text
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
-├── MainActivity.kt                         # switches to Chapter03Screen in Lesson 3.1; unchanged in Lesson 3.3
+├── MainActivity.kt                         # switches to Chapter03Screen in Lesson 3.1; unchanged in Lesson 3.4
 └── chapter03/
-    ├── Chapter03Screen.kt                  # introduced in Lesson 3.1; switches to OverOperationExplorer in Lesson 3.3
-    ├── RgbChannelsExplorer.kt              # introduced in Lesson 3.1; unchanged in Lesson 3.3
-    ├── AlphaExplorer.kt                    # introduced in Lesson 3.2; unchanged in Lesson 3.3
-    └── OverOperationExplorer.kt            # introduced in Lesson 3.3
+    ├── Chapter03Screen.kt                  # introduced in Lesson 3.1; switches to DrawOrderExplorer in Lesson 3.4
+    ├── RgbChannelsExplorer.kt              # introduced in Lesson 3.1; unchanged in Lesson 3.4
+    ├── AlphaExplorer.kt                    # introduced in Lesson 3.2; unchanged in Lesson 3.4
+    ├── OverOperationExplorer.kt            # introduced in Lesson 3.3; unchanged in Lesson 3.4
+    └── DrawOrderExplorer.kt                # introduced in Lesson 3.4
 ```
 
-Lessons 3.1 and 3.2 are complete. Lesson 3.3 is generated and is the current learner checkpoint. It calculates source-over output RGBA and compares a renderer stack with a flattened output color.
+Lessons 3.1 through 3.3 are complete. Lesson 3.4 is generated and is the current learner checkpoint. It reverses the same two translucent colored draw calls and compares their overlap outputs.
 
 ---
 
@@ -1626,6 +1640,109 @@ Next lesson becomes 3.4 — Draw order matters.
 ```
 
 
+
+## 12E. Lesson 3.4 generated details
+
+### Learning file
+
+```text
+course/chapters/chapter-03/lesson-03-04-draw-order-matters.html
+```
+
+### Main graphics idea
+
+Draw order is the sequence in which operations write into one drawing target. At an overlap position, the second colored draw call becomes the current source. The earlier colored result supplies the destination input for the two-color source-over calculation.
+
+The fixed inputs are:
+
+```text
+magenta = RGBA(0.90, 0.10, 0.80, 0.50)
+green   = RGBA(0.10, 0.90, 0.40, 0.60)
+```
+
+Magenta over green:
+
+```text
+source weight      = 0.50
+destination weight = 0.60 × (1 - 0.50) = 0.30
+output              = RGBA(0.60, 0.40, 0.65, 0.80)
+```
+
+Green over magenta:
+
+```text
+source weight      = 0.60
+destination weight = 0.50 × (1 - 0.60) = 0.20
+output              = RGBA(0.30, 0.70, 0.50, 0.80)
+```
+
+Both outputs have alpha `0.80`. Their RGB values differ.
+
+### Per-position diagnostic
+
+```text
+magenta-only position:
+one colored operation covers it after the magenta call
+→ reversing the two colored calls does not change that position
+
+overlap position:
+both colored operations cover it
+→ reversing the calls changes which color is source
+
+green-only position:
+one colored operation covers it after the green call
+→ reversing the two colored calls does not change that position
+```
+
+### Android value path
+
+```text
+Magenta on top or Green on top button
+    ↓
+topLayer state
+    ↓
+when (topLayer)
+    ↓
+first colored Canvas draw call
+    ↓
+second colored Canvas draw call using BlendMode.SrcOver
+    ↓
+calculateOrderSourceOver(source, destination)
+    ↓
+compare both exact output RGBA tuples
+```
+
+### Android files changed
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter03/DrawOrderExplorer.kt
+```
+
+`MainActivity.kt`, `RgbChannelsExplorer.kt`, `AlphaExplorer.kt`, and `OverOperationExplorer.kt` are unchanged.
+
+### Lesson checkpoint
+
+Lesson 3.4 is complete only when:
+
+- [ ] Both incremental ZIPs were applied after Lesson 3.3.
+- [ ] The app builds and opens Lesson 3.4 on the Pixel 8 Pro.
+- [ ] Magenta on top produces `RGBA(0.60, 0.40, 0.65, 0.80)`.
+- [ ] Green on top produces `RGBA(0.30, 0.70, 0.50, 0.80)`.
+- [ ] Both orders report output alpha `0.80`.
+- [ ] The learner can explain why the overlap changes while single-color positions do not.
+- [ ] The learner can name source and destination from the actual call order.
+- [ ] Browser and Android chrome follow OS light and dark modes while exact teaching colors remain fixed.
+- [ ] The coding challenge and four exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 21 of 216.
+Next lesson becomes 3.5 — Why transparent edges can look wrong.
+```
+
 ## 13. Reusable continuation prompt
 
 ```text
@@ -1676,7 +1793,7 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Learner completion is confirmed through Lesson 3.2. Chapters 1 and 2 are complete. Lesson 3.3 is generated and pending. The learner-confirmed total is 19 of 216 lessons.
+Learner completion is confirmed through Lesson 3.3. Chapters 1 and 2 are complete. Lesson 3.4 is generated and pending. The learner-confirmed total is 20 of 216 lessons.
 
 Current Chapter 2 lesson files:
 
@@ -1716,7 +1833,8 @@ Current Chapter 3 lesson files:
 - `course/chapters/chapter-03/lesson-color-opacity-and-compositing.html`;
 - `course/chapters/chapter-03/lesson-03-01-red-green-and-blue-channels.html`;
 - `course/chapters/chapter-03/lesson-03-02-alpha.html`;
-- `course/chapters/chapter-03/lesson-03-03-the-over-operation.html`.
+- `course/chapters/chapter-03/lesson-03-03-the-over-operation.html`;
+- `course/chapters/chapter-03/lesson-03-04-draw-order-matters.html`.
 
 Current generated Chapter 3 Android source:
 
@@ -1727,10 +1845,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── Chapter03Screen.kt
     ├── RgbChannelsExplorer.kt
     ├── AlphaExplorer.kt
-    └── OverOperationExplorer.kt
+    ├── OverOperationExplorer.kt
+    └── DrawOrderExplorer.kt
 ```
 
-The Lesson 3.3 Android ZIP contains only the changed `Chapter03Screen.kt` and the new `OverOperationExplorer.kt`. The learning-docs ZIP contains only files added or modified for Lesson 3.3.
+The Lesson 3.4 Android ZIP contains only the changed `Chapter03Screen.kt` and the new `DrawOrderExplorer.kt`. The learning-docs ZIP contains only files added or modified for Lesson 3.4.
 
 ---
 

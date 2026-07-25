@@ -1,8 +1,8 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 3.3  
+**Course plan version:** 3.4  
 **Updated:** 2026-07-25  
-**Current position:** Lessons 1.1 through 3.2 are complete by learner confirmation. **19 of 216 lessons are complete.** Lesson 3.3 is generated and is the next learner checkpoint.
+**Current position:** Lessons 1.1 through 3.3 are complete by learner confirmation. **20 of 216 lessons are complete.** Lesson 3.4 is generated and is the next learner checkpoint.
 
 ## Permanent course rules
 
@@ -25,24 +25,24 @@
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 3.3
+course_version: 3.4
 platform: Kotlin + Jetpack Compose
 learning_device: Pixel 8 Pro
 learning_min_sdk: 33
 course_lessons_total: 216
-course_lessons_completed_by_learner: 19
-completed_through: 3.2
-generated_frontier: 3.3
-next_learner_checkpoint: 3.3
+course_lessons_completed_by_learner: 20
+completed_through: 3.3
+generated_frontier: 3.4
+next_learner_checkpoint: 3.4
 chapter_01_completed_by_learner: true
 chapter_02_completed_by_learner: true
 chapter_03_completed_by_learner: false
-lesson_03_02_generated: true
-lesson_03_02_completed_by_learner: true
-lesson_03_02_completion_basis: learner explicitly asked to proceed with the next lesson
-lesson_03_03_file: course/chapters/chapter-03/lesson-03-03-the-over-operation.html
 lesson_03_03_generated: true
-lesson_03_03_completed_by_learner: false
+lesson_03_03_completed_by_learner: true
+lesson_03_03_completion_basis: learner explicitly asked to proceed with Lesson 3.4
+lesson_03_04_file: course/chapters/chapter-03/lesson-03-04-draw-order-matters.html
+lesson_03_04_generated: true
+lesson_03_04_completed_by_learner: false
 html_theme_rule_from_lesson: 3.1
 incremental_delivery_only: true
 ```
@@ -56,93 +56,99 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── Chapter03Screen.kt
     ├── RgbChannelsExplorer.kt
     ├── AlphaExplorer.kt
-    └── OverOperationExplorer.kt
+    ├── OverOperationExplorer.kt
+    └── DrawOrderExplorer.kt
 ```
 
-`MainActivity.kt`, `RgbChannelsExplorer.kt`, and `AlphaExplorer.kt` are unchanged in Lesson 3.3.
+`MainActivity.kt`, `RgbChannelsExplorer.kt`, `AlphaExplorer.kt`, and `OverOperationExplorer.kt` are unchanged in Lesson 3.4.
 
-## Lesson 3.3 — The over operation
+## Lesson 3.4 — Draw order matters
 
 ### Main idea
 
-Source-over compositing combines the source being drawn now with the destination already present at the same drawing-target position.
+Draw order is the sequence in which drawing operations write into one drawing target.
+
+At an overlap position:
 
 ```text
-source      = RGBA(0.90, 0.10, 0.80, 0.50)
-destination = RGBA(0.10, 0.90, 0.40, 0.60)
+first colored call
+    ↓
+creates the lower colored contribution
+    ↓
+second colored call
+    ↓
+becomes the current source
 ```
 
-### Output alpha
+### Fixed inputs
 
 ```text
-opening behind source
-= 1 - 0.50
-= 0.50
+magenta = RGBA(0.90, 0.10, 0.80, 0.50)
+green   = RGBA(0.10, 0.90, 0.40, 0.60)
 ```
 
+### Magenta over green
+
 ```text
-surviving destination alpha
-= 0.60 × 0.50
-= 0.30
+source weight      = 0.50
+destination weight = 0.60 × (1 - 0.50) = 0.30
+output              = RGBA(0.60, 0.40, 0.65, 0.80)
 ```
 
+### Green over magenta
+
 ```text
-output alpha
-= 0.50 + 0.30
-= 0.80
+source weight      = 0.60
+destination weight = 0.50 × (1 - 0.60) = 0.20
+output              = RGBA(0.30, 0.70, 0.50, 0.80)
 ```
 
-### RGB result
+Both outputs have alpha `0.80`. Their RGB values differ.
+
+### Per-position rule
 
 ```text
-weighted red   = 0.48
-weighted green = 0.32
-weighted blue  = 0.52
-```
+only one colored layer covers a position
+→ reversing the colored calls does not change that position
 
-Divide each by output alpha `0.80`:
-
-```text
-output = RGBA(0.60, 0.40, 0.65, 0.80)
+both colored layers cover a position
+→ reversing the calls changes which color is source
 ```
 
 ### Android value path
 
 ```text
-source-alpha and destination-alpha controls
+order button
     ↓
-StraightRgba source and destination
+topLayer state
     ↓
-sourceOver(source, destination)
+when (topLayer)
     ↓
-output alpha and weighted RGB values
+first colored draw call
     ↓
-straight output RGBA
+second colored draw call with BlendMode.SrcOver
     ↓
-compare two paths:
-  destination then source using BlendMode.SrcOver
-  one calculated flattened output color
+exact overlap output readout
 ```
 
 ### Changed Android files
 
 ```text
 app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt
-app/src/main/java/com/example/liquidglasslab/chapter03/OverOperationExplorer.kt
+app/src/main/java/com/example/liquidglasslab/chapter03/DrawOrderExplorer.kt
 ```
 
 ### Lesson checkpoint
 
-Lesson 3.3 is complete only when:
+Lesson 3.4 is complete only when:
 
-- [ ] Both incremental ZIPs were applied after Lesson 3.2.
-- [ ] The app builds and opens Lesson 3.3.
-- [ ] Course values produce output `RGBA(0.60, 0.40, 0.65, 0.80)`.
-- [ ] The renderer stack and flattened output look the same over the checkerboard.
-- [ ] The learner can calculate output alpha.
-- [ ] The learner can calculate each output RGB channel.
-- [ ] The learner can explain why the destination factor is `Ad × (1 - As)`.
-- [ ] Opaque-source and all-transparent boundary cases are tested.
+- [ ] Both incremental ZIPs were applied after Lesson 3.3.
+- [ ] The app builds and opens Lesson 3.4.
+- [ ] Magenta on top produces `RGBA(0.60, 0.40, 0.65, 0.80)`.
+- [ ] Green on top produces `RGBA(0.30, 0.70, 0.50, 0.80)`.
+- [ ] Both orders report output alpha `0.80`.
+- [ ] The learner can explain why only overlap positions change.
+- [ ] The learner can name source and destination from the actual call order.
 - [ ] Browser and Android chrome follow OS themes while instructional colors remain exact.
 - [ ] The coding challenge and four exercises are complete.
 - [ ] The work is committed to Git.
@@ -150,8 +156,8 @@ Lesson 3.3 is complete only when:
 After completion:
 
 ```text
-Course progress: 20 of 216 lessons completed.
-Next lesson: 3.4 — Draw order matters.
+Course progress: 21 of 216 lessons completed.
+Next lesson: 3.5 — Why transparent edges can look wrong.
 ```
 
 ## Next action
@@ -159,10 +165,10 @@ Next lesson: 3.4 — Draw order matters.
 Open and complete:
 
 ```text
-course/chapters/chapter-03/lesson-03-03-the-over-operation.html
+course/chapters/chapter-03/lesson-03-04-draw-order-matters.html
 ```
 
-Do not generate Lesson 3.4 until Lesson 3.3 is complete or the learner explicitly asks to continue after completing it.
+Do not generate Lesson 3.5 until Lesson 3.4 is complete or the learner explicitly asks to continue after completing it.
 
 ## Reusable continuation prompt
 

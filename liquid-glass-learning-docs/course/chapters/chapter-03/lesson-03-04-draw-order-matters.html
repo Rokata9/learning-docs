@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 3.4 — Draw order matters</title>
+<style>
+:root{
+  color-scheme:light dark;
+  --ink:#172033;--muted:#5c687a;--line:#d8e0ea;--paper:#fff;--soft:#f5f7fb;--panel:#fbfcfe;--control:#fff;
+  --green:#059669;--green-soft:#ecfdf5;--indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;
+  --pink:#be185d;--pink-soft:#fce7f3;--blue:#1e40af;--blue-soft:#dbeafe;--red:#dc2626;--red-soft:#fee2e2;
+  --body-start:#f8fafc;--body-end:#edf2f7;--shadow:0 18px 52px rgba(30,41,59,.09);--code-bg:#111827;--code-ink:#e5e7eb;
+  --checker-a:#f8fafc;--checker-b:#cbd5e1;--source-rgb:#e61acc;--destination-rgb:#1ae666;--output-rgb:#9966a6;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--body-start),var(--body-end));font:16px/1.62 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.48}code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}code{background:var(--indigo-soft);color:#312e81;padding:.12em .36em;border-radius:6px}.page{width:min(4860px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:22px}.crumbs{color:var(--muted)}.header-chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}.lesson-chip,.theme-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;font-weight:800;white-space:nowrap}.lesson-chip{background:var(--green-soft);border:1px solid #a7f3d0;color:#065f46}.theme-chip{background:var(--paper);border:1px solid var(--line);color:var(--muted)}.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.hero{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(460px,.72fr);gap:30px;padding:42px}.eyebrow{color:var(--green);font-size:13px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}h1{margin:.35rem 0 1rem;font-size:clamp(44px,4vw,72px);line-height:1.03;letter-spacing:-.045em}h2{margin:0 0 .8rem;font-size:30px;line-height:1.18;letter-spacing:-.018em}h3{margin:0 0 .55rem;font-size:21px;line-height:1.25}p{max-width:108ch}.lead{font-size:19px;color:#3f4a5c}.goal-box{padding:24px;border-radius:18px;border:1px solid #c7d2fe;background:linear-gradient(145deg,#eef2ff,#f8fafc)}.goal-box ul{margin:.6rem 0 0;padding-left:1.25rem}.progress-line{margin-top:16px;padding:12px 14px;border-radius:12px;background:#fff;border:1px solid #c7d2fe;font-weight:850;color:#3730a3}.theme-rule{margin-top:12px;padding:11px 13px;border-radius:11px;border:1px solid var(--line);background:var(--paper);color:var(--muted)}.section{margin-top:24px;padding:32px}.section-intro{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:22px}.section-intro p{margin:0;color:var(--muted)}.section-number{color:var(--indigo);font-weight:850;letter-spacing:.03em}.two-column{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.three-column{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.four-column{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.card{padding:20px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}.card p:last-child{margin-bottom:0}.card.green{background:var(--green-soft);border-color:#a7f3d0}.card.indigo{background:var(--indigo-soft);border-color:#c7d2fe}.card.amber{background:var(--amber-soft);border-color:#fcd34d}.card.blue{background:var(--blue-soft);border-color:#bfdbfe}.card.red{background:var(--red-soft);border-color:#fecaca}.note,.warning,.success-note{margin-top:18px;padding:16px 18px;border-radius:14px}.note{border-left:5px solid var(--blue);background:var(--blue-soft);color:#1e3a8a}.warning{border-left:5px solid var(--amber);background:var(--amber-soft);color:#78350f}.success-note{border-left:5px solid var(--green);background:var(--green-soft);color:#065f46}.primary-button,.secondary-button,.preset-button,.step-button,.mode-button{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:800}.primary-button{border:1px solid var(--blue);background:var(--blue);color:#fff}.secondary-button,.preset-button,.step-button,.mode-button{border:1px solid #cbd5e1;background:var(--control);color:#334155}.secondary-button:hover,.preset-button:hover,.step-button:hover,.mode-button:hover{border-color:#94a3b8;background:var(--soft)}.selected{border-color:var(--indigo)!important;background:var(--indigo-soft)!important;color:#312e81!important}.controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center}.formula{padding:14px 16px;border-radius:13px;background:var(--indigo-soft);border:1px solid #c7d2fe;color:#312e81;font:800 16px/1.55 "SFMono-Regular",Consolas,monospace;overflow-wrap:anywhere}.io-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.io-box{padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--control)}.io-box strong{color:var(--indigo);display:block;margin-bottom:5px}.small{font-size:13px;color:var(--muted)}
+.lab-shell{border:1px solid var(--line);border-radius:19px;overflow:hidden;background:var(--panel)}.lab-toolbar{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:16px 18px;background:var(--control);border-bottom:1px solid var(--line)}.lab-layout{display:grid;grid-template-columns:minmax(1180px,1.55fr) minmax(610px,.75fr);align-items:stretch}.lab-stage{padding:22px;border-right:1px solid var(--line);background:var(--control)}.lab-controls{padding:24px}.input-grid{display:grid;grid-template-columns:repeat(2,minmax(330px,1fr));gap:16px}.input-card,.preview-card{border:1px solid var(--line);border-radius:17px;overflow:hidden;background:var(--paper)}.checkerboard{background-color:var(--checker-a);background-image:linear-gradient(45deg,var(--checker-b) 25%,transparent 25%),linear-gradient(-45deg,var(--checker-b) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,var(--checker-b) 75%),linear-gradient(-45deg,transparent 75%,var(--checker-b) 75%);background-size:44px 44px;background-position:0 0,0 22px,22px -22px,-22px 0}.swatch-stage{height:190px;position:relative;overflow:hidden;border-bottom:1px solid var(--line)}.layer{position:absolute;inset:0}.source-layer{background:rgba(230,26,204,.5)}.destination-layer{background:rgba(26,230,102,.6)}.swatch-label{position:absolute;left:14px;bottom:14px;padding:8px 10px;border-radius:9px;border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 94%,transparent);color:var(--ink);font-weight:850;box-shadow:0 5px 18px rgba(15,23,42,.18)}.swatch-copy{padding:14px}.preview-grid{display:grid;grid-template-columns:repeat(2,minmax(380px,1fr));gap:16px;margin-top:16px}.range-row{display:grid;grid-template-columns:185px minmax(220px,1fr) 90px;gap:14px;align-items:center;margin-bottom:14px}.range-row input{width:100%}.metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}.metric{padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--control)}.metric strong{display:block;color:var(--indigo);font-size:13px}.metric span{display:block;margin-top:5px;font:850 15px/1.4 "SFMono-Regular",Consolas,monospace;overflow-wrap:anywhere}.share-track{display:flex;height:34px;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--soft);margin:18px 0 8px}.share-segment{display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden;color:#fff;font-weight:900;font-size:13px;transition:width .12s ease}.share-source{background:var(--pink)}.share-destination{background:var(--green)}.share-empty{background:#64748b}.share-legend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.share-legend div{padding:10px;border:1px solid var(--line);border-radius:11px;background:var(--control)}.share-legend strong{display:block}.channel-table{margin-top:18px;border:1px solid var(--line);border-radius:15px;overflow:hidden}.channel-row{display:grid;grid-template-columns:120px repeat(4,minmax(190px,1fr));border-top:1px solid var(--line)}.channel-row:first-child{border-top:0}.channel-row>div{padding:12px;border-left:1px solid var(--line)}.channel-row>div:first-child{border-left:0}.channel-row.header{background:var(--soft);font-weight:900}.channel-name{font-weight:900;color:var(--indigo)}
+.stepper-layout{display:grid;grid-template-columns:minmax(980px,1.2fr) minmax(590px,.8fr);gap:22px;align-items:start}.step-figure{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:14px;overflow:auto}.step-figure svg{display:block;width:100%;height:auto;min-height:680px}.stepper-card{border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden}.stepper-nav{display:flex;flex-wrap:wrap;gap:8px;padding:15px;border-bottom:1px solid var(--line);background:var(--control)}.step-button{min-width:44px;padding:8px 12px}.step-body{padding:22px}.step-title{color:var(--indigo);font-weight:900;font-size:22px}.step-caption{min-height:132px}.code-excerpt{margin:14px 0;padding:16px;background:var(--code-bg);color:var(--code-ink);border-radius:13px;overflow:auto;white-space:pre-wrap;font:14px/1.58 "SFMono-Regular",Consolas,monospace}.step-actions{display:flex;gap:10px;margin-top:18px}.trace-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px;margin-top:16px}.trace-box{padding:14px;border-radius:13px;border:1px solid var(--line);background:var(--control);min-height:300px}.trace-box strong{display:block;color:var(--indigo);margin-bottom:7px}.trace-code{display:block;margin-top:8px;padding:11px;background:var(--code-bg);color:var(--code-ink);border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}.source-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.source-pane{display:none}.source-pane.active{display:block}.source-code{max-height:920px;overflow:auto;margin:0;padding:20px;border-radius:16px;background:var(--code-bg);color:var(--code-ink);font-size:13px;line-height:1.55;white-space:pre;tab-size:4}.challenge-grid{display:grid;grid-template-columns:minmax(700px,.9fr) minmax(780px,1.1fr);gap:18px}.editor-card,.challenge-preview{border:1px solid var(--line);border-radius:17px;background:var(--panel);overflow:hidden}.card-header{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--control)}.editor-wrap,.challenge-body{padding:16px}.code-editor{display:block;width:100%;min-height:330px;resize:vertical;padding:16px;border:1px solid #475569;border-radius:13px;background:var(--code-bg);color:var(--code-ink);font:14px/1.58 "SFMono-Regular",Consolas,monospace;tab-size:4}.challenge-result{margin-top:12px;padding:13px;border-radius:11px;border:1px solid var(--line);background:var(--control)}.challenge-swatch{height:250px;position:relative;border:1px solid var(--line);border-radius:14px;overflow:hidden}.mapping-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}.mapping-card{padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--control)}.mapping-card strong{display:block;color:var(--indigo);font-size:13px}.mapping-card .mono{font-size:18px;font-weight:900}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.check-row{display:flex;gap:12px;align-items:flex-start;padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}.check-row input{margin-top:5px;transform:scale(1.15)}details{margin-top:10px;border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:14px 17px}summary{cursor:pointer;color:#3730a3;font-weight:900}.record-area{display:block;width:100%;min-height:360px;padding:16px;border:1px solid #475569;border-radius:13px;background:var(--code-bg);color:var(--code-ink);font:14px/1.55 "SFMono-Regular",Consolas,monospace}.footer-nav{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-top:24px;padding:20px 24px;border:1px solid var(--line);border-radius:18px;background:var(--paper)}
+@media(max-width:2400px){.lab-layout{grid-template-columns:minmax(900px,1.45fr) minmax(480px,.75fr)}.trace-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.channel-row{grid-template-columns:100px repeat(4,minmax(150px,1fr))}}
+@media(prefers-color-scheme:dark){
+:root{--ink:#e5edf7;--muted:#aab6c7;--line:#344256;--paper:#101827;--soft:#0b1220;--panel:#141d2d;--control:#111827;--body-start:#080d18;--body-end:#111827;--shadow:0 18px 52px rgba(0,0,0,.3);--green-soft:#102c29;--indigo-soft:#1e2147;--amber-soft:#332711;--pink-soft:#34172a;--blue-soft:#10233f;--red-soft:#34191d;--blue:#60a5fa;--green:#34d399;--indigo:#a5b4fc;--amber:#fbbf24;--pink:#f472b6;--red:#f87171;--code-bg:#080d18;--code-ink:#e5e7eb}
+body{background:linear-gradient(180deg,var(--body-start),var(--body-end))}a{color:#93c5fd}code{background:#1e2147;color:#e0e7ff}.lesson-chip{border-color:#1f6b55;color:#a7f3d0}.lead{color:#cbd5e1}.goal-box{border-color:#414b84;background:linear-gradient(145deg,#1e2147,#121a2a)}.progress-line{background:#171f31;border-color:#414b84;color:#c7d2fe}.card.green{border-color:#1f6b55}.card.indigo{border-color:#4f54a8}.card.amber{border-color:#8a5d16}.card.blue{border-color:#31539a}.card.red{border-color:#8c3540}.note{color:#bfdbfe}.warning{color:#fde68a}.success-note{color:#a7f3d0}.primary-button{color:#07111f}.secondary-button,.preset-button,.step-button,.mode-button{border-color:#475569;color:#e5edf7}.selected{color:#e0e7ff!important}.formula{border-color:#4f54a8;color:#e0e7ff}.code-editor,.record-area{border-color:#475569}summary{color:#c7d2fe}input[type=range]{accent-color:#60a5fa}.swatch-label{box-shadow:0 5px 18px rgba(0,0,0,.42)}
+}
+
+.order-lab{display:grid;grid-template-columns:minmax(1150px,1.5fr) minmax(650px,.8fr);gap:18px}.order-stage{border:1px solid var(--line);border-radius:18px;background:var(--control);padding:18px;overflow:auto}.order-stage svg{display:block;width:100%;height:auto;min-height:650px}.order-side{display:flex;flex-direction:column;gap:14px}.order-sequence{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.sequence-box{position:relative;padding:14px;border:1px solid var(--line);border-radius:13px;background:var(--control);min-height:116px}.sequence-box strong{display:block;color:var(--indigo);margin-bottom:6px}.sequence-arrow{display:flex;align-items:center;justify-content:center;color:var(--pink);font-weight:950;font-size:24px}.order-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.result-card{border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}.result-card.active{border:3px solid var(--indigo)}.result-swatch{height:140px;position:relative;border-bottom:1px solid var(--line)}.result-copy{padding:14px}.position-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.position-button{min-height:96px;text-align:left;padding:13px;border-radius:13px;border:1px solid var(--line);background:var(--control);color:var(--ink)}.position-button strong{display:block;color:var(--indigo);margin-bottom:5px}.position-button.selected{border:3px solid var(--indigo)!important}.comparison-table{border:1px solid var(--line);border-radius:16px;overflow:hidden}.comparison-row{display:grid;grid-template-columns:220px repeat(5,minmax(170px,1fr));border-top:1px solid var(--line)}.comparison-row:first-child{border-top:0}.comparison-row>div{padding:12px;border-left:1px solid var(--line)}.comparison-row>div:first-child{border-left:0}.comparison-row.header{background:var(--soft);font-weight:900}.alpha-same{color:var(--green);font-weight:900}.rgb-different{color:var(--pink);font-weight:900}.challenge-scene{height:330px;position:relative;overflow:hidden;border:1px solid var(--line);border-radius:14px;background-color:var(--checker-a);background-image:linear-gradient(45deg,var(--checker-b) 25%,transparent 25%),linear-gradient(-45deg,var(--checker-b) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,var(--checker-b) 75%),linear-gradient(-45deg,transparent 75%,var(--checker-b) 75%);background-size:40px 40px;background-position:0 0,0 20px,20px -20px,-20px 0}.challenge-layer{position:absolute;width:64%;height:54%;border-radius:34px}.challenge-magenta{left:7%;top:14%;background:rgba(230,26,204,.5)}.challenge-green{left:30%;top:34%;background:rgba(26,230,102,.6)}.challenge-marker{position:absolute;z-index:3;left:53%;top:48%;width:18px;height:18px;border-radius:50%;transform:translate(-50%,-50%);background:#f59e0b;border:3px solid #fff;box-shadow:0 0 0 2px #78350f}.challenge-order-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.challenge-order-list button{min-height:60px}.legend-line{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px}.legend-item{display:flex;align-items:center;gap:7px}.legend-dot{width:12px;height:12px;border-radius:50%}.source-note{padding:14px;border-radius:13px;border:1px solid var(--line);background:var(--soft)}
+@media(max-width:2400px){.order-lab{grid-template-columns:minmax(850px,1.35fr) minmax(520px,.8fr)}.comparison-row{grid-template-columns:180px repeat(5,minmax(140px,1fr))}}
+@media(prefers-color-scheme:dark){.result-card.active,.position-button.selected{border-color:#818cf8!important}.challenge-marker{border-color:#111827;box-shadow:0 0 0 2px #fbbf24}.source-note{background:#0b1220}}
+</style>
+</head>
+<body>
+<main class="page">
+<nav class="topbar"><div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-color-opacity-and-compositing.html">Chapter 3</a> · <a href="../../glossary.html">Glossary</a></div><div class="header-chips"><span class="lesson-chip">Lesson 3.4</span><span class="theme-chip">OS theme · <strong id="themeMode">detecting…</strong></span></div></nav>
+
+<header class="hero panel"><div><div class="eyebrow">Chapter 3 · Color, opacity, and compositing</div><h1>Draw order matters</h1><p class="lead">Draw the same two translucent colors in opposite orders. The overlap changes because the layer drawn second becomes the current source.</p><div class="note"><strong>One main graphics idea:</strong> later drawing operations are placed over earlier drawing operations at positions where they overlap.</div></div><aside class="goal-box"><h2>Lesson goal</h2><ul><li>Name the source and destination from the actual draw-call order.</li><li>Predict which pixels can change when two shapes overlap.</li><li>Explain why both orders have alpha <code>0.80</code> but different RGB values.</li><li>Repair a reversed pair of Canvas draw calls.</li></ul><div class="progress-line">Before this lesson: 20 of 216 complete<br>After completion: 21 of 216 complete</div><div class="theme-rule">Interface chrome follows the OS theme. The magenta and green teaching colors remain numerically unchanged.</div></aside></header>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">1 · Vocabulary</div><h2>Four exact terms</h2></div><p>Each term names a concrete part of the drawing operation.</p></div><div class="four-column"><article class="card green"><h3>Draw order</h3><p><strong>Draw order</strong> is the sequence in which drawing operations write into the same drawing target. The first call runs before the second call.</p></article><article class="card indigo"><h3>Overlap</h3><p>An <strong>overlap</strong> is an image position covered by both shapes. Only overlap positions receive both colored draw operations.</p></article><article class="card amber"><h3>Source and destination</h3><p>The <strong>source</strong> is the color being drawn now. The <strong>destination</strong> is the value already present at that same position.</p></article><article class="card blue"><h3>Commutative</h3><p>A <strong>commutative operation</strong> gives the same result after its inputs exchange places. Source-over compositing is not commutative.</p></article></div><div class="formula" style="margin-top:18px">magenta over green ≠ green over magenta</div><div class="warning"><strong>The color names do not permanently own the words source and destination.</strong> A color becomes the source when its draw call is executing. Reversing the calls reverses those roles at the overlap.</div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">2 · Interactive laboratory</div><h2>Reverse the calls and inspect one position</h2></div><p>The browser diagram is a teaching model. It uses the same RGBA inputs and source-over formula as the lesson.</p></div><div class="lab-shell"><div class="lab-toolbar"><div><strong>Choose the layer drawn second</strong><div class="small">The second colored call is visually on top in the overlap.</div></div><div class="controls"><button class="mode-button selected" data-main-order="magenta" type="button">Magenta on top</button><button class="mode-button" data-main-order="green" type="button">Green on top</button><button class="secondary-button" id="swapOrder" type="button">Swap draw order</button></div></div><div class="order-lab" style="padding:18px"><div class="order-stage"><svg id="orderSvg" viewBox="0 0 1240 680" aria-label="Two translucent rounded rectangles with three inspected positions"></svg><div class="legend-line"><span class="legend-item"><span class="legend-dot" style="background:#e61acc"></span>Magenta <span class="mono">RGBA(0.90, 0.10, 0.80, 0.50)</span></span><span class="legend-item"><span class="legend-dot" style="background:#1ae666"></span>Green <span class="mono">RGBA(0.10, 0.90, 0.40, 0.60)</span></span><span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span>Selected position</span></div></div><aside class="order-side"><div class="card"><h3>Executed sequence</h3><div class="order-sequence"><div class="sequence-box"><strong>1 · Existing lower content</strong><span>Checkerboard used to reveal remaining transparency.</span></div><div class="sequence-box"><strong>2 · First colored call</strong><span id="firstCallText"></span></div><div class="sequence-box"><strong>3 · Second colored call</strong><span id="secondCallText"></span></div></div></div><div class="card indigo"><h3>Roles at the overlap</h3><p><strong>Source:</strong> <span id="sourceName"></span><br><strong>Destination input:</strong> <span id="destinationName"></span></p><div class="formula" id="currentTuple"></div></div><div class="card"><h3>Selected position</h3><div class="position-strip"><button class="position-button" data-position="magenta" type="button"><strong>Magenta only</strong>One colored layer covers it.</button><button class="position-button selected" data-position="overlap" type="button"><strong>Overlap</strong>Both colored layers cover it.</button><button class="position-button" data-position="green" type="button"><strong>Green only</strong>One colored layer covers it.</button></div><p id="positionExplanation"></p></div><div class="io-row"><div class="io-box"><strong>Input</strong><span id="labInput"></span></div><div class="io-box"><strong>Operation</strong><span id="labOperation"></span></div><div class="io-box"><strong>Output</strong><span id="labOutput"></span></div></div></aside></div></div>
+<div class="order-results" style="margin-top:18px"><article class="result-card active" id="resultMagenta"><div class="result-swatch checkerboard"><div class="layer" id="magentaOutputLayer"></div><span class="swatch-label">Magenta over green</span></div><div class="result-copy"><strong id="magentaOutputTuple"></strong><p>Magenta is source with weight <code>0.50</code>. Green survives with weight <code>0.30</code>.</p></div></article><article class="result-card" id="resultGreen"><div class="result-swatch checkerboard"><div class="layer" id="greenOutputLayer"></div><span class="swatch-label">Green over magenta</span></div><div class="result-copy"><strong id="greenOutputTuple"></strong><p>Green is source with weight <code>0.60</code>. Magenta survives with weight <code>0.20</code>.</p></div></article></div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">3 · Same output alpha, different RGB</div><h2>Calculate both orders</h2></div><p>Output alpha alone cannot tell you which color was drawn second.</p></div><div class="comparison-table"><div class="comparison-row header"><div>Order</div><div>Source weight</div><div>Destination weight</div><div>Output alpha</div><div>Weighted RGB</div><div>Ordinary output RGBA</div></div><div class="comparison-row"><div><strong>Magenta over green</strong></div><div><code>0.50</code></div><div><code>0.60 × 0.50 = 0.30</code></div><div class="alpha-same">0.80</div><div><code>(0.48, 0.32, 0.52)</code></div><div class="rgb-different"><code>RGBA(0.60, 0.40, 0.65, 0.80)</code></div></div><div class="comparison-row"><div><strong>Green over magenta</strong></div><div><code>0.60</code></div><div><code>0.50 × 0.40 = 0.20</code></div><div class="alpha-same">0.80</div><div><code>(0.24, 0.56, 0.40)</code></div><div class="rgb-different"><code>RGBA(0.30, 0.70, 0.50, 0.80)</code></div></div></div><div class="two-column" style="margin-top:18px"><article class="card green"><h3>Why alpha matches</h3><p>In the first order, alpha is <code>0.50 + 0.60 × 0.50 = 0.80</code>.</p><p>In the reversed order, alpha is <code>0.60 + 0.50 × 0.40 = 0.80</code>.</p><p>The two calculations leave the same total covered share.</p></article><article class="card indigo"><h3>Why RGB differs</h3><p>The current source receives its full alpha weight. The lower color receives only its own alpha multiplied by the opening left by the source.</p><p>Changing the source changes the weight applied to each color channel.</p></article></div><div class="note"><strong>Per-position rule:</strong> Draw order changes a position only when both reordered operations affect that position. A magenta-only position and a green-only position each receive only one colored call, so swapping the two colored calls does not change those positions.</div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">4 · Manual stepper</div><h2>Follow one overlap position through eight states</h2></div><p>Press <strong>Back</strong> or <strong>Next</strong>. Every step adds one operation or one calculation.</p></div><div class="stepper-layout"><div class="step-figure"><svg id="stepSvg" viewBox="0 0 1160 720" aria-label="Draw-order derivation stepper"></svg></div><div class="stepper-card"><div class="stepper-nav" id="stepButtons"></div><div class="step-body"><div class="step-title" id="stepTitle"></div><p class="step-caption" id="stepCaption"></p><pre class="code-excerpt" id="stepCode"></pre><div class="io-row"><div class="io-box"><strong>Input</strong><span id="stepInput"></span></div><div class="io-box"><strong>Operation</strong><span id="stepOperation"></span></div><div class="io-box"><strong>Output</strong><span id="stepOutput"></span></div></div><div class="step-actions"><button class="secondary-button" id="stepBack" type="button">Back</button><button class="primary-button" id="stepNext" type="button">Next</button></div></div></div></div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">5 · Android value trace</div><h2>From the selected button to the overlap pixel</h2></div><p>The boxes below identify the exact state, branch, draw calls, and calculation.</p></div><div class="trace-grid"><article class="trace-box"><strong>1 · Input state</strong><p>The selected control writes one enum value.</p><code class="trace-code">topLayer = TopLayer.MAGENTA</code></article><article class="trace-box"><strong>2 · Choose roles</strong><p>The branch selects which color is drawn first and which color is drawn second.</p><code class="trace-code">when (topLayer) { ... }</code></article><article class="trace-box"><strong>3 · First call</strong><p>For magenta on top, green is drawn first.</p><code class="trace-code">drawGreen()</code></article><article class="trace-box"><strong>4 · Existing destination</strong><p>At the overlap, the drawing target now contains green contribution over the lower checkerboard.</p><code class="trace-code">green is already present</code></article><article class="trace-box"><strong>5 · Second call</strong><p>Magenta is drawn now with source-over blending.</p><code class="trace-code">drawMagenta()</code></article><article class="trace-box"><strong>6 · Source-over</strong><p>Magenta is the current source. Green is the two-color destination input.</p><code class="trace-code">calculateOrderSourceOver(
+  source = MagentaLayer,
+  destination = GreenLayer,
+)</code></article><article class="trace-box"><strong>7 · Output</strong><p>The overlap becomes the calculated translucent purple.</p><code class="trace-code">RGBA(.60, .40, .65, .80)</code></article><article class="trace-box"><strong>8 · Reverse</strong><p>Selecting green on top reverses the calls and produces a different overlap RGB.</p><code class="trace-code">RGBA(.30, .70, .50, .80)</code></article></div><div class="source-note" style="margin-top:18px"><strong>Evidence limit.</strong> The code and public API semantics establish the requested draw order and source-over behavior. The lesson does not claim which private GPU command, tile buffer, or internal color representation Android uses after Compose submits the drawing work. Profiling or framework-source inspection would be required for those implementation details. That unknown does not change which draw call is logically source and which is logically destination.</div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">6 · Complete changed Android files</div><h2>Read the implementation in context</h2></div><p>The lesson changes one screen file and adds one explorer file.</p></div><div class="source-tabs"><button class="mode-button selected" data-source="screen" type="button">Chapter03Screen.kt</button><button class="mode-button" data-source="explorer" type="button">DrawOrderExplorer.kt</button></div><div class="source-pane active" id="source-screen"><pre class="source-code">package com.example.liquidglasslab.chapter03
+
+import android.content.res.Configuration
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.liquidglasslab.ui.theme.LiquidGlassLabTheme
+
+@Composable
+fun Chapter03Screen(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .safeDrawingPadding()
+                .padding(horizontal = 24.dp, vertical = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Text(
+                text = &quot;COLOR, OPACITY, AND COMPOSITING&quot;,
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = &quot;Lesson 3.4 · Draw order matters&quot;,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = &quot;Draw the same two translucent layers in opposite orders. &quot; +
+                    &quot;Inspect why the shared area changes even though neither RGBA &quot; +
+                    &quot;input changes.&quot;,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+
+            DrawOrderExplorer()
+        }
+    }
+}
+
+@Preview(
+    name = &quot;Lesson 3.4 draw order — light&quot;,
+    showBackground = true,
+    widthDp = 412,
+    heightDp = 915,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+)
+@Preview(
+    name = &quot;Lesson 3.4 draw order — dark&quot;,
+    showBackground = true,
+    widthDp = 412,
+    heightDp = 915,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+)
+@Composable
+private fun Chapter03ScreenPreview() {
+    LiquidGlassLabTheme {
+        Chapter03Screen()
+    }
+}
+</pre></div><div class="source-pane" id="source-explorer"><pre class="source-code">package com.example.liquidglasslab.chapter03
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.weight
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import java.util.Locale
+import kotlin.math.ceil
+
+private val LayerA = OrderRgba(
+    red = 0.90f,
+    green = 0.10f,
+    blue = 0.80f,
+    alpha = 0.50f,
+)
+
+private val LayerB = OrderRgba(
+    red = 0.10f,
+    green = 0.90f,
+    blue = 0.40f,
+    alpha = 0.60f,
+)
+
+private val ExplorerShape = RoundedCornerShape(22.dp)
+private val CardShape = RoundedCornerShape(15.dp)
+private val PreviewShape = RoundedCornerShape(16.dp)
+
+private val CheckerLight = Color(0xFFF8FAFC)
+private val CheckerDark = Color(0xFFCBD5E1)
+private val LayerAAccent = Color(0xFFBE185D)
+private val LayerBAccent = Color(0xFF059669)
+private val OverlapMarker = Color(0xFFD97706)
+
+private enum class TopLayer {
+    A,
+    B,
+}
+
+@Composable
+internal fun DrawOrderExplorer(
+    modifier: Modifier = Modifier,
+) {
+    var topLayer by rememberSaveable {
+        mutableStateOf(TopLayer.A)
+    }
+    var shapesOverlap by rememberSaveable {
+        mutableStateOf(true)
+    }
+
+    val aOverB = remember {
+        calculateOver(
+            source = LayerA,
+            destination = LayerB,
+        )
+    }
+    val bOverA = remember {
+        calculateOver(
+            source = LayerB,
+            destination = LayerA,
+        )
+    }
+    val selectedCalculation = if (topLayer == TopLayer.A) {
+        aOverB
+    } else {
+        bOverA
+    }
+    val selectedSourceName = if (topLayer == TopLayer.A) {
+        &quot;Layer A&quot;
+    } else {
+        &quot;Layer B&quot;
+    }
+    val selectedDestinationName = if (topLayer == TopLayer.A) {
+        &quot;Layer B&quot;
+    } else {
+        &quot;Layer A&quot;
+    }
+    val firstDrawnName = selectedDestinationName
+    val secondDrawnName = selectedSourceName
+    val colorScheme = MaterialTheme.colorScheme
+
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = ExplorerShape,
+        color = colorScheme.surface,
+        contentColor = colorScheme.onSurface,
+        border = BorderStroke(
+            width = 1.dp,
+            color = colorScheme.outlineVariant,
+        ),
+    ) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Text(
+                text = &quot;One drawing target, two commands&quot;,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = &quot;The first command writes one translucent rectangle. &quot; +
+                    &quot;The second command writes the other rectangle over the &quot; +
+                    &quot;stored result wherever their bounds overlap.&quot;,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                LayerInputCard(
+                    label = &quot;Layer A · magenta&quot;,
+                    rgba = LayerA,
+                    accent = LayerAAccent,
+                    modifier = Modifier.weight(1f),
+                )
+                LayerInputCard(
+                    label = &quot;Layer B · green&quot;,
+                    rgba = LayerB,
+                    accent = LayerBAccent,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+
+            Text(
+                text = &quot;Choose the layer drawn last&quot;,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Black,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                OrderButton(
+                    label = &quot;A on top&quot;,
+                    selected = topLayer == TopLayer.A,
+                    onClick = { topLayer = TopLayer.A },
+                    modifier = Modifier.weight(1f),
+                )
+                OrderButton(
+                    label = &quot;B on top&quot;,
+                    selected = topLayer == TopLayer.B,
+                    onClick = { topLayer = TopLayer.B },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+
+            Text(
+                text = &quot;Choose whether the two rectangles share positions&quot;,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Black,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                OrderButton(
+                    label = &quot;Overlap&quot;,
+                    selected = shapesOverlap,
+                    onClick = { shapesOverlap = true },
+                    modifier = Modifier.weight(1f),
+                )
+                OrderButton(
+                    label = &quot;No overlap&quot;,
+                    selected = !shapesOverlap,
+                    onClick = { shapesOverlap = false },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = CardShape,
+                color = colorScheme.surfaceVariant,
+                contentColor = colorScheme.onSurfaceVariant,
+                border = BorderStroke(1.dp, colorScheme.outlineVariant),
+            ) {
+                Column(
+                    modifier = Modifier.padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                ) {
+                    Text(
+                        text = &quot;Selected command sequence&quot;,
+                        fontWeight = FontWeight.Black,
+                    )
+                    Text(
+                        text = &quot;1. draw $firstDrawnName&quot;,
+                    )
+                    Text(
+                        text = &quot;2. draw $secondDrawnName · later command&quot;,
+                        fontWeight = FontWeight.Black,
+                    )
+                    Text(
+                        text = if (shapesOverlap) {
+                            &quot;At shared positions, $selectedSourceName is the &quot; +
+                                &quot;source and $selectedDestinationName is the &quot; +
+                                &quot;destination.&quot;
+                        } else {
+                            &quot;The rectangles share no drawing-target position, &quot; +
+                                &quot;so neither rectangle is composited over the &quot; +
+                                &quot;other at one position.&quot;
+                        },
+                    )
+                }
+            }
+
+            DrawOrderCanvas(
+                topLayer = topLayer,
+                shapesOverlap = shapesOverlap,
+                markerColor = colorScheme.onSurface,
+            )
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = CardShape,
+                color = colorScheme.surfaceVariant,
+                contentColor = colorScheme.onSurfaceVariant,
+            ) {
+                Column(
+                    modifier = Modifier.padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                ) {
+                    Text(
+                        text = &quot;Selected shared-position result&quot;,
+                        fontWeight = FontWeight.Black,
+                    )
+                    if (shapesOverlap) {
+                        Text(
+                            text = &quot;$selectedSourceName over &quot; +
+                                &quot;$selectedDestinationName&quot;,
+                        )
+                        Text(
+                            text = &quot;Source weight = &quot; +
+                                selectedCalculation.sourceWeight.twoDecimals(),
+                        )
+                        Text(
+                            text = &quot;Destination weight = &quot; +
+                                selectedCalculation.destinationWeight
+                                    .twoDecimals(),
+                        )
+                        Text(
+                            text = &quot;Output = &quot; +
+                                selectedCalculation.output.asTuple(),
+                            fontWeight = FontWeight.Black,
+                        )
+                    } else {
+                        Text(
+                            text = &quot;No shared position exists. The A-only area &quot; +
+                                &quot;shows A. The B-only area shows B.&quot;,
+                            fontWeight = FontWeight.Black,
+                        )
+                    }
+                }
+            }
+
+            Text(
+                text = &quot;Compare both orders at the same shared position&quot;,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Black,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                OrderResultCard(
+                    label = &quot;A over B&quot;,
+                    sequence = &quot;draw B, then draw A&quot;,
+                    calculation = aOverB,
+                    topLayer = TopLayer.A,
+                    modifier = Modifier.weight(1f),
+                )
+                OrderResultCard(
+                    label = &quot;B over A&quot;,
+                    sequence = &quot;draw A, then draw B&quot;,
+                    calculation = bOverA,
+                    topLayer = TopLayer.B,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = CardShape,
+                color = colorScheme.surfaceVariant,
+                contentColor = colorScheme.onSurfaceVariant,
+            ) {
+                Column(
+                    modifier = Modifier.padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                ) {
+                    Text(
+                        text = &quot;What changed?&quot;,
+                        fontWeight = FontWeight.Black,
+                    )
+                    Text(
+                        text = &quot;A over B = ${aOverB.output.asTuple()}&quot;,
+                    )
+                    Text(
+                        text = &quot;B over A = ${bOverA.output.asTuple()}&quot;,
+                    )
+                    Text(
+                        text = &quot;Both output alphas are 0.80. The RGB channels &quot; +
+                            &quot;differ because the later layer receives the full &quot; +
+                            &quot;source role while the earlier layer survives only &quot; +
+                            &quot;through the source opening.&quot;,
+                        fontWeight = FontWeight.Black,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LayerInputCard(
+    label: String,
+    rgba: OrderRgba,
+    accent: Color,
+    modifier: Modifier = Modifier,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+
+    Surface(
+        modifier = modifier,
+        shape = CardShape,
+        color = colorScheme.surfaceVariant,
+        contentColor = colorScheme.onSurfaceVariant,
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Canvas(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp),
+            ) {
+                drawCheckerboard()
+                drawRoundRect(
+                    color = rgba.toColor(),
+                    cornerRadius = CornerRadius(10.dp.toPx()),
+                )
+                drawRoundRect(
+                    color = accent,
+                    cornerRadius = CornerRadius(10.dp.toPx()),
+                    style = Stroke(width = 3.dp.toPx()),
+                )
+            }
+            Text(
+                text = label,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = rgba.asTuple(),
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+    }
+}
+
+@Composable
+private fun OrderButton(
+    label: String,
+    selected: Boolean,
+    onClick: () -&gt; Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (selected) {
+        Button(
+            onClick = onClick,
+            modifier = modifier,
+        ) {
+            Text(label)
+        }
+    } else {
+        OutlinedButton(
+            onClick = onClick,
+            modifier = modifier,
+        ) {
+            Text(label)
+        }
+    }
+}
+
+@Composable
+private fun DrawOrderCanvas(
+    topLayer: TopLayer,
+    shapesOverlap: Boolean,
+    markerColor: Color,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = PreviewShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant,
+        ),
+    ) {
+        Canvas(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(230.dp),
+        ) {
+            drawCheckerboard()
+
+            val geometry = orderGeometry(
+                drawingSize = size,
+                shapesOverlap = shapesOverlap,
+            )
+
+            if (topLayer == TopLayer.A) {
+                drawLayerB(geometry)
+                drawLayerA(geometry)
+            } else {
+                drawLayerA(geometry)
+                drawLayerB(geometry)
+            }
+
+            if (shapesOverlap) {
+                drawCircle(
+                    color = markerColor,
+                    radius = 11.dp.toPx(),
+                    center = geometry.overlapCenter,
+                    style = Stroke(width = 3.dp.toPx()),
+                )
+                drawCircle(
+                    color = OverlapMarker,
+                    radius = 4.dp.toPx(),
+                    center = geometry.overlapCenter,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun OrderResultCard(
+    label: String,
+    sequence: String,
+    calculation: OrderComposite,
+    topLayer: TopLayer,
+    modifier: Modifier = Modifier,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+
+    Surface(
+        modifier = modifier,
+        shape = CardShape,
+        color = colorScheme.surfaceVariant,
+        contentColor = colorScheme.onSurfaceVariant,
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
+    ) {
+        Column(
+            modifier = Modifier.padding(10.dp),
+            verticalArrangement = Arrangement.spacedBy(7.dp),
+        ) {
+            Canvas(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(116.dp),
+            ) {
+                drawCheckerboard()
+                val geometry = orderGeometry(
+                    drawingSize = size,
+                    shapesOverlap = true,
+                )
+                if (topLayer == TopLayer.A) {
+                    drawLayerB(geometry)
+                    drawLayerA(geometry)
+                } else {
+                    drawLayerA(geometry)
+                    drawLayerB(geometry)
+                }
+            }
+            Text(
+                text = label,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = sequence,
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Text(
+                text = calculation.output.asTuple(),
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Black,
+            )
+        }
+    }
+}
+
+private data class OrderGeometry(
+    val layerSize: Size,
+    val layerATopLeft: Offset,
+    val layerBTopLeft: Offset,
+    val overlapCenter: Offset,
+    val cornerRadius: CornerRadius,
+)
+
+private fun DrawScope.orderGeometry(
+    drawingSize: Size,
+    shapesOverlap: Boolean,
+): OrderGeometry {
+    val layerSize = Size(
+        width = drawingSize.width * 0.44f,
+        height = drawingSize.height * 0.56f,
+    )
+    val layerATopLeft = Offset(
+        x = drawingSize.width * 0.06f,
+        y = drawingSize.height * 0.12f,
+    )
+    val layerBTopLeft = Offset(
+        x = drawingSize.width * if (shapesOverlap) 0.34f else 0.55f,
+        y = drawingSize.height * 0.31f,
+    )
+    val overlapLeft = maxOf(
+        layerATopLeft.x,
+        layerBTopLeft.x,
+    )
+    val overlapTop = maxOf(
+        layerATopLeft.y,
+        layerBTopLeft.y,
+    )
+    val overlapRight = minOf(
+        layerATopLeft.x + layerSize.width,
+        layerBTopLeft.x + layerSize.width,
+    )
+    val overlapBottom = minOf(
+        layerATopLeft.y + layerSize.height,
+        layerBTopLeft.y + layerSize.height,
+    )
+    val overlapCenter = Offset(
+        x = (overlapLeft + overlapRight) / 2f,
+        y = (overlapTop + overlapBottom) / 2f,
+    )
+
+    return OrderGeometry(
+        layerSize = layerSize,
+        layerATopLeft = layerATopLeft,
+        layerBTopLeft = layerBTopLeft,
+        overlapCenter = overlapCenter,
+        cornerRadius = CornerRadius(22.dp.toPx()),
+    )
+}
+
+private fun DrawScope.drawLayerA(
+    geometry: OrderGeometry,
+) {
+    drawRoundRect(
+        color = LayerA.toColor(),
+        topLeft = geometry.layerATopLeft,
+        size = geometry.layerSize,
+        cornerRadius = geometry.cornerRadius,
+        blendMode = BlendMode.SrcOver,
+    )
+}
+
+private fun DrawScope.drawLayerB(
+    geometry: OrderGeometry,
+) {
+    drawRoundRect(
+        color = LayerB.toColor(),
+        topLeft = geometry.layerBTopLeft,
+        size = geometry.layerSize,
+        cornerRadius = geometry.cornerRadius,
+        blendMode = BlendMode.SrcOver,
+    )
+}
+
+private fun DrawScope.drawCheckerboard() {
+    val cellSize = 22.dp.toPx()
+    val columns = ceil(size.width / cellSize).toInt()
+    val rows = ceil(size.height / cellSize).toInt()
+
+    for (row in 0 until rows) {
+        for (column in 0 until columns) {
+            drawRect(
+                color = if ((row + column) % 2 == 0) {
+                    CheckerLight
+                } else {
+                    CheckerDark
+                },
+                topLeft = Offset(
+                    x = column * cellSize,
+                    y = row * cellSize,
+                ),
+                size = Size(
+                    width = cellSize,
+                    height = cellSize,
+                ),
+            )
+        }
+    }
+}
+
+private data class OrderRgba(
+    val red: Float,
+    val green: Float,
+    val blue: Float,
+    val alpha: Float,
+) {
+    fun toColor(): Color = Color(
+        red = red,
+        green = green,
+        blue = blue,
+        alpha = alpha,
+    )
+
+    fun asTuple(): String =
+        &quot;RGBA(${red.twoDecimals()}, ${green.twoDecimals()}, &quot; +
+            &quot;${blue.twoDecimals()}, ${alpha.twoDecimals()})&quot;
+}
+
+private data class OrderComposite(
+    val sourceWeight: Float,
+    val destinationWeight: Float,
+    val output: OrderRgba,
+)
+
+private fun calculateOver(
+    source: OrderRgba,
+    destination: OrderRgba,
+): OrderComposite {
+    val sourceWeight = source.alpha
+    val destinationWeight = destination.alpha * (1f - source.alpha)
+    val outputAlpha = sourceWeight + destinationWeight
+
+    val weightedRed =
+        source.red * sourceWeight + destination.red * destinationWeight
+    val weightedGreen =
+        source.green * sourceWeight + destination.green * destinationWeight
+    val weightedBlue =
+        source.blue * sourceWeight + destination.blue * destinationWeight
+
+    val output = if (outputAlpha &lt;= 0f) {
+        OrderRgba(
+            red = 0f,
+            green = 0f,
+            blue = 0f,
+            alpha = 0f,
+        )
+    } else {
+        OrderRgba(
+            red = weightedRed / outputAlpha,
+            green = weightedGreen / outputAlpha,
+            blue = weightedBlue / outputAlpha,
+            alpha = outputAlpha,
+        )
+    }
+
+    return OrderComposite(
+        sourceWeight = sourceWeight,
+        destinationWeight = destinationWeight,
+        output = output,
+    )
+}
+
+private fun Float.twoDecimals(): String =
+    String.format(Locale.US, &quot;%.2f&quot;, this)
+</pre></div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">7 · Coding challenge</div><h2>Make “magenta on top” match the actual draw calls</h2></div><p>The defective branch draws magenta first and green second. The label says magenta is on top, but the code makes green the source at the overlap.</p></div><div class="challenge-grid"><article class="editor-card"><div class="card-header"><strong>Kotlin teaching fragment</strong><button class="secondary-button" id="resetChallenge" type="button">Reset defect</button></div><div class="editor-wrap"><textarea class="code-editor" id="codeEditor" spellcheck="false">when (topLayer) {
+    TopLayer.MAGENTA -> {
+        drawMagenta()
+        drawGreen()
+    }
+}</textarea><div class="challenge-order-list"><button class="mode-button" data-challenge-order="green-magenta" type="button">First green · second magenta</button><button class="mode-button selected" data-challenge-order="magenta-green" type="button">First magenta · second green</button></div><button class="primary-button" id="checkChallenge" type="button" style="margin-top:12px">Check repair</button><div class="challenge-result" id="challengeResult">The label promises magenta on top, but green is currently drawn second.</div></div></article><article class="challenge-preview"><div class="card-header"><strong>Code-driven teaching preview</strong><span class="small" id="challengeStatus"></span></div><div class="challenge-body"><div class="challenge-scene" id="challengeScene"><div class="challenge-layer challenge-magenta" id="challengeMagenta"></div><div class="challenge-layer challenge-green" id="challengeGreen"></div><div class="challenge-marker"></div></div><div class="metric-grid"><div class="metric"><strong>First call</strong><span id="challengeFirst"></span></div><div class="metric"><strong>Second call · source</strong><span id="challengeSecond"></span></div><div class="metric"><strong>Overlap output</strong><span id="challengeTuple"></span></div><div class="metric"><strong>Expected for label</strong><span>RGBA(0.60, 0.40, 0.65, 0.80)</span></div></div><div class="io-row"><div class="io-box"><strong>Input</strong><span>TopLayer.MAGENTA</span></div><div class="io-box"><strong>Operation</strong><span id="challengeOperation"></span></div><div class="io-box"><strong>Output</strong><span id="challengeOutput"></span></div></div></div></article></div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">8 · Pixel 8 Pro checkpoint</div><h2>Verify the real Android result</h2></div><p>Check each item only after observing it in the browser or on the device.</p></div><div class="checklist"><label class="check-row"><input type="checkbox" data-check="archives"><span>Both incremental ZIPs were applied after Lesson 3.3.</span></label><label class="check-row"><input type="checkbox" data-check="build"><span>The Android app builds and opens Lesson 3.4.</span></label><label class="check-row"><input type="checkbox" data-check="magenta"><span><strong>Magenta on top</strong> produces <code>RGBA(0.60, 0.40, 0.65, 0.80)</code> in the overlap readout.</span></label><label class="check-row"><input type="checkbox" data-check="green"><span><strong>Green on top</strong> produces <code>RGBA(0.30, 0.70, 0.50, 0.80)</code>.</span></label><label class="check-row"><input type="checkbox" data-check="alpha"><span>I confirmed that both orders report alpha <code>0.80</code>.</span></label><label class="check-row"><input type="checkbox" data-check="positions"><span>I confirmed that only the overlap changes when the colored calls are reversed.</span></label><label class="check-row"><input type="checkbox" data-check="roles"><span>I can name source and destination from the call that executes now and the value already present.</span></label><label class="check-row"><input type="checkbox" data-check="challenge"><span>The coding challenge is repaired and checked.</span></label><label class="check-row"><input type="checkbox" data-check="browser-theme"><span>The HTML chrome follows both OS themes while exact teaching colors remain fixed.</span></label><label class="check-row"><input type="checkbox" data-check="android-theme"><span>The Android chrome follows the Pixel 8 Pro theme while exact teaching colors remain fixed.</span></label><label class="check-row"><input type="checkbox" data-check="commit"><span>The completed work is committed to Git.</span></label></div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">9 · Exercises</div><h2>Answer before opening the solutions</h2></div><p>Exercise 3 deliberately targets the most likely misconception.</p></div><div class="two-column"><article class="card"><h3>Exercise 1 · Identify the source</h3><p>The code executes <code>drawGreen()</code> and then <code>drawMagenta()</code>. Which color is the source at an overlap position during the second call?</p><details><summary>Show answer</summary><p>Magenta is the source. The source is the value being drawn by the current call. Green is already present and therefore supplies the destination input for the two-color composition.</p></details></article><article class="card"><h3>Exercise 2 · Reverse the result</h3><p>Green is drawn over magenta. Use the lesson values. What ordinary output RGBA tuple should the overlap have?</p><details><summary>Show answer</summary><p><code>RGBA(0.30, 0.70, 0.50, 0.80)</code>. Green has source weight <code>0.60</code>. Magenta has surviving destination weight <code>0.50 × (1 − 0.60) = 0.20</code>.</p></details></article><article class="card"><h3>Exercise 3 · Diagnostic</h3><p>Both draw orders produce output alpha <code>0.80</code>. Does that prove that the two final overlap colors are identical?</p><details><summary>Show answer</summary><p>No. Output alpha describes total coverage, not the RGB mixture. The two RGB outputs are <code>(0.60, 0.40, 0.65)</code> and <code>(0.30, 0.70, 0.50)</code>.</p></details></article><article class="card"><h3>Exercise 4 · Per-position reasoning</h3><p>A position lies inside the magenta rectangle but outside the green rectangle. Does swapping the two colored draw calls change that position?</p><details><summary>Show answer</summary><p>No. Only magenta covers that position, so only the magenta colored call affects it. Draw order matters there only if another reordered operation also covers that same position.</p></details></article></div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">10 · Completion record</div><h2>Copy this into the handoff when complete</h2></div><p>The record updates automatically as you check the checkpoint items.</p></div><textarea class="record-area" id="completionRecord" readonly></textarea><div class="controls" style="margin-top:12px"><button class="primary-button" id="copyRecord" type="button">Copy completion record</button><span id="copyStatus" class="small"></span></div></section>
+
+<section class="section panel"><div class="section-intro"><div><div class="section-number">11 · Source notes</div><h2>What public documentation supports</h2></div><p>These links are optional references. The lesson itself remains usable offline.</p></div><div class="two-column"><article class="card"><h3>Compose drawing order</h3><p>The official graphics-modifier guide explains that <code>drawWithContent</code> lets code decide whether drawing commands execute before or after composable content.</p><p><a href="https://developer.android.com/develop/ui/compose/graphics/draw/modifiers">Android Developers · Graphics modifiers</a></p></article><article class="card"><h3>Source-over blend mode</h3><p>The Compose API reference defines <code>BlendMode.SrcOver</code> as drawing the source over the destination and identifies it as the default drawing algorithm.</p><p><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode">Android Developers · BlendMode</a></p></article></div></section>
+
+<nav class="footer-nav"><a href="lesson-03-03-the-over-operation.html">← Lesson 3.3</a><a href="lesson-color-opacity-and-compositing.html">Chapter 3 hub</a><span><strong>After completion:</strong> Lesson 3.5 · Why transparent edges can look wrong</span></nav>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const clamp01=v=>Math.max(0,Math.min(1,v));
+const two=v=>Number(v).toFixed(2);
+const MAGENTA={name:'Magenta',r:.9,g:.1,b:.8,a:.5};
+const GREEN={name:'Green',r:.1,g:.9,b:.4,a:.6};
+function composite(source,destination){const sw=source.a,dw=destination.a*(1-source.a),oa=sw+dw;const wr=source.r*sw+destination.r*dw,wg=source.g*sw+destination.g*dw,wb=source.b*sw+destination.b*dw;const output=oa<=0?{r:0,g:0,b:0,a:0}:{r:wr/oa,g:wg/oa,b:wb/oa,a:oa};return{source,destination,sw,dw,oa,wr,wg,wb,output};}
+function tuple(c){return `RGBA(${two(c.r)}, ${two(c.g)}, ${two(c.b)}, ${two(c.a)})`;}
+function rgba(c){return `rgba(${Math.round(c.r*255)},${Math.round(c.g*255)},${Math.round(c.b*255)},${c.a})`;}
+function themeName(){return matchMedia('(prefers-color-scheme: dark)').matches?'Dark':'Light';}
+function updateTheme(){ $('themeMode').textContent=themeName(); }
+const themeQuery=matchMedia('(prefers-color-scheme: dark)');if(themeQuery.addEventListener)themeQuery.addEventListener('change',updateTheme);else themeQuery.addListener(updateTheme);updateTheme();
+function svgEl(name,attrs={}){const e=document.createElementNS('http://www.w3.org/2000/svg',name);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,String(v));return e;}
+function addText(svg,x,y,text,size=18,weight=700,fill='var(--ink)',anchor='start'){const e=svgEl('text',{x,y,'font-size':size,'font-weight':weight,fill,'text-anchor':anchor,'font-family':'Inter, system-ui, sans-serif'});e.textContent=text;svg.append(e);return e;}
+function addMultiline(svg,x,y,lines,size=17,weight=700,fill='var(--ink)',anchor='start',lineHeight=25){const t=svgEl('text',{x,y,'font-size':size,'font-weight':weight,fill,'text-anchor':anchor,'font-family':'Inter, system-ui, sans-serif'});lines.forEach((line,i)=>{const s=svgEl('tspan',{x,dy:i===0?0:lineHeight});s.textContent=line;t.append(s);});svg.append(t);return t;}
+function checkerPattern(svg,id='checker'){const defs=svgEl('defs');const p=svgEl('pattern',{id,width:40,height:40,patternUnits:'userSpaceOnUse'});p.append(svgEl('rect',{width:40,height:40,fill:'var(--checker-a)'}),svgEl('rect',{width:20,height:20,fill:'var(--checker-b)'}),svgEl('rect',{x:20,y:20,width:20,height:20,fill:'var(--checker-b)'}));defs.append(p);svg.append(defs);}
+let mainOrder='magenta';let selectedPosition='overlap';
+const mainCalcMagenta=composite(MAGENTA,GREEN),mainCalcGreen=composite(GREEN,MAGENTA);
+function drawLayer(svg,color,x,y,w,h,label,top=false){const g=svgEl('g');g.append(svgEl('rect',{x,y,width:w,height:h,rx:46,fill:rgba(color),stroke:top?'var(--indigo)':'rgba(23,32,51,.38)','stroke-width':top?7:3}));addText(g,x+28,y+45,label,22,900,top?'var(--indigo)':'var(--ink)');svg.append(g);}
+function renderMain(){const svg=$('orderSvg');svg.replaceChildren();checkerPattern(svg);svg.append(svgEl('rect',{x:25,y:25,width:1190,height:600,rx:24,fill:'url(#checker)',stroke:'var(--line)','stroke-width':3}));const mag={x:100,y:105,w:710,h:330},green={x:430,y:270,w:690,h:315};if(mainOrder==='magenta'){drawLayer(svg,GREEN,green.x,green.y,green.w,green.h,'Green · first call',false);drawLayer(svg,MAGENTA,mag.x,mag.y,mag.w,mag.h,'Magenta · second call',true);}else{drawLayer(svg,MAGENTA,mag.x,mag.y,mag.w,mag.h,'Magenta · first call',false);drawLayer(svg,GREEN,green.x,green.y,green.w,green.h,'Green · second call',true);}const points={magenta:{x:245,y:210,label:'M'},overlap:{x:625,y:355,label:'O'},green:{x:965,y:470,label:'G'}};Object.entries(points).forEach(([key,p])=>{const active=key===selectedPosition;svg.append(svgEl('circle',{cx:p.x,cy:p.y,r:active?18:12,fill:active?'#f59e0b':'var(--paper)',stroke:active?'#78350f':'var(--muted)','stroke-width':active?6:3}));addText(svg,p.x,p.y-28,p.label,18,900,active?'var(--amber)':'var(--muted)','middle');});addText(svg,48,660,'Annotations are drawn above the experiment. They are labels, not extra inputs to the color calculation.',15,700,'var(--muted)');updateMainText();}
+function updateMainText(){const calc=mainOrder==='magenta'?mainCalcMagenta:mainCalcGreen;const first=mainOrder==='magenta'?GREEN:MAGENTA,second=mainOrder==='magenta'?MAGENTA:GREEN;$('firstCallText').textContent=`draw ${first.name.toLowerCase()}`;$('secondCallText').textContent=`draw ${second.name.toLowerCase()} · current source`;$('sourceName').textContent=second.name;$('destinationName').textContent=first.name;$('currentTuple').textContent=tuple(calc.output);const explanations={magenta:'Only magenta covers this position. Reversing the two colored calls does not change its colored input.',overlap:`Both colors cover this position. ${second.name} is drawn second, so ${second.name.toLowerCase()} is the source.`,green:'Only green covers this position. Reversing the two colored calls does not change its colored input.'};$('positionExplanation').textContent=explanations[selectedPosition];if(selectedPosition==='overlap'){$('labInput').textContent=`${tuple(second)} over ${tuple(first)}`;$('labOperation').textContent=`source-over with weights ${two(calc.sw)} and ${two(calc.dw)}`;$('labOutput').textContent=tuple(calc.output);}else{const only=selectedPosition==='magenta'?MAGENTA:GREEN;$('labInput').textContent=`one covering color: ${tuple(only)}`;$('labOperation').textContent='only one colored draw call covers this position';$('labOutput').textContent=`the same ${only.name.toLowerCase()} layer in either order`;}$('resultMagenta').classList.toggle('active',mainOrder==='magenta');$('resultGreen').classList.toggle('active',mainOrder==='green');document.querySelectorAll('[data-main-order]').forEach(b=>b.classList.toggle('selected',b.dataset.mainOrder===mainOrder));document.querySelectorAll('[data-position]').forEach(b=>b.classList.toggle('selected',b.dataset.position===selectedPosition));}
+$('magentaOutputLayer').style.background=rgba(mainCalcMagenta.output);$('greenOutputLayer').style.background=rgba(mainCalcGreen.output);$('magentaOutputTuple').textContent=tuple(mainCalcMagenta.output);$('greenOutputTuple').textContent=tuple(mainCalcGreen.output);document.querySelectorAll('[data-main-order]').forEach(b=>b.addEventListener('click',()=>{mainOrder=b.dataset.mainOrder;renderMain();}));$('swapOrder').addEventListener('click',()=>{mainOrder=mainOrder==='magenta'?'green':'magenta';renderMain();});document.querySelectorAll('[data-position]').forEach(b=>b.addEventListener('click',()=>{selectedPosition=b.dataset.position;renderMain();}));renderMain();
+const steps=[
+{title:'1 · Start with the drawing target',caption:'The checkerboard represents lower content already available to receive the two colored layers. It is not one of the two colors whose order we are comparing.',code:'// Canvas draw block\ndrawCheckerboard()',input:'empty colored-layer stack',operation:'draw lower reference content',output:'checkerboard in the drawing target',stage:1},
+{title:'2 · Draw green first',caption:'For “magenta on top,” the green rounded rectangle executes first. At an overlap position, green is now the value already present before magenta runs.',code:'drawGreen()',input:'green RGBA(.10, .90, .40, .60)',operation:'source-over green onto the lower content',output:'green contribution stored in covered positions',stage:2},
+{title:'3 · Name the two-color destination',caption:'For the two-color sub-composition, green is the destination input because it is the lower colored layer. The checkerboard remains a separate layer below the two-color result.',code:'val destination = GreenLayer',input:'green layer drawn first',operation:'name its role for the next colored call',output:'destination = green',stage:3},
+{title:'4 · Draw magenta second',caption:'Magenta is drawn now. At every overlap position, magenta is the current source because its draw call is executing after green.',code:'drawMagenta()',input:'magenta RGBA(.90, .10, .80, .50)',operation:'draw the source over the existing destination',output:'magenta becomes the top colored layer',stage:4},
+{title:'5 · Calculate the two weights',caption:'Magenta contributes with its alpha 0.50. Green contributes with its alpha 0.60 through the 0.50 opening left by magenta.',code:'sourceWeight = 0.50\ndestinationWeight = 0.60 * (1 - 0.50)',input:'source alpha .50; destination alpha .60',operation:'.60 × .50',output:'weights .50 and .30',stage:5},
+{title:'6 · Add weighted RGB contributions',caption:'Each magenta channel is multiplied by 0.50. Each green channel is multiplied by 0.30. Matching channels are added.',code:'weightedRgb = (.48, .32, .52)',input:'magenta weight .50; green weight .30',operation:'multiply channels, then add matching channels',output:'weighted RGB (.48, .32, .52)',stage:6},
+{title:'7 · Produce ordinary output RGBA',caption:'The output alpha is 0.80. Divide each weighted RGB total by 0.80 to recover ordinary RGB values.',code:'output = RGBA(.60, .40, .65, .80)',input:'weighted RGB (.48,.32,.52); alpha .80',operation:'divide each RGB total by .80',output:'purple overlap RGBA(.60,.40,.65,.80)',stage:7},
+{title:'8 · Reverse the two colored calls',caption:'Green now executes second and becomes source. Output alpha remains 0.80, but the RGB weights reverse and the overlap becomes greener.',code:'drawMagenta()\ndrawGreen()\n// output RGBA(.30, .70, .50, .80)',input:'same two RGBA layers',operation:'reverse which colored call executes second',output:'different RGB; same output alpha',stage:8}
+];
+let stepIndex=0;
+function drawStepper(){const step=steps[stepIndex],svg=$('stepSvg');svg.replaceChildren();checkerPattern(svg,'stepChecker');svg.append(svgEl('rect',{x:40,y:35,width:1080,height:610,rx:24,fill:'url(#stepChecker)',stroke:'var(--line)','stroke-width':3}));if(step.stage>=2){svg.append(svgEl('rect',{x:390,y:250,width:610,height:280,rx:42,fill:rgba(GREEN),stroke:'var(--green)','stroke-width':step.stage===2||step.stage===3?7:3}));addText(svg,965,505,'Green',21,900,'var(--green)','end');}if(step.stage>=4&&step.stage<=7){svg.append(svgEl('rect',{x:130,y:110,width:650,height:300,rx:42,fill:rgba(MAGENTA),stroke:'var(--pink)','stroke-width':7}));addText(svg,160,155,'Magenta · source',21,900,'var(--pink)');}if(step.stage===8){svg.append(svgEl('rect',{x:130,y:110,width:650,height:300,rx:42,fill:rgba(MAGENTA),stroke:'var(--pink)','stroke-width':3}));svg.append(svgEl('rect',{x:390,y:250,width:610,height:280,rx:42,fill:rgba(GREEN),stroke:'var(--green)','stroke-width':7}));addText(svg,965,505,'Green · source',21,900,'var(--green)','end');}if(step.stage>=3){svg.append(svgEl('circle',{cx:600,cy:330,r:16,fill:'#f59e0b',stroke:'#78350f','stroke-width':5}));addText(svg,600,300,'one overlap position',17,900,'var(--amber)','middle');}const rows=[];if(step.stage>=3)rows.push(['Destination role',step.stage===8?'magenta':'green']);if(step.stage>=4)rows.push(['Source role',step.stage===8?'green':'magenta']);if(step.stage>=5)rows.push(['Weights',step.stage===8?'.60 and .20':'.50 and .30']);if(step.stage>=6)rows.push(['Weighted RGB',step.stage===8?'(.24, .56, .40)':'(.48, .32, .52)']);if(step.stage>=7)rows.push(['Output RGBA',step.stage===8?'(.30, .70, .50, .80)':'(.60, .40, .65, .80)']);rows.forEach((r,i)=>{const y=555+i*0;});if(rows.length){const x0=70;rows.forEach((r,i)=>{const x=x0+i*205;svg.append(svgEl('rect',{x,y:565,width:185,height:58,rx:12,fill:'var(--control)',stroke:'var(--line)'}));addText(svg,x+12,588,r[0],13,850,'var(--indigo)');addText(svg,x+12,611,r[1],15,900,'var(--ink)');});}$('stepTitle').textContent=step.title;$('stepCaption').textContent=step.caption;$('stepCode').textContent=step.code;$('stepInput').textContent=step.input;$('stepOperation').textContent=step.operation;$('stepOutput').textContent=step.output;$('stepBack').disabled=stepIndex===0;$('stepNext').disabled=stepIndex===steps.length-1;document.querySelectorAll('[data-step]').forEach((b,i)=>b.classList.toggle('selected',i===stepIndex));}
+steps.forEach((_,i)=>{const b=document.createElement('button');b.type='button';b.className='step-button';b.dataset.step=String(i);b.textContent=String(i+1);b.addEventListener('click',()=>{stepIndex=i;drawStepper();});$('stepButtons').append(b);});$('stepBack').addEventListener('click',()=>{if(stepIndex>0){stepIndex--;drawStepper();}});$('stepNext').addEventListener('click',()=>{if(stepIndex<steps.length-1){stepIndex++;drawStepper();}});drawStepper();
+document.querySelectorAll('[data-source]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-source]').forEach(b=>b.classList.toggle('selected',b===button));document.querySelectorAll('.source-pane').forEach(p=>p.classList.remove('active'));$(`source-${button.dataset.source}`).classList.add('active');}));
+const defectiveCode=`when (topLayer) {
+    TopLayer.MAGENTA -> {
+        drawMagenta()
+        drawGreen()
+    }
+}`;let challengeWasCorrect=false;
+function stripComments(text){return text.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/.*$/gm,'');}
+function parseChallenge(){const code=stripComments($('codeEditor').value);const branch=code.match(/TopLayer\.MAGENTA\s*->\s*\{([\s\S]*?)\}/);const body=branch?branch[1]:code;const calls=[...body.matchAll(/draw(Magenta|Green)\s*\(\s*\)/g)].map(m=>m[1].toLowerCase());return calls.slice(0,2);}
+function setChallengeOrder(order){const calls=order==='green-magenta'?['drawGreen()','drawMagenta()']:['drawMagenta()','drawGreen()'];$('codeEditor').value=`when (topLayer) {
+    TopLayer.MAGENTA -> {
+        ${calls[0]}
+        ${calls[1]}
+    }
+}`;challengeWasCorrect=false;updateChallenge();}
+function updateChallenge(){const calls=parseChallenge();const first=calls[0]||'unparsed',second=calls[1]||'unparsed';const valid=(first==='green'&&second==='magenta')||(first==='magenta'&&second==='green');const calc=first==='green'&&second==='magenta'?mainCalcMagenta:first==='magenta'&&second==='green'?mainCalcGreen:null;$('challengeFirst').textContent=first;$('challengeSecond').textContent=second;$('challengeTuple').textContent=calc?tuple(calc.output):'unavailable';$('challengeOperation').textContent=valid?`${first} first, ${second} second`:'two supported draw calls were not found';$('challengeOutput').textContent=calc?tuple(calc.output):'cannot calculate';$('challengeStatus').textContent=valid?`${second} is source`:'code not parsed';const mag=$('challengeMagenta'),green=$('challengeGreen');if(first==='green'&&second==='magenta'){green.style.zIndex='1';mag.style.zIndex='2';}else{mag.style.zIndex='1';green.style.zIndex='2';}document.querySelectorAll('[data-challenge-order]').forEach(b=>b.classList.toggle('selected',b.dataset.challengeOrder===(first==='green'&&second==='magenta'?'green-magenta':first==='magenta'&&second==='green'?'magenta-green':'none')));if(!challengeWasCorrect){$('challengeResult').textContent=first==='green'&&second==='magenta'?'The call order now matches “magenta on top.” Press Check repair.':first==='magenta'&&second==='green'?'The label promises magenta on top, but green is currently drawn second.':'The preview needs exactly two supported draw calls inside the MAGENTA branch.';}}
+$('codeEditor').addEventListener('input',()=>{challengeWasCorrect=false;updateChallenge();});document.querySelectorAll('[data-challenge-order]').forEach(b=>b.addEventListener('click',()=>setChallengeOrder(b.dataset.challengeOrder)));$('resetChallenge').addEventListener('click',()=>{$('codeEditor').value=defectiveCode;challengeWasCorrect=false;updateChallenge();});$('checkChallenge').addEventListener('click',()=>{const calls=parseChallenge();const ok=calls[0]==='green'&&calls[1]==='magenta';challengeWasCorrect=ok;$('challengeResult').textContent=ok?'Correct. Green is drawn first. Magenta is drawn second and becomes the source at the overlap.':'Not complete. “Magenta on top” requires drawGreen() first and drawMagenta() second.';});updateChallenge();
+const checkboxes=[...document.querySelectorAll('[data-check]')];function updateRecord(){const done=checkboxes.filter(b=>b.checked).map(b=>b.dataset.check),all=done.length===checkboxes.length;$('completionRecord').value=`lesson_id: 03-04
+lesson_title: Draw order matters
+status: ${all?'completed':'in_progress'}
+course_lessons_completed_before_this_lesson: 20
+course_lessons_completed_after_completion: ${all?21:20}
+course_lessons_total: 216
+chapter_01_completed_by_learner: true
+chapter_02_completed_by_learner: true
+chapter_03_completed_by_learner: false
+android_files_applied:
+  - app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt
+  - app/src/main/java/com/example/liquidglasslab/chapter03/DrawOrderExplorer.kt
+pixel_8_pro_tested: ${done.includes('build')&&done.includes('magenta')&&done.includes('green')}
+browser_os_theme_verified: ${done.includes('browser-theme')}
+android_os_theme_verified: ${done.includes('android-theme')}
+checkpoint_items_complete: ${done.length}/${checkboxes.length}
+can_name_source_from_draw_order: ${done.includes('roles')}
+can_explain_same_alpha_different_rgb: ${done.includes('alpha')&&done.includes('green')&&done.includes('magenta')}
+can_explain_per_position_effect: ${done.includes('positions')}
+next_lesson_after_completion: 3.5 — Why transparent edges can look wrong
+remaining_questions:
+  - none`;}
+checkboxes.forEach(b=>b.addEventListener('change',updateRecord));updateRecord();$('copyRecord').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('completionRecord').value);$('copyStatus').textContent='Copied.';}catch{$('completionRecord').select();document.execCommand('copy');$('copyStatus').textContent='Copied using the browser fallback.';}});
+</script>
+</body>
+</html>
