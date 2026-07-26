@@ -65,6 +65,54 @@ Apply these rules to every Chapter 3 lesson and to later lessons that use color 
 8. Explain both conversion directions and their purpose. Straight to premultiplied multiplies RGB by alpha so the fields become color contributions. Premultiplied to straight divides RGB by alpha when alpha is greater than zero so the color components are stored independently again.
 9. At alpha zero, state that many straight RGB tuples collapse to the same premultiplied `(0, 0, 0, 0)` tuple. The original straight RGB cannot be recovered by division.
 10. Before delivery, compare terminology and values with the preceding lesson. Correct earlier ambiguous labels in changed files rather than asking the learner to remember a hidden reinterpretation.
+11. Relative luminance consumes three color channels. Alpha is not a fourth luminance term. When alpha is below `1`, explain that alpha acts earlier by changing the source-over output RGB.
+12. A translucent source or translucent intermediate result is not yet a final visible color. Composite through every lower layer until an opaque backing produces the final displayed RGB before calculating foreground/background luminance or contrast.
+13. At every compositing-to-luminance boundary, name the representation explicitly: source straight sRGB, destination straight sRGB, output premultiplied RGB, output straight sRGB, decoded linear-light RGB, or relative luminance. The phrase `precomputed RGB` is too ambiguous.
+14. When a lesson uses zero-valued channels to isolate one coefficient or branch, label the example as an isolation test. Explain why the other inputs are zero. Pair the isolation test with at least one reproducible mixed-value example in which all relevant inputs are non-zero. Prefer fixed non-round values over true randomness so the learner can verify the arithmetic.
+
+### Beginner-first comprehension and formula-reveal gate
+
+The following failure pattern is prohibited:
+
+> **Expert-backfill failure:** start from a finished industry formula, API, or standard; place its stages into cards; then assume that labels such as `encoded`, `linear light`, `transfer function`, `luminance`, or `coefficient` explain the causal model.
+
+This pattern produces technically correct arithmetic but an unusable beginner lesson. It caused the rejected first version of Lesson 3.6.
+
+Before delivering any lesson for a total beginner in graphics, mathematics, color science, GPU work, or Android rendering:
+
+1. **Start from an object already learned.** The first learner-facing sentence must name a concrete object from a completed lesson, or define every new term in that same sentence. It must not begin with revision history, quality-process commentary, an unexplained “failure,” or an arrow pipeline containing undefined terms. Phrases such as `This revision starts...` and `Trace one exact...` are forbidden unless every named object and operation is already known.
+2. **Build a prerequisite ledger before prose.** List every new noun, acronym, symbol, constant, representation, and operation that the lesson intends to use. For each item, record the earlier lesson that taught it or the exact earlier paragraph in the current lesson that defines it. If neither exists, teach or defer the item before writing the sentence that uses it.
+3. **State the new question before the new vocabulary.** Explain the practical problem the learner is solving and why the previous lesson cannot answer it yet.
+4. **Do not reveal a formula early.** Before a formula appears, identify:
+   - the exact input object;
+   - where each input number comes from;
+   - the range, unit, or representation of each number;
+   - the exact output object or number;
+   - why the conversion is needed;
+   - which later operation consumes the output.
+5. **Define every mathematical operation.** If a formula uses a branch, threshold, exponent, coefficient, weighted sum, normalization, or matrix, define that operation in plain language before using it. State whether each constant is calculated from the current input or fixed by a standard.
+6. **Trace one value before three values.** For a three-channel calculation, first follow one channel through every arithmetic step. Only then repeat the operation for all three channels.
+7. **Separate representation from physical reality.** State whether a number is a stored code value, a modeled quantity, a normalized software measurement, or a physical measurement. Never let a learner infer that a software value such as relative luminance is the device brightness slider or a measured number of nits.
+8. **Use explicit deferrals instead of compressed expertise.** When a standard constant comes from untaught color-space or matrix mathematics, say that the constant is standardized, explain its role, name the later prerequisite, and do not fake a derivation.
+9. **Audit the first two sections as a cold read.** For every noun, acronym, number, formula symbol, and arrow, ask:
+   - What exact object or value is this?
+   - Where did it come from?
+   - Why does it exist?
+   - What consumes it next?
+   If an essential answer appears only in a later section, rewrite the order.
+10. **A polished artifact is not evidence of a good lesson.** Working controls, correct Kotlin, screenshots, ZIP integrity, and numerical correctness do not pass the lesson if the first-time learner cannot explain the causal chain.
+11. **Beginner-comprehension verification is mandatory.** Before packaging, write a short internal audit of the first sentence, every term in the first two sections, and the first displayed formula. A lesson fails verification when any essential term requires unstated expert knowledge.
+12. **VERY IMPORTANT — uncertainty means failure, not approval.** Perform the final audit while assuming no graphics or mathematics knowledge beyond the learner-confirmed completed lessons. When there is any hesitation about whether a sentence, diagram, formula, or intermediate value is understandable under that assumption, treat it as not understandable. Rewrite or split the material before packaging.
+
+## Mandatory lesson-feedback review
+
+Perform this review after every learner message about the course, before generating or revising lesson files. The review itself is mandatory. Adding a new rule is conditional.
+
+1. When the learner asks a question, requests a clarification, reports a defect, or requests a complete regeneration, identify what wording, ordering, missing prerequisite, representation ambiguity, or verification failure allowed the issue.
+2. Decide whether the finding is reusable beyond the current sentence or lesson. If it is reusable, record a concise prevention rule in this `AGENTS.md` and summarize it in the handoff. If it is not reusable, fix the current material without adding noisy one-off policy.
+3. When the learner completes a lesson without questions and asks for the next lesson, analyze which explanation choices made the lesson clear. Record only reusable success patterns. Continue using those patterns in later lessons.
+4. Do not skip the analysis merely because the learner asks to proceed immediately. Do not manufacture a lesson learned when the message provides no new evidence.
+5. Keep a direct link from each recorded rule to the concrete failure or success it prevents. A policy list that is not consulted during verification is not useful.
 
 ## Visual target
 
@@ -111,3 +159,25 @@ After the initial repository package, deliver only incremental ZIP archives for 
 - The Android code ZIP contains only Android project files created or modified for that lesson. Preserve their paths beneath `LiquidGlassLab/`.
 - Do not include unchanged files, cumulative course copies, duplicate standalone downloads, verification screenshots, or a complete Android project unless the user explicitly requests them.
 - When a lesson changes no Android source, state that fact and do not create an empty Android ZIP.
+
+## Compose scope-extension imports and preview coverage
+
+Apply these rules to every Android lesson patch:
+
+1. Do not add these explicit imports:
+
+   ```kotlin
+   import androidx.compose.foundation.layout.weight
+   import androidx.compose.foundation.layout.matchParentSize
+   ```
+
+   `weight` is a member extension supplied by `RowScope` or `ColumnScope`. Use `Modifier.weight(...)` only inside the corresponding row or column content block. `matchParentSize` is a member extension supplied by `BoxScope`. Use `Modifier.matchParentSize()` only inside a `Box` content block. The scope receiver makes the function available; the package imports above are invalid for the course's Compose version.
+
+2. Every lesson that changes the active Android child composable must provide both kinds of Android Studio preview in the chapter screen file:
+
+   - a preview of the complete chapter screen;
+   - a direct preview of the active child lesson composable.
+
+3. For Lesson 3.1 and later, provide light and dark variants for both preview kinds. Wrap each preview in `LiquidGlassLabTheme`. Wrap a direct child preview in a theme-aware `Surface` when the child normally receives its page background or content color from the parent screen.
+
+4. Preview wrapper functions must take no parameters. Supply representative values inside the wrapper when the child composable requires arguments.

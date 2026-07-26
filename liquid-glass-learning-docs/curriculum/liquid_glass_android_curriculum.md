@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 3.5.3  
+**Version:** 3.6.2  
 **Updated:** 2026-07-26  
-**Current course position:** Lessons 1.1 through 3.4 are complete by learner confirmation. **21 of 216 lessons are complete.** Lesson 3.5 is the next learner checkpoint and the generated frontier.  
+**Current course position:** Lessons 1.1 through 3.5 are complete by learner confirmation. **22 of 216 lessons are complete.** Lesson 3.6 is the next learner checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -281,6 +281,46 @@ Version 3.5.3 corrects the remaining representation and compositing gaps identif
 - `AGENTS.md`, the glossary, curriculum, and handoff record a Chapter 3 terminology gate so later lessons cannot silently reintroduce the same ambiguity.
 - Android changes now include `OverOperationExplorer.kt` because its visible Lesson 3.3 labels are corrected.
 - Lesson 3.5 remains incomplete. Learner-confirmed course completion remains **21 of 216 lessons**.
+
+
+Version 3.6 records completion of Lesson 3.5 and introduces relative luminance:
+
+- The learner reported Lesson 3.5 ready after the complete straight-versus-premultiplied model became clear.
+- Learner-confirmed course completion is now **22 of 216 lessons**.
+- Lesson 3.6 measures one uniform opaque sRGB background color. It does not claim to sample a photograph, texture, or arbitrary screen region.
+- The lesson separates visual brightness, which is a human perception, from relative luminance, which is a deterministic software calculation from color data.
+- A simple average of encoded red, green, and blue is rejected. Pure red, green, and blue all have encoded average `0.3333`, but their relative-luminance values are `0.2126`, `0.7152`, and `0.0722`.
+- Each stored sRGB channel is decoded into a linear-light channel before the weights are applied. The course color `sRGB(0.80, 0.25, 0.60)` decodes to approximately `(0.6038, 0.0509, 0.3185)`.
+- The weighted contributions are approximately `(0.1284, 0.0364, 0.0230)`. Their sum is relative luminance `0.1878`.
+- The lesson explicitly separates the luminance measurement from a chosen light/dark threshold. The threshold is application policy, not part of the luminance definition.
+- `Color.luminance()` does not use alpha. For a translucent source, the visible source-over output must be calculated first, and luminance must then be measured from that output color.
+- Android changes: `Chapter03Screen.kt` and new `BrightnessLuminanceExplorer.kt`.
+- The Lesson 3.6 Android patch also removes every remaining invalid explicit `androidx.compose.foundation.layout.weight` or `androidx.compose.foundation.layout.matchParentSize` import from sixteen existing Android source files across Chapters 1 through 3. The learning-docs patch corrects the matching embedded Kotlin in the sixteen earlier lesson HTML files.
+- `AGENTS.md` now forbids explicit imports of the `RowScope`/`ColumnScope` `weight` member extension and the `BoxScope` `matchParentSize` member extension.
+- `Chapter03Screen.kt` now contains both the full chapter-screen preview and a direct child-composable preview. Light and dark variants are provided for both.
+
+Version 3.6.1 rejects and replaces the first Lesson 3.6 draft:
+
+- The rejected draft used an **expert-backfill** pattern. It started from the final standard formula and added labels afterward. This produced correct arithmetic without a beginner causal model.
+- `AGENTS.md` now contains a mandatory beginner-first comprehension and formula-reveal gate.
+- The first sentence of a lesson must start from an object already taught or define every new essential term immediately.
+- A formula cannot appear until the exact input object, input meaning, output meaning, purpose, and next consumer are clear.
+- Three-channel calculations must first trace one channel through every arithmetic step.
+- The replacement Lesson 3.6 starts from the familiar opaque Compose `Color`, defines sRGB channel code value and linear-light value before showing the formula, explains every fixed sRGB constant, then introduces the relative-luminance coefficients.
+- The replacement explicitly distinguishes a normalized software measurement from the Pixel brightness setting and physical display luminance.
+- The main example remains opaque. A separate section reconnects alpha to Lesson 3.3 and shows why a translucent source must be composited over its actual destination first.
+- Android behavior remains in `Chapter03Screen.kt` and `BrightnessLuminanceExplorer.kt`, but the child now follows the same prerequisite-first order as the HTML.
+
+Version 3.6.2 clarifies the alpha-to-luminance boundary and records the mandatory feedback review:
+
+- Relative luminance always consumes three color channels. Alpha is not a fourth luminance term.
+- When source alpha is below `1`, alpha first changes the source-over output RGB. If the output alpha remains below `1`, compositing continues through lower layers until an opaque displayed color is known.
+- The lesson now names every representation at the boundary: source straight sRGB RGBA, destination straight sRGB RGBA, output premultiplied RGB, output straight sRGB RGB, decoded linear-light RGB, and relative luminance.
+- The Android and browser examples now show output alpha `1.0000` for the two opaque destinations and state that `Color.luminance()` receives the output RGB rather than source alpha.
+- Pure-primary tuples containing zeros are labelled isolation tests. A new fixed `Mixed check` preset, sRGB `(0.37, 0.58, 0.21)`, gives a second reproducible all-non-zero calculation.
+- `AGENTS.md` now requires a lesson-feedback review after every learner message. Questions and regeneration requests are inspected for reusable prevention rules. Clean lesson completions are inspected for reusable successful teaching patterns.
+- The final total-beginner audit is marked **VERY IMPORTANT**. Any uncertainty about understandability must be treated as a failed audit and repaired before packaging.
+- `BrightnessLuminanceExplorer.kt` changes only to expose these clarifications and the mixed-value preset. `Chapter03Screen.kt` remains unchanged.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -624,7 +664,7 @@ The Android result must also be tested on the Pixel 8 Pro at the lesson checkpoi
 3. **3.3 — The “over” operation.** Combine one translucent color over another.
 4. **3.4 — Draw order matters.** Reverse two layers and observe a different result.
 5. **3.5 — Straight and premultiplied RGBA.** Continue the complete Lesson 3.3 source-over example. Name the straight and premultiplied forms of source, destination, and output. Relate output premultiplied RGB to output straight RGB. Explain which API or buffer contract expects each representation.
-6. **3.6 — Brightness and luminance.** Estimate whether a background region is light or dark.
+6. **3.6 — From a visible color to relative luminance.** Start from one opaque Compose `Color`, decode one sRGB channel before all three, then combine the three linear-light channels into one relative-luminance number.
 7. **3.7 — Foreground contrast.** Choose dark or light icons from measured background brightness.
 8. **3.8 — Tint.** Add a controlled color influence without replacing the background.
 9. **3.9 — Saturation.** Make colors richer or quieter behind the material.
@@ -1241,18 +1281,19 @@ Lessons through 2.9 are complete. Chapter 2 is complete.
 
 ```text
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
-├── MainActivity.kt                         # switches to Chapter03Screen in Lesson 3.1; unchanged in Lesson 3.5
+├── MainActivity.kt                         # switches to Chapter03Screen in Lesson 3.1; unchanged in Lesson 3.6
 └── chapter03/
-    ├── Chapter03Screen.kt                  # introduced in Lesson 3.1; switches to PremultipliedRgbaExplorer in Lesson 3.5
-    ├── RgbChannelsExplorer.kt              # introduced in Lesson 3.1; unchanged in Lesson 3.5
-    ├── AlphaExplorer.kt                    # introduced in Lesson 3.2; unchanged in Lesson 3.5
-    ├── OverOperationExplorer.kt            # introduced in Lesson 3.3; visible representation labels corrected in Lesson 3.5
-    ├── DrawOrderExplorer.kt                # introduced in Lesson 3.4; unchanged in Lesson 3.5
-    ├── PremultipliedRgbaExplorer.kt        # introduced in the replacement Lesson 3.5
+    ├── Chapter03Screen.kt                  # introduced in Lesson 3.1; switches to BrightnessLuminanceExplorer in Lesson 3.6
+    ├── RgbChannelsExplorer.kt              # introduced in Lesson 3.1; invalid weight import removed in Lesson 3.6
+    ├── AlphaExplorer.kt                    # introduced in Lesson 3.2; invalid weight import removed in Lesson 3.6
+    ├── OverOperationExplorer.kt            # introduced in Lesson 3.3; invalid weight import removed in Lesson 3.6
+    ├── DrawOrderExplorer.kt                # introduced in Lesson 3.4; invalid weight import removed in Lesson 3.6
+    ├── PremultipliedRgbaExplorer.kt        # introduced in Lesson 3.5; invalid weight import removed in Lesson 3.6
+    ├── BrightnessLuminanceExplorer.kt   # introduced in Lesson 3.6
     └── TransparentEdgeExplorer.kt          # compatibility wrapper; rejected edge experiment removed
 ```
 
-Lessons 3.1 through 3.4 are complete. Lesson 3.5 is generated and is the current learner checkpoint. It continues the complete translucent-source-over-translucent-destination example from Lesson 3.3 and names its straight and premultiplied forms.
+Lessons 3.1 through 3.5 are complete. Lesson 3.6 is generated and is the current learner checkpoint. It converts one opaque sRGB background color into a relative-luminance value and explicitly requires compositing before measurement when alpha is below 1.
 
 ---
 
@@ -2041,6 +2082,137 @@ Course progress becomes 22 of 216.
 Next lesson becomes 3.6 — Brightness and luminance.
 ```
 
+## 12C. Lesson 3.6 replacement implementation record
+
+### `lesson-03-06-brightness-and-relative-luminance.html`
+
+**Status:** the first 3.6 draft is rejected. This replacement is the only valid Lesson 3.6 learner checkpoint.
+
+**New graphics idea:** One final opaque color can be converted into one relative-luminance number for later contrast calculations.
+
+**New mathematical path:** Follow one sRGB channel through a piecewise decoding rule. Repeat for all three channels. Multiply the three linear-light values by fixed coefficients. Add the three contributions.
+
+The lesson begins with the exact object already known from Lessons 3.1 through 3.5:
+
+```kotlin
+Color(
+    red = 0.80f,
+    green = 0.25f,
+    blue = 0.60f,
+    alpha = 1f,
+)
+```
+
+Alpha equals `1`, so the source completely covers its destination. The RGB values already identify the final visible region.
+
+The lesson defines these objects before formulas:
+
+```text
+sRGB channel code value:
+the red, green, or blue number held by the Color object;
+not proportional to modeled light.
+
+linear-light channel value:
+the output of sRGB decoding;
+proportional to the modeled contribution of that channel.
+
+relative luminance:
+one unitless software number;
+0 for sRGB reference black;
+1 for sRGB reference white;
+not a color, alpha, brightness setting, or physical measurement in nits.
+```
+
+One-channel trace for `0.50`:
+
+```text
+0.50 > 0.04045
+
+((0.50 + 0.055) ÷ 1.055) ^ 2.4
+≈ 0.214041
+```
+
+The lesson defines a piecewise formula, threshold, branch, exponent, and each fixed standard constant before using them. It also gives the near-black counterexample:
+
+```text
+0.02 ≤ 0.04045
+0.02 ÷ 12.92 ≈ 0.001548
+```
+
+Course-color decoded channels:
+
+```text
+red   0.80 → 0.603827
+green 0.25 → 0.050876
+blue  0.60 → 0.318547
+```
+
+Relative-luminance calculation:
+
+```text
+red contribution   = 0.2126 × 0.603827 ≈ 0.128374
+green contribution = 0.7152 × 0.050876 ≈ 0.036389
+blue contribution  = 0.0722 × 0.318547 ≈ 0.022996
+
+relative luminance
+= 0.128374 + 0.036389 + 0.022996
+≈ 0.187759
+```
+
+The coefficients are identified as standardized constants from the linear-sRGB-to-XYZ conversion. Their matrix derivation is explicitly deferred because that color-space mathematics has not yet been taught. Their immediate properties are explained: they are fixed, positive, unequal, and sum to `1`.
+
+Alpha connection:
+
+```text
+translucent source
+→ source-over with actual destination
+→ final visible opaque straight sRGB color
+→ sRGB decoding
+→ relative luminance
+```
+
+At source alpha `0.50`:
+
+```text
+over white:
+visible RGB = (0.9000, 0.6250, 0.8000)
+luminance ≈ 0.460255
+
+over navy:
+visible RGB = (0.4250, 0.1700, 0.3800)
+luminance ≈ 0.058262
+```
+
+Replacement Android files:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter03/BrightnessLuminanceExplorer.kt
+```
+
+The chapter file contains both chapter-screen and direct-child previews in light and dark modes. The explorer follows the same order as the HTML: known object, one channel, exact branch arithmetic, three channels, coefficients, sum, alpha/destination bridge.
+
+Lesson 3.6 is complete only when:
+
+- [ ] The replacement files compile and run on the Pixel 8 Pro.
+- [ ] Both preview levels render in light and dark modes.
+- [ ] The learner can distinguish an sRGB code value from a linear-light value.
+- [ ] The learner can explain every branch and constant in the decoding rule at the level taught here.
+- [ ] The learner can trace one channel and then all three course-color channels.
+- [ ] The learner can define relative luminance and correctly exclude color, alpha, brightness setting, and physical nits.
+- [ ] The learner can explain the three coefficients and why they sum to one.
+- [ ] The learner can reproduce the course result near `0.187759`.
+- [ ] The learner can explain why a translucent source is composited over the actual destination first.
+- [ ] The coding challenge and four exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 23 of 216.
+Next lesson becomes 3.7 — Foreground contrast.
+```
+
 ## 13. Reusable continuation prompt
 
 ```text
@@ -2051,6 +2223,8 @@ Read these two files first:
 2. liquid_glass_android_handoff.md
 
 Assume I am a senior web engineer and an absolute beginner in mathematics, graphics programming, shaders, GPU concepts, and Android rendering internals.
+
+Use the beginner-first formula-reveal gate. Start from a previously taught object and state the practical question before new vocabulary. Do not show a formula until every input, output, range, representation, purpose, and next consumer is clear. Trace one channel before three. Cold-read the first two sections and reject any first sentence that contains an undefined essential term.
 
 Use simple English. Define each new graphics or math term at first use. Use short sentences. Explain one actual value through input → operation → output.
 At the end of every response, state `Course progress: X of 216 lessons completed.` using learner-confirmed completion only. Then include a clearly labelled best-effort estimate of the remaining conversation context window in tokens. State that the number is approximate.
@@ -2068,6 +2242,8 @@ Course file rules:
 - Use Canvas or WebGL2 when per-pixel behavior needs a real visual model.
 - Clearly label browser approximations. Android behavior must be tested on the Pixel 8 Pro.
 - Kotlin and AGSL source lives in the separate Android project. Quote the relevant lines, state the target path, and provide the complete changed file or patch beside the lesson delivery.
+- Do not explicitly import `androidx.compose.foundation.layout.weight` or `androidx.compose.foundation.layout.matchParentSize`; use those member extensions only inside their `RowScope`/`ColumnScope` or `BoxScope`.
+- Put both a complete chapter-screen preview and a direct active-child preview in the chapter screen file. For Lesson 3.1 and later, provide light and dark variants for both.
 - Include at least one small coding challenge before the final exercises. End each lesson with two to four exercises and hidden answers.
 - Provide a copyable lesson record for the handoff.
 - Do not use a third-party glass library for the main implementation.
@@ -2099,7 +2275,7 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Learner completion is confirmed through Lesson 3.4. Chapters 1 and 2 are complete. Lesson 3.5 is generated and pending. The learner-confirmed total is 21 of 216 lessons.
+Learner completion is confirmed through Lesson 3.5. Chapters 1 and 2 are complete. Lesson 3.6 is generated and pending. The learner-confirmed total is 22 of 216 lessons.
 
 Current Chapter 2 lesson files:
 
@@ -2142,7 +2318,8 @@ Current Chapter 3 lesson files:
 - `course/chapters/chapter-03/lesson-03-03-the-over-operation.html`;
 - `course/chapters/chapter-03/lesson-03-04-draw-order-matters.html`;
 - `course/chapters/chapter-03/lesson-03-05-straight-and-premultiplied-rgba.html`;
-- `course/chapters/chapter-03/lesson-03-05-why-transparent-edges-can-look-wrong.html` (redirect only).
+- `course/chapters/chapter-03/lesson-03-05-why-transparent-edges-can-look-wrong.html` (redirect only);
+- `course/chapters/chapter-03/lesson-03-06-brightness-and-relative-luminance.html`.
 
 Current generated Chapter 3 Android source:
 
@@ -2156,10 +2333,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── OverOperationExplorer.kt
     ├── DrawOrderExplorer.kt
     ├── PremultipliedRgbaExplorer.kt
+    ├── BrightnessLuminanceExplorer.kt
     └── TransparentEdgeExplorer.kt  # compatibility wrapper
 ```
 
-The current Lesson 3.5 Android ZIP contains the changed `Chapter03Screen.kt`, the rewritten `PremultipliedRgbaExplorer.kt`, and the corrected `OverOperationExplorer.kt`. An older `TransparentEdgeExplorer.kt` compatibility wrapper may remain in repositories that received the rejected edge lesson, but it is not changed by the current patch.
+The current Lesson 3.6 Android ZIP contains `Chapter03Screen.kt`, new `BrightnessLuminanceExplorer.kt`, and sixteen existing source files across Chapters 1 through 3 whose invalid explicit `weight` and/or `matchParentSize` imports were removed. The learning-docs ZIP corrects the same imports in the corresponding earlier source tabs. An older `TransparentEdgeExplorer.kt` compatibility wrapper may remain locally; Lesson 3.6 does not change it.
 
 ---
 

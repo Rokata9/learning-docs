@@ -1,8 +1,8 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 3.5.3  
+**Course plan version:** 3.6.2  
 **Updated:** 2026-07-26  
-**Current position:** Lessons 1.1 through 3.4 are complete by learner confirmation. **21 of 216 lessons are complete.** Lesson 3.5 is generated again and remains pending.
+**Current position:** Lessons 1.1 through 3.5 are complete by learner confirmation. **22 of 216 lessons are complete.** Lesson 3.6 is generated and remains pending.
 
 ## Permanent course rules
 
@@ -15,6 +15,8 @@
 - Every lesson includes a coding challenge, two to four hidden-answer exercises, and a copyable completion record.
 - Android code lives in the separate `LiquidGlassLab` project.
 - Deliver only changed files in incremental ZIPs.
+- Do not explicitly import `androidx.compose.foundation.layout.weight` or `androidx.compose.foundation.layout.matchParentSize`. Use those member extensions only through the corresponding layout scope.
+- Put a full chapter-screen preview and a direct active-child preview in the chapter screen file. For Lesson 3.1 and later, provide light and dark variants for both.
 - Lessons 3.1 and later follow the operating-system light or dark theme. Instructional color data remains unchanged across themes.
 - Count only learner-confirmed lesson completion.
 - End every response with `Course progress: X of 216 lessons completed.` and an approximate remaining-context estimate.
@@ -48,28 +50,63 @@ Before introducing a graphics intermediate such as a sample, filtered pixel, mas
 5. When the operation has not been taught, split or defer the dependent topic.
 6. Do not teach an image-filtering artifact before image filtering or sampling has been taught.
 
+## Beginner-comprehension gate added after the rejected Lesson 3.6 draft
+
+The rejected first Lesson 3.6 used an **expert-backfill** pattern: it began with the completed relative-luminance pipeline and formula, then added labels such as `encoded`, `linear light`, `transfer function`, and `coefficient` as if the labels supplied the missing causal explanation.
+
+This pattern is now prohibited.
+
+For every new beginner lesson:
+
+1. The first learner-facing sentence starts from a concrete object already taught, or defines every new term immediately. It must not begin with revision history, an unexplained “failure,” or an undefined pipeline.
+2. Before writing prose, build a prerequisite ledger for every new noun, acronym, symbol, constant, representation, and operation. Each item must point to an earlier completed lesson or an earlier defining paragraph in the current lesson.
+3. The practical question appears before new vocabulary.
+4. A formula appears only after its input object, input meaning, output meaning, purpose, and next consumer are clear.
+5. A three-channel calculation first traces one channel through every arithmetic step.
+6. Standard constants are identified as fixed standard values. Their role is explained. The course does not pretend to derive untaught color-space mathematics.
+7. The first two sections and first formula receive a cold-read audit. Every noun, number, and arrow must answer: what is it, where did it come from, why does it exist, and what consumes it next?
+8. Correct code, working controls, screenshots, and ZIP integrity do not compensate for an explanation that fails this audit.
+9. **VERY IMPORTANT:** perform the final audit while assuming no graphics or mathematics knowledge beyond completed lessons. Any hesitation means the lesson fails and must be rewritten or split before delivery.
+
+## Mandatory lesson-feedback review
+
+After every learner message about a lesson, always inspect the message for reusable evidence.
+
+- A question, clarification, defect, or regeneration request may reveal missing prerequisites, ambiguous representations, bad ordering, or a weak verification check. Record a reusable prevention rule in `AGENTS.md` and this handoff when one exists.
+- A clean lesson completion may reveal a teaching order or visual approach that succeeded. Record and reuse it only when it generalizes.
+- The review is mandatory even when no new rule is recorded. Do not add one-off policy merely to prove the review happened.
+
+## Lesson 3.6 alpha-to-luminance clarification
+
+- Relative luminance has red, green, and blue terms only. Alpha is not a fourth term.
+- Alpha acts earlier in source-over. It changes the output RGB.
+- If source-over produces output alpha below `1`, continue compositing over lower layers until an opaque displayed RGB is known.
+- The Lesson 3.6 Android order is `source.compositeOver(destination)` followed by `visibleOutput.luminance()`.
+- Do not say `precomputed RGB` without naming whether the tuple is straight sRGB, premultiplied RGB, decoded linear-light RGB, or output straight RGB.
+- Pure-primary examples with two zero channels are isolation tests. They must be labelled as such and paired with a mixed all-non-zero example. Lesson 3.6 now includes fixed `Mixed check` sRGB `(0.37, 0.58, 0.21)`.
+
 ## Current progress
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 3.5.3
+course_version: 3.6.2
 platform: Kotlin + Jetpack Compose
 learning_device: Pixel 8 Pro
 learning_min_sdk: 33
 course_lessons_total: 216
-course_lessons_completed_by_learner: 21
-completed_through: 3.4
-generated_frontier: 3.5
-next_learner_checkpoint: 3.5
+course_lessons_completed_by_learner: 22
+completed_through: 3.5
+generated_frontier: 3.6
+next_learner_checkpoint: 3.6
 chapter_01_completed_by_learner: true
 chapter_02_completed_by_learner: true
 chapter_03_completed_by_learner: false
-lesson_03_05_file: course/chapters/chapter-03/lesson-03-05-straight-and-premultiplied-rgba.html
-lesson_03_05_generated: true
-lesson_03_05_revision: complete-source-over-representation-bridge
-lesson_03_05_original_edge_versions_rejected_by_learner: true
-lesson_03_05_opaque-background_version_rejected_by_learner: true
-lesson_03_05_completed_by_learner: false
+lesson_03_05_completed_by_learner: true
+lesson_03_06_file: course/chapters/chapter-03/lesson-03-06-brightness-and-relative-luminance.html
+lesson_03_06_generated: true
+lesson_03_06_completed_by_learner: false
+invalid_scope_extension_imports_fixed: true
+chapter_and_child_preview_rule_recorded: true
 transparent_edge_halo_topic: deferred_until_image_boundary_and_sampling_prerequisites
 html_theme_rule_from_lesson: 3.1
 incremental_delivery_only: true
@@ -328,55 +365,174 @@ Premultiplied RGBA(0.00, 0.00, 0.00, 0.00)
 
 The original straight RGB cannot be reconstructed because reverse conversion would require division by zero.
 
-## Current Chapter 3 Android source
+## Lesson 3.6 — From a visible color to relative luminance
+
+### Status
+
+The earlier 3.6 draft is rejected. It is not a valid learner checkpoint. The replacement keeps the same lesson number and file path, but rebuilds the explanation from first principles.
+
+### First concrete object
 
 ```text
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
-├── MainActivity.kt
-└── chapter03/
-    ├── Chapter03Screen.kt
-    ├── RgbChannelsExplorer.kt
-    ├── AlphaExplorer.kt
-    ├── OverOperationExplorer.kt
-    ├── DrawOrderExplorer.kt
-    ├── PremultipliedRgbaExplorer.kt
-    └── TransparentEdgeExplorer.kt  # old compatibility wrapper may still exist locally
+Color(
+    red = 0.80,
+    green = 0.25,
+    blue = 0.60,
+    alpha = 1.00,
+)
 ```
 
-### Changed Android files in the current replacement
+The object draws one uniform opaque color. Because alpha is `1.00`, the color completely covers its destination. The main calculation therefore begins with the final visible RGB. No photograph, shader, texture, screen sample, or hidden destination is involved.
+
+### New question
+
+How can the program turn this one final visible color into one number that later contrast calculations can consume?
+
+The answer is **relative luminance**:
+
+- one unitless software number;
+- `0` for sRGB reference black;
+- `1` for sRGB reference white;
+- not a color;
+- not alpha;
+- not the Android brightness setting;
+- not a physical light measurement in nits.
+
+### First operation: decode one sRGB channel
+
+An **sRGB channel code value** is the red, green, or blue number held by the `Color` object. It is a standardized code value. It is not proportional to modeled light.
+
+A **linear-light channel value** is the output of sRGB decoding. Its numerical size is proportional to the modeled contribution of that channel. Doubling it means doubling that modeled contribution.
+
+The lesson follows one channel before all three. For sRGB code value `0.50`:
+
+```text
+0.50 > 0.04045
+
+((0.50 + 0.055) ÷ 1.055) raised to 2.4
+= (0.555 ÷ 1.055) raised to 2.4
+≈ 0.526066 raised to 2.4
+≈ 0.214041
+```
+
+A piecewise formula contains multiple cases, but one input chooses only one case. The constants `0.04045`, `12.92`, `0.055`, `1.055`, and `2.4` are fixed by the sRGB standard. They are not calculated from the current color and are not reported by the Pixel 8 Pro.
+
+### Repeat for the course color
+
+```text
+sRGB channel code values:
+red   = 0.80
+green = 0.25
+blue  = 0.60
+
+linear-light channel values:
+red   ≈ 0.603827
+green ≈ 0.050876
+blue  ≈ 0.318547
+```
+
+These three outputs form one linear-light RGB triplet. Relative luminance has not been calculated yet.
+
+### Second operation: calculate relative luminance
+
+A **coefficient** is a fixed multiplier. The standard sRGB relative-luminance coefficients are:
+
+```text
+red   0.2126
+green 0.7152
+blue  0.0722
+```
+
+They come from the standardized conversion from linear sRGB to the XYZ color-measurement model. The course does not derive that matrix yet. Their immediate properties are taught explicitly: they are fixed, unequal, positive, and sum to `1.0000`.
+
+```text
+red contribution
+= 0.2126 × 0.603827
+≈ 0.128374
+
+green contribution
+= 0.7152 × 0.050876
+≈ 0.036389
+
+blue contribution
+= 0.0722 × 0.318547
+≈ 0.022996
+
+relative luminance
+= 0.128374 + 0.036389 + 0.022996
+≈ 0.187759
+```
+
+The result means that the color's relative luminance is approximately `0.187759` when reference black is `0` and reference white is `1`. It does not mean the display brightness is `18.7759%` or that a human sees exactly that percentage of apparent brightness.
+
+### Alpha and destination rule
+
+The main input is opaque. When source alpha is below `1`, the source RGB is not the final visible color.
+
+Use this order:
+
+```text
+translucent source
+→ source-over with the actual destination
+→ final visible opaque straight sRGB color
+→ sRGB decoding
+→ relative luminance
+```
+
+For the same source RGB at alpha `0.50`:
+
+```text
+over opaque white:
+visible straight RGB = (0.9000, 0.6250, 0.8000)
+relative luminance ≈ 0.460255
+
+over opaque navy:
+visible straight RGB = (0.4250, 0.1700, 0.3800)
+relative luminance ≈ 0.058262
+```
+
+The source and source alpha are the same. The destination changes the final visible RGB, so the relative luminance also changes.
+
+### Replacement Android files
 
 ```text
 app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt
-app/src/main/java/com/example/liquidglasslab/chapter03/PremultipliedRgbaExplorer.kt
-app/src/main/java/com/example/liquidglasslab/chapter03/OverOperationExplorer.kt
+app/src/main/java/com/example/liquidglasslab/chapter03/BrightnessLuminanceExplorer.kt
 ```
 
-`OverOperationExplorer.kt` changes because Lesson 3.3's ambiguous visible labels are corrected to `output premultiplied RGB` and `output straight RGB`.
+The child explorer now follows the same teaching order as the HTML:
 
-## Lesson 3.5 checkpoint
+1. known opaque `Color` object;
+2. one selected sRGB channel;
+3. exact branch and arithmetic;
+4. all three decoded channels;
+5. three luminance contributions;
+6. final relative-luminance result;
+7. translucent-source destination comparison.
 
-- [ ] Apply both current Lesson 3.5 replacement ZIPs.
-- [ ] Build and open Lesson 3.5 on the Pixel 8 Pro.
-- [ ] Explain what straight RGBA stores.
-- [ ] Explain what premultiplied RGBA stores.
-- [ ] Explain why a bare RGB tuple does not identify the representation.
-- [ ] Map Lesson 3.3's `weighted total` to `output premultiplied RGB`.
-- [ ] Map Lesson 3.3's `ordinary output` to `output straight RGB`.
-- [ ] Write the general straight-input destination term with destination alpha.
-- [ ] Explain why the shorter destination formula is valid only when destination alpha is `1`.
-- [ ] Explain when Compose expects straight values.
-- [ ] Explain when a premultiplied buffer expects premultiplied values.
-- [ ] Explain why straight → premultiplied multiplies.
-- [ ] Explain why premultiplied → straight divides when alpha is greater than zero.
-- [ ] Verify OS light and dark modes without changing instructional values.
+The chapter file includes both complete-screen and direct-child previews in light and dark modes.
+
+## Lesson 3.6 checkpoint
+
+- [ ] Apply both replacement ZIPs over the current Lesson 3.6 state.
+- [ ] Build and open Lesson 3.6 on the Pixel 8 Pro.
+- [ ] Confirm that both full-screen and direct-child previews render in light and dark modes.
+- [ ] Define an sRGB channel code value without calling it a light fraction.
+- [ ] Define a linear-light channel value and explain why decoding is needed.
+- [ ] Select the correct formula branch for `0.50` and `0.02`.
+- [ ] Explain the role of every sRGB constant shown in the lesson.
+- [ ] Trace the course color through all three decoded channels.
+- [ ] Explain what the three coefficients are and why their sum is `1`.
+- [ ] Interpret `0.187759` without calling it a color, alpha, brightness setting, or physical measurement.
+- [ ] Explain why a translucent source must be composited over the actual destination before visible-output luminance is calculated.
 - [ ] Complete the coding challenge and four exercises.
 - [ ] Commit the work.
 
 After completion:
 
 ```text
-Course progress: 22 of 216 lessons completed.
-Next lesson: 3.6 — Brightness and luminance.
+Course progress: 23 of 216 lessons completed.
+Next lesson: 3.7 — Foreground contrast.
 ```
 
 ## Reusable continuation prompt
@@ -387,6 +543,8 @@ We are continuing my Liquid Glass on Android beginner-to-expert course.
 Read liquid_glass_android_curriculum.md, liquid_glass_android_handoff.md, and AGENTS.md first.
 
 Assume I am an absolute beginner in mathematics and graphics. Use simple English and baby-step pacing. Define every term before using it. Trace exact values through input, operation, intermediate values, and output.
+
+Before writing a formula, start from an object already taught, state the practical question, define the formula input and output, and trace one value through every operation. Audit the first two sections as a cold read. A first sentence containing an undefined essential term is a failed lesson.
 
 For Chapter 3 and every later color-compositing lesson:
 - use straight RGBA and premultiplied RGBA as the representation names;
@@ -401,6 +559,8 @@ Do not introduce an intermediate graphics value until you have named the actual 
 Use standalone interactive HTML and Kotlin/Jetpack Compose. Starting with Lesson 3.1, support the OS light or dark theme automatically while keeping instructional color data exact.
 
 Deliver only incremental ZIPs containing changed files.
+
+Do not explicitly import `androidx.compose.foundation.layout.weight` or `androidx.compose.foundation.layout.matchParentSize`; use them only through their layout scope. Put both a full chapter-screen preview and a direct child preview in the chapter screen file, with light and dark variants for Lesson 3.1 and later.
 
 Count only learner-confirmed completion. End every response with course progress and an approximate remaining-context estimate.
 

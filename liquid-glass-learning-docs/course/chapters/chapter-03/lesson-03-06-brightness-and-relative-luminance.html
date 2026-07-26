@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 3.6 — From a visible color to relative luminance</title>
+<style>
+:root{
+  color-scheme:light dark;
+  --ink:#172033;--muted:#596579;--line:#d8e0ea;--paper:#fff;--soft:#f5f7fb;--panel:#fbfcfe;--control:#fff;
+  --green:#059669;--green-soft:#ecfdf5;--indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;
+  --pink:#be185d;--pink-soft:#fce7f3;--blue:#1e40af;--blue-soft:#dbeafe;--red:#dc2626;--red-soft:#fee2e2;
+  --body-start:#f8fafc;--body-end:#edf2f7;--shadow:0 18px 52px rgba(30,41,59,.09);--code-bg:#111827;--code-ink:#e5e7eb;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ink:#e7edf7;--muted:#aeb9c9;--line:#354154;--paper:#111827;--soft:#172033;--panel:#151e2d;--control:#1b2535;
+    --green:#34d399;--green-soft:#0b3429;--indigo:#a5b4fc;--indigo-soft:#23234a;--amber:#fbbf24;--amber-soft:#402d0a;
+    --pink:#f472b6;--pink-soft:#43172d;--blue:#60a5fa;--blue-soft:#172d54;--red:#f87171;--red-soft:#491b20;
+    --body-start:#0b111c;--body-end:#101827;--shadow:0 18px 52px rgba(0,0,0,.32);--code-bg:#080d16;--code-ink:#e5e7eb;
+  }
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--body-start),var(--body-end));font:16px/1.68 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.5}code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}code{background:var(--indigo-soft);padding:.12em .36em;border-radius:6px}.page{width:min(4760px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}.topbar{display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:22px}.crumbs{color:var(--muted)}.chips{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:850}.chip.progress{color:var(--green);background:var(--green-soft)}.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.hero{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(460px,.75fr);gap:28px;padding:42px}.eyebrow{color:var(--green);font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase}h1{margin:.35rem 0 1rem;font-size:clamp(42px,4vw,70px);line-height:1.04;letter-spacing:-.045em}h2{margin:0 0 .7rem;font-size:31px;line-height:1.18}h3{margin:0 0 .5rem;font-size:21px;line-height:1.25}p{max-width:116ch}.lead{font-size:19px;color:var(--muted)}.goal{padding:23px;border-radius:18px;border:1px solid color-mix(in srgb,var(--indigo) 35%,var(--line));background:var(--indigo-soft)}.goal strong{color:var(--indigo)}.section{margin-top:24px;padding:32px}.section-head{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:22px}.section-head p{margin:0;color:var(--muted)}.section-no{color:var(--indigo);font-weight:900;letter-spacing:.04em}.card{padding:20px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}.card.green{background:var(--green-soft);border-color:color-mix(in srgb,var(--green) 45%,var(--line))}.card.red{background:var(--red-soft);border-color:color-mix(in srgb,var(--red) 45%,var(--line))}.card.amber{background:var(--amber-soft);border-color:color-mix(in srgb,var(--amber) 45%,var(--line))}.card.blue{background:var(--blue-soft);border-color:color-mix(in srgb,var(--blue) 45%,var(--line))}.card.indigo{background:var(--indigo-soft);border-color:color-mix(in srgb,var(--indigo) 45%,var(--line))}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.note,.warning,.success{margin-top:18px;padding:16px 18px;border-radius:14px}.note{border-left:5px solid var(--blue);background:var(--blue-soft)}.warning{border-left:5px solid var(--amber);background:var(--amber-soft)}.success{border-left:5px solid var(--green);background:var(--green-soft)}.formula{padding:14px 16px;border-radius:13px;background:var(--indigo-soft);border:1px solid color-mix(in srgb,var(--indigo) 45%,var(--line));font:800 15px/1.64 "SFMono-Regular",Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.primary,.secondary,.preset,.tab,.step-dot{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:850}.primary{border:1px solid var(--blue);background:var(--blue);color:#fff}.secondary,.preset,.tab,.step-dot{border:1px solid var(--line);background:var(--control);color:var(--ink)}.secondary:hover,.preset:hover,.tab:hover,.step-dot:hover{border-color:#94a3b8;background:var(--soft)}.selected{border-color:var(--indigo)!important;background:var(--indigo-soft)!important;color:var(--indigo)!important}.controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center}.range{display:grid;grid-template-columns:250px minmax(300px,1fr) 120px;gap:14px;align-items:center;margin:13px 0}.range input{width:100%}.lab{display:grid;grid-template-columns:minmax(980px,1.2fr) minmax(650px,.8fr);gap:20px}.stage{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:20px}.swatch{height:280px;border-radius:18px;border:2px solid var(--line);display:grid;place-items:center;position:relative;overflow:hidden}.swatch-copy{padding:18px;border-radius:14px;background:rgba(255,255,255,.9);color:#111827;box-shadow:0 8px 26px rgba(0,0,0,.18);font-weight:900;text-align:center;max-width:84%}.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}.metric{padding:14px;border:1px solid var(--line);border-radius:13px;background:var(--control)}.metric strong{display:block;color:var(--indigo);margin-bottom:5px}.known-list{margin:0;padding-left:22px}.pipeline{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.pipeline .card{min-height:190px}.pipeline strong{display:block;color:var(--indigo);margin-bottom:7px}.channel-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.channel-card{padding:18px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}.channel-card.redline{border-top:5px solid #dc2626}.channel-card.greenline{border-top:5px solid #059669}.channel-card.blueline{border-top:5px solid #2563eb}.bar{height:25px;border-radius:999px;background:var(--soft);border:1px solid var(--line);overflow:hidden;margin:10px 0}.bar>span{display:block;height:100%}.map-table{width:100%;border-collapse:collapse}.map-table th,.map-table td{padding:10px;border-bottom:1px solid var(--line);text-align:left}.map-table th{color:var(--indigo)}.curve-wrap{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:14px}.curve-wrap svg{display:block;width:100%;height:auto;min-height:410px}.constant-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.constant-grid .card{min-height:190px}.calc-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.calc-strip .card{min-height:190px}.contribution-track{position:relative;height:58px;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:var(--soft)}.contribution-segment{position:absolute;top:0;bottom:0}.comparison-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.comparison-card{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel)}.comparison-swatch{height:160px;display:grid;place-items:center;color:#fff;text-shadow:0 2px 5px rgba(0,0,0,.7);font-weight:900}.comparison-copy{padding:16px}.alpha-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.alpha-card{padding:18px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}.alpha-swatch{height:150px;border-radius:14px;border:1px solid var(--line);display:grid;place-items:center;font-weight:900}.stepper{display:grid;grid-template-columns:minmax(1050px,1.25fr) minmax(690px,.75fr);gap:20px;align-items:start}.step-figure{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:14px;overflow:auto}.step-figure svg{display:block;width:100%;height:auto;min-height:720px}.step-card{border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden}.step-nav{display:flex;flex-wrap:wrap;gap:7px;padding:14px;border-bottom:1px solid var(--line);background:var(--control)}.step-dot{min-width:44px}.step-body{padding:22px}.step-title{font-size:22px;font-weight:900;color:var(--indigo)}.step-caption{min-height:170px}.code{padding:16px;border-radius:13px;background:var(--code-bg);color:var(--code-ink);overflow:auto;white-space:pre-wrap;font:14px/1.58 "SFMono-Regular",Consolas,monospace}.io{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.io>div{padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--control)}.io strong{display:block;color:var(--indigo);margin-bottom:5px}.source-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.source-pane{display:none}.source-pane.active{display:block}.source-code{max-height:900px}.challenge{display:grid;grid-template-columns:minmax(700px,.95fr) minmax(760px,1.05fr);gap:18px}.editor{width:100%;min-height:340px;resize:vertical;padding:16px;border:1px solid var(--line);border-radius:13px;background:var(--code-bg);color:var(--code-ink);font:14px/1.58 "SFMono-Regular",Consolas,monospace}.challenge-output{min-height:340px;border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:18px}.status{padding:13px 15px;border-radius:12px;background:var(--soft);border:1px solid var(--line);font-weight:800}.status.ok{background:var(--green-soft);border-color:var(--green);color:var(--green)}.status.bad{background:var(--red-soft);border-color:var(--red);color:var(--red)}details{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:15px 17px;margin-top:10px}summary{cursor:pointer;font-weight:900}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.check{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}.check input{margin-top:5px}.record{width:100%;min-height:280px;padding:14px;border:1px solid var(--line);border-radius:13px;background:var(--code-bg);color:var(--code-ink);font:14px/1.55 "SFMono-Regular",Consolas,monospace}.footer-nav{display:flex;justify-content:space-between;gap:16px;margin-top:24px;padding:22px}.small{font-size:14px;color:var(--muted)}.theme-status{font-weight:900}.term{font-weight:900;color:var(--indigo)}
+@media(max-width:1900px){.page{width:min(1840px,calc(100% - 40px))}.hero,.lab,.stepper,.challenge{grid-template-columns:1fr}.pipeline{grid-template-columns:repeat(3,minmax(0,1fr))}.constant-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.four{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <nav class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-color-opacity-and-compositing.html">Chapter 3</a> · <a href="lesson-03-05-straight-and-premultiplied-rgba.html">Lesson 3.5</a></nav>
+    <div class="chips"><span class="chip progress">22 of 216 complete</span><span class="chip">Lesson 3.6 pending</span><span class="chip theme-status" id="themeStatus">OS theme</span></div>
+  </div>
+
+  <section class="hero panel">
+    <div>
+      <div class="eyebrow">Chapter 3 · Color, opacity, and compositing</div>
+      <h1>From one visible color to one relative-luminance number</h1>
+      <p class="lead">You already know this object: <code>Color(red = 0.80, green = 0.25, blue = 0.60, alpha = 1.00)</code>. It draws one opaque color. This lesson answers one question: how can the program turn that final visible color into one number that a later lesson can use when comparing text or icon colors with their background?</p>
+      <p><strong>Relative luminance</strong> is that number. This lesson uses <strong>sRGB</strong>, which means <em>standard Red Green Blue</em>. sRGB is a standard that gives red, green, and blue channel numbers precise meanings. The calculation uses two fixed reference endpoints: sRGB black is <code>0</code> and sRGB white is <code>1</code>. The result is a mathematical value calculated from the color. It is not the Pixel 8 Pro brightness setting. It is not a physical display-luminance measurement in <strong>nits</strong>, which are units used to report physical luminance.</p>
+      <div class="success"><strong>Learning promise:</strong> the conversion formula will not appear until the input number, the output number, and the reason for the conversion have all been defined.</div>
+    </div>
+    <aside class="goal">
+      <strong>One complete path</strong>
+      <ol>
+        <li>Start with the three channel numbers in one opaque <code>Color</code>.</li>
+        <li>Follow one channel through the standard conversion used before calculations that add or scale modeled light contributions.</li>
+        <li>Repeat the same conversion for the other two channels.</li>
+        <li>Multiply the three converted values by three fixed multipliers.</li>
+        <li>Add the three results to obtain one relative-luminance number.</li>
+      </ol>
+      <p class="small">Section 5 names each fixed multiplier a coefficient and explains why the three multipliers are different.</p>
+    </aside>
+  </section>
+
+  <section class="section panel" id="known-object">
+    <div class="section-head"><div><div class="section-no">1 · Start with a known object</div><h2>The input is one final opaque Compose color</h2></div><p>No photograph, shader, texture, or sampled screen area is involved.</p></div>
+    <div class="lab">
+      <div class="stage">
+        <div class="swatch" id="mainSwatch"><div class="swatch-copy"><div>Visible opaque region</div><div class="mono" id="mainTuple"></div></div></div>
+        <div class="range"><label for="red">Red value held by <code>Color</code></label><input id="red" type="range" min="0" max="1" step="0.01" value="0.80"><output id="redOut" class="mono"></output></div>
+        <div class="range"><label for="green">Green value held by <code>Color</code></label><input id="green" type="range" min="0" max="1" step="0.01" value="0.25"><output id="greenOut" class="mono"></output></div>
+        <div class="range"><label for="blue">Blue value held by <code>Color</code></label><input id="blue" type="range" min="0" max="1" step="0.01" value="0.60"><output id="blueOut" class="mono"></output></div>
+        <div class="controls"><button class="preset" data-preset="course">Course color</button><button class="preset" data-preset="mixed">Mixed check</button><button class="preset" data-preset="gray">50% gray</button><button class="preset" data-preset="black">Black</button><button class="preset" data-preset="white">White</button><button class="preset" data-preset="red">Pure red · isolation</button><button class="preset" data-preset="green">Pure green · isolation</button><button class="preset" data-preset="blue">Pure blue · isolation</button></div>
+      </div>
+      <div class="stage">
+        <h3>What is already known?</h3>
+        <ul class="known-list">
+          <li>The tuple has red, green, blue, and alpha fields.</li>
+          <li>Alpha is fixed at <code>1.00</code>. The color completely covers the destination at this position.</li>
+          <li>The final visible RGB therefore equals the RGB in this <code>Color</code> object.</li>
+        </ul>
+        <div class="card blue" style="margin-top:16px"><h3>What does sRGB mean here?</h3><p>A <strong>color space</strong> is a rule set that gives numeric color channels a precise meaning. This lesson uses <strong>sRGB</strong>, meaning <em>standard Red Green Blue</em>, as its color space. We need only one part of that standard now: the rule that maps each sRGB channel number to a second number used for light arithmetic. Section 2 names and defines that second number.</p></div>
+        <div class="card amber" style="margin-top:16px"><h3>Why do we want one number?</h3><p>Later, a glass control may need to compare a background color with a text or icon color. Comparing three channels separately is awkward. Relative luminance reduces one final opaque color to one standardized number that later contrast formulas can consume.</p></div>
+        <div class="warning"><strong>Not a display measurement:</strong> this lesson reads numbers from a <code>Color</code> object. It does not use a light sensor and it does not measure the Pixel panel's physical output.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel" id="one-channel">
+    <div class="section-head"><div><div class="section-no">2 · One channel before three</div><h2>The number held by <code>Color</code> is not yet a direct light fraction</h2></div><p>Choose one channel and follow only that value.</p></div>
+    <div class="controls" id="channelButtons"><button class="preset selected" data-channel="r">Inspect red</button><button class="preset" data-channel="g">Inspect green</button><button class="preset" data-channel="b">Inspect blue</button></div>
+    <div class="two" style="margin-top:18px">
+      <article class="card indigo">
+        <h3>Input: sRGB code value</h3>
+        <div class="formula" id="encodedMeaning"></div>
+        <p>The phrase <strong>sRGB code value</strong> means the number supplied to the selected channel in the <code>Color</code> object. “Code value” does not mean program source code. It means a standardized numeric representation.</p>
+        <p>The word <strong>encoded</strong> means that the number follows the sRGB transfer curve. A transfer curve is a rule that maps one input number to one output number. The value is not encrypted. It is not compressed. It is simply not proportional to modeled light.</p>
+      </article>
+      <article class="card green">
+        <h3>Output: linear-light channel value</h3>
+        <div class="formula" id="linearMeaning"></div>
+        <p>A <strong>linear-light value</strong> is a number used by software to represent how much the selected red, green, or blue channel contributes in a light-based calculation. It is a mathematical model, not a reading from a light sensor. In this representation, doubling the number means doubling that modeled channel contribution.</p>
+        <p>The output is still one channel. It is not a complete RGB color and it is not relative luminance yet.</p>
+      </article>
+    </div>
+    <div class="two" style="margin-top:18px">
+      <article class="card blue"><h3>Why keep sRGB code values?</h3><p>A digital channel can store only a finite number of distinct codes. For example, an 8-bit channel has 256 integer codes from <code>0</code> through <code>255</code>. sRGB uses more of those available codes in darker parts of the range than a linear encoding would. This helps reduce <strong>banding</strong>, which means visible steps inside a transition that should look smooth. More importantly for this lesson, the <code>Color</code> input is declared to use sRGB, so its stored numbers must be interpreted using the sRGB rule.</p></article>
+      <article class="card green"><h3>Why convert to linear light?</h3><p>Calculations that add or scale modeled light contributions require proportional numbers. The program therefore reads the sRGB numbers using the meaning promised by the <code>Color</code> object, then converts them when a light-based calculation begins. The documentation for the object or function decides which representation its numbers use; the program must not guess.</p></article>
+    </div>
+    <div class="curve-wrap" style="margin-top:18px"><svg id="curveSvg" viewBox="0 0 1320 500" role="img" aria-label="sRGB code value to linear-light mapping"></svg></div>
+    <div class="two" style="margin-top:18px">
+      <article class="card"><h3>Five exact mappings</h3><table class="map-table"><thead><tr><th>sRGB code value</th><th>linear-light value</th><th>Meaning</th></tr></thead><tbody id="mapRows"></tbody></table></article>
+      <article class="card amber"><h3>Why the conversion is necessary</h3><p>Relative luminance adds light contributions. The addition is meaningful only after the channel values are proportional to modeled light.</p><div class="formula">sRGB 0.50  ≠  half of modeled light
+linear 0.50 =  half of modeled light</div><p>The sRGB code value <code>0.50</code> decodes to approximately <code>0.214</code>. Using <code>0.50</code> directly would overstate that channel's modeled light contribution.</p></article>
+    </div>
+  </section>
+
+  <section class="section panel" id="decode-formula">
+    <div class="section-head"><div><div class="section-no">3 · Reveal the decoding rule</div><h2>One input chooses exactly one of two cases</h2></div><p>The need for the conversion is now established. We can inspect the standardized formula.</p></div>
+    <div class="note"><strong>Piecewise formula:</strong> a piecewise formula contains more than one case. The input selects one case. The program does not run both cases and average them. The sRGB rule has a short straight case for very small channel values close to black and a curved case for the rest of the range. The value <code>0.04045</code> is the fixed point where the rule changes cases.</div>
+    <div class="formula" style="margin-top:18px">if sRGB code value ≤ 0.04045:
+    linear light = sRGB code value ÷ 12.92
+
+otherwise:
+    linear light = ((sRGB code value + 0.055) ÷ 1.055) raised to 2.4</div>
+    <div class="constant-grid" style="margin-top:18px">
+      <article class="card"><h3><code>0.04045</code></h3><p>The fixed sRGB boundary that selects the case. A current channel value at or below this number uses the short straight case. A larger value uses the curved case. The boundary is not calculated from the current color.</p></article>
+      <article class="card"><h3><code>12.92</code></h3><p>The divisor in the short straight case. Dividing a very small sRGB code value by <code>12.92</code> produces its smaller linear-light value.</p></article>
+      <article class="card"><h3><code>0.055</code></h3><p>The fixed amount added to a channel value in the curved case. This shifts the input before the next scaling operation.</p></article>
+      <article class="card"><h3><code>1.055</code></h3><p>The fixed divisor used after adding <code>0.055</code>. It rescales the shifted value before the power operation.</p></article>
+      <article class="card"><h3><code>2.4</code></h3><p>The fixed exponent in the curved case. “Raised to <code>2.4</code>” is a calculator power operation that bends the relationship between input and output. It does not mean “multiply by <code>2.4</code>.” For the course example, <code>0.526066 ^ 2.4 ≈ 0.214041</code>; multiplying instead would produce about <code>1.2626</code>, which is a different operation.</p></article>
+    </div>
+    <div class="warning"><strong>Where did these constants come from?</strong> They are part of the sRGB standard. Our app did not derive them, and the Pixel 8 Pro did not report them. Their complete derivation from color-measurement standards is outside this beginner lesson. What matters now is the contract: when a channel is sRGB, this rule converts its code value to linear light.</div>
+    <div class="stepper" style="margin-top:20px">
+      <div class="step-figure"><svg id="decodeStepSvg" viewBox="0 0 1320 760" role="img" aria-label="Decode one sRGB channel step by step"></svg></div>
+      <div class="step-card"><div class="step-nav" id="decodeStepNav"></div><div class="step-body"><div class="step-title" id="decodeStepTitle"></div><p class="step-caption" id="decodeStepCaption"></p><pre class="code" id="decodeStepCode"></pre><div class="io"><div><strong>Input</strong><span id="decodeStepInput"></span></div><div><strong>Operation</strong><span id="decodeStepOperation"></span></div><div><strong>Output</strong><span id="decodeStepOutput"></span></div></div><div class="controls" style="margin-top:18px"><button class="secondary" id="decodeBack">Back</button><button class="primary" id="decodeNext">Next</button></div></div></div>
+    </div>
+    <div class="two" style="margin-top:18px">
+      <article class="card green"><h3>Main-curve example: <code>0.50</code></h3><div class="formula">0.50 > 0.04045
+
+((0.50 + 0.055) ÷ 1.055) ^ 2.4
+= (0.555 ÷ 1.055) ^ 2.4
+≈ 0.526066 ^ 2.4
+≈ 0.214041</div></article>
+      <article class="card blue"><h3>Near-black example: <code>0.02</code></h3><div class="formula">0.02 ≤ 0.04045
+
+0.02 ÷ 12.92
+≈ 0.001548</div><p>This smaller input selects the first case. It never enters the exponent branch.</p></article>
+    </div>
+  </section>
+
+  <section class="section panel" id="three-channels">
+    <div class="section-head"><div><div class="section-no">4 · Repeat the same operation three times</div><h2>Red, green, and blue each produce one linear-light value</h2></div><p>The three outputs are separate. Relative luminance has not been calculated yet.</p></div>
+    <div class="channel-grid" id="decodedCards"></div>
+    <div class="success"><strong>Exact object transition:</strong> the input is one straight sRGB color with three channel code values. The output of this section is one linear-light RGB triplet. Alpha stays <code>1.00</code> and does not participate in the decoding rule.</div>
+  </section>
+
+  <section class="section panel" id="luminance">
+    <div class="section-head"><div><div class="section-no">5 · Turn three light contributions into one number</div><h2>Now define relative luminance completely</h2></div><p>The formula appears only after its inputs are available.</p></div>
+    <div class="two">
+      <article class="card indigo">
+        <h3>What the output means</h3>
+        <p><strong>Relative</strong> means the number is compared with two reference endpoints: sRGB black is <code>0</code> and sRGB white is <code>1</code>.</p>
+        <p><strong>Luminance</strong> here means a standardized light-related quantity calculated from the color's three linear-light channels.</p>
+        <p>The output is a <strong>scalar</strong>, which means one number rather than an RGB tuple.</p>
+      </article>
+      <article class="card blue">
+        <h3>What the output does not mean</h3>
+        <ul class="known-list"><li>It is not a new color.</li><li>It is not alpha.</li><li>It is not the Android brightness slider.</li><li>It is not a direct measurement of physical display luminance in nits.</li><li>It does not claim that a person experiences exactly the same percentage of apparent brightness.</li></ul>
+      </article>
+    </div>
+    <div class="note"><strong>Coefficient:</strong> a coefficient is a fixed multiplier attached to one changing input. Here, each coefficient tells the formula how much one linear-light primary contributes to the final luminance number: <code>0.2126</code> multiplies linear red, <code>0.7152</code> multiplies linear green, and <code>0.0722</code> multiplies linear blue. These are fixed properties of the standardized sRGB-to-XYZ color calculation; they are not chosen from the current color and they are not UI tuning values. Deriving them requires later matrix and color-measurement mathematics, so this lesson explains their role but does not pretend to derive them.</div>
+    <div class="formula" style="margin-top:18px">relative luminance
+= 0.2126 × linear red
++ 0.7152 × linear green
++ 0.0722 × linear blue</div>
+    <div class="warning"><strong>Why are the coefficients unequal?</strong> The standardized calculation defines red, green, and blue as three different light primaries. An equal numeric amount of each primary does not produce the same luminance contribution in that model. Fully on linear red by itself produces <code>0.2126</code>; fully on linear green produces <code>0.7152</code>; fully on linear blue produces <code>0.0722</code>. The three coefficients add to <code>1.0000</code>, so linear white <code>(1, 1, 1)</code> produces relative luminance <code>1</code>.</div>
+  <div class="two" style="margin-top:18px">
+    <article class="card blue"><h3>Why do the pure-primary checks contain zeros?</h3><p><code>(1, 0, 0)</code>, <code>(0, 1, 0)</code>, and <code>(0, 0, 1)</code> are <strong>isolation tests</strong>. An isolation test deliberately turns off the other inputs so one coefficient can be checked by itself. For <code>(1, 0, 0)</code>, green and blue are zero, so only <code>0.2126 × 1</code> remains. The zeros are not the normal input pattern and they are not required by the luminance formula.</p></article>
+    <article class="card green"><h3>The main calculation uses mixed values</h3><p>The course color begins as sRGB <code>(0.80, 0.25, 0.60)</code>. After decoding, all three linear-light channels are non-zero, so all three contribution terms take part. Use <strong>Mixed check</strong> for a second reproducible example: sRGB <code>(0.37, 0.58, 0.21)</code>. Fixed non-round values are better than true randomness here because you can repeat and verify the same arithmetic.</p><div class="formula" id="mixedValuesFormula"></div></article>
+  </div>
+    <div class="calc-strip" id="contributionCards" style="margin-top:18px"></div>
+    <div class="card green" style="margin-top:18px"><h3>Final addition</h3><div class="formula" id="luminanceFormula"></div><p id="luminanceInterpretation"></p><div class="contribution-track" id="contributionTrack"></div></div>
+  </section>
+
+  <section class="section panel" id="diagnostics">
+    <div class="section-head"><div><div class="section-no">6 · Two diagnostic checks</div><h2>These checks expose the two most common wrong mental models</h2></div><p>Use the presets in Section 1 to change the current color.</p></div>
+    <div class="comparison-grid">
+      <article class="comparison-card"><div class="comparison-swatch" style="background:#f00">Pure red</div><div class="comparison-copy"><div class="mono">channel average = 0.3333</div><div class="mono">relative luminance = 0.2126</div></div></article>
+      <article class="comparison-card"><div class="comparison-swatch" style="background:#0f0;color:#111;text-shadow:none">Pure green</div><div class="comparison-copy"><div class="mono">channel average = 0.3333</div><div class="mono">relative luminance = 0.7152</div></div></article>
+      <article class="comparison-card"><div class="comparison-swatch" style="background:#00f">Pure blue</div><div class="comparison-copy"><div class="mono">channel average = 0.3333</div><div class="mono">relative luminance = 0.0722</div></div></article>
+    </div>
+    <div class="two" style="margin-top:18px">
+      <article class="card red"><h3>Wrong model 1: average the stored channels</h3><p>Pure red, green, and blue all have the same average, but the standardized luminance values are different. The average therefore cannot be the relative-luminance calculation.</p></article>
+      <article class="card amber"><h3>Wrong model 2: treat sRGB <code>0.50</code> as linear <code>0.50</code></h3><p>For 50% sRGB gray, all three code values are <code>0.50</code>. Each decodes to approximately <code>0.214</code>. Because the coefficients sum to 1, the relative luminance is also approximately <code>0.214</code>, not <code>0.50</code>.</p></article>
+    </div>
+  </section>
+
+  <section class="section panel" id="alpha">
+    <div class="section-head"><div><div class="section-no">7 · Connect the lesson to alpha and source-over</div><h2>Alpha changes which RGB reaches the luminance formula</h2></div><p>Alpha acts during compositing. It is not a fourth relative-luminance term.</p></div>
+    <div class="two">
+      <article class="card green"><h3>Direct answer</h3><p>Relative luminance is calculated from three decoded color channels:</p><div class="formula">L = 0.2126 × linear red
+  + 0.7152 × linear green
+  + 0.0722 × linear blue</div><p>There is no <code>+ coefficient × alpha</code> term. Alpha still matters when it is below <code>1</code>, but it matters earlier: alpha controls how much source color and destination color enter the source-over output RGB.</p></article>
+      <article class="card blue"><h3>The required order</h3><div class="formula">source straight sRGB RGBA
++ destination straight sRGB RGBA
+        ↓ source-over
+output straight sRGB RGBA
+        ↓ if output alpha is still below 1, composite over the next lower layer
+final opaque straight sRGB RGB
+        ↓ decode red, green, and blue
+final linear-light RGB
+        ↓ apply the three coefficients
+relative luminance</div></article>
+    </div>
+    <div class="warning"><strong>What does “final opaque” mean?</strong> The output alpha must be <code>1</code>, so no unknown lower layer can still change the displayed color. When the first destination is translucent, source-over may produce another translucent output. That output must be composited over the next lower layer. Continue until an opaque backing is reached. Without that backing, the tuple does not determine one final visible luminance.</div>
+    <div class="alpha-grid" style="margin-top:18px">
+      <article class="alpha-card"><h3>Same translucent source</h3><div class="alpha-swatch" id="alphaSource"></div><div class="mono" id="alphaSourceTuple"></div><p>This source alone is not the final visible color.</p></article>
+      <article class="alpha-card"><h3>Source over opaque white</h3><div class="alpha-swatch" id="overWhite"></div><div class="mono" id="overWhiteTuple"></div><div class="mono" id="overWhiteLum"></div></article>
+      <article class="alpha-card"><h3>Source over opaque navy</h3><div class="alpha-swatch" id="overNavy"></div><div class="mono" id="overNavyTuple"></div><div class="mono" id="overNavyLum"></div></article>
+    </div>
+    <div class="two" style="margin-top:18px">
+      <article class="card indigo"><h3>General source-over from straight RGBA inputs</h3><div class="formula">output alpha
+= source alpha
++ destination alpha × (1 − source alpha)
+
+output premultiplied RGB
+= source straight RGB × source alpha
++ destination straight RGB × destination alpha × (1 − source alpha)
+
+output straight RGB
+= output premultiplied RGB ÷ output alpha
+  when output alpha is greater than 0</div><p>These are the familiar Lesson 3.3 operations. Alpha is applied here. It is not applied again as a separate luminance input.</p></article>
+      <article class="card green"><h3>This lesson uses opaque destinations</h3><div class="formula" id="alphaFormula"></div><p>Because destination alpha is <code>1</code>, output alpha becomes <code>1</code>. The source-over output RGB is therefore the final visible RGB. Only then does the lesson decode that RGB and calculate relative luminance.</p></article>
+    </div>
+    <div class="two" style="margin-top:18px">
+      <article class="card amber"><h3>Do not add ambiguous “precomputed RGB” values</h3><p>Name the numbers before using them. They might be straight sRGB code values, premultiplied sRGB contributions, decoded linear-light values, or output straight RGB. This lesson follows the actual Compose call order:</p><div class="formula">val visibleOutput = source.compositeOver(destination)
+val visibleLuminance = visibleOutput.luminance()</div><p><code>compositeOver()</code> produces the output color first. <code>luminance()</code> then reads that output color's RGB channels. It does not read alpha.</p></article>
+      <article class="card blue"><h3>Do we add source and destination luminance values?</h3><p>Not in this lesson. Do not calculate one luminance number for the source and another for the destination and then add those two numbers. First calculate the actual source-over output color channel by channel. Then calculate one luminance number from that output RGB. A later color-space lesson must separately explain when linear-light algebra allows shortcuts and whether a renderer composites in encoded or linear space.</p></article>
+    </div>
+    <div class="note"><strong>Evidence limit:</strong> the browser model and Android example establish the order used by this lesson. They do not claim that every renderer performs compositing in the same color space. The current goal is narrower: never feed a translucent source's RGB directly into the luminance formula as though the destination did not exist.</div>
+  </section>
+
+  <section class="section panel" id="android-path">
+    <div class="section-head"><div><div class="section-no">8 · Android value path</div><h2>Follow the actual values through the course code</h2></div><p>Every arrow names the object that supplies the next input.</p></div>
+    <div class="pipeline">
+      <article class="card"><strong>1 · UI state</strong><code>red</code>, <code>green</code>, <code>blue</code><p>The sliders own three sRGB channel code values from 0 through 1.</p></article>
+      <article class="card"><strong>2 · Visible input</strong><code>Color(..., alpha = 1f)</code><p>The same three values create the opaque swatch shown on the Pixel.</p></article>
+      <article class="card"><strong>3 · Decode</strong><code>decodeSrgbChannel()</code><p>Each code value becomes one linear-light channel value.</p></article>
+      <article class="card"><strong>4 · Contributions</strong><code>coefficient × linear channel</code><p>Three fixed multipliers produce three luminance contributions.</p></article>
+      <article class="card"><strong>5 · Output</strong><code>red + green + blue</code><p>The sum is one relative-luminance number. Compose <code>Color.luminance()</code> provides a comparison result.</p></article>
+    </div>
+    <div class="two" style="margin-top:18px">
+      <article class="card"><h3>Manual course calculation</h3><pre class="code">private fun decodeSrgbChannel(encoded: Float): Float =
+    if (encoded &lt;= 0.04045f) {
+        encoded / 12.92f
+    } else {
+        ((encoded + 0.055f) / 1.055f).pow(2.4f)
+    }
+
+val luminance =
+    0.2126f * linearRed +
+    0.7152f * linearGreen +
+    0.0722f * linearBlue</pre></article>
+      <article class="card green"><h3>Compose comparison</h3><pre class="code">val opaqueColor = Color(
+    red = red,
+    green = green,
+    blue = blue,
+    alpha = 1f,
+)
+
+val composeResult = opaqueColor.luminance()</pre><p>Both paths consume the same opaque color. Small differences can come from floating-point rounding.</p></article>
+    </div>
+    <div class="note"><strong>Evidence limit:</strong> the course code and AndroidX source establish the software calculation. They do not establish the Pixel 8 Pro's physical emitted luminance. Measuring physical luminance would require calibrated display measurements and controlled viewing conditions. That unknown does not change the software formula used for contrast calculations.</div>
+  </section>
+
+  <section class="section panel" id="full-stepper">
+    <div class="section-head"><div><div class="section-no">9 · Complete manual derivation</div><h2>Trace the course color through every intermediate value</h2></div><p>Exactly one new operation appears at each step.</p></div>
+    <div class="stepper">
+      <div class="step-figure"><svg id="fullStepSvg" viewBox="0 0 1320 760" role="img" aria-label="Complete relative luminance derivation"></svg></div>
+      <div class="step-card"><div class="step-nav" id="fullStepNav"></div><div class="step-body"><div class="step-title" id="fullStepTitle"></div><p class="step-caption" id="fullStepCaption"></p><pre class="code" id="fullStepCode"></pre><div class="io"><div><strong>Input</strong><span id="fullStepInput"></span></div><div><strong>Operation</strong><span id="fullStepOperation"></span></div><div><strong>Output</strong><span id="fullStepOutput"></span></div></div><div class="controls" style="margin-top:18px"><button class="secondary" id="fullBack">Back</button><button class="primary" id="fullNext">Next</button></div></div></div>
+    </div>
+  </section>
+
+  <section class="section panel" id="source">
+    <div class="section-head"><div><div class="section-no">10 · Complete Android files</div><h2>The source below exactly matches the code ZIP</h2></div><p>The chapter file contains both full-screen and direct-child previews in light and dark modes.</p></div>
+    <div class="source-tabs"><button class="tab selected" data-source="screen">Chapter03Screen.kt</button><button class="tab" data-source="explorer">BrightnessLuminanceExplorer.kt</button></div>
+    <div class="source-pane active" id="source-screen"><pre class="code source-code">package com.example.liquidglasslab.chapter03
+
+import android.content.res.Configuration
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.liquidglasslab.ui.theme.LiquidGlassLabTheme
+
+@Composable
+fun Chapter03Screen(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .safeDrawingPadding()
+                .padding(horizontal = 24.dp, vertical = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Text(
+                text = "COLOR, OPACITY, AND COMPOSITING",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = "Lesson 3.6 · From a visible color to relative luminance",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = "Start with the same opaque Color object used in earlier lessons. " +
+                    "The lesson defines sRGB, which means standard Red Green Blue. " +
+                    "First choose one channel number and see why light-based arithmetic " +
+                    "needs a converted value. Then repeat the understood operation for " +
+                    "all three channels and calculate one relative-luminance number.",
+                style = MaterialTheme.typography.bodyLarge,
+            )
+
+            BrightnessLuminanceExplorer()
+        }
+    }
+}
+
+@Preview(
+    name = "Lesson 3.6 chapter screen — light",
+    showBackground = true,
+    widthDp = 412,
+    heightDp = 915,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+)
+@Preview(
+    name = "Lesson 3.6 chapter screen — dark",
+    showBackground = true,
+    widthDp = 412,
+    heightDp = 915,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+)
+@Composable
+private fun Chapter03ScreenPreview() {
+    LiquidGlassLabTheme {
+        Chapter03Screen()
+    }
+}
+
+@Preview(
+    name = "Lesson 3.6 child explorer — light",
+    showBackground = true,
+    widthDp = 412,
+    heightDp = 915,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+)
+@Preview(
+    name = "Lesson 3.6 child explorer — dark",
+    showBackground = true,
+    widthDp = 412,
+    heightDp = 915,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+)
+@Composable
+private fun BrightnessLuminanceExplorerPreview() {
+    LiquidGlassLabTheme {
+        Surface(
+            color = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.onBackground,
+        ) {
+            BrightnessLuminanceExplorer(
+                modifier = Modifier.padding(16.dp),
+            )
+        }
+    }
+}</pre></div>
+    <div class="source-pane" id="source-explorer"><pre class="code source-code">package com.example.liquidglasslab.chapter03
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import java.util.Locale
+import kotlin.math.pow
+
+private const val CourseRed = 0.80f
+private const val CourseGreen = 0.25f
+private const val CourseBlue = 0.60f
+private const val MixedCheckRed = 0.37f
+private const val MixedCheckGreen = 0.58f
+private const val MixedCheckBlue = 0.21f
+private const val ExampleSourceAlpha = 0.50f
+
+private val ExplorerShape = RoundedCornerShape(22.dp)
+private val CardShape = RoundedCornerShape(16.dp)
+private val WhiteDestination = Color.White
+private val NavyDestination = Color(
+    red = 0.05f,
+    green = 0.09f,
+    blue = 0.16f,
+    alpha = 1f,
+)
+
+private enum class InspectedChannel(
+    val label: String,
+    val accent: Color,
+) {
+    Red("red", Color(0xFFDC2626)),
+    Green("green", Color(0xFF059669)),
+    Blue("blue", Color(0xFF2563EB)),
+}
+
+private enum class DecodeBranch(val label: String) {
+    NearBlack("near-black branch"),
+    MainCurve("main curve branch"),
+}
+
+private data class DecodedChannel(
+    val encoded: Float,
+    val linear: Float,
+    val branch: DecodeBranch,
+)
+
+private data class LuminanceBreakdown(
+    val red: DecodedChannel,
+    val green: DecodedChannel,
+    val blue: DecodedChannel,
+    val redContribution: Float,
+    val greenContribution: Float,
+    val blueContribution: Float,
+    val relativeLuminance: Float,
+)
+
+@Composable
+internal fun BrightnessLuminanceExplorer(
+    modifier: Modifier = Modifier,
+) {
+    var red by rememberSaveable { mutableFloatStateOf(CourseRed) }
+    var green by rememberSaveable { mutableFloatStateOf(CourseGreen) }
+    var blue by rememberSaveable { mutableFloatStateOf(CourseBlue) }
+    var inspectedChannelName by rememberSaveable {
+        mutableStateOf(InspectedChannel.Red.name)
+    }
+
+    val inspectedChannel = InspectedChannel.valueOf(inspectedChannelName)
+    val opaqueColor = Color(
+        red = red,
+        green = green,
+        blue = blue,
+        alpha = 1f,
+    )
+    val breakdown = calculateRelativeLuminance(
+        red = red,
+        green = green,
+        blue = blue,
+    )
+    val selectedTrace = when (inspectedChannel) {
+        InspectedChannel.Red -&gt; breakdown.red
+        InspectedChannel.Green -&gt; breakdown.green
+        InspectedChannel.Blue -&gt; breakdown.blue
+    }
+
+    val translucentSource = opaqueColor.copy(alpha = ExampleSourceAlpha)
+    val visibleOverWhite = translucentSource.compositeOver(WhiteDestination)
+    val visibleOverNavy = translucentSource.compositeOver(NavyDestination)
+
+    val scheme = MaterialTheme.colorScheme
+
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = ExplorerShape,
+        color = scheme.surface,
+        contentColor = scheme.onSurface,
+        border = BorderStroke(1.dp, scheme.outlineVariant),
+    ) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp),
+        ) {
+            LessonSectionTitle(
+                number = "1",
+                title = "Begin with one Color object you already know",
+            )
+            Text(
+                text = "The main example is opaque because alpha is 1.00. " +
+                    "The color already covers its destination completely, so the " +
+                    "red, green, and blue values identify the visible region.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            KnownColorCard(
+                color = opaqueColor,
+                red = red,
+                green = green,
+                blue = blue,
+            )
+            ChannelSlider("Red value held by Color", red, { red = it }, Color(0xFFDC2626))
+            ChannelSlider("Green value held by Color", green, { green = it }, Color(0xFF059669))
+            ChannelSlider("Blue value held by Color", blue, { blue = it }, Color(0xFF2563EB))
+            ColorPresetRows(
+                onCourse = {
+                    red = CourseRed
+                    green = CourseGreen
+                    blue = CourseBlue
+                },
+                onMixedCheck = {
+                    red = MixedCheckRed
+                    green = MixedCheckGreen
+                    blue = MixedCheckBlue
+                },
+                onHalfGray = {
+                    red = 0.50f
+                    green = 0.50f
+                    blue = 0.50f
+                },
+                onBlack = {
+                    red = 0f
+                    green = 0f
+                    blue = 0f
+                },
+                onWhite = {
+                    red = 1f
+                    green = 1f
+                    blue = 1f
+                },
+                onRed = {
+                    red = 1f
+                    green = 0f
+                    blue = 0f
+                },
+                onGreen = {
+                    red = 0f
+                    green = 1f
+                    blue = 0f
+                },
+                onBlue = {
+                    red = 0f
+                    green = 0f
+                    blue = 1f
+                },
+            )
+
+            LessonSectionTitle(
+                number = "2",
+                title = "Follow one stored sRGB channel value",
+            )
+            Text(
+                text = "sRGB means standard Red Green Blue. The Color object holds one " +
+                    "sRGB code value for each red, green, and blue channel. A code value " +
+                    "is a standardized stored number; it is not yet a direct light " +
+                    "fraction. The decoding rule maps one code value to one linear-light " +
+                    "value. A linear-light value is a software-model number in which " +
+                    "doubling the value means doubling that channel's modeled light " +
+                    "contribution. It is not a light-sensor reading.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            ChannelChoiceRow(
+                selected = inspectedChannel,
+                onSelected = { inspectedChannelName = it.name },
+            )
+            DecodeTraceCard(
+                channel = inspectedChannel,
+                trace = selectedTrace,
+            )
+            SrgbCurveCard(
+                encoded = selectedTrace.encoded,
+                linear = selectedTrace.linear,
+                accent = inspectedChannel.accent,
+            )
+
+            LessonSectionTitle(
+                number = "3",
+                title = "Decode all three channels",
+            )
+            Text(
+                text = "The same decoding rule runs independently for red, green, " +
+                    "and blue. The three outputs are still three separate channel " +
+                    "values. They are not the relative-luminance result yet.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            DecodedChannelTable(breakdown)
+
+            LessonSectionTitle(
+                number = "4",
+                title = "Combine the three linear-light channels",
+            )
+            Text(
+                text = "Relative luminance is one unitless software number. The " +
+                    "calculation uses fixed reference endpoints: sRGB black is 0 and " +
+                    "sRGB white is 1. A coefficient is a fixed multiplier. The three " +
+                    "coefficients tell the formula how strongly linear red, green, and " +
+                    "blue contribute to the result. They are standard constants, not " +
+                    "values chosen from the current color.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Text(
+                text = "The pure-red, pure-green, and pure-blue presets use zeros only " +
+                    "as isolation tests. They turn off two inputs so one coefficient " +
+                    "can be checked by itself. The course color and Mixed check preset " +
+                    "keep all three channels non-zero, so all three terms participate.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            LuminanceCalculationCard(breakdown)
+            ComposeAgreementCard(
+                manual = breakdown.relativeLuminance,
+                compose = opaqueColor.luminance(),
+            )
+
+            LessonSectionTitle(
+                number = "5",
+                title = "Do not measure a translucent source as if it were final",
+            )
+            Text(
+                text = "Relative luminance still uses only red, green, and blue. Alpha " +
+                    "is not a fourth luminance term. When source alpha is below 1.00, " +
+                    "alpha acts earlier: source-over uses it to calculate the output " +
+                    "RGB. If that output is still translucent, continue compositing " +
+                    "through lower layers until an opaque displayed color is known. " +
+                    "Then calculate luminance from that final output RGB.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            DestinationComparison(
+                source = translucentSource,
+                overWhite = visibleOverWhite,
+                overNavy = visibleOverNavy,
+            )
+        }
+    }
+}
+
+@Composable
+private fun LessonSectionTitle(number: String, title: String) {
+    Text(
+        text = "$number · $title",
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Black,
+    )
+}
+
+@Composable
+private fun KnownColorCard(
+    color: Color,
+    red: Float,
+    green: Float,
+    blue: Float,
+) {
+    val scheme = MaterialTheme.colorScheme
+    Surface(
+        shape = CardShape,
+        border = BorderStroke(1.dp, scheme.outlineVariant),
+        color = scheme.surfaceContainer,
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Canvas(modifier = Modifier.matchParentSize()) {
+                    drawRect(color)
+                }
+                Surface(
+                    color = Color.White.copy(alpha = 0.90f),
+                    contentColor = Color(0xFF111827),
+                    shape = RoundedCornerShape(12.dp),
+                ) {
+                    Text(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        text = "Opaque teaching region",
+                        fontWeight = FontWeight.Black,
+                    )
+                }
+            }
+            MonospaceText(
+                "Color(red = ${red.f4()}, green = ${green.f4()}, " +
+                    "blue = ${blue.f4()}, alpha = 1.0000f)",
+            )
+        }
+    }
+}
+
+@Composable
+private fun ChannelSlider(
+    label: String,
+    value: Float,
+    onValueChange: (Float) -&gt; Unit,
+    accent: Color,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(label, fontWeight = FontWeight.Bold)
+            MonospaceText(value.f4())
+        }
+        Slider(
+            value = value,
+            onValueChange = onValueChange,
+            valueRange = 0f..1f,
+            colors = androidx.compose.material3.SliderDefaults.colors(
+                thumbColor = accent,
+                activeTrackColor = accent,
+            ),
+        )
+    }
+}
+
+@Composable
+private fun ColorPresetRows(
+    onCourse: () -&gt; Unit,
+    onMixedCheck: () -&gt; Unit,
+    onHalfGray: () -&gt; Unit,
+    onBlack: () -&gt; Unit,
+    onWhite: () -&gt; Unit,
+    onRed: () -&gt; Unit,
+    onGreen: () -&gt; Unit,
+    onBlue: () -&gt; Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            PresetButton("Course color", onCourse, Modifier.weight(1f))
+            PresetButton("Mixed check", onMixedCheck, Modifier.weight(1f))
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            PresetButton("50% gray", onHalfGray, Modifier.weight(1f))
+            PresetButton("Black", onBlack, Modifier.weight(1f))
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            PresetButton("White", onWhite, Modifier.weight(1f))
+            PresetButton("Red · isolate", onRed, Modifier.weight(1f))
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            PresetButton("Green · isolate", onGreen, Modifier.weight(1f))
+            PresetButton("Blue · isolate", onBlue, Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun PresetButton(
+    label: String,
+    onClick: () -&gt; Unit,
+    modifier: Modifier = Modifier,
+) {
+    OutlinedButton(
+        modifier = modifier,
+        onClick = onClick,
+    ) {
+        Text(label)
+    }
+}
+
+@Composable
+private fun ChannelChoiceRow(
+    selected: InspectedChannel,
+    onSelected: (InspectedChannel) -&gt; Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        InspectedChannel.entries.forEach { channel -&gt;
+            OutlinedButton(
+                modifier = Modifier.weight(1f),
+                onClick = { onSelected(channel) },
+            ) {
+                Text(
+                    text = if (channel == selected) {
+                        "Inspect ${channel.label} ✓"
+                    } else {
+                        "Inspect ${channel.label}"
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DecodeTraceCard(
+    channel: InspectedChannel,
+    trace: DecodedChannel,
+) {
+    val scheme = MaterialTheme.colorScheme
+    Surface(
+        shape = CardShape,
+        border = BorderStroke(1.dp, scheme.outlineVariant),
+        color = scheme.surfaceContainer,
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(9.dp),
+        ) {
+            Text(
+                text = "Selected ${channel.label} channel",
+                fontWeight = FontWeight.Black,
+            )
+            MonospaceText("sRGB code value = ${trace.encoded.f6()}")
+            Text(
+                text = "Branch: ${trace.branch.label}",
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                text = "The sRGB standard uses one short straight case for very small " +
+                    "code values close to black and one curved case for the rest. " +
+                    "The fixed boundary 0.04045 selects exactly one case.",
+            )
+            when (trace.branch) {
+                DecodeBranch.NearBlack -&gt; {
+                    MonospaceText(
+                        "linear = encoded ÷ 12.92\n" +
+                            "       = ${trace.encoded.f6()} ÷ 12.92\n" +
+                            "       = ${trace.linear.f6()}",
+                    )
+                }
+
+                DecodeBranch.MainCurve -&gt; {
+                    val shifted = trace.encoded + 0.055f
+                    val scaled = shifted / 1.055f
+                    MonospaceText(
+                        "linear = ((encoded + 0.055) ÷ 1.055) ^ 2.4\n" +
+                            "       = ((${trace.encoded.f6()} + 0.055) ÷ 1.055) ^ 2.4\n" +
+                            "       = (${shifted.f6()} ÷ 1.055) ^ 2.4\n" +
+                            "       = ${scaled.f6()} ^ 2.4\n" +
+                            "       = ${trace.linear.f6()}",
+                    )
+                }
+            }
+            Text(
+                text = "The output ${trace.linear.f6()} is the ${channel.label} " +
+                    "linear-light value. It is not a new displayed color by itself.",
+            )
+        }
+    }
+}
+
+@Composable
+private fun SrgbCurveCard(
+    encoded: Float,
+    linear: Float,
+    accent: Color,
+) {
+    val scheme = MaterialTheme.colorScheme
+    Surface(
+        shape = CardShape,
+        border = BorderStroke(1.dp, scheme.outlineVariant),
+        color = scheme.surfaceContainer,
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text(
+                text = "Equal sRGB code steps are not equal linear-light steps",
+                fontWeight = FontWeight.Black,
+            )
+            Canvas(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(190.dp),
+            ) {
+                val left = 34.dp.toPx()
+                val top = 16.dp.toPx()
+                val right = size.width - 16.dp.toPx()
+                val bottom = size.height - 28.dp.toPx()
+
+                drawLine(
+                    color = scheme.outline,
+                    start = Offset(left, bottom),
+                    end = Offset(right, bottom),
+                    strokeWidth = 2.dp.toPx(),
+                )
+                drawLine(
+                    color = scheme.outline,
+                    start = Offset(left, bottom),
+                    end = Offset(left, top),
+                    strokeWidth = 2.dp.toPx(),
+                )
+
+                val path = Path()
+                for (index in 0..100) {
+                    val xValue = index / 100f
+                    val yValue = decodeSrgbChannel(xValue).linear
+                    val x = left + (right - left) * xValue
+                    val y = bottom - (bottom - top) * yValue
+                    if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                }
+                drawPath(
+                    path = path,
+                    color = scheme.primary,
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(3.dp.toPx()),
+                )
+
+                val pointX = left + (right - left) * encoded
+                val pointY = bottom - (bottom - top) * linear
+                drawLine(
+                    color = accent.copy(alpha = 0.55f),
+                    start = Offset(pointX, bottom),
+                    end = Offset(pointX, pointY),
+                    strokeWidth = 2.dp.toPx(),
+                )
+                drawCircle(
+                    color = accent,
+                    radius = 7.dp.toPx(),
+                    center = Offset(pointX, pointY),
+                )
+            }
+            MonospaceText(
+                "current mapping: sRGB ${encoded.f4()} → linear light ${linear.f4()}",
+            )
+            Text(
+                text = "The horizontal axis is the number held by Color. The vertical " +
+                    "axis is the decoded linear-light value. The curve is below the " +
+                    "diagonal for most of the range, so sRGB 0.50 maps to about 0.214, " +
+                    "not to 0.50.",
+            )
+        }
+    }
+}
+
+@Composable
+private fun DecodedChannelTable(breakdown: LuminanceBreakdown) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        DecodedChannelRow("Red", breakdown.red, Color(0xFFDC2626))
+        DecodedChannelRow("Green", breakdown.green, Color(0xFF059669))
+        DecodedChannelRow("Blue", breakdown.blue, Color(0xFF2563EB))
+    }
+}
+
+@Composable
+private fun DecodedChannelRow(
+    label: String,
+    trace: DecodedChannel,
+    accent: Color,
+) {
+    val scheme = MaterialTheme.colorScheme
+    Surface(
+        shape = RoundedCornerShape(13.dp),
+        border = BorderStroke(1.dp, scheme.outlineVariant),
+        color = scheme.surfaceContainer,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier.size(18.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Canvas(modifier = Modifier.matchParentSize()) {
+                    drawCircle(accent)
+                }
+            }
+            Text(
+                modifier = Modifier.weight(1f),
+                text = label,
+                fontWeight = FontWeight.Black,
+            )
+            MonospaceText("sRGB ${trace.encoded.f4()}")
+            Text("→")
+            MonospaceText("linear ${trace.linear.f4()}")
+        }
+    }
+}
+
+@Composable
+private fun LuminanceCalculationCard(breakdown: LuminanceBreakdown) {
+    val scheme = MaterialTheme.colorScheme
+    Surface(
+        shape = CardShape,
+        border = BorderStroke(1.dp, scheme.outlineVariant),
+        color = scheme.surfaceContainer,
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text("Three fixed coefficients", fontWeight = FontWeight.Black)
+            Text(
+                text = "0.2126 + 0.7152 + 0.0722 = 1.0000. " +
+                    "This makes linear-light white (1, 1, 1) produce luminance 1.",
+            )
+            ContributionRow(
+                label = "Red contribution",
+                formula = "0.2126 × ${breakdown.red.linear.f6()}",
+                result = breakdown.redContribution,
+            )
+            ContributionRow(
+                label = "Green contribution",
+                formula = "0.7152 × ${breakdown.green.linear.f6()}",
+                result = breakdown.greenContribution,
+            )
+            ContributionRow(
+                label = "Blue contribution",
+                formula = "0.0722 × ${breakdown.blue.linear.f6()}",
+                result = breakdown.blueContribution,
+            )
+            MonospaceText(
+                "relative luminance\n" +
+                    "= ${breakdown.redContribution.f6()}\n" +
+                    "+ ${breakdown.greenContribution.f6()}\n" +
+                    "+ ${breakdown.blueContribution.f6()}\n" +
+                    "= ${breakdown.relativeLuminance.f6()}",
+            )
+            Text(
+                text = "This one number is relative to reference black 0 and reference " +
+                    "white 1. It is not the Pixel 8 Pro brightness setting and it is " +
+                    "not a measurement in nits.",
+            )
+        }
+    }
+}
+
+@Composable
+private fun ContributionRow(
+    label: String,
+    formula: String,
+    result: Float,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(label, fontWeight = FontWeight.Bold)
+            MonospaceText(formula)
+        }
+        MonospaceText("= ${result.f6()}")
+    }
+}
+
+@Composable
+private fun ComposeAgreementCard(
+    manual: Float,
+    compose: Float,
+) {
+    val scheme = MaterialTheme.colorScheme
+    Surface(
+        shape = CardShape,
+        border = BorderStroke(1.dp, scheme.outlineVariant),
+        color = scheme.primaryContainer,
+        contentColor = scheme.onPrimaryContainer,
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Text("Manual result and Compose result", fontWeight = FontWeight.Black)
+            MonospaceText("manual calculation = ${manual.f6()}")
+            MonospaceText("Color.luminance() = ${compose.f6()}")
+            Text(
+                text = "The values should agree apart from small floating-point " +
+                    "rounding differences.",
+            )
+        }
+    }
+}
+
+@Composable
+private fun DestinationComparison(
+    source: Color,
+    overWhite: Color,
+    overNavy: Color,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        MonospaceText(
+            "source = Straight RGBA(${source.red.f3()}, ${source.green.f3()}, " +
+                "${source.blue.f3()}, ${source.alpha.f3()})",
+        )
+        Text(
+            text = "The two destinations below are opaque. Source-over therefore " +
+                "produces output alpha 1.000. Alpha has already changed the output " +
+                "RGB before the luminance calculation begins.",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        VisibleOutputCard(
+            label = "Source over opaque white",
+            destination = WhiteDestination,
+            output = overWhite,
+        )
+        VisibleOutputCard(
+            label = "Source over opaque navy",
+            destination = NavyDestination,
+            output = overNavy,
+        )
+    }
+}
+
+@Composable
+private fun VisibleOutputCard(
+    label: String,
+    destination: Color,
+    output: Color,
+) {
+    val scheme = MaterialTheme.colorScheme
+    Surface(
+        shape = CardShape,
+        border = BorderStroke(1.dp, scheme.outlineVariant),
+        color = scheme.surfaceContainer,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Canvas(modifier = Modifier.size(72.dp)) {
+                drawRect(destination)
+                drawRect(output)
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(label, fontWeight = FontWeight.Black)
+                MonospaceText(
+                    "output straight RGBA = (${output.red.f4()}, " +
+                        "${output.green.f4()}, ${output.blue.f4()}, " +
+                        "${output.alpha.f4()})",
+                )
+                MonospaceText("luminance input = output RGB only")
+                MonospaceText("relative luminance = ${output.luminance().f6()}")
+            }
+        }
+    }
+}
+
+@Composable
+private fun MonospaceText(text: String) {
+    Text(
+        text = text,
+        fontFamily = FontFamily.Monospace,
+        style = MaterialTheme.typography.bodySmall,
+    )
+}
+
+private fun calculateRelativeLuminance(
+    red: Float,
+    green: Float,
+    blue: Float,
+): LuminanceBreakdown {
+    val redDecoded = decodeSrgbChannel(red)
+    val greenDecoded = decodeSrgbChannel(green)
+    val blueDecoded = decodeSrgbChannel(blue)
+
+    val redContribution = 0.2126f * redDecoded.linear
+    val greenContribution = 0.7152f * greenDecoded.linear
+    val blueContribution = 0.0722f * blueDecoded.linear
+
+    return LuminanceBreakdown(
+        red = redDecoded,
+        green = greenDecoded,
+        blue = blueDecoded,
+        redContribution = redContribution,
+        greenContribution = greenContribution,
+        blueContribution = blueContribution,
+        relativeLuminance = redContribution + greenContribution + blueContribution,
+    )
+}
+
+private fun decodeSrgbChannel(encoded: Float): DecodedChannel {
+    val safeEncoded = encoded.coerceIn(0f, 1f)
+    return if (safeEncoded &lt;= 0.04045f) {
+        DecodedChannel(
+            encoded = safeEncoded,
+            linear = safeEncoded / 12.92f,
+            branch = DecodeBranch.NearBlack,
+        )
+    } else {
+        DecodedChannel(
+            encoded = safeEncoded,
+            linear = ((safeEncoded + 0.055f) / 1.055f).pow(2.4f),
+            branch = DecodeBranch.MainCurve,
+        )
+    }
+}
+
+private fun Float.f3(): String = String.format(Locale.US, "%.3f", this)
+private fun Float.f4(): String = String.format(Locale.US, "%.4f", this)
+private fun Float.f6(): String = String.format(Locale.US, "%.6f", this)
+</pre></div>
+  </section>
+
+  <section class="section panel" id="challenge">
+    <div class="section-head"><div><div class="section-no">11 · Coding challenge</div><h2>Repair a function that skips sRGB decoding</h2></div><p>The defective result looks plausible because it still falls between 0 and 1.</p></div>
+    <div class="challenge">
+      <div>
+        <textarea class="editor" id="challengeEditor" spellcheck="false">fun relativeLuminance(
+    redSrgb: Float,
+    greenSrgb: Float,
+    blueSrgb: Float,
+): Float {
+    return 0.2126f * redSrgb +
+        0.7152f * greenSrgb +
+        0.0722f * blueSrgb
+}</textarea>
+        <div class="controls" style="margin-top:12px"><button class="preset" id="wrongChallenge">Use sRGB code values directly</button><button class="preset" id="correctChallenge">Decode every channel first</button><button class="primary" id="checkChallenge">Check solution</button></div>
+      </div>
+      <div class="challenge-output">
+        <h3>Code-driven teaching preview</h3>
+        <div class="formula" id="challengePath"></div>
+        <div class="metrics"><div class="metric"><strong>Course color input</strong><span class="mono">sRGB(0.80, 0.25, 0.60)</span></div><div class="metric"><strong>Calculated result</strong><span class="mono" id="challengeResult"></span></div></div>
+        <div class="status" id="challengeStatus">The current code uses the three sRGB code values directly. Inspect the result before checking.</div>
+        <div class="warning"><strong>Diagnostic target:</strong> the correct course-color result is approximately <code>0.1878</code>. A result near <code>0.3922</code> means the coefficients were applied before decoding.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel" id="exercises">
+    <div class="section-head"><div><div class="section-no">12 · Exercises</div><h2>Answer without opening the hidden solutions</h2></div><p>At least one question deliberately targets the likely misconception.</p></div>
+    <details><summary>Exercise 1 · What do the two numbers mean?</summary><p><strong>Question:</strong> For a gray sRGB channel, explain the difference between sRGB code value <code>0.50</code> and linear-light value approximately <code>0.214</code>.</p><p><strong>Answer:</strong> <code>0.50</code> is the channel number held by the sRGB <code>Color</code>. It is not proportional to light. The sRGB decoding rule maps it to approximately <code>0.214</code>, which is the modeled linear-light channel contribution used by light-based calculations.</p></details>
+    <details><summary>Exercise 2 · Select the branch</summary><p><strong>Question:</strong> Which branch decodes sRGB code value <code>0.02</code>, and what is the approximate result?</p><p><strong>Answer:</strong> <code>0.02 ≤ 0.04045</code>, so use the near-black branch: <code>0.02 ÷ 12.92 ≈ 0.001548</code>.</p></details>
+    <details><summary>Exercise 3 · Diagnostic: where does alpha enter?</summary><p><strong>Question:</strong> A source is <code>Straight RGBA(0.80, 0.25, 0.60, 0.50)</code>. Does relative luminance add a fourth term for alpha? What must happen first?</p><p><strong>Answer:</strong> No. Relative luminance still has only red, green, and blue terms. Alpha acts earlier in source-over compositing. Composite the source over the actual destination. If the result remains translucent, continue through lower layers until the displayed output is opaque. Then decode that final output RGB and calculate relative luminance.</p></details>
+    <details><summary>Exercise 4 · Why do the coefficients add to one?</summary><p><strong>Question:</strong> What result does linear-light white <code>(1, 1, 1)</code> produce?</p><p><strong>Answer:</strong> <code>0.2126 × 1 + 0.7152 × 1 + 0.0722 × 1 = 1.0000</code>. This is why the reference white maps to relative luminance 1.</p></details>
+  </section>
+
+  <section class="section panel" id="checkpoint">
+    <div class="section-head"><div><div class="section-no">13 · Pixel 8 Pro checkpoint</div><h2>Lesson 3.6 is complete only when every statement is clear</h2></div><p>The completion count changes only after you confirm this checkpoint.</p></div>
+    <div class="checklist" id="checklist">
+      <label class="check"><input type="checkbox">The Android project compiles with the replacement files.</label>
+      <label class="check"><input type="checkbox">The full-screen and direct-child previews work in light and dark modes.</label>
+      <label class="check"><input type="checkbox">I can define sRGB code value without using the phrase “light amount.”</label>
+      <label class="check"><input type="checkbox">I can define linear-light value and explain why the conversion exists.</label>
+      <label class="check"><input type="checkbox">I can choose the correct branch for one channel and follow every arithmetic step.</label>
+      <label class="check"><input type="checkbox">I can explain every one of the five sRGB constants at the level taught here.</label>
+      <label class="check"><input type="checkbox">I can trace all three course-color channels into linear-light values.</label>
+      <label class="check"><input type="checkbox">I can explain the three relative-luminance coefficients and why they sum to one.</label>
+      <label class="check"><input type="checkbox">I can interpret <code>0.1878</code> without calling it a color or physical brightness reading.</label>
+      <label class="check"><input type="checkbox">I can explain why alpha changes the source-over output RGB but is not a fourth relative-luminance term.</label>
+      <label class="check"><input type="checkbox">I can explain why compositing must continue when an intermediate output still has alpha below 1.</label>
+      <label class="check"><input type="checkbox">I can explain why pure-primary zeros are isolation tests and can repeat the formula with mixed non-zero values.</label>
+      <label class="check"><input type="checkbox">I completed the coding challenge and exercises.</label>
+    </div>
+    <textarea class="record" id="completionRecord" readonly></textarea>
+    <div class="controls" style="margin-top:12px"><button class="primary" id="copyRecord">Copy completion record</button></div>
+  </section>
+
+  <section class="section panel" id="sources">
+    <div class="section-head"><div><div class="section-no">Sources and evidence limits</div><h2>What the standards and Android source establish</h2></div></div>
+    <ul>
+      <li><a href="https://www.w3.org/TR/css-color-4/#predefined-sRGB">W3C CSS Color 4 · sRGB and sRGB-linear</a> defines the sRGB transfer rule and distinguishes gamma-encoded components from linear-light components.</li>
+      <li><a href="https://www.w3.org/TR/WCAG22/#dfn-relative-luminance">WCAG 2.2 · relative luminance</a> defines the normalized 0-to-1 quantity, the sRGB decoding rule, and the coefficients <code>0.2126</code>, <code>0.7152</code>, and <code>0.0722</code>.</li>
+      <li><a href="https://github.com/androidx/androidx/blob/androidx-main/compose/ui/ui-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/Color.kt">AndroidX Compose · Color.kt</a> is the implementation source for both <code>Color.compositeOver()</code> and <code>Color.luminance()</code>. <code>compositeOver()</code> expects straight input colors and returns a straight output color in the destination color space. <code>luminance()</code> decodes and weights red, green, and blue; it does not read the alpha field.</li>
+    </ul>
+    <div class="note"><strong>Browser teaching model:</strong> the browser calculates the same documented formulas in JavaScript. It does not reproduce Android's renderer or measure the display. The Pixel 8 Pro run verifies the Kotlin UI and numerical agreement, not physical luminance.</div>
+  </section>
+
+  <nav class="footer-nav panel"><a href="lesson-03-05-straight-and-premultiplied-rgba.html">← Lesson 3.5</a><span>Next after completion: Lesson 3.7 · Foreground contrast</span></nav>
+</main>
+<script>
+const state={r:.8,g:.25,b:.6,channel:'r',decodeStep:0,fullStep:0};
+const $=id=>document.getElementById(id);
+const f=(n,d=4)=>Number(n).toFixed(d);
+const clamp=n=>Math.max(0,Math.min(1,n));
+function decode(c){c=clamp(c);return c<=.04045?{encoded:c,linear:c/12.92,branch:'near-black branch'}:{encoded:c,linear:Math.pow((c+.055)/1.055,2.4),branch:'main curve branch'};}
+function breakdown(){const r=decode(state.r),g=decode(state.g),b=decode(state.b);const rc=.2126*r.linear,gc=.7152*g.linear,bc=.0722*b.linear;return{r,g,b,rc,gc,bc,L:rc+gc+bc};}
+function rgbCss(r,g,b){return `rgb(${Math.round(clamp(r)*255)} ${Math.round(clamp(g)*255)} ${Math.round(clamp(b)*255)})`;}
+function compositeOpaque(src,a,bg){return src.map((v,i)=>v*a+bg[i]*(1-a));}
+function selectedTrace(){const bd=breakdown();return bd[state.channel];}
+function selectedName(){return state.channel==='r'?'red':state.channel==='g'?'green':'blue';}
+function selectedAccent(){return state.channel==='r'?'#dc2626':state.channel==='g'?'#059669':'#2563eb';}
+function renderTheme(){const dark=matchMedia('(prefers-color-scheme: dark)').matches;$('themeStatus').textContent=`OS theme · ${dark?'Dark':'Light'}`;}
+function renderKnown(){
+  $('red').value=state.r;$('green').value=state.g;$('blue').value=state.b;
+  $('redOut').textContent=f(state.r);$('greenOut').textContent=f(state.g);$('blueOut').textContent=f(state.b);
+  $('mainSwatch').style.background=rgbCss(state.r,state.g,state.b);
+  $('mainTuple').textContent=`Straight RGBA(${f(state.r)}, ${f(state.g)}, ${f(state.b)}, 1.0000)`;
+}
+function renderChannelButtons(){document.querySelectorAll('[data-channel]').forEach(b=>b.classList.toggle('selected',b.dataset.channel===state.channel));}
+function renderCurve(){
+  const tr=selectedTrace(),name=selectedName();
+  $('encodedMeaning').textContent=`${name} sRGB code value = ${f(tr.encoded,6)}\nThis number comes from the ${name} field of the Color object.`;
+  $('linearMeaning').textContent=`${name} linear-light value = ${f(tr.linear,6)}\nThis number is the output of sRGB decoding.`;
+  const rows=[0,.25,.5,.75,1].map(v=>{const d=decode(v).linear;return `<tr><td class="mono">${f(v,2)}</td><td class="mono">${f(d,6)}</td><td>${v===0?'reference black channel':v===1?'reference white channel':v===.5?'midpoint code value, not midpoint light':'another fixed comparison'}</td></tr>`}).join('');$('mapRows').innerHTML=rows;
+  const W=1320,H=500,l=90,r=1260,t=45,b=420;let pts='';for(let i=0;i<=200;i++){const x=i/200,y=decode(x).linear;pts+=`${l+(r-l)*x},${b-(b-t)*y} `;}
+  const x=l+(r-l)*tr.encoded,y=b-(b-t)*tr.linear;
+  let grid='';[0,.25,.5,.75,1].forEach(v=>{const gx=l+(r-l)*v,gy=b-(b-t)*v;grid+=`<line x1="${gx}" y1="${t}" x2="${gx}" y2="${b}" stroke="var(--line)"/><text x="${gx}" y="${b+34}" text-anchor="middle" fill="var(--muted)" font-size="18">${f(v,2)}</text><line x1="${l}" y1="${gy}" x2="${r}" y2="${gy}" stroke="var(--line)"/><text x="${l-18}" y="${gy+6}" text-anchor="end" fill="var(--muted)" font-size="18">${f(v,2)}</text>`});
+  $('curveSvg').innerHTML=`${grid}<line x1="${l}" y1="${b}" x2="${r}" y2="${b}" stroke="var(--ink)" stroke-width="3"/><line x1="${l}" y1="${b}" x2="${l}" y2="${t}" stroke="var(--ink)" stroke-width="3"/><line x1="${l}" y1="${b}" x2="${r}" y2="${t}" stroke="var(--muted)" stroke-width="2" stroke-dasharray="9 9"/><polyline points="${pts}" fill="none" stroke="var(--indigo)" stroke-width="6"/><line x1="${x}" y1="${b}" x2="${x}" y2="${y}" stroke="${selectedAccent()}" stroke-width="3" stroke-dasharray="8 7"/><circle cx="${x}" cy="${y}" r="11" fill="${selectedAccent()}"/><text x="${(l+r)/2}" y="${H-12}" text-anchor="middle" fill="var(--ink)" font-size="20" font-weight="800">sRGB code value held by Color</text><text x="22" y="${(t+b)/2}" transform="rotate(-90 22 ${(t+b)/2})" text-anchor="middle" fill="var(--ink)" font-size="20" font-weight="800">decoded linear-light value</text><rect x="850" y="58" width="370" height="95" rx="16" fill="var(--paper)" stroke="var(--line)"/><text x="875" y="93" fill="var(--ink)" font-size="19" font-weight="800">Current ${name} channel</text><text x="875" y="124" fill="var(--ink)" font-size="18">${f(tr.encoded,4)} → ${f(tr.linear,6)}</text>`;
+}
+const decodeSteps=[
+  {title:'1 · Identify the input object',caption:'Read one selected channel from the opaque Color object. The input is the sRGB code value. It is not a light fraction.',code:()=>`${selectedName()} sRGB code value = ${f(selectedTrace().encoded,6)}`,input:()=>`Color.${selectedName()}`,op:'read one channel field',output:()=>f(selectedTrace().encoded,6)},
+  {title:'2 · Compare with the standard boundary',caption:'The boundary 0.04045 chooses the case. Only one case runs.',code:()=>`${f(selectedTrace().encoded,6)} ${selectedTrace().encoded<=.04045?'≤':'>'} 0.04045`,input:()=>f(selectedTrace().encoded,6),op:'compare with 0.04045',output:()=>selectedTrace().branch},
+  {title:'3 · Select the branch',caption:'A value at or below the boundary uses division by 12.92. A larger value uses the main curve.',code:()=>selectedTrace().encoded<=.04045?'linear = encoded ÷ 12.92':'linear = ((encoded + 0.055) ÷ 1.055) ^ 2.4',input:()=>selectedTrace().branch,op:'choose one formula',output:'selected formula'},
+  {title:'4 · Perform the first arithmetic operation',caption:'For the main curve, first add the fixed offset 0.055. For the near-black branch, the only arithmetic is division by 12.92.',code:()=>selectedTrace().encoded<=.04045?`${f(selectedTrace().encoded,6)} ÷ 12.92 = ${f(selectedTrace().linear,6)}`:`${f(selectedTrace().encoded,6)} + 0.055 = ${f(selectedTrace().encoded+.055,6)}`,input:()=>f(selectedTrace().encoded,6),op:()=>selectedTrace().encoded<=.04045?'divide by 12.92':'add 0.055',output:()=>selectedTrace().encoded<=.04045?f(selectedTrace().linear,6):f(selectedTrace().encoded+.055,6)},
+  {title:'5 · Scale the main-curve value',caption:'This step exists only for the main curve. Divide the shifted value by 1.055.',code:()=>selectedTrace().encoded<=.04045?'Near-black branch already finished.':`${f(selectedTrace().encoded+.055,6)} ÷ 1.055 = ${f((selectedTrace().encoded+.055)/1.055,6)}`,input:()=>selectedTrace().encoded<=.04045?'not used':f(selectedTrace().encoded+.055,6),op:()=>selectedTrace().encoded<=.04045?'no operation':'divide by 1.055',output:()=>selectedTrace().encoded<=.04045?f(selectedTrace().linear,6):f((selectedTrace().encoded+.055)/1.055,6)},
+  {title:'6 · Apply the exponent',caption:'Raise the scaled value to the power 2.4. This is a calculator power operation, not multiplication by 2.4.',code:()=>selectedTrace().encoded<=.04045?'Near-black branch does not use an exponent.':`${f((selectedTrace().encoded+.055)/1.055,6)} ^ 2.4 = ${f(selectedTrace().linear,6)}`,input:()=>selectedTrace().encoded<=.04045?'not used':f((selectedTrace().encoded+.055)/1.055,6),op:()=>selectedTrace().encoded<=.04045?'no operation':'raise to 2.4',output:()=>f(selectedTrace().linear,6)},
+  {title:'7 · Name the output precisely',caption:'The final number is the selected channel’s linear-light value. It can now participate in light-based addition. It is not a complete color and not luminance yet.',code:()=>`${selectedName()} linear-light value = ${f(selectedTrace().linear,6)}`,input:'decoded numeric result',op:'attach the correct meaning',output:()=>`${selectedName()} linear light ${f(selectedTrace().linear,6)}`}
+];
+function val(v){return typeof v==='function'?v():v;}
+function renderDecodeStepper(){state.decodeStep=Math.max(0,Math.min(decodeSteps.length-1,state.decodeStep));const s=decodeSteps[state.decodeStep];$('decodeStepNav').innerHTML=decodeSteps.map((_,i)=>`<button class="step-dot ${i===state.decodeStep?'selected':''}" data-dstep="${i}">${i+1}</button>`).join('');$('decodeStepTitle').textContent=s.title;$('decodeStepCaption').textContent=s.caption;$('decodeStepCode').textContent=val(s.code);$('decodeStepInput').textContent=val(s.input);$('decodeStepOperation').textContent=val(s.op);$('decodeStepOutput').textContent=val(s.output);$('decodeBack').disabled=state.decodeStep===0;$('decodeNext').disabled=state.decodeStep===decodeSteps.length-1;const tr=selectedTrace();const x0=90,w=1140;let nodes='';decodeSteps.forEach((st,i)=>{const x=x0+i*(w/(decodeSteps.length-1));const active=i<=state.decodeStep;nodes+=`<circle cx="${x}" cy="330" r="34" fill="${i===state.decodeStep?'var(--amber)':active?'var(--green)':'var(--soft)'}" stroke="var(--line)" stroke-width="3"/><text x="${x}" y="338" text-anchor="middle" fill="${active||i===state.decodeStep?'#fff':'var(--ink)'}" font-size="23" font-weight="900">${i+1}</text>${i<decodeSteps.length-1?`<line x1="${x+38}" y1="330" x2="${x+w/(decodeSteps.length-1)-38}" y2="330" stroke="${i<state.decodeStep?'var(--green)':'var(--line)'}" stroke-width="6"/>`:''}`});$('decodeStepSvg').innerHTML=`<text x="660" y="75" text-anchor="middle" fill="var(--ink)" font-size="32" font-weight="900">One ${selectedName()} channel: ${f(tr.encoded,4)} → ${f(tr.linear,6)}</text><text x="660" y="118" text-anchor="middle" fill="var(--muted)" font-size="21">Only the highlighted step is new.</text>${nodes}<rect x="135" y="455" width="1050" height="190" rx="24" fill="var(--paper)" stroke="var(--line)" stroke-width="3"/><text x="175" y="510" fill="var(--indigo)" font-size="26" font-weight="900">${s.title.replace(/^\d+ · /,'')}</text><foreignObject x="175" y="535" width="960" height="90"><div xmlns="http://www.w3.org/1999/xhtml" style="font:20px/1.5 system-ui;color:var(--ink)">${s.caption}</div></foreignObject>`;document.querySelectorAll('[data-dstep]').forEach(b=>b.onclick=()=>{state.decodeStep=+b.dataset.dstep;renderDecodeStepper();});}
+function renderDecoded(){const bd=breakdown();const defs=[['Red',bd.r,'redline','#dc2626'],['Green',bd.g,'greenline','#059669'],['Blue',bd.b,'blueline','#2563eb']];$('decodedCards').innerHTML=defs.map(([name,tr,cls,color])=>`<article class="channel-card ${cls}"><h3>${name}</h3><div class="formula">input sRGB = ${f(tr.encoded,6)}\nbranch = ${tr.branch}\noutput linear = ${f(tr.linear,6)}</div><div class="bar"><span style="width:${tr.linear*100}%;background:${color}"></span></div><p>The bar length uses the decoded linear-light value, not the sRGB code value.</p></article>`).join('');}
+function renderLuminance(){const bd=breakdown();const defs=[['Red','0.2126',bd.r.linear,bd.rc,'#dc2626'],['Green','0.7152',bd.g.linear,bd.gc,'#059669'],['Blue','0.0722',bd.b.linear,bd.bc,'#2563eb']];$('contributionCards').innerHTML=defs.map(([name,c,l,res,color])=>`<article class="card"><h3>${name}</h3><div class="formula">coefficient = ${c}\nlinear ${name.toLowerCase()} = ${f(l,6)}\ncontribution = ${c} × ${f(l,6)}\n             = ${f(res,6)}</div><div class="bar"><span style="width:${res*100}%;background:${color}"></span></div></article>`).join('')+`<article class="card green"><h3>Sum</h3><div class="formula">${f(bd.rc,6)}\n+ ${f(bd.gc,6)}\n+ ${f(bd.bc,6)}\n= ${f(bd.L,6)}</div></article>`;$('luminanceFormula').textContent=`relative luminance\n= ${f(bd.rc,6)} + ${f(bd.gc,6)} + ${f(bd.bc,6)}\n= ${f(bd.L,6)}`;$('luminanceInterpretation').textContent=`The current color has relative luminance ${f(bd.L,6)} in the standardized sRGB model. Reference black is 0 and reference white is 1. This does not mean the display brightness slider is set to ${(bd.L*100).toFixed(2)}%.`;$('mixedValuesFormula').textContent=`current sRGB = (${f(state.r,4)}, ${f(state.g,4)}, ${f(state.b,4)})\ncurrent linear RGB = (${f(bd.r.linear,6)}, ${f(bd.g.linear,6)}, ${f(bd.b.linear,6)})\nall three contributions = (${f(bd.rc,6)}, ${f(bd.gc,6)}, ${f(bd.bc,6)})`;$('contributionTrack').innerHTML=`<span class="contribution-segment" style="left:0;width:${bd.rc*100}%;background:#dc2626"></span><span class="contribution-segment" style="left:${bd.rc*100}%;width:${bd.gc*100}%;background:#059669"></span><span class="contribution-segment" style="left:${(bd.rc+bd.gc)*100}%;width:${bd.bc*100}%;background:#2563eb"></span>`;}
+function renderAlpha(){const src=[state.r,state.g,state.b],a=.5,white=[1,1,1],navy=[.05,.09,.16],ow=compositeOpaque(src,a,white),on=compositeOpaque(src,a,navy);$('alphaSource').style.background=rgbCss(...src);$('alphaSource').textContent='source alpha 0.50';$('alphaSourceTuple').textContent=`Source straight RGBA(${src.map(v=>f(v,4)).join(', ')}, 0.5000)`;$('overWhite').style.background=rgbCss(...ow);$('overWhiteTuple').textContent=`Output straight RGBA(${ow.map(v=>f(v,4)).join(', ')}, 1.0000)`;$('overWhiteLum').textContent=`Luminance input = output RGB only → ${f(luminance(ow),6)}`;$('overNavy').style.background=rgbCss(...on);$('overNavyTuple').textContent=`Output straight RGBA(${on.map(v=>f(v,4)).join(', ')}, 1.0000)`;$('overNavyLum').textContent=`Luminance input = output RGB only → ${f(luminance(on),6)}`;$('alphaFormula').textContent=`destination alpha = 1.00\noutput alpha = 0.50 + 1.00 × (1 − 0.50) = 1.00\n\noutput straight RGB over white\n= source RGB × 0.50 + white RGB × 0.50\n= (${ow.map(v=>f(v,4)).join(', ')})\n\noutput straight RGB over navy\n= source RGB × 0.50 + navy RGB × 0.50\n= (${on.map(v=>f(v,4)).join(', ')})\n\nOnly these output RGB channels enter the luminance formula.`;}
+function luminance(rgb){const [r,g,b]=rgb.map(v=>decode(v).linear);return .2126*r+.7152*g+.0722*b;}
+const fullSteps=[
+ {title:'1 · Read the final opaque color',caption:'The Color object contains the three sRGB code values. Alpha is 1, so no destination color enters the main calculation.',code:()=>`Straight sRGB RGBA(${f(state.r)}, ${f(state.g)}, ${f(state.b)}, 1.0000)`,input:'Compose Color',op:'read R, G, B',output:'three sRGB code values'},
+ {title:'2 · Decode red',caption:'Apply the sRGB decoding rule to red only. The output is linear red.',code:()=>`red: ${f(state.r,6)} → ${f(breakdown().r.linear,6)}`,input:()=>f(state.r,6),op:'sRGB decode',output:()=>f(breakdown().r.linear,6)},
+ {title:'3 · Decode green',caption:'Run the same rule independently for green.',code:()=>`green: ${f(state.g,6)} → ${f(breakdown().g.linear,6)}`,input:()=>f(state.g,6),op:'sRGB decode',output:()=>f(breakdown().g.linear,6)},
+ {title:'4 · Decode blue',caption:'Run the same rule independently for blue. We now have one linear-light RGB triplet.',code:()=>`blue: ${f(state.b,6)} → ${f(breakdown().b.linear,6)}`,input:()=>f(state.b,6),op:'sRGB decode',output:()=>f(breakdown().b.linear,6)},
+ {title:'5 · Calculate red contribution',caption:'Multiply linear red by the fixed red coefficient 0.2126.',code:()=>`0.2126 × ${f(breakdown().r.linear,6)} = ${f(breakdown().rc,6)}`,input:'linear red',op:'multiply by 0.2126',output:()=>f(breakdown().rc,6)},
+ {title:'6 · Calculate green contribution',caption:'Multiply linear green by 0.7152. This coefficient is the largest.',code:()=>`0.7152 × ${f(breakdown().g.linear,6)} = ${f(breakdown().gc,6)}`,input:'linear green',op:'multiply by 0.7152',output:()=>f(breakdown().gc,6)},
+ {title:'7 · Calculate blue contribution',caption:'Multiply linear blue by 0.0722. This coefficient is the smallest.',code:()=>`0.0722 × ${f(breakdown().b.linear,6)} = ${f(breakdown().bc,6)}`,input:'linear blue',op:'multiply by 0.0722',output:()=>f(breakdown().bc,6)},
+ {title:'8 · Add the three contributions',caption:'The sum is the one relative-luminance number. It is a scalar, not a color tuple.',code:()=>`${f(breakdown().rc,6)} + ${f(breakdown().gc,6)} + ${f(breakdown().bc,6)} = ${f(breakdown().L,6)}`,input:'three contributions',op:'add',output:()=>`relative luminance ${f(breakdown().L,6)}`},
+ {title:'9 · Interpret the result',caption:'Place the number on the reference scale: 0 is sRGB black and 1 is sRGB white. Do not reinterpret it as alpha, a color, a brightness-slider percentage, or physical nits.',code:()=>`reference black 0 ← ${f(breakdown().L,6)} → 1 reference white`,input:'relative luminance number',op:'interpret using reference endpoints',output:'one software measurement'}
+];
+function renderFullStepper(){state.fullStep=Math.max(0,Math.min(fullSteps.length-1,state.fullStep));const s=fullSteps[state.fullStep];$('fullStepNav').innerHTML=fullSteps.map((_,i)=>`<button class="step-dot ${i===state.fullStep?'selected':''}" data-fstep="${i}">${i+1}</button>`).join('');$('fullStepTitle').textContent=s.title;$('fullStepCaption').textContent=s.caption;$('fullStepCode').textContent=val(s.code);$('fullStepInput').textContent=val(s.input);$('fullStepOperation').textContent=val(s.op);$('fullStepOutput').textContent=val(s.output);$('fullBack').disabled=state.fullStep===0;$('fullNext').disabled=state.fullStep===fullSteps.length-1;const cols=3,rows=3,positions=[];for(let i=0;i<9;i++){const row=Math.floor(i/cols),idx=i%cols,x=row%2===0?180+idx*480:1140-idx*480,y=150+row*225;positions.push([x,y]);}let svg='';positions.forEach(([x,y],i)=>{const active=i<=state.fullStep;svg+=`${i?`<line x1="${positions[i-1][0]}" y1="${positions[i-1][1]}" x2="${x}" y2="${y}" stroke="${i<=state.fullStep?'var(--green)':'var(--line)'}" stroke-width="5"/>`:''}<rect x="${x-145}" y="${y-58}" width="290" height="116" rx="20" fill="${i===state.fullStep?'var(--amber-soft)':active?'var(--green-soft)':'var(--paper)'}" stroke="${i===state.fullStep?'var(--amber)':active?'var(--green)':'var(--line)'}" stroke-width="3"/><text x="${x}" y="${y-8}" text-anchor="middle" fill="var(--ink)" font-size="22" font-weight="900">${i+1}</text><text x="${x}" y="${y+25}" text-anchor="middle" fill="var(--ink)" font-size="18">${fullSteps[i].title.replace(/^\d+ · /,'')}</text>`;});$('fullStepSvg').innerHTML=svg;document.querySelectorAll('[data-fstep]').forEach(b=>b.onclick=()=>{state.fullStep=+b.dataset.fstep;renderFullStepper();});}
+function challengeIsCorrect(code){return /decodeSrgbChannel\s*\(\s*redSrgb\s*\)/.test(code)&&/decodeSrgbChannel\s*\(\s*greenSrgb\s*\)/.test(code)&&/decodeSrgbChannel\s*\(\s*blueSrgb\s*\)/.test(code);}
+function renderChallenge(reset=false){const code=$('challengeEditor').value,ok=challengeIsCorrect(code),result=ok?luminance([.8,.25,.6]):.2126*.8+.7152*.25+.0722*.6;$('challengeResult').textContent=f(result,6);$('challengePath').textContent=ok?'sRGB code values\n→ decode red, green, and blue\n→ linear-light channels\n→ apply coefficients\n→ relative luminance':'sRGB code values\n→ apply coefficients immediately\n→ wrong quantity';if(reset){$('challengeStatus').className='status';$('challengeStatus').textContent=ok?'The code now decodes first. Press Check solution.':'The code still skips decoding. Inspect the result.';}}
+function renderAll(){renderKnown();renderChannelButtons();renderCurve();renderDecodeStepper();renderDecoded();renderLuminance();renderAlpha();renderFullStepper();renderChallenge(true);updateRecord();}
+['red','green','blue'].forEach(id=>$(id).addEventListener('input',e=>{state[id==='red'?'r':id==='green'?'g':'b']=+e.target.value;renderAll();}));
+document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{const p={course:[.8,.25,.6],mixed:[.37,.58,.21],gray:[.5,.5,.5],black:[0,0,0],white:[1,1,1],red:[1,0,0],green:[0,1,0],blue:[0,0,1]}[b.dataset.preset];[state.r,state.g,state.b]=p;renderAll();});
+document.querySelectorAll('[data-channel]').forEach(b=>b.onclick=()=>{state.channel=b.dataset.channel;state.decodeStep=0;renderAll();});
+$('decodeBack').onclick=()=>{state.decodeStep--;renderDecodeStepper();};$('decodeNext').onclick=()=>{state.decodeStep++;renderDecodeStepper();};$('fullBack').onclick=()=>{state.fullStep--;renderFullStepper();};$('fullNext').onclick=()=>{state.fullStep++;renderFullStepper();};
+document.querySelectorAll('[data-source]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-source]').forEach(x=>x.classList.toggle('selected',x===b));document.querySelectorAll('.source-pane').forEach(p=>p.classList.toggle('active',p.id===`source-${b.dataset.source}`));});
+$('wrongChallenge').onclick=()=>{$('challengeEditor').value=`fun relativeLuminance(\n    redSrgb: Float,\n    greenSrgb: Float,\n    blueSrgb: Float,\n): Float {\n    return 0.2126f * redSrgb +\n        0.7152f * greenSrgb +\n        0.0722f * blueSrgb\n}`;renderChallenge(true);};
+$('correctChallenge').onclick=()=>{$('challengeEditor').value=`fun relativeLuminance(\n    redSrgb: Float,\n    greenSrgb: Float,\n    blueSrgb: Float,\n): Float {\n    val linearRed = decodeSrgbChannel(redSrgb)\n    val linearGreen = decodeSrgbChannel(greenSrgb)\n    val linearBlue = decodeSrgbChannel(blueSrgb)\n\n    return 0.2126f * linearRed +\n        0.7152f * linearGreen +\n        0.0722f * linearBlue\n}`;renderChallenge(true);};
+$('challengeEditor').addEventListener('input',()=>renderChallenge(true));$('checkChallenge').onclick=()=>{const ok=challengeIsCorrect($('challengeEditor').value);$('challengeStatus').className=`status ${ok?'ok':'bad'}`;$('challengeStatus').textContent=ok?'Correct. Every coefficient now consumes a decoded linear-light channel.':'Not correct yet. The red, green, and blue sRGB code values must each pass through decodeSrgbChannel() before the coefficients are applied.';};
+function updateRecord(){const checks=[...document.querySelectorAll('#checklist input')],done=checks.filter(x=>x.checked).length;$('completionRecord').value=`# Liquid Glass course progress\n\n- Lesson: 3.6 — From a visible color to relative luminance\n- Checkpoint items complete: ${done}/${checks.length}\n- Learner-confirmed course total before completion: 22/216\n- Main input: opaque straight sRGB Color\n- Course-color result: ${f(luminance([.8,.25,.6]),6)}\n- I can explain sRGB code values: ${checks[2]?.checked?'yes':'not yet'}\n- I can explain linear-light decoding: ${checks[3]?.checked?'yes':'not yet'}\n- I can trace the full calculation: ${checks[6]?.checked&&checks[7]?.checked&&checks[8]?.checked?'yes':'not yet'}\n- I tested alpha/destination ordering: ${checks[9]?.checked?'yes':'not yet'}\n- Ready to mark Lesson 3.6 complete: ${done===checks.length?'yes':'not yet'}\n`;}
+document.querySelectorAll('#checklist input').forEach(c=>c.onchange=updateRecord);$('copyRecord').onclick=async()=>{await navigator.clipboard.writeText($('completionRecord').value);$('copyRecord').textContent='Copied';setTimeout(()=>$('copyRecord').textContent='Copy completion record',1200);};
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{renderTheme();renderAll();});renderTheme();renderAll();
+</script>
+</body>
+</html>

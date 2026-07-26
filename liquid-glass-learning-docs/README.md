@@ -10,30 +10,26 @@ Open `liquid-glass-course.html` directly in a Chromium-based browser. No local s
 
 - Chapter 1 is complete.
 - Chapter 2 is complete.
-- **21 of 216 lessons are complete.**
-- Lessons 3.1 through 3.4 are complete.
-- Lesson 3.5 is generated and is the next learner checkpoint.
-- The generated frontier is Lesson 3.5.
+- **22 of 216 lessons are complete.**
+- Lessons 3.1 through 3.5 are complete.
+- Lesson 3.6 is generated and is the next learner checkpoint.
+- The generated frontier is Lesson 3.6.
 
 Open:
 
 ```text
-course/chapters/chapter-03/lesson-03-05-straight-and-premultiplied-rgba.html
+course/chapters/chapter-03/lesson-03-06-brightness-and-relative-luminance.html
 ```
 
 ## Android progression
 
 - Chapter 1 built and diagnosed the first translucent panel.
 - Chapter 2 built the coordinate vocabulary and the final coordinate inspector.
-- Lesson 3.1 switched the app entry point to `Chapter03Screen` and added `RgbChannelsExplorer.kt`.
-- Lesson 3.2 kept `RGB(0.80, 0.25, 0.60)` fixed and added `AlphaExplorer.kt`.
-- Lesson 3.3 added `OverOperationExplorer.kt` and calculated one complete source-over RGBA output.
-- Lesson 3.4 added `DrawOrderExplorer.kt` and reversed the same two translucent colored draw calls.
-- Lesson 3.5 continues the complete Lesson 3.3 example with one translucent source and one translucent destination.
-- It names source, destination, and output in both straight and premultiplied form.
-- `OverOperationExplorer.kt` and `DrawOrderExplorer.kt` receive terminology-only corrections so earlier visible labels use `output premultiplied RGB` and `output straight RGB`.
-- `Chapter03Screen.kt` now opens the current Lesson 3.5 explorer.
-- An older `TransparentEdgeExplorer.kt` compatibility wrapper may remain locally. The image-boundary artifact is deferred until image sampling is taught.
+- Lessons 3.1 through 3.5 built RGB, alpha, source-over, draw order, and straight versus premultiplied RGBA.
+- Lesson 3.6 adds `BrightnessLuminanceExplorer.kt` and changes `Chapter03Screen.kt` to display it.
+- The rejected first draft of Lesson 3.6 began from the finished luminance formula. The replacement starts from one known opaque `Color`, defines one stored sRGB channel number and one linear-light output, traces one channel through the conversion, and only then repeats the operation for all three channels and calculates relative luminance.
+- The Lesson 3.6 code patch also removes every remaining invalid explicit `layout.weight` or `layout.matchParentSize` import from 16 existing Android source files across Chapters 1 through 3. The matching embedded Kotlin in the earlier HTML lessons is corrected in the learning-docs patch.
+- `Chapter03Screen.kt` contains previews for both the complete chapter screen and the active child explorer, in light and dark modes.
 
 ## Theme rule from Lesson 3.1 onward
 
