@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 3.8.0  
+**Course plan version:** 3.8.1  
 **Updated:** 2026-07-26  
 **Current position:** Lessons 1.1 through 3.7 are complete by learner confirmation. **24 of 216 lessons are complete.** Lesson 3.8 is generated and remains pending.
 
@@ -125,6 +125,42 @@ The learner's clean progression after the final Lesson 3.6 clarification is evid
 - Luminance and black/white contrast are recalculated from the tinted output.
 - Android changes: `Chapter03Screen.kt` and new `TintExplorer.kt`, with chapter and child previews in light and dark modes.
 - Lesson 3.9 remains Saturation.
+
+## Lesson 3.8 clarification — directional proof and derived measurements
+
+Learner feedback confirmed that the tint concept was clear but exposed two reusable gaps:
+
+1. The phrase `channels move toward the tint` must be proved, not merely asserted. Lesson 3.8 now uses:
+
+```text
+output = base + amount × (tint − base)
+```
+
+For the default values:
+
+```text
+Red:   gap = 0.20 − 0.80 = −0.60; change = 0.25 × −0.60 = −0.15; output = 0.65.
+Green: gap = 0.65 − 0.25 = +0.40; change = 0.25 × +0.40 = +0.10; output = 0.35.
+Blue:  gap = 1.00 − 0.60 = +0.40; change = 0.25 × +0.40 = +0.10; output = 0.70.
+```
+
+The browser and Android lesson now update these values live.
+
+2. `Do not reuse the untinted luminance` now means: the old luminance remains valid for the old base RGB, but it must not be attached to the new tinted RGB. Relative luminance is derived from one exact RGB triplet. The default values are:
+
+```text
+base RGB (0.80, 0.25, 0.60)
+→ base luminance ≈ 0.187759
+
+tinted output RGB (0.65, 0.35, 0.70)
+→ output luminance ≈ 0.185009
+```
+
+The lesson now shows the stale path and the correct recomputation path side by side. At tint amount `0`, the two measurements agree because the RGB input did not change.
+
+Reusable prevention rules were added to `AGENTS.md` under `Qualitative-claim proof and derived-value dependency gate`.
+
+Lesson 3.8 remains pending. Course progress remains 24 of 216.
 
 ## Current progress
 

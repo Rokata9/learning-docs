@@ -129,6 +129,18 @@ Lesson 3.6 became clear after it used this order. Reuse the order when a lesson 
 
 This sequence prevents the expert-backfill failure that affected the first Lesson 3.6 draft. The learner's clean progression after the final clarification is evidence that the order generalizes.
 
+### Qualitative-claim proof and derived-value dependency gate
+
+This rule was added after the Lesson 3.8 clarification. The original lesson stated that channels “move toward” a tint and warned not to reuse old luminance, but it did not prove either claim with the exact changing values.
+
+1. **Prove directional language.** A sentence such as `moves toward`, `increases`, `decreases`, `gets stronger`, `gets softer`, or `approaches` must be followed immediately by a live numerical demonstration or geometric construction. Show the before value, the operation, the signed change, and the after value.
+2. **Expose the delta when it explains direction.** For interpolation-like operations, derive or display a relation such as `output − base = amount × (target − base)`. Define every term. Use actual lesson values. A qualitative claim alone is not evidence.
+3. **Show that the output is bounded when relevant.** When an amount is restricted to `0..1`, demonstrate that the output remains between the start and target values. Include a counter-direction example when different channels can move in different directions.
+4. **Name dependencies of derived values.** When a value is calculated from another value, state the dependency explicitly, for example `relative luminance = function of this exact RGB triplet` and `contrast = function of the resulting luminance values`.
+5. **Explain stale derived data.** Do not write only `recalculate` or `do not reuse`. Show the old input → old result and new input → new result. Define a stale value as an older result whose original inputs no longer match the object being described.
+6. **Show boundary cases.** If the old and new results happen to agree when the input did not change, such as tint amount `0`, state why. Do not imply that recomputation always changes the number.
+7. **Verification question.** Before packaging, ask: can the learner prove every directional adjective and identify the exact input object for every derived number? If either answer is uncertain, the lesson fails the total-beginner audit.
+
 ## Visual target
 
 - Desktop only.

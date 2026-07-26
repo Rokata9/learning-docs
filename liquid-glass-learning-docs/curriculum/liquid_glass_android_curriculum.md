@@ -1,6 +1,6 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 3.8.0  
+**Version:** 3.8.1  
 **Updated:** 2026-07-26  
 **Current course position:** Lessons 1.1 through 3.7 are complete by learner confirmation. **24 of 216 lessons are complete.** Lesson 3.8 is the next learner checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
@@ -330,6 +330,12 @@ Version 3.7 records completion of Lesson 3.6 and introduces foreground contrast:
 - The lesson defines the contrast inputs and output before revealing the standardized ratio formula.
 - Candidate selection and accessibility target checking remain separate.
 - Android changes: `Chapter03Screen.kt` and new `ForegroundContrastExplorer.kt`.
+
+Version 3.8.1 clarifies two Lesson 3.8 claims and records their prevention rules:
+
+- `moves toward` is now demonstrated with `output = base + amount × (tint − base)`, a signed channel gap, a selected change, and live before/output/target markers for red, green, and blue;
+- luminance is identified as a derived value belonging to one exact RGB input; the lesson shows why the base luminance becomes stale for a changed tinted output and compares stale versus recomputed contrast values;
+- `AGENTS.md` now requires numerical or geometric proof for qualitative directional claims and explicit old-input/old-result versus new-input/new-result traces for derived values.
 
 Version 3.8 records completion of Lesson 3.7 and introduces one explicit tint model:
 
