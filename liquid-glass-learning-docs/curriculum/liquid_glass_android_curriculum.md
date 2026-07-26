@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 3.4  
-**Updated:** 2026-07-25  
-**Current course position:** Lessons 1.1 through 3.3 are complete by learner confirmation. **20 of 216 lessons are complete.** Lesson 3.4 is the next learner checkpoint and the generated frontier.  
+**Version:** 3.5.3  
+**Updated:** 2026-07-26  
+**Current course position:** Lessons 1.1 through 3.4 are complete by learner confirmation. **21 of 216 lessons are complete.** Lesson 3.5 is the next learner checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -230,10 +230,10 @@ Version 3.3 records completion of Lesson 3.2 and formalizes source-over composit
 - Lesson 3.3 names the source as the RGBA value drawn now, the destination as the RGBA value already present at the same drawing-target position, and the output as the replacement RGBA value.
 - The course reuses source `RGBA(0.90, 0.10, 0.80, 0.50)` and destination `RGBA(0.10, 0.90, 0.40, 0.60)` from the earlier clarification.
 - Output alpha is calculated as `As + Ad × (1 − As)`, producing `0.80` for the course values.
-- Red, green, and blue are calculated separately. The weighted totals are `(0.48, 0.32, 0.52)`. Dividing by output alpha produces straight RGB `(0.60, 0.40, 0.65)`.
+- Red, green, and blue are calculated separately. The output premultiplied RGB is `(0.48, 0.32, 0.52)`. Dividing it by output alpha produces output straight RGB `(0.60, 0.40, 0.65)`.
 - The Android explorer compares two draw calls using `BlendMode.SrcOver` with one flattened RGBA color calculated by the same operation.
 - The implementation guards output alpha zero and returns transparent black as a deterministic teaching fallback instead of dividing by zero.
-- Draw-order reversal remains deferred to Lesson 3.4. Premultiplied buffer storage and edge halos remain deferred to Lesson 3.5.
+- Draw-order reversal remains deferred to Lesson 3.4. Straight and premultiplied RGBA representations remain deferred to Lesson 3.5. Image-boundary artifacts remain deferred until image sampling is taught in Chapter 9.
 - Android changes: `Chapter03Screen.kt` and new `chapter03/OverOperationExplorer.kt`.
 - `MainActivity.kt`, `RgbChannelsExplorer.kt`, and `AlphaExplorer.kt` remain unchanged and are not included in the Lesson 3.3 Android archive.
 
@@ -249,6 +249,38 @@ Version 3.4 records completion of Lesson 3.3 and isolates draw order:
 - The lesson treats draw order per image position. A position covered by only one colored shape is unchanged by reversing the two colored calls. An overlap position receives both calls and can change.
 - Android changes: `Chapter03Screen.kt` now opens Lesson 3.4, and new `chapter03/DrawOrderExplorer.kt` implements the order toggle, overlap drawing, output comparison, and exact arithmetic.
 - `MainActivity.kt`, `RgbChannelsExplorer.kt`, `AlphaExplorer.kt`, and `OverOperationExplorer.kt` remain unchanged and are not included in the Lesson 3.4 Android archive.
+
+Version 3.5 records completion of Lesson 3.4. The first Lesson 3.5 attempted to explain a transparent-edge halo by introducing interpolation, endpoint pixels, and premultiplied RGBA together.
+
+Version 3.5.1 attempted a larger rewrite, but it still began with a circle and P0/P1/Q without first teaching the image operation that would create those values. The learner correctly rejected both versions.
+
+Version 3.5.2 corrects the prerequisite order instead of adding more explanation around the same mistake:
+
+- Lesson 3.5 is renamed **Straight and premultiplied RGBA**.
+- The lesson uses one translucent source color and one opaque background color. No image, circle, edge, interpolation, resizing, antialiasing, texture sampling, gradient, shadow, or halo is involved.
+- Straight RGBA stores RGB components independently from alpha. Premultiplied RGBA stores RGB contributions that already equal straight RGB multiplied by alpha, plus the same alpha.
+- The fixed source is `Straight RGBA(0.80, 0.25, 0.60, 0.50)`. Its premultiplied representation is `Premultiplied RGBA(0.40, 0.125, 0.30, 0.50)`.
+- Both representations are composited over opaque `RGB(0.10, 0.20, 0.30)`. Their correct equations both produce `RGB(0.45, 0.225, 0.45)`.
+- The lesson shows two separate representation mistakes: treating straight RGB as already weighted makes the source too strong; multiplying already weighted RGB by alpha again makes the source too weak.
+- The multiplication-versus-division question is resolved by direction: straight to premultiplied multiplies; premultiplied to straight divides when alpha is greater than zero. Lesson 3.3 used the reverse direction.
+- Alpha zero is explained without an edge example. Different straight RGB tuples at alpha zero all convert to premultiplied `(0, 0, 0, 0)`, so the original straight RGB cannot be recovered by division.
+- The transparent-edge halo case study is deferred until the course has taught an image boundary and the sampling or filtering operation that creates new pixels.
+- Android changes: `Chapter03Screen.kt` opens new `PremultipliedRgbaExplorer.kt`. The old `TransparentEdgeExplorer.kt` becomes a small compatibility wrapper so extracting the patch does not leave the rejected implementation in the project.
+- `AGENTS.md` gains a prerequisite and causal-operation gate. A lesson must name the real operation that creates every intermediate value; if that operation has not been taught, the dependent topic must be split or deferred.
+- Lesson 3.5 remains incomplete. Learner-confirmed course completion remains **21 of 216 lessons**.
+
+Version 3.5.3 corrects the remaining representation and compositing gaps identified by the learner:
+
+- The main model again uses the Lesson 3.3 translucent source and translucent destination. It no longer hides destination alpha behind an opaque-background example.
+- The term `ordinary RGBA` is removed. The lesson uses `straight RGBA` or `unassociated RGBA`.
+- Every RGB tuple is labelled `straight RGB` or `premultiplied RGB` when alpha matters. A bare RGB tuple is explicitly described as insufficient to identify the representation.
+- Lesson 3.3's `weighted total` is renamed `output premultiplied RGB`. Lesson 3.3's `ordinary output` is renamed `output straight RGB`. The changed Lesson 3.3 HTML and Android source show those corrected labels.
+- The general straight-input source-over formula includes destination alpha: `destination straight RGB × destination alpha × (1 − source alpha)`.
+- The opaque-destination formula is derived only after setting destination alpha to `1`.
+- The lesson explains the practical boundary: Compose `Color` and `Color.compositeOver` use straight values, while premultiplied buffers or math paths use premultiplied values only when their contract says so.
+- `AGENTS.md`, the glossary, curriculum, and handoff record a Chapter 3 terminology gate so later lessons cannot silently reintroduce the same ambiguity.
+- Android changes now include `OverOperationExplorer.kt` because its visible Lesson 3.3 labels are corrected.
+- Lesson 3.5 remains incomplete. Learner-confirmed course completion remains **21 of 216 lessons**.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -283,6 +315,9 @@ This means:
 - Use short declarative sentences.
 - Introduce one main graphics idea and at most one main mathematical idea in a lesson.
 - Show one real value moving through input, operation, and output.
+- For an unfamiliar visual defect, show and annotate the visible defect before introducing its terminology or mathematics.
+- Distinguish stored input pixels, calculated samples, final output pixels, the geometric boundary, and the multi-pixel transition band.
+- When a new conversion appears to contradict an earlier lesson, show both conversion directions and reconcile the earlier operation explicitly.
 - Use toy arithmetic only as a clearly labelled bridge. Then map the toy numbers back to the Android code.
 - Keep coordinate spaces separate. Name whether a value is in drawable-local, composable-local, parent, screen, pixel, or density-independent coordinates.
 - Separate visible observations from implementation hypotheses.
@@ -588,7 +623,7 @@ The Android result must also be tested on the Pixel 8 Pro at the lesson checkpoi
 2. **3.2 — Alpha.** Treat opacity as a number from 0 to 1.
 3. **3.3 — The “over” operation.** Combine one translucent color over another.
 4. **3.4 — Draw order matters.** Reverse two layers and observe a different result.
-5. **3.5 — Why transparent edges can look wrong.** Apply alpha-weighted color values to a visible halo problem and explain the storage representation precisely.
+5. **3.5 — Straight and premultiplied RGBA.** Continue the complete Lesson 3.3 source-over example. Name the straight and premultiplied forms of source, destination, and output. Relate output premultiplied RGB to output straight RGB. Explain which API or buffer contract expects each representation.
 6. **3.6 — Brightness and luminance.** Estimate whether a background region is light or dark.
 7. **3.7 — Foreground contrast.** Choose dark or light icons from measured background brightness.
 8. **3.8 — Tint.** Add a controlled color influence without replacing the background.
@@ -597,6 +632,8 @@ The Android result must also be tested on the Pixel 8 Pro at the lesson checkpoi
 11. **3.11 — Compositing laboratory.** Stack several adjustable layers and predict the final result.
 
 **Checkpoint:** Explain why two panels with the same alpha can look very different over different content.
+
+**Image-boundary artifact deferral:** The rejected case study requires a concrete image boundary and an operation that calculates new image values. The course will return to it after image sampling is taught in Chapter 9.
 
 ---
 
@@ -1204,16 +1241,18 @@ Lessons through 2.9 are complete. Chapter 2 is complete.
 
 ```text
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
-├── MainActivity.kt                         # switches to Chapter03Screen in Lesson 3.1; unchanged in Lesson 3.4
+├── MainActivity.kt                         # switches to Chapter03Screen in Lesson 3.1; unchanged in Lesson 3.5
 └── chapter03/
-    ├── Chapter03Screen.kt                  # introduced in Lesson 3.1; switches to DrawOrderExplorer in Lesson 3.4
-    ├── RgbChannelsExplorer.kt              # introduced in Lesson 3.1; unchanged in Lesson 3.4
-    ├── AlphaExplorer.kt                    # introduced in Lesson 3.2; unchanged in Lesson 3.4
-    ├── OverOperationExplorer.kt            # introduced in Lesson 3.3; unchanged in Lesson 3.4
-    └── DrawOrderExplorer.kt                # introduced in Lesson 3.4
+    ├── Chapter03Screen.kt                  # introduced in Lesson 3.1; switches to PremultipliedRgbaExplorer in Lesson 3.5
+    ├── RgbChannelsExplorer.kt              # introduced in Lesson 3.1; unchanged in Lesson 3.5
+    ├── AlphaExplorer.kt                    # introduced in Lesson 3.2; unchanged in Lesson 3.5
+    ├── OverOperationExplorer.kt            # introduced in Lesson 3.3; visible representation labels corrected in Lesson 3.5
+    ├── DrawOrderExplorer.kt                # introduced in Lesson 3.4; unchanged in Lesson 3.5
+    ├── PremultipliedRgbaExplorer.kt        # introduced in the replacement Lesson 3.5
+    └── TransparentEdgeExplorer.kt          # compatibility wrapper; rejected edge experiment removed
 ```
 
-Lessons 3.1 through 3.3 are complete. Lesson 3.4 is generated and is the current learner checkpoint. It reverses the same two translucent colored draw calls and compares their overlap outputs.
+Lessons 3.1 through 3.4 are complete. Lesson 3.5 is generated and is the current learner checkpoint. It continues the complete translucent-source-over-translucent-destination example from Lesson 3.3 and names its straight and premultiplied forms.
 
 ---
 
@@ -1576,7 +1615,7 @@ The output alpha is:
 0.50 + 0.30 = 0.80
 ```
 
-The weighted RGB totals are:
+The output premultiplied RGB channels are:
 
 ```text
 red   = 0.90 × 0.50 + 0.10 × 0.60 × 0.50 = 0.48
@@ -1584,7 +1623,7 @@ green = 0.10 × 0.50 + 0.90 × 0.60 × 0.50 = 0.32
 blue  = 0.80 × 0.50 + 0.40 × 0.60 × 0.50 = 0.52
 ```
 
-Dividing each weighted total by output alpha produces:
+Dividing output premultiplied RGB by output alpha produces output straight RGBA:
 
 ```text
 output = RGBA(0.60, 0.40, 0.65, 0.80)
@@ -1599,9 +1638,9 @@ StraightRgba source and destination
     ↓
 sourceOver(source, destination)
     ↓
-remaining opening, surviving destination alpha, output alpha, weighted RGB
+remaining opening, surviving destination alpha, output alpha, output premultiplied RGB
     ↓
-straight output RGBA
+output straight RGBA
     ↓
 compare:
   destination then source with BlendMode.SrcOver
@@ -1740,7 +1779,266 @@ After completion:
 
 ```text
 Course progress becomes 21 of 216.
-Next lesson becomes 3.5 — Why transparent edges can look wrong.
+Next lesson becomes 3.5 — Straight and premultiplied RGBA.
+```
+
+
+## 12F. Lesson 3.5 generated details
+
+### Learning file
+
+```text
+course/chapters/chapter-03/lesson-03-05-straight-and-premultiplied-rgba.html
+```
+
+The rejected edge-oriented filename remains as a redirect in repositories that already received it. The current lesson does not teach an edge artifact.
+
+### Scope
+
+Lesson 3.5 continues the exact Lesson 3.3 source-over example at one image position:
+
+```text
+source straight RGBA:
+(0.90, 0.10, 0.80, 0.50)
+
+destination straight RGBA:
+(0.10, 0.90, 0.40, 0.60)
+
+output straight RGBA:
+(0.60, 0.40, 0.65, 0.80)
+```
+
+Both inputs are translucent. No opaque destination is assumed in the main calculation.
+
+No bitmap boundary, circle, interpolation, resizing, antialiasing, texture sampling, filtering, shadow, gradient, or halo is part of this lesson.
+
+### Straight RGBA
+
+Straight RGBA, also called unassociated RGBA, stores RGB independently from alpha.
+
+```text
+source straight RGB = (0.90, 0.10, 0.80)
+source alpha        = 0.50
+```
+
+The RGB tuple does not yet contain multiplication by source alpha.
+
+### Premultiplied RGBA
+
+Premultiplied RGBA, also called associated RGBA, stores alpha-weighted RGB contributions. Alpha is copied unchanged.
+
+```text
+source premultiplied RGB
+= (0.90, 0.10, 0.80) × 0.50
+= (0.45, 0.05, 0.40)
+
+source premultiplied RGBA
+= (0.45, 0.05, 0.40, 0.50)
+```
+
+For the destination:
+
+```text
+destination premultiplied RGB
+= (0.10, 0.90, 0.40) × 0.60
+= (0.06, 0.54, 0.24)
+```
+
+The straight and premultiplied tuples contain different stored numbers. They describe the same translucent color under different representation contracts.
+
+### Exact bridge to Lesson 3.3
+
+```text
+Lesson 3.3 source contribution
+→ source premultiplied RGB
+→ (0.45, 0.05, 0.40)
+```
+
+```text
+Lesson 3.3 destination contribution
+→ destination premultiplied RGB after the source opening
+→ (0.03, 0.27, 0.12)
+```
+
+```text
+Lesson 3.3 weighted total
+→ output premultiplied RGB
+→ (0.48, 0.32, 0.52)
+```
+
+```text
+Lesson 3.3 ordinary output
+→ output straight RGB
+→ (0.60, 0.40, 0.65)
+```
+
+The old labels remain only in this mapping. New lesson prose and code use the precise names.
+
+### General source-over from straight inputs
+
+```text
+output premultiplied RGB
+=
+source straight RGB × source alpha
++
+destination straight RGB × destination alpha × (1 − source alpha)
+```
+
+```text
+output alpha
+=
+source alpha
++
+destination alpha × (1 − source alpha)
+```
+
+For the course values:
+
+```text
+source opening
+= 1 − 0.50
+= 0.50
+```
+
+```text
+source premultiplied RGB
+= (0.90, 0.10, 0.80) × 0.50
+= (0.45, 0.05, 0.40)
+```
+
+```text
+destination after source coverage
+= (0.10, 0.90, 0.40) × 0.60 × 0.50
+= (0.03, 0.27, 0.12)
+```
+
+```text
+output premultiplied RGB
+= (0.45, 0.05, 0.40) + (0.03, 0.27, 0.12)
+= (0.48, 0.32, 0.52)
+```
+
+```text
+output alpha
+= 0.50 + 0.60 × 0.50
+= 0.80
+```
+
+```text
+output straight RGB
+= (0.48, 0.32, 0.52) ÷ 0.80
+= (0.60, 0.40, 0.65)
+```
+
+### Equivalent source-over from premultiplied inputs
+
+When source and destination RGB already include their own alpha:
+
+```text
+output premultiplied RGB
+=
+source premultiplied RGB
++
+destination premultiplied RGB × (1 − source alpha)
+```
+
+For the course values:
+
+```text
+(0.45, 0.05, 0.40)
++
+(0.06, 0.54, 0.24) × 0.50
+=
+(0.48, 0.32, 0.52)
+```
+
+This path does not multiply either stored premultiplied RGB tuple by its own alpha again.
+
+### Opaque-destination special case
+
+The complete straight-input destination term is:
+
+```text
+destination straight RGB × destination alpha × (1 − source alpha)
+```
+
+Only when destination alpha is explicitly `1` may it simplify to:
+
+```text
+destination straight RGB × (1 − source alpha)
+```
+
+Output alpha then becomes `1`. Output premultiplied RGB and output straight RGB are numerically equal because division by `1` changes nothing.
+
+### Why two representations exist in this course
+
+- Compose `Color` and `Color.compositeOver` use straight, non-premultiplied component values at their public API boundary.
+- A premultiplied buffer or premultiplied math function consumes premultiplied values only when its contract says so.
+- Android requires an alpha-bearing `Bitmap` drawn by `Canvas` to be premultiplied.
+- The course uses separate `StraightRgba` and `PremultipliedRgba` types and converts once at the boundary.
+- A bare `RGB(r, g, b)` label is insufficient when alpha matters. Every tuple is labelled straight or premultiplied.
+
+### Android value path
+
+```text
+source and destination alpha controls
+    ↓
+StraightRgba source and destination
+    ↓
+toPremultiplied() on each input
+    ↓
+source premultiplied RGB
+destination premultiplied RGB
+    ↓
+source opening = 1 − source alpha
+    ↓
+output premultiplied RGB
+= sourceP + destinationP × opening
+    ↓
+output alpha
+= sourceA + destinationA × opening
+    ↓
+outputPremultiplied.toStraight()
+    ↓
+output straight RGBA for Compose Color
+    ↓
+verify against Color.compositeOver
+```
+
+### Android files changed
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter03/PremultipliedRgbaExplorer.kt
+app/src/main/java/com/example/liquidglasslab/chapter03/OverOperationExplorer.kt
+```
+
+`OverOperationExplorer.kt` changes because visible Lesson 3.3 labels are corrected to `output premultiplied RGB` and `output straight RGB`.
+
+### Lesson checkpoint
+
+Lesson 3.5 is complete only when:
+
+- [ ] The current replacement ZIPs were applied over the completed Lesson 3.4 state or over an earlier Lesson 3.5 attempt.
+- [ ] The app builds and opens Lesson 3.5 on the Pixel 8 Pro.
+- [ ] The learner can define straight RGBA.
+- [ ] The learner can define premultiplied RGBA.
+- [ ] The learner can explain why a bare RGB tuple does not identify the representation.
+- [ ] The learner can map Lesson 3.3's `weighted total` to `output premultiplied RGB`.
+- [ ] The learner can map Lesson 3.3's `ordinary output` to `output straight RGB`.
+- [ ] The learner can write the general destination term with destination alpha.
+- [ ] The learner can explain the opaque-destination shortcut as a special case.
+- [ ] The learner can explain which representation Compose `Color.compositeOver` expects.
+- [ ] The learner can explain when a premultiplied buffer expects premultiplied values.
+- [ ] Browser and Android chrome follow OS light and dark modes while exact instructional values remain fixed.
+- [ ] The coding challenge and four exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 22 of 216.
+Next lesson becomes 3.6 — Brightness and luminance.
 ```
 
 ## 13. Reusable continuation prompt
@@ -1775,6 +2073,14 @@ Course file rules:
 - Do not use a third-party glass library for the main implementation.
 - Do not claim to know Apple’s private implementation.
 
+Chapter 3 and later color-compositing rules:
+- Use `straight RGBA` and `premultiplied RGBA` as the representation names. Do not rely on `ordinary RGBA`.
+- Label every RGB tuple as straight or premultiplied when alpha matters.
+- Teach the complete source-over formula with destination alpha before an opaque-destination shortcut.
+- Use `output premultiplied RGB` and `output straight RGB` as the precise Lesson 3.3 terms.
+- Explain which API or buffer contract expects each representation.
+- Reconcile every new representation term with the preceding lesson and trace the same concrete values across the boundary.
+
 Read the current progress in the handoff.
 
 If the current lesson file is missing, generate that one lesson file and any Android source it needs.
@@ -1793,7 +2099,7 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Learner completion is confirmed through Lesson 3.3. Chapters 1 and 2 are complete. Lesson 3.4 is generated and pending. The learner-confirmed total is 20 of 216 lessons.
+Learner completion is confirmed through Lesson 3.4. Chapters 1 and 2 are complete. Lesson 3.5 is generated and pending. The learner-confirmed total is 21 of 216 lessons.
 
 Current Chapter 2 lesson files:
 
@@ -1834,7 +2140,9 @@ Current Chapter 3 lesson files:
 - `course/chapters/chapter-03/lesson-03-01-red-green-and-blue-channels.html`;
 - `course/chapters/chapter-03/lesson-03-02-alpha.html`;
 - `course/chapters/chapter-03/lesson-03-03-the-over-operation.html`;
-- `course/chapters/chapter-03/lesson-03-04-draw-order-matters.html`.
+- `course/chapters/chapter-03/lesson-03-04-draw-order-matters.html`;
+- `course/chapters/chapter-03/lesson-03-05-straight-and-premultiplied-rgba.html`;
+- `course/chapters/chapter-03/lesson-03-05-why-transparent-edges-can-look-wrong.html` (redirect only).
 
 Current generated Chapter 3 Android source:
 
@@ -1846,16 +2154,18 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── RgbChannelsExplorer.kt
     ├── AlphaExplorer.kt
     ├── OverOperationExplorer.kt
-    └── DrawOrderExplorer.kt
+    ├── DrawOrderExplorer.kt
+    ├── PremultipliedRgbaExplorer.kt
+    └── TransparentEdgeExplorer.kt  # compatibility wrapper
 ```
 
-The Lesson 3.4 Android ZIP contains only the changed `Chapter03Screen.kt` and the new `DrawOrderExplorer.kt`. The learning-docs ZIP contains only files added or modified for Lesson 3.4.
+The current Lesson 3.5 Android ZIP contains the changed `Chapter03Screen.kt`, the rewritten `PremultipliedRgbaExplorer.kt`, and the corrected `OverOperationExplorer.kt`. An older `TransparentEdgeExplorer.kt` compatibility wrapper may remain in repositories that received the rejected edge lesson, but it is not changed by the current patch.
 
 ---
 
 ## 15. Primary references
 
-The course plan was checked against these public primary sources through 2026-07-25:
+The course plan was checked against these public primary sources through 2026-07-26:
 
 - Apple, **Meet Liquid Glass**, WWDC25: https://developer.apple.com/videos/play/wwdc2025/219/
 - Apple, **Get to know the new design system**, WWDC25: https://developer.apple.com/videos/play/wwdc2025/356/
@@ -1873,6 +2183,8 @@ The course plan was checked against these public primary sources through 2026-07
 - Android, **Compose LayoutCoordinates reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/LayoutCoordinates
 - Android, **Compose OnGloballyPositionedModifier reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/OnGloballyPositionedModifier
 - Android, **Compose DrawScope reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/drawscope/DrawScope
+- Android, **Bitmap.isPremultiplied**: https://developer.android.com/reference/android/graphics/Bitmap#isPremultiplied()
+- Android, **Bitmap.setPremultiplied**: https://developer.android.com/reference/android/graphics/Bitmap#setPremultiplied(boolean)
 - Android, **Compose Color reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color
 - Android, **Compose Slider**: https://developer.android.com/develop/ui/compose/components/slider
 - Android, **Material Design 3 in Compose**: https://developer.android.com/develop/ui/compose/designsystems/material3

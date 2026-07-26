@@ -1,0 +1,1997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 3.5 — Straight and premultiplied RGBA</title>
+<style>
+:root{
+  color-scheme:light dark;
+  --ink:#172033;--muted:#596579;--line:#d8e0ea;--paper:#ffffff;--soft:#f5f7fb;--panel:#fbfcfe;--control:#ffffff;
+  --green:#059669;--green-soft:#ecfdf5;--indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;
+  --pink:#be185d;--pink-soft:#fce7f3;--blue:#1e40af;--blue-soft:#dbeafe;--red:#dc2626;--red-soft:#fee2e2;
+  --body-start:#f8fafc;--body-end:#edf2f7;--shadow:0 18px 52px rgba(30,41,59,.09);--code-bg:#111827;--code-ink:#e5e7eb;
+  --checker-a:#f8fafc;--checker-b:#cbd5e1;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ink:#e7edf7;--muted:#aeb9c9;--line:#354154;--paper:#111827;--soft:#172033;--panel:#151e2d;--control:#1b2535;
+    --green:#34d399;--green-soft:#0b3429;--indigo:#a5b4fc;--indigo-soft:#23234a;--amber:#fbbf24;--amber-soft:#402d0a;
+    --pink:#f472b6;--pink-soft:#43172d;--blue:#60a5fa;--blue-soft:#172d54;--red:#f87171;--red-soft:#491b20;
+    --body-start:#0b111c;--body-end:#101827;--shadow:0 18px 52px rgba(0,0,0,.32);--code-bg:#080d16;--code-ink:#e5e7eb;
+    --checker-a:#e2e8f0;--checker-b:#94a3b8;
+  }
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--body-start),var(--body-end));font:16px/1.64 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.5}code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}code{background:var(--indigo-soft);padding:.12em .36em;border-radius:6px}.page{width:min(2460px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:22px}.crumbs{color:var(--muted)}.chips{display:flex;flex-wrap:wrap;gap:9px;justify-content:flex-end}.chip{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:800}.chip.progress{color:var(--green);background:var(--green-soft);border-color:color-mix(in srgb,var(--green) 35%,var(--line))}.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.hero{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(470px,.7fr);gap:30px;padding:42px}.eyebrow{color:var(--green);font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase}h1{margin:.35rem 0 1rem;font-size:clamp(42px,4vw,70px);line-height:1.04;letter-spacing:-.045em}h2{margin:0 0 .7rem;font-size:30px;line-height:1.18}h3{margin:0 0 .55rem;font-size:21px;line-height:1.25}p{max-width:116ch}.lead{font-size:19px;color:var(--muted)}.goal{padding:23px;border-radius:18px;border:1px solid color-mix(in srgb,var(--indigo) 35%,var(--line));background:var(--indigo-soft)}.goal strong{color:var(--indigo)}.section{margin-top:24px;padding:32px}.section-head{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:22px}.section-head p{margin:0;color:var(--muted)}.section-no{color:var(--indigo);font-weight:900;letter-spacing:.04em}.card{padding:20px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}.card.green{background:var(--green-soft);border-color:color-mix(in srgb,var(--green) 45%,var(--line))}.card.red{background:var(--red-soft);border-color:color-mix(in srgb,var(--red) 45%,var(--line))}.card.amber{background:var(--amber-soft);border-color:color-mix(in srgb,var(--amber) 45%,var(--line))}.card.blue{background:var(--blue-soft);border-color:color-mix(in srgb,var(--blue) 45%,var(--line))}.card.indigo{background:var(--indigo-soft);border-color:color-mix(in srgb,var(--indigo) 45%,var(--line))}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.note,.warning,.success{margin-top:18px;padding:16px 18px;border-radius:14px}.note{border-left:5px solid var(--blue);background:var(--blue-soft)}.warning{border-left:5px solid var(--amber);background:var(--amber-soft)}.success{border-left:5px solid var(--green);background:var(--green-soft)}.formula{padding:14px 16px;border-radius:13px;background:var(--indigo-soft);border:1px solid color-mix(in srgb,var(--indigo) 45%,var(--line));font:800 15px/1.58 "SFMono-Regular",Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.primary,.secondary,.preset,.tab,.step-dot{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:850}.primary{border:1px solid var(--blue);background:var(--blue);color:#fff}.secondary,.preset,.tab,.step-dot{border:1px solid var(--line);background:var(--control);color:var(--ink)}.secondary:hover,.preset:hover,.tab:hover,.step-dot:hover{border-color:#94a3b8;background:var(--soft)}.selected{border-color:var(--indigo)!important;background:var(--indigo-soft)!important;color:var(--indigo)!important}.controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center}.range{display:grid;grid-template-columns:220px minmax(260px,1fr) 100px;gap:14px;align-items:center;margin:13px 0}.range input{width:100%}.object-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.object-card{padding:18px;border:2px solid var(--line);border-radius:17px;background:var(--control);min-height:255px}.object-card strong{display:block;color:var(--indigo);margin-bottom:8px}.checker{position:relative;height:105px;border-radius:13px;border:1px solid var(--line);overflow:hidden;background-color:var(--checker-a);background-image:linear-gradient(45deg,var(--checker-b) 25%,transparent 25%),linear-gradient(-45deg,var(--checker-b) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,var(--checker-b) 75%),linear-gradient(-45deg,transparent 75%,var(--checker-b) 75%);background-size:28px 28px;background-position:0 0,0 14px,14px -14px,-14px 0}.checker-layer{position:absolute;inset:0}.checker-label{position:absolute;inset:auto 10px 10px;z-index:2;padding:5px 8px;border-radius:8px;background:rgba(255,255,255,.82);color:#111827;font-weight:900;text-align:center}.tuple{margin-top:10px;font:800 15px/1.5 "SFMono-Regular",Consolas,monospace;overflow-wrap:anywhere}.representation-lab{display:grid;grid-template-columns:minmax(920px,1.2fr) minmax(630px,.8fr);gap:20px}.diagram{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:14px;overflow:auto}.diagram svg{display:block;width:100%;height:auto;min-height:560px}.control-card{padding:20px;border:1px solid var(--line);border-radius:18px;background:var(--panel)}.channel-table{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}.channel-row{display:grid;grid-template-columns:190px repeat(4,minmax(0,1fr));gap:1px}.channel-row>div{padding:12px;background:var(--control)}.channel-row.header>div{font-weight:900;background:var(--soft)}.bridge-row{display:grid;grid-template-columns:minmax(260px,.8fr) 60px minmax(420px,1.2fr) minmax(250px,.8fr);gap:12px;align-items:center;padding:13px;border:1px solid var(--line);border-radius:13px;background:var(--panel);margin-top:10px}.bridge-arrow{font-size:28px;color:var(--pink);font-weight:900;text-align:center}.path-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.path{padding:20px;border:2px solid var(--line);border-radius:18px;background:var(--panel)}.path.straight{border-color:var(--indigo)}.path.premul{border-color:var(--green)}.path-list{display:grid;gap:10px;margin-top:14px}.path-step{padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--control)}.path-step strong{display:block;color:var(--indigo);margin-bottom:4px}.result-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:18px}.result-card{border:1px solid var(--line);border-radius:17px;overflow:hidden;background:var(--panel)}.result-swatch{height:130px;position:relative}.result-copy{padding:16px}.special-case{display:grid;grid-template-columns:minmax(650px,1fr) minmax(650px,1fr);gap:18px}.comparison-table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}.comparison-table th,.comparison-table td{padding:13px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);text-align:left;vertical-align:top}.comparison-table th{background:var(--soft)}.comparison-table tr:last-child td{border-bottom:0}.comparison-table th:last-child,.comparison-table td:last-child{border-right:0}.stepper{display:grid;grid-template-columns:minmax(1050px,1.25fr) minmax(690px,.75fr);gap:20px;align-items:start}.step-figure{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:14px;overflow:auto}.step-figure svg{display:block;width:100%;height:auto;min-height:700px}.step-card{border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden}.step-nav{display:flex;flex-wrap:wrap;gap:7px;padding:14px;border-bottom:1px solid var(--line);background:var(--control)}.step-dot{min-width:44px}.step-body{padding:22px}.step-title{font-size:22px;font-weight:900;color:var(--indigo)}.step-caption{min-height:125px}.code{padding:16px;border-radius:13px;background:var(--code-bg);color:var(--code-ink);overflow:auto;white-space:pre-wrap;font:14px/1.58 "SFMono-Regular",Consolas,monospace}.io{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.io>div{padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--control)}.io strong{display:block;color:var(--indigo);margin-bottom:5px}.trace{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}.trace .card{min-height:265px;padding:15px}.trace strong{display:block;color:var(--indigo);margin-bottom:8px}.source-tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}.source-pane{display:none}.source-pane.active{display:block}.source-code{max-height:760px;overflow:auto}.challenge{display:grid;grid-template-columns:minmax(830px,1fr) minmax(700px,.85fr);gap:18px}.editor{width:100%;min-height:360px;resize:vertical;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--code-bg);color:var(--code-ink);font:14px/1.55 "SFMono-Regular",Consolas,monospace}.challenge-preview{border:1px solid var(--line);border-radius:17px;background:var(--panel);padding:18px}.challenge-result{margin-top:14px;padding:14px;border-radius:12px;background:var(--soft);border:1px solid var(--line)}details{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:14px 16px;margin-top:10px}summary{cursor:pointer;font-weight:850}.check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.check{display:flex;gap:9px;align-items:start;padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--control)}.record{width:100%;min-height:260px;resize:vertical;padding:15px;border:1px solid var(--line);border-radius:13px;background:var(--code-bg);color:var(--code-ink);font:14px/1.55 "SFMono-Regular",Consolas,monospace}footer{margin-top:25px;text-align:center;color:var(--muted)}.small{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <div class="crumbs"><a href="lesson-color-opacity-and-compositing.html">Chapter 3</a> · Lesson 3.5</div>
+    <div class="chips"><span class="chip progress">21 of 216 completed</span><span class="chip" id="themeMode">OS theme</span><span class="chip">Pixel 8 Pro</span></div>
+  </div>
+
+  <header class="hero panel">
+    <div>
+      <div class="eyebrow">Color, opacity, and compositing</div>
+      <h1>Straight and premultiplied RGBA</h1>
+      <p class="lead">Lesson 3.3 already combined a translucent source over a translucent destination. This lesson gives precise names to the two RGB forms that appeared in that calculation. It then shows when each form is used.</p>
+      <div class="note"><strong>One rule for the whole lesson:</strong> a bare <code>RGB(...)</code> triplet does not tell you whether the values are straight or premultiplied. Every triplet on this page is labelled.</div>
+    </div>
+    <aside class="goal">
+      <strong>By the end, you will be able to explain:</strong>
+      <ul>
+        <li>what straight RGBA stores;</li>
+        <li>what premultiplied RGBA stores;</li>
+        <li>how both relate to Lesson 3.3;</li>
+        <li>why destination alpha belongs in the general source-over formula;</li>
+        <li>when Compose expects straight values and when a premultiplied buffer expects premultiplied values.</li>
+      </ul>
+    </aside>
+  </header>
+
+  <section class="section panel" id="objects">
+    <div class="section-head"><div><div class="section-no">1 · The exact objects</div><h2>One source, one destination, and one output at one image position</h2></div><p>No circle, edge, filtering, image resizing, or opaque background is assumed.</p></div>
+    <div class="object-grid">
+      <article class="object-card"><strong>Source · drawn now</strong><div class="checker"><div class="checker-layer" id="sourceLayer"></div><div class="checker-label">source over checkerboard</div></div><div class="tuple" id="sourceStraightTuple"></div><p>The source is the new translucent color being drawn.</p></article>
+      <article class="object-card"><strong>Destination · already present</strong><div class="checker"><div class="checker-layer" id="destinationLayer"></div><div class="checker-label">destination over checkerboard</div></div><div class="tuple" id="destinationStraightTuple"></div><p>The destination is the translucent color already stored at the same image position.</p></article>
+      <article class="object-card"><strong>Output · source over destination</strong><div class="checker"><div class="checker-layer" id="outputLayer"></div><div class="checker-label">output over checkerboard</div></div><div class="tuple" id="outputStraightTuple"></div><p>The output is still translucent unless its calculated alpha equals 1.</p></article>
+    </div>
+    <div class="warning"><strong>The checkerboard is a third layer used only to make transparency visible.</strong> It is not the destination in the source-over calculation above.</div>
+  </section>
+
+  <section class="section panel" id="representations">
+    <div class="section-head"><div><div class="section-no">2 · Two representations</div><h2>The same translucent source can be stored in two numerical forms</h2></div><p>Change alpha and watch the straight RGB stay fixed while premultiplied RGB changes.</p></div>
+    <div class="representation-lab">
+      <div class="diagram"><svg id="representationSvg" viewBox="0 0 1280 620" role="img" aria-label="Straight and premultiplied representations of the same source color"></svg></div>
+      <aside class="control-card">
+        <div class="range"><label for="sourceAlpha"><strong>Source alpha</strong></label><input id="sourceAlpha" type="range" min="0" max="1" step="0.01" value="0.50"><output id="sourceAlphaOut">0.50</output></div>
+        <div class="range"><label for="destinationAlpha"><strong>Destination alpha</strong></label><input id="destinationAlpha" type="range" min="0" max="1" step="0.01" value="0.60"><output id="destinationAlphaOut">0.60</output></div>
+        <div class="controls" id="presets"><button class="preset selected" data-preset="course" type="button">Course example</button><button class="preset" data-preset="opaque" type="button">Destination alpha 1</button><button class="preset" data-preset="transparent" type="button">Destination alpha 0</button><button class="preset" data-preset="both-zero" type="button">Both alphas 0</button></div>
+        <div class="formula" id="sourceConversion"></div>
+        <div class="note"><strong>Straight RGBA</strong> is also called <strong>unassociated RGBA</strong>. <strong>Premultiplied RGBA</strong> is also called <strong>associated RGBA</strong>.</div>
+      </aside>
+    </div>
+    <div class="two" style="margin-top:18px">
+      <article class="card indigo"><h3>Straight RGBA</h3><p>The red, green, and blue fields store the color components independently from alpha.</p><div class="formula" id="straightDefinition"></div></article>
+      <article class="card green"><h3>Premultiplied RGBA</h3><p>The red, green, and blue fields store alpha-weighted color contributions. Alpha itself is stored unchanged.</p><div class="formula" id="premulDefinition"></div></article>
+    </div>
+    <div class="success"><strong>These tuples are not numerically equal, but they represent the same translucent source.</strong> Converting the representation does not change what the source means.</div>
+  </section>
+
+  <section class="section panel" id="usage">
+    <div class="section-head"><div><div class="section-no">3 · When each representation is used</div><h2>The API contract decides which numbers a function expects</h2></div><p>Do not infer the representation from the word RGB.</p></div>
+    <div class="three">
+      <article class="card indigo"><h3>Compose <code>Color</code></h3><p>The public <code>Color(red, green, blue, alpha)</code> components are kept separate. Compose's <code>Color.compositeOver</code> contract says that both input colors and the returned color are not premultiplied.</p><p><strong>Use straight RGBA at this API boundary.</strong></p></article>
+      <article class="card green"><h3>Premultiplied buffers or math</h3><p>Some renderer data and image buffers define their RGB fields as already multiplied by alpha. Android requires an alpha-bearing <code>Bitmap</code> drawn by <code>Canvas</code> to be premultiplied.</p><p><strong>Use premultiplied RGBA only when the contract says so.</strong></p></article>
+      <article class="card amber"><h3>Your own code</h3><p>Use different types such as <code>StraightRgba</code> and <code>PremultipliedRgba</code>. Convert once where data crosses from one contract to the other.</p><p><strong>Do not manually premultiply a Compose <code>Color</code> before calling <code>compositeOver</code>.</strong></p></article>
+    </div>
+    <div class="note"><strong>Why premultiplied values are useful here:</strong> each RGB field already says how much color that layer contributes. Source-over can add those contributions directly. A later image-sampling lesson will cover another reason premultiplied values are useful.</div>
+  </section>
+
+  <section class="section panel" id="bridge">
+    <div class="section-head"><div><div class="section-no">4 · The exact relation to Lesson 3.3</div><h2>Rename the two ambiguous Lesson 3.3 labels</h2></div><p>The arithmetic was correct. The labels were not precise enough.</p></div>
+    <div class="bridge-row"><strong>Old Lesson 3.3 label</strong><span></span><strong>Precise name</strong><strong>Course value</strong></div>
+    <div class="bridge-row"><span>Source contribution</span><span class="bridge-arrow">→</span><span>Source premultiplied RGB</span><code id="bridgeSource"></code></div>
+    <div class="bridge-row"><span>Destination contribution</span><span class="bridge-arrow">→</span><span>Destination premultiplied RGB after the source opening</span><code id="bridgeDestination"></code></div>
+    <div class="bridge-row"><span>Weighted total</span><span class="bridge-arrow">→</span><span>Output premultiplied RGB</span><code id="bridgeOutputPremul"></code></div>
+    <div class="bridge-row"><span>Ordinary output</span><span class="bridge-arrow">→</span><span>Output straight RGB</span><code id="bridgeOutputStraight"></code></div>
+    <div class="note"><strong>Lesson 3.3's “weighted total” was not a final straight color.</strong> It was the output's premultiplied RGB. Dividing it by output alpha produced the output's straight RGB.</div>
+  </section>
+
+  <section class="section panel" id="paths">
+    <div class="section-head"><div><div class="section-no">5 · The complete source-over calculation</div><h2>Two valid paths start with different input representations</h2></div><p>Both paths calculate the same output premultiplied RGBA and the same output straight RGBA.</p></div>
+    <div class="path-grid">
+      <article class="path straight"><h3>Path A · start with straight RGBA</h3><p>Because the RGB fields are not alpha-weighted yet, the formula includes both source alpha and destination alpha.</p><div class="formula">output premultiplied RGB =
+source straight RGB × source alpha
++ destination straight RGB × destination alpha
+  × (1 − source alpha)</div><div class="path-list" id="straightPathSteps"></div></article>
+      <article class="path premul"><h3>Path B · start with premultiplied RGBA</h3><p>Each input RGB tuple already includes its own alpha. Do not multiply either tuple by its own alpha again.</p><div class="formula">output premultiplied RGB =
+source premultiplied RGB
++ destination premultiplied RGB
+  × (1 − source alpha)</div><div class="path-list" id="premulPathSteps"></div></article>
+    </div>
+    <div class="formula" id="outputAlphaFormula" style="margin-top:18px"></div>
+    <div class="result-grid">
+      <article class="result-card"><div class="result-swatch checker"><div class="checker-layer" id="resultPremulLayer"></div><div class="checker-label">drawn using straight output for display</div></div><div class="result-copy"><h3>Output premultiplied RGBA</h3><div class="tuple" id="resultPremulTuple"></div><p>The source-over addition naturally produces this representation.</p></div></article>
+      <article class="result-card"><div class="result-swatch checker"><div class="checker-layer" id="resultStraightLayer"></div><div class="checker-label">same translucent output</div></div><div class="result-copy"><h3>Output straight RGBA</h3><div class="tuple" id="resultStraightTuple"></div><p>Divide output premultiplied RGB by output alpha when alpha is greater than zero.</p></div></article>
+      <article class="result-card"><div class="result-swatch checker"><div class="checker-layer" id="composeResultLayer"></div><div class="checker-label">Compose result</div></div><div class="result-copy"><h3>Compose <code>compositeOver</code></h3><div class="tuple" id="composeResultTuple"></div><p>Compose accepts straight inputs and returns this straight output.</p></div></article>
+    </div>
+  </section>
+
+  <section class="section panel" id="special-case">
+    <div class="section-head"><div><div class="section-no">6 · The opaque-destination special case</div><h2>The shorter formula is valid only after stating that destination alpha equals 1</h2></div><p>Your correction was right: the general formula contains destination alpha.</p></div>
+    <div class="special-case">
+      <article class="card indigo"><h3>General case</h3><div class="formula">destination contribution =
+destination straight RGB
+× destination alpha
+× (1 − source alpha)</div><p>The current destination alpha is <strong id="specialAlpha"></strong>.</p></article>
+      <article class="card green"><h3>When destination alpha = 1</h3><div class="formula">destination straight RGB × 1 × (1 − source alpha)
+=
+destination straight RGB × (1 − source alpha)</div><p>Output alpha then becomes 1. Straight and premultiplied output RGB are numerically equal because dividing by 1 changes nothing.</p></article>
+    </div>
+    <div class="warning" id="specialMessage"></div>
+  </section>
+
+  <section class="section panel" id="why-two">
+    <div class="section-head"><div><div class="section-no">7 · Why keep two representations?</div><h2>The fields have different meanings even when both paths produce the same visual output</h2></div><p>The equality is in the final represented color, not in every intermediate tuple.</p></div>
+    <table class="comparison-table">
+      <thead><tr><th>Question</th><th>Straight RGBA</th><th>Premultiplied RGBA</th></tr></thead>
+      <tbody>
+        <tr><td>What does stored red mean?</td><td>The red component before alpha weighting.</td><td>The red contribution after alpha weighting.</td></tr>
+        <tr><td>Source tuple at alpha 0.50</td><td><code>Straight RGBA(0.90, 0.10, 0.80, 0.50)</code></td><td><code>Premultiplied RGBA(0.45, 0.05, 0.40, 0.50)</code></td></tr>
+        <tr><td>Must source RGB be multiplied by source alpha during source-over?</td><td>Yes. The tuple has not done it yet.</td><td>No. The tuple already contains that multiplication.</td></tr>
+        <tr><td>Natural output of contribution addition</td><td colspan="2">Output premultiplied RGB. The addition sums alpha-weighted color contributions.</td></tr>
+        <tr><td>How to obtain output straight RGB?</td><td colspan="2">Divide output premultiplied RGB by output alpha, only when output alpha is greater than zero.</td></tr>
+      </tbody>
+    </table>
+    <div class="success"><strong>The two formulas are not two arbitrary ways to do the same multiplications.</strong> One formula performs alpha weighting during compositing. The other consumes values that were alpha-weighted earlier.</div>
+  </section>
+
+  <section class="section panel" id="stepper">
+    <div class="section-head"><div><div class="section-no">8 · Manual derivation</div><h2>Follow the Lesson 3.3 course values through every representation</h2></div><p>One state change per step. The fixed values are source alpha 0.50 and destination alpha 0.60.</p></div>
+    <div class="stepper">
+      <div class="step-figure"><svg id="stepSvg" viewBox="0 0 1320 760" role="img" aria-label="Step-by-step source-over calculation using straight and premultiplied RGBA"></svg></div>
+      <div class="step-card"><div class="step-nav" id="stepNav"></div><div class="step-body"><div class="step-title" id="stepTitle"></div><p class="step-caption" id="stepCaption"></p><pre class="code" id="stepCode"></pre><div class="io"><div><strong>Input</strong><span id="stepInput"></span></div><div><strong>Operation</strong><span id="stepOperation"></span></div><div><strong>Output</strong><span id="stepOutput"></span></div></div><div class="controls" style="margin-top:18px"><button class="secondary" id="stepBack" type="button">Back</button><button class="primary" id="stepNext" type="button">Next</button></div></div></div>
+    </div>
+  </section>
+
+  <section class="section panel" id="android">
+    <div class="section-head"><div><div class="section-no">9 · Android contracts and value flow</div><h2>The app makes the representation explicit in type names</h2></div><p>The lesson does not guess an API's representation.</p></div>
+    <div class="trace">
+      <article class="card"><strong>1 · Straight UI inputs</strong><code>StraightRgba</code><p>Stores source and destination RGB independently from alpha.</p></article>
+      <article class="card"><strong>2 · Convert once</strong><code>toPremultiplied()</code><p>Multiplies each input's RGB by that input's own alpha.</p></article>
+      <article class="card"><strong>3 · Source opening</strong><code>1f - source.alpha</code><p>Calculates how much of the destination may remain.</p></article>
+      <article class="card"><strong>4 · Premultiplied addition</strong><code>sourceP + destinationP × opening</code><p>Produces output premultiplied RGB.</p></article>
+      <article class="card"><strong>5 · Output alpha</strong><code>sourceA + destinationA × opening</code><p>Produces output alpha.</p></article>
+      <article class="card"><strong>6 · Convert if needed</strong><code>outputP.toStraight()</code><p>Divides by output alpha so Compose can receive a straight <code>Color</code>.</p></article>
+      <article class="card"><strong>7 · Verify Compose</strong><code>sourceColor.compositeOver(destinationColor)</code><p>Confirms that Compose's straight-input path produces the same straight output.</p></article>
+    </div>
+    <div class="note"><strong>Evidence limit:</strong> the Compose source explicitly documents <code>Color.compositeOver</code> as accepting and returning non-premultiplied colors. Android's <code>Bitmap</code> contract separately states that an alpha-bearing bitmap drawn by <code>Canvas</code> must be premultiplied. These are different API contracts.</div>
+  </section>
+
+  <section class="section panel" id="source">
+    <div class="section-head"><div><div class="section-no">10 · Complete changed Android files</div><h2>The embedded source exactly matches the Android patch</h2></div><p><code>OverOperationExplorer.kt</code> is included because Lesson 3.3's ambiguous labels were corrected.</p></div>
+    <div class="source-tabs"><button class="tab selected" data-source="screen" type="button">Chapter03Screen.kt</button><button class="tab" data-source="explorer" type="button">PremultipliedRgbaExplorer.kt</button><button class="tab" data-source="over" type="button">OverOperationExplorer.kt</button></div>
+    <div class="source-pane active" id="source-screen"><pre class="code source-code">package com.example.liquidglasslab.chapter03
+
+import android.content.res.Configuration
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.liquidglasslab.ui.theme.LiquidGlassLabTheme
+
+@Composable
+fun Chapter03Screen(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .safeDrawingPadding()
+                .padding(horizontal = 24.dp, vertical = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Text(
+                text = &quot;COLOR, OPACITY, AND COMPOSITING&quot;,
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = &quot;Lesson 3.5 · Straight and premultiplied RGBA&quot;,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = &quot;Lesson 3.3 already combined a translucent source over a &quot; +
+                    &quot;translucent destination. This lesson gives precise names to &quot; +
+                    &quot;the two RGB forms that appeared in that calculation. It &quot; +
+                    &quot;shows when Compose expects straight RGBA, when premultiplied &quot; +
+                    &quot;RGBA is useful, and how both forms produce the same output.&quot;,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+
+            PremultipliedRgbaExplorer()
+        }
+    }
+}
+
+@Preview(
+    name = &quot;Lesson 3.5 RGBA representations — light&quot;,
+    showBackground = true,
+    widthDp = 412,
+    heightDp = 915,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+)
+@Preview(
+    name = &quot;Lesson 3.5 RGBA representations — dark&quot;,
+    showBackground = true,
+    widthDp = 412,
+    heightDp = 915,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+)
+@Composable
+private fun Chapter03ScreenPreview() {
+    LiquidGlassLabTheme {
+        Chapter03Screen()
+    }
+}
+</pre></div>
+    <div class="source-pane" id="source-explorer"><pre class="code source-code">package com.example.liquidglasslab.chapter03
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.weight
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import java.util.Locale
+import kotlin.math.ceil
+
+private const val SourceRed = 0.90f
+private const val SourceGreen = 0.10f
+private const val SourceBlue = 0.80f
+private const val InitialSourceAlpha = 0.50f
+
+private const val DestinationRed = 0.10f
+private const val DestinationGreen = 0.90f
+private const val DestinationBlue = 0.40f
+private const val InitialDestinationAlpha = 0.60f
+
+private val ExplorerShape = RoundedCornerShape(22.dp)
+private val CardShape = RoundedCornerShape(16.dp)
+private val CheckerLight = Color(0xFFF8FAFC)
+private val CheckerDark = Color(0xFFCBD5E1)
+
+@Composable
+internal fun PremultipliedRgbaExplorer(
+    modifier: Modifier = Modifier,
+) {
+    var sourceAlpha by rememberSaveable {
+        mutableFloatStateOf(InitialSourceAlpha)
+    }
+    var destinationAlpha by rememberSaveable {
+        mutableFloatStateOf(InitialDestinationAlpha)
+    }
+
+    val sourceStraight = StraightRgba(
+        red = SourceRed,
+        green = SourceGreen,
+        blue = SourceBlue,
+        alpha = sourceAlpha,
+    )
+    val destinationStraight = StraightRgba(
+        red = DestinationRed,
+        green = DestinationGreen,
+        blue = DestinationBlue,
+        alpha = destinationAlpha,
+    )
+    val calculation = calculateSourceOver(
+        source = sourceStraight,
+        destination = destinationStraight,
+    )
+    val composeOutput = sourceStraight
+        .toColor()
+        .compositeOver(destinationStraight.toColor())
+        .toStraightRgba()
+
+    val colorScheme = MaterialTheme.colorScheme
+
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = ExplorerShape,
+        color = colorScheme.surface,
+        contentColor = colorScheme.onSurface,
+        border = BorderStroke(
+            width = 1.dp,
+            color = colorScheme.outlineVariant,
+        ),
+    ) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp),
+        ) {
+            Text(
+                text = &quot;1 · The exact objects&quot;,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = &quot;The source and destination are two translucent colors &quot; +
+                    &quot;at one image position. The source is drawn over the &quot; +
+                    &quot;destination. The result is another translucent color. &quot; +
+                    &quot;No opaque background is assumed in the main calculation.&quot;,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+
+            InputColorCard(
+                title = &quot;Source · drawn now&quot;,
+                straight = sourceStraight,
+                premultiplied = calculation.sourcePremultiplied,
+            )
+            InputColorCard(
+                title = &quot;Destination · already present&quot;,
+                straight = destinationStraight,
+                premultiplied = calculation.destinationPremultiplied,
+            )
+
+            AlphaControl(
+                label = &quot;Source alpha&quot;,
+                value = sourceAlpha,
+                onValueChange = { sourceAlpha = it },
+            )
+            AlphaControl(
+                label = &quot;Destination alpha&quot;,
+                value = destinationAlpha,
+                onValueChange = { destinationAlpha = it },
+            )
+            PresetButtons(
+                onCourseExample = {
+                    sourceAlpha = 0.50f
+                    destinationAlpha = 0.60f
+                },
+                onOpaqueDestination = {
+                    sourceAlpha = 0.50f
+                    destinationAlpha = 1f
+                },
+                onTransparentDestination = {
+                    sourceAlpha = 0.50f
+                    destinationAlpha = 0f
+                },
+                onBothTransparent = {
+                    sourceAlpha = 0f
+                    destinationAlpha = 0f
+                },
+            )
+
+            Text(
+                text = &quot;2 · What the two representations store&quot;,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+            )
+            DefinitionCard(
+                title = &quot;Straight RGBA · also called unassociated RGBA&quot;,
+                body = &quot;The red, green, and blue fields store the color &quot; +
+                    &quot;components independently from alpha. The source &quot; +
+                    &quot;straight tuple is ${sourceStraight.asTuple()}.&quot;,
+            )
+            DefinitionCard(
+                title = &quot;Premultiplied RGBA · also called associated RGBA&quot;,
+                body = &quot;The red, green, and blue fields store the source&#x27;s &quot; +
+                    &quot;alpha-weighted contributions. The source premultiplied &quot; +
+                    &quot;tuple is ${calculation.sourcePremultiplied.asTuple()}.&quot;,
+            )
+            Text(
+                text = &quot;These are two numerical representations of the same &quot; +
+                    &quot;translucent source. They are not two different visible &quot; +
+                    &quot;colors. Alpha stays ${sourceAlpha.twoDecimals()} in both.&quot;,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+
+            FormulaCard(
+                title = &quot;Source: straight → premultiplied&quot;,
+                lines = listOf(
+                    &quot;premultiplied R = ${sourceStraight.red.twoDecimals()} × &quot; +
+                        &quot;${sourceStraight.alpha.twoDecimals()} = &quot; +
+                        calculation.sourcePremultiplied.red.threeDecimals(),
+                    &quot;premultiplied G = ${sourceStraight.green.twoDecimals()} × &quot; +
+                        &quot;${sourceStraight.alpha.twoDecimals()} = &quot; +
+                        calculation.sourcePremultiplied.green.threeDecimals(),
+                    &quot;premultiplied B = ${sourceStraight.blue.twoDecimals()} × &quot; +
+                        &quot;${sourceStraight.alpha.twoDecimals()} = &quot; +
+                        calculation.sourcePremultiplied.blue.threeDecimals(),
+                    &quot;alpha is copied unchanged: ${sourceStraight.alpha.twoDecimals()}&quot;,
+                ),
+            )
+
+            Text(
+                text = &quot;3 · The exact bridge back to Lesson 3.3&quot;,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = &quot;Lesson 3.3 used the labels ‘weighted total’ and &quot; +
+                    &quot;‘ordinary output’. The precise names are ‘output &quot; +
+                    &quot;premultiplied RGB’ and ‘output straight RGB’.&quot;,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            LessonThreeThreeBridge(calculation)
+
+            Text(
+                text = &quot;4 · Source-over starting from straight RGBA&quot;,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = &quot;Straight RGB has not yet been weighted by alpha. &quot; +
+                    &quot;The formula must therefore multiply the source by source &quot; +
+                    &quot;alpha and the destination by destination alpha.&quot;,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            FormulaCard(
+                title = &quot;General formula · both inputs may be translucent&quot;,
+                lines = listOf(
+                    &quot;output premultiplied RGB =&quot;,
+                    &quot;source straight RGB × source alpha&quot;,
+                    &quot;+ destination straight RGB × destination alpha&quot;,
+                    &quot;  × (1 − source alpha)&quot;,
+                    &quot;output alpha = source alpha&quot;,
+                    &quot;+ destination alpha × (1 − source alpha)&quot;,
+                ),
+            )
+            ChannelCalculationCards(calculation)
+
+            Text(
+                text = &quot;5 · Source-over starting from premultiplied RGBA&quot;,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = &quot;The source and destination RGB fields already include &quot; +
+                    &quot;their own alpha. Do not multiply either stored RGB tuple &quot; +
+                    &quot;by its own alpha again.&quot;,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            FormulaCard(
+                title = &quot;Equivalent premultiplied-input formula&quot;,
+                lines = listOf(
+                    &quot;output premultiplied RGB =&quot;,
+                    &quot;source premultiplied RGB&quot;,
+                    &quot;+ destination premultiplied RGB&quot;,
+                    &quot;  × (1 − source alpha)&quot;,
+                    &quot;output alpha uses the same alpha formula&quot;,
+                ),
+            )
+
+            OutputComparison(
+                manualOutput = calculation.outputStraight,
+                composeOutput = composeOutput,
+                outputPremultiplied = calculation.outputPremultiplied,
+            )
+
+            Text(
+                text = &quot;6 · Why divide after compositing&quot;,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+            )
+            if (calculation.outputPremultiplied.alpha &gt; 0f) {
+                FormulaCard(
+                    title = &quot;Output premultiplied → output straight&quot;,
+                    lines = listOf(
+                        &quot;straight R = ${calculation.outputPremultiplied.red.threeDecimals()} &quot; +
+                            &quot;÷ ${calculation.outputPremultiplied.alpha.twoDecimals()} &quot; +
+                            &quot;= ${calculation.outputStraight.red.threeDecimals()}&quot;,
+                        &quot;straight G = ${calculation.outputPremultiplied.green.threeDecimals()} &quot; +
+                            &quot;÷ ${calculation.outputPremultiplied.alpha.twoDecimals()} &quot; +
+                            &quot;= ${calculation.outputStraight.green.threeDecimals()}&quot;,
+                        &quot;straight B = ${calculation.outputPremultiplied.blue.threeDecimals()} &quot; +
+                            &quot;÷ ${calculation.outputPremultiplied.alpha.twoDecimals()} &quot; +
+                            &quot;= ${calculation.outputStraight.blue.threeDecimals()}&quot;,
+                    ),
+                )
+            } else {
+                FormulaCard(
+                    title = &quot;The output is fully transparent&quot;,
+                    lines = listOf(
+                        &quot;output alpha = 0.00&quot;,
+                        &quot;output premultiplied RGB = (0.000, 0.000, 0.000)&quot;,
+                        &quot;division by output alpha is unavailable because 0 ÷ 0 is undefined&quot;,
+                    ),
+                )
+            }
+
+            Text(
+                text = &quot;7 · The opaque-destination formula is a special case&quot;,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+            )
+            OpaqueDestinationExplanation(
+                source = sourceStraight,
+                destination = destinationStraight,
+                calculation = calculation,
+            )
+
+            Text(
+                text = &quot;8 · When to use each representation&quot;,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+            )
+            UsageCard(
+                title = &quot;Compose Color and Color.compositeOver&quot;,
+                body = &quot;Use straight, non-premultiplied components. The &quot; +
+                    &quot;Compose function contract says that both input Color &quot; +
+                    &quot;values and its returned Color are not premultiplied.&quot;,
+            )
+            UsageCard(
+                title = &quot;A premultiplied buffer or premultiplied math function&quot;,
+                body = &quot;Use premultiplied components only when that buffer or &quot; +
+                    &quot;function explicitly defines its RGB fields as already &quot; +
+                    &quot;multiplied by alpha. Android Canvas requires an &quot; +
+                    &quot;alpha-bearing Bitmap that it draws to be premultiplied.&quot;,
+            )
+            UsageCard(
+                title = &quot;The practical rule&quot;,
+                body = &quot;Do not guess from the word RGB. Read the API contract &quot; +
+                    &quot;or use a type whose name states StraightRgba or &quot; +
+                    &quot;PremultipliedRgba. Convert once at the boundary between &quot; +
+                    &quot;the two representations.&quot;,
+            )
+
+            Text(
+                text = &quot;A bare RGB triplet does not automatically mean &quot; +
+                    &quot;premultiplied. It omits alpha, so the representation must &quot; +
+                    &quot;be stated separately. This lesson labels every triplet.&quot;,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+    }
+}
+
+@Composable
+private fun InputColorCard(
+    title: String,
+    straight: StraightRgba,
+    premultiplied: PremultipliedRgba,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    Surface(
+        shape = CardShape,
+        color = colorScheme.surfaceContainerLow,
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Black,
+            )
+            CheckerboardPreview(color = straight.toColor())
+            Text(
+                text = &quot;Straight: ${straight.asTuple()}&quot;,
+                fontFamily = FontFamily.Monospace,
+            )
+            Text(
+                text = &quot;Premultiplied: ${premultiplied.asTuple()}&quot;,
+                fontFamily = FontFamily.Monospace,
+            )
+        }
+    }
+}
+
+@Composable
+private fun CheckerboardPreview(color: Color) {
+    Canvas(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(92.dp),
+    ) {
+        drawCheckerboard()
+        drawRect(color = color)
+    }
+}
+
+@Composable
+private fun AlphaControl(
+    label: String,
+    value: Float,
+    onValueChange: (Float) -&gt; Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = label,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = value.twoDecimals(),
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+        Slider(
+            value = value,
+            onValueChange = { onValueChange(it.coerceIn(0f, 1f)) },
+            valueRange = 0f..1f,
+        )
+    }
+}
+
+@Composable
+private fun PresetButtons(
+    onCourseExample: () -&gt; Unit,
+    onOpaqueDestination: () -&gt; Unit,
+    onTransparentDestination: () -&gt; Unit,
+    onBothTransparent: () -&gt; Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            OutlinedButton(
+                onClick = onCourseExample,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(&quot;Course example&quot;)
+            }
+            OutlinedButton(
+                onClick = onOpaqueDestination,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(&quot;Destination alpha 1&quot;)
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            OutlinedButton(
+                onClick = onTransparentDestination,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(&quot;Destination alpha 0&quot;)
+            }
+            OutlinedButton(
+                onClick = onBothTransparent,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(&quot;Both alphas 0&quot;)
+            }
+        }
+    }
+}
+
+@Composable
+private fun DefinitionCard(
+    title: String,
+    body: String,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    Surface(
+        shape = CardShape,
+        color = colorScheme.secondaryContainer,
+        contentColor = colorScheme.onSecondaryContainer,
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Text(text = title, fontWeight = FontWeight.Black)
+            Text(text = body, style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
+@Composable
+private fun FormulaCard(
+    title: String,
+    lines: List&lt;String&gt;,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    Surface(
+        shape = CardShape,
+        color = colorScheme.primaryContainer,
+        contentColor = colorScheme.onPrimaryContainer,
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp),
+        ) {
+            Text(text = title, fontWeight = FontWeight.Black)
+            lines.forEach { line -&gt;
+                Text(
+                    text = line,
+                    fontFamily = FontFamily.Monospace,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LessonThreeThreeBridge(calculation: SourceOverCalculation) {
+    val colorScheme = MaterialTheme.colorScheme
+    Surface(
+        shape = CardShape,
+        color = colorScheme.surfaceContainerLow,
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            BridgeLine(
+                oldLabel = &quot;Lesson 3.3 source contribution&quot;,
+                newLabel = &quot;source premultiplied RGB&quot;,
+                value = calculation.sourcePremultiplied.rgbTuple(),
+            )
+            BridgeLine(
+                oldLabel = &quot;Lesson 3.3 destination contribution&quot;,
+                newLabel = &quot;destination premultiplied RGB after the source opening&quot;,
+                value = calculation.destinationAfterSource.rgbTuple(),
+            )
+            BridgeLine(
+                oldLabel = &quot;Lesson 3.3 weighted total&quot;,
+                newLabel = &quot;output premultiplied RGB&quot;,
+                value = calculation.outputPremultiplied.rgbTuple(),
+            )
+            BridgeLine(
+                oldLabel = &quot;Lesson 3.3 ordinary output&quot;,
+                newLabel = &quot;output straight RGB&quot;,
+                value = calculation.outputStraight.rgbTuple(),
+            )
+        }
+    }
+}
+
+@Composable
+private fun BridgeLine(
+    oldLabel: String,
+    newLabel: String,
+    value: String,
+) {
+    Text(
+        text = &quot;$oldLabel\n→ $newLabel = $value&quot;,
+        fontFamily = FontFamily.Monospace,
+        style = MaterialTheme.typography.bodySmall,
+    )
+}
+
+@Composable
+private fun ChannelCalculationCards(calculation: SourceOverCalculation) {
+    ChannelCalculationCard(
+        channelName = &quot;Red&quot;,
+        sourceStraight = calculation.sourceStraight.red,
+        sourceAlpha = calculation.sourceStraight.alpha,
+        destinationStraight = calculation.destinationStraight.red,
+        destinationAlpha = calculation.destinationStraight.alpha,
+        sourceOpening = calculation.destinationOpening,
+        outputPremultiplied = calculation.outputPremultiplied.red,
+        outputStraight = calculation.outputStraight.red,
+        outputAlpha = calculation.outputStraight.alpha,
+    )
+    ChannelCalculationCard(
+        channelName = &quot;Green&quot;,
+        sourceStraight = calculation.sourceStraight.green,
+        sourceAlpha = calculation.sourceStraight.alpha,
+        destinationStraight = calculation.destinationStraight.green,
+        destinationAlpha = calculation.destinationStraight.alpha,
+        sourceOpening = calculation.destinationOpening,
+        outputPremultiplied = calculation.outputPremultiplied.green,
+        outputStraight = calculation.outputStraight.green,
+        outputAlpha = calculation.outputStraight.alpha,
+    )
+    ChannelCalculationCard(
+        channelName = &quot;Blue&quot;,
+        sourceStraight = calculation.sourceStraight.blue,
+        sourceAlpha = calculation.sourceStraight.alpha,
+        destinationStraight = calculation.destinationStraight.blue,
+        destinationAlpha = calculation.destinationStraight.alpha,
+        sourceOpening = calculation.destinationOpening,
+        outputPremultiplied = calculation.outputPremultiplied.blue,
+        outputStraight = calculation.outputStraight.blue,
+        outputAlpha = calculation.outputStraight.alpha,
+    )
+}
+
+@Composable
+private fun ChannelCalculationCard(
+    channelName: String,
+    sourceStraight: Float,
+    sourceAlpha: Float,
+    destinationStraight: Float,
+    destinationAlpha: Float,
+    sourceOpening: Float,
+    outputPremultiplied: Float,
+    outputStraight: Float,
+    outputAlpha: Float,
+) {
+    val sourceContribution = sourceStraight * sourceAlpha
+    val destinationContribution =
+        destinationStraight * destinationAlpha * sourceOpening
+    val colorScheme = MaterialTheme.colorScheme
+
+    Surface(
+        shape = CardShape,
+        color = colorScheme.surfaceContainerLow,
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(text = channelName, fontWeight = FontWeight.Black)
+            Text(
+                text = &quot;source premultiplied = &quot; +
+                    &quot;${sourceStraight.twoDecimals()} × ${sourceAlpha.twoDecimals()} &quot; +
+                    &quot;= ${sourceContribution.threeDecimals()}&quot;,
+                fontFamily = FontFamily.Monospace,
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Text(
+                text = &quot;destination after source = &quot; +
+                    &quot;${destinationStraight.twoDecimals()} × &quot; +
+                    &quot;${destinationAlpha.twoDecimals()} × &quot; +
+                    &quot;${sourceOpening.twoDecimals()} = &quot; +
+                    destinationContribution.threeDecimals(),
+                fontFamily = FontFamily.Monospace,
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Text(
+                text = &quot;output premultiplied = &quot; +
+                    &quot;${sourceContribution.threeDecimals()} + &quot; +
+                    &quot;${destinationContribution.threeDecimals()} = &quot; +
+                    outputPremultiplied.threeDecimals(),
+                fontFamily = FontFamily.Monospace,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                text = if (outputAlpha &gt; 0f) {
+                    &quot;output straight = ${outputPremultiplied.threeDecimals()} ÷ &quot; +
+                        &quot;${outputAlpha.twoDecimals()} = &quot; +
+                        outputStraight.threeDecimals()
+                } else {
+                    &quot;output straight is undefined at alpha 0; the lesson uses transparent black&quot;
+                },
+                fontFamily = FontFamily.Monospace,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+    }
+}
+
+@Composable
+private fun OutputComparison(
+    manualOutput: StraightRgba,
+    composeOutput: StraightRgba,
+    outputPremultiplied: PremultipliedRgba,
+) {
+    Text(
+        text = &quot;Both calculation paths produce the same output&quot;,
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Black,
+    )
+    ResultCard(
+        title = &quot;Output premultiplied RGBA&quot;,
+        tuple = outputPremultiplied.asTuple(),
+        color = manualOutput.toColor(),
+        explanation = &quot;This is the alpha-weighted result that the source-over sums naturally produce.&quot;,
+    )
+    ResultCard(
+        title = &quot;Output straight RGBA&quot;,
+        tuple = manualOutput.asTuple(),
+        color = manualOutput.toColor(),
+        explanation = &quot;This stores the output color separately from output alpha.&quot;,
+    )
+    ResultCard(
+        title = &quot;Compose Color.compositeOver output&quot;,
+        tuple = composeOutput.asTuple(),
+        color = composeOutput.toColor(),
+        explanation = &quot;Compose accepts straight Color inputs and returns a straight Color output.&quot;,
+    )
+}
+
+@Composable
+private fun ResultCard(
+    title: String,
+    tuple: String,
+    color: Color,
+    explanation: String,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    Surface(
+        shape = CardShape,
+        color = colorScheme.surfaceContainerLow,
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(text = title, fontWeight = FontWeight.Black)
+            CheckerboardPreview(color = color)
+            Text(
+                text = tuple,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(text = explanation, style = MaterialTheme.typography.bodySmall)
+        }
+    }
+}
+
+@Composable
+private fun OpaqueDestinationExplanation(
+    source: StraightRgba,
+    destination: StraightRgba,
+    calculation: SourceOverCalculation,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val isOpaque = destination.alpha == 1f
+    Surface(
+        shape = CardShape,
+        color = if (isOpaque) {
+            colorScheme.tertiaryContainer
+        } else {
+            colorScheme.surfaceContainerLow
+        },
+        contentColor = if (isOpaque) {
+            colorScheme.onTertiaryContainer
+        } else {
+            colorScheme.onSurface
+        },
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Text(
+                text = if (isOpaque) {
+                    &quot;Destination alpha is 1.00&quot;
+                } else {
+                    &quot;Destination alpha is ${destination.alpha.twoDecimals()}&quot;
+                },
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = if (isOpaque) {
+                    &quot;The general destination term is destination straight RGB × &quot; +
+                        &quot;destination alpha × (1 − source alpha). Because destination &quot; +
+                        &quot;alpha is 1.00, that factor can be removed without changing &quot; +
+                        &quot;the value. Output alpha is also 1.00, so output straight RGB &quot; +
+                        &quot;and output premultiplied RGB are numerically equal.&quot;
+                } else {
+                    &quot;The destination is translucent. Its alpha must remain in the &quot; +
+                        &quot;formula. Select ‘Destination alpha 1’ to see the opaque &quot; +
+                        &quot;special case.&quot;
+                },
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Text(
+                text = &quot;Current output: ${calculation.outputStraight.asTuple()}&quot;,
+                fontFamily = FontFamily.Monospace,
+            )
+            Text(
+                text = &quot;Current source opening: 1 − ${source.alpha.twoDecimals()} = &quot; +
+                    calculation.destinationOpening.twoDecimals(),
+                fontFamily = FontFamily.Monospace,
+            )
+        }
+    }
+}
+
+@Composable
+private fun UsageCard(
+    title: String,
+    body: String,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    Surface(
+        shape = CardShape,
+        color = colorScheme.surfaceContainerLow,
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp),
+        ) {
+            Text(text = title, fontWeight = FontWeight.Black)
+            Text(text = body, style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
+private fun DrawScope.drawCheckerboard() {
+    val cellSize = 20.dp.toPx()
+    val columns = ceil(size.width / cellSize).toInt()
+    val rows = ceil(size.height / cellSize).toInt()
+
+    for (row in 0 until rows) {
+        for (column in 0 until columns) {
+            drawRect(
+                color = if ((row + column) % 2 == 0) {
+                    CheckerLight
+                } else {
+                    CheckerDark
+                },
+                topLeft = Offset(
+                    x = column * cellSize,
+                    y = row * cellSize,
+                ),
+                size = Size(cellSize, cellSize),
+            )
+        }
+    }
+}
+
+private data class StraightRgba(
+    val red: Float,
+    val green: Float,
+    val blue: Float,
+    val alpha: Float,
+) {
+    fun toPremultiplied(): PremultipliedRgba =
+        PremultipliedRgba(
+            red = red * alpha,
+            green = green * alpha,
+            blue = blue * alpha,
+            alpha = alpha,
+        )
+
+    fun toColor(): Color = Color(
+        red = red.coerceIn(0f, 1f),
+        green = green.coerceIn(0f, 1f),
+        blue = blue.coerceIn(0f, 1f),
+        alpha = alpha.coerceIn(0f, 1f),
+    )
+
+    fun asTuple(): String =
+        &quot;Straight RGBA(${red.threeDecimals()}, ${green.threeDecimals()}, &quot; +
+            &quot;${blue.threeDecimals()}, ${alpha.twoDecimals()})&quot;
+
+    fun rgbTuple(): String =
+        &quot;(${red.threeDecimals()}, ${green.threeDecimals()}, ${blue.threeDecimals()})&quot;
+}
+
+private data class PremultipliedRgba(
+    val red: Float,
+    val green: Float,
+    val blue: Float,
+    val alpha: Float,
+) {
+    fun toStraight(): StraightRgba {
+        if (alpha &lt;= 0f) {
+            return StraightRgba(
+                red = 0f,
+                green = 0f,
+                blue = 0f,
+                alpha = 0f,
+            )
+        }
+        return StraightRgba(
+            red = red / alpha,
+            green = green / alpha,
+            blue = blue / alpha,
+            alpha = alpha,
+        )
+    }
+
+    fun asTuple(): String =
+        &quot;Premultiplied RGBA(${red.threeDecimals()}, ${green.threeDecimals()}, &quot; +
+            &quot;${blue.threeDecimals()}, ${alpha.twoDecimals()})&quot;
+
+    fun rgbTuple(): String =
+        &quot;(${red.threeDecimals()}, ${green.threeDecimals()}, ${blue.threeDecimals()})&quot;
+}
+
+private data class SourceOverCalculation(
+    val sourceStraight: StraightRgba,
+    val destinationStraight: StraightRgba,
+    val sourcePremultiplied: PremultipliedRgba,
+    val destinationPremultiplied: PremultipliedRgba,
+    val destinationOpening: Float,
+    val destinationAfterSource: PremultipliedRgba,
+    val outputPremultiplied: PremultipliedRgba,
+    val outputStraight: StraightRgba,
+)
+
+private fun calculateSourceOver(
+    source: StraightRgba,
+    destination: StraightRgba,
+): SourceOverCalculation {
+    val sourcePremultiplied = source.toPremultiplied()
+    val destinationPremultiplied = destination.toPremultiplied()
+    val destinationOpening = 1f - source.alpha
+
+    val destinationAfterSource = PremultipliedRgba(
+        red = destinationPremultiplied.red * destinationOpening,
+        green = destinationPremultiplied.green * destinationOpening,
+        blue = destinationPremultiplied.blue * destinationOpening,
+        alpha = destination.alpha * destinationOpening,
+    )
+
+    val outputPremultiplied = PremultipliedRgba(
+        red = sourcePremultiplied.red + destinationAfterSource.red,
+        green = sourcePremultiplied.green + destinationAfterSource.green,
+        blue = sourcePremultiplied.blue + destinationAfterSource.blue,
+        alpha = source.alpha + destinationAfterSource.alpha,
+    )
+
+    return SourceOverCalculation(
+        sourceStraight = source,
+        destinationStraight = destination,
+        sourcePremultiplied = sourcePremultiplied,
+        destinationPremultiplied = destinationPremultiplied,
+        destinationOpening = destinationOpening,
+        destinationAfterSource = destinationAfterSource,
+        outputPremultiplied = outputPremultiplied,
+        outputStraight = outputPremultiplied.toStraight(),
+    )
+}
+
+private fun Color.toStraightRgba(): StraightRgba =
+    StraightRgba(
+        red = red,
+        green = green,
+        blue = blue,
+        alpha = alpha,
+    )
+
+private fun Float.twoDecimals(): String =
+    String.format(Locale.US, &quot;%.2f&quot;, this)
+
+private fun Float.threeDecimals(): String =
+    String.format(Locale.US, &quot;%.3f&quot;, this)
+</pre></div>
+    <div class="source-pane" id="source-over"><pre class="code source-code">package com.example.liquidglasslab.chapter03
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.weight
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import java.util.Locale
+import kotlin.math.ceil
+
+private const val SourceRed = 0.90f
+private const val SourceGreen = 0.10f
+private const val SourceBlue = 0.80f
+private const val InitialSourceAlpha = 0.50f
+
+private const val DestinationRed = 0.10f
+private const val DestinationGreen = 0.90f
+private const val DestinationBlue = 0.40f
+private const val InitialDestinationAlpha = 0.60f
+
+private val ExplorerShape = RoundedCornerShape(22.dp)
+private val CardShape = RoundedCornerShape(15.dp)
+private val SwatchShape = RoundedCornerShape(16.dp)
+
+private val CheckerLight = Color(0xFFF8FAFC)
+private val CheckerDark = Color(0xFFCBD5E1)
+
+@Composable
+internal fun OverOperationExplorer(
+    modifier: Modifier = Modifier,
+) {
+    var sourceAlpha by rememberSaveable {
+        mutableFloatStateOf(InitialSourceAlpha)
+    }
+    var destinationAlpha by rememberSaveable {
+        mutableFloatStateOf(InitialDestinationAlpha)
+    }
+
+    val source = remember(sourceAlpha) {
+        OverStraightRgba(
+            red = SourceRed,
+            green = SourceGreen,
+            blue = SourceBlue,
+            alpha = sourceAlpha,
+        )
+    }
+    val destination = remember(destinationAlpha) {
+        OverStraightRgba(
+            red = DestinationRed,
+            green = DestinationGreen,
+            blue = DestinationBlue,
+            alpha = destinationAlpha,
+        )
+    }
+    val calculation = remember(source, destination) {
+        calculateSourceOver(
+            source = source,
+            destination = destination,
+        )
+    }
+    val colorScheme = MaterialTheme.colorScheme
+
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = ExplorerShape,
+        color = colorScheme.surface,
+        contentColor = colorScheme.onSurface,
+        border = BorderStroke(
+            width = 1.dp,
+            color = colorScheme.outlineVariant,
+        ),
+    ) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Text(
+                text = &quot;Source over destination&quot;,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = &quot;The destination already exists at the image position. &quot; +
+                    &quot;The source is drawn now, on top of that destination.&quot;,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                InputColorCard(
+                    label = &quot;Source · drawn second&quot;,
+                    color = source,
+                    accent = Color(0xFFBE185D),
+                    modifier = Modifier.weight(1f),
+                )
+                InputColorCard(
+                    label = &quot;Destination · drawn first&quot;,
+                    color = destination,
+                    accent = Color(0xFF059669),
+                    modifier = Modifier.weight(1f),
+                )
+            }
+
+            LayerStackComparison(
+                source = source,
+                destination = destination,
+                output = calculation.outputStraight,
+            )
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = colorScheme.surfaceVariant,
+                contentColor = colorScheme.onSurfaceVariant,
+                shape = CardShape,
+            ) {
+                Column(
+                    modifier = Modifier.padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                ) {
+                    Text(
+                        text = &quot;Contribution summary&quot;,
+                        fontWeight = FontWeight.Black,
+                    )
+                    Text(
+                        text = &quot;Source contribution weight = &quot; +
+                            calculation.sourceContributionAlpha.twoDecimals(),
+                    )
+                    Text(
+                        text = &quot;Destination contribution weight = &quot; +
+                            &quot;${destination.alpha.twoDecimals()} × &quot; +
+                            &quot;(1 − ${source.alpha.twoDecimals()}) = &quot; +
+                            calculation.destinationContributionAlpha.twoDecimals(),
+                    )
+                    Text(
+                        text = &quot;Output alpha = &quot; +
+                            &quot;${calculation.sourceContributionAlpha.twoDecimals()} + &quot; +
+                            &quot;${calculation.destinationContributionAlpha.twoDecimals()} = &quot; +
+                            calculation.outputStraight.alpha.twoDecimals(),
+                    )
+                    Text(
+                        text = &quot;Output RGBA = ${calculation.outputStraight.asTuple()}&quot;,
+                        fontWeight = FontWeight.Black,
+                    )
+                }
+            }
+
+            AlphaControl(
+                label = &quot;Source alpha&quot;,
+                value = sourceAlpha,
+                onValueChange = { sourceAlpha = it },
+                accent = Color(0xFFBE185D),
+            )
+            AlphaControl(
+                label = &quot;Destination alpha&quot;,
+                value = destinationAlpha,
+                onValueChange = { destinationAlpha = it },
+                accent = Color(0xFF059669),
+            )
+
+            Text(
+                text = &quot;Exact experiments&quot;,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Black,
+            )
+            PresetRow(
+                onCourseExample = {
+                    sourceAlpha = 0.50f
+                    destinationAlpha = 0.60f
+                },
+                onOpaqueDestination = {
+                    sourceAlpha = 0.50f
+                    destinationAlpha = 1f
+                },
+            )
+            PresetRowTwo(
+                onTransparentSource = {
+                    sourceAlpha = 0f
+                    destinationAlpha = 0.60f
+                },
+                onOpaqueSource = {
+                    sourceAlpha = 1f
+                    destinationAlpha = 0.60f
+                },
+                onBothTransparent = {
+                    sourceAlpha = 0f
+                    destinationAlpha = 0f
+                },
+            )
+
+            Text(
+                text = &quot;Channel calculations&quot;,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Black,
+            )
+            ChannelCalculationCard(
+                channelName = &quot;Red&quot;,
+                sourceChannel = source.red,
+                destinationChannel = destination.red,
+                calculation = calculation,
+                outputPremultiplied = calculation.outputPremultipliedRed,
+                outputStraight = calculation.outputStraight.red,
+            )
+            ChannelCalculationCard(
+                channelName = &quot;Green&quot;,
+                sourceChannel = source.green,
+                destinationChannel = destination.green,
+                calculation = calculation,
+                outputPremultiplied = calculation.outputPremultipliedGreen,
+                outputStraight = calculation.outputStraight.green,
+            )
+            ChannelCalculationCard(
+                channelName = &quot;Blue&quot;,
+                sourceChannel = source.blue,
+                destinationChannel = destination.blue,
+                calculation = calculation,
+                outputPremultiplied = calculation.outputPremultipliedBlue,
+                outputStraight = calculation.outputStraight.blue,
+            )
+
+            Text(
+                text = &quot;The output premultiplied RGB values are the alpha-weighted contribution totals produced by source-over. &quot; +
+                    &quot;When output alpha is greater than zero, dividing each output premultiplied &quot; +
+                    &quot;channel by output alpha gives the output straight RGB values shown in &quot; +
+                    &quot;the output tuple.&quot;,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+    }
+}
+
+@Composable
+private fun InputColorCard(
+    label: String,
+    color: OverStraightRgba,
+    accent: Color,
+    modifier: Modifier = Modifier,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+
+    Surface(
+        modifier = modifier,
+        shape = CardShape,
+        color = colorScheme.surfaceVariant,
+        contentColor = colorScheme.onSurfaceVariant,
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Canvas(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp)
+                    .clip(RoundedCornerShape(11.dp))
+                    .border(
+                        width = 3.dp,
+                        color = accent,
+                        shape = RoundedCornerShape(11.dp),
+                    ),
+            ) {
+                drawCheckerboard()
+                drawRect(color = color.toColor())
+            }
+            Text(
+                text = label,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = color.asTuple(),
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+    }
+}
+
+@Composable
+private fun LayerStackComparison(
+    source: OverStraightRgba,
+    destination: OverStraightRgba,
+    output: OverStraightRgba,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        CompositePreviewCard(
+            label = &quot;Rendered stack&quot;,
+            explanation = &quot;checkerboard → destination → source&quot;,
+            modifier = Modifier.weight(1f),
+        ) {
+            drawCheckerboard()
+            drawRect(color = destination.toColor())
+            drawRect(
+                color = source.toColor(),
+                blendMode = BlendMode.SrcOver,
+            )
+        }
+        CompositePreviewCard(
+            label = &quot;Calculated output&quot;,
+            explanation = output.asTuple(),
+            modifier = Modifier.weight(1f),
+        ) {
+            drawCheckerboard()
+            drawRect(color = output.toColor())
+        }
+    }
+}
+
+@Composable
+private fun CompositePreviewCard(
+    label: String,
+    explanation: String,
+    modifier: Modifier = Modifier,
+    drawContent: DrawScope.() -&gt; Unit,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+
+    Surface(
+        modifier = modifier,
+        shape = CardShape,
+        color = colorScheme.surfaceVariant,
+        contentColor = colorScheme.onSurfaceVariant,
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
+    ) {
+        Column(
+            modifier = Modifier.padding(10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Canvas(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .clip(SwatchShape),
+                onDraw = drawContent,
+            )
+            Text(
+                text = label,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = explanation,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+    }
+}
+
+@Composable
+private fun AlphaControl(
+    label: String,
+    value: Float,
+    onValueChange: (Float) -&gt; Unit,
+    accent: Color,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = label,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = value.twoDecimals(),
+                fontWeight = FontWeight.Black,
+            )
+        }
+        Slider(
+            value = value,
+            onValueChange = { onValueChange(it.coerceIn(0f, 1f)) },
+            valueRange = 0f..1f,
+            modifier = Modifier.semantics {
+                contentDescription = &quot;$label ${value.twoDecimals()}&quot;
+            },
+            colors = SliderDefaults.colors(
+                thumbColor = accent,
+                activeTrackColor = accent,
+                inactiveTrackColor = colorScheme.surfaceVariant,
+            ),
+        )
+    }
+}
+
+@Composable
+private fun PresetRow(
+    onCourseExample: () -&gt; Unit,
+    onOpaqueDestination: () -&gt; Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        OutlinedButton(
+            onClick = onCourseExample,
+            modifier = Modifier.weight(1f),
+        ) {
+            Text(&quot;Course example&quot;)
+        }
+        OutlinedButton(
+            onClick = onOpaqueDestination,
+            modifier = Modifier.weight(1f),
+        ) {
+            Text(&quot;Opaque destination&quot;)
+        }
+    }
+}
+
+@Composable
+private fun PresetRowTwo(
+    onTransparentSource: () -&gt; Unit,
+    onOpaqueSource: () -&gt; Unit,
+    onBothTransparent: () -&gt; Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            OutlinedButton(
+                onClick = onTransparentSource,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(&quot;Source alpha 0&quot;)
+            }
+            OutlinedButton(
+                onClick = onOpaqueSource,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(&quot;Source alpha 1&quot;)
+            }
+        }
+        OutlinedButton(
+            onClick = onBothTransparent,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(&quot;Both alphas 0&quot;)
+        }
+    }
+}
+
+@Composable
+private fun ChannelCalculationCard(
+    channelName: String,
+    sourceChannel: Float,
+    destinationChannel: Float,
+    calculation: OverSourceOverCalculation,
+    outputPremultiplied: Float,
+    outputStraight: Float,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val sourceContribution = sourceChannel * calculation.sourceContributionAlpha
+    val destinationContribution = destinationChannel * calculation.destinationContributionAlpha
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = CardShape,
+        color = colorScheme.surfaceVariant,
+        contentColor = colorScheme.onSurfaceVariant,
+    ) {
+        Column(
+            modifier = Modifier.padding(13.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(
+                text = channelName,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = &quot;Source: ${sourceChannel.twoDecimals()} × &quot; +
+                    &quot;${calculation.sourceContributionAlpha.twoDecimals()} = &quot; +
+                    sourceContribution.twoDecimals(),
+            )
+            Text(
+                text = &quot;Destination: ${destinationChannel.twoDecimals()} × &quot; +
+                    &quot;${calculation.destinationContributionAlpha.twoDecimals()} = &quot; +
+                    destinationContribution.twoDecimals(),
+            )
+            Text(
+                text = &quot;Output premultiplied RGB: ${sourceContribution.twoDecimals()} + &quot; +
+                    &quot;${destinationContribution.twoDecimals()} = &quot; +
+                    outputPremultiplied.twoDecimals(),
+            )
+            Text(
+                text = if (calculation.outputStraight.alpha &gt; 0f) {
+                    &quot;Output straight RGB: ${outputPremultiplied.twoDecimals()} ÷ &quot; +
+                        &quot;${calculation.outputStraight.alpha.twoDecimals()} = &quot; +
+                        outputStraight.twoDecimals()
+                } else {
+                    &quot;Output straight RGB: undefined at alpha 0.00; using transparent black&quot;
+                },
+                fontWeight = FontWeight.Black,
+            )
+        }
+    }
+}
+
+private fun DrawScope.drawCheckerboard() {
+    val cellSize = 22.dp.toPx()
+    val columns = ceil(size.width / cellSize).toInt()
+    val rows = ceil(size.height / cellSize).toInt()
+
+    for (row in 0 until rows) {
+        for (column in 0 until columns) {
+            drawRect(
+                color = if ((row + column) % 2 == 0) {
+                    CheckerLight
+                } else {
+                    CheckerDark
+                },
+                topLeft = Offset(
+                    x = column * cellSize,
+                    y = row * cellSize,
+                ),
+                size = androidx.compose.ui.geometry.Size(
+                    width = cellSize,
+                    height = cellSize,
+                ),
+            )
+        }
+    }
+}
+
+private data class OverStraightRgba(
+    val red: Float,
+    val green: Float,
+    val blue: Float,
+    val alpha: Float,
+) {
+    fun toColor(): Color = Color(
+        red = red,
+        green = green,
+        blue = blue,
+        alpha = alpha,
+    )
+
+    fun asTuple(): String =
+        &quot;RGBA(${red.twoDecimals()}, ${green.twoDecimals()}, &quot; +
+            &quot;${blue.twoDecimals()}, ${alpha.twoDecimals()})&quot;
+}
+
+private data class OverSourceOverCalculation(
+    val sourceContributionAlpha: Float,
+    val destinationContributionAlpha: Float,
+    val outputPremultipliedRed: Float,
+    val outputPremultipliedGreen: Float,
+    val outputPremultipliedBlue: Float,
+    val outputStraight: OverStraightRgba,
+)
+
+private fun calculateSourceOver(
+    source: OverStraightRgba,
+    destination: OverStraightRgba,
+): OverSourceOverCalculation {
+    val sourceContributionAlpha = source.alpha
+    val destinationContributionAlpha = destination.alpha * (1f - source.alpha)
+    val outputAlpha = sourceContributionAlpha + destinationContributionAlpha
+
+    val outputPremultipliedRed =
+        source.red * sourceContributionAlpha +
+            destination.red * destinationContributionAlpha
+    val outputPremultipliedGreen =
+        source.green * sourceContributionAlpha +
+            destination.green * destinationContributionAlpha
+    val outputPremultipliedBlue =
+        source.blue * sourceContributionAlpha +
+            destination.blue * destinationContributionAlpha
+
+    val outputStraight = if (outputAlpha &lt;= 0f) {
+        OverStraightRgba(
+            red = 0f,
+            green = 0f,
+            blue = 0f,
+            alpha = 0f,
+        )
+    } else {
+        OverStraightRgba(
+            red = outputPremultipliedRed / outputAlpha,
+            green = outputPremultipliedGreen / outputAlpha,
+            blue = outputPremultipliedBlue / outputAlpha,
+            alpha = outputAlpha,
+        )
+    }
+
+    return OverSourceOverCalculation(
+        sourceContributionAlpha = sourceContributionAlpha,
+        destinationContributionAlpha = destinationContributionAlpha,
+        outputPremultipliedRed = outputPremultipliedRed,
+        outputPremultipliedGreen = outputPremultipliedGreen,
+        outputPremultipliedBlue = outputPremultipliedBlue,
+        outputStraight = outputStraight,
+    )
+}
+
+private fun Float.twoDecimals(): String =
+    String.format(Locale.US, &quot;%.2f&quot;, this)
+</pre></div>
+  </section>
+
+  <section class="section panel" id="challenge">
+    <div class="section-head"><div><div class="section-no">11 · Coding challenge</div><h2>Restore the missing destination alpha</h2></div><p>The function starts with straight RGBA inputs. The destination is allowed to be translucent.</p></div>
+    <div class="challenge">
+      <div><textarea class="editor" id="codeEditor" spellcheck="false">fun redSourceOver(
+    source: StraightRgba,
+    destination: StraightRgba,
+): Float {
+    val sourceContribution =
+        source.red * source.alpha
+
+    val destinationContribution =
+        destination.red * (1f - source.alpha)
+
+    return sourceContribution + destinationContribution
+}</textarea><div class="controls" style="margin-top:12px"><button class="secondary" data-expression="missing" type="button">Omit destination alpha</button><button class="secondary" data-expression="correct" type="button">Include destination alpha</button><button class="primary" id="checkChallenge" type="button">Check answer</button></div><div class="challenge-result" id="challengeFeedback">The initial function is incorrect for the course destination alpha of 0.60.</div></div>
+      <aside class="challenge-preview"><h3>Code-driven preview</h3><div class="controls"><button class="preset selected" data-challenge-alpha="0.60" type="button">Destination alpha 0.60</button><button class="preset" data-challenge-alpha="1.00" type="button">Destination alpha 1.00</button></div><div class="formula" id="challengeInput"></div><div class="formula" id="challengeOperation"></div><div class="formula" id="challengeOutput"></div><div class="warning"><strong>Diagnostic:</strong> the defective formula appears correct when destination alpha is 1.00 because multiplying by 1 changes nothing. The translucent destination exposes the missing factor.</div></aside>
+    </div>
+  </section>
+
+  <section class="section panel" id="exercises">
+    <div class="section-head"><div><div class="section-no">12 · Exercises and checkpoint</div><h2>Answer without opening the hidden solutions first</h2></div><p>The questions target the exact ambiguities corrected in this revision.</p></div>
+    <details><summary>Exercise 1 · Name both representations</summary><p>Source straight RGBA is <code>(0.80, 0.20, 0.60, 0.25)</code>. Write the premultiplied RGBA tuple. Then state whether the two tuples represent the same translucent source.</p><div class="success"><strong>Answer:</strong> <code>Premultiplied RGBA(0.20, 0.05, 0.15, 0.25)</code>. Yes. The numerical fields differ, but both representations describe the same translucent source.</div></details>
+    <details><summary>Exercise 2 · Diagnostic destination-alpha question</summary><p>Why is <code>destination RGB × (1 − source alpha)</code> incomplete when destination alpha is 0.60?</p><div class="success"><strong>Answer:</strong> the destination RGB is straight and has not yet been weighted by its own alpha. The general term is <code>destination straight RGB × destination alpha × (1 − source alpha)</code>.</div></details>
+    <details><summary>Exercise 3 · Link to Lesson 3.3</summary><p>What precise name should replace Lesson 3.3's “weighted total”? What operation produces its “straight output”?</p><div class="success"><strong>Answer:</strong> “output premultiplied RGB.” Divide that tuple by output alpha, when output alpha is greater than zero, to obtain output straight RGB.</div></details>
+    <details><summary>Exercise 4 · API contract</summary><p>You have a Compose <code>Color</code> and want to call <code>compositeOver</code>. Should you premultiply its RGB first?</p><div class="success"><strong>Answer:</strong> no. Compose documents <code>Color.compositeOver</code> as accepting non-premultiplied inputs and returning a non-premultiplied output.</div></details>
+    <h3 style="margin-top:24px">Pixel 8 Pro checkpoint</h3>
+    <div class="check-grid" id="checklist"></div>
+    <div class="controls" style="margin-top:18px"><button class="primary" id="copyRecord" type="button">Copy completion record</button><span id="copyStatus" class="small"></span></div>
+    <textarea class="record" id="completionRecord" readonly></textarea>
+  </section>
+
+  <section class="section panel" id="sources">
+    <div class="section-head"><div><div class="section-no">13 · Technical sources</div><h2>Primary contracts used by this lesson</h2></div><p>The lesson distinguishes API contracts instead of assuming one universal storage form.</p></div>
+    <ul>
+      <li><a href="https://www.w3.org/TR/compositing-1/#simplealphacompositing">W3C Compositing and Blending Level 1 · simple alpha compositing</a></li>
+      <li><a href="https://github.com/androidx/androidx/blob/androidx-main/compose/ui/ui-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/Color.kt">AndroidX Compose <code>Color.kt</code> · <code>compositeOver</code> contract and implementation</a></li>
+      <li><a href="https://developer.android.com/reference/android/graphics/Bitmap">Android <code>Bitmap</code> API · premultiplied bitmap contract</a></li>
+    </ul>
+  </section>
+
+  <footer><a href="lesson-03-04-draw-order-matters.html">← Lesson 3.4</a> · Lesson 3.5 pending · Next after completion: Lesson 3.6</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const sourceRgb={r:.90,g:.10,b:.80};
+const destinationRgb={r:.10,g:.90,b:.40};
+const state={sourceA:.50,destinationA:.60,step:0,challengeDestinationA:.60};
+const f2=n=>Number.isFinite(n)?n.toFixed(2):'undefined';
+const f3=n=>Number.isFinite(n)?n.toFixed(3):'undefined';
+const rgb=(c,a=1)=>`rgba(${Math.round(clamp(c.r)*255)},${Math.round(clamp(c.g)*255)},${Math.round(clamp(c.b)*255)},${clamp(a)})`;
+const clamp=n=>Math.max(0,Math.min(1,n));
+const straightTuple=(c,a)=>`Straight RGBA(${f3(c.r)}, ${f3(c.g)}, ${f3(c.b)}, ${f2(a)})`;
+const premulTuple=(c,a)=>`Premultiplied RGBA(${f3(c.r)}, ${f3(c.g)}, ${f3(c.b)}, ${f2(a)})`;
+const triplet=c=>`(${f3(c.r)}, ${f3(c.g)}, ${f3(c.b)})`;
+const mul=(c,k)=>({r:c.r*k,g:c.g*k,b:c.b*k});
+const add=(a,b)=>({r:a.r+b.r,g:a.g+b.g,b:a.b+b.b});
+function calculate(){
+  const sP=mul(sourceRgb,state.sourceA);
+  const dP=mul(destinationRgb,state.destinationA);
+  const opening=1-state.sourceA;
+  const dAfter=mul(dP,opening);
+  const outP=add(sP,dAfter);
+  const outA=state.sourceA+state.destinationA*opening;
+  const outS=outA>0?mul(outP,1/outA):{r:0,g:0,b:0};
+  return {sP,dP,opening,dAfter,outP,outA,outS};
+}
+function paintLayer(id,c,a){$(id).style.background=rgb(c,a)}
+function pathStep(title,body){return `<div class="path-step"><strong>${title}</strong><span>${body}</span></div>`}
+function render(){
+  const c=calculate();
+  $('sourceAlpha').value=state.sourceA;$('sourceAlphaOut').textContent=f2(state.sourceA);
+  $('destinationAlpha').value=state.destinationA;$('destinationAlphaOut').textContent=f2(state.destinationA);
+  paintLayer('sourceLayer',sourceRgb,state.sourceA);paintLayer('destinationLayer',destinationRgb,state.destinationA);paintLayer('outputLayer',c.outS,c.outA);
+  $('sourceStraightTuple').textContent=straightTuple(sourceRgb,state.sourceA);
+  $('destinationStraightTuple').textContent=straightTuple(destinationRgb,state.destinationA);
+  $('outputStraightTuple').textContent=straightTuple(c.outS,c.outA);
+  $('sourceConversion').textContent=`Source straight → source premultiplied\nR: 0.90 × ${f2(state.sourceA)} = ${f3(c.sP.r)}\nG: 0.10 × ${f2(state.sourceA)} = ${f3(c.sP.g)}\nB: 0.80 × ${f2(state.sourceA)} = ${f3(c.sP.b)}\nalpha remains ${f2(state.sourceA)}`;
+  $('straightDefinition').textContent=straightTuple(sourceRgb,state.sourceA)+'\nRGB fields are independent from alpha.';
+  $('premulDefinition').textContent=premulTuple(c.sP,state.sourceA)+'\nRGB fields already include alpha.';
+  renderRepresentationSvg(c);
+  $('bridgeSource').textContent=triplet(c.sP);
+  $('bridgeDestination').textContent=triplet(c.dAfter);
+  $('bridgeOutputPremul').textContent=triplet(c.outP);
+  $('bridgeOutputStraight').textContent=triplet(c.outS);
+  $('straightPathSteps').innerHTML=
+    pathStep('1 · Source contribution',`${triplet(sourceRgb)} × ${f2(state.sourceA)} = ${triplet(c.sP)}`)+
+    pathStep('2 · Destination contribution before source coverage',`${triplet(destinationRgb)} × ${f2(state.destinationA)} = ${triplet(c.dP)}`)+
+    pathStep('3 · Destination after source opening',`${triplet(c.dP)} × ${f2(c.opening)} = ${triplet(c.dAfter)}`)+
+    pathStep('4 · Add contributions',`${triplet(c.sP)} + ${triplet(c.dAfter)} = ${triplet(c.outP)}`);
+  $('premulPathSteps').innerHTML=
+    pathStep('1 · Read source premultiplied RGB',triplet(c.sP))+
+    pathStep('2 · Read destination premultiplied RGB',triplet(c.dP))+
+    pathStep('3 · Apply only the source opening to destination',`${triplet(c.dP)} × ${f2(c.opening)} = ${triplet(c.dAfter)}`)+
+    pathStep('4 · Add premultiplied values',`${triplet(c.sP)} + ${triplet(c.dAfter)} = ${triplet(c.outP)}`);
+  $('outputAlphaFormula').textContent=`output alpha = source alpha + destination alpha × (1 − source alpha)\n= ${f2(state.sourceA)} + ${f2(state.destinationA)} × ${f2(c.opening)}\n= ${f2(c.outA)}`;
+  paintLayer('resultPremulLayer',c.outS,c.outA);paintLayer('resultStraightLayer',c.outS,c.outA);paintLayer('composeResultLayer',c.outS,c.outA);
+  $('resultPremulTuple').textContent=premulTuple(c.outP,c.outA);
+  $('resultStraightTuple').textContent=straightTuple(c.outS,c.outA);
+  $('composeResultTuple').textContent=straightTuple(c.outS,c.outA);
+  $('specialAlpha').textContent=f2(state.destinationA);
+  $('specialMessage').innerHTML=state.destinationA===1?'<strong>Current state:</strong> destination alpha is 1.00. The shorter formula is valid, output alpha is 1.00, and straight/premultiplied output RGB are numerically equal.':'<strong>Current state:</strong> destination alpha is not 1.00. Removing destination alpha would produce an incorrect destination contribution.';
+  document.querySelectorAll('[data-preset]').forEach(b=>b.classList.toggle('selected',(b.dataset.preset==='course'&&state.sourceA===.5&&state.destinationA===.6)||(b.dataset.preset==='opaque'&&state.sourceA===.5&&state.destinationA===1)||(b.dataset.preset==='transparent'&&state.sourceA===.5&&state.destinationA===0)||(b.dataset.preset==='both-zero'&&state.sourceA===0&&state.destinationA===0)));
+  renderStep();renderChallenge();
+}
+function renderRepresentationSvg(c){
+  const box=(x,y,w,h,title,tuple,fill,lines)=>`<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="22" fill="${fill}" stroke="var(--line)" stroke-width="2"/><text x="${x+24}" y="${y+40}" font-size="23" font-weight="900" fill="var(--ink)">${title}</text><text x="${x+24}" y="${y+82}" font-size="18" font-family="monospace" fill="var(--ink)">${tuple}</text>${lines.map((t,i)=>`<text x="${x+24}" y="${y+125+i*31}" font-size="16" fill="var(--ink)">${t}</text>`).join('')}</g>`;
+  let s='<defs><marker id="repArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#be185d"/></marker></defs>';
+  s+=box(40,80,470,360,'Straight RGBA',straightTuple(sourceRgb,state.sourceA),'var(--indigo-soft)',['R/G/B: color components independent from alpha','A: '+f2(state.sourceA),'Use at the Compose Color API boundary']);
+  s+=box(770,80,470,360,'Premultiplied RGBA',premulTuple(c.sP,state.sourceA),'var(--green-soft)',['R/G/B: alpha-weighted contributions','A: '+f2(state.sourceA),'Use only where the contract expects it']);
+  s+=`<path d="M510 190 H760" stroke="#be185d" stroke-width="5" marker-end="url(#repArrow)"/><text x="635" y="155" text-anchor="middle" font-size="18" font-weight="900" fill="var(--ink)">multiply R, G, B by A</text>`;
+  s+=`<path d="M770 330 H520" stroke="#d97706" stroke-width="5" marker-end="url(#repArrow)"/><text x="645" y="385" text-anchor="middle" font-size="18" font-weight="900" fill="var(--ink)">divide R, G, B by A when A &gt; 0</text>`;
+  s+=`<text x="640" y="535" text-anchor="middle" font-size="22" font-weight="900" fill="var(--ink)">Same translucent source · different meaning of the stored RGB fields</text>`;
+  $('representationSvg').innerHTML=s;
+}
+['sourceAlpha','destinationAlpha'].forEach(id=>$(id).addEventListener('input',e=>{state[id==='sourceAlpha'?'sourceA':'destinationA']=Number(e.target.value);render()}));
+document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{const p=b.dataset.preset;if(p==='course'){state.sourceA=.5;state.destinationA=.6}if(p==='opaque'){state.sourceA=.5;state.destinationA=1}if(p==='transparent'){state.sourceA=.5;state.destinationA=0}if(p==='both-zero'){state.sourceA=0;state.destinationA=0}render()}));
+const steps=[
+ {title:'1 · Read the straight inputs',caption:'The source and destination RGB fields are independent from alpha. Both colors are translucent.',code:'source straight = (0.90, 0.10, 0.80, 0.50)\ndestination straight = (0.10, 0.90, 0.40, 0.60)',input:'Two straight RGBA tuples.',operation:'Read their four named fields.',output:'Source and destination straight values.',stage:1},
+ {title:'2 · Premultiply the source',caption:'Multiply source RGB by source alpha. The source alpha remains 0.50.',code:'source premultiplied RGB =\n(0.90, 0.10, 0.80) × 0.50\n= (0.45, 0.05, 0.40)',input:'Source straight RGB and source alpha.',operation:'Multiply matching source channels by 0.50.',output:'Source premultiplied RGB (0.45, 0.05, 0.40).',stage:2},
+ {title:'3 · Premultiply the destination',caption:'Multiply destination RGB by destination alpha 0.60. This is the factor that was missing from the earlier simplified explanation.',code:'destination premultiplied RGB =\n(0.10, 0.90, 0.40) × 0.60\n= (0.06, 0.54, 0.24)',input:'Destination straight RGB and destination alpha.',operation:'Multiply matching destination channels by 0.60.',output:'Destination premultiplied RGB (0.06, 0.54, 0.24).',stage:3},
+ {title:'4 · Calculate the source opening',caption:'Source alpha 0.50 leaves 0.50 of the destination available.',code:'opening = 1 − source alpha\n        = 1 − 0.50\n        = 0.50',input:'Source alpha 0.50.',operation:'Subtract from 1.',output:'Destination opening 0.50.',stage:4},
+ {title:'5 · Reduce the destination contribution',caption:'The destination premultiplied RGB already contains destination alpha. Multiply it only by the source opening.',code:'destination after source =\n(0.06, 0.54, 0.24) × 0.50\n= (0.03, 0.27, 0.12)',input:'Destination premultiplied RGB and opening 0.50.',operation:'Multiply by the source opening.',output:'Destination contribution after source coverage.',stage:5},
+ {title:'6 · Add the two color contributions',caption:'This addition produces the output premultiplied RGB. This was called “weighted total” in Lesson 3.3.',code:'output premultiplied RGB =\n(0.45, 0.05, 0.40)\n+ (0.03, 0.27, 0.12)\n= (0.48, 0.32, 0.52)',input:'Source premultiplied RGB and surviving destination contribution.',operation:'Add matching channels.',output:'Output premultiplied RGB (0.48, 0.32, 0.52).',stage:6},
+ {title:'7 · Calculate output alpha',caption:'Output alpha uses the same source opening. The result is 0.80, so the output remains translucent.',code:'output alpha =\n0.50 + 0.60 × 0.50\n= 0.80',input:'Source alpha, destination alpha, and opening.',operation:'Add source alpha and surviving destination alpha.',output:'Output alpha 0.80.',stage:7},
+ {title:'8 · Convert output to straight RGBA',caption:'Divide output premultiplied RGB by output alpha. This was called “ordinary output” in Lesson 3.3.',code:'output straight RGB =\n(0.48, 0.32, 0.52) ÷ 0.80\n= (0.60, 0.40, 0.65)\n\noutput straight RGBA =\n(0.60, 0.40, 0.65, 0.80)',input:'Output premultiplied RGB and output alpha.',operation:'Divide each RGB channel by 0.80.',output:'Output straight RGBA (0.60, 0.40, 0.65, 0.80).',stage:8}
+];
+steps.forEach((s,i)=>{const b=document.createElement('button');b.type='button';b.className='step-dot';b.textContent=String(i+1);b.onclick=()=>{state.step=i;renderStep()};$('stepNav').appendChild(b)});
+function renderStep(){const s=steps[state.step];$('stepTitle').textContent=s.title;$('stepCaption').textContent=s.caption;$('stepCode').textContent=s.code;$('stepInput').textContent=s.input;$('stepOperation').textContent=s.operation;$('stepOutput').textContent=s.output;document.querySelectorAll('.step-dot').forEach((b,i)=>b.classList.toggle('selected',i===state.step));$('stepBack').disabled=state.step===0;$('stepNext').disabled=state.step===steps.length-1;renderStepSvg(s.stage)}
+function renderStepSvg(stage){
+  const node=(x,y,w,h,title,body,fill,active)=>`<g opacity="${active?1:.24}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="18" fill="${fill}" stroke="var(--line)" stroke-width="2"/><text x="${x+18}" y="${y+34}" font-size="19" font-weight="900" fill="var(--ink)">${title}</text>${body.map((t,i)=>`<text x="${x+18}" y="${y+68+i*28}" font-size="15" font-family="monospace" fill="var(--ink)">${t}</text>`).join('')}</g>`;
+  let s='<defs><marker id="stepArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#be185d"/></marker></defs>';
+  s+=node(30,40,380,150,'Source straight',['(.90, .10, .80, .50)'],'var(--indigo-soft)',stage>=1);
+  s+=node(460,40,380,150,'Destination straight',['(.10, .90, .40, .60)'],'var(--indigo-soft)',stage>=1);
+  s+=node(30,260,380,150,'Source premultiplied',['(.45, .05, .40, .50)'],'var(--green-soft)',stage>=2);
+  s+=node(460,260,380,150,'Destination premultiplied',['(.06, .54, .24, .60)'],'var(--green-soft)',stage>=3);
+  s+=node(890,260,380,150,'Destination after opening',['(.03, .27, .12, .30)'],'var(--amber-soft)',stage>=5);
+  s+=node(240,530,380,150,'Output premultiplied',['(.48, .32, .52, .80)'],'var(--amber-soft)',stage>=6);
+  s+=node(730,530,380,150,'Output straight',['(.60, .40, .65, .80)'],'var(--blue-soft)',stage>=8);
+  const arrow=(d,on)=>`<path d="${d}" fill="none" stroke="#be185d" stroke-width="5" marker-end="url(#stepArrow)" opacity="${on?1:.18}"/>`;
+  s+=arrow('M220 190 V250',stage>=2);s+=arrow('M650 190 V250',stage>=3);s+=arrow('M840 335 H880',stage>=5);s+=arrow('M220 410 V480 H430 V520',stage>=6);s+=arrow('M1080 410 V480 H430 V520',stage>=6);s+=arrow('M620 605 H720',stage>=8);
+  if(stage>=4)s+=`<g><rect x="900" y="60" width="350" height="110" rx="16" fill="var(--pink-soft)" stroke="var(--pink)" stroke-width="2"/><text x="925" y="100" font-size="19" font-weight="900" fill="var(--ink)">Source opening</text><text x="925" y="140" font-size="18" font-family="monospace" fill="var(--ink)">1 − .50 = .50</text></g>`;
+  if(stage>=7)s+=`<text x="430" y="720" text-anchor="middle" font-size="18" font-weight="900" fill="var(--ink)">output alpha = .50 + .60 × .50 = .80</text>`;
+  $('stepSvg').innerHTML=s;
+}
+$('stepBack').onclick=()=>{if(state.step>0){state.step--;renderStep()}};$('stepNext').onclick=()=>{if(state.step<steps.length-1){state.step++;renderStep()}};
+document.querySelectorAll('[data-source]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-source]').forEach(x=>x.classList.toggle('selected',x===b));document.querySelectorAll('.source-pane').forEach(p=>p.classList.toggle('active',p.id===`source-${b.dataset.source}`))});
+const editor=$('codeEditor');
+function setExpression(mode){const line=mode==='correct'?'destination.red * destination.alpha * (1f - source.alpha)':'destination.red * (1f - source.alpha)';editor.value=editor.value.replace(/destination\.red\s*\*\s*(?:destination\.alpha\s*\*\s*)?\(1f\s*-\s*source\.alpha\)/,line);$('challengeFeedback').textContent='Code changed. Check the answer when ready.';renderChallenge()}
+document.querySelectorAll('[data-expression]').forEach(b=>b.onclick=()=>setExpression(b.dataset.expression));
+document.querySelectorAll('[data-challenge-alpha]').forEach(b=>b.onclick=()=>{state.challengeDestinationA=Number(b.dataset.challengeAlpha);document.querySelectorAll('[data-challenge-alpha]').forEach(x=>x.classList.toggle('selected',x===b));renderChallenge()});
+editor.addEventListener('input',()=>{$('challengeFeedback').textContent='Code changed. Check the answer when ready.';renderChallenge()});
+function challengeHasDestinationAlpha(){return /destination\.red\s*\*\s*destination\.alpha\s*\*\s*\(1f\s*-\s*source\.alpha\)/.test(editor.value)}
+function renderChallenge(){const correct=challengeHasDestinationAlpha();const s=.9*.5;const d=correct ? .1*state.challengeDestinationA*.5 : .1*.5;const expected=.9*.5+.1*state.challengeDestinationA*.5;$('challengeInput').textContent=`source red = 0.90; source alpha = 0.50\ndestination red = 0.10; destination alpha = ${f2(state.challengeDestinationA)}`;$('challengeOperation').textContent=correct?`0.90 × 0.50 + 0.10 × ${f2(state.challengeDestinationA)} × 0.50`:`0.90 × 0.50 + 0.10 × 0.50\n(destination alpha is missing)`;$('challengeOutput').textContent=`code output premultiplied red = ${f3(s+d)}\ncorrect output premultiplied red = ${f3(expected)}`}
+$('checkChallenge').onclick=()=>{$('challengeFeedback').textContent=challengeHasDestinationAlpha()?'✓ Correct. The straight destination RGB is multiplied by destination alpha and then by the opening left by the source.':'❌ Destination alpha is still missing. The function is valid only for an opaque destination.'};
+const checks=['The Android app builds and opens Lesson 3.5.','I can define straight RGBA without using the word ordinary.','I can define premultiplied RGBA as alpha-weighted RGB plus unchanged alpha.','I can explain that a bare RGB triplet does not identify a representation.','I can map Lesson 3.3 weighted total to output premultiplied RGB.','I can map Lesson 3.3 ordinary output to output straight RGB.','I can write the general destination term with destination alpha.','I can explain why the opaque-destination formula is only a special case.','I can state that Compose Color.compositeOver expects straight inputs.','I completed the coding challenge and four exercises.','I verified light and dark OS themes without changing instructional values.'];
+checks.forEach((label,i)=>{const d=document.createElement('label');d.className='check';d.innerHTML=`<input type="checkbox" data-check="${i}"><span>${label}</span>`;$('checklist').appendChild(d)});document.querySelectorAll('[data-check]').forEach(c=>c.addEventListener('change',updateRecord));
+function updateRecord(){const done=[...document.querySelectorAll('[data-check]')].filter(c=>c.checked).length;$('completionRecord').value=`# Lesson 3.5 completion record\n\n- Lesson: Straight and premultiplied RGBA\n- Checkpoints completed: ${done} of ${checks.length}\n- Android device: Pixel 8 Pro\n- Source straight RGBA: (0.90, 0.10, 0.80, 0.50)\n- Destination straight RGBA: (0.10, 0.90, 0.40, 0.60)\n- Output premultiplied RGBA: (0.48, 0.32, 0.52, 0.80)\n- Output straight RGBA: (0.60, 0.40, 0.65, 0.80)\n- Questions or observations: [write here]`}
+$('copyRecord').onclick=async()=>{try{await navigator.clipboard.writeText($('completionRecord').value);$('copyStatus').textContent='Copied.'}catch{$('copyStatus').textContent='Clipboard permission was unavailable. Select and copy the text manually.'}};
+const media=matchMedia('(prefers-color-scheme: dark)');function themeLabel(){$('themeMode').textContent=media.matches?'OS theme · Dark':'OS theme · Light'}themeLabel();media.addEventListener?.('change',themeLabel);
+render();updateRecord();
+</script>
+</body>
+</html>

@@ -10,15 +10,15 @@ Open `liquid-glass-course.html` directly in a Chromium-based browser. No local s
 
 - Chapter 1 is complete.
 - Chapter 2 is complete.
-- **20 of 216 lessons are complete.**
-- Lessons 3.1 through 3.3 are complete.
-- Lesson 3.4 is generated and is the next learner checkpoint.
-- The generated frontier is Lesson 3.4.
+- **21 of 216 lessons are complete.**
+- Lessons 3.1 through 3.4 are complete.
+- Lesson 3.5 is generated and is the next learner checkpoint.
+- The generated frontier is Lesson 3.5.
 
 Open:
 
 ```text
-course/chapters/chapter-03/lesson-03-04-draw-order-matters.html
+course/chapters/chapter-03/lesson-03-05-straight-and-premultiplied-rgba.html
 ```
 
 ## Android progression
@@ -28,9 +28,12 @@ course/chapters/chapter-03/lesson-03-04-draw-order-matters.html
 - Lesson 3.1 switched the app entry point to `Chapter03Screen` and added `RgbChannelsExplorer.kt`.
 - Lesson 3.2 kept `RGB(0.80, 0.25, 0.60)` fixed and added `AlphaExplorer.kt`.
 - Lesson 3.3 added `OverOperationExplorer.kt` and calculated one complete source-over RGBA output.
-- Lesson 3.4 adds `DrawOrderExplorer.kt` and reverses the same two translucent colored draw calls.
-- `Chapter03Screen.kt` now opens Lesson 3.4.
-- The draw-order experiment keeps both RGBA inputs fixed. Only their execution order changes.
+- Lesson 3.4 added `DrawOrderExplorer.kt` and reversed the same two translucent colored draw calls.
+- Lesson 3.5 continues the complete Lesson 3.3 example with one translucent source and one translucent destination.
+- It names source, destination, and output in both straight and premultiplied form.
+- `OverOperationExplorer.kt` and `DrawOrderExplorer.kt` receive terminology-only corrections so earlier visible labels use `output premultiplied RGB` and `output straight RGB`.
+- `Chapter03Screen.kt` now opens the current Lesson 3.5 explorer.
+- An older `TransparentEdgeExplorer.kt` compatibility wrapper may remain locally. The image-boundary artifact is deferred until image sampling is taught.
 
 ## Theme rule from Lesson 3.1 onward
 
