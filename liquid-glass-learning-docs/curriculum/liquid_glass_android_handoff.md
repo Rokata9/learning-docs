@@ -1,8 +1,8 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 3.6.2  
+**Course plan version:** 3.8.0  
 **Updated:** 2026-07-26  
-**Current position:** Lessons 1.1 through 3.5 are complete by learner confirmation. **22 of 216 lessons are complete.** Lesson 3.6 is generated and remains pending.
+**Current position:** Lessons 1.1 through 3.7 are complete by learner confirmation. **24 of 216 lessons are complete.** Lesson 3.8 is generated and remains pending.
 
 ## Permanent course rules
 
@@ -76,6 +76,21 @@ After every learner message about a lesson, always inspect the message for reusa
 - A clean lesson completion may reveal a teaching order or visual approach that succeeded. Record and reuse it only when it generalizes.
 - The review is mandatory even when no new rule is recorded. Do not add one-off policy merely to prove the review happened.
 
+## Successful formula-lesson sequence confirmed by Lesson 3.6
+
+Reuse this order for later standardized formulas:
+
+- start from the exact output object of the completed lesson;
+- state the practical question before new terminology;
+- define the formula inputs and output before symbols;
+- trace one input fully before repeating the operation;
+- explain each fixed constant's immediate role and defer deeper derivation honestly;
+- pair isolation examples with a fixed mixed-value example;
+- reconnect alpha and compositing before measuring a final displayed color;
+- identify which later operation consumes the new result.
+
+The learner's clean progression after the final Lesson 3.6 clarification is evidence that this order succeeded.
+
 ## Lesson 3.6 alpha-to-luminance clarification
 
 - Relative luminance has red, green, and blue terms only. Alpha is not a fourth term.
@@ -85,26 +100,58 @@ After every learner message about a lesson, always inspect the message for reusa
 - Do not say `precomputed RGB` without naming whether the tuple is straight sRGB, premultiplied RGB, decoded linear-light RGB, or output straight RGB.
 - Pure-primary examples with two zero channels are isolation tests. They must be labelled as such and paired with a mixed all-non-zero example. Lesson 3.6 now includes fixed `Mixed check` sRGB `(0.37, 0.58, 0.21)`.
 
+## Lesson 3.7 — Foreground contrast
+
+- Starts from the completed Lesson 3.6 background: straight sRGB RGBA `(0.80, 0.25, 0.60, 1.00)`, relative luminance near `0.187759`.
+- Defines foreground and candidate before contrast terminology.
+- Defines both relative-luminance inputs and the unitless ratio output before revealing the formula.
+- Uses `(lighter + 0.05) / (darker + 0.05)`. The `0.05` value is fixed by the standard and keeps the denominator above zero for black.
+- Black contrast is near `4.7552:1`. White contrast is near `4.4162:1`. Black is selected because its ratio is larger.
+- Candidate selection and accessibility target checking remain separate. The lesson displays `3:1` for meaningful non-text icon context and `4.5:1` for normal-size text context.
+- A 50% black icon is composited over the background before luminance and contrast are calculated.
+- Varying photographs, gradients, and moving backdrops are explicitly deferred until backdrop access and image sampling are taught.
+- Android changes: `Chapter03Screen.kt` and new `ForegroundContrastExplorer.kt`. Both chapter and child previews have light and dark variants.
+
+
+## Lesson 3.8 — Tint
+
+- Starts from the completed opaque background straight sRGB RGBA `(0.80, 0.25, 0.60, 1.00)`.
+- Defines one explicit tint model: draw a chosen straight sRGB tint source over the destination with source-over.
+- Default tint source is straight sRGB RGBA `(0.20, 0.65, 1.00, 0.25)`.
+- Traces red completely through output premultiplied red, output alpha, and output straight red before repeating green and blue.
+- Default output is straight sRGB RGBA `(0.65, 0.35, 0.70, 1.00)`.
+- Tint amount is the tint source alpha for this operation. It is not the final output opacity.
+- The opaque destination makes output alpha remain `1.00`.
+- Luminance and black/white contrast are recalculated from the tinted output.
+- Android changes: `Chapter03Screen.kt` and new `TintExplorer.kt`, with chapter and child previews in light and dark modes.
+- Lesson 3.9 remains Saturation.
+
 ## Current progress
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 3.6.2
+course_version: 3.8.0
 platform: Kotlin + Jetpack Compose
 learning_device: Pixel 8 Pro
 learning_min_sdk: 33
 course_lessons_total: 216
-course_lessons_completed_by_learner: 22
-completed_through: 3.5
-generated_frontier: 3.6
-next_learner_checkpoint: 3.6
+course_lessons_completed_by_learner: 24
+completed_through: 3.7
+generated_frontier: 3.8
+next_learner_checkpoint: 3.8
 chapter_01_completed_by_learner: true
 chapter_02_completed_by_learner: true
 chapter_03_completed_by_learner: false
 lesson_03_05_completed_by_learner: true
 lesson_03_06_file: course/chapters/chapter-03/lesson-03-06-brightness-and-relative-luminance.html
 lesson_03_06_generated: true
-lesson_03_06_completed_by_learner: false
+lesson_03_06_completed_by_learner: true
+lesson_03_07_file: course/chapters/chapter-03/lesson-03-07-foreground-contrast.html
+lesson_03_07_generated: true
+lesson_03_07_completed_by_learner: true
+lesson_03_08_file: course/chapters/chapter-03/lesson-03-08-tint.html
+lesson_03_08_generated: true
+lesson_03_08_completed_by_learner: false
 invalid_scope_extension_imports_fixed: true
 chapter_and_child_preview_rule_recorded: true
 transparent_edge_halo_topic: deferred_until_image_boundary_and_sampling_prerequisites

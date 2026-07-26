@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 3.6.2  
+**Version:** 3.8.0  
 **Updated:** 2026-07-26  
-**Current course position:** Lessons 1.1 through 3.5 are complete by learner confirmation. **22 of 216 lessons are complete.** Lesson 3.6 is the next learner checkpoint and the generated frontier.  
+**Current course position:** Lessons 1.1 through 3.7 are complete by learner confirmation. **24 of 216 lessons are complete.** Lesson 3.8 is the next learner checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -321,6 +321,27 @@ Version 3.6.2 clarifies the alpha-to-luminance boundary and records the mandator
 - `AGENTS.md` now requires a lesson-feedback review after every learner message. Questions and regeneration requests are inspected for reusable prevention rules. Clean lesson completions are inspected for reusable successful teaching patterns.
 - The final total-beginner audit is marked **VERY IMPORTANT**. Any uncertainty about understandability must be treated as a failed audit and repaired before packaging.
 - `BrightnessLuminanceExplorer.kt` changes only to expose these clarifications and the mixed-value preset. `Chapter03Screen.kt` remains unchanged.
+
+Version 3.7 records completion of Lesson 3.6 and introduces foreground contrast:
+
+- The learner proceeded without a remaining question after the clarified Lesson 3.6.
+- Learner-confirmed course completion became **23 of 216 lessons**.
+- Lesson 3.7 starts from one final opaque background color and compares opaque black and white foreground candidates.
+- The lesson defines the contrast inputs and output before revealing the standardized ratio formula.
+- Candidate selection and accessibility target checking remain separate.
+- Android changes: `Chapter03Screen.kt` and new `ForegroundContrastExplorer.kt`.
+
+Version 3.8 records completion of Lesson 3.7 and introduces one explicit tint model:
+
+- The learner requested the next lesson without a remaining question, so Lesson 3.7 is marked complete.
+- Learner-confirmed course completion is now **24 of 216 lessons**.
+- Lesson 3.8 starts from the same final opaque straight sRGB background used by Lessons 3.6 and 3.7.
+- The lesson defines tint as one chosen straight sRGB source drawn over the opaque destination with source-over. It does not claim that every API using the word `tint` has this contract.
+- The default tint source is straight sRGB RGBA `(0.20, 0.65, 1.00, 0.25)`. The output is straight sRGB RGBA `(0.65, 0.35, 0.70, 1.00)`.
+- One red channel is traced through output premultiplied red, output alpha, and output straight red before green and blue are repeated.
+- Tint amount is explicitly separated from final output opacity. The opaque destination makes output alpha remain `1.00`.
+- Luminance and foreground contrast are recalculated from the tinted output color.
+- Android changes: `Chapter03Screen.kt` and new `TintExplorer.kt`, with full-screen and direct-child previews in both OS themes.
 
 The numbered curriculum map below contains **216 lessons**. An earlier conversational summary said 226. The actual chapter lists add up to 216, so 216 is the corrected count.
 
@@ -665,7 +686,7 @@ The Android result must also be tested on the Pixel 8 Pro at the lesson checkpoi
 4. **3.4 — Draw order matters.** Reverse two layers and observe a different result.
 5. **3.5 — Straight and premultiplied RGBA.** Continue the complete Lesson 3.3 source-over example. Name the straight and premultiplied forms of source, destination, and output. Relate output premultiplied RGB to output straight RGB. Explain which API or buffer contract expects each representation.
 6. **3.6 — From a visible color to relative luminance.** Start from one opaque Compose `Color`, decode one sRGB channel before all three, then combine the three linear-light channels into one relative-luminance number.
-7. **3.7 — Foreground contrast.** Choose dark or light icons from measured background brightness.
+7. **3.7 — Foreground contrast.** Start from one final opaque background. Calculate black and white contrast ratios separately. Choose the larger ratio, then check accessibility targets as a separate policy step.
 8. **3.8 — Tint.** Add a controlled color influence without replacing the background.
 9. **3.9 — Saturation.** Make colors richer or quieter behind the material.
 10. **3.10 — Blend modes.** Compare normal, screen, multiply, and plus with small examples.
@@ -1281,19 +1302,21 @@ Lessons through 2.9 are complete. Chapter 2 is complete.
 
 ```text
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
-├── MainActivity.kt                         # switches to Chapter03Screen in Lesson 3.1; unchanged in Lesson 3.6
+├── MainActivity.kt                         # switches to Chapter03Screen in Lesson 3.1
 └── chapter03/
-    ├── Chapter03Screen.kt                  # introduced in Lesson 3.1; switches to BrightnessLuminanceExplorer in Lesson 3.6
-    ├── RgbChannelsExplorer.kt              # introduced in Lesson 3.1; invalid weight import removed in Lesson 3.6
-    ├── AlphaExplorer.kt                    # introduced in Lesson 3.2; invalid weight import removed in Lesson 3.6
-    ├── OverOperationExplorer.kt            # introduced in Lesson 3.3; invalid weight import removed in Lesson 3.6
-    ├── DrawOrderExplorer.kt                # introduced in Lesson 3.4; invalid weight import removed in Lesson 3.6
-    ├── PremultipliedRgbaExplorer.kt        # introduced in Lesson 3.5; invalid weight import removed in Lesson 3.6
-    ├── BrightnessLuminanceExplorer.kt   # introduced in Lesson 3.6
+    ├── Chapter03Screen.kt                  # active child is TintExplorer in Lesson 3.8
+    ├── RgbChannelsExplorer.kt              # introduced in Lesson 3.1
+    ├── AlphaExplorer.kt                    # introduced in Lesson 3.2
+    ├── OverOperationExplorer.kt            # introduced in Lesson 3.3
+    ├── DrawOrderExplorer.kt                # introduced in Lesson 3.4
+    ├── PremultipliedRgbaExplorer.kt        # introduced in Lesson 3.5
+    ├── BrightnessLuminanceExplorer.kt      # introduced in Lesson 3.6
+    ├── ForegroundContrastExplorer.kt       # introduced in Lesson 3.7
+    ├── TintExplorer.kt                     # introduced in Lesson 3.8
     └── TransparentEdgeExplorer.kt          # compatibility wrapper; rejected edge experiment removed
 ```
 
-Lessons 3.1 through 3.5 are complete. Lesson 3.6 is generated and is the current learner checkpoint. It converts one opaque sRGB background color into a relative-luminance value and explicitly requires compositing before measurement when alpha is below 1.
+Lessons 3.1 through 3.7 are complete. Lesson 3.8 is generated and is the current learner checkpoint. It applies one explicit source-over tint layer to the final opaque background and then recalculates luminance and contrast from the tinted output.
 
 ---
 
@@ -2213,6 +2236,198 @@ Course progress becomes 23 of 216.
 Next lesson becomes 3.7 — Foreground contrast.
 ```
 
+## 12D. Lesson 3.7 implementation record
+
+### `lesson-03-07-foreground-contrast.html`
+
+**New graphics idea:** A foreground icon can be selected by comparing its contrast ratio with the final opaque background color.
+
+**New mathematical idea:** A ratio compares two adjusted relative-luminance values by division.
+
+The lesson starts from the completed Lesson 3.6 output:
+
+```text
+background straight sRGB RGBA(0.80, 0.25, 0.60, 1.00)
+background relative luminance ≈ 0.187759
+```
+
+It defines a foreground as the icon or text drawn above the background. It defines a foreground candidate as one option tested before selection. The two main candidates are opaque black and opaque white.
+
+Before revealing the formula, the lesson identifies:
+
+```text
+Input 1: foreground relative luminance
+Input 2: background relative luminance
+Output: one unitless contrast ratio
+```
+
+It then defines lighter as the larger input and darker as the smaller input. The fixed standard offset `0.05` is explained before use. Its immediate mathematical role is to keep the denominator above zero when the darker color is black.
+
+The contrast formula is:
+
+```text
+contrast ratio
+= (lighter relative luminance + 0.05)
+÷ (darker relative luminance + 0.05)
+```
+
+For opaque black over the course background:
+
+```text
+foreground L = 0
+background L ≈ 0.187759
+lighter = 0.187759
+darker = 0
+contrast ≈ 4.7552:1
+```
+
+For opaque white:
+
+```text
+foreground L = 1
+background L ≈ 0.187759
+lighter = 1
+darker = 0.187759
+contrast ≈ 4.4162:1
+```
+
+Black is selected because `4.7552` is larger than `4.4162`. The lesson explicitly rejects a simple background-luminance threshold of `0.50`; candidate ratios are compared directly.
+
+Measurement and policy remain separate:
+
+- choose the larger ratio to identify the stronger black-or-white candidate;
+- compare the unrounded ratio with a selected target afterward;
+- the lesson displays `3:1` for the meaningful non-text icon example and `4.5:1` for normal-size text context.
+
+Alpha is connected in the correct order:
+
+```text
+translucent foreground source
++ final opaque background
+→ source-over
+→ final visible foreground-region color
+→ relative luminance
+→ contrast against the unchanged background
+```
+
+A 50% black source over the course background produces visible straight sRGB `(0.40, 0.125, 0.30)` and contrast near `2.5348:1`, rather than the opaque-black result `4.7552:1`.
+
+The lesson states its evidence limit. One uniform background color is not a photograph, gradient, or moving Liquid Glass backdrop. Sampling and aggregating a varying region requires later backdrop and image-sampling lessons.
+
+Changed Android files:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter03/ForegroundContrastExplorer.kt
+```
+
+`Chapter03Screen.kt` contains complete-screen and direct-child previews in light and dark modes. The coding challenge repairs reversed `minOf` and `maxOf` assignments for darker and lighter luminance.
+
+Lesson 3.7 is complete only when:
+
+- [ ] The Android files compile and run on the Pixel 8 Pro.
+- [ ] Both preview levels render in light and dark modes.
+- [ ] The learner can define foreground, candidate, contrast, and contrast ratio.
+- [ ] The learner can name both formula inputs and the output before writing the formula.
+- [ ] The learner can explain lighter, darker, and the fixed `0.05` value.
+- [ ] The learner can reproduce the black result near `4.7552:1`.
+- [ ] The learner can reproduce the white result near `4.4162:1`.
+- [ ] The learner can separate candidate selection from target checking.
+- [ ] The learner can explain why a translucent foreground is composited first.
+- [ ] The coding challenge and four exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 24 of 216.
+Next lesson becomes 3.8 — Tint.
+```
+
+
+## 12E. Lesson 3.8 implementation record
+
+### `lesson-03-08-tint.html`
+
+**New graphics idea:** A tint can be modeled explicitly as one chosen translucent color source drawn over an existing opaque destination.
+
+**Mathematical idea:** Reuse the general source-over equation and interpret the source alpha as tint amount. No new color formula is invented.
+
+The lesson starts from:
+
+```text
+Destination straight sRGB RGBA:
+(0.80, 0.25, 0.60, 1.00)
+
+Tint source straight sRGB RGBA:
+(0.20, 0.65, 1.00, 0.25)
+```
+
+For red, it first uses the general straight-input source-over path:
+
+```text
+output premultiplied red
+= 0.20 × 0.25
++ 0.80 × 1.00 × (1 − 0.25)
+= 0.05 + 0.60
+= 0.65
+
+output alpha
+= 0.25 + 1.00 × (1 − 0.25)
+= 1.00
+
+output straight red
+= 0.65 ÷ 1.00
+= 0.65
+```
+
+The operation is then repeated for green and blue:
+
+```text
+green = 0.65 × 0.25 + 0.25 × 0.75 = 0.35
+blue  = 1.00 × 0.25 + 0.60 × 0.75 = 0.70
+```
+
+The final output is:
+
+```text
+Straight sRGB RGBA(0.65, 0.35, 0.70, 1.00)
+```
+
+The lesson distinguishes:
+
+- tint amount from final output alpha;
+- tint from complete replacement;
+- tint as a color-changing operation from luminance as a later measurement;
+- this explicit source-over tint model from other APIs that may also use the word `tint`.
+
+Changed Android files:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter03/TintExplorer.kt
+```
+
+Lesson 3.8 is complete only when:
+
+- [ ] The Android files compile and run on the Pixel 8 Pro.
+- [ ] Both preview levels render in light and dark modes.
+- [ ] The learner can identify destination, tint source, and output.
+- [ ] The learner can explain why tint amount is source alpha.
+- [ ] The learner can reproduce the default red, green, and blue output values.
+- [ ] The learner can explain why output alpha remains `1.00`.
+- [ ] The learner can distinguish tint from replacement, final opacity, luminance, and saturation.
+- [ ] The learner can explain why luminance and contrast are recalculated after tint.
+- [ ] The coding challenge and four exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 25 of 216.
+Next lesson becomes 3.9 — Saturation.
+```
+
 ## 13. Reusable continuation prompt
 
 ```text
@@ -2275,7 +2490,7 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Learner completion is confirmed through Lesson 3.5. Chapters 1 and 2 are complete. Lesson 3.6 is generated and pending. The learner-confirmed total is 22 of 216 lessons.
+Learner completion is confirmed through Lesson 3.7. Chapters 1 and 2 are complete. Lesson 3.8 is generated and pending. The learner-confirmed total is 24 of 216 lessons.
 
 Current Chapter 2 lesson files:
 
@@ -2319,7 +2534,9 @@ Current Chapter 3 lesson files:
 - `course/chapters/chapter-03/lesson-03-04-draw-order-matters.html`;
 - `course/chapters/chapter-03/lesson-03-05-straight-and-premultiplied-rgba.html`;
 - `course/chapters/chapter-03/lesson-03-05-why-transparent-edges-can-look-wrong.html` (redirect only);
-- `course/chapters/chapter-03/lesson-03-06-brightness-and-relative-luminance.html`.
+- `course/chapters/chapter-03/lesson-03-06-brightness-and-relative-luminance.html`;
+- `course/chapters/chapter-03/lesson-03-07-foreground-contrast.html`;
+- `course/chapters/chapter-03/lesson-03-08-tint.html`.
 
 Current generated Chapter 3 Android source:
 
@@ -2334,10 +2551,12 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── DrawOrderExplorer.kt
     ├── PremultipliedRgbaExplorer.kt
     ├── BrightnessLuminanceExplorer.kt
+    ├── ForegroundContrastExplorer.kt
+    ├── TintExplorer.kt
     └── TransparentEdgeExplorer.kt  # compatibility wrapper
 ```
 
-The current Lesson 3.6 Android ZIP contains `Chapter03Screen.kt`, new `BrightnessLuminanceExplorer.kt`, and sixteen existing source files across Chapters 1 through 3 whose invalid explicit `weight` and/or `matchParentSize` imports were removed. The learning-docs ZIP corrects the same imports in the corresponding earlier source tabs. An older `TransparentEdgeExplorer.kt` compatibility wrapper may remain locally; Lesson 3.6 does not change it.
+The current Lesson 3.8 Android ZIP contains only `Chapter03Screen.kt` and new `TintExplorer.kt`. Earlier Chapter 3 explorers remain unchanged and are not duplicated.
 
 ---
 

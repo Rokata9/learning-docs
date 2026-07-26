@@ -10,15 +10,15 @@ Open `liquid-glass-course.html` directly in a Chromium-based browser. No local s
 
 - Chapter 1 is complete.
 - Chapter 2 is complete.
-- **22 of 216 lessons are complete.**
-- Lessons 3.1 through 3.5 are complete.
-- Lesson 3.6 is generated and is the next learner checkpoint.
-- The generated frontier is Lesson 3.6.
+- **24 of 216 lessons are complete.**
+- Lessons 3.1 through 3.7 are complete.
+- Lesson 3.8 is generated and is the next learner checkpoint.
+- The generated frontier is Lesson 3.8.
 
 Open:
 
 ```text
-course/chapters/chapter-03/lesson-03-06-brightness-and-relative-luminance.html
+course/chapters/chapter-03/lesson-03-08-tint.html
 ```
 
 ## Android progression
@@ -29,7 +29,14 @@ course/chapters/chapter-03/lesson-03-06-brightness-and-relative-luminance.html
 - Lesson 3.6 adds `BrightnessLuminanceExplorer.kt` and changes `Chapter03Screen.kt` to display it.
 - The rejected first draft of Lesson 3.6 began from the finished luminance formula. The replacement starts from one known opaque `Color`, defines one stored sRGB channel number and one linear-light output, traces one channel through the conversion, and only then repeats the operation for all three channels and calculates relative luminance.
 - The Lesson 3.6 code patch also removes every remaining invalid explicit `layout.weight` or `layout.matchParentSize` import from 16 existing Android source files across Chapters 1 through 3. The matching embedded Kotlin in the earlier HTML lessons is corrected in the learning-docs patch.
+- Lesson 3.7 starts from the final opaque background color and relative luminance produced by Lesson 3.6. It defines foreground, candidate, ratio, lighter luminance, darker luminance, and the fixed contrast offset before revealing the contrast formula.
+- Lesson 3.7 calculates black and white contrast separately, chooses the larger ratio, and keeps accessibility target checking as a separate policy step. It also demonstrates that a translucent foreground is composited before contrast is measured.
+- The active Android child becomes `ForegroundContrastExplorer.kt`. `Chapter03Screen.kt` includes complete-screen and direct-child previews in both OS themes.
 - `Chapter03Screen.kt` contains previews for both the complete chapter screen and the active child explorer, in light and dark modes.
+
+- Lesson 3.8 starts from the completed Lesson 3.7 background. It defines one explicit tint model: a translucent straight sRGB tint source drawn over one opaque straight sRGB destination with source-over.
+- The lesson traces one red channel through the general source-over calculation before repeating it for green and blue. It distinguishes tint amount from final output alpha and recalculates luminance and contrast from the tinted output.
+- The active Android child becomes `TintExplorer.kt`. `Chapter03Screen.kt` includes complete-screen and direct-child previews in both OS themes.
 
 ## Theme rule from Lesson 3.1 onward
 

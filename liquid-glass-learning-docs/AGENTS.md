@@ -114,6 +114,21 @@ Perform this review after every learner message about the course, before generat
 4. Do not skip the analysis merely because the learner asks to proceed immediately. Do not manufacture a lesson learned when the message provides no new evidence.
 5. Keep a direct link from each recorded rule to the concrete failure or success it prevents. A policy list that is not consulted during verification is not useful.
 
+### Successful formula-lesson sequence confirmed by Lesson 3.6
+
+Lesson 3.6 became clear after it used this order. Reuse the order when a lesson introduces a standardized formula or a new numeric measurement:
+
+1. Start from the exact output object produced by the completed previous lesson.
+2. State one practical question that the new number will answer.
+3. Define the formula's input object and output number before showing any symbols.
+4. Trace one input completely before repeating the operation for multiple color channels or candidates.
+5. Explain every fixed constant by separating its immediate operational role from any deeper derivation that belongs later.
+6. Pair isolation examples with one fixed mixed-value example so the learner sees both the single-term behavior and the complete calculation.
+7. Reconnect alpha and compositing explicitly: obtain the final opaque displayed color first, then calculate the measurement.
+8. End by naming the next consumer of the result. A number without a later use is not yet a complete causal explanation.
+
+This sequence prevents the expert-backfill failure that affected the first Lesson 3.6 draft. The learner's clean progression after the final clarification is evidence that the order generalizes.
+
 ## Visual target
 
 - Desktop only.
