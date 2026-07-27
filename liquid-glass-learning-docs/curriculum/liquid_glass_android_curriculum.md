@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 3.8.1  
-**Updated:** 2026-07-26  
-**Current course position:** Lessons 1.1 through 3.7 are complete by learner confirmation. **24 of 216 lessons are complete.** Lesson 3.8 is the next learner checkpoint and the generated frontier.  
+**Version:** 3.10.0  
+**Updated:** 2026-07-27  
+**Current course position:** Lessons 1.1 through 3.8 are complete by learner confirmation. **25 of 216 lessons are complete.** Lesson 3.9 has learner questions pending and remains the next unresolved checkpoint. Lesson 3.10 is generated ahead and is the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -330,6 +330,31 @@ Version 3.7 records completion of Lesson 3.6 and introduces foreground contrast:
 - The lesson defines the contrast inputs and output before revealing the standardized ratio formula.
 - Candidate selection and accessibility target checking remain separate.
 - Android changes: `Chapter03Screen.kt` and new `ForegroundContrastExplorer.kt`.
+
+
+Version 3.10 generates the blend-mode lesson without closing the pending saturation lesson:
+
+- The learner explicitly asked to continue while reserving questions about Lesson 3.9. Lesson 3.9 therefore remains incomplete and the learner-confirmed total remains **25 of 216 lessons**.
+- The generated frontier advances to Lesson 3.10. The course now records the unresolved checkpoint and generated frontier as separate states.
+- Lesson 3.10 keeps one opaque straight-sRGB source, one opaque straight-sRGB destination, the shape, and the draw order fixed. Only the RGB blend rule changes.
+- The lesson compares Normal/SrcOver, Multiply, Screen, and Plus. It traces one channel completely before repeating red, green, and blue.
+- Screen is introduced through the distance remaining before white: `1 − (1 − source) × (1 − destination)`. The equivalent short form is then shown.
+- Plus displays the raw sum and the clamped normalized output. It explicitly separates saturating addition from the Lesson 3.9 saturation transform.
+- The short formulas are labelled as opaque-input formulas. Translucent blend-mode compositing is deferred rather than inferred from the opaque shortcuts.
+- Android changes: `Chapter03Screen.kt` and new `BlendModesExplorer.kt`, with complete-screen and direct-child previews in both OS themes.
+- `AGENTS.md` adds a pending-question completion gate: progression language does not count as completion when the learner explicitly says questions remain.
+
+Version 3.9 records completion of Lesson 3.8 and introduces the exact AndroidX saturation transform:
+
+- The learner requested the next lesson without a remaining question, so Lesson 3.8 is marked complete.
+- Learner-confirmed course completion is now **25 of 216 lessons**.
+- Lesson 3.9 starts from Lesson 3.8's final opaque straight sRGB RGBA `(0.65, 0.35, 0.70, 1.00)`.
+- The lesson defines saturation as the factor accepted by AndroidX `ColorMatrix.setToSaturation`. It does not silently substitute HSL, HSV, or another design-tool saturation model.
+- The AndroidX transform calculates a gray reference directly from stored sRGB channel values with fixed multipliers `0.213`, `0.715`, and `0.072`.
+- Every output channel is explained as `gray reference + factor × (input channel − gray reference)`. The lesson exposes signed distance, scaled distance, raw output, and clamped output.
+- The saturation gray reference is explicitly separated from Lesson 3.6 relative luminance. The first is an intermediate value in a color transform. The second is a measurement calculated after sRGB decoding.
+- Android changes: `Chapter03Screen.kt` and new `SaturationExplorer.kt`, with complete-screen and direct-child previews in both OS themes.
+- `AGENTS.md` adds a color-transform-versus-color-measurement gate so similar-looking coefficients cannot hide different input representations, output types, or consumers.
 
 Version 3.8.1 clarifies two Lesson 3.8 claims and records their prevention rules:
 
@@ -694,7 +719,7 @@ The Android result must also be tested on the Pixel 8 Pro at the lesson checkpoi
 6. **3.6 — From a visible color to relative luminance.** Start from one opaque Compose `Color`, decode one sRGB channel before all three, then combine the three linear-light channels into one relative-luminance number.
 7. **3.7 — Foreground contrast.** Start from one final opaque background. Calculate black and white contrast ratios separately. Choose the larger ratio, then check accessibility targets as a separate policy step.
 8. **3.8 — Tint.** Add a controlled color influence without replacing the background.
-9. **3.9 — Saturation.** Make colors richer or quieter behind the material.
+9. **3.9 — Saturation.** Reduce or enlarge each RGB channel’s distance from the transform’s gray reference.
 10. **3.10 — Blend modes.** Compare normal, screen, multiply, and plus with small examples.
 11. **3.11 — Compositing laboratory.** Stack several adjustable layers and predict the final result.
 
@@ -1310,7 +1335,7 @@ Lessons through 2.9 are complete. Chapter 2 is complete.
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
 ├── MainActivity.kt                         # switches to Chapter03Screen in Lesson 3.1
 └── chapter03/
-    ├── Chapter03Screen.kt                  # active child is TintExplorer in Lesson 3.8
+    ├── Chapter03Screen.kt                  # active child is SaturationExplorer in Lesson 3.9
     ├── RgbChannelsExplorer.kt              # introduced in Lesson 3.1
     ├── AlphaExplorer.kt                    # introduced in Lesson 3.2
     ├── OverOperationExplorer.kt            # introduced in Lesson 3.3
@@ -1319,10 +1344,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── BrightnessLuminanceExplorer.kt      # introduced in Lesson 3.6
     ├── ForegroundContrastExplorer.kt       # introduced in Lesson 3.7
     ├── TintExplorer.kt                     # introduced in Lesson 3.8
+    ├── SaturationExplorer.kt               # introduced in Lesson 3.9
     └── TransparentEdgeExplorer.kt          # compatibility wrapper; rejected edge experiment removed
 ```
 
-Lessons 3.1 through 3.7 are complete. Lesson 3.8 is generated and is the current learner checkpoint. It applies one explicit source-over tint layer to the final opaque background and then recalculates luminance and contrast from the tinted output.
+Lessons 3.1 through 3.8 are complete. Lesson 3.9 is generated and is the current learner checkpoint. It applies the exact AndroidX saturation transform to the final opaque Lesson 3.8 output, proves every channel from a gray reference and signed distance, and recalculates luminance and contrast from the transformed output.
 
 ---
 
@@ -2434,6 +2460,102 @@ Course progress becomes 25 of 216.
 Next lesson becomes 3.9 — Saturation.
 ```
 
+## 12F. Lesson 3.9 implementation record
+
+### `lesson-03-09-saturation.html`
+
+**New graphics idea:** Saturation is taught as one exact AndroidX color transformation, not as a vague synonym for “more colorful.” No new layer is drawn.
+
+**Mathematical idea:** Calculate one gray-reference channel value, then scale each channel's signed distance from that reference.
+
+The lesson starts from the completed Lesson 3.8 output:
+
+```text
+Input straight sRGB RGBA:
+(0.65, 0.35, 0.70, 1.00)
+```
+
+The AndroidX saturation gray reference is:
+
+```text
+gray
+= 0.213 × 0.65
++ 0.715 × 0.35
++ 0.072 × 0.70
+
+= 0.13845 + 0.25025 + 0.05040
+
+= 0.43910
+```
+
+For each channel:
+
+```text
+signed distance = input channel − gray
+scaled distance = saturation factor × signed distance
+raw output = gray + scaled distance
+```
+
+At factor `0.40`:
+
+```text
+red output   = 0.43910 + 0.40 × (0.65 − 0.43910) = 0.52346
+green output = 0.43910 + 0.40 × (0.35 − 0.43910) = 0.40346
+blue output  = 0.43910 + 0.40 × (0.70 − 0.43910) = 0.54346
+```
+
+The output remains opaque:
+
+```text
+Straight sRGB RGBA(0.52346, 0.40346, 0.54346, 1.00)
+```
+
+The lesson proves these factor regions:
+
+- `0`: all three output channels equal the gray reference;
+- `0 < factor < 1`: each absolute distance from gray becomes smaller;
+- `1`: identity; output RGB equals input RGB;
+- `factor > 1`: each distance grows in the same signed direction;
+- sufficiently large factors can create raw values outside `0..1`, which are clamped before display.
+
+The lesson explicitly separates two similar-looking calculations:
+
+```text
+Saturation gray reference:
+stored straight sRGB → 0.213R + 0.715G + 0.072B → one transform value
+
+Relative luminance:
+stored straight sRGB → sRGB decoding → linear-light RGB → 0.2126R + 0.7152G + 0.0722B → one measurement
+```
+
+Changed Android files:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter03/SaturationExplorer.kt
+```
+
+Lesson 3.9 is complete only when:
+
+- [ ] The Android files compile and run on the Pixel 8 Pro.
+- [ ] Both complete-screen and direct-child previews render in light and dark modes.
+- [ ] The learner can define the saturation factor and gray reference without calling the reference relative luminance.
+- [ ] The learner can reproduce the default gray reference `0.43910`.
+- [ ] The learner can calculate red, green, and blue at factor `0.40`.
+- [ ] The learner can prove what factors `0`, below `1`, equal to `1`, and above `1` do.
+- [ ] The learner can explain raw output versus clamped display output.
+- [ ] The learner can explain why alpha remains unchanged and why a future translucent result still requires compositing.
+- [ ] The learner can recalculate relative luminance and contrast from the transformed output rather than reuse input measurements.
+- [ ] The coding challenge and four exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 26 of 216.
+Next lesson becomes 3.10 — Blend modes.
+```
+
 ## 13. Reusable continuation prompt
 
 ```text
@@ -2478,6 +2600,8 @@ Chapter 3 and later color-compositing rules:
 - Explain which API or buffer contract expects each representation.
 - Reconcile every new representation term with the preceding lesson and trace the same concrete values across the boundary.
 
+For a color transformation, state the exact API or mathematical contract. Do not treat a saturation gray reference as relative luminance merely because the coefficients look similar. Name the input representation, output type, preprocessing, and next consumer. Prove factors from signed distances and recalculate downstream luminance and contrast from changed RGB.
+
 Read the current progress in the handoff.
 
 If the current lesson file is missing, generate that one lesson file and any Android source it needs.
@@ -2496,7 +2620,7 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Learner completion is confirmed through Lesson 3.7. Chapters 1 and 2 are complete. Lesson 3.8 is generated and pending. The learner-confirmed total is 24 of 216 lessons.
+Learner completion is confirmed through Lesson 3.8. Chapters 1 and 2 are complete. Lesson 3.9 is generated and pending. The learner-confirmed total is 25 of 216 lessons.
 
 Current Chapter 2 lesson files:
 
@@ -2542,7 +2666,8 @@ Current Chapter 3 lesson files:
 - `course/chapters/chapter-03/lesson-03-05-why-transparent-edges-can-look-wrong.html` (redirect only);
 - `course/chapters/chapter-03/lesson-03-06-brightness-and-relative-luminance.html`;
 - `course/chapters/chapter-03/lesson-03-07-foreground-contrast.html`;
-- `course/chapters/chapter-03/lesson-03-08-tint.html`.
+- `course/chapters/chapter-03/lesson-03-08-tint.html`;
+- `course/chapters/chapter-03/lesson-03-09-saturation.html`.
 
 Current generated Chapter 3 Android source:
 
@@ -2559,10 +2684,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── BrightnessLuminanceExplorer.kt
     ├── ForegroundContrastExplorer.kt
     ├── TintExplorer.kt
+    ├── SaturationExplorer.kt
     └── TransparentEdgeExplorer.kt  # compatibility wrapper
 ```
 
-The current Lesson 3.8 Android ZIP contains only `Chapter03Screen.kt` and new `TintExplorer.kt`. Earlier Chapter 3 explorers remain unchanged and are not duplicated.
+The current Lesson 3.9 Android ZIP contains only `Chapter03Screen.kt` and new `SaturationExplorer.kt`. Earlier Chapter 3 explorers remain unchanged and are not duplicated.
 
 ---
 
@@ -2589,13 +2715,20 @@ The course plan was checked against these public primary sources through 2026-07
 - Android, **Bitmap.isPremultiplied**: https://developer.android.com/reference/android/graphics/Bitmap#isPremultiplied()
 - Android, **Bitmap.setPremultiplied**: https://developer.android.com/reference/android/graphics/Bitmap#setPremultiplied(boolean)
 - Android, **Compose Color reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color
+- AndroidX, **Compose ColorMatrix source**: https://raw.githubusercontent.com/androidx/androidx/androidx-main/compose/ui/ui-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/ColorMatrix.kt
+- Android, **Customize an image — ColorMatrix filter**: https://developer.android.com/develop/ui/compose/graphics/images/customize
+- Android, **ColorMatrix reference**: https://developer.android.com/reference/kotlin/android/graphics/ColorMatrix
 - Android, **Compose Slider**: https://developer.android.com/develop/ui/compose/components/slider
 - Android, **Material Design 3 in Compose**: https://developer.android.com/develop/ui/compose/designsystems/material3
 - Android, **Compose onSizeChanged reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/onSizeChanged.modifier
 - Android, **Compose gestures reference**: https://developer.android.com/reference/kotlin/androidx/compose/foundation/gestures/package-summary
 - Android, **Understand gestures and raw pointer events**: https://developer.android.com/develop/ui/compose/touch-input/pointer-input/understand-gestures
 - Android, **Compose Color reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color
+- AndroidX, **Compose ColorMatrix source**: https://raw.githubusercontent.com/androidx/androidx/androidx-main/compose/ui/ui-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/ColorMatrix.kt
+- Android, **Customize an image — ColorMatrix filter**: https://developer.android.com/develop/ui/compose/graphics/images/customize
+- Android, **ColorMatrix reference**: https://developer.android.com/reference/kotlin/android/graphics/ColorMatrix
 - Android, **Compose BlendMode reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode
+- Android, **Platform BlendMode reference**: https://developer.android.com/reference/android/graphics/BlendMode
 - AndroidX source, **Color.compositeOver implementation**: https://github.com/androidx/androidx/blob/androidx-main/compose/ui/ui-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/Color.kt
 - Android, **Constraints and modifier order**: https://developer.android.com/develop/ui/compose/layouts/constraints-modifiers
 - Android, **GraphicsLayer**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/layer/GraphicsLayer

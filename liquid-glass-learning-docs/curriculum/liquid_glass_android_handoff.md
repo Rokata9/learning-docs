@@ -1,8 +1,8 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 3.8.1  
-**Updated:** 2026-07-26  
-**Current position:** Lessons 1.1 through 3.7 are complete by learner confirmation. **24 of 216 lessons are complete.** Lesson 3.8 is generated and remains pending.
+**Course plan version:** 3.10.0  
+**Updated:** 2026-07-27  
+**Current position:** Lessons 1.1 through 3.8 are complete by learner confirmation. **25 of 216 lessons are complete.** Lesson 3.9 has learner questions pending and remains the next unresolved checkpoint. Lesson 3.10 is generated ahead and is the generated frontier.
 
 ## Permanent course rules
 
@@ -19,6 +19,7 @@
 - Put a full chapter-screen preview and a direct active-child preview in the chapter screen file. For Lesson 3.1 and later, provide light and dark variants for both.
 - Lessons 3.1 and later follow the operating-system light or dark theme. Instructional color data remains unchanged across themes.
 - Count only learner-confirmed lesson completion.
+- A request to proceed does not confirm completion when the learner explicitly says questions or corrections remain. Keep the unresolved checkpoint and generated frontier separate.
 - End every response with `Course progress: X of 216 lessons completed.` and an approximate remaining-context estimate.
 
 ## Chapter 3 color and compositing terminology rules
@@ -100,6 +101,15 @@ The learner's clean progression after the final Lesson 3.6 clarification is evid
 - Do not say `precomputed RGB` without naming whether the tuple is straight sRGB, premultiplied RGB, decoded linear-light RGB, or output straight RGB.
 - Pure-primary examples with two zero channels are isolation tests. They must be labelled as such and paired with a mixed all-non-zero example. Lesson 3.6 now includes fixed `Mixed check` sRGB `(0.37, 0.58, 0.21)`.
 
+## Color-transform versus color-measurement gate
+
+- Name whether an operation transforms, measures, composites, or classifies color data before showing coefficients.
+- State the RGB representation consumed and the output type produced.
+- When a transform formula resembles an earlier measurement formula, compare preprocessing, coefficients, output type, and next consumer side by side.
+- Define the exact saturation contract. Do not silently exchange AndroidX ColorMatrix saturation with HSL, HSV, or another tool.
+- Prove factor regions with gray reference, signed distance, scaled distance, raw output, and clamp.
+- Recalculate luminance and contrast after a transform changes RGB.
+
 ## Lesson 3.7 — Foreground contrast
 
 - Starts from the completed Lesson 3.6 background: straight sRGB RGBA `(0.80, 0.25, 0.60, 1.00)`, relative luminance near `0.187759`.
@@ -160,21 +170,51 @@ The lesson now shows the stale path and the correct recomputation path side by s
 
 Reusable prevention rules were added to `AGENTS.md` under `Qualitative-claim proof and derived-value dependency gate`.
 
-Lesson 3.8 remains pending. Course progress remains 24 of 216.
+Lesson 3.8 is complete by learner progression. Course progress is 25 of 216.
+
+
+## Lesson 3.9 — Saturation
+
+- Starts from the completed Lesson 3.8 output: straight sRGB RGBA `(0.65, 0.35, 0.70, 1.00)`.
+- Defines saturation as the exact factor accepted by AndroidX `ColorMatrix.setToSaturation`. It does not equate this operation with HSL, HSV, or every design tool named saturation.
+- Calculates the gray reference directly from stored sRGB channels: `0.213R + 0.715G + 0.072B = 0.43910` for the course input.
+- Calculates each channel with `gray + factor × (input − gray)`.
+- At factor `0.40`, the output is approximately straight sRGB RGBA `(0.52346, 0.40346, 0.54346, 1.00)`.
+- Proves factor regions through signed distances: `0` makes gray, values below `1` reduce distances, `1` is identity, values above `1` enlarge distances, and large factors can require clamping.
+- Separates the saturation gray reference from relative luminance. The gray reference consumes stored straight sRGB directly and produces one transform value. Relative luminance decodes sRGB into linear light and produces one measurement.
+- Recalculates output luminance and black/white contrast after RGB changes.
+- Leaves alpha unchanged. A future transformed source with alpha below `1` still requires source-over compositing over its actual destination before visible-output luminance or contrast is known.
+- Android changes: `Chapter03Screen.kt` and new `SaturationExplorer.kt`, with chapter and child previews in light and dark modes.
+- Lesson 3.10 remains Blend modes.
+
+## Color-transform versus color-measurement rule from Lesson 3.9
+
+When two formulas use similar RGB coefficients, compare their complete contracts instead of comparing only the numbers:
+
+```text
+operation purpose
+→ input representation
+→ preprocessing
+→ coefficients
+→ output type
+→ next consumer
+```
+
+A color transform outputs another color or channel value. A color measurement outputs a scalar. Do not reuse one as the other. For saturation factors, prove every qualitative label with the gray reference, signed channel distance, scaled distance, raw output, and clamp.
 
 ## Current progress
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 3.8.0
+course_version: 3.9.0
 platform: Kotlin + Jetpack Compose
 learning_device: Pixel 8 Pro
 learning_min_sdk: 33
 course_lessons_total: 216
-course_lessons_completed_by_learner: 24
-completed_through: 3.7
-generated_frontier: 3.8
-next_learner_checkpoint: 3.8
+course_lessons_completed_by_learner: 25
+completed_through: 3.8
+generated_frontier: 3.9
+next_learner_checkpoint: 3.9
 chapter_01_completed_by_learner: true
 chapter_02_completed_by_learner: true
 chapter_03_completed_by_learner: false
@@ -187,7 +227,10 @@ lesson_03_07_generated: true
 lesson_03_07_completed_by_learner: true
 lesson_03_08_file: course/chapters/chapter-03/lesson-03-08-tint.html
 lesson_03_08_generated: true
-lesson_03_08_completed_by_learner: false
+lesson_03_08_completed_by_learner: true
+lesson_03_09_file: course/chapters/chapter-03/lesson-03-09-saturation.html
+lesson_03_09_generated: true
+lesson_03_09_completed_by_learner: false
 invalid_scope_extension_imports_fixed: true
 chapter_and_child_preview_rule_recorded: true
 transparent_edge_halo_topic: deferred_until_image_boundary_and_sampling_prerequisites
@@ -618,6 +661,92 @@ Course progress: 23 of 216 lessons completed.
 Next lesson: 3.7 — Foreground contrast.
 ```
 
+
+## Lesson 3.10 generated-ahead state
+
+Lesson 3.10 is generated, but Lesson 3.9 remains incomplete because the learner explicitly reserved questions about it.
+
+```yaml
+learner_confirmed_completed_total: 25
+completed_through: "Lesson 3.8"
+lesson_03_09_generated: true
+lesson_03_09_completed_by_learner: false
+lesson_03_09_status: "questions pending"
+lesson_03_10_generated: true
+lesson_03_10_completed_by_learner: false
+lesson_03_10_status: "generated ahead"
+next_unresolved_checkpoint: "Lesson 3.9"
+generated_frontier: "Lesson 3.10"
+```
+
+Do not increase the completed total merely because Lesson 3.10 was requested or generated.
+
+### Lesson 3.10 model
+
+The lesson keeps these inputs fixed:
+
+```text
+Source straight sRGB RGBA:
+(0.84, 0.36, 0.18, 1.00)
+
+Destination straight sRGB RGBA:
+(0.22, 0.58, 0.76, 1.00)
+
+Draw order:
+destination first, source circle second
+```
+
+Only the blend mode changes.
+
+The opaque solid-interior outputs are:
+
+```text
+Normal / SrcOver:
+(0.8400, 0.3600, 0.1800)
+
+Multiply:
+(0.1848, 0.2088, 0.1368)
+
+Screen:
+(0.8752, 0.7312, 0.8032)
+
+Plus raw:
+(1.0600, 0.9400, 0.9400)
+
+Plus displayed after clamping:
+(1.0000, 0.9400, 0.9400)
+```
+
+The exact opaque-input channel rules are:
+
+```text
+Normal:
+output = source
+
+Multiply:
+output = source × destination
+
+Screen:
+output = 1 − (1 − source) × (1 − destination)
+       = source + destination − source × destination
+
+Plus:
+raw output = source + destination
+displayed output = clamp(raw output, 0, 1)
+```
+
+The lesson explicitly does not generalize these short formulas to alpha below `1`. Translucent blend-mode compositing requires source coverage, destination coverage, output alpha, and the blend function. That larger calculation is deferred.
+
+### Android files
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter03/BlendModesExplorer.kt
+```
+
+`Chapter03Screen.kt` contains full-screen and direct-child previews in light and dark modes.
+
+
 ## Reusable continuation prompt
 
 ```text
@@ -645,7 +774,7 @@ Deliver only incremental ZIPs containing changed files.
 
 Do not explicitly import `androidx.compose.foundation.layout.weight` or `androidx.compose.foundation.layout.matchParentSize`; use them only through their layout scope. Put both a full chapter-screen preview and a direct child preview in the chapter screen file, with light and dark variants for Lesson 3.1 and later.
 
-Count only learner-confirmed completion. End every response with course progress and an approximate remaining-context estimate.
+Count only learner-confirmed completion. A request to proceed does not mark a lesson complete when the learner explicitly says questions or corrections remain. Track the next unresolved checkpoint separately from the generated frontier. End every response with course progress and an approximate remaining-context estimate.
 
 LATEST HANDOFF:
 [paste this file]

@@ -141,6 +141,30 @@ This rule was added after the Lesson 3.8 clarification. The original lesson stat
 6. **Show boundary cases.** If the old and new results happen to agree when the input did not change, such as tint amount `0`, state why. Do not imply that recomputation always changes the number.
 7. **Verification question.** Before packaging, ask: can the learner prove every directional adjective and identify the exact input object for every derived number? If either answer is uncertain, the lesson fails the total-beginner audit.
 
+### Color-transform versus color-measurement gate
+
+This rule was added for Lesson 3.9 because its saturation transform uses three fixed RGB multipliers that look similar to the relative-luminance coefficients from Lesson 3.6. Similar-looking arithmetic must not be allowed to hide different input contracts and different outputs.
+
+1. **Name the operation before the constants.** State whether the current operation transforms a color, measures a color, composites layers, or classifies a measurement. Do not present a row of multipliers before that purpose is clear.
+2. **State the input representation.** For every RGB formula, say whether it consumes stored straight sRGB channel values, premultiplied RGB contributions, decoded linear-light channels, or another explicitly defined representation.
+3. **State the output type.** A transform may output another RGB color. A measurement may output one scalar. A gray-reference channel value is neither automatically relative luminance nor a complete color until it is assigned to red, green, and blue.
+4. **Compare look-alike formulas directly.** When coefficients resemble an earlier formula, show both complete paths side by side: preprocessing, coefficients, output type, and next consumer. Explain why one cannot replace the other.
+5. **Define the exact saturation contract.** The word `saturation` can name different operations in different color models. A lesson must name the API or mathematical definition it teaches. Do not silently substitute HSL, HSV, a design-tool control, or an Android `ColorMatrix` transform for one another.
+6. **Prove factor regions from distances.** For a saturation-like factor, show the gray or neutral reference, each channel's signed distance from it, the scaled distance, the raw output, and any clamp. This is required before using labels such as `gray`, `closer to gray`, `unchanged`, or `farther from gray`.
+7. **Recalculate downstream measurements.** When the transform changes RGB, relative luminance and contrast must be calculated from the transformed output. State whether the transform promises to preserve any measurement; do not infer preservation from similar coefficients.
+8. **Keep alpha in its own causal position.** When the transform leaves alpha unchanged, say so. An output with alpha below `1` still requires compositing over its actual destination before visible-output luminance or contrast can be known.
+
+
+### Pending-question completion gate
+
+This rule was added after the learner asked to generate Lesson 3.10 while explicitly reserving questions about Lesson 3.9.
+
+1. A request to `continue`, `proceed`, or generate the next lesson is not completion confirmation when the learner explicitly says that questions, clarification, testing, or corrections remain for the preceding lesson.
+2. Keep the unresolved lesson marked `completed_by_learner: false`. Do not increase the learner-confirmed completion count.
+3. Advance the generated frontier separately. A later lesson may be generated ahead when its prerequisites are already complete, but the handoff, course home, chapter hub, and lesson chrome must preserve the unresolved checkpoint.
+4. State the pending lesson and the generated-ahead lesson separately. Do not collapse `next unresolved checkpoint`, `currently generated lesson`, and `learner-confirmed completion` into one status field.
+5. When the learner later resolves the questions, mark completion only after an explicit completion statement or an unambiguous request that contains no remaining issue.
+
 ## Visual target
 
 - Desktop only.

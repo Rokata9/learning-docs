@@ -10,15 +10,23 @@ Open `liquid-glass-course.html` directly in a Chromium-based browser. No local s
 
 - Chapter 1 is complete.
 - Chapter 2 is complete.
-- **24 of 216 lessons are complete.**
-- Lessons 3.1 through 3.7 are complete.
-- Lesson 3.8 is generated and is the next learner checkpoint.
-- The generated frontier is Lesson 3.8.
+- **25 of 216 lessons are complete.**
+- Lessons 3.1 through 3.8 are complete.
+- Lesson 3.9 is generated and still has learner questions pending.
+- Lesson 3.10 is generated ahead without marking Lesson 3.9 complete.
+- The next unresolved learner checkpoint remains Lesson 3.9.
+- The generated frontier is Lesson 3.10.
 
-Open:
+Open the unresolved lesson:
 
 ```text
-course/chapters/chapter-03/lesson-03-08-tint.html
+course/chapters/chapter-03/lesson-03-09-saturation.html
+```
+
+Open the generated-ahead lesson:
+
+```text
+course/chapters/chapter-03/lesson-03-10-blend-modes.html
 ```
 
 ## Android progression
@@ -37,6 +45,15 @@ course/chapters/chapter-03/lesson-03-08-tint.html
 - Lesson 3.8 starts from the completed Lesson 3.7 background. It defines one explicit tint model: a translucent straight sRGB tint source drawn over one opaque straight sRGB destination with source-over.
 - The lesson traces one red channel through the general source-over calculation before repeating it for green and blue. It distinguishes tint amount from final output alpha and recalculates luminance and contrast from the tinted output.
 - The active Android child becomes `TintExplorer.kt`. `Chapter03Screen.kt` includes complete-screen and direct-child previews in both OS themes.
+- Lesson 3.9 starts from the final opaque Lesson 3.8 output, straight sRGB RGBA `(0.65, 0.35, 0.70, 1.00)`.
+- It teaches the exact AndroidX `ColorMatrix.setToSaturation` transform. The lesson calculates one gray-reference channel value from the stored sRGB channels, scales every channel's signed distance from that reference, and displays raw and clamped output values.
+- The lesson keeps the saturation gray reference separate from Lesson 3.6 relative luminance. The first is part of a color transform; the second is a measurement calculated after sRGB decoding.
+- The active Android child becomes `SaturationExplorer.kt`. `Chapter03Screen.kt` again contains complete-screen and direct-child previews in both OS themes.
+
+- Lesson 3.10 keeps one opaque source, one opaque destination, one shape, and one draw order fixed. It changes only the channel-combination rule at the covered position.
+- It compares Normal/SrcOver, Multiply, Screen, and Plus with exact opaque-input formulas. The lesson explicitly defers translucent blend-mode equations rather than silently reusing the opaque shortcuts.
+- The active Android child becomes `BlendModesExplorer.kt`. `Chapter03Screen.kt` includes complete-screen and direct-child previews in both OS themes.
+- Lesson 3.9 remains incomplete because the learner explicitly reserved questions. Generating Lesson 3.10 does not change the completed total.
 
 ## Theme rule from Lesson 3.1 onward
 
