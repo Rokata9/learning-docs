@@ -165,6 +165,18 @@ This rule was added after the learner asked to generate Lesson 3.10 while explic
 4. State the pending lesson and the generated-ahead lesson separately. Do not collapse `next unresolved checkpoint`, `currently generated lesson`, and `learner-confirmed completion` into one status field.
 5. When the learner later resolves the questions, mark completion only after an explicit completion statement or an unambiguous request that contains no remaining issue.
 
+### Formula-validity contract and stepper viewport-fit gate
+
+This rule was added after the Lesson 3.10 clarification. The phrase `exact for the controlled case` hid the actual assumptions, and the manual-stepper diagram was large enough to push its controls and explanatory text outside a 1920×1080 viewport.
+
+1. **List every simplifying condition.** Do not write `controlled case`, `simple case`, `short formula`, or `under these assumptions` without immediately listing the exact conditions: alpha values, coverage, draw order, coordinate/buffer position, representation, and allowed numeric range when relevant.
+2. **Show one general-to-short reduction.** When a full formula simplifies, substitute the controlled values into the full formula and show which terms become zero or one. State that the short formula is exact under those conditions, not a general formula and not an approximation.
+3. **Name what breaks the reduction.** State which changed input restores the omitted terms, such as alpha below `1`, partial edge coverage, a different representation, or a different draw order.
+4. **Keep step controls and explanations visible together.** At the required `1920×1080` viewport, a manual stepper must not use a diagram whose height pushes the step numbers, current caption, formula, or Back/Next controls out of view. Prefer a compact diagram beside the text.
+5. **Cap diagram growth on ultrawide displays.** A diagram may use the available width when it contains additional information, but it must not enlarge merely because the viewport is wider. Set an explicit readable maximum width or height.
+6. **Wrap or split SVG text explicitly.** Never place a paragraph-length calculation into one SVG `<text>` line. Break the calculation into separate labelled lines and verify the longest step, not only the initial state.
+7. **Required QA state.** For every stepper, render the longest-caption or longest-formula step at `1920×1080`. Confirm that no text is clipped and that the current step controls, diagram, caption, formula, and navigation can be inspected without scrolling back and forth inside the section.
+
 ## Visual target
 
 - Desktop only.
@@ -232,3 +244,23 @@ Apply these rules to every Android lesson patch:
 3. For Lesson 3.1 and later, provide light and dark variants for both preview kinds. Wrap each preview in `LiquidGlassLabTheme`. Wrap a direct child preview in a theme-aware `Surface` when the child normally receives its page background or content color from the parent screen.
 
 4. Preview wrapper functions must take no parameters. Supply representative values inside the wrapper when the child composable requires arguments.
+
+
+### Value provenance, pre-clamp terminology, and matrix-contract gate
+
+This rule was added after the Lesson 3.9 clarification questions.
+
+1. **Label value origin.** When a value appears across several sections, add a small click-controlled `ⓘ` origin control. State whether the value is inherited from a prior lesson, set by a current control, fixed by an API or standard, measured at runtime, or derived in the current section. Tooltips carry provenance only; essential mathematics remains visible without opening them.
+2. **Avoid unexplained `raw`.** Do not write `raw RGB`, `raw channel`, or `raw output` without defining the exact stage. Prefer `matrix result before clamping`, `pre-clamp channel result`, or another operation-specific name. State that this meaning is unrelated to camera RAW, file bytes, or premultiplication.
+3. **Show both sides of clamping.** Display the pre-clamp number, the allowed range, and the final clamped number. Use `clamped`, not an unexplained `clipped`, for a numeric range restriction.
+4. **Explain all five matrix columns.** For a 4×5 color matrix, define the four input multipliers and the fifth constant offset before showing rows. State which coefficients change with the current control and which remain fixed for the selected API operation.
+5. **Explain identity rows causally.** For `[0, 0, 0, 1, 0]`, show `A′ = 0R + 0G + 0B + 1A + 0 = A`. State that this row is fixed by `setToSaturation`, not by every possible ColorMatrix.
+6. **Separate transform from compositing.** For translucent input, trace `source RGBA → transformed source RGBA → source-over destination → final visible RGB → luminance → contrast`. If the destination is translucent, continue compositing until an opaque backing is reached.
+7. **Do not imply a transform repairs contrast.** Recalculate contrast from the final visible RGB. If the selected foreground fails, test allowed foreground candidates, then change a relevant material or foreground input and measure again. For Liquid Glass, name stabilizing options such as stronger tint, dimming, or a more opaque local backing; do not rely on saturation or blur alone.
+
+### Complete-source-section preference
+
+1. Do not embed complete Android source files or source-tab viewers in lesson HTML. The learner views complete files in Android Studio.
+2. Keep only short code excerpts required for a causal explanation, the manual value path, or a coding challenge.
+3. Continue delivering changed Android files in the separate incremental Android ZIP.
+4. Remove the complete-source section from a lesson whenever that lesson is otherwise revised. Do not bulk-edit already completed historical lessons solely for this preference unless the learner asks.

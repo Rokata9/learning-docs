@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 3.10.0  
+**Course plan version:** 3.10.2  
 **Updated:** 2026-07-27  
 **Current position:** Lessons 1.1 through 3.8 are complete by learner confirmation. **25 of 216 lessons are complete.** Lesson 3.9 has learner questions pending and remains the next unresolved checkpoint. Lesson 3.10 is generated ahead and is the generated frontier.
 
@@ -107,7 +107,7 @@ The learner's clean progression after the final Lesson 3.6 clarification is evid
 - State the RGB representation consumed and the output type produced.
 - When a transform formula resembles an earlier measurement formula, compare preprocessing, coefficients, output type, and next consumer side by side.
 - Define the exact saturation contract. Do not silently exchange AndroidX ColorMatrix saturation with HSL, HSV, or another tool.
-- Prove factor regions with gray reference, signed distance, scaled distance, raw output, and clamp.
+- Prove factor regions with gray reference, signed distance, scaled distance, pre-clamp matrix result, and clamping.
 - Recalculate luminance and contrast after a transform changes RGB.
 
 ## Lesson 3.7 — Foreground contrast
@@ -200,7 +200,7 @@ operation purpose
 → next consumer
 ```
 
-A color transform outputs another color or channel value. A color measurement outputs a scalar. Do not reuse one as the other. For saturation factors, prove every qualitative label with the gray reference, signed channel distance, scaled distance, raw output, and clamp.
+A color transform outputs another color or channel value. A color measurement outputs a scalar. Do not reuse one as the other. For saturation factors, prove every qualitative label with the gray reference, signed channel distance, scaled distance, pre-clamp matrix result, and clamping.
 
 ## Current progress
 
@@ -710,7 +710,7 @@ Multiply:
 Screen:
 (0.8752, 0.7312, 0.8032)
 
-Plus raw:
+Plus pre-clamp:
 (1.0600, 0.9400, 0.9400)
 
 Plus displayed after clamping:
@@ -731,8 +731,8 @@ output = 1 − (1 − source) × (1 − destination)
        = source + destination − source × destination
 
 Plus:
-raw output = source + destination
-displayed output = clamp(raw output, 0, 1)
+pre-clamp output = source + destination
+displayed output = clamp(pre-clamp output, 0, 1)
 ```
 
 The lesson explicitly does not generalize these short formulas to alpha below `1`. Translucent blend-mode compositing requires source coverage, destination coverage, output alpha, and the blend function. That larger calculation is deferred.
@@ -782,3 +782,40 @@ LATEST HANDOFF:
 CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 [paste here]
 ```
+
+
+## Lesson 3.9 clarification — pending learner review
+
+The revised Lesson 3.9 now defines and demonstrates:
+
+- pre-clamp matrix results versus final clamped channels;
+- all five ColorMatrix row terms, including the constant offset;
+- why `setToSaturation` preserves alpha with `[0, 0, 0, 1, 0]`;
+- which matrix values vary with the factor and which are fixed by this operation;
+- saturation of a translucent source followed by source-over compositing;
+- contrast repair options and their relevance to later Liquid Glass material stabilization;
+- clickable value-provenance controls.
+
+Complete Android source-file viewers were removed from Lessons 3.9 and 3.10. Future lessons include only short explanatory excerpts and coding challenges; complete code remains in Android Studio and the incremental Android ZIP.
+
+Lesson 3.9 is still not learner-complete. Lesson 3.10 remains generated ahead. Learner-confirmed progress remains 25 of 216.
+
+## Lesson 3.10 clarification — formula scope and stepper layout
+
+The learner asked what `The short RGB formulas are exact for that controlled case` meant. The lesson now lists the exact conditions instead of using the vague label:
+
+```text
+inspected position is fully inside the source shape
+source coverage = 100%
+source alpha = 1.00
+destination alpha = 1.00
+destination drawn first
+source drawn second
+```
+
+It also substitutes the two opaque alpha values into Android's general Multiply equation and shows why the extra contribution terms become zero. If alpha drops below `1` or boundary coverage becomes partial, the short opaque formula is incomplete.
+
+The manual stepper was also revised. At `1920×1080`, the compact SVG stays beside the step card instead of occupying nearly the full viewport height. The SVG has a fixed maximum width, and Step 5's Screen calculation is split across four explicit lines.
+
+`AGENTS.md` now requires explicit formula-validity contracts and longest-step viewport QA for all future steppers. Lesson 3.9 remains the unresolved learner checkpoint. Lesson 3.10 remains generated ahead. Progress remains 25 of 216.
+

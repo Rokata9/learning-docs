@@ -1,6 +1,6 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 3.10.0  
+**Version:** 3.10.1  
 **Updated:** 2026-07-27  
 **Current course position:** Lessons 1.1 through 3.8 are complete by learner confirmation. **25 of 216 lessons are complete.** Lesson 3.9 has learner questions pending and remains the next unresolved checkpoint. Lesson 3.10 is generated ahead and is the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
@@ -332,6 +332,14 @@ Version 3.7 records completion of Lesson 3.6 and introduces foreground contrast:
 - Android changes: `Chapter03Screen.kt` and new `ForegroundContrastExplorer.kt`.
 
 
+Version 3.10.1 clarifies the blend-mode formula boundary and repairs the manual stepper:
+
+- Replaces the vague phrase `exact for that controlled case` with the complete validity contract: full source coverage, source alpha `1.00`, destination alpha `1.00`, and destination-first/source-second draw order.
+- Substitutes the opaque alpha values into Android's general Multiply equation and shows exactly which terms become zero.
+- States that alpha below `1` or partial shape-edge coverage restores the omitted terms.
+- Keeps the manual-stepper diagram and explanation side by side at `1920×1080`, caps diagram growth on ultrawide displays, and splits the Screen red-channel calculation into multiple SVG lines.
+- Adds permanent formula-validity and stepper viewport-fit QA rules to `AGENTS.md`.
+
 Version 3.10 generates the blend-mode lesson without closing the pending saturation lesson:
 
 - The learner explicitly asked to continue while reserving questions about Lesson 3.9. Lesson 3.9 therefore remains incomplete and the learner-confirmed total remains **25 of 216 lessons**.
@@ -339,7 +347,7 @@ Version 3.10 generates the blend-mode lesson without closing the pending saturat
 - Lesson 3.10 keeps one opaque straight-sRGB source, one opaque straight-sRGB destination, the shape, and the draw order fixed. Only the RGB blend rule changes.
 - The lesson compares Normal/SrcOver, Multiply, Screen, and Plus. It traces one channel completely before repeating red, green, and blue.
 - Screen is introduced through the distance remaining before white: `1 − (1 − source) × (1 − destination)`. The equivalent short form is then shown.
-- Plus displays the raw sum and the clamped normalized output. It explicitly separates saturating addition from the Lesson 3.9 saturation transform.
+- Plus displays the pre-clamp sum and the final clamped normalized output. It explicitly separates saturating addition from the Lesson 3.9 saturation transform.
 - The short formulas are labelled as opaque-input formulas. Translucent blend-mode compositing is deferred rather than inferred from the opaque shortcuts.
 - Android changes: `Chapter03Screen.kt` and new `BlendModesExplorer.kt`, with complete-screen and direct-child previews in both OS themes.
 - `AGENTS.md` adds a pending-question completion gate: progression language does not count as completion when the learner explicitly says questions remain.
@@ -351,7 +359,7 @@ Version 3.9 records completion of Lesson 3.8 and introduces the exact AndroidX s
 - Lesson 3.9 starts from Lesson 3.8's final opaque straight sRGB RGBA `(0.65, 0.35, 0.70, 1.00)`.
 - The lesson defines saturation as the factor accepted by AndroidX `ColorMatrix.setToSaturation`. It does not silently substitute HSL, HSV, or another design-tool saturation model.
 - The AndroidX transform calculates a gray reference directly from stored sRGB channel values with fixed multipliers `0.213`, `0.715`, and `0.072`.
-- Every output channel is explained as `gray reference + factor × (input channel − gray reference)`. The lesson exposes signed distance, scaled distance, raw output, and clamped output.
+- Every output channel is explained as `gray reference + factor × (input channel − gray reference)`. The lesson exposes signed distance, scaled distance, pre-clamp matrix result, and final clamped output.
 - The saturation gray reference is explicitly separated from Lesson 3.6 relative luminance. The first is an intermediate value in a color transform. The second is a measurement calculated after sRGB decoding.
 - Android changes: `Chapter03Screen.kt` and new `SaturationExplorer.kt`, with complete-screen and direct-child previews in both OS themes.
 - `AGENTS.md` adds a color-transform-versus-color-measurement gate so similar-looking coefficients cannot hide different input representations, output types, or consumers.
@@ -2493,7 +2501,7 @@ For each channel:
 ```text
 signed distance = input channel − gray
 scaled distance = saturation factor × signed distance
-raw output = gray + scaled distance
+pre-clamp matrix result = gray + scaled distance
 ```
 
 At factor `0.40`:
@@ -2516,7 +2524,7 @@ The lesson proves these factor regions:
 - `0 < factor < 1`: each absolute distance from gray becomes smaller;
 - `1`: identity; output RGB equals input RGB;
 - `factor > 1`: each distance grows in the same signed direction;
-- sufficiently large factors can create raw values outside `0..1`, which are clamped before display.
+- sufficiently large factors can create pre-clamp values outside `0..1`, which are clamped before display.
 
 The lesson explicitly separates two similar-looking calculations:
 
@@ -2543,7 +2551,7 @@ Lesson 3.9 is complete only when:
 - [ ] The learner can reproduce the default gray reference `0.43910`.
 - [ ] The learner can calculate red, green, and blue at factor `0.40`.
 - [ ] The learner can prove what factors `0`, below `1`, equal to `1`, and above `1` do.
-- [ ] The learner can explain raw output versus clamped display output.
+- [ ] The learner can explain the pre-clamp matrix result versus the final clamped display output.
 - [ ] The learner can explain why alpha remains unchanged and why a future translucent result still requires compositing.
 - [ ] The learner can recalculate relative luminance and contrast from the transformed output rather than reuse input measurements.
 - [ ] The coding challenge and four exercises are complete.
@@ -2737,3 +2745,19 @@ The course plan was checked against these public primary sources through 2026-07
 - Android, **Run apps on a hardware device**: https://developer.android.com/studio/run/device
 - Android, **Configure on-device developer options**: https://developer.android.com/studio/debug/dev-options
 - Android, **Android Debug Bridge**: https://developer.android.com/tools/adb
+
+
+## 12H. Lesson 3.9 clarification record — matrix stages, alpha, and provenance
+
+Lesson 3.9 remains the unresolved learner checkpoint. The clarification revision adds:
+
+- `matrix result before clamping` as the precise replacement for ambiguous `raw RGB` or `raw channel`;
+- an explicit pre-clamp → clamp → final-channel trace;
+- a complete 4×5 ColorMatrix contract, including all four input multipliers and the fifth offset;
+- proof that the saturation alpha row `[0, 0, 0, 1, 0]` is an identity row selected by `setToSaturation`, not a universal ColorMatrix rule;
+- a separate translucent-source experiment: saturation transform → source-over opaque destination → final visible RGB → luminance and contrast;
+- a contrast-repair decision path relevant to later Liquid Glass material stabilization;
+- click-controlled provenance icons for inherited, user-controlled, fixed, and derived values;
+- removal of complete Android source viewers from Lesson 3.9 and generated-ahead Lesson 3.10. Complete source remains in Android Studio and the Android ZIP.
+
+Future lesson HTML must not contain complete source-file tabs. Use only the exact code excerpt needed by an explanation or challenge.
