@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 3.11 — Compositing laboratory</title>
+<link rel="icon" href="data:,">
+<style>
+:root{
+  color-scheme:light dark;
+  --ink:#172033;--muted:#596579;--line:#d8e0ea;--paper:#fff;--soft:#f5f7fb;
+  --panel:#fbfcfe;--control:#fff;--green:#059669;--green-soft:#ecfdf5;
+  --indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;
+  --pink:#be185d;--pink-soft:#fce7f3;--blue:#1e40af;--blue-soft:#dbeafe;
+  --red:#dc2626;--red-soft:#fee2e2;--body-start:#f8fafc;--body-end:#edf2f7;
+  --shadow:0 18px 52px rgba(30,41,59,.09);--code-bg:#111827;--code-ink:#e5e7eb
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --ink:#e7edf7;--muted:#aeb9c9;--line:#354154;--paper:#111827;--soft:#172033;
+    --panel:#151e2d;--control:#1b2535;--green:#34d399;--green-soft:#0b3429;
+    --indigo:#a5b4fc;--indigo-soft:#23234a;--amber:#fbbf24;--amber-soft:#402d0a;
+    --pink:#f472b6;--pink-soft:#43172d;--blue:#60a5fa;--blue-soft:#172d54;
+    --red:#f87171;--red-soft:#491b20;--body-start:#0b111c;--body-end:#101827;
+    --shadow:0 18px 52px rgba(0,0,0,.32);--code-bg:#080d16;--code-ink:#e5e7eb
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--body-start),var(--body-end));font:16px/1.68 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+a{color:var(--blue)}button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.55}
+code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}code{background:var(--indigo-soft);padding:.12em .36em;border-radius:6px}
+.page{width:min(4760px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}
+.topbar{display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:22px}.crumbs{color:var(--muted)}
+.chips{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:850}.chip.progress{color:var(--green);background:var(--green-soft)}.chip.pending{color:var(--amber);background:var(--amber-soft)}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+.hero{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(460px,.75fr);gap:28px;padding:42px}.eyebrow{color:var(--green);font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+h1{margin:.35rem 0 1rem;font-size:clamp(42px,4vw,70px);line-height:1.04;letter-spacing:-.045em}h2{margin:0 0 .7rem;font-size:31px;line-height:1.18}h3{margin:0 0 .5rem;font-size:21px;line-height:1.25}p{max-width:116ch}.lead{font-size:19px;color:var(--muted)}
+.goal{padding:23px;border-radius:18px;border:1px solid color-mix(in srgb,var(--indigo) 35%,var(--line));background:var(--indigo-soft)}.goal strong{color:var(--indigo)}
+.section{margin-top:24px;padding:32px}.section-head{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:22px}.section-head p{margin:0;color:var(--muted)}.section-no{color:var(--indigo);font-weight:900;letter-spacing:.04em}
+.card{padding:20px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}.card.green{background:var(--green-soft);border-color:color-mix(in srgb,var(--green) 45%,var(--line))}.card.red{background:var(--red-soft);border-color:color-mix(in srgb,var(--red) 45%,var(--line))}.card.amber{background:var(--amber-soft);border-color:color-mix(in srgb,var(--amber) 45%,var(--line))}.card.blue{background:var(--blue-soft);border-color:color-mix(in srgb,var(--blue) 45%,var(--line))}.card.indigo{background:var(--indigo-soft);border-color:color-mix(in srgb,var(--indigo) 45%,var(--line))}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.note,.warning,.success{margin-top:18px;padding:16px 18px;border-radius:14px}.note{border-left:5px solid var(--blue);background:var(--blue-soft)}.warning{border-left:5px solid var(--amber);background:var(--amber-soft)}.success{border-left:5px solid var(--green);background:var(--green-soft)}
+.formula{padding:14px 16px;border-radius:13px;background:var(--indigo-soft);border:1px solid color-mix(in srgb,var(--indigo) 45%,var(--line));font:800 15px/1.64 "SFMono-Regular",Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+.primary,.secondary,.preset,.step-dot,.mode-button,.choice{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:850}.primary{border:1px solid var(--blue);background:var(--blue);color:#fff}.secondary,.preset,.step-dot,.mode-button,.choice{border:1px solid var(--line);background:var(--control);color:var(--ink)}.secondary:hover,.preset:hover,.step-dot:hover,.mode-button:hover,.choice:hover{border-color:#94a3b8;background:var(--soft)}.selected{border-color:var(--indigo)!important;background:var(--indigo-soft)!important;color:var(--indigo)!important}
+.controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center}.range{display:grid;grid-template-columns:270px minmax(300px,1fr) 130px;gap:14px;align-items:center;margin:13px 0}.range input{width:100%}.toggle-row{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:10px 0}.toggle-row input{width:22px;height:22px}
+.term-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.lab{display:grid;grid-template-columns:minmax(1120px,1.25fr) minmax(720px,.75fr);gap:20px}.stage{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:20px}
+.control-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.control-card{padding:17px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+.origin-host{position:relative}.origin-button{position:absolute;z-index:8;top:8px;right:8px;width:30px;height:30px;border-radius:999px;border:1px solid var(--line);background:var(--control);color:var(--blue);font-weight:950;line-height:1;padding:0;display:grid;place-items:center}.origin-button:hover,.origin-button:focus-visible{border-color:var(--blue);outline:2px solid color-mix(in srgb,var(--blue) 32%,transparent)}.origin-popup{display:none;position:absolute;z-index:30;top:43px;right:8px;width:min(390px,calc(100vw - 110px));padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);box-shadow:var(--shadow);font:650 14px/1.5 system-ui;text-align:left}.origin-host.origin-open .origin-popup{display:block}
+.stack-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:18px}.stack-card{border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden;min-width:0}.stack-swatch{height:142px;display:grid;place-items:end center;padding:10px;border-bottom:1px solid var(--line)}.stack-swatch span{padding:6px 9px;border-radius:9px;background:rgba(255,255,255,.92);color:#111827;font-weight:900;text-align:center}.stack-copy{padding:14px}.stack-copy p{margin:.35rem 0}.stack-copy .mono{font-size:13px;overflow-wrap:anywhere}
+.final-grid{display:grid;grid-template-columns:minmax(680px,1.2fr) minmax(480px,.8fr);gap:18px;margin-top:18px}.final-swatch{min-height:300px;border-radius:18px;border:1px solid var(--line);display:grid;place-items:center;padding:20px}.final-label{padding:13px 16px;border-radius:12px;background:rgba(255,255,255,.92);color:#111827;font-weight:900;text-align:center;box-shadow:0 7px 28px rgba(15,23,42,.18)}.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.metric{padding:14px;border:1px solid var(--line);border-radius:13px;background:var(--control)}.metric strong{display:block;color:var(--indigo);margin-bottom:5px}
+.trace-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.trace-card{padding:18px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}
+.stepper{display:grid;grid-template-columns:minmax(680px,.95fr) minmax(620px,1.05fr);gap:18px;align-items:start;margin-top:18px}.step-figure{min-width:0;border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden;padding:12px;display:grid;place-items:center}.step-figure svg{display:block;width:min(100%,940px);height:auto}.step-card{min-width:0;border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden}.step-nav{padding:12px;display:flex;gap:7px;flex-wrap:wrap;border-bottom:1px solid var(--line)}.step-body{padding:18px}.step-title{font-size:22px;font-weight:900}.step-caption{min-height:72px}.step-card .formula{min-height:118px;max-height:235px;overflow:auto}
+.pipeline{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.pipeline .card{min-height:205px}.pipeline strong{display:block;color:var(--indigo);margin-bottom:7px}.code{background:var(--code-bg);color:var(--code-ink);border-radius:14px;padding:16px;white-space:pre-wrap;overflow:auto;font:14px/1.62 "SFMono-Regular",Consolas,monospace}
+.predict-box{display:grid;grid-template-columns:minmax(0,1fr) minmax(480px,.7fr);gap:18px}.prediction-result{min-height:88px;margin-top:12px;padding:14px;border-radius:12px;background:var(--soft)}
+.challenge{display:grid;grid-template-columns:minmax(760px,1fr) minmax(600px,.75fr);gap:18px}.editor{width:100%;min-height:300px;resize:vertical;background:var(--code-bg);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace}.challenge-preview{padding:18px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}.result{min-height:60px;margin-top:12px;padding:12px;border-radius:11px;background:var(--soft)}
+details{margin:10px 0;border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:13px 15px}summary{cursor:pointer;font-weight:900}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.check{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}.record{width:100%;min-height:310px;resize:vertical;background:var(--code-bg);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace}
+.footer-nav{margin-top:24px;padding:18px 24px;display:flex;justify-content:space-between;gap:18px;align-items:center}.footer-nav a{font-weight:900}.footer-nav span{color:var(--muted)}
+@media(max-width:2300px){.lab{grid-template-columns:1fr}.control-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.stack-strip{grid-template-columns:repeat(3,minmax(0,1fr))}.pipeline{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1600px){.control-grid,.term-grid,.trace-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.stepper,.final-grid,.predict-box{grid-template-columns:1fr}}
+@media(max-width:1250px){.hero,.two,.three,.four,.challenge{grid-template-columns:1fr}.range{grid-template-columns:210px 1fr 100px}.control-grid,.term-grid,.stack-strip,.metrics,.trace-grid{grid-template-columns:1fr}.checklist{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="page">
+<nav class="topbar">
+  <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-color-opacity-and-compositing.html">Chapter 3</a> · Lesson 3.11</div>
+  <div class="chips"><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span><span class="chip pending">Current checkpoint · 3.11</span><span class="chip progress">27 of 216 complete</span></div>
+</nav>
+<header class="hero panel">
+  <div>
+    <div class="eyebrow">Chapter 3 · Color, opacity, and compositing</div>
+    <h1>Lesson 3.11 — Compositing laboratory</h1>
+    <p class="lead"><strong>Lessons 3.3 and 3.4 already gave you one source, one destination, and one output at one drawing position.</strong> This lesson keeps that same kind of drawing position and adds more operations above it. The new task is to preserve the exact order and pass each output into the next operation.</p>
+    <div class="goal"><strong>Practical question</strong><p>When several translucent layers, one saturation transform, and one opaque blend-mode layer affect the same position, which value does each operation consume, and what final straight sRGB color does the ordered calculation produce?</p></div>
+  </div>
+  <aside class="card green">
+    <h2>Chapter checkpoint</h2>
+    <p>This laboratory does not introduce another color formula. It combines formulas you already completed.</p>
+    <p>The one new idea is a <strong>running composite</strong>: the current RGBA result after every operation completed so far. That result becomes the destination for the next draw operation.</p>
+  </aside>
+</header>
+
+<section class="section panel" id="where-this-fits">
+  <div class="section-head"><div><div class="section-no">1 · WHERE THIS LESSON FITS</div><h2>Combine the completed Chapter 3 operations</h2></div><p>No image sampling, blur, refraction, shape-edge coverage, or translucent blend-mode formula is added here.</p></div>
+  <div class="four">
+    <article class="card"><h3>Source-over</h3><p>Lessons 3.3 and 3.4 taught how one translucent source changes the destination already present at the same position.</p></article>
+    <article class="card"><h3>Saturation transform</h3><p>Lesson 3.9 taught how AndroidX changes one straight sRGB color while copying its alpha.</p></article>
+    <article class="card"><h3>Opaque blend mode</h3><p>Lesson 3.10 taught Normal, Multiply, Screen, and Plus when source alpha, destination alpha, and position coverage are all 1.</p></article>
+    <article class="card indigo"><h3>New connection</h3><p>The output of one completed operation becomes the exact input consumed by the next operation.</p></article>
+  </div>
+  <div class="warning"><strong>Formula boundary:</strong> the inspected position is fully inside every enabled layer. The base is opaque. The two middle layers use source-over and may be translucent. The top blend-mode source remains opaque. Therefore, the running destination is opaque before the Lesson 3.10 short blend formula is used.</div>
+</section>
+
+<section class="section panel" id="what-you-will-see">
+  <div class="section-head"><div><div class="section-no">2 · WHAT YOU WILL SEE</div><h2>Five visible stage colors from one fixed position</h2></div><p>Every stage card shows the current color after one additional operation.</p></div>
+  <div class="two">
+    <article class="card blue"><h3>Ordered stage strip</h3><p>The strip starts with the opaque base. It then shows the result after the first translucent layer, the second translucent layer, the saturation transform, and the opaque top blend.</p></article>
+    <article class="card amber"><h3>One final swatch</h3><p>The large swatch shows the final straight sRGB RGBA value. Its luminance and black/white contrast are calculated from that exact final RGB.</p></article>
+  </div>
+</section>
+
+<section class="section panel" id="terms">
+  <div class="section-head"><div><div class="section-no">3 · TERMS</div><h2>Name the ordered objects before calculating them</h2></div><p>These labels are used throughout the laboratory.</p></div>
+  <div class="term-grid">
+    <article class="card"><h3>Layer</h3><p>One drawable source with a color, an alpha value, a draw position, and a blend operation.</p></article>
+    <article class="card"><h3>Layer stack</h3><p>The ordered list of layers from the opaque base at the bottom to the last source drawn at the top.</p></article>
+    <article class="card indigo"><h3>Running composite</h3><p>The current straight RGBA result after all stages completed so far. The next draw treats this result as its destination.</p></article>
+    <article class="card"><h3>Stage</h3><p>One named operation in the sequence. A stage consumes one input color and produces one output color.</p></article>
+    <article class="card"><h3>Bypass</h3><p>Skipping an optional stage. Its output is then exactly equal to its input.</p></article>
+    <article class="card"><h3>Inspection position</h3><p>The one drawing-target position whose values are followed. Every enabled shape fully covers this position in the lesson model.</p></article>
+    <article class="card"><h3>Bottom to top</h3><p>The draw order. The base exists first. Every later layer is drawn over the result below it.</p></article>
+    <article class="card"><h3>Final displayed color</h3><p>The opaque straight sRGB output after the last enabled stage. This is the color consumed by luminance and contrast calculations.</p></article>
+  </div>
+</section>
+
+<section class="section panel" id="laboratory">
+  <div class="section-head"><div><div class="section-no">4 · INTERACTIVE EXPLANATION</div><h2>Build one ordered color stack</h2></div><p>Change one control, then inspect which stage first changes.</p></div>
+  <div class="lab">
+    <div class="stage">
+      <h3>Stage controls</h3>
+      <div class="controls" style="margin-bottom:14px"><button class="primary" id="resetCourse">Reset course values</button><button class="secondary" id="bypassAll">Bypass optional stages</button></div>
+      <div class="control-grid">
+        <article class="control-card origin-host">
+          <button class="origin-button" type="button" aria-expanded="false" aria-label="Where the base values come from">ⓘ</button><div class="origin-popup">The default blue base is the opaque destination from Lesson 3.10. Navy and pale are fixed Lesson 3.11 comparison presets. The selected preset supplies the first running composite.</div>
+          <h3>Opaque base</h3><p class="mono" id="baseTuple"></p><div class="controls"><button class="preset" data-base="course">Course blue</button><button class="preset" data-base="navy">Navy</button><button class="preset" data-base="pale">Pale</button></div>
+        </article>
+        <article class="control-card origin-host">
+          <button class="origin-button" type="button" aria-expanded="false" aria-label="Where Layer A values come from">ⓘ</button><div class="origin-popup">Layer A reuses the Lesson 3.3 magenta source RGB. Its current alpha comes from this slider. Its operation is source-over.</div>
+          <div class="toggle-row"><h3>Layer A · magenta</h3><label><input id="layerAEnabled" type="checkbox" checked> enabled</label></div><p class="mono">straight sRGB RGB(0.9000, 0.1000, 0.8000)</p><div class="range"><label for="layerAAlpha">Source alpha</label><input id="layerAAlpha" type="range" min="0" max="1" step="0.01" value="0.50"><output id="layerAAlphaOut">0.5000</output></div>
+        </article>
+        <article class="control-card origin-host">
+          <button class="origin-button" type="button" aria-expanded="false" aria-label="Where Layer B values come from">ⓘ</button><div class="origin-popup">Layer B reuses the Lesson 3.8 blue tint-source RGB. Its current alpha comes from this slider. Its operation is source-over.</div>
+          <div class="toggle-row"><h3>Layer B · blue tint</h3><label><input id="layerBEnabled" type="checkbox" checked> enabled</label></div><p class="mono">straight sRGB RGB(0.2000, 0.6500, 1.0000)</p><div class="range"><label for="layerBAlpha">Source alpha</label><input id="layerBAlpha" type="range" min="0" max="1" step="0.01" value="0.25"><output id="layerBAlphaOut">0.2500</output></div>
+        </article>
+        <article class="control-card origin-host">
+          <button class="origin-button" type="button" aria-expanded="false" aria-label="Where the order value comes from">ⓘ</button><div class="origin-popup">The order comes from these buttons. The first named middle layer is drawn first. Its output becomes the destination for the second named layer.</div>
+          <h3>Middle-layer order</h3><div class="controls"><button class="preset" data-order="ab">A then B</button><button class="preset" data-order="ba">B then A</button></div><p id="orderExplanation"></p>
+        </article>
+        <article class="control-card origin-host">
+          <button class="origin-button" type="button" aria-expanded="false" aria-label="Where the saturation values come from">ⓘ</button><div class="origin-popup">The enable state and factor belong to this Lesson 3.11 stage. The transform itself is the exact AndroidX setToSaturation contract completed in Lesson 3.9.</div>
+          <div class="toggle-row"><h3>Saturation stage</h3><label><input id="saturationEnabled" type="checkbox" checked> enabled</label></div><div class="range"><label for="saturationFactor">Factor</label><input id="saturationFactor" type="range" min="0" max="2.2" step="0.01" value="0.40"><output id="saturationFactorOut">0.4000</output></div><div class="controls"><button class="preset" data-sat="0">0.0</button><button class="preset" data-sat="0.4">0.4</button><button class="preset" data-sat="1">1.0</button><button class="preset" data-sat="1.4">1.4</button></div>
+        </article>
+        <article class="control-card origin-host">
+          <button class="origin-button" type="button" aria-expanded="false" aria-label="Where the top-layer values come from">ⓘ</button><div class="origin-popup">The top source reuses the opaque Lesson 3.10 source RGB. Alpha stays at 1.00. The selected mode comes from these buttons.</div>
+          <div class="toggle-row"><h3>Opaque top layer</h3><label><input id="topEnabled" type="checkbox" checked> enabled</label></div><p class="mono">straight sRGB RGBA(0.8400, 0.3600, 0.1800, 1.0000)</p><div class="controls" id="modeButtons"><button class="mode-button" data-mode="normal">Normal</button><button class="mode-button" data-mode="multiply">Multiply</button><button class="mode-button" data-mode="screen">Screen</button><button class="mode-button" data-mode="plus">Plus</button></div>
+        </article>
+      </div>
+    </div>
+    <aside class="stage">
+      <h3>Current contract</h3>
+      <div class="card green"><strong>Base alpha</strong><p class="mono">1.0000</p><p>The running composite starts opaque.</p></div>
+      <div class="card blue" style="margin-top:12px"><strong>Middle operations</strong><p>Each enabled middle source uses the complete source-over operation. The destination alpha is still included, even though it evaluates to 1 here.</p></div>
+      <div class="card amber" style="margin-top:12px"><strong>Top blend boundary</strong><p>Top source alpha = 1.00. Running destination alpha = 1.00. Position coverage = 100%. The short Lesson 3.10 channel rule is exact at this position.</p></div>
+      <div class="card" style="margin-top:12px"><strong>Browser evidence</strong><p>The swatches are calculated from the visible formulas in this file. The browser does not read pixels from Android or reproduce Android's internal renderer.</p></div>
+    </aside>
+  </div>
+  <div class="stack-strip" id="stackStrip"></div>
+  <div class="final-grid">
+    <div class="final-swatch" id="finalSwatch"><div class="final-label" id="finalLabel"></div></div>
+    <div class="metrics">
+      <div class="metric"><strong>Final alpha</strong><span class="mono" id="finalAlpha"></span></div>
+      <div class="metric"><strong>Relative luminance</strong><span class="mono" id="finalLuminance"></span></div>
+      <div class="metric"><strong>Black contrast</strong><span class="mono" id="blackContrast"></span></div>
+      <div class="metric"><strong>White contrast</strong><span class="mono" id="whiteContrast"></span></div>
+      <div class="metric"><strong>Stronger candidate</strong><span id="strongerCandidate"></span></div>
+      <div class="metric"><strong>First changed stage</strong><span id="firstChangedStage"></span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section panel" id="trace-one-value">
+  <div class="section-head"><div><div class="section-no">5 · TRACE ONE VALUE</div><h2>Follow red from the base to the final output</h2></div><p>The current controls feed every number in this section.</p></div>
+  <div class="trace-grid" id="traceGrid"></div>
+  <div class="stepper">
+    <div class="step-figure"><svg aria-label="Running composite stepper" id="stepSvg" role="img" viewBox="0 0 940 390"></svg></div>
+    <div class="step-card">
+      <div class="step-nav" id="stepNav"></div>
+      <div class="step-body">
+        <div class="step-title" id="stepTitle"></div>
+        <p class="step-caption" id="stepCaption"></p>
+        <div class="formula" id="stepFormula"></div>
+        <div class="controls" style="margin-top:16px"><button class="secondary" id="stepBack">Back</button><button class="primary" id="stepNext">Next</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section panel" id="android-connection">
+  <div class="section-head"><div><div class="section-no">6 · ANDROID CONNECTION</div><h2>Carry one Kotlin result into the next function call</h2></div><p>Complete files remain in Android Studio and the incremental Android ZIP.</p></div>
+  <div class="pipeline">
+    <article class="card"><strong>1 · Base preset</strong><p><code>base.color</code> supplies the initial opaque straight sRGB destination.</p></article>
+    <article class="card"><strong>2 · First middle source</strong><p><code>sourceOver(firstSource, running)</code> calculates a new opaque running composite.</p></article>
+    <article class="card"><strong>3 · Second middle source</strong><p>The first output is passed as <code>running</code>. The original base is not reused.</p></article>
+    <article class="card"><strong>4 · Saturation stage</strong><p><code>setToSaturation(factor)</code> transforms the current running composite or bypasses it unchanged.</p></article>
+    <article class="card"><strong>5 · Opaque top blend</strong><p><code>blendOpaque(topSource, running, mode)</code> applies the selected Lesson 3.10 rule.</p></article>
+    <article class="card"><strong>6 · Measurements</strong><p>The final output <code>Color</code> supplies luminance and black/white contrast.</p></article>
+  </div>
+  <div class="two" style="margin-top:18px">
+    <article class="card indigo"><h3>Short excerpt · the running destination</h3><pre class="code">// CompositingLaboratory.kt — calculateLaboratory
+var running = base
+
+for (source in orderedMiddleSources) {
+    running = sourceOver(
+        source = source,
+        destination = running,
+    )
+}</pre><p>The assignment replaces <code>running</code> after each draw. The next loop iteration reads the replacement value.</p></article>
+    <article class="card amber"><h3>Short excerpt · top blend boundary</h3><pre class="code">// CompositingLaboratory.kt — calculateLaboratory
+val final = blendOpaque(
+    source = opaqueTopSource,
+    destination = running,
+    mode = selectedMode,
+)</pre><p>The top source remains opaque. The running destination remains opaque because every earlier stage began over the opaque base.</p></article>
+  </div>
+  <div class="warning"><strong>Evidence boundary:</strong> the Android screen executes the selected top <code>BlendMode</code> over a uniform calculated destination and shows a separately calculated expected center color. It does not perform pixel readback. It also does not claim that a future photograph or moving backdrop can be reduced to one uniform color.</div>
+</section>
+
+<section class="section panel" id="predict">
+  <div class="section-head"><div><div class="section-no">7 · PREDICT</div><h2>Compare Multiply and Screen before revealing either output</h2></div><p>The prediction uses the current color immediately before the top layer.</p></div>
+  <div class="predict-box">
+    <article class="card blue">
+      <h3>Current prediction input</h3>
+      <p id="predictionQuestion"></p>
+      <div class="controls"><button class="choice" data-predict="lower">Multiply red is lower</button><button class="choice" data-predict="same">They are equal</button><button class="choice" data-predict="higher">Multiply red is higher</button></div>
+      <div class="prediction-result" id="predictionResult">Choose one result before opening the arithmetic.</div>
+    </article>
+    <article class="card amber"><h3>What this diagnoses</h3><p>Multiply keeps the product of two normalized channels. Screen keeps one minus the product of the two distances before white. The prediction checks whether those two constructions are still distinct in your mental model.</p></article>
+  </div>
+</section>
+
+<section class="section panel" id="pixel-checkpoint">
+  <div class="section-head"><div><div class="section-no">8 · RUN ON THE PIXEL 8 PRO</div><h2>Inspect where one changed control first affects the stack</h2></div><p>Use the exact control labels below.</p></div>
+  <ol>
+    <li>Apply the incremental Android ZIP. Build and open <strong>Lesson 3.11 · Compositing laboratory</strong>.</li>
+    <li>Press <strong>Reset course values</strong>. Confirm that the final output is approximately straight sRGB RGBA <code>(0.3891, 0.1592, 0.1097, 1.0000)</code>.</li>
+    <li>Move <strong>Layer A alpha</strong> from <code>0.50</code> to <code>0.25</code>. Confirm that the first changed stage is Layer A and every later enabled stage receives the new result.</li>
+    <li>Restore <strong>Layer A alpha</strong> to <code>0.50</code>. Change <strong>Middle order</strong> from <strong>A then B</strong> to <strong>B then A</strong>. Confirm that the final RGB changes.</li>
+    <li>Restore <strong>A then B</strong>. Change the top mode from <strong>Multiply</strong> to <strong>Screen</strong>. Confirm that only the final top-blend stage changes; the earlier stage cards remain unchanged.</li>
+    <li>Choose <strong>Navy</strong> and then <strong>Pale</strong> for the base while preserving both middle alpha values. Explain why equal source alpha values do not force equal outputs over different destinations.</li>
+  </ol>
+</section>
+
+<section class="section panel" id="explain-result">
+  <div class="section-head"><div><div class="section-no">9 · EXPLAIN THE RESULT</div><h2>The final value is a chain of dependencies</h2></div><p>A later stage cannot safely reuse a value that belonged to an earlier input.</p></div>
+  <div class="three">
+    <article class="card green"><h3>One output replaces one destination</h3><p>After Layer A, its output becomes the destination for Layer B. After Layer B, that output becomes the input of the saturation transform.</p></article>
+    <article class="card blue"><h3>Order changes causality</h3><p>Reversing A and B changes which source sees which destination. The same two alpha values can therefore produce a different running composite.</p></article>
+    <article class="card amber"><h3>Derived measurements come last</h3><p>Relative luminance and contrast belong to the final RGB only. Measurements from the base or an intermediate stage become stale when a later stage changes RGB.</p></article>
+  </div>
+  <div class="success"><strong>Chapter 3 checkpoint answer:</strong> two panels with the same alpha can look different because alpha does not determine the destination color. Source-over combines the source with the actual destination already present at that position. Different destinations produce different output RGB values.</div>
+</section>
+
+<section class="section panel" id="coding-challenge">
+  <div class="section-head"><div><div class="section-no">10 · CODING CHALLENGE</div><h2>Stop reusing the original base</h2></div><p>The defective loop ignores every earlier layer when it calculates the next layer.</p></div>
+  <div class="challenge">
+    <div>
+      <textarea class="editor" id="challengeEditor" spellcheck="false">fun compositeMiddleLayers(
+    base: StraightRgba,
+    sources: List&lt;StraightRgba&gt;,
+): StraightRgba {
+    var running = base
+
+    for (source in sources) {
+        running = sourceOver(
+            source = source,
+            destination = base,
+        )
+    }
+
+    return running
+}</textarea>
+      <div class="controls" style="margin-top:12px"><button class="preset" data-challenge="wrong">Reuse base</button><button class="preset" data-challenge="correct">Use running destination</button><button class="primary" id="checkChallenge">Check repair</button></div>
+      <div class="result" id="challengeResult">Edit the destination argument or use the buttons, then check the repair.</div>
+    </div>
+    <aside class="challenge-preview">
+      <h3>Default red-channel consequence</h3>
+      <div class="formula" id="challengeFormula"></div>
+      <p>The correct path draws Layer A over the base, then draws Layer B over the Layer A output. The defective path draws both sources independently over the original base and returns only the last result.</p>
+    </aside>
+  </div>
+</section>
+
+<section class="section panel" id="exercises">
+  <div class="section-head"><div><div class="section-no">11 · EXERCISES AND HIDDEN ANSWERS</div><h2>Use the reset course values</h2></div><p>Answer first. Open each nested answer only afterward.</p></div>
+  <details><summary>Exercise 1 · Layer A red</summary><p>Base red is <code>0.22</code>. Layer A red is <code>0.90</code> with alpha <code>0.50</code>. Calculate the output straight red.</p><details><summary>Show answer</summary><div class="formula">output premultiplied red
+= 0.90 × 0.50 + 0.22 × 1.00 × (1 − 0.50)
+= 0.45 + 0.11
+= 0.56
+
+output alpha
+= 0.50 + 1.00 × 0.50
+= 1.00
+
+output straight red
+= 0.56 ÷ 1.00
+= 0.56</div></details></details>
+  <details><summary>Exercise 2 · Layer B receives the new destination</summary><p>Layer B red is <code>0.20</code> with alpha <code>0.25</code>. Its destination is the opaque Layer A output, whose straight red is <code>0.56</code> and alpha is <code>1.00</code>. Calculate the new output straight red.</p><details><summary>Show answer</summary><div class="formula">output premultiplied red
+= 0.20 × 0.25 + 0.56 × 1.00 × (1 − 0.25)
+= 0.05 + 0.42
+= 0.47
+
+output alpha
+= 0.25 + 1.00 × 0.75
+= 1.00
+
+output straight red
+= 0.47 ÷ 1.00
+= 0.47</div></details></details>
+  <details><summary>Exercise 3 · Diagnostic: may Layer B reuse base red 0.22?</summary><p>Explain whether the Layer B calculation may use the original base red after Layer A has already been drawn.</p><details><summary>Show answer</summary><p>No. Layer A replaced the drawing-target value at the inspected position. Layer B is drawn later, so its destination is the Layer A output. Reusing the original base removes Layer A from the causal chain.</p></details></details>
+  <details><summary>Exercise 4 · Why is the short Multiply formula valid at the top stage?</summary><p>Name every condition that makes <code>final red = top source red × running destination red</code> complete in the reset state.</p><details><summary>Show answer</summary><p>The inspected position is fully covered by the top source; top source alpha is 1.00; the running destination alpha is 1.00 because the stack began with an opaque base; the running destination is drawn first; and the opaque top source is drawn second. Changing alpha or partial coverage would restore omitted terms.</p></details></details>
+</section>
+
+<section class="section panel" id="completion">
+  <div class="section-head"><div><div class="section-no">12 · COMPLETION RECORD</div><h2>Complete Chapter 3 only after the laboratory is understood</h2></div><p>Lesson 3.11 remains pending until you explicitly confirm it.</p></div>
+  <div class="checklist" id="checklist">
+    <label class="check"><input data-check="build" type="checkbox">The Android project builds and opens Lesson 3.11.</label>
+    <label class="check"><input data-check="previews" type="checkbox">Full-screen and direct-child previews work in light and dark modes.</label>
+    <label class="check"><input data-check="running" type="checkbox">I can define the running composite.</label>
+    <label class="check"><input data-check="layer-a" type="checkbox">I can reproduce Layer A red = 0.56.</label>
+    <label class="check"><input data-check="layer-b" type="checkbox">I can reproduce Layer B red = 0.47.</label>
+    <label class="check"><input data-check="order" type="checkbox">I can explain why reversing A and B changes the result.</label>
+    <label class="check"><input data-check="saturation" type="checkbox">I can identify the exact color consumed by the saturation stage.</label>
+    <label class="check"><input data-check="blend" type="checkbox">I can list the conditions that make the top opaque blend formula complete.</label>
+    <label class="check"><input data-check="measurements" type="checkbox">I recalculate luminance and contrast from the final output.</label>
+    <label class="check"><input data-check="prediction" type="checkbox">I completed the prediction check.</label>
+    <label class="check"><input data-check="challenge" type="checkbox">I repaired the coding challenge.</label>
+    <label class="check"><input data-check="exercises" type="checkbox">I answered all four exercises before opening the answers.</label>
+  </div>
+  <div class="controls" style="margin-top:16px"><button class="primary" id="buildRecord">Build completion record</button><button class="secondary" id="copyRecord">Copy record</button></div>
+  <textarea class="record" id="completionRecord" readonly>Complete the checkpoint, then build the record.</textarea>
+</section>
+
+<section class="section panel" id="sources">
+  <div class="section-head"><div><div class="section-no">13 · SOURCES AND EVIDENCE</div><h2>Primary Android contracts reused by the laboratory</h2></div></div>
+  <ul>
+    <li>AndroidX Compose <code>Color.compositeOver</code> documents straight, non-premultiplied public inputs and output.</li>
+    <li>AndroidX <code>ColorMatrix.setToSaturation</code> supplies the exact saturation transform reused by the uniform-color stage.</li>
+    <li>Compose <code>BlendMode</code> supplies the actual top-layer mode used by the Android Canvas comparison.</li>
+  </ul>
+  <p><a href="https://github.com/androidx/androidx/blob/androidx-main/compose/ui/ui-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/Color.kt">AndroidX Color source</a> · <a href="https://raw.githubusercontent.com/androidx/androidx/androidx-main/compose/ui/ui-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/ColorMatrix.kt">AndroidX ColorMatrix source</a> · <a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode">Compose BlendMode reference</a></p>
+</section>
+
+<nav class="footer-nav panel"><a href="lesson-03-10-blend-modes.html">← Lesson 3.10</a><a href="lesson-color-opacity-and-compositing.html">Chapter 3 hub</a><span>Next after completion: Lesson 4.1 · Rectangles and circles</span></nav>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const clamp=v=>Math.max(0,Math.min(1,v));
+const f4=n=>Number(n).toFixed(4);const f6=n=>Number(n).toFixed(6);
+const BASES={course:{label:'Course blue',rgb:[.22,.58,.76]},navy:{label:'Navy',rgb:[.05,.09,.16]},pale:{label:'Pale',rgb:[.90,.86,.72]}};
+const FIXED={a:[.90,.10,.80],b:[.20,.65,1.00],top:[.84,.36,.18]};
+const MODES={
+ normal:{label:'Normal / SrcOver',formula:(s,d)=>s},
+ multiply:{label:'Multiply',formula:(s,d)=>s*d},
+ screen:{label:'Screen',formula:(s,d)=>s+d-s*d},
+ plus:{label:'Plus',formula:(s,d)=>s+d}
+};
+const state={base:'course',aEnabled:true,aAlpha:.50,bEnabled:true,bAlpha:.25,order:'ab',satEnabled:true,sat:.40,topEnabled:true,mode:'multiply',step:0,prediction:null,challengeCorrect:false};
+const rgba=(rgb,a=1)=>({r:rgb[0],g:rgb[1],b:rgb[2],a});
+const tuple=(c,alpha=true)=>`straight sRGB ${alpha?'RGBA':'RGB'}(${f4(c.r)}, ${f4(c.g)}, ${f4(c.b)}${alpha?`, ${f4(c.a)}`:''})`;
+const rgbCss=c=>`rgb(${Math.round(clamp(c.r)*255)} ${Math.round(clamp(c.g)*255)} ${Math.round(clamp(c.b)*255)})`;
+function srgbToLinear(v){return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4)}
+function luminance(c){return .2126*srgbToLinear(c.r)+.7152*srgbToLinear(c.g)+.0722*srgbToLinear(c.b)}
+function contrast(a,b){const hi=Math.max(a,b),lo=Math.min(a,b);return(hi+.05)/(lo+.05)}
+function readable(c){return luminance(c)>.42?'#111827':'#ffffff'}
+function sameRgba(a,b){return Math.abs(a.r-b.r)<1e-7&&Math.abs(a.g-b.g)<1e-7&&Math.abs(a.b-b.b)<1e-7&&Math.abs(a.a-b.a)<1e-7}
+function sourceOver(source,destination){
+ const opening=1-source.a;
+ const outA=source.a+destination.a*opening;
+ const pr=source.r*source.a+destination.r*destination.a*opening;
+ const pg=source.g*source.a+destination.g*destination.a*opening;
+ const pb=source.b*source.a+destination.b*destination.a*opening;
+ return {r:outA===0?0:pr/outA,g:outA===0?0:pg/outA,b:outA===0?0:pb/outA,a:outA};
+}
+function saturate(input,factor){
+ const gray=.213*input.r+.715*input.g+.072*input.b;
+ const pre={r:gray+factor*(input.r-gray),g:gray+factor*(input.g-gray),b:gray+factor*(input.b-gray),a:input.a};
+ return {gray,pre,output:{r:clamp(pre.r),g:clamp(pre.g),b:clamp(pre.b),a:clamp(pre.a)}};
+}
+function blendOpaque(source,destination,mode){
+ const pre={r:MODES[mode].formula(source.r,destination.r),g:MODES[mode].formula(source.g,destination.g),b:MODES[mode].formula(source.b,destination.b),a:1};
+ return {pre,output:{r:clamp(pre.r),g:clamp(pre.g),b:clamp(pre.b),a:1}};
+}
+function calculate(){
+ const base=rgba(BASES[state.base].rgb,1);
+ const a=rgba(FIXED.a,state.aAlpha),b=rgba(FIXED.b,state.bAlpha),top=rgba(FIXED.top,1);
+ const ordered=state.order==='ab'?[{id:'a',name:'Layer A',source:a,enabled:state.aEnabled},{id:'b',name:'Layer B',source:b,enabled:state.bEnabled}]:[{id:'b',name:'Layer B',source:b,enabled:state.bEnabled},{id:'a',name:'Layer A',source:a,enabled:state.aEnabled}];
+ const stages=[{id:'base',name:'Opaque base',kind:'base',before:null,source:null,output:base,enabled:true,operation:'Starting destination'}];
+ let running=base;
+ for(const item of ordered){
+   const before=running;
+   const output=item.enabled?sourceOver(item.source,before):before;
+   stages.push({id:item.id,name:item.name,kind:'sourceOver',before,source:item.source,output,enabled:item.enabled,operation:item.enabled?'Source-over':'Bypassed'});
+   running=output;
+ }
+ const beforeSat=running;const satResult=saturate(beforeSat,state.sat);running=state.satEnabled?satResult.output:beforeSat;
+ stages.push({id:'sat',name:'Saturation',kind:'saturation',before:beforeSat,source:null,output:running,enabled:state.satEnabled,operation:state.satEnabled?`setToSaturation(${f4(state.sat)})`:'Bypassed',gray:satResult.gray,pre:satResult.pre});
+ const beforeTop=running;const topResult=blendOpaque(top,beforeTop,state.mode);running=state.topEnabled?topResult.output:beforeTop;
+ stages.push({id:'top',name:'Opaque top',kind:'blend',before:beforeTop,source:top,output:running,enabled:state.topEnabled,operation:state.topEnabled?MODES[state.mode].label:'Bypassed',pre:topResult.pre});
+ return {base,a,b,top,ordered,stages,beforeTop,final:running,satResult,topResult};
+}
+function escapeHtml(s){return String(s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]))}
+function setText(id,value){const el=$(id);if(el)el.textContent=value}
+function stageCard(stage){
+ let detail='';
+ if(stage.kind==='base') detail=`<p>Initial running composite.</p>`;
+ if(stage.kind==='sourceOver') detail=stage.enabled?`<p class="mono">source ${escapeHtml(tuple(stage.source))}</p><p>Destination was the preceding output.</p>`:`<p>The source was bypassed. Output equals input.</p>`;
+ if(stage.kind==='saturation') detail=stage.enabled?`<p class="mono">gray ${f6(stage.gray)}</p><p>Input was the complete middle-layer output.</p>`:`<p>The transform was bypassed. Output equals input.</p>`;
+ if(stage.kind==='blend') detail=stage.enabled?`<p class="mono">source ${escapeHtml(tuple(stage.source))}</p><p>Opaque ${escapeHtml(stage.operation)} at full coverage.</p>`:`<p>The top draw was bypassed. Output equals input.</p>`;
+ return `<article class="stack-card"><div class="stack-swatch" style="background:${rgbCss(stage.output)};color:${readable(stage.output)}"><span>${escapeHtml(stage.name)}</span></div><div class="stack-copy"><strong>${escapeHtml(stage.operation)}</strong>${detail}<p class="mono">${escapeHtml(tuple(stage.output))}</p></div></article>`;
+}
+function sourceOverRedFormula(stage){
+ const s=stage.source,d=stage.before,opening=1-s.a,outA=s.a+d.a*opening,sp=s.r*s.a,dp=d.r*d.a*opening,p=sp+dp,out=outA===0?0:p/outA;
+ return `source red = ${f4(s.r)}\nsource alpha = ${f4(s.a)}\ndestination red = ${f4(d.r)}\ndestination alpha = ${f4(d.a)}\n\nsource opening = 1 − ${f4(s.a)} = ${f4(opening)}\nsource contribution = ${f4(s.r)} × ${f4(s.a)} = ${f4(sp)}\ndestination contribution = ${f4(d.r)} × ${f4(d.a)} × ${f4(opening)} = ${f4(dp)}\noutput premultiplied red = ${f4(p)}\noutput alpha = ${f4(outA)}\noutput straight red = ${f4(p)} ÷ ${f4(outA)} = ${f4(out)}`;
+}
+function saturationRedFormula(stage){
+ if(!stage.enabled)return`Saturation stage bypassed.\noutput red = input red = ${f4(stage.before.r)}`;
+ const distance=stage.before.r-stage.gray,scaled=state.sat*distance;
+ return `input red = ${f4(stage.before.r)}\ngray reference = ${f6(stage.gray)}\nfactor = ${f4(state.sat)}\n\nsigned distance = ${f4(stage.before.r)} − ${f6(stage.gray)} = ${distance>=0?'+':''}${f6(distance)}\nscaled distance = ${f4(state.sat)} × (${distance>=0?'+':''}${f6(distance)}) = ${scaled>=0?'+':''}${f6(scaled)}\npre-clamp red = ${f6(stage.gray)} + (${scaled>=0?'+':''}${f6(scaled)}) = ${f6(stage.pre.r)}\ndisplayed red = ${f6(stage.output.r)}`;
+}
+function blendRedFormula(stage){
+ if(!stage.enabled)return`Top stage bypassed.\nfinal red = input red = ${f4(stage.before.r)}`;
+ const s=stage.source.r,d=stage.before.r,mode=state.mode,pre=stage.pre.r,out=stage.output.r;
+ if(mode==='normal')return`source alpha = 1.0000\ncoverage = 100%\nfinal red = source red = ${f4(s)}`;
+ if(mode==='multiply')return`final red = source red × destination red\n= ${f4(s)} × ${f6(d)}\n= ${f6(out)}`;
+ if(mode==='screen')return`source distance before white = 1 − ${f4(s)} = ${f4(1-s)}\ndestination distance before white = 1 − ${f6(d)} = ${f6(1-d)}\nshared remaining distance = ${f4(1-s)} × ${f6(1-d)} = ${f6((1-s)*(1-d))}\nfinal red = 1 − shared distance = ${f6(out)}`;
+ return`pre-clamp red = ${f4(s)} + ${f6(d)} = ${f6(pre)}\nallowed range = 0..1\nfinal red after clamp = ${f6(out)}`;
+}
+function renderTrace(calc){
+ const first=calc.stages[1],second=calc.stages[2],sat=calc.stages[3],top=calc.stages[4];
+ $('traceGrid').innerHTML=[
+  `<article class="trace-card"><h3>${escapeHtml(first.name)} red</h3><div class="formula">${escapeHtml(first.enabled?sourceOverRedFormula(first):`Stage bypassed.\noutput red = ${f4(first.output.r)}`)}</div></article>`,
+  `<article class="trace-card"><h3>${escapeHtml(second.name)} red</h3><div class="formula">${escapeHtml(second.enabled?sourceOverRedFormula(second):`Stage bypassed.\noutput red = ${f4(second.output.r)}`)}</div></article>`,
+  `<article class="trace-card"><h3>Saturation red</h3><div class="formula">${escapeHtml(saturationRedFormula(sat))}</div></article>`,
+  `<article class="trace-card"><h3>Top blend red</h3><div class="formula">${escapeHtml(blendRedFormula(top))}</div></article>`,
+  `<article class="trace-card"><h3>Final measurement input</h3><div class="formula">final RGB = (${f6(calc.final.r)}, ${f6(calc.final.g)}, ${f6(calc.final.b)})\n↓ sRGB decoding\nrelative luminance = ${f6(luminance(calc.final))}</div></article>`
+ ].join('');
+}
+function buildSteps(calc){
+ const first=calc.stages[1],second=calc.stages[2],sat=calc.stages[3],top=calc.stages[4],L=luminance(calc.final);
+ return [
+  {title:'Name the starting destination',caption:'The opaque base is the first running composite. No source has been drawn yet.',focus:'base',formula:`running = ${tuple(calc.base)}\nrunning red = ${f4(calc.base.r)}`},
+  {title:`Draw ${first.name} first`,caption:first.enabled?'The first middle source reads the opaque base as its destination. Its output replaces the running composite.':'The first middle layer is bypassed, so the running composite passes through unchanged.',focus:first.id,formula:first.enabled?sourceOverRedFormula(first):`bypass\nrunning red remains ${f4(first.output.r)}`},
+  {title:'Carry the first output forward',caption:'The second middle draw must read the first output. Reusing the original base would remove the first layer from the stack.',focus:first.id,formula:`new destination for the next draw\n= ${tuple(first.output)}\n\nrunning red = ${f4(first.output.r)}`},
+  {title:`Draw ${second.name} second`,caption:second.enabled?'The second source uses the first output as its destination. Its output becomes the next running composite.':'The second middle layer is bypassed, so the previous running composite remains current.',focus:second.id,formula:second.enabled?sourceOverRedFormula(second):`bypass\nrunning red remains ${f4(second.output.r)}`},
+  {title:'Transform the complete middle result',caption:sat.enabled?'The saturation matrix consumes the output after both middle draws. It does not receive the original base or either source in isolation.':'The saturation stage is bypassed, so its output equals the complete middle-layer input.',focus:'sat',formula:saturationRedFormula(sat)},
+  {title:'Draw the opaque top source',caption:top.enabled?`The top source uses ${MODES[state.mode].label}. Source alpha, destination alpha, and coverage are all 1 at the inspected position.`:'The top source is bypassed, so the saturation-stage output is already final.',focus:'top',formula:blendRedFormula(top)},
+  {title:'Measure the final displayed color',caption:'Luminance and contrast are derived from the final RGB only. Earlier measurements do not describe this new output.',focus:'top',formula:`final = ${tuple(calc.final)}\nrelative luminance = ${f6(L)}\nblack contrast = ${f4(contrast(0,L))}:1\nwhite contrast = ${f4(contrast(1,L))}:1`}
+ ];
+}
+function drawStepSvg(calc,steps){
+ const stages=calc.stages;const focus=steps[state.step].focus;const boxes=stages.map((s,i)=>({stage:s,x:25+i*182,y:82,w:158,h:128}));
+ let svg=`<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#be185d"/></marker></defs><text x="470" y="34" text-anchor="middle" font-size="22" font-weight="900" fill="currentColor">${escapeHtml(steps[state.step].title)}</text>`;
+ boxes.forEach((b,i)=>{const active=b.stage.id===focus;const c=b.stage.output;svg+=`${i?`<line x1="${boxes[i-1].x+boxes[i-1].w+5}" y1="146" x2="${b.x-7}" y2="146" stroke="#be185d" stroke-width="4" marker-end="url(#arrow)"/>`:''}<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="16" fill="${rgbCss(c)}" stroke="${active?'#4338ca':'#94a3b8'}" stroke-width="${active?5:3}"/><rect x="${b.x+10}" y="${b.y+10}" width="${b.w-20}" height="35" rx="9" fill="rgba(255,255,255,.92)"/><text x="${b.x+b.w/2}" y="${b.y+33}" text-anchor="middle" font-size="14" font-weight="900" fill="#111827">${escapeHtml(b.stage.name)}</text><text x="${b.x+b.w/2}" y="${b.y+78}" text-anchor="middle" font-size="14" font-family="monospace" fill="${readable(c)}">R ${f4(c.r)}</text><text x="${b.x+b.w/2}" y="${b.y+103}" text-anchor="middle" font-size="13" font-weight="800" fill="${readable(c)}">${b.stage.enabled?'enabled':'bypassed'}</text>`});
+ svg+=`<rect x="80" y="250" width="780" height="92" rx="17" fill="var(--indigo-soft)" stroke="var(--indigo)" stroke-width="3"/><text x="470" y="282" text-anchor="middle" font-size="17" font-weight="900" fill="currentColor">Each arrow passes the entire previous RGBA output forward.</text><text x="470" y="311" text-anchor="middle" font-size="15" fill="currentColor">The next stage never silently returns to the original base.</text><text x="470" y="370" text-anchor="middle" font-size="14" font-weight="800" fill="currentColor">inspection coverage = 100% · base alpha = 1.00 · top alpha = 1.00</text>`;
+ $('stepSvg').innerHTML=svg;
+}
+function renderStep(calc){
+ const steps=buildSteps(calc);state.step=Math.max(0,Math.min(state.step,steps.length-1));const step=steps[state.step];
+ setText('stepTitle',`${state.step+1} · ${step.title}`);setText('stepCaption',step.caption);setText('stepFormula',step.formula);
+ $('stepBack').disabled=state.step===0;$('stepNext').disabled=state.step===steps.length-1;
+ $('stepNav').innerHTML=steps.map((_,i)=>`<button class="step-dot ${i===state.step?'selected':''}" data-step="${i}">${i+1}</button>`).join('');
+ document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{state.step=Number(b.dataset.step);render()}));drawStepSvg(calc,steps);
+}
+function resetPrediction(){state.prediction=null;document.querySelectorAll('[data-predict]').forEach(b=>b.classList.remove('selected'));setText('predictionResult','Choose one result before opening the arithmetic.');$('predictionResult').style.background='var(--soft)'}
+function renderPrediction(calc){
+ const s=calc.top.r,d=calc.beforeTop.r,m=s*d,screen=s+d-s*d;setText('predictionQuestion',`The top source red is ${f4(s)}. The running destination red immediately before the top layer is ${f6(d)}. Which result is larger: Multiply red or Screen red?`);
+ if(state.prediction){const relation=Math.abs(m-screen)<1e-7?'same':m<screen?'lower':'higher';const ok=state.prediction===relation;setText('predictionResult',`${ok?'Correct.':'Not correct yet.'}\nMultiply red = ${f6(m)}. Screen red = ${f6(screen)}. Multiply is ${relation} than Screen for these inputs.`);$('predictionResult').style.whiteSpace='pre-line';$('predictionResult').style.background=ok?'var(--green-soft)':'var(--red-soft)'}
+}
+function updateChallengePreview(){
+ const code=$('challengeEditor').value;const good=/destination\s*=\s*running/.test(code)&&!/destination\s*=\s*base/.test(code);const base=rgba(BASES.course.rgb,1),a=rgba(FIXED.a,.5),b=rgba(FIXED.b,.25);const afterA=sourceOver(a,base),correct=sourceOver(b,afterA),wrong=sourceOver(b,base);setText('challengeFormula',good?`Detected destination = running\nLayer A output red = ${f4(afterA.r)}\nLayer B output red = ${f4(correct.r)}\n\nCorrect running-composite result = ${f4(correct.r)}`:`Detected destination = base\nLayer A result is calculated, then discarded.\nLayer B over original base red = ${f4(wrong.r)}\n\nDefective returned red = ${f4(wrong.r)}\nCorrect returned red = ${f4(correct.r)}`);
+}
+function markChallengeChanged(){state.challengeCorrect=false;setText('challengeResult','The code changed. Check the repair again.');$('challengeResult').style.background='var(--soft)'}
+function render(){
+ const calc=calculate();
+ setText('baseTuple',tuple(calc.base));setText('layerAAlphaOut',f4(state.aAlpha));setText('layerBAlphaOut',f4(state.bAlpha));setText('saturationFactorOut',f4(state.sat));setText('orderExplanation',state.order==='ab'?'Layer A is drawn first. Layer B consumes the Layer A output.':'Layer B is drawn first. Layer A consumes the Layer B output.');
+ $('layerAEnabled').checked=state.aEnabled;$('layerBEnabled').checked=state.bEnabled;$('saturationEnabled').checked=state.satEnabled;$('topEnabled').checked=state.topEnabled;$('layerAAlpha').value=state.aAlpha;$('layerBAlpha').value=state.bAlpha;$('saturationFactor').value=state.sat;
+ document.querySelectorAll('[data-base]').forEach(b=>b.classList.toggle('selected',b.dataset.base===state.base));document.querySelectorAll('[data-order]').forEach(b=>b.classList.toggle('selected',b.dataset.order===state.order));document.querySelectorAll('[data-sat]').forEach(b=>b.classList.toggle('selected',Math.abs(Number(b.dataset.sat)-state.sat)<.005));document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('selected',b.dataset.mode===state.mode));
+ $('stackStrip').innerHTML=calc.stages.map(stageCard).join('');$('finalSwatch').style.background=rgbCss(calc.final);$('finalLabel').style.color='#111827';setText('finalLabel',tuple(calc.final));setText('finalAlpha',f4(calc.final.a));const L=luminance(calc.final),bc=contrast(0,L),wc=contrast(1,L);setText('finalLuminance',f6(L));setText('blackContrast',`${f4(bc)}:1`);setText('whiteContrast',`${f4(wc)}:1`);setText('strongerCandidate',bc>=wc?'black':'white');const firstChanged=calc.stages.slice(1).find(s=>!sameRgba(s.before,s.output));setText('firstChangedStage',firstChanged?firstChanged.name:'none; all optional stages bypassed or neutral');
+ renderTrace(calc);renderStep(calc);renderPrediction(calc);updateChallengePreview();updateRecord();
+}
+function updateRecord(){const checks=[...document.querySelectorAll('[data-check]')],done=checks.filter(c=>c.checked).length,calc=calculate(),L=luminance(calc.final);$('completionRecord').value=`# Lesson 3.11 completion record\n\n- Lesson: Compositing laboratory\n- Status: ${done===checks.length?'checkpoint complete':'checkpoint incomplete'}\n- Checkpoint items: ${done} of ${checks.length}\n- Android device: Pixel 8 Pro\n- Base preset: ${BASES[state.base].label}\n- Middle order: ${state.order==='ab'?'Layer A then Layer B':'Layer B then Layer A'}\n- Layer A: ${state.aEnabled?'enabled':'bypassed'}, alpha ${f4(state.aAlpha)}\n- Layer B: ${state.bEnabled?'enabled':'bypassed'}, alpha ${f4(state.bAlpha)}\n- Saturation: ${state.satEnabled?'enabled':'bypassed'}, factor ${f4(state.sat)}\n- Top layer: ${state.topEnabled?'enabled':'bypassed'}, mode ${MODES[state.mode].label}\n- Final output: ${tuple(calc.final)}\n- Final relative luminance: ${f6(L)}\n- Black contrast: ${f4(contrast(0,L))}:1\n- White contrast: ${f4(contrast(1,L))}:1\n- I can explain why every stage consumes the previous stage output: [yes / not yet]\n- I can explain why equal alpha does not force equal output over different destinations: [yes / not yet]\n- Remaining questions or observations:\n`}
+function closeOriginPopups(except=null){document.querySelectorAll('.origin-host.origin-open').forEach(host=>{if(host!==except){host.classList.remove('origin-open');host.querySelector('.origin-button')?.setAttribute('aria-expanded','false')}})}
+document.addEventListener('click',event=>{const button=event.target.closest('.origin-button');if(button){event.stopPropagation();const host=button.closest('.origin-host');const open=!host.classList.contains('origin-open');closeOriginPopups(host);host.classList.toggle('origin-open',open);button.setAttribute('aria-expanded',String(open));return}if(!event.target.closest('.origin-popup'))closeOriginPopups()});document.addEventListener('keydown',event=>{if(event.key==='Escape')closeOriginPopups()});
+$('resetCourse').addEventListener('click',()=>{Object.assign(state,{base:'course',aEnabled:true,aAlpha:.5,bEnabled:true,bAlpha:.25,order:'ab',satEnabled:true,sat:.4,topEnabled:true,mode:'multiply',step:0});resetPrediction();render()});
+$('bypassAll').addEventListener('click',()=>{state.aEnabled=false;state.bEnabled=false;state.satEnabled=false;state.topEnabled=false;resetPrediction();render()});
+$('layerAEnabled').addEventListener('change',e=>{state.aEnabled=e.target.checked;resetPrediction();render()});$('layerBEnabled').addEventListener('change',e=>{state.bEnabled=e.target.checked;resetPrediction();render()});$('saturationEnabled').addEventListener('change',e=>{state.satEnabled=e.target.checked;resetPrediction();render()});$('topEnabled').addEventListener('change',e=>{state.topEnabled=e.target.checked;resetPrediction();render()});
+$('layerAAlpha').addEventListener('input',e=>{state.aAlpha=Number(e.target.value);resetPrediction();render()});$('layerBAlpha').addEventListener('input',e=>{state.bAlpha=Number(e.target.value);resetPrediction();render()});$('saturationFactor').addEventListener('input',e=>{state.sat=Number(e.target.value);resetPrediction();render()});
+document.querySelectorAll('[data-base]').forEach(b=>b.addEventListener('click',()=>{state.base=b.dataset.base;resetPrediction();render()}));document.querySelectorAll('[data-order]').forEach(b=>b.addEventListener('click',()=>{state.order=b.dataset.order;resetPrediction();render()}));document.querySelectorAll('[data-sat]').forEach(b=>b.addEventListener('click',()=>{state.sat=Number(b.dataset.sat);resetPrediction();render()}));document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>{state.mode=b.dataset.mode;resetPrediction();render()}));
+$('stepBack').addEventListener('click',()=>{if(state.step>0){state.step--;render()}});$('stepNext').addEventListener('click',()=>{if(state.step<6){state.step++;render()}});
+document.querySelectorAll('[data-predict]').forEach(b=>b.addEventListener('click',()=>{state.prediction=b.dataset.predict;document.querySelectorAll('[data-predict]').forEach(x=>x.classList.toggle('selected',x===b));renderPrediction(calculate())}));
+document.querySelectorAll('[data-challenge]').forEach(b=>b.addEventListener('click',()=>{$('challengeEditor').value=b.dataset.challenge==='correct'?`fun compositeMiddleLayers(\n    base: StraightRgba,\n    sources: List<StraightRgba>,\n): StraightRgba {\n    var running = base\n\n    for (source in sources) {\n        running = sourceOver(\n            source = source,\n            destination = running,\n        )\n    }\n\n    return running\n}`:`fun compositeMiddleLayers(\n    base: StraightRgba,\n    sources: List<StraightRgba>,\n): StraightRgba {\n    var running = base\n\n    for (source in sources) {\n        running = sourceOver(\n            source = source,\n            destination = base,\n        )\n    }\n\n    return running\n}`;markChallengeChanged();updateChallengePreview()}));
+$('challengeEditor').addEventListener('input',()=>{markChallengeChanged();updateChallengePreview()});$('checkChallenge').addEventListener('click',()=>{const code=$('challengeEditor').value;const ok=/destination\s*=\s*running/.test(code)&&!/destination\s*=\s*base/.test(code);state.challengeCorrect=ok;setText('challengeResult',ok?'Correct. Each source is composited over the current running output, so no earlier layer is discarded.':'Not repaired yet. The destination argument still needs the current running composite, not the original base.');$('challengeResult').style.background=ok?'var(--green-soft)':'var(--red-soft)'});
+document.querySelectorAll('[data-check]').forEach(c=>c.addEventListener('change',updateRecord));$('buildRecord').addEventListener('click',updateRecord);$('copyRecord').addEventListener('click',async()=>{let copied=false;try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText($('completionRecord').value);copied=true}}catch(error){copied=false}if(!copied){$('completionRecord').focus();$('completionRecord').select();copied=document.execCommand('copy')}$('copyRecord').textContent=copied?'Copied':'Select and copy';setTimeout(()=>$('copyRecord').textContent='Copy record',1400)});
+const mq=matchMedia('(prefers-color-scheme: dark)');function updateTheme(){setText('themeMode',mq.matches?'Dark':'Light')}updateTheme();mq.addEventListener?.('change',updateTheme);
+const params=new URLSearchParams(location.search);if(BASES[params.get('base')])state.base=params.get('base');if(params.get('order')==='ba')state.order='ba';if(MODES[params.get('mode')])state.mode=params.get('mode');if(params.has('sat'))state.sat=Math.max(0,Math.min(2.2,Number(params.get('sat'))||0));if(params.has('step'))state.step=Math.max(0,Math.min(6,Number(params.get('step'))||0));
+updateChallengePreview();render();
+</script>
+</body>
+</html>

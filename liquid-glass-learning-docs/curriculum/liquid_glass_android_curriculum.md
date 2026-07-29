@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 3.10.1  
-**Updated:** 2026-07-27  
-**Current course position:** Lessons 1.1 through 3.8 are complete by learner confirmation. **25 of 216 lessons are complete.** Lesson 3.9 has learner questions pending and remains the next unresolved checkpoint. Lesson 3.10 is generated ahead and is the generated frontier.  
+**Version:** 3.11.0  
+**Updated:** 2026-07-28  
+**Current course position:** Lessons 1.1 through 3.10 are complete by learner confirmation. **27 of 216 lessons are complete.** Lesson 3.11 is generated and is both the next unresolved checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -331,6 +331,18 @@ Version 3.7 records completion of Lesson 3.6 and introduces foreground contrast:
 - Candidate selection and accessibility target checking remain separate.
 - Android changes: `Chapter03Screen.kt` and new `ForegroundContrastExplorer.kt`.
 
+
+Version 3.11 records completion of Lessons 3.9 and 3.10 and generates the Chapter 3 compositing laboratory:
+
+- The learner explicitly confirmed Lessons 3.9 and 3.10 complete.
+- Learner-confirmed course completion is now **27 of 216 lessons**.
+- Lesson 3.11 introduces one integration idea: the running composite is the current straight RGBA result after every completed stage, and the next draw consumes that result as its destination.
+- The default stack uses one opaque base, two adjustable translucent source-over layers, one optional AndroidX saturation transform, and one optional opaque top layer using Normal, Multiply, Screen, or Plus.
+- The default final output is approximately straight sRGB RGBA `(0.389126, 0.159208, 0.109664, 1.000000)`.
+- The laboratory exposes stage bypass, middle-layer order, two source alpha controls, saturation factor, top blend mode, three base presets, final luminance, final contrast, and one red-channel manual stepper.
+- The coding challenge repairs a loop that incorrectly composites every source over the original base instead of the current running composite.
+- Android changes: `Chapter03Screen.kt` and new `CompositingLaboratory.kt`, with complete-screen and direct-child previews in light and dark modes.
+- The clean completion of Lessons 3.9 and 3.10 reinforces the existing value-provenance and formula-validity gates. No duplicate `AGENTS.md` rule is added.
 
 Version 3.10.1 clarifies the blend-mode formula boundary and repairs the manual stepper:
 
@@ -1343,7 +1355,7 @@ Lessons through 2.9 are complete. Chapter 2 is complete.
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
 ├── MainActivity.kt                         # switches to Chapter03Screen in Lesson 3.1
 └── chapter03/
-    ├── Chapter03Screen.kt                  # active child is SaturationExplorer in Lesson 3.9
+    ├── Chapter03Screen.kt                  # active child is CompositingLaboratory in Lesson 3.11
     ├── RgbChannelsExplorer.kt              # introduced in Lesson 3.1
     ├── AlphaExplorer.kt                    # introduced in Lesson 3.2
     ├── OverOperationExplorer.kt            # introduced in Lesson 3.3
@@ -1353,10 +1365,12 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── ForegroundContrastExplorer.kt       # introduced in Lesson 3.7
     ├── TintExplorer.kt                     # introduced in Lesson 3.8
     ├── SaturationExplorer.kt               # introduced in Lesson 3.9
+    ├── BlendModesExplorer.kt               # introduced in Lesson 3.10
+    ├── CompositingLaboratory.kt             # introduced in Lesson 3.11
     └── TransparentEdgeExplorer.kt          # compatibility wrapper; rejected edge experiment removed
 ```
 
-Lessons 3.1 through 3.8 are complete. Lesson 3.9 is generated and is the current learner checkpoint. It applies the exact AndroidX saturation transform to the final opaque Lesson 3.8 output, proves every channel from a gray reference and signed distance, and recalculates luminance and contrast from the transformed output.
+Lessons 3.1 through 3.10 are complete. Lesson 3.11 is generated and is the current learner checkpoint. It combines the completed source-over, draw-order, saturation, opaque blend-mode, luminance, and contrast operations without introducing image sampling or translucent top-blend formulas.
 
 ---
 
@@ -2564,6 +2578,79 @@ Course progress becomes 26 of 216.
 Next lesson becomes 3.10 — Blend modes.
 ```
 
+## 12G. Lesson 3.11 implementation record
+
+### `lesson-03-11-compositing-laboratory.html`
+
+**New graphics idea:** Several completed color operations can be treated as one ordered stack. The current output after each stage is the running composite. The next draw consumes that value as its destination.
+
+**New mathematical idea:** None. The lesson repeats completed source-over, saturation, opaque blend-mode, luminance, and contrast calculations in a strict order.
+
+The default inputs are:
+
+```text
+base = straight sRGB RGBA(0.22, 0.58, 0.76, 1.00)
+Layer A = straight sRGB RGBA(0.90, 0.10, 0.80, 0.50)
+Layer B = straight sRGB RGBA(0.20, 0.65, 1.00, 0.25)
+saturation factor = 0.40
+top source = straight sRGB RGBA(0.84, 0.36, 0.18, 1.00)
+top blend mode = Multiply
+```
+
+The default stage outputs are:
+
+```text
+after Layer A = (0.560000, 0.340000, 0.780000, 1.000000)
+after Layer B = (0.470000, 0.417500, 0.835000, 1.000000)
+after saturation = (0.463246, 0.442245, 0.609246, 1.000000)
+final after Multiply = (0.389126, 0.159208, 0.109664, 1.000000)
+```
+
+The interactive laboratory includes:
+
+- three opaque base presets;
+- enable and alpha controls for Layer A and Layer B;
+- A-then-B and B-then-A order controls;
+- saturation enable and factor controls;
+- opaque top enable and mode controls;
+- a five-stage swatch strip;
+- a compact manual stepper that follows red;
+- dynamic final luminance and contrast;
+- a Multiply-versus-Screen prediction;
+- provenance controls;
+- a coding challenge that replaces `destination = base` with `destination = running`.
+
+Changed Android files:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter03/CompositingLaboratory.kt
+```
+
+The Android Canvas comparison executes the selected final `BlendMode` over a uniform calculated destination. The expected solid-interior output is calculated separately. No pixel readback is performed.
+
+Lesson 3.11 is complete only when:
+
+- [ ] The Android files compile and run on the Pixel 8 Pro.
+- [ ] Both complete-screen and direct-child previews render in light and dark modes.
+- [ ] The learner can define the running composite.
+- [ ] The learner can reproduce Layer A red `0.56` and Layer B red `0.47`.
+- [ ] The learner can explain why the second middle layer consumes the first middle output.
+- [ ] The learner can explain why reversing Layer A and Layer B changes the result.
+- [ ] The learner can identify the exact saturation-stage input.
+- [ ] The learner can list the conditions that make the opaque top-blend formula complete.
+- [ ] Final luminance and contrast are recalculated from the final RGB.
+- [ ] The prediction, coding challenge, and four exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 28 of 216.
+Chapter 3 becomes complete.
+Next lesson becomes 4.1 — Rectangles and circles.
+```
+
 ## 13. Reusable continuation prompt
 
 ```text
@@ -2628,7 +2715,7 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Learner completion is confirmed through Lesson 3.8. Chapters 1 and 2 are complete. Lesson 3.9 is generated and pending. The learner-confirmed total is 25 of 216 lessons.
+Learner completion is confirmed through Lesson 3.10. Chapters 1 and 2 are complete. Lesson 3.11 is generated and pending. The learner-confirmed total is 27 of 216 lessons.
 
 Current Chapter 2 lesson files:
 
@@ -2675,7 +2762,9 @@ Current Chapter 3 lesson files:
 - `course/chapters/chapter-03/lesson-03-06-brightness-and-relative-luminance.html`;
 - `course/chapters/chapter-03/lesson-03-07-foreground-contrast.html`;
 - `course/chapters/chapter-03/lesson-03-08-tint.html`;
-- `course/chapters/chapter-03/lesson-03-09-saturation.html`.
+- `course/chapters/chapter-03/lesson-03-09-saturation.html`;
+- `course/chapters/chapter-03/lesson-03-10-blend-modes.html`;
+- `course/chapters/chapter-03/lesson-03-11-compositing-laboratory.html`.
 
 Current generated Chapter 3 Android source:
 
@@ -2693,10 +2782,12 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     ├── ForegroundContrastExplorer.kt
     ├── TintExplorer.kt
     ├── SaturationExplorer.kt
+    ├── BlendModesExplorer.kt
+    ├── CompositingLaboratory.kt
     └── TransparentEdgeExplorer.kt  # compatibility wrapper
 ```
 
-The current Lesson 3.9 Android ZIP contains only `Chapter03Screen.kt` and new `SaturationExplorer.kt`. Earlier Chapter 3 explorers remain unchanged and are not duplicated.
+The Lesson 3.11 Android ZIP contains only `Chapter03Screen.kt` and new `CompositingLaboratory.kt`. Earlier Chapter 3 explorers remain unchanged and are not duplicated.
 
 ---
 

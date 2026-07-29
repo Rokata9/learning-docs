@@ -1,8 +1,8 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 3.10.2  
-**Updated:** 2026-07-27  
-**Current position:** Lessons 1.1 through 3.8 are complete by learner confirmation. **25 of 216 lessons are complete.** Lesson 3.9 has learner questions pending and remains the next unresolved checkpoint. Lesson 3.10 is generated ahead and is the generated frontier.
+**Course plan version:** 3.11.0  
+**Updated:** 2026-07-28  
+**Current position:** Lessons 1.1 through 3.10 are complete by learner confirmation. **27 of 216 lessons are complete.** Lesson 3.11 is generated and is both the next unresolved checkpoint and the generated frontier.
 
 ## Permanent course rules
 
@@ -206,31 +206,27 @@ A color transform outputs another color or channel value. A color measurement ou
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 3.9.0
+course_version: 3.11.0
 platform: Kotlin + Jetpack Compose
 learning_device: Pixel 8 Pro
 learning_min_sdk: 33
 course_lessons_total: 216
-course_lessons_completed_by_learner: 25
-completed_through: 3.8
-generated_frontier: 3.9
-next_learner_checkpoint: 3.9
+course_lessons_completed_by_learner: 27
+completed_through: 3.10
+generated_frontier: 3.11
+next_learner_checkpoint: 3.11
 chapter_01_completed_by_learner: true
 chapter_02_completed_by_learner: true
 chapter_03_completed_by_learner: false
-lesson_03_05_completed_by_learner: true
-lesson_03_06_file: course/chapters/chapter-03/lesson-03-06-brightness-and-relative-luminance.html
-lesson_03_06_generated: true
-lesson_03_06_completed_by_learner: true
-lesson_03_07_file: course/chapters/chapter-03/lesson-03-07-foreground-contrast.html
-lesson_03_07_generated: true
-lesson_03_07_completed_by_learner: true
-lesson_03_08_file: course/chapters/chapter-03/lesson-03-08-tint.html
-lesson_03_08_generated: true
-lesson_03_08_completed_by_learner: true
 lesson_03_09_file: course/chapters/chapter-03/lesson-03-09-saturation.html
 lesson_03_09_generated: true
-lesson_03_09_completed_by_learner: false
+lesson_03_09_completed_by_learner: true
+lesson_03_10_file: course/chapters/chapter-03/lesson-03-10-blend-modes.html
+lesson_03_10_generated: true
+lesson_03_10_completed_by_learner: true
+lesson_03_11_file: course/chapters/chapter-03/lesson-03-11-compositing-laboratory.html
+lesson_03_11_generated: true
+lesson_03_11_completed_by_learner: false
 invalid_scope_extension_imports_fixed: true
 chapter_and_child_preview_rule_recorded: true
 transparent_edge_halo_topic: deferred_until_image_boundary_and_sampling_prerequisites
@@ -818,4 +814,153 @@ It also substitutes the two opaque alpha values into Android's general Multiply 
 The manual stepper was also revised. At `1920×1080`, the compact SVG stays beside the step card instead of occupying nearly the full viewport height. The SVG has a fixed maximum width, and Step 5's Screen calculation is split across four explicit lines.
 
 `AGENTS.md` now requires explicit formula-validity contracts and longest-step viewport QA for all future steppers. Lesson 3.9 remains the unresolved learner checkpoint. Lesson 3.10 remains generated ahead. Progress remains 25 of 216.
+
+## Latest authoritative status — Lessons 3.9 and 3.10 completed; Lesson 3.11 generated
+
+The learner explicitly confirmed both pending lessons complete on 2026-07-28.
+
+```yaml
+learner_confirmed_completed_total: 27
+completed_through: "Lesson 3.10"
+lesson_03_09_completed_by_learner: true
+lesson_03_10_completed_by_learner: true
+lesson_03_11_generated: true
+lesson_03_11_completed_by_learner: false
+next_unresolved_checkpoint: "Lesson 3.11"
+generated_frontier: "Lesson 3.11"
+next_after_completion: "Lesson 4.1 — Rectangles and circles"
+```
+
+### Lesson-feedback review
+
+The clean completion of Lessons 3.9 and 3.10 reinforces two existing reusable rules:
+
+- recurring values need explicit provenance;
+- simplified formulas need a complete validity contract and one general-to-short reduction.
+
+Both rules already exist in `AGENTS.md`. No duplicate policy was added.
+
+## Lesson 3.11 — Compositing laboratory
+
+### New integration idea
+
+A **running composite** is the current straight RGBA result after every completed stage. Each later draw consumes that result as its destination. A bypassed stage returns its input unchanged.
+
+The lesson adds no new color formula. It combines completed Chapter 3 operations in this order:
+
+1. opaque base;
+2. first adjustable translucent source-over layer;
+3. second adjustable translucent source-over layer;
+4. optional AndroidX saturation transform of the complete middle-layer result;
+5. optional opaque top layer using Normal, Multiply, Screen, or Plus;
+6. relative-luminance and foreground-contrast calculations from the final output.
+
+### Default stack
+
+```text
+Opaque base:
+straight sRGB RGBA(0.22, 0.58, 0.76, 1.00)
+
+Layer A:
+straight sRGB RGBA(0.90, 0.10, 0.80, 0.50)
+source-over
+
+Layer B:
+straight sRGB RGBA(0.20, 0.65, 1.00, 0.25)
+source-over
+
+Saturation:
+factor 0.40 applied to the complete middle-layer output
+
+Opaque top source:
+straight sRGB RGBA(0.84, 0.36, 0.18, 1.00)
+Multiply
+```
+
+Default running outputs:
+
+```text
+base
+= (0.220000, 0.580000, 0.760000, 1.000000)
+
+after Layer A
+= (0.560000, 0.340000, 0.780000, 1.000000)
+
+after Layer B
+= (0.470000, 0.417500, 0.835000, 1.000000)
+
+after saturation factor 0.40
+= (0.463246, 0.442245, 0.609246, 1.000000)
+
+after opaque Multiply top layer
+= (0.389126, 0.159208, 0.109664, 1.000000)
+```
+
+The final relative luminance is approximately `0.043074`. Black contrast is approximately `1.8615:1`. White contrast is approximately `11.2814:1`.
+
+### Exact formula boundary
+
+- The inspected position is fully inside every enabled shape.
+- The base alpha is `1.00`.
+- The middle sources may be translucent and use the complete source-over formula.
+- Every middle output remains opaque because the destination below it is opaque.
+- The top source alpha is `1.00`.
+- The running destination alpha is `1.00` before the top blend.
+- The opaque top source is drawn second at `100%` position coverage.
+
+These conditions make the Lesson 3.10 short top-blend formulas complete at the inspected position. The lesson does not extend those formulas to translucent top sources or partial edge coverage.
+
+### Interactive controls
+
+- opaque base presets: Course blue, Navy, Pale;
+- Layer A enable and alpha;
+- Layer B enable and alpha;
+- A-then-B versus B-then-A draw order;
+- saturation enable and factor;
+- opaque top enable and blend mode;
+- complete bypass and reset controls;
+- stage-by-stage swatches;
+- one red-channel manual stepper;
+- dynamic Multiply-versus-Screen prediction;
+- final luminance and contrast;
+- value-provenance controls;
+- coding challenge that replaces accidental reuse of the original base with the current running destination.
+
+### Android files
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter03/CompositingLaboratory.kt
+```
+
+`Chapter03Screen.kt` includes full-screen and direct-child previews in light and dark modes.
+
+### Evidence boundary
+
+The browser and Kotlin teaching functions calculate uniform colors at one fully covered position. The Android Canvas comparison executes the selected final `BlendMode` over a uniform calculated destination. The lesson does not perform pixel readback and does not claim to model a photograph, moving backdrop, partial shape edge, blur, refraction, or translucent top blend.
+
+### Lesson 3.11 checkpoint
+
+Lesson 3.11 is complete only when:
+
+- [ ] The incremental learning-docs and Android ZIPs were applied.
+- [ ] The Android project builds and opens Lesson 3.11 on the Pixel 8 Pro.
+- [ ] Full-screen and direct-child previews render in light and dark modes.
+- [ ] The learner can define the running composite.
+- [ ] The learner can reproduce default Layer A red `0.56`.
+- [ ] The learner can reproduce default Layer B red `0.47` using the Layer A output as destination.
+- [ ] The learner can explain why reversing Layer A and Layer B changes the result.
+- [ ] The learner can identify the exact input consumed by the saturation stage.
+- [ ] The learner can list every condition that makes the opaque top-blend shortcut complete.
+- [ ] The learner recalculates luminance and contrast from the final output.
+- [ ] The prediction, coding challenge, and four exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 28 of 216.
+Chapter 3 becomes complete.
+Next lesson becomes 4.1 — Rectangles and circles.
+```
 
