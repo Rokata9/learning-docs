@@ -1,70 +1,71 @@
 # Liquid Glass Android course — current state
 
-**Authoritative learner-confirmed progress:** 27 of 216 lessons completed.
+**Authoritative learner-confirmed progress:** 28 of 216 lessons completed.
 
 ## Completed
 
-- Chapters 1 and 2 are complete.
-- Lessons 3.1 through 3.10 are complete.
-- The latest completed lesson is **3.10 — Blend modes**.
-- Lessons 3.9 and 3.10 were explicitly confirmed complete by the learner on 2026-07-28.
+- Chapters 1, 2, and 3 are complete.
+- Lessons 3.1 through 3.11 are complete.
+- The latest completed lesson is **3.11 — Compositing laboratory**.
+- Lesson 3.11 was marked complete because the learner requested the next lesson without reporting a remaining question, correction, or test problem.
 
 ## Not completed
 
-- **Lesson 3.11 — Compositing laboratory** is generated in this delivery.
-- Lesson 3.11 has not yet been learner-confirmed complete.
-- Chapter 3 remains incomplete until Lesson 3.11 is confirmed complete.
+- **Lesson 4.1 — Rectangles and circles** is generated in this delivery.
+- Lesson 4.1 has not yet been learner-confirmed complete.
+- Chapter 4 remains in progress.
 
-Do not infer Lesson 3.11 completion merely because its files were generated, opened, tested, or discussed.
+Do not infer Lesson 4.1 completion merely because its files were generated, opened, tested, or discussed.
 
 ## Course pointers
 
-- **Next unresolved learner checkpoint:** Lesson 3.11.
-- **Generated frontier:** Lesson 3.11.
-- **Next planned lesson after explicit Lesson 3.11 completion:** Lesson 4.1 — Rectangles and circles.
+- **Next unresolved learner checkpoint:** Lesson 4.1.
+- **Generated frontier:** Lesson 4.1.
+- **Next planned lesson after explicit Lesson 4.1 completion:** Lesson 4.2 — Rounded rectangles.
 
-## Lesson 3.11 model
+## Lesson 4.1 model
 
-Lesson 3.11 introduces one new integration idea:
+Lesson 4.1 introduces one geometry distinction:
 
-- the **running composite** is the current straight RGBA result after every completed stage;
-- each later draw consumes the running composite as its destination;
-- a bypassed stage returns its input unchanged.
+- a **rectangle** has four boundary coordinates: left, top, right, and bottom; this lesson supplies left, top, width, and height, then derives right and bottom;
+- a **circle** is controlled by one center point and one radius;
+- the circle's enclosing square is a rectangle that contains the circle, but the square is not the circle.
 
-The default ordered stack is:
-
-1. opaque base: straight sRGB RGBA `(0.22, 0.58, 0.76, 1.00)`;
-2. Layer A: straight sRGB RGBA `(0.90, 0.10, 0.80, 0.50)` using source-over;
-3. Layer B: straight sRGB RGBA `(0.20, 0.65, 1.00, 0.25)` using source-over;
-4. AndroidX saturation factor `0.40` applied to the complete middle-layer output;
-5. opaque top source: straight sRGB RGBA `(0.84, 0.36, 0.18, 1.00)` using Multiply.
-
-The default final output is approximately:
+The browser reset values use SVG-local teaching units:
 
 ```text
-straight sRGB RGBA(0.389126, 0.159208, 0.109664, 1.000000)
+Rectangle:
+left = 80
+top = 70
+width = 240
+height = 150
+right = 320
+bottom = 220
+
+Circle:
+center = (520, 145)
+radius = 75
+diameter = 150
+leftmost = 445
+rightmost = 595
+topmost = 70
+bottommost = 220
 ```
 
-The lesson also supports:
+The Android explorer uses one controlled `320.dp × 220.dp` Compose drawing surface. It converts the requested shape dimensions from dp to Canvas-local px at runtime, draws one rectangle with `drawRect`, and draws one circle with `drawCircle`.
 
-- reversing Layer A and Layer B;
-- bypassing either middle layer;
-- changing both middle source alphas;
-- bypassing or changing the saturation factor;
-- selecting Normal, Multiply, Screen, or Plus for the opaque top layer;
-- changing the opaque base preset;
-- tracing one red channel through every stage;
-- recalculating final luminance and contrast;
-- a coding challenge that repairs accidental reuse of the original base.
+The lesson deliberately defers:
+
+- rounded corners;
+- capsules;
+- arbitrary paths;
+- clipping and masks;
+- antialiasing theory;
+- distance formulas for arbitrary points around a circle.
 
 ## Lesson-feedback review
 
-The clean completion of Lessons 3.9 and 3.10 confirms that two existing rules were useful:
-
-- values that recur across sections need explicit provenance;
-- simplified formulas need a complete validity contract and one general-to-short reduction.
-
-Those rules already exist in `AGENTS.md`, so no duplicate policy was added.
+The learner moved on from Lesson 3.11 without reporting a defect or question. This confirms completion but does not identify a new reusable teaching rule beyond the existing prerequisite, explicit-intermediate, and value-provenance rules. No new `AGENTS.md` policy was added.
 
 ## Delivery rules
 

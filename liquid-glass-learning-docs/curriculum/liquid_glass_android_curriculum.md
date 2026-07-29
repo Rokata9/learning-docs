@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 3.11.0  
-**Updated:** 2026-07-28  
-**Current course position:** Lessons 1.1 through 3.10 are complete by learner confirmation. **27 of 216 lessons are complete.** Lesson 3.11 is generated and is both the next unresolved checkpoint and the generated frontier.  
+**Version:** 4.1.0  
+**Updated:** 2026-07-29  
+**Current course position:** Lessons 1.1 through 3.11 are complete by learner confirmation. **28 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Lesson 4.1 is generated and is both the next unresolved checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -10,7 +10,7 @@
 
 ---
 
-## 1. What changed through version 1.6
+## 1. What changed through version 4.1
 
 Version 1.0 placed the complete Chapter 1 teaching text and its large Compose example inside this master Markdown file. That was a bundled-document structure.
 
@@ -331,6 +331,19 @@ Version 3.7 records completion of Lesson 3.6 and introduces foreground contrast:
 - Candidate selection and accessibility target checking remain separate.
 - Android changes: `Chapter03Screen.kt` and new `ForegroundContrastExplorer.kt`.
 
+
+Version 4.1 records completion of Lesson 3.11, closes Chapter 3, and starts the geometry chapter:
+
+- The learner requested the next lesson without reporting a remaining Lesson 3.11 question, correction, or test problem. Lesson 3.11 is therefore marked complete.
+- Learner-confirmed course completion is now **28 of 216 lessons**.
+- Chapters 1, 2, and 3 are complete.
+- Lesson 4.1 introduces two explicit shape contracts. A rectangle has four boundary coordinates; the lesson supplies left, top, width, and height and derives right and bottom. A circle is supplied as a center point and a radius.
+- The lesson derives rectangle right and bottom from left, top, width, and height. It derives circle diameter and four extreme positions from center and radius.
+- The circle's enclosing square is shown separately as construction geometry. The square contains the circle but is not the circle.
+- The browser radius handle is constrained to horizontal movement so the lesson does not silently require the untaught point-to-point distance formula.
+- Android changes: `MainActivity.kt`, new `chapter04/Chapter04Screen.kt`, and new `chapter04/RectanglesCirclesExplorer.kt`.
+- `Chapter04Screen.kt` includes complete-screen and direct-child previews in light and dark modes.
+- No new `AGENTS.md` rule was added. The clean Lesson 3.11 progression did not expose a new reusable gap.
 
 Version 3.11 records completion of Lessons 3.9 and 3.10 and generates the Chapter 3 compositing laboratory:
 
@@ -1370,7 +1383,19 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
     └── TransparentEdgeExplorer.kt          # compatibility wrapper; rejected edge experiment removed
 ```
 
-Lessons 3.1 through 3.10 are complete. Lesson 3.11 is generated and is the current learner checkpoint. It combines the completed source-over, draw-order, saturation, opaque blend-mode, luminance, and contrast operations without introducing image sampling or translucent top-blend formulas.
+Lessons 3.1 through 3.11 are complete. Chapter 3 is complete. Lesson 3.11 combines the completed source-over, draw-order, saturation, opaque blend-mode, luminance, and contrast operations without introducing image sampling or translucent top-blend formulas.
+
+## 10C. Android source organization for the current Chapter 4 state
+
+```text
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
+├── MainActivity.kt                         # switches to Chapter04Screen in Lesson 4.1
+└── chapter04/
+    ├── Chapter04Screen.kt                  # active child is RectanglesCirclesExplorer
+    └── RectanglesCirclesExplorer.kt        # introduced in Lesson 4.1
+```
+
+Lesson 4.1 is generated and is the current learner checkpoint. It reuses the completed coordinate, bounds, dp, px, color, and draw-order concepts. It adds the circle radius contract and keeps the circle separate from its enclosing square.
 
 ---
 
@@ -2715,7 +2740,7 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Learner completion is confirmed through Lesson 3.10. Chapters 1 and 2 are complete. Lesson 3.11 is generated and pending. The learner-confirmed total is 27 of 216 lessons.
+Learner completion is confirmed through Lesson 3.11. Chapters 1, 2, and 3 are complete. Lesson 4.1 is generated and pending. The learner-confirmed total is 28 of 216 lessons.
 
 Current Chapter 2 lesson files:
 
@@ -2789,11 +2814,28 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
 
 The Lesson 3.11 Android ZIP contains only `Chapter03Screen.kt` and new `CompositingLaboratory.kt`. Earlier Chapter 3 explorers remain unchanged and are not duplicated.
 
+Current Chapter 4 lesson files:
+
+- `course/chapters/chapter-04/lesson-shapes-corners-paths-and-masks.html`;
+- `course/chapters/chapter-04/lesson-04-01-rectangles-and-circles.html`.
+
+Current generated Chapter 4 Android source:
+
+```text
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
+├── MainActivity.kt
+└── chapter04/
+    ├── Chapter04Screen.kt
+    └── RectanglesCirclesExplorer.kt
+```
+
+The Lesson 4.1 Android ZIP contains only the three files changed when the app switches to Chapter 4.
+
 ---
 
 ## 15. Primary references
 
-The course plan was checked against these public primary sources through 2026-07-26:
+The course plan was checked against these public primary sources through 2026-07-29:
 
 - Apple, **Meet Liquid Glass**, WWDC25: https://developer.apple.com/videos/play/wwdc2025/219/
 - Apple, **Get to know the new design system**, WWDC25: https://developer.apple.com/videos/play/wwdc2025/356/
@@ -2811,6 +2853,8 @@ The course plan was checked against these public primary sources through 2026-07
 - Android, **Compose LayoutCoordinates reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/LayoutCoordinates
 - Android, **Compose OnGloballyPositionedModifier reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/OnGloballyPositionedModifier
 - Android, **Compose DrawScope reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/drawscope/DrawScope
+- Android, **Graphics in Compose — basic shapes**: https://developer.android.com/develop/ui/compose/graphics/draw/overview
+- Android, **Compose Rect reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/geometry/Rect
 - Android, **Bitmap.isPremultiplied**: https://developer.android.com/reference/android/graphics/Bitmap#isPremultiplied()
 - Android, **Bitmap.setPremultiplied**: https://developer.android.com/reference/android/graphics/Bitmap#setPremultiplied(boolean)
 - Android, **Compose Color reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color
@@ -2838,9 +2882,9 @@ The course plan was checked against these public primary sources through 2026-07
 - Android, **Android Debug Bridge**: https://developer.android.com/tools/adb
 
 
-## 12H. Lesson 3.9 clarification record — matrix stages, alpha, and provenance
+## 12H. Historical Lesson 3.9 clarification record — matrix stages, alpha, and provenance
 
-Lesson 3.9 remains the unresolved learner checkpoint. The clarification revision adds:
+This clarification was produced while Lesson 3.9 was unresolved. Lesson 3.9 is now learner-confirmed complete. The clarification revision adds:
 
 - `matrix result before clamping` as the precise replacement for ambiguous `raw RGB` or `raw channel`;
 - an explicit pre-clamp → clamp → final-channel trace;
@@ -2852,3 +2896,70 @@ Lesson 3.9 remains the unresolved learner checkpoint. The clarification revision
 - removal of complete Android source viewers from Lesson 3.9 and generated-ahead Lesson 3.10. Complete source remains in Android Studio and the Android ZIP.
 
 Future lesson HTML must not contain complete source-file tabs. Use only the exact code excerpt needed by an explanation or challenge.
+
+## 12I. Lesson 4.1 implementation record
+
+### `lesson-04-01-rectangles-and-circles.html`
+
+**New graphics idea:** A rectangle and a circle use different geometry inputs. The lesson supplies rectangle top-left plus size and derives its four bounds. It supplies a circle as center plus radius.
+
+**Mathematical idea:** Add or subtract the radius once to reach each circle extreme. Multiply the radius by two to obtain the diameter.
+
+The browser reset values use SVG-local teaching units:
+
+```text
+Rectangle:
+left = 80
+top = 70
+width = 240
+height = 150
+right = 80 + 240 = 320
+bottom = 70 + 150 = 220
+
+Circle:
+center = (520, 145)
+radius = 75
+diameter = 2 × 75 = 150
+leftmost = 520 − 75 = 445
+rightmost = 520 + 75 = 595
+topmost = 145 − 75 = 70
+bottommost = 145 + 75 = 220
+```
+
+The orange enclosing square has the same width and height as the diameter. It is a separate rectangle used to expose the circle's extreme positions. Its four corner regions do not belong to the circle.
+
+The Android explorer uses a fixed `320.dp × 220.dp` drawing surface. Compose converts the dp requests to Canvas-local px at runtime. The explorer draws:
+
+```text
+drawRect(topLeft, size)
+drawCircle(center, radius)
+optional drawRect(circle enclosing square)
+```
+
+`onSizeChanged` records the measured Canvas dimensions in px. The lesson does not claim that Canvas-local px always maps one-to-one to physical display pixels after every later transform.
+
+Changed Android files:
+
+```text
+app/src/main/java/com/example/liquidglasslab/MainActivity.kt
+app/src/main/java/com/example/liquidglasslab/chapter04/Chapter04Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter04/RectanglesCirclesExplorer.kt
+```
+
+Lesson 4.1 is complete only when:
+
+- [ ] The Android patch builds and opens Chapter 4 on the Pixel 8 Pro.
+- [ ] Full-screen and direct-child previews render in light and dark modes.
+- [ ] The learner can name every rectangle input and derive right and bottom.
+- [ ] The learner can define center, radius, diameter, and the four circle extremes.
+- [ ] The learner can explain why the enclosing square is not the circle.
+- [ ] The learner can keep SVG teaching units, dp, Canvas-local px, and physical display pixels separate.
+- [ ] The prediction, coding challenge, and four exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 29 of 216.
+Next lesson becomes 4.2 — Rounded rectangles.
+```

@@ -1,8 +1,8 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 3.11.0  
-**Updated:** 2026-07-28  
-**Current position:** Lessons 1.1 through 3.10 are complete by learner confirmation. **27 of 216 lessons are complete.** Lesson 3.11 is generated and is both the next unresolved checkpoint and the generated frontier.
+**Course plan version:** 4.1.0  
+**Updated:** 2026-07-29  
+**Current position:** Lessons 1.1 through 3.11 are complete by learner confirmation. **28 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Lesson 4.1 is generated and is both the next unresolved checkpoint and the generated frontier.
 
 ## Permanent course rules
 
@@ -206,27 +206,29 @@ A color transform outputs another color or channel value. A color measurement ou
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 3.11.0
+course_version: 4.1.0
 platform: Kotlin + Jetpack Compose
 learning_device: Pixel 8 Pro
 learning_min_sdk: 33
 course_lessons_total: 216
-course_lessons_completed_by_learner: 27
-completed_through: 3.10
-generated_frontier: 3.11
-next_learner_checkpoint: 3.11
+course_lessons_completed_by_learner: 28
+completed_through: 3.11
+generated_frontier: 4.1
+next_learner_checkpoint: 4.1
 chapter_01_completed_by_learner: true
 chapter_02_completed_by_learner: true
-chapter_03_completed_by_learner: false
-lesson_03_09_file: course/chapters/chapter-03/lesson-03-09-saturation.html
-lesson_03_09_generated: true
+chapter_03_completed_by_learner: true
+chapter_04_completed_by_learner: false
 lesson_03_09_completed_by_learner: true
-lesson_03_10_file: course/chapters/chapter-03/lesson-03-10-blend-modes.html
-lesson_03_10_generated: true
 lesson_03_10_completed_by_learner: true
 lesson_03_11_file: course/chapters/chapter-03/lesson-03-11-compositing-laboratory.html
 lesson_03_11_generated: true
-lesson_03_11_completed_by_learner: false
+lesson_03_11_completed_by_learner: true
+lesson_03_11_completion_basis: learner requested the next lesson without reporting a remaining question, correction, or test problem
+lesson_04_01_file: course/chapters/chapter-04/lesson-04-01-rectangles-and-circles.html
+lesson_04_01_generated: true
+lesson_04_01_completed_by_learner: false
+lesson_04_01_android_source_changed: true
 invalid_scope_extension_imports_fixed: true
 chapter_and_child_preview_rule_recorded: true
 transparent_edge_halo_topic: deferred_until_image_boundary_and_sampling_prerequisites
@@ -815,7 +817,7 @@ The manual stepper was also revised. At `1920×1080`, the compact SVG stays besi
 
 `AGENTS.md` now requires explicit formula-validity contracts and longest-step viewport QA for all future steppers. Lesson 3.9 remains the unresolved learner checkpoint. Lesson 3.10 remains generated ahead. Progress remains 25 of 216.
 
-## Latest authoritative status — Lessons 3.9 and 3.10 completed; Lesson 3.11 generated
+## Historical status — Lessons 3.9 and 3.10 completed; Lesson 3.11 generated
 
 The learner explicitly confirmed both pending lessons complete on 2026-07-28.
 
@@ -964,3 +966,78 @@ Chapter 3 becomes complete.
 Next lesson becomes 4.1 — Rectangles and circles.
 ```
 
+
+
+---
+
+## Latest authoritative status — Chapter 3 complete; Lesson 4.1 generated
+
+The learner requested the next lesson after Lesson 3.11 without reporting a remaining question, correction, or test problem. Under the existing completion gate, Lesson 3.11 is now learner-confirmed complete.
+
+```yaml
+learner_confirmed_completed_total: 28
+completed_through: "Lesson 3.11"
+chapter_03_completed_by_learner: true
+lesson_04_01_generated: true
+lesson_04_01_completed_by_learner: false
+next_unresolved_checkpoint: "Lesson 4.1"
+generated_frontier: "Lesson 4.1"
+next_after_completion: "Lesson 4.2 — Rounded rectangles"
+```
+
+### Lesson 4.1 — Rectangles and circles
+
+The lesson starts from the completed Lesson 2.4 rectangle model. It adds one new shape contract:
+
+```text
+Rectangle:
+left + top + width + height as inputs
+→ derive right and bottom
+→ four straight boundary coordinates
+
+Circle:
+center X + center Y + radius
+→ diameter and four extreme positions
+→ one curved boundary
+```
+
+The reset browser values are:
+
+```text
+Rectangle:
+left 80, top 70, width 240, height 150
+right 320, bottom 220
+
+Circle:
+center (520, 145), radius 75, diameter 150
+leftmost 445, rightmost 595, topmost 70, bottommost 220
+```
+
+The circle's enclosing square is shown as construction geometry. It has side length equal to the circle diameter, but it is not the circle. Its corner regions lie outside the circle.
+
+The radius handle in the browser moves horizontally only. This avoids requiring the untaught distance formula between two arbitrary points. The full point-to-point distance formula remains deferred until Chapter 9.
+
+### Android value path
+
+```text
+fixed dp geometry and three dimension controls
+→ dp converted to Canvas-local px inside DrawScope
+→ drawRect(topLeft, size)
+→ drawCircle(center, radius)
+→ optional separate drawRect for the circle's enclosing square
+→ onSizeChanged reports the measured Canvas px dimensions
+```
+
+Changed Android files:
+
+```text
+app/src/main/java/com/example/liquidglasslab/MainActivity.kt
+app/src/main/java/com/example/liquidglasslab/chapter04/Chapter04Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter04/RectanglesCirclesExplorer.kt
+```
+
+`Chapter04Screen.kt` contains full-screen and direct-child previews in light and dark modes. The lesson does not add rounded corners, capsules, paths, clipping, masks, antialiasing theory, or physical-pixel coverage claims.
+
+### Lesson-feedback review
+
+The clean progression from Lesson 3.11 confirms completion, but it does not reveal a new reusable lesson-quality rule beyond the existing prerequisite, explicit-intermediate, and formula-boundary gates. No duplicate `AGENTS.md` policy was added.
