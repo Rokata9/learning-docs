@@ -1,91 +1,96 @@
 # Liquid Glass Android course — current state
 
-**Authoritative learner-confirmed progress:** 31 of 216 lessons completed.
+**Authoritative learner-confirmed progress:** 32 of 216 lessons completed.
 
 ## Completed
 
 - Chapters 1, 2, and 3 are complete.
 - Lesson 4.1 — Rectangles and circles is complete.
 - Lesson 4.2 — Rounded rectangles is complete.
-- Lesson 4.3 — Capsules is complete by the learner's progression without a remaining question.
-- The latest completed lesson is **4.3 — Capsules**.
+- Lesson 4.3 — Capsules is complete.
+- Lesson 4.4 — Concentric corners is complete by the learner's progression without a remaining question.
+- The latest completed lesson is **4.4 — Concentric corners**.
 
 ## Not completed
 
-- **Lesson 4.4 — Concentric corners** is generated and is the current learner checkpoint.
-- Chapter 4 remains in progress. Lessons 4.4 through 4.11 are not complete.
+- **Lesson 4.5 — Paths** is generated and is the current learner checkpoint.
+- Chapter 4 remains in progress. Lessons 4.5 through 4.11 are not complete.
 
 ## Course pointers
 
-- **Next unresolved learner checkpoint:** Lesson 4.4.
-- **Generated frontier:** Lesson 4.4.
-- **Next planned lesson after explicit Lesson 4.4 completion:** Lesson 4.5 — Paths.
+- **Next unresolved learner checkpoint:** Lesson 4.5.
+- **Generated frontier:** Lesson 4.5.
+- **Next planned lesson after explicit Lesson 4.5 completion:** Lesson 4.6 — Cubic Bézier curves.
 
-## Lesson 4.4 model
+## Lesson 4.5 model
 
-Lesson 4.4 starts from the rounded-corner center calculation taught in Lesson 4.2 and places one rounded rectangle inside another.
+Lesson 4.5 starts from the local coordinates and built-in shapes taught through Lesson 4.4. It introduces one new object: a path, meaning an ordered list of geometric instructions.
 
-The browser reset values use SVG-local teaching units:
-
-```text
-outer left = 110
-outer top = 35
-outer width = 600
-outer height = 360
-outer radius = 90
-uniform padding = 30
-```
-
-The outer top-left curve center is:
+The browser teaching shape uses SVG-local coordinates:
 
 ```text
-outer center
-= (outer left + outer radius, outer top + outer radius)
-= (110 + 90, 35 + 90)
-= (200, 125)
+A = (120, 90)
+B = (520, 90)
+C = (650, 215) at reset
+D = (520, 340)
+E = (120, 340)
 ```
 
-The inner bounds begin at:
+The command sequence is:
 
 ```text
-inner left = 110 + 30 = 140
-inner top = 35 + 30 = 65
-inner width = 600 - 2 * 30 = 540
-inner height = 360 - 2 * 30 = 300
+Path()
+moveTo(A)
+lineTo(B)
+lineTo(C)
+lineTo(D)
+lineTo(E)
+close()
 ```
 
-To preserve the same corner center:
+`moveTo(A)` sets the current point without drawing a segment. Each `lineTo` appends one straight segment from the current point to the supplied target and then makes that target the new current point. `close()` appends the final stored segment from E back to starting point A.
+
+The lesson distinguishes the stored command list from the later drawing style. A stroke follows the segments stored in the `Path`, so the E-to-A stroke appears only after `close()`. A fill-style Compose `drawPath` can treat an open connected run as closed while filling; that drawing behavior does not insert `close()` into the stored `Path`. The browser and Android teaching views deliberately reveal fill only after `close()` so the stored open-versus-closed state remains visible.
+
+The exact B-to-C trace is:
 
 ```text
-inner radius
-= outer radius - uniform padding
-= 90 - 30
-= 60
-
-inner center
-= (140 + 60, 65 + 60)
-= (200, 125)
+current point B = (520, 90)
+target point C = (650, 215)
+operation = lineTo(C)
+new segment = B → C
+new current point = C
 ```
 
-Copying the outer radius instead produces inner center `(230, 155)`, a shift of `(30, 30)`.
+Point C is shared by segments B → C and C → D. Moving C changes those two segments and leaves A → B, D → E, and E → A unchanged.
 
-The interactive model varies padding from `0` through `90`, compares the concentric radius with the copied-radius defect, and exposes the radius-zero boundary at padding `90`. The primary diagram is capped at `820 × 430` CSS pixels, and complete coordinates remain in synchronized readouts outside the geometry.
+The primary browser diagram is capped at `820 × 430` CSS pixels. It uses short point labels A through E and keeps complete coordinates, current point, segment count, and boundary status in synchronized external readouts.
 
 The Android explorer uses:
 
 ```text
-outer Canvas bounds = 280.dp × 224.dp
-outer radius = 56.dp
-reset padding = 20.dp
-reset inner radius = 36.dp
-outer and inner top-left center = (76.dp, 84.dp)
+Canvas = 320.dp × 220.dp
+A = (28.dp, 32.dp)
+B = (220.dp, 32.dp)
+C = (280.dp, 110.dp) at reset
+D = (220.dp, 188.dp)
+E = (28.dp, 188.dp)
 ```
 
-It applies the same derived radius to `RoundedCornerShape` and to `drawRoundRect` through `CornerRadius(innerRadiusPx, innerRadiusPx)`.
+The Android value path is:
+
+```text
+dp point constants
+→ convert each coordinate to Canvas-local px
+→ build or reuse one Compose Path for the current command step
+→ moveTo / lineTo / close
+→ reveal the teaching fill after explicit closure
+→ drawPath inspection stroke from the stored segments
+```
 
 ## Lesson-feedback review
 
-The learner proceeded from Lesson 4.3 without a question or correction. This confirms that the capsule lesson's compact geometry, external readouts, boundary state, and exact radius derivation were understandable. The message does not reveal a new reusable policy beyond the existing beginner-first, formula-reveal, and interactive-geometry gates, so `AGENTS.md` is unchanged.
+The learner proceeded from Lesson 4.4 without a question or correction. This confirms that the nested-corner lesson's shared-center derivation, compact geometry, external exact-value readouts, and explicit boundary cases were understandable. The message does not reveal a new reusable policy beyond the existing beginner-first, formula-reveal, and interactive-geometry gates, so `AGENTS.md` is unchanged.
 
 ## Delivery rules
 

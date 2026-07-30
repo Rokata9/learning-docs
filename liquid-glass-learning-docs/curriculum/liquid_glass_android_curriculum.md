@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 4.4.0  
+**Version:** 4.5.0  
 **Updated:** 2026-07-30  
-**Current course position:** Lessons 1.1 through 4.3 are complete by learner confirmation. **31 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.4 is generated and is both the next unresolved checkpoint and the generated frontier.  
+**Current course position:** Lessons 1.1 through 4.4 are complete by learner confirmation. **32 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.5 is generated and is both the next unresolved checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -10,7 +10,21 @@
 
 ---
 
-## 1. What changed through version 4.4.0
+## 1. What changed through version 4.5.0
+
+Version 4.5.0 records completion of Lesson 4.4 and generates Lesson 4.5:
+
+- The learner proceeded without a remaining Lesson 4.4 issue, so Lesson 4.4 is learner-confirmed complete.
+- Learner-confirmed course completion is now **32 of 216 lessons**.
+- Lesson 4.5 introduces a Compose `Path` as an ordered command list.
+- The controlled command sequence is `moveTo(A)`, four connected `lineTo` calls, and `close()`.
+- The lesson distinguishes explicit closure stored by `close()` from fill-style drawing, which can treat an open connected run as closed while filling without changing the stored command list.
+- The lesson traces the current point and one exact `lineTo(C)` operation before showing the complete sequence.
+- The interactive SVG is capped at `820 × 430` CSS pixels. It uses short A-through-E labels and synchronized external readouts.
+- Point C is adjustable so the learner can see that one shared endpoint changes two adjacent segments.
+- Android changes: `Chapter04Screen.kt` and new `PathsExplorer.kt`, with complete-screen and direct-child previews in both OS themes.
+- Curved segments, clipping, masks, general fill rules, and antialiasing remain explicitly deferred.
+- No new `AGENTS.md` policy is added. The clean completion reinforces existing beginner-first and compact-geometry rules.
 
 Version 4.4.0 records completion of Lesson 4.3 and generates Lesson 4.4:
 
@@ -3353,3 +3367,125 @@ After completion:
 Course progress becomes 32 of 216.
 Next lesson becomes 4.5 — Paths.
 ```
+
+## 12M. Lesson 4.5 implementation record
+
+### `lesson-04-05-paths.html`
+
+**New graphics idea:** A path is an ordered list of geometric instructions that can describe a custom boundary.
+
+**Mathematical idea:** The endpoint of one straight segment becomes the starting point of the next straight segment.
+
+The browser reset points are:
+
+```text
+A = (120, 90)
+B = (520, 90)
+C = (650, 215)
+D = (520, 340)
+E = (120, 340)
+```
+
+The command sequence is:
+
+```text
+Path()
+moveTo(A)
+lineTo(B)
+lineTo(C)
+lineTo(D)
+lineTo(E)
+close()
+```
+
+The command meanings are:
+
+```text
+moveTo(A)
+→ set current point to A
+→ add no visible segment
+
+lineTo(B)
+→ append A → B
+→ set current point to B
+
+close()
+→ append stored segment E → A
+→ make the explicit boundary closed
+```
+
+The main value trace is:
+
+```text
+current point B = (520, 90)
+target C = (650, 215)
+operation = lineTo(C)
+output segment = B → C
+new current point = C
+```
+
+Point C is shared by B → C and C → D. Moving C changes those two segments and leaves A → B, D → E, and E → A fixed.
+
+The browser model includes:
+
+- seven exact sequence states from an empty path through `close()`;
+- Back, Next, direct-step, and reset controls;
+- an adjustable point-C X coordinate with exact presets;
+- empty, open, and closed boundary states;
+- an explicit missing E → A guide before closure;
+- a teaching fill revealed after explicit closure;
+- an explicit comparison between stored closure, stroke output, and fill-style implicit closure;
+- short A-through-E labels inside the SVG;
+- synchronized external current-point, segment-count, and boundary-status readouts;
+- a prediction, coding challenge, four hidden-answer exercises, and completion record.
+
+The primary SVG is capped at `820 × 430` CSS pixels.
+
+Android reset values:
+
+```text
+Canvas = 320.dp × 220.dp
+A = (28.dp, 32.dp)
+B = (220.dp, 32.dp)
+C = (280.dp, 110.dp)
+D = (220.dp, 188.dp)
+E = (28.dp, 188.dp)
+```
+
+The Android implementation converts the dp coordinates to Canvas-local px, builds or reuses one `Path` for the current command step, and draws it with `drawPath`:
+
+```text
+dp coordinates
+→ LocalDensity conversion
+→ moveTo / lineTo / close
+→ Path object for the current step
+→ teaching fill revealed after explicit closure
+→ drawPath inspection stroke from stored segments
+```
+
+Changed Android files:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter04/Chapter04Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter04/PathsExplorer.kt
+```
+
+Lesson 4.5 is complete only when:
+
+- [ ] The Android files compile and run on the Pixel 8 Pro.
+- [ ] Both preview levels render in light and dark modes.
+- [ ] The learner can define path, current point, segment, and closed boundary.
+- [ ] The learner can explain why `moveTo` adds no segment.
+- [ ] The learner can trace one `lineTo` operation.
+- [ ] The learner can identify the segment added by `close()`.
+- [ ] The learner can explain why moving C changes two adjacent segments.
+- [ ] The prediction, coding challenge, and exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 33 of 216.
+Next lesson becomes 4.6 — Cubic Bézier curves.
+```
+
