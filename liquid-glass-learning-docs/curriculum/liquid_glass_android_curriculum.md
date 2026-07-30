@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 4.3.0  
+**Version:** 4.4.0  
 **Updated:** 2026-07-30  
-**Current course position:** Lessons 1.1 through 4.2 are complete by learner confirmation. **30 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.3 is generated and is both the next unresolved checkpoint and the generated frontier.  
+**Current course position:** Lessons 1.1 through 4.3 are complete by learner confirmation. **31 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.4 is generated and is both the next unresolved checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -10,7 +10,21 @@
 
 ---
 
-## 1. What changed through version 4.3.0
+## 1. What changed through version 4.4.0
+
+Version 4.4.0 records completion of Lesson 4.3 and generates Lesson 4.4:
+
+- The learner proceeded without a remaining Lesson 4.3 issue, so Lesson 4.3 is learner-confirmed complete.
+- Learner-confirmed course completion is now **31 of 216 lessons**.
+- Lesson 4.4 defines concentric corner curves as circular corner curves that share one center.
+- One outer rounded rectangle is inset by equal left, top, right, and bottom padding.
+- The inner radius is derived only after the outer center and inner edges are known: `inner radius = outer radius - uniform padding`.
+- The reset browser geometry uses outer radius `90`, padding `30`, and inner radius `60`, preserving center `(200, 125)`.
+- Copying radius `90` after the inner edges move creates center `(230, 155)`, exposing the defect numerically and visually.
+- The interaction is capped at `820 × 430` CSS pixels and keeps complete bounds, radii, centers, and center shift in synchronized readouts.
+- The radius-zero boundary is explicit. Padding larger than the outer radius cannot produce a circular concentric inner curve with a non-negative radius.
+- Android changes: `Chapter04Screen.kt` and new `ConcentricCornersExplorer.kt`, with complete-screen and direct-child previews in both OS themes.
+- No new `AGENTS.md` policy is added; the clean Lesson 4.3 progression reinforces existing gates.
 
 Version 1.0 placed the complete Chapter 1 teaching text and its large Compose example inside this master Markdown file. That was a bundled-document structure.
 
@@ -3219,3 +3233,123 @@ Course progress becomes 31 of 216.
 Next lesson becomes 4.4 — Concentric corners.
 ```
 
+
+
+## 12L. Lesson 4.4 implementation record
+
+### `lesson-04-04-concentric-corners.html`
+
+**New graphics idea:** Two circular corner curves are concentric when they share one center point.
+
+**Mathematical idea:** When matching inner edges move inward by one uniform padding value, subtract that value from the outer radius to preserve the corner center.
+
+Browser reset geometry:
+
+```text
+outer left = 110
+outer top = 35
+outer width = 600
+outer height = 360
+outer radius = 90
+uniform padding = 30
+```
+
+The known outer top-left center is:
+
+```text
+outer center X = 110 + 90 = 200
+outer center Y = 35 + 90 = 125
+```
+
+The inner bounds are:
+
+```text
+inner left = 110 + 30 = 140
+inner top = 35 + 30 = 65
+inner width = 600 - 30 - 30 = 540
+inner height = 360 - 30 - 30 = 300
+```
+
+The shared-center requirement derives the radius:
+
+```text
+horizontal inner radius = 200 - 140 = 60
+vertical inner radius = 125 - 65 = 60
+
+inner radius = outer radius - uniform padding
+             = 90 - 30
+             = 60
+```
+
+The correct inner center is:
+
+```text
+(140 + 60, 65 + 60) = (200, 125)
+```
+
+Copying the outer radius creates:
+
+```text
+wrong inner center = (140 + 90, 65 + 90)
+                   = (230, 155)
+center shift = (+30, +30)
+```
+
+The browser model includes:
+
+- a padding slider from `0` through `90`;
+- exact padding presets;
+- a concentric mode and a copied-radius defect mode;
+- optional construction circles and radius lines;
+- synchronized external bounds, radius, center, shift, and status readouts;
+- a compact eight-step corner derivation;
+- a padding-change prediction;
+- a coding challenge that repairs a copied radius;
+- four hidden-answer exercises;
+- a copyable completion record.
+
+The primary diagram is capped at `820 × 430` CSS pixels. Full coordinate text remains outside the geometry.
+
+At padding equal to the outer radius, the inner radius becomes zero and the inner corner becomes sharp. Padding beyond the outer radius would require a negative circular radius, so the controlled concentric-curve contract ends there.
+
+Android values:
+
+```text
+Canvas = 320.dp × 280.dp
+outer left = 20.dp
+outer top = 28.dp
+outer width = 280.dp
+outer height = 224.dp
+outer radius = 56.dp
+reset padding = 20.dp
+reset inner radius = 36.dp
+shared top-left center = (76.dp, 84.dp)
+```
+
+Changed Android files:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter04/Chapter04Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter04/ConcentricCornersExplorer.kt
+```
+
+The Android explorer applies the same derived radius to `RoundedCornerShape` and `drawRoundRect`. It also includes a deliberate copied-radius mode so the center shift can be inspected directly.
+
+Lesson 4.4 is complete only when:
+
+- [ ] The Android files compile and run on the Pixel 8 Pro.
+- [ ] Both preview levels render in light and dark modes.
+- [ ] The learner can define concentric corner curves and uniform padding.
+- [ ] The learner can calculate the inner bounds.
+- [ ] The learner can derive the inner radius from the shared center.
+- [ ] The learner can explain the copied-radius defect.
+- [ ] The learner can explain the radius-zero boundary.
+- [ ] The prediction, coding challenge, and exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 32 of 216.
+Next lesson becomes 4.5 — Paths.
+```

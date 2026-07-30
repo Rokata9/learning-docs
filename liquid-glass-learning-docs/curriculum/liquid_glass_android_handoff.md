@@ -1,8 +1,8 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 4.3.0  
+**Course plan version:** 4.4.0  
 **Updated:** 2026-07-30  
-**Current position:** Lessons 1.1 through 4.2 are complete by learner confirmation. **30 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.3 is generated and is both the next unresolved checkpoint and the generated frontier.
+**Current position:** Lessons 1.1 through 4.3 are complete by learner confirmation. **31 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.4 is generated and is both the next unresolved checkpoint and the generated frontier.
 
 ## Permanent course rules
 
@@ -1370,3 +1370,135 @@ Course progress becomes 31 of 216.
 Next lesson becomes 4.4 — Concentric corners.
 ```
 
+
+
+---
+
+## Latest authoritative status — Lesson 4.3 complete; Lesson 4.4 generated
+
+The learner requested the next lesson without reporting a remaining Lesson 4.3 question, correction, or test problem. Lesson 4.3 is therefore learner-confirmed complete.
+
+```yaml
+learner_confirmed_completed_total: 31
+completed_through: "Lesson 4.3"
+chapter_04_completed_by_learner: false
+lesson_04_03_completed_by_learner: true
+lesson_04_04_generated: true
+lesson_04_04_completed_by_learner: false
+next_unresolved_checkpoint: "Lesson 4.4"
+generated_frontier: "Lesson 4.4"
+next_after_completion: "Lesson 4.5 — Paths"
+```
+
+### Lesson-feedback review
+
+The learner's clean progression confirms that Lesson 4.3's compact geometry, external exact-value readouts, circle-limit state, and direct radius derivation were understandable. This reinforces existing rules rather than revealing a new reusable rule. `AGENTS.md` remains unchanged.
+
+### Lesson 4.4 — Concentric corners
+
+The lesson starts from the corner-center model taught in Lesson 4.2. It places one rounded rectangle inside another using equal left, top, right, and bottom padding.
+
+Browser reset values:
+
+```text
+outer left = 110
+outer top = 35
+outer width = 600
+outer height = 360
+outer radius = 90
+uniform padding = 30
+```
+
+The outer top-left curve center is:
+
+```text
+(110 + 90, 35 + 90) = (200, 125)
+```
+
+The inner bounds are:
+
+```text
+inner left = 110 + 30 = 140
+inner top = 35 + 30 = 65
+inner width = 600 - 2 * 30 = 540
+inner height = 360 - 2 * 30 = 300
+```
+
+The inner radius is derived from the requirement that the inner curve use the same center:
+
+```text
+inner radius X = 200 - 140 = 60
+inner radius Y = 125 - 65 = 60
+
+inner radius = outer radius - uniform padding
+             = 90 - 30
+             = 60
+```
+
+The correct inner center is `(200, 125)`. Copying the outer radius `90` instead produces `(230, 155)`, so the center shifts by the padding on both axes.
+
+The browser interaction varies padding from `0` through `90`, switches between the concentric rule and the copied-radius defect, exposes construction circles and radius lines, and displays all exact values in synchronized external readouts. The SVG is capped at `820 × 430` CSS pixels.
+
+At padding `90`, the required inner radius is `0`. The inner boundary remains valid but has sharp corners. For padding larger than the outer radius, the required circular radius would be negative; clamping to zero would produce valid geometry but would not preserve a curved concentric pair.
+
+Android controlled values:
+
+```text
+Canvas = 320.dp × 280.dp
+outer bounds = left 20.dp, top 28.dp, width 280.dp, height 224.dp
+outer radius = 56.dp
+reset padding = 20.dp
+reset inner radius = 36.dp
+shared top-left center = (76.dp, 84.dp)
+```
+
+The Android explorer supplies the derived radius to both:
+
+```text
+RoundedCornerShape(innerRadiusDp.dp)
+```
+
+and:
+
+```text
+CornerRadius(innerRadiusPx, innerRadiusPx)
+drawRoundRect(...)
+```
+
+Changed Android files:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter04/Chapter04Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter04/ConcentricCornersExplorer.kt
+```
+
+### Explicit deferrals
+
+Lesson 4.4 does not teach:
+
+- unequal horizontal and vertical padding;
+- elliptical or per-corner radius contracts;
+- custom paths;
+- clipping or masks;
+- antialiasing or physical-pixel coverage.
+
+### Lesson 4.4 checkpoint
+
+Lesson 4.4 is complete only when:
+
+- [ ] The Android patch builds and opens Lesson 4.4 on the Pixel 8 Pro.
+- [ ] Full-screen and direct-child previews render in light and dark modes.
+- [ ] The learner can define uniform padding and concentric corner curves.
+- [ ] The learner can calculate all four inner bounds.
+- [ ] The learner can derive the inner radius from the shared center.
+- [ ] The learner can explain why copying the outer radius shifts the center.
+- [ ] The learner can explain the radius-zero boundary and the validity limit.
+- [ ] The prediction, coding challenge, and four exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 32 of 216.
+Next lesson becomes 4.5 — Paths.
+```

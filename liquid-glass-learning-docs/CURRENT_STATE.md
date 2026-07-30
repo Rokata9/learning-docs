@@ -1,74 +1,91 @@
 # Liquid Glass Android course — current state
 
-**Authoritative learner-confirmed progress:** 30 of 216 lessons completed.
+**Authoritative learner-confirmed progress:** 31 of 216 lessons completed.
 
 ## Completed
 
 - Chapters 1, 2, and 3 are complete.
 - Lesson 4.1 — Rectangles and circles is complete.
-- Lesson 4.2 — Rounded rectangles is complete by the learner's explicit completion statement after the visual-layout correction.
-- The latest completed lesson is **4.2 — Rounded rectangles**.
+- Lesson 4.2 — Rounded rectangles is complete.
+- Lesson 4.3 — Capsules is complete by the learner's progression without a remaining question.
+- The latest completed lesson is **4.3 — Capsules**.
 
 ## Not completed
 
-- **Lesson 4.3 — Capsules** is generated and is the current learner checkpoint.
-- Chapter 4 remains in progress. Lessons 4.3 through 4.11 are not complete.
+- **Lesson 4.4 — Concentric corners** is generated and is the current learner checkpoint.
+- Chapter 4 remains in progress. Lessons 4.4 through 4.11 are not complete.
 
 ## Course pointers
 
-- **Next unresolved learner checkpoint:** Lesson 4.3.
-- **Generated frontier:** Lesson 4.3.
-- **Next planned lesson after explicit Lesson 4.3 completion:** Lesson 4.4 — Concentric corners.
+- **Next unresolved learner checkpoint:** Lesson 4.4.
+- **Generated frontier:** Lesson 4.4.
+- **Next planned lesson after explicit Lesson 4.4 completion:** Lesson 4.5 — Paths.
 
-## Lesson 4.3 model
+## Lesson 4.4 model
 
-Lesson 4.3 starts from the maximum controlled radius reached in Lesson 4.2.
+Lesson 4.4 starts from the rounded-corner center calculation taught in Lesson 4.2 and places one rounded rectangle inside another.
 
 The browser reset values use SVG-local teaching units:
 
 ```text
-left = 120
-center Y = 210
-height = 260
-width = 520
-radius = height / 2 = 130
+outer left = 110
+outer top = 35
+outer width = 600
+outer height = 360
+outer radius = 90
+uniform padding = 30
 ```
 
-The capsule contract is:
+The outer top-left curve center is:
 
 ```text
-horizontal capsule requires width >= height
-radius = height / 2
-vertical straight side = height - 2 * radius = 0
-long straight span = width - 2 * radius = width - height
+outer center
+= (outer left + outer radius, outer top + outer radius)
+= (110 + 90, 35 + 90)
+= (200, 125)
 ```
 
-For the reset values:
+The inner bounds begin at:
 
 ```text
-left end center = (120 + 130, 210) = (250, 210)
-right edge = 120 + 520 = 640
-right end center = (640 - 130, 210) = (510, 210)
-long straight span = 520 - 260 = 260
+inner left = 110 + 30 = 140
+inner top = 35 + 30 = 65
+inner width = 600 - 2 * 30 = 540
+inner height = 360 - 2 * 30 = 300
 ```
 
-The browser varies only width from `260` through `600`. Height remains `260`, so radius remains `130`. At width `260`, the two end centers meet and the boundary reaches the circle limit. The diagram replaces the coincident `L` and `R` labels with one `L = R` marker so the correct boundary state does not create overlapping text.
+To preserve the same corner center:
+
+```text
+inner radius
+= outer radius - uniform padding
+= 90 - 30
+= 60
+
+inner center
+= (140 + 60, 65 + 60)
+= (200, 125)
+```
+
+Copying the outer radius instead produces inner center `(230, 155)`, a shift of `(30, 30)`.
+
+The interactive model varies padding from `0` through `90`, compares the concentric radius with the copied-radius defect, and exposes the radius-zero boundary at padding `90`. The primary diagram is capped at `820 × 430` CSS pixels, and complete coordinates remain in synchronized readouts outside the geometry.
 
 The Android explorer uses:
 
 ```text
-fixed height = 120.dp
-derived radius = 60.dp
-adjustable width = 120.dp through 280.dp
-reset width = 240.dp
-reset long straight span = 120.dp
+outer Canvas bounds = 280.dp × 224.dp
+outer radius = 56.dp
+reset padding = 20.dp
+reset inner radius = 36.dp
+outer and inner top-left center = (76.dp, 84.dp)
 ```
 
-It applies the same derived radius to `RoundedCornerShape` and to `drawRoundRect` through `CornerRadius(radiusPx, radiusPx)`. At the `120.dp` circle limit, the two end-guide circles coincide, so the Canvas overlay draws that visible guide and center only once.
+It applies the same derived radius to `RoundedCornerShape` and to `drawRoundRect` through `CornerRadius(innerRadiusPx, innerRadiusPx)`.
 
 ## Lesson-feedback review
 
-The learner completed Lesson 4.2 after the compact visual correction and reported no remaining issue. This reinforces the existing interactive-geometry footprint and label-separation rule. It does not reveal a new reusable policy, so `AGENTS.md` is unchanged in the Lesson 4.3 delivery.
+The learner proceeded from Lesson 4.3 without a question or correction. This confirms that the capsule lesson's compact geometry, external readouts, boundary state, and exact radius derivation were understandable. The message does not reveal a new reusable policy beyond the existing beginner-first, formula-reveal, and interactive-geometry gates, so `AGENTS.md` is unchanged.
 
 ## Delivery rules
 
