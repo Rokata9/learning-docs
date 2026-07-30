@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 4.6 — Cubic Bézier curves</title>
+<style>
+:root{
+  color-scheme:light dark;
+  --ink:#172033;--muted:#596579;--line:#d8e0ea;--paper:#fff;--soft:#f5f7fb;
+  --panel:#fbfcfe;--control:#fff;--green:#059669;--green-soft:#ecfdf5;
+  --indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;
+  --pink:#be185d;--pink-soft:#fce7f3;--blue:#1e40af;--blue-soft:#dbeafe;
+  --red:#dc2626;--red-soft:#fee2e2;--body-start:#f8fafc;--body-end:#edf2f7;
+  --shadow:0 18px 52px rgba(30,41,59,.09);--code-bg:#111827;--code-ink:#e5e7eb
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --ink:#e7edf7;--muted:#aeb9c9;--line:#354154;--paper:#111827;--soft:#172033;
+    --panel:#151e2d;--control:#1b2535;--green:#34d399;--green-soft:#0b3429;
+    --indigo:#a5b4fc;--indigo-soft:#23234a;--amber:#fbbf24;--amber-soft:#402d0a;
+    --pink:#f472b6;--pink-soft:#43172d;--blue:#60a5fa;--blue-soft:#172d54;
+    --red:#f87171;--red-soft:#491b20;--body-start:#0b111c;--body-end:#101827;
+    --shadow:0 18px 52px rgba(0,0,0,.32);--code-bg:#080d16;--code-ink:#e5e7eb
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--body-start),var(--body-end));font:16px/1.66 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+a{color:var(--blue)}button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.55}
+code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}code{background:var(--indigo-soft);padding:.12em .36em;border-radius:6px}
+.page{width:min(1880px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}
+.topbar{display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:22px}.crumbs{color:var(--muted)}
+.chips{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:850}.chip.progress{color:var(--green);background:var(--green-soft)}.chip.pending{color:var(--amber);background:var(--amber-soft)}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+.hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(410px,.65fr);gap:28px;padding:40px}.eyebrow{color:var(--green);font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+h1{margin:.35rem 0 1rem;font-size:clamp(42px,4vw,68px);line-height:1.04;letter-spacing:-.045em}h2{margin:0 0 .7rem;font-size:30px;line-height:1.18}h3{margin:0 0 .5rem;font-size:21px;line-height:1.25}p{max-width:112ch}.lead{font-size:19px;color:var(--muted)}
+.goal{padding:22px;border-radius:18px;border:1px solid color-mix(in srgb,var(--indigo) 35%,var(--line));background:var(--indigo-soft)}.goal strong{color:var(--indigo)}
+.section{margin-top:24px;padding:30px}.section-head{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:20px}.section-head p{margin:0;color:var(--muted)}.section-no{color:var(--indigo);font-weight:900;letter-spacing:.04em}
+.card{padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}.card.green{background:var(--green-soft);border-color:color-mix(in srgb,var(--green) 45%,var(--line))}.card.amber{background:var(--amber-soft);border-color:color-mix(in srgb,var(--amber) 45%,var(--line))}.card.blue{background:var(--blue-soft);border-color:color-mix(in srgb,var(--blue) 45%,var(--line))}.card.indigo{background:var(--indigo-soft);border-color:color-mix(in srgb,var(--indigo) 45%,var(--line))}.card.red{background:var(--red-soft);border-color:color-mix(in srgb,var(--red) 45%,var(--line))}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}.four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.note,.warning,.success{margin-top:17px;padding:15px 17px;border-radius:13px}.note{border-left:5px solid var(--blue);background:var(--blue-soft)}.warning{border-left:5px solid var(--amber);background:var(--amber-soft)}.success{border-left:5px solid var(--green);background:var(--green-soft)}
+.formula{padding:14px 16px;border-radius:13px;background:var(--indigo-soft);border:1px solid color-mix(in srgb,var(--indigo) 45%,var(--line));font:800 15px/1.62 "SFMono-Regular",Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+.primary,.secondary,.preset,.step-dot{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:850}.primary{border:1px solid var(--blue);background:var(--blue);color:#fff}.secondary,.preset,.step-dot{border:1px solid var(--line);background:var(--control);color:var(--ink)}.secondary:hover,.preset:hover,.step-dot:hover{border-color:#94a3b8;background:var(--soft)}.selected{border-color:var(--indigo)!important;background:var(--indigo-soft)!important;color:var(--indigo)!important}.controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.lab{display:grid;grid-template-columns:minmax(720px,820px) minmax(500px,1fr);gap:20px;align-items:start;justify-content:center}.stage{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:18px;min-width:0}.curve-frame{border:1px solid var(--line);border-radius:17px;background:var(--soft);overflow:hidden;display:grid;place-items:center}.curve-frame svg{display:block;width:min(100%,820px);height:auto;touch-action:none}.drag-hint{text-align:center;color:var(--muted);margin:10px 0 0}.toggle-list{display:grid;gap:7px;margin-top:14px}.toggle{display:flex;gap:9px;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:11px;background:var(--control)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:12px}.legend-item{display:flex;gap:7px;align-items:center;font-weight:800}.legend-shape{display:inline-block;width:16px;height:16px;border:3px solid currentColor}.legend-shape.start{color:var(--green);background:var(--green)}.legend-shape.c1{color:var(--amber);background:var(--amber);border-radius:50%}.legend-shape.c2{color:var(--pink);background:var(--pink);border-radius:50%}.legend-shape.end{color:var(--blue);background:var(--blue);transform:rotate(45deg)}.legend-shape.mid{color:var(--red);background:transparent;border-radius:50%}
+.readouts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:11px;margin-top:15px}.metric{padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--control)}.metric strong{display:block;color:var(--indigo);margin-bottom:4px}.metric .mono{font-size:14px}
+.command-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.command-card{padding:15px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}.command-card strong{color:var(--indigo);display:block;margin-bottom:6px}
+.stepper{display:grid;grid-template-columns:minmax(620px,700px) minmax(520px,1fr);gap:18px;align-items:start}.step-figure{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:10px;display:grid;place-items:center;min-width:0}.step-figure svg{display:block;width:min(100%,640px);height:auto}.step-card{border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden;min-width:0}.step-nav{padding:12px;display:flex;gap:7px;flex-wrap:wrap;border-bottom:1px solid var(--line)}.step-body{padding:18px}.step-title{font-size:22px;font-weight:900}.step-caption{min-height:68px}.step-card .formula{max-height:236px;overflow:auto}
+.pipeline{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.pipeline .card{min-height:190px}.pipeline strong{display:block;color:var(--indigo);margin-bottom:7px}
+.challenge{display:grid;grid-template-columns:minmax(650px,1fr) minmax(480px,.72fr);gap:18px}.editor{width:100%;min-height:260px;resize:vertical;background:var(--code-bg);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace}.challenge-preview{padding:17px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}.challenge-preview svg{display:block;width:100%;height:auto;max-height:280px}.result{min-height:54px;margin-top:12px;padding:12px;border-radius:11px;background:var(--soft)}
+details{margin:10px 0;border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:13px 15px}summary{cursor:pointer;font-weight:900}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.check{display:flex;gap:9px;align-items:flex-start;padding:11px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}.record{width:100%;min-height:300px;resize:vertical;background:var(--code-bg);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace}
+.footer-nav{margin-top:24px;padding:18px 24px;display:flex;justify-content:space-between;gap:18px;align-items:center}.footer-nav a{font-weight:900}.footer-nav span{color:var(--muted)}
+.svg-axis{font:800 14px system-ui}.svg-step-label{font:900 14px system-ui}.svg-step-small{font:800 12px "SFMono-Regular",Consolas,monospace}
+@media(max-width:1500px){.hero,.lab,.stepper,.challenge{grid-template-columns:1fr}.readouts{grid-template-columns:repeat(3,minmax(0,1fr))}.pipeline{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1050px){.two,.three,.four,.command-grid{grid-template-columns:1fr}.readouts{grid-template-columns:repeat(2,minmax(0,1fr))}.checklist{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="page">
+<nav class="topbar">
+  <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-shapes-corners-paths-and-masks.html">Chapter 4</a> · Lesson 4.6</div>
+  <div class="chips"><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span><span class="chip progress">Completed · 4.6</span><span class="chip progress">34 of 216 complete</span></div>
+</nav>
+<header class="hero panel">
+  <div>
+    <div class="eyebrow">Chapter 4 · Shapes, corners, paths, and masks</div>
+    <h1>Lesson 4.6 — Cubic Bézier curves</h1>
+    <p class="lead"><strong>Lesson 4.5 built a <code>Path</code> from straight <code>lineTo</code> segments.</strong> A straight segment cannot make the side of a glass control bow smoothly. This lesson replaces one straight segment with one curved segment.</p>
+    <div class="goal"><strong>Practical question</strong><p>How can one path segment start at a known point, end at another known point, and bend through the space between them without adding many hand-written straight segments?</p></div>
+  </div>
+  <aside class="card green"><h2>One new graphics idea</h2><p>A <strong>cubic Bézier curve</strong> is one curved path segment defined by a start point, two <strong>control points</strong>, meaning guide positions that bend the segment, and an end point.</p><p>The general curve equation is deliberately deferred. This lesson calculates one exact point at halfway by repeatedly taking midpoints, using the center arithmetic already learned in Chapter 2.</p></aside>
+</header>
+
+<section class="section panel" id="fit">
+  <div class="section-head"><div><div class="section-no">0 · WHERE THIS LESSON FITS</div><h2>Keep the Path; change one segment type</h2></div><p>Nothing in this lesson changes clipping, filling, masks, or antialiasing.</p></div>
+  <div class="two">
+    <article class="card"><h3>Completed Lesson 4.5 object</h3><div class="formula">Path()
+moveTo(start)
+lineTo(end)</div><p>The path stores one straight segment from its current point to the supplied end point.</p></article>
+    <article class="card indigo"><h3>New Lesson 4.6 object</h3><p>The same <code>Path</code> stores one curved segment instead of one straight segment. Two new guide positions bend the segment while the start and end remain explicit.</p><p>The next two sections define those guide positions before the new Path command appears.</p></article>
+  </div>
+</section>
+
+<section class="section panel" id="see">
+  <div class="section-head"><div><div class="section-no">1 · WHAT YOU WILL SEE</div><h2>Four movable points produce one curve</h2></div></div>
+  <p>The start and end positions stay on the curve. Two movable guide positions influence the bend between them. The next section names those guide positions <strong>control points</strong> and defines their exact role.</p>
+  <div class="note"><strong>Visible comparison:</strong> the optional dashed straight line connects the same start and end. It shows exactly what the completed Lesson 4.5 <code>lineTo(end)</code> would draw.</div>
+</section>
+
+<section class="section panel" id="terms">
+  <div class="section-head"><div><div class="section-no">2 · TERMS</div><h2>Define every point before the command</h2></div></div>
+  <div class="four">
+    <article class="card green"><h3>Start point</h3><p>The current point already stored by the path. The curved segment begins here.</p></article>
+    <article class="card amber"><h3>First control point</h3><p>A guide position that influences the beginning of the curve. It does not become the path's current point.</p></article>
+    <article class="card"><h3>Second control point</h3><p>A guide position that influences the ending part of the curve. It also does not become the current point.</p></article>
+    <article class="card blue"><h3>End point</h3><p>The position where the segment finishes. After <code>cubicTo</code>, this becomes the new current point.</p></article>
+  </div>
+  <div class="three" style="margin-top:17px">
+    <article class="card"><h3>Control guide</h3><p>A dashed teaching line from an endpoint to its nearby control point. It makes the inputs visible. The guide is not stored as part of the path.</p></article>
+    <article class="card"><h3>Cubic Bézier</h3><p>The curve variant used here: one start endpoint, two control points, and one end endpoint. The word <em>cubic</em> names this curve family. Polynomial-degree mathematics is not required in this lesson.</p></article>
+    <article class="card"><h3><code>cubicTo</code></h3><p>The Path command that appends one cubic Bézier segment. It receives control 1, control 2, and end. The already-stored current point supplies the start.</p></article>
+  </div>
+</section>
+
+<section class="section panel" id="interactive">
+  <div class="section-head"><div><div class="section-no">3 · INTERACTIVE EXPLANATION</div><h2>Drag the four inputs</h2></div><p>The geometry is capped at 820 × 430 CSS pixels so it stays beside its controls at 1920×1080.</p></div>
+  <div class="lab">
+    <div class="stage">
+      <div class="curve-frame"><svg id="curveSvg" viewBox="0 0 820 430" role="img" aria-label="Interactive cubic Bézier curve with draggable start, control, and end points"></svg></div>
+      <p class="drag-hint">Drag any marker. Keyboard users can focus a marker and use the arrow keys.</p>
+      <div class="legend" aria-label="Point legend">
+        <span class="legend-item"><span class="legend-shape start"></span>Start · square</span>
+        <span class="legend-item"><span class="legend-shape c1"></span>Control 1 · circle</span>
+        <span class="legend-item"><span class="legend-shape c2"></span>Control 2 · circle</span>
+        <span class="legend-item"><span class="legend-shape end"></span>End · diamond</span>
+        <span class="legend-item"><span class="legend-shape mid"></span>Halfway point · outlined circle</span>
+      </div>
+    </div>
+    <aside class="stage">
+      <h3>Exact geometry presets</h3>
+      <div class="controls" id="presetButtons">
+        <button class="preset selected" data-preset="arch">Course arch</button>
+        <button class="preset" data-preset="straight">Straight boundary</button>
+        <button class="preset" data-preset="sCurve">S-shaped curve</button>
+        <button class="preset" data-preset="valley">Downward valley</button>
+      </div>
+      <div class="toggle-list">
+        <label class="toggle"><input id="showGuides" type="checkbox" checked>Show endpoint-to-control guides</label>
+        <label class="toggle"><input id="showChord" type="checkbox" checked>Show the straight start-to-end comparison</label>
+        <label class="toggle"><input id="showHalfway" type="checkbox" checked>Show the repeated-halfway construction</label>
+      </div>
+      <div class="formula" id="commandFormula" style="margin-top:15px"></div>
+      <div class="note"><strong>Command boundary:</strong> <code>cubicTo</code> receives the two control points and the end point. The start is not repeated in the call because the path already stores it as the current point.</div>
+    </aside>
+  </div>
+  <div class="readouts">
+    <div class="metric"><strong>Start</strong><span class="mono" id="startReadout"></span></div>
+    <div class="metric"><strong>Control 1</strong><span class="mono" id="control1Readout"></span></div>
+    <div class="metric"><strong>Control 2</strong><span class="mono" id="control2Readout"></span></div>
+    <div class="metric"><strong>End / new current point</strong><span class="mono" id="endReadout"></span></div>
+    <div class="metric"><strong>Halfway curve point</strong><span class="mono" id="midReadout"></span></div>
+  </div>
+</section>
+
+<section class="section panel" id="trace">
+  <div class="section-head"><div><div class="section-no">4 · TRACE ONE VALUE</div><h2>Find the curve point exactly halfway</h2></div><p>No general Bézier formula is needed for this one fixed position.</p></div>
+  <p>A <strong>midpoint</strong> is halfway between two positions. Its X coordinate is the average of the two X values. Its Y coordinate is the average of the two Y values.</p>
+  <div class="formula">midpoint X = (first X + second X) ÷ 2
+midpoint Y = (first Y + second Y) ÷ 2</div>
+  <p>The default course points are:</p>
+  <div class="formula">start     = (120, 300)
+control 1 = (280, 100)
+control 2 = (540, 100)
+end       = (700, 300)</div>
+  <div class="stepper" style="margin-top:18px">
+    <div class="step-figure"><svg id="stepSvg" viewBox="0 0 640 360" role="img" aria-label="Repeated midpoint construction for the halfway point of the cubic Bézier curve"></svg></div>
+    <div class="step-card">
+      <div class="step-nav" id="stepNav"></div>
+      <div class="step-body">
+        <div class="step-title" id="stepTitle"></div>
+        <p class="step-caption" id="stepCaption"></p>
+        <div class="formula" id="stepFormula"></div>
+        <div class="controls" style="margin-top:15px"><button class="secondary" id="stepBack">Back</button><button class="primary" id="stepNext">Next</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="success"><strong>Default output:</strong> the exact curve point at halfway is <code>(410, 150)</code>. The straight start-to-end comparison is at Y = 300, so the curve's halfway point is 150 units higher in Android-style coordinates because smaller Y values are nearer the top.</div>
+  <div class="warning"><strong>Deliberate deferral:</strong> a general position along the curve is usually described by a progress value from 0 through 1. Progress and linear interpolation are taught in Chapter 5. This lesson uses only the already-known halfway case.</div>
+</section>
+
+<section class="section panel" id="android">
+  <div class="section-head"><div><div class="section-no">5 · ANDROID CONNECTION</div><h2>Map the four points into Compose <code>Path</code></h2></div><p>Complete source remains in Android Studio and the incremental Android ZIP.</p></div>
+  <div class="command-grid">
+    <article class="command-card"><strong>1 · Current point</strong><div class="formula">path.moveTo(
+    start.x,
+    start.y,
+)</div><p>The path now stores the start as its current point. No visible segment exists yet.</p></article>
+    <article class="command-card"><strong>2 · Curved segment</strong><div class="formula">path.cubicTo(
+    control1.x, control1.y,
+    control2.x, control2.y,
+    end.x, end.y,
+)</div><p>The six supplied numbers describe two control points and one end point.</p></article>
+    <article class="command-card"><strong>3 · Draw stored geometry</strong><div class="formula">drawPath(
+    path = path,
+    style = Stroke(...),
+)</div><p>The Canvas draws the stored curved segment. After <code>cubicTo</code>, the path's current point is the end point.</p></article>
+  </div>
+  <div class="pipeline" style="margin-top:17px">
+    <article class="card"><strong>1 · dp inputs</strong><p>Start, two controls, and end are stored as controlled teaching coordinates.</p></article>
+    <article class="card"><strong>2 · Canvas-local px</strong><p>Each dp coordinate is converted at runtime with the current density.</p></article>
+    <article class="card"><strong>3 · <code>moveTo</code></strong><p>The start becomes the path's current point.</p></article>
+    <article class="card"><strong>4 · <code>cubicTo</code></strong><p>The two controls and end append one curved segment.</p></article>
+    <article class="card"><strong>5 · <code>drawPath</code></strong><p>The drawing operation consumes the completed path.</p></article>
+    <article class="card"><strong>6 · Construction overlay</strong><p>Separate guide lines and midpoint markers explain the inputs. They are not part of the curve path.</p></article>
+  </div>
+  <div class="note"><strong>Android reset geometry:</strong> drawing surface <code>320.dp × 240.dp</code>; start <code>(24.dp, 190.dp)</code>; control 1 <code>(92.dp, 46.dp)</code>; control 2 <code>(228.dp, 46.dp)</code>; end <code>(296.dp, 190.dp)</code>. The halfway point is <code>(160.dp, 82.dp)</code>.</div>
+</section>
+
+<section class="section panel" id="predict">
+  <div class="section-head"><div><div class="section-no">6 · PREDICT</div><h2>Which point becomes current?</h2></div></div>
+  <p>The path already has start <code>(120, 300)</code> as its current point. It then runs:</p>
+  <div class="formula">cubicTo(
+    280, 100,
+    540, 100,
+    700, 300,
+)</div>
+  <p>After the command finishes, which position is the new current point?</p>
+  <div class="controls" id="predictionButtons"><button class="preset" data-answer="start">Start (120, 300)</button><button class="preset" data-answer="c1">Control 1 (280, 100)</button><button class="preset" data-answer="c2">Control 2 (540, 100)</button><button class="preset" data-answer="end">End (700, 300)</button><button class="primary" id="checkPrediction">Check prediction</button></div>
+  <div class="result" id="predictionResult">Choose one position, then check.</div>
+</section>
+
+<section class="section panel" id="pixel">
+  <div class="section-head"><div><div class="section-no">7 · RUN ON THE PIXEL 8 PRO</div><h2>Inspect the curve inputs, not edge pixels</h2></div></div>
+  <ol>
+    <li>Apply the Lesson 4.6 Android ZIP and run the app.</li>
+    <li>Confirm that the reset curve begins at the green square and ends at the blue diamond.</li>
+    <li>Drag <strong>Control 1</strong>. Confirm that start and end stay fixed while the curve changes.</li>
+    <li>Drag <strong>Control 2</strong>. Confirm that this guide point also changes the curve without becoming an endpoint.</li>
+    <li>Choose <strong>Straight boundary</strong>. Confirm that the curve lies on the dashed start-to-end comparison when both control points also lie on that line.</li>
+    <li>Enable <strong>Show halfway construction</strong>. Confirm that the final construction marker matches the displayed halfway coordinate.</li>
+    <li>Check the complete chapter screen and direct child previews in both OS theme modes.</li>
+  </ol>
+  <div class="warning"><strong>Do not judge antialiasing yet:</strong> this checkpoint verifies coordinates, command inputs, and the mathematical curve. Lesson 4.9 explains the renderer-created multi-pixel transition around the boundary.</div>
+</section>
+
+<section class="section panel" id="explain">
+  <div class="section-head"><div><div class="section-no">8 · EXPLAIN THE RESULT</div><h2>The controls guide the segment; only endpoints anchor it</h2></div></div>
+  <div class="three">
+    <article class="card green"><h3>Guaranteed on the curve</h3><p>The start and end points are the two endpoints of the stored segment. The curve begins and finishes at those exact coordinates.</p></article>
+    <article class="card amber"><h3>Usually not on the curve</h3><p>The two control points are inputs that bend the segment. The visible curve is not required to pass through either control point.</p></article>
+    <article class="card blue"><h3>Path continuation</h3><p>After <code>cubicTo</code>, the end point becomes current. A following <code>lineTo</code> or another <code>cubicTo</code> starts there.</p></article>
+  </div>
+  <div class="note"><strong>Why this matters for Liquid Glass:</strong> later morphing and custom silhouettes need smooth boundaries whose endpoints remain predictable while intermediate curvature changes. This lesson supplies the geometric vocabulary only; animation is still deferred.</div>
+</section>
+
+<section class="section panel" id="challenge">
+  <div class="section-head"><div><div class="section-no">9 · CODING CHALLENGE</div><h2>Replace the straight segment with a cubic segment</h2></div><p>The starting code ignores both control points.</p></div>
+  <div class="challenge">
+    <div>
+      <textarea class="editor" id="challengeEditor" spellcheck="false">fun buildCurvePath(
+    start: Offset,
+    control1: Offset,
+    control2: Offset,
+    end: Offset,
+): Path = Path().apply {
+    moveTo(start.x, start.y)
+    lineTo(end.x, end.y)
+}</textarea>
+      <div class="controls" style="margin-top:12px"><button class="preset" data-challenge="line">Use lineTo</button><button class="preset" data-challenge="curve">Use cubicTo</button><button class="primary" id="checkChallenge">Check repair</button></div>
+      <div class="result" id="challengeResult">Replace the straight command, then check.</div>
+    </div>
+    <aside class="challenge-preview">
+      <h3>Code-driven preview</h3>
+      <svg id="challengeSvg" viewBox="0 0 560 300" role="img" aria-label="Preview of the coding challenge path"></svg>
+      <div class="formula" id="challengeFormula"></div>
+    </aside>
+  </div>
+</section>
+
+<section class="section panel" id="exercises">
+  <div class="section-head"><div><div class="section-no">10 · EXERCISES</div><h2>Answer before opening the solutions</h2></div></div>
+  <details><summary>Exercise 1 · Identify the six supplied numbers</summary><p>In <code>cubicTo(280, 100, 540, 100, 700, 300)</code>, which pair belongs to control 1, control 2, and the end?</p><details><summary>Show answer</summary><p>Control 1 is <code>(280, 100)</code>. Control 2 is <code>(540, 100)</code>. End is <code>(700, 300)</code>. The start is not supplied because it is already the current point.</p></details></details>
+  <details><summary>Exercise 2 · First midpoint round</summary><p>Using the default course points, calculate the midpoint between start <code>(120, 300)</code> and control 1 <code>(280, 100)</code>.</p><details><summary>Show answer</summary><div class="formula">X = (120 + 280) ÷ 2 = 200
+Y = (300 + 100) ÷ 2 = 200
+midpoint = (200, 200)</div></details></details>
+  <details><summary>Exercise 3 · Diagnostic: must the curve pass through its controls?</summary><p>Does a cubic Bézier curve always pass through control 1 and control 2?</p><details><summary>Show answer</summary><p>No. The curve is guaranteed to pass through the start and end endpoints. The control points guide its shape and usually remain outside the visible curve.</p></details></details>
+  <details><summary>Exercise 4 · Continue the path</summary><p>After the curve ends at <code>(700, 300)</code>, the next command is <code>lineTo(760, 340)</code>. Where does that straight segment begin?</p><details><summary>Show answer</summary><p>It begins at <code>(700, 300)</code> because the cubic end became the current point.</p></details></details>
+</section>
+
+<section class="section panel" id="completion">
+  <div class="section-head"><div><div class="section-no">11 · COMPLETION RECORD</div><h2>Completed checkpoint record</h2></div><p>Lesson 4.6 is learner-confirmed complete.</p></div>
+  <div class="checklist" id="checklist">
+    <label class="check"><input data-check="build" type="checkbox">The Android patch builds and opens Lesson 4.6.</label>
+    <label class="check"><input data-check="previews" type="checkbox">Complete-screen and direct-child previews work in light and dark modes.</label>
+    <label class="check"><input data-check="curve" type="checkbox">I can define a cubic Bézier curve operationally.</label>
+    <label class="check"><input data-check="points" type="checkbox">I can identify start, two controls, and end.</label>
+    <label class="check"><input data-check="current" type="checkbox">I can explain which point is current before and after <code>cubicTo</code>.</label>
+    <label class="check"><input data-check="guides" type="checkbox">I can explain why control guides are not path segments.</label>
+    <label class="check"><input data-check="halfway" type="checkbox">I can reproduce the repeated-midpoint result <code>(410, 150)</code>.</label>
+    <label class="check"><input data-check="straight" type="checkbox">I tested the straight-boundary preset.</label>
+    <label class="check"><input data-check="prediction" type="checkbox">I completed the prediction.</label>
+    <label class="check"><input data-check="challenge" type="checkbox">I repaired the coding challenge.</label>
+    <label class="check"><input data-check="exercises" type="checkbox">I answered all four exercises before opening their answers.</label>
+  </div>
+  <div class="controls" style="margin-top:16px"><button class="primary" id="buildRecord">Build completion record</button><button class="secondary" id="copyRecord">Copy record</button></div>
+  <textarea class="record" id="completionRecord" readonly>Complete the checkpoint, then build the record.</textarea>
+</section>
+
+<section class="section panel" id="sources">
+  <div class="section-head"><div><div class="section-no">12 · SOURCES AND EVIDENCE</div><h2>What the Android API contract supports</h2></div></div>
+  <ul>
+    <li>AndroidX Compose <code>Path</code> exposes <code>moveTo</code>, <code>lineTo</code>, <code>cubicTo</code>, and other path operations.</li>
+    <li>The Android path contract describes a cubic segment as beginning at the current point, approaching two control points, and ending at the supplied final point.</li>
+    <li>Compose <code>drawPath</code> draws the geometry stored in a <code>Path</code>.</li>
+  </ul>
+  <p><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Path">AndroidX Compose Path reference</a> · <a href="https://developer.android.com/develop/ui/compose/graphics/draw/overview">Compose graphics drawing overview</a></p>
+  <div class="warning"><strong>Evidence boundary:</strong> the browser uses SVG's cubic-path command with the same four points. The Android experiment uses Compose <code>Path.cubicTo</code>. The repeated-midpoint construction proves one mathematical point at halfway. This lesson does not claim how the Android renderer internally divides the curve into GPU work, nor how antialiasing assigns partial pixel coverage.</div>
+</section>
+
+<nav class="footer-nav panel"><a href="lesson-04-05-paths.html">← Lesson 4.5 · completed</a><a href="lesson-shapes-corners-paths-and-masks.html">Chapter 4 hub</a><a href="lesson-04-07-clipping.html">Lesson 4.7 · Clipping →</a></nav>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+const f=n=>Number(n).toFixed(Number.isInteger(Number(n))?0:1);
+const pointText=p=>`(${f(p.x)}, ${f(p.y)})`;
+const midpoint=(a,b)=>({x:(a.x+b.x)/2,y:(a.y+b.y)/2});
+const PRESETS={
+  arch:{start:{x:120,y:300},c1:{x:280,y:100},c2:{x:540,y:100},end:{x:700,y:300}},
+  straight:{start:{x:120,y:300},c1:{x:280,y:300},c2:{x:540,y:300},end:{x:700,y:300}},
+  sCurve:{start:{x:120,y:310},c1:{x:290,y:60},c2:{x:520,y:365},end:{x:700,y:120}},
+  valley:{start:{x:120,y:120},c1:{x:280,y:350},c2:{x:540,y:350},end:{x:700,y:120}}
+};
+const state={geometry:JSON.parse(JSON.stringify(PRESETS.arch)),preset:'arch',showGuides:true,showChord:true,showHalfway:true,prediction:null,challengeCorrect:false};
+function halfway(g){
+  const a=midpoint(g.start,g.c1),b=midpoint(g.c1,g.c2),c=midpoint(g.c2,g.end);
+  const d=midpoint(a,b),e=midpoint(b,c),m=midpoint(d,e);
+  return{a,b,c,d,e,m};
+}
+function curveD(g){return`M ${g.start.x} ${g.start.y} C ${g.c1.x} ${g.c1.y} ${g.c2.x} ${g.c2.y} ${g.end.x} ${g.end.y}`;}
+function markerSvg(name,p){
+  if(name==='start')return`<rect data-handle="start" tabindex="0" role="slider" aria-label="Start point" x="${p.x-12}" y="${p.y-12}" width="24" height="24" rx="3" fill="var(--green)" stroke="var(--paper)" stroke-width="4" style="cursor:grab"/>`;
+  if(name==='c1')return`<circle data-handle="c1" tabindex="0" role="slider" aria-label="Control point 1" cx="${p.x}" cy="${p.y}" r="13" fill="var(--amber)" stroke="var(--paper)" stroke-width="4" style="cursor:grab"/>`;
+  if(name==='c2')return`<circle data-handle="c2" tabindex="0" role="slider" aria-label="Control point 2" cx="${p.x}" cy="${p.y}" r="13" fill="var(--pink)" stroke="var(--paper)" stroke-width="4" style="cursor:grab"/>`;
+  return`<polygon data-handle="end" tabindex="0" role="slider" aria-label="End point" points="${p.x},${p.y-15} ${p.x+15},${p.y} ${p.x},${p.y+15} ${p.x-15},${p.y}" fill="var(--blue)" stroke="var(--paper)" stroke-width="4" style="cursor:grab"/>`;
+}
+function constructionSvg(h){
+  return`<g opacity=".9">
+    <polyline points="${h.a.x},${h.a.y} ${h.b.x},${h.b.y} ${h.c.x},${h.c.y}" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-dasharray="7 6"/>
+    <line x1="${h.d.x}" y1="${h.d.y}" x2="${h.e.x}" y2="${h.e.y}" stroke="var(--pink)" stroke-width="3" stroke-dasharray="7 6"/>
+    ${[h.a,h.b,h.c].map(p=>`<circle cx="${p.x}" cy="${p.y}" r="6" fill="var(--amber)" stroke="var(--paper)" stroke-width="2"/>`).join('')}
+    ${[h.d,h.e].map(p=>`<circle cx="${p.x}" cy="${p.y}" r="7" fill="var(--pink)" stroke="var(--paper)" stroke-width="2"/>`).join('')}
+    <circle cx="${h.m.x}" cy="${h.m.y}" r="10" fill="var(--paper)" stroke="var(--red)" stroke-width="4"/>
+  </g>`;
+}
+function renderMain(){
+  const g=state.geometry,h=halfway(g);
+  let svg=`<defs><marker id="axisArrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="var(--blue)"/></marker></defs><rect width="820" height="430" fill="transparent"/>`;
+  svg+=`<line x1="42" y1="390" x2="112" y2="390" stroke="var(--blue)" stroke-width="2" marker-end="url(#axisArrow)" opacity=".7"/><line x1="42" y1="390" x2="42" y2="420" stroke="var(--blue)" stroke-width="2" marker-end="url(#axisArrow)" opacity=".7"/><text x="116" y="395" class="svg-axis" fill="currentColor">X</text><text x="26" y="424" class="svg-axis" fill="currentColor">Y</text>`;
+  if(state.showChord)svg+=`<line x1="${g.start.x}" y1="${g.start.y}" x2="${g.end.x}" y2="${g.end.y}" stroke="var(--blue)" stroke-width="3" stroke-dasharray="11 9" opacity=".55"/>`;
+  if(state.showGuides)svg+=`<line x1="${g.start.x}" y1="${g.start.y}" x2="${g.c1.x}" y2="${g.c1.y}" stroke="var(--amber)" stroke-width="3" stroke-dasharray="8 7" opacity=".75"/><line x1="${g.end.x}" y1="${g.end.y}" x2="${g.c2.x}" y2="${g.c2.y}" stroke="var(--pink)" stroke-width="3" stroke-dasharray="8 7" opacity=".75"/>`;
+  if(state.showHalfway)svg+=constructionSvg(h);
+  svg+=`<path d="${curveD(g)}" fill="none" stroke="var(--indigo)" stroke-width="8" stroke-linecap="round"/>`;
+  svg+=markerSvg('start',g.start)+markerSvg('c1',g.c1)+markerSvg('c2',g.c2)+markerSvg('end',g.end);
+  $('curveSvg').innerHTML=svg;
+  $('startReadout').textContent=pointText(g.start);$('control1Readout').textContent=pointText(g.c1);$('control2Readout').textContent=pointText(g.c2);$('endReadout').textContent=pointText(g.end);$('midReadout').textContent=pointText(h.m);
+  $('commandFormula').textContent=`current point = start ${pointText(g.start)}\n\ncubicTo(\n  ${f(g.c1.x)}, ${f(g.c1.y)},\n  ${f(g.c2.x)}, ${f(g.c2.y)},\n  ${f(g.end.x)}, ${f(g.end.y)},\n)\n\nnew current point = end ${pointText(g.end)}`;
+  document.querySelectorAll('[data-preset]').forEach(b=>b.classList.toggle('selected',b.dataset.preset===state.preset));
+}
+function svgPoint(event,svg){const p=svg.createSVGPoint();p.x=event.clientX;p.y=event.clientY;return p.matrixTransform(svg.getScreenCTM().inverse());}
+let activeHandle=null,activePointer=null;
+$('curveSvg').addEventListener('pointerdown',event=>{const handle=event.target.closest('[data-handle]');if(!handle)return;activeHandle=handle.dataset.handle;activePointer=event.pointerId;$('curveSvg').setPointerCapture(event.pointerId);event.preventDefault();});
+$('curveSvg').addEventListener('pointermove',event=>{if(activeHandle===null||event.pointerId!==activePointer)return;const p=svgPoint(event,$('curveSvg'));state.geometry[activeHandle]={x:Math.round(clamp(p.x,55,765)),y:Math.round(clamp(p.y,50,370))};state.preset=null;renderMain();});
+function endDrag(event){if(event.pointerId!==activePointer)return;activeHandle=null;activePointer=null;}
+$('curveSvg').addEventListener('pointerup',endDrag);$('curveSvg').addEventListener('pointercancel',endDrag);
+$('curveSvg').addEventListener('keydown',event=>{const handle=event.target.closest('[data-handle]');if(!handle)return;const delta=event.shiftKey?10:3;let dx=0,dy=0;if(event.key==='ArrowLeft')dx=-delta;if(event.key==='ArrowRight')dx=delta;if(event.key==='ArrowUp')dy=-delta;if(event.key==='ArrowDown')dy=delta;if(dx===0&&dy===0)return;event.preventDefault();const key=handle.dataset.handle,p=state.geometry[key];state.geometry[key]={x:clamp(p.x+dx,55,765),y:clamp(p.y+dy,50,370)};state.preset=null;renderMain();requestAnimationFrame(()=>{const next=$('curveSvg').querySelector(`[data-handle="${key}"]`);next?.focus();});});
+document.querySelectorAll('[data-preset]').forEach(button=>button.addEventListener('click',()=>{state.preset=button.dataset.preset;state.geometry=JSON.parse(JSON.stringify(PRESETS[state.preset]));renderMain();}));
+$('showGuides').addEventListener('change',e=>{state.showGuides=e.target.checked;renderMain();});$('showChord').addEventListener('change',e=>{state.showChord=e.target.checked;renderMain();});$('showHalfway').addEventListener('change',e=>{state.showHalfway=e.target.checked;renderMain();});
+
+const DEFAULT=PRESETS.arch,HD=halfway(DEFAULT);
+const STEPS=[
+  {title:'1 · Name the four inputs',caption:'The start and end are endpoints. The two control points guide the shape. No temporary midpoint exists yet.',formula:()=>`start = (120, 300)\ncontrol 1 = (280, 100)\ncontrol 2 = (540, 100)\nend = (700, 300)`},
+  {title:'2 · Store one cubic segment',caption:'moveTo supplies the current start. cubicTo consumes control 1, control 2, and end. The visible curve is now defined.',formula:()=>`moveTo(120, 300)\ncubicTo(280, 100, 540, 100, 700, 300)\nnew current point = (700, 300)`},
+  {title:'3 · First midpoint round',caption:'Take the midpoint of each neighboring pair among the four original points. These three temporary points form a smaller guide.',formula:()=>`A = midpoint(start, control 1) = (200, 200)\nB = midpoint(control 1, control 2) = (410, 100)\nC = midpoint(control 2, end) = (620, 200)`},
+  {title:'4 · Second midpoint round',caption:'Repeat the same midpoint operation on the three first-round points. Two temporary points remain.',formula:()=>`D = midpoint(A, B)\n  = ((200 + 410) ÷ 2, (200 + 100) ÷ 2)\n  = (305, 150)\n\nE = midpoint(B, C) = (515, 150)`},
+  {title:'5 · Final midpoint',caption:'Take one final midpoint between D and E. This result lies on the cubic curve at exactly halfway.',formula:()=>`M = midpoint(D, E)\n  = ((305 + 515) ÷ 2, (150 + 150) ÷ 2)\n  = (410, 150)`},
+  {title:'6 · Compare with the straight segment',caption:'The straight start-to-end comparison remains at Y = 300. The curve midpoint has Y = 150, so it appears higher on the screen.',formula:()=>`straight midpoint = ((120 + 700) ÷ 2, (300 + 300) ÷ 2)\n                  = (410, 300)\ncurve midpoint    = (410, 150)\nvertical difference = 300 − 150 = 150`},
+  {title:'7 · Keep the operation boundary',caption:'The midpoint construction is a teaching calculation. The Path stores the four defining points and the cubic command; the guide points are not appended to the Path.',formula:()=>`stored Path segment:\nstart → cubicTo(control 1, control 2, end)\n\nteaching-only points:\nA, B, C, D, E, M`}
+];
+let stepIndex=0;
+function stepPoint(p,color,label,size=8){return`<circle cx="${p.x*.75-5}" cy="${p.y*.75+20}" r="${size}" fill="${color}" stroke="var(--paper)" stroke-width="2"/><text x="${p.x*.75-5}" y="${p.y*.75+24}" text-anchor="middle" class="svg-step-small" fill="#fff">${label}</text>`;}
+function renderStep(){
+  const step=STEPS[stepIndex];$('stepTitle').textContent=step.title;$('stepCaption').textContent=step.caption;$('stepFormula').textContent=step.formula();$('stepBack').disabled=stepIndex===0;$('stepNext').disabled=stepIndex===STEPS.length-1;document.querySelectorAll('[data-step]').forEach(b=>b.classList.toggle('selected',Number(b.dataset.step)===stepIndex));
+  const map=p=>({x:p.x*.75-5,y:p.y*.75+20}),g={start:map(DEFAULT.start),c1:map(DEFAULT.c1),c2:map(DEFAULT.c2),end:map(DEFAULT.end)},h={a:map(HD.a),b:map(HD.b),c:map(HD.c),d:map(HD.d),e:map(HD.e),m:map(HD.m)};
+  let svg=`<rect width="640" height="360" fill="transparent"/><line x1="${g.start.x}" y1="${g.start.y}" x2="${g.end.x}" y2="${g.end.y}" stroke="var(--blue)" stroke-width="2.5" stroke-dasharray="9 7" opacity=".5"/>`;
+  if(stepIndex>=1)svg+=`<line x1="${g.start.x}" y1="${g.start.y}" x2="${g.c1.x}" y2="${g.c1.y}" stroke="var(--amber)" stroke-width="2.5" stroke-dasharray="7 6"/><line x1="${g.end.x}" y1="${g.end.y}" x2="${g.c2.x}" y2="${g.c2.y}" stroke="var(--pink)" stroke-width="2.5" stroke-dasharray="7 6"/><path d="M ${g.start.x} ${g.start.y} C ${g.c1.x} ${g.c1.y} ${g.c2.x} ${g.c2.y} ${g.end.x} ${g.end.y}" fill="none" stroke="var(--indigo)" stroke-width="7" stroke-linecap="round"/>`;
+  if(stepIndex>=2)svg+=`<polyline points="${h.a.x},${h.a.y} ${h.b.x},${h.b.y} ${h.c.x},${h.c.y}" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-dasharray="7 6"/>${stepPoint(HD.a,'var(--amber)','A')}${stepPoint(HD.b,'var(--amber)','B')}${stepPoint(HD.c,'var(--amber)','C')}`;
+  if(stepIndex>=3)svg+=`<line x1="${h.d.x}" y1="${h.d.y}" x2="${h.e.x}" y2="${h.e.y}" stroke="var(--pink)" stroke-width="3" stroke-dasharray="7 6"/>${stepPoint(HD.d,'var(--pink)','D')}${stepPoint(HD.e,'var(--pink)','E')}`;
+  if(stepIndex>=4)svg+=stepPoint(HD.m,'var(--red)','M',11);
+  svg+=`<rect x="${g.start.x-10}" y="${g.start.y-10}" width="20" height="20" rx="3" fill="var(--green)"/><circle cx="${g.c1.x}" cy="${g.c1.y}" r="11" fill="var(--amber)"/><circle cx="${g.c2.x}" cy="${g.c2.y}" r="11" fill="var(--pink)"/><polygon points="${g.end.x},${g.end.y-13} ${g.end.x+13},${g.end.y} ${g.end.x},${g.end.y+13} ${g.end.x-13},${g.end.y}" fill="var(--blue)"/>`;
+  $('stepSvg').innerHTML=svg;
+}
+STEPS.forEach((_,i)=>{const b=document.createElement('button');b.className='step-dot';b.dataset.step=String(i);b.textContent=String(i+1);b.addEventListener('click',()=>{stepIndex=i;renderStep();});$('stepNav').appendChild(b);});$('stepBack').addEventListener('click',()=>{if(stepIndex>0){stepIndex--;renderStep();}});$('stepNext').addEventListener('click',()=>{if(stepIndex<STEPS.length-1){stepIndex++;renderStep();}});
+
+document.querySelectorAll('[data-answer]').forEach(b=>b.addEventListener('click',()=>{state.prediction=b.dataset.answer;document.querySelectorAll('[data-answer]').forEach(x=>x.classList.toggle('selected',x===b));}));$('checkPrediction').addEventListener('click',()=>{const ok=state.prediction==='end';$('predictionResult').textContent=state.prediction===null?'Choose one position first.':ok?'Correct. The end point becomes the new current point. The two control points guide the segment but never become current during this command.':'Not correct. cubicTo finishes at its final coordinate pair, so end (700, 300) becomes current.';$('predictionResult').style.background=state.prediction===null?'var(--soft)':ok?'var(--green-soft)':'var(--red-soft)';});
+
+function challengeUsesCubic(){return/\bcubicTo\s*\(/.test($('challengeEditor').value)&&/control1\.x/.test($('challengeEditor').value)&&/control2\.x/.test($('challengeEditor').value)&&/end\.x/.test($('challengeEditor').value);}
+function drawChallenge(){const good=challengeUsesCubic(),d=good?'M 60 235 C 165 45 395 45 500 235':'M 60 235 L 500 235';$('challengeSvg').innerHTML=`<rect width="560" height="300" fill="transparent"/><line x1="60" y1="235" x2="500" y2="235" stroke="var(--blue)" stroke-width="2.5" stroke-dasharray="9 7" opacity=".5"/><line x1="60" y1="235" x2="165" y2="45" stroke="var(--amber)" stroke-width="2" stroke-dasharray="7 6"/><line x1="500" y1="235" x2="395" y2="45" stroke="var(--pink)" stroke-width="2" stroke-dasharray="7 6"/><path d="${d}" fill="none" stroke="var(--indigo)" stroke-width="8" stroke-linecap="round"/><rect x="50" y="225" width="20" height="20" fill="var(--green)"/><circle cx="165" cy="45" r="11" fill="var(--amber)"/><circle cx="395" cy="45" r="11" fill="var(--pink)"/><polygon points="500,222 513,235 500,248 487,235" fill="var(--blue)"/>`;$('challengeFormula').textContent=good?'cubicTo found\ninput controls are consumed\nvisible output = curved segment\nnew current point = end':'lineTo still used\ncontrol points are ignored\nvisible output = straight segment';if(state.challengeCorrect){state.challengeCorrect=false;$('challengeResult').textContent='The code changed after the successful check. Check it again.';$('challengeResult').style.background='var(--soft)';}}
+$('challengeEditor').addEventListener('input',drawChallenge);document.querySelectorAll('[data-challenge]').forEach(b=>b.addEventListener('click',()=>{$('challengeEditor').value=b.dataset.challenge==='curve'?`fun buildCurvePath(\n    start: Offset,\n    control1: Offset,\n    control2: Offset,\n    end: Offset,\n): Path = Path().apply {\n    moveTo(start.x, start.y)\n    cubicTo(\n        control1.x, control1.y,\n        control2.x, control2.y,\n        end.x, end.y,\n    )\n}`:`fun buildCurvePath(\n    start: Offset,\n    control1: Offset,\n    control2: Offset,\n    end: Offset,\n): Path = Path().apply {\n    moveTo(start.x, start.y)\n    lineTo(end.x, end.y)\n}`;drawChallenge();}));$('checkChallenge').addEventListener('click',()=>{const ok=challengeUsesCubic();state.challengeCorrect=ok;$('challengeResult').textContent=ok?'Correct. cubicTo consumes both control points and the end point, producing one cubic segment.':'Not repaired yet. Replace lineTo with cubicTo and supply control 1, control 2, and end in that order.';$('challengeResult').style.background=ok?'var(--green-soft)':'var(--red-soft)';});
+
+function buildRecord(){const checks=[...document.querySelectorAll('[data-check]')],done=checks.filter(c=>c.checked).length,h=halfway(state.geometry);$('completionRecord').value=`# Lesson 4.6 completion record\n\n- Lesson: Cubic Bézier curves\n- Status: ${done===checks.length?'checkpoint complete':'checkpoint incomplete'}\n- Checkpoint items: ${done} of ${checks.length}\n- Android device: Pixel 8 Pro\n- Browser start: ${pointText(state.geometry.start)}\n- Browser control 1: ${pointText(state.geometry.c1)}\n- Browser control 2: ${pointText(state.geometry.c2)}\n- Browser end / new current point: ${pointText(state.geometry.end)}\n- Browser halfway curve point: ${pointText(h.m)}\n- Android reset points: start(24.dp, 190.dp), control1(92.dp, 46.dp), control2(228.dp, 46.dp), end(296.dp, 190.dp)\n- I can explain endpoint versus control point: [yes / not yet]\n- I can trace the repeated-midpoint construction: [yes / not yet]\n- I can explain why control guides are not stored path segments: [yes / not yet]\n- Remaining questions or observations:\n`;}
+$('buildRecord').addEventListener('click',buildRecord);$('copyRecord').addEventListener('click',async()=>{let copied=false;try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText($('completionRecord').value);copied=true;}}catch(e){}if(!copied){$('completionRecord').focus();$('completionRecord').select();copied=document.execCommand('copy');}$('copyRecord').textContent=copied?'Copied':'Select and copy';setTimeout(()=>$('copyRecord').textContent='Copy record',1300);});
+const mq=matchMedia('(prefers-color-scheme: dark)');function theme(){document.getElementById('themeMode').textContent=mq.matches?'Dark':'Light';}theme();mq.addEventListener?.('change',theme);
+renderMain();renderStep();drawChallenge();
+</script>
+</body>
+</html>

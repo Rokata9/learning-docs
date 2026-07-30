@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 4.5.0  
+**Version:** 4.7.0  
 **Updated:** 2026-07-30  
-**Current course position:** Lessons 1.1 through 4.4 are complete by learner confirmation. **32 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.5 is generated and is both the next unresolved checkpoint and the generated frontier.  
+**Current course position:** Lessons 1.1 through 4.6 are complete by learner confirmation. **34 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.7 is generated and is both the next unresolved checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -10,7 +10,36 @@
 
 ---
 
-## 1. What changed through version 4.5.0
+## 1. What changed through version 4.7.0
+
+Version 4.7.0 records completion of Lesson 4.6 and generates Lesson 4.7:
+
+- The learner requested the next lesson without a remaining Lesson 4.6 issue, so Lesson 4.6 is learner-confirmed complete.
+- Learner-confirmed course completion is now **34 of 216 lessons**.
+- Lesson 4.7 reuses the completed closed badge `Path` from Lesson 4.5 as a temporary clipping region.
+- The oversized four-band content uses the same draw commands with clipping off and clipping on. Only the allowed output region changes.
+- The lesson defines clip region, candidate drawing, discarded draw, and scope before introducing `clipPath`.
+- Browser point I `(300, 230)` lies inside the badge's rectangular core and receives the opaque amber candidate. Point O `(720, 230)` lies beyond the badge's rightmost X `650`; its clipped candidate is rejected and the earlier background remains.
+- The lesson explicitly states that clipping does not erase the destination and does not replace rejected positions with transparent black.
+- A pink ring Q is drawn after the clip block and remains visible outside the badge, proving that the temporary clip scope has ended.
+- The browser interaction and manual stepper are capped at `820 × 430` CSS pixels and keep full values in external readouts.
+- Android changes: `Chapter04Screen.kt` and new `ClippingExplorer.kt`, with complete-screen and direct-child previews in both OS themes.
+- Masks, gradual visibility, boundary antialiasing, nested clips, and subtractive clips remain explicitly deferred.
+- No new `AGENTS.md` policy is added. The clean completion reinforces the existing endpoint/control-point, value-trace, stepper, and compact-geometry rules.
+
+Version 4.6.0 records completion of Lesson 4.5 and generates Lesson 4.6:
+
+- The learner requested the next lesson without a remaining Lesson 4.5 issue, so Lesson 4.5 is learner-confirmed complete.
+- Learner-confirmed course completion is now **33 of 216 lessons**.
+- Lesson 4.6 keeps the completed `Path` and current-point model, then replaces one straight `lineTo` segment with one `cubicTo` segment.
+- The lesson defines one start endpoint, two control points, one end endpoint, and endpoint-to-control guide lines before introducing the API call.
+- The start and end are guaranteed positions on the curve. The two control points guide the shape and usually do not lie on the visible curve.
+- The general cubic equation is deferred until Chapter 5 teaches progress and linear interpolation. Lesson 4.6 calculates the exact halfway point with repeated midpoint arithmetic already available from Chapter 2.
+- Browser reset values produce first-round points `(200, 200)`, `(410, 100)`, `(620, 200)`, second-round points `(305, 150)`, `(515, 150)`, and final curve midpoint `(410, 150)`.
+- The primary interactive SVG is capped at `820 × 430` CSS pixels. It uses distinct marker shapes plus external synchronized coordinates instead of full labels inside the geometry.
+- Android changes: `Chapter04Screen.kt` and new `CubicBezierExplorer.kt`, with complete-screen and direct-child previews in both OS themes.
+- Clipping, masks, antialiasing, renderer subdivision, and the general curve-position equation remain explicitly deferred.
+- No new `AGENTS.md` policy is added. The clean completion reinforces existing current-point, stepper, and compact-geometry rules.
 
 Version 4.5.0 records completion of Lesson 4.4 and generates Lesson 4.5:
 
@@ -1459,12 +1488,16 @@ Lessons 3.1 through 3.11 are complete. Chapter 3 is complete. Lesson 3.11 combin
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
 ├── MainActivity.kt                         # switches to Chapter04Screen in Lesson 4.1
 └── chapter04/
-    ├── Chapter04Screen.kt                  # active child is RoundedRectanglesExplorer
+    ├── Chapter04Screen.kt                  # active child is CubicBezierExplorer
     ├── RectanglesCirclesExplorer.kt        # introduced in Lesson 4.1
-    └── RoundedRectanglesExplorer.kt        # introduced in Lesson 4.2
+    ├── RoundedRectanglesExplorer.kt        # introduced in Lesson 4.2
+    ├── CapsulesExplorer.kt                 # introduced in Lesson 4.3
+    ├── ConcentricCornersExplorer.kt        # introduced in Lesson 4.4
+    ├── PathsExplorer.kt                    # introduced in Lesson 4.5
+    └── CubicBezierExplorer.kt              # introduced in Lesson 4.6
 ```
 
-Lesson 4.1 is complete. Lesson 4.2 is generated and is the current learner checkpoint. It keeps one known rectangle bounds object fixed, introduces one uniform corner radius, and traces curve centers, join points, and remaining straight spans.
+Lessons 4.1 through 4.5 are complete. Lesson 4.6 is generated and is the current learner checkpoint. It keeps the Lesson 4.5 Path command model, introduces two control points, appends one `cubicTo` segment, and calculates one exact curve point at halfway through repeated midpoint construction.
 
 ---
 
@@ -2809,7 +2842,7 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Learner completion is confirmed through Lesson 4.1. Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.2 is generated and pending. The learner-confirmed total is 29 of 216 lessons.
+Learner completion is confirmed through Lesson 4.5. Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.6 is generated and pending. The learner-confirmed total is 33 of 216 lessons.
 
 Current Chapter 2 lesson files:
 
@@ -2887,7 +2920,11 @@ Current Chapter 4 lesson files:
 
 - `course/chapters/chapter-04/lesson-shapes-corners-paths-and-masks.html`;
 - `course/chapters/chapter-04/lesson-04-01-rectangles-and-circles.html`;
-- `course/chapters/chapter-04/lesson-04-02-rounded-rectangles.html`.
+- `course/chapters/chapter-04/lesson-04-02-rounded-rectangles.html`;
+- `course/chapters/chapter-04/lesson-04-03-capsules.html`;
+- `course/chapters/chapter-04/lesson-04-04-concentric-corners.html`;
+- `course/chapters/chapter-04/lesson-04-05-paths.html`;
+- `course/chapters/chapter-04/lesson-04-06-cubic-bezier-curves.html`.
 
 Current generated Chapter 4 Android source:
 
@@ -2897,16 +2934,20 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
 └── chapter04/
     ├── Chapter04Screen.kt
     ├── RectanglesCirclesExplorer.kt
-    └── RoundedRectanglesExplorer.kt
+    ├── RoundedRectanglesExplorer.kt
+    ├── CapsulesExplorer.kt
+    ├── ConcentricCornersExplorer.kt
+    ├── PathsExplorer.kt
+    └── CubicBezierExplorer.kt
 ```
 
-The Lesson 4.2 Android ZIP contains only `Chapter04Screen.kt` and new `RoundedRectanglesExplorer.kt`. `MainActivity.kt` and `RectanglesCirclesExplorer.kt` are unchanged and are not duplicated.
+The Lesson 4.6 Android ZIP contains only `Chapter04Screen.kt` and new `CubicBezierExplorer.kt`. Earlier Chapter 4 explorers and `MainActivity.kt` are unchanged and are not duplicated.
 
 ---
 
 ## 15. Primary references
 
-The course plan was checked against these public primary sources through 2026-07-29:
+The course plan was checked against these public primary sources through 2026-07-30:
 
 - Apple, **Meet Liquid Glass**, WWDC25: https://developer.apple.com/videos/play/wwdc2025/219/
 - Apple, **Get to know the new design system**, WWDC25: https://developer.apple.com/videos/play/wwdc2025/356/
@@ -2922,6 +2963,8 @@ The course plan was checked against these public primary sources through 2026-07
 - Android, **Graphics modifiers**: https://developer.android.com/develop/ui/compose/graphics/draw/modifiers
 - Android, **Compose modifier list**: https://developer.android.com/develop/ui/compose/modifiers-list
 - Android, **Compose LayoutCoordinates reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/LayoutCoordinates
+- AndroidX Compose, **Path reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Path
+- Android, **Compose graphics drawing overview**: https://developer.android.com/develop/ui/compose/graphics/draw/overview
 - Android, **Compose OnGloballyPositionedModifier reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/OnGloballyPositionedModifier
 - Android, **Compose DrawScope reference**: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/drawscope/DrawScope
 - Android, **Graphics in Compose — basic shapes**: https://developer.android.com/develop/ui/compose/graphics/draw/overview
@@ -3487,5 +3530,225 @@ After completion:
 ```text
 Course progress becomes 33 of 216.
 Next lesson becomes 4.6 — Cubic Bézier curves.
+```
+
+## 12N. Lesson 4.6 implementation record
+
+### `lesson-04-06-cubic-bezier-curves.html`
+
+**New graphics idea:** A cubic Bézier curve is one curved Path segment defined by one start endpoint, two control points, and one end endpoint.
+
+**Mathematical idea:** One exact point at halfway can be calculated by repeatedly taking midpoints. The general progress-based curve equation remains deferred until Chapter 5 teaches progress and linear interpolation.
+
+Browser reset geometry:
+
+```text
+start     = (120, 300)
+control 1 = (280, 100)
+control 2 = (540, 100)
+end       = (700, 300)
+```
+
+Path command trace:
+
+```text
+moveTo(start)
+→ current point = start
+
+cubicTo(control 1, control 2, end)
+→ append one curved segment
+→ new current point = end
+```
+
+The start and end are guaranteed points on the visible curve. The two control points guide its shape and usually remain outside the visible curve. The dashed endpoint-to-control lines are teaching overlays, not stored path segments.
+
+Halfway construction:
+
+```text
+A = midpoint(start, control 1) = (200, 200)
+B = midpoint(control 1, control 2) = (410, 100)
+C = midpoint(control 2, end) = (620, 200)
+
+D = midpoint(A, B) = (305, 150)
+E = midpoint(B, C) = (515, 150)
+
+M = midpoint(D, E) = (410, 150)
+```
+
+The straight start-to-end midpoint is `(410, 300)`. The curve midpoint is `(410, 150)`.
+
+The browser model includes:
+
+- draggable start, control 1, control 2, and end markers;
+- keyboard arrow movement for each focused marker;
+- exact arch, straight, S-shaped, and valley presets;
+- optional control guides, straight-line comparison, and repeated-halfway construction;
+- shape-plus-color markers and external synchronized coordinate readouts;
+- a seven-step exact halfway derivation;
+- a prediction, coding challenge, four hidden-answer exercises, and completion record.
+
+The primary SVG is capped at `820 × 430` CSS pixels.
+
+Android reset geometry:
+
+```text
+Canvas = 320.dp × 240.dp
+start = (24.dp, 190.dp)
+control 1 = (92.dp, 46.dp)
+control 2 = (228.dp, 46.dp)
+end = (296.dp, 190.dp)
+halfway curve point = (160.dp, 82.dp)
+```
+
+Android value path:
+
+```text
+dp point inputs
+→ runtime density conversion to Canvas-local px
+→ Path.moveTo(start)
+→ Path.cubicTo(control1, control2, end)
+→ drawPath(curve Path)
+```
+
+Changed Android files:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter04/Chapter04Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter04/CubicBezierExplorer.kt
+```
+
+Lesson 4.6 is complete only when:
+
+- [ ] The Android files compile and run on the Pixel 8 Pro.
+- [ ] Both preview levels render in light and dark modes.
+- [ ] The learner can define start endpoint, control point, end endpoint, and cubic Bézier curve.
+- [ ] The learner can explain why the start is not repeated inside `cubicTo`.
+- [ ] The learner can identify which point becomes current after `cubicTo`.
+- [ ] The learner can reproduce the repeated-midpoint result `(410, 150)`.
+- [ ] The learner can explain why control guides are not stored path segments.
+- [ ] The straight-boundary preset, prediction, coding challenge, and exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 34 of 216.
+Next lesson becomes 4.7 — Clipping.
+```
+
+## 12O. Lesson 4.7 implementation record
+
+### `lesson-04-07-clipping.html`
+
+**New graphics idea:** Clipping temporarily restricts where selected draw commands may replace the destination.
+
+**Mathematical idea:** A clearly inside or clearly outside drawing position follows one yes-or-no clip decision. Boundary coverage and gradual values remain deferred.
+
+Browser badge Path:
+
+```text
+A = (120, 90)
+B = (520, 90)
+C = (650, 215)
+D = (520, 340)
+E = (120, 340)
+close()
+```
+
+The same oversized opaque pattern is used with clipping off and on. The amber band supplies this candidate color at both fixed trace points:
+
+```text
+straight sRGB RGBA(0.8510, 0.4667, 0.0235, 1.0000)
+```
+
+The existing teaching background is:
+
+```text
+straight sRGB RGBA(0.9451, 0.9608, 0.9765, 1.0000)
+```
+
+Point trace:
+
+```text
+I = (300, 230)
+I lies inside the rectangular core X 120..520, Y 90..340
+→ clip allows the opaque amber candidate
+→ final output at I = amber
+
+O = (720, 230)
+badge rightmost X = 650
+720 > 650
+→ O is outside
+→ clip rejects the current candidate draw
+→ final output at O = earlier background
+```
+
+The clip does not erase earlier content. A rejected draw simply does not replace the destination at that position.
+
+The browser model includes:
+
+- clipping-on and clipping-off modes using the same content commands;
+- inside and outside trace-point presets;
+- clip-outline, candidate-bounds, and post-clip evidence toggles;
+- a decorative-content shift that leaves the Path fixed;
+- a six-step draw-order sequence;
+- a scope prediction;
+- a coding challenge that moves `drawOversizedPattern()` inside `clipPath(badgePath) { ... }`;
+- four hidden-answer exercises and a completion record.
+
+Both primary SVGs are capped at `820 × 430` CSS pixels.
+
+Android reset geometry:
+
+```text
+Canvas = 320.dp × 240.dp
+A = (32.dp, 40.dp)
+B = (210.dp, 40.dp)
+C = (288.dp, 120.dp)
+D = (210.dp, 200.dp)
+E = (32.dp, 200.dp)
+inside point I = (120.dp, 145.dp)
+outside point O = (304.dp, 145.dp)
+```
+
+Android value path:
+
+```text
+dp point pairs
+→ runtime density conversion to Canvas-local px
+→ closed badge Path
+→ clipPath(badgePath) {
+      unchanged oversized pattern draw calls
+  }
+→ previous clip restored
+→ path outline and outside Q ring draw normally
+```
+
+Changed Android files:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter04/Chapter04Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter04/ClippingExplorer.kt
+```
+
+Lesson 4.7 is complete only when:
+
+- [ ] The Android files compile and run on the Pixel 8 Pro.
+- [ ] Both preview levels render in light and dark modes.
+- [ ] The learner can define clip region, candidate drawing, discarded draw, and scope.
+- [ ] The learner can explain why clipping off and on use the same oversized content coordinates.
+- [ ] The learner can trace inside point I to the amber output.
+- [ ] The learner can trace outside point O to the unchanged background.
+- [ ] The learner can explain why the post-clip Q ring remains visible outside the badge.
+- [ ] The learner can explain why clipping does not erase the previous destination.
+- [ ] The learner can separate clipping from masks and antialiasing.
+- [ ] The prediction, coding challenge, and exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 35 of 216.
+Next lesson becomes 4.8 — Masks.
 ```
 
