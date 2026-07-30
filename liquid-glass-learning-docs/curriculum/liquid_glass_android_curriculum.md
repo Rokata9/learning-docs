@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 4.2.1  
+**Version:** 4.3.0  
 **Updated:** 2026-07-30  
-**Current course position:** Lessons 1.1 through 4.1 are complete by learner confirmation. **29 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.2 is generated and is both the next unresolved checkpoint and the generated frontier.  
+**Current course position:** Lessons 1.1 through 4.2 are complete by learner confirmation. **30 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.3 is generated and is both the next unresolved checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -10,7 +10,7 @@
 
 ---
 
-## 1. What changed through version 4.2.1
+## 1. What changed through version 4.3.0
 
 Version 1.0 placed the complete Chapter 1 teaching text and its large Compose example inside this master Markdown file. That was a bundled-document structure.
 
@@ -371,6 +371,19 @@ Version 4.2.1 corrects the Lesson 4.2 interactive geometry footprint and label c
 - Minimum, near-minimum, reset, large, and maximum radii were checked in both required themes. No SVG text overlap, clipping, horizontal overflow, or JavaScript error remained.
 - `AGENTS.md` adds an interactive-geometry footprint and label-separation gate so free-play diagrams receive the same viewport and longest-state discipline as manual steppers.
 - Lesson 4.2 remains incomplete. Learner-confirmed course progress remains **29 of 216 lessons**.
+
+Version 4.3 records completion of Lesson 4.2 and introduces capsules:
+
+- The learner explicitly confirmed the corrected Lesson 4.2 complete and requested the next lesson. Learner-confirmed course completion is now **30 of 216 lessons**.
+- Chapter 4 remains in progress. Lesson 4.3 is the new unresolved checkpoint and generated frontier.
+- Lesson 4.3 starts from Lesson 4.2's maximum controlled radius. It defines a horizontal capsule as a rounded-rectangle boundary whose two short ends are semicircles.
+- The controlled browser height is `260`, so radius is derived as `260 / 2 = 130`. Radius is not exposed as an independent control.
+- The vertical straight side is `height - 2 × radius = 0`. The top and bottom straight span is `width - 2 × radius`, which simplifies to `width - height`.
+- The browser varies width from `260` through `600`. At width `260`, width equals height, the two end centers meet, and the boundary reaches the circle limit.
+- The corrected compact-geometry style is reused: the SVG is capped at `820 × 430`, short labels remain inside the shape, and complete coordinates and calculations appear in synchronized external readouts.
+- Android changes: `Chapter04Screen.kt` and new `chapter04/CapsulesExplorer.kt`. The Android model keeps height at `120.dp`, derives radius as `60.dp`, and varies width from `120.dp` through `280.dp`.
+- `Chapter04Screen.kt` includes complete-screen and direct-child previews in light and dark modes.
+- The clean completion of the corrected Lesson 4.2 reinforces the existing interactive-geometry footprint and label-separation gate. No new `AGENTS.md` rule is added.
 
 Version 3.11 records completion of Lessons 3.9 and 3.10 and generates the Chapter 3 compositing laboratory:
 
@@ -3096,5 +3109,113 @@ After completion:
 ```text
 Course progress becomes 30 of 216.
 Next lesson becomes 4.3 — Capsules.
+```
+
+## 12K. Lesson 4.3 implementation record
+
+### `lesson-04-03-capsules.html`
+
+**New graphics idea:** A horizontal capsule is a rounded-rectangle boundary whose two short ends are semicircles.
+
+**Mathematical idea:** Derive radius from height so the remaining vertical straight side becomes zero.
+
+The browser reset geometry is:
+
+```text
+left = 120
+center Y = 210
+height = 260
+width = 520
+radius = height / 2 = 130
+```
+
+The capsule derivation is:
+
+```text
+vertical straight side
+= height - radius - radius
+
+0 = 260 - radius - radius
+2 * radius = 260
+radius = 130
+```
+
+The rounded-end centers are:
+
+```text
+left end center = (120 + 130, 210) = (250, 210)
+right edge = 120 + 520 = 640
+right end center = (640 - 130, 210) = (510, 210)
+```
+
+The remaining long straight span is:
+
+```text
+width - radius - radius
+= 520 - 130 - 130
+= 260
+= width - height
+```
+
+The browser model keeps height fixed and varies width from `260` through `600`. It includes a width slider, four exact presets, a horizontal drag handle, optional construction circles and center line, external live geometry readouts, an eight-step derivation, three boundary comparisons, a prediction, a coding challenge, four hidden-answer exercises, and a copyable completion record. The primary SVG is capped at `820 × 430` CSS pixels.
+
+At width `260`, width equals height. The two rounded-end centers meet, all straight spans reach zero, and the boundary becomes a circle. The lesson calls this the **circle limit**. The browser uses one `L = R` marker in that state rather than overlapping the two center labels.
+
+The Android explorer uses:
+
+```text
+fixed height = 120.dp
+adjustable width = 120.dp through 280.dp
+reset width = 240.dp
+derived radius = 60.dp
+reset long straight span = 120.dp
+```
+
+At the Android circle limit, both end-guide circles describe the same geometry, so the Canvas overlay draws the visible guide circle and center once.
+
+The Android implementation applies the same derived radius to both APIs:
+
+```text
+val capsuleRadiusDp = CapsuleHeightDp / 2f
+val capsuleShape = RoundedCornerShape(capsuleRadiusDp.dp)
+```
+
+and:
+
+```text
+val heightPx = CapsuleHeightDp.dp.toPx()
+val radiusPx = heightPx / 2f
+
+drawRoundRect(
+    topLeft = capsuleTopLeft,
+    size = capsuleSize,
+    cornerRadius = CornerRadius(radiusPx, radiusPx),
+)
+```
+
+Changed Android files:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter04/Chapter04Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter04/CapsulesExplorer.kt
+```
+
+Lesson 4.3 is complete only when:
+
+- [ ] The Android patch builds and opens Lesson 4.3 on the Pixel 8 Pro.
+- [ ] Full-screen and direct-child previews render in light and dark modes.
+- [ ] The learner can define a capsule and a semicircle.
+- [ ] The learner can derive radius from height.
+- [ ] The learner can prove why the vertical straight side is zero.
+- [ ] The learner can calculate the long straight span as width minus height.
+- [ ] The learner can explain the circle limit.
+- [ ] The prediction, coding challenge, and four exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 31 of 216.
+Next lesson becomes 4.4 — Concentric corners.
 ```
 

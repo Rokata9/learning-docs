@@ -1,8 +1,8 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 4.2.1  
+**Course plan version:** 4.3.0  
 **Updated:** 2026-07-30  
-**Current position:** Lessons 1.1 through 4.1 are complete by learner confirmation. **29 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.2 is generated and is both the next unresolved checkpoint and the generated frontier.
+**Current position:** Lessons 1.1 through 4.2 are complete by learner confirmation. **30 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.3 is generated and is both the next unresolved checkpoint and the generated frontier.
 
 ## Permanent course rules
 
@@ -1236,4 +1236,137 @@ The interaction was checked in light and dark themes at `1920×1080` and `5120×
 ### Reusable rule
 
 `AGENTS.md` now contains an **Interactive geometry footprint and label-separation gate**. A free-play geometry diagram must cap growth that adds no information, preserve a sensible side-by-side desktop layout when it fits, reserve independent label lanes, move complete values to synchronized external readouts when necessary, and verify dense plus boundary states for overlap and clipping.
+
+---
+
+## Latest authoritative status — Lesson 4.2 complete; Lesson 4.3 generated
+
+The learner explicitly confirmed Lesson 4.2 complete after reviewing the compact visual correction and requested the next lesson. Lesson 4.2 is therefore learner-confirmed complete. The correction's clean acceptance reinforces the existing interactive-geometry footprint and label-separation gate. It does not reveal a new reusable rule, so `AGENTS.md` is unchanged.
+
+```yaml
+learner_confirmed_completed_total: 30
+completed_through: "Lesson 4.2"
+chapter_04_completed_by_learner: false
+lesson_04_02_completed_by_learner: true
+lesson_04_03_generated: true
+lesson_04_03_completed_by_learner: false
+next_unresolved_checkpoint: "Lesson 4.3"
+generated_frontier: "Lesson 4.3"
+next_after_completion: "Lesson 4.4 — Concentric corners"
+```
+
+### Lesson 4.3 — Capsules
+
+The lesson begins with the exact maximum-radius state already established in Lesson 4.2:
+
+```text
+left = 120
+center Y = 210
+height = 260
+width = 520
+radius = 130
+```
+
+A **capsule** is defined as a rounded-rectangle boundary whose two short ends are semicircles. A **semicircle** is one half of a circle boundary. The controlled lesson uses a horizontal capsule, so width is at least height.
+
+The new geometry contract is:
+
+```text
+radius = height / 2
+vertical straight side = height - radius - radius = 0
+long straight span = width - radius - radius = width - height
+```
+
+For the reset values:
+
+```text
+radius = 260 / 2 = 130
+left end center = (120 + 130, 210) = (250, 210)
+right edge = 120 + 520 = 640
+right end center = (640 - 130, 210) = (510, 210)
+long straight span = 520 - 260 = 260
+```
+
+The top-left and bottom-left quarter-circle centers coincide at `(250, 210)`. Their boundary pieces therefore form one left semicircle. The two right corner centers coincide at `(510, 210)` and form the right semicircle.
+
+### Interactive lesson model
+
+The browser lesson:
+
+- keeps height fixed at `260`;
+- derives radius as `130` rather than exposing an independent radius control;
+- varies width from `260` through `600` using a slider, exact presets, or a horizontal drag handle;
+- shows optional full construction circles whose diameter equals the capsule height;
+- keeps short `L`, `R`, and `r` labels inside the capped `820 × 430` SVG, then replaces coincident `L` and `R` labels with one `L = R` marker at the circle limit;
+- places complete coordinates and formula results in synchronized external readouts;
+- highlights the top and bottom straight spans directly;
+- includes an eight-step manual derivation;
+- includes a width-change prediction, a coding challenge, four hidden-answer exercises, and a copyable completion record.
+
+At width `260`, width equals height. The two end centers meet, the long straight span becomes zero, and the boundary reaches the **circle limit**. The browser shows one `L = R` center marker instead of two overlapping labels.
+
+### Android value path
+
+The Android explorer uses:
+
+```text
+fixed height = 120.dp
+minimum width = 120.dp
+reset width = 240.dp
+maximum width = 280.dp
+derived radius = 120.dp / 2 = 60.dp
+reset straight span = 240.dp - 120.dp = 120.dp
+```
+
+The value path is:
+
+```text
+CapsuleHeightDp
+→ capsuleRadiusDp = CapsuleHeightDp / 2f
+→ RoundedCornerShape(capsuleRadiusDp.dp)
+→ width and height converted to Canvas-local px
+→ radiusPx = heightPx / 2f
+→ drawRoundRect(... CornerRadius(radiusPx, radiusPx))
+```
+
+Changed Android files:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter04/Chapter04Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter04/CapsulesExplorer.kt
+```
+
+`Chapter04Screen.kt` contains complete-screen and direct-child previews in light and dark modes. At the Android circle limit, the two construction circles and their centers coincide, so the Canvas overlay draws the visible guide and center once. `MainActivity.kt` remains unchanged because it already opens Chapter 4.
+
+### Explicit deferrals
+
+Lesson 4.3 does not teach:
+
+- inner versus outer concentric corner radii, which begin in Lesson 4.4;
+- paths built from connected drawing commands, which begin in Lesson 4.5;
+- clipping or masks;
+- antialiasing or physical-pixel coverage;
+- distance fields or shader geometry.
+
+### Lesson 4.3 checkpoint
+
+Lesson 4.3 is complete only when:
+
+- [ ] The incremental learning-docs and Android ZIPs were applied.
+- [ ] The Android project builds and opens Lesson 4.3 on the Pixel 8 Pro.
+- [ ] Complete-screen and direct-child previews render in light and dark modes.
+- [ ] The learner can define a capsule and a semicircle.
+- [ ] The learner can derive radius from height.
+- [ ] The learner can prove why the vertical straight sides are zero.
+- [ ] The learner can calculate the long straight span as width minus height.
+- [ ] The learner can explain the circle limit.
+- [ ] The prediction, coding challenge, and four exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 31 of 216.
+Next lesson becomes 4.4 — Concentric corners.
+```
 
