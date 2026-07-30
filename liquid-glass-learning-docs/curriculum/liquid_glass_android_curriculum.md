@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 4.1.0  
-**Updated:** 2026-07-29  
-**Current course position:** Lessons 1.1 through 3.11 are complete by learner confirmation. **28 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Lesson 4.1 is generated and is both the next unresolved checkpoint and the generated frontier.  
+**Version:** 4.2.1  
+**Updated:** 2026-07-30  
+**Current course position:** Lessons 1.1 through 4.1 are complete by learner confirmation. **29 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.2 is generated and is both the next unresolved checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -10,7 +10,7 @@
 
 ---
 
-## 1. What changed through version 4.1
+## 1. What changed through version 4.2.1
 
 Version 1.0 placed the complete Chapter 1 teaching text and its large Compose example inside this master Markdown file. That was a bundled-document structure.
 
@@ -344,6 +344,33 @@ Version 4.1 records completion of Lesson 3.11, closes Chapter 3, and starts the 
 - Android changes: `MainActivity.kt`, new `chapter04/Chapter04Screen.kt`, and new `chapter04/RectanglesCirclesExplorer.kt`.
 - `Chapter04Screen.kt` includes complete-screen and direct-child previews in light and dark modes.
 - No new `AGENTS.md` rule was added. The clean Lesson 3.11 progression did not expose a new reusable gap.
+
+Version 4.2 records completion of Lesson 4.1 and introduces rounded rectangles:
+
+- The learner explicitly requested that the prior pending work be marked complete and asked to continue. Lesson 4.1 is therefore learner-confirmed complete.
+- Learner-confirmed course completion is now **29 of 216 lessons**.
+- Chapter 4 remains in progress. Completing Lesson 4.1 does not complete the chapter.
+- Lesson 4.2 keeps one rectangle's left, top, right, bottom, width, and height fixed. It adds one uniform corner-radius input.
+- Each corner uses one quarter-circle arc. The top-left curve center is one radius right of the left edge and one radius below the top edge.
+- The lesson defines a join point as the exact position where a straight edge ends and a corner arc begins.
+- The browser reset bounds are left `120`, top `80`, width `520`, and height `260`. At radius `50`, the top-left curve center is `(170, 130)`, the top join is `(170, 80)`, and the left join is `(120, 130)`.
+- The remaining top straight span is `520 - 2 × 50 = 420`. The remaining side straight span is `260 - 2 × 50 = 160`.
+- The controlled maximum radius is half the shorter side. At browser radius `130`, the vertical straight spans become zero. Lesson 4.3 names and formalizes that special boundary shape.
+- Android changes: `Chapter04Screen.kt` and new `chapter04/RoundedRectanglesExplorer.kt`. `MainActivity.kt` remains unchanged because it already opens Chapter 4.
+- `Chapter04Screen.kt` includes complete-screen and direct-child previews in light and dark modes.
+- No new `AGENTS.md` rule was added. The explicit completion statement resolves the checkpoint but does not expose a new reusable explanation or verification gap.
+
+Version 4.2.1 corrects the Lesson 4.2 interactive geometry footprint and label collisions:
+
+- The learner reported overlapping text and an oversized interactive explanation.
+- At `1920×1080`, the original responsive breakpoint stacked the SVG above its controls and expanded the SVG to approximately `1750 × 839` CSS pixels.
+- The fixed-height label, side-straight label, and left-join coordinate label competed for the same left margin.
+- The corrected interaction keeps the geometry and controls side by side at 1920 pixels, caps the SVG at `820 × 430`, and retains that cap on a `5120×1440` ultrawide viewport.
+- The geometry now uses short `C`, `T`, and `L` point markers. Complete live coordinates and straight-span values appear in synchronized readout cards outside the SVG.
+- The remaining top and side straight boundary is highlighted directly in pink. Fixed width and height use independent top and left label lanes.
+- Minimum, near-minimum, reset, large, and maximum radii were checked in both required themes. No SVG text overlap, clipping, horizontal overflow, or JavaScript error remained.
+- `AGENTS.md` adds an interactive-geometry footprint and label-separation gate so free-play diagrams receive the same viewport and longest-state discipline as manual steppers.
+- Lesson 4.2 remains incomplete. Learner-confirmed course progress remains **29 of 216 lessons**.
 
 Version 3.11 records completion of Lessons 3.9 and 3.10 and generates the Chapter 3 compositing laboratory:
 
@@ -1391,11 +1418,12 @@ Lessons 3.1 through 3.11 are complete. Chapter 3 is complete. Lesson 3.11 combin
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
 ├── MainActivity.kt                         # switches to Chapter04Screen in Lesson 4.1
 └── chapter04/
-    ├── Chapter04Screen.kt                  # active child is RectanglesCirclesExplorer
-    └── RectanglesCirclesExplorer.kt        # introduced in Lesson 4.1
+    ├── Chapter04Screen.kt                  # active child is RoundedRectanglesExplorer
+    ├── RectanglesCirclesExplorer.kt        # introduced in Lesson 4.1
+    └── RoundedRectanglesExplorer.kt        # introduced in Lesson 4.2
 ```
 
-Lesson 4.1 is generated and is the current learner checkpoint. It reuses the completed coordinate, bounds, dp, px, color, and draw-order concepts. It adds the circle radius contract and keeps the circle separate from its enclosing square.
+Lesson 4.1 is complete. Lesson 4.2 is generated and is the current learner checkpoint. It keeps one known rectangle bounds object fixed, introduces one uniform corner radius, and traces curve centers, join points, and remaining straight spans.
 
 ---
 
@@ -2740,7 +2768,7 @@ CURRENT CODE, SCREENSHOT, OBSERVATION, OR ERROR:
 
 The repository has been delivered cumulatively through Lesson 1.3. Starting with Lesson 1.4, only incremental changed-file archives are produced.
 
-Learner completion is confirmed through Lesson 3.11. Chapters 1, 2, and 3 are complete. Lesson 4.1 is generated and pending. The learner-confirmed total is 28 of 216 lessons.
+Learner completion is confirmed through Lesson 4.1. Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.2 is generated and pending. The learner-confirmed total is 29 of 216 lessons.
 
 Current Chapter 2 lesson files:
 
@@ -2817,7 +2845,8 @@ The Lesson 3.11 Android ZIP contains only `Chapter03Screen.kt` and new `Composit
 Current Chapter 4 lesson files:
 
 - `course/chapters/chapter-04/lesson-shapes-corners-paths-and-masks.html`;
-- `course/chapters/chapter-04/lesson-04-01-rectangles-and-circles.html`.
+- `course/chapters/chapter-04/lesson-04-01-rectangles-and-circles.html`;
+- `course/chapters/chapter-04/lesson-04-02-rounded-rectangles.html`.
 
 Current generated Chapter 4 Android source:
 
@@ -2826,10 +2855,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/
 ├── MainActivity.kt
 └── chapter04/
     ├── Chapter04Screen.kt
-    └── RectanglesCirclesExplorer.kt
+    ├── RectanglesCirclesExplorer.kt
+    └── RoundedRectanglesExplorer.kt
 ```
 
-The Lesson 4.1 Android ZIP contains only the three files changed when the app switches to Chapter 4.
+The Lesson 4.2 Android ZIP contains only `Chapter04Screen.kt` and new `RoundedRectanglesExplorer.kt`. `MainActivity.kt` and `RectanglesCirclesExplorer.kt` are unchanged and are not duplicated.
 
 ---
 
@@ -2963,3 +2993,108 @@ After completion:
 Course progress becomes 29 of 216.
 Next lesson becomes 4.2 — Rounded rectangles.
 ```
+
+## 12J. Lesson 4.2 implementation record
+
+### `lesson-04-02-rounded-rectangles.html`
+
+**New graphics idea:** A rounded rectangle keeps the original rectangle bounds and replaces each sharp corner with one curved boundary piece.
+
+**Mathematical idea:** Add the radius once to locate each corner-curve center and join point. Subtract the radius at both ends to calculate each remaining straight span.
+
+The browser reset geometry is:
+
+```text
+left = 120
+top = 80
+width = 520
+height = 260
+right = 640
+bottom = 340
+corner radius = 50
+maximum controlled radius = 130
+```
+
+The top-left corner trace is:
+
+```text
+sharp corner = (120, 80)
+curve center X = left + radius = 120 + 50 = 170
+curve center Y = top + radius = 80 + 50 = 130
+curve center = (170, 130)
+top join = (170, 80)
+left join = (120, 130)
+```
+
+The remaining straight spans are:
+
+```text
+top straight length
+= width - radius - radius
+= 520 - 50 - 50
+= 420
+
+side straight length
+= height - radius - radius
+= 260 - 50 - 50
+= 160
+```
+
+The browser model includes one radius slider, five exact presets, a horizontally constrained radius handle, the original sharp rectangle, the top-left construction square and circle, all four curve centers, both top-left join points, synchronized external coordinate readouts, direct pink highlighting of the remaining top and side straight boundary, live span calculations, an eight-step derivation, a prediction, a coding challenge, four exercises, and a copyable completion record. The primary SVG is capped at `820 × 430` CSS pixels and remains beside its controls at the 1920-pixel desktop target.
+
+The Android explorer uses:
+
+```text
+drawing surface = 320.dp × 240.dp
+rectangle left = 24.dp
+rectangle top = 36.dp
+rectangle width = 272.dp
+rectangle height = 168.dp
+initial radius = 32.dp
+maximum radius = 84.dp
+```
+
+The Android implementation compares:
+
+```text
+RoundedCornerShape(cornerRadiusDp.dp)
+```
+
+with:
+
+```text
+val radiusPx = cornerRadiusDp.dp.toPx()
+
+drawRoundRect(
+    topLeft = rectangleTopLeft,
+    size = rectangleSize,
+    cornerRadius = CornerRadius(radiusPx, radiusPx),
+)
+```
+
+Changed Android files:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter04/Chapter04Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter04/RoundedRectanglesExplorer.kt
+```
+
+Lesson 4.2 is complete only when:
+
+- [ ] The Android patch builds and opens Lesson 4.2 on the Pixel 8 Pro.
+- [ ] Full-screen and direct-child previews render in light and dark modes.
+- [ ] The learner can explain why the outer bounds remain fixed.
+- [ ] The learner can calculate one corner curve center.
+- [ ] The learner can calculate the two join points for one corner.
+- [ ] The learner can calculate the remaining top and side straight spans.
+- [ ] The learner can explain why the controlled maximum is half the shorter side.
+- [ ] The prediction, coding challenge, and four exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 30 of 216.
+Next lesson becomes 4.3 — Capsules.
+```
+

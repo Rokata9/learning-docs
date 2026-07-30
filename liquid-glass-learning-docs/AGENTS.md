@@ -177,6 +177,17 @@ This rule was added after the Lesson 3.10 clarification. The phrase `exact for t
 6. **Wrap or split SVG text explicitly.** Never place a paragraph-length calculation into one SVG `<text>` line. Break the calculation into separate labelled lines and verify the longest step, not only the initial state.
 7. **Required QA state.** For every stepper, render the longest-caption or longest-formula step at `1920×1080`. Confirm that no text is clipped and that the current step controls, diagram, caption, formula, and navigation can be inspected without scrolling back and forth inside the section.
 
+### Interactive geometry footprint and label-separation gate
+
+This rule was added after the Lesson 4.2 interactive diagram placed several full coordinate labels in the same left margin and allowed the SVG to grow until it occupied most of a 1920×1080 viewport.
+
+1. **Cap a diagram that gains no new information from growth.** At the required `1920×1080` viewport, keep the section heading, primary geometry, controls, and live readouts inspectable together when practical. On an ultrawide display, do not enlarge the geometry merely because more width exists.
+2. **Choose breakpoints from the actual desktop target.** Do not stack a diagram above its controls at 1920 pixels when a readable side-by-side layout fits and stacking would make the section unnecessarily tall.
+3. **Reserve separate label lanes.** Fixed-dimension labels, point labels, and changing-span labels must not compete for the same margin or cross one another. When the complete text would crowd the shape, place a short symbol such as `C`, `T`, or `L` on the geometry and put the exact name and coordinates in an adjacent live readout.
+4. **Keep exact values visible outside the shape.** Moving text out of the SVG must not hide the mathematics. The external readout must update from the same state and formulas as the geometry.
+5. **Test dense and boundary states.** Verify at least the minimum, reset, and maximum control values, plus the state with every optional construction layer enabled. Inspect screenshots and SVG text bounding boxes for overlap and clipping in both required theme modes.
+6. **Treat excessive footprint as a defect.** A diagram can be numerically correct and still fail if the learner must scroll away from its controls or if the shape becomes harder to scan because it is unnecessarily large.
+
 ## Visual target
 
 - Desktop only.

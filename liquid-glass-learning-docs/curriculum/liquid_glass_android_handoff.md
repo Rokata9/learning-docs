@@ -1,8 +1,8 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 4.1.0  
-**Updated:** 2026-07-29  
-**Current position:** Lessons 1.1 through 3.11 are complete by learner confirmation. **28 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Lesson 4.1 is generated and is both the next unresolved checkpoint and the generated frontier.
+**Course plan version:** 4.2.1  
+**Updated:** 2026-07-30  
+**Current position:** Lessons 1.1 through 4.1 are complete by learner confirmation. **29 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.2 is generated and is both the next unresolved checkpoint and the generated frontier.
 
 ## Permanent course rules
 
@@ -206,29 +206,28 @@ A color transform outputs another color or channel value. A color measurement ou
 
 ```yaml
 course: Liquid Glass on Android
-course_version: 4.1.0
+course_version: 4.2.0
 platform: Kotlin + Jetpack Compose
 learning_device: Pixel 8 Pro
 learning_min_sdk: 33
 course_lessons_total: 216
-course_lessons_completed_by_learner: 28
-completed_through: 3.11
-generated_frontier: 4.1
-next_learner_checkpoint: 4.1
+course_lessons_completed_by_learner: 29
+completed_through: 4.1
+generated_frontier: 4.2
+next_learner_checkpoint: 4.2
 chapter_01_completed_by_learner: true
 chapter_02_completed_by_learner: true
 chapter_03_completed_by_learner: true
 chapter_04_completed_by_learner: false
-lesson_03_09_completed_by_learner: true
-lesson_03_10_completed_by_learner: true
-lesson_03_11_file: course/chapters/chapter-03/lesson-03-11-compositing-laboratory.html
-lesson_03_11_generated: true
 lesson_03_11_completed_by_learner: true
-lesson_03_11_completion_basis: learner requested the next lesson without reporting a remaining question, correction, or test problem
 lesson_04_01_file: course/chapters/chapter-04/lesson-04-01-rectangles-and-circles.html
 lesson_04_01_generated: true
-lesson_04_01_completed_by_learner: false
-lesson_04_01_android_source_changed: true
+lesson_04_01_completed_by_learner: true
+lesson_04_01_completion_basis: learner explicitly requested that the prior pending work be marked complete and asked to continue
+lesson_04_02_file: course/chapters/chapter-04/lesson-04-02-rounded-rectangles.html
+lesson_04_02_generated: true
+lesson_04_02_completed_by_learner: false
+lesson_04_02_android_source_changed: true
 invalid_scope_extension_imports_fixed: true
 chapter_and_child_preview_rule_recorded: true
 transparent_edge_halo_topic: deferred_until_image_boundary_and_sampling_prerequisites
@@ -1041,3 +1040,200 @@ app/src/main/java/com/example/liquidglasslab/chapter04/RectanglesCirclesExplorer
 ### Lesson-feedback review
 
 The clean progression from Lesson 3.11 confirms completion, but it does not reveal a new reusable lesson-quality rule beyond the existing prerequisite, explicit-intermediate, and formula-boundary gates. No duplicate `AGENTS.md` policy was added.
+
+---
+
+## Latest authoritative status — Lesson 4.1 complete; Lesson 4.2 generated
+
+The learner explicitly asked to continue and to mark the prior pending work complete. The prior unresolved checkpoint was Lesson 4.1, so Lesson 4.1 is now learner-confirmed complete. This does not close Chapter 4 because Lessons 4.2 through 4.11 remain incomplete.
+
+```yaml
+learner_confirmed_completed_total: 29
+completed_through: "Lesson 4.1"
+chapter_04_completed_by_learner: false
+lesson_04_01_completed_by_learner: true
+lesson_04_02_generated: true
+lesson_04_02_completed_by_learner: false
+next_unresolved_checkpoint: "Lesson 4.2"
+generated_frontier: "Lesson 4.2"
+next_after_completion: "Lesson 4.3 — Capsules"
+```
+
+### Lesson 4.2 — Rounded rectangles
+
+The lesson keeps one known rectangle bounds object fixed:
+
+```text
+left = 120
+top = 80
+width = 520
+height = 260
+right = 640
+bottom = 340
+```
+
+It adds one uniform corner-radius input. At the reset radius `50`, the top-left corner is derived as:
+
+```text
+sharp corner = (120, 80)
+curve center = (120 + 50, 80 + 50) = (170, 130)
+top join = (170, 80)
+left join = (120, 130)
+```
+
+A **join point** is the exact position where a straight rectangle edge ends and the corner arc begins. An **arc** is one connected piece of a circle boundary. In this controlled lesson, each corner uses one quarter-circle arc because the horizontal and vertical corner radii are equal.
+
+The remaining straight spans are:
+
+```text
+top straight length = width - radius - radius
+                    = 520 - 50 - 50
+                    = 420
+
+side straight length = height - radius - radius
+                     = 260 - 50 - 50
+                     = 160
+```
+
+The maximum controlled browser radius is `130`, which is half of the shorter rectangle side. At that value, the left and right straight spans become zero. Lesson 4.3 names and studies that special boundary shape.
+
+### Interactive lesson model
+
+The standalone browser lesson includes:
+
+- a fixed rectangle bounds object;
+- a radius slider from `0` through `130`;
+- exact presets at `0`, `20`, `50`, `90`, and `130`;
+- a horizontally constrained radius handle;
+- the original sharp rectangle as optional construction evidence;
+- the top-left construction square and full construction circle;
+- all four curve centers;
+- top-left top and left join points;
+- live top and side straight-span calculations;
+- an eight-step manual derivation;
+- a radius-change prediction;
+- a coding challenge that repairs `width - radius` to subtract the radius at both ends;
+- four exercises and a copyable completion record.
+
+### Android value path
+
+The Android explorer uses these controlled dp values:
+
+```text
+drawing surface = 320.dp × 240.dp
+rectangle left = 24.dp
+rectangle top = 36.dp
+rectangle width = 272.dp
+rectangle height = 168.dp
+initial corner radius = 32.dp
+maximum corner radius = 84.dp
+```
+
+The value path is:
+
+```text
+cornerRadiusDp state
+→ RoundedCornerShape(cornerRadiusDp.dp) for a Surface
+→ cornerRadiusDp.dp.toPx() inside DrawScope
+→ CornerRadius(radiusPx, radiusPx)
+→ drawRoundRect(topLeft, size, cornerRadius)
+→ separate construction circles, radius lines, centers, and join points
+```
+
+Changed Android files:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter04/Chapter04Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter04/RoundedRectanglesExplorer.kt
+```
+
+`Chapter04Screen.kt` contains full-screen and direct-child previews in light and dark modes. `MainActivity.kt` remains unchanged because it already opens Chapter 4.
+
+### Explicit deferrals
+
+Lesson 4.2 does not teach:
+
+- the capsule contract beyond naming it as the next lesson;
+- different horizontal and vertical radii for one corner;
+- different radius values at individual corners;
+- paths, meaning boundaries built from connected drawing segments;
+- clipping, meaning restricting drawing to a shape, or masks, meaning separate values that control visibility;
+- antialiasing, meaning the renderer's softened transition along a mathematical boundary, or physical-pixel coverage.
+
+### Lesson-feedback review
+
+The learner's explicit completion wording resolves the previous checkpoint. It does not reveal a new reusable explanation or verification rule. No new `AGENTS.md` policy was added.
+
+### Lesson 4.2 checkpoint
+
+Lesson 4.2 is complete only when:
+
+- [ ] The incremental learning-docs and Android ZIPs were applied.
+- [ ] The Android project builds and opens Lesson 4.2 on the Pixel 8 Pro.
+- [ ] Full-screen and direct-child previews render in light and dark modes.
+- [ ] The learner can explain why the outer bounds remain fixed.
+- [ ] The learner can calculate one corner curve center.
+- [ ] The learner can calculate the two join points for one corner.
+- [ ] The learner can calculate the remaining top and side straight spans.
+- [ ] The learner can explain why the controlled maximum is half the shorter side.
+- [ ] The prediction, coding challenge, and four exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 30 of 216.
+Next lesson becomes 4.3 — Capsules.
+```
+
+---
+
+## Latest authoritative correction — Lesson 4.2 interactive geometry
+
+The learner reported that the Lesson 4.2 interactive explanation had overlapping text and was probably too large. Lesson 4.2 remains incomplete. Learner-confirmed progress remains **29 of 216**.
+
+```yaml
+learner_confirmed_completed_total: 29
+completed_through: "Lesson 4.1"
+lesson_04_02_generated: true
+lesson_04_02_completed_by_learner: false
+lesson_04_02_visual_correction_applied: true
+next_unresolved_checkpoint: "Lesson 4.2"
+generated_frontier: "Lesson 4.2"
+next_after_completion: "Lesson 4.3 — Capsules"
+```
+
+### Defect in the first interaction
+
+At the required `1920×1080` viewport, the responsive rule stacked the SVG above the controls even though both could fit side by side. The SVG expanded to roughly `1750 × 839` CSS pixels. Its left margin simultaneously carried:
+
+- the fixed-height dimension label;
+- the changing side-straight label;
+- the left-join coordinate label;
+- arrowheads and the rounded-rectangle boundary.
+
+Those independent labels overlapped. The oversized SVG also forced the learner to scan and scroll more than the geometry required.
+
+### Corrected interaction
+
+The revised Lesson 4.2:
+
+- uses a centered two-column laboratory at the 1920-pixel desktop target;
+- caps the geometry at `820 × 430` CSS pixels at both 1920 and 5120 widths;
+- keeps fixed width and fixed height in separate top and left lanes;
+- uses short `C`, `T`, and `L` markers inside the geometry;
+- places the complete live curve-center, top-join, left-join, and straight-span values in adjacent readout cards;
+- highlights the actual remaining straight boundary in pink instead of drawing competing labelled arrows;
+- hides point letters for very small radii, where the three correct points are physically close together;
+- preserves the same slider, presets, drag handle, construction toggles, formulas, and teaching coordinates.
+
+### Verification
+
+The corrected interactive section measures approximately `882` CSS pixels high at `1920×1080`, compared with approximately `1631` CSS pixels before the correction. The SVG is `820 × 430` CSS pixels instead of approximately `1750 × 839`.
+
+The interaction was checked in light and dark themes at `1920×1080` and `5120×1440`. Radius values `0`, `1`, `20`, `29`, `30`, `50`, `90`, and `130` were checked with all construction toggles enabled. No SVG text pairs overlapped, no SVG text was clipped, no horizontal page overflow appeared, and no JavaScript or browser-console error was produced.
+
+### Reusable rule
+
+`AGENTS.md` now contains an **Interactive geometry footprint and label-separation gate**. A free-play geometry diagram must cap growth that adds no information, preserve a sensible side-by-side desktop layout when it fits, reserve independent label lanes, move complete values to synchronized external readouts when necessary, and verify dense plus boundary states for overlap and clipping.
+

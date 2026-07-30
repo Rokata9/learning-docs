@@ -1,71 +1,107 @@
 # Liquid Glass Android course — current state
 
-**Authoritative learner-confirmed progress:** 28 of 216 lessons completed.
+**Authoritative learner-confirmed progress:** 29 of 216 lessons completed.
 
 ## Completed
 
 - Chapters 1, 2, and 3 are complete.
-- Lessons 3.1 through 3.11 are complete.
-- The latest completed lesson is **3.11 — Compositing laboratory**.
-- Lesson 3.11 was marked complete because the learner requested the next lesson without reporting a remaining question, correction, or test problem.
+- Lesson 4.1 — Rectangles and circles is complete by the learner's explicit request to mark the prior pending work complete and continue.
+- The latest completed lesson is **4.1 — Rectangles and circles**.
 
 ## Not completed
 
-- **Lesson 4.1 — Rectangles and circles** is generated in this delivery.
-- Lesson 4.1 has not yet been learner-confirmed complete.
-- Chapter 4 remains in progress.
+- **Lesson 4.2 — Rounded rectangles** is generated and has received a visual-layout correction.
+- The learner reported that the interactive explanation contained overlapping text and was probably too large.
+- The corrected Lesson 4.2 remains pending learner review and has not been learner-confirmed complete.
+- Chapter 4 remains in progress. Lessons 4.2 through 4.11 are not complete.
 
-Do not infer Lesson 4.1 completion merely because its files were generated, opened, tested, or discussed.
+The request to mark the prior pending work complete applies to the previous learner checkpoint, Lesson 4.1. It does not close Chapter 4 because the remaining Chapter 4 lessons have not been completed.
 
 ## Course pointers
 
-- **Next unresolved learner checkpoint:** Lesson 4.1.
-- **Generated frontier:** Lesson 4.1.
-- **Next planned lesson after explicit Lesson 4.1 completion:** Lesson 4.2 — Rounded rectangles.
+- **Next unresolved learner checkpoint:** Lesson 4.2.
+- **Generated frontier:** Lesson 4.2.
+- **Next planned lesson after explicit Lesson 4.2 completion:** Lesson 4.3 — Capsules.
 
-## Lesson 4.1 model
+## Lesson 4.2 model
 
-Lesson 4.1 introduces one geometry distinction:
-
-- a **rectangle** has four boundary coordinates: left, top, right, and bottom; this lesson supplies left, top, width, and height, then derives right and bottom;
-- a **circle** is controlled by one center point and one radius;
-- the circle's enclosing square is a rectangle that contains the circle, but the square is not the circle.
+Lesson 4.2 keeps one rectangle's outer bounds fixed and adds one uniform corner-radius input.
 
 The browser reset values use SVG-local teaching units:
 
 ```text
-Rectangle:
-left = 80
-top = 70
-width = 240
-height = 150
-right = 320
-bottom = 220
+Rectangle bounds:
+left = 120
+top = 80
+width = 520
+height = 260
+right = 640
+bottom = 340
 
-Circle:
-center = (520, 145)
-radius = 75
-diameter = 150
-leftmost = 445
-rightmost = 595
-topmost = 70
-bottommost = 220
+Corner radius:
+radius = 50
+maximum controlled radius = min(520, 260) / 2 = 130
 ```
 
-The Android explorer uses one controlled `320.dp × 220.dp` Compose drawing surface. It converts the requested shape dimensions from dp to Canvas-local px at runtime, draws one rectangle with `drawRect`, and draws one circle with `drawCircle`.
+For the top-left corner:
+
+```text
+sharp corner = (120, 80)
+curve center = (120 + 50, 80 + 50) = (170, 130)
+top join = (170, 80)
+left join = (120, 130)
+```
+
+The remaining straight spans are:
+
+```text
+top straight length = 520 - 50 - 50 = 420
+side straight length = 260 - 50 - 50 = 160
+```
+
+The browser exposes the original sharp rectangle, the rounded silhouette, one construction circle, all four curve centers, both top-left join points, a radius slider, exact presets, a draggable horizontal radius handle, a manual derivation stepper, a prediction check, and a coding challenge.
+
+The Android explorer uses a fixed `320.dp × 240.dp` requested drawing surface and a fixed rectangle at:
+
+```text
+left = 24.dp
+top = 36.dp
+width = 272.dp
+height = 168.dp
+initial radius = 32.dp
+maximum controlled radius = 84.dp
+```
+
+It compares `RoundedCornerShape(cornerRadiusDp.dp)` with a direct `drawRoundRect` call whose dp values are converted to Canvas-local px inside the drawing scope.
 
 The lesson deliberately defers:
 
-- rounded corners;
-- capsules;
-- arbitrary paths;
-- clipping and masks;
-- antialiasing theory;
-- distance formulas for arbitrary points around a circle.
+- the capsule contract and name to Lesson 4.3;
+- different radius values at individual corners;
+- different horizontal and vertical radii for one corner;
+- paths, meaning boundaries built from connected drawing segments;
+- clipping, meaning restricting drawing to a shape, and masks, meaning separate values that control visibility;
+- antialiasing, meaning the renderer's softened transition along a mathematical boundary, and physical-pixel coverage.
+
+## Lesson 4.2 visual correction
+
+The first interactive geometry used a full-width SVG when the browser width was below 2300 pixels. At `1920×1080`, this stacked the diagram above its controls, enlarged the SVG to about `1750 × 839` CSS pixels, and placed the fixed-height label, side-span label, and left-join coordinate text in the same left margin.
+
+The corrected interaction now:
+
+- keeps the geometry and controls side by side at the 1920-pixel desktop target;
+- caps the live SVG at `820 × 430` CSS pixels and keeps the same cap on ultrawide displays;
+- replaces long on-shape coordinate labels with short `C`, `T`, and `L` markers;
+- moves complete live coordinates into four readout cards below the diagram;
+- highlights the remaining top and side straight boundary directly in pink instead of adding competing arrow labels;
+- keeps fixed width and fixed height in separate top and left label lanes;
+- keeps the full interactive section below one 1080-pixel viewport height at the target desktop width.
+
+Learner-confirmed progress remains **29 of 216**. Lesson 4.2 remains the unresolved checkpoint and generated frontier.
 
 ## Lesson-feedback review
 
-The learner moved on from Lesson 3.11 without reporting a defect or question. This confirms completion but does not identify a new reusable teaching rule beyond the existing prerequisite, explicit-intermediate, and value-provenance rules. No new `AGENTS.md` policy was added.
+The correction exposed a reusable quality gap: free-play geometry diagrams need the same viewport-fit discipline already required for steppers. `AGENTS.md`, the handoff, and the curriculum now require capped diagram growth, label-lane separation, exact external readouts when labels would crowd the shape, and minimum/reset/maximum overlap checks.
 
 ## Delivery rules
 
