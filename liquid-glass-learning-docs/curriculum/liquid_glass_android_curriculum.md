@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 4.7.0  
-**Updated:** 2026-07-30  
-**Current course position:** Lessons 1.1 through 4.6 are complete by learner confirmation. **34 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.7 is generated and is both the next unresolved checkpoint and the generated frontier.  
+**Version:** 4.8.0  
+**Updated:** 2026-07-31  
+**Current course position:** Lessons 1.1 through 4.7 are complete by learner confirmation. **35 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.8 is generated and is both the next unresolved checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -10,7 +10,24 @@
 
 ---
 
-## 1. What changed through version 4.7.0
+## 1. What changed through version 4.8.0
+
+Version 4.8.0 records completion of Lesson 4.7 and generates Lesson 4.8:
+
+- The learner requested the next lesson without a remaining Lesson 4.7 issue, so Lesson 4.7 is learner-confirmed complete.
+- Learner-confirmed course completion is now **35 of 216 lessons**.
+- Lesson 4.8 defines a mask as separate per-position visibility data rather than a gray color layer.
+- The controlled candidate is opaque straight sRGB RGBA `(0.84, 0.36, 0.18, 1.00)`. The opaque background is straight sRGB RGBA `(0.10, 0.18, 0.30, 1.00)`.
+- The reset mask field uses four enlarged zones with values `0.00`, `0.25`, `0.60`, and `1.00`.
+- The grayscale mask preview maps mask value `m` to preview RGB `(m, m, m)`, but that preview RGB is not a tint input.
+- The lesson defines effective source alpha before its first formula and calculates it as `candidate alpha × mask value`.
+- Reset zone C uses effective alpha `1.00 × 0.60 = 0.60` and produces final straight sRGB RGBA approximately `(0.5440, 0.2880, 0.2280, 1.0000)` over the opaque background.
+- A separate boundary example proves that candidate alpha `0.50` and mask value `0.60` produce effective alpha `0.30`; the two restrictions do not add.
+- The clipping comparison is limited to Lesson 4.7's clearly inside and clearly outside positions. Renderer-created edge coverage remains deferred to Lesson 4.9.
+- The browser diagram and manual stepper remain capped at `820 × 430` CSS pixels, with full values in external readouts.
+- Android changes: `Chapter04Screen.kt` and new `MasksExplorer.kt`, with complete-screen and direct-child previews in both OS themes.
+- The Android explorer uses one controlled solid candidate and four non-overlapping mask zones. It explicitly states that arbitrary multi-draw or captured content normally needs grouping or a shader-based mask.
+- No new `AGENTS.md` policy is added. The clean Lesson 4.7 progression reinforces the existing beginner-first, causal-operation, compact-geometry, and stepper-fit rules.
 
 Version 4.7.0 records completion of Lesson 4.6 and generates Lesson 4.7:
 
@@ -3752,3 +3769,111 @@ Course progress becomes 35 of 216.
 Next lesson becomes 4.8 — Masks.
 ```
 
+
+## 12P. Lesson 4.8 implementation record
+
+### `lesson-04-08-masks.html`
+
+**New graphics idea:** A mask supplies one normalized visibility value at each drawing position. The value controls another drawing's contribution without becoming a tint color.
+
+**Mathematical idea:** Multiply candidate alpha by mask value, then reuse the completed source-over operation.
+
+Fixed controlled inputs:
+
+```text
+candidate straight sRGB RGBA
+= (0.84, 0.36, 0.18, 1.00)
+
+background straight sRGB RGBA
+= (0.10, 0.18, 0.30, 1.00)
+```
+
+Reset four-zone mask field:
+
+```text
+A = 0.00
+B = 0.25
+C = 0.60
+D = 1.00
+```
+
+The lesson defines these objects before showing arithmetic:
+
+- **mask:** separate data controlling how much another drawing contributes;
+- **mask value:** one number from `0` through `1` for one position or enlarged zone;
+- **mask field:** mask values arranged across positions;
+- **effective source alpha:** candidate alpha after multiplication by the mask value;
+- **grayscale preview:** a teaching visualization that displays value `m` as opaque RGB `(m, m, m)` without adding that RGB to the candidate.
+
+Reset trace at zone C:
+
+```text
+effective source alpha
+= candidate alpha × mask value
+= 1.00 × 0.60
+= 0.60
+
+background opening
+= 1 − 0.60
+= 0.40
+```
+
+```text
+red   = 0.84 × 0.60 + 0.10 × 0.40 = 0.5440
+green = 0.36 × 0.60 + 0.18 × 0.40 = 0.2880
+blue  = 0.18 × 0.60 + 0.30 × 0.40 = 0.2280
+alpha = 1.0000
+```
+
+The browser interaction:
+
+- displays candidate, mask field, and final output in three synchronized compact views;
+- selects A, B, C, or D and changes that zone independently;
+- includes course, clip-like, all-zero, all-one, and reversed presets;
+- updates the mask preview, effective source alpha, source-over calculation, and output together;
+- proves that a gray mask preview is not a gray tint;
+- compares mask values `0` and `1` with the previous clearly outside/inside clip traces;
+- includes a seven-step derivation, a `0.60 → 0.80` prediction, a multiplication coding challenge, four hidden-answer exercises, and a completion record.
+
+Android drawing model:
+
+```text
+draw opaque background
+→ build completed badge Path
+→ clipPath(badgePath) {
+      for each non-overlapping zone:
+          draw the same solid candidate with alpha = mask value
+  }
+→ source-over produces the final visible color
+→ draw guides and selected-zone evidence
+```
+
+This direct per-zone path is exact for the lesson's one solid fill. It is not presented as a general mask engine for arbitrary groups of overlapping draw calls. Compose `BlendMode.DstIn` is named as one general compositing tool whose source RGB is ignored and whose source opacity acts as the mask, but the full grouped/offscreen implementation remains deferred until the course teaches the required rendering architecture.
+
+Changed Android files:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter04/Chapter04Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter04/MasksExplorer.kt
+```
+
+Lesson 4.8 is complete only when:
+
+- [ ] The Android files compile and run on the Pixel 8 Pro.
+- [ ] Complete-screen and direct-child previews render in light and dark modes.
+- [ ] The reset field shows values `0.00`, `0.25`, `0.60`, and `1.00`.
+- [ ] Each zone can be selected and changed independently.
+- [ ] The learner can define mask, mask value, mask field, and effective source alpha.
+- [ ] The learner can reproduce zone C output `(0.5440, 0.2880, 0.2280, 1.0000)`.
+- [ ] The learner can explain why the grayscale preview is not a tint.
+- [ ] The learner can calculate candidate alpha `0.50` times mask value `0.60` as effective alpha `0.30`.
+- [ ] The learner can compare mask endpoints with the clearly inside/outside clipping trace without claiming that real rendered edges are binary.
+- [ ] The prediction, coding challenge, and four exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 36 of 216.
+Next lesson becomes 4.9 — Soft edges and antialiasing.
+```

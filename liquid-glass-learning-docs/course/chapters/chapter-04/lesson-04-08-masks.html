@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 4.8 — Masks</title>
+<style>
+:root{
+  color-scheme:light dark;
+  --ink:#172033;--muted:#596579;--line:#d8e0ea;--paper:#fff;--soft:#f5f7fb;
+  --panel:#fbfcfe;--control:#fff;--green:#059669;--green-soft:#ecfdf5;
+  --indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;
+  --pink:#be185d;--pink-soft:#fce7f3;--blue:#1e40af;--blue-soft:#dbeafe;
+  --red:#dc2626;--red-soft:#fee2e2;--body-start:#f8fafc;--body-end:#edf2f7;
+  --shadow:0 18px 52px rgba(30,41,59,.09);--code-bg:#111827;--code-ink:#e5e7eb
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --ink:#e7edf7;--muted:#aeb9c9;--line:#354154;--paper:#111827;--soft:#172033;
+    --panel:#151e2d;--control:#1b2535;--green:#34d399;--green-soft:#0b3429;
+    --indigo:#a5b4fc;--indigo-soft:#23234a;--amber:#fbbf24;--amber-soft:#402d0a;
+    --pink:#f472b6;--pink-soft:#43172d;--blue:#60a5fa;--blue-soft:#172d54;
+    --red:#f87171;--red-soft:#491b20;--body-start:#0b111c;--body-end:#101827;
+    --shadow:0 18px 52px rgba(0,0,0,.32);--code-bg:#080d16;--code-ink:#e5e7eb
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--body-start),var(--body-end));font:16px/1.68 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+a{color:var(--blue)}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.52}
+code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
+code{background:var(--indigo-soft);padding:.12em .36em;border-radius:6px}
+.page{width:min(4760px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}
+.topbar{display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:22px}
+.crumbs{color:var(--muted)}
+.chips{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:850}
+.chip.progress{color:var(--green);background:var(--green-soft)}
+.chip.pending{color:var(--amber);background:var(--amber-soft)}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+.hero{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(460px,.75fr);gap:28px;padding:42px}
+.eyebrow{color:var(--green);font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+h1{margin:.35rem 0 1rem;font-size:clamp(42px,4vw,70px);line-height:1.04;letter-spacing:-.045em}
+h2{margin:0 0 .7rem;font-size:31px;line-height:1.18}
+h3{margin:0 0 .5rem;font-size:21px;line-height:1.25}
+p{max-width:116ch}
+.lead{font-size:19px;color:var(--muted)}
+.goal{padding:23px;border-radius:18px;border:1px solid color-mix(in srgb,var(--indigo) 35%,var(--line));background:var(--indigo-soft)}
+.goal strong{color:var(--indigo)}
+.section{margin-top:24px;padding:32px}
+.section-head{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:22px}
+.section-head p{margin:0;color:var(--muted)}
+.section-no{color:var(--indigo);font-weight:900;letter-spacing:.04em}
+.card{padding:20px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}
+.card.green{background:var(--green-soft);border-color:color-mix(in srgb,var(--green) 45%,var(--line))}
+.card.red{background:var(--red-soft);border-color:color-mix(in srgb,var(--red) 45%,var(--line))}
+.card.amber{background:var(--amber-soft);border-color:color-mix(in srgb,var(--amber) 45%,var(--line))}
+.card.blue{background:var(--blue-soft);border-color:color-mix(in srgb,var(--blue) 45%,var(--line))}
+.card.indigo{background:var(--indigo-soft);border-color:color-mix(in srgb,var(--indigo) 45%,var(--line))}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.note,.warning,.success{margin-top:18px;padding:16px 18px;border-radius:14px}
+.note{border-left:5px solid var(--blue);background:var(--blue-soft)}
+.warning{border-left:5px solid var(--amber);background:var(--amber-soft)}
+.success{border-left:5px solid var(--green);background:var(--green-soft)}
+.formula{padding:14px 16px;border-radius:13px;background:var(--indigo-soft);border:1px solid color-mix(in srgb,var(--indigo) 45%,var(--line));font:800 15px/1.64 "SFMono-Regular",Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+.code{background:var(--code-bg);color:var(--code-ink);border-radius:14px;padding:16px;white-space:pre-wrap;overflow:auto;font:14px/1.62 "SFMono-Regular",Consolas,monospace}
+.primary,.secondary,.preset,.zone-button,.step-dot,.prediction-button{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:850}
+.primary{border:1px solid var(--blue);background:var(--blue);color:#fff}
+.secondary,.preset,.zone-button,.step-dot,.prediction-button{border:1px solid var(--line);background:var(--control);color:var(--ink)}
+.secondary:hover,.preset:hover,.zone-button:hover,.step-dot:hover,.prediction-button:hover{border-color:#94a3b8;background:var(--soft)}
+.selected{border-color:var(--indigo)!important;background:var(--indigo-soft)!important;color:var(--indigo)!important}
+.controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.interactive-grid{display:grid;grid-template-columns:minmax(680px,820px) minmax(520px,1fr);gap:20px;align-items:start}
+.stage{width:100%;max-width:820px;border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:12px;justify-self:start}
+.stage svg{display:block;width:100%;max-width:820px;height:auto;aspect-ratio:820/430}
+.control-panel{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:20px}
+.range{display:grid;grid-template-columns:230px minmax(260px,1fr) 100px;gap:14px;align-items:center;margin:13px 0}
+.range input{width:100%}
+.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.metric{padding:14px;border:1px solid var(--line);border-radius:13px;background:var(--control)}
+.metric strong{display:block;color:var(--indigo);margin-bottom:5px}
+.trace-grid{display:grid;grid-template-columns:minmax(0,1fr) 42px minmax(0,1fr) 42px minmax(0,1fr) 42px minmax(0,1fr);gap:12px;align-items:stretch}
+.trace-arrow{display:grid;place-items:center;font-size:32px;font-weight:950;color:var(--pink)}
+.trace-card{min-height:235px}
+.mask-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}
+.mask-swatch{min-height:120px;border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;justify-content:flex-end;font-weight:900}
+.pipeline{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.pipeline .card{min-height:215px}
+.pipeline strong{display:block;color:var(--indigo);margin-bottom:7px}
+.stepper{display:grid;grid-template-columns:minmax(680px,820px) minmax(520px,1fr);gap:18px;align-items:start}
+.step-figure{width:100%;max-width:820px;border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:12px}
+.step-figure svg{display:block;width:100%;max-width:820px;height:auto;aspect-ratio:820/430}
+.step-card{min-width:0;border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden}
+.step-nav{padding:12px;display:flex;gap:7px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.step-body{padding:18px}
+.step-title{font-size:22px;font-weight:900}
+.step-caption{min-height:76px}
+.challenge{display:grid;grid-template-columns:minmax(720px,1fr) minmax(560px,.75fr);gap:18px}
+.editor{width:100%;min-height:260px;resize:vertical;background:var(--code-bg);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace}
+.challenge-preview{padding:18px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}
+.result{min-height:55px;margin-top:12px;padding:12px;border-radius:11px;background:var(--soft)}
+details{margin:10px 0;border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:13px 15px}
+summary{cursor:pointer;font-weight:900}
+.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.check{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}
+.record{width:100%;min-height:310px;resize:vertical;background:var(--code-bg);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace}
+.footer-nav{margin-top:24px;padding:18px 24px;display:flex;justify-content:space-between;gap:18px;align-items:center}
+.footer-nav a{font-weight:900}
+.footer-nav span{color:var(--muted)}
+@media(max-width:1500px){.interactive-grid,.stepper{grid-template-columns:1fr}.stage,.step-figure{justify-self:center}.trace-grid{grid-template-columns:1fr}.trace-arrow{transform:rotate(90deg);min-height:34px}.pipeline{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1200px){.hero,.two,.three,.four,.challenge{grid-template-columns:1fr}.range{grid-template-columns:190px 1fr 90px}.metrics,.mask-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.checklist{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="page">
+<nav class="topbar">
+  <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-shapes-corners-paths-and-masks.html">Chapter 4</a> · Lesson 4.8</div>
+  <div class="chips"><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span><span class="chip pending">Current checkpoint · 4.8</span><span class="chip progress">35 of 216 complete</span></div>
+</nav>
+<header class="hero panel">
+  <div>
+    <div class="eyebrow">Chapter 4 · Shapes, corners, paths, and masks</div>
+    <h1>Lesson 4.8 — Masks</h1>
+    <p class="lead"><strong>Lesson 4.7 used one closed Path to answer a yes-or-no question at positions that were clearly inside or outside.</strong> This lesson keeps the same kind of candidate drawing and opaque background, but gives each enlarged interior zone a separate visibility value from <code>0</code> through <code>1</code>.</p>
+    <div class="goal"><strong>Practical question</strong><p>How can one effect be fully hidden in one region, partly visible in another, and fully visible elsewhere without changing the effect's RGB color?</p></div>
+  </div>
+  <aside class="card amber">
+    <h2>One new idea</h2>
+    <p>A <strong>mask</strong> is separate data that controls how much of another drawing is allowed to contribute at each position.</p>
+    <p>This lesson uses four enlarged zones rather than physical display pixels. Lesson 4.9 will explain the renderer-created transition around a mathematical edge.</p>
+  </aside>
+</header>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">0 · WHERE THIS LESSON FITS</div><h2>Replace a binary decision with a visibility amount</h2></div><p>The outer badge boundary remains fixed.</p></div>
+  <div class="two">
+    <article class="card blue"><h3>Completed Lesson 4.7</h3><p>At the clearly inspected positions, the clip decision was either reject the current draw or allow the current draw.</p><div class="formula">clearly outside → reject
+clearly inside → allow</div></article>
+    <article class="card green"><h3>New Lesson 4.8</h3><p>A mask supplies one normalized visibility value. A normalized value uses the numeric range from 0 through 1.</p><div class="formula">0.00 → keep none
+0.60 → keep part
+1.00 → keep all</div></article>
+  </div>
+  <div class="warning"><strong>Boundary precision:</strong> the clip comparison above refers to Lesson 4.7's positions that were far from the Path edge. Real rendered edges can contain partial coverage. That renderer-created transition belongs to Lesson 4.9.</div>
+</section>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">1 · WHAT YOU WILL SEE</div><h2>Three views of the same four positions</h2></div><p>The candidate, mask, and final output are separate objects.</p></div>
+  <div class="three">
+    <article class="card"><h3>Candidate content</h3><p>The opaque orange drawing that would be written before the mask changes its visibility.</p></article>
+    <article class="card"><h3>Mask-field preview</h3><p>Four grayscale zones that visualize four mask values. The gray preview is data, not a gray tint layer.</p></article>
+    <article class="card"><h3>Final output</h3><p>The masked candidate composited over the opaque navy background with ordinary source-over.</p></article>
+  </div>
+</section>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">2 · TERMS</div><h2>Define every new object before the first formula</h2></div></div>
+  <div class="four">
+    <article class="card indigo"><h3>Mask</h3><p>Separate data that controls how much another drawing contributes at each position.</p></article>
+    <article class="card"><h3>Mask value</h3><p>One number from 0 through 1 stored for one position or enlarged teaching zone.</p></article>
+    <article class="card"><h3>Mask field</h3><p>A collection of mask values arranged over many drawing positions.</p></article>
+    <article class="card amber"><h3>Effective source alpha</h3><p>The candidate alpha after the mask value has reduced it. Source-over consumes this alpha.</p></article>
+  </div>
+  <div class="note"><strong>Grayscale preview:</strong> mask value <code>m</code> is shown as opaque preview RGB(<code>m</code>, <code>m</code>, <code>m</code>). This lets black represent 0 and white represent 1. The preview RGB is not added to the orange candidate.</div>
+</section>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">3 · INTERACTIVE EXPLANATION</div><h2>Change one zone's mask value</h2></div><p>The outer silhouette and both RGB colors remain fixed.</p></div>
+  <div class="interactive-grid">
+    <div>
+      <div class="stage"><svg id="maskSvg" role="img" aria-label="Candidate, mask field, and masked output" viewBox="0 0 820 430"></svg></div>
+      <div class="mask-strip" id="maskStrip"></div>
+    </div>
+    <aside class="control-panel">
+      <h3>Select one zone</h3>
+      <div class="controls" id="zoneButtons"></div>
+      <div class="range"><label for="maskRange">Selected mask value</label><input id="maskRange" type="range" min="0" max="1" step="0.05"><output id="maskValueOut" class="mono"></output></div>
+      <div class="controls">
+        <button class="preset" data-preset="course">Course field</button>
+        <button class="preset" data-preset="clip">Clip-like 0 / 1</button>
+        <button class="preset" data-preset="hidden">All 0</button>
+        <button class="preset" data-preset="visible">All 1</button>
+        <button class="preset" data-preset="reverse">Reverse</button>
+      </div>
+      <div class="metrics">
+        <div class="metric"><strong>Selected zone</strong><span id="selectedZoneMetric"></span></div>
+        <div class="metric"><strong>Mask value</strong><span id="maskMetric" class="mono"></span></div>
+        <div class="metric"><strong>Effective source alpha</strong><span id="effectiveAlphaMetric" class="mono"></span></div>
+        <div class="metric"><strong>Final output alpha</strong><span class="mono">1.0000</span></div>
+      </div>
+      <div class="note"><strong>Why output alpha stays 1:</strong> the navy background is opaque. It remains behind any part of the candidate that the mask removes.</div>
+    </aside>
+  </div>
+</section>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">4 · TRACE ONE VALUE</div><h2>Follow the selected zone from inputs to final output</h2></div><p>The reset trace selects zone C with mask value 0.60.</p></div>
+  <div class="trace-grid" id="traceGrid"></div>
+  <div class="success"><strong>Reset result:</strong> mask value <code>0.60</code> changes the opaque candidate into an effective 60% source before source-over. The final straight sRGB output is approximately RGBA(<code>0.5440</code>, <code>0.2880</code>, <code>0.2280</code>, <code>1.0000</code>).</div>
+</section>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">5 · FIRST FORMULA</div><h2>Calculate the alpha that source-over will consume</h2></div><p>Both inputs and the output have already been defined.</p></div>
+  <p>The candidate carries its own source alpha. The mask supplies another visibility restriction. Multiply them:</p>
+  <div class="formula" id="effectiveAlphaFormula"></div>
+  <p>The controlled candidate alpha is <code>1.00</code>. Therefore, in this lesson's main case, the effective source alpha is numerically equal to the mask value.</p>
+  <div class="warning"><strong>Special-case warning:</strong> equality with the mask value is not the general rule. If candidate alpha is 0.50 and mask value is 0.60, effective source alpha is <code>0.50 × 0.60 = 0.30</code>.</div>
+</section>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">6 · COMPLETE COLOR TRACE</div><h2>Use the effective alpha in ordinary source-over</h2></div><p>Trace red first, then repeat the same operation for green and blue.</p></div>
+  <div class="two">
+    <article class="card indigo"><h3>Selected red channel</h3><div class="formula" id="redTrace"></div></article>
+    <article class="card"><h3>Green, blue, and final alpha</h3><div class="formula" id="otherTrace"></div></article>
+  </div>
+  <div class="note"><strong>Mask value is not final output alpha:</strong> mask value controls the candidate contribution before compositing. The opaque background makes the final output alpha 1.00.</div>
+</section>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">7 · CLIPPING VERSUS MASKING</div><h2>A clip-like field uses only the two endpoint values</h2></div><p>The distinction is about the values supplied at inspected positions.</p></div>
+  <div class="two">
+    <article class="card blue"><h3>Clearly inside or outside clip trace</h3><div class="formula">outside position → behaves like mask value 0
+inside position → behaves like mask value 1</div><p>Those two values reproduce the yes-or-no behavior from Lesson 4.7 away from the boundary.</p></article>
+    <article class="card green"><h3>Mask field</h3><div class="formula">allowed mask values = every number from 0 through 1
+example = 0.25, 0.60, 0.85</div><p>Intermediate values create partial visibility without changing the candidate's stored straight RGB.</p></article>
+  </div>
+</section>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">8 · DIAGNOSTIC</div><h2>The gray preview does not tint the candidate</h2></div><p>This is the most likely misconception.</p></div>
+  <div class="two">
+    <article class="card red"><h3>Incorrect mental model</h3><p>“Mask value 0.60 paints gray RGB(0.60, 0.60, 0.60) over the orange candidate.”</p><p>That would be a color-compositing or tint operation. It is not the mask contract taught here.</p></article>
+    <article class="card green"><h3>Correct mental model</h3><p>The mask preview displays the number 0.60 as gray so the value is visible to the learner.</p><div class="formula">candidate straight RGB stays (0.84, 0.36, 0.18)
+mask changes effective source alpha
+background then contributes through source-over</div></article>
+  </div>
+</section>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">9 · TRANSLUCENT CANDIDATE BOUNDARY</div><h2>Keep candidate alpha and mask value separate</h2></div><p>The mask does not replace the candidate's existing alpha.</p></div>
+  <div class="two">
+    <article class="card amber"><h3>Fixed boundary example</h3><div class="formula" id="boundaryAlpha"></div></article>
+    <article class="card"><h3>Result over the same opaque background</h3><div class="formula" id="boundaryOutput"></div><p>Two independent restrictions multiply. Adding them would incorrectly increase visibility and can exceed 1.</p></article>
+  </div>
+</section>
+
+<section class="section panel" id="stepper">
+  <div class="section-head"><div><div class="section-no">10 · MANUAL STEPPER</div><h2>Build the reset output one operation at a time</h2></div><p>The longest formula stays beside the compact diagram at 1920×1080.</p></div>
+  <div class="stepper">
+    <div class="step-figure"><svg id="stepSvg" role="img" aria-label="Mask value calculation step" viewBox="0 0 820 430"></svg></div>
+    <div class="step-card">
+      <div class="step-nav" id="stepNav"></div>
+      <div class="step-body">
+        <div class="step-title" id="stepTitle"></div>
+        <p class="step-caption" id="stepCaption"></p>
+        <div class="formula" id="stepFormula"></div>
+        <div class="controls" style="margin-top:16px"><button class="secondary" id="stepBack">Back</button><button class="primary" id="stepNext">Next</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">11 · ANDROID CONNECTION</div><h2>Use the mask value as alpha for one controlled solid fill</h2></div><p>The complete file remains in Android Studio and the incremental Android ZIP.</p></div>
+  <div class="pipeline">
+    <article class="card"><strong>1 · Background</strong><p>Draw opaque straight sRGB background RGB(0.10, 0.18, 0.30).</p></article>
+    <article class="card"><strong>2 · Badge Path</strong><p>Rebuild the completed closed badge Path in Canvas-local px.</p></article>
+    <article class="card"><strong>3 · clipPath</strong><p>Keep the known outer silhouette while the mask changes interior visibility.</p></article>
+    <article class="card"><strong>4 · Zone mask value</strong><p>Read one value from the four-value mask field.</p></article>
+    <article class="card"><strong>5 · Candidate draw</strong><p>Draw the same solid candidate with <code>alpha = maskValue</code> in that non-overlapping zone.</p></article>
+    <article class="card"><strong>6 · Source-over</strong><p>The Canvas combines the masked source with the opaque background.</p></article>
+  </div>
+  <pre class="code">// MasksExplorer.kt — controlled non-overlapping zones
+clipPath(badgePath) {
+    maskValues.forEachIndexed { index, maskValue ->
+        drawRect(
+            color = CandidateColor,
+            topLeft = zoneTopLeft(index),
+            size = zoneSize,
+            alpha = maskValue,
+        )
+    }
+}</pre>
+  <div class="warning"><strong>Production boundary:</strong> this direct path is exact because the candidate is one solid fill and the four zones do not overlap. Arbitrary content with several overlapping draw calls normally needs the candidate grouped before a separate mask is applied, or a shader that reads one mask value per position. Compose <code>BlendMode.DstIn</code> is one general compositing tool: Android's documentation states that it keeps the destination only where the source mask overlaps, ignores source RGB, and uses source opacity.</div>
+</section>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">12 · PREDICT</div><h2>Raise the reset mask value from 0.60 to 0.80</h2></div><p>Predict before pressing Check.</p></div>
+  <p>The candidate and background stay fixed. Which direction should the final output move?</p>
+  <div class="controls" id="predictionButtons">
+    <button class="prediction-button" data-prediction="candidate">Toward the candidate color</button>
+    <button class="prediction-button" data-prediction="background">Toward the background color</button>
+    <button class="prediction-button" data-prediction="gray">Toward mask-preview gray</button>
+  </div>
+  <button class="primary" id="checkPrediction" style="margin-top:12px">Check prediction</button>
+  <div class="result" id="predictionResult">Choose one result, then check it.</div>
+</section>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">13 · EXPLAIN THE RESULT</div><h2>Larger mask value leaves less room for the background</h2></div></div>
+  <div class="formula">at mask 0.60:
+background opening = 1 − 0.60 = 0.40
+
+at mask 0.80:
+background opening = 1 − 0.80 = 0.20</div>
+  <p>The background contribution becomes smaller. The output moves numerically toward the unchanged candidate RGB. At mask 0.80, the output is straight sRGB RGB(0.6920, 0.3240, 0.2040).</p>
+</section>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">14 · CODING CHALLENGE</div><h2>Repair effective source alpha</h2></div><p>The starting function incorrectly adds two visibility restrictions.</p></div>
+  <div class="challenge">
+    <div>
+      <textarea class="editor" id="challengeEditor" spellcheck="false">fun effectiveSourceAlpha(
+    candidateAlpha: Float,
+    maskValue: Float,
+): Float {
+    return candidateAlpha + maskValue
+}</textarea>
+      <div class="controls" style="margin-top:12px"><button class="preset" data-challenge="wrong">Use addition</button><button class="preset" data-challenge="correct">Use multiplication</button><button class="primary" id="checkChallenge">Check repair</button></div>
+      <div class="result" id="challengeResult">Repair the function, then check it.</div>
+    </div>
+    <aside class="challenge-preview">
+      <h3>Fixed test</h3>
+      <div class="formula">candidate alpha = 0.50
+mask value = 0.60
+expected effective alpha = 0.30</div>
+      <div class="metric"><strong>Current code result</strong><span class="mono" id="challengeValue"></span></div>
+      <p>Both numbers reduce visibility. Their product preserves that causal meaning.</p>
+    </aside>
+  </div>
+</section>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">15 · EXERCISES</div><h2>Answer before opening the hidden solutions</h2></div><p>Use the fixed candidate and background unless stated otherwise.</p></div>
+  <details><summary>Exercise 1 · Mask value 0</summary><p>What final RGB appears when candidate alpha is 1 and mask value is 0?</p><details><summary>Show answer</summary><p>Effective source alpha is <code>1 × 0 = 0</code>. The candidate contributes nothing. The final output is the unchanged background straight sRGB RGB(0.10, 0.18, 0.30).</p></details></details>
+  <details><summary>Exercise 2 · Red at mask value 0.25</summary><p>Calculate the final red channel.</p><details><summary>Show answer</summary><div class="formula">effective alpha = 1 × 0.25 = 0.25
+red = 0.84 × 0.25 + 0.10 × 0.75
+    = 0.21 + 0.075
+    = 0.285</div></details></details>
+  <details><summary>Exercise 3 · Diagnostic: does mask gray tint orange?</summary><p>The preview for mask value 0.60 is RGB(0.60, 0.60, 0.60). Does that gray RGB become part of the final output calculation?</p><details><summary>Show answer</summary><p>No. The grayscale preview makes the mask number visible. The mask value controls effective source alpha. Candidate RGB and background RGB supply the source-over color inputs.</p></details></details>
+  <details><summary>Exercise 4 · Candidate alpha 0.40 and mask 0.50</summary><p>Calculate effective source alpha.</p><details><summary>Show answer</summary><div class="formula">0.40 × 0.50 = 0.20</div><p>Do not add the values. The mask further restricts the candidate's existing opacity.</p></details></details>
+</section>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">16 · PIXEL 8 PRO CHECKPOINT</div><h2>Verify the Android experiment</h2></div></div>
+  <div class="checklist" id="checklist">
+    <label class="check"><input data-check="build" type="checkbox">The project builds after applying the Android ZIP.</label>
+    <label class="check"><input data-check="chapter-preview" type="checkbox">The complete Chapter 4 preview works in light and dark modes.</label>
+    <label class="check"><input data-check="child-preview" type="checkbox">The direct MasksExplorer preview works in light and dark modes.</label>
+    <label class="check"><input data-check="field" type="checkbox">The reset mask field shows 0.00, 0.25, 0.60, and 1.00.</label>
+    <label class="check"><input data-check="zone" type="checkbox">Each zone can be selected and changed independently.</label>
+    <label class="check"><input data-check="zero" type="checkbox">Mask 0 shows the unchanged background at the selected zone.</label>
+    <label class="check"><input data-check="one" type="checkbox">Mask 1 shows the full candidate at the selected zone.</label>
+    <label class="check"><input data-check="middle" type="checkbox">Mask 0.60 produces output near RGB(0.5440, 0.2880, 0.2280).</label>
+    <label class="check"><input data-check="alpha" type="checkbox">I can distinguish mask value, effective source alpha, and final output alpha.</label>
+    <label class="check"><input data-check="gray" type="checkbox">I can explain why the grayscale preview does not tint the candidate.</label>
+    <label class="check"><input data-check="clip" type="checkbox">I can compare clearly inside/outside clipping with mask values 0 and 1.</label>
+    <label class="check"><input data-check="challenge" type="checkbox">The prediction and coding challenge are complete.</label>
+  </div>
+  <button class="primary" id="buildRecord" style="margin-top:16px">Build completion record</button>
+  <textarea class="record" id="completionRecord" readonly>Complete the checkpoint, then build the record.</textarea>
+</section>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">17 · SOURCES AND EVIDENCE</div><h2>What the Android contracts support</h2></div></div>
+  <ul>
+    <li>Compose <code>DrawScope.drawRect</code> accepts an alpha value from 0 through 1 and a blend mode.</li>
+    <li>Compose <code>BlendMode.DstIn</code> treats its source as a mask: source RGB is ignored and source opacity controls how much destination remains.</li>
+    <li>The Android explorer deliberately uses direct per-zone alpha for one single solid candidate. It does not claim that this is the general implementation for arbitrary captured or filtered content.</li>
+  </ul>
+  <p><a href="https://developer.android.com/develop/ui/compose/graphics/draw/overview">Android Developers · Graphics in Compose</a> · <a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode#DstIn">AndroidX Compose BlendMode.DstIn</a></p>
+</section>
+
+<nav class="footer-nav panel"><a href="lesson-04-07-clipping.html">← Lesson 4.7 · completed</a><a href="lesson-shapes-corners-paths-and-masks.html">Chapter 4 hub</a><span>Next after completion: Lesson 4.9 · Soft edges and antialiasing</span></nav>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const f2=n=>Number(n).toFixed(2);
+const f4=n=>Number(n).toFixed(4);
+const clamp=n=>Math.max(0,Math.min(1,n));
+const candidate=[0.84,0.36,0.18];
+const background=[0.10,0.18,0.30];
+const zones=[
+  {id:'A',name:'left zone'},
+  {id:'B',name:'left-middle zone'},
+  {id:'C',name:'right-middle zone'},
+  {id:'D',name:'right zone'}
+];
+const state={maskValues:[0,0.25,0.60,1],selected:2,step:0,prediction:null,challengePassed:false};
+
+function outputFor(maskValue,candidateAlpha=1){
+  const effective=clamp(candidateAlpha)*clamp(maskValue);
+  return {
+    effective,
+    rgb:candidate.map((c,i)=>c*effective+background[i]*(1-effective)),
+    alpha:1
+  };
+}
+function rgbCss(rgb){return `rgb(${rgb.map(v=>Math.round(clamp(v)*255)).join(' ')})`}
+function grayCss(value){const n=Math.round(clamp(value)*255);return `rgb(${n} ${n} ${n})`}
+function readable(rgb){return (rgb[0]+rgb[1]+rgb[2])/3>.56?'#111827':'#ffffff'}
+function escapeHtml(value){return String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]))}
+
+function buildZoneButtons(){
+  $('zoneButtons').innerHTML=zones.map((zone,index)=>`<button class="zone-button ${index===state.selected?'selected':''}" data-zone="${index}">${index===state.selected?'✓ ':''}${zone.id}</button>`).join('');
+  document.querySelectorAll('[data-zone]').forEach(button=>button.addEventListener('click',()=>{
+    state.selected=Number(button.dataset.zone);
+    state.prediction=null;
+    render();
+  }));
+}
+
+function mainSvg(){
+  const panelX=[20,290,560],panelWidth=240,shapeY=72,shapeHeight=230,zoneWidth=60;
+  const titles=['Candidate content','Mask field','Final output'];
+  const clips=panelX.map((x,index)=>`<clipPath id="clip${index}"><rect x="${x}" y="${shapeY}" width="${panelWidth}" height="${shapeHeight}" rx="46"/></clipPath>`).join('');
+  let svg=`<defs>${clips}</defs><rect width="820" height="430" fill="transparent"/>`;
+  titles.forEach((title,index)=>{
+    svg+=`<text x="${panelX[index]+panelWidth/2}" y="34" text-anchor="middle" font-size="18" font-weight="900" fill="currentColor">${title}</text>`;
+  });
+  panelX.forEach((x,index)=>{
+    svg+=`<rect x="${x}" y="${shapeY}" width="${panelWidth}" height="${shapeHeight}" rx="46" fill="${index===1?'var(--soft)':rgbCss(background)}" stroke="var(--line)" stroke-width="2"/>`;
+  });
+  svg+=`<g clip-path="url(#clip0)"><rect x="20" y="72" width="240" height="230" fill="${rgbCss(candidate)}"/></g>`;
+  state.maskValues.forEach((maskValue,index)=>{
+    const maskX=panelX[1]+index*zoneWidth;
+    const outputX=panelX[2]+index*zoneWidth;
+    const output=outputFor(maskValue).rgb;
+    const gray=[maskValue,maskValue,maskValue];
+    svg+=`<g clip-path="url(#clip1)"><rect x="${maskX}" y="${shapeY}" width="${zoneWidth}" height="${shapeHeight}" fill="${grayCss(maskValue)}"/><text x="${maskX+zoneWidth/2}" y="190" text-anchor="middle" font-size="14" font-weight="900" fill="${readable(gray)}">${zones[index].id}</text><text x="${maskX+zoneWidth/2}" y="214" text-anchor="middle" font-size="14" font-family="monospace" font-weight="900" fill="${readable(gray)}">${f2(maskValue)}</text></g>`;
+    svg+=`<g clip-path="url(#clip2)"><rect x="${outputX}" y="${shapeY}" width="${zoneWidth}" height="${shapeHeight}" fill="${rgbCss(output)}"/></g>`;
+  });
+  [0,1,2].forEach(panelIndex=>{
+    for(let divider=1;divider<4;divider++){
+      const x=panelX[panelIndex]+divider*zoneWidth;
+      svg+=`<line x1="${x}" y1="102" x2="${x}" y2="272" stroke="${panelIndex===1?'rgba(255,255,255,.52)':'var(--line)'}" stroke-width="1"/>`;
+    }
+    const selectedX=panelX[panelIndex]+state.selected*zoneWidth;
+    svg+=`<rect x="${selectedX+2}" y="76" width="${zoneWidth-4}" height="222" fill="none" stroke="#dc2626" stroke-width="4"/><circle cx="${selectedX+zoneWidth/2}" cy="318" r="8" fill="#dc2626"/>`;
+  });
+  svg+=`<text x="140" y="352" text-anchor="middle" font-size="14" font-weight="800" fill="currentColor">same opaque orange in A–D</text>`;
+  svg+=`<text x="410" y="352" text-anchor="middle" font-size="14" font-weight="800" fill="currentColor">black 0 · white 1 · gray between</text>`;
+  svg+=`<text x="680" y="352" text-anchor="middle" font-size="14" font-weight="800" fill="currentColor">candidate over opaque navy</text>`;
+  svg+=`<rect x="150" y="382" width="520" height="34" rx="12" fill="var(--indigo-soft)" stroke="var(--indigo)"/><text x="410" y="405" text-anchor="middle" font-size="14" font-weight="900" fill="currentColor">Selected zone ${zones[state.selected].id} · mask ${f2(state.maskValues[state.selected])} · effective source alpha ${f2(outputFor(state.maskValues[state.selected]).effective)}</text>`;
+  return svg;
+}
+
+function renderMaskStrip(){
+  $('maskStrip').innerHTML=state.maskValues.map((value,index)=>{
+    const rgb=[value,value,value];
+    return `<article class="mask-swatch" style="background:${grayCss(value)};color:${readable(rgb)};outline:${index===state.selected?'4px solid #dc2626':'none'}"><span>Zone ${zones[index].id}</span><span class="mono">mask ${f2(value)}</span></article>`;
+  }).join('');
+}
+
+function renderTrace(){
+  const zone=zones[state.selected],mask=state.maskValues[state.selected],result=outputFor(mask),opening=1-result.effective;
+  const cards=[
+    `<article class="card trace-card"><h3>1 · Fixed colors</h3><div class="formula">candidate straight sRGB RGBA
+(0.8400, 0.3600, 0.1800, 1.0000)
+
+background straight sRGB RGBA
+(0.1000, 0.1800, 0.3000, 1.0000)</div></article>`,
+    `<article class="card amber trace-card"><h3>2 · Zone ${zone.id} mask</h3><div class="formula">mask value = ${f4(mask)}
+
+preview only:
+opaque RGB(${f4(mask)}, ${f4(mask)}, ${f4(mask)})</div><p>The preview RGB is not a color input to source-over.</p></article>`,
+    `<article class="card indigo trace-card"><h3>3 · Effective alpha</h3><div class="formula">candidate alpha × mask value
+= 1.0000 × ${f4(mask)}
+= ${f4(result.effective)}
+
+background opening
+= 1 − ${f4(result.effective)}
+= ${f4(opening)}</div></article>`,
+    `<article class="card green trace-card"><h3>4 · Final output</h3><div class="formula">red   = ${f4(result.rgb[0])}
+green = ${f4(result.rgb[1])}
+blue  = ${f4(result.rgb[2])}
+alpha = 1.0000</div><p class="mono">straight sRGB RGBA(${result.rgb.map(f4).join(', ')}, 1.0000)</p></article>`
+  ];
+  $('traceGrid').innerHTML=cards.map((card,index)=>card+(index<cards.length-1?'<div class="trace-arrow">→</div>':'')).join('');
+}
+
+function renderFormulas(){
+  const mask=state.maskValues[state.selected],result=outputFor(mask),opening=1-result.effective;
+  $('effectiveAlphaFormula').textContent=`effective source alpha\n= candidate alpha × mask value\n= 1.0000 × ${f4(mask)}\n= ${f4(result.effective)}`;
+  $('redTrace').textContent=`candidate red = 0.8400\nbackground red = 0.1000\neffective source alpha = ${f4(result.effective)}\nbackground opening = ${f4(opening)}\n\noutput red\n= 0.8400 × ${f4(result.effective)}\n+ 0.1000 × ${f4(opening)}\n= ${f4(result.rgb[0])}`;
+  $('otherTrace').textContent=`green\n= 0.3600 × ${f4(result.effective)} + 0.1800 × ${f4(opening)}\n= ${f4(result.rgb[1])}\n\nblue\n= 0.1800 × ${f4(result.effective)} + 0.3000 × ${f4(opening)}\n= ${f4(result.rgb[2])}\n\noutput alpha\n= ${f4(result.effective)} + 1.0000 × ${f4(opening)}\n= 1.0000`;
+  const boundary=outputFor(mask,.5);
+  $('boundaryAlpha').textContent=`candidate alpha = 0.5000\nmask value = ${f4(mask)}\n\neffective source alpha\n= 0.5000 × ${f4(mask)}\n= ${f4(boundary.effective)}`;
+  $('boundaryOutput').textContent=`red   = ${f4(boundary.rgb[0])}\ngreen = ${f4(boundary.rgb[1])}\nblue  = ${f4(boundary.rgb[2])}\nalpha = 1.0000\n\nstraight sRGB RGBA(${boundary.rgb.map(f4).join(', ')}, 1.0000)`;
+}
+
+const STEPS=[
+  {title:'1 · Background exists first',caption:'The opaque navy background already supplies a final destination color at every inspected position.',formula:()=>`background = straight sRGB RGBA(0.1000, 0.1800, 0.3000, 1.0000)`,active:0},
+  {title:'2 · Candidate exists separately',caption:'The candidate is one opaque orange drawing. The mask has not changed it yet.',formula:()=>`candidate = straight sRGB RGBA(0.8400, 0.3600, 0.1800, 1.0000)`,active:1},
+  {title:'3 · Mask field supplies four values',caption:'The reset field assigns a separate value to each enlarged zone.',formula:()=>`A = 0.00\nB = 0.25\nC = 0.60\nD = 1.00`,active:2},
+  {title:'4 · Select zone C',caption:'The reset trace follows one position in zone C, well inside the outer badge boundary.',formula:()=>`selected zone = C\nmask value = 0.6000`,active:2},
+  {title:'5 · Calculate effective source alpha',caption:'Candidate alpha and mask value are independent restrictions. Multiply them.',formula:()=>`effective source alpha\n= 1.0000 × 0.6000\n= 0.6000`,active:2},
+  {title:'6 · Composite the selected color',caption:'Source-over consumes the effective alpha. The opaque background supplies the remaining 0.40 share.',formula:()=>`red   = 0.84×0.60 + 0.10×0.40 = 0.5440\ngreen = 0.36×0.60 + 0.18×0.40 = 0.2880\nblue  = 0.18×0.60 + 0.30×0.40 = 0.2280\nalpha = 1.0000`,active:3},
+  {title:'7 · Compare the endpoint values',caption:'Mask 0 preserves the background. Mask 1 shows the complete candidate. Values between them preserve a partial candidate contribution.',formula:()=>`mask 0 → output = background\nmask 1 → output = candidate\nmask 0.60 → partial candidate over background`,active:3}
+];
+
+function drawStepSvg(){
+  const active=STEPS[state.step].active;
+  const boxes=[
+    {x:28,title:'Background',sub:'destination first',fill:rgbCss(background)},
+    {x:224,title:'Candidate',sub:'opaque source',fill:rgbCss(candidate)},
+    {x:420,title:'Mask C',sub:'value 0.60',fill:grayCss(.6)},
+    {x:616,title:'Output',sub:'RGB 0.544 / 0.288 / 0.228',fill:rgbCss(outputFor(.6).rgb)}
+  ];
+  let svg=`<defs><marker id="stepArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#be185d"/></marker></defs><rect width="820" height="430" fill="transparent"/><text x="410" y="32" text-anchor="middle" font-size="20" font-weight="900" fill="currentColor">${escapeHtml(STEPS[state.step].title)}</text>`;
+  boxes.forEach((box,index)=>{
+    const isActive=index===active;
+    svg+=`<rect x="${box.x}" y="82" width="176" height="184" rx="20" fill="${box.fill}" stroke="${isActive?'#dc2626':'var(--line)'}" stroke-width="${isActive?5:2}"/><rect x="${box.x+12}" y="96" width="152" height="54" rx="11" fill="rgba(255,255,255,.92)"/><text x="${box.x+88}" y="120" text-anchor="middle" font-size="16" font-weight="900" fill="#111827">${box.title}</text><text x="${box.x+88}" y="141" text-anchor="middle" font-size="12" font-weight="800" fill="#475569">${box.sub}</text>`;
+    if(index<boxes.length-1)svg+=`<line x1="${box.x+180}" y1="174" x2="${boxes[index+1].x-8}" y2="174" stroke="#be185d" stroke-width="4" marker-end="url(#stepArrow)"/>`;
+  });
+  svg+=`<rect x="92" y="304" width="636" height="84" rx="18" fill="var(--indigo-soft)" stroke="var(--indigo)" stroke-width="2"/><text x="410" y="333" text-anchor="middle" font-size="16" font-weight="900" fill="currentColor">Input → operation → output</text><text x="410" y="362" text-anchor="middle" font-size="14" font-family="monospace" fill="currentColor">candidate alpha × mask value → effective alpha → source-over output</text>`;
+  $('stepSvg').innerHTML=svg;
+}
+function renderStepper(){
+  const step=STEPS[state.step];
+  $('stepTitle').textContent=step.title;
+  $('stepCaption').textContent=step.caption;
+  $('stepFormula').textContent=step.formula();
+  $('stepBack').disabled=state.step===0;
+  $('stepNext').disabled=state.step===STEPS.length-1;
+  $('stepNav').innerHTML=STEPS.map((_,index)=>`<button class="step-dot ${index===state.step?'selected':''}" data-step="${index}">${index+1}</button>`).join('');
+  document.querySelectorAll('[data-step]').forEach(button=>button.addEventListener('click',()=>{state.step=Number(button.dataset.step);renderStepper()}));
+  drawStepSvg();
+}
+
+function updateChallengePreview(){
+  const code=$('challengeEditor').value;
+  const multiply=/return\s+candidateAlpha\s*\*\s*maskValue/.test(code)||/return\s+maskValue\s*\*\s*candidateAlpha/.test(code);
+  const add=/return\s+candidateAlpha\s*\+\s*maskValue/.test(code)||/return\s+maskValue\s*\+\s*candidateAlpha/.test(code);
+  const value=multiply ? 0.3 : add ? 1.1 : NaN;
+  $('challengeValue').textContent=Number.isFinite(value)?f4(value):'not recognized';
+  if(state.challengePassed){state.challengePassed=false;$('challengeResult').textContent='The code changed after the successful check. Check it again.'}
+}
+
+function render(){
+  buildZoneButtons();
+  $('maskRange').value=state.maskValues[state.selected];
+  $('maskValueOut').textContent=f2(state.maskValues[state.selected]);
+  $('selectedZoneMetric').textContent=`${zones[state.selected].id} · ${zones[state.selected].name}`;
+  $('maskMetric').textContent=f4(state.maskValues[state.selected]);
+  $('effectiveAlphaMetric').textContent=f4(outputFor(state.maskValues[state.selected]).effective);
+  $('maskSvg').innerHTML=mainSvg();
+  renderMaskStrip();
+  renderTrace();
+  renderFormulas();
+  renderStepper();
+  document.querySelectorAll('[data-prediction]').forEach(button=>button.classList.toggle('selected',button.dataset.prediction===state.prediction));
+}
+
+$('maskRange').addEventListener('input',event=>{
+  state.maskValues[state.selected]=Number(event.target.value);
+  state.prediction=null;
+  render();
+});
+document.querySelectorAll('[data-preset]').forEach(button=>button.addEventListener('click',()=>{
+  const preset=button.dataset.preset;
+  if(preset==='course')state.maskValues=[0,.25,.60,1];
+  if(preset==='clip')state.maskValues=[0,0,1,1];
+  if(preset==='hidden')state.maskValues=[0,0,0,0];
+  if(preset==='visible')state.maskValues=[1,1,1,1];
+  if(preset==='reverse')state.maskValues=[1,.60,.25,0];
+  state.prediction=null;
+  render();
+}));
+$('stepBack').addEventListener('click',()=>{if(state.step>0){state.step--;renderStepper()}});
+$('stepNext').addEventListener('click',()=>{if(state.step<STEPS.length-1){state.step++;renderStepper()}});
+document.querySelectorAll('[data-prediction]').forEach(button=>button.addEventListener('click',()=>{state.prediction=button.dataset.prediction;render()}));
+$('checkPrediction').addEventListener('click',()=>{
+  const ok=state.prediction==='candidate';
+  $('predictionResult').textContent=ok
+    ?'Correct. Raising the mask from 0.60 to 0.80 raises effective source alpha and reduces the background opening from 0.40 to 0.20. The output moves toward the unchanged candidate RGB and becomes RGB(0.6920, 0.3240, 0.2040).'
+    :'Not correct. The mask preview gray is not a color input. A larger mask value keeps more candidate and less background, so the output moves toward the candidate color.';
+  $('predictionResult').style.background=ok?'var(--green-soft)':'var(--red-soft)';
+});
+document.querySelectorAll('[data-challenge]').forEach(button=>button.addEventListener('click',()=>{
+  $('challengeEditor').value=button.dataset.challenge==='correct'
+    ?`fun effectiveSourceAlpha(\n    candidateAlpha: Float,\n    maskValue: Float,\n): Float {\n    return candidateAlpha * maskValue\n}`
+    :`fun effectiveSourceAlpha(\n    candidateAlpha: Float,\n    maskValue: Float,\n): Float {\n    return candidateAlpha + maskValue\n}`;
+  updateChallengePreview();
+}));
+$('challengeEditor').addEventListener('input',updateChallengePreview);
+$('checkChallenge').addEventListener('click',()=>{
+  const code=$('challengeEditor').value;
+  const ok=(/return\s+candidateAlpha\s*\*\s*maskValue/.test(code)||/return\s+maskValue\s*\*\s*candidateAlpha/.test(code))&&!/return\s+candidateAlpha\s*\+\s*maskValue/.test(code);
+  state.challengePassed=ok;
+  $('challengeResult').textContent=ok
+    ?'Correct. Candidate alpha 0.50 multiplied by mask value 0.60 produces effective source alpha 0.30.'
+    :'Not repaired yet. The two independent visibility restrictions must multiply.';
+  $('challengeResult').style.background=ok?'var(--green-soft)':'var(--red-soft)';
+});
+$('buildRecord').addEventListener('click',()=>{
+  const checks=[...document.querySelectorAll('[data-check]')];
+  const done=checks.filter(check=>check.checked).length;
+  const mask=state.maskValues[state.selected],result=outputFor(mask);
+  $('completionRecord').value=`# Lesson 4.8 completion record\n\nStatus: ${done===checks.length?'checkpoint complete':'checkpoint incomplete'}\nChecked items: ${done} of ${checks.length}\n\nSelected zone: ${zones[state.selected].id} · ${zones[state.selected].name}\nMask field: [${state.maskValues.map(f2).join(', ')}]\nSelected mask value: ${f4(mask)}\nEffective source alpha: ${f4(result.effective)}\nSelected final output: straight sRGB RGBA(${result.rgb.map(f4).join(', ')}, 1.0000)\n\nI can explain:\n- the difference between a clip decision and a mask value;\n- why the grayscale preview is not a tint;\n- candidate alpha × mask value;\n- why the opaque background keeps final output alpha at 1;\n- why the direct per-zone Android path is limited to this controlled solid candidate.\n\nPixel 8 Pro tested: [yes / not yet]\nAndroid commit: [write commit or leave blank]\nRemaining questions: [none / write them]`;
+});
+const mq=matchMedia('(prefers-color-scheme: dark)');
+function updateTheme(){$('themeMode').textContent=mq.matches?'Dark':'Light'}
+updateTheme();mq.addEventListener?.('change',updateTheme);
+updateChallengePreview();
+render();
+</script>
+</body>
+</html>

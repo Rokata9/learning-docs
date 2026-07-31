@@ -1,8 +1,8 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 4.7.0  
-**Updated:** 2026-07-30  
-**Current position:** Lessons 1.1 through 4.6 are complete by learner confirmation. **34 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.7 is generated and is both the next unresolved checkpoint and the generated frontier.
+**Course plan version:** 4.8.0  
+**Updated:** 2026-07-31  
+**Current position:** Lessons 1.1 through 4.7 are complete by learner confirmation. **35 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.8 is generated and is both the next unresolved checkpoint and the generated frontier.
 
 ## Permanent course rules
 
@@ -1988,3 +1988,187 @@ Course progress becomes 35 of 216.
 Next lesson becomes 4.8 — Masks.
 ```
 
+
+---
+
+## Latest authoritative status — Lesson 4.7 complete; Lesson 4.8 generated
+
+The learner requested the next lesson without reporting a remaining Lesson 4.7 question, correction, or test problem. Lesson 4.7 is therefore learner-confirmed complete.
+
+```yaml
+learner_confirmed_completed_total: 35
+completed_through: "Lesson 4.7"
+chapter_04_completed_by_learner: false
+lesson_04_07_completed_by_learner: true
+lesson_04_08_generated: true
+lesson_04_08_completed_by_learner: false
+next_unresolved_checkpoint: "Lesson 4.8"
+generated_frontier: "Lesson 4.8"
+next_after_completion: "Lesson 4.9 — Soft edges and antialiasing"
+```
+
+### Lesson-feedback review
+
+The clean Lesson 4.7 progression confirms that these choices worked:
+
+- start from one completed closed `Path` rather than introduce another shape;
+- keep candidate content coordinates identical while changing only the clip state;
+- trace one clearly inside and one clearly outside position;
+- state that a rejected draw preserves the existing destination;
+- prove temporary scope restoration with a post-clip marker;
+- defer gradual mask values and edge antialiasing explicitly;
+- keep the free-play diagram and stepper within the tested compact footprint.
+
+This reinforces existing rules. It does not reveal a separate reusable rule, so `AGENTS.md` remains unchanged.
+
+### Lesson 4.8 — Masks
+
+Lesson 4.8 introduces a mask as separate visibility data. It does not treat a grayscale preview as a visible gray color layer.
+
+Fixed input colors:
+
+```text
+candidate straight sRGB RGBA
+= (0.84, 0.36, 0.18, 1.00)
+
+background straight sRGB RGBA
+= (0.10, 0.18, 0.30, 1.00)
+```
+
+Reset mask field:
+
+```text
+A = 0.00
+B = 0.25
+C = 0.60
+D = 1.00
+```
+
+The four zones are enlarged teaching regions. They are not claims about physical Pixel 8 Pro display-pixel size.
+
+The grayscale preview uses:
+
+```text
+mask value m
+→ preview RGB(m, m, m), alpha 1
+```
+
+That preview exists only to make the data visible. Its RGB does not enter the source-over color arithmetic.
+
+The mask contract is:
+
+```text
+effective source alpha
+= candidate alpha × mask value
+```
+
+At reset zone C:
+
+```text
+1.00 × 0.60 = 0.60
+```
+
+The source-over result is:
+
+```text
+red   = 0.84 × 0.60 + 0.10 × 0.40 = 0.5440
+green = 0.36 × 0.60 + 0.18 × 0.40 = 0.2880
+blue  = 0.18 × 0.60 + 0.30 × 0.40 = 0.2280
+alpha = 1.0000
+```
+
+The opaque background keeps final output alpha at `1.00`. Mask value `0.60` is not the final output alpha.
+
+A fixed boundary example keeps candidate alpha separate:
+
+```text
+candidate alpha = 0.50
+mask value = 0.60
+effective source alpha = 0.30
+```
+
+The browser interaction:
+
+- shows candidate, mask field, and final output separately;
+- selects and edits A, B, C, or D;
+- supplies course, clip-like, all-hidden, all-visible, and reverse presets;
+- updates exact alpha and channel arithmetic;
+- includes a diagnostic that rejects the gray-tint misconception;
+- includes a compact seven-step derivation, prediction, coding challenge, exercises, and completion record.
+
+Android reset geometry reuses the Lesson 4.7 badge:
+
+```text
+Canvas = 320.dp × 240.dp
+A = (32.dp, 40.dp)
+B = (210.dp, 40.dp)
+C = (288.dp, 120.dp)
+D = (210.dp, 200.dp)
+E = (32.dp, 200.dp)
+```
+
+The mask zones cover X ranges:
+
+```text
+zone A = 32.dp through 96.dp
+zone B = 96.dp through 160.dp
+zone C = 160.dp through 224.dp
+zone D = 224.dp through 288.dp
+```
+
+Android value path:
+
+```text
+four mask values in Compose state
+→ build the completed badge Path in Canvas-local px
+→ clipPath(badgePath)
+→ draw one non-overlapping candidate rectangle per zone
+→ use alpha = mask value for that controlled solid candidate
+→ ordinary source-over over the opaque background
+→ exact output readouts calculated by the same mask contract
+```
+
+This direct draw path is deliberately bounded. It is exact for one solid candidate with non-overlapping zones. Arbitrary groups of overlapping draws, captured backdrops, or filtered images normally require grouping before a separate mask operation or a shader that reads a mask value per position. Full offscreen-layer architecture remains in Chapter 6; shader mask fields remain in later chapters.
+
+Changed Android files:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter04/Chapter04Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter04/MasksExplorer.kt
+```
+
+`Chapter04Screen.kt` contains complete-screen and direct-child previews in light and dark modes.
+
+### Explicit deferrals
+
+Lesson 4.8 does not teach:
+
+- renderer-created antialiasing at the mathematical badge boundary;
+- continuous gradient interpolation mathematics;
+- arbitrary image or captured-backdrop mask buffers;
+- offscreen-group performance and ownership;
+- shader sampling of a mask texture;
+- blur, refraction, or filtering.
+
+### Lesson 4.8 checkpoint
+
+Lesson 4.8 is complete only when:
+
+- [ ] The Android files compile and run on the Pixel 8 Pro.
+- [ ] Both preview levels render in light and dark modes.
+- [ ] The reset mask values are 0.00, 0.25, 0.60, and 1.00.
+- [ ] Every zone can be selected and changed independently.
+- [ ] The learner can define mask, mask value, mask field, and effective source alpha.
+- [ ] The learner can reproduce reset zone C output `(0.5440, 0.2880, 0.2280, 1.0000)`.
+- [ ] The learner can explain why mask-preview gray is not a tint.
+- [ ] The learner can multiply candidate alpha by mask value.
+- [ ] The learner can compare mask endpoints with the previous clip trace while keeping boundary antialiasing deferred.
+- [ ] The prediction, coding challenge, and exercises are complete.
+- [ ] The work is committed to Git.
+
+After completion:
+
+```text
+Course progress becomes 36 of 216.
+Next lesson becomes 4.9 — Soft edges and antialiasing.
+```
