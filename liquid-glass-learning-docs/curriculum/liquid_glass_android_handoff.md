@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 4.8.0  
+**Course plan version:** 4.8.1  
 **Updated:** 2026-07-31  
 **Current position:** Lessons 1.1 through 4.7 are complete by learner confirmation. **35 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.8 is generated and is both the next unresolved checkpoint and the generated frontier.
 
@@ -2171,4 +2171,108 @@ After completion:
 ```text
 Course progress becomes 36 of 216.
 Next lesson becomes 4.9 — Soft edges and antialiasing.
+```
+
+
+---
+
+## Latest authoritative clarification — Lesson 4.8 spatial mask model
+
+Lesson 4.8 remains generated and incomplete. Learner-confirmed progress remains **35 of 216**.
+
+The learner understood the numeric field but asked whether a mask is mainly used to cut content to a shape or keep an animation inside a shape. That question exposed a reusable defect: the original lesson led with four mask values and source-over arithmetic, so the multiplication mechanism overshadowed the spatial purpose.
+
+The corrected lesson now begins with three separate objects:
+
+```text
+content
+mask shape or mask field
+visible masked output
+```
+
+It demonstrates three canonical relationships before the four-zone arithmetic:
+
+```text
+fixed content + fixed hard mask
+→ cut oversized content to a capsule
+
+moving content + fixed hard mask
+→ the capsule boundary stays still while content moves inside it
+
+fixed content + moving hard mask
+→ the mask reveals a changing region of the stationary content
+```
+
+The browser uses a manual position slider. It does not introduce time, easing, or automatic playback before Chapter 5.
+
+### Correct representation boundary
+
+A pure opacity mask controls alpha. It does not normally replace or tint the candidate's straight RGB.
+
+For the opaque candidate and mask `0.60`:
+
+```text
+candidate straight RGBA
+= (0.8400, 0.3600, 0.1800, 1.0000)
+
+masked straight RGBA
+= (0.8400, 0.3600, 0.1800, 0.6000)
+
+masked premultiplied RGBA
+= (0.5040, 0.2160, 0.1080, 0.6000)
+```
+
+At a straight-RGBA API boundary, straight RGB remains the candidate color while alpha changes. In premultiplied storage, the stored RGB contributions and alpha are multiplied by the mask because the RGB values already contain alpha weighting.
+
+After the masked source is composited over the opaque navy destination, the final displayed straight RGB includes both source and background contributions:
+
+```text
+red   = 0.84 × 0.60 + 0.10 × 0.40 = 0.5440
+green = 0.36 × 0.60 + 0.18 × 0.40 = 0.2880
+blue  = 0.18 × 0.60 + 0.30 × 0.40 = 0.2280
+```
+
+### Clip versus mask
+
+A hard binary mask uses `0` outside and `1` inside. Away from the antialiased boundary, it can look like a hard clip. The concepts are not collapsed:
+
+- a clip is a geometric restriction on subsequent drawing;
+- a mask is independent visibility data and may contain partial values, textures, images, or shader-calculated fields;
+- a simple hard geometry should still use clipping when a general offscreen mask adds no capability.
+
+### Android correction
+
+The new spatial demonstration uses the grouped-content path:
+
+```text
+parent navy Surface
+→ isolated Canvas with CompositingStrategy.Offscreen
+→ draw complete multi-color candidate pattern
+→ draw capsule source with BlendMode.DstIn
+→ source alpha keeps destination content inside the capsule
+→ isolated masked result composites over the parent Surface
+```
+
+The parent background is outside the isolated Canvas so `DstIn` cannot remove it. The four-zone direct-alpha implementation remains only as a controlled arithmetic microscope.
+
+Changed Android files remain:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter04/Chapter04Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter04/MasksExplorer.kt
+```
+
+### Reusable prevention rule
+
+`AGENTS.md` now contains **Spatial-first mask and visibility-field gate**. Future lessons must show content, mask, and output separately; demonstrate a shape cut and both movement relationships; distinguish straight from premultiplied values; and state when clipping is the simpler production primitive.
+
+```yaml
+learner_confirmed_completed_total: 35
+completed_through: "Lesson 4.7"
+lesson_04_08_generated: true
+lesson_04_08_completed_by_learner: false
+lesson_04_08_status: "corrected after spatial-model question"
+next_unresolved_checkpoint: "Lesson 4.8"
+generated_frontier: "Lesson 4.8"
+next_after_completion: "Lesson 4.9 — Soft edges and antialiasing"
 ```

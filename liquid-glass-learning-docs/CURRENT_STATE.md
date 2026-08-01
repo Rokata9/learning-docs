@@ -5,13 +5,12 @@
 ## Completed
 
 - Chapters 1, 2, and 3 are complete.
-- Lessons 4.1 through 4.6 are complete.
-- **Lesson 4.7 — Clipping is complete** by the learner's progression without a remaining question, correction, or test problem.
+- Lessons 4.1 through 4.7 are complete.
 - The latest completed lesson is **4.7 — Clipping**.
 
 ## Not completed
 
-- **Lesson 4.8 — Masks** is generated and is the current learner checkpoint.
+- **Lesson 4.8 — Masks** is generated, corrected after learner feedback, and remains the current learner checkpoint.
 - Chapter 4 remains in progress. Lessons 4.8 through 4.11 are not complete.
 
 ## Course pointers
@@ -20,18 +19,35 @@
 - **Generated frontier:** Lesson 4.8.
 - **Next planned lesson after explicit Lesson 4.8 completion:** Lesson 4.9 — Soft edges and antialiasing.
 
-## Lesson 4.8 model
+## Lesson 4.8 corrected model
 
-Lesson 4.8 starts from Lesson 4.7's clearly inside-or-outside clip decisions and replaces the binary teaching result with one visibility amount from `0` through `1` at each enlarged zone.
+The learner understood the four-zone arithmetic but correctly identified that the lesson hid the main practical meaning of masks. The corrected lesson now defines a mask first as a **spatial visibility map**: separate data aligned with content that controls how much content survives at every position.
 
-Fixed straight sRGB inputs:
+The lesson begins with three canonical uses:
 
 ```text
-candidate = RGBA(0.84, 0.36, 0.18, 1.00)
-background = RGBA(0.10, 0.18, 0.30, 1.00)
+1. oversized content + fixed capsule mask
+   → content is cut to the capsule silhouette
+
+2. moving content + fixed capsule mask
+   → the silhouette stays fixed while different content passes through it
+
+3. fixed content + moving capsule mask
+   → the mask reveals a changing region of the stationary content
 ```
 
-Reset mask field:
+A manual position slider exposes one state at a time. Time-driven animation remains in Chapter 5.
+
+The hard capsule mask uses:
+
+```text
+outside capsule = mask value 0
+inside capsule  = mask value 1
+```
+
+Away from the rendered edge, this can match the visible result of a hard clip. The concepts remain separate: a clip is a geometric draw-state restriction, while a mask is an independent value field that may also contain partial values, textures, images, or shader-calculated data.
+
+The four-zone arithmetic microscope remains:
 
 ```text
 zone A = 0.00
@@ -40,47 +56,37 @@ zone C = 0.60
 zone D = 1.00
 ```
 
-A mask value is separate data. The browser visualizes value `m` as opaque grayscale preview RGB(`m`, `m`, `m`), but that preview RGB is not painted as a tint.
-
-At the reset trace in zone C:
+Fixed straight sRGB inputs:
 
 ```text
-candidate alpha = 1.00
-mask value = 0.60
+candidate = RGBA(0.84, 0.36, 0.18, 1.00)
+background = RGBA(0.10, 0.18, 0.30, 1.00)
+```
 
+At mask value `0.60`:
+
+```text
 effective source alpha
 = candidate alpha × mask value
 = 1.00 × 0.60
 = 0.60
-
-background opening
-= 1 − 0.60
-= 0.40
 ```
 
-Source-over produces:
+The corrected representation boundary is:
 
 ```text
-red   = 0.84 × 0.60 + 0.10 × 0.40 = 0.5440
-green = 0.36 × 0.60 + 0.18 × 0.40 = 0.2880
-blue  = 0.18 × 0.60 + 0.30 × 0.40 = 0.2280
-alpha = 1.0000
+masked straight RGBA
+= (0.8400, 0.3600, 0.1800, 0.6000)
+
+masked premultiplied RGBA
+= (0.5040, 0.2160, 0.1080, 0.6000)
 ```
 
-The browser interaction:
+A pure opacity mask does not recolor straight RGB. Premultiplied RGB contributions scale because they already contain alpha weighting. Compositing the masked source over the opaque navy background then produces final straight sRGB RGBA approximately `(0.5440, 0.2880, 0.2280, 1.0000)`.
 
-- shows candidate content, a four-zone grayscale mask-field preview, and the final output as separate objects;
-- selects one zone and changes only its mask value;
-- includes course, clip-like, all-hidden, all-visible, and reversed-field presets;
-- exposes effective source alpha, background opening, channel arithmetic, and final output;
-- distinguishes a grayscale data preview from a gray tint;
-- compares mask endpoint values `0` and `1` with Lesson 4.7's clearly outside and clearly inside clip traces;
-- includes a seven-step manual derivation, prediction, coding challenge, four hidden-answer exercises, and completion record;
-- caps the main diagram and stepper at `820 × 430` CSS pixels.
+The Android spatial demonstration now groups a multi-draw pattern in an offscreen Canvas, draws the pattern first, then applies a capsule with `BlendMode.DstIn`. The parent navy background remains outside the isolated group. The original direct `alpha = maskValue` zone path remains only as a controlled arithmetic microscope for one solid candidate and non-overlapping zones.
 
-The Android explorer reuses the completed badge `Path` and draws four non-overlapping zones inside `clipPath`. Each zone draws the same solid candidate with `alpha = maskValue`. This direct path is exact for the controlled single solid fill. Arbitrary multi-draw or captured content normally requires grouping before a separate mask operation or a shader that reads a mask value per position.
-
-Android files changed:
+Android files changed by the correction:
 
 ```text
 app/src/main/java/com/example/liquidglasslab/chapter04/Chapter04Screen.kt
@@ -89,7 +95,7 @@ app/src/main/java/com/example/liquidglasslab/chapter04/MasksExplorer.kt
 
 ## Lesson-feedback review
 
-The learner requested the next lesson without a remaining Lesson 4.7 issue. This confirms that the clipping lesson's inside/outside trace, preserved-destination explanation, temporary-scope evidence, compact diagrams, and explicit mask deferral were understandable. The message does not reveal a new reusable rule beyond the existing beginner-first, causal-operation, formula-validity, stepper-fit, and compact-geometry gates, so `AGENTS.md` is unchanged.
+The learner's question exposed a reusable ordering defect. A mask lesson can be numerically correct yet still fail if it begins with alpha multiplication and never establishes the spatial relationship between content, mask, and visible result. `AGENTS.md` now contains the **Spatial-first mask and visibility-field gate**. Future mask lessons must show a shape cut and both content-motion relationships before per-position arithmetic.
 
 ## Delivery rules
 

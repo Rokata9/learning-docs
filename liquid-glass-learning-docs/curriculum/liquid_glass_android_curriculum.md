@@ -1,6 +1,6 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 4.8.0  
+**Version:** 4.8.1  
 **Updated:** 2026-07-31  
 **Current course position:** Lessons 1.1 through 4.7 are complete by learner confirmation. **35 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.8 is generated and is both the next unresolved checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
@@ -10,7 +10,21 @@
 
 ---
 
-## 1. What changed through version 4.8.0
+## 1. What changed through version 4.8.1
+
+Version 4.8.1 corrects the Lesson 4.8 teaching order after the learner identified the missing spatial model:
+
+- The original lesson correctly calculated effective source alpha, but it led with four numeric mask zones. This made the mask appear to be only a channel-multiplication operation.
+- The corrected lesson defines a mask first as a spatial visibility map and shows content, mask, and output as separate objects.
+- A new compact interaction demonstrates: cutting oversized content to a capsule, moving content behind a fixed capsule mask, and moving the capsule mask over fixed content.
+- The interaction uses a manual position slider. Time-driven animation remains deferred to Chapter 5.
+- The representation boundary is now explicit: a pure opacity mask preserves straight RGB and multiplies alpha; premultiplied RGB contributions and alpha both scale by the mask value.
+- The Android spatial demonstration uses `CompositingStrategy.Offscreen` to isolate multi-draw candidate content, then applies a capsule through `BlendMode.DstIn`.
+- The parent navy background remains outside the isolated Canvas so the mask cannot remove it.
+- The existing four-zone `alpha = maskValue` path remains only as a controlled arithmetic microscope for one solid candidate and non-overlapping zones.
+- A hard 0-or-1 shape mask is compared with clipping without treating the two data models as identical. The lesson states that clipping remains the simpler production tool for a hard geometric boundary when a general mask adds no capability.
+- `AGENTS.md` adds the **Spatial-first mask and visibility-field gate**.
+- Lesson 4.8 remains incomplete. Learner-confirmed completion remains **35 of 216 lessons**.
 
 Version 4.8.0 records completion of Lesson 4.7 and generates Lesson 4.8:
 
@@ -3774,11 +3788,35 @@ Next lesson becomes 4.8 — Masks.
 
 ### `lesson-04-08-masks.html`
 
-**New graphics idea:** A mask supplies one normalized visibility value at each drawing position. The value controls another drawing's contribution without becoming a tint color.
+**New graphics idea:** A mask is a spatial visibility map. It is separate from the content and controls how much content survives at each position.
 
-**Mathematical idea:** Multiply candidate alpha by mask value, then reuse the completed source-over operation.
+**Mathematical idea:** Apply one normalized mask value to candidate alpha. Keep straight and premultiplied RGBA contracts separate before source-over compositing.
 
-Fixed controlled inputs:
+The corrected lesson begins with three canonical spatial uses:
+
+```text
+oversized content + fixed capsule mask
+→ cut content to the capsule silhouette
+
+moving content + fixed capsule mask
+→ stationary boundary with moving content inside
+
+fixed content + moving capsule mask
+→ moving reveal over stationary content
+```
+
+The manual slider exposes one exact position. It does not use an automatic animation because time and progress belong to Chapter 5.
+
+A hard shape mask uses:
+
+```text
+outside = 0
+inside  = 1
+```
+
+A binary mask can match a hard clip away from the rendered boundary. The lesson keeps their contracts separate. A mask can also contain partial values, textures, images, or shader-calculated data.
+
+The per-position arithmetic microscope retains these fixed inputs:
 
 ```text
 candidate straight sRGB RGBA
@@ -3786,37 +3824,32 @@ candidate straight sRGB RGBA
 
 background straight sRGB RGBA
 = (0.10, 0.18, 0.30, 1.00)
+
+reset mask field
+= [0.00, 0.25, 0.60, 1.00]
 ```
 
-Reset four-zone mask field:
-
-```text
-A = 0.00
-B = 0.25
-C = 0.60
-D = 1.00
-```
-
-The lesson defines these objects before showing arithmetic:
-
-- **mask:** separate data controlling how much another drawing contributes;
-- **mask value:** one number from `0` through `1` for one position or enlarged zone;
-- **mask field:** mask values arranged across positions;
-- **effective source alpha:** candidate alpha after multiplication by the mask value;
-- **grayscale preview:** a teaching visualization that displays value `m` as opaque RGB `(m, m, m)` without adding that RGB to the candidate.
-
-Reset trace at zone C:
+At mask value `0.60`:
 
 ```text
 effective source alpha
-= candidate alpha × mask value
 = 1.00 × 0.60
 = 0.60
-
-background opening
-= 1 − 0.60
-= 0.40
 ```
+
+The corrected representation trace is:
+
+```text
+masked straight RGBA
+= (0.8400, 0.3600, 0.1800, 0.6000)
+
+masked premultiplied RGBA
+= (0.5040, 0.2160, 0.1080, 0.6000)
+```
+
+The mask does not tint or replace straight RGB. Premultiplied RGB scales because those stored fields already contain alpha weighting.
+
+Compositing over the opaque navy background produces:
 
 ```text
 red   = 0.84 × 0.60 + 0.10 × 0.40 = 0.5440
@@ -3825,30 +3858,18 @@ blue  = 0.18 × 0.60 + 0.30 × 0.40 = 0.2280
 alpha = 1.0000
 ```
 
-The browser interaction:
-
-- displays candidate, mask field, and final output in three synchronized compact views;
-- selects A, B, C, or D and changes that zone independently;
-- includes course, clip-like, all-zero, all-one, and reversed presets;
-- updates the mask preview, effective source alpha, source-over calculation, and output together;
-- proves that a gray mask preview is not a gray tint;
-- compares mask values `0` and `1` with the previous clearly outside/inside clip traces;
-- includes a seven-step derivation, a `0.60 → 0.80` prediction, a multiplication coding challenge, four hidden-answer exercises, and a completion record.
-
-Android drawing model:
+Android spatial drawing model:
 
 ```text
-draw opaque background
-→ build completed badge Path
-→ clipPath(badgePath) {
-      for each non-overlapping zone:
-          draw the same solid candidate with alpha = mask value
-  }
-→ source-over produces the final visible color
-→ draw guides and selected-zone evidence
+parent navy Surface
+→ Canvas isolated with CompositingStrategy.Offscreen
+→ draw complete moving multi-color pattern
+→ draw capsule with BlendMode.DstIn
+→ capsule source alpha masks the pattern destination
+→ masked Canvas result composites over parent Surface
 ```
 
-This direct per-zone path is exact for the lesson's one solid fill. It is not presented as a general mask engine for arbitrary groups of overlapping draw calls. Compose `BlendMode.DstIn` is named as one general compositing tool whose source RGB is ignored and whose source opacity acts as the mask, but the full grouped/offscreen implementation remains deferred until the course teaches the required rendering architecture.
+The four-zone model still uses direct `alpha = maskValue` draws. That remains exact only for its controlled single solid candidate and non-overlapping zones.
 
 Changed Android files:
 
@@ -3861,13 +3882,15 @@ Lesson 4.8 is complete only when:
 
 - [ ] The Android files compile and run on the Pixel 8 Pro.
 - [ ] Complete-screen and direct-child previews render in light and dark modes.
-- [ ] The reset field shows values `0.00`, `0.25`, `0.60`, and `1.00`.
-- [ ] Each zone can be selected and changed independently.
-- [ ] The learner can define mask, mask value, mask field, and effective source alpha.
-- [ ] The learner can reproduce zone C output `(0.5440, 0.2880, 0.2280, 1.0000)`.
+- [ ] The learner can explain content, mask field, and masked output as separate objects.
+- [ ] The hard capsule mask cuts the oversized pattern to its silhouette.
+- [ ] Moving content behind the fixed mask changes the visible pattern without moving the capsule boundary.
+- [ ] Moving the mask over fixed content reveals a changing content region.
+- [ ] The reset zone field shows `0.00`, `0.25`, `0.60`, and `1.00`.
+- [ ] The learner can distinguish masked straight RGBA from masked premultiplied RGBA.
+- [ ] The learner can reproduce zone C final output `(0.5440, 0.2880, 0.2280, 1.0000)` over the opaque background.
 - [ ] The learner can explain why the grayscale preview is not a tint.
-- [ ] The learner can calculate candidate alpha `0.50` times mask value `0.60` as effective alpha `0.30`.
-- [ ] The learner can compare mask endpoints with the clearly inside/outside clipping trace without claiming that real rendered edges are binary.
+- [ ] The learner can state when clipping is simpler than a general mask.
 - [ ] The prediction, coding challenge, and four exercises are complete.
 - [ ] The work is committed to Git.
 
@@ -3877,3 +3900,4 @@ After completion:
 Course progress becomes 36 of 216.
 Next lesson becomes 4.9 — Soft edges and antialiasing.
 ```
+

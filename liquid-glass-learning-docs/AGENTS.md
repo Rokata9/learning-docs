@@ -188,6 +188,18 @@ This rule was added after the Lesson 4.2 interactive diagram placed several full
 5. **Test dense and boundary states.** Verify at least the minimum, reset, and maximum control values, plus the state with every optional construction layer enabled. Inspect screenshots and SVG text bounding boxes for overlap and clipping in both required theme modes.
 6. **Treat excessive footprint as a defect.** A diagram can be numerically correct and still fail if the learner must scroll away from its controls or if the shape becomes harder to scan because it is unnecessarily large.
 
+### Spatial-first mask and visibility-field gate
+
+This rule was added after the Lesson 4.8 question. The first mask lesson was mathematically correct, but it led with four numeric zones and source-over arithmetic. That order made a mask look like only “multiply color channels by a value” and hid the common spatial uses: cutting content to a shape, moving content behind a fixed mask, and moving the mask to reveal content.
+
+1. **Show the spatial purpose before the arithmetic.** Introduce three separate visible objects: the unmasked content, the mask shape or mask field, and the masked output. Demonstrate at least one canonical spatial use before showing per-position multiplication.
+2. **Include both movement relationships when animation is relevant.** Show fixed mask + moving content and fixed content + moving mask as separate states. Do not call them equivalent merely because both change the visible output.
+3. **Keep the representation boundary explicit.** A pure opacity mask multiplies candidate alpha. At a straight-RGBA API boundary, straight RGB remains the candidate color while alpha changes. In premultiplied storage, both stored RGB contributions and alpha scale because the RGB values already contain alpha weighting.
+4. **Connect hard masks to clipping without collapsing the concepts.** A binary shape mask uses value `0` outside and `1` inside and can match a hard clip away from the boundary. A mask remains a separate value field and can also contain partial values, images, textures, gradients, or shader-calculated values.
+5. **State the implementation contract.** Applying `alpha = maskValue` to individual non-overlapping draws is exact only when the candidate structure makes it equivalent. General grouped content must be isolated before a separate compositing mask is applied, or processed by a shader that reads a mask value per position.
+6. **Prefer the simpler production primitive.** Use a clip for a hard geometric boundary when a general offscreen mask adds no capability. Use a mask when independent or non-binary visibility data is required.
+7. **Required QA states.** Verify a hard shape cut, fixed mask + moved content, fixed content + moved mask, and one partial-value arithmetic trace. The lesson fails if the learner can reproduce the multiplication but cannot explain the visible spatial relationship.
+
 ## Visual target
 
 - Desktop only.
