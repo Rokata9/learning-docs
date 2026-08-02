@@ -133,8 +133,8 @@ summary{cursor:pointer;font-weight:900}
   </div>
   <aside class="card amber">
     <h2>The main idea</h2>
-    <p>A <strong>mask</strong> is a spatial visibility map: separate data that says how much content survives at every drawing position.</p>
-    <p>The per-position multiplication explains how the map is applied. It is not the complete purpose of a mask. This correction begins with the visible shape-cutting and reveal uses.</p>
+    <p>A <strong>mask</strong> is a spatial visibility map: separate data that says how much of another drawing survives at every position.</p>
+    <p>This revision keeps three scene objects separate from the start: the content being masked, the mask data, and the background behind the masked group. The one-position multiplication appears only after those objects are visible.</p>
   </aside>
 </header>
 
@@ -161,14 +161,14 @@ soft region → 0.60 → keep part</div></article>
 </section>
 
 <section class="section panel">
-  <div class="section-head"><div><div class="section-no">2 · TERMS</div><h2>Define every new object before the first formula</h2></div></div>
+  <div class="section-head"><div><div class="section-no">2 · TERMS AND SCENE OBJECTS</div><h2>Name the three scene objects before naming blend operands</h2></div><p>Source and destination are temporary roles inside one blend operation.</p></div>
   <div class="four">
-    <article class="card indigo"><h3>Mask</h3><p>A spatial visibility map: separate data aligned with the content that controls how much content survives at each position.</p></article>
-    <article class="card"><h3>Mask value</h3><p>One number from 0 through 1 stored for one position or enlarged teaching zone.</p></article>
-    <article class="card"><h3>Mask field</h3><p>The complete collection of mask values arranged across the drawing area. A shape can create a field with 1 inside and 0 outside.</p></article>
-    <article class="card amber"><h3>Effective source alpha</h3><p>The candidate alpha after the mask value has reduced it. Source-over consumes this alpha.</p></article>
+    <article class="card indigo"><h3>Content being masked</h3><p>The multi-color pattern in the spatial demo, or the opaque orange color in the one-position microscope. This is the drawing whose visibility will be restricted.</p></article>
+    <article class="card green"><h3>Mask data</h3><p>One alpha value at every relevant position. The capsule creates one mask field: alpha 0 outside and a selected alpha inside.</p></article>
+    <article class="card blue"><h3>Background</h3><p>The opaque navy drawing behind the masked group. It is not the mask. It becomes visible where the masked group is translucent or transparent.</p></article>
+    <article class="card amber"><h3>Blend operand</h3><p>One input to a blend operation. <strong>Source</strong> means the input supplied now. <strong>Destination</strong> means the input already present in that blend target. Draw order decides these roles.</p></article>
   </div>
-  <div class="note"><strong>Grayscale preview:</strong> mask value <code>m</code> is shown as opaque preview RGB(<code>m</code>, <code>m</code>, <code>m</code>). This lets black represent 0 and white represent 1. The preview RGB is not added to the orange candidate.</div>
+  <div class="note"><strong>Mask shape versus mask data:</strong> the capsule is geometry used to write mask alpha. The complete mask is the resulting alpha field across the whole content-group bounds. The geometry and the stored values are related, but they are not the same object.</div>
 </section>
 
 <section class="section panel" id="spatial-uses">
@@ -186,28 +186,98 @@ soft region → 0.60 → keep part</div></article>
         <button class="spatial-mode-button" data-spatial-mode="move-mask">Move mask over fixed content</button>
       </div>
       <div class="range"><label for="spatialRange">Manual position</label><input id="spatialRange" type="range" min="0" max="1" step="0.01" value="0.50"><output id="spatialValueOut" class="mono">0.50</output></div>
+      <div class="range"><label for="spatialMaskAlphaRange">Capsule mask alpha</label><input id="spatialMaskAlphaRange" type="range" min="0" max="1" step="0.05" value="1.00"><output id="spatialMaskAlphaOut" class="mono">1.00</output></div>
+      <div class="controls"><button class="preset" data-spatial-alpha="1">1.00 · keep all</button><button class="preset" data-spatial-alpha="0.6">0.60 · partial</button></div>
       <div class="metrics">
         <div class="metric"><strong>Content offset</strong><span id="contentOffsetMetric" class="mono"></span></div>
         <div class="metric"><strong>Mask left edge</strong><span id="maskLeftMetric" class="mono"></span></div>
-        <div class="metric"><strong>Hard mask values</strong><span class="mono">outside 0 · inside 1</span></div>
+        <div class="metric"><strong>Mask alpha field</strong><span id="spatialAlphaMetric" class="mono"></span></div>
         <div class="metric"><strong>Visible output</strong><span id="spatialOutputMetric"></span></div>
       </div>
       <div class="note"><strong>No automatic playback yet:</strong> Chapter 5 teaches time and animation progress. Here, the manual slider exposes one exact state at a time. A future animation can update the same content offset or mask position.</div>
+      <div class="warning"><strong>Browser-versus-Android boundary:</strong> this SVG uses an SVG alpha mask to display the expected result. The Android code creates a full-bounds alpha layer and applies it with <code>BlendMode.DstIn</code>. The browser proves the visible model; the Compose implementation proves the Android draw order and layer contract.</div>
     </aside>
   </div>
 </section>
 
 <section class="section panel">
-  <div class="section-head"><div><div class="section-no">4 · PER-POSITION MICROSCOPE</div><h2>Change one zone's mask value</h2></div><p>The spatial demonstration now zooms into the arithmetic at one enlarged zone.</p></div>
+  <div class="section-head"><div><div class="section-no">4 · DSTIN VERSUS SRCIN</div><h2>Both keep an overlap, but they keep different operands</h2></div><p>Start from draw order, not from the words mask and content.</p></div>
+  <div class="two">
+    <article class="card indigo">
+      <h3><code>DstIn</code> · keep the destination</h3>
+      <div class="formula">draw first into the group:
+content = destination
+
+draw second as the mask layer:
+mask = source
+
+output premultiplied RGB
+= destination premultiplied RGB × source alpha
+
+output alpha
+= destination alpha × source alpha</div>
+      <p>The mask source RGB is ignored. Its alpha controls how much of the earlier content destination remains.</p>
+    </article>
+    <article class="card green">
+      <h3><code>SrcIn</code> · keep the source</h3>
+      <div class="formula">prepare first:
+mask = destination
+
+draw second:
+content = source
+
+output premultiplied RGB
+= source premultiplied RGB × destination alpha
+
+output alpha
+= source alpha × destination alpha</div>
+      <p>The mask destination RGB is ignored. Its alpha controls where the later content source remains.</p>
+    </article>
+  </div>
+  <div class="note"><strong>Why both can look like “show only the overlap”:</strong> with the same hard capsule alpha field and the matching reversed draw order, both produce transparent output outside and content-colored output inside. That visible overlap is a useful summary. The full definition still says which operand's color survives: destination for <code>DstIn</code>, source for <code>SrcIn</code>.</div>
+</section>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">5 · ALPHA MASK VERSUS GRAYSCALE PREVIEW</div><h2><code>DstIn</code> reads alpha, not how black or white the mask looks</h2></div><p>This is the missing bridge between the capsule code and the four gray teaching swatches.</p></div>
+  <div class="two">
+    <article class="card red">
+      <h3>The actual Compose mask input</h3>
+      <div class="formula">inside at full strength:
+Color.Black
+= straight RGBA(0, 0, 0, 1)
+
+inside at 60%:
+Color.Black.copy(alpha = 0.60)
+= straight RGBA(0, 0, 0, 0.60)
+
+outside:
+transparent mask-layer position
+= straight RGBA(0, 0, 0, 0)</div>
+      <p><code>DstIn</code> ignores the three black RGB fields. Alpha 1 keeps all content. Alpha 0.60 keeps 60% of the content contribution. Alpha 0 removes it.</p>
+    </article>
+    <article class="card amber">
+      <h3>The grayscale row in the microscope</h3>
+      <p>The gray swatches are a chart that makes numbers visible to you.</p>
+      <div class="formula">preview of value 0.60:
+opaque straight RGB(0.60, 0.60, 0.60)
+preview alpha = 1.00</div>
+      <p>That opaque gray would behave as mask alpha 1 under <code>DstIn</code>, not 0.60. To create mask value 0.60, the actual mask alpha must be 0.60. The mask RGB may be black, white, red, or another color without changing <code>DstIn</code>.</p>
+    </article>
+  </div>
+  <div class="warning"><strong>A luminance mask is a different contract:</strong> another operation first converts mask RGB brightness into a visibility value. Compose <code>DstIn</code> does not perform that conversion automatically. This lesson teaches an alpha mask.</div>
+</section>
+
+<section class="section panel">
+  <div class="section-head"><div><div class="section-no">6 · PER-POSITION MICROSCOPE</div><h2>Change one zone's mask alpha</h2></div><p>The spatial pattern is replaced by one opaque orange content color so one position can be calculated exactly.</p></div>
   <div class="interactive-grid">
     <div>
-      <div class="stage"><svg id="maskSvg" role="img" aria-label="Candidate, mask field, and masked output" viewBox="0 0 820 430"></svg></div>
+      <div class="stage"><svg id="maskSvg" role="img" aria-label="Content being masked, mask-value preview, and final output" viewBox="0 0 820 430"></svg></div>
       <div class="mask-strip" id="maskStrip"></div>
     </div>
     <aside class="control-panel">
-      <h3>Select one zone</h3>
+      <h3>Select one enlarged zone</h3>
       <div class="controls" id="zoneButtons"></div>
-      <div class="range"><label for="maskRange">Selected mask value</label><input id="maskRange" type="range" min="0" max="1" step="0.05"><output id="maskValueOut" class="mono"></output></div>
+      <div class="range"><label for="maskRange">Selected mask alpha</label><input id="maskRange" type="range" min="0" max="1" step="0.05"><output id="maskValueOut" class="mono"></output></div>
       <div class="controls">
         <button class="preset" data-preset="course">Course field</button>
         <button class="preset" data-preset="clip">Clip-like 0 / 1</button>
@@ -217,83 +287,91 @@ soft region → 0.60 → keep part</div></article>
       </div>
       <div class="metrics">
         <div class="metric"><strong>Selected zone</strong><span id="selectedZoneMetric"></span></div>
-        <div class="metric"><strong>Mask value</strong><span id="maskMetric" class="mono"></span></div>
-        <div class="metric"><strong>Effective source alpha</strong><span id="effectiveAlphaMetric" class="mono"></span></div>
+        <div class="metric"><strong>Mask alpha</strong><span id="maskMetric" class="mono"></span></div>
+        <div class="metric"><strong>Masked content alpha</strong><span id="effectiveAlphaMetric" class="mono"></span></div>
         <div class="metric"><strong>Final output alpha</strong><span class="mono">1.0000</span></div>
       </div>
-      <div class="note"><strong>Why output alpha stays 1:</strong> the navy background is opaque. It remains behind any part of the candidate that the mask removes.</div>
+      <div class="note"><strong>The three objects:</strong> orange is the content being masked. The zone value belongs to the mask. Navy is the opaque background behind the masked group.</div>
     </aside>
   </div>
 </section>
 
 <section class="section panel">
-  <div class="section-head"><div><div class="section-no">5 · TRACE ONE VALUE</div><h2>Follow the selected zone from inputs to final output</h2></div><p>The reset trace selects zone C with mask value 0.60.</p></div>
+  <div class="section-head"><div><div class="section-no">7 · TRACE TWO OPERATIONS</div><h2>Apply the mask first, then composite the masked group over navy</h2></div><p>The two formulas answer different questions and run in sequence.</p></div>
   <div class="trace-grid" id="traceGrid"></div>
-  <div class="success"><strong>Reset result:</strong> mask value <code>0.60</code> changes the opaque candidate into an effective 60% source before source-over. The final straight sRGB output is approximately RGBA(<code>0.5440</code>, <code>0.2880</code>, <code>0.2280</code>, <code>1.0000</code>).</div>
+  <div class="success"><strong>Reset result for zone C:</strong> content alpha <code>1.00</code> multiplied by mask alpha <code>0.60</code> produces masked content alpha <code>0.60</code>. That masked group is then composited over opaque navy, producing final straight sRGB RGBA approximately (<code>0.5440</code>, <code>0.2880</code>, <code>0.2280</code>, <code>1.0000</code>).</div>
 </section>
 
 <section class="section panel">
-  <div class="section-head"><div><div class="section-no">6 · WHICH VALUES ARE MULTIPLIED?</div><h2>The mask controls alpha; the stored RGB answer depends on representation</h2></div><p>This resolves the difference between straight and premultiplied RGBA from Lesson 3.5.</p></div>
-  <p>The candidate carries its own alpha. The mask supplies a second visibility restriction. The general visibility calculation is:</p>
+  <div class="section-head"><div><div class="section-no">8 · STRAIGHT AND PREMULTIPLIED VALUES</div><h2>The mask scales alpha; stored RGB depends on the representation</h2></div><p>Reuse the two RGBA representations from Lesson 3.5.</p></div>
+  <p>The content carries its own alpha. The mask supplies another independent alpha restriction. The first operation calculates:</p>
   <div class="formula" id="effectiveAlphaFormula"></div>
   <div class="representation-grid">
-    <article class="card green"><h3>Straight RGBA view</h3><p>Straight RGB stores the color independently from alpha. Applying mask value <code>0.60</code> to the opaque candidate changes alpha, not its straight RGB fields.</p><div class="formula">candidate straight RGBA
+    <article class="card green"><h3>Straight RGBA view</h3><p>Straight RGB stores the orange color independently from alpha.</p><div class="formula">content straight RGBA
 = (0.8400, 0.3600, 0.1800, 1.0000)
 
 masked straight RGBA
 = (0.8400, 0.3600, 0.1800, 0.6000)</div></article>
-    <article class="card indigo"><h3>Premultiplied RGBA view</h3><p>Premultiplied RGB already contains the alpha weighting. The same mask therefore multiplies the stored RGB contributions and alpha.</p><div class="formula">candidate premultiplied RGBA
+    <article class="card indigo"><h3>Premultiplied RGBA view</h3><p>Premultiplied RGB stores the alpha-weighted color contributions.</p><div class="formula">content premultiplied RGBA
 = (0.8400, 0.3600, 0.1800, 1.0000)
 
-× mask 0.6000
+× mask alpha 0.6000
 
 masked premultiplied RGBA
 = (0.5040, 0.2160, 0.1080, 0.6000)</div></article>
   </div>
-  <div class="note"><strong>Precise answer to “is it multiplying color channels?”</strong> At the straight-RGBA API level, a pure opacity mask preserves straight RGB and multiplies alpha. In a premultiplied buffer, the stored RGB contributions are also multiplied because those values already include alpha. After the masked result is composited over an opaque background, the final displayed RGB also includes the background contribution.</div>
-  <div class="warning"><strong>Special-case warning:</strong> the main candidate alpha is 1.00, so effective source alpha equals the mask value. If candidate alpha is 0.50 and mask value is 0.60, effective source alpha is <code>0.50 × 0.60 = 0.30</code>.</div>
+  <div class="note"><strong>Precise answer to “are color channels multiplied?”</strong> A pure opacity mask preserves the straight RGB color and multiplies alpha. In a premultiplied buffer, the stored RGB contributions are also multiplied because those fields already contain alpha weighting.</div>
 </section>
 
 <section class="section panel">
-  <div class="section-head"><div><div class="section-no">7 · COMPLETE COLOR TRACE</div><h2>Use the effective alpha in ordinary source-over</h2></div><p>Trace red first, then repeat the same operation for green and blue.</p></div>
+  <div class="section-head"><div><div class="section-no">9 · SOURCE-OVER THE MASKED GROUP</div><h2>The masked content alpha becomes source alpha only in the second operation</h2></div><p>Trace red first, then repeat the same operation for green and blue.</p></div>
   <div class="two">
     <article class="card indigo"><h3>Selected red channel</h3><div class="formula" id="redTrace"></div></article>
     <article class="card"><h3>Green, blue, and final alpha</h3><div class="formula" id="otherTrace"></div></article>
   </div>
-  <div class="note"><strong>Mask value is not final output alpha:</strong> mask value controls the candidate contribution before compositing. The opaque background makes the final output alpha 1.00.</div>
+  <div class="note"><strong>Meaning of “effective source alpha”:</strong> after Stage A, the precise name is <em>masked content alpha</em>. In Stage B, that masked content group is drawn as the source over navy, so the same number becomes the source alpha consumed by source-over. The old phrase named its later role, not a fourth independent value.</div>
 </section>
 
 <section class="section panel">
-  <div class="section-head"><div><div class="section-no">8 · CLIPPING VERSUS MASKING</div><h2>A clip-like field uses only the two endpoint values</h2></div><p>The distinction is about the values supplied at inspected positions.</p></div>
+  <div class="section-head"><div><div class="section-no">10 · CLIPPING VERSUS ALPHA MASKING</div><h2>A binary alpha field can match a hard clip away from the edge</h2></div><p>The visible similarity does not make the underlying operations identical.</p></div>
   <div class="two">
-    <article class="card blue"><h3>Clearly inside or outside clip trace</h3><div class="formula">outside position → behaves like mask value 0
-inside position → behaves like mask value 1</div><p>Those two values reproduce the yes-or-no behavior from Lesson 4.7 away from the boundary. For a binary shape mask, the visible output is the overlap between content coverage and mask coverage.</p></article>
-    <article class="card green"><h3>Mask field</h3><div class="formula">allowed mask values = every number from 0 through 1
-example = 0.25, 0.60, 0.85</div><p>Intermediate values create partial visibility. The mask may also be an image, a texture, or a shader-calculated field rather than one geometric Path.</p></article>
+    <article class="card blue"><h3>Hard clip</h3><div class="formula">clearly outside → current draw rejected
+clearly inside → current draw allowed</div><p>The renderer restricts drawing by geometry. For one fixed hard capsule, this is the simpler production tool.</p></article>
+    <article class="card green"><h3>Alpha mask</h3><div class="formula">outside mask alpha = 0
+inside mask alpha = 1
+partial region may use 0.25, 0.60, 0.85...</div><p>The renderer keeps a fraction of a grouped drawing at every position. The mask may come from geometry, an image, a texture, or a shader.</p></article>
   </div>
 </section>
 
 <section class="section panel">
-  <div class="section-head"><div><div class="section-no">9 · DIAGNOSTIC</div><h2>The gray preview does not tint the candidate</h2></div><p>This is the most likely misconception.</p></div>
+  <div class="section-head"><div><div class="section-no">11 · WHY THE DIRECT-ALPHA MICROSCOPE IS A SHORTCUT</div><h2>Applying alpha to every draw is not the same as masking a completed group</h2></div><p>A concrete overlap exposes the difference.</p></div>
   <div class="two">
-    <article class="card red"><h3>Incorrect mental model</h3><p>“Mask value 0.60 paints gray RGB(0.60, 0.60, 0.60) over the orange candidate.”</p><p>That would be a color-compositing or tint operation. It is not the mask contract taught here.</p></article>
-    <article class="card green"><h3>Correct mental model</h3><p>The mask preview displays the number 0.60 as gray so the value is visible to the learner.</p><div class="formula">candidate straight RGB stays (0.84, 0.36, 0.18)
-mask changes effective source alpha
-premultiplied RGB contributions scale with that alpha
-background then contributes through source-over</div></article>
+    <article class="card green"><h3>Correct grouped mask</h3><div class="formula">draw two opaque shapes into one group
+→ overlap is still opaque
+
+apply mask alpha 0.60 once to the group
+→ non-overlap alpha = 0.60
+→ overlap alpha = 0.60</div></article>
+    <article class="card red"><h3>Incorrect per-draw shortcut</h3><div class="formula">draw shape 1 with alpha 0.60
+draw shape 2 with alpha 0.60 over it
+
+overlap alpha
+= 0.60 + 0.60 × (1 − 0.60)
+= 0.84</div></article>
   </div>
+  <div class="warning"><strong>Why the four-zone microscope is still exact:</strong> each zone contains one solid orange draw, and the zones do not overlap. Under that narrow contract, drawing the orange color with <code>alpha = maskValue</code> collapses Stage A and Stage B without changing the answer. It is not a general masking architecture for multi-draw content.</div>
 </section>
 
 <section class="section panel">
-  <div class="section-head"><div><div class="section-no">10 · TRANSLUCENT CANDIDATE BOUNDARY</div><h2>Keep candidate alpha and mask value separate</h2></div><p>The mask does not replace the candidate's existing alpha.</p></div>
+  <div class="section-head"><div><div class="section-no">12 · ORIGINAL CONTENT ALPHA</div><h2>Content alpha and mask alpha are two independent restrictions</h2></div><p>The mask does not replace the content's existing alpha.</p></div>
   <div class="two">
-    <article class="card amber"><h3>Fixed boundary example</h3><div class="formula" id="boundaryAlpha"></div></article>
-    <article class="card"><h3>Result over the same opaque background</h3><div class="formula" id="boundaryOutput"></div><p>Two independent restrictions multiply. Adding them would incorrectly increase visibility and can exceed 1.</p></article>
+    <article class="card amber"><h3>Fixed example</h3><div class="formula" id="boundaryAlpha"></div></article>
+    <article class="card"><h3>Result over the same opaque navy background</h3><div class="formula" id="boundaryOutput"></div><p>Adding the two alpha values would increase visibility and can exceed 1. Multiplication preserves both restrictions.</p></article>
   </div>
 </section>
 
 <section class="section panel" id="stepper">
-  <div class="section-head"><div><div class="section-no">11 · MANUAL STEPPER</div><h2>Build the reset output one operation at a time</h2></div><p>The longest formula stays beside the compact diagram at 1920×1080.</p></div>
+  <div class="section-head"><div><div class="section-no">13 · MANUAL STEPPER</div><h2>Build the reset output one operation at a time</h2></div><p>The longest formula stays beside the compact diagram at 1920×1080.</p></div>
   <div class="stepper">
     <div class="step-figure"><svg id="stepSvg" role="img" aria-label="Mask value calculation step" viewBox="0 0 820 430"></svg></div>
     <div class="step-card">
@@ -309,39 +387,62 @@ background then contributes through source-over</div></article>
 </section>
 
 <section class="section panel">
-  <div class="section-head"><div><div class="section-no">12 · ANDROID CONNECTION</div><h2>Group the content, then apply the mask to that group</h2></div><p>The complete file remains in Android Studio and the incremental Android ZIP.</p></div>
+  <div class="section-head"><div><div class="section-no">14 · ANDROID CONNECTION</div><h2>Use one documented content-isolation boundary and one full-bounds mask layer</h2></div><p>The complete file remains in Android Studio and the incremental Android ZIP.</p></div>
   <div class="pipeline">
-    <article class="card"><strong>1 · Parent background</strong><p>The navy Surface exists outside the masked content group.</p></article>
-    <article class="card"><strong>2 · Offscreen group</strong><p><code>CompositingStrategy.Offscreen</code> gives the Canvas content an isolated temporary drawing target.</p></article>
-    <article class="card"><strong>3 · Candidate content</strong><p>Draw the full multi-color pattern first. It becomes the destination inside the isolated group.</p></article>
-    <article class="card"><strong>4 · Mask shape</strong><p>Draw the capsule second with <code>BlendMode.DstIn</code>. Its alpha is the mask value.</p></article>
-    <article class="card"><strong>5 · Masked group</strong><p>Only candidate content under the capsule remains. Outside positions become transparent inside the group.</p></article>
-    <article class="card"><strong>6 · Final composition</strong><p>The isolated masked group is then composited over the parent navy background.</p></article>
+    <article class="card"><strong>1 · Navy parent</strong><p>The opaque navy <code>Surface</code> is outside the masked content group.</p></article>
+    <article class="card"><strong>2 · Offscreen content target</strong><p><code>CompositingStrategy.Offscreen</code> guarantees a Canvas-sized target that receives only this composable's pattern drawing.</p></article>
+    <article class="card"><strong>3 · Draw grouped content</strong><p>The complete multi-color pattern is drawn into that target and becomes the <code>DstIn</code> destination.</p></article>
+    <article class="card"><strong>4 · Full-bounds mask layer</strong><p><code>Canvas.saveLayer</code> creates a transparent source mask across the complete Canvas bounds.</p></article>
+    <article class="card"><strong>5 · Apply <code>DstIn</code></strong><p>The capsule writes selected alpha inside. Restore multiplies the isolated destination by source-mask alpha, including alpha 0 outside.</p></article>
+    <article class="card"><strong>6 · Draw over navy</strong><p>Compose composites the finished offscreen Canvas over the navy parent.</p></article>
   </div>
-  <pre class="code">// MasksExplorer.kt — SpatialMaskUseCard
+  <pre class="code">// MasksExplorer.kt — SpatialMaskUseCard + applyFullBoundsCapsuleAlphaMask
 Canvas(
-    modifier = Modifier.graphicsLayer {
-        compositingStrategy = CompositingStrategy.Offscreen
-    },
+    modifier = Modifier
+        .fillMaxWidth()
+        .height(SpatialDrawingHeightDp.dp)
+        .graphicsLayer {
+            compositingStrategy = CompositingStrategy.Offscreen
+        },
 ) {
-    drawTeachingPattern(contentOffsetPx)
-    drawRoundRect(
-        color = Color.Black,
-        topLeft = maskTopLeft,
-        size = maskSize,
-        cornerRadius = maskCornerRadius,
-        blendMode = BlendMode.DstIn,
-    )
+    drawSpatialTeachingPattern(contentOffsetPx)
+
+    val canvas = drawContext.canvas
+    val fullBounds = Rect(0f, 0f, size.width, size.height)
+
+    canvas.saveLayer(fullBounds, dstInMaskLayerPaint)
+    try {
+        drawRoundRect(
+            color = Color.Black.copy(alpha = maskAlpha),
+            topLeft = maskTopLeft,
+            size = maskSize,
+            cornerRadius = maskCornerRadius,
+        )
+    } finally {
+        canvas.restore() // apply the complete source mask with DstIn
+    }
 }</pre>
-  <div class="note"><strong>Why offscreen isolation matters:</strong> the <code>DstIn</code> operation must affect the grouped candidate content, not previously drawn siblings or the parent background. The parent background therefore remains outside the isolated Canvas.</div>
-  <div class="warning"><strong>Controlled microscope remains valid:</strong> the four-zone experiment still uses <code>alpha = maskValue</code> for one solid candidate and non-overlapping zones. That is exact for its narrow contract. It is not the general architecture for arbitrary multi-draw content.</div>
+  <div class="two">
+    <article class="card blue">
+      <h3>Why your device can look correct without <code>Offscreen</code></h3>
+      <p>The visible result proves one narrow fact: during that run, the destination reached by <code>DstIn</code> did not visibly include the navy parent. The final image does not reveal which Compose or renderer-owned target supplied that isolation.</p>
+      <p>Possible internal boundaries cannot be selected from appearance alone. Proving the exact reason would require a renderer/layer trace or inspection of the exact Compose, Android renderer, and Skia source path used by your build.</p>
+    </article>
+    <article class="card amber">
+      <h3>Why the lesson keeps <code>Offscreen</code></h3>
+      <p>The modifier turns the required containment into an explicit, documented contract: blend modes inside this Canvas operate on this composable's offscreen content before the result is placed over the parent.</p>
+      <p>Removing it would convert one successful measurement into an undocumented correctness assumption. An explicit outer <code>Canvas.saveLayer</code> could replace it, but using both outer mechanisms without another need would add redundant offscreen work.</p>
+    </article>
+  </div>
+  <div class="warning"><strong>Cost boundary:</strong> <code>Offscreen</code> creates a texture the size of the drawing area and clips drawing to that region. <code>Canvas.saveLayer</code> also redirects drawing into an offscreen target and is expensive. Keep bounds tight, avoid redundant outer layers, and profile the real component count and size.</div>
+  <div class="warning"><strong>Production choice:</strong> use <code>clipPath</code> for this exact hard capsule when the inside value is always 1 and the outside value is 0. Use a real alpha mask when partial, image-based, textured, or shader-generated visibility is required.</div>
 </section>
 
 <section class="section panel">
-  <div class="section-head"><div><div class="section-no">13 · PREDICT</div><h2>Raise the reset mask value from 0.60 to 0.80</h2></div><p>Predict before pressing Check.</p></div>
-  <p>The candidate and background stay fixed. Which direction should the final output move?</p>
+  <div class="section-head"><div><div class="section-no">15 · PREDICT</div><h2>Raise the reset mask value from 0.60 to 0.80</h2></div><p>Predict before pressing Check.</p></div>
+  <p>The orange content and navy background stay fixed. Which direction should the final output move?</p>
   <div class="controls" id="predictionButtons">
-    <button class="prediction-button" data-prediction="candidate">Toward the candidate color</button>
+    <button class="prediction-button" data-prediction="content">Toward the orange content color</button>
     <button class="prediction-button" data-prediction="background">Toward the background color</button>
     <button class="prediction-button" data-prediction="gray">Toward mask-preview gray</button>
   </div>
@@ -350,33 +451,33 @@ Canvas(
 </section>
 
 <section class="section panel">
-  <div class="section-head"><div><div class="section-no">14 · EXPLAIN THE RESULT</div><h2>Larger mask value leaves less room for the background</h2></div></div>
+  <div class="section-head"><div><div class="section-no">16 · EXPLAIN THE RESULT</div><h2>Larger mask value leaves less room for the background</h2></div></div>
   <div class="formula">at mask 0.60:
 background opening = 1 − 0.60 = 0.40
 
 at mask 0.80:
 background opening = 1 − 0.80 = 0.20</div>
-  <p>The background contribution becomes smaller. The output moves numerically toward the unchanged candidate RGB. At mask 0.80, the output is straight sRGB RGB(0.6920, 0.3240, 0.2040).</p>
+  <p>The background contribution becomes smaller. The output moves numerically toward the unchanged orange content RGB. At mask 0.80, the output is straight sRGB RGB(0.6920, 0.3240, 0.2040).</p>
 </section>
 
 <section class="section panel">
-  <div class="section-head"><div><div class="section-no">15 · CODING CHALLENGE</div><h2>Repair effective source alpha</h2></div><p>The starting function incorrectly adds two visibility restrictions.</p></div>
+  <div class="section-head"><div><div class="section-no">17 · CODING CHALLENGE</div><h2>Repair masked content alpha</h2></div><p>The starting function incorrectly adds two visibility restrictions.</p></div>
   <div class="challenge">
     <div>
-      <textarea class="editor" id="challengeEditor" spellcheck="false">fun effectiveSourceAlpha(
-    candidateAlpha: Float,
-    maskValue: Float,
+      <textarea class="editor" id="challengeEditor" spellcheck="false">fun maskedContentAlpha(
+    contentAlpha: Float,
+    maskAlpha: Float,
 ): Float {
-    return candidateAlpha + maskValue
+    return contentAlpha + maskAlpha
 }</textarea>
       <div class="controls" style="margin-top:12px"><button class="preset" data-challenge="wrong">Use addition</button><button class="preset" data-challenge="correct">Use multiplication</button><button class="primary" id="checkChallenge">Check repair</button></div>
       <div class="result" id="challengeResult">Repair the function, then check it.</div>
     </div>
     <aside class="challenge-preview">
       <h3>Fixed test</h3>
-      <div class="formula">candidate alpha = 0.50
-mask value = 0.60
-expected effective alpha = 0.30</div>
+      <div class="formula">content alpha = 0.50
+mask alpha = 0.60
+expected masked content alpha = 0.30</div>
       <div class="metric"><strong>Current code result</strong><span class="mono" id="challengeValue"></span></div>
       <p>Both numbers reduce visibility. Their product preserves that causal meaning.</p>
     </aside>
@@ -384,53 +485,61 @@ expected effective alpha = 0.30</div>
 </section>
 
 <section class="section panel">
-  <div class="section-head"><div><div class="section-no">16 · EXERCISES</div><h2>Answer before opening the hidden solutions</h2></div><p>Use the fixed candidate and background unless stated otherwise.</p></div>
-  <details><summary>Exercise 1 · Fixed mask, moving content</summary><p>A striped image moves left while a capsule mask stays fixed. What moves in the final output: the capsule boundary, the stripes visible inside it, or both?</p><details><summary>Show answer</summary><p>The capsule boundary stays fixed. Different stripe positions pass underneath it, so the visible stripes move inside the unchanged capsule silhouette.</p></details></details>
-  <details><summary>Exercise 2 · Red at mask value 0.25</summary><p>Calculate the final red channel over the opaque navy background.</p><details><summary>Show answer</summary><div class="formula">effective alpha = 1 × 0.25 = 0.25
-red = 0.84 × 0.25 + 0.10 × 0.75
-    = 0.21 + 0.075
-    = 0.285</div></details></details>
-  <details><summary>Exercise 3 · Diagnostic: are straight RGB channels multiplied?</summary><p>Apply mask value 0.60 to straight RGBA(0.84, 0.36, 0.18, 1.00) before compositing. What is the masked straight RGBA? What is its premultiplied RGBA?</p><details><summary>Show answer</summary><div class="formula">masked straight RGBA
-= (0.84, 0.36, 0.18, 0.60)
+  <div class="section-head"><div><div class="section-no">18 · EXERCISES</div><h2>Answer before opening the hidden solutions</h2></div><p>Each exercise targets one likely ambiguity from this revision.</p></div>
+  <details><summary>Exercise 1 · <code>DstIn</code> versus <code>SrcIn</code></summary><p>The content is drawn first and the mask layer is supplied second. Which mode keeps the content color: <code>DstIn</code> or <code>SrcIn</code>?</p><details><summary>Show answer</summary><p><code>DstIn</code>. The earlier content is the destination. <code>DstIn</code> keeps destination color and multiplies it by source-mask alpha. <code>SrcIn</code> would keep the later source color.</p></details></details>
+  <details><summary>Exercise 2 · Why does black keep content?</summary><p>The mask capsule is <code>Color.Black</code>. Why does that not hide the content under <code>DstIn</code>?</p><details><summary>Show answer</summary><p><code>Color.Black</code> is straight RGBA(0, 0, 0, 1). <code>DstIn</code> ignores mask RGB and reads mask alpha. Alpha 1 keeps the complete destination content. Black is irrelevant here; opacity is what matters.</p></details></details>
+  <details><summary>Exercise 3 · Two-stage zone-C trace</summary><p>Content straight RGBA is (0.84, 0.36, 0.18, 1.00), mask alpha is 0.60, and navy is (0.10, 0.18, 0.30, 1.00). Calculate masked content alpha and final red.</p><details><summary>Show answer</summary><div class="formula">Stage A:
+masked content alpha
+= 1.00 × 0.60
+= 0.60
 
-masked premultiplied RGBA
-= (0.84×0.60, 0.36×0.60, 0.18×0.60, 0.60)
-= (0.504, 0.216, 0.108, 0.60)</div><p>Straight RGB remains the candidate color. Premultiplied RGB stores the alpha-weighted contributions.</p></details></details>
-  <details><summary>Exercise 4 · Clip or mask?</summary><p>You need a fixed hard capsule boundary around moving content, with no soft visibility texture. Which is the simpler tool: a clip or a general offscreen mask?</p><details><summary>Show answer</summary><p>A clip is the simpler tool for that hard geometric boundary. Use a mask when you need variable 0-to-1 visibility, an image or texture, a soft reveal, or another field that is not just one hard geometry decision.</p></details></details>
+Stage B:
+background opening = 1 − 0.60 = 0.40
+final red = 0.84 × 0.60 + 0.10 × 0.40
+          = 0.504 + 0.040
+          = 0.544</div></details></details>
+  <details><summary>Exercise 4 · Diagnostic: why not set every draw to alpha 0.60?</summary><p>Two opaque shapes overlap. Compare masking the completed group once at 0.60 with drawing each shape separately at alpha 0.60.</p><details><summary>Show answer</summary><div class="formula">grouped mask overlap alpha = 0.60
+
+separate draw overlap alpha
+= 0.60 + 0.60 × (1 − 0.60)
+= 0.84</div><p>The per-draw shortcut applies opacity twice in the overlap. It is not a general grouped mask.</p></details></details>
 </section>
 
 <section class="section panel">
-  <div class="section-head"><div><div class="section-no">17 · PIXEL 8 PRO CHECKPOINT</div><h2>Verify the Android experiment</h2></div></div>
+  <div class="section-head"><div><div class="section-no">19 · PIXEL 8 PRO CHECKPOINT</div><h2>Verify the revised Android mental model and output</h2></div></div>
   <div class="checklist" id="checklist">
     <label class="check"><input data-check="build" type="checkbox">The project builds after applying the Android ZIP.</label>
-    <label class="check"><input data-check="chapter-preview" type="checkbox">The complete Chapter 4 preview works in light and dark modes.</label>
-    <label class="check"><input data-check="child-preview" type="checkbox">The direct MasksExplorer preview works in light and dark modes.</label>
-    <label class="check"><input data-check="cut" type="checkbox">The hard capsule mask cuts the oversized pattern to the capsule silhouette.</label>
-    <label class="check"><input data-check="move-content" type="checkbox">Moving content behind the fixed mask changes only the pattern visible inside the stationary capsule.</label>
-    <label class="check"><input data-check="move-mask" type="checkbox">Moving the mask over fixed content changes which content positions are revealed.</label>
-    <label class="check"><input data-check="field" type="checkbox">The reset mask field shows 0.00, 0.25, 0.60, and 1.00.</label>
-    <label class="check"><input data-check="zone" type="checkbox">Each zone can be selected and changed independently.</label>
-    <label class="check"><input data-check="zero" type="checkbox">Mask 0 shows the unchanged background at the selected zone.</label>
-    <label class="check"><input data-check="one" type="checkbox">Mask 1 shows the full candidate at the selected zone.</label>
-    <label class="check"><input data-check="middle" type="checkbox">Mask 0.60 produces output near RGB(0.5440, 0.2880, 0.2280).</label>
-    <label class="check"><input data-check="alpha" type="checkbox">I can distinguish mask value, effective source alpha, masked straight RGBA, masked premultiplied RGBA, and final output alpha.</label>
-    <label class="check"><input data-check="gray" type="checkbox">I can explain why the grayscale preview does not tint the candidate.</label>
-    <label class="check"><input data-check="clip" type="checkbox">I can compare clearly inside/outside clipping with mask values 0 and 1.</label>
-    <label class="check"><input data-check="challenge" type="checkbox">The prediction and coding challenge are complete.</label>
+    <label class="check"><input data-check="chapter-preview" type="checkbox">The existing complete Chapter 4 preview works in light and dark modes.</label>
+    <label class="check"><input data-check="child-preview" type="checkbox">The existing direct <code>MasksExplorer</code> preview works in light and dark modes.</label>
+    <label class="check"><input data-check="objects" type="checkbox">I can identify the content being masked, the mask data, and the navy background as three separate objects.</label>
+    <label class="check"><input data-check="dstin" type="checkbox">I can explain that <code>DstIn</code> keeps destination color and reads source alpha.</label>
+    <label class="check"><input data-check="srcin" type="checkbox">I can explain that <code>SrcIn</code> keeps source color and reads destination alpha.</label>
+    <label class="check"><input data-check="black" type="checkbox">I can explain why opaque black means mask alpha 1 under <code>DstIn</code>.</label>
+    <label class="check"><input data-check="gray" type="checkbox">I can distinguish a grayscale value preview from an actual alpha mask.</label>
+    <label class="check"><input data-check="cut" type="checkbox">Mask alpha 1 cuts the oversized pattern to the capsule and navy is visible outside.</label>
+    <label class="check"><input data-check="partial" type="checkbox">Mask alpha 0.60 makes the complete pattern partially visible inside the capsule while navy supplies the rest.</label>
+    <label class="check"><input data-check="motion" type="checkbox">Moving content and moving the mask produce the two different spatial reveal cases.</label>
+    <label class="check"><input data-check="stages" type="checkbox">I can separate Stage A mask multiplication from Stage B source-over compositing.</label>
+    <label class="check"><input data-check="alias" type="checkbox">I understand that masked content alpha becomes effective source alpha only when the masked group is used as the next source.</label>
+    <label class="check"><input data-check="shortcut" type="checkbox">I can reproduce the 0.60 grouped-alpha versus 0.84 overlapping-per-draw counterexample.</label>
+    <label class="check"><input data-check="layers" type="checkbox">I can explain why the current device result without <code>Offscreen</code> is evidence, not a documented containment contract, and why the lesson keeps it.</label>
+    <label class="check"><input data-check="challenge" type="checkbox">The prediction, coding challenge, and four exercises are complete.</label>
   </div>
   <button class="primary" id="buildRecord" style="margin-top:16px">Build completion record</button>
   <textarea class="record" id="completionRecord" readonly>Complete the checkpoint, then build the record.</textarea>
 </section>
 
 <section class="section panel">
-  <div class="section-head"><div><div class="section-no">18 · SOURCES AND EVIDENCE</div><h2>What the Android contracts support</h2></div></div>
+  <div class="section-head"><div><div class="section-no">20 · SOURCES AND EVIDENCE</div><h2>What the Android contracts support</h2></div></div>
   <ul>
-    <li>Compose <code>DrawScope.drawRect</code> accepts an alpha value from 0 through 1 and a blend mode.</li>
-    <li>Compose <code>BlendMode.DstIn</code> treats its source as a mask: source RGB is ignored and source opacity controls how much destination content remains.</li>
-    <li><code>CompositingStrategy.Offscreen</code> isolates the candidate content in a temporary drawing target before <code>DstIn</code> is applied, preventing the mask operation from affecting previously drawn siblings or the parent background.</li>
-    <li>The Android explorer keeps the direct per-zone alpha model only as a small arithmetic microscope. It does not present that path as the general implementation for arbitrary captured or filtered content.</li>
+    <li>Compose <code>BlendMode.DstIn</code> keeps the destination image where source and destination overlap. Source RGB is ignored; source opacity acts as the mask.</li>
+    <li>Compose <code>BlendMode.SrcIn</code> keeps the source image where source and destination overlap. Destination RGB is ignored; destination opacity acts as the mask.</li>
+    <li><code>CompositingStrategy.Offscreen</code> forces a composable's content into an offscreen texture so alpha blend modes apply to that content rather than previously drawn background content.</li>
+    <li><code>Canvas.saveLayer</code> redirects the full-bounds mask drawing into a transparent offscreen target. On <code>restore()</code>, the layer paint applies <code>DstIn</code> to the already isolated content group.</li>
+    <li>The browser's grayscale row is a teaching visualization. The Android <code>DstIn</code> code reads mask alpha; it does not convert gray RGB brightness into alpha.</li>
+    <li>The four-zone direct-alpha path is validated only for one non-overlapping solid draw per zone. The overlapping-shape counterexample shows why it is not the general grouped-mask implementation.</li>
   </ul>
-  <p><a href="https://developer.android.com/develop/ui/compose/graphics/draw/overview">Android Developers · Graphics in Compose</a> · <a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode#DstIn">AndroidX Compose BlendMode.DstIn</a> · <a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/CompositingStrategy#Offscreen">AndroidX Compose CompositingStrategy.Offscreen</a></p>
+  <p><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode#DstIn">AndroidX Compose · DstIn</a> · <a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode#SrcIn">AndroidX Compose · SrcIn</a> · <a href="https://developer.android.com/develop/ui/compose/graphics/draw/modifiers#compositing-strategy">Android Developers · Compositing strategy</a> · <a href="https://developer.android.com/reference/android/graphics/Canvas#saveLayer(android.graphics.RectF,%20android.graphics.Paint)">Android Canvas · saveLayer</a></p>
 </section>
 
 <nav class="footer-nav panel"><a href="lesson-04-07-clipping.html">← Lesson 4.7 · completed</a><a href="lesson-shapes-corners-paths-and-masks.html">Chapter 4 hub</a><span>Next after completion: Lesson 4.9 · Soft edges and antialiasing</span></nav>
@@ -441,7 +550,7 @@ const $=id=>document.getElementById(id);
 const f2=n=>Number(n).toFixed(2);
 const f4=n=>Number(n).toFixed(4);
 const clamp=n=>Math.max(0,Math.min(1,n));
-const candidate=[0.84,0.36,0.18];
+const contentRgb=[0.84,0.36,0.18];
 const background=[0.10,0.18,0.30];
 const zones=[
   {id:'A',name:'left zone'},
@@ -449,13 +558,13 @@ const zones=[
   {id:'C',name:'right-middle zone'},
   {id:'D',name:'right zone'}
 ];
-const state={maskValues:[0,0.25,0.60,1],selected:2,step:0,prediction:null,challengePassed:false,spatialMode:'cut',spatialProgress:0.50};
+const state={maskValues:[0,0.25,0.60,1],selected:2,step:0,prediction:null,challengePassed:false,spatialMode:'cut',spatialProgress:0.50,spatialMaskAlpha:1};
 
-function outputFor(maskValue,candidateAlpha=1){
-  const effective=clamp(candidateAlpha)*clamp(maskValue);
+function outputFor(maskAlpha,contentAlpha=1){
+  const maskedAlpha=clamp(contentAlpha)*clamp(maskAlpha);
   return {
-    effective,
-    rgb:candidate.map((c,i)=>c*effective+background[i]*(1-effective)),
+    maskedAlpha,
+    rgb:contentRgb.map((channel,index)=>channel*maskedAlpha+background[index]*(1-maskedAlpha)),
     alpha:1
   };
 }
@@ -494,43 +603,49 @@ function patternElements(prefix,panelX,panelY,shift,clipId){
 }
 function spatialSvg(){
   const {contentOffset,maskLeft}=spatialGeometry();
+  const maskAlpha=clamp(state.spatialMaskAlpha);
   const panelY=100,panelW=240,panelH=238;
-  const candidateX=12,maskPanelX=290,outputX=568;
+  const contentX=12,maskPanelX=290,outputX=568;
   const maskY=panelY+60,maskW=150,maskH=112,maskR=56;
   const outputMaskX=outputX+maskLeft;
   const maskPreviewX=maskPanelX+maskLeft;
   const checker=`<pattern id="spatialChecker" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="var(--paper)"/><rect width="10" height="10" fill="var(--line)"/><rect x="10" y="10" width="10" height="10" fill="var(--line)"/></pattern>`;
-  return `<defs>${checker}<clipPath id="candidatePanelClip"><rect x="${candidateX}" y="${panelY}" width="${panelW}" height="${panelH}" rx="16"/></clipPath><clipPath id="outputPanelClip"><rect x="${outputX}" y="${panelY}" width="${panelW}" height="${panelH}" rx="16"/></clipPath><mask id="hardSpatialMask" maskUnits="userSpaceOnUse" x="${outputX}" y="${panelY}" width="${panelW}" height="${panelH}"><rect x="${outputX}" y="${panelY}" width="${panelW}" height="${panelH}" fill="black"/><rect x="${outputMaskX}" y="${maskY}" width="${maskW}" height="${maskH}" rx="${maskR}" fill="white"/></mask></defs>
+  return `<defs>${checker}<clipPath id="contentPanelClip"><rect x="${contentX}" y="${panelY}" width="${panelW}" height="${panelH}" rx="16"/></clipPath><clipPath id="outputPanelClip"><rect x="${outputX}" y="${panelY}" width="${panelW}" height="${panelH}" rx="16"/></clipPath><mask id="spatialAlphaMask" maskUnits="userSpaceOnUse" mask-type="alpha" x="${outputX}" y="${panelY}" width="${panelW}" height="${panelH}"><rect x="${outputX}" y="${panelY}" width="${panelW}" height="${panelH}" fill="black" fill-opacity="0"/><rect x="${outputMaskX}" y="${maskY}" width="${maskW}" height="${maskH}" rx="${maskR}" fill="black" fill-opacity="${maskAlpha}"/></mask></defs>
   <rect width="820" height="430" fill="transparent"/>
-  <text x="132" y="48" text-anchor="middle" font-size="18" font-weight="900" fill="currentColor">1 · content</text><text x="410" y="48" text-anchor="middle" font-size="18" font-weight="900" fill="currentColor">2 · mask field</text><text x="688" y="48" text-anchor="middle" font-size="18" font-weight="900" fill="currentColor">3 · visible output</text>
-  <text x="132" y="72" text-anchor="middle" font-size="13" font-weight="800" fill="currentColor">oversized multi-color pattern</text><text x="410" y="72" text-anchor="middle" font-size="13" font-weight="800" fill="currentColor">black 0 · white 1</text><text x="688" y="72" text-anchor="middle" font-size="13" font-weight="800" fill="currentColor">content × mask</text>
-  <rect x="${candidateX}" y="${panelY}" width="${panelW}" height="${panelH}" rx="16" fill="url(#spatialChecker)" stroke="var(--line)" stroke-width="2"/>${patternElements('candidate',candidateX,panelY,contentOffset,'candidatePanelClip')}
-  <rect x="${maskPanelX}" y="${panelY}" width="${panelW}" height="${panelH}" rx="16" fill="#111827" stroke="var(--line)" stroke-width="2"/><rect x="${maskPreviewX}" y="${maskY}" width="${maskW}" height="${maskH}" rx="${maskR}" fill="#ffffff"/><text x="${maskPanelX+120}" y="${panelY+218}" text-anchor="middle" font-size="13" font-weight="800" fill="#ffffff">outside 0 · inside 1</text>
-  <rect x="${outputX}" y="${panelY}" width="${panelW}" height="${panelH}" rx="16" fill="url(#spatialChecker)" stroke="var(--line)" stroke-width="2"/><g mask="url(#hardSpatialMask)">${patternElements('output',outputX,panelY,contentOffset,'outputPanelClip')}</g><rect x="${outputMaskX}" y="${maskY}" width="${maskW}" height="${maskH}" rx="${maskR}" fill="none" stroke="#4338ca" stroke-width="4"/>
+  <text x="132" y="48" text-anchor="middle" font-size="18" font-weight="900" fill="currentColor">1 · content</text><text x="410" y="48" text-anchor="middle" font-size="18" font-weight="900" fill="currentColor">2 · alpha mask</text><text x="688" y="48" text-anchor="middle" font-size="18" font-weight="900" fill="currentColor">3 · output over navy</text>
+  <text x="132" y="72" text-anchor="middle" font-size="13" font-weight="800" fill="currentColor">oversized multi-color pattern</text><text x="410" y="72" text-anchor="middle" font-size="13" font-weight="800" fill="currentColor">outside α 0 · inside α ${f2(maskAlpha)}</text><text x="688" y="72" text-anchor="middle" font-size="13" font-weight="800" fill="currentColor">masked group then SrcOver</text>
+  <rect x="${contentX}" y="${panelY}" width="${panelW}" height="${panelH}" rx="16" fill="url(#spatialChecker)" stroke="var(--line)" stroke-width="2"/>${patternElements('content',contentX,panelY,contentOffset,'contentPanelClip')}
+  <rect x="${maskPanelX}" y="${panelY}" width="${panelW}" height="${panelH}" rx="16" fill="url(#spatialChecker)" stroke="var(--line)" stroke-width="2"/><rect x="${maskPreviewX}" y="${maskY}" width="${maskW}" height="${maskH}" rx="${maskR}" fill="#000000" fill-opacity="${maskAlpha}"/><text x="${maskPanelX+120}" y="${panelY+218}" text-anchor="middle" font-size="13" font-weight="800" fill="currentColor">RGBA(0, 0, 0, ${f2(maskAlpha)}) inside</text>
+  <rect x="${outputX}" y="${panelY}" width="${panelW}" height="${panelH}" rx="16" fill="${rgbCss(background)}" stroke="var(--line)" stroke-width="2"/><g mask="url(#spatialAlphaMask)">${patternElements('output',outputX,panelY,contentOffset,'outputPanelClip')}</g><rect x="${outputMaskX}" y="${maskY}" width="${maskW}" height="${maskH}" rx="${maskR}" fill="none" stroke="#4338ca" stroke-width="4"/>
   <path d="M258 219 H280" stroke="#be185d" stroke-width="4"/><path d="M536 219 H558" stroke="#be185d" stroke-width="4"/>
-  <text x="410" y="388" text-anchor="middle" font-size="14" font-weight="900" fill="currentColor">The mask controls where content survives. It does not supply the content color.</text>`;
+  <text x="410" y="388" text-anchor="middle" font-size="14" font-weight="900" fill="currentColor">The black RGB is only a visual choice. Mask alpha controls how much pattern remains.</text>`;
 }
 function renderSpatial(){
   const {contentOffset,maskLeft}=spatialGeometry();
+  const maskAlpha=clamp(state.spatialMaskAlpha);
   $('spatialMaskSvg').innerHTML=spatialSvg();
   $('spatialRange').value=state.spatialProgress;
   $('spatialRange').disabled=state.spatialMode==='cut';
   $('spatialValueOut').textContent=f2(state.spatialProgress);
+  $('spatialMaskAlphaRange').value=maskAlpha;
+  $('spatialMaskAlphaOut').textContent=f2(maskAlpha);
   $('contentOffsetMetric').textContent=`${contentOffset>=0?'+':''}${contentOffset} teaching units`;
   $('maskLeftMetric').textContent=`${maskLeft} teaching units inside its panel`;
+  $('spatialAlphaMetric').textContent=`outside 0.00 · inside ${f2(maskAlpha)}`;
   const copy={
-    cut:'Both the oversized pattern and capsule mask are fixed. The output keeps only the pattern positions where mask value is 1.',
-    'move-content':'The capsule mask stays fixed. The pattern offset changes, so different pattern positions become visible inside the same stationary capsule.',
-    'move-mask':'The pattern stays fixed. The capsule mask moves, so the visible output reveals a different region of the unchanged pattern.'
+    cut:`The oversized pattern and capsule are fixed. Inside positions use mask alpha ${f2(maskAlpha)}; outside positions use 0.00.`,
+    'move-content':`The capsule stays fixed. The pattern moves beneath it while inside mask alpha remains ${f2(maskAlpha)}.`,
+    'move-mask':`The pattern stays fixed. The capsule moves, carrying inside mask alpha ${f2(maskAlpha)} across different content positions.`
   }[state.spatialMode];
   $('spatialCaption').innerHTML=`<strong>${state.spatialMode==='cut'?'Cut content to shape':state.spatialMode==='move-content'?'Move content behind a fixed mask':'Move the mask over fixed content'}</strong><br>${copy}`;
-  $('spatialOutputMetric').textContent=state.spatialMode==='move-content'?'moving pattern inside fixed capsule':state.spatialMode==='move-mask'?'moving capsule reveal':'fixed capsule cutout';
+  $('spatialOutputMetric').textContent=maskAlpha===1?'complete pattern contribution inside capsule':maskAlpha===0?'navy only':`${f2(maskAlpha)} pattern contribution inside capsule`;
   document.querySelectorAll('[data-spatial-mode]').forEach(button=>button.classList.toggle('selected',button.dataset.spatialMode===state.spatialMode));
+  document.querySelectorAll('[data-spatial-alpha]').forEach(button=>button.classList.toggle('selected',Math.abs(Number(button.dataset.spatialAlpha)-maskAlpha)<.001));
 }
 
 function mainSvg(){
   const panelX=[20,290,560],panelWidth=240,shapeY=72,shapeHeight=230,zoneWidth=60;
-  const titles=['Candidate content','Mask field','Final output'];
+  const titles=['Content being masked','Mask-value preview','Final output'];
   const clips=panelX.map((x,index)=>`<clipPath id="clip${index}"><rect x="${x}" y="${shapeY}" width="${panelWidth}" height="${shapeHeight}" rx="46"/></clipPath>`).join('');
   let svg=`<defs>${clips}</defs><rect width="820" height="430" fill="transparent"/>`;
   titles.forEach((title,index)=>{
@@ -539,13 +654,13 @@ function mainSvg(){
   panelX.forEach((x,index)=>{
     svg+=`<rect x="${x}" y="${shapeY}" width="${panelWidth}" height="${shapeHeight}" rx="46" fill="${index===1?'var(--soft)':rgbCss(background)}" stroke="var(--line)" stroke-width="2"/>`;
   });
-  svg+=`<g clip-path="url(#clip0)"><rect x="20" y="72" width="240" height="230" fill="${rgbCss(candidate)}"/></g>`;
-  state.maskValues.forEach((maskValue,index)=>{
+  svg+=`<g clip-path="url(#clip0)"><rect x="20" y="72" width="240" height="230" fill="${rgbCss(contentRgb)}"/></g>`;
+  state.maskValues.forEach((maskAlpha,index)=>{
     const maskX=panelX[1]+index*zoneWidth;
     const outputX=panelX[2]+index*zoneWidth;
-    const output=outputFor(maskValue).rgb;
-    const gray=[maskValue,maskValue,maskValue];
-    svg+=`<g clip-path="url(#clip1)"><rect x="${maskX}" y="${shapeY}" width="${zoneWidth}" height="${shapeHeight}" fill="${grayCss(maskValue)}"/><text x="${maskX+zoneWidth/2}" y="190" text-anchor="middle" font-size="14" font-weight="900" fill="${readable(gray)}">${zones[index].id}</text><text x="${maskX+zoneWidth/2}" y="214" text-anchor="middle" font-size="14" font-family="monospace" font-weight="900" fill="${readable(gray)}">${f2(maskValue)}</text></g>`;
+    const output=outputFor(maskAlpha).rgb;
+    const gray=[maskAlpha,maskAlpha,maskAlpha];
+    svg+=`<g clip-path="url(#clip1)"><rect x="${maskX}" y="${shapeY}" width="${zoneWidth}" height="${shapeHeight}" fill="${grayCss(maskAlpha)}"/><text x="${maskX+zoneWidth/2}" y="190" text-anchor="middle" font-size="14" font-weight="900" fill="${readable(gray)}">${zones[index].id}</text><text x="${maskX+zoneWidth/2}" y="214" text-anchor="middle" font-size="14" font-family="monospace" font-weight="900" fill="${readable(gray)}">${f2(maskAlpha)}</text></g>`;
     svg+=`<g clip-path="url(#clip2)"><rect x="${outputX}" y="${shapeY}" width="${zoneWidth}" height="${shapeHeight}" fill="${rgbCss(output)}"/></g>`;
   });
   [0,1,2].forEach(panelIndex=>{
@@ -556,10 +671,11 @@ function mainSvg(){
     const selectedX=panelX[panelIndex]+state.selected*zoneWidth;
     svg+=`<rect x="${selectedX+2}" y="76" width="${zoneWidth-4}" height="222" fill="none" stroke="#dc2626" stroke-width="4"/><circle cx="${selectedX+zoneWidth/2}" cy="318" r="8" fill="#dc2626"/>`;
   });
+  const selectedResult=outputFor(state.maskValues[state.selected]);
   svg+=`<text x="140" y="352" text-anchor="middle" font-size="14" font-weight="800" fill="currentColor">same opaque orange in A–D</text>`;
-  svg+=`<text x="410" y="352" text-anchor="middle" font-size="14" font-weight="800" fill="currentColor">black 0 · white 1 · gray between</text>`;
-  svg+=`<text x="680" y="352" text-anchor="middle" font-size="14" font-weight="800" fill="currentColor">candidate over opaque navy</text>`;
-  svg+=`<rect x="150" y="382" width="520" height="34" rx="12" fill="var(--indigo-soft)" stroke="var(--indigo)"/><text x="410" y="405" text-anchor="middle" font-size="14" font-weight="900" fill="currentColor">Selected zone ${zones[state.selected].id} · mask ${f2(state.maskValues[state.selected])} · effective source alpha ${f2(outputFor(state.maskValues[state.selected]).effective)}</text>`;
+  svg+=`<text x="410" y="352" text-anchor="middle" font-size="14" font-weight="800" fill="currentColor">gray is a numeric preview only</text>`;
+  svg+=`<text x="680" y="352" text-anchor="middle" font-size="14" font-weight="800" fill="currentColor">masked orange over opaque navy</text>`;
+  svg+=`<rect x="132" y="382" width="556" height="34" rx="12" fill="var(--indigo-soft)" stroke="var(--indigo)"/><text x="410" y="405" text-anchor="middle" font-size="14" font-weight="900" fill="currentColor">Zone ${zones[state.selected].id} · mask alpha ${f2(state.maskValues[state.selected])} · masked content alpha ${f2(selectedResult.maskedAlpha)}</text>`;
   return svg;
 }
 
@@ -571,23 +687,26 @@ function renderMaskStrip(){
 }
 
 function renderTrace(){
-  const zone=zones[state.selected],mask=state.maskValues[state.selected],result=outputFor(mask),opening=1-result.effective;
+  const zone=zones[state.selected],maskAlpha=state.maskValues[state.selected],result=outputFor(maskAlpha),opening=1-result.maskedAlpha;
+  const maskedPremultiplied=contentRgb.map(channel=>channel*result.maskedAlpha);
   const cards=[
-    `<article class="card trace-card"><h3>1 · Fixed colors</h3><div class="formula">candidate straight sRGB RGBA
+    `<article class="card trace-card"><h3>1 · Scene inputs</h3><div class="formula">content straight sRGB RGBA
 (0.8400, 0.3600, 0.1800, 1.0000)
 
 background straight sRGB RGBA
 (0.1000, 0.1800, 0.3000, 1.0000)</div></article>`,
-    `<article class="card amber trace-card"><h3>2 · Zone ${zone.id} mask</h3><div class="formula">mask value = ${f4(mask)}
+    `<article class="card amber trace-card"><h3>2 · Stage A · mask zone ${zone.id}</h3><div class="formula">content alpha × mask alpha
+= 1.0000 × ${f4(maskAlpha)}
+= ${f4(result.maskedAlpha)}
 
-preview only:
-opaque RGB(${f4(mask)}, ${f4(mask)}, ${f4(mask)})</div><p>The preview RGB is not a color input to source-over.</p></article>`,
-    `<article class="card indigo trace-card"><h3>3 · Effective alpha</h3><div class="formula">candidate alpha × mask value
-= 1.0000 × ${f4(mask)}
-= ${f4(result.effective)}
+masked premultiplied RGB
+= (${maskedPremultiplied.map(f4).join(', ')})</div></article>`,
+    `<article class="card indigo trace-card"><h3>3 · Stage B · source-over inputs</h3><div class="formula">source = masked content group
+source alpha = ${f4(result.maskedAlpha)}
 
+destination = opaque navy
 background opening
-= 1 − ${f4(result.effective)}
+= 1 − ${f4(result.maskedAlpha)}
 = ${f4(opening)}</div></article>`,
     `<article class="card green trace-card"><h3>4 · Final output</h3><div class="formula">red   = ${f4(result.rgb[0])}
 green = ${f4(result.rgb[1])}
@@ -598,32 +717,33 @@ alpha = 1.0000</div><p class="mono">straight sRGB RGBA(${result.rgb.map(f4).join
 }
 
 function renderFormulas(){
-  const mask=state.maskValues[state.selected],result=outputFor(mask),opening=1-result.effective;
-  $('effectiveAlphaFormula').textContent=`effective source alpha\n= candidate alpha × mask value\n= 1.0000 × ${f4(mask)}\n= ${f4(result.effective)}`;
-  $('redTrace').textContent=`candidate red = 0.8400\nbackground red = 0.1000\neffective source alpha = ${f4(result.effective)}\nbackground opening = ${f4(opening)}\n\noutput red\n= 0.8400 × ${f4(result.effective)}\n+ 0.1000 × ${f4(opening)}\n= ${f4(result.rgb[0])}`;
-  $('otherTrace').textContent=`green\n= 0.3600 × ${f4(result.effective)} + 0.1800 × ${f4(opening)}\n= ${f4(result.rgb[1])}\n\nblue\n= 0.1800 × ${f4(result.effective)} + 0.3000 × ${f4(opening)}\n= ${f4(result.rgb[2])}\n\noutput alpha\n= ${f4(result.effective)} + 1.0000 × ${f4(opening)}\n= 1.0000`;
-  const boundary=outputFor(mask,.5);
-  $('boundaryAlpha').textContent=`candidate alpha = 0.5000\nmask value = ${f4(mask)}\n\neffective source alpha\n= 0.5000 × ${f4(mask)}\n= ${f4(boundary.effective)}`;
+  const maskAlpha=state.maskValues[state.selected],result=outputFor(maskAlpha),opening=1-result.maskedAlpha;
+  $('effectiveAlphaFormula').textContent=`masked content alpha\n= original content alpha × mask alpha\n= 1.0000 × ${f4(maskAlpha)}\n= ${f4(result.maskedAlpha)}`;
+  $('redTrace').textContent=`Stage A masked premultiplied red\n= content red × content alpha × mask alpha\n= 0.8400 × 1.0000 × ${f4(maskAlpha)}\n= ${f4(contentRgb[0]*result.maskedAlpha)}\n\nStage B background opening\n= 1 − ${f4(result.maskedAlpha)}\n= ${f4(opening)}\n\nfinal red\n= ${f4(contentRgb[0]*result.maskedAlpha)} + 0.1000 × ${f4(opening)}\n= ${f4(result.rgb[0])}`;
+  $('otherTrace').textContent=`green\n= ${f4(contentRgb[1]*result.maskedAlpha)} + 0.1800 × ${f4(opening)}\n= ${f4(result.rgb[1])}\n\nblue\n= ${f4(contentRgb[2]*result.maskedAlpha)} + 0.3000 × ${f4(opening)}\n= ${f4(result.rgb[2])}\n\nfinal alpha\n= ${f4(result.maskedAlpha)} + 1.0000 × ${f4(opening)}\n= 1.0000`;
+  const boundary=outputFor(maskAlpha,.5);
+  $('boundaryAlpha').textContent=`original content alpha = 0.5000\nmask alpha = ${f4(maskAlpha)}\n\nmasked content alpha\n= 0.5000 × ${f4(maskAlpha)}\n= ${f4(boundary.maskedAlpha)}`;
   $('boundaryOutput').textContent=`red   = ${f4(boundary.rgb[0])}\ngreen = ${f4(boundary.rgb[1])}\nblue  = ${f4(boundary.rgb[2])}\nalpha = 1.0000\n\nstraight sRGB RGBA(${boundary.rgb.map(f4).join(', ')}, 1.0000)`;
 }
 
 const STEPS=[
-  {title:'1 · Background exists first',caption:'The opaque navy background already supplies a final destination color at every inspected position.',formula:()=>`background = straight sRGB RGBA(0.1000, 0.1800, 0.3000, 1.0000)`,active:0},
-  {title:'2 · Candidate exists separately',caption:'The candidate is one opaque orange drawing. The mask has not changed it yet.',formula:()=>`candidate = straight sRGB RGBA(0.8400, 0.3600, 0.1800, 1.0000)`,active:1},
-  {title:'3 · Mask field supplies four values',caption:'The reset field assigns a separate value to each enlarged zone.',formula:()=>`A = 0.00\nB = 0.25\nC = 0.60\nD = 1.00`,active:2},
-  {title:'4 · Select zone C',caption:'The reset trace follows one position in zone C, well inside the outer badge boundary.',formula:()=>`selected zone = C\nmask value = 0.6000`,active:2},
-  {title:'5 · Calculate effective source alpha',caption:'Candidate alpha and mask value are independent restrictions. Multiply them.',formula:()=>`effective source alpha\n= 1.0000 × 0.6000\n= 0.6000`,active:2},
-  {title:'6 · Composite the selected color',caption:'Source-over consumes the effective alpha. The opaque background supplies the remaining 0.40 share.',formula:()=>`red   = 0.84×0.60 + 0.10×0.40 = 0.5440\ngreen = 0.36×0.60 + 0.18×0.40 = 0.2880\nblue  = 0.18×0.60 + 0.30×0.40 = 0.2280\nalpha = 1.0000`,active:3},
-  {title:'7 · Compare the endpoint values',caption:'Mask 0 preserves the background. Mask 1 shows the complete candidate. Values between them preserve a partial candidate contribution.',formula:()=>`mask 0 → output = background\nmask 1 → output = candidate\nmask 0.60 → partial candidate over background`,active:3}
+  {title:'1 · Name the three scene objects',caption:'Orange is the content being masked. The alpha field is the mask. Navy is the opaque background behind the masked group.',formula:()=>`content = straight sRGB RGBA(0.8400, 0.3600, 0.1800, 1.0000)\nmask zone C alpha = 0.6000\nbackground = straight sRGB RGBA(0.1000, 0.1800, 0.3000, 1.0000)`,active:0},
+  {title:'2 · Put the content into its own group',caption:'The completed orange content is the destination operand for the upcoming DstIn operation.',formula:()=>`DstIn destination = content group\ndestination alpha = 1.0000`,active:1},
+  {title:'3 · Supply the complete mask field',caption:'The mask layer contains alpha 0 outside and zone C alpha 0.60 at the inspected position. Its RGB does not matter to DstIn.',formula:()=>`DstIn source = mask layer\nsource alpha at C = 0.6000`,active:2},
+  {title:'4 · Apply DstIn',caption:'DstIn keeps destination color and multiplies its premultiplied RGB and alpha by source-mask alpha.',formula:()=>`masked content alpha\n= 1.0000 × 0.6000\n= 0.6000\n\nmasked premultiplied RGB\n= (0.5040, 0.2160, 0.1080)`,active:2},
+  {title:'5 · Start the later source-over operation',caption:'The masked content group now becomes the source. Navy is the destination behind it.',formula:()=>`source alpha = masked content alpha = 0.6000\nbackground opening = 1 − 0.6000 = 0.4000`,active:1},
+  {title:'6 · Composite over navy',caption:'The masked premultiplied content contribution and the surviving navy contribution are added.',formula:()=>`red   = 0.5040 + 0.1000×0.4000 = 0.5440\ngreen = 0.2160 + 0.1800×0.4000 = 0.2880\nblue  = 0.1080 + 0.3000×0.4000 = 0.2280`,active:3},
+  {title:'7 · Read the final output',caption:'The opaque navy background fills the remaining opening, so the final output alpha is 1.',formula:()=>`final straight sRGB RGBA\n= (0.5440, 0.2880, 0.2280, 1.0000)`,active:3},
+  {title:'8 · Keep the shortcut boundary explicit',caption:'Drawing one solid non-overlapping zone with alpha equal to its mask value reproduces this one-position output. Overlapping multi-draw content must be grouped and masked once.',formula:()=>`grouped overlap at mask 0.60 → alpha 0.60\nper-draw overlap at alpha 0.60 → alpha 0.84`,active:2}
 ];
 
 function drawStepSvg(){
   const active=STEPS[state.step].active;
   const boxes=[
-    {x:28,title:'Background',sub:'destination first',fill:rgbCss(background)},
-    {x:224,title:'Candidate',sub:'opaque source',fill:rgbCss(candidate)},
-    {x:420,title:'Mask C',sub:'value 0.60',fill:grayCss(.6)},
-    {x:616,title:'Output',sub:'RGB 0.544 / 0.288 / 0.228',fill:rgbCss(outputFor(.6).rgb)}
+    {x:28,title:'Navy',sub:'background',fill:rgbCss(background)},
+    {x:224,title:'Content',sub:'orange group',fill:rgbCss(contentRgb)},
+    {x:420,title:'Mask α',sub:'zone C = 0.60',fill:grayCss(.6)},
+    {x:616,title:'Output',sub:'RGB .544 / .288 / .228',fill:rgbCss(outputFor(.6).rgb)}
   ];
   let svg=`<defs><marker id="stepArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#be185d"/></marker></defs><rect width="820" height="430" fill="transparent"/><text x="410" y="32" text-anchor="middle" font-size="20" font-weight="900" fill="currentColor">${escapeHtml(STEPS[state.step].title)}</text>`;
   boxes.forEach((box,index)=>{
@@ -631,7 +751,7 @@ function drawStepSvg(){
     svg+=`<rect x="${box.x}" y="82" width="176" height="184" rx="20" fill="${box.fill}" stroke="${isActive?'#dc2626':'var(--line)'}" stroke-width="${isActive?5:2}"/><rect x="${box.x+12}" y="96" width="152" height="54" rx="11" fill="rgba(255,255,255,.92)"/><text x="${box.x+88}" y="120" text-anchor="middle" font-size="16" font-weight="900" fill="#111827">${box.title}</text><text x="${box.x+88}" y="141" text-anchor="middle" font-size="12" font-weight="800" fill="#475569">${box.sub}</text>`;
     if(index<boxes.length-1)svg+=`<line x1="${box.x+180}" y1="174" x2="${boxes[index+1].x-8}" y2="174" stroke="#be185d" stroke-width="4" marker-end="url(#stepArrow)"/>`;
   });
-  svg+=`<rect x="92" y="304" width="636" height="84" rx="18" fill="var(--indigo-soft)" stroke="var(--indigo)" stroke-width="2"/><text x="410" y="333" text-anchor="middle" font-size="16" font-weight="900" fill="currentColor">Input → operation → output</text><text x="410" y="362" text-anchor="middle" font-size="14" font-family="monospace" fill="currentColor">candidate alpha × mask value → effective alpha → source-over output</text>`;
+  svg+=`<rect x="70" y="304" width="680" height="84" rx="18" fill="var(--indigo-soft)" stroke="var(--indigo)" stroke-width="2"/><text x="410" y="333" text-anchor="middle" font-size="16" font-weight="900" fill="currentColor">Two operations, in order</text><text x="410" y="362" text-anchor="middle" font-size="14" font-family="monospace" fill="currentColor">DstIn: content × mask alpha → SrcOver: masked group over navy</text>`;
   $('stepSvg').innerHTML=svg;
 }
 function renderStepper(){
@@ -648,8 +768,8 @@ function renderStepper(){
 
 function updateChallengePreview(){
   const code=$('challengeEditor').value;
-  const multiply=/return\s+candidateAlpha\s*\*\s*maskValue/.test(code)||/return\s+maskValue\s*\*\s*candidateAlpha/.test(code);
-  const add=/return\s+candidateAlpha\s*\+\s*maskValue/.test(code)||/return\s+maskValue\s*\+\s*candidateAlpha/.test(code);
+  const multiply=/return\s+contentAlpha\s*\*\s*maskAlpha/.test(code)||/return\s+maskAlpha\s*\*\s*contentAlpha/.test(code);
+  const add=/return\s+contentAlpha\s*\+\s*maskAlpha/.test(code)||/return\s+maskAlpha\s*\+\s*contentAlpha/.test(code);
   const value=multiply ? 0.3 : add ? 1.1 : NaN;
   $('challengeValue').textContent=Number.isFinite(value)?f4(value):'not recognized';
   if(state.challengePassed){state.challengePassed=false;$('challengeResult').textContent='The code changed after the successful check. Check it again.'}
@@ -662,7 +782,7 @@ function render(){
   $('maskValueOut').textContent=f2(state.maskValues[state.selected]);
   $('selectedZoneMetric').textContent=`${zones[state.selected].id} · ${zones[state.selected].name}`;
   $('maskMetric').textContent=f4(state.maskValues[state.selected]);
-  $('effectiveAlphaMetric').textContent=f4(outputFor(state.maskValues[state.selected]).effective);
+  $('effectiveAlphaMetric').textContent=f4(outputFor(state.maskValues[state.selected]).maskedAlpha);
   $('maskSvg').innerHTML=mainSvg();
   renderMaskStrip();
   renderTrace();
@@ -673,6 +793,8 @@ function render(){
 
 document.querySelectorAll('[data-spatial-mode]').forEach(button=>button.addEventListener('click',()=>{state.spatialMode=button.dataset.spatialMode;renderSpatial()}));
 $('spatialRange').addEventListener('input',event=>{state.spatialProgress=Number(event.target.value);renderSpatial()});
+$('spatialMaskAlphaRange').addEventListener('input',event=>{state.spatialMaskAlpha=Number(event.target.value);renderSpatial()});
+document.querySelectorAll('[data-spatial-alpha]').forEach(button=>button.addEventListener('click',()=>{state.spatialMaskAlpha=Number(button.dataset.spatialAlpha);renderSpatial()}));
 
 $('maskRange').addEventListener('input',event=>{
   state.maskValues[state.selected]=Number(event.target.value);
@@ -693,33 +815,34 @@ $('stepBack').addEventListener('click',()=>{if(state.step>0){state.step--;render
 $('stepNext').addEventListener('click',()=>{if(state.step<STEPS.length-1){state.step++;renderStepper()}});
 document.querySelectorAll('[data-prediction]').forEach(button=>button.addEventListener('click',()=>{state.prediction=button.dataset.prediction;render()}));
 $('checkPrediction').addEventListener('click',()=>{
-  const ok=state.prediction==='candidate';
+  const ok=state.prediction==='content';
   $('predictionResult').textContent=ok
-    ?'Correct. Raising the mask from 0.60 to 0.80 raises effective source alpha and reduces the background opening from 0.40 to 0.20. The output moves toward the unchanged candidate RGB and becomes RGB(0.6920, 0.3240, 0.2040).'
-    :'Not correct. The mask preview gray is not a color input. A larger mask value keeps more candidate and less background, so the output moves toward the candidate color.';
+    ?'Correct. Raising the mask from 0.60 to 0.80 raises masked content alpha and reduces the background opening from 0.40 to 0.20. The output moves toward the unchanged orange content RGB and becomes RGB(0.6920, 0.3240, 0.2040).'
+    :'Not correct. The mask preview gray is not a color input. A larger mask value keeps more orange content and less navy background, so the output moves toward the content color.';
   $('predictionResult').style.background=ok?'var(--green-soft)':'var(--red-soft)';
 });
 document.querySelectorAll('[data-challenge]').forEach(button=>button.addEventListener('click',()=>{
   $('challengeEditor').value=button.dataset.challenge==='correct'
-    ?`fun effectiveSourceAlpha(\n    candidateAlpha: Float,\n    maskValue: Float,\n): Float {\n    return candidateAlpha * maskValue\n}`
-    :`fun effectiveSourceAlpha(\n    candidateAlpha: Float,\n    maskValue: Float,\n): Float {\n    return candidateAlpha + maskValue\n}`;
+    ?`fun maskedContentAlpha(\n    contentAlpha: Float,\n    maskAlpha: Float,\n): Float {\n    return contentAlpha * maskAlpha\n}`
+    :`fun maskedContentAlpha(\n    contentAlpha: Float,\n    maskAlpha: Float,\n): Float {\n    return contentAlpha + maskAlpha\n}`;
   updateChallengePreview();
 }));
 $('challengeEditor').addEventListener('input',updateChallengePreview);
 $('checkChallenge').addEventListener('click',()=>{
   const code=$('challengeEditor').value;
-  const ok=(/return\s+candidateAlpha\s*\*\s*maskValue/.test(code)||/return\s+maskValue\s*\*\s*candidateAlpha/.test(code))&&!/return\s+candidateAlpha\s*\+\s*maskValue/.test(code);
+  const ok=(/return\s+contentAlpha\s*\*\s*maskAlpha/.test(code)||/return\s+maskAlpha\s*\*\s*contentAlpha/.test(code))&&!/return\s+contentAlpha\s*\+\s*maskAlpha/.test(code);
   state.challengePassed=ok;
   $('challengeResult').textContent=ok
-    ?'Correct. Candidate alpha 0.50 multiplied by mask value 0.60 produces effective source alpha 0.30.'
+    ?'Correct. Content alpha 0.50 multiplied by mask alpha 0.60 produces masked content alpha 0.30.'
     :'Not repaired yet. The two independent visibility restrictions must multiply.';
   $('challengeResult').style.background=ok?'var(--green-soft)':'var(--red-soft)';
 });
 $('buildRecord').addEventListener('click',()=>{
   const checks=[...document.querySelectorAll('[data-check]')];
   const done=checks.filter(check=>check.checked).length;
-  const mask=state.maskValues[state.selected],result=outputFor(mask);
-  $('completionRecord').value=`# Lesson 4.8 completion record\n\nStatus: ${done===checks.length?'checkpoint complete':'checkpoint incomplete'}\nChecked items: ${done} of ${checks.length}\n\nSelected zone: ${zones[state.selected].id} · ${zones[state.selected].name}\nMask field: [${state.maskValues.map(f2).join(', ')}]\nSelected mask value: ${f4(mask)}\nEffective source alpha: ${f4(result.effective)}\nSelected final output: straight sRGB RGBA(${result.rgb.map(f4).join(', ')}, 1.0000)\n\nI can explain:\n- how a hard mask cuts oversized content to a shape;\n- fixed mask + moving content versus fixed content + moving mask;\n- the difference between a clip decision and a mask field;\n- why the grayscale preview is not a tint;\n- why straight RGB stays unchanged while premultiplied RGB contributions scale;\n- candidate alpha × mask value;\n- why the opaque background keeps final output alpha at 1;\n- why grouped content uses offscreen isolation before DstIn.\n\nPixel 8 Pro tested: [yes / not yet]\nAndroid commit: [write commit or leave blank]\nRemaining questions: [none / write them]`;
+  const maskAlpha=state.maskValues[state.selected],result=outputFor(maskAlpha);
+  $('completionRecord').value=`# Lesson 4.8 completion record\n\nStatus: ${done===checks.length?'checkpoint complete':'checkpoint incomplete'}\nChecked items: ${done} of ${checks.length}\n\nSpatial capsule mask alpha: ${f4(state.spatialMaskAlpha)}\nSelected zone: ${zones[state.selected].id} · ${zones[state.selected].name}\nZone mask field: [${state.maskValues.map(f2).join(', ')}]\nSelected mask alpha: ${f4(maskAlpha)}\nMasked content alpha: ${f4(result.maskedAlpha)}\nSelected final output: straight sRGB RGBA(${result.rgb.map(f4).join(', ')}, 1.0000)\n\nI can explain:\n- content being masked, mask data, and background as three separate objects;\n- why source and destination are temporary blend roles;\n- DstIn keeps destination color while SrcIn keeps source color;\n- why Color.Black means mask alpha 1 under DstIn;\n- why a grayscale preview is not automatically an alpha mask;\n- Stage A mask multiplication followed by Stage B source-over;\n- why masked content alpha becomes source alpha only in Stage B;\n- why the direct-alpha microscope fails for overlapping multi-draw content;\n- why a correct-looking run without Offscreen does not prove a stable containment contract;
+- why the lesson keeps Offscreen and uses saveLayer only for the full-bounds mask source.\n\nPixel 8 Pro tested: [yes / not yet]\nAndroid commit: [write commit or leave blank]\nRemaining questions: [none / write them]`;
 });
 const mq=matchMedia('(prefers-color-scheme: dark)');
 function updateTheme(){$('themeMode').textContent=mq.matches?'Dark':'Light'}

@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 4.8.1  
-**Updated:** 2026-07-31  
+**Course plan version:** 4.8.3  
+**Updated:** 2026-08-02  
 **Current position:** Lessons 1.1 through 4.7 are complete by learner confirmation. **35 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.8 is generated and is both the next unresolved checkpoint and the generated frontier.
 
 ## Permanent course rules
@@ -1991,6 +1991,121 @@ Next lesson becomes 4.8 — Masks.
 
 ---
 
+## Latest authoritative clarification — Lesson 4.8 operands, alpha masks, two stages, and explicit layers
+
+Lesson 4.8 remains generated and incomplete. Learner-confirmed progress remains **35 of 216**. This section supersedes earlier terminology that used `candidate content` and `effective source alpha` before their exact roles were clear.
+
+### Three stable scene objects
+
+```text
+content being masked
+→ multi-color pattern or opaque orange microscope content
+
+mask data
+→ alpha value at every position
+
+background behind the masked group
+→ opaque navy Surface
+```
+
+`source` and `destination` are assigned only inside one blend call. In the current `DstIn` operation, the content group is destination because it was drawn first; the mask layer is source because it is restored second.
+
+### DstIn and SrcIn
+
+```text
+DstIn
+output premultiplied RGB = destination premultiplied RGB × source alpha
+output alpha             = destination alpha × source alpha
+kept color               = destination
+ignored color            = source RGB
+
+SrcIn
+output premultiplied RGB = source premultiplied RGB × destination alpha
+output alpha             = source alpha × destination alpha
+kept color               = source
+ignored color            = destination RGB
+```
+
+Both can display only an overlap when the content and mask are placed in the matching reversed order. The overlap is the visible result, not the complete definition.
+
+### Alpha mask versus grayscale preview
+
+The Android path is an alpha mask:
+
+```text
+Color.Black                    → alpha 1.00 → keep fully
+Color.Black.copy(alpha = 0.60) → alpha 0.60 → keep partially
+transparent untouched position → alpha 0.00 → remove
+```
+
+`DstIn` ignores the mask RGB fields. The browser's opaque gray swatches only visualize numbers. Opaque gray RGB `(0.60, 0.60, 0.60)` has alpha `1.00` and would behave as a full-strength mask under `DstIn`. A luminance-mask design requires a separate RGB-to-alpha conversion.
+
+### Two operations, not two alternatives
+
+```text
+Stage A · mask application
+masked content alpha = original content alpha × mask alpha
+masked premultiplied RGB = original premultiplied RGB × mask alpha
+
+Stage B · source-over navy
+masked group becomes source
+masked content alpha becomes the source alpha consumed by source-over
+```
+
+The preferred name after Stage A is `masked content alpha`. `effective source alpha` is only its role in Stage B; it is not another independent number.
+
+Reset zone C remains:
+
+```text
+content straight RGBA = (0.84, 0.36, 0.18, 1.00)
+mask alpha             = 0.60
+masked content alpha   = 0.60
+final over navy        = (0.5440, 0.2880, 0.2280, 1.0000)
+```
+
+### Controlled shortcut and counterexample
+
+The four non-overlapping zones may draw one solid orange rectangle with `alpha = maskAlpha` because that produces the same final output for that narrow structure. It is not a general mask implementation.
+
+```text
+completed two-shape group masked once at 0.60
+→ overlap alpha 0.60
+
+two overlapping shapes each drawn separately at 0.60
+→ overlap alpha 0.60 + 0.60 × 0.40 = 0.84
+```
+
+### Revised Compose isolation
+
+The code keeps one documented composable-level isolation boundary and one separate full-bounds mask layer:
+
+```text
+graphicsLayer(Offscreen)
+→ isolates this Canvas's complete multi-draw content group
+→ draw multi-color content
+
+Canvas.saveLayer restored with DstIn
+→ starts as a transparent mask source over the full Canvas bounds
+→ draw capsule with selected alpha
+→ restore the complete mask field onto the isolated content group
+
+Compose draws the finished masked group
+→ source-over the navy parent Surface
+```
+
+These two offscreen operations have different ownership and jobs. `graphicsLayer(Offscreen)` defines which completed content group `DstIn` may modify. The inner `Canvas.saveLayer` constructs the complete source mask, including alpha `0` outside the capsule. The learner's earlier successful render without the modifier proves only that the destination used in that run did not visibly include the navy parent. It does not reveal which framework-owned render target supplied isolation, so the course keeps the documented outer boundary. An explicit outer `Canvas.saveLayer` could replace it, but stacking both outer mechanisms without another requirement would add redundant offscreen work.
+
+The spatial demo now includes mask alpha `1.00` and `0.60`, so the multi-color example visibly demonstrates both hard and partial masking.
+
+Changed Android file:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter04/MasksExplorer.kt
+```
+
+Changed learning files include Lesson 4.8, `AGENTS.md`, this handoff, the curriculum, and `CURRENT_STATE.md`. Lesson 4.8 stays incomplete pending learner review and physical Pixel 8 Pro verification.
+
+
 ## Latest authoritative status — Lesson 4.7 complete; Lesson 4.8 generated
 
 The learner requested the next lesson without reporting a remaining Lesson 4.7 question, correction, or test problem. Lesson 4.7 is therefore learner-confirmed complete.
@@ -2176,7 +2291,7 @@ Next lesson becomes 4.9 — Soft edges and antialiasing.
 
 ---
 
-## Latest authoritative clarification — Lesson 4.8 spatial mask model
+## Earlier clarification — Lesson 4.8 spatial mask model (implementation details superseded below)
 
 Lesson 4.8 remains generated and incomplete. Learner-confirmed progress remains **35 of 216**.
 
@@ -2240,9 +2355,9 @@ A hard binary mask uses `0` outside and `1` inside. Away from the antialiased bo
 - a mask is independent visibility data and may contain partial values, textures, images, or shader-calculated fields;
 - a simple hard geometry should still use clipping when a general offscreen mask adds no capability.
 
-### Android correction
+### Android correction attempt (superseded below)
 
-The new spatial demonstration uses the grouped-content path:
+The first spatial implementation attempted this grouped-content path:
 
 ```text
 parent navy Surface
@@ -2276,3 +2391,156 @@ next_unresolved_checkpoint: "Lesson 4.8"
 generated_frontier: "Lesson 4.8"
 next_after_completion: "Lesson 4.9 — Soft edges and antialiasing"
 ```
+
+---
+
+## Latest authoritative implementation correction — Lesson 4.8 full-bounds mask source
+
+Lesson 4.8 remains generated and incomplete. Learner-confirmed progress remains **35 of 216**.
+
+This section supersedes the shape-only `DstIn` implementation described in the preceding Lesson 4.8 clarification.
+
+### Learner-observed defect
+
+On the physical Android result, the multi-color candidate remained visible across the complete Canvas instead of appearing only through the capsule.
+
+The intended result is:
+
+```text
+inside capsule
+→ candidate pattern visible
+
+outside capsule
+→ masked candidate group transparent
+→ parent navy Surface visible
+```
+
+### Why the previous code failed
+
+The previous code performed these operations:
+
+```text
+outer Canvas isolated with CompositingStrategy.Offscreen
+→ draw complete candidate pattern
+→ draw one opaque capsule directly with BlendMode.DstIn
+```
+
+`CompositingStrategy.Offscreen` correctly protected the parent navy background. The defect was the source-mask domain.
+
+At one position clearly outside the capsule:
+
+```text
+candidate pattern already exists in the isolated destination
+capsule draw has no source coverage at this position
+→ no DstIn operation runs at this position
+→ existing candidate destination remains unchanged
+```
+
+Offscreen isolation answers which destination content the blend operation can affect. It does not create a source alpha value of `0` at positions that the capsule draw never covers.
+
+### Correct grouped-mask path
+
+The corrected code creates a complete source-mask layer:
+
+```text
+parent navy Surface
+→ outer offscreen Canvas isolates the candidate group
+→ draw complete candidate pattern
+→ Canvas.saveLayer creates a transparent layer over the full Canvas bounds
+→ draw opaque capsule normally into that mask layer
+→ mask layer alpha is 1 inside and 0 outside
+→ restore the complete mask layer with BlendMode.DstIn
+→ candidate is retained inside and removed outside
+→ composite the corrected masked group over the parent Surface
+```
+
+The exact outside-position result is:
+
+```text
+mask source alpha = 0
+DstIn output alpha
+= destination alpha × source alpha
+= destination alpha × 0
+= 0
+```
+
+The masked group is therefore transparent outside the capsule, and the parent navy background shows through.
+
+### Compose excerpt
+
+```kotlin
+// MasksExplorer.kt — applyFullBoundsCapsuleMask
+val canvas = drawContext.canvas
+canvas.saveLayer(
+    Rect(0f, 0f, size.width, size.height),
+    dstInMaskLayerPaint,
+)
+try {
+    drawRoundRect(
+        color = Color.Black,
+        topLeft = maskTopLeft,
+        size = maskSize,
+        cornerRadius = maskCornerRadius,
+    )
+} finally {
+    canvas.restore()
+}
+```
+
+`dstInMaskLayerPaint` is created once with:
+
+```kotlin
+Paint().apply {
+    blendMode = BlendMode.DstIn
+}
+```
+
+The blend mode belongs to the restoration of the full-bounds mask layer, not to the capsule's individual draw call.
+
+### Clip-versus-mask production boundary
+
+For a fixed hard capsule containing only mask values `0` and `1`, `clipPath` remains the simpler production primitive. The full-bounds `DstIn` path is retained in Lesson 4.8 because it demonstrates the contract required by an independent mask field that may later contain partial values or come from an image or shader.
+
+### Changed files in this correction
+
+Learning documents:
+
+```text
+AGENTS.md
+CURRENT_STATE.md
+curriculum/liquid_glass_android_curriculum.md
+curriculum/liquid_glass_android_handoff.md
+course/chapters/chapter-04/lesson-04-08-masks.html
+```
+
+Android:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter04/MasksExplorer.kt
+```
+
+`Chapter04Screen.kt` remains unchanged because it already contains the required full-screen and direct-child previews in light and dark modes.
+
+### Reusable prevention rule
+
+`AGENTS.md` now contains the **Mask-field domain and source-coverage gate**. Future masking examples must distinguish:
+
+```text
+masked destination bounds
+source draw coverage
+complete mask-field bounds
+```
+
+A `DstIn` example must provide source alpha over the complete masked bounds. A shape-only draw is not accepted as a complete mask unless the implementation explicitly creates and composites a full-bounds mask layer.
+
+```yaml
+learner_confirmed_completed_total: 35
+completed_through: "Lesson 4.7"
+lesson_04_08_generated: true
+lesson_04_08_completed_by_learner: false
+lesson_04_08_status: "Android full-bounds DstIn mask correction pending learner review"
+next_unresolved_checkpoint: "Lesson 4.8"
+generated_frontier: "Lesson 4.8"
+next_after_completion: "Lesson 4.9 — Soft edges and antialiasing"
+```
+

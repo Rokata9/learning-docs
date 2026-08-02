@@ -1,7 +1,7 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 4.8.1  
-**Updated:** 2026-07-31  
+**Version:** 4.8.3  
+**Updated:** 2026-08-02  
 **Current course position:** Lessons 1.1 through 4.7 are complete by learner confirmation. **35 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.8 is generated and is both the next unresolved checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
@@ -10,7 +10,35 @@
 
 ---
 
-## 1. What changed through version 4.8.1
+## 1. What changed through version 4.8.3
+
+
+Version 4.8.3 rebuilds the Lesson 4.8 explanation around stable scene objects, alpha-mask semantics, two consecutive operations, and explicit Canvas layer ownership:
+
+- The lesson now names the content being masked, mask data, and navy background before assigning temporary source and destination roles.
+- `DstIn` is defined as preserving destination color and using source alpha. `SrcIn` preserves source color and uses destination alpha. Both may show the same hard overlap only when draw order and operand preparation are reversed accordingly.
+- The Android path is identified as an alpha mask. Opaque black means alpha `1.00` and keeps content under `DstIn`; black RGB itself has no masking meaning.
+- The grayscale row is labelled only as a visible preview of numeric values. Opaque gray RGB `0.60` is not automatically mask alpha `0.60`. A luminance mask would need a separate RGB-to-alpha conversion.
+- Mask application and source-over are taught as two consecutive stages. The first produces `masked content alpha = original content alpha × mask alpha`. The same number becomes source alpha only when the completed masked group is later drawn over navy.
+- The spatial Compose demo now exposes capsule mask alpha `1.00` and `0.60`, so partial masking is visible in the same multi-draw pattern used for the shape-cut example.
+- The direct-alpha four-zone microscope is retained only under its exact contract: one solid draw per non-overlapping zone. A two-shape overlap counterexample shows `0.84` from separate 60% draws versus `0.60` from masking the completed group once.
+- The Compose implementation keeps `graphicsLayer(Offscreen)` as the documented composable-level destination boundary, then uses one full-bounds `Canvas.saveLayer` to construct the separate source mask restored with `DstIn`. The two operations have different jobs. A correct-looking run without `Offscreen` is recorded as runtime evidence, not a general containment contract.
+- `AGENTS.md` adds the **Mask operands, representation, two-stage compositing, and isolation-boundary gate**.
+- Lesson 4.8 remains incomplete. Learner-confirmed completion remains **35 of 216 lessons**.
+
+Version 4.8.2 corrects the Lesson 4.8 Compose mask implementation after the learner observed that the multi-color candidate remained visible outside the capsule:
+
+- The previous correction correctly isolated the candidate Canvas with `CompositingStrategy.Offscreen`, but then drew only an opaque capsule directly with `BlendMode.DstIn`.
+- That shape draw supplied source coverage only inside the capsule. Outside the capsule, no source draw occurred, so the already drawn candidate remained unchanged.
+- Offscreen isolation controls which destination group the blend may affect. It does not create source alpha `0` outside a geometric draw.
+- The corrected implementation keeps the outer offscreen candidate group, then creates a second transparent mask layer covering the complete Canvas bounds with `Canvas.saveLayer`.
+- The capsule is drawn normally into that full-bounds mask layer. The layer therefore contains alpha `1` inside the capsule and alpha `0` outside it.
+- Restoring the complete mask layer with `BlendMode.DstIn` keeps the candidate inside the capsule and makes the candidate group transparent outside. The parent navy `Surface` then shows through.
+- The lesson now traces one outside position through both the defective and corrected paths.
+- A hard capsule with no partial values should still use `clipPath` in ordinary production code. The full `DstIn` path remains in this lesson to demonstrate a complete independent mask field for grouped content.
+- Android changes only `MasksExplorer.kt`. `Chapter04Screen.kt` already contains the required complete-screen and direct-child light/dark previews and remains unchanged.
+- `AGENTS.md` adds the **Mask-field domain and source-coverage gate**.
+- Lesson 4.8 remains incomplete. Learner-confirmed completion remains **35 of 216 lessons**.
 
 Version 4.8.1 corrects the Lesson 4.8 teaching order after the learner identified the missing spatial model:
 
@@ -901,7 +929,7 @@ The Android result must also be tested on the Pixel 8 Pro at the lesson checkpoi
 5. **4.5 — Paths.** Build a shape from connected segments.
 6. **4.6 — Cubic Bézier curves.** Learn endpoints and control points using draggable handles.
 7. **4.7 — Clipping.** Keep drawing inside a shape.
-8. **4.8 — Masks.** Use a grayscale value to decide where an effect is visible.
+8. **4.8 — Masks.** Use a separate per-position alpha value to decide how much grouped content remains visible. Distinguish the actual alpha mask from any grayscale preview used to visualize its values.
 9. **4.9 — Soft edges and antialiasing.** Understand why a mathematical boundary should not become a jagged pixel stair.
 10. **4.10 — Transform origin.** Rotate and scale around a chosen point.
 11. **4.11 — Shape laboratory.** Compare a fixed rounded rectangle, capsule, and concentric nested shapes.
