@@ -10,10 +10,7 @@
 
 ## Not completed
 
-- **Lesson 4.8 — Masks** is generated and remains the current learner checkpoint.
-- The Lesson 4.8 spatial teaching order was corrected after the learner's first mask question.
-- The Android spatial mask implementation required a second correction after the learner observed that the content pattern remained visible outside the capsule.
-- A third clarification now separates `DstIn` from `SrcIn`, alpha masks from grayscale previews, mask application from later source-over, and explicit Canvas layers from `graphicsLayer(Offscreen)`.
+- **Lesson 4.8 — Masks** is generated, has received an explicit positive quality review, and remains the current learner checkpoint.
 - Chapter 4 remains in progress. Lessons 4.8 through 4.11 are not complete.
 
 ## Course pointers
@@ -22,120 +19,153 @@
 - **Generated frontier:** Lesson 4.8.
 - **Next planned lesson after explicit Lesson 4.8 completion:** Lesson 4.9 — Soft edges and antialiasing.
 
-## Latest Lesson 4.8 clarification and implementation state
+## Latest authoritative Lesson 4.8 rewrite — visual layer movie and per-position algorithm
 
-The learner confirmed the spatial purpose of masks, then identified five linked ambiguities:
+The learner rejected the preceding Lesson 4.8 rewrite without reading its long response because the explanation still depended too heavily on prose. The terms `outer target` and `inner target` did not create a usable mental picture. The lesson also failed to maintain value-origin tooltips consistently, described straight and premultiplied RGBA instead of calculating both in parallel, and did not show every intermediate image after every operation.
 
-- `DstIn` versus `SrcIn`;
-- why opaque black can act as a full-strength mask;
-- why the code may appear to work without `graphicsLayer(Offscreen)`;
-- mask multiplication versus later source-over compositing;
-- why the four-zone direct-alpha microscope is only a controlled shortcut.
+This delivery supersedes all earlier Lesson 4.8 correction packages.
 
-The corrected lesson now begins from three separate scene objects:
+### Visual-first structure
+
+The lesson begins with four rendered images:
 
 ```text
-content being masked
-→ multi-color pattern in the spatial demo
-→ opaque orange content in the one-position microscope
-
-mask data
-→ one alpha value at every position
-→ capsule alpha is 0 outside and selected value inside
-
-background
-→ opaque navy Surface behind the masked group
+complete pattern image
+→ complete full-size mask image
+→ masked-pattern intermediate image
+→ final image over navy
 ```
 
-`source` and `destination` are not permanent names for those objects. They are temporary roles inside one blend operation.
-
-The two `In` modes are now defined by the color operand they preserve:
+The central layer explanation is now a seven-step movie. Every step shows:
 
 ```text
-DstIn
-→ keeps destination color
-→ multiplies destination premultiplied RGB and alpha by source alpha
-
-SrcIn
-→ keeps source color
-→ multiplies source premultiplied RGB and alpha by destination alpha
+parent target image
+pattern target image
+mask target image
+complete intermediate result after the step
+active drawing target
+exact input → operation → output
+exact Kotlin line
 ```
 
-For the Android `DstIn` path:
+A rotatable CSS 3D stack shows the layer order. Exact 2D front-view thumbnails remain visible below it so perspective is never the only evidence.
+
+### Exact Android target creation
+
+The implementation uses two explicit `Canvas.saveLayer` calls and no `graphicsLayer` modifier:
+
+```kotlin
+canvas.saveLayer(fullBounds, contentGroupPaint)
+canvas.saveLayer(fullBounds, dstInMaskPaint)
+```
+
+The first call creates the pattern-only target. The second creates the full-size mask target. The mask target is explicitly initialized with alpha `0` across its complete bounds before the capsule writes the selected inside alpha.
+
+### Per-position algorithm
+
+The lesson includes an inside/outside microscope. One selected Canvas coordinate displays:
 
 ```text
-content group drawn first = destination
-mask layer restored second = source
+pattern pixel at (x, y)
+mask pixel at the same (x, y)
+DstIn intermediate output pixel
+final source-over-navy pixel
 ```
 
-The mask source RGB is ignored. `Color.Black` is straight RGBA `(0, 0, 0, 1)`, so it supplies mask alpha `1`. `Color.Black.copy(alpha = 0.60f)` supplies mask alpha `0.60`. Transparent untouched mask-layer positions supply alpha `0`.
+A transparent mask pixel is now described as a valid RGBA input with alpha `0`, not as missing data. The API-level result is calculated at matching positions. A GPU may optimize physical work only while preserving that required result.
 
-The grayscale row is now labelled only as a visualization of numeric mask values. Opaque gray RGB `(0.60, 0.60, 0.60)` still has alpha `1`; under `DstIn` it would keep the destination fully. A luminance mask would require another operation that converts RGB brightness into alpha.
+### Straight and premultiplied cases
 
-The arithmetic is now taught as two consecutive stages:
+The lesson states the representation boundary at the beginning:
 
 ```text
-Stage A · apply mask
-masked content alpha
-= original content alpha × mask alpha
+Compose Color input boundary
+→ straight sRGB RGBA
 
-Stage B · draw masked group over navy
-the masked content group becomes the source
-its masked content alpha is now the source alpha consumed by source-over
+DstIn contribution arithmetic
+→ premultiplied sRGB RGBA
 ```
 
-For opaque orange content and mask alpha `0.60`:
+Two complete cases are shown in parallel:
 
 ```text
-masked straight RGBA
-= (0.8400, 0.3600, 0.1800, 0.6000)
-
-masked premultiplied RGBA
-= (0.5040, 0.2160, 0.1080, 0.6000)
-
-source-over opaque navy
-→ final straight sRGB RGBA
-  (0.5440, 0.2880, 0.2280, 1.0000)
+Case A: content alpha 1.00, mask alpha 0.60
+Case B: content alpha 0.50, mask alpha 0.60
 ```
 
-The four-zone direct-alpha microscope remains exact only because each zone contains one solid draw and the zones do not overlap. The revised lesson adds a counterexample:
+Each RGB or RGBA tuple has a small rounded color chip. Premultiplied tuples use a chip that displays the represented color rather than interpreting premultiplied numbers as straight channels.
+
+### Value provenance controls
+
+Values inherited from earlier sections, selected by controls, fixed by an API, or derived in the current section have small click-controlled information marks placed beside the value like a superscript. The popup states origin, representation, and next consumer. Essential mathematics remains visible without opening it.
+
+### `graphicsLayer` versus explicit `saveLayer`
+
+The new isolation diagram compares four rendered arrangements:
 
 ```text
-mask a completed two-shape group once at 0.60
-→ overlap alpha = 0.60
+current safe design
+→ explicit pattern-target Canvas.saveLayer + full-size mask-target saveLayer
 
-draw each overlapping shape separately at alpha 0.60
-→ overlap alpha = 0.60 + 0.60 × (1 − 0.60)
-→ overlap alpha = 0.84
+safe alternative
+→ graphicsLayer(Offscreen) + full-size mask saveLayer
+
+unsafe design
+→ no pattern-isolation method
+
+redundant design
+→ graphicsLayer + explicit pattern-target saveLayer + mask-target saveLayer
 ```
 
-The revised Compose code owns the two required boundaries explicitly, with different jobs:
+The current code works without `graphicsLayer(Offscreen)` because the first explicit `saveLayer` replaced that pattern-isolation role. Removing both pattern-isolation methods would allow `DstIn` to modify whatever pixels are already in the parent destination, including navy.
 
-```text
-navy parent Surface
-→ graphicsLayer(Offscreen) isolates this Canvas's complete content group
-→ draw complete multi-color pattern into that group
-→ full-bounds Canvas.saveLayer starts as a transparent mask source
-→ draw capsule alpha into the mask layer
-→ restore the complete mask layer with DstIn
-→ Compose draws the finished masked group over navy with SrcOver
-```
+### Visible cost model
 
-The outer `graphicsLayer(Offscreen)` is retained because it states the composable-level destination boundary using Compose's documented masking mechanism. The inner `Canvas.saveLayer` is not a duplicate outer boundary; it creates the complete source-mask image, including alpha `0` outside the capsule. The learner's successful render after temporarily removing `Offscreen` proves only that the destination used in that run did not visibly include the navy parent. It does not identify which framework-owned render target supplied isolation, so the course does not promote that observation to a general Compose contract. An explicit outer `Canvas.saveLayer` could replace `graphicsLayer(Offscreen)`, but the implementation should not use both outer mechanisms without another need.
+The lesson shows explicit temporary-target counts and one adjustable RGBA8 memory estimate. It distinguishes the model from actual GPU allocation, which can differ because of format, alignment, tiling, reuse, and driver behavior.
 
-The spatial demo now exposes both capsule mask alpha `1.00` and `0.60`, so the partial-mask explanation has a visible counterpart in the actual multi-draw pattern.
+### Android companion
 
-Android file changed by this clarification:
+Changed Android file:
 
 ```text
 app/src/main/java/com/example/liquidglasslab/chapter04/MasksExplorer.kt
 ```
 
-`Chapter04Screen.kt` already contains the required complete-screen and direct-child previews and did not change.
+`Chapter04Screen.kt` remains unchanged because it already contains complete-screen and direct-child previews in light and dark modes.
 
-## Lesson-feedback review
+### Reusable rule recorded
 
-This feedback exposed a reusable teaching and implementation pattern. A mask lesson must name scene objects independently from blend operands, identify whether visibility is stored in alpha or derived from RGB, teach mask application before later source-over compositing, support every special case with a visible example and counterexample, and name the exact isolation layer rather than inferring one from a successful device render. `AGENTS.md` now contains the **Mask operands, representation, two-stage compositing, and isolation-boundary gate**.
+`AGENTS.md` now contains **Visual-first intermediate-state and value-annotation gate**. It requires actual intermediate images, parallel straight/premultiplied cases, RGB/RGBA color chips, superscript-style provenance controls, per-position algorithm graphics, isolation comparisons, target-count cost diagrams, and verification of every interactive state.
+
+## Learner evaluation — canonical gold-standard exemplar
+
+On 2026-08-03, the learner explicitly described the final visual-first Lesson 4.8 edit as **“world-class explanation level.”** This is a strong positive teaching signal. The exact visual-first state is now the canonical exemplar for future lessons involving layers, buffers, masks, compositing, or other invisible intermediate graphics state.
+
+The exemplar is the state delivered by:
+
+```text
+liquid-glass-lesson-04-08-visual-layer-movie-rewrite-learning-docs.zip
+liquid-glass-lesson-04-08-visual-layer-movie-rewrite-android.zip
+```
+
+The exemplar’s defining qualities are:
+
+```text
+visible scene objects before terminology
+→ every target and intermediate image after every operation
+→ active target plus exact Kotlin line
+→ optional 3D ordering view plus authoritative 2D front views
+→ same-coordinate pixel microscope
+→ parallel straight and premultiplied worked cases
+→ color chips beside every RGB/RGBA tuple
+→ superscript-style value-provenance controls
+→ safe / alternative / unsafe / redundant isolation diagrams
+→ explicit target-count, bounds, pass-count, and memory model
+```
+
+This positive review does **not** mark Lesson 4.8 complete. The learner indicated that the files still need to be replaced locally. Completion remains pending local application/testing and an explicit completion statement.
+
+Only the Markdown state and policy files change in the present documentation update. The lesson HTML and `MasksExplorer.kt` remain exactly the previously praised visual-first versions.
 
 ## Delivery rules
 

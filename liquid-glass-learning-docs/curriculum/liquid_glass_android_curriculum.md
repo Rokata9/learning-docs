@@ -1,7 +1,7 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 4.8.3  
-**Updated:** 2026-08-02  
+**Version:** 4.8.6  
+**Updated:** 2026-08-03  
 **Current course position:** Lessons 1.1 through 4.7 are complete by learner confirmation. **35 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.8 is generated and is both the next unresolved checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
@@ -10,7 +10,21 @@
 
 ---
 
-## 1. What changed through version 4.8.3
+## 1. What changed through version 4.8.6
+
+
+Version 4.8.6 records the final Lesson 4.8 visual-first state as the course's canonical positive exemplar:
+
+- On 2026-08-03, the learner explicitly described the final edit as **“world-class explanation level.”**
+- The positive signal confirms that the visual-first intermediate-state approach is not only a repair rule; it is a demonstrated successful teaching pattern.
+- The canonical artifacts are `lesson-04-08-masks.html` and `MasksExplorer.kt` from the `visual-layer-movie-rewrite` incremental packages.
+- The exemplar begins with rendered scene objects, shows every target and complete intermediate image after every operation, attaches the exact Kotlin line to each state, and uses prose only after the visual evidence exists.
+- It combines a rotatable 3D target stack with exact 2D front views, a same-coordinate pixel microscope, parallel straight and premultiplied cases, RGB/RGBA color chips, value-provenance controls, isolation architecture comparisons, and a visible cost model.
+- Future lessons about invisible graphics state must use this artifact as the quality baseline. They should preserve its causal and evidence standard without mechanically copying every widget.
+- This is a documentation-only status update. The lesson HTML and Kotlin remain unchanged from the praised visual-first rewrite.
+- The learner has not explicitly completed Lesson 4.8 and still needs to apply/test the files locally. Learner-confirmed completion therefore remains **35 of 216 lessons**.
+
+Version 4.8.5 is the visual-first layer-movie rewrite that earned this evaluation. It replaced prose-led layer teaching with rendered intermediate images, a seven-step target movie, a per-position microscope, parallel representation cases, value annotations, isolation diagrams, and an explicit target-cost model.
 
 
 Version 4.8.3 rebuilds the Lesson 4.8 explanation around stable scene objects, alpha-mask semantics, two consecutive operations, and explicit Canvas layer ownership:
@@ -3928,4 +3942,115 @@ After completion:
 Course progress becomes 36 of 216.
 Next lesson becomes 4.9 — Soft edges and antialiasing.
 ```
+
+
+## Version 4.8.4 — Mask lesson rewritten around one explicit implementation path
+
+Lesson 4.8 remains generated and incomplete. Learner-confirmed progress remains **35 of 216**.
+
+The previous clarification accumulated several correct but nonessential topics before the learner owned the core mask model. It is superseded.
+
+The required lesson now teaches this order only:
+
+```text
+complete content pattern
+→ full-bounds pattern-target Canvas.saveLayer
+→ complete mask image in a full-bounds mask-target Canvas.saveLayer
+→ restore the mask target with DstIn into the pattern target
+→ restore the completed masked pattern over navy
+```
+
+The Android implementation removes `graphicsLayer(Offscreen)` and uses two explicit `Canvas.saveLayer` calls. The first creates the content-group target. The second creates the full-Canvas mask target whose Paint applies `BlendMode.DstIn` on restore. A transparent full-bounds `BlendMode.Src` draw establishes alpha `0` outside before the capsule writes the selected alpha inside.
+
+The required arithmetic is:
+
+```text
+masked content alpha = original content alpha × mask alpha
+```
+
+For opaque orange content and mask alpha `0.60`, Stage A produces straight RGBA `(0.84, 0.36, 0.18, 0.60)`. Source-over opaque navy then produces final straight RGBA `(0.5440, 0.2880, 0.2280, 1.0000)`.
+
+The lesson defines `binary` as exactly two allowed values, `0` and `1`, for clearly inspected positions away from the rendered edge. It keeps `SrcIn`, luminance masks, and premultiplied storage optional. It removes the direct-alpha four-zone shortcut and overlapping-draw counterexample from the required path.
+
+A hard `0/1` capsule still uses `clipPath` in production. The explicit two-layer mask remains a teaching model for independent partial alpha data.
+
+Changed files:
+
+```text
+AGENTS.md
+CURRENT_STATE.md
+curriculum/liquid_glass_android_curriculum.md
+curriculum/liquid_glass_android_handoff.md
+course/chapters/chapter-04/lesson-04-08-masks.html
+app/src/main/java/com/example/liquidglasslab/chapter04/MasksExplorer.kt
+```
+
+## Version 4.8.5 — Visual-first mask rewrite recorded after layer-explanation feedback
+
+Lesson 4.8 remains the current incomplete checkpoint. Learner-confirmed progress remains **35 of 216**.
+
+The preceding mask rewrite correctly used two explicit `Canvas.saveLayer` calls, but the explanation still failed the beginner audit because its central layer model depended on long prose and vague `outer`/`inner` target names. The learner requested graphics-first teaching, every intermediate image after every step, parallel straight and premultiplied cases, restored value-origin tooltips, color chips beside RGB/RGBA tuples, a detailed per-position algorithm, and diagrams comparing `graphicsLayer` with explicit `saveLayer` isolation.
+
+The replacement lesson now requires this order:
+
+```text
+rendered scene objects
+→ rendered target state after every draw/save/restore
+→ selected per-position inputs and output
+→ straight and premultiplied numeric cases
+→ DstIn/SrcIn operand comparison
+→ safe/unsafe isolation diagrams
+→ explicit target-count and memory model
+```
+
+New reusable curriculum rule:
+
+- Every buffer or layer sequence displays the complete intermediate image after each operation.
+- A 3D target stack may support spatial understanding, but exact 2D front views remain present.
+- Every RGB or RGBA tuple has an adjacent rounded color chip.
+- Repeated inherited, controlled, fixed, measured, or derived values have click-controlled superscript-style provenance marks.
+- Straight and premultiplied representations receive parallel worked cases when both are relevant.
+- Per-position graphics explain whether transparent values are valid input data and separate API semantics from possible GPU optimization.
+- Offscreen explanations compare the current safe arrangement, a safe alternative, an unsafe no-isolation arrangement, and redundant nested isolation.
+- Cost explanations show explicit target count, bounds, one memory estimate, and restore/compositing passes.
+
+Changed Android file remains:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter04/MasksExplorer.kt
+```
+
+Lesson 4.9 must not be generated until the learner explicitly completes Lesson 4.8.
+
+## Version 4.8.6 — Gold-standard exemplar record
+
+Lesson 4.8 remains the current incomplete checkpoint. Learner-confirmed progress remains **35 of 216**.
+
+The learner explicitly rated the Version 4.8.5 visual-first rewrite as **“world-class explanation level.”** The course therefore records that exact state as a positive canonical exemplar for future complex graphics teaching.
+
+The exemplar's reusable sequence is:
+
+```text
+show concrete scene images
+→ show every target after every operation
+→ identify the active target and exact code line
+→ trace one coordinate through every participating image
+→ calculate each relevant representation in parallel
+→ annotate colors and value provenance
+→ compare safe and unsafe architecture choices visually
+→ expose target count, bounds, passes, and cost
+```
+
+This record is intentionally more than a list of prohibitions. It identifies a complete artifact that succeeded with the learner. Future layer, buffer, filter, capture, sampling, and multi-pass shader lessons must be reviewed against it before delivery.
+
+The exact exemplar files remain:
+
+```text
+course/chapters/chapter-04/lesson-04-08-masks.html
+app/src/main/java/com/example/liquidglasslab/chapter04/MasksExplorer.kt
+```
+
+No HTML or Kotlin file changes in Version 4.8.6. Only `AGENTS.md`, `CURRENT_STATE.md`, the curriculum, and the handoff change.
+
+The positive evaluation does not itself close the checkpoint. Lesson 4.8 becomes complete only after the learner applies the files locally, performs the intended Android/browser checks, and explicitly confirms completion.
 

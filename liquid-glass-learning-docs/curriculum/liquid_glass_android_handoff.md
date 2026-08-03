@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 4.8.3  
-**Updated:** 2026-08-02  
+**Course plan version:** 4.8.6  
+**Updated:** 2026-08-03  
 **Current position:** Lessons 1.1 through 4.7 are complete by learner confirmation. **35 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.8 is generated and is both the next unresolved checkpoint and the generated frontier.
 
 ## Permanent course rules
@@ -2539,6 +2539,409 @@ completed_through: "Lesson 4.7"
 lesson_04_08_generated: true
 lesson_04_08_completed_by_learner: false
 lesson_04_08_status: "Android full-bounds DstIn mask correction pending learner review"
+next_unresolved_checkpoint: "Lesson 4.8"
+generated_frontier: "Lesson 4.8"
+next_after_completion: "Lesson 4.9 — Soft edges and antialiasing"
+```
+
+
+## Latest authoritative Lesson 4.8 rewrite — one core path and two explicit saveLayer targets
+
+**Status:** Lesson 4.8 remains incomplete. Learner-confirmed progress remains **35 of 216**.
+
+This section supersedes every earlier Lesson 4.8 explanation that retained `graphicsLayer(Offscreen)`, the four-zone direct-alpha microscope, or a required checkpoint around `SrcIn`, luminance masks, premultiplied storage, and overlapping-draw shortcuts.
+
+### Why the previous clarification failed
+
+The previous material contained individually correct facts, but it did not provide one stable beginner model. The learner could not answer these concrete questions from the lesson:
+
+- which exact code line creates each temporary drawing target;
+- whether the so-called full-bounds layer stores alpha only or ordinary RGBA pixels;
+- what `binary 0-or-1 mask` means;
+- whether mask alpha `0.60` runs `DstIn`, source-over, or both;
+- what a `grouped drawing` contains;
+- why two alpha restrictions multiply;
+- why an apparently removable `graphicsLayer(Offscreen)` should remain;
+- what memory and draw work each offscreen mechanism adds.
+
+The rewrite treats that as a failed total-beginner audit rather than adding another paragraph around the same structure.
+
+### Required scene objects
+
+```text
+content being masked
+→ complete multi-color pattern
+→ colored bands + white ring + white diagonal line
+
+mask image
+→ complete Canvas-sized RGBA image
+→ alpha 0 outside capsule
+→ selected alpha inside capsule
+
+background
+→ opaque navy Surface behind the masked result
+```
+
+A `source` or `destination` name is assigned only at one exact blend operation.
+
+### Revised Android containment
+
+The code removes:
+
+```kotlin
+.graphicsLayer {
+    compositingStrategy = CompositingStrategy.Offscreen
+}
+```
+
+It now uses two explicit Canvas targets:
+
+```text
+parent navy target
+→ first saveLayer(fullBounds, contentGroupPaint)
+→ outer target receives the complete pattern
+→ second saveLayer(fullBounds, dstInMaskPaint)
+→ inner target receives the complete mask image
+→ transparent Src draw writes alpha 0 over the full mask bounds
+→ capsule draw replaces inside positions with selected mask alpha
+→ restore inner target with DstIn
+→ restore outer masked group normally over navy
+```
+
+The exact calls are:
+
+```kotlin
+canvas.saveLayer(fullBounds, contentGroupPaint)
+canvas.saveLayer(fullBounds, dstInMaskPaint)
+```
+
+`Canvas.saveLayer` creates an ordinary temporary offscreen drawing target. It is not described as an alpha-only layer. The inner target's alpha is the part consumed by `DstIn`.
+
+### DstIn operands in this code
+
+At the inner restore:
+
+```text
+destination = completed pattern in the outer target
+source = complete mask image in the inner target
+```
+
+At one inside position:
+
+```text
+mask source alpha = selected value, such as 0.60
+DstIn keeps 60% of the destination content contribution
+```
+
+At one outside position:
+
+```text
+mask source alpha = 0
+DstIn output contribution = destination × 0
+masked content group becomes transparent
+```
+
+### Two consecutive operations
+
+```text
+Stage A · mask application with DstIn
+masked content alpha
+= original content alpha × mask alpha
+
+Stage B · masked group over navy with source-over
+masked content group becomes source
+navy becomes destination
+```
+
+For opaque orange and mask alpha `0.60`:
+
+```text
+Stage A output straight RGBA
+= (0.8400, 0.3600, 0.1800, 0.6000)
+
+Stage B final straight RGBA over navy
+= (0.5440, 0.2880, 0.2280, 1.0000)
+```
+
+For original content alpha `0.50` and mask alpha `0.60`:
+
+```text
+start = 1.00
+content alpha keeps 0.50
+mask keeps 0.60 of that 0.50
+masked alpha = 0.50 × 0.60 = 0.30
+```
+
+Addition is rejected causally: two restrictions cannot make content more visible, and `0.50 + 0.60 = 1.10` would exceed the normalized alpha maximum.
+
+### Scope and deferrals
+
+The required checkpoint no longer includes:
+
+- a four-zone direct-alpha shortcut;
+- an overlapping-draw counterexample;
+- `SrcIn` operand reversal;
+- luminance-mask conversion;
+- premultiplied-buffer arithmetic;
+- speculation about an undocumented framework-owned layer.
+
+`SrcIn`, luminance masks, and the completed Lesson 3.5 premultiplied connection remain optional details after the core path. The direct-alpha shortcut was removed because it was not used by the actual spatial implementation.
+
+### Production and cost boundary
+
+A hard capsule whose field is only `0` outside and `1` inside should use `clipPath`. The two-layer `DstIn` path is justified only when independent partial or image-based mask data is required.
+
+The code now makes its cost visible:
+
+```text
+outer temporary target = Canvas pixel width × height
+inner temporary target = Canvas pixel width × height
+simple RGBA8 teaching estimate for two targets
+≈ widthPx × heightPx × 8 bytes
+```
+
+Actual GPU allocation may differ because of pixel format, alignment, driver reuse, and implementation details. Chapter 6.10 remains the profiling lesson.
+
+### Reusable prevention rule
+
+`AGENTS.md` now contains **Mask lesson scope, full-domain field, and explicit-layer gate**. It supersedes the three accumulated Lesson 4.8 mask-rule sections.
+
+```yaml
+learner_confirmed_completed_total: 35
+completed_through: "Lesson 4.7"
+lesson_04_08_generated: true
+lesson_04_08_completed_by_learner: false
+lesson_04_08_status: "full rewrite pending learner review"
+next_unresolved_checkpoint: "Lesson 4.8"
+generated_frontier: "Lesson 4.8"
+next_after_completion: "Lesson 4.9 — Soft edges and antialiasing"
+```
+
+## Latest authoritative Lesson 4.8 visual-first rewrite — intermediate images, pixel microscope, and isolation comparison
+
+**Status:** Lesson 4.8 remains incomplete. Learner-confirmed progress remains **35 of 216**. This section supersedes the earlier Lesson 4.8 layer rewrite.
+
+### Feedback that triggered the rewrite
+
+The learner did not read the preceding long explanation because its central model still depended on prose. The terms `outer target` and `inner target` were not supported by enough graphics. The learner also identified these reusable failures:
+
+- intermediate images were not shown consistently after every operation;
+- straight and premultiplied RGBA were described rather than calculated as parallel cases;
+- value-origin tooltips had disappeared from several repeated values;
+- RGB and RGBA tuples had no adjacent visual swatch;
+- the per-position example did not state whether alpha-zero mask pixels are valid inputs or skipped data;
+- the `graphicsLayer` versus `saveLayer` explanation lacked a diagram showing the destination before and after `DstIn`;
+- offscreen cost was summarized in prose instead of showing target count and one concrete estimate;
+- the feedback-analysis rule was present, but the visible state files did not demonstrate that every correction had been analyzed and recorded.
+
+### New visual-first teaching order
+
+```text
+four rendered scene images
+→ seven-step layer movie
+→ all target images after every step
+→ one selected Canvas position
+→ straight and premultiplied cases in parallel
+→ DstIn versus SrcIn draw-order comparison
+→ four graphicsLayer/saveLayer isolation arrangements
+→ explicit target count and memory estimate
+```
+
+The four opening images are:
+
+```text
+pattern image
+mask image
+masked-pattern intermediate image
+final image over navy
+```
+
+### Seven-step layer movie
+
+Every step displays all four of these views:
+
+```text
+parent target
+pattern target
+mask target
+intermediate result after the current step
+```
+
+It also displays:
+
+```text
+active target
+input image
+operation
+intermediate output
+exact Kotlin line
+```
+
+A rotatable CSS 3D stack shows target ordering and separation. The 3D view is supplementary. Exact 2D thumbnails remain the authoritative pixel-content view.
+
+### Per-position algorithm
+
+The lesson now lets the learner select a position clearly inside or clearly outside the capsule. At the selected coordinate it displays:
+
+```text
+pattern pixel
+mask pixel at the same coordinate
+DstIn output pixel
+final pixel after source-over navy
+```
+
+The contract is explained as if the operation reads every matching position inside the layer bounds. A mask pixel with alpha `0` is valid input data. It produces a transparent masked-content output. The renderer may optimize physical execution only if the visible result is unchanged.
+
+### Representation boundary
+
+The required lesson path states:
+
+```text
+Compose Color values
+→ straight sRGB RGBA
+
+DstIn contribution arithmetic
+→ premultiplied sRGB RGBA
+```
+
+Two complete cases are calculated:
+
+```text
+opaque orange alpha 1.00 × mask 0.60
+translucent orange alpha 0.50 × mask 0.60
+```
+
+Both cases show straight input, premultiplied input, premultiplied `DstIn` output, and straight output after unpremultiplication when output alpha is above zero.
+
+### Value annotations
+
+- Every RGB or RGBA tuple receives a small rounded color chip.
+- A premultiplied tuple's chip shows the represented color and is explicitly not a straight interpretation of the stored numbers.
+- Inherited, controlled, fixed, and derived values receive click-controlled information marks next to the value in a superscript-like position.
+- The popup records value origin, representation, and next consumer. Essential reasoning remains visible without opening it.
+
+### Isolation comparison
+
+The lesson renders four arrangements:
+
+```text
+1. Current safe design
+   explicit pattern-target Canvas.saveLayer
+   + full-size mask-target saveLayer
+
+2. Safe alternative
+   graphicsLayer(Offscreen)
+   + full-size mask-target saveLayer
+
+3. Unsafe design
+   no pattern-isolation method
+
+4. Redundant design
+   graphicsLayer(Offscreen)
+   + explicit pattern-target Canvas.saveLayer
+   + mask-target saveLayer
+```
+
+The current code works without `graphicsLayer(Offscreen)` because the first explicit `canvas.saveLayer(fullBounds, contentGroupPaint)` provides the pattern-only destination. This is an intentional replacement, not an accidental hidden-layer dependency.
+
+### Android companion
+
+`MasksExplorer.kt` now mirrors the visual-first order with:
+
+- four concrete image thumbnails;
+- spatial mask motion controls;
+- a seven-step target movie;
+- parent, pattern, mask, and intermediate-result thumbnails for each step;
+- an inside/outside pixel microscope;
+- two straight/premultiplied cases;
+- a DstIn/SrcIn comparison;
+- safe, alternative, unsafe, and redundant isolation scenarios;
+- color chips and click-controlled value-origin controls;
+- explicit target cost arithmetic.
+
+The actual masking helper still uses:
+
+```kotlin
+canvas.saveLayer(fullBounds, contentGroupPaint)
+canvas.saveLayer(fullBounds, dstInMaskPaint)
+```
+
+`Chapter04Screen.kt` remains unchanged because its complete-screen and direct-child light/dark previews already target `MasksExplorer`.
+
+### Reusable prevention rule
+
+`AGENTS.md` now contains **Visual-first intermediate-state and value-annotation gate**. The required QA sweep includes every step, every representation case, inside/outside positions, mask alpha `0`, `0.60`, and `1`, every isolation scenario, every provenance popup, color-chip presence, 3D rotation/reset, and horizontal overflow while a popup is open.
+
+```yaml
+learner_confirmed_completed_total: 35
+completed_through: "Lesson 4.7"
+lesson_04_08_generated: true
+lesson_04_08_completed_by_learner: false
+lesson_04_08_status: "visual-first rewrite approved as canonical exemplar; pending local application, testing, and explicit completion"
+next_unresolved_checkpoint: "Lesson 4.8"
+generated_frontier: "Lesson 4.8"
+next_after_completion: "Lesson 4.9 — Soft edges and antialiasing"
+```
+
+## Latest learner evaluation — Lesson 4.8 is the canonical positive exemplar
+
+**Date:** 2026-08-03  
+**Completion effect:** none. Learner-confirmed progress remains **35 of 216**.
+
+The learner explicitly described the final visual-first Lesson 4.8 edit as **“world-class explanation level.”** This is the strongest positive quality signal recorded for the course so far. The exact state is now a canonical exemplar rather than merely the latest repair.
+
+### Authoritative exemplar artifacts
+
+```text
+liquid-glass-lesson-04-08-visual-layer-movie-rewrite-learning-docs.zip
+liquid-glass-lesson-04-08-visual-layer-movie-rewrite-android.zip
+```
+
+The relevant source files are:
+
+```text
+course/chapters/chapter-04/lesson-04-08-masks.html
+app/src/main/java/com/example/liquidglasslab/chapter04/MasksExplorer.kt
+```
+
+### Why this state succeeded
+
+The lesson does not ask prose to carry an invisible rendering model. It makes the intermediate images themselves the explanation:
+
+```text
+visible pattern, mask, masked intermediate, and final image
+→ seven-step target movie
+→ parent, pattern, mask, and result views at every step
+→ active target and exact Kotlin line
+→ selected-coordinate pixel microscope
+→ straight and premultiplied worked cases
+→ color chips and value-provenance controls
+→ isolation architecture comparisons
+→ visible target-count and cost model
+```
+
+The 3D target stack is helpful because it shows ordering and separation, but it never replaces the exact 2D front views. The per-position microscope proves how one content value and one mask value at the same coordinate produce the `DstIn` intermediate and the final source-over result. The representation section calculates both straight and premultiplied cases instead of relying on definitions alone.
+
+### Reuse instruction
+
+For future lessons about layers, buffers, captures, filters, sampling pipelines, or multi-pass shaders, compare the draft against this artifact before delivery. Reuse its causal order and evidence standard. Do not copy every widget mechanically. Omit an element only when the later topic genuinely does not need it.
+
+The course-wide positive pattern is:
+
+> Show the actual objects and every intermediate image first. Attach the exact operation and value provenance to those visuals. Use prose to interpret visible evidence, not to substitute for missing evidence.
+
+### Status boundary
+
+This praise is an explicit approval of the explanation quality. It is not an explicit lesson-completion statement. The learner said the replacement files still need to be applied locally. Lesson 4.8 therefore remains incomplete until local testing and an explicit completion update.
+
+```yaml
+learner_confirmed_completed_total: 35
+completed_through: "Lesson 4.7"
+lesson_04_08_generated: true
+lesson_04_08_completed_by_learner: false
+lesson_04_08_quality_review: "approved as world-class and canonical positive exemplar"
+lesson_04_08_local_application: "pending learner replacement of files"
+lesson_04_08_status: "approved exemplar; pending local application, testing, and explicit completion"
 next_unresolved_checkpoint: "Lesson 4.8"
 generated_frontier: "Lesson 4.8"
 next_after_completion: "Lesson 4.9 — Soft edges and antialiasing"
