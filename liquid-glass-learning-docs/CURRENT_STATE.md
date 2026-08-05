@@ -183,3 +183,13 @@ Every lesson-related response ends with:
 `Course progress: X of 216 lessons completed.`
 
 Then include a clearly labelled best-effort estimate of the remaining conversation context. Count only learner-confirmed completion.
+
+## Lesson 4.8 targeted clarification — mask construction versus mask application
+
+The praised visual-first Lesson 4.8 remains the canonical exemplar. A targeted clarification now separates three exact operations:
+
+- `BlendMode.Src` runs while constructing the mask target and explicitly writes transparent RGBA across the complete bounds.
+- `BlendMode.DstIn` runs when the mask target is restored into the pattern target. The pixel-level multiplication taught by the microscope belongs specifically to this operation.
+- ordinary source-over runs later when the masked-pattern intermediate is restored over the navy parent.
+
+Checkerboards in the lesson are labelled as transparency visualizations, not stored mask pixels. Lesson 4.8 remains pending learner completion. Learner-confirmed progress remains 35 of 216.

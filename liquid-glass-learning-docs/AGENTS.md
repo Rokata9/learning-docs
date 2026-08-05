@@ -346,3 +346,13 @@ This rule was added after the Lesson 3.9 clarification questions.
 2. Keep only short code excerpts required for a causal explanation, the manual value path, or a coding challenge.
 3. Continue delivering changed Android files in the separate incremental Android ZIP.
 4. Remove the complete-source section from a lesson whenever that lesson is otherwise revised. Do not bulk-edit already completed historical lessons solely for this preference unless the learner asks.
+
+## Construction-time versus restore-time blend operations
+
+Lesson 4.8 exposed a reusable ambiguity: one blend mode can construct a temporary target while a different blend mode is attached to that target's later restore. Future layer lessons must separate these moments visually and in code comments.
+
+1. Name the current drawing target before every draw.
+2. State whether a blend mode applies to the current draw command or to the later `restore()` of a saved layer.
+3. For the Lesson 4.8 mask, `BlendMode.Src` constructs the mask image by replacing every full-bounds position with transparent RGBA. `BlendMode.DstIn` runs later at restore and performs the per-position multiplication `pattern premultiplied RGBA × mask alpha`.
+4. Treat the later source-over of the masked pattern over navy as a separate per-position operation. Do not describe its arithmetic as part of `DstIn`.
+5. Label checkerboards as teaching visualizations of transparency. A checkerboard is not stored pixel content unless the program explicitly draws one.

@@ -2947,3 +2947,14 @@ generated_frontier: "Lesson 4.8"
 next_after_completion: "Lesson 4.9 — Soft edges and antialiasing"
 ```
 
+## Lesson 4.8 clarification — construction-time Src, restore-time DstIn, then SrcOver
+
+The gold-standard visual rewrite received one targeted clarification. The lesson now shows that:
+
+```text
+construct mask target with Src
+→ apply completed mask with DstIn
+→ composite masked-pattern intermediate over navy with SrcOver
+```
+
+The per-position multiplication belongs specifically to `DstIn`: pattern premultiplied RGBA is multiplied by mask alpha at the same coordinate. The final navy mixture belongs to the later source-over operation. The lesson also labels every checkerboard as a visualization of transparency rather than stored pixel content. This clarification does not change the masking algorithm or learner-confirmed completion count.

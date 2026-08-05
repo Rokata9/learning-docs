@@ -4054,3 +4054,14 @@ No HTML or Kotlin file changes in Version 4.8.6. Only `AGENTS.md`, `CURRENT_STAT
 
 The positive evaluation does not itself close the checkpoint. Lesson 4.8 becomes complete only after the learner applies the files locally, performs the intended Android/browser checks, and explicitly confirms completion.
 
+## Lesson 4.8 clarification — construction-time Src, restore-time DstIn, then SrcOver
+
+The gold-standard visual rewrite received one targeted clarification. The lesson now shows that:
+
+```text
+construct mask target with Src
+→ apply completed mask with DstIn
+→ composite masked-pattern intermediate over navy with SrcOver
+```
+
+The per-position multiplication belongs specifically to `DstIn`: pattern premultiplied RGBA is multiplied by mask alpha at the same coordinate. The final navy mixture belongs to the later source-over operation. The lesson also labels every checkerboard as a visualization of transparency rather than stored pixel content. This clarification does not change the masking algorithm or learner-confirmed completion count.

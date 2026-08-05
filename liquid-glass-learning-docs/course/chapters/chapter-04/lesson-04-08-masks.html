@@ -228,12 +228,12 @@ summary{cursor:pointer;font-weight:900}
     </aside>
   </div>
   <div class="target-grid" id="targetGrid"></div>
-  <div class="note"><strong>Where the temporary images are created:</strong> the first <code>canvas.saveLayer(fullBounds, contentGroupPaint)</code> creates the pattern target. The second <code>canvas.saveLayer(fullBounds, dstInMaskPaint)</code> creates the mask target. Both are normal RGBA drawing targets. The mask operation later reads the mask target’s alpha.</div>
+  <div class="note"><strong>Where the temporary images are created:</strong> the first <code>canvas.saveLayer(fullBounds, contentGroupPaint)</code> creates the pattern target. The second <code>canvas.saveLayer(fullBounds, dstInMaskPaint)</code> creates the mask target. Both are normal RGBA drawing targets. <code>BlendMode.Src</code> is used while constructing the mask target. <code>BlendMode.DstIn</code> is used later, when that completed mask target is restored into the pattern target. These are two separate operations at two separate times.</div>
 </section>
 
 <section class="section panel" id="pixel-microscope">
   <div class="section-head"><div><div class="section-no">3 · PER-POSITION MICROSCOPE</div><h2>Why one pixel-sized position explains the complete layer operation</h2></div><p>The same rule runs independently at every matching position inside the layer bounds.</p></div>
-  <div class="success"><strong>Exact same-coordinate rule:</strong> at coordinate <code>(x, y)</code>, <code>DstIn</code> reads the pattern pixel at <code>(x, y)</code> and the mask alpha at <code>(x, y)</code>. A neighboring coordinate does not enter that calculation. Repeating this same-coordinate calculation across the complete target bounds produces the masked image. Only the later source-over step reads the navy pixel at the same coordinate.</div>
+  <div class="success"><strong>Two separate per-position algorithms:</strong> first, <code>DstIn</code> reads the pattern pixel and mask alpha at the same coordinate <code>(x, y)</code>. Its multiplication creates the masked-pattern intermediate pixel. Second, ordinary source-over reads that masked-pattern pixel and the navy parent pixel at the same coordinate. A neighboring coordinate does not enter either calculation.</div>
   <div class="microscope-layout">
     <div class="card">
       <h3>Select one position</h3>
@@ -246,7 +246,7 @@ summary{cursor:pointer;font-weight:900}
     </div>
     <div>
       <div class="pixel-pipeline" id="pixelPipeline"></div>
-      <div class="warning"><strong>Transparent mask pixels are not “missing.”</strong> The mask image contains a valid pixel with alpha <code>0</code>. The <code>DstIn</code> contract uses that zero and produces a transparent masked-content pixel. A renderer may optimize the physical work internally, but the required output must be the same as this per-position calculation.</div>
+      <div class="warning"><strong>Transparent mask pixels are not “missing.”</strong> The mask image contains a valid pixel with alpha <code>0</code>. The <code>DstIn</code> multiplication uses that zero and produces a transparent masked-pattern pixel. Any checkerboard shown behind that pixel is only a teaching visualization of transparency; it is not stored pixel content. A renderer may optimize the physical work internally, but the required output must match this per-position result.</div>
     </div>
   </div>
 </section>
@@ -316,7 +316,9 @@ try {
     // Step 4: create the full-size mask target.
     canvas.saveLayer(fullBounds, dstInMaskPaint)
     try {
-        // Step 4: establish mask alpha 0 across the complete bounds.
+        // Step 4A: construct the mask target.
+        // Src replaces every mask-target pixel with transparent RGBA,
+        // so mask alpha is explicitly 0 across the complete bounds.
         drawRect(Color.Transparent, blendMode = BlendMode.Src)
 
         // Step 5: write the selected alpha inside the capsule.
@@ -327,10 +329,15 @@ try {
             cornerRadius = capsuleRadius,
         )
     } finally {
-        canvas.restore() // Step 6: DstIn mask target → pattern target
+        // Step 6: apply the completed mask target.
+        // DstIn performs the per-position multiplication:
+        // pattern premultiplied RGBA × mask alpha.
+        canvas.restore()
     }
 } finally {
-    canvas.restore() // Step 7: masked pattern → navy parent with SrcOver
+    // Step 7: a separate operation. Ordinary source-over composites
+    // the masked-pattern intermediate image over the navy parent.
+    canvas.restore()
 }</pre>
 </section>
 
@@ -479,10 +486,10 @@ const layerSteps=[
   {title:'1 · Parent already contains navy',caption:'No temporary image exists yet.',input:'Parent target',operation:'The parent Surface has already drawn navy.',output:'Parent target = navy image',code:'// No saveLayer call has run yet.',active:'parent',parent:'navy',content:'missing',mask:'missing',result:'navy'},
   {title:'2 · Create the pattern target',caption:'The first saveLayer changes the current drawing target to a new transparent image with the complete Canvas bounds.',input:'Parent target remains navy',operation:'canvas.saveLayer(fullBounds, contentGroupPaint)',output:'New empty pattern target',code:'canvas.saveLayer(fullBounds, contentGroupPaint)',active:'content',parent:'navy',content:'transparent',mask:'missing',result:'transparent'},
   {title:'3 · Draw the complete pattern',caption:'Every colored band, the ring, and the line is written into the same pattern target.',input:'Empty pattern target',operation:'drawSpatialTeachingPattern(...)',output:'Finished pattern image',code:'drawSpatialTeachingPattern(horizontalContentOffsetPx)',active:'content',parent:'navy',content:'pattern',mask:'missing',result:'pattern'},
-  {title:'4 · Create the full-size mask target',caption:'The second saveLayer creates another transparent image. The transparent fill establishes alpha 0 at every position.',input:'Finished pattern waits below',operation:'saveLayer + transparent Src fill',output:'Mask image alpha 0 everywhere',code:'canvas.saveLayer(fullBounds, dstInMaskPaint)\ndrawRect(Color.Transparent, BlendMode.Src)',active:'mask',parent:'navy',content:'pattern',mask:'mask-empty',result:'mask-empty'},
+  {title:'4 · Create and initialize the mask target',caption:'The second saveLayer changes the current target to a new full-size mask image. BlendMode.Src then replaces every mask-target position with transparent RGBA, explicitly establishing mask alpha 0 everywhere. DstIn has not run yet.',input:'Finished pattern waits below',operation:'saveLayer + transparent Src fill',output:'Mask image alpha 0 everywhere',code:'canvas.saveLayer(fullBounds, dstInMaskPaint)\ndrawRect(Color.Transparent, BlendMode.Src)',active:'mask',parent:'navy',content:'pattern',mask:'mask-empty',result:'mask-empty'},
   {title:'5 · Write capsule alpha into the mask',caption:'Only positions covered by the capsule change from alpha 0 to the selected alpha.',input:'Full-size alpha-zero mask image',operation:'drawRoundRect(mask alpha)',output:'Complete mask image',code:'drawRoundRect(Color.Black.copy(alpha = maskAlpha), ...)',active:'mask',parent:'navy',content:'pattern',mask:'mask',result:'mask'},
-  {title:'6 · Restore the mask with DstIn',caption:'The mask image is composited into the pattern target. The pattern target itself is replaced by the masked pattern intermediate result.',input:'Pattern destination + mask source',operation:'canvas.restore() using DstIn Paint',output:'Masked pattern image',code:'canvas.restore() // DstIn: mask target → pattern target',active:'content',parent:'navy',content:'masked',mask:'restored',result:'masked'},
-  {title:'7 · Restore the masked pattern over navy',caption:'The completed masked pattern becomes the source for ordinary source-over onto the parent navy target.',input:'Masked pattern + navy parent',operation:'canvas.restore() using normal Paint',output:'Final image over navy',code:'canvas.restore() // masked pattern → SrcOver → parent',active:'parent',parent:'final',content:'restored',mask:'restored',result:'final'}
+  {title:'6 · Apply the mask with DstIn',caption:'The first restore applies DstIn. At each coordinate, pattern premultiplied RGBA is multiplied by mask alpha. Outside alpha 0 removes the pattern contribution. Inside the selected alpha keeps that fraction. This multiplication is specifically the DstIn operation.',input:'Pattern destination + mask source',operation:'canvas.restore() using DstIn Paint',output:'Masked pattern image',code:'canvas.restore() // DstIn: mask target → pattern target',active:'content',parent:'navy',content:'masked',mask:'restored',result:'masked'},
+  {title:'7 · Composite the masked pattern over navy',caption:'The second restore is a different algorithm: ordinary source-over. Transparent masked-pattern pixels contribute nothing, so navy remains outside. Partial-alpha pattern pixels mix with navy inside.',input:'Masked pattern + navy parent',operation:'canvas.restore() using normal Paint',output:'Final image over navy',code:'canvas.restore() // masked pattern → SrcOver → parent',active:'parent',parent:'final',content:'restored',mask:'restored',result:'final'}
 ];
 function targetVisual(kind,prefix){
   if(kind==='missing') return sceneSvg('transparent',prefix,{caption:false}).replace('transparent target','not created');
@@ -551,8 +558,8 @@ function renderPixel(){
   const stages=[
     {title:'1 · Pattern pixel',color:content,text:colorToken(content,'straight sRGB RGBA','This value comes from the orange band in the pattern image.')},
     {title:'2 · Mask pixel',color:{r:0,g:0,b:0,a:maskA},text:colorToken({r:0,g:0,b:0,a:maskA},'straight sRGB RGBA','This pixel comes from the full-size mask image at the same coordinate. DstIn reads its alpha and ignores its RGB.')},
-    {title:'3 · DstIn output',color:maskedStraight,text:colorToken(maskedStraight,'straight sRGB RGBA','This is the masked-pattern intermediate pixel written back into the pattern target.')},
-    {title:'4 · Final over navy',color:final,text:colorToken(final,'straight sRGB RGBA','This is the final opaque pixel after the masked pattern is drawn over navy with source-over.')}
+    {title:'3 · DstIn multiplication output',color:maskedStraight,text:colorToken(maskedStraight,'straight sRGB RGBA','This intermediate pixel is produced specifically by DstIn: pattern premultiplied RGBA multiplied by mask alpha.')},
+    {title:'4 · Separate SrcOver output',color:final,text:colorToken(final,'straight sRGB RGBA','This final pixel is produced by a second, separate operation: source-over composites the masked-pattern intermediate over navy.')}
   ];
   $('pixelPipeline').innerHTML=stages.map(s=>`<article class="pixel-stage"><strong>${s.title}</strong><div class="pixel-preview"><div class="pixel-fill" style="background:${rgbaCss(s.color)}"></div></div><div>${s.text}</div></article>`).join('');
 }
