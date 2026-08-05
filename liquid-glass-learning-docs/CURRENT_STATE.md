@@ -1,23 +1,23 @@
 # Liquid Glass Android course — current state
 
-**Authoritative learner-confirmed progress:** 35 of 216 lessons completed.
+**Authoritative learner-confirmed progress:** 36 of 216 lessons completed.
 
 ## Completed
 
 - Chapters 1, 2, and 3 are complete.
-- Lessons 4.1 through 4.7 are complete.
-- The latest completed lesson is **4.7 — Clipping**.
+- Lessons 4.1 through 4.8 are complete.
+- The latest completed lesson is **4.8 — Masks**.
 
 ## Not completed
 
-- **Lesson 4.8 — Masks** is generated, has received an explicit positive quality review, and remains the current learner checkpoint.
-- Chapter 4 remains in progress. Lessons 4.8 through 4.11 are not complete.
+- **Lesson 4.9 — Soft edges and antialiasing** is generated and remains the current learner checkpoint.
+- Chapter 4 remains in progress. Lessons 4.9 through 4.11 are not complete.
 
 ## Course pointers
 
-- **Next unresolved learner checkpoint:** Lesson 4.8.
-- **Generated frontier:** Lesson 4.8.
-- **Next planned lesson after explicit Lesson 4.8 completion:** Lesson 4.9 — Soft edges and antialiasing.
+- **Next unresolved learner checkpoint:** Lesson 4.9.
+- **Generated frontier:** Lesson 4.9.
+- **Next planned lesson after explicit Lesson 4.9 completion:** Lesson 4.10 — Transform origin.
 
 ## Latest authoritative Lesson 4.8 rewrite — visual layer movie and per-position algorithm
 
@@ -192,4 +192,48 @@ The praised visual-first Lesson 4.8 remains the canonical exemplar. A targeted c
 - `BlendMode.DstIn` runs when the mask target is restored into the pattern target. The pixel-level multiplication taught by the microscope belongs specifically to this operation.
 - ordinary source-over runs later when the masked-pattern intermediate is restored over the navy parent.
 
-Checkerboards in the lesson are labelled as transparency visualizations, not stored mask pixels. Lesson 4.8 remains pending learner completion. Learner-confirmed progress remains 35 of 216.
+Checkerboards in the lesson are labelled as transparency visualizations, not stored mask pixels. Lesson 4.8 was later learner-confirmed complete. Learner-confirmed progress is 36 of 216 while Lesson 4.9 remains unresolved.
+
+
+## Lesson 4.9 generated — soft edges and antialiasing
+
+Lesson 4.8 is learner-confirmed complete. The gold-standard visual-first state remains the canonical exemplar. Lesson 4.9 starts from the completed per-position mask-alpha model and introduces geometric coverage: the fraction of one pixel-sized area occupied by the shape in the controlled teaching model.
+
+The lesson separates the mathematical boundary, pixel grid, and rendered transition band. It shows complete intermediate images, an interactive coverage grid, parallel opaque/translucent and straight/premultiplied cases, and the exact order `geometry → coverage → edge alpha → source-over destination`. The browser uses a labelled 20×20 teaching-sample estimate; it does not claim Android uses that implementation internally.
+
+
+## Lesson 4.9 clarification — why coverage works and finite sampling limits
+
+Learner review confirmed the main lesson was clear and requested that the following useful clarification be retained in the lesson:
+
+- lower alpha is not inherently attractive; the useful alpha encodes the geometric coverage of the exact boundary position;
+- intermediate coverage values help the discrete pixel grid approximate a continuous line or curve;
+- the same local coverage contract applies to lines, curves, waves, text, and arbitrary paths;
+- the 20 × 20 browser grid and 12 × 12 Android grid are explanatory estimators, not claims about Android's internal sample count;
+- finite sampling can miss a thin feature between all selected sample locations;
+- real renderers may use analytic, multisample, distance-based, or hybrid methods;
+- antialiasing coverage remains distinct from neighboring-pixel blur.
+
+Lesson 4.9 remains learner-incomplete pending review of this clarification. Learner-confirmed progress remains 36 of 216.
+
+## Latest Lesson 4.9 clarification — sample centers, thin bands, and direct geometric coverage
+
+The learner identified three ambiguities in the finite-sampling graphic:
+
+- the orange `Thin feature` was not explained as a narrow band with two boundaries;
+- the visible sample-marker circles looked as though they touched the orange band even when the tested center coordinate was outside;
+- the lesson showed a complete sampling miss but did not show a partial result that was still numerically inaccurate or a mitigation that avoided adding samples.
+
+Lesson 4.9 now:
+
+- renames the object **Thin band · two edges**;
+- draws its top and bottom boundaries separately and keeps its center guide visually secondary;
+- draws equal-area subcells and a tiny center pin for each sample;
+- states that the center pin, not the marker ring, supplies the inside-or-outside vote;
+- shows a 5% narrow band crossing subcells while a 4 × 4 center pattern reports zero;
+- shows a straight-edge pixel whose true geometric coverage is 40% while a 2 × 2 sample estimate reports 50%;
+- shows **analytic coverage**, meaning direct edge-to-pixel intersection and area calculation, as one mitigation that uses no extra center samples;
+- keeps the implementation boundary clear: Compose supplies the path and Android's renderer owns rasterization.
+
+No Android source changed in this clarification. Lesson 4.9 remains incomplete pending learner review. Progress remains **36 of 216**.
+

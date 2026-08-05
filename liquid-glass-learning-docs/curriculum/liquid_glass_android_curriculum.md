@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 4.8.6  
-**Updated:** 2026-08-03  
-**Current course position:** Lessons 1.1 through 4.7 are complete by learner confirmation. **35 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.8 is generated and is both the next unresolved checkpoint and the generated frontier.  
+**Version:** 4.9.2  
+**Updated:** 2026-08-05  
+**Current course position:** Lessons 1.1 through 4.8 are complete by learner confirmation. **36 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.9 is generated and is both the next unresolved checkpoint and the generated frontier.  
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -10,7 +10,20 @@
 
 ---
 
-## 1. What changed through version 4.8.6
+## 1. What changed through version 4.9.2
+
+Version 4.9.2 clarifies center-sample estimation and adds one direct-geometric mitigation:
+
+- Renames the ambiguous `Thin feature` preset to **Thin band · two edges**.
+- Draws the top and bottom band boundaries separately. The dashed center guide is no longer presented as the shape boundary.
+- Draws equal-area subcells and an exact center pin for every sample. The visible marker ring is labelled as decoration only.
+- States that center samples are probes. They cast one vote for a subcell; they do not split the pixel at the real geometric boundary.
+- Keeps the complete-miss case: a 5% band can cross subcells while a 4 × 4 center pattern records zero hits.
+- Adds a detected-but-inexact case: a straight edge covers 40% of a pixel while a 2 × 2 center pattern reports 50%.
+- Defines **analytic coverage** as calculating the edge-to-pixel intersection and enclosed area directly instead of adding more center samples.
+- Limits implementation detail to the course need: Compose supplies the geometry; Android's renderer owns rasterization.
+- No Android source changes. Lesson 4.9 remains incomplete and progress remains 36 of 216.
+
 
 
 Version 4.8.6 records the final Lesson 4.8 visual-first state as the course's canonical positive exemplar:
@@ -22,7 +35,7 @@ Version 4.8.6 records the final Lesson 4.8 visual-first state as the course's ca
 - It combines a rotatable 3D target stack with exact 2D front views, a same-coordinate pixel microscope, parallel straight and premultiplied cases, RGB/RGBA color chips, value-provenance controls, isolation architecture comparisons, and a visible cost model.
 - Future lessons about invisible graphics state must use this artifact as the quality baseline. They should preserve its causal and evidence standard without mechanically copying every widget.
 - This is a documentation-only status update. The lesson HTML and Kotlin remain unchanged from the praised visual-first rewrite.
-- The learner has not explicitly completed Lesson 4.8 and still needs to apply/test the files locally. Learner-confirmed completion therefore remains **35 of 216 lessons**.
+- The learner has not explicitly completed Lesson 4.8 and still needs to apply/test the files locally. Learner-confirmed completion therefore remains **36 of 216 lessons**.
 
 Version 4.8.5 is the visual-first layer-movie rewrite that earned this evaluation. It replaced prose-led layer teaching with rendered intermediate images, a seven-step target movie, a per-position microscope, parallel representation cases, value annotations, isolation diagrams, and an explicit target-cost model.
 
@@ -38,7 +51,7 @@ Version 4.8.3 rebuilds the Lesson 4.8 explanation around stable scene objects, a
 - The direct-alpha four-zone microscope is retained only under its exact contract: one solid draw per non-overlapping zone. A two-shape overlap counterexample shows `0.84` from separate 60% draws versus `0.60` from masking the completed group once.
 - The Compose implementation keeps `graphicsLayer(Offscreen)` as the documented composable-level destination boundary, then uses one full-bounds `Canvas.saveLayer` to construct the separate source mask restored with `DstIn`. The two operations have different jobs. A correct-looking run without `Offscreen` is recorded as runtime evidence, not a general containment contract.
 - `AGENTS.md` adds the **Mask operands, representation, two-stage compositing, and isolation-boundary gate**.
-- Lesson 4.8 remains incomplete. Learner-confirmed completion remains **35 of 216 lessons**.
+- Lesson 4.8 remains incomplete. Learner-confirmed completion remains **36 of 216 lessons**.
 
 Version 4.8.2 corrects the Lesson 4.8 Compose mask implementation after the learner observed that the multi-color candidate remained visible outside the capsule:
 
@@ -52,7 +65,7 @@ Version 4.8.2 corrects the Lesson 4.8 Compose mask implementation after the lear
 - A hard capsule with no partial values should still use `clipPath` in ordinary production code. The full `DstIn` path remains in this lesson to demonstrate a complete independent mask field for grouped content.
 - Android changes only `MasksExplorer.kt`. `Chapter04Screen.kt` already contains the required complete-screen and direct-child light/dark previews and remains unchanged.
 - `AGENTS.md` adds the **Mask-field domain and source-coverage gate**.
-- Lesson 4.8 remains incomplete. Learner-confirmed completion remains **35 of 216 lessons**.
+- Lesson 4.8 remains incomplete. Learner-confirmed completion remains **36 of 216 lessons**.
 
 Version 4.8.1 corrects the Lesson 4.8 teaching order after the learner identified the missing spatial model:
 
@@ -66,12 +79,12 @@ Version 4.8.1 corrects the Lesson 4.8 teaching order after the learner identifie
 - The existing four-zone `alpha = maskValue` path remains only as a controlled arithmetic microscope for one solid candidate and non-overlapping zones.
 - A hard 0-or-1 shape mask is compared with clipping without treating the two data models as identical. The lesson states that clipping remains the simpler production tool for a hard geometric boundary when a general mask adds no capability.
 - `AGENTS.md` adds the **Spatial-first mask and visibility-field gate**.
-- Lesson 4.8 remains incomplete. Learner-confirmed completion remains **35 of 216 lessons**.
+- Lesson 4.8 remains incomplete. Learner-confirmed completion remains **36 of 216 lessons**.
 
 Version 4.8.0 records completion of Lesson 4.7 and generates Lesson 4.8:
 
 - The learner requested the next lesson without a remaining Lesson 4.7 issue, so Lesson 4.7 is learner-confirmed complete.
-- Learner-confirmed course completion is now **35 of 216 lessons**.
+- Learner-confirmed course completion is now **36 of 216 lessons**.
 - Lesson 4.8 defines a mask as separate per-position visibility data rather than a gray color layer.
 - The controlled candidate is opaque straight sRGB RGBA `(0.84, 0.36, 0.18, 1.00)`. The opaque background is straight sRGB RGBA `(0.10, 0.18, 0.30, 1.00)`.
 - The reset mask field uses four enlarged zones with values `0.00`, `0.25`, `0.60`, and `1.00`.
@@ -3821,7 +3834,7 @@ Lesson 4.7 is complete only when:
 After completion:
 
 ```text
-Course progress becomes 35 of 216.
+Course progress becomes 36 of 216.
 Next lesson becomes 4.8 — Masks.
 ```
 
@@ -3946,7 +3959,7 @@ Next lesson becomes 4.9 — Soft edges and antialiasing.
 
 ## Version 4.8.4 — Mask lesson rewritten around one explicit implementation path
 
-Lesson 4.8 remains generated and incomplete. Learner-confirmed progress remains **35 of 216**.
+Lesson 4.8 remains generated and incomplete. Learner-confirmed progress remains **36 of 216**.
 
 The previous clarification accumulated several correct but nonessential topics before the learner owned the core mask model. It is superseded.
 
@@ -3987,7 +4000,7 @@ app/src/main/java/com/example/liquidglasslab/chapter04/MasksExplorer.kt
 
 ## Version 4.8.5 — Visual-first mask rewrite recorded after layer-explanation feedback
 
-Lesson 4.8 remains the current incomplete checkpoint. Learner-confirmed progress remains **35 of 216**.
+Lesson 4.8 remains the current incomplete checkpoint. Learner-confirmed progress remains **36 of 216**.
 
 The preceding mask rewrite correctly used two explicit `Canvas.saveLayer` calls, but the explanation still failed the beginner audit because its central layer model depended on long prose and vague `outer`/`inner` target names. The learner requested graphics-first teaching, every intermediate image after every step, parallel straight and premultiplied cases, restored value-origin tooltips, color chips beside RGB/RGBA tuples, a detailed per-position algorithm, and diagrams comparing `graphicsLayer` with explicit `saveLayer` isolation.
 
@@ -4024,7 +4037,7 @@ Lesson 4.9 must not be generated until the learner explicitly completes Lesson 4
 
 ## Version 4.8.6 — Gold-standard exemplar record
 
-Lesson 4.8 remains the current incomplete checkpoint. Learner-confirmed progress remains **35 of 216**.
+Lesson 4.8 remains the current incomplete checkpoint. Learner-confirmed progress remains **36 of 216**.
 
 The learner explicitly rated the Version 4.8.5 visual-first rewrite as **“world-class explanation level.”** The course therefore records that exact state as a positive canonical exemplar for future complex graphics teaching.
 
@@ -4065,3 +4078,19 @@ construct mask target with Src
 ```
 
 The per-position multiplication belongs specifically to `DstIn`: pattern premultiplied RGBA is multiplied by mask alpha at the same coordinate. The final navy mixture belongs to the later source-over operation. The lesson also labels every checkerboard as a visualization of transparency rather than stored pixel content. This clarification does not change the masking algorithm or learner-confirmed completion count.
+
+
+## Lesson 4.9 — Soft edges and antialiasing
+
+- Lesson 4.8 is learner-confirmed complete. Progress is 36 of 216.
+- Lesson 4.9 is generated and is the current unresolved checkpoint.
+- It starts from the completed mask-alpha model and introduces geometric coverage at one pixel-sized area.
+- Teaching order: mathematical boundary → pixel grid → selected area → coverage estimate → edge alpha → straight/premultiplied representation → source-over navy.
+- The browser and Android teaching grids use fixed sub-cell sample patterns only to expose the calculation. They do not claim the Android renderer uses the same internal method.
+- Changed Android files: `Chapter04Screen.kt` and new `SoftEdgesAntialiasingExplorer.kt`, with complete-screen and direct-child previews in light and dark modes.
+- Next after explicit completion: Lesson 4.10 — Transform origin.
+
+
+## Lesson 4.9 clarification — coverage quality, arbitrary boundaries, and finite samples
+
+The lesson now explicitly proves that partial alpha is useful because it carries sub-pixel geometric coverage, not because lower alpha is aesthetically preferable. It adds a visual hard-edge versus coverage-aware comparison, an interactive line/curve/wave/thin-feature estimator, a high-density reference comparison, and a deliberate finite-sampling miss. The same coverage contract applies to arbitrary vector boundaries, while the fixed teaching grid remains an explanatory estimator rather than a claim about Android, Skia, or GPU internals.

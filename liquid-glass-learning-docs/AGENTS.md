@@ -356,3 +356,40 @@ Lesson 4.8 exposed a reusable ambiguity: one blend mode can construct a temporar
 3. For the Lesson 4.8 mask, `BlendMode.Src` constructs the mask image by replacing every full-bounds position with transparent RGBA. `BlendMode.DstIn` runs later at restore and performs the per-position multiplication `pattern premultiplied RGBA × mask alpha`.
 4. Treat the later source-over of the masked pattern over navy as a separate per-position operation. Do not describe its arithmetic as part of `DstIn`.
 5. Label checkerboards as teaching visualizations of transparency. A checkerboard is not stored pixel content unless the program explicitly draws one.
+
+
+### Boundary-to-pixel coverage gate — Lesson 4.9
+
+1. Separate the mathematical boundary, pixel grid, and rendered transition pixels before using the word antialiasing.
+2. Show one selected pixel-sized area and the exact geometry evidence that produces its coverage value.
+3. State that coverage is a visibility restriction. Trace `shape alpha × coverage` before source-over.
+4. Do not describe antialiasing as copying or blurring neighboring colors. Blur is a different image operation.
+5. When a teaching sample grid estimates coverage, label it as an explanatory model and do not claim the renderer uses the same sample count or algorithm.
+6. Show opaque and translucent shape cases, plus straight and premultiplied representations, using the same selected position.
+7. Reuse the Lesson 4.8 gold-standard sequence: actual objects first, complete intermediate images, value provenance, then prose interpretation.
+
+
+### Finite sampling and arbitrary-boundary clarification — Lesson 4.9
+
+The learner correctly asked whether partial alpha alone makes an edge appealing and whether a fixed sample grid can cover arbitrary curves or waves. Future rasterization lessons must preserve these distinctions:
+
+1. Do not imply that arbitrary lower alpha is visually beneficial. State that the alpha is useful only when it encodes the estimated geometric coverage of that exact output position.
+2. Show the causal reason for visual smoothness: intermediate coverage values encode where a continuous boundary passes between discrete pixel centers.
+3. State that the same local coverage contract applies to lines, circles, Bézier curves, waves, text glyphs, and arbitrary paths.
+4. Separate the conceptual coverage contract from the renderer implementation. A teaching sub-sample grid is one estimator, not proof of Android's internal algorithm or sample count.
+5. Show a finite-sampling failure case. A thin feature can pass between every selected sample position and receive an estimated coverage of zero even when true geometric coverage is non-zero.
+6. Explain the tradeoff: more samples usually improve the estimate but cost more work. Name possible alternatives such as analytic coverage, multisample antialiasing, distance-based methods, or renderer-specific hybrids without claiming which one Android used unless verified.
+7. Keep antialiasing separate from blur. Coverage uses geometry at the current output position; blur reads neighboring image positions.
+
+### Point-sample visualization and thin-band gate — Lesson 4.9
+
+This rule was added after the learner could see sample markers touching the orange thin feature while some markers still appeared to count as outside.
+
+1. **Separate the marker drawing from the sampled coordinate.** A visible circle used to make a sample easy to see is not the sample's geometric area. Draw or label the exact center pin that the algorithm tests.
+2. **Show the represented area.** When one center sample stands for an equal-area subcell, draw the subcell boundary. State that the center casts one inside-or-outside vote for that complete subcell.
+3. **Do not say that points split the pixel exactly.** Center samples are probes. They estimate area by votes; they do not cut the shape at its true boundaries.
+4. **Distinguish one-boundary and two-boundary shapes.** A line, curve, or wave may divide the pixel into two sides. A thin band has two boundaries. Only the strip between them is inside; positions on both outer sides are outside.
+5. **Show two different finite-sampling failures.** Include both a complete miss, where a narrow feature crosses subcells but misses every center, and a detected-but-inexact case, where some center samples are inside yet the hit fraction differs from the true covered area.
+6. **Show one mitigation that does not merely add samples.** For a straight edge, visualize direct edge-to-pixel intersection and covered-area calculation. Define this as analytic coverage: geometry is measured directly instead of estimated from point votes.
+7. **Keep implementation depth proportional to the course goal.** State that Android's renderer owns rasterization. Teach only the result contract needed for Liquid Glass unless later custom shader work requires more detail.
+

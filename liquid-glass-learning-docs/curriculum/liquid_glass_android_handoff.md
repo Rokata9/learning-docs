@@ -1,8 +1,8 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 4.8.6  
-**Updated:** 2026-08-03  
-**Current position:** Lessons 1.1 through 4.7 are complete by learner confirmation. **35 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.8 is generated and is both the next unresolved checkpoint and the generated frontier.
+**Course plan version:** 4.9.2  
+**Updated:** 2026-08-05  
+**Current position:** Lessons 1.1 through 4.8 are complete by learner confirmation. **36 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.9 is generated and is both the next unresolved checkpoint and the generated frontier.
 
 ## Permanent course rules
 
@@ -1984,7 +1984,7 @@ Lesson 4.7 is complete only when:
 After completion:
 
 ```text
-Course progress becomes 35 of 216.
+Course progress becomes 36 of 216.
 Next lesson becomes 4.8 — Masks.
 ```
 
@@ -1993,7 +1993,7 @@ Next lesson becomes 4.8 — Masks.
 
 ## Latest authoritative clarification — Lesson 4.8 operands, alpha masks, two stages, and explicit layers
 
-Lesson 4.8 remains generated and incomplete. Learner-confirmed progress remains **35 of 216**. This section supersedes earlier terminology that used `candidate content` and `effective source alpha` before their exact roles were clear.
+Lesson 4.8 remains generated and incomplete. Learner-confirmed progress remains **36 of 216**. This section supersedes earlier terminology that used `candidate content` and `effective source alpha` before their exact roles were clear.
 
 ### Three stable scene objects
 
@@ -2293,7 +2293,7 @@ Next lesson becomes 4.9 — Soft edges and antialiasing.
 
 ## Earlier clarification — Lesson 4.8 spatial mask model (implementation details superseded below)
 
-Lesson 4.8 remains generated and incomplete. Learner-confirmed progress remains **35 of 216**.
+Lesson 4.8 remains generated and incomplete. Learner-confirmed progress remains **36 of 216**.
 
 The learner understood the numeric field but asked whether a mask is mainly used to cut content to a shape or keep an animation inside a shape. That question exposed a reusable defect: the original lesson led with four mask values and source-over arithmetic, so the multiplication mechanism overshadowed the spatial purpose.
 
@@ -2396,7 +2396,7 @@ next_after_completion: "Lesson 4.9 — Soft edges and antialiasing"
 
 ## Latest authoritative implementation correction — Lesson 4.8 full-bounds mask source
 
-Lesson 4.8 remains generated and incomplete. Learner-confirmed progress remains **35 of 216**.
+Lesson 4.8 remains generated and incomplete. Learner-confirmed progress remains **36 of 216**.
 
 This section supersedes the shape-only `DstIn` implementation described in the preceding Lesson 4.8 clarification.
 
@@ -2547,7 +2547,7 @@ next_after_completion: "Lesson 4.9 — Soft edges and antialiasing"
 
 ## Latest authoritative Lesson 4.8 rewrite — one core path and two explicit saveLayer targets
 
-**Status:** Lesson 4.8 remains incomplete. Learner-confirmed progress remains **35 of 216**.
+**Status:** Lesson 4.8 remains incomplete. Learner-confirmed progress remains **36 of 216**.
 
 This section supersedes every earlier Lesson 4.8 explanation that retained `graphicsLayer(Offscreen)`, the four-zone direct-alpha microscope, or a required checkpoint around `SrcIn`, luminance masks, premultiplied storage, and overlapping-draw shortcuts.
 
@@ -2719,7 +2719,7 @@ next_after_completion: "Lesson 4.9 — Soft edges and antialiasing"
 
 ## Latest authoritative Lesson 4.8 visual-first rewrite — intermediate images, pixel microscope, and isolation comparison
 
-**Status:** Lesson 4.8 remains incomplete. Learner-confirmed progress remains **35 of 216**. This section supersedes the earlier Lesson 4.8 layer rewrite.
+**Status:** Lesson 4.8 remains incomplete. Learner-confirmed progress remains **36 of 216**. This section supersedes the earlier Lesson 4.8 layer rewrite.
 
 ### Feedback that triggered the rewrite
 
@@ -2886,7 +2886,7 @@ next_after_completion: "Lesson 4.9 — Soft edges and antialiasing"
 ## Latest learner evaluation — Lesson 4.8 is the canonical positive exemplar
 
 **Date:** 2026-08-03  
-**Completion effect:** none. Learner-confirmed progress remains **35 of 216**.
+**Completion effect:** none. Learner-confirmed progress remains **36 of 216**.
 
 The learner explicitly described the final visual-first Lesson 4.8 edit as **“world-class explanation level.”** This is the strongest positive quality signal recorded for the course so far. The exact state is now a canonical exemplar rather than merely the latest repair.
 
@@ -2958,3 +2958,51 @@ construct mask target with Src
 ```
 
 The per-position multiplication belongs specifically to `DstIn`: pattern premultiplied RGBA is multiplied by mask alpha at the same coordinate. The final navy mixture belongs to the later source-over operation. The lesson also labels every checkerboard as a visualization of transparency rather than stored pixel content. This clarification does not change the masking algorithm or learner-confirmed completion count.
+
+
+## Lesson 4.9 — Soft edges and antialiasing
+
+- Lesson 4.8 is learner-confirmed complete. Progress is 36 of 216.
+- Lesson 4.9 is generated and is the current unresolved checkpoint.
+- It starts from the completed mask-alpha model and introduces geometric coverage at one pixel-sized area.
+- Teaching order: mathematical boundary → pixel grid → selected area → coverage estimate → edge alpha → straight/premultiplied representation → source-over navy.
+- The browser and Android teaching grids use fixed sub-cell sample patterns only to expose the calculation. They do not claim the Android renderer uses the same internal method.
+- Changed Android files: `Chapter04Screen.kt` and new `SoftEdgesAntialiasingExplorer.kt`, with complete-screen and direct-child previews in light and dark modes.
+- Next after explicit completion: Lesson 4.10 — Transform origin.
+
+
+## Lesson 4.9 clarification — coverage quality, arbitrary boundaries, and finite samples
+
+The lesson now explicitly proves that partial alpha is useful because it carries sub-pixel geometric coverage, not because lower alpha is aesthetically preferable. It adds a visual hard-edge versus coverage-aware comparison, an interactive line/curve/wave/thin-feature estimator, a high-density reference comparison, and a deliberate finite-sampling miss. The same coverage contract applies to arbitrary vector boundaries, while the fixed teaching grid remains an explanatory estimator rather than a claim about Android, Skia, or GPU internals.
+
+## Lesson 4.9 clarification — center probes do not split the pixel
+
+The learner asked why the thin feature did not divide the complete pixel area and why some sample-marker circles appeared to touch orange while remaining outside.
+
+The corrected model now distinguishes these objects:
+
+```text
+thin band
+= one narrow shape between a top boundary and a bottom boundary
+
+sample subcell
+= one equal-area region represented by one center probe
+
+center probe
+= the exact coordinate tested as inside or outside
+
+visible marker ring
+= enlarged teaching decoration; it has no area in the calculation
+```
+
+The finite-sampling interaction now draws the subcell grid and a separate center pin. The thin band uses two visible orange boundaries rather than one ambiguous blue centerline.
+
+Two graphics expose distinct limitations:
+
+1. A 5% thin band crosses several subcells but misses every 4 × 4 center probe, producing a zero estimate.
+2. A straight edge covers exactly 40% of a pixel, while a 2 × 2 center pattern detects partial coverage but reports 2/4 = 50%.
+
+The lesson then shows one non-sampling mitigation. **Analytic coverage** means calculating the edge intersections and enclosed area directly from geometry. For the straight-edge example, the left and right covered heights are 65% and 15%, so the average covered height is 40%. No additional center samples are introduced.
+
+This clarification intentionally stops at the level needed for the Liquid Glass target. Compose code supplies geometry such as a `Path`; Android's renderer owns the rasterization algorithm. No Android source changed. Lesson 4.9 remains the unresolved checkpoint, and progress remains 36 of 216.
+
