@@ -1,23 +1,23 @@
 # Liquid Glass Android course — current state
 
-**Authoritative learner-confirmed progress:** 36 of 216 lessons completed.
+**Authoritative learner-confirmed progress:** 37 of 216 lessons completed.
 
 ## Completed
 
 - Chapters 1, 2, and 3 are complete.
-- Lessons 4.1 through 4.8 are complete.
-- The latest completed lesson is **4.8 — Masks**.
+- Lessons 4.1 through 4.9 are complete.
+- The latest completed lesson is **4.9 — Soft edges and antialiasing**.
 
 ## Not completed
 
-- **Lesson 4.9 — Soft edges and antialiasing** is generated and remains the current learner checkpoint.
-- Chapter 4 remains in progress. Lessons 4.9 through 4.11 are not complete.
+- **Lesson 4.10 — Transform origin** is generated and remains the current learner checkpoint.
+- Chapter 4 remains in progress. Lessons 4.10 and 4.11 are not complete.
 
 ## Course pointers
 
-- **Next unresolved learner checkpoint:** Lesson 4.9.
-- **Generated frontier:** Lesson 4.9.
-- **Next planned lesson after explicit Lesson 4.9 completion:** Lesson 4.10 — Transform origin.
+- **Next unresolved learner checkpoint:** Lesson 4.10.
+- **Generated frontier:** Lesson 4.10.
+- **Next planned lesson after explicit Lesson 4.10 completion:** Lesson 4.11 — Shape laboratory.
 
 ## Latest authoritative Lesson 4.8 rewrite — visual layer movie and per-position algorithm
 
@@ -378,3 +378,30 @@ For projection explanations, separate: (1) choosing the measurement axis, (2) de
 ## Lesson 4.9 layout clarification
 
 The 9 × 6 overview is now a compact live orientation diagram. The full signed-distance walkthrough remains below the scale cards and the chosen-versus-derived value panels. Geometry and walkthrough controls live in a click-only overlay drawer opened by a small icon. The drawer closes through ×, Escape, or an outside click. No Android source changed.
+
+
+## Lesson 4.9 completion and canonical 14-step explanation standard
+
+The learner completed Lesson 4.9 after the corrected 14-step walkthrough made every previously untaught concept explicit. This state is now a positive course exemplar for difficult geometry and rendering explanations.
+
+The reusable target is not a mechanical requirement to always create exactly fourteen steps. The target is the same causal completeness:
+
+```text
+visible object before symbol
+→ define the question before the formula
+→ one new operation per step
+→ exact input and intermediate result
+→ the main diagram changes with the explanation
+→ code and diagram use the same names and order
+→ no untaught concept is compressed into one expert sentence
+```
+
+Lesson 4.9 also now has previous/next controls in the top-right of the walkthrough diagram. They update the same `coveragePathStep` state as the drawer, so diagram controls, numbered drawer steps, Back, Next, formulas, and SVG evidence remain synchronized.
+
+Learner-confirmed progress is **37 of 216**.
+
+## Lesson 4.10 generated — Transform origin
+
+Lesson 4.10 keeps one measured rectangle and introduces one new geometry choice: the local pivot that remains fixed while rotation and scale transform the drawing. The browser and Android experiments trace origin fractions through measured width and height into pivot coordinates, then follow one top-right point through `subtract pivot → scale → rotate → add pivot`.
+
+The Android implementation uses `TransformOrigin`, `Modifier.graphicsLayer`, `rotationZ`, `scaleX`, and `scaleY`. It also measures the card with `onSizeChanged` to show that the runtime layout size remains unchanged while the drawing transforms. Lesson 4.10 is generated but not learner-complete.

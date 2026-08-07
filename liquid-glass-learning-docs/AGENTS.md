@@ -474,3 +474,16 @@ For projection explanations, separate: (1) choosing the measurement axis, (2) de
 - Preserve the learner-facing order: compact overview, scale explanation, chosen/derived value panels, then the detailed walkthrough.
 - An overlay control drawer must open only after an explicit click. Do not use edge-hover or pointer-proximity activation.
 - Use a normal compact icon button as the launcher. Provide an explicit close button, outside-click dismissal, and Escape dismissal. The drawer may overlay the diagram but must never reserve or change diagram width.
+
+
+### Canonical detailed-stepper success pattern — Lesson 4.9
+
+The learner explicitly confirmed that the completed Lesson 4.9 fourteen-step walkthrough reached the required explanation depth. Treat that state as the positive target when later lessons rely on concepts the learner has not met.
+
+1. **Do not optimize for a small step count.** Use as many steps as needed to keep one new object, operation, or inference per state. Fourteen was correct for Lesson 4.9 because the concept chain required fourteen learner-visible transitions. Another lesson may need fewer or more.
+2. **Define the result before calculating it.** The learner must know the exact object or number the upcoming operations are trying to produce.
+3. **Explain untaught helper concepts in their own steps.** Terms such as normal, projection, coordinate on a rotated axis, conversion rate, signed distance, or transform origin cannot be embedded as parenthetical definitions inside a later formula.
+4. **Make every step alter visible evidence.** The main diagram, value path, or code excerpt must visibly change when the explanation introduces another intermediate.
+5. **Keep controls synchronized.** When a walkthrough has controls both in an overlay drawer and on the diagram, every control surface must read and write one shared step state. Disabling, current-step labels, formulas, and diagrams must update together.
+6. **Provide diagram-local navigation.** A long proof diagram must expose previous/next controls without requiring the explanation drawer to remain open.
+7. **Use the Lesson 4.9 completed 14-step state as the QA reference.** A later difficult lesson fails the total-beginner audit when it compresses a concept that Lesson 4.9 would have given its own visual step.

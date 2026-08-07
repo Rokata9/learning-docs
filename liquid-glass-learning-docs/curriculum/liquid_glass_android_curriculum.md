@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 4.9.8  
-**Updated:** 2026-08-06  
-**Current course position:** Lessons 1.1 through 4.8 are complete by learner confirmation. **36 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.9 is generated and is both the next unresolved checkpoint and the generated frontier.  
+**Version:** 4.10.0  
+**Updated:** 2026-08-07  
+**Current course position:** Lessons 1.1 through 4.9 are complete by learner confirmation. **37 of 216 lessons are complete.** Lesson 4.10 is the next unresolved checkpoint and the generated frontier.
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -10,8 +10,18 @@
 
 ---
 
-## 1. What changed through version 4.9.8
+## 1. What changed through version 4.10.0
 
+
+
+Version 4.10.0 records learner completion of Lesson 4.9 and generates Lesson 4.10:
+
+- The completed Lesson 4.9 fourteen-step walkthrough is the canonical detail target for explanations that depend on concepts the learner has not met. The reusable standard is one visible object or operation per step, not a mandatory fixed count.
+- Lesson 4.9 adds diagram-local previous/next buttons synchronized with the drawer's step state.
+- Lesson 4.10 introduces transform origin as the local stationary pivot for rotation and scaling.
+- The browser lesson converts normalized origin fractions into local pivot coordinates and traces one point through pivot-relative scale and rotation.
+- The Android explorer uses `TransformOrigin` and `graphicsLayer`, measures runtime px size, and demonstrates that draw transforms do not remeasure layout.
+- Learner-confirmed completion is now 37 of 216. Lesson 4.10 remains incomplete.
 
 Version 4.9.8 replaces the misleading `H` projection in Lesson 4.9. The lesson now defines `Q` and `P normal coordinate` before any component multiplication, explains why `Delta = P - C` is required when the new axis uses C as zero, derives horizontal and vertical projection rates with one-unit diagrams, accumulates both signed changes on one coordinate ruler, and only then names the result a dot product. The Android explorer mirrors that order and adds a normal-coordinate accumulator Canvas.
 

@@ -1,8 +1,8 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 4.9.8  
-**Updated:** 2026-08-06  
-**Current position:** Lessons 1.1 through 4.8 are complete by learner confirmation. **36 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.9 is generated and is both the next unresolved checkpoint and the generated frontier.
+**Course plan version:** 4.10.0  
+**Updated:** 2026-08-07  
+**Current position:** Lessons 1.1 through 4.9 are complete by learner confirmation. **37 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.10 is generated and is both the next unresolved checkpoint and the generated frontier.
 
 ## Permanent course rules
 
@@ -3165,3 +3165,23 @@ For projection explanations, separate: (1) choosing the measurement axis, (2) de
 ## Lesson 4.9 compact-overview and drawer interaction update
 
 Learner feedback showed that the 9 × 6 overview had been enlarged beyond its information density and that hover-activated controls were intrusive. The corrected browser lesson keeps the overview compact, preserves the order overview → scale cards → chosen/derived values → detailed walkthrough, and uses a click-only overlay drawer with a small icon launcher, ×, outside-click, and Escape dismissal. No Android file changed. Lesson 4.9 remains pending.
+
+
+## Lesson 4.9 completion — canonical fourteen-step standard
+
+The learner confirmed Lesson 4.9 complete after the fourteen-step walkthrough finally explained every unmet concept at the required depth. Record this as a positive standard, not merely as a history of corrections.
+
+The reusable success pattern is causal completeness rather than the literal number fourteen. A difficult future lesson should use enough states to provide: visible object, plain definition, one operation, intermediate output, exact arithmetic, synchronized code, and changed diagram evidence. Do not compress an untaught concept to keep the stepper short.
+
+The completed Lesson 4.9 walkthrough now exposes previous/next buttons in the diagram itself. Those buttons and all drawer controls update the same step state.
+
+## Lesson 4.10 — Transform origin
+
+- Starts from one measured rectangular card and its local bounds.
+- Defines transform, pivot/transform origin, origin fractions, and tracked point before formulas.
+- Converts fractions into local pivot coordinates with `pivotX = width × fractionX` and `pivotY = height × fractionY`.
+- Traces the top-right point through `P − O`, scale, rotation, and `+ O`.
+- Compares top-left, center, left-center, and custom pivots under the same transform.
+- States that `graphicsLayer` transforms drawing without changing measured size or placement.
+- Android files: `Chapter04Screen.kt` and new `TransformOriginExplorer.kt`, with complete-screen and direct-child previews in light and dark modes.
+- Lesson 4.10 is generated and remains learner-incomplete.
