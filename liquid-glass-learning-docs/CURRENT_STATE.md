@@ -199,7 +199,7 @@ Checkerboards in the lesson are labelled as transparency visualizations, not sto
 
 Lesson 4.8 is learner-confirmed complete. The gold-standard visual-first state remains the canonical exemplar. Lesson 4.9 starts from the completed per-position mask-alpha model and introduces geometric coverage: the fraction of one pixel-sized area occupied by the shape in the controlled teaching model.
 
-The lesson separates the mathematical boundary, pixel grid, and rendered transition band. It shows complete intermediate images, an interactive coverage grid, parallel opaque/translucent and straight/premultiplied cases, and the exact order `geometry → coverage → edge alpha → source-over destination`. The browser uses a labelled 20×20 teaching-sample estimate; it does not claim Android uses that implementation internally.
+The lesson separates the mathematical boundary, pixel grid, and rendered transition band. It shows complete intermediate images, an interactive coverage grid, parallel opaque/translucent and straight/premultiplied cases, and the exact order `geometry → coverage → edge alpha → source-over destination`. The browser and Android explorer now use the same labelled 12×12 teaching-sample estimate for the main microscope; neither artifact claims Android uses that implementation internally.
 
 
 ## Lesson 4.9 clarification — why coverage works and finite sampling limits
@@ -209,7 +209,7 @@ Learner review confirmed the main lesson was clear and requested that the follow
 - lower alpha is not inherently attractive; the useful alpha encodes the geometric coverage of the exact boundary position;
 - intermediate coverage values help the discrete pixel grid approximate a continuous line or curve;
 - the same local coverage contract applies to lines, curves, waves, text, and arbitrary paths;
-- the 20 × 20 browser grid and 12 × 12 Android grid are explanatory estimators, not claims about Android's internal sample count;
+- the browser and Android main microscopes use the same 12 × 12 explanatory estimator; this is not a claim about Android's internal sample count;
 - finite sampling can miss a thin feature between all selected sample locations;
 - real renderers may use analytic, multisample, distance-based, or hybrid methods;
 - antialiasing coverage remains distinct from neighboring-pixel blur.
@@ -237,3 +237,144 @@ Lesson 4.9 now:
 
 No Android source changed in this clarification. Lesson 4.9 remains incomplete pending learner review. Progress remains **36 of 216**.
 
+
+
+## Lesson 4.9 clarification — signed distance and the coverage estimate
+
+The learner asked for the exact logic behind `estimateCoverage`, especially the former `signedSide` expression. The lesson and Android source now expose the complete chain:
+
+```text
+subcell index
+→ center-probe coordinate
+→ movement from reference C = (4.5, 3.5)
+→ projection along a unit normal arrow
+→ subtract boundary offset
+→ signed distance from the shifted boundary
+→ inside/outside vote
+→ inside votes ÷ 144 equal-area probes
+→ coverage estimate
+```
+
+The angle control is now named **Boundary normal angle**. The normal is perpendicular to the visible boundary. The shallow and steep presets were corrected to match the visible boundary slope.
+
+The vague code variable `signedSide` is replaced by `signedDistanceFromBoundary`. The HTML shows the reference point, unshifted and shifted boundaries, normal arrow, selected probe, closest boundary point, exact X/Y contributions, one inside result, one outside result, and the current `insideCount / 144` calculation. The main browser microscope now uses 12×12 probes, matching the Android explorer. Lesson 4.9 remains unresolved and progress remains 36 of 216.
+
+
+
+## Lesson 4.9 replacement — visual-first signed distance and coverage path
+
+The preceding signed-distance clarification is rejected as an expert-first explanation. It presented correct formulas but did not first establish the nested spatial scales or derive its symbols and angles.
+
+The replacement now uses this exact sequence:
+
+```text
+9 × 6 complete toy output image
+→ select output pixel (4, 3)
+→ derive its bounds and center C = (4.5, 3.5)
+→ divide that one pixel into 12 × 12 = 144 equal-area teaching subcells
+→ choose one subcell-center probe P
+→ start from the visible pink boundary tilt 52°
+→ derive the perpendicular blue normal angle 38°
+→ build Δ = P − C
+→ project Δ onto the one-dimensional normal ruler
+→ subtract the boundary shift
+→ read negative / zero / positive on that ruler
+→ repeat the same test for all 144 probes
+→ coverage estimate = insideProbeCount ÷ 144
+```
+
+The lesson explicitly states that 9 × 6 and 12 × 12 are different levels. The former is the whole 54-pixel teaching image. The latter exists inside one output pixel. The course anchor `C` is no longer described as an arbitrary fixed reference; it is derived from the bounds of course pixel `(4, 3)`. The visible boundary angle is controlled, while the perpendicular normal angle is derived. Projection is shown graphically before the dot-product formula, and the sign is shown on a magnified normal-axis ruler.
+
+`SoftEdgesAntialiasingExplorer.kt` now uses the same names and order. Its comments explain the scope of the 144 probes, the angle derivation, `C`, `P`, `Delta`, the two normal contributions, the projection, boundary subtraction, sign convention, and final vote count.
+
+Lesson 4.9 remains learner-incomplete. Learner-confirmed progress remains **36 of 216**.
+
+## Lesson 4.9 replacement — complete vector-component and signed-distance derivation
+
+The preceding visual signed-distance replacement is also rejected as incomplete. It improved the object order but still left the essential vector arithmetic unexplained. In particular, it did not derive why the unit normal has components `cos 38°` and `sin 38°`, why horizontal and vertical movement are multiplied by those components, why the two results are added, where `0.1200` comes from, or what metric the phrase `nearest inside probe` used.
+
+The current replacement uses ten linked visual states:
+
+```text
+1. Separate the 9 × 6 output image, one selected output pixel, and its 12 × 12 probe grid.
+2. Choose one probe P and state exactly why that probe was selected.
+3. Show the learner-controlled pink boundary tilt of 52°.
+4. Derive the perpendicular 38° unit normal with a visible right triangle.
+5. Show 0.1200 as the controlled C → B distance and calculate B = C + 0.1200 × n.
+6. Decompose C → P into horizontal C → H and vertical H → P movement.
+7. Convert the horizontal move into a change on the blue normal ruler.
+8. Convert the vertical move, add the two ruler changes, and only then name projection / dot product.
+9. Put probe coordinate Q and boundary coordinate B on the same ruler; subtract and interpret the sign.
+10. Repeat the same vote for all 144 probes and calculate 94 ÷ 144 = 0.6528.
+```
+
+The unit normal now has an explicit geometric derivation:
+
+```text
+pink boundary tilt = 52°                  chosen input
+normal tilt = 90° − 52° = 38°            derived
+unit normal length = 1
+normalX = cos 38° = 0.7880                horizontal leg of unit triangle
+normalY = sin 38° = 0.6157                downward vertical leg
+```
+
+The projection formula is no longer presented as a definition. The lesson first proves that a one-unit horizontal move advances `normalX` units on the normal ruler, and a one-unit vertical move advances `normalY` units. A movement of `deltaX` and `deltaY` therefore changes that same ruler by `deltaX × normalX` and `deltaY × normalY`. The two changes add because `C → P` is those two consecutive moves measured on one ruler. The mathematical name is introduced afterward.
+
+The boundary input is now visible before its formula:
+
+```text
+d = 0.1200 logical grid units             chosen by the C → boundary slider
+B = C + d × n                              boundary point on the normal through C
+probe ruler coordinate Q = 0.1180
+boundary ruler coordinate B = 0.1200
+signed distance = Q − B = −0.0020
+```
+
+The helper controls now say `closest to the boundary on the orange/blue side`. The metric is smallest absolute signed distance to the pink boundary, not distance to C. The main selected-pixel graphic and the focus panels reuse the same named points `C`, `P`, `B`, `H`, `Q`, and `F`. A tiny real `P → F` distance is marked at full scale and magnified separately rather than being enlarged silently.
+
+`SoftEdgesAntialiasingExplorer.kt` follows the same causal order in its UI, diagrams, helper names, and comments. Lesson 4.9 remains learner-incomplete. Learner-confirmed progress remains **36 of 216**.
+
+
+
+## Lesson 4.9 targeted correction — P normal coordinate and visible point geometry
+
+The learner understood Step 6 but identified the missing bridge in Steps 7–9. The lesson calculated a value named `P normal coordinate` without defining it as a coordinate on a visible axis. The point legend also disagreed with the SVG: H and Q were circles instead of the advertised square and diamond, F was calculated but not rendered, and the focus panel claimed to contain points it did not show.
+
+The corrected authoritative Lesson 4.9 state now defines `P normal coordinate` as the signed coordinate of Q on the blue normal axis through C, with C assigned coordinate zero. Step 7 visibly maps H parallel to the pink boundary onto that axis. Step 8 adds the vertical contribution, places Q as a green diamond, and proves that P→Q is parallel to the pink boundary because P−Q has zero normal component. Step 9 shows C, Q, and B on the same axis, renders F as an open red circle on the boundary, and connects the equal gaps `|P→F| = |Q→B|`.
+
+The point-shape contract is now exact: C/P/B are filled circles, H is a square, Q is a diamond, and F is an open circle. Focus panels name only the points they actually render. `SoftEdgesAntialiasingExplorer.kt` uses the same definitions, shapes, lines, and comments. Lesson 4.9 remains learner-incomplete. Progress remains **36 of 216**.
+
+
+## Lesson 4.9 targeted correction — define Q before projection and remove the H projection
+
+The learner identified that the previous Steps 7–8 changed arithmetic without first explaining what quantity the projection was intended to produce. The dashed `H → normal axis` construction is rejected and removed. `H` remains only as a visual waypoint for `deltaX` and `deltaY`.
+
+The authoritative walkthrough now uses this order:
+
+```text
+define Q geometrically
+→ define P normal coordinate as signed C → Q coordinate
+→ explain why the new axis requires Delta = P − C
+→ show one-unit horizontal and vertical projection rates
+→ scale them by deltaX and deltaY
+→ accumulate both signed changes on one normal-coordinate ruler
+→ name the sum the dot product
+→ construct Q = C + t*n and verify (P − Q) dot n = 0
+→ compare Q with boundary point B
+```
+
+A dedicated accumulator diagram now shows `0 → horizontal partial coordinate → Q coordinate`. The Android card and comments use the same order. Lesson 4.9 remains learner-incomplete. Progress remains **36 of 216**.
+
+
+### Lesson 4.9 repair — interaction validation and overlay-drawer rule
+
+The failed Step 8 revision shipped with a JavaScript syntax error. That single error prevented both SVG diagrams from rendering and disabled the walkthrough buttons. It also left Geometry controls in a side column even though the requested layout required full-width diagrams and an overlay drawer.
+
+Reusable rule: after any scripted HTML edit, run JavaScript syntax validation before visual QA. Then execute the actual Back/Next controls in Chromium. A screenshot of the initial page is insufficient. For wide proof diagrams, place geometry controls and walkthrough text in one right-side overlay drawer with explicit tabs; do not reserve horizontal diagram width for controls. The drawer may cover the diagram while open.
+
+For projection explanations, separate: (1) choosing the measurement axis, (2) defining the target coordinate, (3) learning one-unit horizontal and vertical conversion rates, and (4) applying those rates to the actual signed Delta values. “One unit right” is a reference calibration, not a claim that the actual movement goes right.
+
+
+## Lesson 4.9 layout clarification
+
+The 9 × 6 overview is now a compact live orientation diagram. The full signed-distance walkthrough remains below the scale cards and the chosen-versus-derived value panels. Geometry and walkthrough controls live in a click-only overlay drawer opened by a small icon. The drawer closes through ×, Escape, or an outside click. No Android source changed.

@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 4.9.2  
-**Updated:** 2026-08-05  
+**Course plan version:** 4.9.8  
+**Updated:** 2026-08-06  
 **Current position:** Lessons 1.1 through 4.8 are complete by learner confirmation. **36 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.9 is generated and is both the next unresolved checkpoint and the generated frontier.
 
 ## Permanent course rules
@@ -3006,3 +3006,162 @@ The lesson then shows one non-sampling mitigation. **Analytic coverage** means c
 
 This clarification intentionally stops at the level needed for the Liquid Glass target. Compose code supplies geometry such as a `Path`; Android's renderer owns the rasterization algorithm. No Android source changed. Lesson 4.9 remains the unresolved checkpoint, and progress remains 36 of 216.
 
+
+
+## Lesson 4.9 clarification — `signedDistanceFromBoundary` and exact vote arithmetic
+
+The learner asked how the coverage estimate and former `signedSide` formula work. The revised lesson now treats this as a visible geometry trace rather than an unexplained predicate.
+
+The main estimator uses 12×12 equal-area subcells in both HTML and Android. One probe is placed at each subcell center. For every probe:
+
+```text
+normal = (cos(normal angle), sin(normal angle))
+delta = probe − reference C
+projection along normal = normalX × deltaX + normalY × deltaY
+signed distance from shifted boundary = projection − offset
+```
+
+The course convention is `signed distance ≤ 0 → inside` and `> 0 → outside`. Every equal-area probe has one equal vote, so `coverage estimate = insideCount / 144`. The value is an estimate because each center probe stands for its complete subcell.
+
+The UI now says **Boundary normal angle**. The normal arrow is perpendicular to the visible line. Shallow and steep presets were corrected. The Kotlin variable is renamed from `signedSide` to `signedDistanceFromBoundary`, and detailed comments explain sample-coordinate construction, the reference point, normal projection, offset, sign, and final vote division. Lesson 4.9 remains incomplete; progress remains 36 of 216.
+
+
+
+## Lesson 4.9 replacement — visual-first signed distance and coverage path
+
+The preceding signed-distance clarification is rejected as an expert-first explanation. It presented correct formulas but did not first establish the nested spatial scales or derive its symbols and angles.
+
+The replacement now uses this exact sequence:
+
+```text
+9 × 6 complete toy output image
+→ select output pixel (4, 3)
+→ derive its bounds and center C = (4.5, 3.5)
+→ divide that one pixel into 12 × 12 = 144 equal-area teaching subcells
+→ choose one subcell-center probe P
+→ start from the visible pink boundary tilt 52°
+→ derive the perpendicular blue normal angle 38°
+→ build Δ = P − C
+→ project Δ onto the one-dimensional normal ruler
+→ subtract the boundary shift
+→ read negative / zero / positive on that ruler
+→ repeat the same test for all 144 probes
+→ coverage estimate = insideProbeCount ÷ 144
+```
+
+The lesson explicitly states that 9 × 6 and 12 × 12 are different levels. The former is the whole 54-pixel teaching image. The latter exists inside one output pixel. The course anchor `C` is no longer described as an arbitrary fixed reference; it is derived from the bounds of course pixel `(4, 3)`. The visible boundary angle is controlled, while the perpendicular normal angle is derived. Projection is shown graphically before the dot-product formula, and the sign is shown on a magnified normal-axis ruler.
+
+`SoftEdgesAntialiasingExplorer.kt` now uses the same names and order. Its comments explain the scope of the 144 probes, the angle derivation, `C`, `P`, `Delta`, the two normal contributions, the projection, boundary subtraction, sign convention, and final vote count.
+
+Lesson 4.9 remains learner-incomplete. Learner-confirmed progress remains **36 of 216**.
+
+## Lesson 4.9 replacement — derive every vector operation before naming it
+
+The learner rejected the first visual signed-distance replacement because it still omitted the causal explanation for the vector arithmetic. The new authoritative Lesson 4.9 state fixes these gaps.
+
+### Chosen inputs versus derived values
+
+The lesson now visibly separates these chosen inputs:
+
+```text
+complete toy image = 9 × 6 output pixels
+selected output pixel = column 4, row 3
+teaching probes in that pixel = 12 × 12
+pink boundary tilt = 52°
+C → boundary distance d = 0.1200 logical grid units
+selected probe P = manually clicked, or helper-selected by distance to boundary
+```
+
+from these derived values:
+
+```text
+C and P coordinates
+normal angle and components
+delta C → P
+horizontal and vertical normal-ruler changes
+probe coordinate Q on the normal ruler
+signed distance Q − B
+inside/outside vote
+insideProbeCount ÷ 144
+```
+
+### Complete derivation
+
+The visible pink boundary is tilted `52°` from horizontal. The blue normal is perpendicular, so its acute tilt is `38°`. The lesson draws the normal as the hypotenuse of a right triangle with length `1`:
+
+```text
+normalX = cos 38° = horizontal leg ÷ 1 = 0.7880
+normalY = sin 38° = vertical leg ÷ 1 = 0.6157
+```
+
+For one probe, the movement `C → P` is performed as a horizontal move followed by a vertical move. A one-unit horizontal move changes the coordinate on the normal ruler by `normalX`; therefore `deltaX` units change it by `deltaX × normalX`. The vertical reasoning is identical. Both are changes on one ruler, so they add. Only then is the sum named the scalar projection or dot product.
+
+The boundary slider supplies `d = 0.1200`; the formula does not discover it. The point `B = C + d × n` lies on the pink boundary. For the default orange-side probe:
+
+```text
+probe coordinate Q = 0.1180
+boundary coordinate B = 0.1200
+signed distance = Q − B = −0.0020
+negative → before B along the orange-to-blue normal → orange-side vote
+```
+
+The blue-side helper selects the probe with the smallest positive signed distance. `Closest` always means closest to the boundary by absolute signed distance, never closest to `C`.
+
+The ten-step HTML walkthrough, Android card, geometry canvas, helper names, and comments all use the same points `C`, `P`, `B`, `H`, `Q`, and `F`. Focus panels are synchronized magnifications of the main geometry, not separate examples.
+
+### Reusable prevention rule
+
+`AGENTS.md` now requires a unit right-triangle derivation for `cos`/`sin` components, one-unit-to-arbitrary-move scaling before component multiplication, same-ruler reasoning before addition, a visible named segment for every offset, an explicit metric for every `nearest` label, and synchronized main/focus diagrams.
+
+Lesson 4.9 remains incomplete. Learner-confirmed progress remains **36 of 216**.
+
+
+
+## Lesson 4.9 targeted correction — P normal coordinate and point-shape contract
+
+The learner understood the `C → H → P` decomposition but found that Steps 7–9 did not explain what `P normal coordinate` meant or connect it visibly to P. The lesson also violated its own legend: H was drawn as a circle rather than a square, Q was drawn as a circle rather than a diamond, F was calculated but absent, and the focus heading claimed to show points that were not present.
+
+The corrected state defines:
+
+```text
+P normal coordinate
+= Q's signed coordinate on the blue normal axis through C
+with C assigned coordinate 0
+```
+
+Step 7 maps H parallel to the pink boundary onto the normal axis and shows the horizontal partial coordinate. Step 8 adds the vertical contribution, draws Q as a green diamond, and proves P→Q is parallel to the boundary by showing that P−Q has zero normal component. Step 9 places C, Q, and B on the same axis, constructs F on the pink boundary, and shows `|P→F| = |Q→B|`. The sign of `Q−B` applies to P because P and Q share the same normal coordinate.
+
+The HTML and Compose diagrams now honor one point-shape contract: filled circles C/P/B, square H, diamond Q, and open circle F. A focus panel names only points it actually renders. `Nearest` is explicitly defined as smallest absolute signed distance to the boundary on the selected side, not distance to C.
+
+Lesson 4.9 remains incomplete. Learner-confirmed progress remains **36 of 216**.
+
+
+## Lesson 4.9 correction — goal-first normal coordinate and accumulator
+
+The learner found that projecting `H` onto the normal axis had no stated purpose and that the phrase `Q coordinate from C = horizontal partial coordinate + vertical change` appeared before a usable definition of the quantity. The `H` projection is removed. `H` is now only the visible corner between the horizontal and vertical legs of `Delta = P - C`.
+
+The corrected Steps 6–10 now:
+
+1. define `Q` as the intersection of the normal axis through `C` and the line through `P` parallel to the pink boundary;
+2. define `P normal coordinate` as Q's signed coordinate on that axis, measured from `C = 0`;
+3. explain that `deltaX` and `deltaY` are required because P's ordinary coordinates use a different origin, while the normal coordinate starts at C;
+4. derive the horizontal and vertical terms as signed shadows of one-unit X/Y movement on the normal axis;
+5. use a visible coordinate accumulator: start at `0`, apply the horizontal signed change, then apply the vertical signed change;
+6. name the final sum the dot product only after the accumulation is understood;
+7. construct `Q = C + t*n` and verify `(P - Q) dot n = 0`, proving P→Q is parallel to the boundary.
+
+The HTML includes a dedicated goal diagram, one-unit conversion diagrams, and an accumulator ruler. The Android explorer includes matching prose, comments, and an accumulator Canvas. Lesson 4.9 remains incomplete. Learner-confirmed progress remains **36 of 216**.
+
+
+### Lesson 4.9 repair — interaction validation and overlay-drawer rule
+
+The failed Step 8 revision shipped with a JavaScript syntax error. That single error prevented both SVG diagrams from rendering and disabled the walkthrough buttons. It also left Geometry controls in a side column even though the requested layout required full-width diagrams and an overlay drawer.
+
+Reusable rule: after any scripted HTML edit, run JavaScript syntax validation before visual QA. Then execute the actual Back/Next controls in Chromium. A screenshot of the initial page is insufficient. For wide proof diagrams, place geometry controls and walkthrough text in one right-side overlay drawer with explicit tabs; do not reserve horizontal diagram width for controls. The drawer may cover the diagram while open.
+
+For projection explanations, separate: (1) choosing the measurement axis, (2) defining the target coordinate, (3) learning one-unit horizontal and vertical conversion rates, and (4) applying those rates to the actual signed Delta values. “One unit right” is a reference calibration, not a claim that the actual movement goes right.
+
+
+## Lesson 4.9 compact-overview and drawer interaction update
+
+Learner feedback showed that the 9 × 6 overview had been enlarged beyond its information density and that hover-activated controls were intrusive. The corrected browser lesson keeps the overview compact, preserves the order overview → scale cards → chosen/derived values → detailed walkthrough, and uses a click-only overlay drawer with a small icon launcher, ×, outside-click, and Escape dismissal. No Android file changed. Lesson 4.9 remains pending.

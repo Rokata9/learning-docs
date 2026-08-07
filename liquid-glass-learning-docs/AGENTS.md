@@ -393,3 +393,84 @@ This rule was added after the learner could see sample markers touching the oran
 6. **Show one mitigation that does not merely add samples.** For a straight edge, visualize direct edge-to-pixel intersection and covered-area calculation. Define this as analytic coverage: geometry is measured directly instead of estimated from point votes.
 7. **Keep implementation depth proportional to the course goal.** State that Android's renderer owns rasterization. Teach only the result contract needed for Liquid Glass unless later custom shader work requires more detail.
 
+
+
+### Visual-first signed-distance and nested-grid gate — Lesson 4.9
+
+The first `signedDistanceFromBoundary` revision is rejected. It began with a “normal,” `38°`, `52°`, `C`, `P`, `Δ`, a projection, and a sign before constructing those objects. It also placed a 9 × 6 output grid beside a 12 × 12 probe grid without stating that they described different spatial levels. Correct arithmetic did not compensate for the missing mental model.
+
+Future geometric-predicate explanations must use this order:
+
+1. **Separate every spatial level first.** Draw and name the complete output grid, one selected output pixel, and any temporary subcell/probe grid inside that one pixel. State the count and scope of each level. For the Lesson 4.9 model: `9 × 6 = 54` output pixels; `12 × 12 = 144` teaching probes inside one output pixel; `54 × 144 = 7,776` tests only if the estimator runs for every output pixel.
+2. **Do not introduce symbols before their objects.** Show the selected pixel bounds before naming its center `C`. Show one exact subcell-center probe before naming it `P`. Show the arrow from `C` to `P` before naming it `Δ = P − C`.
+3. **Start from the visible geometry.** Let the learner control or observe the visible boundary angle. Mark it as controlled. Derive the perpendicular normal angle afterward and mark it as derived. For the course state: pink boundary tilt `52°`; blue normal angle `90° − 52° = 38°`.
+4. **Define the normal by its job before its formula.** The normal is the direction that crosses the boundary at a right angle. Movement parallel to the boundary does not change sides. Only after this visual fact is clear may `cos` and `sin` split the one-unit normal arrow into X and Y parts.
+5. **Teach projection visually before the dot product.** Draw the 2D movement `Δ`, the one-dimensional normal ruler, and the perpendicular drop from `Δ` to that ruler. Define projection as the coordinate retained on the crossing ruler. Only then show `normalX × Δx + normalY × Δy` and trace both products.
+6. **Explain signed distance on one ruler.** Put the probe projection and boundary offset on the same normal-axis graphic. Then calculate `signed distance = probe normal coordinate − boundary normal coordinate`. Show the magnified difference when the values are close.
+7. **Make the sign causal.** State the normal arrow direction. With the Lesson 4.9 arrow pointing from orange toward blue: negative means the probe is before the boundary on the orange side; zero means it lies on the boundary; positive means it lies beyond the boundary on the blue side. Reversing the normal would reverse all signs, so the convention is not a universal color law.
+8. **Count only after one vote is understood.** Repeat the same signed test for every probe in the selected output pixel. State exactly how `insideProbeCount` is obtained, where `totalProbeCount = 12 × 12 = 144` comes from, and why equal-area subcells give equal-weight votes.
+9. **Distinguish classification from area.** The signed-distance calculation classifies one point. The later vote fraction estimates area. Neither point classification nor vote counting splits a subcell at the true boundary.
+10. **Use one-new-object-per-step visuals.** The required stepper order is: complete output grid → selected output pixel and center → 144 subcells/probes → one probe → visible boundary angle and perpendicular normal → `Δ` → projection → signed ruler and sign → all-probe count.
+11. **Make code comments follow the identical order.** Kotlin names and comments must say which counts apply to one output pixel, where the anchor comes from, which angle is controlled, which is derived, why the dot product exists, and what each sign means.
+12. **Cold-read requirement.** A beginner must be able to answer “what exact object is this?” for every symbol, angle, coordinate, multiplication, and count by looking at the current or preceding visual state. Hesitation fails the lesson.
+
+### Vector components, scalar projection, and anchored-offset gate — Lesson 4.9
+
+The first visual signed-distance replacement was also rejected. It named a unit normal as `(cos 38°, sin 38°)`, multiplied `deltaX` and `deltaY` by those components, and added the products without deriving why those operations measure movement on one common ruler. It also introduced `0.1200` first as an offset, used `nearest probe` without naming the distance metric, and showed focus graphics whose relationship to the main geometry was not sufficiently explicit.
+
+Future vector-based beginner explanations must satisfy all of these rules:
+
+1. **Derive unit-vector components from one visible right triangle.** Draw the direction arrow with length `1`. Draw its horizontal and vertical legs. State `cos θ = horizontal leg ÷ hypotenuse` and `sin θ = vertical leg ÷ hypotenuse`. Only after substituting hypotenuse `1` may the lesson write `normalX = cos θ` and `normalY = sin θ`.
+2. **Explain component multiplication as a change of scale, not as a memorized vector formula.** Show that a one-unit horizontal move changes the chosen directional ruler by `normalX`. Therefore a `deltaX`-unit move changes it by `deltaX × normalX`. Repeat independently for the vertical move.
+3. **Explain addition before naming the dot product.** Decompose `C → P` into a horizontal move followed by a vertical move. Both moves change the same one-dimensional ruler. Consecutive changes on the same ruler add. Only then introduce `normalX × deltaX + normalY × deltaY` as the scalar projection or dot product.
+4. **Turn every offset into a visible segment between named points.** The Lesson 4.9 value `0.1200` is the learner-controlled distance `C → B` along the unit normal. Point `B = C + 0.1200 × n` lies on the pink boundary. The value must be visible in the controls and diagram before it appears in subtraction.
+5. **Name the metric whenever using `nearest`, `closest`, or `smallest`.** `Closest orange-side probe` means the orange-side probe with the smallest absolute signed distance to the boundary. It does not mean the probe closest to `C`. Show a counterexample when those differ.
+6. **Keep main and focus graphics synchronized.** Every magnified or one-dimensional proof panel must reuse the exact same points, colors, and current values as the main geometry. State which 2D operation produces each point on the focus ruler. A focus panel must never look like an unrelated second example.
+7. **Magnify tiny distances honestly.** If `P → F` is too short to see at the main scale, mark its real location, state its true numeric length, and provide a separately labelled magnified view. Never enlarge the distance silently.
+8. **Use chosen-versus-derived ledgers.** Before the walkthrough, list controlled inputs separately from calculated values. No formula may introduce a number whose source is not already visible.
+9. **Apply the Lesson 4.8 gold-standard audit.** For invisible vector state, each step must show the current objects, one operation, the complete intermediate result, and matching code. Correct formulas and a polished layout do not pass when the causal reason for multiplication or addition remains implicit.
+
+
+
+### Auxiliary normal-coordinate and point-geometry gate — Lesson 4.9
+
+This rule was added after the learner understood the `C → H → P` decomposition but the lesson still failed to define `P normal coordinate` and violated its own point legend.
+
+1. **Define an auxiliary coordinate as a coordinate-system output.** `P normal coordinate` means the signed coordinate of point `Q` on the one-dimensional normal axis through `C`, with `C = 0`. Do not present a projection result as an unexplained scalar.
+2. **Show the spatial point that represents the scalar.** If a formula produces `0.1180`, draw `Q = C + 0.1180 × n` and state that `C → Q` is the corresponding signed normal-axis displacement because `n` has length `1`.
+3. **Prove the link between the original point and its axis representative.** Draw `P → Q`. State that it has zero normal component, so it is perpendicular to the normal and therefore parallel to the boundary. This proves that P and Q share one normal coordinate.
+4. **Compare coordinates only on one named axis.** Put `C`, `Q`, and boundary point `B` on the same normal axis before calculating `Q coordinate − B coordinate`. Explain why the sign classifies P, not merely Q.
+5. **Show the equivalent geometric gap.** Construct closest boundary point `F` and show `|P → F| = |Q → B|`. Magnify tiny gaps honestly and link the inset to the exact main-diagram points.
+6. **Make every step change the evidence.** A step that introduces a new intermediate must add the corresponding point, segment, or ruler position to the main diagram. Arithmetic-only step changes fail.
+7. **Honor the legend exactly.** If H is a square, Q a diamond, and F an open circle, render those shapes in every view. Never advertise absent points or claim a focus panel contains points it does not draw.
+8. **Define selection metrics.** `Nearest orange-side probe` means smallest absolute signed distance to the boundary among orange-side probes, not nearest to C.
+
+
+### Goal-before-projection and one-coordinate accumulator gate — Lesson 4.9
+
+This rule was added after the learner correctly rejected a walkthrough that projected the waypoint `H` onto the normal axis before defining the quantity being calculated. The arithmetic changed while the diagram did not explain the purpose of that change.
+
+1. **Define the desired scalar before calculating it.** Before a projection formula appears, draw the target axis, its origin, and the point that will carry the result. For Lesson 4.9, define `Q` geometrically and define `P normal coordinate` as Q's signed coordinate on the normal axis through `C`, with `C = 0`.
+2. **Do not project pedagogical waypoints.** A waypoint such as `H` may expose `deltaX` and `deltaY`, but it must not gain a second projected copy unless that projected point is itself required by the final model. State explicitly when the waypoint is visual-only.
+3. **Explain why coordinates are subtracted.** If a new axis uses `C` as its origin, explain that absolute `P.x` and `P.y` cannot be consumed directly. First calculate `Delta = P - C` because only movement from the new origin affects the new coordinate.
+4. **Show one-unit conversion rates before multiplication.** Demonstrate that one unit right has signed shadow `cos(angle)` on the target axis and one unit down has the matching signed shadow. Then scale those rates by the actual signed movements.
+5. **Use a running-coordinate diagram before addition.** Start at coordinate zero. Apply the first signed change. Apply the second signed change from the first result. Only afterward write the sum and name it a dot product.
+6. **Verify the calculated point against its geometric definition.** After calculating `t`, construct `Q = C + t*n` and show that `(P - Q) dot n = 0`. Explain that zero normal component makes `P-Q` parallel to the boundary.
+7. **Make every step change visible evidence.** A formula-only update does not pass. The main geometry or a dedicated companion diagram must visibly show the quantity introduced by that step.
+
+
+### Lesson 4.9 repair — interaction validation and overlay-drawer rule
+
+The failed Step 8 revision shipped with a JavaScript syntax error. That single error prevented both SVG diagrams from rendering and disabled the walkthrough buttons. It also left Geometry controls in a side column even though the requested layout required full-width diagrams and an overlay drawer.
+
+Reusable rule: after any scripted HTML edit, run JavaScript syntax validation before visual QA. Then execute the actual Back/Next controls in Chromium. A screenshot of the initial page is insufficient. For wide proof diagrams, place geometry controls and walkthrough text in one right-side overlay drawer with explicit tabs; do not reserve horizontal diagram width for controls. The drawer may cover the diagram while open.
+
+For projection explanations, separate: (1) choosing the measurement axis, (2) defining the target coordinate, (3) learning one-unit horizontal and vertical conversion rates, and (4) applying those rates to the actual signed Delta values. “One unit right” is a reference calibration, not a claim that the actual movement goes right.
+
+
+### Compact overview and click-only overlay-control rule — Lesson 4.9
+
+- Size an overview diagram by the information it contains. A small 9 × 6 orientation grid must remain compact even when the later proof diagram benefits from full viewport width.
+- Preserve the learner-facing order: compact overview, scale explanation, chosen/derived value panels, then the detailed walkthrough.
+- An overlay control drawer must open only after an explicit click. Do not use edge-hover or pointer-proximity activation.
+- Use a normal compact icon button as the launcher. Provide an explicit close button, outside-click dismissal, and Escape dismissal. The drawer may overlay the diagram but must never reserve or change diagram width.
