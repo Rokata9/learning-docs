@@ -16,8 +16,8 @@
 ## Course pointers
 
 - **Next unresolved learner checkpoint:** Lesson 5.1.
-- **Generated frontier:** Lesson 5.4 — Linear interpolation.
-- **Generated-ahead lessons:** Lessons 5.2 through 5.4; none is learner-complete.
+- **Generated frontier:** Lesson 5.5 — Easing.
+- **Generated-ahead lessons:** Lessons 5.2 through 5.5; none is learner-complete.
 
 ## Latest authoritative Lesson 4.8 rewrite — visual layer movie and per-position algorithm
 
@@ -460,3 +460,12 @@ The learner requested the next lesson without a remaining question, so Lesson 4.
 - Lesson 5.4 — Linear interpolation is generated ahead and is not complete.
 - Generated frontier: Lesson 5.4.
 - Android active child: `LinearInterpolationExplorer.kt`.
+
+
+## Lesson 5.5 generated ahead
+
+- Learner-confirmed completion remains **39 of 216**.
+- Lesson 5.1 remains the unresolved checkpoint.
+- Lesson 5.5 — Easing is generated ahead and is not complete.
+- Generated frontier: Lesson 5.5.
+- Android active child: `EasingExplorer.kt`.
