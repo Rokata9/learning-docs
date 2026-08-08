@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 5.1.0  
-**Updated:** 2026-08-08  
-**Current course position:** Lessons 1.1 through 4.11 are complete by learner confirmation. **39 of 216 lessons are complete.** Chapters 1 through 4 are complete. Lesson 5.1 is the next unresolved checkpoint and the generated frontier.
+**Version:** 5.2.0
+**Updated:** 2026-08-08
+**Current course position:** Lessons 1.1 through 4.11 are learner-confirmed complete. **39 of 216 lessons are complete.** Lesson 5.1 remains unresolved. Lessons 5.2 through 5.2 are generated ahead and incomplete; generated frontier: Lesson 5.2.
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -10,7 +10,7 @@
 
 ---
 
-## 1. What changed through version 5.1.0
+## 1. What changed through version 5.2.0
 
 
 Version 5.1.0 records completion of Lesson 4.11 and Chapter 4, then generates Lesson 5.1:
@@ -4249,3 +4249,17 @@ ExpandedMenu
 The fixed material color is straight sRGB RGBA `(0.1176, 0.2510, 0.6863, 1.0000)`. The lesson uses one endpoint enum value as the small mutable UI state. A mapping returns one complete `MenuVisualState`, and the renderer consumes that snapshot.
 
 The pair `64 dp → 320 dp` names two endpoints only. Time, progress, interpolation, easing, velocity, springs, and interruption remain absent and are introduced in later Chapter 5 lessons.
+
+
+## Lesson 5.2 — Time generated ahead
+
+```yaml
+learner_confirmed_completed_total: 39
+completed_through: "Lesson 4.11 — Shape laboratory"
+next_unresolved_checkpoint: "Lesson 5.1 — State before animation"
+generated_frontier: "Lesson 5.2 — Time"
+lesson_5_2_generated: true
+lesson_5_2_completed_by_learner: false
+```
+
+Lesson 5.2 is generated ahead. It does not close Lesson 5.1 or any intermediate generated lesson. Android active child: `TimeExplorer.kt`.

@@ -10,14 +10,14 @@
 
 ## Not completed
 
-- **Lesson 5.1 — State before animation** is generated and is the current learner checkpoint.
+- **Lesson 5.1 — State before animation** is generated and remains the current learner checkpoint.
 - Chapter 5 is in progress.
 
 ## Course pointers
 
 - **Next unresolved learner checkpoint:** Lesson 5.1.
-- **Generated frontier:** Lesson 5.1.
-- **Next planned lesson after explicit Lesson 5.1 completion:** Lesson 5.2 — Time.
+- **Generated frontier:** Lesson 5.2 — Time.
+- **Generated-ahead lessons:** Lessons 5.2 through 5.2; none is learner-complete.
 
 ## Latest authoritative Lesson 4.8 rewrite — visual layer movie and per-position algorithm
 
@@ -433,3 +433,12 @@ Changed Android files: `Chapter04Screen.kt` and new `ShapeLaboratory.kt`, with c
 ## Lesson 4.11 completion and Chapter 5 start
 
 The learner requested the next lesson without a remaining question, so Lesson 4.11 and Chapter 4 are learner-confirmed complete. Learner-confirmed progress is now **39 of 216**. Lesson 5.1 is generated as the first Chapter 5 checkpoint. It defines complete endpoint snapshots before any animation operation is introduced.
+
+
+## Lesson 5.2 generated ahead
+
+- Learner-confirmed completion remains **39 of 216**.
+- Lesson 5.1 remains the unresolved checkpoint.
+- Lesson 5.2 — Time is generated ahead and is not complete.
+- Generated frontier: Lesson 5.2.
+- Android active child: `TimeExplorer.kt`.
