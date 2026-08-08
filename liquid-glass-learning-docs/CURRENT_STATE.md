@@ -1,23 +1,23 @@
 # Liquid Glass Android course — current state
 
-**Authoritative learner-confirmed progress:** 38 of 216 lessons completed.
+**Authoritative learner-confirmed progress:** 39 of 216 lessons completed.
 
 ## Completed
 
-- Chapters 1, 2, and 3 are complete.
-- Lessons 4.1 through 4.10 are complete.
-- The latest completed lesson is **4.10 — Transform origin**.
+- Chapters 1, 2, 3, and 4 are complete.
+- Lessons 5.1 and later are not yet complete.
+- The latest completed lesson is **4.11 — Shape laboratory**.
 
 ## Not completed
 
-- **Lesson 4.11 — Shape laboratory** is generated and remains the current learner checkpoint.
-- Chapter 4 remains in progress until Lesson 4.11 is learner-confirmed complete.
+- **Lesson 5.1 — State before animation** is generated and is the current learner checkpoint.
+- Chapter 5 is in progress.
 
 ## Course pointers
 
-- **Next unresolved learner checkpoint:** Lesson 4.11.
-- **Generated frontier:** Lesson 4.11.
-- **Next planned lesson after explicit Lesson 4.11 completion:** Lesson 5.1 — State before animation.
+- **Next unresolved learner checkpoint:** Lesson 5.1.
+- **Generated frontier:** Lesson 5.1.
+- **Next planned lesson after explicit Lesson 5.1 completion:** Lesson 5.2 — Time.
 
 ## Latest authoritative Lesson 4.8 rewrite — visual layer movie and per-position algorithm
 
@@ -428,3 +428,8 @@ inner radius = 60
 Capsule mode proves `outer radius = 180` and `inner radius = 150 = inner height / 2`. The lesson compares the correct `outer radius - padding` rule with a copied-radius defect. It explicitly records that the controlled implementation uses direct rounded-rectangle drawing, no custom Path, no clip, and no mask. The optional inspection rotation names its transform origin without changing geometry arithmetic.
 
 Changed Android files: `Chapter04Screen.kt` and new `ShapeLaboratory.kt`, with complete-screen and direct-child previews in light and dark modes.
+
+
+## Lesson 4.11 completion and Chapter 5 start
+
+The learner requested the next lesson without a remaining question, so Lesson 4.11 and Chapter 4 are learner-confirmed complete. Learner-confirmed progress is now **39 of 216**. Lesson 5.1 is generated as the first Chapter 5 checkpoint. It defines complete endpoint snapshots before any animation operation is introduced.

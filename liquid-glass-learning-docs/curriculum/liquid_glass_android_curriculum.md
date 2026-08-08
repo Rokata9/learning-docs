@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 4.10.0  
-**Updated:** 2026-08-07  
-**Current course position:** Lessons 1.1 through 4.9 are complete by learner confirmation. **37 of 216 lessons are complete.** Lesson 4.10 is the next unresolved checkpoint and the generated frontier.
+**Version:** 5.1.0  
+**Updated:** 2026-08-08  
+**Current course position:** Lessons 1.1 through 4.11 are complete by learner confirmation. **39 of 216 lessons are complete.** Chapters 1 through 4 are complete. Lesson 5.1 is the next unresolved checkpoint and the generated frontier.
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -10,8 +10,31 @@
 
 ---
 
-## 1. What changed through version 4.10.0
+## 1. What changed through version 5.1.0
 
+
+Version 5.1.0 records completion of Lesson 4.11 and Chapter 4, then generates Lesson 5.1:
+
+- Lesson 4.11 is learner-confirmed complete. Chapter 4 is complete. Learner-confirmed completion is now **39 of 216 lessons**.
+- Lesson 5.1 starts Chapter 5 with one new idea: define complete endpoint state snapshots before introducing time or interpolation.
+- The controlled endpoints are `RestingButton` and `ExpandedMenu`. Each snapshot contains width, height, corner radius, three-dot alpha, menu-content alpha, and one fixed material color.
+- The endpoint selector switches instantly. The lesson explicitly contains no time, progress, interpolation, easing, velocity, spring, or automatic playback.
+- A deliberate mixed-state diagnostic shows why unrelated endpoint properties should not be selected independently.
+- Android changes: `MainActivity.kt`, new `chapter05/Chapter05Screen.kt`, and new `chapter05/StateBeforeAnimationExplorer.kt`.
+
+
+
+Version 4.11.0 records learner completion of Lesson 4.10 and generates Lesson 4.11:
+
+- Lesson 4.10 is learner-confirmed complete. Learner-confirmed completion is now **38 of 216 lessons**.
+- Lesson 4.11 is the final Chapter 4 checkpoint. It combines fixed rounded rectangles, capsules, and concentric nested corners through one explicit shape-contract model.
+- The outer contract runs first: fixed mode consumes a selected radius bounded by half the shorter side; capsule mode derives radius as half the current height.
+- Uniform padding then derives the inner rectangle and the concentric inner radius `outer radius - padding`.
+- The laboratory compares the correct rule with a copied-radius defect, proves shared corner centers, and stress-tests several sizes.
+- The implementation contract explicitly says `Path = none`, `clip = none`, and `mask = none`; direct rounded-rectangle drawing is sufficient.
+- Optional inspection rotation reuses transform origin without changing the geometry values.
+- Android changes: `Chapter04Screen.kt` and new `ShapeLaboratory.kt`, with both preview levels in light and dark modes.
+- Lesson 4.11 remains incomplete. Chapter 4 remains in progress.
 
 
 Version 4.10.0 records learner completion of Lesson 4.9 and generates Lesson 4.10:
@@ -4201,3 +4224,28 @@ For projection explanations, separate: (1) choosing the measurement axis, (2) de
 ### Version 4.9 layout clarification
 
 Lesson 4.9 now treats the 9 × 6 output-pixel grid as a compact live overview rather than a full-width proof diagram. The detailed walkthrough begins only after the scale cards and chosen-versus-derived value panels. The overlay drawer is click-only, uses a compact icon launcher, and supports ×, outside-click, and Escape dismissal without changing diagram width. This revision changes learning documents only.
+
+
+## Lesson 5.1 implementation record
+
+### Scope
+
+Lesson 5.1 starts from completed Chapter 4 geometry and introduces state as data describing the UI at one instant. It defines two complete endpoint snapshots and switches instantly between them.
+
+```text
+RestingButton
+= 64 × 64 dp
+= radius 32 dp
+= dots alpha 1.00
+= menu alpha 0.00
+
+ExpandedMenu
+= 320 × 232 dp
+= radius 28 dp
+= dots alpha 0.00
+= menu alpha 1.00
+```
+
+The fixed material color is straight sRGB RGBA `(0.1176, 0.2510, 0.6863, 1.0000)`. The lesson uses one endpoint enum value as the small mutable UI state. A mapping returns one complete `MenuVisualState`, and the renderer consumes that snapshot.
+
+The pair `64 dp → 320 dp` names two endpoints only. Time, progress, interpolation, easing, velocity, springs, and interruption remain absent and are introduced in later Chapter 5 lessons.

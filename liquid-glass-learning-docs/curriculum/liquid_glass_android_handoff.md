@@ -1,8 +1,8 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 4.10.0  
-**Updated:** 2026-08-07  
-**Current position:** Lessons 1.1 through 4.9 are complete by learner confirmation. **37 of 216 lessons are complete.** Chapters 1, 2, and 3 are complete. Chapter 4 is in progress. Lesson 4.10 is generated and is both the next unresolved checkpoint and the generated frontier.
+**Course plan version:** 5.1.0  
+**Updated:** 2026-08-08  
+**Current position:** Lessons 1.1 through 4.11 are complete by learner confirmation. **39 of 216 lessons are complete.** Chapters 1 through 4 are complete. Chapter 5 is in progress. Lesson 5.1 is generated and is both the next unresolved checkpoint and the generated frontier.
 
 ## Permanent course rules
 
@@ -3185,3 +3185,68 @@ The completed Lesson 4.9 walkthrough now exposes previous/next buttons in the di
 - States that `graphicsLayer` transforms drawing without changing measured size or placement.
 - Android files: `Chapter04Screen.kt` and new `TransformOriginExplorer.kt`, with complete-screen and direct-child previews in light and dark modes.
 - Lesson 4.10 is generated and remains learner-incomplete.
+
+
+## Latest authoritative state — Lesson 4.11 generated
+
+```yaml
+learner_confirmed_completed_total: 38
+completed_through: "Lesson 4.10 — Transform origin"
+lesson_04_10_completed_by_learner: true
+lesson_04_11_generated: true
+lesson_04_11_completed_by_learner: false
+next_unresolved_checkpoint: "Lesson 4.11 — Shape laboratory"
+generated_frontier: "Lesson 4.11 — Shape laboratory"
+chapter_04_completed_by_learner: false
+next_after_completion: "Lesson 5.1 — State before animation"
+```
+
+Lesson 4.11 introduces one integration object: a shape contract, meaning the rule that maps current bounds to the outer corner radius. The selected outer contract is either fixed rounded rectangle or horizontal capsule. After that selection, uniform padding derives the inner bounds and `inner radius = outer radius - padding`.
+
+The course values are:
+
+```text
+outer 600 × 360
+fixed outer radius 90
+padding 30
+inner 540 × 300
+correct inner radius 60
+shared top-left center (200, 125)
+```
+
+Capsule mode gives outer radius `180` and inner radius `150`, which equals half the inner height. The laboratory also shows the copied-radius defect, explicit API/absence ledger, synchronized twelve-step navigation, optional transform-origin inspection, prediction, coding challenge, exercises, and Pixel 8 Pro checkpoint.
+
+Android changes:
+
+```text
+app/src/main/java/com/example/liquidglasslab/chapter04/Chapter04Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter04/ShapeLaboratory.kt
+```
+
+No new `AGENTS.md` rule was added. The clean Lesson 4.10 completion reinforces the existing detailed-stepper and diagram-local navigation standard.
+
+
+## Latest authoritative state — Lesson 5.1 generated
+
+```yaml
+learner_confirmed_completed_total: 39
+completed_through: "Lesson 4.11 — Shape laboratory"
+chapter_04_completed_by_learner: true
+lesson_05_01_generated: true
+lesson_05_01_completed_by_learner: false
+next_unresolved_checkpoint: "Lesson 5.1 — State before animation"
+generated_frontier: "Lesson 5.1 — State before animation"
+next_after_completion: "Lesson 5.2 — Time"
+```
+
+Lesson 5.1 defines two endpoint snapshots before any animation API is introduced. The endpoint selector stores one small saveable enum name, maps it to one complete visual snapshot, and redraws instantly. The lesson deliberately exposes an invalid mixed combination to prove why independent endpoint properties should not be treated as the production state model.
+
+Android changes:
+
+```text
+app/src/main/java/com/example/liquidglasslab/MainActivity.kt
+app/src/main/java/com/example/liquidglasslab/chapter05/Chapter05Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter05/StateBeforeAnimationExplorer.kt
+```
+
+No new AGENTS rule was added. The clean Lesson 4.11 completion reinforces the existing integration-laboratory and detailed-stepper standards.
