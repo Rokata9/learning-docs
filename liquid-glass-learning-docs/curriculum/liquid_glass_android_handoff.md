@@ -1,8 +1,8 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 5.5.0
+**Course plan version:** 5.6.0
 **Updated:** 2026-08-08
-**Current position:** Lessons 1.1 through 4.11 are learner-confirmed complete. **39 of 216 lessons are complete.** Lesson 5.1 remains the next unresolved checkpoint. Lessons 5.2 through 5.5 are generated ahead; the generated frontier is Lesson 5.5. None of Lessons 5.1 through 5.5 is learner-complete.
+**Current position:** Lessons 1.1 through 5.5 are learner-confirmed complete. **44 of 216 lessons are complete.** Lesson 5.6 — Read an easing graph is the next unresolved checkpoint and generated frontier.
 
 ## Permanent course rules
 
@@ -3306,3 +3306,29 @@ lesson_5_5_completed_by_learner: false
 ```
 
 Lesson 5.5 is generated ahead. It does not close Lesson 5.1 or any intermediate generated lesson. Android active child: `EasingExplorer.kt`.
+
+
+## Latest authoritative state — Lesson 5.6 generated
+
+```yaml
+learner_confirmed_completed_total: 44
+completed_through: "Lesson 5.5 — Easing"
+lessons_05_01_through_05_05_completed_by_learner: true
+lesson_05_06_generated: true
+lesson_05_06_completed_by_learner: false
+next_unresolved_checkpoint: "Lesson 5.6 — Read an easing graph"
+generated_frontier: "Lesson 5.6 — Read an easing graph"
+next_after_completion: "Lesson 5.7 — Velocity"
+```
+
+Lesson 5.6 starts from the completed Lesson 5.5 pair `raw progress → eased progress`. It introduces a graph as an input-output map. The horizontal X coordinate is raw progress. The vertical Y coordinate is eased progress. The selected graph point is written `(X, Y) = (raw, eased)`.
+
+The exact default trace is:
+
+```text
+raw X = 0.2500
+ease-in-square Y = 0.0625
+current width = 64 + 256 × 0.0625 = 80 dp
+```
+
+The lesson compares the selected point with the linear diagonal and with ease-out at the same X. It explicitly defers curve slope and velocity to Lesson 5.7. Android active child: `ReadEasingGraphExplorer.kt`.

@@ -1,23 +1,23 @@
 # Liquid Glass Android course — current state
 
-**Authoritative learner-confirmed progress:** 39 of 216 lessons completed.
+**Authoritative learner-confirmed progress:** 44 of 216 lessons completed.
 
 ## Completed
 
 - Chapters 1, 2, 3, and 4 are complete.
-- Lessons 5.1 and later are not yet complete.
-- The latest completed lesson is **4.11 — Shape laboratory**.
+- Lessons 5.1 through 5.5 are complete.
+- The latest completed lesson is **5.5 — Easing**.
 
 ## Not completed
 
-- **Lesson 5.1 — State before animation** is generated and remains the current learner checkpoint.
+- **Lesson 5.6 — Read an easing graph** is generated and remains the current learner checkpoint.
 - Chapter 5 is in progress.
 
 ## Course pointers
 
-- **Next unresolved learner checkpoint:** Lesson 5.1.
-- **Generated frontier:** Lesson 5.5 — Easing.
-- **Generated-ahead lessons:** Lessons 5.2 through 5.5; none is learner-complete.
+- **Next unresolved learner checkpoint:** Lesson 5.6.
+- **Generated frontier:** Lesson 5.6 — Read an easing graph.
+- **Generated-ahead lessons:** none beyond the current checkpoint.
 
 ## Latest authoritative Lesson 4.8 rewrite — visual layer movie and per-position algorithm
 
@@ -469,3 +469,27 @@ The learner requested the next lesson without a remaining question, so Lesson 4.
 - Lesson 5.5 — Easing is generated ahead and is not complete.
 - Generated frontier: Lesson 5.5.
 - Android active child: `EasingExplorer.kt`.
+
+
+## Latest authoritative state — Lessons 5.1 through 5.5 completed; Lesson 5.6 generated
+
+The learner explicitly confirmed Lessons 5.1, 5.2, 5.3, 5.4, and 5.5 complete. Learner-confirmed progress is now **44 of 216**. Lesson 5.6 is the current unresolved checkpoint and generated frontier.
+
+Lesson 5.6 teaches how to read an easing graph as an input-output map:
+
+```text
+horizontal X = raw progress
+vertical Y   = eased progress
+curve point  = (raw input, eased output)
+```
+
+The default trace reads ease-in square at raw progress `0.25`:
+
+```text
+X = 0.2500
+Y = 0.25 × 0.25 = 0.0625
+point = (0.2500, 0.0625)
+width = 64 + 256 × 0.0625 = 80 dp
+```
+
+The lesson compares points below, on, and above the linear diagonal without introducing slope or velocity. Velocity remains Lesson 5.7.

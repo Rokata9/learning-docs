@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 5.5.0
+**Version:** 5.6.0
 **Updated:** 2026-08-08
-**Current course position:** Lessons 1.1 through 4.11 are learner-confirmed complete. **39 of 216 lessons are complete.** Lesson 5.1 remains unresolved. Lessons 5.2 through 5.5 are generated ahead and incomplete; generated frontier: Lesson 5.5.
+**Current course position:** Lessons 1.1 through 5.5 are learner-confirmed complete. **44 of 216 lessons are complete.** Lesson 5.6 — Read an easing graph is the current unresolved checkpoint and generated frontier.
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -10,7 +10,19 @@
 
 ---
 
-## 1. What changed through version 5.5.0
+## 1. What changed through version 5.6.0
+
+
+Version 5.6.0 records learner completion of Lessons 5.1 through 5.5 and generates Lesson 5.6:
+
+- Lessons 5.1, 5.2, 5.3, 5.4, and 5.5 are learner-confirmed complete. Learner-confirmed progress is now **44 of 216 lessons**.
+- Lesson 5.6 defines an easing graph as an input-output map. The horizontal axis stores raw normalized progress. The vertical axis stores eased progress.
+- The default point is ease-in square at raw `0.25`: `(X, Y) = (0.2500, 0.0625)`.
+- The lesson teaches the reading order `choose X → move vertically to the curve → move horizontally to the Y axis → read the pair`.
+- The linear diagonal is used only as an equality reference: below means `eased < raw`, on means equality, and above means `eased > raw` at that X.
+- Interpolation consumes graph Y. Slope and velocity are explicitly deferred to Lesson 5.7.
+- Android changes: `Chapter05Screen.kt` and new `ReadEasingGraphExplorer.kt`, with complete-screen and direct-child light/dark previews.
+
 
 
 Version 5.1.0 records completion of Lesson 4.11 and Chapter 4, then generates Lesson 5.1:
