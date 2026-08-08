@@ -1,8 +1,8 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 5.2.0
+**Course plan version:** 5.3.0
 **Updated:** 2026-08-08
-**Current position:** Lessons 1.1 through 4.11 are learner-confirmed complete. **39 of 216 lessons are complete.** Lesson 5.1 remains the next unresolved checkpoint. Lessons 5.2 through 5.2 are generated ahead; the generated frontier is Lesson 5.2. None of Lessons 5.1 through 5.2 is learner-complete.
+**Current position:** Lessons 1.1 through 4.11 are learner-confirmed complete. **39 of 216 lessons are complete.** Lesson 5.1 remains the next unresolved checkpoint. Lessons 5.2 through 5.3 are generated ahead; the generated frontier is Lesson 5.3. None of Lessons 5.1 through 5.3 is learner-complete.
 
 ## Permanent course rules
 
@@ -3264,3 +3264,17 @@ lesson_5_2_completed_by_learner: false
 ```
 
 Lesson 5.2 is generated ahead. It does not close Lesson 5.1 or any intermediate generated lesson. Android active child: `TimeExplorer.kt`.
+
+
+## Lesson 5.3 — Progress from 0 to 1 generated ahead
+
+```yaml
+learner_confirmed_completed_total: 39
+completed_through: "Lesson 4.11 — Shape laboratory"
+next_unresolved_checkpoint: "Lesson 5.1 — State before animation"
+generated_frontier: "Lesson 5.3 — Progress from 0 to 1"
+lesson_5_3_generated: true
+lesson_5_3_completed_by_learner: false
+```
+
+Lesson 5.3 is generated ahead. It does not close Lesson 5.1 or any intermediate generated lesson. Android active child: `ProgressExplorer.kt`.

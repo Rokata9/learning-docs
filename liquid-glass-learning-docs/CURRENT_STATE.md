@@ -16,8 +16,8 @@
 ## Course pointers
 
 - **Next unresolved learner checkpoint:** Lesson 5.1.
-- **Generated frontier:** Lesson 5.2 — Time.
-- **Generated-ahead lessons:** Lessons 5.2 through 5.2; none is learner-complete.
+- **Generated frontier:** Lesson 5.3 — Progress from 0 to 1.
+- **Generated-ahead lessons:** Lessons 5.2 through 5.3; none is learner-complete.
 
 ## Latest authoritative Lesson 4.8 rewrite — visual layer movie and per-position algorithm
 
@@ -442,3 +442,12 @@ The learner requested the next lesson without a remaining question, so Lesson 4.
 - Lesson 5.2 — Time is generated ahead and is not complete.
 - Generated frontier: Lesson 5.2.
 - Android active child: `TimeExplorer.kt`.
+
+
+## Lesson 5.3 generated ahead
+
+- Learner-confirmed completion remains **39 of 216**.
+- Lesson 5.1 remains the unresolved checkpoint.
+- Lesson 5.3 — Progress from 0 to 1 is generated ahead and is not complete.
+- Generated frontier: Lesson 5.3.
+- Android active child: `ProgressExplorer.kt`.

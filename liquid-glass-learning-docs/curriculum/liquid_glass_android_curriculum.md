@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 5.2.0
+**Version:** 5.3.0
 **Updated:** 2026-08-08
-**Current course position:** Lessons 1.1 through 4.11 are learner-confirmed complete. **39 of 216 lessons are complete.** Lesson 5.1 remains unresolved. Lessons 5.2 through 5.2 are generated ahead and incomplete; generated frontier: Lesson 5.2.
+**Current course position:** Lessons 1.1 through 4.11 are learner-confirmed complete. **39 of 216 lessons are complete.** Lesson 5.1 remains unresolved. Lessons 5.2 through 5.3 are generated ahead and incomplete; generated frontier: Lesson 5.3.
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -10,7 +10,7 @@
 
 ---
 
-## 1. What changed through version 5.2.0
+## 1. What changed through version 5.3.0
 
 
 Version 5.1.0 records completion of Lesson 4.11 and Chapter 4, then generates Lesson 5.1:
@@ -4263,3 +4263,17 @@ lesson_5_2_completed_by_learner: false
 ```
 
 Lesson 5.2 is generated ahead. It does not close Lesson 5.1 or any intermediate generated lesson. Android active child: `TimeExplorer.kt`.
+
+
+## Lesson 5.3 — Progress from 0 to 1 generated ahead
+
+```yaml
+learner_confirmed_completed_total: 39
+completed_through: "Lesson 4.11 — Shape laboratory"
+next_unresolved_checkpoint: "Lesson 5.1 — State before animation"
+generated_frontier: "Lesson 5.3 — Progress from 0 to 1"
+lesson_5_3_generated: true
+lesson_5_3_completed_by_learner: false
+```
+
+Lesson 5.3 is generated ahead. It does not close Lesson 5.1 or any intermediate generated lesson. Android active child: `ProgressExplorer.kt`.
