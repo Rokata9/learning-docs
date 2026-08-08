@@ -1,23 +1,23 @@
 # Liquid Glass Android course — current state
 
-**Authoritative learner-confirmed progress:** 37 of 216 lessons completed.
+**Authoritative learner-confirmed progress:** 38 of 216 lessons completed.
 
 ## Completed
 
 - Chapters 1, 2, and 3 are complete.
-- Lessons 4.1 through 4.9 are complete.
-- The latest completed lesson is **4.9 — Soft edges and antialiasing**.
+- Lessons 4.1 through 4.10 are complete.
+- The latest completed lesson is **4.10 — Transform origin**.
 
 ## Not completed
 
-- **Lesson 4.10 — Transform origin** is generated and remains the current learner checkpoint.
-- Chapter 4 remains in progress. Lessons 4.10 and 4.11 are not complete.
+- **Lesson 4.11 — Shape laboratory** is generated and remains the current learner checkpoint.
+- Chapter 4 remains in progress until Lesson 4.11 is learner-confirmed complete.
 
 ## Course pointers
 
-- **Next unresolved learner checkpoint:** Lesson 4.10.
-- **Generated frontier:** Lesson 4.10.
-- **Next planned lesson after explicit Lesson 4.10 completion:** Lesson 4.11 — Shape laboratory.
+- **Next unresolved learner checkpoint:** Lesson 4.11.
+- **Generated frontier:** Lesson 4.11.
+- **Next planned lesson after explicit Lesson 4.11 completion:** Lesson 5.1 — State before animation.
 
 ## Latest authoritative Lesson 4.8 rewrite — visual layer movie and per-position algorithm
 
@@ -405,3 +405,26 @@ Learner-confirmed progress is **37 of 216**.
 Lesson 4.10 keeps one measured rectangle and introduces one new geometry choice: the local pivot that remains fixed while rotation and scale transform the drawing. The browser and Android experiments trace origin fractions through measured width and height into pivot coordinates, then follow one top-right point through `subtract pivot → scale → rotate → add pivot`.
 
 The Android implementation uses `TransformOrigin`, `Modifier.graphicsLayer`, `rotationZ`, `scaleX`, and `scaleY`. It also measures the card with `onSizeChanged` to show that the runtime layout size remains unchanged while the drawing transforms. Lesson 4.10 is generated but not learner-complete.
+
+
+## Lesson 4.11 generated — Shape laboratory
+
+Lesson 4.10 is learner-confirmed complete. Learner-confirmed progress is now **38 of 216**. Lesson 4.11 is the final Chapter 4 checkpoint.
+
+The laboratory introduces one integration term: a **shape contract**, meaning the rule that converts the current outer bounds into the outer radius. It compares a fixed rounded-rectangle contract with a horizontal-capsule contract, then derives the inner bounds and inner radius from one uniform padding value.
+
+The controlled browser values reuse the completed concentric-corner example:
+
+```text
+outer width = 600
+outer height = 360
+fixed radius = 90
+padding = 30
+inner width = 540
+inner height = 300
+inner radius = 60
+```
+
+Capsule mode proves `outer radius = 180` and `inner radius = 150 = inner height / 2`. The lesson compares the correct `outer radius - padding` rule with a copied-radius defect. It explicitly records that the controlled implementation uses direct rounded-rectangle drawing, no custom Path, no clip, and no mask. The optional inspection rotation names its transform origin without changing geometry arithmetic.
+
+Changed Android files: `Chapter04Screen.kt` and new `ShapeLaboratory.kt`, with complete-screen and direct-child previews in light and dark modes.
