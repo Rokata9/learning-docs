@@ -11,13 +11,14 @@
 ## Not completed
 
 - **Lesson 5.7 — Velocity** is generated and remains the current learner checkpoint.
+- **Lesson 5.8 — Spring intuition** is generated ahead and is not learner-complete.
 - Chapter 5 is in progress.
 
 ## Course pointers
 
 - **Next unresolved learner checkpoint:** Lesson 5.7.
-- **Generated frontier:** Lesson 5.7 — Velocity.
-- **Generated-ahead lessons:** none beyond the current checkpoint.
+- **Generated frontier:** Lesson 5.8 — Spring intuition.
+- **Generated-ahead lessons:** Lesson 5.8.
 
 ## Latest authoritative Lesson 4.8 rewrite — visual layer movie and per-position algorithm
 
@@ -498,3 +499,17 @@ The lesson compares points below, on, and above the linear diagonal without intr
 ## Lesson 5.7 generated — Velocity
 
 Lesson 5.6 is learner-confirmed complete. Lesson 5.7 introduces signed average velocity for one UI property over one named interval. The controlled default compares width 80 dp at 175 ms with width 128 dp at 350 ms, producing +48 dp over 0.175 s and average velocity +274.2857 dp/s. The lesson compares equal 175 ms intervals under ease-in, distinguishes positive opening from negative closing velocity, and defers instantaneous velocity and renderer/gesture estimators. Learner-confirmed progress is 45 of 216.
+
+## Lesson 5.8 generated ahead — Spring intuition
+
+Learner-confirmed progress remains 45 of 216. Lesson 5.7 remains the next unresolved checkpoint. Lesson 5.8 introduces an explicitly labelled browser teaching model for target, displacement, stiffness, damping, mass, velocity update, and position update. The Android companion uses the public Compose spring contract with damping ratio and stiffness; browser coefficients are not copied into Compose.
+
+
+## Lesson 5.8 regeneration after flexible-step audit
+
+- Lesson 5.8 remains generated ahead and learner-incomplete.
+- The original fixed fourteen-state walkthrough failed the new audit because the spring recurrence was compressed before its variables, fixed teaching-tick assumption, signed damping term, and symbolic dependency chain were fully established.
+- The regenerated walkthrough contains **24 states**, chosen from the actual spring-update dependency chain.
+- It now defines `T`, `x`, `v`, `k`, `c`, and `m`; shows `d = T - x`, `S = k × d`, `D = -c × v`, `N = S + D`, `Δv = N / m`, `v_next = v + Δv`, and `x_next = x + v_next`; then substitutes Tick 1 and Tick 2 values.
+- Because the walkthrough exceeds ten states, it uses Previous/Next navigation with `Step X of 24` rather than twenty-four numbered buttons.
+- Learner-confirmed progress remains 45 of 216. Lesson 5.7 remains unresolved.

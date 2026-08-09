@@ -487,3 +487,18 @@ The learner explicitly confirmed that the completed Lesson 4.9 fourteen-step wal
 5. **Keep controls synchronized.** When a walkthrough has controls both in an overlay drawer and on the diagram, every control surface must read and write one shared step state. Disabling, current-step labels, formulas, and diagrams must update together.
 6. **Provide diagram-local navigation.** A long proof diagram must expose previous/next controls without requiring the explanation drawer to remain open.
 7. **Use the Lesson 4.9 completed 14-step state as the QA reference.** A later difficult lesson fails the total-beginner audit when it compresses a concept that Lesson 4.9 would have given its own visual step.
+
+
+### Flexible walkthrough length, formula expansion, and first-QA gate
+
+This rule was added after Lessons 5.8 and 5.9 were mechanically generated with fourteen walkthrough states even though fourteen was only the successful count for Lesson 4.9.
+
+1. **Fourteen is an exemplar, not a template.** Derive the walkthrough length from the actual dependency graph. Simple lessons may use fewer than fourteen states. Difficult lessons may use more than fourteen states.
+2. **Never pad or compress to hit a count.** A step exists only when it introduces one new object, term, operation, intermediate result, inference, or implementation boundary that needs its own learner-visible state.
+3. **Use a ten-step navigation threshold.** At ten or fewer states, one direct button per state is allowed. Above ten, replace the button wall with `Previous · Step X of N · Next`. Optional phase labels or a compact jump control may supplement navigation, but do not render one button for every state.
+4. **Expand hard formulas in four layers.** Before numeric substitution, show: (a) a variable ledger with plain-language meanings, symbols, units/ranges, and origins; (b) the symbolic formula; (c) the same formula with current values substituted; and (d) every intermediate and final output with its next consumer.
+5. **Name hidden time assumptions.** A discrete teaching update must state whether its time step is fixed, what value it uses, and whether that factor has been absorbed into coefficients. Do not present position and velocity updates as physical equations without the time boundary.
+6. **Prefer signed causal terms.** When direction matters, preserve signs through intermediate values and explain them. For the spring teaching model, `D = -c × v` is clearer than an unsigned “resistance” followed by unexplained subtraction.
+7. **The beginner audit is QA stage zero.** Before JavaScript syntax, screenshots, links, Android parsing, or archive integrity, cold-read the first sentence, first two sections, first formula, all new terms, and the longest state using only learner-confirmed prerequisites. Any unexplained dependency fails the artifact and triggers regeneration or splitting.
+8. **Technical correctness cannot rescue incomprehension.** A page with valid code, working controls, and clean screenshots is still rejected when a total math and graphics beginner cannot state what every variable is, why each operation runs, and what consumes its result.
+9. **Harder future chapters may be deliberately verbose.** Shader, sampling, physics, rendering, geometry, and capstone lessons should err toward complete causal explanation rather than compressed expert prose.

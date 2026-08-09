@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 5.7.0
-**Updated:** 2026-08-08
-**Current course position:** Lessons 1.1 through 5.6 are learner-confirmed complete. **45 of 216 lessons are complete.** Lesson 5.7 — Velocity is the current unresolved checkpoint and generated frontier.
+**Version:** 5.8.1
+**Updated:** 2026-08-09
+**Current course position:** Lessons 1.1 through 5.6 are learner-confirmed complete. **45 of 216 lessons are complete.** Lesson 5.7 — Velocity remains the current unresolved checkpoint. Generated ahead: Lesson 5.8. Generated frontier: Lesson 5.8 — Spring intuition.
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -4327,3 +4327,16 @@ lesson_5_5_completed_by_learner: false
 ```
 
 Lesson 5.5 is generated ahead. It does not close Lesson 5.1 or any intermediate generated lesson. Android active child: `EasingExplorer.kt`.
+
+## Lesson 5.8 generated ahead — Spring intuition
+
+Progress remains 45 of 216. Lesson 5.7 is still unresolved. Lesson 5.8 uses a causal discrete teaching simulation to define target, displacement, spring pull, damping resistance, mass, velocity change, and position update. The browser model is explicitly separated from Compose spring(), whose public parameters are dampingRatio and stiffness.
+
+
+### Version 5.8.1 — flexible-step regeneration
+
+- Records that fourteen walkthrough states are not a course template.
+- Sets the navigation threshold at ten states: above ten, use Previous/Next plus `Step X of N` instead of one button per state.
+- Makes the total-beginner comprehension audit the first QA stage, before technical verification.
+- Regenerates Lesson 5.8 with twenty-four states, a variable ledger, symbolic spring-update contract, signed damping push, explicit fixed-tick assumption, and full Tick 1/Tick 2 substitution.
+- Lesson 5.7 remains unresolved. Lesson 5.8 remains generated ahead. Completion remains 45 of 216.

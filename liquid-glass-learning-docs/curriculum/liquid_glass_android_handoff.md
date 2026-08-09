@@ -1,8 +1,8 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 5.7.0
-**Updated:** 2026-08-08
-**Current position:** Lessons 1.1 through 5.6 are learner-confirmed complete. **45 of 216 lessons are complete.** Lesson 5.7 — Velocity is the next unresolved checkpoint and generated frontier.
+**Course plan version:** 5.8.1
+**Updated:** 2026-08-09
+**Current position:** Lessons 1.1 through 5.6 are learner-confirmed complete. **45 of 216 lessons are complete.** Lesson 5.7 — Velocity remains the next unresolved checkpoint. Generated ahead: Lesson 5.8. Generated frontier: Lesson 5.8 — Spring intuition.
 
 ## Permanent course rules
 
@@ -3360,3 +3360,27 @@ average velocity = +48 ÷ 0.175 = +274.2857 dp/s
 ```
 
 The lesson compares four equal 175 ms intervals, showing that easing produces different value changes and therefore different average velocities. Positive means width increases; negative means width decreases. Instantaneous velocity, Compose `VelocityTracker` internals, springs, flings, and interruption are explicitly deferred. Android active child: `VelocityExplorer.kt`.
+
+## Lesson 5.8 generated ahead — Spring intuition
+
+Progress remains 45 of 216. Lesson 5.7 is still unresolved. Lesson 5.8 uses a causal discrete teaching simulation to define target, displacement, spring pull, damping resistance, mass, velocity change, and position update. The browser model is explicitly separated from Compose spring(), whose public parameters are dampingRatio and stiffness.
+
+
+## Flexible walkthrough count and first beginner-audit rule — 2026-08-09
+
+- The fourteen states in completed Lesson 4.9 are a quality exemplar, not a required count.
+- Select the number of states from the actual causal dependencies. Simpler lessons may need fewer; harder lessons may need more.
+- At ten or fewer states, direct per-state buttons are allowed. Above ten, use Previous/Next with `Step X of N` instead of a numbered-button wall.
+- Hard formulas must introduce a variable ledger, symbolic formula, substituted values, intermediate results, and the next consumer.
+- Perform the total-beginner comprehension audit before every technical QA pass. Failure of the first sentence, first two sections, first formula, any new term, or the longest state requires regeneration or splitting before syntax, screenshot, Android, or ZIP checks.
+- Expect the remaining shader, sampling, physics, rendering, geometry, and capstone lessons to require more explanation depth. Verbosity is welcome when it preserves a complete causal model.
+
+
+## Lesson 5.8 regeneration after flexible-step audit
+
+- Lesson 5.8 remains generated ahead and learner-incomplete.
+- The original fixed fourteen-state walkthrough failed the new audit because the spring recurrence was compressed before its variables, fixed teaching-tick assumption, signed damping term, and symbolic dependency chain were fully established.
+- The regenerated walkthrough contains **24 states**, chosen from the actual spring-update dependency chain.
+- It now defines `T`, `x`, `v`, `k`, `c`, and `m`; shows `d = T - x`, `S = k × d`, `D = -c × v`, `N = S + D`, `Δv = N / m`, `v_next = v + Δv`, and `x_next = x + v_next`; then substitutes Tick 1 and Tick 2 values.
+- Because the walkthrough exceeds ten states, it uses Previous/Next navigation with `Step X of 24` rather than twenty-four numbered buttons.
+- Learner-confirmed progress remains 45 of 216. Lesson 5.7 remains unresolved.
