@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 5.6.0
+**Version:** 5.7.0
 **Updated:** 2026-08-08
-**Current course position:** Lessons 1.1 through 5.5 are learner-confirmed complete. **44 of 216 lessons are complete.** Lesson 5.6 — Read an easing graph is the current unresolved checkpoint and generated frontier.
+**Current course position:** Lessons 1.1 through 5.6 are learner-confirmed complete. **45 of 216 lessons are complete.** Lesson 5.7 — Velocity is the current unresolved checkpoint and generated frontier.
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -10,8 +10,18 @@
 
 ---
 
-## 1. What changed through version 5.6.0
+## 1. What changed through version 5.7.0
 
+
+
+Version 5.7.0 records learner completion of Lesson 5.6 and generates Lesson 5.7:
+
+- Lesson 5.6 is learner-confirmed complete. Learner-confirmed progress is now **45 of 216 lessons**.
+- Lesson 5.7 defines one-dimensional average velocity as signed property-value change divided by elapsed time in seconds.
+- The controlled default uses ease-in opening: width 80 dp at 175 ms and width 128 dp at 350 ms. The result is `+48 dp ÷ 0.175 s = +274.2857 dp/s`.
+- Equal 175 ms intervals show different velocities under easing. Opening velocity is positive; closing velocity is negative.
+- The lesson explicitly separates average interval velocity from instantaneous velocity and from the internal estimators used by animation or gesture APIs.
+- Android changes: `Chapter05Screen.kt` and new `VelocityExplorer.kt`, with complete-screen and direct-child light/dark previews.
 
 Version 5.6.0 records learner completion of Lessons 5.1 through 5.5 and generates Lesson 5.6:
 

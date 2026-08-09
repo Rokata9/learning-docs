@@ -1,8 +1,8 @@
 # Liquid Glass on Android — Conversation Handoff
 
-**Course plan version:** 5.6.0
+**Course plan version:** 5.7.0
 **Updated:** 2026-08-08
-**Current position:** Lessons 1.1 through 5.5 are learner-confirmed complete. **44 of 216 lessons are complete.** Lesson 5.6 — Read an easing graph is the next unresolved checkpoint and generated frontier.
+**Current position:** Lessons 1.1 through 5.6 are learner-confirmed complete. **45 of 216 lessons are complete.** Lesson 5.7 — Velocity is the next unresolved checkpoint and generated frontier.
 
 ## Permanent course rules
 
@@ -3332,3 +3332,31 @@ current width = 64 + 256 × 0.0625 = 80 dp
 ```
 
 The lesson compares the selected point with the linear diagonal and with ease-out at the same X. It explicitly defers curve slope and velocity to Lesson 5.7. Android active child: `ReadEasingGraphExplorer.kt`.
+
+
+## Latest authoritative state — Lesson 5.7 generated
+
+```yaml
+learner_confirmed_completed_total: 45
+completed_through: "Lesson 5.6 — Read an easing graph"
+lesson_05_06_completed_by_learner: true
+lesson_05_07_generated: true
+lesson_05_07_completed_by_learner: false
+next_unresolved_checkpoint: "Lesson 5.7 — Velocity"
+generated_frontier: "Lesson 5.7 — Velocity"
+next_after_completion: "Lesson 5.8 — Spring intuition"
+```
+
+Lesson 5.7 starts from the completed width-versus-time graph. It defines two observations of the same property and calculates signed average velocity over the interval between them.
+
+Default ease-in opening trace:
+
+```text
+A = (175 ms, 80 dp)
+B = (350 ms, 128 dp)
+Delta width = +48 dp
+Delta time = 175 ms = 0.175 s
+average velocity = +48 ÷ 0.175 = +274.2857 dp/s
+```
+
+The lesson compares four equal 175 ms intervals, showing that easing produces different value changes and therefore different average velocities. Positive means width increases; negative means width decreases. Instantaneous velocity, Compose `VelocityTracker` internals, springs, flings, and interruption are explicitly deferred. Android active child: `VelocityExplorer.kt`.

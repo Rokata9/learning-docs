@@ -1,22 +1,22 @@
 # Liquid Glass Android course — current state
 
-**Authoritative learner-confirmed progress:** 44 of 216 lessons completed.
+**Authoritative learner-confirmed progress:** 45 of 216 lessons completed.
 
 ## Completed
 
 - Chapters 1, 2, 3, and 4 are complete.
-- Lessons 5.1 through 5.5 are complete.
-- The latest completed lesson is **5.5 — Easing**.
+- Lessons 5.1 through 5.6 are complete.
+- The latest completed lesson is **5.6 — Read an easing graph**.
 
 ## Not completed
 
-- **Lesson 5.6 — Read an easing graph** is generated and remains the current learner checkpoint.
+- **Lesson 5.7 — Velocity** is generated and remains the current learner checkpoint.
 - Chapter 5 is in progress.
 
 ## Course pointers
 
-- **Next unresolved learner checkpoint:** Lesson 5.6.
-- **Generated frontier:** Lesson 5.6 — Read an easing graph.
+- **Next unresolved learner checkpoint:** Lesson 5.7.
+- **Generated frontier:** Lesson 5.7 — Velocity.
 - **Generated-ahead lessons:** none beyond the current checkpoint.
 
 ## Latest authoritative Lesson 4.8 rewrite — visual layer movie and per-position algorithm
@@ -493,3 +493,8 @@ width = 64 + 256 × 0.0625 = 80 dp
 ```
 
 The lesson compares points below, on, and above the linear diagonal without introducing slope or velocity. Velocity remains Lesson 5.7.
+
+
+## Lesson 5.7 generated — Velocity
+
+Lesson 5.6 is learner-confirmed complete. Lesson 5.7 introduces signed average velocity for one UI property over one named interval. The controlled default compares width 80 dp at 175 ms with width 128 dp at 350 ms, producing +48 dp over 0.175 s and average velocity +274.2857 dp/s. The lesson compares equal 175 ms intervals under ease-in, distinguishes positive opening from negative closing velocity, and defers instantaneous velocity and renderer/gesture estimators. Learner-confirmed progress is 45 of 216.
