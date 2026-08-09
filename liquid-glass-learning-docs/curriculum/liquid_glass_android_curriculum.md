@@ -1,8 +1,8 @@
 # Liquid Glass on Android: Beginner-to-Expert Curriculum
 
-**Version:** 5.8.1
+**Version:** 5.9.1
 **Updated:** 2026-08-09
-**Current course position:** Lessons 1.1 through 5.6 are learner-confirmed complete. **45 of 216 lessons are complete.** Lesson 5.7 — Velocity remains the current unresolved checkpoint. Generated ahead: Lesson 5.8. Generated frontier: Lesson 5.8 — Spring intuition.
+**Current course position:** Lessons 1.1 through 5.6 are learner-confirmed complete. **45 of 216 lessons are complete.** Lesson 5.7 — Velocity remains the current unresolved checkpoint. Generated ahead: Lessons 5.8 and 5.9. Generated frontier: Lesson 5.9 — Overshoot and settle.
 **Primary platform:** Kotlin, Jetpack Compose, Android 13/API 33 or newer  
 **Physical test device:** Pixel 8 Pro  
 **Working Android project name:** `LiquidGlassLab`  
@@ -4332,6 +4332,10 @@ Lesson 5.5 is generated ahead. It does not close Lesson 5.1 or any intermediate 
 
 Progress remains 45 of 216. Lesson 5.7 is still unresolved. Lesson 5.8 uses a causal discrete teaching simulation to define target, displacement, spring pull, damping resistance, mass, velocity change, and position update. The browser model is explicitly separated from Compose spring(), whose public parameters are dampingRatio and stiffness.
 
+## Lesson 5.9 generated ahead — Overshoot and settle
+
+Progress remains 45 of 216. Lesson 5.7 remains unresolved. Lesson 5.9 defines crossing, overshoot, peak, oscillation, position tolerance, velocity tolerance, and consecutive settle confirmation. It compares measurable controlled elasticity with prolonged wobble and clearly separates browser teaching ticks from Compose spring execution.
+
 
 ### Version 5.8.1 — flexible-step regeneration
 
@@ -4340,3 +4344,23 @@ Progress remains 45 of 216. Lesson 5.7 is still unresolved. Lesson 5.8 uses a ca
 - Makes the total-beginner comprehension audit the first QA stage, before technical verification.
 - Regenerates Lesson 5.8 with twenty-four states, a variable ledger, symbolic spring-update contract, signed damping push, explicit fixed-tick assumption, and full Tick 1/Tick 2 substitution.
 - Lesson 5.7 remains unresolved. Lesson 5.8 remains generated ahead. Completion remains 45 of 216.
+
+
+### Version 5.9.1 — flexible-step regeneration
+
+- Regenerates Lesson 5.9 with twenty-three states chosen from its actual diagnostic dependencies.
+- Adds symbolic definitions for target side, crossing, overshoot, maximum overshoot, position error, speed magnitude, logical-AND qualification, and consecutive settle confirmation before numeric examples.
+- Keeps Lessons 5.8 and 5.9 generated ahead and incomplete. Lesson 5.7 remains unresolved. Completion remains 45 of 216.
+
+
+## Spring sign-cycle and graph-scale gate — Lesson 5.9 clarification
+
+When teaching an underdamped spring, a position-only graph is insufficient if its scale hides later oscillations. Future spring explanations must distinguish:
+
+- target crossings, where `d = T - x` and `S = k * d` change sign;
+- peaks and troughs, where velocity reaches zero and changes sign;
+- speed magnitude, which grows and shrinks within each half-cycle;
+- damping, which reduces each later excursion;
+- a lesson-specific settle threshold versus mathematically exact zero motion.
+
+If a full-range graph hides residual motion, provide a near-target zoom or stop the trace at the declared settle point. Post-settle simulated values must be visually distinguished from the portion counted by the lesson diagnostic.

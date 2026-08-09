@@ -12,13 +12,14 @@
 
 - **Lesson 5.7 — Velocity** is generated and remains the current learner checkpoint.
 - **Lesson 5.8 — Spring intuition** is generated ahead and is not learner-complete.
+- **Lesson 5.9 — Overshoot and settle** is generated ahead and is not learner-complete.
 - Chapter 5 is in progress.
 
 ## Course pointers
 
 - **Next unresolved learner checkpoint:** Lesson 5.7.
-- **Generated frontier:** Lesson 5.8 — Spring intuition.
-- **Generated-ahead lessons:** Lesson 5.8.
+- **Generated frontier:** Lesson 5.9 — Overshoot and settle.
+- **Generated-ahead lessons:** Lessons 5.8 and 5.9.
 
 ## Latest authoritative Lesson 4.8 rewrite — visual layer movie and per-position algorithm
 
@@ -504,6 +505,10 @@ Lesson 5.6 is learner-confirmed complete. Lesson 5.7 introduces signed average v
 
 Learner-confirmed progress remains 45 of 216. Lesson 5.7 remains the next unresolved checkpoint. Lesson 5.8 introduces an explicitly labelled browser teaching model for target, displacement, stiffness, damping, mass, velocity update, and position update. The Android companion uses the public Compose spring contract with damping ratio and stiffness; browser coefficients are not copied into Compose.
 
+## Lesson 5.9 generated ahead — Overshoot and settle
+
+Learner-confirmed progress remains 45 of 216. Lesson 5.7 remains the next unresolved checkpoint. Lesson 5.9 measures target crossings, maximum overshoot, direction reversal, and a chosen two-condition settle rule. Browser metrics belong to the teaching model; Android uses Compose spring presets and exposes live Animatable value and velocity.
+
 
 ## Lesson 5.8 regeneration after flexible-step audit
 
@@ -513,3 +518,25 @@ Learner-confirmed progress remains 45 of 216. Lesson 5.7 remains the next unreso
 - It now defines `T`, `x`, `v`, `k`, `c`, and `m`; shows `d = T - x`, `S = k × d`, `D = -c × v`, `N = S + D`, `Δv = N / m`, `v_next = v + Δv`, and `x_next = x + v_next`; then substitutes Tick 1 and Tick 2 values.
 - Because the walkthrough exceeds ten states, it uses Previous/Next navigation with `Step X of 24` rather than twenty-four numbered buttons.
 - Learner-confirmed progress remains 45 of 216. Lesson 5.7 remains unresolved.
+
+
+## Lesson 5.9 regeneration after flexible-step audit
+
+- Lessons 5.8 and 5.9 remain generated ahead and learner-incomplete.
+- Lesson 5.9 was regenerated with **23 states**, derived from the crossing, overshoot, peak, reversal, oscillation, tolerance, logical-AND, and consecutive-confirmation chain.
+- The lesson now defines `T`, `x_i`, `v_i`, signed side value `s_i`, overshoot `o_i`, maximum overshoot `o_max`, position error `e_i`, speed magnitude `q_i`, tolerances `epsilonX` and `epsilonV`, and confirmation count `N` before substituting numbers.
+- The walkthrough uses Previous/Next with `Step X of 23`, not one button per state.
+- Learner-confirmed progress remains 45 of 216. Lesson 5.7 remains the next unresolved checkpoint. Generated frontier remains Lesson 5.9.
+
+
+## Spring sign-cycle and graph-scale gate — Lesson 5.9 clarification
+
+When teaching an underdamped spring, a position-only graph is insufficient if its scale hides later oscillations. Future spring explanations must distinguish:
+
+- target crossings, where `d = T - x` and `S = k * d` change sign;
+- peaks and troughs, where velocity reaches zero and changes sign;
+- speed magnitude, which grows and shrinks within each half-cycle;
+- damping, which reduces each later excursion;
+- a lesson-specific settle threshold versus mathematically exact zero motion.
+
+If a full-range graph hides residual motion, provide a near-target zoom or stop the trace at the declared settle point. Post-settle simulated values must be visually distinguished from the portion counted by the lesson diagnostic.

@@ -502,3 +502,16 @@ This rule was added after Lessons 5.8 and 5.9 were mechanically generated with f
 7. **The beginner audit is QA stage zero.** Before JavaScript syntax, screenshots, links, Android parsing, or archive integrity, cold-read the first sentence, first two sections, first formula, all new terms, and the longest state using only learner-confirmed prerequisites. Any unexplained dependency fails the artifact and triggers regeneration or splitting.
 8. **Technical correctness cannot rescue incomprehension.** A page with valid code, working controls, and clean screenshots is still rejected when a total math and graphics beginner cannot state what every variable is, why each operation runs, and what consumes its result.
 9. **Harder future chapters may be deliberately verbose.** Shader, sampling, physics, rendering, geometry, and capstone lessons should err toward complete causal explanation rather than compressed expert prose.
+
+
+## Spring sign-cycle and graph-scale gate — Lesson 5.9 clarification
+
+When teaching an underdamped spring, a position-only graph is insufficient if its scale hides later oscillations. Future spring explanations must distinguish:
+
+- target crossings, where `d = T - x` and `S = k * d` change sign;
+- peaks and troughs, where velocity reaches zero and changes sign;
+- speed magnitude, which grows and shrinks within each half-cycle;
+- damping, which reduces each later excursion;
+- a lesson-specific settle threshold versus mathematically exact zero motion.
+
+If a full-range graph hides residual motion, provide a near-target zoom or stop the trace at the declared settle point. Post-settle simulated values must be visually distinguished from the portion counted by the lesson diagnostic.
