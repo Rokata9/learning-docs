@@ -515,3 +515,63 @@ When teaching an underdamped spring, a position-only graph is insufficient if it
 - a lesson-specific settle threshold versus mathematically exact zero motion.
 
 If a full-range graph hides residual motion, provide a near-target zoom or stop the trace at the declared settle point. Post-settle simulated values must be visually distinguished from the portion counted by the lesson diagnostic.
+
+
+## Adaptive diagram and stepper layout
+
+- A full-width diagram with a hidden or overlay stepper is a specialized layout, not the default. It was appropriate for dense mask/layer explanations where the complete visual evidence could not remain readable beside a step panel.
+- Default to **two simultaneously visible columns** when the diagram and the current explanation both remain readable at `1920×1080`: diagram on the left, stepper on the right.
+- Use a full-width diagram plus click-only overlay stepper only when a real space audit shows that the side-by-side layout would clip labels, shrink the geometry below a readable size, hide essential intermediate images, or force constant scrolling between evidence and explanation.
+- Decide per lesson from the content. Do not inherit the previous lesson’s layout mechanically.
+- Verify the initial state and the longest state at `1920×1080`. The learner must be able to inspect the current diagram and explanation together unless the full-width exception is explicitly justified.
+- When an overlay is justified, keep diagram-local Previous/Next controls synchronized with the hidden stepper, and support explicit close, outside-click dismissal, and Escape dismissal.
+
+## Markdown state hygiene
+
+- `CURRENT_STATE.md` contains only the authoritative current state and current checkpoint. It is not a chronological revision log.
+- The handoff keeps active rules, canonical exemplars, current files, and recent decisions. Compress superseded revision narratives into short lessons learned.
+- The curriculum keeps the full course plan plus concise implementation status. Do not duplicate complete lesson prose or every patch history there.
+- `AGENTS.md` and `USER_PREFERENCES.md` remain the canonical permanent-rule sources. Avoid copying their full contents into the state, handoff, or curriculum.
+- Preserve facts needed for continuation. Remove repeated package manifests, repeated QA reports, superseded status blocks, and prose already present in the lesson HTML or Kotlin source.
+
+### Consolidation, formulas-panel, and layout-choice gate
+
+1. When two consecutive lessons form one tightly coupled causal chain, consider merging them into one primary lesson rather than forcing an artificial split. Preserve numbering stability with a short archive or redirect page if downstream lesson numbers would otherwise shift.
+2. When a lesson uses several related formulas, place one prominent all-formulas panel near the top so the learner can cross-check symbols while reading graphs and stepper states.
+3. The default desktop layout is two simultaneously visible columns: diagram on the left and current explanation/stepper on the right. Use a full-width diagram with a hidden or overlay stepper only when side-by-side presentation would make key visual evidence unreadable.
+4. For time-trace lessons, provide at least one selected-sample table that lists the main variable values, whether each value increased or decreased from the previous sample, and which later formula consumes each value.
+
+### Visual-quality preservation with compact memory files
+
+1. Compaction must remove repeated historical logs, not the rules that produce good lessons. Keep a compact rule index, current-state summary, and canonical exemplars for 4.8, 4.9, and later successful lessons.
+2. When consolidating lessons, preserve the visual hierarchy and interaction richness of neighboring lessons unless the learner asks for a simpler reference page.
+3. For traces with many samples, provide a paged table whose columns are moments in time and whose cells show increase, decrease, or unchanged state from the previous sample.
+
+### Multi-series trace alignment, moment-matrix, and functional-control QA gate
+
+This rule was added after the first consolidated Lesson 5.8 repair drew curve segments with local slice indexes while the selected marker used the complete trace index. The marker therefore left the curve, and a JavaScript exception disabled the moment pager and explanation stepper.
+
+1. **Use one tick-to-X mapping for an entire trace.** A solid pre-settle segment, dashed post-settle segment, selected marker, crossing marker, and turning-point marker must all derive X from the same global tick index and complete trace length. Never stretch each sliced path independently across the chart width.
+2. **Use one value-to-Y mapping per compared graph.** When several series share one graph, calculate one combined numeric extent and draw every series and selected marker with that exact scale. Do not draw a second series using a separately computed Y range.
+3. **Make selected markers provably coincide with their series.** The marker must read the same data record and the same coordinate functions as the curve. Browser QA must test beginning, middle, crossing/turning, post-settle, and final ticks.
+4. **For a moment matrix, rows are variables and columns are ticks.** Show as many tick columns as the current viewport can hold. When all ticks do not fit, Previous/Next advances the horizontal tick window while preserving the same row order. A tick heading can select that tick in every graph.
+5. **Color means comparison with the preceding tick.** Use distinct indicators for increasing, decreasing, and unchanged values. Event rows such as crossing, velocity reversal, and settle qualification use a separate event treatment.
+6. **Functional QA clicks every navigation system.** Exercise the explanation Previous/Next controls through the complete state range and the tick pager through every page. A visible button is not evidence that its handler works.
+7. **Any JavaScript exception fails the lesson.** A runtime error that stops later render functions invalidates diagrams, tables, and controls even when earlier controls still appear to work.
+8. **Consolidation preserves the complete lesson scaffold.** Keep the causal stepper, prediction, coding challenge, hidden-answer exercises, checkpoint/review record, and evidence boundary unless the learner explicitly asks to remove them.
+
+### Spring trace matrix and bounce-event gate
+
+This rule was added after the consolidated Lesson 5.8 moment matrix lacked prominent spring parameters, repeated-formula context, and easily spotted bounce moments.
+
+1. A time-trace matrix must keep variables as rows and moments/ticks as columns.
+2. Each numeric cell must show the current value, a compact substituted formula or origin statement, and the increase/decrease/unchanged comparison with the preceding sample.
+3. Parameters that control an entire trace, especially stiffness `k`, damping `c`, mass `m`, and target `T`, must remain prominent near the matrix rather than appearing only in a distant formulas panel.
+4. A derived variable central to the current explanation, such as displacement `d = T − x`, must receive a prominent live readout for the selected tick.
+5. Distinguish target crossings from bounces. A target crossing changes the signs of displacement and spring pull. A bounce/turning point is the later peak or trough where velocity reverses sign.
+6. Make bounce moments easy to locate: highlight their complete tick columns, label peak and trough distinctly, and provide direct jump controls.
+7. State that a discrete bounce marker identifies the first recorded tick after the velocity-sign reversal; the exact continuous turning instant may lie between two recorded ticks.
+
+### Dependency-chain table gate
+
+When several variables form a causal chain, include a compact dependency table near the primary values or matrix. Each row must state which other inputs are held fixed, identify the immediate formula dependency, name the next affected value, and state the visible result. Do not present a combined result such as `N = S + D` as monotonic in one input unless the other input is explicitly held fixed. For selected samples, show one live substituted chain from current inputs through the next visible output.

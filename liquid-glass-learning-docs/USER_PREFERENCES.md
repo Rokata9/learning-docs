@@ -301,3 +301,37 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 - For unfamiliar mathematics, define every variable in plain language before the formula. State its symbol, input object, unit or numeric range, and role. Then show the symbolic formula, substitute actual values, show every intermediate result, and name the next operation that consumes the output.
 - More verbosity is preferred for the harder remaining graphics, shader, geometry, physics, and rendering lessons. The explanation must remain usable by a total mathematics and graphics beginner.
 - The **total-beginner comprehension audit happens first**, before syntax checks, screenshots, link checks, ZIP checks, or Android static checks. Audit the first sentence, first two sections, first formula, every unfamiliar term, and the longest walkthrough state. If the causal model is not understandable from completed prerequisites, regenerate or split the lesson before performing technical QA.
+
+
+## Liquid Glass course — adaptive diagram and stepper layout
+
+- A full-width diagram with a hidden or overlay stepper is a specialized layout, not the default. It was appropriate for dense mask/layer explanations where the complete visual evidence could not remain readable beside a step panel.
+- Default to **two simultaneously visible columns** when the diagram and the current explanation both remain readable at `1920×1080`: diagram on the left, stepper on the right.
+- Use a full-width diagram plus click-only overlay stepper only when a real space audit shows that the side-by-side layout would clip labels, shrink the geometry below a readable size, hide essential intermediate images, or force constant scrolling between evidence and explanation.
+- Decide per lesson from the content. Do not inherit the previous lesson’s layout mechanically.
+- Verify the initial state and the longest state at `1920×1080`. The learner must be able to inspect the current diagram and explanation together unless the full-width exception is explicitly justified.
+- When an overlay is justified, keep diagram-local Previous/Next controls synchronized with the hidden stepper, and support explicit close, outside-click dismissal, and Escape dismissal.
+
+## Markdown state hygiene
+
+- `CURRENT_STATE.md` contains only the authoritative current state and current checkpoint. It is not a chronological revision log.
+- The handoff keeps active rules, canonical exemplars, current files, and recent decisions. Compress superseded revision narratives into short lessons learned.
+- The curriculum keeps the full course plan plus concise implementation status. Do not duplicate complete lesson prose or every patch history there.
+- `AGENTS.md` and `USER_PREFERENCES.md` remain the canonical permanent-rule sources. Avoid copying their full contents into the state, handoff, or curriculum.
+- Preserve facts needed for continuation. Remove repeated package manifests, repeated QA reports, superseded status blocks, and prose already present in the lesson HTML or Kotlin source.
+
+- **Layout choice is contextual.** The large full-width diagram with a hidden stepper was the right choice for dense mask and layer lessons. In most lessons, keep diagram and stepper visible together in two columns when the evidence still fits readably.
+- **A visible all-formulas panel is valuable.** When several formulas interact, keep a prominent formulas summary near the top instead of hiding it deep in the lesson.
+- **For sampled traces, show value evolution explicitly.** A chosen moment-in-time table should show the current values, whether each increased or decreased from the previous sample, and how one variable feeds the next.
+
+- **Compacted memory files must not flatten lesson quality.** Keep memory files compact by removing repeated patch logs, but preserve the rule index and canonical exemplars that drive rich lesson design.
+- **Consolidated lessons should still look like full course lessons.** Merging two related lessons must not downgrade visual hierarchy, formulas, traces, or interactivity.
+
+- **Time-trace matrices use variables as rows and ticks as columns.** Show as many tick columns as the viewport permits. If the complete trace does not fit, use horizontal Previous/Next paging while preserving all variable rows. Color each value by whether it increased, decreased, or stayed unchanged relative to the previous tick, and keep crossing/turning/settle events visually distinct.
+- **Graph markers and curves must share the exact same coordinate mapping.** Selected-tick markers, solid/dashed trace portions, and multiple compared series must be calculated from one shared tick scale and the appropriate shared value scale.
+- **A consolidated lesson retains the normal course ending.** Prediction, coding challenge, exercises, checkpoint/review record, and evidence limits must not disappear merely because two lessons were merged.
+
+- **Spring/time matrices must be self-contained.** Keep the active `k`, `d`, and related formulas visible beside the matrix values so I do not need to scroll back to a global formula panel.
+- **Bounce moments must be easy to spot.** Mark peak and trough columns with distinct colors and icons, keep target crossings visually separate, and provide direct controls that jump to each event.
+
+- **Show causal dependency tables for coupled variables.** For physics or animation systems, include a compact table such as “if X increases while these other inputs stay fixed, Y decreases, which changes Z and produces this visible result.” Also show one live substituted chain for the selected moment.
