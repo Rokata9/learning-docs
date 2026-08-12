@@ -1,7 +1,7 @@
 # Liquid Glass on Android — concise conversation handoff
 
-**Updated:** 2026-08-11  
-**Course version:** 5.11.0
+**Updated:** 2026-08-12  
+**Course version:** 5.12.0  
 
 ## Read order
 
@@ -14,94 +14,67 @@
 
 Treat `CURRENT_STATE.md` as authoritative.
 
-## Status
+## Authoritative status
 
 ```yaml
 course_lessons_total: 216
-learner_confirmed_completed: 48
-completed_through: "Lesson 5.9 — Overshoot and settle"
+learner_confirmed_completed: 50
+completed_through: "Lesson 5.11 — Reversal and interruption"
 completed_chapters: [1, 2, 3, 4]
-chapter_05_status: "in progress"
-next_unresolved_checkpoint: "Lesson 5.10 — Press deformation"
-generated_frontier: "Lesson 5.11 — Reversal and interruption"
-generated_ahead: "Lesson 5.11 — Reversal and interruption"
-next_planned: "Lesson 5.12 — Slow-motion controller"
+chapter_05_status: "11 of 12 complete"
+next_unresolved_checkpoint: "Lesson 5.12 — Slow-motion controller"
+generated_frontier: "Lesson 5.12"
+next_planned_after_completion: "Lesson 6.1 — Composition, layout, and drawing"
 ```
 
-## Current artifacts
+Lessons 5.10 and 5.11 are learner-confirmed complete. Do not mark Lesson 5.12 complete until explicit confirmation.
+
+## Lesson 5.12 contract
+
+### Variable path
 
 ```text
-Learning:
-course/chapters/chapter-05/lesson-motion-without-mystery.html
-course/chapters/chapter-05/lesson-05-10-press-deformation.html
-course/chapters/chapter-05/lesson-05-11-reversal-and-interruption.html
+previous frame timestamp t_p
+current frame timestamp t_c
+→ real delta Δt_r = t_c − t_p
 
-Android:
-app/src/main/java/com/example/liquidglasslab/chapter05/Chapter05Screen.kt
-app/src/main/java/com/example/liquidglasslab/chapter05/ReversalInterruptionExplorer.kt
+debug speed s
+→ simulation delta Δt_s = Δt_r × s
+
+direction dir
+→ p_next = clamp(p + dir × Δt_s, 0, duration)
+
+progress u = p ÷ duration
+→ width, height, radius, and alpha
 ```
 
-## Lesson 5.10 value path
+Paused playback preserves `p`. The manual step button adds one chosen `16 ms` simulation increment. That value is a debug quantum, not a claim about device refresh timing.
+
+### Android path
 
 ```text
-runtime measured size W,H
-+ local pointer-down P = (pₓ,pᵧ)
-→ pivot fractions fₓ,fᵧ
-→ TransformOrigin O
-
-pressed Boolean b
-→ q target 0 or 1
-→ current spring amount q
-→ scale X, scale Y, radius
-
-pivot O + current scale
-→ transformed drawing points and draw bounds
-→ measured layout bounds remain unchanged
+withFrameNanos
+→ real frame delta
+→ local speed scaling
+→ signed play-time accumulator
+→ TargetBasedAnimation.getValueFromNanos
+→ capsule-to-panel geometry
 ```
 
-Course teaching values:
+## Preview placement rule
 
-```text
-W = 320
-H = 96
-P = (64, 48)
-(fₓ, fᵧ) = (0.20, 0.50)
-b = true
-q_target = 1
-current q = 0.75
-sₓ = 1.03
-sᵧ = 0.925
-r = 26 dp
-```
+- Complete chapter-screen previews live in `Chapter05Screen.kt`.
+- Direct custom-composable previews live in the custom composable's own file.
+- Lesson 5.12 therefore keeps direct `SlowMotionController` light/dark previews in `SlowMotionController.kt`.
 
-Tracked-point proofs:
+## Canonical explanation standards
 
-```text
-right-edge R = (320, 48)
-R′ = (327.68, 48)
-
-top-left A = (0, 0)
-A′ = (-1.92, 3.60)
-```
-
-## Implementation boundary
-
-- The browser is an inspectable formula model. It does not reproduce Compose's internal spring solver.
-- The Android lesson uses `onSizeChanged`, `detectTapGestures(onPress)`, `animateFloatAsState(spring)`, `TransformOrigin`, `graphicsLayer`, and Canvas.
-- The direct pointer-input implementation is appropriate for this lesson. A reusable design-system version should consume `PressInteraction` inside a custom `Indication` node.
-- Normal release and cancellation both clear the pressed state.
-
-## Layout and walkthrough
-
-- Use two visible columns at `1920×1080`: diagram left, stepper right.
-- The walkthrough has 20 causal states because the concept chain requires them. Use Previous / Step X of N / Next, not twenty buttons.
-- Base geometry must be painted before guide lines, labels, markers, and proof overlays.
-
-## Canonical exemplars
-
-- Lesson 4.8: layer/mask intermediate-state evidence.
-- Lesson 4.9: prerequisite-first mathematical derivation.
-- Consolidated Lesson 5.8: formulas panel, dependencies, and sampled trace matrix.
+- Lesson 4.8: visual intermediate images and explicit layer ownership.
+- Lesson 4.9: prerequisite-complete step depth for difficult math.
+- Consolidated Lesson 5.8: prominent all-formulas panel, moment matrix, dependency traces, and event markers.
+- Walkthrough length follows causal complexity; fourteen is not a target.
+- Total-beginner comprehension is QA stage zero.
+- Use diagram plus visible stepper by default; use overlay controls only when the visual evidence needs the full width.
 
 ## Response footer
 
@@ -109,11 +82,3 @@ A′ = (-1.92, 3.60)
 Course progress: X of 216 lessons completed.
 Estimated remaining conversation context: ~N tokens (approximate).
 ```
-
-## Generated-ahead Lesson 5.11
-
-- Does not depend on unresolved Lesson 5.10.
-- Teaches target reversal, interruption, value continuity, velocity continuity, latest-request-wins, and coroutine cancellation.
-- Browser teaching values: `k=0.10`, `c=0.20`, `m=1.00`, first reversal at Tick 4.
-- Android uses `Animatable.animateTo` without overriding normal reversal velocity.
-- Do not mark 5.10 or 5.11 complete until explicit learner confirmation.

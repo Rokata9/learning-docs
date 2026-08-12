@@ -335,3 +335,5 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 - **Bounce moments must be easy to spot.** Mark peak and trough columns with distinct colors and icons, keep target crossings visually separate, and provide direct controls that jump to each event.
 
 - **Show causal dependency tables for coupled variables.** For physics or animation systems, include a compact table such as “if X increases while these other inputs stay fixed, Y decreases, which changes Z and produces this visible result.” Also show one live substituted chain for the selected moment.
+
+- **Android preview location:** keep complete chapter-screen previews in `ChapterXXScreen.kt`, but place the direct preview of a custom lesson composable in that custom composable's own Kotlin file.

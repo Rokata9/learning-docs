@@ -9,12 +9,11 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **48 of 216**.
-- Completed through: **Lesson 5.9 — Overshoot and settle**.
+- Learner-confirmed complete: **50 of 216**.
+- Completed through: **Lesson 5.11 — Reversal and interruption**.
 - Completed chapters: **1–4**.
-- Current unresolved checkpoint: **Lesson 5.10 — Press deformation**.
-- Generated frontier: **Lesson 5.11 — Reversal and interruption**.
-- Next planned: **Lesson 5.12 — Slow-motion controller**.
+- Current checkpoint and generated frontier: **Lesson 5.12 — Slow-motion controller**.
+- Next planned after completion: **Lesson 6.1 — Composition, layout, and drawing**.
 
 ## 2. Course construction principles
 
@@ -127,7 +126,7 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 9. **5.9 — Archive / backward-compatible redirect.** Keep the lesson number stable while pointing learners back to the consolidated Lesson 5.8 teaching page.
 10. **5.10 — Press deformation.** Convert one local pointer-down position into a transform pivot; distinguish pressed Boolean, q target, and current q; derive non-uniform scale and radius; prove point movement around the pivot; keep layout bounds separate from draw bounds; finish release/cancellation and the reusable Indication boundary.
 11. **5.11 — Reversal and interruption.** Change the target during in-flight motion while preserving current value and velocity; compare smooth reversal with velocity reset and value snap defects; connect the contract to `Animatable.animateTo` cancellation and continuity.
-12. **5.12 — Slow-motion controller.** Add a debug speed slider and frame-step mode.
+12. **5.12 — Slow-motion controller.** Separate real frame time from local simulation play time; add a speed multiplier, pause, deterministic 16 ms debug step, reverse direction, and manual `TargetBasedAnimation` play-time control.
 
 **Checkpoint:** Build a reversible capsule-to-panel animation whose values can be inspected at any progress.
 
@@ -523,3 +522,12 @@ The curriculum preserves the full plan and concise active implementation records
 - The consolidated lesson retains its 24-state walkthrough, prediction, coding challenge, exercises, review checkpoint, and evidence boundary.
 
 - Consolidated Lesson 5.8 includes a conditional dependency table (`x → d → S`, `v → D`, `S + D → N → Δv → v_next → x_next`) and a live selected-tick chain. Each arrow states which other inputs are held fixed.
+
+
+## 5.12 implementation record
+
+- Prominent variable ledger and all-formulas panel define real frame delta, scaled simulation delta, direction, play time, progress, and fixed debug step.
+- Eighteen-state walkthrough follows timestamps → real delta → speed scaling → signed accumulation → progress → geometry → pause → frame step → Android boundary.
+- Browser model supports live speed, pause, one-step, reverse direction, and a controlled five-frame trace.
+- Android uses `withFrameNanos` as a timestamp source and `TargetBasedAnimation.getValueFromNanos` as a stateless calculation engine.
+- Complete chapter previews remain in `Chapter05Screen.kt`; direct child light/dark previews live in `SlowMotionController.kt`.

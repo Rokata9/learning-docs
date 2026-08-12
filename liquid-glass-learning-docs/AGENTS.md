@@ -318,12 +318,14 @@ Apply these rules to every Android lesson patch:
 
    `weight` is a member extension supplied by `RowScope` or `ColumnScope`. Use `Modifier.weight(...)` only inside the corresponding row or column content block. `matchParentSize` is a member extension supplied by `BoxScope`. Use `Modifier.matchParentSize()` only inside a `Box` content block. The scope receiver makes the function available; the package imports above are invalid for the course's Compose version.
 
-2. Every lesson that changes the active Android child composable must provide both kinds of Android Studio preview in the chapter screen file:
+2. Every lesson that changes the active Android child composable must provide both preview levels, but keep each preview beside the code it primarily verifies:
 
-   - a preview of the complete chapter screen;
-   - a direct preview of the active child lesson composable.
+   - keep complete chapter-screen previews in the chapter screen file;
+   - keep direct previews of the active custom child composable in that child composable's own file.
 
-3. For Lesson 3.1 and later, provide light and dark variants for both preview kinds. Wrap each preview in `LiquidGlassLabTheme`. Wrap a direct child preview in a theme-aware `Surface` when the child normally receives its page background or content color from the parent screen.
+   Do not place the direct child preview in `ChapterXXScreen.kt`. This keeps the preview next to the custom composable it is meant to inspect.
+
+3. For Lesson 3.1 and later, provide light and dark variants for both preview levels. Wrap each preview in `LiquidGlassLabTheme`. Wrap a direct child preview in a theme-aware `Surface` when the child normally receives its page background or content color from the parent screen.
 
 4. Preview wrapper functions must take no parameters. Supply representative values inside the wrapper when the child composable requires arguments.
 
