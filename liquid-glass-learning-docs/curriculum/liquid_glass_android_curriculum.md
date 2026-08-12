@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 5.10.1
+**Version:** 5.11.0
 **Updated:** 2026-08-11
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
@@ -12,8 +12,9 @@
 - Learner-confirmed complete: **48 of 216**.
 - Completed through: **Lesson 5.9 — Overshoot and settle**.
 - Completed chapters: **1–4**.
-- Current checkpoint and generated frontier: **Lesson 5.10 — Press deformation (pro regeneration)**.
-- Next planned: **Lesson 5.11 — Reversal and interruption**.
+- Current unresolved checkpoint: **Lesson 5.10 — Press deformation**.
+- Generated frontier: **Lesson 5.11 — Reversal and interruption**.
+- Next planned: **Lesson 5.12 — Slow-motion controller**.
 
 ## 2. Course construction principles
 
@@ -125,14 +126,24 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 8. **5.8 — Spring motion, overshoot, and settle.** Merge spring intuition with overshoot/settle so the full causal chain stays visible in one lesson.
 9. **5.9 — Archive / backward-compatible redirect.** Keep the lesson number stable while pointing learners back to the consolidated Lesson 5.8 teaching page.
 10. **5.10 — Press deformation.** Convert one local pointer-down position into a transform pivot; distinguish pressed Boolean, q target, and current q; derive non-uniform scale and radius; prove point movement around the pivot; keep layout bounds separate from draw bounds; finish release/cancellation and the reusable Indication boundary.
-11. **5.11 — Reversal and interruption.** Make an animation respond correctly to a second tap before it finishes.
+11. **5.11 — Reversal and interruption.** Change the target during in-flight motion while preserving current value and velocity; compare smooth reversal with velocity reset and value snap defects; connect the contract to `Animatable.animateTo` cancellation and continuity.
 12. **5.12 — Slow-motion controller.** Add a debug speed slider and frame-step mode.
 
 **Checkpoint:** Build a reversible capsule-to-panel animation whose values can be inspected at any progress.
 
 ---
 
-## 4. Current implementation record — Lesson 5.10
+## 4. Generated-ahead implementation record — Lesson 5.11
+
+- Twenty-two-state side-by-side walkthrough.
+- Prominent interruption formulas and variable ledger.
+- Interactive one- and two-interruption traces.
+- Smooth / reset-velocity / snap-value comparison.
+- Exact post-reversal calculations showing brief old-direction motion.
+- Android `Animatable` explorer with rapid target toggles and current value/velocity readouts.
+- Lesson 5.10 remains unresolved.
+
+## 5. Current implementation record — Lesson 5.10
 
 - Prominent all-formulas panel and variable ledger.
 - Twenty-state two-column walkthrough with synchronized diagram and stepper navigation.

@@ -1,7 +1,7 @@
 # Liquid Glass Android course — current state
 
 **Updated:** 2026-08-11  
-**Course version:** 5.10.1  
+**Course version:** 5.11.0  
 **Platform:** Kotlin + Jetpack Compose  
 **Test device:** Pixel 8 Pro
 
@@ -12,15 +12,17 @@
 - Completed chapters: **1, 2, 3, and 4**.
 - Chapter 5: in progress.
 - Current unresolved checkpoint: **Lesson 5.10 — Press deformation**.
-- Generated frontier: **Lesson 5.10**.
-- Next planned after explicit completion: **Lesson 5.11 — Reversal and interruption**.
+- Generated frontier: **Lesson 5.11 — Reversal and interruption**.
+- Generated ahead while Lesson 5.10 remains unresolved: **Lesson 5.11 — Reversal and interruption**.
+- Next planned after Lesson 5.11: **Lesson 5.12 — Slow-motion controller**.
 
-## Current lesson files
+## Current unresolved and generated-ahead files
 
 ```text
-course/chapters/chapter-05/lesson-05-10-press-deformation.html
+course/chapters/chapter-05/lesson-05-10-press-deformation.html  # unresolved
+course/chapters/chapter-05/lesson-05-11-reversal-and-interruption.html  # generated ahead
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter05/Chapter05Screen.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter05/PressDeformationExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter05/ReversalInterruptionExplorer.kt
 ```
 
 ## Lesson 5.10 contract
@@ -43,5 +45,13 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter05/PressDefor
 ## State-file hygiene
 
 Keep this file authoritative and brief. Permanent rules live in `AGENTS.md` and `USER_PREFERENCES.md`; complete teaching detail lives in lesson HTML and Kotlin.
+
+## Lesson 5.11 contract
+
+- A new target request changes target `T` immediately while current progress `q` and velocity `v` remain continuous.
+- The browser compares continuity-preserving reversal with velocity reset and value snap defects.
+- The course trace uses two interruptions and shows that motion may continue briefly in the old direction.
+- Android uses one `Animatable`; a new `animateTo` request cancels the in-flight request and continues from current value and velocity.
+- Lesson 5.10 remains incomplete.
 
 Course progress: 48 of 216 lessons completed.

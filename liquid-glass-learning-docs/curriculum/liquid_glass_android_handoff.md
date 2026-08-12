@@ -1,7 +1,7 @@
 # Liquid Glass on Android — concise conversation handoff
 
 **Updated:** 2026-08-11  
-**Course version:** 5.10.1
+**Course version:** 5.11.0
 
 ## Read order
 
@@ -23,8 +23,9 @@ completed_through: "Lesson 5.9 — Overshoot and settle"
 completed_chapters: [1, 2, 3, 4]
 chapter_05_status: "in progress"
 next_unresolved_checkpoint: "Lesson 5.10 — Press deformation"
-generated_frontier: "Lesson 5.10"
-next_planned_after_completion: "Lesson 5.11 — Reversal and interruption"
+generated_frontier: "Lesson 5.11 — Reversal and interruption"
+generated_ahead: "Lesson 5.11 — Reversal and interruption"
+next_planned: "Lesson 5.12 — Slow-motion controller"
 ```
 
 ## Current artifacts
@@ -33,10 +34,11 @@ next_planned_after_completion: "Lesson 5.11 — Reversal and interruption"
 Learning:
 course/chapters/chapter-05/lesson-motion-without-mystery.html
 course/chapters/chapter-05/lesson-05-10-press-deformation.html
+course/chapters/chapter-05/lesson-05-11-reversal-and-interruption.html
 
 Android:
 app/src/main/java/com/example/liquidglasslab/chapter05/Chapter05Screen.kt
-app/src/main/java/com/example/liquidglasslab/chapter05/PressDeformationExplorer.kt
+app/src/main/java/com/example/liquidglasslab/chapter05/ReversalInterruptionExplorer.kt
 ```
 
 ## Lesson 5.10 value path
@@ -107,3 +109,11 @@ A′ = (-1.92, 3.60)
 Course progress: X of 216 lessons completed.
 Estimated remaining conversation context: ~N tokens (approximate).
 ```
+
+## Generated-ahead Lesson 5.11
+
+- Does not depend on unresolved Lesson 5.10.
+- Teaches target reversal, interruption, value continuity, velocity continuity, latest-request-wins, and coroutine cancellation.
+- Browser teaching values: `k=0.10`, `c=0.20`, `m=1.00`, first reversal at Tick 4.
+- Android uses `Animatable.animateTo` without overriding normal reversal velocity.
+- Do not mark 5.10 or 5.11 complete until explicit learner confirmation.
