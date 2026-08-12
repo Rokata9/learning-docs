@@ -575,3 +575,11 @@ This rule was added after the consolidated Lesson 5.8 moment matrix lacked promi
 ### Dependency-chain table gate
 
 When several variables form a causal chain, include a compact dependency table near the primary values or matrix. Each row must state which other inputs are held fixed, identify the immediate formula dependency, name the next affected value, and state the visible result. Do not present a combined result such as `N = S + D` as monotonic in one input unless the other input is explicitly held fixed. For selected samples, show one live substituted chain from current inputs through the next visible output.
+
+### Press-deformation painter-order and proof gate — Lesson 5.10
+
+1. Draw the base control or material first. Paint pointer guides, dimensions, pivot markers, tracked points, labels, and proof overlays afterward so the fill cannot occlude the explanation.
+2. A pivoted transform lesson must prove at least two points: one that changes on a single axis and one that changes on both axes. Show symbolic formula, numeric substitution, and visible point movement.
+3. Keep measured layout bounds and transformed draw bounds visible simultaneously. Do not imply that `graphicsLayer` remeasures the composable.
+4. Distinguish local pointer pixels, normalized pivot fractions, Boolean pressed state, q target, and current q before deriving scale or radius.
+5. After a repeated structural defect, regenerate the lesson coherently rather than stacking another visual patch. QA every walkthrough state for occlusion, empty SVG output, and synchronized navigation.

@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 5.10.0  
-**Updated:** 2026-08-10  
+**Version:** 5.10.1
+**Updated:** 2026-08-11
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
 **Physical test device:** Pixel 8 Pro  
@@ -12,7 +12,7 @@
 - Learner-confirmed complete: **48 of 216**.
 - Completed through: **Lesson 5.9 — Overshoot and settle**.
 - Completed chapters: **1–4**.
-- Current checkpoint and generated frontier: **Lesson 5.10 — Press deformation**.
+- Current checkpoint and generated frontier: **Lesson 5.10 — Press deformation (pro regeneration)**.
 - Next planned: **Lesson 5.11 — Reversal and interruption**.
 
 ## 2. Course construction principles
@@ -124,13 +124,22 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 7. **5.7 — Velocity.** Understand movement per unit of time.
 8. **5.8 — Spring motion, overshoot, and settle.** Merge spring intuition with overshoot/settle so the full causal chain stays visible in one lesson.
 9. **5.9 — Archive / backward-compatible redirect.** Keep the lesson number stable while pointing learners back to the consolidated Lesson 5.8 teaching page.
-10. **5.10 — Press deformation.** Connect pointer position and pressure state to scale and shape.
+10. **5.10 — Press deformation.** Convert one local pointer-down position into a transform pivot; distinguish pressed Boolean, q target, and current q; derive non-uniform scale and radius; prove point movement around the pivot; keep layout bounds separate from draw bounds; finish release/cancellation and the reusable Indication boundary.
 11. **5.11 — Reversal and interruption.** Make an animation respond correctly to a second tap before it finishes.
 12. **5.12 — Slow-motion controller.** Add a debug speed slider and frame-step mode.
 
 **Checkpoint:** Build a reversible capsule-to-panel animation whose values can be inspected at any progress.
 
 ---
+
+## 4. Current implementation record — Lesson 5.10
+
+- Prominent all-formulas panel and variable ledger.
+- Twenty-state two-column walkthrough with synchronized diagram and stepper navigation.
+- Live local pointer position, q snapshot, scale, radius, pivot, draw bounds, and tracked-point proofs.
+- Dependency table, prediction, coding challenge, four exercises, ten-item checkpoint, and evidence boundary.
+- Android explorer uses actual Compose pointer, animation, graphics-layer, and Canvas APIs.
+
 
 ### Chapter 6 — How Android draws the scene
 
