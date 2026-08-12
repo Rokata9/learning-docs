@@ -9,11 +9,11 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **50 of 216**.
-- Completed through: **Lesson 5.11 — Reversal and interruption**.
-- Completed chapters: **1–4**.
-- Current checkpoint and generated frontier: **Lesson 5.12 — Slow-motion controller**.
-- Next planned after completion: **Lesson 6.1 — Composition, layout, and drawing**.
+- Learner-confirmed complete: **51 of 216**.
+- Completed through: **Lesson 5.12 — Slow-motion controller**.
+- Completed chapters: **1–5**.
+- Current checkpoint and generated frontier: **Lesson 6.1 — Composition, layout, and drawing**.
+- Next planned: **Lesson 6.2 — Draw order and ownership**.
 
 ## 2. Course construction principles
 
@@ -152,6 +152,18 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 
 
 ### Chapter 6 — How Android draws the scene
+
+**Current implementation record — Lesson 6.1**
+
+- One controlled card is traced through composition, layout, and drawing.
+- Composition outputs the current UI tree.
+- Layout outputs measured sizes and placed coordinates.
+- Drawing outputs the rendered frame.
+- The browser separates badge existence, content inset, and card fill as phase-focused inputs.
+- The Android explorer reads those state values inside composition, layout, and drawing scopes respectively.
+- Nine walkthrough states are used because this dependency chain does not require fourteen or more.
+- Complete previews live in `Chapter06Screen.kt`; direct explorer previews live in `CompositionLayoutDrawingExplorer.kt`.
+
 
 **Purpose:** Understand why a normal blur modifier is not enough for real backdrop glass.
 
