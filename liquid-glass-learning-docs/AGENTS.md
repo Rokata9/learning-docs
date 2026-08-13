@@ -585,3 +585,11 @@ When several variables form a causal chain, include a compact dependency table n
 3. Keep measured layout bounds and transformed draw bounds visible simultaneously. Do not imply that `graphicsLayer` remeasures the composable.
 4. Distinguish local pointer pixels, normalized pivot fractions, Boolean pressed state, q target, and current q before deriving scale or radius.
 5. After a repeated structural defect, regenerate the lesson coherently rather than stacking another visual patch. QA every walkthrough state for occlusion, empty SVG output, and synchronized navigation.
+
+### Single interactive-state source and step-preset gate
+
+1. A live control and a walkthrough diagram must read the same canonical state. Do not keep a hidden render-only preset that overrides the selected button while labels and metrics display another value.
+2. When a walkthrough state needs a particular scenario, set the canonical control state explicitly when entering that state. Keep the controls live afterward so the learner can compare alternatives.
+3. Step captions must say when a scenario is merely the step default. If the learner changes it, formulas, labels, metrics, and SVG output must all update from the same new value.
+4. Before packaging, traverse the walkthrough, change every live preset at early, middle, and late states, and verify the diagram, selected button, source-order metric, effective-order metric, and per-position trace remain synchronized.
+5. Avoid compressed future-boundary phrases such as `no automatic sample path` or `explicit capture path deferred`. Name the missing object and data route: no recorded image or texture is passed to the effect; later code will record the source, map/crop the relevant region, and make those pixels readable.

@@ -1,7 +1,7 @@
 # Liquid Glass on Android — concise conversation handoff
 
-**Updated:** 2026-08-12  
-**Course version:** 6.1.0  
+**Updated:** 2026-08-13  
+**Course version:** 6.2.1  
 
 ## Read order
 
@@ -18,66 +18,67 @@ Treat `CURRENT_STATE.md` as authoritative.
 
 ```yaml
 course_lessons_total: 216
-learner_confirmed_completed: 51
-completed_through: "Lesson 5.12 — Slow-motion controller"
+learner_confirmed_completed: 52
+completed_through: "Lesson 6.1 — Composition, layout, and drawing"
 completed_chapters: [1, 2, 3, 4, 5]
-chapter_06_status: "in progress; 0 of 11 complete"
-next_unresolved_checkpoint: "Lesson 6.1 — Composition, layout, and drawing"
-generated_frontier: "Lesson 6.1"
-next_planned_after_completion: "Lesson 6.2 — Draw order and ownership"
+chapter_06_status: "in progress; 1 of 11 complete"
+next_unresolved_checkpoint: "Lesson 6.2 — Draw order and ownership"
+generated_frontier: "Lesson 6.2"
+next_planned_after_completion: "Lesson 6.3 — Graphics layers"
 ```
 
-Lesson 5.12 is learner-confirmed complete. Do not mark Lesson 6.1 complete until explicit confirmation.
+Lesson 6.1 is learner-confirmed complete. Do not mark Lesson 6.2 complete until explicit confirmation.
 
-## Lesson 6.1 contract
+## Lesson 6.2 contract
 
 ```text
-requested state
-→ composition
-→ UI tree
-→ layout
-→ measured sizes and placed positions
-→ drawing
-→ visible pixels
+one Box parent
+→ three sibling owners
+→ source child order
+→ optional zIndex override
+→ effective sibling draw order
+→ owner-local draw commands
+→ final frame
 ```
 
-Controlled inputs:
+Ownership ledger:
 
 ```text
-showBadge
-→ read in composition
-→ badge node exists or does not exist
+BackdropScene
+→ base, stripes, circles, sharp line
 
-contentInset
-→ read inside layout
-→ existing nodes receive placed coordinates
+GlassPanel
+→ translucent fill and rim
 
-cardColor
-→ read inside drawing
-→ fixed geometry receives another fill color
+ForegroundLabel
+→ label capsule and text
 ```
 
-The browser uses fixed teaching units. Android measures real text and layout bounds at runtime.
+The selected-position trace filters effective order by geometry coverage. A sibling can exist without contributing at the inspected coordinate.
 
 ## Android path
 
 ```text
-if (showBadgeState.value)
-→ composition decides child existence
+Box
+→ order preset emits three children
+→ optional label zIndex
+→ BackdropOwner Canvas
+→ GlassPanel drawBehind / drawWithContent
+→ ForegroundLabel Surface
+```
 
-Layout measure/placement lambda
-→ reads inset state
-→ measures and places current children
+Sibling order is separate from one node's internal order:
 
-drawBehind / DrawScope
-→ reads fill-color state
-→ paints the rounded card
+```text
+drawBehind
+→ drawContent()
+→ overlay draw
 ```
 
 ## Preview placement rule
 
 - Complete chapter-screen previews live in `Chapter06Screen.kt`.
-- Direct custom-composable previews live in `CompositionLayoutDrawingExplorer.kt`.
+- Direct custom-composable previews live in `DrawOrderOwnershipExplorer.kt`.
 - Light and dark variants are required for both.
 
 ## Canonical explanation standards
@@ -95,3 +96,10 @@ drawBehind / DrawScope
 Course progress: X of 216 lessons completed.
 Estimated remaining conversation context: ~N tokens (approximate).
 ```
+
+
+## Lesson 6.2 clarification
+
+- Replace `no automatic sample path` with: no recorded backdrop image or texture is automatically passed to `GlassPanel` merely because it draws later.
+- Replace `explicit capture path = deferred` with the concrete future route: record backdrop → map/crop panel region → replay or read recorded pixels.
+- Preset buttons and the walkthrough diagram share one canonical order state. Never restore a hidden per-step render override.

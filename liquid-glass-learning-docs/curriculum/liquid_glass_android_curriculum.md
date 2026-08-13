@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 5.11.0
-**Updated:** 2026-08-11
+**Version:** 6.2.1
+**Updated:** 2026-08-13
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
 **Physical test device:** Pixel 8 Pro  
@@ -9,11 +9,11 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **51 of 216**.
-- Completed through: **Lesson 5.12 — Slow-motion controller**.
+- Learner-confirmed complete: **52 of 216**.
+- Completed through: **Lesson 6.1 — Composition, layout, and drawing**.
 - Completed chapters: **1–5**.
-- Current checkpoint and generated frontier: **Lesson 6.1 — Composition, layout, and drawing**.
-- Next planned: **Lesson 6.2 — Draw order and ownership**.
+- Current checkpoint and generated frontier: **Lesson 6.2 — Draw order and ownership**.
+- Next planned: **Lesson 6.3 — Graphics layers**.
 
 ## 2. Course construction principles
 
@@ -164,6 +164,16 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 - Nine walkthrough states are used because this dependency chain does not require fourteen or more.
 - Complete previews live in `Chapter06Screen.kt`; direct explorer previews live in `CompositionLayoutDrawingExplorer.kt`.
 
+
+**Current implementation record — Lesson 6.2**
+
+- One Box contains BackdropScene, GlassPanel, and ForegroundLabel as siblings.
+- Ownership stays fixed while source order and zIndex change.
+- The browser compares correct order, background-last defect, panel-last defect, and a label zIndex rescue.
+- A selected-position trace lists only owners whose geometry covers the coordinate.
+- Sibling order is separated from one node's internal drawBehind → drawContent → overlay order.
+- Twelve walkthrough states are used; the diagram and stepper remain visible together.
+- Complete previews live in Chapter06Screen.kt; direct previews live in DrawOrderOwnershipExplorer.kt.
 
 **Purpose:** Understand why a normal blur modifier is not enough for real backdrop glass.
 
@@ -543,3 +553,10 @@ The curriculum preserves the full plan and concise active implementation records
 - Browser model supports live speed, pause, one-step, reverse direction, and a controlled five-frame trace.
 - Android uses `withFrameNanos` as a timestamp source and `TargetBasedAnimation.getValueFromNanos` as a stateless calculation engine.
 - Complete chapter previews remain in `Chapter05Screen.kt`; direct child light/dark previews live in `SlowMotionController.kt`.
+
+
+### Lesson 6.2 clarification record
+
+- Draw order changes final stacking but does not automatically provide a readable sibling-backdrop image to foreground code.
+- The missing future data route is stated explicitly: record the backdrop, map/crop the panel region, then replay or read the recorded pixels.
+- All order controls, metrics, traces, and walkthrough SVG states now consume one canonical preset value; step-specific demonstrations set that value explicitly instead of silently overriding rendering.
