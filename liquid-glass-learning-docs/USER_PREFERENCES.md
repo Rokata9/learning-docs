@@ -337,3 +337,5 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 - **Show causal dependency tables for coupled variables.** For physics or animation systems, include a compact table such as “if X increases while these other inputs stay fixed, Y decreases, which changes Z and produces this visible result.” Also show one live substituted chain for the selected moment.
 
 - **Android preview location:** keep complete chapter-screen previews in `ChapterXXScreen.kt`, but place the direct preview of a custom lesson composable in that custom composable's own Kotlin file.
+
+- **Android Studio preview scrollability:** for every newly generated lesson, make both the complete chapter-screen preview and the direct custom-composable preview vertically scrollable so the entire lesson can be inspected without a device. Do not retrofit previous lessons unless explicitly requested.

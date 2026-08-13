@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 6.2.1
+**Version:** 6.2.2
 **Updated:** 2026-08-13
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
@@ -9,10 +9,11 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **52 of 216**.
-- Completed through: **Lesson 6.1 — Composition, layout, and drawing**.
+- Learner-confirmed complete: **53 of 216**.
+- Completed through: **Lesson 6.2 — Draw order and ownership**.
 - Completed chapters: **1–5**.
-- Current checkpoint and generated frontier: **Lesson 6.2 — Draw order and ownership**.
+- Current unresolved checkpoint: **Lesson 6.3 — Graphics layers** (not generated yet).
+- Generated frontier: **Lesson 6.2 — Draw order and ownership**.
 - Next planned: **Lesson 6.3 — Graphics layers**.
 
 ## 2. Course construction principles
@@ -28,6 +29,7 @@
 - Let walkthrough length follow the actual dependency chain. Fourteen is not a template.
 - Use side-by-side diagram and stepper by default when both fit readably. Use a full-width diagram with hidden controls only when spatial evidence requires it.
 - Complete beginner-comprehension QA before technical QA.
+- For every future Android lesson, both complete-screen and direct-child previews must let the learner scroll through all generated content inside Android Studio Preview; do not retrofit earlier lessons unless requested.
 - Deliver only incremental changed files.
 - Count only explicit learner completion.
 

@@ -329,6 +329,16 @@ Apply these rules to every Android lesson patch:
 
 4. Preview wrapper functions must take no parameters. Supply representative values inside the wrapper when the child composable requires arguments.
 
+5. **All lesson content must be inspectable by scrolling inside Android Studio Preview.** For every newly generated lesson:
+
+   - the complete chapter-screen preview must expose the whole lesson through vertical scrolling;
+   - the direct custom-composable preview must also be vertically scrollable, either because the custom composable already owns a scroll container or because the preview wrapper supplies one;
+   - do not rely on a physical device to reach content below the preview height;
+   - avoid accidental nested scrolling when the child is already scrollable;
+   - verify the longest generated content in Android Studio Preview or an equivalent finite-height preview container before delivery.
+
+   This rule applies prospectively. Do not rewrite earlier lessons solely to retrofit preview scrolling unless the learner explicitly requests it.
+
 
 ### Value provenance, pre-clamp terminology, and matrix-contract gate
 

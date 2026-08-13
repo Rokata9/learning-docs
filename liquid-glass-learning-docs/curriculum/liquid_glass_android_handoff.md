@@ -1,7 +1,7 @@
 # Liquid Glass on Android — concise conversation handoff
 
 **Updated:** 2026-08-13  
-**Course version:** 6.2.1  
+**Course version:** 6.2.2  
 
 ## Read order
 
@@ -18,16 +18,16 @@ Treat `CURRENT_STATE.md` as authoritative.
 
 ```yaml
 course_lessons_total: 216
-learner_confirmed_completed: 52
-completed_through: "Lesson 6.1 — Composition, layout, and drawing"
+learner_confirmed_completed: 53
+completed_through: "Lesson 6.2 — Draw order and ownership"
 completed_chapters: [1, 2, 3, 4, 5]
-chapter_06_status: "in progress; 1 of 11 complete"
-next_unresolved_checkpoint: "Lesson 6.2 — Draw order and ownership"
+chapter_06_status: "in progress; 2 of 11 complete"
+next_unresolved_checkpoint: "Lesson 6.3 — Graphics layers (not generated yet)"
 generated_frontier: "Lesson 6.2"
-next_planned_after_completion: "Lesson 6.3 — Graphics layers"
+next_planned: "Lesson 6.3 — Graphics layers"
 ```
 
-Lesson 6.1 is learner-confirmed complete. Do not mark Lesson 6.2 complete until explicit confirmation.
+Lessons 6.1 and 6.2 are learner-confirmed complete. Lesson 6.3 has not been generated.
 
 ## Lesson 6.2 contract
 
@@ -75,11 +75,13 @@ drawBehind
 → overlay draw
 ```
 
-## Preview placement rule
+## Preview placement and scrollability rule
 
-- Complete chapter-screen previews live in `Chapter06Screen.kt`.
-- Direct custom-composable previews live in `DrawOrderOwnershipExplorer.kt`.
+- Complete chapter-screen previews live in `ChapterXXScreen.kt`.
+- Direct custom-composable previews live in that custom composable's own Kotlin file.
 - Light and dark variants are required for both.
+- For every future lesson, both preview levels must be vertically scrollable through the complete lesson content inside Android Studio Preview.
+- Do not retrofit previous lessons solely for this rule unless the learner asks.
 
 ## Canonical explanation standards
 
@@ -97,9 +99,8 @@ Course progress: X of 216 lessons completed.
 Estimated remaining conversation context: ~N tokens (approximate).
 ```
 
+## Latest completion
 
-## Lesson 6.2 clarification
-
-- Replace `no automatic sample path` with: no recorded backdrop image or texture is automatically passed to `GlassPanel` merely because it draws later.
-- Replace `explicit capture path = deferred` with the concrete future route: record backdrop → map/crop panel region → replay or read recorded pixels.
-- Preset buttons and the walkthrough diagram share one canonical order state. Never restore a hidden per-step render override.
+- Lesson 6.2 — Draw order and ownership is learner-confirmed complete.
+- Course progress is 53 of 216.
+- Lesson 6.3 — Graphics layers is the next unresolved checkpoint and has not been generated.
