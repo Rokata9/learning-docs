@@ -603,3 +603,12 @@ When several variables form a causal chain, include a compact dependency table n
 3. Step captions must say when a scenario is merely the step default. If the learner changes it, formulas, labels, metrics, and SVG output must all update from the same new value.
 4. Before packaging, traverse the walkthrough, change every live preset at early, middle, and late states, and verify the diagram, selected button, source-order metric, effective-order metric, and per-position trace remain synchronized.
 5. Avoid compressed future-boundary phrases such as `no automatic sample path` or `explicit capture path deferred`. Name the missing object and data route: no recorded image or texture is passed to the effect; later code will record the source, map/crop the relevant region, and make those pixels readable.
+
+
+### Coordinate-space and self-contained-step formula gate
+
+1. Label every coordinate tuple at the point where it appears: owner-local, child-local, layout-slot-relative, parent-local, window, or screen. Do not leave a bare pair such as `(366.74, 107.83)` when more than one coordinate origin exists in the lesson.
+2. Never compare coordinates from different spaces. Before describing visible movement, convert both the original and transformed point into the same coordinate system and subtract those matching-space values.
+3. A walkthrough state must be self-contained. Repeat the current variable names, values, units, and coordinate spaces immediately beside the formula that consumes them. Do not require scrolling to an earlier input ledger to decode a long substituted calculation.
+4. Every coordinate conversion must visibly name the origin being added or subtracted. Show `parent point = parent layout origin + slot-relative point`, with both substituted tuples.
+5. When a final coordinate looks unexpectedly large, separate the contribution of the parent placement from the actual transform-induced movement. State which portion came from scale, rotation, translation, and origin conversion.

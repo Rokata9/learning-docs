@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 6.2.2
-**Updated:** 2026-08-13
+**Version:** 6.4.0
+**Updated:** 2026-08-14
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
 **Physical test device:** Pixel 8 Pro  
@@ -9,12 +9,12 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **53 of 216**.
-- Completed through: **Lesson 6.2 — Draw order and ownership**.
+- Learner-confirmed complete: **54 of 216**.
+- Completed through: **Lesson 6.3 — Graphics layers**.
 - Completed chapters: **1–5**.
-- Current unresolved checkpoint: **Lesson 6.3 — Graphics layers** (not generated yet).
-- Generated frontier: **Lesson 6.2 — Draw order and ownership**.
-- Next planned: **Lesson 6.3 — Graphics layers**.
+- Current unresolved checkpoint: **Lesson 6.4 — `RenderEffect` on owned content**.
+- Generated frontier: **Lesson 6.4 — `RenderEffect` on owned content**.
+- Next planned after explicit completion: **Lesson 6.5 — The backdrop problem**.
 
 ## 2. Course construction principles
 
@@ -23,6 +23,7 @@
 - Define every new term before relying on it.
 - State the practical problem before vocabulary and formulas.
 - For hard formulas: variable ledger → symbolic formula → substituted values → intermediate results → final output → next consumer.
+- Label every coordinate tuple by coordinate space and keep each walkthrough formula self-contained with its current inputs and substituted values.
 - Use visual intermediate states before summaries.
 - Time-trace matrices must repeat compact substituted formulas in their cells and visually separate target crossings from velocity-reversal bounces.
 - When a lesson uses multiple formulas, keep one prominent all-formulas panel near the top.
@@ -155,6 +156,9 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 
 ### Chapter 6 — How Android draws the scene
 
+**Lesson 6.3 implementation clarification:** Step 10 explicitly separates owner-local coordinates, layout-slot-relative output, and parent coordinates. It compares the point before and after the transform only in parent coordinates and repeats every current input inside the walkthrough state.
+
+
 **Current implementation record — Lesson 6.1**
 
 - One controlled card is traced through composition, layout, and drawing.
@@ -177,6 +181,19 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 - Twelve walkthrough states are used; the diagram and stepper remain visible together.
 - Complete previews live in Chapter06Screen.kt; direct previews live in DrawOrderOwnershipExplorer.kt.
 
+
+**Current implementation record — Lesson 6.3**
+
+- One `LayerArtwork` owner contains a base, stripe, status dot, and label.
+- `Modifier.graphicsLayer` groups those owner-local drawing instructions into one draw layer.
+- Translation, rotation, scale, alpha, and transform origin apply to the complete group.
+- The measured 360 × 200 slot remains fixed while transformed drawing can extend outside it.
+- One tracked point reuses the completed transform-origin path to prove the common layer transform.
+- The lesson distinguishes a draw layer from offscreen rasterized pixels. Under the default Auto strategy, alpha below 1 causes offscreen compositing.
+- The lesson explicitly states that graphicsLayer does not supply a readable image of backdrop siblings.
+- Thirteen walkthrough states use the normal two-column diagram/stepper layout.
+- Complete previews live in `Chapter06Screen.kt`; direct scrollable previews live in `GraphicsLayersExplorer.kt`.
+
 **Purpose:** Understand why a normal blur modifier is not enough for real backdrop glass.
 
 1. **6.1 — Composition, layout, and drawing.** Learn what each Compose phase is responsible for.
@@ -194,6 +211,17 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 **Checkpoint:** Move a glass panel over a dynamic background and sample the correct region without recursive capture.
 
 ---
+
+
+**Current implementation record — Lesson 6.4**
+
+- One parent scene contains a separately owned sharp backdrop sibling and one `OwnedCard` effect owner.
+- The browser compares whole-owner, green-dot-only, and no-effect attachment.
+- A four-image pipeline shows parent-before-owner, sharp effect input, effect output, and final composite.
+- `RenderEffect` forces offscreen rasterization for the selected owner.
+- The lesson proves that visible backdrop content does not automatically become part of the owner's effect input.
+- The Android explorer converts dp radius to runtime px and applies `BlurEffect` through `graphicsLayer.renderEffect`.
+- Complete previews live in `Chapter06Screen.kt`; direct scrollable previews live in `RenderEffectOwnedContentExplorer.kt`.
 
 ### Chapter 7 — Build convincing frosted glass without a custom lens
 
@@ -448,11 +476,12 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 | 2 · Screen grid and coordinates | Complete | 9 |
 | 3 · Color, opacity, compositing | Complete | 11 |
 | 4 · Shapes, paths, masks | Complete | 11 |
-| 5 · Motion without mystery | In progress | 9 of 12 |
+| 5 · Motion without mystery | Complete | 12 |
+| 6 · How Android draws the scene | In progress | 3 of 11 |
 
-Total learner-confirmed completion: **48**.
+Total learner-confirmed completion: **54**.
 
-## 5. Current implementation record — Lesson 5.10
+## 5. Historical implementation record — Lesson 5.10
 
 ### New graphics idea
 

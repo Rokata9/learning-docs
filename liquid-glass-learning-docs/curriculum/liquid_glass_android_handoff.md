@@ -1,7 +1,7 @@
 # Liquid Glass on Android — concise conversation handoff
 
-**Updated:** 2026-08-13  
-**Course version:** 6.2.2  
+**Updated:** 2026-08-14  
+**Course version:** 6.4.0
 
 ## Read order
 
@@ -9,7 +9,7 @@
 2. `AGENTS.md`
 3. `CURRENT_STATE.md`
 4. This handoff
-5. `liquid_glass_android_curriculum.md` only when the full plan is needed
+5. `liquid_glass_android_curriculum.md` when the full plan is needed
 6. Current lesson HTML and Android files
 
 Treat `CURRENT_STATE.md` as authoritative.
@@ -18,70 +18,59 @@ Treat `CURRENT_STATE.md` as authoritative.
 
 ```yaml
 course_lessons_total: 216
-learner_confirmed_completed: 53
-completed_through: "Lesson 6.2 — Draw order and ownership"
+learner_confirmed_completed: 54
+completed_through: "Lesson 6.3 — Graphics layers"
 completed_chapters: [1, 2, 3, 4, 5]
-chapter_06_status: "in progress; 2 of 11 complete"
-next_unresolved_checkpoint: "Lesson 6.3 — Graphics layers (not generated yet)"
-generated_frontier: "Lesson 6.2"
-next_planned: "Lesson 6.3 — Graphics layers"
+chapter_06_status: "in progress; 3 of 11 complete"
+next_unresolved_checkpoint: "Lesson 6.4 — RenderEffect on owned content"
+generated_frontier: "Lesson 6.4"
+next_planned_after_completion: "Lesson 6.5 — The backdrop problem"
 ```
 
-Lessons 6.1 and 6.2 are learner-confirmed complete. Lesson 6.3 has not been generated.
-
-## Lesson 6.2 contract
+## Lesson 6.4 contract
 
 ```text
-one Box parent
-→ three sibling owners
-→ source child order
-→ optional zIndex override
-→ effective sibling draw order
-→ owner-local draw commands
-→ final frame
+one parent scene
+├── BackdropSibling · sharp, separate owner
+└── OwnedCard · selected effect owner
+    ├── translucent fill
+    ├── amber stripe
+    ├── green dot
+    ├── white detail lines
+    └── label
 ```
 
-Ownership ledger:
+Whole-owner path:
 
 ```text
-BackdropScene
-→ base, stripes, circles, sharp line
-
-GlassPanel
-→ translucent fill and rim
-
-ForegroundLabel
-→ label capsule and text
+OwnedCard draw commands
+→ graphicsLayer with non-null RenderEffect
+→ offscreen rasterization
+→ sharp owner pixels
+→ BlurEffect(radiusX, radiusY)
+→ blurred owner output
+→ composite over parent
 ```
 
-The selected-position trace filters effective order by geometry coverage. A sibling can exist without contributing at the inspected coordinate.
+The backdrop sibling never enters that effect input. Dot-only mode moves the effect boundary to the dot child; no-effect mode sets `renderEffect = null`.
 
 ## Android path
 
 ```text
-Box
-→ order preset emits three children
-→ optional label zIndex
-→ BackdropOwner Canvas
-→ GlassPanel drawBehind / drawWithContent
-→ ForegroundLabel Surface
+blurRadiusDp
+→ LocalDensity conversion
+→ blurRadiusPx
+→ BlurEffect
+→ graphicsLayer.renderEffect on selected owner
 ```
 
-Sibling order is separate from one node's internal order:
+The course minimum is API 33, so the Android 12+ RenderEffect requirement is satisfied. `TileMode.Decal` is fixed for this lesson; detailed edge-treatment comparison is deferred to Lesson 7.3.
 
-```text
-drawBehind
-→ drawContent()
-→ overlay draw
-```
+## Preview placement and scrollability
 
-## Preview placement and scrollability rule
-
-- Complete chapter-screen previews live in `ChapterXXScreen.kt`.
-- Direct custom-composable previews live in that custom composable's own Kotlin file.
-- Light and dark variants are required for both.
-- For every future lesson, both preview levels must be vertically scrollable through the complete lesson content inside Android Studio Preview.
-- Do not retrofit previous lessons solely for this rule unless the learner asks.
+- Complete previews: `Chapter06Screen.kt`.
+- Direct previews: `RenderEffectOwnedContentExplorer.kt`.
+- Both levels are vertically scrollable in a finite-height Android Studio Preview.
 
 ## Canonical explanation standards
 
@@ -98,9 +87,3 @@ drawBehind
 Course progress: X of 216 lessons completed.
 Estimated remaining conversation context: ~N tokens (approximate).
 ```
-
-## Latest completion
-
-- Lesson 6.2 — Draw order and ownership is learner-confirmed complete.
-- Course progress is 53 of 216.
-- Lesson 6.3 — Graphics layers is the next unresolved checkpoint and has not been generated.
