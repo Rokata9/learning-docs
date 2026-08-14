@@ -1,56 +1,67 @@
 # Liquid Glass Android course — current state
 
 **Updated:** 2026-08-14  
-**Course version:** 6.4.0  
+**Course version:** 6.5.2  
 **Platform:** Kotlin + Jetpack Compose  
 **Test device:** Pixel 8 Pro
 
 ## Authoritative progress
 
-- Learner-confirmed complete: **54 of 216 lessons**.
-- Completed through: **Lesson 6.3 — Graphics layers**.
+- Learner-confirmed complete: **56 of 216 lessons**.
+- Completed through: **Lesson 6.5 — The backdrop problem**.
 - Completed chapters: **1, 2, 3, 4, and 5**.
-- Chapter 6: in progress; **3 of 11 lessons complete**.
-- Current unresolved checkpoint: **Lesson 6.4 — RenderEffect on owned content**.
-- Generated frontier: **Lesson 6.4**.
-- Next planned after explicit completion: **Lesson 6.5 — The backdrop problem**.
+- Chapter 6: in progress; **5 of 11 lessons complete**.
+- Current unresolved checkpoint: **Lesson 6.6 — Record the background**.
+- Generated frontier: **Lesson 6.5**. Lesson 6.6 has not been generated.
+- Next planned lesson: **Lesson 6.6 — Record the background**.
 
 ## Current lesson files
 
 ```text
 course/chapters/chapter-06/lesson-how-android-draws-the-scene.html
-course/chapters/chapter-06/lesson-06-03-graphics-layers.html
 course/chapters/chapter-06/lesson-06-04-render-effect-owned-content.html
+course/chapters/chapter-06/lesson-06-05-backdrop-problem.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/Chapter06Screen.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/RenderEffectOwnedContentExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/BackdropProblemExplorer.kt
 ```
 
-## Lesson 6.4 contract
+## Latest status update
+
+- Lesson 6.5 is learner-confirmed complete.
+- The next unresolved checkpoint is Lesson 6.6.
+- Lesson 6.6 has not been generated.
+- `NEW_CHAT_PROMPT.md` is updated for fresh-account continuation.
+
+## Completed Lesson 6.5 contract
 
 ```text
 BackdropSibling
-→ separately owned sharp scene content
+→ sharp parent destination pixels
 
-OwnedCard
-→ selected owner content
-→ graphicsLayer.renderEffect
-→ offscreen owner pixels
-→ BlurEffect
-→ blurred owner output
-→ source-over parent scene
+GlassPanel
+→ panel-owned pixels
+→ optional panel-owned RenderEffect
+→ panel effect output
+→ source-over parent
 ```
 
-Boundary:
+The final visual overlap is not a readable backdrop input.
 
 ```text
-RenderEffect input
-= pixels rasterized from the selected owner
-
-RenderEffect input
-≠ automatic pixels from unrelated backdrop siblings
+same-position source-over
+≠
+neighborhood sampling
 ```
 
-The browser compares whole-owner, dot-only, and no-effect attachment. The Android explorer converts a dp radius to runtime px and applies `BlurEffect` only to the selected owner.
+A real backdrop blur additionally needs:
+
+```text
+recorded or otherwise readable backdrop image
++ panel bounds mapped into backdrop coordinates
+→ matching backdrop region
+```
+
+Lesson 6.6 creates the explicit recording route.
 
 ## Android preview rules
 
@@ -58,4 +69,4 @@ The browser compares whole-owner, dot-only, and no-effect attachment. The Androi
 - Direct custom-composable previews live in the custom composable's own Kotlin file.
 - Both preview levels must allow vertical scrolling through the complete generated content in Android Studio Preview.
 
-Course progress: 54 of 216 lessons completed.
+Course progress: 56 of 216 lessons completed.

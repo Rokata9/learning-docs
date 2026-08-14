@@ -612,3 +612,27 @@ When several variables form a causal chain, include a compact dependency table n
 3. A walkthrough state must be self-contained. Repeat the current variable names, values, units, and coordinate spaces immediately beside the formula that consumes them. Do not require scrolling to an earlier input ledger to decode a long substituted calculation.
 4. Every coordinate conversion must visibly name the origin being added or subtracted. Show `parent point = parent layout origin + slot-relative point`, with both substituted tuples.
 5. When a final coordinate looks unexpectedly large, separate the contribution of the parent placement from the actual transform-induced movement. State which portion came from scale, rotation, translation, and origin conversion.
+
+### Whole-group property and evidence-overlay gate
+
+1. When a lesson isolates a whole-layer property such as alpha, keep the controlled child primitives opaque unless a child-specific alpha is itself the concept being taught. Apply the lesson property once at the owner boundary.
+2. A faded ghost or comparison copy is evidence, not production content. Apply its evidence alpha outside the reused content composable and label it separately. Do not introduce an `overallAlpha` parameter that makes every child duplicate the whole-layer property.
+3. Every diagnostic overlay must be anchored to a named object and labelled with its meaning. Remove detached arrows or lines that can be mistaken for scene content.
+4. The default transformed state must fit inside the finite Android Studio preview viewport without clipping. Choose scene bounds, artwork size, transform defaults, and slider ranges together; verify the complete transformed outline, not only the measured slot.
+
+
+### Whole-owner property and inspection-overlay gate
+
+1. When a lesson claims that a property is applied once to a complete owner, the sample code must apply that teaching property at the owner boundary. Do not also thread the same teaching value through every child.
+2. If a faded ghost or comparison copy is needed, make it a separately named evidence copy and apply its fade once at that copy's owner boundary. Do not let reference-only opacity obscure the production property path.
+3. Internal child colors may have intentional intrinsic opacity only when that distinction is necessary and explicitly named. For a lesson whose purpose is whole-owner alpha, prefer opaque child content so the single owner alpha remains visually and structurally obvious.
+4. A transformed-drawing inspector must reserve enough space for the required presets. Do not decorate the inspection stage with a clipping boundary that cuts the evidence the lesson is trying to show. Verify the default and named presets in the finite Android Studio Preview size.
+5. Every explanatory overlay must have a visible label or legend and a stated purpose. Remove unlabeled arrows or vectors that can be mistaken for scene content.
+
+
+### HTML inline-code rendering gate
+
+1. Standalone lesson HTML must use semantic HTML for visible code references: `<code>RenderEffect</code>`, `<code>graphicsLayer</code>`, and similar.
+2. Do not place Markdown backticks in ordinary HTML prose. Browsers do not interpret Markdown there; the backticks become visible punctuation.
+3. JavaScript template-literal backticks inside `<script>` remain valid and must not be replaced.
+4. Before packaging, scan the visible HTML portion before `<script>` for unmatched or literal Markdown backticks. Any visible code token surrounded by backticks is a failed formatting check.

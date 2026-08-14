@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 6.4.0
+**Version:** 6.5.2
 **Updated:** 2026-08-14
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
@@ -9,12 +9,12 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **54 of 216**.
-- Completed through: **Lesson 6.3 — Graphics layers**.
+- Learner-confirmed complete: **56 of 216**.
+- Completed through: **Lesson 6.5 — The backdrop problem**.
 - Completed chapters: **1–5**.
-- Current unresolved checkpoint: **Lesson 6.4 — `RenderEffect` on owned content**.
-- Generated frontier: **Lesson 6.4 — `RenderEffect` on owned content**.
-- Next planned after explicit completion: **Lesson 6.5 — The backdrop problem**.
+- Current unresolved checkpoint: **Lesson 6.6 — Record the background**.
+- Generated frontier: **Lesson 6.5 — The backdrop problem**. Lesson 6.6 has not been generated.
+- Next planned lesson: **Lesson 6.6 — Record the background**.
 
 ## 2. Course construction principles
 
@@ -31,6 +31,7 @@
 - Use side-by-side diagram and stepper by default when both fit readably. Use a full-width diagram with hidden controls only when spatial evidence requires it.
 - Complete beginner-comprehension QA before technical QA.
 - For every future Android lesson, both complete-screen and direct-child previews must let the learner scroll through all generated content inside Android Studio Preview; do not retrofit earlier lessons unless requested.
+- In standalone HTML prose, render code identifiers with semantic `<code>` elements; never rely on Markdown backticks.
 - Deliver only incremental changed files.
 - Count only explicit learner completion.
 
@@ -155,6 +156,19 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 
 
 ### Chapter 6 — How Android draws the scene
+
+**Completed implementation record — Lesson 6.5**
+
+- Learner-confirmed complete.
+
+- Proves that same-position source-over does not provide a readable image of unrelated sibling pixels.
+- Separates panel-owned `RenderEffect` input from the backdrop region required by neighborhood blur.
+- Uses a three-sample one-channel average only as an explicitly labelled teaching bridge.
+- Moves the panel and backdrop pattern independently to show that the required parent-coordinate crop changes while panel artwork can remain unchanged.
+- Android executes the real panel-owned effect and draws a separately labelled reference crop by reusing the teaching backdrop function; it does not claim sibling capture.
+- Sixteen-state side-by-side walkthrough ends at the explicit record → map → select → replay/read route introduced in Lesson 6.6.
+- Complete and direct Android Studio previews are vertically scrollable.
+
 
 **Lesson 6.3 implementation clarification:** Step 10 explicitly separates owner-local coordinates, layout-slot-relative output, and parent coordinates. It compares the point before and after the transform only in parent coordinates and repeats every current input inside the walkthrough state.
 
