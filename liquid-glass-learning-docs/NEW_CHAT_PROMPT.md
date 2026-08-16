@@ -27,10 +27,11 @@ If I do not attach the complete repositories, the minimum useful set is:
 4. `curriculum/liquid_glass_android_handoff.md`
 5. `curriculum/liquid_glass_android_curriculum.md`
 6. `course/chapters/chapter-06/lesson-how-android-draws-the-scene.html`
-7. `course/chapters/chapter-06/lesson-06-08-keep-the-sample-current.html`
-8. `course/chapters/chapter-06/lesson-06-09-avoid-feedback-loops.html`
+7. `course/chapters/chapter-06/lesson-06-09-avoid-feedback-loops.html`
+8. `course/chapters/chapter-06/lesson-06-10-offscreen-cost.html`
 9. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/Chapter06Screen.kt`
 10. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/AvoidFeedbackLoopsExplorer.kt`
+11. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/OffscreenCostExplorer.kt`
 
 Useful additional Android context:
 
@@ -84,33 +85,20 @@ Do not edit or regenerate artifacts whose current source is missing. Conceptual 
 Use this state unless newer attached `CURRENT_STATE.md` explicitly supersedes it:
 
 - Total course size: **216 lessons**.
-- Learner-confirmed complete: **59 of 216 lessons**.
-- Completed through: **Lesson 6.8 — Keep the sample current**.
+- Learner-confirmed complete: **60 of 216 lessons**.
+- Completed through: **Lesson 6.9 — Avoid feedback loops**.
 - Completed chapters: **1, 2, 3, 4, and 5**.
-- Chapter 6 is in progress: **8 of 11 lessons complete**.
-- Current unresolved checkpoint: **Lesson 6.9 — Avoid feedback loops**.
-- Generated frontier: **Lesson 6.9 — Avoid feedback loops**.
-- Next planned lesson after the unresolved checkpoint: **Lesson 6.10 — Offscreen cost**.
-- Lesson 6.9 is generated and is not learner-confirmed complete.
+- Chapter 6 is in progress: **9 of 11 lessons complete**.
+- Current unresolved checkpoint: **Lesson 6.10 — Offscreen cost**.
+- Generated frontier: **Lesson 6.10 — Offscreen cost**.
+- Next planned lesson after the unresolved checkpoint: **Lesson 6.11 — Build a two-layer scene architecture**.
+- Lesson 6.10 is generated and is not learner-confirmed complete.
 
 Do not increase the completion count because a lesson was generated, revised, reviewed, or because I said only “continue” when questions or corrections remain.
 
-## 3. Generated Lesson 6.9 review contract and prerequisite for Lesson 6.10
+## 3. Generated Lesson 6.10 review contract and prerequisite for Lesson 6.11
 
-Lesson 6.9 starts from the completed Lesson 6.8 route:
-
-```text
-current backdrop inputs
-→ current backgroundLayer recording
-
-current panel geometry
-→ current crop bounds in BackdropHost-local pixels
-
-current recording + current bounds
-→ current sharp panel sample
-```
-
-The new concept is one-way source ownership. The recorded owner must contain the backdrop producer but exclude the panel that consumes the recorded result:
+Lesson 6.10 starts from the completed one-way ownership tree:
 
 ```text
 ParentScene
@@ -119,83 +107,134 @@ ParentScene
 └── GlassPanel
 ```
 
-The safe route is:
+The source route remains acyclic:
 
 ```text
 BackdropArtwork draw commands
-→ BackdropHost.drawWithContent
-→ backgroundLayer.record { drawContent() }
 → backgroundLayer
-→ GlassPanel panel-local replay
-→ panel tint, border, label, and details
-→ ParentScene final composite
+→ GlassPanel sample
+→ panel material and content
+→ ParentScene final output
 ```
 
-`GlassPanel` is a later sibling, not a child of `BackdropHost`. Therefore the panel’s replay, material, border, label, and detail commands do not enter `backgroundLayer`.
+### Moving-panel synchronization correction
 
-The forbidden dependency would be:
+The original controlled Lesson 6.9 Android implementation placed the panel from `panelLeftDp` but stored its crop rectangle through post-layout callbacks. That created two update channels for the same motion.
+
+The cumulative Lesson 6.10 patch removes the separately stored crop:
 
 ```text
-GlassPanel output
-→ source recording that GlassPanel consumes
-→ GlassPanel output
-→ …
+one panelLeftDp + fixed panelTopDp
+→ panel placement
+→ crop translation
 ```
 
-Lesson 6.9 presents that failure as one compact warning diagram. It does not create a second executable architecture merely to demonstrate the defect.
+This direct derivation is valid because `BackdropHost` fills `ParentScene` and both share local origin `(0, 0)` in the controlled scene. Do not reintroduce callback-written crop state for geometry already known from the same controlled values.
+
+### Lesson 6.10 principal route
+
+```text
+BackdropArtwork
+→ backgroundLayer replayable commands
+→ clip and translate the matching region
+→ panelSampleLayer.record { ... }
+→ CompositingStrategy.Offscreen
+→ panel-sized raster target
+→ drawLayer(panelSampleLayer)
+→ panel tint, content, and border
+→ ParentScene
+```
+
+The two layers have different roles:
+
+```text
+backgroundLayer
+= replayable backdrop drawing work
+
+panelSampleLayer
+= panel-sized layer whose Offscreen strategy makes the intermediate raster target explicit
+```
 
 The Android implementation uses:
 
 ```text
-one remembered backgroundLayer
-one current crop rectangle
-one BackdropHost recording owner
-one later GlassPanel consumer
+one backgroundLayer
+one panelSampleLayer
+one panel position source
+one panel-sized offscreen route
+actual LocalDensity for estimates
 ```
 
 It deliberately avoids:
 
 ```text
-failure-mode enums
-frozen duplicate layers
-alternate diagnostic rendering branches
-extra state created only to reproduce bad output
+an executable full-scene comparison target
+a stale/correct mode enum
+duplicate diagnostic layers
+post-layout crop state in the controlled scene
 ```
 
-The controlled Android scene uses named constants for its `340 × 240 dp` scene, `196 × 116 dp` panel, `24...120 dp` panel travel range, `8 dp` slider interval, landmark positions, tint alpha, and border alpha. Comments explain why those values exist and whether they are geometry, layout, or visual-contrast choices.
+The controlled browser trace defines:
+
+```text
+scene = 340 × 240 dp
+panel = 196 × 116 dp
+teaching density default = 3.0 px/dp
+teaching bytes per pixel = 4
+```
+
+At the default density:
+
+```text
+widthPx = round(196 × 3.0) = 588 px
+heightPx = round(116 × 3.0) = 348 px
+pixelCount = 588 × 348 = 204,624
+estimatedColorBytes = 204,624 × 4 = 818,496
+estimatedMiB = 818,496 ÷ 1,048,576 ≈ 0.781 MiB
+```
+
+The four-byte RGBA model is explicitly an estimate, not a claim about actual GPU allocation. The lesson distinguishes:
+
+```text
+sample trails the newest panel position
+→ inspect geometry synchronization first
+
+whole scene stutters or skips
+→ inspect frame cost and deadlines
+```
 
 The browser lesson contains:
 
-- one safe route and one compact forbidden-cycle diagram;
-- five stable object names;
-- one panel-position slider with three presets;
-- a synchronized nine-state walkthrough;
-- one command-ownership trace;
-- short Android excerpts rather than a complete source viewer;
-- a visibly styled prediction with three choices;
-- one three-blank coding challenge;
+- one clean production route;
+- an interactive panel-position, density, and 60/120 Hz lab;
+- one synchronized twelve-state walkthrough;
+- a variable ledger before formulas;
+- one complete target-size trace;
+- short Android excerpts;
+- a visibly styled three-choice prediction;
+- one four-blank coding challenge;
 - five explain-back exercises;
-- a ten-item Preview/device checkpoint.
+- a ten-item Preview/device checkpoint;
+- the later performance-optimization roadmap.
 
-Lesson 6.9 does not yet:
+Lesson 6.10 does not yet:
 
-- apply blur;
-- measure render-target memory, bandwidth, allocation, or GPU cost;
-- perform CPU pixel readback;
-- claim the final multi-panel production architecture.
+- apply or downsample blur;
+- report exact GPU allocation, bandwidth, or frame time;
+- prove dropped-frame counts;
+- build the final reusable two-layer scene architecture;
+- perform CPU pixel readback.
 
-Lesson 6.10 will introduce offscreen cost. Do not generate Lesson 6.10 until Lesson 6.9 is learner-confirmed complete unless I explicitly ask to generate ahead.
+Lesson 6.11 will build the two-layer scene architecture. Do not generate Lesson 6.11 until Lesson 6.10 is learner-confirmed complete unless I explicitly ask to generate ahead.
 
-### Main-path-first teaching rule
+### Synchronization-before-optimization rule
 
-The learner had to spend hours reverse-engineering Lesson 6.8 because diagnostic cases dominated its Android implementation. Treat that as a general correction:
-
-1. Put one clean production route first in both explanation and Android code.
-2. Include a failure case only when it is necessary to understand or verify the principal idea.
-3. Prefer a compact diagram, prediction, or isolated explanation over duplicate layers, mode enums, and branches created only to show defects.
-4. The main point must be understandable without studying diagnostic machinery.
-5. Name non-obvious constants and explain dimensions, ratios, alpha choices, and coordinate math near their declaration or use.
-6. Give prediction controls dedicated visible styling and exercise every choice during browser QA.
+1. Before calling a visual trail a performance problem, verify that placement and sampling geometry use the same current state.
+2. In controlled geometry, derive dependent coordinates directly from the same source instead of storing a callback-written duplicate.
+3. Keep target-size arithmetic separate from measured GPU facts.
+4. Do not allocate a deliberately wasteful comparison route when arithmetic and a diagram teach the point.
+5. Name every non-obvious dimension, density conversion, byte assumption, and frame-budget value near its source.
+6. Test prediction styling and all click paths in light and dark themes.
 
 ## 4. Learner calibration
 
@@ -406,11 +445,11 @@ Do not generate a lesson or edit files in the first response.
 Confirm that you actually read them, then restate only:
 
 ```text
-completed: 59 of 216, through Lesson 6.8
-current unresolved checkpoint: Lesson 6.9 — Avoid feedback loops
-generated frontier: Lesson 6.9
-next planned lesson after the checkpoint: Lesson 6.10
-Lesson 6.9 is generated and not complete
+completed: 60 of 216, through Lesson 6.9
+current unresolved checkpoint: Lesson 6.10 — Offscreen cost
+generated frontier: Lesson 6.10
+next planned lesson after the checkpoint: Lesson 6.11
+Lesson 6.10 is generated and not complete
 ```
 
 Then wait for my next message.

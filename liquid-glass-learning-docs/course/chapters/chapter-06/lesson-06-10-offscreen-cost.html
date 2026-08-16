@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 6.10 — Offscreen cost</title>
+<style>
+:root{color-scheme:light dark;--ink:#172033;--muted:#596579;--line:#d8e0ea;--paper:#fff;--soft:#f5f7fb;--panel:#fbfcfe;--control:#fff;--green:#059669;--green-soft:#ecfdf5;--indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;--blue:#1e40af;--blue-soft:#dbeafe;--red:#dc2626;--red-soft:#fee2e2;--teal:#0f766e;--teal-soft:#ccfbf1;--body-start:#f8fafc;--body-end:#edf2f7;--shadow:0 18px 52px rgba(30,41,59,.09);--code:#111827;--code-ink:#e5e7eb}
+@media(prefers-color-scheme:dark){:root{--ink:#e7edf7;--muted:#aeb9c9;--line:#354154;--paper:#111827;--soft:#172033;--panel:#151e2d;--control:#1b2535;--green:#34d399;--green-soft:#0b3429;--indigo:#a5b4fc;--indigo-soft:#23234a;--amber:#fbbf24;--amber-soft:#402d0a;--blue:#60a5fa;--blue-soft:#172d54;--red:#f87171;--red-soft:#491b20;--teal:#5eead4;--teal-soft:#123c3a;--body-start:#0b111c;--body-end:#101827;--shadow:0 18px 52px rgba(0,0,0,.32);--code:#080d16;--code-ink:#e5e7eb}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--body-start),var(--body-end));font:16px/1.68 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.48;cursor:not-allowed}code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}code{background:var(--indigo-soft);padding:.12em .36em;border-radius:6px;overflow-wrap:anywhere}.code-block>code,.code-block code{display:block;background:transparent;color:inherit;padding:0;border-radius:0}.page{width:min(2260px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.topbar{display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:22px}.crumbs{color:var(--muted)}.chips{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:850}.chip.progress{color:var(--green);background:var(--green-soft)}.chip.pending{color:var(--amber);background:var(--amber-soft)}.hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(420px,.75fr);gap:28px;padding:42px}.eyebrow,.section-no{color:var(--indigo);font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase}h1{margin:.35rem 0 1rem;font-size:clamp(42px,4vw,70px);line-height:1.04;letter-spacing:-.045em}h2{margin:0 0 .7rem;font-size:31px;line-height:1.18}h3{margin:0 0 .5rem;font-size:21px;line-height:1.25}p{max-width:110ch}.lead{font-size:19px;color:var(--muted)}.section{margin-top:24px;padding:32px}.section-head{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:22px}.section-head p{margin:0;color:var(--muted)}.card{padding:20px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}.card.green{background:var(--green-soft);border-color:color-mix(in srgb,var(--green) 45%,var(--line))}.card.blue{background:var(--blue-soft);border-color:color-mix(in srgb,var(--blue) 45%,var(--line))}.card.amber{background:var(--amber-soft);border-color:color-mix(in srgb,var(--amber) 45%,var(--line))}.card.red{background:var(--red-soft);border-color:color-mix(in srgb,var(--red) 45%,var(--line))}.card.indigo{background:var(--indigo-soft);border-color:color-mix(in srgb,var(--indigo) 45%,var(--line))}.card.teal{background:var(--teal-soft);border-color:color-mix(in srgb,var(--teal) 45%,var(--line))}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.five{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.note,.warning,.success{margin-top:18px;padding:16px 18px;border-radius:14px}.note{border-left:5px solid var(--blue);background:var(--blue-soft)}.warning{border-left:5px solid var(--amber);background:var(--amber-soft)}.success{border-left:5px solid var(--green);background:var(--green-soft)}.formula{padding:14px 16px;border-radius:13px;background:var(--indigo-soft);border:1px solid color-mix(in srgb,var(--indigo) 45%,var(--line));font:800 15px/1.64 "SFMono-Regular",Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.btn{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:850;border:1px solid var(--line);background:var(--control);color:var(--ink)}.btn:hover{border-color:var(--blue)}.btn.primary{border-color:var(--blue);background:var(--blue);color:#fff}.btn.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.route-strip{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;align-items:stretch}.route-node{position:relative;padding:15px;border:1px solid var(--line);border-radius:13px;background:var(--control)}.route-node:not(:last-child)::after{content:"→";position:absolute;right:-20px;top:50%;transform:translateY(-50%);z-index:2;font-weight:950;color:var(--indigo);font-size:24px}.objects{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.objects .card{min-height:175px}.lab-controls{display:grid;grid-template-columns:minmax(670px,1fr) minmax(410px,.6fr);gap:18px;align-items:start}.control-card{display:grid;gap:15px}.slider-row{display:grid;grid-template-columns:190px minmax(330px,1fr) 125px;gap:14px;align-items:center}.slider-row strong{text-align:right;color:var(--indigo)}input[type=range]{width:100%}.scene-shell{min-width:0;max-width:100%;border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:14px;overflow:auto}.scene-shell svg{display:block;width:100%;min-width:1180px;height:auto}.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:14px}.metric{padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--control)}.metric strong{display:block;color:var(--indigo);margin-bottom:4px}.lesson-grid{display:grid;grid-template-columns:minmax(920px,1.25fr) minmax(500px,.75fr);gap:18px;align-items:start}.diagram-shell{position:relative;min-width:0;max-width:100%;border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:14px;overflow:auto}.diagram-shell svg{display:block;width:100%;min-width:920px;height:auto}.diagram-nav{position:absolute;top:18px;right:18px;display:flex;gap:8px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--paper) 94%,transparent);box-shadow:0 6px 20px rgba(15,23,42,.12)}.diagram-nav strong{min-width:125px;text-align:center}.stepper{position:sticky;top:18px;border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden;max-height:calc(100vh - 36px);overflow-y:auto}.step-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}.step-body{padding:18px}.step-title{font-size:24px;font-weight:950}.step-caption{min-height:190px}.io{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}.io>div{padding:11px;border:1px solid var(--line);border-radius:11px;background:var(--control)}.io strong,.io span{display:block}.ledger{width:100%;border-collapse:collapse}.ledger th,.ledger td{padding:12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}.ledger th{color:var(--indigo)}.trace{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.trace>div{position:relative;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--control)}.trace>div:not(:last-child)::after{content:"→";position:absolute;right:-17px;top:50%;transform:translateY(-50%);font-weight:950;color:var(--indigo);font-size:22px}.code-grid{display:grid;grid-template-columns:minmax(650px,1fr) minmax(520px,.8fr);gap:18px}.code-block{background:var(--code);color:var(--code-ink);border-radius:14px;padding:16px;white-space:pre-wrap;overflow:auto;font:14px/1.62 "SFMono-Regular",Consolas,monospace}.prediction{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.choice{appearance:none;min-height:112px;padding:16px;border:2px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);text-align:left;font-weight:800;line-height:1.5;box-shadow:0 3px 10px rgba(15,23,42,.05)}.choice:hover,.choice:focus-visible{border-color:var(--blue);box-shadow:0 8px 24px rgba(30,64,175,.15);outline:none}.choice.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.challenge{display:grid;grid-template-columns:minmax(650px,1fr) minmax(500px,.75fr);gap:18px}.editor{width:100%;min-height:270px;resize:vertical;background:var(--code);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace}.result{min-height:55px;margin-top:12px;padding:12px;border-radius:11px;background:var(--soft)}details{margin:10px 0;border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:13px 15px}summary{cursor:pointer;font-weight:900}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.check{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}.record{width:100%;min-height:260px;resize:vertical;background:var(--code);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace}.footer{margin-top:24px;padding:18px 24px;display:flex;justify-content:space-between;gap:18px;align-items:center}.prov{display:inline-grid;place-items:center;width:21px;height:21px;border-radius:999px;border:1px solid var(--line);background:var(--control);font-size:12px;font-weight:900;color:var(--blue);vertical-align:super;cursor:pointer;position:relative}.prov span{display:none;position:absolute;z-index:80;left:0;right:auto;top:27px;width:min(350px,calc(100vw - 24px));padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font:600 13px/1.45 system-ui;box-shadow:var(--shadow);text-align:left}.prov.flow-left span{left:auto;right:0}.prov.open span{display:block}.svg-label{fill:var(--ink);font:700 16px system-ui}.svg-muted{fill:var(--muted);font:600 14px system-ui}.svg-small{fill:var(--ink);font:700 13px system-ui}.svg-mono{fill:var(--ink);font:700 13px monospace}
+@media(max-width:1400px){.hero,.lab-controls,.code-grid,.challenge{grid-template-columns:1fr}.route-strip{grid-template-columns:repeat(3,minmax(0,1fr))}.route-node::after{display:none}.objects{grid-template-columns:repeat(2,minmax(0,1fr))}.lesson-grid{grid-template-columns:1fr}.stepper{position:relative;top:0;max-height:none}.diagram-shell svg{min-width:900px}}
+@media(max-width:900px){.page{width:min(calc(100% - 24px),780px)}.hero,.section{padding:23px}.two,.three,.prediction,.checklist{grid-template-columns:1fr}.objects,.metrics,.route-strip{grid-template-columns:1fr}.slider-row{grid-template-columns:1fr}.slider-row strong{text-align:left}.trace{grid-template-columns:1fr}.trace>div::after{display:none}.topbar,.footer,.section-head{align-items:flex-start;flex-direction:column}.chips{justify-content:flex-start}.io{grid-template-columns:1fr}.ledger{display:block;max-width:100%;overflow-x:auto}}
+</style>
+</head>
+<body>
+<main class="page">
+<nav class="topbar">
+<div class="crumbs"><a href="lesson-how-android-draws-the-scene.html">Chapter 6</a> · Lesson 6.10</div>
+<div class="chips"><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span><span class="chip progress">60 of 216 complete</span><span class="chip pending">6.10 generated · review pending</span></div>
+</nav>
+
+<header class="hero panel">
+<div>
+<div class="eyebrow">How Android draws the scene · 10 of 11</div>
+<h1>Offscreen cost</h1>
+<p class="lead">A replayed backdrop can be visually correct and still cost more work than the frame budget allows. This lesson gives one panel-sized target a transparent, beginner-readable cost model—without pretending that an estimate is a profiler measurement.</p>
+<div class="success"><strong>First correction:</strong> the Lesson 6.9 controlled scene now uses one position value for both panel placement and crop translation. That removes the post-layout crop-state round trip that could make the sample trail the latest panel position.</div>
+</div>
+<div class="card amber">
+<h3>Two symptoms that must not be confused</h3>
+<p><strong>Alignment trail:</strong> the panel reaches a new position while its sampled crop still represents an older position. This is a synchronization or state-flow defect.</p>
+<p><strong>Frame stutter:</strong> the whole result misses a display deadline because the frame contains too much CPU or GPU work. This is a performance defect.</p>
+<p>A faster phone may hide some expensive work. It cannot make mismatched geometry values become the same value.</p>
+</div>
+</header>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">1 · Practical problem</div><h2>What extra target are we paying for?</h2></div><p>Start with visible objects, not byte formulas.</p></div>
+<div class="two">
+<div class="card blue"><h3>Already owned: <code>backgroundLayer</code></h3><p>It stores replayable drawing work for <code>BackdropArtwork</code>. It lets another target ask Android to execute those commands again.</p><p><strong>Important:</strong> this recording is not automatically the panel-sized color buffer that we estimate below.</p></div>
+<div class="card indigo"><h3>New: <code>panelSampleLayer</code></h3><p>Its recording happens inside the panel’s draw scope. Its bounds therefore match the panel, and <code>CompositingStrategy.Offscreen</code> explicitly asks for an offscreen raster target.</p><p>The target receives only the matching sharp backdrop crop in this lesson. Blur remains deferred.</p></div>
+</div>
+<div class="objects" style="margin-top:18px">
+<div class="card"><h3>Offscreen target</h3><p>A temporary image-shaped destination that is not yet the final screen output.</p></div>
+<div class="card"><h3>Rasterize</h3><p>Execute drawing commands so they produce color samples in a pixel grid.</p></div>
+<div class="card"><h3>Target extent</h3><p>The width and height of the pixel grid. A larger extent means more pixel positions.</p></div>
+<div class="card"><h3>Frame budget</h3><p>The time between display updates: about 16.67 ms at 60 Hz or 8.33 ms at 120 Hz.</p></div>
+<div class="card"><h3>Measurement</h3><p>A trace from the real app and device. Our arithmetic estimates scale; it does not report real GPU time.</p></div>
+</div>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">2 · One production route</div><h2>Keep the target as small as the consumer</h2></div><p>The full-scene target is comparison arithmetic only.</p></div>
+<div class="route-strip">
+<div class="route-node"><strong>1 · Backdrop commands</strong><br><span class="mono">BackdropArtwork</span></div>
+<div class="route-node"><strong>2 · Replayable source</strong><br><span class="mono">backgroundLayer</span></div>
+<div class="route-node"><strong>3 · Matching crop</strong><br>clip + negative translation</div>
+<div class="route-node"><strong>4 · Panel target</strong><br><span class="mono">panelSampleLayer</span></div>
+<div class="route-node"><strong>5 · Panel material</strong><br>tint + content + border</div>
+<div class="route-node"><strong>6 · Final scene</strong><br><span class="mono">ParentScene</span></div>
+</div>
+<div class="note"><strong>Why panel-sized?</strong> The panel consumes only a 196 × 116 dp region. A 340 × 240 dp target would contain many pixels that this one panel never displays.</div>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">3 · Interactive target lab</div><h2>Move the panel, change density, compare the budget</h2></div><p>Every readout comes from one canonical state.</p></div>
+<div class="lab-controls">
+<div class="card control-card">
+<div class="slider-row"><label for="panelLeft"><strong>Panel left</strong></label><input id="panelLeft" type="range" min="24" max="120" step="8" value="72"><strong id="panelLeftValue">72 dp</strong></div>
+<div class="controls"><button class="btn" data-left="24">Left</button><button class="btn selected" data-left="72">Center</button><button class="btn" data-left="120">Right</button></div>
+<div class="slider-row"><label for="density"><strong>Teaching density</strong></label><input id="density" type="range" min="1" max="4" step="0.25" value="3"><strong id="densityValue">3.00 px/dp</strong></div>
+<div><strong>Teaching refresh rate</strong><div class="controls" style="margin-top:8px"><button class="btn" data-hz="60">60 Hz</button><button class="btn primary" data-hz="120">120 Hz</button></div></div>
+</div>
+<div class="card teal"><h3>What movement should prove</h3><p>The colored bands, yellow line, and circles inside the panel must stay aligned with the same objects beneath it.</p><p>The target dimensions and estimated bytes do <strong>not</strong> change when the panel merely moves. Position changes which source region is replayed; it does not change the panel’s width or height.</p></div>
+</div>
+<div class="scene-shell" style="margin-top:18px"><svg id="sceneSvg" viewBox="0 0 1320 590" role="img" aria-label="Backdrop scene, matching panel sample target, and target-size comparison"></svg></div>
+<div class="metrics">
+<div class="metric"><strong>Panel target</strong><span id="panelPixels">588 × 348 px</span></div>
+<div class="metric"><strong>Pixel positions</strong><span id="pixelCount">204,624</span></div>
+<div class="metric"><strong>RGBA8 estimate</strong><span id="panelMiB">0.781 MiB</span></div>
+<div class="metric"><strong>Scene comparison</strong><span id="sceneRatio">3.59× area</span></div>
+<div class="metric"><strong>Frame budget</strong><span id="frameBudget">8.33 ms at 120 Hz</span></div>
+</div>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">4 · Causal walkthrough</div><h2>Commands → target → pixels → final composite</h2></div><p>Twelve states; no failure-mode implementation.</p></div>
+<div class="lesson-grid">
+<div class="diagram-shell">
+<svg id="walkthroughSvg" viewBox="0 0 1160 650" role="img" aria-label="Current offscreen cost walkthrough state"></svg>
+<div class="diagram-nav"><button class="btn" id="diagramPrev">Previous</button><strong id="diagramStep">Step 1 of 12</strong><button class="btn primary" id="diagramNext">Next</button></div>
+</div>
+<aside class="stepper">
+<div class="step-head"><button class="btn" id="stepPrev">Previous</button><strong id="stepCounter">Step 1 of 12</strong><button class="btn primary" id="stepNext">Next</button></div>
+<div class="step-body">
+<div class="step-title" id="stepTitle"></div>
+<p class="step-caption" id="stepCaption"></p>
+<div class="formula" id="stepRule"></div>
+<div class="io"><div><strong>Input</strong><span id="stepInput"></span></div><div><strong>Operation</strong><span id="stepOperation"></span></div><div><strong>Output</strong><span id="stepOutput"></span></div></div>
+<p class="note" id="stepStateNote"></p>
+</div>
+</aside>
+</div>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">5 · One target trace</div><h2>Define every variable before multiplying</h2></div><p>The current teaching density drives this trace.</p></div>
+<table class="ledger">
+<thead><tr><th>Variable</th><th>Meaning</th><th>Source and units</th><th>Current value</th><th>Later consumer</th></tr></thead>
+<tbody>
+<tr><td><code>Wdp</code> <button class="prov" aria-label="Explain Wdp">?<span>The controlled width of GlassPanel. It is chosen once in the scene constants and is not measured from the monitor.</span></button></td><td>Panel target width before density conversion.</td><td>Fixed scene geometry · dp</td><td>196 dp</td><td>Width conversion</td></tr>
+<tr><td><code>Hdp</code> <button class="prov" aria-label="Explain Hdp">?<span>The controlled height of GlassPanel. Together with Wdp it defines the target extent in layout units.</span></button></td><td>Panel target height before density conversion.</td><td>Fixed scene geometry · dp</td><td>116 dp</td><td>Height conversion</td></tr>
+<tr><td><code>ρ</code> <button class="prov" aria-label="Explain density">?<span>Density tells us how many runtime pixels represent one dp. The browser slider is a teaching input; Android uses LocalDensity.current.</span></button></td><td>Runtime pixels per dp.</td><td>Teaching control · px/dp</td><td id="ledgerDensity">3.00 px/dp</td><td>Both dimension conversions</td></tr>
+<tr><td><code>Bpp</code> <button class="prov" aria-label="Explain bytes per pixel">?<span>Four bytes models one simple 8-bit red, green, blue, and alpha color sample. Actual GPU storage can differ.</span></button></td><td>Teaching color-storage assumption.</td><td>Fixed estimate · bytes/pixel</td><td>4 bytes/pixel</td><td>Byte estimate</td></tr>
+<tr><td><code>F</code> <button class="prov" aria-label="Explain refresh rate">?<span>The selected display updates per second. It gives a total frame interval, not the time available exclusively to this target.</span></button></td><td>Selected refresh rate.</td><td>Teaching control · Hz</td><td id="ledgerHz">120 Hz</td><td>Frame-budget calculation</td></tr>
+</tbody>
+</table>
+<div class="two" style="margin-top:18px">
+<div class="card indigo"><h3>Target-size formulas</h3><div class="formula">Wpx = round(Wdp × ρ)
+Hpx = round(Hdp × ρ)
+P = Wpx × Hpx
+B = P × Bpp
+MiB = B ÷ 1,048,576</div></div>
+<div class="card blue"><h3>Frame-budget formula</h3><div class="formula">budgetMs = 1,000 ms ÷ F</div><p>This is the interval between display updates. CPU work, GPU work, synchronization, and system work all compete within it.</p></div>
+</div>
+<div class="trace" style="margin-top:18px">
+<div><strong>1 · Width</strong><span id="traceWidth">196 × 3.00 = 588 px</span></div>
+<div><strong>2 · Height</strong><span id="traceHeight">116 × 3.00 = 348 px</span></div>
+<div><strong>3 · Pixels</strong><span id="tracePixels">588 × 348 = 204,624</span></div>
+<div><strong>4 · Bytes</strong><span id="traceBytes">204,624 × 4 = 818,496</span></div>
+<div><strong>5 · MiB</strong><span id="traceMiB">818,496 ÷ 1,048,576 = 0.781</span></div>
+<div><strong>6 · Consumer</strong><span><code>panelSampleLayer</code> color target estimate</span></div>
+</div>
+<div class="warning"><strong>Estimate boundary:</strong> the formula does not include row alignment, tiling, compression, color format changes, blur intermediates, cache effects, bandwidth, or driver behavior. It is useful for comparing extents, not for claiming measured memory.</div>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">6 · Android route</div><h2>One position source; one explicit panel target</h2></div><p>The complete source is in <code>OffscreenCostExplorer.kt</code>.</p></div>
+<div class="code-grid">
+<div>
+<h3>A · Placement and crop share the same values</h3>
+<pre class="code-block"><code>Box(
+    modifier = Modifier
+        .offset(
+            x = panelLeftDp.dp,
+            y = CostPanelTopDp.dp,
+        )
+        .size(
+            width = CostPanelWidthDp.dp,
+            height = CostPanelHeightDp.dp,
+        )
+        .drawWithContent {
+            val cropLeftPx = panelLeftDp.dp.toPx()
+            val cropTopPx = CostPanelTopDp.dp.toPx()
+            // ...
+        },
+)</code></pre>
+</div>
+<div class="card green"><h3>Why this fixes the visible trail in the controlled scene</h3><p><code>panelLeftDp</code> controls both the layout offset and the negative source translation. There is no separately stored crop rectangle waiting for <code>onGloballyPositioned</code> to update after layout.</p><p>This simplification is valid here because <code>BackdropHost</code> fills <code>ParentScene</code> and both start at local origin (0, 0).</p></div>
+<div>
+<h3>B · Make the raster target explicit</h3>
+<pre class="code-block"><code>val panelSampleLayer = rememberGraphicsLayer()
+panelSampleLayer.compositingStrategy =
+    CompositingStrategy.Offscreen
+
+panelSampleLayer.record {
+    clipRect {
+        translate(
+            left = -cropLeftPx,
+            top = -cropTopPx,
+        ) {
+            drawLayer(backgroundLayer)
+        }
+    }
+}
+
+drawLayer(panelSampleLayer)</code></pre>
+</div>
+<div class="card amber"><h3>Read the order literally</h3><p><strong>Record:</strong> execute the matching source replay in the panel-sized layer scope.</p><p><strong>Raster target:</strong> <code>Offscreen</code> forces intermediate compositing.</p><p><strong>Replay:</strong> draw the resulting layer into the panel before tint, child content, and border.</p><p>No full-scene comparison layer exists in the Android code.</p></div>
+</div>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">7 · Prediction</div><h2>What happens when both target dimensions are halved?</h2></div><p>Density and bytes per pixel stay unchanged.</p></div>
+<div class="prediction">
+<button class="choice" data-prediction="half"><strong>A · Half as many pixels</strong><br>Each dimension contributes half, so perhaps the total is one half.</button>
+<button class="choice" data-prediction="quarter"><strong>B · One quarter as many pixels</strong><br>Half width multiplied by half height gives one quarter of the original area.</button>
+<button class="choice" data-prediction="density"><strong>C · The pixel count is unchanged</strong><br>Density determines pixel count, so layout size does not matter.</button>
+</div>
+<div class="result" id="predictionResult">Choose one answer. The buttons are real styled controls and the result appears here.</div>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">8 · Coding challenge</div><h2>Complete the estimate without hiding the units</h2></div><p>Four blanks; one small idea.</p></div>
+<div class="challenge">
+<div>
+<textarea class="editor" id="challengeEditor" spellcheck="false">fun estimateTarget(
+    widthDp: Float,
+    heightDp: Float,
+    densityPxPerDp: Float,
+): Long {
+    val widthPx = Math.round(____ * densityPxPerDp)
+    val heightPx = Math.round(____ * densityPxPerDp)
+    val pixelCount = ____ * heightPx.toLong()
+    return pixelCount * ____
+}</textarea>
+<div class="controls" style="margin-top:10px"><button class="btn primary" id="checkChallenge">Check</button><button class="btn" data-code="solution">Insert solution</button><button class="btn" data-code="reset">Restore blanks</button></div>
+<div class="result" id="challengeResult">Return the simple estimated color bytes as a <code>Long</code>.</div>
+</div>
+<div class="card blue"><h3>Available facts</h3><div class="formula">widthDp · dp
+heightDp · dp
+densityPxPerDp · px/dp
+widthPx · px
+heightPx · px
+pixelCount · pixels
+4L · estimated bytes/pixel</div><p>The multiplications cancel dp from the first two conversions:</p><div class="formula">dp × (px / dp) = px</div></div>
+</div>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">9 · Explain it back</div><h2>Five checks for the main idea</h2></div><p>Open only after making your own explanation.</p></div>
+<details><summary>1 · Why is <code>backgroundLayer</code> not called the panel’s offscreen color target?</summary><p>It holds replayable backdrop drawing work. The explicit panel-sized raster target in this lesson is <code>panelSampleLayer</code>, forced by <code>CompositingStrategy.Offscreen</code>.</p></details>
+<details><summary>2 · Why does panel movement not change estimated target bytes?</summary><p>Movement changes the crop origin, but the target width, height, density, and bytes-per-pixel assumption remain unchanged.</p></details>
+<details><summary>3 · Why does doubling density approximately quadruple pixel count?</summary><p>Both pixel width and pixel height double. Their product becomes 2 × 2 = 4 times the original pixel count.</p></details>
+<details><summary>4 · Why is 8.33 ms not “the blur’s available GPU time”?</summary><p>It is the complete interval at 120 Hz. CPU work, layout, drawing, GPU work, synchronization, other app work, and system work share that interval.</p></details>
+<details><summary>5 · Why can a sample trail even when the byte estimate is small?</summary><p>A trail can come from using panel geometry from one update and crop geometry from another. That is a correctness/synchronization defect, not necessarily excessive pixel work.</p></details>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">10 · Preview and Pixel 8 Pro checkpoint</div><h2>Observe the right symptom</h2></div><p>Ten focused checks.</p></div>
+<div class="checklist">
+<label class="check"><input type="checkbox">The complete Chapter 6 light Preview scrolls to the final metric card.</label>
+<label class="check"><input type="checkbox">The complete Chapter 6 dark Preview scrolls to the final metric card.</label>
+<label class="check"><input type="checkbox">The direct <code>OffscreenCostExplorer</code> light Preview scrolls fully.</label>
+<label class="check"><input type="checkbox">The direct dark Preview scrolls fully.</label>
+<label class="check"><input type="checkbox">The 340 dp scene fits without horizontal clipping in the 412 dp Preview.</label>
+<label class="check"><input type="checkbox">Dragging the panel keeps bands, line, and circles spatially aligned.</label>
+<label class="check"><input type="checkbox">Moving the panel does not change target dimensions or byte estimate.</label>
+<label class="check"><input type="checkbox">Changing density changes both pixel dimensions and the estimate.</label>
+<label class="check"><input type="checkbox">60 Hz reports about 16.67 ms; 120 Hz reports about 8.33 ms.</label>
+<label class="check"><input type="checkbox">Any performance conclusion is repeated in a release-like build with a system trace, not inferred from Android Studio Preview or a debug build.</label>
+</div>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">11 · Optimization roadmap</div><h2>Yes—performance work is part of the course</h2></div><p>But correctness comes before tuning.</p></div>
+<div class="three">
+<div class="card green"><h3>Now · Lesson 6.10</h3><p>Control target extent, separate the alignment defect from missed-frame cost, and establish honest measurement boundaries.</p></div>
+<div class="card blue"><h3>Chapter 7</h3><p>Lesson 7.4 introduces downsampled blur: fewer source pixels traded for less detail and lower effect cost.</p></div>
+<div class="card indigo"><h3>Later profiling and production</h3><p>The course profiles the Pixel 8 Pro, caches reusable shaders and layers, controls target size, adds adaptive quality, separates CPU/GPU/memory measurements, and benchmarks 60 Hz versus 120 Hz behavior.</p></div>
+</div>
+<div class="note"><strong>Current best diagnosis of your observed trail:</strong> the Lesson 6.9 code used panel placement state and a crop rectangle written by post-layout callbacks. That could expose the latest panel position with the previous crop for one update. The cumulative Lesson 6.10 patch removes that round trip. A system trace is still required before claiming that every remaining hitch is solved.</div>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">12 · Evidence boundary and local record</div><h2>What this lesson proves—and what it does not</h2></div><p>Generated is not the same as learner-confirmed complete.</p></div>
+<div class="two">
+<div class="card green"><h3>Proved in this lesson</h3><p>A panel-sized target has fewer pixel positions than a scene-sized target. Its simple RGBA8 storage estimate scales with pixel width × pixel height. The corrected controlled route uses one position source for placement and crop.</p></div>
+<div class="card amber"><h3>Still not proved</h3><p>No exact GPU allocation, memory bandwidth, render time, blur cost, or dropped-frame count is claimed. Blur, downsampling, multi-panel architecture, and measured profiling remain later work.</p></div>
+</div>
+<textarea class="record" id="record" aria-label="Local review record">Press “Build local review record” after completing the checks.</textarea>
+<div class="controls" style="margin-top:10px"><button class="btn primary" id="buildRecord">Build local review record</button></div>
+</section>
+
+<footer class="footer panel"><span>Lesson 6.10 generated · not yet learner-confirmed complete</span><a href="lesson-how-android-draws-the-scene.html">Return to Chapter 6</a></footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+const state={left:72,density:3,refresh:120,step:0,prediction:null};
+const PANEL={wDp:196,hDp:116,topDp:72};
+const SCENE={wDp:340,hDp:240};
+const BPP=4;
+const MIB=1048576;
+const STEPS=[
+{title:'One motion value enters',caption:'The controlled scene reads one panel-left value. That same value will place GlassPanel and select the source crop. There is no second mutable crop position.',rule:'panelLeftDp = current control value',input:'Current slider or preset',operation:'Read one canonical value',output:'One horizontal origin',node:0},
+{title:'Record backdrop commands',caption:'BackdropHost records only BackdropArtwork into backgroundLayer. This gives the panel a replayable source while preserving the no-feedback ownership rule from Lesson 6.9.',rule:'backgroundLayer.record { BackdropArtwork commands }',input:'Backdrop draw commands',operation:'Record',output:'Replayable source work',node:1},
+{title:'Replay the visible backdrop',caption:'Recording does not automatically display the backdrop. The first drawLayer call executes backgroundLayer into ParentScene so the ordinary scene remains visible.',rule:'ParentScene ← drawLayer(backgroundLayer)',input:'backgroundLayer',operation:'Replay into visible target',output:'Visible sharp backdrop',node:1},
+{title:'Derive the crop from the same position',caption:'Because BackdropHost and ParentScene share origin (0, 0), the panel origin is also the crop origin. Convert the shared dp values to runtime pixels inside DrawScope.',rule:'cropPx = (panelLeftDp, panelTopDp) × density',input:'One panel origin + density',operation:'dp → px',output:'Current source origin',node:2},
+{title:'Enter the panel draw scope',caption:'The modifier has already sized GlassPanel to 196 × 116 dp. Recording panelSampleLayer here gives the layer the panel’s draw extent.',rule:'record scope size = panel draw size',input:'GlassPanel DrawScope',operation:'Use current scope bounds',output:'Panel-sized layer bounds',node:3},
+{title:'Replay the matching region',caption:'Clip to the panel bounds and translate the full backdrop layer by the negative crop origin. The crop’s source top-left lands at panel-local (0, 0).',rule:'source translation = (−cropLeftPx, −cropTopPx)',input:'backgroundLayer + crop origin',operation:'Clip, translate, replay',output:'Matching sharp sample commands',node:3},
+{title:'Force offscreen compositing',caption:'CompositingStrategy.Offscreen requires panelSampleLayer to render through an intermediate raster target instead of relying only on direct command replay.',rule:'panelSampleLayer.compositingStrategy = Offscreen',input:'Panel-sized layer recording',operation:'Rasterize into intermediate target',output:'Panel-sized color target',node:4},
+{title:'Replay the panel target',caption:'drawLayer(panelSampleLayer) consumes the intermediate layer inside GlassPanel. The matching backdrop image now appears in the panel.',rule:'GlassPanel ← drawLayer(panelSampleLayer)',input:'panelSampleLayer',operation:'Composite layer',output:'Sharp aligned panel sample',node:4},
+{title:'Add panel material afterward',caption:'Tint, child text, and border are drawn after the sample. They are not included in the sampled source and they do not enlarge the sample target.',rule:'sample → tint → child content → border',input:'Sharp panel sample',operation:'Source-over panel commands',output:'Final GlassPanel output',node:5},
+{title:'Count target pixels',caption:'Convert the panel width and height from dp to pixels using density, then multiply the two pixel dimensions.',rule:'P = round(Wdp × ρ) × round(Hdp × ρ)',input:'196 dp × 116 dp + density',operation:'Convert and multiply',output:'Pixel-position count',node:6},
+{title:'Compare target extents',caption:'The scene-sized estimate contains the complete 340 × 240 dp scene. The Android code does not allocate that comparison target; it exists only to show why extent control matters.',rule:'area ratio = scene pixels ÷ panel pixels',input:'Two estimated pixel counts',operation:'Divide',output:'Relative target area',node:6},
+{title:'Respect the measurement boundary',caption:'Frame interval arithmetic shows the total timing budget, not the target’s measured cost. Real conclusions require a release-like build and system trace on the device.',rule:'budgetMs = 1,000 ÷ refreshHz',input:'60 or 120 Hz',operation:'Compute interval; then measure separately',output:'Budget plus honest uncertainty',node:7}
+];
+function n(v,d=0){return Number(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function estimates(){const w=Math.round(PANEL.wDp*state.density),h=Math.round(PANEL.hDp*state.density),p=w*h,b=p*BPP,sw=Math.round(SCENE.wDp*state.density),sh=Math.round(SCENE.hDp*state.density),sp=sw*sh,sb=sp*BPP;return{w,h,p,b,mib:b/MIB,sw,sh,sp,sb,smib:sb/MIB,ratio:sp/p,budget:1000/state.refresh}}
+function backdrop(x,y,scale=2){const w=SCENE.wDp*scale,h=SCENE.hDp*scale,bw=w/4;return `<g><rect x="${x}" y="${y}" width="${bw}" height="${h}" fill="#0f766e"/><rect x="${x+bw}" y="${y}" width="${bw}" height="${h}" fill="#2563eb"/><rect x="${x+2*bw}" y="${y}" width="${bw}" height="${h}" fill="#7c3aed"/><rect x="${x+3*bw}" y="${y}" width="${bw}" height="${h}" fill="#db2777"/><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#shade)"/><line x1="${x}" y1="${y+139*scale}" x2="${x+w}" y2="${y+139*scale}" stroke="#ffc857" stroke-width="${8*scale}"/><circle cx="${x+92*scale}" cy="${y+82*scale}" r="${22*scale}" fill="#ff6b6b"/><circle cx="${x+258*scale}" cy="${y+173*scale}" r="${17*scale}" fill="#6ee7b7"/></g>`}
+function renderScene(){const e=estimates(),sx=35,sy=55,s=1.45,sw=SCENE.wDp*s,sh=SCENE.hDp*s,px=sx+state.left*s,py=sy+PANEL.topDp*s,pw=PANEL.wDp*s,ph=PANEL.hDp*s,tx=725,ty=120,tw=PANEL.wDp*s,th=PANEL.hDp*s,shiftX=tx-px,shiftY=ty-py;$('sceneSvg').innerHTML=`<defs><linearGradient id="shade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".04"/><stop offset="1" stop-color="#000" stop-opacity=".24"/></linearGradient><clipPath id="scenePanelClip"><rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="${24*s}"/></clipPath><clipPath id="targetClip"><rect x="${tx}" y="${ty}" width="${tw}" height="${th}" rx="${24*s}"/></clipPath><marker id="sceneArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#4338ca"/></marker></defs><text x="35" y="30" class="svg-label">ParentScene · ${SCENE.wDp} × ${SCENE.hDp} dp</text>${backdrop(sx,sy,s)}<rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="${24*s}" fill="#fff" fill-opacity=".18" stroke="#fff" stroke-width="3"/><text x="${px+18}" y="${py+32}" fill="#fff" font-size="17" font-weight="800">GlassPanel</text><line x1="${sx+sw+18}" y1="${sy+sh/2}" x2="${tx-25}" y2="${ty+th/2}" stroke="#4338ca" stroke-width="4" marker-end="url(#sceneArrow)"/><text x="${sx+sw+40}" y="${sy+sh/2-18}" class="svg-small">record matching crop</text><g clip-path="url(#targetClip)" transform="translate(${shiftX},${shiftY})">${backdrop(sx,sy,s)}</g><rect x="${tx}" y="${ty}" width="${tw}" height="${th}" rx="${24*s}" fill="#fff" fill-opacity=".08" stroke="#4338ca" stroke-width="4"/><text x="${tx}" y="${ty-28}" class="svg-label">panelSampleLayer · ${e.w} × ${e.h} px</text><text x="${tx}" y="${ty+th+28}" class="svg-mono">estimated RGBA8 color storage: ${e.mib.toFixed(3)} MiB</text><rect x="725" y="450" width="250" height="100" rx="14" fill="none" stroke="#d97706" stroke-width="3" stroke-dasharray="10 8"/><text x="744" y="482" class="svg-label">Full-scene estimate only</text><text x="744" y="510" class="svg-mono">${e.sw} × ${e.sh} px</text><text x="744" y="536" class="svg-mono">${e.ratio.toFixed(2)}× panel area</text><rect x="1010" y="450" width="270" height="100" rx="14" fill="var(--indigo-soft)" stroke="var(--line)"/><text x="1030" y="482" class="svg-label">${state.refresh} Hz interval</text><text x="1030" y="520" class="svg-mono">${e.budget.toFixed(2)} ms total budget</text>`}
+function node(x,y,w,h,title,sub,active){return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="16" fill="${active?'var(--indigo-soft)':'var(--control)'}" stroke="${active?'var(--indigo)':'var(--line)'}" stroke-width="${active?4:2}"/><text x="${x+16}" y="${y+32}" class="svg-label">${title}</text><text x="${x+16}" y="${y+58}" class="svg-muted">${sub}</text>`}
+function renderWalkthrough(){const st=STEPS[state.step],active=st.node;const xs=[40,300,560,820],ys=[70,260],labels=[['one position','panel origin'],['backgroundLayer','recorded commands'],['matching crop','clip + translate'],['panel draw scope','196 × 116 dp'],['Offscreen target','panelSampleLayer'],['panel material','tint + content'],['cost estimate','pixels + bytes'],['measurement','budget ≠ trace']];let svg='<defs><marker id="walkArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#4338ca"/></marker></defs>';labels.forEach((l,i)=>{const x=xs[i%4],y=ys[Math.floor(i/4)];svg+=node(x,y,220,105,l[0],l[1],i===active)});[[260,122,295,122],[520,122,555,122],[780,122,815,122],[930,178,930,250],[820,312,785,312],[560,312,525,312],[300,312,265,312]].forEach(a=>svg+=`<line x1="${a[0]}" y1="${a[1]}" x2="${a[2]}" y2="${a[3]}" stroke="#4338ca" stroke-width="4" marker-end="url(#walkArrow)"/>`);const e=estimates();svg+=`<rect x="40" y="460" width="1000" height="135" rx="18" fill="var(--panel)" stroke="var(--line)" stroke-width="2"/><text x="65" y="495" class="svg-label">Current canonical state</text><text x="65" y="528" class="svg-mono">panel origin = (${state.left}, ${PANEL.topDp}) dp · density = ${state.density.toFixed(2)} px/dp</text><text x="65" y="557" class="svg-mono">panel target = ${e.w} × ${e.h} px · ${n(e.p)} pixels · ${e.mib.toFixed(3)} MiB estimate</text><text x="65" y="586" class="svg-mono">${state.refresh} Hz frame interval = ${e.budget.toFixed(2)} ms · measured target GPU time = unknown</text>`;$('walkthroughSvg').innerHTML=svg}
+function renderMetrics(){const e=estimates();$('panelLeft').value=state.left;$('panelLeftValue').textContent=`${state.left} dp`;$('density').value=state.density;$('densityValue').textContent=`${state.density.toFixed(2)} px/dp`;$('panelPixels').textContent=`${e.w} × ${e.h} px`;$('pixelCount').textContent=n(e.p);$('panelMiB').textContent=`${e.mib.toFixed(3)} MiB`;$('sceneRatio').textContent=`${e.ratio.toFixed(2)}× area`;$('frameBudget').textContent=`${e.budget.toFixed(2)} ms at ${state.refresh} Hz`;$('ledgerDensity').textContent=`${state.density.toFixed(2)} px/dp`;$('ledgerHz').textContent=`${state.refresh} Hz`;$('traceWidth').textContent=`196 × ${state.density.toFixed(2)} = ${e.w} px`;$('traceHeight').textContent=`116 × ${state.density.toFixed(2)} = ${e.h} px`;$('tracePixels').textContent=`${e.w} × ${e.h} = ${n(e.p)}`;$('traceBytes').textContent=`${n(e.p)} × 4 = ${n(e.b)}`;$('traceMiB').textContent=`${n(e.b)} ÷ 1,048,576 = ${e.mib.toFixed(3)}`;document.querySelectorAll('[data-left]').forEach(b=>b.classList.toggle('selected',Number(b.dataset.left)===state.left));document.querySelectorAll('[data-hz]').forEach(b=>{const selected=Number(b.dataset.hz)===state.refresh;b.classList.toggle('primary',selected);b.classList.toggle('selected',selected)})}
+function renderStep(){const st=STEPS[state.step];$('stepTitle').textContent=st.title;$('stepCaption').textContent=st.caption;$('stepRule').textContent=st.rule;$('stepInput').textContent=st.input;$('stepOperation').textContent=st.operation;$('stepOutput').textContent=st.output;const c=`Step ${state.step+1} of ${STEPS.length}`;$('diagramStep').textContent=c;$('stepCounter').textContent=c;['diagramPrev','stepPrev'].forEach(id=>$(id).disabled=state.step===0);['diagramNext','stepNext'].forEach(id=>$(id).disabled=state.step===STEPS.length-1);$('stepStateNote').textContent=`Canonical state: panel left ${state.left} dp · density ${state.density.toFixed(2)} px/dp · ${state.refresh} Hz. The full-scene target remains comparison arithmetic only.`}
+function renderAll(){renderMetrics();renderScene();renderWalkthrough();renderStep()}
+function setStep(n){state.step=clamp(n,0,STEPS.length-1);renderAll()}
+$('panelLeft').addEventListener('input',e=>{state.left=Number(e.target.value);renderAll()});
+$('density').addEventListener('input',e=>{state.density=Number(e.target.value);renderAll()});
+document.querySelectorAll('[data-left]').forEach(b=>b.addEventListener('click',()=>{state.left=Number(b.dataset.left);renderAll()}));
+document.querySelectorAll('[data-hz]').forEach(b=>b.addEventListener('click',()=>{state.refresh=Number(b.dataset.hz);renderAll()}));
+[['diagramPrev',-1],['stepPrev',-1],['diagramNext',1],['stepNext',1]].forEach(([id,d])=>$(id).addEventListener('click',()=>setStep(state.step+d)));
+document.querySelectorAll('[data-prediction]').forEach(b=>b.addEventListener('click',()=>{state.prediction=b.dataset.prediction;document.querySelectorAll('[data-prediction]').forEach(x=>x.classList.toggle('selected',x===b));$('predictionResult').textContent=state.prediction==='quarter'?'Correct. New pixel area = (½ width) × (½ height) = ¼ of the original pixel count. Under the same four-byte assumption, the estimated color bytes also become one quarter.':state.prediction==='half'?'Not quite. Halving one dimension would halve area, but both dimensions are halved: ½ × ½ = ¼.':'Density matters, but layout extent also matters. Pixel width and height are each produced by dp × density.';}));
+const blankCode=$('challengeEditor').value;
+const solutionCode=`fun estimateTarget(
+    widthDp: Float,
+    heightDp: Float,
+    densityPxPerDp: Float,
+): Long {
+    val widthPx = Math.round(widthDp * densityPxPerDp)
+    val heightPx = Math.round(heightDp * densityPxPerDp)
+    val pixelCount = widthPx.toLong() * heightPx.toLong()
+    return pixelCount * 4L
+}`;
+document.querySelectorAll('[data-code]').forEach(b=>b.addEventListener('click',()=>{$('challengeEditor').value=b.dataset.code==='solution'?solutionCode:blankCode;$('challengeResult').textContent=b.dataset.code==='solution'?'Solution inserted. Run the check to verify all four unit-preserving operations.':'Blanks restored. Convert each dp dimension before multiplying the pixel dimensions.';}));
+$('checkChallenge').addEventListener('click',()=>{const code=$('challengeEditor').value;const width=/Math\.round\(\s*widthDp\s*\*\s*densityPxPerDp\s*\)/.test(code),height=/Math\.round\(\s*heightDp\s*\*\s*densityPxPerDp\s*\)/.test(code),pixels=/widthPx\.toLong\(\)\s*\*\s*heightPx\.toLong\(\)/.test(code),bytes=/pixelCount\s*\*\s*4L/.test(code);$('challengeResult').textContent=width&&height&&pixels&&bytes?'Correct. Each dimension is converted to pixels, the two pixel dimensions produce area, and the four-byte teaching assumption produces estimated color bytes.':`Still incomplete: ${[!width&&'width dp-to-px conversion',!height&&'height dp-to-px conversion',!pixels&&'pixel-area multiplication as Long',!bytes&&'4L bytes-per-pixel multiplication'].filter(Boolean).join(', ')}.`});
+$('buildRecord').addEventListener('click',()=>{const e=estimates();$('record').value=`Lesson 6.10 review record\n\nI separated two symptoms:\n- alignment trail = mismatched geometry updates;\n- frame stutter = missed timing budget.\n\nCurrent teaching target:\n${e.w} × ${e.h} px = ${n(e.p)} pixels\nRGBA8 estimate = ${e.mib.toFixed(3)} MiB\n${state.refresh} Hz frame interval = ${e.budget.toFixed(2)} ms\n\nI verified that the corrected controlled Android route uses the same panel position for layout and crop translation. The full-scene target is comparison arithmetic only. Exact GPU allocation and frame time remain unmeasured until profiling.\n\nThis local record does not change the authoritative course count until I explicitly confirm completion.`});
+function closeProvenance(except=null){document.querySelectorAll('.prov.open').forEach(p=>{if(p!==except)p.classList.remove('open')})}
+document.querySelectorAll('.prov').forEach(p=>p.addEventListener('click',e=>{e.stopPropagation();const opening=!p.classList.contains('open');closeProvenance(p);p.classList.toggle('open',opening);p.classList.remove('flow-left');if(opening){const r=p.getBoundingClientRect();if(r.left+350>window.innerWidth-12)p.classList.add('flow-left')}}));
+document.addEventListener('click',()=>closeProvenance());
+window.addEventListener('resize',()=>closeProvenance());
+const theme=matchMedia('(prefers-color-scheme:dark)');function updateTheme(){$('themeMode').textContent=theme.matches?'dark':'light';renderAll()}theme.addEventListener?.('change',updateTheme);updateTheme();
+</script>
+</body>
+</html>

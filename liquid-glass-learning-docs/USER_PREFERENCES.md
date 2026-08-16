@@ -347,3 +347,12 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 - Name and comment non-obvious constants. Explain why scene dimensions, positions, intervals, ratios, alpha values, and coordinate calculations were chosen instead of leaving them as unexplained “magic numbers.”
 - Favor controlled dp coordinates and plain arithmetic over unnecessary fraction-based placement when both express the same lesson geometry.
 - Prediction choices must look like interactive controls in both themes, retain visible selected styling, and be tested by clicking every option.
+
+## Synchronization before performance diagnosis — Lesson 6.10
+
+- When replayed panel content appears to trail the panel’s newest position, first inspect whether panel placement and source-crop geometry are produced by different update channels. Do not assume a fast or slow GPU explains an alignment mismatch.
+- In a controlled scene where the coordinate relationship is already known, derive placement and crop translation from the same state value. Do not add callback-written duplicate geometry state that can update later.
+- Explain the exact scope of any simplification. A shared origin in a teaching scene does not prove that arbitrary production layouts share that origin.
+- Keep target-size arithmetic, color-storage assumptions, frame intervals, and measured GPU facts visibly separate. Label four bytes per pixel as a teaching model unless the real target format and allocation have been measured.
+- A deliberately wasteful full-scene comparison should stay in arithmetic or a diagram unless executing it is essential to the concept. The Android main path should allocate only the intended production target.
+- Performance optimization remains a planned part of the course: target-size control first, then downsampling, device profiling, caching, adaptive quality, and separate CPU/GPU/memory measurement.

@@ -9,14 +9,14 @@ Open `liquid-glass-course.html` directly in a Chromium-based browser. No local s
 ## Authoritative current state
 
 - Total course size: **216 lessons**.
-- Learner-confirmed complete: **59 of 216 lessons**.
-- Completed through: **Lesson 6.8 — Keep the sample current**.
+- Learner-confirmed complete: **60 of 216 lessons**.
+- Completed through: **Lesson 6.9 — Avoid feedback loops**.
 - Completed chapters: **1 through 5**.
-- Chapter 6: **8 of 11 lessons complete**.
-- Current unresolved checkpoint: **Lesson 6.9 — Avoid feedback loops**.
-- Generated frontier: **Lesson 6.9**.
-- Lesson 6.9 is generated and is not learner-confirmed complete.
-- Next planned lesson after review: **Lesson 6.10 — Offscreen cost**.
+- Chapter 6: **9 of 11 lessons complete**.
+- Current unresolved checkpoint: **Lesson 6.10 — Offscreen cost**.
+- Generated frontier: **Lesson 6.10**.
+- Lesson 6.10 is generated and is not learner-confirmed complete.
+- Next planned lesson after review: **Lesson 6.11 — Build a two-layer scene architecture**.
 
 `CURRENT_STATE.md` is authoritative when an older historical note disagrees.
 
@@ -31,30 +31,36 @@ course/chapters/chapter-06/lesson-how-android-draws-the-scene.html
 Open the current lesson:
 
 ```text
-course/chapters/chapter-06/lesson-06-09-avoid-feedback-loops.html
+course/chapters/chapter-06/lesson-06-10-offscreen-cost.html
 ```
 
-Lesson 6.9 starts from the completed record → map → clip → translate → replay route. It makes the recording source smaller than the complete scene: `BackdropHost` owns only `BackdropArtwork`, while `GlassPanel` remains a later sibling that consumes `backgroundLayer`.
-
-The main route is deliberately linear:
+Lesson 6.10 starts from the completed one-way backdrop ownership route and introduces one explicit panel-sized offscreen target:
 
 ```text
-BackdropHost
-→ backgroundLayer
-→ GlassPanel
+backgroundLayer
+→ matching crop
+→ panelSampleLayer
+→ panel material
 → ParentScene
 ```
 
-A compact warning diagram shows the forbidden return edge, but error cases do not drive the Android implementation. The explorer uses one layer, one current crop, and one movable panel. Every non-obvious scene dimension and drawing coordinate is named and explained in comments.
+The Android implementation uses the same panel position value for layout and crop translation in the controlled scene. It therefore avoids a separately stored crop rectangle that can trail the latest panel position.
+
+The browser lesson estimates target scale with a clearly limited four-byte RGBA teaching model. A full-scene target appears only as arithmetic and a diagram; the Android explorer does not allocate a deliberately wasteful comparison branch.
 
 ## Matching Android files
 
 ```text
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/Chapter06Screen.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/AvoidFeedbackLoopsExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/OffscreenCostExplorer.kt
 ```
 
-The complete chapter-screen previews live in `Chapter06Screen.kt`. The direct custom-composable previews live in `AvoidFeedbackLoopsExplorer.kt`. Both preview levels are vertically scrollable in finite-height Android Studio Preview.
+The complete chapter-screen previews live in `Chapter06Screen.kt`. Direct custom-composable previews live in each explorer’s own file. Both Preview levels are vertically scrollable in a finite-height Android Studio Preview.
+
+## Performance interpretation rule
+
+A sampled image that trails panel position is first treated as a synchronization/state-flow defect. A whole frame that stutters or skips is treated as a performance symptom. Exact GPU cost requires profiling a release-like build on the physical device; target-size arithmetic alone is not a profiler.
 
 ## Main-path-first teaching rule
 
@@ -76,4 +82,4 @@ Sub-lesson: `lesson-[chapter-number]-[lesson-number]-[lesson-name].html`
 
 Generic chapter `index.html` files are not used.
 
-Course progress: 59 of 216 lessons completed.
+Course progress: 60 of 216 lessons completed.

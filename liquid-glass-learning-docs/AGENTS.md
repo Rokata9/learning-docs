@@ -667,3 +667,13 @@ When several variables form a causal chain, include a compact dependency table n
 5. Replace unexplained numeric literals with named constants when they affect layout, geometry, sampling, or visible output. Explain why each non-obvious value was chosen and whether it is a coordinate, dimension, interval, visual alpha, or derived result.
 6. Do not use fractional placement math merely for convenience when fixed lesson-local dp coordinates communicate the same controlled geometry more clearly.
 7. Prediction controls require dedicated visible button styling in light and dark themes. Browser QA must click every choice and verify selected-state styling and result text.
+
+### Synchronization-first and estimate-boundary gate — Lesson 6.10
+
+1. A moving sampled image that trails its consumer is not automatically a GPU-performance defect. Audit whether placement, crop, transform, and recording freshness come from the same current state before discussing optimization.
+2. When controlled scene geometry makes a coordinate conversion directly derivable, use one source of truth. Do not write a second geometry state from `onGloballyPositioned` or another later callback merely to reproduce values already known from the motion input.
+3. State why the direct derivation is valid and where it stops being valid. Never generalize a shared teaching-scene origin to arbitrary nested production layouts without a real mapping architecture.
+4. Treat width × height × bytes-per-pixel arithmetic as a scale estimate only. Explicitly name the assumed format and list the major omitted implementation details before making any memory claim.
+5. Frame intervals such as 16.67 ms at 60 Hz and 8.33 ms at 120 Hz are total display intervals, not exclusive GPU budgets for one effect.
+6. Keep wasteful comparison targets out of the Android production route when arithmetic and diagrams can teach the extent difference. Do not bloat the code with a full-scene mode solely to demonstrate that it is larger.
+7. Any claim about actual frame time, allocation, bandwidth, or dropped frames must come from a release-like device measurement. Debug Preview behavior and teaching estimates are not sufficient evidence.

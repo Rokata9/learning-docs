@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 6.9.0
+**Version:** 6.10.0
 **Updated:** 2026-08-16
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
@@ -9,12 +9,12 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **59 of 216**.
-- Completed through: **Lesson 6.8 — Keep the sample current**.
+- Learner-confirmed complete: **60 of 216**.
+- Completed through: **Lesson 6.9 — Avoid feedback loops**.
 - Completed chapters: **1–5**.
-- Current unresolved checkpoint: **Lesson 6.9 — Avoid feedback loops**.
-- Generated frontier: **Lesson 6.9 — Avoid feedback loops**. Lesson 6.9 is generated and is not learner-confirmed complete.
-- Next planned lesson after the unresolved checkpoint: **Lesson 6.10 — Offscreen cost**.
+- Current unresolved checkpoint: **Lesson 6.10 — Offscreen cost**.
+- Generated frontier: **Lesson 6.10 — Offscreen cost**. Lesson 6.10 is generated and is not learner-confirmed complete.
+- Next planned lesson after the unresolved checkpoint: **Lesson 6.11 — Build a two-layer scene architecture**.
 
 ## 2. Course construction principles
 
@@ -38,6 +38,7 @@
 - Put one clean production route before diagnostic defects. Add executable failure modes only when they are necessary to understand or verify the principal idea.
 - Prefer compact diagrams or predictions over duplicate layers, mode enums, and branches created solely to show broken output.
 - Name non-obvious layout, geometry, sampling, and visual constants and explain why each value exists near its declaration or use.
+- Before diagnosing motion trail as a performance limit, verify that placement and sampling geometry are derived from the same current state; keep estimates distinct from measured device cost.
 
 Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are not duplicated here.
 
@@ -161,20 +162,32 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 
 ### Chapter 6 — How Android draws the scene
 
-**Current implementation record — Lesson 6.9**
+**Current implementation record — Lesson 6.10**
 
-- Generated and awaiting learner review; the completed total is 59 of 216.
-- Introduces one principal graphics idea: prevent feedback by keeping the recorded backdrop producer and glass consumer in separate sibling ownership subtrees.
-- The safe ownership tree is `ParentScene → BackdropHost → BackdropArtwork`, followed by sibling `GlassPanel`.
-- The browser shows one production route and only one compact forbidden-cycle diagram. Error cases do not create alternate executable architectures.
-- One canonical browser state drives a panel-position slider, three presets, metrics, two SVG diagrams, and a synchronized nine-state walkthrough.
-- The command trace follows one panel tint command and proves that it is emitted after layer replay and outside the `BackdropHost` recording boundary.
-- Android uses one `backgroundLayer`, one current crop rectangle, one recorded `BackdropHost`, and one later `GlassPanel` consumer.
-- Android deliberately has no failure-mode enum, frozen duplicate layer, or diagnostic rendering branches.
-- Scene dimensions, slider intervals, landmark coordinates, tint alpha, border alpha, and coordinate conversions are named and commented at their source.
-- Prediction, coding challenge, five explanation exercises, ten-item checkpoint, completion record, and explicit evidence boundaries are included.
-- The lesson defers blur, CPU readback, final multi-panel architecture, and offscreen-cost measurement.
-- Complete previews live in `Chapter06Screen.kt`; direct scrollable previews live in `AvoidFeedbackLoopsExplorer.kt`.
+- Generated and awaiting learner review; the completed total is 60 of 216.
+- Introduces one principal graphics idea: an explicitly offscreen target has a pixel extent, so panel-sized bounds avoid processing unrelated full-scene positions.
+- Separates a geometry synchronization trail from a missed-frame performance symptom before introducing cost arithmetic.
+- Uses one production route: `backgroundLayer` → matching crop → panel-sized `panelSampleLayer` → panel material → final scene.
+- `panelSampleLayer` is forced through `CompositingStrategy.Offscreen`; the hypothetical full-scene target is comparison arithmetic only and is not allocated by Android.
+- The browser lab shares one canonical panel position, density, and 60/120 Hz selection across its diagrams, metrics, formulas, and twelve-state walkthrough.
+- The variable ledger precedes formulas for dp-to-px conversion, pixel count, an explicitly limited four-byte RGBA estimate, MiB conversion, and display interval.
+- At teaching density 3.0 px/dp, the 196 × 116 dp panel estimates to 588 × 348 px, 204,624 pixels, and about 0.781 MiB under the four-byte assumption.
+- Android uses actual `LocalDensity`, one `backgroundLayer`, one `panelSampleLayer`, one position source, and named constants with nearby reasons.
+- Prediction buttons are dedicated styled controls; the coding challenge contains four unit-preserving blanks.
+- The lesson does not claim exact GPU allocation, bandwidth, frame time, or dropped-frame counts. Those require a release-like build and device tracing.
+- Complete previews live in `Chapter06Screen.kt`; direct scrollable previews live in `OffscreenCostExplorer.kt`.
+
+**Completed implementation record — Lesson 6.9**
+
+- Learner-confirmed complete.
+- Prevents feedback by keeping the recorded `BackdropHost` producer and `GlassPanel` consumer in separate sibling ownership subtrees.
+- The browser uses one production route and one compact forbidden-cycle diagram; no alternate executable failure architecture is required.
+- The cumulative Lesson 6.10 correction removes the separately stored crop rectangle from the controlled Android scene.
+- One `panelLeftDp` value and the fixed panel-top value now drive both panel placement and negative crop translation because `BackdropHost` and `ParentScene` share origin `(0, 0)` in that controlled scene.
+- This removes a post-layout crop-state round trip that could make sampled content trail the newest panel position for one update.
+- Android retains one `backgroundLayer`, one recorded `BackdropHost`, one later `GlassPanel` sibling, and no diagnostic rendering branches.
+- Scene dimensions, slider intervals, landmark coordinates, tint alpha, border alpha, and coordinate conversions remain named and commented.
+- Complete previews originally lived in `Chapter06Screen.kt`; direct scrollable previews remain in `AvoidFeedbackLoopsExplorer.kt`.
 
 **Completed implementation record — Lesson 6.8**
 
@@ -270,7 +283,7 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 7. **6.7 — Crop the correct region.** Map glass bounds into background coordinates.
 8. **6.8 — Keep the sample current.** Update the captured scene as content scrolls or animates.
 9. **6.9 — Avoid feedback loops.** Prevent the glass from capturing itself.
-10. **6.10 — Offscreen cost.** Learn why extra render targets consume memory and GPU time.
+10. **6.10 — Offscreen cost.** Estimate how target extent scales pixel work and color storage, then separate that estimate from measured GPU cost.
 11. **6.11 — Build a two-layer scene architecture.** Separate content, glass material, and foreground labels.
 
 **Checkpoint:** Move a glass panel over a dynamic background and sample the correct region without recursive capture.
