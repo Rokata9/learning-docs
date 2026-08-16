@@ -16,7 +16,7 @@
 <main class="page">
 <nav class="topbar">
 <div class="crumbs"><a href="lesson-how-android-draws-the-scene.html">Chapter 6</a> · Lesson 6.10</div>
-<div class="chips"><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span><span class="chip progress">60 of 216 complete</span><span class="chip pending">6.10 generated · review pending</span></div>
+<div class="chips"><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span><span class="chip progress">61 of 216 complete</span><span class="chip progress">6.10 learner-complete</span></div>
 </nav>
 
 <header class="hero panel">
@@ -38,7 +38,7 @@
 <div class="section-head"><div><div class="section-no">1 · Practical problem</div><h2>What extra target are we paying for?</h2></div><p>Start with visible objects, not byte formulas.</p></div>
 <div class="two">
 <div class="card blue"><h3>Already owned: <code>backgroundLayer</code></h3><p>It stores replayable drawing work for <code>BackdropArtwork</code>. It lets another target ask Android to execute those commands again.</p><p><strong>Important:</strong> this recording is not automatically the panel-sized color buffer that we estimate below.</p></div>
-<div class="card indigo"><h3>New: <code>panelSampleLayer</code></h3><p>Its recording happens inside the panel’s draw scope. Its bounds therefore match the panel, and <code>CompositingStrategy.Offscreen</code> explicitly asks for an offscreen raster target.</p><p>The target receives only the matching sharp backdrop crop in this lesson. Blur remains deferred.</p></div>
+<div class="card indigo"><h3>New: <code>panelSampleLayer</code></h3><p>Its recording happens inside the panel’s draw scope, so its command-layer bounds match the panel. The lesson then deliberately forces <code>CompositingStrategy.Offscreen</code> to guarantee one concrete panel-sized raster target for the arithmetic.</p><p>That setting is a teaching choice. It does not improve the sharp replay and is not a general optimization. Blur remains deferred.</p></div>
 </div>
 <div class="objects" style="margin-top:18px">
 <div class="card"><h3>Offscreen target</h3><p>A temporary image-shaped destination that is not yet the final screen output.</p></div>
@@ -59,7 +59,8 @@
 <div class="route-node"><strong>5 · Panel material</strong><br>tint + content + border</div>
 <div class="route-node"><strong>6 · Final scene</strong><br><span class="mono">ParentScene</span></div>
 </div>
-<div class="note"><strong>Why panel-sized?</strong> The panel consumes only a 196 × 116 dp region. A 340 × 240 dp target would contain many pixels that this one panel never displays.</div>
+<div class="note"><strong>Why panel-sized?</strong> The explicitly forced destination target is created in the 196 × 116 dp panel draw scope. It therefore stores panel-sized output pixels instead of a 340 × 240 dp full-scene image.</div>
+<div class="warning"><strong>What this does not shrink:</strong> <code>backgroundLayer</code> still represents the full backdrop command source. The app still records that source, draws the normal full backdrop, and replays the source commands into the small destination. A small destination limits destination pixel storage and output area; it does not prove that every upstream command-processing cost becomes panel-sized.</div>
 </section>
 
 <section class="section panel">
@@ -253,16 +254,16 @@ pixelCount · pixels
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">12 · Evidence boundary and local record</div><h2>What this lesson proves—and what it does not</h2></div><p>Generated is not the same as learner-confirmed complete.</p></div>
+<div class="section-head"><div><div class="section-no">12 · Evidence boundary and local record</div><h2>What this lesson proves—and what it does not</h2></div><p>Learner-confirmed complete.</p></div>
 <div class="two">
-<div class="card green"><h3>Proved in this lesson</h3><p>A panel-sized target has fewer pixel positions than a scene-sized target. Its simple RGBA8 storage estimate scales with pixel width × pixel height. The corrected controlled route uses one position source for placement and crop.</p></div>
-<div class="card amber"><h3>Still not proved</h3><p>No exact GPU allocation, memory bandwidth, render time, blur cost, or dropped-frame count is claimed. Blur, downsampling, multi-panel architecture, and measured profiling remain later work.</p></div>
+<div class="card green"><h3>Proved in this lesson</h3><p>The deliberately forced <code>panelSampleLayer</code> target has panel-sized pixel extent, so its simple RGBA8 teaching estimate scales with panel pixel width × panel pixel height. The corrected controlled route uses one position source for placement and crop.</p></div>
+<div class="card amber"><h3>Still not proved</h3><p>The estimate does not include full-source command recording, normal full-backdrop drawing, second-replay traversal, culling behavior, exact GPU allocation, bandwidth, render time, blur cost, or dropped-frame count. Those remain separate measurements.</p></div>
 </div>
 <textarea class="record" id="record" aria-label="Local review record">Press “Build local review record” after completing the checks.</textarea>
 <div class="controls" style="margin-top:10px"><button class="btn primary" id="buildRecord">Build local review record</button></div>
 </section>
 
-<footer class="footer panel"><span>Lesson 6.10 generated · not yet learner-confirmed complete</span><a href="lesson-how-android-draws-the-scene.html">Return to Chapter 6</a></footer>
+<footer class="footer panel"><span>Lesson 6.10 learner-confirmed complete · 61 of 216</span><a href="lesson-06-11-two-layer-scene-architecture.html">Continue to Lesson 6.11 →</a></footer>
 </main>
 <script>
 const $=id=>document.getElementById(id);
@@ -279,7 +280,7 @@ const STEPS=[
 {title:'Derive the crop from the same position',caption:'Because BackdropHost and ParentScene share origin (0, 0), the panel origin is also the crop origin. Convert the shared dp values to runtime pixels inside DrawScope.',rule:'cropPx = (panelLeftDp, panelTopDp) × density',input:'One panel origin + density',operation:'dp → px',output:'Current source origin',node:2},
 {title:'Enter the panel draw scope',caption:'The modifier has already sized GlassPanel to 196 × 116 dp. Recording panelSampleLayer here gives the layer the panel’s draw extent.',rule:'record scope size = panel draw size',input:'GlassPanel DrawScope',operation:'Use current scope bounds',output:'Panel-sized layer bounds',node:3},
 {title:'Replay the matching region',caption:'Clip to the panel bounds and translate the full backdrop layer by the negative crop origin. The crop’s source top-left lands at panel-local (0, 0).',rule:'source translation = (−cropLeftPx, −cropTopPx)',input:'backgroundLayer + crop origin',operation:'Clip, translate, replay',output:'Matching sharp sample commands',node:3},
-{title:'Force offscreen compositing',caption:'CompositingStrategy.Offscreen requires panelSampleLayer to render through an intermediate raster target instead of relying only on direct command replay.',rule:'panelSampleLayer.compositingStrategy = Offscreen',input:'Panel-sized layer recording',operation:'Rasterize into intermediate target',output:'Panel-sized color target',node:4},
+{title:'Deliberately force one raster target',caption:'The sharp sample does not need explicit Offscreen for correctness. This lesson forces it only so a definite panel-sized intermediate target exists for the size estimate.',rule:'panelSampleLayer.compositingStrategy = Offscreen',input:'Panel-sized layer recording',operation:'Force rasterization for the experiment',output:'Guaranteed panel-sized color target',node:4},
 {title:'Replay the panel target',caption:'drawLayer(panelSampleLayer) consumes the intermediate layer inside GlassPanel. The matching backdrop image now appears in the panel.',rule:'GlassPanel ← drawLayer(panelSampleLayer)',input:'panelSampleLayer',operation:'Composite layer',output:'Sharp aligned panel sample',node:4},
 {title:'Add panel material afterward',caption:'Tint, child text, and border are drawn after the sample. They are not included in the sampled source and they do not enlarge the sample target.',rule:'sample → tint → child content → border',input:'Sharp panel sample',operation:'Source-over panel commands',output:'Final GlassPanel output',node:5},
 {title:'Count target pixels',caption:'Convert the panel width and height from dp to pixels using density, then multiply the two pixel dimensions.',rule:'P = round(Wdp × ρ) × round(Hdp × ρ)',input:'196 dp × 116 dp + density',operation:'Convert and multiply',output:'Pixel-position count',node:6},
@@ -315,7 +316,7 @@ const solutionCode=`fun estimateTarget(
 }`;
 document.querySelectorAll('[data-code]').forEach(b=>b.addEventListener('click',()=>{$('challengeEditor').value=b.dataset.code==='solution'?solutionCode:blankCode;$('challengeResult').textContent=b.dataset.code==='solution'?'Solution inserted. Run the check to verify all four unit-preserving operations.':'Blanks restored. Convert each dp dimension before multiplying the pixel dimensions.';}));
 $('checkChallenge').addEventListener('click',()=>{const code=$('challengeEditor').value;const width=/Math\.round\(\s*widthDp\s*\*\s*densityPxPerDp\s*\)/.test(code),height=/Math\.round\(\s*heightDp\s*\*\s*densityPxPerDp\s*\)/.test(code),pixels=/widthPx\.toLong\(\)\s*\*\s*heightPx\.toLong\(\)/.test(code),bytes=/pixelCount\s*\*\s*4L/.test(code);$('challengeResult').textContent=width&&height&&pixels&&bytes?'Correct. Each dimension is converted to pixels, the two pixel dimensions produce area, and the four-byte teaching assumption produces estimated color bytes.':`Still incomplete: ${[!width&&'width dp-to-px conversion',!height&&'height dp-to-px conversion',!pixels&&'pixel-area multiplication as Long',!bytes&&'4L bytes-per-pixel multiplication'].filter(Boolean).join(', ')}.`});
-$('buildRecord').addEventListener('click',()=>{const e=estimates();$('record').value=`Lesson 6.10 review record\n\nI separated two symptoms:\n- alignment trail = mismatched geometry updates;\n- frame stutter = missed timing budget.\n\nCurrent teaching target:\n${e.w} × ${e.h} px = ${n(e.p)} pixels\nRGBA8 estimate = ${e.mib.toFixed(3)} MiB\n${state.refresh} Hz frame interval = ${e.budget.toFixed(2)} ms\n\nI verified that the corrected controlled Android route uses the same panel position for layout and crop translation. The full-scene target is comparison arithmetic only. Exact GPU allocation and frame time remain unmeasured until profiling.\n\nThis local record does not change the authoritative course count until I explicitly confirm completion.`});
+$('buildRecord').addEventListener('click',()=>{const e=estimates();$('record').value=`Lesson 6.10 review record\n\nI separated two symptoms:\n- alignment trail = mismatched geometry updates;\n- frame stutter = missed timing budget.\n\nCurrent teaching target:\n${e.w} × ${e.h} px = ${n(e.p)} pixels\nRGBA8 estimate = ${e.mib.toFixed(3)} MiB\n${state.refresh} Hz frame interval = ${e.budget.toFixed(2)} ms\n\nI verified that the corrected controlled Android route uses the same panel position for layout and crop translation. The full-scene target is comparison arithmetic only. The panel-sized estimate does not erase full-backdrop recording, normal drawing, or source-replay work. Explicit Offscreen was forced only to make one target concrete; exact GPU allocation and frame time remain unmeasured until profiling.\n\nThis local record does not change the authoritative course count until I explicitly confirm completion.`});
 function closeProvenance(except=null){document.querySelectorAll('.prov.open').forEach(p=>{if(p!==except)p.classList.remove('open')})}
 document.querySelectorAll('.prov').forEach(p=>p.addEventListener('click',e=>{e.stopPropagation();const opening=!p.classList.contains('open');closeProvenance(p);p.classList.toggle('open',opening);p.classList.remove('flow-left');if(opening){const r=p.getBoundingClientRect();if(r.left+350>window.innerWidth-12)p.classList.add('flow-left')}}));
 document.addEventListener('click',()=>closeProvenance());

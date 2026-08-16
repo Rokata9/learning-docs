@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 6.10.0
+**Version:** 6.11.0
 **Updated:** 2026-08-16
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
@@ -9,12 +9,13 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **60 of 216**.
-- Completed through: **Lesson 6.9 — Avoid feedback loops**.
+- Learner-confirmed complete: **61 of 216**.
+- Completed through: **Lesson 6.10 — Offscreen cost**.
 - Completed chapters: **1–5**.
-- Current unresolved checkpoint: **Lesson 6.10 — Offscreen cost**.
-- Generated frontier: **Lesson 6.10 — Offscreen cost**. Lesson 6.10 is generated and is not learner-confirmed complete.
-- Next planned lesson after the unresolved checkpoint: **Lesson 6.11 — Build a two-layer scene architecture**.
+- Chapter 6 is in progress: **10 of 11 lessons complete**.
+- Current unresolved checkpoint: **Lesson 6.11 — Build a two-layer scene architecture**.
+- Generated frontier: **Lesson 6.11 — Build a two-layer scene architecture**. Lesson 6.11 is generated and is not learner-confirmed complete.
+- Next planned lesson after the unresolved checkpoint: **Lesson 7.1 — Blur as neighborhood averaging**.
 
 ## 2. Course construction principles
 
@@ -39,6 +40,10 @@
 - Prefer compact diagrams or predictions over duplicate layers, mode enums, and branches created solely to show broken output.
 - Name non-obvious layout, geometry, sampling, and visual constants and explain why each value exists near its declaration or use.
 - Before diagnosing motion trail as a performance limit, verify that placement and sampling geometry are derived from the same current state; keep estimates distinct from measured device cost.
+- Distinguish retained drawing commands from an allocated raster target. A `GraphicsLayer` count is not automatically a buffer count.
+- State whether explicit `CompositingStrategy.Offscreen` is required for correctness, redundant because another property already forces rasterization, or deliberately forced only for a controlled teaching experiment.
+- When a panel-sized destination replays a full-backdrop source, state both sides of the cost boundary: destination pixel area can be small while full-source recording, normal drawing, and replay work still remain.
+- Keep labels and icons outside the sample/effect layer when they must remain sharp after the material receives blur.
 
 Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are not duplicated here.
 
@@ -162,20 +167,36 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 
 ### Chapter 6 — How Android draws the scene
 
-**Current implementation record — Lesson 6.10**
+**Current implementation record — Lesson 6.11**
 
-- Generated and awaiting learner review; the completed total is 60 of 216.
-- Introduces one principal graphics idea: an explicitly offscreen target has a pixel extent, so panel-sized bounds avoid processing unrelated full-scene positions.
-- Separates a geometry synchronization trail from a missed-frame performance symptom before introducing cost arithmetic.
-- Uses one production route: `backgroundLayer` → matching crop → panel-sized `panelSampleLayer` → panel material → final scene.
-- `panelSampleLayer` is forced through `CompositingStrategy.Offscreen`; the hypothetical full-scene target is comparison arithmetic only and is not allocated by Android.
-- The browser lab shares one canonical panel position, density, and 60/120 Hz selection across its diagrams, metrics, formulas, and twelve-state walkthrough.
-- The variable ledger precedes formulas for dp-to-px conversion, pixel count, an explicitly limited four-byte RGBA estimate, MiB conversion, and display interval.
-- At teaching density 3.0 px/dp, the 196 × 116 dp panel estimates to 588 × 348 px, 204,624 pixels, and about 0.781 MiB under the four-byte assumption.
+- Generated and awaiting learner review; the completed total is 61 of 216.
+- Introduces one principal architecture: two controlled `GraphicsLayer` objects plus one ordinary foreground role.
+- The owner tree is `ParentScene` → sibling `BackdropHost` and `GlassPanel`; inside the panel, `GlassMaterial` is declared before `ForegroundContent`.
+- `backgroundLayer` retains the complete backdrop command source. `panelSampleLayer` retains the panel-sized translated crop commands. `ForegroundContent` is not a third layer.
+- The one-way route is `BackdropArtwork` → `backgroundLayer` → `panelSampleLayer` → tint and border → `ForegroundContent` → `ParentScene`.
+- Source and consumer remain siblings, preventing the panel from entering its own backdrop recording.
+- The sharp label and dot are ordinary later Compose children outside both `record` calls, so a future effect on `panelSampleLayer` will not own them.
+- One `panelLeftDp` value controls both panel placement and negative crop translation in the controlled shared-origin scene.
+- Neither controlled layer explicitly forces `Offscreen`, and no `RenderEffect` is present yet. Two `GraphicsLayer` objects therefore do not imply two guaranteed pixel textures.
+- The browser lesson contains one production route, an eleven-state walkthrough, one coordinate/ownership trace, a styled three-choice prediction, a three-blank coding challenge, four explain-back checks, and a ten-item Chapter 6 checkpoint.
+- Android uses named and commented dimensions, positions, slider detents, landmark coordinates, and visual alpha values. It contains no diagnostic mode enum, duplicate failure branch, or callback-written crop state.
+- Complete previews live in `Chapter06Screen.kt`; direct scrollable previews live in `TwoLayerSceneArchitectureExplorer.kt`.
+
+**Completed implementation record — Lesson 6.10**
+
+- Learner-confirmed complete.
+- Separates three different facts: a full-backdrop command recording, a panel-sized destination pixel target, and measured device cost.
+- Uses one production route: `backgroundLayer` full command source → matching crop replay → panel-sized `panelSampleLayer` → panel material → final scene.
+- Explicit `CompositingStrategy.Offscreen` is deliberately forced only to make one concrete target available for target-extent arithmetic. It does not improve the sharp result and is not presented as a general optimization.
+- The panel-sized estimate describes only the explicitly forced `panelSampleLayer` color target. The full backdrop command recording, normal full-backdrop rendering, and second source replay still remain.
+- A small destination bounds destination pixel storage and output area; it does not prove that all upstream command traversal, culling, bandwidth, or frame-time cost becomes panel-sized.
+- The hypothetical full-scene target remains arithmetic and diagram evidence only; the Android production route does not allocate it.
+- The variable ledger precedes dp-to-px conversion, pixel count, the deliberately limited four-byte teaching assumption, MiB conversion, and display interval.
+- At teaching density 3.0 px/dp, the 196 × 116 dp panel estimates to 588 × 348 px, 204,624 pixels, and about 0.781 MiB under that assumption.
 - Android uses actual `LocalDensity`, one `backgroundLayer`, one `panelSampleLayer`, one position source, and named constants with nearby reasons.
-- Prediction buttons are dedicated styled controls; the coding challenge contains four unit-preserving blanks.
-- The lesson does not claim exact GPU allocation, bandwidth, frame time, or dropped-frame counts. Those require a release-like build and device tracing.
-- Complete previews live in `Chapter06Screen.kt`; direct scrollable previews live in `OffscreenCostExplorer.kt`.
+- The corrected movement route derives both panel placement and crop translation from the same current position rather than a callback-written duplicate rectangle.
+- The lesson does not claim exact GPU allocation, bandwidth, frame time, command-culling behavior, or dropped-frame counts. Those require release-like device measurement.
+- Complete previews originally lived in `Chapter06Screen.kt`; direct scrollable previews remain in `OffscreenCostExplorer.kt`.
 
 **Completed implementation record — Lesson 6.9**
 

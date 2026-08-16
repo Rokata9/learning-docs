@@ -27,11 +27,11 @@ If I do not attach the complete repositories, the minimum useful set is:
 4. `curriculum/liquid_glass_android_handoff.md`
 5. `curriculum/liquid_glass_android_curriculum.md`
 6. `course/chapters/chapter-06/lesson-how-android-draws-the-scene.html`
-7. `course/chapters/chapter-06/lesson-06-09-avoid-feedback-loops.html`
-8. `course/chapters/chapter-06/lesson-06-10-offscreen-cost.html`
+7. `course/chapters/chapter-06/lesson-06-10-offscreen-cost.html`
+8. `course/chapters/chapter-06/lesson-06-11-two-layer-scene-architecture.html`
 9. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/Chapter06Screen.kt`
-10. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/AvoidFeedbackLoopsExplorer.kt`
-11. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/OffscreenCostExplorer.kt`
+10. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/OffscreenCostExplorer.kt`
+11. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/TwoLayerSceneArchitectureExplorer.kt`
 
 Useful additional Android context:
 
@@ -85,156 +85,157 @@ Do not edit or regenerate artifacts whose current source is missing. Conceptual 
 Use this state unless newer attached `CURRENT_STATE.md` explicitly supersedes it:
 
 - Total course size: **216 lessons**.
-- Learner-confirmed complete: **60 of 216 lessons**.
-- Completed through: **Lesson 6.9 — Avoid feedback loops**.
+- Learner-confirmed complete: **61 of 216 lessons**.
+- Completed through: **Lesson 6.10 — Offscreen cost**.
 - Completed chapters: **1, 2, 3, 4, and 5**.
-- Chapter 6 is in progress: **9 of 11 lessons complete**.
-- Current unresolved checkpoint: **Lesson 6.10 — Offscreen cost**.
-- Generated frontier: **Lesson 6.10 — Offscreen cost**.
-- Next planned lesson after the unresolved checkpoint: **Lesson 6.11 — Build a two-layer scene architecture**.
-- Lesson 6.10 is generated and is not learner-confirmed complete.
+- Chapter 6 is in progress: **10 of 11 lessons complete**.
+- Current unresolved checkpoint: **Lesson 6.11 — Build a two-layer scene architecture**.
+- Generated frontier: **Lesson 6.11 — Build a two-layer scene architecture**.
+- Next planned lesson after the unresolved checkpoint: **Lesson 7.1 — Blur as neighborhood averaging**.
+- Lesson 6.11 is generated and is not learner-confirmed complete.
 
 Do not increase the completion count because a lesson was generated, revised, reviewed, or because I said only “continue” when questions or corrections remain.
 
-## 3. Generated Lesson 6.10 review contract and prerequisite for Lesson 6.11
+## 3. Completed Lesson 6.10 contract and generated Lesson 6.11 review contract
 
-Lesson 6.10 starts from the completed one-way ownership tree:
+### Completed Lesson 6.10 distinction
+
+```text
+full-backdrop command recording
+≠
+panel-sized destination pixel target
+≠
+measured device cost
+```
+
+The explicit `CompositingStrategy.Offscreen` in Lesson 6.10 was forced only to guarantee one concrete panel-sized raster target for arithmetic. It did not improve the sharp visual result and was not a general optimization.
+
+The panel-sized estimate did not erase the cost of:
+
+```text
+recording the full backdrop command list
++
+drawing the normal full backdrop
++
+replaying the source commands into the panel destination
+```
+
+A small destination bounds destination pixel storage and output area. It does not prove that every upstream command-processing cost becomes panel-sized.
+
+### Lesson 6.11 principal architecture
 
 ```text
 ParentScene
 ├── BackdropHost
 │   └── BackdropArtwork
 └── GlassPanel
+    ├── GlassMaterial
+    └── ForegroundContent
 ```
 
-The source route remains acyclic:
-
-```text
-BackdropArtwork draw commands
-→ backgroundLayer
-→ GlassPanel sample
-→ panel material and content
-→ ParentScene final output
-```
-
-### Moving-panel synchronization correction
-
-The original controlled Lesson 6.9 Android implementation placed the panel from `panelLeftDp` but stored its crop rectangle through post-layout callbacks. That created two update channels for the same motion.
-
-The cumulative Lesson 6.10 patch removes the separately stored crop:
-
-```text
-one panelLeftDp + fixed panelTopDp
-→ panel placement
-→ crop translation
-```
-
-This direct derivation is valid because `BackdropHost` fills `ParentScene` and both share local origin `(0, 0)` in the controlled scene. Do not reintroduce callback-written crop state for geometry already known from the same controlled values.
-
-### Lesson 6.10 principal route
-
-```text
-BackdropArtwork
-→ backgroundLayer replayable commands
-→ clip and translate the matching region
-→ panelSampleLayer.record { ... }
-→ CompositingStrategy.Offscreen
-→ panel-sized raster target
-→ drawLayer(panelSampleLayer)
-→ panel tint, content, and border
-→ ParentScene
-```
-
-The two layers have different roles:
+The scene creates exactly two controlled `GraphicsLayer` objects:
 
 ```text
 backgroundLayer
-= replayable backdrop drawing work
+= full BackdropArtwork command source
 
 panelSampleLayer
-= panel-sized layer whose Offscreen strategy makes the intermediate raster target explicit
+= panel-sized translated crop command layer
 ```
 
-The Android implementation uses:
+The third role is ordinary Compose content:
 
 ```text
-one backgroundLayer
-one panelSampleLayer
-one panel position source
-one panel-sized offscreen route
-actual LocalDensity for estimates
+ForegroundContent
+= sharp dot and label
+= later child outside both record calls
+= not a third GraphicsLayer
 ```
 
-It deliberately avoids:
+The one-way production route is:
 
 ```text
-an executable full-scene comparison target
-a stale/correct mode enum
-duplicate diagnostic layers
-post-layout crop state in the controlled scene
+BackdropArtwork
+→ backgroundLayer
+→ panelSampleLayer
+→ tint and border
+→ ForegroundContent
+→ ParentScene
 ```
 
-The controlled browser trace defines:
+`BackdropHost` and `GlassPanel` are siblings. The source owner therefore excludes the panel and cannot capture itself.
+
+Inside `GlassPanel`, child order is explicit:
+
+```text
+ArchitectureGlassMaterial(...)
+ArchitectureForegroundContent()
+```
+
+`GlassMaterial` draws the translated sample, tint, and border first. `ForegroundContent` draws later and stays outside the future effect input.
+
+Both layers remain on the default `Auto` compositing strategy in Lesson 6.11. Two `GraphicsLayer` objects do not imply two allocated offscreen textures. Chapter 7 will introduce the real neighborhood blur operation and the pixel input it requires.
+
+### Controlled geometry
 
 ```text
 scene = 340 × 240 dp
 panel = 196 × 116 dp
-teaching density default = 3.0 px/dp
-teaching bytes per pixel = 4
+panel top = 72 dp
+panel left range = 24...120 dp
+red marker = (92, 82) dp in BackdropHost-local coordinates
 ```
 
-At the default density:
+At the default panel origin `(72, 72) dp`:
 
 ```text
-widthPx = round(196 × 3.0) = 588 px
-heightPx = round(116 × 3.0) = 348 px
-pixelCount = 588 × 348 = 204,624
-estimatedColorBytes = 204,624 × 4 = 818,496
-estimatedMiB = 818,496 ÷ 1,048,576 ≈ 0.781 MiB
+red marker panel-local
+= (92, 82) − (72, 72)
+= (20, 10) dp
 ```
 
-The four-byte RGBA model is explicitly an estimate, not a claim about actual GPU allocation. The lesson distinguishes:
+One `panelLeftDp` value drives both panel placement and negative crop translation because `BackdropHost` fills `ParentScene` and both share local origin `(0, 0)` in this controlled scene.
 
-```text
-sample trails the newest panel position
-→ inspect geometry synchronization first
-
-whole scene stutters or skips
-→ inspect frame cost and deadlines
-```
+### Browser lesson
 
 The browser lesson contains:
 
-- one clean production route;
-- an interactive panel-position, density, and 60/120 Hz lab;
-- one synchronized twelve-state walkthrough;
-- a variable ledger before formulas;
-- one complete target-size trace;
+- a practical foreground-isolation problem;
+- a two-layer/three-role object ledger;
+- an interactive panel-position and role-focus lab;
+- one synchronized eleven-state walkthrough;
+- one coordinate and ownership trace;
 - short Android excerpts;
 - a visibly styled three-choice prediction;
-- one four-blank coding challenge;
-- five explain-back exercises;
-- a ten-item Preview/device checkpoint;
-- the later performance-optimization roadmap.
+- one three-blank coding challenge;
+- four explain-back exercises;
+- a ten-item Chapter 6 checkpoint;
+- an explicit command-versus-buffer boundary.
 
-Lesson 6.10 does not yet:
+### Android implementation
 
-- apply or downsample blur;
-- report exact GPU allocation, bandwidth, or frame time;
-- prove dropped-frame counts;
-- build the final reusable two-layer scene architecture;
-- perform CPU pixel readback.
+`TwoLayerSceneArchitectureExplorer.kt` intentionally contains:
 
-Lesson 6.11 will build the two-layer scene architecture. Do not generate Lesson 6.11 until Lesson 6.10 is learner-confirmed complete unless I explicitly ask to generate ahead.
+- exactly one `backgroundLayer`;
+- exactly one `panelSampleLayer`;
+- one shared panel position source;
+- one `BackdropHost` producer sibling;
+- one `GlassPanel` consumer sibling;
+- one `GlassMaterial` first child;
+- one ordinary `ForegroundContent` second child;
+- no `Offscreen` setting;
+- no `RenderEffect` yet;
+- no callback-written crop state;
+- no diagnostic mode enum or duplicate failure branch.
 
-### Synchronization-before-optimization rule
+Lesson 6.11 does not yet:
 
-1. Before calling a visual trail a performance problem, verify that placement and sampling geometry use the same current state.
-2. In controlled geometry, derive dependent coordinates directly from the same source instead of storing a callback-written duplicate.
-3. Keep target-size arithmetic separate from measured GPU facts.
-4. Do not allocate a deliberately wasteful comparison route when arithmetic and a diagram teach the point.
-5. Name every non-obvious dimension, density conversion, byte assumption, and frame-budget value near its source.
-6. Test prediction styling and all click paths in light and dark themes.
+- apply blur;
+- teach blur radius or edge treatment;
+- downsample the sample;
+- tune the full frosted material;
+- profile device GPU cost;
+- build multi-panel caching or adaptive quality.
 
 ## 4. Learner calibration
 
@@ -445,11 +446,11 @@ Do not generate a lesson or edit files in the first response.
 Confirm that you actually read them, then restate only:
 
 ```text
-completed: 60 of 216, through Lesson 6.9
-current unresolved checkpoint: Lesson 6.10 — Offscreen cost
-generated frontier: Lesson 6.10
-next planned lesson after the checkpoint: Lesson 6.11
-Lesson 6.10 is generated and not complete
+completed: 61 of 216, through Lesson 6.10
+current unresolved checkpoint: Lesson 6.11 — Build a two-layer scene architecture
+generated frontier: Lesson 6.11
+next planned lesson after the checkpoint: Lesson 7.1
+Lesson 6.11 is generated and not complete
 ```
 
 Then wait for my next message.

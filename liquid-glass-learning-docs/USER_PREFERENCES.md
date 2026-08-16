@@ -356,3 +356,11 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 - Keep target-size arithmetic, color-storage assumptions, frame intervals, and measured GPU facts visibly separate. Label four bytes per pixel as a teaching model unless the real target format and allocation have been measured.
 - A deliberately wasteful full-scene comparison should stay in arithmetic or a diagram unless executing it is essential to the concept. The Android main path should allocate only the intended production target.
 - Performance optimization remains a planned part of the course: target-size control first, then downsampling, device profiling, caching, adaptive quality, and separate CPU/GPU/memory measurement.
+
+## Graphics command, buffer, and foreground separation — Lesson 6.11
+
+- Distinguish replayable drawing commands from allocated pixel storage. Do not call every `GraphicsLayer` a buffer.
+- Explain whether explicit `Offscreen` is necessary, redundant, or present only to make a teaching experiment concrete.
+- When a panel-sized destination replays a full backdrop source, explain which panel-sized pixel costs are reduced and which full-source recording, drawing, and replay costs remain.
+- Keep labels and icons outside the sample/effect layer when they must remain sharp. Make that ownership visible in both the object tree and the Android declaration order.
+- Prefer one clean two-layer production route over executable comparison modes that add unrelated state or branching.

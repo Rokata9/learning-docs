@@ -1,136 +1,138 @@
 # Liquid Glass Android course — current state
 
 **Updated:** 2026-08-16  
-**Course version:** 6.10.0  
+**Course version:** 6.11.0  
 **Platform:** Kotlin + Jetpack Compose  
 **Test device:** Pixel 8 Pro
 
 ## Authoritative progress
 
-- Learner-confirmed complete: **60 of 216 lessons**.
-- Completed through: **Lesson 6.9 — Avoid feedback loops**.
+- Learner-confirmed complete: **61 of 216 lessons**.
+- Completed through: **Lesson 6.10 — Offscreen cost**.
 - Completed chapters: **1, 2, 3, 4, and 5**.
-- Chapter 6: in progress; **9 of 11 lessons complete**.
-- Current unresolved checkpoint: **Lesson 6.10 — Offscreen cost**.
-- Generated frontier: **Lesson 6.10 — Offscreen cost**.
-- Next planned lesson after the unresolved checkpoint: **Lesson 6.11 — Build a two-layer scene architecture**.
-- Lesson 6.10 is generated and is not learner-confirmed complete.
+- Chapter 6: in progress; **10 of 11 lessons complete**.
+- Current unresolved checkpoint: **Lesson 6.11 — Build a two-layer scene architecture**.
+- Generated frontier: **Lesson 6.11 — Build a two-layer scene architecture**.
+- Next planned lesson after the unresolved checkpoint: **Lesson 7.1 — Blur as neighborhood averaging**.
+- Lesson 6.11 is generated and is not learner-confirmed complete.
 
 ## Current lesson files
 
 ```text
 course/chapters/chapter-06/lesson-how-android-draws-the-scene.html
-course/chapters/chapter-06/lesson-06-09-avoid-feedback-loops.html
 course/chapters/chapter-06/lesson-06-10-offscreen-cost.html
+course/chapters/chapter-06/lesson-06-11-two-layer-scene-architecture.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/Chapter06Screen.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/AvoidFeedbackLoopsExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/OffscreenCostExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/TwoLayerSceneArchitectureExplorer.kt
 ```
 
-## Completed Lesson 6.9 prerequisite contract
+## Completed Lesson 6.10 prerequisite contract
 
-The backdrop source owner excludes the consumer:
+Lesson 6.10 separates three different facts that must not be collapsed:
+
+```text
+full-backdrop command recording
+≠
+panel-sized destination pixel target
+≠
+measured frame-time cost
+```
+
+The controlled route is:
+
+```text
+BackdropArtwork commands
+→ backgroundLayer full command source
+→ matching crop replay
+→ panelSampleLayer recorded in the panel DrawScope
+→ deliberately forced panel-sized Offscreen target
+→ panel tint, child content, and border
+→ ParentScene
+```
+
+The explicit `CompositingStrategy.Offscreen` setting is a teaching choice. It guarantees one concrete panel-sized intermediate target whose extent can be estimated. It does not improve the sharp result and is not a general optimization. A later `RenderEffect` can require rasterization while the compositing strategy remains `Auto`.
+
+The panel-sized estimate covers only the explicitly forced `panelSampleLayer` color target. The app still pays for the full backdrop command source, the normal full-backdrop draw, and a second replay of that source into the panel destination. Target-size arithmetic does not measure command traversal, culling, bandwidth, driver behavior, exact allocation, or frame time.
+
+The corrected controlled Android scene keeps one position source:
+
+```text
+panelLeftDp + fixed panelTopDp
+→ panel placement
+→ crop translation
+```
+
+This avoids a callback-written duplicate crop state that can trail the newest panel position.
+
+## Generated Lesson 6.11 contract
+
+Lesson 6.11 introduces one final Chapter 6 architecture:
 
 ```text
 ParentScene
 ├── BackdropHost
 │   └── BackdropArtwork
 └── GlassPanel
+    ├── GlassMaterial
+    └── ForegroundContent
 ```
 
-The dependency remains one-way:
+The scene owns exactly two controlled `GraphicsLayer` objects:
 
 ```text
-BackdropArtwork commands
-→ BackdropHost recording boundary
-→ backgroundLayer
-→ GlassPanel replay
-→ panel material and content
-→ ParentScene final composite
+backgroundLayer
+= full BackdropArtwork command source
+
+panelSampleLayer
+= panel-sized translated crop command layer
 ```
 
-`GlassPanel` is a later sibling outside `BackdropHost`, so its output cannot re-enter `backgroundLayer`.
-
-### Synchronization correction carried into Lesson 6.10
-
-The controlled Lesson 6.9 Android scene originally placed the panel from `panelLeftDp` but stored the crop rectangle through post-layout coordinate callbacks. That created two geometry state channels for one motion and could let the newest panel position draw once with an older crop.
-
-The cumulative Lesson 6.10 patch removes that round trip:
+The third role is not another layer:
 
 ```text
-one panelLeftDp + one fixed panelTopDp
-→ panel placement
-→ crop translation
+ForegroundContent
+= ordinary later Compose child
+= sharp dot and label outside both record calls
 ```
 
-This direct derivation is valid because `BackdropHost` fills `ParentScene` and both share local origin `(0, 0)` in the controlled example. General arbitrary-layout coordination remains an architecture topic rather than being hidden behind this simplification.
-
-## Generated Lesson 6.10 contract
-
-Lesson 6.10 introduces one explicit panel-sized offscreen target:
+The one-way draw route is:
 
 ```text
 BackdropArtwork
-→ backgroundLayer replayable commands
-→ matching crop replay
-→ panelSampleLayer.record { ... }
-→ CompositingStrategy.Offscreen
-→ panel-sized raster target
-→ drawLayer(panelSampleLayer)
-→ panel tint, content, and border
-→ final ParentScene output
+→ backgroundLayer
+→ panelSampleLayer
+→ tint and border
+→ ForegroundContent
+→ ParentScene
 ```
 
-The lesson distinguishes:
+`BackdropHost` and `GlassPanel` are siblings. The source owner excludes the consumer, so the panel cannot record itself. `GlassMaterial` is the first panel child. `ForegroundContent` is the second child and therefore draws later.
 
-```text
-alignment trail
-= panel placement and crop use different update states
+Both layers remain on the default `Auto` compositing strategy in Lesson 6.11. Two `GraphicsLayer` objects do not imply two guaranteed offscreen textures. Chapter 7 will introduce the real neighborhood blur operation and the pixel input it requires.
 
-frame stutter
-= the complete frame misses a display deadline
-```
+## Explicit Lesson 6.11 boundaries
 
-The Android explorer contains one production route:
+Lesson 6.11 does not yet:
 
-- one remembered `backgroundLayer`;
-- one remembered `panelSampleLayer` forced to `CompositingStrategy.Offscreen`;
-- one panel position source shared by placement and crop translation;
-- one panel-sized target;
-- no executable full-scene target comparison;
-- no stale/correct mode enum or duplicate diagnostic rendering branch.
+- apply a blur kernel;
+- teach blur radius or edge treatment;
+- downsample the panel sample;
+- tune tint, saturation, contrast, rim, shadow, or noise;
+- measure device GPU time or memory bandwidth;
+- introduce multi-panel caching or adaptive quality.
 
-The browser lesson estimates target scale with a deliberately limited RGBA8 model:
+Lesson 7.1 begins blur from first principles as neighborhood averaging.
 
-```text
-widthPx = round(widthDp × density)
-heightPx = round(heightDp × density)
-pixelCount = widthPx × heightPx
-estimatedColorBytes = pixelCount × 4
-estimatedMiB = estimatedColorBytes ÷ 1,048,576
-```
+## Reusable command, buffer, and architecture rules
 
-Four bytes per pixel is a teaching assumption, not a claim about actual GPU allocation. Exact storage, bandwidth, GPU time, and dropped frames require measurement in a release-like build on the device.
-
-## Explicit Lesson 6.10 boundaries
-
-Lesson 6.10 does not yet:
-
-- apply blur;
-- downsample the sample target;
-- quantify actual GPU allocation, bandwidth, or frame time;
-- build the final reusable multi-layer scene architecture;
-- perform CPU pixel readback.
-
-Lesson 6.11 builds the two-layer scene architecture. Downsampled blur and deeper profiling remain later course topics.
-
-## Reusable synchronization and performance rule
-
-- Diagnose visual trailing before calling it a performance problem.
-- When two operations represent the same controlled motion, derive them from one source of truth rather than writing a second geometry state from a later callback.
-- Treat target-size arithmetic as an estimate of scaling, not as measured GPU cost.
-- Keep comparison-only waste out of the production Android route; use arithmetic or a diagram unless an executable comparison is essential.
-- Measure real performance in a release-like build with device tracing before making optimization claims.
+- A `GraphicsLayer` command recording is not automatically an allocated pixel texture.
+- State whether `Offscreen` is functionally required, automatically implied by another property, or deliberately forced only for a teaching experiment.
+- When a small destination consumes a large recorded source, distinguish destination pixel area from full-source recording, drawing, and replay work.
+- Keep the Android example centered on one production route. Use diagrams rather than executable defect branches unless the defect code is essential.
+- Keep foreground labels and icons outside a layer that will later receive blur when those elements must remain sharp.
+- Derive panel placement and crop translation from one position source when the controlled coordinate relationship is known.
+- Measure real performance in a release-like build on the physical device before making optimization claims.
 
 ## Android preview rules
 
@@ -138,4 +140,4 @@ Lesson 6.11 builds the two-layer scene architecture. Downsampled blur and deeper
 - Direct custom-composable previews live in the custom composable's own Kotlin file.
 - Both preview levels must allow vertical scrolling through the complete generated content in finite-height Android Studio Preview.
 
-Course progress: 60 of 216 lessons completed.
+Course progress: 61 of 216 lessons completed.

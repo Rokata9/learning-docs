@@ -677,3 +677,13 @@ When several variables form a causal chain, include a compact dependency table n
 5. Frame intervals such as 16.67 ms at 60 Hz and 8.33 ms at 120 Hz are total display intervals, not exclusive GPU budgets for one effect.
 6. Keep wasteful comparison targets out of the Android production route when arithmetic and diagrams can teach the extent difference. Do not bloat the code with a full-scene mode solely to demonstrate that it is larger.
 7. Any claim about actual frame time, allocation, bandwidth, or dropped frames must come from a release-like device measurement. Debug Preview behavior and teaching estimates are not sufficient evidence.
+
+### Command-source, raster-target, and sharp-foreground gate — Lesson 6.11
+
+1. Never equate a `GraphicsLayer` object with a guaranteed same-sized offscreen texture. State whether the layer currently retains replayable drawing commands, is explicitly rasterized, or is forced into pixels by another property such as a `RenderEffect`.
+2. Whenever `CompositingStrategy.Offscreen` appears, state its exact role: required for correctness, redundant because another operation already forces rasterization, or deliberately forced only to make a controlled teaching target concrete.
+3. When a small destination replays a large source recording, name both cost domains. The small destination limits destination pixel storage and output area, but full-source command recording, ordinary scene drawing, replay traversal, culling, and other upstream work may remain.
+4. Layer count is not buffer count. Do not describe an architecture as consuming N pixel buffers merely because it owns N `GraphicsLayer` objects.
+5. Keep content that must remain sharp—labels, icons, controls, highlights, or status marks—outside the layer that will receive the blur or distortion effect. Show the owner tree and declaration/draw order that enforces this separation.
+6. Build the architecture through one readable production route before adding effects. The learner should be able to identify the producer, sample layer, material additions, sharp foreground, and final destination directly from top-to-bottom code.
+7. For controlled shared-origin scenes, one position value may drive both consumer placement and negative source translation. State the shared-origin prerequisite and do not silently generalize the shortcut to arbitrary nested layouts.
