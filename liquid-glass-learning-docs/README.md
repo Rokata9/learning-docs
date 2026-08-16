@@ -6,58 +6,52 @@ This repository contains the interactive course documents. The Android Studio pr
 
 Open `liquid-glass-course.html` directly in a Chromium-based browser. No local server is required. Every lesson is self-contained and works from `file://`.
 
-## Current course state
+## Authoritative current state
 
-- Chapter 1 is complete.
-- Chapter 2 is complete.
-- **25 of 216 lessons are complete.**
-- Lessons 3.1 through 3.8 are complete.
-- Lesson 3.9 is generated and still has learner questions pending.
-- Lesson 3.10 is generated ahead without marking Lesson 3.9 complete.
-- The next unresolved learner checkpoint remains Lesson 3.9.
-- The generated frontier is Lesson 3.10.
+- Total course size: **216 lessons**.
+- Learner-confirmed complete: **57 of 216 lessons**.
+- Completed through: **Lesson 6.6 — Record the background**.
+- Completed chapters: **1 through 5**.
+- Chapter 6: **6 of 11 lessons complete**.
+- Current unresolved checkpoint: **Lesson 6.7 — Crop the correct region**.
+- Generated frontier: **Lesson 6.7**.
+- Lesson 6.7 is generated and is not learner-confirmed complete.
+- Next planned lesson after review: **Lesson 6.8 — Keep the sample current**.
 
-Open the unresolved lesson:
+`CURRENT_STATE.md` is authoritative when an older historical note disagrees.
+
+## Current learning path
+
+Open the Chapter 6 hub:
 
 ```text
-course/chapters/chapter-03/lesson-03-09-saturation.html
+course/chapters/chapter-06/lesson-how-android-draws-the-scene.html
 ```
 
-Open the generated-ahead lesson:
+Open the current lesson:
 
 ```text
-course/chapters/chapter-03/lesson-03-10-blend-modes.html
+course/chapters/chapter-06/lesson-06-07-crop-the-correct-region.html
 ```
 
-## Android progression
+Lesson 6.7 starts from the completed full-background recording route. It converts `GlassPanel` bounds into the recorded backdrop owner's local coordinate space, clips a panel-sized destination, and translates the full `backgroundLayer` by the negative source origin before replay.
 
-- Chapter 1 built and diagnosed the first translucent panel.
-- Chapter 2 built the coordinate vocabulary and the final coordinate inspector.
-- Lessons 3.1 through 3.5 built RGB, alpha, source-over, draw order, and straight versus premultiplied RGBA.
-- Lesson 3.6 adds `BrightnessLuminanceExplorer.kt` and changes `Chapter03Screen.kt` to display it.
-- The rejected first draft of Lesson 3.6 began from the finished luminance formula. The replacement starts from one known opaque `Color`, defines one stored sRGB channel number and one linear-light output, traces one channel through the conversion, and only then repeats the operation for all three channels and calculates relative luminance.
-- The Lesson 3.6 code patch also removes every remaining invalid explicit `layout.weight` or `layout.matchParentSize` import from 16 existing Android source files across Chapters 1 through 3. The matching embedded Kotlin in the earlier HTML lessons is corrected in the learning-docs patch.
-- Lesson 3.7 starts from the final opaque background color and relative luminance produced by Lesson 3.6. It defines foreground, candidate, ratio, lighter luminance, darker luminance, and the fixed contrast offset before revealing the contrast formula.
-- Lesson 3.7 calculates black and white contrast separately, chooses the larger ratio, and keeps accessibility target checking as a separate policy step. It also demonstrates that a translucent foreground is composited before contrast is measured.
-- The active Android child becomes `ForegroundContrastExplorer.kt`. `Chapter03Screen.kt` includes complete-screen and direct-child previews in both OS themes.
-- `Chapter03Screen.kt` contains previews for both the complete chapter screen and the active child explorer, in light and dark modes.
+The interactive lesson compares the correct route with two visible defects: using parent coordinates directly and omitting the replay translation. It deliberately keeps the selected region sharp so coordinate correctness can be judged before blur is introduced.
 
-- Lesson 3.8 starts from the completed Lesson 3.7 background. It defines one explicit tint model: a translucent straight sRGB tint source drawn over one opaque straight sRGB destination with source-over.
-- The lesson traces one red channel through the general source-over calculation before repeating it for green and blue. It distinguishes tint amount from final output alpha and recalculates luminance and contrast from the tinted output.
-- The active Android child becomes `TintExplorer.kt`. `Chapter03Screen.kt` includes complete-screen and direct-child previews in both OS themes.
-- Lesson 3.9 starts from the final opaque Lesson 3.8 output, straight sRGB RGBA `(0.65, 0.35, 0.70, 1.00)`.
-- It teaches the exact AndroidX `ColorMatrix.setToSaturation` transform. The lesson calculates one gray-reference channel value from the stored sRGB channels, scales every channel's signed distance from that reference, and displays raw and clamped output values.
-- The lesson keeps the saturation gray reference separate from Lesson 3.6 relative luminance. The first is part of a color transform; the second is a measurement calculated after sRGB decoding.
-- The active Android child becomes `SaturationExplorer.kt`. `Chapter03Screen.kt` again contains complete-screen and direct-child previews in both OS themes.
+The lesson does not yet define how to keep the recorded image and measured rectangle current during scrolling or animation, prevent feedback, perform CPU pixel readback, or make a production cost decision.
 
-- Lesson 3.10 keeps one opaque source, one opaque destination, one shape, and one draw order fixed. It changes only the channel-combination rule at the covered position.
-- It compares Normal/SrcOver, Multiply, Screen, and Plus with exact opaque-input formulas. The lesson explicitly defers translucent blend-mode equations rather than silently reusing the opaque shortcuts.
-- The active Android child becomes `BlendModesExplorer.kt`. `Chapter03Screen.kt` includes complete-screen and direct-child previews in both OS themes.
-- Lesson 3.9 remains incomplete because the learner explicitly reserved questions. Generating Lesson 3.10 does not change the completed total.
+## Matching Android files
 
-## Theme rule from Lesson 3.1 onward
+```text
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/Chapter06Screen.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/CropCorrectRegionExplorer.kt
+```
 
-New lesson HTML follows the operating-system light or dark preference automatically. Android screens use the project theme and `MaterialTheme.colorScheme` for interface chrome. Instructional color values remain exact across themes.
+The complete chapter-screen previews live in `Chapter06Screen.kt`. The direct custom-composable previews live in `CropCorrectRegionExplorer.kt`. Both preview levels are vertically scrollable in finite-height Android Studio Preview.
+
+## Theme rule
+
+Standalone lesson HTML follows the operating-system light or dark preference automatically. Android screens use the project theme and `MaterialTheme.colorScheme` for interface chrome. Exact instructional color values remain fixed where the lesson traces a specific color.
 
 ## Incremental delivery rule
 
@@ -70,3 +64,5 @@ Chapter hub: `lesson-[chapter-name].html`
 Sub-lesson: `lesson-[chapter-number]-[lesson-number]-[lesson-name].html`
 
 Generic chapter `index.html` files are not used.
+
+Course progress: 57 of 216 lessons completed.

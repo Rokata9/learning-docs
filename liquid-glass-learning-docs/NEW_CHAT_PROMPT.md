@@ -27,13 +27,15 @@ If I do not attach the complete repositories, the minimum useful set is:
 4. `curriculum/liquid_glass_android_handoff.md`
 5. `curriculum/liquid_glass_android_curriculum.md`
 6. `course/chapters/chapter-06/lesson-how-android-draws-the-scene.html`
-7. `course/chapters/chapter-06/lesson-06-04-render-effect-owned-content.html`
-8. `course/chapters/chapter-06/lesson-06-05-backdrop-problem.html`
+7. `course/chapters/chapter-06/lesson-06-06-record-the-background.html`
+8. `course/chapters/chapter-06/lesson-06-07-crop-the-correct-region.html`
 9. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/Chapter06Screen.kt`
-10. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/BackdropProblemExplorer.kt`
+10. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/CropCorrectRegionExplorer.kt`
 
 Useful additional Android context:
 
+- `RecordBackgroundExplorer.kt`
+- `BackdropProblemExplorer.kt`
 - `GraphicsLayersExplorer.kt`
 - `RenderEffectOwnedContentExplorer.kt`
 - `MainActivity.kt`
@@ -80,64 +82,111 @@ Do not edit or regenerate artifacts whose current source is missing. Conceptual 
 Use this state unless newer attached `CURRENT_STATE.md` explicitly supersedes it:
 
 - Total course size: **216 lessons**.
-- Learner-confirmed complete: **56 of 216 lessons**.
-- Completed through: **Lesson 6.5 — The backdrop problem**.
+- Learner-confirmed complete: **57 of 216 lessons**.
+- Completed through: **Lesson 6.6 — Record the background**.
 - Completed chapters: **1, 2, 3, 4, and 5**.
-- Chapter 6 is in progress: **5 of 11 lessons complete**.
-- Current unresolved checkpoint: **Lesson 6.6 — Record the background**.
-- Generated frontier: **Lesson 6.5**. Lesson 6.6 has not been generated.
-- Next planned lesson: **Lesson 6.6 — Record the background**.
-- Lesson 6.5 is learner-confirmed complete. Lesson 6.6 is not generated and is not complete.
+- Chapter 6 is in progress: **6 of 11 lessons complete**.
+- Current unresolved checkpoint: **Lesson 6.7 — Crop the correct region**.
+- Generated frontier: **Lesson 6.7 — Crop the correct region**.
+- Next planned lesson after the unresolved checkpoint: **Lesson 6.8 — Keep the sample current**.
+- Lesson 6.7 is generated and is not learner-confirmed complete.
 
 Do not increase the completion count because a lesson was generated, revised, reviewed, or because I said only “continue” when questions or corrections remain.
 
-## 3. Completed Lesson 6.5 prerequisite contract for Lesson 6.6
+## 3. Generated Lesson 6.7 review contract and prerequisite for Lesson 6.8
 
-The current scene contains two sibling owners:
-
-```text
-Parent scene
-├── BackdropSibling
-│   ├── sharp color bands
-│   ├── sharp horizontal line
-│   └── red circle
-│
-└── GlassPanel
-    ├── translucent tint
-    ├── amber stripe
-    ├── green dot
-    ├── white detail lines
-    └── label
-```
-
-The current effect path is:
+Lesson 6.7 starts from the completed Lesson 6.6 route:
 
 ```text
-GlassPanel draw commands
-→ graphicsLayer with a panel-owned RenderEffect
-→ offscreen panel pixels
-→ blurred panel output
-→ source-over the sharp parent scene
+BackdropArtwork
+→ backgroundLayer.record
+→ full recorded backgroundLayer
+→ drawLayer
+→ one or more replay targets
 ```
 
-The core distinction is:
+`GlassPanel` remains a separate later sibling outside the recording owner. The unresolved problem is no longer how to obtain a readable backdrop layer. It is how to identify the exact panel-sized source region inside that layer.
+
+The controlled layout contains three coordinate spaces:
 
 ```text
-same-position compositing
-≠
-neighborhood sampling
+ParentScene-local coordinates
+→ place BackdropHost and GlassPanel
+
+BackdropHost-local coordinates
+→ address pixels inside backgroundLayer
+
+GlassPanel-local coordinates
+→ draw into a fixed panel-sized target beginning at (0, 0)
 ```
 
-A real backdrop blur additionally needs:
+Default controlled values:
 
 ```text
-recorded or otherwise readable backdrop image
-+
-panel bounds mapped into backdrop coordinates
-→ matching backdrop region
+BackdropHost parent origin B_p = (12, 10) dp
+GlassPanel parent origin P_p = (64, 70) dp
+GlassPanel size S_p = (210, 130) dp
 ```
 
-Lesson 6.6 will create the explicit recording route.
+The browser's controlled dp derivation is:
+
+```text
+C_b = P_p - B_p
+    = (64, 70) - (12, 10)
+    = (52, 60) dp
+
+C_b,max = (52 + 210, 60 + 130)
+        = (262, 190) dp
+```
+
+The Android implementation performs the actual conversion in runtime pixels:
+
+```text
+backgroundCoordinates.localBoundingBoxOf(
+    sourceCoordinates = panelCoordinates,
+    clipBounds = false,
+)
+→ Rect expressed in BackdropHost-local pixels
+```
+
+The receiver controls the returned coordinate space. The source rectangle is then consumed by:
+
+```text
+panel-local clip rectangle
+→ translate full backgroundLayer by (-crop.left, -crop.top)
+→ drawLayer(backgroundLayer)
+→ matching sharp panel-sized region
+→ later panel-owned tint, border, stripe, dot, details, and label
+```
+
+One tracked point proves the mapping:
+
+```text
+Q_b = (172, 163.2) dp
+Q_panel = Q_b - C_b
+        = (172, 163.2) - (52, 60)
+        = (120, 103.2) dp
+```
+
+The three canonical mapping modes are:
+
+```text
+1. correct background-local bounds
+2. defect: parent coordinates used directly
+3. defect: no replay translation
+```
+
+The parent-coordinate defect uses `(64, 70)` as a layer-local source origin. Because the correct source origin is `(52, 60)`, the source error is `(12, 10)` dp—the ignored BackdropHost parent offset.
+
+Lesson 6.7 does not yet:
+
+- blur the selected region;
+- keep the recorded image and measured bounds fresh during scrolling or animation;
+- prevent feedback;
+- convert the layer to a CPU-readable bitmap;
+- draw a performance conclusion.
+
+Lesson 6.8 will keep the sample current while content moves. Do not generate Lesson 6.8 until Lesson 6.7 is learner-confirmed complete unless I explicitly ask to generate ahead.
 
 ## 4. Learner calibration
 
@@ -291,7 +340,9 @@ Other durable visual rules:
 - do not let explanatory overlays look like real scene content;
 - label every overlay line, arrow, boundary, ghost, or marker, or remove it;
 - use color chips next to RGB/RGBA values;
-- use click-controlled provenance marks for inherited, fixed, measured, controlled, or derived values when relevant.
+- use click-controlled provenance marks for inherited, fixed, measured, controlled, or derived values when relevant;
+- make every click-controlled popup choose a viewport-safe horizontal direction and verify its final bounds near both monitor edges;
+- inside a dark code container, reset nested `<code>` to a transparent background, inherited text color, zero extra padding, and the intended display mode so the global inline-code style cannot create pale low-contrast highlighting.
 
 ## 9. Android delivery and preview rules
 
@@ -346,11 +397,11 @@ Do not generate a lesson or edit files in the first response.
 Confirm that you actually read them, then restate only:
 
 ```text
-completed: 56 of 216, through Lesson 6.5
-current unresolved checkpoint: Lesson 6.6 — Record the background
-generated frontier: Lesson 6.5
-next planned lesson: Lesson 6.6
-Lesson 6.6 is not generated and not complete
+completed: 57 of 216, through Lesson 6.6
+current unresolved checkpoint: Lesson 6.7 — Crop the correct region
+generated frontier: Lesson 6.7
+next planned lesson after the checkpoint: Lesson 6.8
+Lesson 6.7 is generated and not complete
 ```
 
 Then wait for my next message.

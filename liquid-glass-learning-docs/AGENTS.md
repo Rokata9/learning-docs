@@ -259,6 +259,16 @@ The exemplar succeeded because it combines all of these choices in one coherent 
 
 **Positive-pattern status:** this learner evaluation confirms that the visual-first intermediate-state gate is not merely defensive policy. It is a demonstrated successful teaching pattern and should be preferred proactively for future graphics lessons with invisible state.
 
+### Viewport-safe click-popup and nested-code styling gate
+
+This rule was added after Lesson 6.6 exposed two browser-only visual defects: a value-provenance popup was anchored toward the left edge and left the monitor, while a dark route code block inherited the pale global inline-code background.
+
+1. **Click popups must choose a safe horizontal direction.** Provenance tooltips, callouts, and other click-controlled overlays default to flowing right when space is available. Near the right edge, switch them left. Constrain their width to the viewport and verify the final popup rectangle stays within both horizontal edges.
+2. **Test popups at both edges, not only in the center.** Open representative first, middle, and last controls at the required desktop viewport. A popup that is logically correct but clipped by the monitor is a failed state.
+3. **Do not rely on one fixed `left` or `right` anchor.** Measure the trigger position at click time or use an equivalent responsive layout. Keep essential information outside the popup so a closed popup never hides required mathematics.
+4. **Reset nested inline-code styling inside dark code containers.** When a `<pre>`, `.code`, or `.code-block` contains semantic `<code>`, explicitly set the nested element to transparent background, inherited text color, zero extra padding, and the intended display mode. The global inline-code rule must not create pale rectangles or low-contrast text inside a dark code block.
+5. **Verify computed styles in both themes.** For every changed dark code container, inspect the nested `<code>` computed background and text color in light and dark OS modes, then compare it with a known-correct challenge/editor block.
+
 ## Visual target
 
 - Desktop only.

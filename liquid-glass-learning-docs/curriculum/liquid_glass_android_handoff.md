@@ -1,7 +1,7 @@
 # Liquid Glass on Android — concise conversation handoff
 
-**Updated:** 2026-08-14  
-**Course version:** 6.5.2
+**Updated:** 2026-08-15  
+**Course version:** 6.7.0
 
 ## Read order
 
@@ -18,72 +18,137 @@ Treat `CURRENT_STATE.md` as authoritative.
 
 ```yaml
 course_lessons_total: 216
-learner_confirmed_completed: 56
-completed_through: "Lesson 6.5 — The backdrop problem"
+learner_confirmed_completed: 57
+completed_through: "Lesson 6.6 — Record the background"
 completed_chapters: [1, 2, 3, 4, 5]
-chapter_06_status: "in progress; 5 of 11 complete"
-next_unresolved_checkpoint: "Lesson 6.6 — Record the background"
-generated_frontier: "Lesson 6.5"
-next_planned: "Lesson 6.6 — Record the background"
-lesson_06_06_generated: false
+chapter_06_status: "in progress; 6 of 11 complete"
+next_unresolved_checkpoint: "Lesson 6.7 — Crop the correct region"
+generated_frontier: "Lesson 6.7 — Crop the correct region"
+next_planned_after_checkpoint: "Lesson 6.8 — Keep the sample current"
+lesson_06_06_complete: true
+lesson_06_07_generated: true
+lesson_06_07_complete: false
 ```
 
-## Completed Lesson 6.5 contract
-
-### Current scene
+## Completed Lesson 6.6 prerequisite contract
 
 ```text
-Parent scene
-├── BackdropSibling · sharp bands, line, and circle
-└── GlassPanel · tint, stripe, dot, details, and label
+BackdropArtwork
+→ backgroundLayer.record
+→ full recorded backgroundLayer
+→ drawLayer
+→ one or more replay targets
 ```
 
-### Current effect path
+`GlassPanel` is a later sibling outside the recording owner. The full layer is reusable, but a panel-sized consumer still needs the matching source rectangle.
+
+## Generated Lesson 6.7 contract
+
+### Stable objects and spaces
 
 ```text
-GlassPanel draw commands
-→ graphicsLayer with panel-owned RenderEffect
-→ offscreen panel pixels
-→ blurred panel output
-→ source-over sharp parent
+ParentScene
+├── BackdropHost at parent origin (12, 10) dp
+│   └── backgroundLayer local origin (0, 0)
+│
+└── GlassPanel at default parent origin (64, 70) dp
+    └── PanelLocalTarget origin (0, 0)
 ```
 
-### Missing backdrop path
+### Coordinate-conversion route
 
 ```text
-blurredBackdrop(p)
-needs neighboring colors from a readable backdrop image
+backgroundCoordinates
++
+panelCoordinates
+→ backgroundCoordinates.localBoundingBoxOf(
+      sourceCoordinates = panelCoordinates,
+      clipBounds = false,
+  )
+→ crop rectangle expressed in background-local pixels
 ```
 
-Visual overlap is not that image input. Lesson 6.5 contrasts:
+The receiver controls the output space: the returned `Rect` addresses the recorded backdrop layer, not `ParentScene` and not the panel's own local target.
+
+### Replay route
 
 ```text
-same-position compositing
-versus
-neighborhood sampling
+crop source top-left
+→ negate x and y
+→ panel-local clip rectangle
+→ translate full backgroundLayer
+→ drawLayer(backgroundLayer)
+→ aligned sharp selected region
+→ later panel-owned material artwork
 ```
 
-The controlled browser blur uses three one-channel backdrop samples only as a teaching bridge. The Android reference crop reuses the teaching-pattern function and is explicitly not a capture of the main sibling.
+Default controlled values:
+
+```text
+B_p = (12, 10) dp
+P_p = (64, 70) dp
+C_b = P_p - B_p = (52, 60) dp
+C_b,max = (262, 190) dp
+T = -C_b = (-52, -60) dp
+Q_b = (172, 163.2) dp
+Q_panel = Q_b - C_b = (120, 103.2) dp
+```
+
+### Deliberate defects
+
+1. Parent-coordinate defect: use `(64, 70)` as a background-local source origin. The source error is `(12, 10)` dp.
+2. No-translation defect: replay from background-local `(0, 0)` regardless of panel movement.
+
+### Evidence boundary
+
+The lesson proves current-frame coordinate mapping and sharp region selection. It does not yet prove freshness during motion, blur, feedback prevention, CPU readback, or production cost. Lesson 6.8 handles freshness.
+
+## Browser lesson
+
+- One canonical state drives panel-position controls, three mapping modes, metrics, formulas, diagrams, and a seventeen-state walkthrough.
+- Every difficult step keeps `ParentScene`, `backgroundLayer`, `PanelLocalTarget`, and final `GlassPanel` output visible together.
+- The tracked horizontal-line point proves the source-origin subtraction numerically.
+- Prediction, repair challenge, five hidden-answer exercises, ten-item checkpoint, completion record, and explicit boundaries are present.
+- Provenance popups choose a viewport-safe direction and dark code containers reset nested inline-code styling.
 
 ## Android path
 
 ```text
-BackdropPattern()
-→ parent scene
+BackdropHost
+→ onGloballyPositioned → backgroundCoordinates
+→ drawWithContent
+→ backgroundLayer.record { drawContent() }
+→ drawLayer(backgroundLayer) into ParentScene
 
-OwnedGlassPanel.graphicsLayer(RenderEffect)
-→ panel-owned effect only
-
-reference crop
-→ separately drawn teaching evidence
-→ not sibling capture
+GlassPanel
+→ onGloballyPositioned → panelCoordinates
+→ backgroundCoordinates.localBoundingBoxOf(panelCoordinates, false)
+→ clipRect
+→ translate(-crop.left, -crop.top)
+→ drawLayer(backgroundLayer)
+→ panel tint and details
 ```
+
+The Android explorer also exposes two deliberately incorrect modes and reports actual runtime pixel measurements beside the controlled dp derivation.
 
 ## Preview placement and scrollability
 
 - Complete previews: `Chapter06Screen.kt`.
-- Direct previews: `BackdropProblemExplorer.kt`.
+- Direct previews: `CropCorrectRegionExplorer.kt`.
 - Both levels are vertically scrollable in finite-height Android Studio Preview.
+
+## Current files
+
+```text
+Learning:
+course/chapters/chapter-06/lesson-how-android-draws-the-scene.html
+course/chapters/chapter-06/lesson-06-06-record-the-background.html
+course/chapters/chapter-06/lesson-06-07-crop-the-correct-region.html
+
+Android:
+app/src/main/java/com/example/liquidglasslab/chapter06/Chapter06Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter06/CropCorrectRegionExplorer.kt
+```
 
 ## Canonical explanation standards
 
@@ -92,20 +157,15 @@ reference crop
 - Consolidated Lesson 5.8: formulas panel, moment matrix, dependency traces, and event markers.
 - Walkthrough length follows causal complexity; fourteen is not a target.
 - Total-beginner comprehension is QA stage zero.
-- Use diagram plus visible stepper by default; use overlay controls only when the visual evidence needs full width.
-
+- Use diagram plus visible stepper by default; use overlay controls only when spatial evidence needs full width.
+- In visible HTML prose, code identifiers use semantic `<code>` elements rather than Markdown punctuation.
+- Every click-controlled popup must remain inside the viewport and choose the side with usable space.
+- Nested `<code>` inside a dark preformatted code container must inherit that container rather than the global inline-code background.
+- Generate only incremental changed-file packages.
 
 ## Fresh-account continuation
 
-`NEW_CHAT_PROMPT.md` is the canonical paste-ready continuation prompt. It contains:
-
-- the exact 56-of-216 course state;
-- the minimum and recommended upload sets;
-- separate behavior for complete, partial, or absent attachments;
-- a prohibition against pretending prior sandbox files or chat context are available;
-- the current lesson-quality, preview, packaging, and code-formatting rules.
-
-If a future account has no local files attached, conceptual discussion may continue from the prompt, but artifact editing or generation must wait until the relevant source files are uploaded.
+`NEW_CHAT_PROMPT.md` is the canonical paste-ready continuation prompt. It carries the exact 57-of-216 state, marks Lesson 6.7 as generated but incomplete, and lists the current files required to review it or generate Lesson 6.8 after explicit completion.
 
 ## Response footer
 

@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 6.5.2
-**Updated:** 2026-08-14
+**Version:** 6.7.0
+**Updated:** 2026-08-15
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
 **Physical test device:** Pixel 8 Pro  
@@ -9,12 +9,12 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **56 of 216**.
-- Completed through: **Lesson 6.5 — The backdrop problem**.
+- Learner-confirmed complete: **57 of 216**.
+- Completed through: **Lesson 6.6 — Record the background**.
 - Completed chapters: **1–5**.
-- Current unresolved checkpoint: **Lesson 6.6 — Record the background**.
-- Generated frontier: **Lesson 6.5 — The backdrop problem**. Lesson 6.6 has not been generated.
-- Next planned lesson: **Lesson 6.6 — Record the background**.
+- Current unresolved checkpoint: **Lesson 6.7 — Crop the correct region**.
+- Generated frontier: **Lesson 6.7 — Crop the correct region**. Lesson 6.7 is generated and is not learner-confirmed complete.
+- Next planned lesson after the unresolved checkpoint: **Lesson 6.8 — Keep the sample current**.
 
 ## 2. Course construction principles
 
@@ -32,6 +32,7 @@
 - Complete beginner-comprehension QA before technical QA.
 - For every future Android lesson, both complete-screen and direct-child previews must let the learner scroll through all generated content inside Android Studio Preview; do not retrofit earlier lessons unless requested.
 - In standalone HTML prose, render code identifiers with semantic `<code>` elements; never rely on Markdown backticks.
+- Keep click-controlled popups inside the viewport and reset nested `<code>` styling inside dark code containers.
 - Deliver only incremental changed files.
 - Count only explicit learner completion.
 
@@ -157,6 +158,33 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 
 ### Chapter 6 — How Android draws the scene
 
+**Current implementation record — Lesson 6.7**
+
+- Generated and awaiting learner review; the completed total remains 57 of 216.
+- Starts from the completed full-background recording route and introduces one principal idea: convert `GlassPanel` bounds into the recorded backdrop owner's local coordinate space before selecting pixels.
+- Names `ParentScene`, `BackdropHost`, `backgroundLayer`, `GlassPanel`, and `PanelLocalTarget` before the mapping route.
+- One canonical state drives two panel-position sliders, three presets, three mapping modes, metrics, formulas, SVGs, and the walkthrough.
+- The controlled dp route derives `C_b = P_p - B_p`; at the default state, `(64, 70) - (12, 10) = (52, 60) dp` and the crop max is `(262, 190) dp`.
+- Android uses real `LayoutCoordinates` and `backgroundCoordinates.localBoundingBoxOf(panelCoordinates, clipBounds = false)` to obtain the panel rectangle in background-local runtime pixels.
+- A panel-sized clip and translation by `(-crop.left, -crop.top)` replay the full `backgroundLayer` so the matching sharp region starts at panel-local `(0, 0)`.
+- One tracked line point maps from `Q_b = (172, 163.2) dp` to `Q_panel = (120, 103.2) dp` at the default state.
+- Two deliberate defects expose the coordinate error: use panel parent coordinates directly, or omit translation completely.
+- A seventeen-state side-by-side walkthrough keeps `ParentScene`, `backgroundLayer`, `PanelLocalTarget`, and final panel output visible through the causal chain.
+- Prediction, coding challenge, five explanation exercises, ten-item checkpoint, completion record, and explicit evidence boundaries are included.
+- The lesson defers blur, freshness during motion, feedback prevention, CPU readback, and performance conclusions to later lessons.
+- Complete previews live in `Chapter06Screen.kt`; direct scrollable previews live in `CropCorrectRegionExplorer.kt`.
+
+**Completed implementation record — Lesson 6.6**
+
+- Learner-confirmed complete.
+- Records only `BackdropArtwork` into a controlled `GraphicsLayer` and replays the full layer deliberately into one or more targets.
+- Four route states compare direct draw, record without replay, visible-scene replay, and a second inspector replay.
+- The record-only state proves that `record` does not automatically display its result.
+- `GlassPanel` remains a later sibling outside the recorded owner.
+- A thirteen-state walkthrough and real line-command trace establish the prerequisite route for Lesson 6.7.
+- The Lesson 6.6 provenance popups now choose a viewport-safe horizontal direction, and the Android-route dark code block resets nested inline-code styling.
+- Complete previews live in `Chapter06Screen.kt`; direct scrollable previews live in `RecordBackgroundExplorer.kt`.
+
 **Completed implementation record — Lesson 6.5**
 
 - Learner-confirmed complete.
@@ -215,7 +243,7 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 3. **6.3 — Graphics layers.** Separate drawing commands from later transformations and effects.
 4. **6.4 — `RenderEffect` on owned content.** Blur a layer and observe that its own contents are blurred.
 5. **6.5 — The backdrop problem.** Demonstrate why a foreground panel cannot automatically sample arbitrary siblings behind it.
-6. **6.6 — Record the background.** Use a controlled `GraphicsLayer` to capture or replay background drawing.
+6. **6.6 — Record the background.** Use a controlled `GraphicsLayer` to record background drawing and replay it deliberately into one or more targets.
 7. **6.7 — Crop the correct region.** Map glass bounds into background coordinates.
 8. **6.8 — Keep the sample current.** Update the captured scene as content scrolls or animates.
 9. **6.9 — Avoid feedback loops.** Prevent the glass from capturing itself.
@@ -491,9 +519,9 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 | 3 · Color, opacity, compositing | Complete | 11 |
 | 4 · Shapes, paths, masks | Complete | 11 |
 | 5 · Motion without mystery | Complete | 12 |
-| 6 · How Android draws the scene | In progress | 3 of 11 |
+| 6 · How Android draws the scene | In progress | 5 of 11 |
 
-Total learner-confirmed completion: **54**.
+Total learner-confirmed completion: **56**.
 
 ## 5. Historical implementation record — Lesson 5.10
 
