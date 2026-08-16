@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 6.7.0
-**Updated:** 2026-08-15
+**Version:** 6.8.0
+**Updated:** 2026-08-16
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
 **Physical test device:** Pixel 8 Pro  
@@ -9,12 +9,12 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **57 of 216**.
-- Completed through: **Lesson 6.6 — Record the background**.
+- Learner-confirmed complete: **58 of 216**.
+- Completed through: **Lesson 6.7 — Crop the correct region**.
 - Completed chapters: **1–5**.
-- Current unresolved checkpoint: **Lesson 6.7 — Crop the correct region**.
-- Generated frontier: **Lesson 6.7 — Crop the correct region**. Lesson 6.7 is generated and is not learner-confirmed complete.
-- Next planned lesson after the unresolved checkpoint: **Lesson 6.8 — Keep the sample current**.
+- Current unresolved checkpoint: **Lesson 6.8 — Keep the sample current**.
+- Generated frontier: **Lesson 6.8 — Keep the sample current**. Lesson 6.8 is generated and is not learner-confirmed complete.
+- Next planned lesson after the unresolved checkpoint: **Lesson 6.9 — Avoid feedback loops**.
 
 ## 2. Course construction principles
 
@@ -158,20 +158,28 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 
 ### Chapter 6 — How Android draws the scene
 
-**Current implementation record — Lesson 6.7**
+**Current implementation record — Lesson 6.8**
 
-- Generated and awaiting learner review; the completed total remains 57 of 216.
-- Starts from the completed full-background recording route and introduces one principal idea: convert `GlassPanel` bounds into the recorded backdrop owner's local coordinate space before selecting pixels.
-- Names `ParentScene`, `BackdropHost`, `backgroundLayer`, `GlassPanel`, and `PanelLocalTarget` before the mapping route.
-- One canonical state drives two panel-position sliders, three presets, three mapping modes, metrics, formulas, SVGs, and the walkthrough.
-- The controlled dp route derives `C_b = P_p - B_p`; at the default state, `(64, 70) - (12, 10) = (52, 60) dp` and the crop max is `(262, 190) dp`.
-- Android uses real `LayoutCoordinates` and `backgroundCoordinates.localBoundingBoxOf(panelCoordinates, clipBounds = false)` to obtain the panel rectangle in background-local runtime pixels.
-- A panel-sized clip and translation by `(-crop.left, -crop.top)` replay the full `backgroundLayer` so the matching sharp region starts at panel-local `(0, 0)`.
-- One tracked line point maps from `Q_b = (172, 163.2) dp` to `Q_panel = (120, 103.2) dp` at the default state.
-- Two deliberate defects expose the coordinate error: use panel parent coordinates directly, or omit translation completely.
-- A seventeen-state side-by-side walkthrough keeps `ParentScene`, `backgroundLayer`, `PanelLocalTarget`, and final panel output visible through the causal chain.
-- Prediction, coding challenge, five explanation exercises, ten-item checkpoint, completion record, and explicit evidence boundaries are included.
-- The lesson defers blur, freshness during motion, feedback prevention, CPU readback, and performance conclusions to later lessons.
+- Generated and awaiting learner review; the completed total is 58 of 216.
+- Introduces one principal graphics idea: a dynamic sharp backdrop sample is current only when its selected layer recording and selected crop bounds both correspond to their latest producers.
+- Separates backdrop-content changes from panel-geometry changes before introducing the two update routes.
+- One canonical browser state drives four freshness modes, two step sliders, four presets, capture/play controls, metrics, formulas, SVG diagrams, and a seventeen-state walkthrough.
+- The controlled model defines `R_b(s)`, `P_p(m)`, and `C_b(m)` with explicit coordinate spaces before deriving the panel-local marker.
+- At current steps 6 and 6, the desired marker is `(82, 26) dp`; a stale selected layer alone produces `(56, -24) dp` error, stale bounds alone produce `(32, 16) dp`, and both stale produce `(88, -8) dp`.
+- Android records `currentBackgroundLayer` during the current backdrop draw and recomputes `localBoundingBoxOf` from current attached layout coordinates.
+- A second captured layer and captured measurement are deliberately diagnostic evidence, not a recommended duplicate-layer production architecture.
+- Prediction, coding challenge, five explanation exercises, ten-item checkpoint, completion record, and explicit timing/cost boundaries are included.
+- The lesson defers blur, feedback prevention, atomic production synchronization, CPU readback, and offscreen cost.
+- Complete previews live in `Chapter06Screen.kt`; direct scrollable previews live in `KeepSampleCurrentExplorer.kt`.
+
+**Completed implementation record — Lesson 6.7**
+
+- Learner-confirmed complete.
+- Converts `GlassPanel` bounds into the recorded backdrop owner's local coordinate space before selecting the panel-sized source region.
+- Android uses `backgroundCoordinates.localBoundingBoxOf(panelCoordinates, clipBounds = false)` and translates the full layer by the negative crop origin inside a panel-local clip.
+- The controlled default derives crop origin `(52, 60) dp`, crop max `(262, 190) dp`, and replay translation `(-52, -60) dp`.
+- Two deliberate defects expose use of parent coordinates directly and replay without translation.
+- A seventeen-state walkthrough, tracked point, prediction, coding challenge, explanation exercises, and checkpoint establish the prerequisite for freshness.
 - Complete previews live in `Chapter06Screen.kt`; direct scrollable previews live in `CropCorrectRegionExplorer.kt`.
 
 **Completed implementation record — Lesson 6.6**
@@ -519,9 +527,9 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 | 3 · Color, opacity, compositing | Complete | 11 |
 | 4 · Shapes, paths, masks | Complete | 11 |
 | 5 · Motion without mystery | Complete | 12 |
-| 6 · How Android draws the scene | In progress | 5 of 11 |
+| 6 · How Android draws the scene | In progress | 7 of 11 |
 
-Total learner-confirmed completion: **56**.
+Total learner-confirmed completion: **58**.
 
 ## 5. Historical implementation record — Lesson 5.10
 
@@ -592,11 +600,13 @@ app/src/main/java/com/example/liquidglasslab/chapter05/PressDeformationExplorer.
 
 ```text
 Learning:
-course/chapters/chapter-05/lesson-05-10-press-deformation.html
+course/chapters/chapter-06/lesson-how-android-draws-the-scene.html
+course/chapters/chapter-06/lesson-06-07-crop-the-correct-region.html
+course/chapters/chapter-06/lesson-06-08-keep-the-sample-current.html
 
 Android:
-app/src/main/java/com/example/liquidglasslab/chapter05/Chapter05Screen.kt
-app/src/main/java/com/example/liquidglasslab/chapter05/PressDeformationExplorer.kt
+app/src/main/java/com/example/liquidglasslab/chapter06/Chapter06Screen.kt
+app/src/main/java/com/example/liquidglasslab/chapter06/KeepSampleCurrentExplorer.kt
 ```
 
 ## 7. State and history policy

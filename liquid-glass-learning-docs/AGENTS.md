@@ -646,3 +646,14 @@ When several variables form a causal chain, include a compact dependency table n
 2. Do not place Markdown backticks in ordinary HTML prose. Browsers do not interpret Markdown there; the backticks become visible punctuation.
 3. JavaScript template-literal backticks inside `<script>` remain valid and must not be replaced.
 4. Before packaging, scan the visible HTML portion before `<script>` for unmatched or literal Markdown backticks. Any visible code token surrounded by backticks is a failed formatting check.
+
+
+### Two-channel freshness and diagnostic-snapshot gate — Lesson 6.8
+
+1. When a sampled result depends on both image content and geometry, name them as separate producer channels before showing update code. A current image does not make stale bounds current, and current bounds do not make stale image content current.
+2. Define “current” against explicit displayed inputs. Do not use visual plausibility as proof of freshness.
+3. Give each channel a visible frozen comparison state and a numeric trace that isolates its error. When both are stale, show how their output errors combine in one common coordinate space.
+4. A deliberately retained old layer, bitmap, rectangle, or measurement is diagnostic evidence. Label it as such and do not present duplicate retained resources as the recommended production architecture.
+5. Distinguish update causes by rendering phase: content changes must reach a new draw/record operation; geometry changes must reach layout/placement and a new coordinate conversion. Replaying an old resource does not refresh it.
+6. Do not claim atomic same-frame synchronization merely because independent draw and layout callbacks both exist. State that timing/ownership coordination is a separate architecture concern unless the lesson actually proves it.
+7. Keep feedback prevention separate from freshness. A sample can be current and still be recursively contaminated if the glass owner enters its own source recording.

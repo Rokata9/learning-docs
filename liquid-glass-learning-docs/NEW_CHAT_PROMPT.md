@@ -27,13 +27,14 @@ If I do not attach the complete repositories, the minimum useful set is:
 4. `curriculum/liquid_glass_android_handoff.md`
 5. `curriculum/liquid_glass_android_curriculum.md`
 6. `course/chapters/chapter-06/lesson-how-android-draws-the-scene.html`
-7. `course/chapters/chapter-06/lesson-06-06-record-the-background.html`
-8. `course/chapters/chapter-06/lesson-06-07-crop-the-correct-region.html`
+7. `course/chapters/chapter-06/lesson-06-07-crop-the-correct-region.html`
+8. `course/chapters/chapter-06/lesson-06-08-keep-the-sample-current.html`
 9. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/Chapter06Screen.kt`
-10. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/CropCorrectRegionExplorer.kt`
+10. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/KeepSampleCurrentExplorer.kt`
 
 Useful additional Android context:
 
+- `CropCorrectRegionExplorer.kt`
 - `RecordBackgroundExplorer.kt`
 - `BackdropProblemExplorer.kt`
 - `GraphicsLayersExplorer.kt`
@@ -82,111 +83,103 @@ Do not edit or regenerate artifacts whose current source is missing. Conceptual 
 Use this state unless newer attached `CURRENT_STATE.md` explicitly supersedes it:
 
 - Total course size: **216 lessons**.
-- Learner-confirmed complete: **57 of 216 lessons**.
-- Completed through: **Lesson 6.6 — Record the background**.
+- Learner-confirmed complete: **58 of 216 lessons**.
+- Completed through: **Lesson 6.7 — Crop the correct region**.
 - Completed chapters: **1, 2, 3, 4, and 5**.
-- Chapter 6 is in progress: **6 of 11 lessons complete**.
-- Current unresolved checkpoint: **Lesson 6.7 — Crop the correct region**.
-- Generated frontier: **Lesson 6.7 — Crop the correct region**.
-- Next planned lesson after the unresolved checkpoint: **Lesson 6.8 — Keep the sample current**.
-- Lesson 6.7 is generated and is not learner-confirmed complete.
+- Chapter 6 is in progress: **7 of 11 lessons complete**.
+- Current unresolved checkpoint: **Lesson 6.8 — Keep the sample current**.
+- Generated frontier: **Lesson 6.8 — Keep the sample current**.
+- Next planned lesson after the unresolved checkpoint: **Lesson 6.9 — Avoid feedback loops**.
+- Lesson 6.8 is generated and is not learner-confirmed complete.
 
 Do not increase the completion count because a lesson was generated, revised, reviewed, or because I said only “continue” when questions or corrections remain.
 
-## 3. Generated Lesson 6.7 review contract and prerequisite for Lesson 6.8
+## 3. Generated Lesson 6.8 review contract and prerequisite for Lesson 6.9
 
-Lesson 6.7 starts from the completed Lesson 6.6 route:
-
-```text
-BackdropArtwork
-→ backgroundLayer.record
-→ full recorded backgroundLayer
-→ drawLayer
-→ one or more replay targets
-```
-
-`GlassPanel` remains a separate later sibling outside the recording owner. The unresolved problem is no longer how to obtain a readable backdrop layer. It is how to identify the exact panel-sized source region inside that layer.
-
-The controlled layout contains three coordinate spaces:
+Lesson 6.8 starts from the completed Lesson 6.7 route:
 
 ```text
-ParentScene-local coordinates
-→ place BackdropHost and GlassPanel
-
-BackdropHost-local coordinates
-→ address pixels inside backgroundLayer
-
-GlassPanel-local coordinates
-→ draw into a fixed panel-sized target beginning at (0, 0)
+record backdrop
+→ map panel bounds into backdrop coordinates
+→ clip a panel-sized target
+→ translate by negative crop origin
+→ replay the matching sharp region
 ```
 
-Default controlled values:
+The new concept is that a dynamic sample has two independently produced freshness channels:
 
 ```text
-BackdropHost parent origin B_p = (12, 10) dp
-GlassPanel parent origin P_p = (64, 70) dp
-GlassPanel size S_p = (210, 130) dp
+current layer recording, replayed as backdrop pixels
++
+current crop bounds in backdrop-local coordinates
+→ current sharp panel sample
 ```
 
-The browser's controlled dp derivation is:
+The controlled model is:
 
 ```text
-C_b = P_p - B_p
-    = (64, 70) - (12, 10)
-    = (52, 60) dp
+s = backdrop content step, 0...8
+m = panel motion step, 0...8
 
-C_b,max = (52 + 210, 60 + 130)
-        = (262, 190) dp
+R_b(s) = (250 - 14s, 62 + 6s) dp · backdrop-local marker
+P_p(m) = (48 + 8m, 58 + 4m) dp · ParentScene-local panel origin
+B_p = (12, 10) dp · ParentScene-local backdrop origin
+C_b(m) = P_p(m) - B_p · backdrop-local crop origin
+
+R_panel = R_b(selected layer step) - C_b(selected bounds step)
 ```
 
-The Android implementation performs the actual conversion in runtime pixels:
+At current steps `s = 6`, `m = 6`:
+
+```text
+R_b(6) = (166, 98) dp
+C_b(6) = (84, 72) dp
+R_panel,desired = (82, 26) dp
+```
+
+The four canonical routes are:
+
+```text
+1. current layer recording + current bounds
+2. captured layer recording + current bounds
+3. current layer recording + captured bounds
+4. captured layer recording + captured bounds
+```
+
+Their controlled errors at the main trace state are:
+
+```text
+stale selected layer only = (56, -24) dp
+stale bounds only = (32, 16) dp
+both stale = (88, -8) dp
+```
+
+The Android route uses:
+
+```text
+currentBackgroundLayer.record { drawContent() }
+```
+
+for the live layer-content channel, and:
 
 ```text
 backgroundCoordinates.localBoundingBoxOf(
     sourceCoordinates = panelCoordinates,
     clipBounds = false,
 )
-→ Rect expressed in BackdropHost-local pixels
 ```
 
-The receiver controls the returned coordinate space. The source rectangle is then consumed by:
+for the live bounds channel. A second captured layer and captured rectangle exist only as diagnostic evidence so the learner can select stale combinations while the visible scene remains live.
 
-```text
-panel-local clip rectangle
-→ translate full backgroundLayer by (-crop.left, -crop.top)
-→ drawLayer(backgroundLayer)
-→ matching sharp panel-sized region
-→ later panel-owned tint, border, stripe, dot, details, and label
-```
-
-One tracked point proves the mapping:
-
-```text
-Q_b = (172, 163.2) dp
-Q_panel = Q_b - C_b
-        = (172, 163.2) - (52, 60)
-        = (120, 103.2) dp
-```
-
-The three canonical mapping modes are:
-
-```text
-1. correct background-local bounds
-2. defect: parent coordinates used directly
-3. defect: no replay translation
-```
-
-The parent-coordinate defect uses `(64, 70)` as a layer-local source origin. Because the correct source origin is `(52, 60)`, the source error is `(12, 10)` dp—the ignored BackdropHost parent offset.
-
-Lesson 6.7 does not yet:
+Lesson 6.8 does not yet:
 
 - blur the selected region;
-- keep the recorded image and measured bounds fresh during scrolling or animation;
-- prevent feedback;
-- convert the layer to a CPU-readable bitmap;
-- draw a performance conclusion.
+- allow the glass panel to enter the backdrop recording;
+- prove atomic same-frame synchronization for an arbitrary production architecture;
+- perform CPU pixel readback;
+- measure offscreen memory or GPU cost.
 
-Lesson 6.8 will keep the sample current while content moves. Do not generate Lesson 6.8 until Lesson 6.7 is learner-confirmed complete unless I explicitly ask to generate ahead.
+Lesson 6.9 will prevent feedback loops. Do not generate Lesson 6.9 until Lesson 6.8 is learner-confirmed complete unless I explicitly ask to generate ahead.
 
 ## 4. Learner calibration
 
@@ -397,11 +390,11 @@ Do not generate a lesson or edit files in the first response.
 Confirm that you actually read them, then restate only:
 
 ```text
-completed: 57 of 216, through Lesson 6.6
-current unresolved checkpoint: Lesson 6.7 — Crop the correct region
-generated frontier: Lesson 6.7
-next planned lesson after the checkpoint: Lesson 6.8
-Lesson 6.7 is generated and not complete
+completed: 58 of 216, through Lesson 6.7
+current unresolved checkpoint: Lesson 6.8 — Keep the sample current
+generated frontier: Lesson 6.8
+next planned lesson after the checkpoint: Lesson 6.9
+Lesson 6.8 is generated and not complete
 ```
 
 Then wait for my next message.
