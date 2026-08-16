@@ -657,3 +657,13 @@ When several variables form a causal chain, include a compact dependency table n
 5. Distinguish update causes by rendering phase: content changes must reach a new draw/record operation; geometry changes must reach layout/placement and a new coordinate conversion. Replaying an old resource does not refresh it.
 6. Do not claim atomic same-frame synchronization merely because independent draw and layout callbacks both exist. State that timing/ownership coordination is a separate architecture concern unless the lesson actually proves it.
 7. Keep feedback prevention separate from freshness. A sample can be current and still be recursively contaminated if the glass owner enters its own source recording.
+
+### Main-path-first and diagnostic-case budget — Lesson 6.9
+
+1. For Liquid Glass lesson implementations, begin with one clean production route that directly expresses the principal graphics idea.
+2. Add an executable failure case only when it is required to understand, distinguish, or verify that idea. A failure case is not automatically worth a second layer, duplicate state, mode enum, or large conditional branch.
+3. Prefer a compact static diagram, prediction, or isolated explanation when it can teach the defect without bloating the Android source.
+4. The main code path must be understandable without reverse-engineering diagnostic machinery. Production ownership, inputs, intermediate values, and consumers should be readable from top to bottom.
+5. Replace unexplained numeric literals with named constants when they affect layout, geometry, sampling, or visible output. Explain why each non-obvious value was chosen and whether it is a coordinate, dimension, interval, visual alpha, or derived result.
+6. Do not use fractional placement math merely for convenience when fixed lesson-local dp coordinates communicate the same controlled geometry more clearly.
+7. Prediction controls require dedicated visible button styling in light and dark themes. Browser QA must click every choice and verify selected-state styling and result text.

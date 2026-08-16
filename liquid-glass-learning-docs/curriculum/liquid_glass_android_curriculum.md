@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 6.8.0
+**Version:** 6.9.0
 **Updated:** 2026-08-16
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
@@ -9,12 +9,12 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **58 of 216**.
-- Completed through: **Lesson 6.7 — Crop the correct region**.
+- Learner-confirmed complete: **59 of 216**.
+- Completed through: **Lesson 6.8 — Keep the sample current**.
 - Completed chapters: **1–5**.
-- Current unresolved checkpoint: **Lesson 6.8 — Keep the sample current**.
-- Generated frontier: **Lesson 6.8 — Keep the sample current**. Lesson 6.8 is generated and is not learner-confirmed complete.
-- Next planned lesson after the unresolved checkpoint: **Lesson 6.9 — Avoid feedback loops**.
+- Current unresolved checkpoint: **Lesson 6.9 — Avoid feedback loops**.
+- Generated frontier: **Lesson 6.9 — Avoid feedback loops**. Lesson 6.9 is generated and is not learner-confirmed complete.
+- Next planned lesson after the unresolved checkpoint: **Lesson 6.10 — Offscreen cost**.
 
 ## 2. Course construction principles
 
@@ -35,6 +35,9 @@
 - Keep click-controlled popups inside the viewport and reset nested `<code>` styling inside dark code containers.
 - Deliver only incremental changed files.
 - Count only explicit learner completion.
+- Put one clean production route before diagnostic defects. Add executable failure modes only when they are necessary to understand or verify the principal idea.
+- Prefer compact diagrams or predictions over duplicate layers, mode enums, and branches created solely to show broken output.
+- Name non-obvious layout, geometry, sampling, and visual constants and explain why each value exists near its declaration or use.
 
 Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are not duplicated here.
 
@@ -158,17 +161,29 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 
 ### Chapter 6 — How Android draws the scene
 
-**Current implementation record — Lesson 6.8**
+**Current implementation record — Lesson 6.9**
 
-- Generated and awaiting learner review; the completed total is 58 of 216.
-- Introduces one principal graphics idea: a dynamic sharp backdrop sample is current only when its selected layer recording and selected crop bounds both correspond to their latest producers.
+- Generated and awaiting learner review; the completed total is 59 of 216.
+- Introduces one principal graphics idea: prevent feedback by keeping the recorded backdrop producer and glass consumer in separate sibling ownership subtrees.
+- The safe ownership tree is `ParentScene → BackdropHost → BackdropArtwork`, followed by sibling `GlassPanel`.
+- The browser shows one production route and only one compact forbidden-cycle diagram. Error cases do not create alternate executable architectures.
+- One canonical browser state drives a panel-position slider, three presets, metrics, two SVG diagrams, and a synchronized nine-state walkthrough.
+- The command trace follows one panel tint command and proves that it is emitted after layer replay and outside the `BackdropHost` recording boundary.
+- Android uses one `backgroundLayer`, one current crop rectangle, one recorded `BackdropHost`, and one later `GlassPanel` consumer.
+- Android deliberately has no failure-mode enum, frozen duplicate layer, or diagnostic rendering branches.
+- Scene dimensions, slider intervals, landmark coordinates, tint alpha, border alpha, and coordinate conversions are named and commented at their source.
+- Prediction, coding challenge, five explanation exercises, ten-item checkpoint, completion record, and explicit evidence boundaries are included.
+- The lesson defers blur, CPU readback, final multi-panel architecture, and offscreen-cost measurement.
+- Complete previews live in `Chapter06Screen.kt`; direct scrollable previews live in `AvoidFeedbackLoopsExplorer.kt`.
+
+**Completed implementation record — Lesson 6.8**
+
+- Learner-confirmed complete.
+- Proves that a dynamic sharp backdrop sample is current only when its selected layer recording and selected crop bounds both correspond to their latest producers.
 - Separates backdrop-content changes from panel-geometry changes before introducing the two update routes.
-- One canonical browser state drives four freshness modes, two step sliders, four presets, capture/play controls, metrics, formulas, SVG diagrams, and a seventeen-state walkthrough.
-- The controlled model defines `R_b(s)`, `P_p(m)`, and `C_b(m)` with explicit coordinate spaces before deriving the panel-local marker.
-- At current steps 6 and 6, the desired marker is `(82, 26) dp`; a stale selected layer alone produces `(56, -24) dp` error, stale bounds alone produce `(32, 16) dp`, and both stale produce `(88, -8) dp`.
-- Android records `currentBackgroundLayer` during the current backdrop draw and recomputes `localBoundingBoxOf` from current attached layout coordinates.
-- A second captured layer and captured measurement are deliberately diagnostic evidence, not a recommended duplicate-layer production architecture.
-- Prediction, coding challenge, five explanation exercises, ten-item checkpoint, completion record, and explicit timing/cost boundaries are included.
+- The controlled trace defines `R_b(s)`, `P_p(m)`, and `C_b(m)` with explicit coordinate spaces and isolates stale-layer, stale-bounds, and both-stale errors.
+- Android records current layer content and recomputes current bounds; retained captured objects are explicitly diagnostic evidence rather than production guidance.
+- The lesson's prediction choices now have dedicated visible styling and selected-state behavior.
 - The lesson defers blur, feedback prevention, atomic production synchronization, CPU readback, and offscreen cost.
 - Complete previews live in `Chapter06Screen.kt`; direct scrollable previews live in `KeepSampleCurrentExplorer.kt`.
 
@@ -601,12 +616,12 @@ app/src/main/java/com/example/liquidglasslab/chapter05/PressDeformationExplorer.
 ```text
 Learning:
 course/chapters/chapter-06/lesson-how-android-draws-the-scene.html
-course/chapters/chapter-06/lesson-06-07-crop-the-correct-region.html
 course/chapters/chapter-06/lesson-06-08-keep-the-sample-current.html
+course/chapters/chapter-06/lesson-06-09-avoid-feedback-loops.html
 
 Android:
 app/src/main/java/com/example/liquidglasslab/chapter06/Chapter06Screen.kt
-app/src/main/java/com/example/liquidglasslab/chapter06/KeepSampleCurrentExplorer.kt
+app/src/main/java/com/example/liquidglasslab/chapter06/AvoidFeedbackLoopsExplorer.kt
 ```
 
 ## 7. State and history policy

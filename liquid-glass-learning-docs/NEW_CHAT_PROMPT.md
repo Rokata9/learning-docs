@@ -27,13 +27,14 @@ If I do not attach the complete repositories, the minimum useful set is:
 4. `curriculum/liquid_glass_android_handoff.md`
 5. `curriculum/liquid_glass_android_curriculum.md`
 6. `course/chapters/chapter-06/lesson-how-android-draws-the-scene.html`
-7. `course/chapters/chapter-06/lesson-06-07-crop-the-correct-region.html`
-8. `course/chapters/chapter-06/lesson-06-08-keep-the-sample-current.html`
+7. `course/chapters/chapter-06/lesson-06-08-keep-the-sample-current.html`
+8. `course/chapters/chapter-06/lesson-06-09-avoid-feedback-loops.html`
 9. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/Chapter06Screen.kt`
-10. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/KeepSampleCurrentExplorer.kt`
+10. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/AvoidFeedbackLoopsExplorer.kt`
 
 Useful additional Android context:
 
+- `KeepSampleCurrentExplorer.kt`
 - `CropCorrectRegionExplorer.kt`
 - `RecordBackgroundExplorer.kt`
 - `BackdropProblemExplorer.kt`
@@ -83,103 +84,118 @@ Do not edit or regenerate artifacts whose current source is missing. Conceptual 
 Use this state unless newer attached `CURRENT_STATE.md` explicitly supersedes it:
 
 - Total course size: **216 lessons**.
-- Learner-confirmed complete: **58 of 216 lessons**.
-- Completed through: **Lesson 6.7 — Crop the correct region**.
+- Learner-confirmed complete: **59 of 216 lessons**.
+- Completed through: **Lesson 6.8 — Keep the sample current**.
 - Completed chapters: **1, 2, 3, 4, and 5**.
-- Chapter 6 is in progress: **7 of 11 lessons complete**.
-- Current unresolved checkpoint: **Lesson 6.8 — Keep the sample current**.
-- Generated frontier: **Lesson 6.8 — Keep the sample current**.
-- Next planned lesson after the unresolved checkpoint: **Lesson 6.9 — Avoid feedback loops**.
-- Lesson 6.8 is generated and is not learner-confirmed complete.
+- Chapter 6 is in progress: **8 of 11 lessons complete**.
+- Current unresolved checkpoint: **Lesson 6.9 — Avoid feedback loops**.
+- Generated frontier: **Lesson 6.9 — Avoid feedback loops**.
+- Next planned lesson after the unresolved checkpoint: **Lesson 6.10 — Offscreen cost**.
+- Lesson 6.9 is generated and is not learner-confirmed complete.
 
 Do not increase the completion count because a lesson was generated, revised, reviewed, or because I said only “continue” when questions or corrections remain.
 
-## 3. Generated Lesson 6.8 review contract and prerequisite for Lesson 6.9
+## 3. Generated Lesson 6.9 review contract and prerequisite for Lesson 6.10
 
-Lesson 6.8 starts from the completed Lesson 6.7 route:
-
-```text
-record backdrop
-→ map panel bounds into backdrop coordinates
-→ clip a panel-sized target
-→ translate by negative crop origin
-→ replay the matching sharp region
-```
-
-The new concept is that a dynamic sample has two independently produced freshness channels:
+Lesson 6.9 starts from the completed Lesson 6.8 route:
 
 ```text
-current layer recording, replayed as backdrop pixels
-+
-current crop bounds in backdrop-local coordinates
+current backdrop inputs
+→ current backgroundLayer recording
+
+current panel geometry
+→ current crop bounds in BackdropHost-local pixels
+
+current recording + current bounds
 → current sharp panel sample
 ```
 
-The controlled model is:
+The new concept is one-way source ownership. The recorded owner must contain the backdrop producer but exclude the panel that consumes the recorded result:
 
 ```text
-s = backdrop content step, 0...8
-m = panel motion step, 0...8
-
-R_b(s) = (250 - 14s, 62 + 6s) dp · backdrop-local marker
-P_p(m) = (48 + 8m, 58 + 4m) dp · ParentScene-local panel origin
-B_p = (12, 10) dp · ParentScene-local backdrop origin
-C_b(m) = P_p(m) - B_p · backdrop-local crop origin
-
-R_panel = R_b(selected layer step) - C_b(selected bounds step)
+ParentScene
+├── BackdropHost
+│   └── BackdropArtwork
+└── GlassPanel
 ```
 
-At current steps `s = 6`, `m = 6`:
+The safe route is:
 
 ```text
-R_b(6) = (166, 98) dp
-C_b(6) = (84, 72) dp
-R_panel,desired = (82, 26) dp
+BackdropArtwork draw commands
+→ BackdropHost.drawWithContent
+→ backgroundLayer.record { drawContent() }
+→ backgroundLayer
+→ GlassPanel panel-local replay
+→ panel tint, border, label, and details
+→ ParentScene final composite
 ```
 
-The four canonical routes are:
+`GlassPanel` is a later sibling, not a child of `BackdropHost`. Therefore the panel’s replay, material, border, label, and detail commands do not enter `backgroundLayer`.
+
+The forbidden dependency would be:
 
 ```text
-1. current layer recording + current bounds
-2. captured layer recording + current bounds
-3. current layer recording + captured bounds
-4. captured layer recording + captured bounds
+GlassPanel output
+→ source recording that GlassPanel consumes
+→ GlassPanel output
+→ …
 ```
 
-Their controlled errors at the main trace state are:
+Lesson 6.9 presents that failure as one compact warning diagram. It does not create a second executable architecture merely to demonstrate the defect.
+
+The Android implementation uses:
 
 ```text
-stale selected layer only = (56, -24) dp
-stale bounds only = (32, 16) dp
-both stale = (88, -8) dp
+one remembered backgroundLayer
+one current crop rectangle
+one BackdropHost recording owner
+one later GlassPanel consumer
 ```
 
-The Android route uses:
+It deliberately avoids:
 
 ```text
-currentBackgroundLayer.record { drawContent() }
+failure-mode enums
+frozen duplicate layers
+alternate diagnostic rendering branches
+extra state created only to reproduce bad output
 ```
 
-for the live layer-content channel, and:
+The controlled Android scene uses named constants for its `340 × 240 dp` scene, `196 × 116 dp` panel, `24...120 dp` panel travel range, `8 dp` slider interval, landmark positions, tint alpha, and border alpha. Comments explain why those values exist and whether they are geometry, layout, or visual-contrast choices.
 
-```text
-backgroundCoordinates.localBoundingBoxOf(
-    sourceCoordinates = panelCoordinates,
-    clipBounds = false,
-)
-```
+The browser lesson contains:
 
-for the live bounds channel. A second captured layer and captured rectangle exist only as diagnostic evidence so the learner can select stale combinations while the visible scene remains live.
+- one safe route and one compact forbidden-cycle diagram;
+- five stable object names;
+- one panel-position slider with three presets;
+- a synchronized nine-state walkthrough;
+- one command-ownership trace;
+- short Android excerpts rather than a complete source viewer;
+- a visibly styled prediction with three choices;
+- one three-blank coding challenge;
+- five explain-back exercises;
+- a ten-item Preview/device checkpoint.
 
-Lesson 6.8 does not yet:
+Lesson 6.9 does not yet:
 
-- blur the selected region;
-- allow the glass panel to enter the backdrop recording;
-- prove atomic same-frame synchronization for an arbitrary production architecture;
+- apply blur;
+- measure render-target memory, bandwidth, allocation, or GPU cost;
 - perform CPU pixel readback;
-- measure offscreen memory or GPU cost.
+- claim the final multi-panel production architecture.
 
-Lesson 6.9 will prevent feedback loops. Do not generate Lesson 6.9 until Lesson 6.8 is learner-confirmed complete unless I explicitly ask to generate ahead.
+Lesson 6.10 will introduce offscreen cost. Do not generate Lesson 6.10 until Lesson 6.9 is learner-confirmed complete unless I explicitly ask to generate ahead.
+
+### Main-path-first teaching rule
+
+The learner had to spend hours reverse-engineering Lesson 6.8 because diagnostic cases dominated its Android implementation. Treat that as a general correction:
+
+1. Put one clean production route first in both explanation and Android code.
+2. Include a failure case only when it is necessary to understand or verify the principal idea.
+3. Prefer a compact diagram, prediction, or isolated explanation over duplicate layers, mode enums, and branches created only to show defects.
+4. The main point must be understandable without studying diagnostic machinery.
+5. Name non-obvious constants and explain dimensions, ratios, alpha choices, and coordinate math near their declaration or use.
+6. Give prediction controls dedicated visible styling and exercise every choice during browser QA.
 
 ## 4. Learner calibration
 
@@ -390,11 +406,11 @@ Do not generate a lesson or edit files in the first response.
 Confirm that you actually read them, then restate only:
 
 ```text
-completed: 58 of 216, through Lesson 6.7
-current unresolved checkpoint: Lesson 6.8 — Keep the sample current
-generated frontier: Lesson 6.8
-next planned lesson after the checkpoint: Lesson 6.9
-Lesson 6.8 is generated and not complete
+completed: 59 of 216, through Lesson 6.8
+current unresolved checkpoint: Lesson 6.9 — Avoid feedback loops
+generated frontier: Lesson 6.9
+next planned lesson after the checkpoint: Lesson 6.10
+Lesson 6.9 is generated and not complete
 ```
 
 Then wait for my next message.

@@ -339,3 +339,11 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 - **Android preview location:** keep complete chapter-screen previews in `ChapterXXScreen.kt`, but place the direct preview of a custom lesson composable in that custom composable's own Kotlin file.
 
 - **Android Studio preview scrollability:** for every newly generated lesson, make both the complete chapter-screen preview and the direct custom-composable preview vertically scrollable so the entire lesson can be inspected without a device. Do not retrofit previous lessons unless explicitly requested.
+
+## Liquid Glass course — production path before diagnostic machinery
+
+- Keep the Android example centered on one readable production route. I should not need to study several intentionally broken modes before I can understand the intended code.
+- Decide case by case whether an error example adds enough teaching value. Prefer a compact explanation or diagram when executable error modes would introduce duplicate layers, extra state, enums, or branching unrelated to the main implementation.
+- Name and comment non-obvious constants. Explain why scene dimensions, positions, intervals, ratios, alpha values, and coordinate calculations were chosen instead of leaving them as unexplained “magic numbers.”
+- Favor controlled dp coordinates and plain arithmetic over unnecessary fraction-based placement when both express the same lesson geometry.
+- Prediction choices must look like interactive controls in both themes, retain visible selected styling, and be tested by clicking every option.
