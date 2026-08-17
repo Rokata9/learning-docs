@@ -687,3 +687,13 @@ When several variables form a causal chain, include a compact dependency table n
 5. Keep content that must remain sharp—labels, icons, controls, highlights, or status marks—outside the layer that will receive the blur or distortion effect. Show the owner tree and declaration/draw order that enforces this separation.
 6. Build the architecture through one readable production route before adding effects. The learner should be able to identify the producer, sample layer, material additions, sharp foreground, and final destination directly from top-to-bottom code.
 7. For controlled shared-origin scenes, one position value may drive both consumer placement and negative source translation. State the shared-origin prerequisite and do not silently generalize the shortcut to arbitrary nested layouts.
+
+### New-learning and non-repetition gate — Lesson 7.1
+
+1. Before generating a full lesson, name the genuinely new mechanism, API behavior, mathematical operation, measurement method, or implementation step in one sentence. If none exists, do not generate a full conceptual lesson.
+2. Limit prerequisite recap to the minimum inputs required by the new operation. Do not spend another numbered lesson proving ownership, coordinate, freshness, feedback, or command-versus-buffer rules that are already prerequisites.
+3. Convert mostly repetitive consolidation into a short chapter checkpoint or merge it into the next substantive lesson. Do not count repeated architecture prose as new graphics progress.
+4. Make the lesson title's operation visible in all three places: the main diagram, one exact value trace, and the Android implementation.
+5. When a transparent model differs from framework internals, label the model before using it. State what the model proves, what the public API documents, what remains renderer-owned, and whether the unknown changes the current design conclusion.
+6. For Lesson 7.1, the equal-weight 3 × 3 RGB average is the teaching model. Android `BlurEffect` is the production API demonstration. Do not claim the renderer uses nine equal samples, displayed 8-bit RGB arithmetic, or the shown rounding.
+7. Keep the Android explorer centered on the new mechanism. Do not rebuild Chapter 6 backdrop capture merely to attach one fixed blur.

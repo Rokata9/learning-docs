@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 7.1 — Blur as neighborhood averaging</title>
+<style>
+:root{color-scheme:light dark;--ink:#172033;--muted:#596579;--line:#d8e0ea;--paper:#fff;--soft:#f5f7fb;--panel:#fbfcfe;--control:#fff;--green:#059669;--green-soft:#ecfdf5;--indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;--blue:#1e40af;--blue-soft:#dbeafe;--red:#dc2626;--red-soft:#fee2e2;--teal:#0f766e;--teal-soft:#ccfbf1;--body-start:#f8fafc;--body-end:#edf2f7;--shadow:0 18px 52px rgba(30,41,59,.09);--code:#111827;--code-ink:#e5e7eb;--deep-blue:#12365a;--warm-amber:#e1992d;--average:#856d41}
+@media(prefers-color-scheme:dark){:root{--ink:#e7edf7;--muted:#aeb9c9;--line:#354154;--paper:#111827;--soft:#172033;--panel:#151e2d;--control:#1b2535;--green:#34d399;--green-soft:#0b3429;--indigo:#a5b4fc;--indigo-soft:#23234a;--amber:#fbbf24;--amber-soft:#402d0a;--blue:#60a5fa;--blue-soft:#172d54;--red:#f87171;--red-soft:#491b20;--teal:#5eead4;--teal-soft:#123c3a;--body-start:#0b111c;--body-end:#101827;--shadow:0 18px 52px rgba(0,0,0,.32);--code:#080d16;--code-ink:#e5e7eb}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--body-start),var(--body-end));font:16px/1.68 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.48;cursor:not-allowed}code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}code{background:var(--indigo-soft);padding:.12em .36em;border-radius:6px;overflow-wrap:anywhere}.code-block>code,.code-block code{display:block;background:transparent;color:inherit;padding:0;border-radius:0}.page{width:min(2260px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.topbar{display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:22px}.crumbs{color:var(--muted)}.chips{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:850}.chip.progress{color:var(--green);background:var(--green-soft)}.chip.pending{color:var(--amber);background:var(--amber-soft)}.hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(420px,.75fr);gap:28px;padding:42px}.eyebrow,.section-no{color:var(--indigo);font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase}h1{margin:.35rem 0 1rem;font-size:clamp(42px,4vw,70px);line-height:1.04;letter-spacing:-.045em}h2{margin:0 0 .7rem;font-size:31px;line-height:1.18}h3{margin:0 0 .5rem;font-size:21px;line-height:1.25}p{max-width:110ch}.lead{font-size:19px;color:var(--muted)}.section{margin-top:24px;padding:32px}.section-head{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:22px}.section-head p{margin:0;color:var(--muted)}.card{padding:20px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}.card.green{background:var(--green-soft);border-color:color-mix(in srgb,var(--green) 45%,var(--line))}.card.blue{background:var(--blue-soft);border-color:color-mix(in srgb,var(--blue) 45%,var(--line))}.card.amber{background:var(--amber-soft);border-color:color-mix(in srgb,var(--amber) 45%,var(--line))}.card.red{background:var(--red-soft);border-color:color-mix(in srgb,var(--red) 45%,var(--line))}.card.indigo{background:var(--indigo-soft);border-color:color-mix(in srgb,var(--indigo) 45%,var(--line))}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.note,.warning,.success{margin-top:18px;padding:16px 18px;border-radius:14px}.note{border-left:5px solid var(--blue);background:var(--blue-soft)}.warning{border-left:5px solid var(--amber);background:var(--amber-soft)}.success{border-left:5px solid var(--green);background:var(--green-soft)}.formula{padding:14px 16px;border-radius:13px;background:var(--indigo-soft);border:1px solid color-mix(in srgb,var(--indigo) 45%,var(--line));font:800 15px/1.64 "SFMono-Regular",Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.btn{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:850;border:1px solid var(--line);background:var(--control);color:var(--ink)}.btn:hover,.btn:focus-visible{border-color:var(--blue);outline:none}.btn.primary{border-color:var(--blue);background:var(--blue);color:#fff}.btn.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.comparison{display:grid;grid-template-columns:minmax(0,1fr) 72px minmax(0,1fr);gap:18px;align-items:center}.image-card{border:1px solid var(--line);border-radius:17px;padding:14px;background:var(--control)}.image-card svg{display:block;width:100%;height:auto}.big-arrow{text-align:center;color:var(--indigo);font-size:52px;font-weight:950}.objects{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.object{min-height:185px}.object strong{display:block;color:var(--indigo);margin-bottom:8px}.lesson-grid{display:grid;grid-template-columns:minmax(920px,1.25fr) minmax(500px,.75fr);gap:18px;align-items:start}.diagram-shell{position:relative;min-width:0;max-width:100%;border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:72px 14px 14px;overflow:auto}.diagram-shell svg{display:block;width:100%;min-width:920px;height:auto}.diagram-nav{position:absolute;top:18px;right:18px;display:flex;gap:8px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--paper) 94%,transparent);box-shadow:0 6px 20px rgba(15,23,42,.12)}.diagram-nav strong{min-width:125px;text-align:center}.stepper{position:sticky;top:18px;border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden;max-height:calc(100vh - 36px);overflow-y:auto}.step-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}.step-body{padding:18px}.step-title{font-size:24px;font-weight:950}.step-caption{min-height:180px}.io{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}.io>div{padding:11px;border:1px solid var(--line);border-radius:11px;background:var(--control)}.io strong,.io span{display:block}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}.metric{padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--control)}.metric strong{display:block;color:var(--indigo);margin-bottom:4px}.swatch{display:inline-block;width:17px;height:17px;border-radius:5px;border:1px solid rgba(15,23,42,.3);vertical-align:-3px;margin-right:6px}.table-shell{max-width:100%;overflow-x:auto}.ledger{width:100%;min-width:760px;border-collapse:collapse}.ledger th,.ledger td{padding:12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}.ledger th{color:var(--indigo)}.trace-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:18px}.sample-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.sample-pill{padding:10px;border-radius:11px;border:1px solid var(--line);font:800 13px/1.35 "SFMono-Regular",Consolas,monospace}.code-grid{display:grid;grid-template-columns:minmax(650px,1fr) minmax(520px,.8fr);gap:18px}.code-block{background:var(--code);color:var(--code-ink);border-radius:14px;padding:16px;white-space:pre-wrap;overflow:auto;font:14px/1.62 "SFMono-Regular",Consolas,monospace}.prediction{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.choice{appearance:none;min-height:112px;padding:16px;border:2px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);text-align:left;font-weight:800;line-height:1.5;box-shadow:0 3px 10px rgba(15,23,42,.05)}.choice:hover,.choice:focus-visible{border-color:var(--blue);box-shadow:0 8px 24px rgba(30,64,175,.15);outline:none}.choice.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.challenge{display:grid;grid-template-columns:minmax(650px,1fr) minmax(500px,.75fr);gap:18px}.editor{width:100%;min-height:270px;resize:vertical;background:var(--code);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace}.result{min-height:55px;margin-top:12px;padding:12px;border-radius:11px;background:var(--soft)}details{margin:10px 0;border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:13px 15px}summary{cursor:pointer;font-weight:900}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.check{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}.record{width:100%;min-height:260px;resize:vertical;background:var(--code);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace}.footer{margin-top:24px;padding:18px 24px;display:flex;justify-content:space-between;gap:18px;align-items:center}.prov{display:inline-grid;place-items:center;width:20px;height:20px;padding:0;border-radius:50%;border:1px solid var(--indigo);background:var(--indigo-soft);color:var(--indigo);font-size:12px;font-weight:950;vertical-align:2px}.tip{position:fixed;z-index:1000;width:min(380px,calc(100vw - 32px));padding:13px 15px;border:1px solid var(--line);border-radius:13px;background:var(--paper);color:var(--ink);box-shadow:0 16px 48px rgba(15,23,42,.25);display:none}.tip.open{display:block}.svg-label{font:800 18px/1.2 system-ui;fill:var(--ink)}.svg-small{font:700 15px/1.2 system-ui;fill:var(--muted)}.svg-mono{font:700 14px/1.2 monospace;fill:var(--ink)}
+@media(max-width:1250px){.hero,.lesson-grid,.code-grid,.challenge,.trace-grid{grid-template-columns:1fr}.stepper{position:static;max-height:none}.objects{grid-template-columns:repeat(2,minmax(0,1fr))}.comparison{grid-template-columns:1fr}.big-arrow{transform:rotate(90deg)}}
+@media(max-width:850px){.page{width:min(100% - 24px,760px);padding-top:16px}.topbar,.section-head,.footer{align-items:flex-start;flex-direction:column}.chips{justify-content:flex-start}.hero,.section{padding:22px}.two,.three,.objects,.prediction,.checklist,.metrics{grid-template-columns:1fr}.diagram-shell svg{min-width:900px}.diagram-nav{position:sticky;left:8px;right:auto;top:8px;width:max-content;z-index:4}.io{grid-template-columns:1fr}.step-caption{min-height:0}h1{font-size:clamp(38px,12vw,58px)}}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="topbar">
+<div class="crumbs"><a href="lesson-build-convincing-frosted-glass-without-a-custom-lens.html">Chapter 7</a> · Lesson 7.1</div>
+<div class="chips"><span class="chip progress">62 of 216 complete</span><span class="chip pending">7.1 generated · awaiting review</span><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span></div>
+</div>
+
+<header class="hero panel">
+<div>
+<div class="eyebrow">Chapter 7 · First real blur mechanism</div>
+<h1>Blur as neighborhood averaging</h1>
+<p class="lead">A sharp copy reads one source position. A blur output reads several nearby source positions and combines their colors.</p>
+<div class="success"><strong>This lesson advances the mechanism.</strong> It does not reteach source ownership, crop mapping, feedback prevention, or command-versus-buffer distinctions.</div>
+</div>
+<div class="card indigo">
+<h2>New causal route</h2>
+<div class="formula">one output position
+← several nearby source positions
+← one contribution from each
+→ one mixed output color</div>
+<p>The 3 × 3 arithmetic below is a deliberately transparent model. Android's real <code>BlurEffect</code> uses renderer-owned details that its public API does not expose.</p>
+</div>
+</header>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">1 · Practical visual problem</div><h2>A hard boundary has only two local colors</h2></div><p>Blur creates intermediate colors near that boundary.</p></div>
+<div class="comparison">
+<div class="image-card"><h3>Sharp source</h3><svg viewBox="0 0 720 300" role="img" aria-label="Sharp blue and amber boundary"><rect width="360" height="300" fill="#12365a"/><rect x="360" width="360" height="300" fill="#e1992d"/><line x1="90" y1="70" x2="630" y2="230" stroke="#fff" stroke-width="12"/><circle cx="535" cy="90" r="36" fill="#10b981"/><text x="28" y="278" fill="#fff" font-family="system-ui" font-size="24" font-weight="800">each position copies one local source color</text></svg></div>
+<div class="big-arrow">→</div>
+<div class="image-card"><h3>Blurred output</h3><svg viewBox="0 0 720 300" role="img" aria-label="Softened blue and amber boundary"><defs><linearGradient id="softBoundary" x1="0" x2="1"><stop offset="0" stop-color="#12365a"/><stop offset=".40" stop-color="#12365a"/><stop offset=".60" stop-color="#e1992d"/><stop offset="1" stop-color="#e1992d"/></linearGradient><filter id="demoBlur"><feGaussianBlur stdDeviation="10"/></filter></defs><rect width="720" height="300" fill="url(#softBoundary)"/><g filter="url(#demoBlur)"><line x1="90" y1="70" x2="630" y2="230" stroke="#fff" stroke-width="12"/><circle cx="535" cy="90" r="36" fill="#10b981"/></g><text x="28" y="278" fill="#fff" font-family="system-ui" font-size="24" font-weight="800">nearby colors contribute to each output position</text></svg></div>
+</div>
+<div class="note"><strong>What changed:</strong> positions far from the boundary still receive nearly one color. Positions near the boundary receive blue and amber contributions, so they become mixtures.</div>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">2 · Exact objects</div><h2>Name the five things before the arithmetic</h2></div><p>No new formula is useful until its inputs and output are concrete.</p></div>
+<div class="objects">
+<div class="card object"><strong>Source image</strong><p>The input grid of RGB color values. Each cell is one source pixel position in this teaching model.</p></div>
+<div class="card object"><strong>Output position</strong><p>The one destination pixel currently being calculated. It has integer grid coordinate <code>(2, 2)</code>.</p></div>
+<div class="card object"><strong>Neighborhood</strong><p>The 3 × 3 block centered on the selected output position. It contains nine source positions.</p></div>
+<div class="card object"><strong>Contribution</strong><p>The amount one source color adds to the output. The teaching model gives every neighbor equal contribution <code>1 ÷ 9</code>.</p></div>
+<div class="card object"><strong>Output color</strong><p>The one RGB value produced after the nine red, green, and blue channel contributions are combined.</p></div>
+</div>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">3 · Interactive neighborhood</div><h2>Follow one output position</h2></div><p>Change the source pattern. Every diagram and calculation uses the same selected preset.</p></div>
+<div class="controls" style="margin-bottom:16px">
+<strong>Source preset:</strong>
+<button class="btn" data-preset="flat">Flat field</button>
+<button class="btn selected" data-preset="edge">Color edge</button>
+<button class="btn" data-preset="speck">Bright speck</button>
+</div>
+<div class="lesson-grid">
+<div class="diagram-shell">
+<div class="diagram-nav"><button class="btn" id="diagramPrev">Previous</button><strong id="diagramStep">Step 1 of 9</strong><button class="btn" id="diagramNext">Next</button></div>
+<svg id="neighborhoodSvg" viewBox="0 0 1120 650" role="img" aria-label="Five by five source image and one calculated output pixel"></svg>
+</div>
+<div class="stepper">
+<div class="step-head"><button class="btn" id="stepPrev">Previous</button><strong id="stepCounter">Step 1 of 9</strong><button class="btn" id="stepNext">Next</button></div>
+<div class="step-body">
+<div class="step-title" id="stepTitle"></div>
+<p class="step-caption" id="stepCaption"></p>
+<div class="formula" id="stepRule"></div>
+<div class="io"><div><strong>Input</strong><span id="stepInput"></span></div><div><strong>Operation</strong><span id="stepOperation"></span></div><div><strong>Output</strong><span id="stepOutput"></span></div></div>
+</div>
+</div>
+</div>
+<div class="metrics">
+<div class="metric"><strong>Output coordinate</strong><span><code>(2, 2)</code></span></div>
+<div class="metric"><strong>Neighborhood size</strong><span><code>3 × 3 = 9</code> <button class="prov" data-tip="The teaching neighborhood includes the selected center source position plus its eight immediate grid neighbors.">?</button></span></div>
+<div class="metric"><strong>Equal contribution</strong><span><code>1 ÷ 9</code> per source cell</span></div>
+<div class="metric"><strong>Current result</strong><span id="currentResult"></span></div>
+</div>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">4 · One exact RGB trace</div><h2>Add each channel independently</h2></div><p>The list and formulas update when the preset changes.</p></div>
+<div class="trace-grid">
+<div class="card">
+<h3>Nine source samples</h3>
+<div class="sample-list" id="sampleList"></div>
+<div class="note"><strong>Coordinate space:</strong> source-image pixel indexes. <strong>Representation:</strong> displayed 8-bit RGB integers from 0 through 255.</div>
+</div>
+<div class="card">
+<h3>Current substitution</h3>
+<div class="formula" id="channelFormula"></div>
+<div class="success" id="traceConclusion"></div>
+</div>
+</div>
+<div class="warning"><strong>Evidence boundary:</strong> this arithmetic averages displayed RGB numbers directly and assigns equal weight to nine positions. It explains the causal idea. It does not claim Android uses this exact kernel, these exact weights, this exact color space, or integer rounding.</div>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">5 · Android route</div><h2>Attach one fixed real blur to one test image</h2></div><p>Radius comparison waits for Lesson 7.2. Edge treatment waits for Lesson 7.3.</p></div>
+<div class="code-grid">
+<div class="code-block"><code>// BlurNeighborhoodAveragingExplorer.kt
+val blurRadiusPx = with(LocalDensity.current) {
+    12.dp.toPx()
+}
+
+val blurEffect = remember(blurRadiusPx) {
+    BlurEffect(
+        renderEffect = null,
+        radiusX = blurRadiusPx,
+        radiusY = blurRadiusPx,
+        edgeTreatment = TileMode.Clamp,
+    )
+}
+
+Canvas(
+    modifier = Modifier.graphicsLayer {
+        renderEffect = blurEffect
+    },
+) {
+    drawHardEdgeArtwork()
+}</code></div>
+<div class="card">
+<h3>Read the route literally</h3>
+<p><code>drawHardEdgeArtwork()</code> supplies the input drawing commands.</p>
+<p><code>graphicsLayer</code> owns those commands for this test image.</p>
+<p><code>renderEffect = blurEffect</code> asks the renderer to produce the softened result before the layer is composited.</p>
+<p><code>radiusX</code> and <code>radiusY</code> are raw-pixel distances. The code converts the fixed teaching radius from dp to px at runtime.</p>
+<div class="note"><strong>Chapter 6 bridge:</strong> the production panel adds the same kind of effect with <code>panelSampleLayer.renderEffect = blurEffect</code>. The sharp foreground remains outside that layer. No capture architecture is repeated here.</div>
+</div>
+</div>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">6 · Production meaning versus teaching model</div><h2>Do not confuse the 3 × 3 box average with Android's private kernel</h2></div><p>The public API exposes a blur effect, horizontal and vertical radii, and an edge-treatment rule—not a nine-cell formula.</p></div>
+<div class="two">
+<div class="card green"><h3>What the model proves</h3><p>A blurred output position can depend on colors at neighboring source positions. A hard color edge therefore creates mixed output colors around that edge.</p></div>
+<div class="card amber"><h3>What the model does not prove</h3><p>It does not expose Android's exact number of samples, sample coordinates, weights, passes, internal precision, color space, or GPU implementation.</p></div>
+</div>
+<p>Official references: <a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlurEffect">Compose <code>BlurEffect</code></a> and <a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/layer/GraphicsLayer">Compose <code>GraphicsLayer</code></a>.</p>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">7 · Prediction</div><h2>What happens at the blue/amber boundary?</h2></div><p>Click every choice. The selected state remains visible.</p></div>
+<div class="prediction">
+<button class="choice" data-prediction="copy">The output must remain amber because the center source cell is amber.</button>
+<button class="choice" data-prediction="mix">The output becomes a blue/amber mixture because all nine source cells in the neighborhood contribute.</button>
+<button class="choice" data-prediction="transparent">The output becomes transparent because the neighborhood contains more than one color.</button>
+</div>
+<div class="result" id="predictionResult">Choose an answer.</div>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">8 · Coding challenge</div><h2>Complete one equal-weight channel average</h2></div><p>This pure Kotlin function is the transparent teaching operation—not Android's private blur implementation.</p></div>
+<div class="challenge">
+<div>
+<textarea class="editor" id="challengeEditor" spellcheck="false">private fun averageChannel(values: List&lt;Int&gt;): Int {
+    require(values.isNotEmpty())
+
+    val total = __________
+    val mean = total.toFloat() / __________
+    return mean.__________
+}</textarea>
+<div class="controls" style="margin-top:10px"><button class="btn primary" id="checkChallenge">Check</button><button class="btn" data-code="solution">Insert solution</button><button class="btn" data-code="reset">Reset blanks</button></div>
+<div class="result" id="challengeResult">Fill the three blanks, then run the check.</div>
+</div>
+<div class="card">
+<h3>Required route</h3>
+<div class="formula">values
+→ add every value
+→ divide by values.size
+→ round to nearest Int
+→ one channel output</div>
+<p>For the red channel in the edge preset:</p>
+<div class="formula">values = [18, 18, 225,
+          18, 225, 225,
+          18, 225, 225]
+
+output = 133</div>
+</div>
+</div>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">9 · Explain it back</div><h2>Check the causal idea</h2></div><p>Open each answer only after speaking or writing your own explanation.</p></div>
+<details><summary>Why is the edge-preset output not equal to its amber center source cell?</summary><p>The center source cell contributes only one of nine equal shares. Four blue cells and four additional amber cells also contribute. The final output is therefore RGB(133, 109, 65), not the center's RGB(225, 153, 45).</p></details>
+<details><summary>Why does a completely flat source region remain the same color in the teaching model?</summary><p>Every source cell contains the same RGB value. Adding nine identical values and dividing by nine returns that same value for red, green, and blue.</p></details>
+<details><summary>What is lost when a small bright speck is averaged with eight dark neighbors?</summary><p>The speck's color contributes only one share. The eight dark contributions pull the output toward the dark color, so the speck becomes dimmer and less locally distinct.</p></details>
+<details><summary>Why can we not claim Android literally executes the displayed nine-value arithmetic?</summary><p>The public API does not specify Android's sample count, sample coordinates, weights, internal color representation, or rounding. The 3 × 3 average is a causal bridge, not a reverse-engineered implementation claim.</p></details>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">10 · Preview and device checkpoint</div><h2>Verify the new mechanism</h2></div><p>Use Android Studio Preview and the Pixel 8 Pro.</p></div>
+<div class="checklist">
+<label class="check"><input type="checkbox">The Android screen opens Chapter 7 and identifies Lesson 7.1.</label>
+<label class="check"><input type="checkbox">The 3 × 3 grid shows four RGB(18, 54, 90) cells and five RGB(225, 153, 45) cells.</label>
+<label class="check"><input type="checkbox">The computed output is RGB(133, 109, 65).</label>
+<label class="check"><input type="checkbox">The center source cell is visibly marked but is not mistaken for the only input.</label>
+<label class="check"><input type="checkbox">The sharp comparison card has a hard blue/amber boundary.</label>
+<label class="check"><input type="checkbox">The BlurEffect card visibly softens the boundary, white line, and green circle.</label>
+<label class="check"><input type="checkbox">The runtime readout converts the fixed 12 dp radius into px.</label>
+<label class="check"><input type="checkbox">The source grid and real BlurEffect are explicitly distinguished.</label>
+<label class="check"><input type="checkbox">Both complete-screen Preview variants scroll through all content.</label>
+<label class="check"><input type="checkbox">Both direct explorer Preview variants scroll through all content.</label>
+</div>
+<div class="controls" style="margin-top:16px"><button class="btn" id="buildRecord">Build local review record</button></div>
+<textarea class="record" id="record" readonly>Run the checkpoint, then build the local review record.</textarea>
+</section>
+
+<section class="section panel">
+<div class="section-head"><div><div class="section-no">11 · Evidence boundary</div><h2>One new mechanism is complete</h2></div><p>Lesson 7.1 remains pending until you explicitly confirm it.</p></div>
+<div class="two">
+<div class="card green"><h3>Established here</h3><p>One blur output can receive color from neighboring source positions. The equal-weight 3 × 3 example traces one full RGB result. Android's real <code>BlurEffect</code> visibly softens the test image.</p></div>
+<div class="card amber"><h3>Still deferred</h3><p>Lesson 7.2 compares blur radii. Lesson 7.3 studies pixels requested outside the source bounds. Lesson 7.4 introduces controlled downsampling.</p></div>
+</div>
+</section>
+
+<div class="footer panel"><a href="../chapter-06/lesson-06-11-two-layer-scene-architecture.html">← Lesson 6.11 — Two-layer architecture</a><strong>62 of 216 complete · Lesson 7.1 pending</strong><span>Next after confirmation: 7.2</span></div>
+</div>
+<div class="tip" id="tip" role="dialog" aria-live="polite"></div>
+<script>
+const $=id=>document.getElementById(id);
+const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+const COLORS={blue:{name:'blue',r:18,g:54,b:90,hex:'#12365a',ink:'#fff'},amber:{name:'amber',r:225,g:153,b:45,hex:'#e1992d',ink:'#241a0a'},white:{name:'white',r:255,g:255,b:255,hex:'#ffffff',ink:'#172033'}};
+const PRESETS={
+flat:{name:'Flat field',grid:Array(25).fill('blue')},
+edge:{name:'Color edge',grid:['blue','blue','blue','amber','amber','blue','blue','blue','amber','amber','blue','blue','amber','amber','amber','blue','blue','amber','amber','amber','blue','blue','amber','amber','amber']},
+speck:{name:'Bright speck',grid:['blue','blue','blue','blue','blue','blue','blue','blue','blue','blue','blue','blue','white','blue','blue','blue','blue','blue','blue','blue','blue','blue','blue','blue','blue']}
+};
+const NEIGHBOR_INDEXES=[6,7,8,11,12,13,16,17,18];
+const STEPS=[
+{title:'Name the source image',caption:'The 5 × 5 grid is the source image. Each cell stores one displayed 8-bit RGB color. We will calculate only one output position.',rule:'source image → available color values',input:'25 source RGB cells',operation:'Read the source grid',output:'One defined input image'},
+{title:'Choose one output position',caption:'The destination position is coordinate (2, 2). The outlined source cell shares that coordinate, but blur will not simply copy it.',rule:'selected output = (2, 2)',input:'Output coordinate',operation:'Choose the position to calculate',output:'One current destination pixel'},
+{title:'Open the 3 × 3 neighborhood',caption:'The neighborhood contains the center source cell and its eight immediate grid neighbors. These nine source colors are the current inputs.',rule:'rows 1…3 × columns 1…3 = 9 source positions',input:'Selected output coordinate',operation:'Collect nearby source positions',output:'Nine RGB samples'},
+{title:'Assign equal contributions',caption:'The transparent teaching model gives every source sample one ninth of the final result. No sample is privileged.',rule:'each contribution = 1 ÷ 9',input:'Nine source samples',operation:'Assign equal contribution',output:'Nine weights whose total is 1'},
+{title:'Calculate the red channel',caption:'Read only the red number from every neighbor. Add the nine red numbers, then divide the total by nine.',rule:'Rout = (R1 + R2 + … + R9) ÷ 9',input:'Nine red values',operation:'Add, divide, round',output:'One red output value'},
+{title:'Calculate the green channel',caption:'Repeat the identical operation using only green values. Red does not participate in the green calculation.',rule:'Gout = (G1 + G2 + … + G9) ÷ 9',input:'Nine green values',operation:'Add, divide, round',output:'One green output value'},
+{title:'Calculate the blue channel',caption:'Repeat once more for blue. The three channel calculations are independent in this teaching model.',rule:'Bout = (B1 + B2 + … + B9) ÷ 9',input:'Nine blue values',operation:'Add, divide, round',output:'One blue output value'},
+{title:'Assemble the output RGB',caption:'Place the calculated red, green, and blue channel values together. That triplet is the color written at output coordinate (2, 2).',rule:'output = RGB(Rout, Gout, Bout)',input:'Three averaged channel values',operation:'Assemble one RGB triplet',output:'One mixed output color'},
+{title:'Repeat at other output positions',caption:'A complete blur repeats the neighborhood operation for many output positions. Neighboring windows overlap, which creates a continuous soft transition instead of one isolated mixed pixel.',rule:'for each output position → gather neighborhood → combine colors',input:'Source image plus every output coordinate',operation:'Repeat the same local rule',output:'A blurred output image'}
+];
+const state={preset:'edge',step:0,prediction:null};
+function currentSamples(){return NEIGHBOR_INDEXES.map(index=>COLORS[PRESETS[state.preset].grid[index]])}
+function average(samples){const count=samples.length;return {r:Math.round(samples.reduce((sum,s)=>sum+s.r,0)/count),g:Math.round(samples.reduce((sum,s)=>sum+s.g,0)/count),b:Math.round(samples.reduce((sum,s)=>sum+s.b,0)/count)}}
+function rgbText(color){return `RGB(${color.r}, ${color.g}, ${color.b})`}
+function hex(color){return `#${[color.r,color.g,color.b].map(value=>value.toString(16).padStart(2,'0')).join('')}`}
+function renderDiagram(){
+const preset=PRESETS[state.preset],samples=currentSamples(),out=average(samples);let svg='<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#4338ca"/></marker></defs>';
+svg+='<text x="55" y="55" class="svg-label">Source image · 5 × 5 RGB cells</text><text x="720" y="55" class="svg-label">One output position</text>';
+const startX=55,startY=90,cell=92,gap=7;
+for(let row=0;row<5;row++){for(let col=0;col<5;col++){const index=row*5+col,color=COLORS[preset.grid[index]],x=startX+col*(cell+gap),y=startY+row*(cell+gap),isCenter=index===12,isNeighbor=NEIGHBOR_INDEXES.includes(index);let stroke='var(--line)',width=2,opacity=1;if(state.step>=2&&isNeighbor){stroke='var(--indigo)';width=4}else if(state.step>=2){opacity=.42}if(state.step>=1&&isCenter){stroke='var(--amber)';width=7;opacity=1}svg+=`<g opacity="${opacity}"><rect x="${x}" y="${y}" width="${cell}" height="${cell}" rx="12" fill="${color.hex}" stroke="${stroke}" stroke-width="${width}"/>`;
+let label=state.step===4?`R ${color.r}`:state.step===5?`G ${color.g}`:state.step===6?`B ${color.b}`:`${row},${col}`;svg+=`<text x="${x+cell/2}" y="${y+cell/2+5}" text-anchor="middle" font-family="monospace" font-size="${state.step>=4&&state.step<=6?16:14}" font-weight="850" fill="${color.ink}">${label}</text>`;if(state.step>=3&&isNeighbor){svg+=`<text x="${x+cell-8}" y="${y+18}" text-anchor="end" font-family="monospace" font-size="13" font-weight="900" fill="${color.ink}">1/9</text>`}svg+='</g>'}}
+svg+=`<line x1="570" y1="330" x2="690" y2="330" stroke="#4338ca" stroke-width="6" marker-end="url(#arrow)" opacity="${state.step>=2?1:.28}"/>`;
+const outputOpacity=state.step>=7?1:.23;svg+=`<g opacity="${outputOpacity}"><rect x="735" y="170" width="300" height="300" rx="34" fill="${hex(out)}" stroke="var(--indigo)" stroke-width="5"/><text x="885" y="265" text-anchor="middle" fill="#fff" font-family="system-ui" font-size="24" font-weight="900">OUTPUT (2, 2)</text><text x="885" y="320" text-anchor="middle" fill="#fff" font-family="monospace" font-size="25" font-weight="900">R ${out.r}</text><text x="885" y="360" text-anchor="middle" fill="#fff" font-family="monospace" font-size="25" font-weight="900">G ${out.g}</text><text x="885" y="400" text-anchor="middle" fill="#fff" font-family="monospace" font-size="25" font-weight="900">B ${out.b}</text></g>`;
+if(state.step===8){svg+='<g><rect x="700" y="505" width="355" height="95" rx="18" fill="var(--green-soft)" stroke="var(--green)" stroke-width="3"/><text x="877" y="542" text-anchor="middle" class="svg-label">Repeat overlapping neighborhoods</text><text x="877" y="574" text-anchor="middle" class="svg-small">one local calculation at each output position</text></g>'}
+svg+=`<text x="55" y="625" class="svg-mono">preset = ${preset.name} · selected output = (2, 2) · current result = ${rgbText(out)}</text>`;$('neighborhoodSvg').innerHTML=svg}
+function renderTrace(){const samples=currentSamples(),out=average(samples),r=samples.map(s=>s.r),g=samples.map(s=>s.g),b=samples.map(s=>s.b),sumR=r.reduce((a,v)=>a+v,0),sumG=g.reduce((a,v)=>a+v,0),sumB=b.reduce((a,v)=>a+v,0);$('sampleList').innerHTML=samples.map((sample,index)=>`<div class="sample-pill" style="background:${sample.hex};color:${sample.ink}">S${index+1}<br>${sample.r}, ${sample.g}, ${sample.b}</div>`).join('');$('channelFormula').textContent=`Red values:   ${r.join(' + ')}\nRed total:    ${sumR}\nRed output:   ${sumR} ÷ 9 = ${out.r}\n\nGreen values: ${g.join(' + ')}\nGreen total:  ${sumG}\nGreen output: ${sumG} ÷ 9 = ${out.g}\n\nBlue values:  ${b.join(' + ')}\nBlue total:   ${sumB}\nBlue output:  ${sumB} ÷ 9 = ${out.b}\n\nFinal output: ${rgbText(out)}`;$('traceConclusion').innerHTML=`<strong>Visible result:</strong> <span class="swatch" style="background:${hex(out)}"></span>${rgbText(out)}. ${state.preset==='flat'?'A flat region stays unchanged because every contribution is identical.':state.preset==='edge'?'The boundary output is a blue/amber mixture because both sides contributed.':'The isolated white center is diluted by eight dark-blue neighbors.'}`;$('currentResult').innerHTML=`<span class="swatch" style="background:${hex(out)}"></span><code>${rgbText(out)}</code>`}
+function renderStep(){const step=STEPS[state.step];$('stepTitle').textContent=step.title;$('stepCaption').textContent=step.caption;$('stepRule').textContent=step.rule;$('stepInput').textContent=step.input;$('stepOperation').textContent=step.operation;$('stepOutput').textContent=step.output;const counter=`Step ${state.step+1} of ${STEPS.length}`;$('diagramStep').textContent=counter;$('stepCounter').textContent=counter;['diagramPrev','stepPrev'].forEach(id=>$(id).disabled=state.step===0);['diagramNext','stepNext'].forEach(id=>$(id).disabled=state.step===STEPS.length-1)}
+function renderAll(){document.querySelectorAll('[data-preset]').forEach(button=>button.classList.toggle('selected',button.dataset.preset===state.preset));renderDiagram();renderTrace();renderStep()}
+function setStep(next){state.step=clamp(next,0,STEPS.length-1);renderAll()}
+document.querySelectorAll('[data-preset]').forEach(button=>button.addEventListener('click',()=>{state.preset=button.dataset.preset;renderAll()}));
+[['diagramPrev',-1],['stepPrev',-1],['diagramNext',1],['stepNext',1]].forEach(([id,delta])=>$(id).addEventListener('click',()=>setStep(state.step+delta)));
+document.querySelectorAll('[data-prediction]').forEach(button=>button.addEventListener('click',()=>{state.prediction=button.dataset.prediction;document.querySelectorAll('[data-prediction]').forEach(choice=>choice.classList.toggle('selected',choice===button));$('predictionResult').textContent=state.prediction==='mix'?'Correct. The center amber cell supplies one contribution, while the other eight cells also contribute. The output is RGB(133, 109, 65).':state.prediction==='copy'?'That would be a sharp same-position copy. The teaching blur reads all nine neighborhood colors, so the center does not determine the result alone.':'Multiple colors do not imply transparency. The operation combines RGB contributions and produces an opaque mixed color in this model.'}));
+const blankCode=$('challengeEditor').value;const solutionCode=`private fun averageChannel(values: List<Int>): Int {\n    require(values.isNotEmpty())\n\n    val total = values.sum()\n    val mean = total.toFloat() / values.size\n    return mean.roundToInt()\n}`;
+document.querySelectorAll('[data-code]').forEach(button=>button.addEventListener('click',()=>{$('challengeEditor').value=button.dataset.code==='solution'?solutionCode:blankCode;$('challengeResult').textContent=button.dataset.code==='solution'?'Solution inserted. Run the check to verify the complete route.':'Blanks restored.'}));
+$('checkChallenge').addEventListener('click',()=>{const code=$('challengeEditor').value,hasSum=/values\.sum\s*\(\s*\)/.test(code),hasSize=/\/\s*values\.size/.test(code),hasRound=/mean\.roundToInt\s*\(\s*\)/.test(code);$('challengeResult').textContent=hasSum&&hasSize&&hasRound?'Correct. The function adds every input, divides by the sample count, and rounds one channel result.':`Still incomplete: ${[!hasSum&&'use values.sum()',!hasSize&&'divide by values.size',!hasRound&&'return mean.roundToInt()'].filter(Boolean).join(', ')}.`});
+$('buildRecord').addEventListener('click',()=>{const out=average(currentSamples());$('record').value=`Lesson 7.1 local review record\n\nNew mechanism:\n- one output position receives colors from several nearby source positions\n- the teaching neighborhood is 3 × 3 = 9 source positions\n- each teaching contribution is 1/9\n\nCurrent preset: ${PRESETS[state.preset].name}\nCurrent result: ${rgbText(out)}\n\nI traced red, green, and blue independently.\nI distinguished the equal-weight teaching model from Android's renderer-owned BlurEffect kernel.\nI verified the sharp and blurred Android test images.\n\nThis local record does not change the authoritative course count until I explicitly confirm Lesson 7.1.`});
+const tip=$('tip');function closeTip(){tip.classList.remove('open')}document.querySelectorAll('.prov').forEach(button=>button.addEventListener('click',event=>{event.stopPropagation();tip.textContent=button.dataset.tip;tip.classList.add('open');const rect=button.getBoundingClientRect(),gap=10,maxLeft=window.innerWidth-tip.offsetWidth-16;let left=rect.right+gap;if(left>maxLeft)left=rect.left-tip.offsetWidth-gap;left=clamp(left,16,maxLeft);let top=rect.top;if(top+tip.offsetHeight>window.innerHeight-16)top=window.innerHeight-tip.offsetHeight-16;tip.style.left=`${left}px`;tip.style.top=`${Math.max(16,top)}px`;}));document.addEventListener('click',closeTip);window.addEventListener('resize',closeTip);window.addEventListener('scroll',closeTip,true);
+const theme=matchMedia('(prefers-color-scheme:dark)');function updateTheme(){$('themeMode').textContent=theme.matches?'dark':'light';renderAll()}theme.addEventListener?.('change',updateTheme);updateTheme();
+</script>
+</body>
+</html>

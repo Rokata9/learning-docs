@@ -26,22 +26,21 @@ If I do not attach the complete repositories, the minimum useful set is:
 3. `CURRENT_STATE.md`
 4. `curriculum/liquid_glass_android_handoff.md`
 5. `curriculum/liquid_glass_android_curriculum.md`
-6. `course/chapters/chapter-06/lesson-how-android-draws-the-scene.html`
-7. `course/chapters/chapter-06/lesson-06-10-offscreen-cost.html`
-8. `course/chapters/chapter-06/lesson-06-11-two-layer-scene-architecture.html`
-9. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/Chapter06Screen.kt`
-10. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/OffscreenCostExplorer.kt`
-11. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/TwoLayerSceneArchitectureExplorer.kt`
+6. `course/chapters/chapter-06/lesson-06-11-two-layer-scene-architecture.html`
+7. `course/chapters/chapter-07/lesson-build-convincing-frosted-glass-without-a-custom-lens.html`
+8. `course/chapters/chapter-07/lesson-07-01-blur-as-neighborhood-averaging.html`
+9. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt`
+10. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/Chapter07Screen.kt`
+11. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurNeighborhoodAveragingExplorer.kt`
 
 Useful additional Android context:
 
+- `TwoLayerSceneArchitectureExplorer.kt`
+- `OffscreenCostExplorer.kt`
+- `AvoidFeedbackLoopsExplorer.kt`
 - `KeepSampleCurrentExplorer.kt`
 - `CropCorrectRegionExplorer.kt`
 - `RecordBackgroundExplorer.kt`
-- `BackdropProblemExplorer.kt`
-- `GraphicsLayersExplorer.kt`
-- `RenderEffectOwnedContentExplorer.kt`
-- `MainActivity.kt`
 - the project Gradle files if compilation or dependency context matters
 
 If I ask to revise an older lesson, I must also attach that lesson’s current HTML and relevant Kotlin file. Do not reconstruct an unseen file from memory.
@@ -85,157 +84,101 @@ Do not edit or regenerate artifacts whose current source is missing. Conceptual 
 Use this state unless newer attached `CURRENT_STATE.md` explicitly supersedes it:
 
 - Total course size: **216 lessons**.
-- Learner-confirmed complete: **61 of 216 lessons**.
-- Completed through: **Lesson 6.10 — Offscreen cost**.
-- Completed chapters: **1, 2, 3, 4, and 5**.
-- Chapter 6 is in progress: **10 of 11 lessons complete**.
-- Current unresolved checkpoint: **Lesson 6.11 — Build a two-layer scene architecture**.
-- Generated frontier: **Lesson 6.11 — Build a two-layer scene architecture**.
-- Next planned lesson after the unresolved checkpoint: **Lesson 7.1 — Blur as neighborhood averaging**.
-- Lesson 6.11 is generated and is not learner-confirmed complete.
+- Learner-confirmed complete: **62 of 216 lessons**.
+- Completed through: **Lesson 6.11 — Build a two-layer scene architecture**.
+- Completed chapters: **1, 2, 3, 4, 5, and 6**.
+- Chapter 7 is in progress: **0 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.1 — Blur as neighborhood averaging**.
+- Generated frontier: **Lesson 7.1 — Blur as neighborhood averaging**.
+- Next planned lesson after the unresolved checkpoint: **Lesson 7.2 — Blur radius**.
+- Lesson 7.1 is generated and is not learner-confirmed complete.
 
 Do not increase the completion count because a lesson was generated, revised, reviewed, or because I said only “continue” when questions or corrections remain.
 
-## 3. Completed Lesson 6.10 contract and generated Lesson 6.11 review contract
+## 3. Completed Chapter 6 contract and generated Lesson 7.1 review contract
 
-### Completed Lesson 6.10 distinction
+### Completed Chapter 6 prerequisite
 
-```text
-full-backdrop command recording
-≠
-panel-sized destination pixel target
-≠
-measured device cost
-```
-
-The explicit `CompositingStrategy.Offscreen` in Lesson 6.10 was forced only to guarantee one concrete panel-sized raster target for arithmetic. It did not improve the sharp visual result and was not a general optimization.
-
-The panel-sized estimate did not erase the cost of:
-
-```text
-recording the full backdrop command list
-+
-drawing the normal full backdrop
-+
-replaying the source commands into the panel destination
-```
-
-A small destination bounds destination pixel storage and output area. It does not prove that every upstream command-processing cost becomes panel-sized.
-
-### Lesson 6.11 principal architecture
-
-```text
-ParentScene
-├── BackdropHost
-│   └── BackdropArtwork
-└── GlassPanel
-    ├── GlassMaterial
-    └── ForegroundContent
-```
-
-The scene creates exactly two controlled `GraphicsLayer` objects:
-
-```text
-backgroundLayer
-= full BackdropArtwork command source
-
-panelSampleLayer
-= panel-sized translated crop command layer
-```
-
-The third role is ordinary Compose content:
-
-```text
-ForegroundContent
-= sharp dot and label
-= later child outside both record calls
-= not a third GraphicsLayer
-```
-
-The one-way production route is:
+The architecture already provides:
 
 ```text
 BackdropArtwork
 → backgroundLayer
 → panelSampleLayer
-→ tint and border
-→ ForegroundContent
+→ material additions
+→ sharp ForegroundContent
 → ParentScene
 ```
 
-`BackdropHost` and `GlassPanel` are siblings. The source owner therefore excludes the panel and cannot capture itself.
+Lesson 7.1 may rely on that route. It must not spend another full lesson reteaching capture ownership, crop mapping, freshness, feedback prevention, or command-versus-buffer distinctions.
 
-Inside `GlassPanel`, child order is explicit:
+### Lesson 7.1 principal mechanism
 
-```text
-ArchitectureGlassMaterial(...)
-ArchitectureForegroundContent()
-```
-
-`GlassMaterial` draws the translated sample, tint, and border first. `ForegroundContent` draws later and stays outside the future effect input.
-
-Both layers remain on the default `Auto` compositing strategy in Lesson 6.11. Two `GraphicsLayer` objects do not imply two allocated offscreen textures. Chapter 7 will introduce the real neighborhood blur operation and the pixel input it requires.
-
-### Controlled geometry
+One blur output position receives contributions from several nearby source positions:
 
 ```text
-scene = 340 × 240 dp
-panel = 196 × 116 dp
-panel top = 72 dp
-panel left range = 24...120 dp
-red marker = (92, 82) dp in BackdropHost-local coordinates
+one output position
+← nearby source RGB values
+← one contribution from each source value
+→ one mixed output RGB value
 ```
 
-At the default panel origin `(72, 72) dp`:
+The controlled 3 × 3 teaching neighborhood contains four `RGB(18, 54, 90)` cells and five `RGB(225, 153, 45)` cells. Every cell receives equal contribution `1 ÷ 9`.
 
 ```text
-red marker panel-local
-= (92, 82) − (72, 72)
-= (20, 10) dp
+red   = (4 × 18  + 5 × 225) ÷ 9 = 133
+green = (4 × 54  + 5 × 153) ÷ 9 = 109
+blue  = (4 × 90  + 5 × 45)  ÷ 9 = 65
+
+output = RGB(133, 109, 65)
 ```
 
-One `panelLeftDp` value drives both panel placement and negative crop translation because `BackdropHost` fills `ParentScene` and both share local origin `(0, 0)` in this controlled scene.
+The equal-weight 3 × 3 arithmetic is a transparent teaching model. It does not claim Android uses exactly nine samples, equal weights, displayed 8-bit RGB arithmetic, or integer rounding.
 
 ### Browser lesson
 
 The browser lesson contains:
 
-- a practical foreground-isolation problem;
-- a two-layer/three-role object ledger;
-- an interactive panel-position and role-focus lab;
-- one synchronized eleven-state walkthrough;
-- one coordinate and ownership trace;
-- short Android excerpts;
-- a visibly styled three-choice prediction;
-- one three-blank coding challenge;
+- a practical sharp-versus-soft visual;
+- five precisely named objects;
+- flat-field, color-edge, and bright-speck presets;
+- one synchronized nine-state neighborhood walkthrough;
+- a complete red, green, and blue trace;
+- a short real-Android route;
+- a styled three-choice prediction;
+- one focused Kotlin averaging challenge;
 - four explain-back exercises;
-- a ten-item Chapter 6 checkpoint;
-- an explicit command-versus-buffer boundary.
+- a ten-item Preview/device checkpoint;
+- explicit boundaries for radius, edge treatment, and downsampling.
 
 ### Android implementation
 
-`TwoLayerSceneArchitectureExplorer.kt` intentionally contains:
+`BlurNeighborhoodAveragingExplorer.kt` contains:
 
-- exactly one `backgroundLayer`;
-- exactly one `panelSampleLayer`;
-- one shared panel position source;
-- one `BackdropHost` producer sibling;
-- one `GlassPanel` consumer sibling;
-- one `GlassMaterial` first child;
-- one ordinary `ForegroundContent` second child;
-- no `Offscreen` setting;
-- no `RenderEffect` yet;
-- no callback-written crop state;
-- no diagnostic mode enum or duplicate failure branch.
+- a small `Rgb8` teaching type;
+- one readable `averageRgb8` function;
+- one 3 × 3 neighborhood grid;
+- one sharp hard-edge test image;
+- one matching test image with a fixed Compose `BlurEffect`;
+- one fixed 12 dp radius converted to runtime pixels;
+- fixed `TileMode.Clamp` so this lesson has one explicit edge rule while comparison is deferred;
+- no repeated backdrop-capture implementation;
+- no stale-state, feedback, or failure-mode branches;
+- named constants with nearby reasons.
 
-Lesson 6.11 does not yet:
+The bridge back to Chapter 6 is only:
 
-- apply blur;
-- teach blur radius or edge treatment;
-- downsample the sample;
-- tune the full frosted material;
-- profile device GPU cost;
-- build multi-panel caching or adaptive quality.
+```text
+panelSampleLayer.renderEffect = blurEffect
+```
+
+Lesson 7.2 compares radii. Lesson 7.3 studies edge treatment. Lesson 7.4 studies downsampling.
+
+### Mandatory new-learning gate
+
+Every full lesson must introduce a genuinely new mechanism, API behavior, mathematical operation, measurement method, or implementation step.
+
+A prerequisite recap must be brief and exist only to feed the new operation. If planned material is mostly consolidation, make it a short checkpoint or merge it into the next substantive lesson. Do not count repeated architecture prose as new graphics progress.
 
 ## 4. Learner calibration
 
@@ -446,11 +389,11 @@ Do not generate a lesson or edit files in the first response.
 Confirm that you actually read them, then restate only:
 
 ```text
-completed: 61 of 216, through Lesson 6.10
-current unresolved checkpoint: Lesson 6.11 — Build a two-layer scene architecture
-generated frontier: Lesson 6.11
-next planned lesson after the checkpoint: Lesson 7.1
-Lesson 6.11 is generated and not complete
+completed: 62 of 216, through Lesson 6.11
+current unresolved checkpoint: Lesson 7.1 — Blur as neighborhood averaging
+generated frontier: Lesson 7.1
+next planned lesson after the checkpoint: Lesson 7.2
+Lesson 7.1 is generated and not complete
 ```
 
 Then wait for my next message.

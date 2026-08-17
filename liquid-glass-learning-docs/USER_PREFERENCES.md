@@ -364,3 +364,12 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 - When a panel-sized destination replays a full backdrop source, explain which panel-sized pixel costs are reduced and which full-source recording, drawing, and replay costs remain.
 - Keep labels and icons outside the sample/effect layer when they must remain sharp. Make that ownership visible in both the object tree and the Android declaration order.
 - Prefer one clean two-layer production route over executable comparison modes that add unrelated state or branching.
+
+## New-learning gate and recap budget — Lesson 7.1
+
+- A full lesson must introduce a genuinely new mechanism, API behavior, mathematical operation, measurement method, or implementation step. Do not present another arrangement of already learned objects as sufficient new progress.
+- Keep prerequisite recap brief. Use it only to identify the input consumed by the new operation.
+- If planned material is mostly consolidation, turn it into a short checkpoint or merge it into the next substantive lesson instead of counting it as a standalone conceptual lesson.
+- The lesson title must correspond to an operation that becomes visible in the diagram, arithmetic, and Android code.
+- For blur, distinguish a transparent teaching model from the renderer's undocumented implementation. Explain exactly what the model proves and what the public Android API does not expose.
+- Prefer one readable new production or experiment path. Do not duplicate stale-state, feedback, alignment, or other diagnostic branches unless the new concept genuinely requires them.

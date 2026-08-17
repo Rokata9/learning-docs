@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 6.11.0
-**Updated:** 2026-08-16
+**Version:** 7.1.0
+**Updated:** 2026-08-17
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
 **Physical test device:** Pixel 8 Pro  
@@ -9,18 +9,19 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **61 of 216**.
-- Completed through: **Lesson 6.10 — Offscreen cost**.
-- Completed chapters: **1–5**.
-- Chapter 6 is in progress: **10 of 11 lessons complete**.
-- Current unresolved checkpoint: **Lesson 6.11 — Build a two-layer scene architecture**.
-- Generated frontier: **Lesson 6.11 — Build a two-layer scene architecture**. Lesson 6.11 is generated and is not learner-confirmed complete.
-- Next planned lesson after the unresolved checkpoint: **Lesson 7.1 — Blur as neighborhood averaging**.
+- Learner-confirmed complete: **62 of 216**.
+- Completed through: **Lesson 6.11 — Build a two-layer scene architecture**.
+- Completed chapters: **1–6**.
+- Chapter 7 is in progress: **0 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.1 — Blur as neighborhood averaging**.
+- Generated frontier: **Lesson 7.1 — Blur as neighborhood averaging**. Lesson 7.1 is generated and is not learner-confirmed complete.
+- Next planned lesson after the unresolved checkpoint: **Lesson 7.2 — Blur radius**.
 
 ## 2. Course construction principles
 
 - Assume a total beginner in graphics and mathematics.
 - Introduce one principal graphics idea and at most one principal mathematical idea per lesson.
+- A full lesson must introduce a genuinely new mechanism, API behavior, mathematical operation, measurement method, or implementation step. Convert mostly repetitive consolidation into a checkpoint or merge it into the next substantive lesson.
 - Define every new term before relying on it.
 - State the practical problem before vocabulary and formulas.
 - For hard formulas: variable ledger → symbolic formula → substituted values → intermediate results → final output → next consumer.
@@ -167,9 +168,9 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 
 ### Chapter 6 — How Android draws the scene
 
-**Current implementation record — Lesson 6.11**
+**Completed implementation record — Lesson 6.11**
 
-- Generated and awaiting learner review; the completed total is 61 of 216.
+- Learner-confirmed complete; the completed total advances to 62 of 216.
 - Introduces one principal architecture: two controlled `GraphicsLayer` objects plus one ordinary foreground role.
 - The owner tree is `ParentScene` → sibling `BackdropHost` and `GlassPanel`; inside the panel, `GlassMaterial` is declared before `ForegroundContent`.
 - `backgroundLayer` retains the complete backdrop command source. `panelSampleLayer` retains the panel-sized translated crop commands. `ForegroundContent` is not a third layer.
@@ -340,6 +341,20 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 12. **7.12 — Compare backgrounds.** Test photos, text, gradients, dark content, and light content.
 
 **Checkpoint:** Produce a polished frosted card and list exactly why it is still not a complete Liquid Glass material.
+
+**Current implementation record — Lesson 7.1**
+
+- Generated and awaiting learner review; the learner-confirmed total remains 62 of 216.
+- Introduces one new mechanism: one blur output position receives color contributions from nearby source positions.
+- Uses a transparent 3 × 3 equal-weight model with four `RGB(18, 54, 90)` cells and five `RGB(225, 153, 45)` cells.
+- Traces red, green, and blue independently to the exact output `RGB(133, 109, 65)`.
+- Explicitly labels the 3 × 3 box average as a teaching model rather than Android's documented internal kernel.
+- The browser provides flat-field, color-edge, and bright-speck inputs, a synchronized nine-state walkthrough, one complete RGB trace, a styled prediction, one focused Kotlin challenge, four explain-back exercises, and a ten-item checkpoint.
+- The Android explorer contains one readable `averageRgb8` function plus a sharp-versus-real-`BlurEffect` comparison with a fixed 12 dp radius converted to px.
+- It does not rebuild Chapter 6 backdrop capture or add stale-state, feedback, alignment, or diagnostic branches.
+- `TileMode.Clamp` is fixed so Lesson 7.1 has one explicit edge rule; Lesson 7.3 compares edge treatments.
+- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `BlurNeighborhoodAveragingExplorer.kt`.
+
 
 ---
 

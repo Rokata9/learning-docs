@@ -1,7 +1,7 @@
 # Liquid Glass on Android — concise conversation handoff
 
-**Updated:** 2026-08-16  
-**Course version:** 6.11.0
+**Updated:** 2026-08-17  
+**Course version:** 7.1.0
 
 ## Read order
 
@@ -18,189 +18,107 @@ Treat `CURRENT_STATE.md` as authoritative.
 
 ```yaml
 course_lessons_total: 216
-learner_confirmed_completed: 61
-completed_through: "Lesson 6.10 — Offscreen cost"
-completed_chapters: [1, 2, 3, 4, 5]
-chapter_06_status: "in progress; 10 of 11 complete"
-next_unresolved_checkpoint: "Lesson 6.11 — Build a two-layer scene architecture"
-generated_frontier: "Lesson 6.11 — Build a two-layer scene architecture"
-next_planned_after_checkpoint: "Lesson 7.1 — Blur as neighborhood averaging"
-lesson_06_10_complete: true
-lesson_06_11_generated: true
-lesson_06_11_complete: false
+learner_confirmed_completed: 62
+completed_through: "Lesson 6.11 — Build a two-layer scene architecture"
+completed_chapters: [1, 2, 3, 4, 5, 6]
+chapter_07_status: "in progress; 0 of 12 complete"
+next_unresolved_checkpoint: "Lesson 7.1 — Blur as neighborhood averaging"
+generated_frontier: "Lesson 7.1 — Blur as neighborhood averaging"
+next_planned_after_checkpoint: "Lesson 7.2 — Blur radius"
+lesson_06_11_complete: true
+lesson_07_01_generated: true
+lesson_07_01_complete: false
 ```
 
-## Completed Lesson 6.10 prerequisite contract
+## Completed Chapter 6 prerequisite
 
-Lesson 6.10 distinguishes:
-
-```text
-full-backdrop command recording
-≠
-panel-sized destination pixel target
-≠
-measured GPU or frame-time cost
-```
-
-The controlled route deliberately uses:
-
-```text
-BackdropArtwork commands
-→ backgroundLayer full command source
-→ matching crop replay
-→ panelSampleLayer recorded in the panel DrawScope
-→ CompositingStrategy.Offscreen
-→ panel-sized raster target
-→ panel material and content
-→ ParentScene
-```
-
-`CompositingStrategy.Offscreen` is forced only to make one panel-sized target concrete for the lesson's arithmetic. It is not required for the sharp result and is not a general optimization. A future `RenderEffect` can require rasterization while the compositing strategy remains `Auto`.
-
-The panel-sized target estimate does not include:
-
-```text
-full backdrop command recording
-normal full-backdrop rendering
-second replay command traversal
-command culling
-bandwidth
-exact GPU allocation
-measured frame time
-```
-
-The corrected controlled movement route is:
-
-```text
-one panelLeftDp + fixed panelTopDp
-→ panel placement
-→ crop translation
-```
-
-No callback-written duplicate crop state remains.
-
-## Generated Lesson 6.11 contract
-
-### Principal idea
-
-Use two controlled `GraphicsLayer` objects and one ordinary foreground role so future blur input is separated from sharp labels.
-
-### Owner tree
-
-```text
-ParentScene
-├── BackdropHost
-│   └── BackdropArtwork
-└── GlassPanel
-    ├── GlassMaterial
-    └── ForegroundContent
-```
-
-### Two layers
-
-```text
-backgroundLayer
-= full BackdropArtwork command source
-
-panelSampleLayer
-= panel-sized translated crop command layer
-```
-
-### Third role, not a third layer
-
-```text
-ForegroundContent
-= sharp dot and label
-= ordinary later Compose child
-= outside both record calls
-```
-
-### Production route
+The production panel already has a separated sample layer and sharp foreground:
 
 ```text
 BackdropArtwork
 → backgroundLayer
 → panelSampleLayer
-→ tint and border
-→ ForegroundContent
+→ material additions
+→ sharp ForegroundContent
 → ParentScene
 ```
 
-`BackdropHost` and `GlassPanel` are siblings, so panel output cannot enter the source recording. Inside `GlassPanel`, `GlassMaterial` is declared first and `ForegroundContent` second. Compose draws the later child after the material.
+The production integration point is `panelSampleLayer.renderEffect = blurEffect`. Lesson 7.1 demonstrates the new blur mechanism on isolated test artwork instead of reteaching capture, crop, freshness, feedback, or command-versus-buffer lessons.
 
-Both controlled layers remain on `Auto` in Lesson 6.11. Layer count is not buffer count. Chapter 7 will add the first real neighborhood blur operation.
+## Generated Lesson 7.1 contract
 
-### Controlled coordinate trace
+### Principal idea
+
+A blurred output position receives color from nearby source positions rather than copying only the same-position source color.
+
+### Exact teaching trace
+
+The selected 3 × 3 neighborhood uses four `RGB(18, 54, 90)` cells and five `RGB(225, 153, 45)` cells. Each cell contributes `1 ÷ 9` in the equal-weight model.
 
 ```text
-red backdrop marker B = (92, 82) dp
-panel origin P = (72, 72) dp
-panel-local marker L = B - P
-                     = (20, 10) dp
+Rout = (4 × 18  + 5 × 225) ÷ 9 = 133
+Gout = (4 × 54  + 5 × 153) ÷ 9 = 109
+Bout = (4 × 90  + 5 × 45)  ÷ 9 = 65
+
+output = RGB(133, 109, 65)
 ```
 
-One panel-left value drives both placement and crop translation because `BackdropHost` fills `ParentScene` and both share origin `(0, 0)` in the controlled scene.
+This is a transparent box-average teaching model. It does not claim Android uses exactly nine samples, equal weights, displayed 8-bit sRGB arithmetic, or integer rounding.
 
 ### Browser lesson
 
-The browser lesson contains:
+The standalone lesson contains:
 
-- the practical sharp-label problem;
-- a two-layer/three-role object ledger;
-- one interactive position and role-focus lab;
-- one synchronized eleven-state walkthrough;
-- one coordinate and ownership trace;
-- concise Android excerpts;
+- a sharp-versus-soft practical visual;
+- five precisely named objects;
+- flat-field, color-edge, and bright-speck source presets;
+- one synchronized nine-state neighborhood walkthrough;
+- a complete per-channel RGB trace;
+- a short real-Android route;
 - a styled three-choice prediction;
-- one three-blank coding challenge;
+- one focused Kotlin averaging challenge;
 - four explain-back exercises;
-- a ten-item Chapter 6 checkpoint.
+- a ten-item Preview/device checkpoint;
+- explicit boundaries for radius, edge treatment, and downsampling.
 
 ### Android implementation
 
-`TwoLayerSceneArchitectureExplorer.kt` contains:
+`BlurNeighborhoodAveragingExplorer.kt` contains:
 
-- exactly one `backgroundLayer`;
-- exactly one `panelSampleLayer`;
-- one panel position source;
-- one producer sibling and one consumer sibling;
-- one `GlassMaterial` first child;
-- one ordinary `ForegroundContent` second child;
-- no `Offscreen` setting;
-- no `RenderEffect` yet;
-- no post-layout crop state;
-- no diagnostic mode enum;
+- a pure `Rgb8` teaching model;
+- one readable `averageRgb8` function;
+- one 3 × 3 neighborhood grid;
+- one sharp hard-edge test image;
+- one matching test image with a fixed Compose `BlurEffect`;
+- a fixed 12 dp radius converted to runtime pixels;
+- a fixed `TileMode.Clamp` so this lesson has one explicit edge rule while comparison is deferred;
+- no backdrop-capture duplication;
+- no stale-state, feedback, or failure-mode branches;
 - named constants with nearby reasons.
+
+`MainActivity.kt` now opens `Chapter07Screen`.
 
 ### Evidence boundary
 
-Lesson 6.11 does not apply blur, downsample, edge treatment, saturation, contrast, polished lighting, profiling, caching, or adaptive quality. Lesson 7.1 begins blur as neighborhood averaging.
+Lesson 7.1 establishes neighborhood dependence and one exact teaching average. It does not establish Android's private kernel details, compare radii, analyze source-edge requests, downsample, or measure GPU performance.
 
-## Reusable rules from Lessons 6.10 and 6.11
+## New-learning rule
 
-1. Distinguish recorded commands, allocated pixel targets, and measured device cost.
-2. State whether explicit `Offscreen` is required, redundant, or deliberately forced only for teaching.
-3. When a small destination consumes a large recorded source, state which full-source costs remain.
-4. Keep the source producer outside the consumer subtree to prevent feedback.
-5. Keep labels and icons outside the layer that will later receive blur when they must remain sharp.
-6. Derive placement and crop translation from one state source in controlled shared-origin geometry.
-7. Keep the Android lesson on one production path; prefer diagrams to executable defect matrices.
-8. Name and explain non-obvious dimensions, positions, intervals, alpha values, and coordinate math.
-9. Test all prediction choices and selected styling in light and dark themes.
+Every full lesson must add a genuinely new mechanism, API behavior, mathematical operation, measurement method, or implementation step. Keep prerequisite recap short. Convert mostly repetitive consolidation into a checkpoint or merge it into the next substantive lesson.
 
 ## Current files
 
 ```text
-liquid-glass-learning-docs/course/chapters/chapter-06/lesson-how-android-draws-the-scene.html
-liquid-glass-learning-docs/course/chapters/chapter-06/lesson-06-10-offscreen-cost.html
 liquid-glass-learning-docs/course/chapters/chapter-06/lesson-06-11-two-layer-scene-architecture.html
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/Chapter06Screen.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/OffscreenCostExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter06/TwoLayerSceneArchitectureExplorer.kt
+liquid-glass-learning-docs/course/chapters/chapter-07/lesson-build-convincing-frosted-glass-without-a-custom-lens.html
+liquid-glass-learning-docs/course/chapters/chapter-07/lesson-07-01-blur-as-neighborhood-averaging.html
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/Chapter07Screen.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurNeighborhoodAveragingExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 ```
 
 ## Continuation rule
 
-Do not mark Lesson 6.11 complete merely because it was generated or reviewed. Wait for explicit learner confirmation. Do not generate Lesson 7.1 before that confirmation unless the learner explicitly asks to generate ahead.
+Do not mark Lesson 7.1 complete merely because it was generated or reviewed. Wait for explicit learner confirmation. Do not generate Lesson 7.2 before that confirmation unless the learner explicitly asks to generate ahead.
 
-Course progress: 61 of 216 lessons completed.
+Course progress: 62 of 216 lessons completed.
