@@ -1,112 +1,141 @@
 # Liquid Glass Android course — current state
 
 **Updated:** 2026-08-17  
-**Course version:** 7.1.0  
+**Course version:** 7.2.0  
 **Platform:** Kotlin + Jetpack Compose  
 **Test device:** Pixel 8 Pro  
 **Total curriculum size:** 216 lessons
 
 ## Authoritative progress
 
-- Learner-confirmed complete: **62 of 216 lessons**.
-- Completed through: **Lesson 6.11 — Build a two-layer scene architecture**.
+- Learner-confirmed complete: **63 of 216 lessons**.
+- Completed through: **Lesson 7.1 — Blur as neighborhood averaging**.
 - Completed chapters: **1, 2, 3, 4, 5, and 6**.
-- Chapter 7: in progress; **0 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.1 — Blur as neighborhood averaging**.
-- Generated frontier: **Lesson 7.1 — Blur as neighborhood averaging**.
-- Next planned lesson after the unresolved checkpoint: **Lesson 7.2 — Blur radius**.
-- Lesson 7.1 is generated and is not learner-confirmed complete.
+- Chapter 7: in progress; **1 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.2 — Blur radius**.
+- Generated frontier: **Lesson 7.2 — Blur radius**.
+- Next planned lesson after the unresolved checkpoint: **Lesson 7.3 — Edge treatment**.
+- Lesson 7.2 is generated and is not learner-confirmed complete.
 
 Do not increase the completion count merely because a lesson was generated, revised, reviewed, or because the learner said only “continue” while questions or corrections remain.
 
 ## Current lesson files
 
 ```text
-course/chapters/chapter-06/lesson-06-11-two-layer-scene-architecture.html
 course/chapters/chapter-07/lesson-build-convincing-frosted-glass-without-a-custom-lens.html
 course/chapters/chapter-07/lesson-07-01-blur-as-neighborhood-averaging.html
+course/chapters/chapter-07/lesson-07-02-blur-radius.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/Chapter07Screen.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurNeighborhoodAveragingExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurRadiusExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 ```
 
-## Completed Lesson 6.11 prerequisite contract
+## Completed Lesson 7.1 prerequisite contract
 
-Chapter 6 ends with this established ownership route:
-
-```text
-BackdropArtwork
-→ backgroundLayer command source
-→ panelSampleLayer crop command source
-→ material additions
-→ sharp ForegroundContent
-→ ParentScene
-```
-
-`ForegroundContent` remains outside the sample layer that will receive blur. Lesson 7.1 may rely on that fact, but it must not spend another full lesson reteaching the Chapter 6 architecture.
-
-## Generated Lesson 7.1 contract
-
-### Principal new mechanism
-
-One blur output position receives contributions from several nearby source positions:
+Lesson 7.1 established one mechanism:
 
 ```text
 one output position
-← nearby source RGB values
-← one contribution from each source value
-→ one mixed output RGB value
+← several nearby source colors
+→ one combined output color
 ```
 
-### Transparent teaching calculation
+Its 3 × 3 equal-weight arithmetic is a transparent teaching model. It does not reveal Android's private blur kernel, sample count, weights, color representation, or rounding.
 
-The controlled 3 × 3 neighborhood contains:
+Lesson 7.2 may rely on neighborhood dependence. It must not repeat Chapter 6 capture architecture or repeat the full Lesson 7.1 averaging derivation merely to introduce radius.
+
+## Generated Lesson 7.2 contract
+
+### Principal new mechanism
+
+Blur radius controls the spatial reach of the blur:
 
 ```text
-four source cells = RGB(18, 54, 90)
-five source cells = RGB(225, 153, 45)
+larger radius
+→ farther source positions can influence an output
+→ broader transitions
+→ less distinct small detail
 ```
 
-Each of the nine source cells receives equal contribution `1 ÷ 9` in the teaching model.
+Radius is not opacity or tint strength.
+
+### Transparent one-dimensional model
+
+The source strip contains nine displayed 8-bit RGB cells:
 
 ```text
-red   = (4 × 18  + 5 × 225) ÷ 9 = 133
-green = (4 × 54  + 5 × 153) ÷ 9 = 109
-blue  = (4 × 90  + 5 × 45)  ÷ 9 = 65
-
-output = RGB(133, 109, 65)
+index:  0    1    2    3    4    5    6    7    8
+color: blue blue blue blue amber amber amber amber amber
 ```
 
-The model averages displayed 8-bit RGB numbers directly. It is not a claim about Android's private kernel, weights, sample count, color space, internal precision, or rounding.
+```text
+blue  = RGB(18, 54, 90)
+amber = RGB(225, 153, 45)
+selected output index i = 5
+```
+
+The teaching radius `r` is measured in whole source-cell offsets. Its symmetric box window includes indexes `i - r` through `i + r`, so this model alone has `N = 2r + 1` samples.
+
+The four paired presets are:
+
+```text
+No blur: r = 0 teaching cells; Android test radius = 0 dp
+Small:   r = 1 teaching cell;  Android test radius = 4 dp
+Medium:  r = 2 teaching cells; Android test radius = 12 dp
+Large:   r = 3 teaching cells; Android test radius = 24 dp
+```
+
+The pairs express relative size only. One teaching cell is not equal to four dp.
+
+Exact model outputs at index 5:
+
+```text
+r = 0 → [amber]
+      → RGB(225, 153, 45)
+
+r = 1 → [amber, amber, amber]
+      → RGB(225, 153, 45)
+
+r = 2 → [blue, amber, amber, amber, amber]
+      → RGB(184, 133, 54)
+
+r = 3 → [blue, blue, amber, amber, amber, amber, amber]
+      → RGB(166, 125, 58)
+```
+
+The model proves that a larger influence distance can admit farther colors. It does not claim Android uses a one-dimensional box filter, whole-pixel windows, `2r + 1` samples, equal weights, displayed 8-bit RGB arithmetic, or the shown rounding.
 
 ### Android route
 
-The Android explorer deliberately avoids rebuilding the Chapter 6 capture architecture. It contains:
+`BlurRadiusExplorer.kt` contains one production-facing experiment:
 
 ```text
-one pure 3 × 3 RGB teaching average
-+
-one sharp test image
-+
-one identical test image with a fixed BlurEffect
+learner-facing radius in dp
+→ current Density converts dp to px
+→ radiusX receives the px value
+→ radiusY receives the same px value
+→ BlurEffect is attached to the artwork layer
 ```
 
-The fixed effect route is:
+The explorer provides:
 
-```text
-hard-edge artwork commands
-→ graphicsLayer
-→ BlurEffect with fixed 12 dp radius converted to px
-→ softened output
-```
+- presets at `0`, `4`, `12`, and `24` dp;
+- a continuous `0..28` dp slider;
+- a sharp reference beside the selected radius;
+- a runtime dp-to-px readout;
+- equal `radiusX` and `radiusY` values for symmetric blur;
+- fixed `TileMode.Clamp`, leaving edge comparison to Lesson 7.3;
+- one hard color edge, one diagonal line, one small dot, and four narrow bars so transition width and detail loss are visible;
+- no repeated backdrop capture, crop, freshness, or feedback-loop implementation.
 
-The only Chapter 6 bridge is stated explicitly:
+A radius of `0 dp` attaches no effect, producing an exact sharp reference.
 
-```text
-panelSampleLayer.renderEffect = blurEffect
-```
+### Evidence boundary
 
-Lesson 7.2 will vary radius. Lesson 7.3 will study edge treatment. Lesson 7.4 will study downsampling.
+The public Compose `BlurEffect` API documents horizontal and vertical blur radii plus edge treatment. It does not expose internal sample positions, sample count, weights, kernel shape, color arithmetic, or optimization strategy.
+
+Lesson 7.2 establishes radius behavior and API data flow. It does not compare edge treatments, downsample, or claim measured GPU cost.
 
 ## New-learning gate
 
@@ -117,8 +146,8 @@ If planned material is mostly consolidation, make it a short checkpoint or merge
 ## Android preview rules
 
 - Complete chapter-screen previews live in `Chapter07Screen.kt`.
-- Direct custom-composable previews live in `BlurNeighborhoodAveragingExplorer.kt`.
+- Direct custom-composable previews for Lesson 7.2 live in `BlurRadiusExplorer.kt`.
 - Both preview levels provide light and dark variants.
 - Both preview levels allow vertical scrolling through the complete generated content in finite-height Android Studio Preview.
 
-Course progress: 62 of 216 lessons completed.
+Course progress: 63 of 216 lessons completed.

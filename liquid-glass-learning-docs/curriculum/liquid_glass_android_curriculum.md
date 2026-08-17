@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 7.1.0
+**Version:** 7.2.0
 **Updated:** 2026-08-17
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
@@ -9,13 +9,13 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **62 of 216**.
-- Completed through: **Lesson 6.11 — Build a two-layer scene architecture**.
+- Learner-confirmed complete: **63 of 216**.
+- Completed through: **Lesson 7.1 — Blur as neighborhood averaging**.
 - Completed chapters: **1–6**.
-- Chapter 7 is in progress: **0 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.1 — Blur as neighborhood averaging**.
-- Generated frontier: **Lesson 7.1 — Blur as neighborhood averaging**. Lesson 7.1 is generated and is not learner-confirmed complete.
-- Next planned lesson after the unresolved checkpoint: **Lesson 7.2 — Blur radius**.
+- Chapter 7 is in progress: **1 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.2 — Blur radius**.
+- Generated frontier: **Lesson 7.2 — Blur radius**. Lesson 7.2 is generated and is not learner-confirmed complete.
+- Next planned lesson after the unresolved checkpoint: **Lesson 7.3 — Edge treatment**.
 
 ## 2. Course construction principles
 
@@ -342,18 +342,29 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 
 **Checkpoint:** Produce a polished frosted card and list exactly why it is still not a complete Liquid Glass material.
 
-**Current implementation record — Lesson 7.1**
+**Completed implementation record — Lesson 7.1**
 
-- Generated and awaiting learner review; the learner-confirmed total remains 62 of 216.
-- Introduces one new mechanism: one blur output position receives color contributions from nearby source positions.
-- Uses a transparent 3 × 3 equal-weight model with four `RGB(18, 54, 90)` cells and five `RGB(225, 153, 45)` cells.
-- Traces red, green, and blue independently to the exact output `RGB(133, 109, 65)`.
-- Explicitly labels the 3 × 3 box average as a teaching model rather than Android's documented internal kernel.
-- The browser provides flat-field, color-edge, and bright-speck inputs, a synchronized nine-state walkthrough, one complete RGB trace, a styled prediction, one focused Kotlin challenge, four explain-back exercises, and a ten-item checkpoint.
-- The Android explorer contains one readable `averageRgb8` function plus a sharp-versus-real-`BlurEffect` comparison with a fixed 12 dp radius converted to px.
+- Learner-confirmed complete; the completed total advances to 63 of 216.
+- Introduces one blur output receiving color contributions from nearby source positions.
+- Uses a transparent 3 × 3 equal-weight model and traces the exact output `RGB(133, 109, 65)`.
+- Keeps the teaching model separate from Android's undocumented renderer kernel.
+- The Android explorer contains one readable `averageRgb8` function plus a sharp-versus-real-`BlurEffect` comparison with a fixed 12 dp radius.
 - It does not rebuild Chapter 6 backdrop capture or add stale-state, feedback, alignment, or diagnostic branches.
-- `TileMode.Clamp` is fixed so Lesson 7.1 has one explicit edge rule; Lesson 7.3 compares edge treatments.
-- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `BlurNeighborhoodAveragingExplorer.kt`.
+
+**Current implementation record — Lesson 7.2**
+
+- Generated and awaiting learner review; the learner-confirmed total remains 63 of 216.
+- Introduces one new control: blur radius as spatial influence distance rather than opacity.
+- Uses a transparent one-dimensional source strip with four blue cells, five amber cells, and selected output index 5.
+- Compares teaching radii `0`, `1`, `2`, and `3` cells. The exact outputs are `RGB(225, 153, 45)`, `RGB(225, 153, 45)`, `RGB(184, 133, 54)`, and `RGB(166, 125, 58)`.
+- Explicitly limits `N = 2r + 1` to the teaching box model. It does not claim Android uses that sample count or equal weights.
+- Pairs the model levels with Android test radii `0`, `4`, `12`, and `24` dp without equating teaching cells to dp.
+- The browser provides four radius presets, a controlled density slider, a synchronized ten-state walkthrough, one complete RGB and dp-to-px trace, a styled prediction, one focused Kotlin challenge, five explain-back exercises, and a ten-item checkpoint.
+- `BlurRadiusExplorer.kt` provides presets plus a continuous `0..28` dp slider, converts dp to px, and feeds equal values to `radiusX` and `radiusY`.
+- The Android source compares identical sharp and variable-radius artwork and uses named constants for every non-obvious dimension and landmark.
+- `TileMode.Clamp` remains fixed so Lesson 7.3 can isolate edge treatment.
+- It does not repeat Chapter 6 capture architecture or add diagnostic rendering branches.
+- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `BlurRadiusExplorer.kt`.
 
 
 ---
