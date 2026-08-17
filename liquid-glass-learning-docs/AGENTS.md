@@ -697,3 +697,13 @@ When several variables form a causal chain, include a compact dependency table n
 5. When a transparent model differs from framework internals, label the model before using it. State what the model proves, what the public API documents, what remains renderer-owned, and whether the unknown changes the current design conclusion.
 6. For Lesson 7.1, the equal-weight 3 × 3 RGB average is the teaching model. Android `BlurEffect` is the production API demonstration. Do not claim the renderer uses nine equal samples, displayed 8-bit RGB arithmetic, or the shown rounding.
 7. Keep the Android explorer centered on the new mechanism. Do not rebuild Chapter 6 backdrop capture merely to attach one fixed blur.
+
+
+## Simple-mechanism clarity gate — Lesson 7.3 revision
+
+- For a simple API behavior, state the exact question it answers in one plain sentence before introducing diagrams, formulas, or production integration.
+- Never use a specialist term such as `hue`, `overscan`, `padded source`, or `crop the center` before defining the concrete pixels or rectangles it refers to. Prefer plain spatial wording when the term adds no value.
+- Keep the mechanism walkthrough focused on that mechanism. A later production application belongs in a separate section and must not appear as an unexplained final step.
+- When `crop` is used, define it spatially: select one rectangle from a larger image and ignore pixels outside the selected rectangle. State whether cropping happens before or after an effect.
+- When transparent black appears in blur arithmetic, explain the apparent contradiction directly: alpha zero means it contributes no visible black; in premultiplied averaging it can lower output alpha.
+- Use the fewest walkthrough states required by the causal chain. Edge treatment needs source bounds → requests → missing requests → replacements → output; it does not need a ten-state production detour.

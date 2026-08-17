@@ -373,3 +373,13 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 - The lesson title must correspond to an operation that becomes visible in the diagram, arithmetic, and Android code.
 - For blur, distinguish a transparent teaching model from the renderer's undocumented implementation. Explain exactly what the model proves and what the public Android API does not expose.
 - Prefer one readable new production or experiment path. Do not duplicate stale-state, feedback, alignment, or other diagnostic branches unless the new concept genuinely requires them.
+
+
+## Liquid Glass course — keep simple mechanisms simple
+
+- Explain a simple graphics setting with one direct question and one concrete visual example before any optional math.
+- Do not introduce words such as “hue,” “overscan,” “padded source,” or “crop the center” without defining exactly what pixels or rectangles they mean. Avoid the term entirely when plain English is clearer.
+- Do not mix a separate production-integration technique into the causal walkthrough for a small API mechanism. Put it in a clearly separated application section after the mechanism is already understood.
+- Define `crop` every time its timing matters: which larger image exists, which smaller rectangle is kept, which outer pixels are ignored, and whether this happens before or after blur.
+- For transparent black, explicitly explain why alpha zero means no visible black is added and why output opacity can still decrease.
+- Prefer six clear steps over ten inflated steps when six fully explain the mechanism.

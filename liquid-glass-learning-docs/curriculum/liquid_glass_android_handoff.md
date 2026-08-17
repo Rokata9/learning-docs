@@ -1,139 +1,100 @@
-# Liquid Glass on Android — concise conversation handoff
+# Liquid Glass Android course — implementation handoff
 
 **Updated:** 2026-08-17  
-**Course version:** 7.2.0
+**Course version:** 7.3.0
 
 ## Read order
 
 1. `USER_PREFERENCES.md`
 2. `AGENTS.md`
 3. `CURRENT_STATE.md`
-4. This handoff
-5. `liquid_glass_android_curriculum.md` when the full plan is needed
-6. Current lesson HTML and Android files
+4. this handoff
+5. `liquid_glass_android_curriculum.md` only when the full plan is needed
+6. current and immediately preceding lesson HTML
+7. current Android files
 
-Treat `CURRENT_STATE.md` as authoritative.
+Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ## Authoritative status
 
 ```yaml
-course_lessons_total: 216
-learner_confirmed_completed: 63
-completed_through: "Lesson 7.1 — Blur as neighborhood averaging"
+total_lessons: 216
+learner_confirmed_complete: 64
+completed_through: "Lesson 7.2 — Blur radius"
 completed_chapters: [1, 2, 3, 4, 5, 6]
-chapter_07_status: "in progress; 1 of 12 complete"
-next_unresolved_checkpoint: "Lesson 7.2 — Blur radius"
-generated_frontier: "Lesson 7.2 — Blur radius"
-next_planned_after_checkpoint: "Lesson 7.3 — Edge treatment"
-lesson_07_01_complete: true
-lesson_07_02_generated: true
-lesson_07_02_complete: false
+chapter_7_complete: "2 of 12"
+next_unresolved_checkpoint: "Lesson 7.3 — Edge treatment"
+generated_frontier: "Lesson 7.3 — Edge treatment"
+next_planned_after_checkpoint: "Lesson 7.4 — Downsampled blur"
 ```
 
-## Completed blur prerequisite
+Lesson 7.3 is generated and is not learner-confirmed complete.
 
-Lesson 7.1 established neighborhood dependence:
+## Completed blur prerequisites
 
-```text
-one output position
-← several nearby source colors
-→ one combined output color
-```
+Lesson 7.1 established neighborhood dependence. Lesson 7.2 established blur radius as spatial influence distance. Their transparent equal-weight models do not describe Android's internal blur implementation.
 
-Its 3 × 3 equal-weight RGB arithmetic is a transparent teaching model. It does not reveal Android's private kernel.
+Lesson 7.3 may rely on those facts but must not repeat their full arithmetic or rebuild Chapter 6 capture architecture.
 
-Chapter 6 already provides the eventual production integration point:
-
-```text
-panelSampleLayer.renderEffect = blurEffect
-```
-
-Lesson 7.2 must not rebuild capture, crop, freshness, feedback prevention, or command-versus-buffer lessons.
-
-## Generated Lesson 7.2 contract
+## Revised Lesson 7.3 contract
 
 ### Principal idea
 
-Blur radius controls spatial influence distance:
-
 ```text
-larger radius
-→ farther source positions can influence an output
-→ broader transition bands
-→ less distinct small detail
+blur requests a source coordinate outside the input
+→ edgeTreatment supplies the value for that missing coordinate
 ```
 
-Radius is not opacity or tint strength.
-
-### Exact teaching trace
-
-The source strip is:
-
-```text
-index:  0    1    2    3    4    5    6    7    8
-color: blue blue blue blue amber amber amber amber amber
-```
-
-```text
-blue  = RGB(18, 54, 90)
-amber = RGB(225, 153, 45)
-selected output index i = 5
-```
-
-The teaching radius `r` is measured in whole source-cell offsets. The window includes `i - r` through `i + r`. Only this model uses `N = 2r + 1` equal-weight samples.
-
-```text
-r = 0 → RGB(225, 153, 45)
-r = 1 → RGB(225, 153, 45)
-r = 2 → RGB(184, 133, 54)
-r = 3 → RGB(166, 125, 58)
-```
-
-Radius 1 leaves the selected output unchanged because every included source cell is amber. Radius 2 first reaches blue index 3.
-
-The browser pairs those model radii with Android test radii `0`, `4`, `12`, and `24` dp. The pairing communicates relative size; one model cell does not equal four dp.
+The main explanation must remain this direct. Do not reintroduce unexplained “hue,” “overscan,” “padded source,” or “crop center” language.
 
 ### Browser lesson
 
-The standalone lesson contains:
+The revised standalone lesson contains:
 
-- a sharp, small-radius, and large-radius practical visual;
-- five precisely named objects;
-- four synchronized radius presets;
-- a controlled `1.00..4.00 px/dp` density slider;
-- one synchronized ten-state walkthrough;
-- exact first-index, last-index, sample-count, RGB, and dp-to-px traces;
-- a visible distinction between model radius and Android radius;
-- a short real-Android route;
-- a styled three-choice prediction;
-- one focused four-blank Kotlin challenge;
-- five explain-back exercises;
-- a ten-item Preview/device checkpoint;
-- viewport-safe click tooltips;
-- explicit boundaries for edge treatment and downsampling.
+- a direct five-cell source example;
+- a clear distinction between an internal color boundary and the outer source boundary;
+- `Clamp`, `Decal`, `Mirror`, and `Repeated` controls;
+- edge and interior target controls;
+- a synchronized six-state walkthrough;
+- a direct explanation that transparent black has alpha zero and contributes no visible black;
+- the uniform-orange premultiplied trace, ending in the plain conclusion “same orange straight RGB, alpha 0.60”;
+- a separate glass-panel application section that defines the larger source rectangle, the panel rectangle, and `crop after blur`;
+- one styled prediction;
+- one three-blank Kotlin challenge;
+- four explain-back exercises;
+- a ten-item Preview/device checkpoint.
 
 ### Android implementation
 
-`BlurRadiusExplorer.kt` contains:
+`BlurEdgeTreatmentExplorer.kt` keeps one controlled route:
 
-- learner-facing presets at `0`, `4`, `12`, and `24` dp;
-- a continuous `0..28` dp slider;
-- runtime conversion from dp to raw pixels;
-- one `BlurEffect` whose `radiusX` and `radiusY` receive the same pixel value;
-- fixed `TileMode.Clamp` so Lesson 7.3 can isolate edge treatment;
-- no effect at `0 dp`, giving an exact sharp reference;
-- a sharp-versus-selected-radius comparison using identical source artwork;
-- a hard color boundary, diagonal line, small dot, and narrow bars to reveal transition widening and detail loss;
-- named and commented non-obvious constants;
-- no repeated Chapter 6 architecture or diagnostic modes.
+```text
+selected mode
+→ tileMode
+→ isSupported()
+→ selected mode or Clamp fallback
+→ BlurEffect.edgeTreatment
+```
 
-`Chapter07Screen.kt` now opens Lesson 7.2. `MainActivity.kt` already opens `Chapter07Screen` and is unchanged.
+The explorer fixes radius at 18 dp and changes only edge treatment. Its UI defines transparent black directly and renames the “opaque crop” test to an opaque source image.
+
+### Glass-panel application
+
+The lesson now says:
+
+```text
+read a larger rectangle from the real backdrop
+→ blur it
+→ select the smaller inner rectangle matching the visible panel
+```
+
+`Crop after blur` is defined as selecting that smaller inner rectangle and ignoring the extra outer border. No exact extra-margin formula is claimed.
 
 ### Evidence boundary
 
-The public Compose API documents `radiusX` as horizontal blur radius, `radiusY` as vertical blur radius, and `edgeTreatment` as the policy for pixels outside the input bounds. It does not document sample count, sample coordinates, weights, kernel shape, internal color representation, or optimization strategy.
+Compose defines `edgeTreatment` as the strategy for pixels outside the original input bounds. `Clamp`, `Mirror`, and `Repeated` are guaranteed. `Decal` is capability-checked; an unsupported mode consumes `Clamp`.
 
-Lesson 7.2 establishes radius behavior and data flow. It does not compare edge treatment, downsample, or measure performance.
+Lesson 7.3 does not claim Android's exact kernel, weights, sample positions, extra-margin requirement, allocation behavior, or measured performance.
 
 ## New-learning rule
 
@@ -159,16 +120,16 @@ CURRENT_STATE.md
 curriculum/liquid_glass_android_handoff.md
 curriculum/liquid_glass_android_curriculum.md
 course/chapters/chapter-07/lesson-build-convincing-frosted-glass-without-a-custom-lens.html
-course/chapters/chapter-07/lesson-07-01-blur-as-neighborhood-averaging.html
 course/chapters/chapter-07/lesson-07-02-blur-radius.html
+course/chapters/chapter-07/lesson-07-03-edge-treatment.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/Chapter07Screen.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurNeighborhoodAveragingExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurRadiusExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurEdgeTreatmentExplorer.kt
 ```
 
 ## Completion rule
 
-Do not mark Lesson 7.2 complete merely because it was generated or reviewed. Wait for explicit learner confirmation. Do not generate Lesson 7.3 before that confirmation unless the learner explicitly asks to generate ahead.
+Do not mark Lesson 7.3 complete merely because it was generated or reviewed. Wait for explicit learner confirmation. Do not generate Lesson 7.4 before that confirmation unless the learner explicitly asks to generate ahead.
 
-Course progress: 63 of 216 lessons completed.
+Course progress: 64 of 216 lessons completed.

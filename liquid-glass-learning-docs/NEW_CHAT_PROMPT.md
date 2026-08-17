@@ -27,12 +27,12 @@ If I do not attach the complete repositories, the minimum useful set is:
 4. `curriculum/liquid_glass_android_handoff.md`
 5. `curriculum/liquid_glass_android_curriculum.md`
 6. `course/chapters/chapter-07/lesson-build-convincing-frosted-glass-without-a-custom-lens.html`
-7. `course/chapters/chapter-07/lesson-07-01-blur-as-neighborhood-averaging.html`
-8. `course/chapters/chapter-07/lesson-07-02-blur-radius.html`
+7. `course/chapters/chapter-07/lesson-07-02-blur-radius.html`
+8. `course/chapters/chapter-07/lesson-07-03-edge-treatment.html`
 9. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt`
 10. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/Chapter07Screen.kt`
-11. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurNeighborhoodAveragingExplorer.kt`
-12. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurRadiusExplorer.kt`
+11. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurRadiusExplorer.kt`
+12. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurEdgeTreatmentExplorer.kt`
 
 Useful additional Android context:
 
@@ -81,129 +81,59 @@ Do not edit or regenerate artifacts whose current source is missing. Conceptual 
 Use this state unless newer attached `CURRENT_STATE.md` explicitly supersedes it:
 
 - Total course size: **216 lessons**.
-- Learner-confirmed complete: **63 of 216 lessons**.
-- Completed through: **Lesson 7.1 — Blur as neighborhood averaging**.
+- Learner-confirmed complete: **64 of 216 lessons**.
+- Completed through: **Lesson 7.2 — Blur radius**.
 - Completed chapters: **1, 2, 3, 4, 5, and 6**.
-- Chapter 7 is in progress: **1 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.2 — Blur radius**.
-- Generated frontier: **Lesson 7.2 — Blur radius**.
-- Next planned lesson after the unresolved checkpoint: **Lesson 7.3 — Edge treatment**.
-- Lesson 7.2 is generated and is not learner-confirmed complete.
+- Chapter 7 is in progress: **2 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.3 — Edge treatment**.
+- Generated frontier: **Lesson 7.3 — Edge treatment**.
+- Next planned lesson after the unresolved checkpoint: **Lesson 7.4 — Downsampled blur**.
+- Lesson 7.3 is generated and is not learner-confirmed complete.
 
 Do not increase the completion count because a lesson was generated, revised, reviewed, or because I said only “continue” when questions or corrections remain.
 
-## 3. Completed Lesson 7.1 contract and generated Lesson 7.2 review contract
+## 3. Completed Lesson 7.2 contract and revised Lesson 7.3 review contract
 
-### Completed Lesson 7.1 prerequisite
+### Completed Lesson 7.2 prerequisite
 
-One blur output position can receive colors from several nearby source positions:
+Blur radius controls spatial influence distance. Its one-dimensional equal-weight model was transparent teaching arithmetic, not Android's internal blur implementation. Lesson 7.3 keeps radius fixed.
 
-```text
-one output position
-← nearby source RGB values
-→ one mixed output RGB value
-```
-
-Lesson 7.1 used a transparent 3 × 3 equal-weight teaching average. It did not claim Android uses nine equal samples, displayed 8-bit RGB arithmetic, or the shown rounding.
-
-Chapter 6 already established the eventual production integration point:
+### Revised Lesson 7.3 mechanism
 
 ```text
-panelSampleLayer.renderEffect = blurEffect
+blur requests a coordinate outside its source
+→ edgeTreatment supplies the missing value
 ```
 
-Lesson 7.2 must not rebuild capture ownership, crop mapping, freshness, feedback prevention, or command-versus-buffer architecture.
+The lesson distinguishes only what is necessary:
 
-### Lesson 7.2 principal mechanism
+- an internal color boundary has real pixels on both sides and does not invoke `edgeTreatment`;
+- the outer source boundary has no pixel beyond it, so `edgeTreatment` is used;
+- a later output clip cannot provide missing input.
 
-Blur radius controls the spatial reach of the effect:
+The browser uses five cells `A…E`, output target `i = 0`, and requests `−2, −1, 0, 1, 2`. It has six walkthrough states: source bounds, target, requests, missing requests, TileMode replacements, and output.
+
+`T` is defined as transparent black `RGBA(0, 0, 0, 0)`. In the uniform-orange Decal trace, the final straight result is `(1.00, 0.40, 0.10, 0.60)`: the straight RGB remains orange while alpha falls to `0.60`. Do not call this “hue” unless hue has first been defined.
+
+### Glass-panel application
+
+The production connection is a separate section, not a walkthrough step:
 
 ```text
-larger radius
-→ farther source positions can influence an output
-→ broader transition bands
-→ less distinct small detail
+read a larger real-backdrop rectangle
+→ blur it
+→ select the panel-sized inner rectangle
 ```
 
-Radius is not opacity or tint strength.
-
-### Transparent teaching model
-
-The one-dimensional source strip is:
-
-```text
-index:  0    1    2    3    4    5    6    7    8
-color: blue blue blue blue amber amber amber amber amber
-```
-
-```text
-blue  = RGB(18, 54, 90)
-amber = RGB(225, 153, 45)
-selected output index i = 5
-```
-
-The teaching radius `r` is measured in whole source-cell offsets. The window includes indexes `i - r` through `i + r`. Only this model has `N = 2r + 1` equal-weight samples.
-
-```text
-r = 0 → RGB(225, 153, 45)
-r = 1 → RGB(225, 153, 45)
-r = 2 → RGB(184, 133, 54)
-r = 3 → RGB(166, 125, 58)
-```
-
-At radius 1, every included cell is amber, so the output remains amber. Radius 2 first reaches blue index 3.
-
-The browser pairs those model values with Android test radii `0`, `4`, `12`, and `24` dp. The pairing communicates relative size. One teaching cell is not equal to four dp.
-
-The model does not claim Android uses a one-dimensional box filter, `2r + 1` samples, equal weights, whole-pixel sample offsets, displayed 8-bit RGB arithmetic, or the shown rounding.
-
-### Browser lesson
-
-The browser lesson contains:
-
-- sharp, small-radius, and large-radius practical visuals;
-- five precisely named objects;
-- four synchronized radius presets;
-- a controlled density slider;
-- one synchronized ten-state walkthrough;
-- a complete first-index, last-index, sample-count, RGB, and dp-to-px trace;
-- a clear model-radius versus Android-radius boundary;
-- a short real-Android route;
-- a styled three-choice prediction;
-- one focused four-blank Kotlin challenge;
-- five explain-back exercises;
-- a ten-item Preview/device checkpoint;
-- viewport-safe click tooltips;
-- explicit deferral of edge treatment and downsampling.
+Define `crop after blur` as selecting that smaller inner rectangle and ignoring the extra outer border. Do not use “overscan,” “padded source,” or “crop visible center” as unexplained shorthand. Do not claim an exact extra-margin formula.
 
 ### Android implementation
 
-`BlurRadiusExplorer.kt` contains:
+`BlurEdgeTreatmentExplorer.kt` keeps radius fixed, capability-checks the requested `TileMode`, falls back explicitly to `Clamp`, and assigns the applied mode to `BlurEffect.edgeTreatment`. The UI defines transparent black directly and calls the full-bounds test an opaque source image rather than an “opaque crop.”
 
-- presets at `0`, `4`, `12`, and `24` dp;
-- a continuous `0..28` dp slider;
-- conversion from dp to raw pixels using current `Density`;
-- one `BlurEffect` whose `radiusX` and `radiusY` receive the same pixel value;
-- fixed `TileMode.Clamp` so Lesson 7.3 can isolate edge treatment;
-- no effect at `0 dp`, producing an exact sharp reference;
-- identical sharp and variable-radius source artwork;
-- a hard boundary, diagonal line, small dot, and narrow bars so radius effects remain visible;
-- named and commented non-obvious constants;
-- no repeated Chapter 6 architecture or diagnostic branches.
+### New clarity rule
 
-`Chapter07Screen.kt` opens Lesson 7.2. `MainActivity.kt` already opens `Chapter07Screen`.
-
-### Evidence boundary
-
-The public Compose `BlurEffect` API documents horizontal and vertical blur radii and edge treatment. It does not expose exact sample count, sample positions, weights, kernel shape, internal color arithmetic, or optimization strategy.
-
-Lesson 7.2 establishes radius behavior and data flow. Lesson 7.3 studies edge treatment. Lesson 7.4 studies downsampling.
-
-### Mandatory new-learning gate
-
-Every full lesson must introduce a genuinely new mechanism, API behavior, mathematical operation, measurement method, or implementation step.
-
-A prerequisite recap must be brief and exist only to feed the new operation. If planned material is mostly consolidation, make it a short checkpoint or merge it into the next substantive lesson. Do not count repeated architecture prose as new graphics progress.
+For a simple mechanism, start with one plain question and one concrete example. Define every spatial noun and every color term before using it. Keep later integration material separate from the causal walkthrough. Use the fewest states needed by the mechanism.
 
 ## 4. Learner calibration
 
@@ -414,11 +344,11 @@ Do not generate a lesson or edit files in the first response.
 Confirm that you actually read them, then restate only:
 
 ```text
-completed: 63 of 216, through Lesson 7.1
-current unresolved checkpoint: Lesson 7.2 — Blur radius
-generated frontier: Lesson 7.2
-next planned lesson after the checkpoint: Lesson 7.3
-Lesson 7.2 is generated and not complete
+completed: 64 of 216, through Lesson 7.2
+current unresolved checkpoint: Lesson 7.3 — Edge treatment
+generated frontier: Lesson 7.3
+next planned lesson after the checkpoint: Lesson 7.4
+Lesson 7.3 is generated and not complete
 ```
 
 Then wait for my next message.

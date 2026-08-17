@@ -9,15 +9,15 @@ Open `liquid-glass-course.html` in a browser.
 ## Authoritative current state
 
 - Total curriculum: **216 lessons**.
-- Learner-confirmed complete: **63 of 216 lessons**.
-- Completed through: **Lesson 7.1 — Blur as neighborhood averaging**.
+- Learner-confirmed complete: **64 of 216 lessons**.
+- Completed through: **Lesson 7.2 — Blur radius**.
 - Completed chapters: **1 through 6**.
-- Chapter 7: **1 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.2 — Blur radius**.
-- Generated frontier: **Lesson 7.2**.
-- Next planned lesson after review: **Lesson 7.3 — Edge treatment**.
+- Chapter 7: **2 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.3 — Edge treatment**.
+- Generated frontier: **Lesson 7.3**.
+- Next planned lesson after review: **Lesson 7.4 — Downsampled blur**.
 
-Generating or reviewing Lesson 7.2 does not increase the completion count. Only explicit learner confirmation does.
+Generating or reviewing Lesson 7.3 does not increase the completion count. Only explicit learner confirmation does.
 
 ## Current learning path
 
@@ -30,29 +30,27 @@ course/chapters/chapter-07/lesson-build-convincing-frosted-glass-without-a-custo
 Then open:
 
 ```text
-course/chapters/chapter-07/lesson-07-02-blur-radius.html
+course/chapters/chapter-07/lesson-07-03-edge-treatment.html
 ```
 
-Lesson 7.2 introduces one new control:
+Lesson 7.3 introduces one new mechanism:
 
 ```text
-larger blur radius
-→ farther source influence
-→ broader transitions
-→ less distinct small detail
+blur neighborhood crosses the input boundary
+→ edgeTreatment supplies missing source values
 ```
 
-The browser uses a transparent one-dimensional box model to trace exactly when a larger radius reaches across a blue/amber boundary. It separately maps a learner-facing dp radius to the raw pixel values consumed by Compose `BlurEffect`. The model is not presented as Android's private kernel.
+The browser separates artwork edges, blur-input boundaries, and destination clips. It traces the alpha difference between `Clamp` and transparent-black `Decal`, then shows all four `TileMode` extension rules.
 
 ## Matching Android files
 
 ```text
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/Chapter07Screen.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurRadiusExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurEdgeTreatmentExplorer.kt
 ```
 
-The complete chapter-screen previews live in `Chapter07Screen.kt`. Direct Lesson 7.2 explorer previews live in `BlurRadiusExplorer.kt`. Both Preview levels are vertically scrollable and include light and dark variants.
+The complete chapter-screen previews live in `Chapter07Screen.kt`. Direct Lesson 7.3 explorer previews live in `BlurEdgeTreatmentExplorer.kt`. Both Preview levels are vertically scrollable and include light and dark variants.
 
 ## New-learning rule
 
@@ -60,4 +58,4 @@ A full lesson must introduce a new mechanism, API behavior, mathematical operati
 
 ## Source and evidence rule
 
-The one-dimensional equal-weight window is a teaching model. Android's public `BlurEffect` API documents `radiusX`, `radiusY`, and edge treatment, but it does not expose exact sample count, sample coordinates, weights, kernel shape, internal color representation, or optimization strategy. Keep model-derived facts separate from documented API behavior and measured device behavior.
+The five-sample Clamp-versus-Decal arithmetic is a teaching model. Android's public `BlurEffect` and `TileMode` APIs document outside-bound behavior and support queries, but they do not expose exact blur sample count, sample coordinates, weights, kernel shape, padding requirement, internal color representation, or optimization strategy. Keep model-derived facts separate from documented API behavior and measured device behavior.

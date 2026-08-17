@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 7.2.0
+**Version:** 7.3.1
 **Updated:** 2026-08-17
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
@@ -9,13 +9,13 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **63 of 216**.
-- Completed through: **Lesson 7.1 — Blur as neighborhood averaging**.
+- Learner-confirmed complete: **64 of 216**.
+- Completed through: **Lesson 7.2 — Blur radius**.
 - Completed chapters: **1–6**.
-- Chapter 7 is in progress: **1 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.2 — Blur radius**.
-- Generated frontier: **Lesson 7.2 — Blur radius**. Lesson 7.2 is generated and is not learner-confirmed complete.
-- Next planned lesson after the unresolved checkpoint: **Lesson 7.3 — Edge treatment**.
+- Chapter 7 is in progress: **2 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.3 — Edge treatment**.
+- Generated frontier: **Lesson 7.3 — Edge treatment**. Lesson 7.3 is generated and is not learner-confirmed complete.
+- Next planned lesson after the unresolved checkpoint: **Lesson 7.4 — Downsampled blur**.
 
 ## 2. Course construction principles
 
@@ -351,9 +351,9 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 - The Android explorer contains one readable `averageRgb8` function plus a sharp-versus-real-`BlurEffect` comparison with a fixed 12 dp radius.
 - It does not rebuild Chapter 6 backdrop capture or add stale-state, feedback, alignment, or diagnostic branches.
 
-**Current implementation record — Lesson 7.2**
+**Completed implementation record — Lesson 7.2**
 
-- Generated and awaiting learner review; the learner-confirmed total remains 63 of 216.
+- Learner-confirmed complete; the completed total advances to 64 of 216.
 - Introduces one new control: blur radius as spatial influence distance rather than opacity.
 - Uses a transparent one-dimensional source strip with four blue cells, five amber cells, and selected output index 5.
 - Compares teaching radii `0`, `1`, `2`, and `3` cells. The exact outputs are `RGB(225, 153, 45)`, `RGB(225, 153, 45)`, `RGB(184, 133, 54)`, and `RGB(166, 125, 58)`.
@@ -366,6 +366,19 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 - It does not repeat Chapter 6 capture architecture or add diagnostic rendering branches.
 - Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `BlurRadiusExplorer.kt`.
 
+**Current implementation record — Lesson 7.3**
+
+- Generated, revised after learner review, and still awaiting learner confirmation; the total remains 64 of 216.
+- Introduces one mechanism only: `edgeTreatment` supplies values for blur reads outside the original input bounds.
+- Separates an internal color boundary from the outer source boundary in plain language.
+- Uses a five-cell `A…E` source and a six-state walkthrough: bounds → target → requests → missing requests → replacements → output.
+- Defines `T` as transparent black `RGBA(0, 0, 0, 0)` before using it.
+- Replaces undefined “hue” wording with the exact result: the uniform-orange example keeps straight RGB `(1.00, 0.40, 0.10)` while alpha falls to `0.60`.
+- Keeps the glass-panel application outside the mechanism walkthrough and defines `crop after blur` as selecting the panel-sized inner rectangle from a larger blurred source.
+- Removes “overscan,” “padded source,” and “crop visible center” shorthand.
+- The browser contains four mode controls, edge/interior controls, a styled prediction, a three-blank Kotlin challenge, four explain-back exercises, and a ten-item checkpoint.
+- `BlurEdgeTreatmentExplorer.kt` keeps one fixed radius, capability-checks the selected mode, uses an explicit `Clamp` fallback, and defines transparent black directly in the UI.
+- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `BlurEdgeTreatmentExplorer.kt`.
 
 ---
 

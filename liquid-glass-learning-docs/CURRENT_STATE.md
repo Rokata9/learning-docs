@@ -1,21 +1,21 @@
 # Liquid Glass Android course — current state
 
 **Updated:** 2026-08-17  
-**Course version:** 7.2.0  
+**Course version:** 7.3.1  
 **Platform:** Kotlin + Jetpack Compose  
 **Test device:** Pixel 8 Pro  
 **Total curriculum size:** 216 lessons
 
 ## Authoritative progress
 
-- Learner-confirmed complete: **63 of 216 lessons**.
-- Completed through: **Lesson 7.1 — Blur as neighborhood averaging**.
+- Learner-confirmed complete: **64 of 216 lessons**.
+- Completed through: **Lesson 7.2 — Blur radius**.
 - Completed chapters: **1, 2, 3, 4, 5, and 6**.
-- Chapter 7: in progress; **1 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.2 — Blur radius**.
-- Generated frontier: **Lesson 7.2 — Blur radius**.
-- Next planned lesson after the unresolved checkpoint: **Lesson 7.3 — Edge treatment**.
-- Lesson 7.2 is generated and is not learner-confirmed complete.
+- Chapter 7: in progress; **2 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.3 — Edge treatment**.
+- Generated frontier: **Lesson 7.3 — Edge treatment**.
+- Next planned lesson after the unresolved checkpoint: **Lesson 7.4 — Downsampled blur**.
+- Lesson 7.3 is generated and is not learner-confirmed complete.
 
 Do not increase the completion count merely because a lesson was generated, revised, reviewed, or because the learner said only “continue” while questions or corrections remain.
 
@@ -25,117 +25,118 @@ Do not increase the completion count merely because a lesson was generated, revi
 course/chapters/chapter-07/lesson-build-convincing-frosted-glass-without-a-custom-lens.html
 course/chapters/chapter-07/lesson-07-01-blur-as-neighborhood-averaging.html
 course/chapters/chapter-07/lesson-07-02-blur-radius.html
+course/chapters/chapter-07/lesson-07-03-edge-treatment.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/Chapter07Screen.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurNeighborhoodAveragingExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurRadiusExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurEdgeTreatmentExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 ```
 
-## Completed Lesson 7.1 prerequisite contract
+## Completed Lesson 7.2 prerequisite contract
 
-Lesson 7.1 established one mechanism:
-
-```text
-one output position
-← several nearby source colors
-→ one combined output color
-```
-
-Its 3 × 3 equal-weight arithmetic is a transparent teaching model. It does not reveal Android's private blur kernel, sample count, weights, color representation, or rounding.
-
-Lesson 7.2 may rely on neighborhood dependence. It must not repeat Chapter 6 capture architecture or repeat the full Lesson 7.1 averaging derivation merely to introduce radius.
-
-## Generated Lesson 7.2 contract
-
-### Principal new mechanism
-
-Blur radius controls the spatial reach of the blur:
+Lesson 7.2 established one control:
 
 ```text
-larger radius
+larger blur radius
 → farther source positions can influence an output
 → broader transitions
 → less distinct small detail
 ```
 
-Radius is not opacity or tint strength.
+The one-dimensional `N = 2r + 1` equal-weight window was a transparent teaching model. It did not claim Android uses that kernel, sample count, weighting, rounding, or displayed 8-bit RGB arithmetic.
 
-### Transparent one-dimensional model
+Lesson 7.3 keeps the blur radius fixed. It must not repeat the full radius derivation or Chapter 6 sampling architecture merely to introduce edge treatment.
 
-The source strip contains nine displayed 8-bit RGB cells:
+## Revised Lesson 7.3 contract
 
-```text
-index:  0    1    2    3    4    5    6    7    8
-color: blue blue blue blue amber amber amber amber amber
-```
+### Principal new mechanism
 
-```text
-blue  = RGB(18, 54, 90)
-amber = RGB(225, 153, 45)
-selected output index i = 5
-```
-
-The teaching radius `r` is measured in whole source-cell offsets. Its symmetric box window includes indexes `i - r` through `i + r`, so this model alone has `N = 2r + 1` samples.
-
-The four paired presets are:
+A blur near the outer boundary of its source can request coordinates that are not part of the source:
 
 ```text
-No blur: r = 0 teaching cells; Android test radius = 0 dp
-Small:   r = 1 teaching cell;  Android test radius = 4 dp
-Medium:  r = 2 teaching cells; Android test radius = 12 dp
-Large:   r = 3 teaching cells; Android test radius = 24 dp
+requested source coordinate is outside the input
+→ edgeTreatment supplies a replacement value
 ```
 
-The pairs express relative size only. One teaching cell is not equal to four dp.
+The lesson now starts with that single question and does not mix production panel integration into the main walkthrough.
 
-Exact model outputs at index 5:
+### Two meanings of edge
+
+1. **Color boundary inside the source:** real source pixels exist on both sides, so blur mixes those real colors and `edgeTreatment` is not used.
+2. **Outer boundary of the source:** a requested coordinate lies outside the source, so `edgeTreatment` supplies a value.
+
+A later destination clip is mentioned only as a separate note: it can hide output pixels but cannot provide missing blur input.
+
+### Six-state teaching trace
+
+Five source cells `A…E` occupy valid indexes `0…4`. For output index `0`, the fixed teaching radius requests `−2, −1, 0, 1, 2`; only `−2` and `−1` are missing.
+
+The walkthrough contains only:
 
 ```text
-r = 0 → [amber]
-      → RGB(225, 153, 45)
-
-r = 1 → [amber, amber, amber]
-      → RGB(225, 153, 45)
-
-r = 2 → [blue, amber, amber, amber, amber]
-      → RGB(184, 133, 54)
-
-r = 3 → [blue, blue, amber, amber, amber, amber, amber]
-      → RGB(166, 125, 58)
+source bounds
+→ output target
+→ neighborhood requests
+→ missing requests
+→ TileMode replacements
+→ teaching output
 ```
 
-The model proves that a larger influence distance can admit farther colors. It does not claim Android uses a one-dimensional box filter, whole-pixel windows, `2r + 1` samples, equal weights, displayed 8-bit RGB arithmetic, or the shown rounding.
+The four conceptual extensions are:
+
+```text
+Clamp:    A A | A B C D E | E E
+Decal:    T T | A B C D E | T T
+Mirror:   B A | A B C D E | E D
+Repeated: D E | A B C D E | A B
+```
+
+`T` is defined immediately as transparent black `RGBA(0, 0, 0, 0)`.
+
+### Decal and transparent black
+
+The lesson no longer uses the undefined word “hue.” In the uniform-orange trace:
+
+```text
+T, T, C, C, C
+→ premultiplied output (0.60, 0.24, 0.06, 0.60)
+→ straight output (1.00, 0.40, 0.10, 0.60)
+```
+
+Plain-language conclusion: the straight RGB values remain orange, while alpha falls to `0.60`. Transparent black adds no visible black because its alpha is zero; it makes the result less opaque.
+
+### Glass-panel application, kept separate
+
+The application section defines every rectangle before using `crop`:
+
+```text
+read a larger rectangle from the real backdrop
+→ blur that larger rectangle
+→ select only the smaller inner rectangle matching the panel
+```
+
+Here, **crop after blur** means select the panel-sized inner rectangle and ignore the extra outer border. The lesson does not use “overscan” or “padded source,” and it does not claim an exact extra-margin formula.
 
 ### Android route
 
-`BlurRadiusExplorer.kt` contains one production-facing experiment:
+`BlurEdgeTreatmentExplorer.kt` keeps one fixed blur radius and changes only the selected `TileMode`:
 
 ```text
-learner-facing radius in dp
-→ current Density converts dp to px
-→ radiusX receives the px value
-→ radiusY receives the same px value
-→ BlurEffect is attached to the artwork layer
+selected mode
+→ tileMode
+→ isSupported()
+→ selected mode or Clamp fallback
+→ BlurEffect.edgeTreatment
 ```
 
-The explorer provides:
-
-- presets at `0`, `4`, `12`, and `24` dp;
-- a continuous `0..28` dp slider;
-- a sharp reference beside the selected radius;
-- a runtime dp-to-px readout;
-- equal `radiusX` and `radiusY` values for symmetric blur;
-- fixed `TileMode.Clamp`, leaving edge comparison to Lesson 7.3;
-- one hard color edge, one diagonal line, one small dot, and four narrow bars so transition width and detail loss are visible;
-- no repeated backdrop capture, crop, freshness, or feedback-loop implementation.
-
-A radius of `0 dp` attaches no effect, producing an exact sharp reference.
+The UI copy defines transparent black directly and uses “source image” rather than the undefined phrase “opaque crop.”
 
 ### Evidence boundary
 
-The public Compose `BlurEffect` API documents horizontal and vertical blur radii plus edge treatment. It does not expose internal sample positions, sample count, weights, kernel shape, color arithmetic, or optimization strategy.
+The public Compose API documents `edgeTreatment` as the strategy for pixels outside the original input bounds. `Clamp`, `Mirror`, and `Repeated` are guaranteed; `Decal` is capability-checked and an unsupported mode is consumed as `Clamp`.
 
-Lesson 7.2 establishes radius behavior and API data flow. It does not compare edge treatments, downsample, or claim measured GPU cost.
+Lesson 7.3 does not reveal Android's internal blur implementation, weights, exact sample positions, exact extra-margin requirement, allocation strategy, or measured GPU cost.
 
 ## New-learning gate
 
@@ -146,8 +147,8 @@ If planned material is mostly consolidation, make it a short checkpoint or merge
 ## Android preview rules
 
 - Complete chapter-screen previews live in `Chapter07Screen.kt`.
-- Direct custom-composable previews for Lesson 7.2 live in `BlurRadiusExplorer.kt`.
+- Direct custom-composable previews for Lesson 7.3 live in `BlurEdgeTreatmentExplorer.kt`.
 - Both preview levels provide light and dark variants.
 - Both preview levels allow vertical scrolling through the complete generated content in finite-height Android Studio Preview.
 
-Course progress: 63 of 216 lessons completed.
+Course progress: 64 of 216 lessons completed.
