@@ -1,50 +1,38 @@
 # Continue my Liquid Glass on Android course
 
-We are continuing my beginner-to-expert **Liquid Glass effects on Android** course. This may be a completely new ChatGPT account, a different model, or a conversation with no access to prior chats or generated sandbox files.
+We are continuing my beginner-to-expert **Liquid Glass effects on Android** course. This may be a new ChatGPT account, a different model, or a conversation with no access to prior chats or generated sandbox files.
 
-Do not assume that you can see any earlier conversation, sandbox link, ZIP, or local repository file unless it is visibly attached in this conversation.
+Do not assume that you can see an earlier conversation, sandbox link, ZIP, or local repository file unless it is visibly attached in the current conversation.
 
-## 1. Check attachments before doing lesson work
-
-In your first response, determine which source files are actually attached.
+## 1. Check attachments before lesson work
 
 ### Best upload option
 
-The most reliable option is for me to attach:
+Attach:
 
-1. a ZIP or folder containing the complete current `liquid-glass-learning-docs` repository; and
-2. a ZIP of the current `LiquidGlassLab` Android Studio project.
-
-This avoids missing shared state files, stale incremental patches, or incomplete Android context.
+1. the complete current `liquid-glass-learning-docs` repository; and
+2. the complete current `LiquidGlassLab` Android Studio project.
 
 ### Minimum upload set
 
-If I do not attach the complete repositories, the minimum useful set is:
+```text
+USER_PREFERENCES.md
+AGENTS.md
+CURRENT_STATE.md
+curriculum/liquid_glass_android_handoff.md
+curriculum/liquid_glass_android_curriculum.md
+course/chapters/chapter-07/lesson-build-convincing-frosted-glass-without-a-custom-lens.html
+course/chapters/chapter-07/lesson-07-03-edge-treatment.html
+course/chapters/chapter-07/lesson-07-04-downsampled-blur.html
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/Chapter07Screen.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurEdgeTreatmentExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/DownsampledBlurExplorer.kt
+```
 
-1. `USER_PREFERENCES.md`
-2. `AGENTS.md`
-3. `CURRENT_STATE.md`
-4. `curriculum/liquid_glass_android_handoff.md`
-5. `curriculum/liquid_glass_android_curriculum.md`
-6. `course/chapters/chapter-07/lesson-build-convincing-frosted-glass-without-a-custom-lens.html`
-7. `course/chapters/chapter-07/lesson-07-02-blur-radius.html`
-8. `course/chapters/chapter-07/lesson-07-03-edge-treatment.html`
-9. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt`
-10. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/Chapter07Screen.kt`
-11. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurRadiusExplorer.kt`
-12. `LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurEdgeTreatmentExplorer.kt`
+If I ask to revise an older lesson, I must also attach that lesson's current HTML and relevant Kotlin file. Do not reconstruct an unseen file from memory.
 
-Useful additional Android context:
-
-- `TwoLayerSceneArchitectureExplorer.kt`
-- `OffscreenCostExplorer.kt`
-- the project Gradle files if compilation or dependency context matters
-
-If I ask to revise an older lesson, I must also attach that lesson’s current HTML and relevant Kotlin file. Do not reconstruct an unseen file from memory.
-
-### If all required files are attached
-
-Read them in this exact order before responding:
+### Read order
 
 1. `USER_PREFERENCES.md`
 2. `AGENTS.md`
@@ -53,89 +41,155 @@ Read them in this exact order before responding:
 5. `curriculum/liquid_glass_android_curriculum.md` only when the full plan is needed
 6. the current lesson HTML
 7. the preceding lesson HTML when prerequisite wording matters
-8. the current Android files when code context is relevant
+8. the current Android files
 
-Treat `CURRENT_STATE.md` as authoritative when an older passage elsewhere disagrees.
+Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
-### If no source files are attached
-
-Do not claim that you read them.
-
-You may discuss conceptual questions using the exact state and rules embedded below, but do not create, revise, or package lesson files until the relevant source files are uploaded.
-
-In the first response:
-
-- state that no files are attached;
-- list the recommended or minimum upload set;
-- restate the exact current course state below;
-- do not generate a new lesson yet.
-
-### If only some files are attached
-
-Read the available files. State exactly which required files are missing. Do not pretend that an absent file is available through a prior account or sandbox link.
-
-Do not edit or regenerate artifacts whose current source is missing. Conceptual explanations may continue when the missing artifact is not required.
+If no source files are attached, conceptual discussion may continue from this prompt, but do not create or edit repository artifacts. If only some required files are attached, state what is missing and do not reconstruct those files from memory.
 
 ## 2. Exact authoritative course state
 
-Use this state unless newer attached `CURRENT_STATE.md` explicitly supersedes it:
-
 - Total course size: **216 lessons**.
-- Learner-confirmed complete: **64 of 216 lessons**.
-- Completed through: **Lesson 7.2 — Blur radius**.
-- Completed chapters: **1, 2, 3, 4, 5, and 6**.
-- Chapter 7 is in progress: **2 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.3 — Edge treatment**.
-- Generated frontier: **Lesson 7.3 — Edge treatment**.
-- Next planned lesson after the unresolved checkpoint: **Lesson 7.4 — Downsampled blur**.
-- Lesson 7.3 is generated and is not learner-confirmed complete.
+- Learner-confirmed complete: **65 of 216 lessons**.
+- Completed through: **Lesson 7.3 — Edge treatment**.
+- Completed chapters: **1 through 6**.
+- Chapter 7 is in progress: **3 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.4 — Downsampled blur**.
+- Generated frontier: **Lesson 7.4 — Downsampled blur**.
+- Next planned lesson after confirmation: **Lesson 7.5 — Tint layer**.
+- Lesson 7.4 is generated and is not learner-confirmed complete.
 
-Do not increase the completion count because a lesson was generated, revised, reviewed, or because I said only “continue” when questions or corrections remain.
+Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
-## 3. Completed Lesson 7.2 contract and revised Lesson 7.3 review contract
+## 3. Completed Lesson 7.3 prerequisite contract
 
-### Completed Lesson 7.2 prerequisite
-
-Blur radius controls spatial influence distance. Its one-dimensional equal-weight model was transparent teaching arithmetic, not Android's internal blur implementation. Lesson 7.3 keeps radius fixed.
-
-### Revised Lesson 7.3 mechanism
+Lesson 7.3 established:
 
 ```text
-blur requests a coordinate outside its source
+blur requests a source coordinate outside the input
 → edgeTreatment supplies the missing value
 ```
 
-The lesson distinguishes only what is necessary:
+It distinguished:
 
-- an internal color boundary has real pixels on both sides and does not invoke `edgeTreatment`;
-- the outer source boundary has no pixel beyond it, so `edgeTreatment` is used;
-- a later output clip cannot provide missing input.
+1. an internal color boundary, where valid source pixels exist on both sides; and
+2. the outer source boundary, where a requested source coordinate does not exist.
 
-The browser uses five cells `A…E`, output target `i = 0`, and requests `−2, −1, 0, 1, 2`. It has six walkthrough states: source bounds, target, requests, missing requests, TileMode replacements, and output.
+It defined transparent black as `RGBA(0, 0, 0, 0)`. Alpha zero contributes no visible black. In the controlled uniform-orange Decal trace, straight RGB remains orange while output alpha falls.
 
-`T` is defined as transparent black `RGBA(0, 0, 0, 0)`. In the uniform-orange Decal trace, the final straight result is `(1.00, 0.40, 0.10, 0.60)`: the straight RGB remains orange while alpha falls to `0.60`. Do not call this “hue” unless hue has first been defined.
+Do not repeat the complete edge-mode arithmetic in Lesson 7.4 or later unless a new operation requires one brief prerequisite reminder.
 
-### Glass-panel application
+## 4. Current Lesson 7.4 contract
 
-The production connection is a separate section, not a walkthrough step:
+### Principal new operation
 
 ```text
-read a larger real-backdrop rectangle
-→ blur it
-→ select the panel-sized inner rectangle
+full-size source
+→ create a smaller working image
+→ blur the smaller image
+→ enlarge the blurred result
 ```
 
-Define `crop after blur` as selecting that smaller inner rectangle and ignoring the extra outer border. Do not use “overscan,” “padded source,” or “crop visible center” as unexplained shorthand. Do not claim an exact extra-margin formula.
+**Downsample** means create a smaller image by combining groups of source pixels.
 
-### Android implementation
+**Upsample** means enlarge the smaller image to the required output dimensions.
 
-`BlurEdgeTreatmentExplorer.kt` keeps radius fixed, capability-checks the requested `TileMode`, falls back explicitly to `Clamp`, and assigns the applied mode to `BlurEffect.edgeTreatment`. The UI defines transparent black directly and calls the full-bounds test an opaque source image rather than an “opaque crop.”
+### Size calculation
 
-### New clarity rule
+For full width `W`, full height `H`, and scale `s` applied to both axes:
 
-For a simple mechanism, start with one plain question and one concrete example. Define every spatial noun and every color term before using it. Keep later integration material separate from the causal walkthrough. Use the fewest states needed by the mechanism.
+```text
+working width  = W × s
+working height = H × s
+working pixels = (W × s) × (H × s)
+```
 
-## 4. Learner calibration
+Controlled example:
+
+```text
+320 × 160 at s = 1.00 → 51,200 pixels
+320 × 160 at s = 0.50 → 12,800 pixels
+320 × 160 at s = 0.25 →  3,200 pixels
+```
+
+Half width and half height produce one quarter of the pixel positions. Do not call this a proven four-times speedup. Frame time must be measured.
+
+### One downsample trace
+
+A separate `2 × 2` block contains:
+
+```text
+P1 = RGB(20, 40, 80)
+P2 = RGB(60, 80, 120)
+P3 = RGB(100, 120, 160)
+P4 = RGB(140, 160, 200)
+```
+
+Averaging each channel produces one working pixel:
+
+```text
+RGB(80, 100, 140)
+```
+
+This is a transparent teaching model, not a claim about Android's private resampling filter.
+
+### Radius mapping
+
+The blur radius is measured in pixels of the image being blurred:
+
+```text
+working radius = desired final radius × s
+```
+
+Example for desired final radius `24 px`:
+
+```text
+s = 1.00 → 24 px
+s = 0.50 → 12 px
+s = 0.25 →  6 px
+```
+
+At half size, one working pixel becomes two final pixels after enlargement. This explains the coordinate conversion. It does not describe Android's private kernel or sample count.
+
+### Quality tradeoff
+
+Small dots, thin lines, narrow text strokes, and tiny color changes may be combined before blur. Enlarging restores dimensions but cannot restore detail removed during shrinking.
+
+### Browser lesson
+
+The lesson contains:
+
+- three working-size presets: `1.0`, `0.5`, and `0.25`;
+- full-source, smaller-working-image, and enlarged-output canvases;
+- one synchronized eight-state walkthrough;
+- one exact `2 × 2` RGB trace;
+- separate pixel-count and radius calculations;
+- one short Android route;
+- one styled prediction;
+- one three-blank Kotlin challenge;
+- four explain-back checks;
+- a ten-item Preview/device checkpoint.
+
+### Android route
+
+`DownsampledBlurExplorer.kt` uses one clean path:
+
+```text
+sourceLayer recorded at full bounds
+→ workingLayer recorded with smaller IntSize
+→ source scaled into workingLayer
+→ BlurEffect with working radius
+→ workingLayer enlarged from TransformOrigin(0, 0)
+→ current drawing target
+```
+
+It contains no diagnostic error enum, stale geometry, crop callbacks, or duplicate production branches.
+
+### Evidence boundary
+
+The public Compose API documents explicit `GraphicsLayer.record` size, `RenderEffect`, and layer transformations. It does not document the private blur kernel, resampling filter, allocation reuse, exact bandwidth, or expected speedup for this specific scene.
+
+## 5. Learner calibration
 
 I am an experienced software engineer, but treat me as a **total beginner in graphics, rendering, GPU work, image processing, and mathematics**.
 
@@ -147,217 +201,50 @@ For every unfamiliar idea:
 4. State the coordinate space, units, or representation of every value.
 5. Explain which operation creates an intermediate value.
 6. Explain which later operation consumes that value.
-7. Trace one actual value through:
+7. Trace one actual value through input → operation → output → next consumer.
+
+Use short declarative sentences. Do not invent shorthand such as “padded source,” “overscan,” “crop center,” or “hue” without an immediate plain-language definition.
+
+## 6. New-learning gate
+
+Every full lesson must introduce a genuinely new mechanism, API behavior, mathematical operation, measurement method, or implementation step.
+
+A prerequisite recap must be brief and exist only to support the new operation. If a planned lesson is mostly consolidation, merge it into the next substantive lesson or make it a short checkpoint. Do not count repeated architecture prose as new progress.
+
+## 7. Walkthrough and visual rules
+
+- Use the fewest states required by the causal chain.
+- Keep diagram and current explanation visible side by side when readable.
+- Every control, calculation, and diagram must read one canonical state.
+- Use semantic `<code>` elements in visible HTML. Do not leave Markdown backticks in prose.
+- Keep code-container text contrast correct.
+- Keep click-controlled popups inside the viewport.
+- Explain every non-obvious constant near its declaration or use.
+
+## 8. Android delivery rules
+
+- Complete chapter-screen previews live in `Chapter07Screen.kt`.
+- Direct Lesson 7.4 previews live in `DownsampledBlurExplorer.kt`.
+- Both levels provide light and dark variants.
+- Both levels allow vertical scrolling through all content in finite-height Android Studio Preview.
+- Deliver only changed files in separate learning-docs and Android ZIPs.
+- Verify exact ZIP manifests and archive integrity.
+
+## 9. First response in a future chat
+
+When all required files are attached, confirm that they were read, then restate only:
 
 ```text
-input
-→ operation
-→ intermediate values
-→ output
-→ next consumer
-```
-
-A definition is not enough. Explain the causal reason.
-
-Do not reveal a formula before defining:
-
-- every variable;
-- each variable’s source;
-- its units or allowed range;
-- the formula’s output;
-- why the formula exists;
-- which later step consumes the result.
-
-For difficult formulas, use:
-
-```text
-plain-language objects
-→ variable ledger
-→ symbolic formula
-→ current values substituted
-→ individual intermediate calculations
-→ final result
-→ next consumer
-```
-
-## 5. Mandatory total-beginner audit — QA stage zero
-
-Before JavaScript checks, screenshots, Android checks, links, or ZIP creation, reread the material as a cold reader who knows only completed prerequisites.
-
-Audit at least:
-
-- the first sentence;
-- the first two sections;
-- the first formula;
-- every unfamiliar noun and acronym;
-- the longest walkthrough state;
-- every coordinate-space transition;
-- every layer/buffer ownership transition.
-
-If there is any doubt that the material is understandable, treat the lesson as failing. Rewrite it or split the explanation before technical QA.
-
-## 6. Canonical quality examples
-
-### Lesson 4.8 — Masks
-
-This is the canonical visual-first example for:
-
-- stable names for every scene object and temporary target;
-- real intermediate images after each operation;
-- explicit active drawing target;
-- per-position traces;
-- straight and premultiplied cases when relevant;
-- color chips beside RGB/RGBA values;
-- provenance controls beside inherited or derived values;
-- safe, unsafe, alternative, and redundant layer arrangements.
-
-### Lesson 4.9 — Soft edges and antialiasing
-
-This is the canonical example for difficult math depth:
-
-- as many visible states as the prerequisite chain requires;
-- concepts introduced before symbols;
-- diagrams updated at each operation;
-- self-contained formulas in the current state;
-- no arbitrary limit of fourteen states.
-
-### Consolidated Lesson 5.8 — Spring motion, overshoot, and settle
-
-This is the canonical trace example for:
-
-- a prominent all-formulas panel;
-- moment matrices;
-- variables as rows and ticks as columns;
-- compact substituted formulas inside cells;
-- increase/decrease/same indicators;
-- bounce and crossing markers;
-- dependency tables and selected-sample causal chains.
-
-## 7. Walkthrough and diagram rules
-
-Walkthrough length follows causal complexity.
-
-- Fourteen states is an example, not a target.
-- Easy material may need fewer states.
-- Hard material may need more.
-- With ten or fewer states, direct numbered buttons are allowed.
-- With more than ten states, prefer:
-
-```text
-Previous · Step X of N · Next
-```
-
-The normal desktop layout is:
-
-```text
-diagram visible on the left
-+
-current explanation/stepper visible on the right
-```
-
-Use a full-width diagram with a hidden or overlay stepper only when side-by-side presentation would make important geometry, layer images, labels, or intermediate evidence unreadable.
-
-Choose the layout from the current lesson’s actual space requirements. Do not copy the previous lesson mechanically.
-
-All controls, formulas, metrics, and diagrams must use one canonical state. Never let the buttons update one state while the SVG silently renders a hidden preset.
-
-## 8. HTML and visual formatting rules
-
-Standalone lessons must work from `file://` with inline CSS and JavaScript and no external runtime libraries.
-
-Visible code references in HTML must use semantic HTML:
-
-```html
-<code>RenderEffect</code>
-<code>graphicsLayer</code>
-```
-
-Do not place Markdown backticks in ordinary HTML prose. A browser renders those backticks as literal punctuation.
-
-JavaScript template literals inside `<script>` still use backticks normally and must not be altered.
-
-Before packaging, scan the visible HTML portion before `<script>` and verify that no Markdown-style inline-code backticks remain.
-
-Other durable visual rules:
-
-- show intermediate images before long prose when the topic is spatial;
-- use short labels inside crowded diagrams and exact values in nearby readouts;
-- cap diagrams that gain no information from becoming larger;
-- test dense, minimum, reset, and maximum states;
-- do not let explanatory overlays look like real scene content;
-- label every overlay line, arrow, boundary, ghost, or marker, or remove it;
-- use color chips next to RGB/RGBA values;
-- use click-controlled provenance marks for inherited, fixed, measured, controlled, or derived values when relevant;
-- make every click-controlled popup choose a viewport-safe horizontal direction and verify its final bounds near both monitor edges;
-- inside a dark code container, reset nested `<code>` to a transparent background, inherited text color, zero extra padding, and the intended display mode so the global inline-code style cannot create pale low-contrast highlighting.
-
-## 9. Android delivery and preview rules
-
-Do not embed complete Android source-file viewers in lesson HTML. Use short attributed excerpts only when needed. Complete source belongs in Android Studio and the incremental Android ZIP.
-
-Preview placement:
-
-```text
-ChapterXXScreen.kt
-→ complete chapter-screen light and dark previews
-
-CustomLessonComposable.kt
-→ direct custom-composable light and dark previews
-```
-
-The direct child preview must be in the custom composable’s own file, not in `ChapterXXScreen.kt`.
-
-Both complete-screen and direct-child previews must allow vertical scrolling through all generated content in a finite-height Android Studio Preview.
-
-- If the actual screen already owns the correct scroll container, use it.
-- If the custom child does not own scrolling, its preview wrapper must provide a finite-height vertically scrollable container.
-- Avoid accidental nested scroll containers.
-- Verify the longest content in Preview without requiring a physical device.
-
-## 10. Incremental packaging rules
-
-When generating or revising files:
-
-- provide only changed files;
-- use separate learning-docs and Android ZIPs;
-- do not create an empty Android ZIP;
-- do not duplicate unchanged files;
-- preserve the newest shared Markdown state;
-- rebase an older-lesson correction onto the latest current state before packaging;
-- verify ZIP contents and integrity;
-- clearly state application order when multiple packages exist.
-
-## 11. Feedback review after every learner message
-
-After every lesson-related message, decide whether the question, correction, completion, or successful explanation reveals a reusable quality rule.
-
-Record a reusable rule in `AGENTS.md`, `USER_PREFERENCES.md`, the handoff, and/or curriculum only when it generalizes beyond one isolated fact.
-
-Do not add policy for a one-off number or typo.
-
-## 12. First response to this prompt
-
-Do not generate a lesson or edit files in the first response.
-
-### When the files are attached
-
-Confirm that you actually read them, then restate only:
-
-```text
-completed: 64 of 216, through Lesson 7.2
-current unresolved checkpoint: Lesson 7.3 — Edge treatment
-generated frontier: Lesson 7.3
-next planned lesson after the checkpoint: Lesson 7.4
-Lesson 7.3 is generated and not complete
+completed: 65 of 216, through Lesson 7.3
+current unresolved checkpoint: Lesson 7.4 — Downsampled blur
+generated frontier: Lesson 7.4
+next planned lesson after confirmation: Lesson 7.5
+Lesson 7.4 is generated and not complete
 ```
 
 Then wait for my next message.
 
-### When files are absent or incomplete
-
-State exactly what is attached and what is missing. Provide the recommended and minimum upload sets. Restate the same current course state. Do not generate or patch artifacts until the relevant current files are supplied.
-
-## 13. Required response footer
+## 10. Required response footer
 
 End every lesson-related response with:
 
@@ -365,4 +252,4 @@ End every lesson-related response with:
 Course progress: X of 216 lessons completed.
 ```
 
-Then provide a clearly labelled best-effort estimate of the remaining conversation context. Treat that estimate as approximate.
+Then provide a clearly labelled best-effort estimate of remaining conversation context. Treat that estimate as approximate.

@@ -509,6 +509,7 @@ The learner explicitly confirmed that the completed Lesson 4.9 fourteen-step wal
 5. **Keep controls synchronized.** When a walkthrough has controls both in an overlay drawer and on the diagram, every control surface must read and write one shared step state. Disabling, current-step labels, formulas, and diagrams must update together.
 6. **Provide diagram-local navigation.** A long proof diagram must expose previous/next controls without requiring the explanation drawer to remain open.
 7. **Use the Lesson 4.9 completed 14-step state as the QA reference.** A later difficult lesson fails the total-beginner audit when it compresses a concept that Lesson 4.9 would have given its own visual step.
+8. **Transform-origin explanations must isolate one transform at a time.** Name the layer being transformed, its pre-transform bounds, the destination bounds, and the coordinate space. Convert origin fractions into the actual pivot coordinate. Then trace at least the top-left and bottom-right points through `pivot + (point - pivot) × scale`, draw the transformed bounds, and show clipping or uncovered destination pixels. State explicitly whether the chosen origin is required or merely avoids a compensating translation.
 
 
 ### Flexible walkthrough length, formula expansion, and first-QA gate
@@ -707,3 +708,13 @@ When several variables form a causal chain, include a compact dependency table n
 - When `crop` is used, define it spatially: select one rectangle from a larger image and ignore pixels outside the selected rectangle. State whether cropping happens before or after an effect.
 - When transparent black appears in blur arithmetic, explain the apparent contradiction directly: alpha zero means it contributes no visible black; in premultiplied averaging it can lower output alpha.
 - Use the fewest walkthrough states required by the causal chain. Edge treatment needs source bounds → requests → missing requests → replacements → output; it does not need a ten-state production detour.
+
+### Code-synchronized transform-pipeline gate — Lesson 7.4 revision
+
+1. When several transforms act at different stages, explain them in one execution-ordered stepper rather than separate origin steppers. Keep the responsible code lines visible beside the current image.
+2. Distinguish target sizing from command transformation: `record(size = ...)` defines layer bounds; it does not automatically resize previously recorded source commands.
+3. Distinguish a `DrawScope` pivot from a `GraphicsLayer` pivot. Name the owning object, local coordinate space, units, execution time, and downstream consumer for each.
+4. Use the sample's real aspect ratio and layout-derived bounds. Do not replace a portrait Preview with an invented landscape rectangle that reverses the observed right-versus-bottom error.
+5. Compare transform combinations only when the new concept requires them, and calculate every combination from one canonical geometry model. The diagram, formulas, controls, and Android readout must agree.
+6. A screenshot proves only its visible screenshot-space bounds. Do not silently treat screenshot pixels as runtime device pixels. When the screenshot contradicts a simplified calculation, expose actual runtime output size, rounded working size, pivots, transformed bounds, and gaps instead of forcing an explanation.
+7. Use the current public `GraphicsLayer` property for the API being taught. For explicit layer scaling, use and explain pixel-based `pivotOffset`; do not substitute the fraction-based `TransformOrigin` terminology from `Modifier.graphicsLayer`.

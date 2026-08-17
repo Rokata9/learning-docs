@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 7.3.1
+**Version:** 7.4.0
 **Updated:** 2026-08-17
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
@@ -9,13 +9,13 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **64 of 216**.
-- Completed through: **Lesson 7.2 — Blur radius**.
+- Learner-confirmed complete: **65 of 216**.
+- Completed through: **Lesson 7.3 — Edge treatment**.
 - Completed chapters: **1–6**.
-- Chapter 7 is in progress: **2 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.3 — Edge treatment**.
-- Generated frontier: **Lesson 7.3 — Edge treatment**. Lesson 7.3 is generated and is not learner-confirmed complete.
-- Next planned lesson after the unresolved checkpoint: **Lesson 7.4 — Downsampled blur**.
+- Chapter 7 is in progress: **3 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.4 — Downsampled blur**.
+- Generated frontier: **Lesson 7.4 — Downsampled blur**. Lesson 7.4 is generated and is not learner-confirmed complete.
+- Next planned lesson after the unresolved checkpoint: **Lesson 7.5 — Tint layer**.
 
 ## 2. Course construction principles
 
@@ -366,19 +366,31 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 - It does not repeat Chapter 6 capture architecture or add diagnostic rendering branches.
 - Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `BlurRadiusExplorer.kt`.
 
-**Current implementation record — Lesson 7.3**
+**Completed implementation record — Lesson 7.3**
 
-- Generated, revised after learner review, and still awaiting learner confirmation; the total remains 64 of 216.
+- Learner-confirmed complete; the completed total advances to 65 of 216.
 - Introduces one mechanism only: `edgeTreatment` supplies values for blur reads outside the original input bounds.
 - Separates an internal color boundary from the outer source boundary in plain language.
 - Uses a five-cell `A…E` source and a six-state walkthrough: bounds → target → requests → missing requests → replacements → output.
 - Defines `T` as transparent black `RGBA(0, 0, 0, 0)` before using it.
-- Replaces undefined “hue” wording with the exact result: the uniform-orange example keeps straight RGB `(1.00, 0.40, 0.10)` while alpha falls to `0.60`.
-- Keeps the glass-panel application outside the mechanism walkthrough and defines `crop after blur` as selecting the panel-sized inner rectangle from a larger blurred source.
-- Removes “overscan,” “padded source,” and “crop visible center” shorthand.
-- The browser contains four mode controls, edge/interior controls, a styled prediction, a three-blank Kotlin challenge, four explain-back exercises, and a ten-item checkpoint.
+- The uniform-orange example keeps straight RGB `(1.00, 0.40, 0.10)` while alpha falls to `0.60`.
+- Defines the later panel selection directly instead of using unexplained “overscan,” “padded source,” or “crop center” shorthand.
 - `BlurEdgeTreatmentExplorer.kt` keeps one fixed radius, capability-checks the selected mode, uses an explicit `Clamp` fallback, and defines transparent black directly in the UI.
-- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `BlurEdgeTreatmentExplorer.kt`.
+
+**Current implementation record — Lesson 7.4**
+
+- Generated and awaiting learner confirmation; the completed total remains 65 of 216.
+- Introduces one new operation: create a smaller working image, blur it, then enlarge the blurred result to the final output size.
+- Defines downsampling and upsampling before using those terms.
+- Uses scale presets `1.0`, `0.5`, and `0.25` on both width and height.
+- Shows that pixel-position area scales by `s × s`: half width and half height keep `25%`; quarter width and quarter height keep `6.25%`.
+- Uses one separate `2 × 2` RGB average to show how four source pixels become one working pixel; this is a teaching model, not a claim about Android's private resizing filter.
+- Defines `working radius = desired final radius × scale` so radius remains expressed in the smaller image's pixel coordinates before enlargement.
+- States that pixel-count reduction is not proof of proportional frame-time improvement.
+- The browser provides three source/working/output canvases, an eight-state walkthrough, exact size and radius arithmetic, a styled prediction, one focused Kotlin challenge, four explain-back checks, and a ten-item checkpoint.
+- `DownsampledBlurExplorer.kt` records a full-size source layer, records it into a smaller `IntSize`, applies `BlurEffect` with a scaled radius, and enlarges the working layer from top-left origin.
+- The Android source contains one route and no error modes, stale geometry, or duplicate crop branches.
+- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `DownsampledBlurExplorer.kt`.
 
 ---
 

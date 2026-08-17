@@ -21,6 +21,7 @@
      - **A definition is not a causal explanation.** For unfamiliar graphics, math, rendering, or systems behavior, trace one actual value through exact input → operation → output before summarizing the API. State which code line supplies each input and which later line consumes the result.
      - **Use toy arithmetic only as an explicitly labeled bridge.** Show a small numeric model when framework internals are hidden, then map it back to the production radius/data flow and state exactly which numbers are illustrative rather than Android's real internal weights.
      - **Start coordinate explanations from the real widget.** Calculate the actual view size, padding, Drawable bounds, framework transform, and one point's final position. Keep Drawable-local, View-local, and screen coordinates separate. Do not lead with arbitrary invented bounds when real bounds are available.
+   - **For transform-origin scaling, isolate one transform first.** Define the transformed object, destination rectangle, origin fractions, resulting pivot coordinate, and scale factor. Trace two opposite corners through the pivot formula and visualize the final bounds before discussing a second transform. Explain whether the selected origin is mandatory or simply removes a corrective translation.
      - **Separate boundaries before explaining boundary modes.** In graphics, distinguish a vector-path edge, the child Drawable rectangle, and the renderer input rectangle. Show both the current case and a counterexample that makes modes such as DECAL and CLAMP visibly different.
    (Complements the "writing-style-simpler" memory: lead with the point, short sentences.)
 
@@ -383,3 +384,12 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 - Define `crop` every time its timing matters: which larger image exists, which smaller rectangle is kept, which outer pixels are ignored, and whether this happens before or after blur.
 - For transparent black, explicitly explain why alpha zero means no visible black is added and why output opacity can still decrease.
 - Prefer six clear steps over ten inflated steps when six fully explain the mechanism.
+
+## Transform pipelines must be explained beside their code — Lesson 7.4 revision
+
+- When size, `DrawScope.scale`, blur, layer pivot, layer scale, and final replay interact, consolidate them into one detailed stepper in execution order.
+- Keep the active Kotlin lines beside the current visual result so I do not have to connect detached explanations mentally.
+- Show what `record(size = ...)` does by itself, what the inner `DrawScope.scale` changes, and what the later `GraphicsLayer` transform changes.
+- Use the original artwork and layout-derived portrait bounds close to the real 412 dp Preview. Do not use invented bounds that reverse the observed gap proportions.
+- Compare top-left/center combinations when they are necessary to explain this pipeline, but derive every result from one shared geometry model.
+- When a screenshot and a simplified formula disagree, say so and add runtime measurements rather than inventing values that make the story fit.

@@ -1,142 +1,121 @@
 # Liquid Glass Android course — current state
 
 **Updated:** 2026-08-17  
-**Course version:** 7.3.1  
+**Course version:** 7.4.0  
 **Platform:** Kotlin + Jetpack Compose  
 **Test device:** Pixel 8 Pro  
 **Total curriculum size:** 216 lessons
 
 ## Authoritative progress
 
-- Learner-confirmed complete: **64 of 216 lessons**.
-- Completed through: **Lesson 7.2 — Blur radius**.
+- Learner-confirmed complete: **65 of 216 lessons**.
+- Completed through: **Lesson 7.3 — Edge treatment**.
 - Completed chapters: **1, 2, 3, 4, 5, and 6**.
-- Chapter 7: in progress; **2 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.3 — Edge treatment**.
-- Generated frontier: **Lesson 7.3 — Edge treatment**.
-- Next planned lesson after the unresolved checkpoint: **Lesson 7.4 — Downsampled blur**.
-- Lesson 7.3 is generated and is not learner-confirmed complete.
+- Chapter 7: in progress; **3 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.4 — Downsampled blur**.
+- Generated frontier: **Lesson 7.4 — Downsampled blur**.
+- Next planned lesson after the unresolved checkpoint: **Lesson 7.5 — Tint layer**.
+- Lesson 7.4 is generated and is not learner-confirmed complete.
 
-Do not increase the completion count merely because a lesson was generated, revised, reviewed, or because the learner said only “continue” while questions or corrections remain.
+Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
 ## Current lesson files
 
 ```text
 course/chapters/chapter-07/lesson-build-convincing-frosted-glass-without-a-custom-lens.html
-course/chapters/chapter-07/lesson-07-01-blur-as-neighborhood-averaging.html
-course/chapters/chapter-07/lesson-07-02-blur-radius.html
 course/chapters/chapter-07/lesson-07-03-edge-treatment.html
+course/chapters/chapter-07/lesson-07-04-downsampled-blur.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/Chapter07Screen.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurNeighborhoodAveragingExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurRadiusExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurEdgeTreatmentExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/DownsampledBlurExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 ```
 
-## Completed Lesson 7.2 prerequisite contract
+## Completed Lesson 7.3 prerequisite contract
 
-Lesson 7.2 established one control:
-
-```text
-larger blur radius
-→ farther source positions can influence an output
-→ broader transitions
-→ less distinct small detail
-```
-
-The one-dimensional `N = 2r + 1` equal-weight window was a transparent teaching model. It did not claim Android uses that kernel, sample count, weighting, rounding, or displayed 8-bit RGB arithmetic.
-
-Lesson 7.3 keeps the blur radius fixed. It must not repeat the full radius derivation or Chapter 6 sampling architecture merely to introduce edge treatment.
-
-## Revised Lesson 7.3 contract
-
-### Principal new mechanism
-
-A blur near the outer boundary of its source can request coordinates that are not part of the source:
+Lesson 7.3 established one rule:
 
 ```text
-requested source coordinate is outside the input
-→ edgeTreatment supplies a replacement value
+blur requests a source coordinate outside the input
+→ edgeTreatment supplies the missing value
 ```
 
-The lesson now starts with that single question and does not mix production panel integration into the main walkthrough.
+It distinguished an internal color boundary from the outer source boundary. It also defined transparent black as `RGBA(0, 0, 0, 0)` and explained that alpha zero contributes no visible black.
 
-### Two meanings of edge
+Lesson 7.4 does not repeat the edge-mode arithmetic or the Chapter 6 sampling architecture.
 
-1. **Color boundary inside the source:** real source pixels exist on both sides, so blur mixes those real colors and `edgeTreatment` is not used.
-2. **Outer boundary of the source:** a requested coordinate lies outside the source, so `edgeTreatment` supplies a value.
+## Lesson 7.4 contract
 
-A later destination clip is mentioned only as a separate note: it can hide output pixels but cannot provide missing blur input.
-
-### Six-state teaching trace
-
-Five source cells `A…E` occupy valid indexes `0…4`. For output index `0`, the fixed teaching radius requests `−2, −1, 0, 1, 2`; only `−2` and `−1` are missing.
-
-The walkthrough contains only:
+### Principal new operation
 
 ```text
-source bounds
-→ output target
-→ neighborhood requests
-→ missing requests
-→ TileMode replacements
-→ teaching output
+full-size source
+→ create a smaller working image
+→ blur the smaller image
+→ enlarge the blurred result
 ```
 
-The four conceptual extensions are:
+**Downsample** means create a smaller image by combining groups of source pixels. **Upsample** means enlarge that smaller image to the required output size.
+
+### Size calculation
+
+If both width and height use scale `s`:
 
 ```text
-Clamp:    A A | A B C D E | E E
-Decal:    T T | A B C D E | T T
-Mirror:   B A | A B C D E | E D
-Repeated: D E | A B C D E | A B
+working width  = full width × s
+working height = full height × s
+working pixel count = working width × working height
 ```
 
-`T` is defined immediately as transparent black `RGBA(0, 0, 0, 0)`.
-
-### Decal and transparent black
-
-The lesson no longer uses the undefined word “hue.” In the uniform-orange trace:
+For a `320 × 160` image:
 
 ```text
-T, T, C, C, C
-→ premultiplied output (0.60, 0.24, 0.06, 0.60)
-→ straight output (1.00, 0.40, 0.10, 0.60)
+s = 1.00 → 320 × 160 = 51,200 pixels
+s = 0.50 → 160 ×  80 = 12,800 pixels
+s = 0.25 →  80 ×  40 =  3,200 pixels
 ```
 
-Plain-language conclusion: the straight RGB values remain orange, while alpha falls to `0.60`. Transparent black adds no visible black because its alpha is zero; it makes the result less opaque.
+Half width and half height therefore produce one quarter of the pixel positions. This is an area count, not proof of a four-times frame-time speedup.
 
-### Glass-panel application, kept separate
+### Radius calculation
 
-The application section defines every rectangle before using `crop`:
+The blur radius is expressed in pixels of the image being blurred. To preserve approximately the same displayed distance after enlargement:
 
 ```text
-read a larger rectangle from the real backdrop
-→ blur that larger rectangle
-→ select only the smaller inner rectangle matching the panel
+working radius = desired final radius × s
 ```
 
-Here, **crop after blur** means select the panel-sized inner rectangle and ignore the extra outer border. The lesson does not use “overscan” or “padded source,” and it does not claim an exact extra-margin formula.
+For final radius `24 px`:
+
+```text
+s = 1.00 → 24 px
+s = 0.50 → 12 px
+s = 0.25 →  6 px
+```
+
+This coordinate calculation does not describe Android's private blur sample count, weights, or kernel shape.
+
+### Quality tradeoff
+
+The smaller working image may combine thin lines, small dots, narrow text strokes, and tiny color changes before blur. Enlarging restores the output dimensions but cannot reconstruct details removed during shrinking.
 
 ### Android route
 
-`BlurEdgeTreatmentExplorer.kt` keeps one fixed blur radius and changes only the selected `TileMode`:
+`DownsampledBlurExplorer.kt` uses one source `GraphicsLayer` and one smaller working `GraphicsLayer`:
 
 ```text
-selected mode
-→ tileMode
-→ isSupported()
-→ selected mode or Clamp fallback
-→ BlurEffect.edgeTreatment
+record sharp source at full size
+→ record source into a smaller IntSize
+→ apply BlurEffect using a scaled radius
+→ enlarge working layer from top-left origin
+→ draw final result
 ```
 
-The UI copy defines transparent black directly and uses “source image” rather than the undefined phrase “opaque crop.”
+The explorer contains one production route and three scale presets: `1.0`, `0.5`, and `0.25`. It contains no diagnostic error modes, stale-state branches, or repeated crop geometry.
 
 ### Evidence boundary
 
-The public Compose API documents `edgeTreatment` as the strategy for pixels outside the original input bounds. `Clamp`, `Mirror`, and `Repeated` are guaranteed; `Decal` is capability-checked and an unsupported mode is consumed as `Clamp`.
-
-Lesson 7.3 does not reveal Android's internal blur implementation, weights, exact sample positions, exact extra-margin requirement, allocation strategy, or measured GPU cost.
+The public Compose API supports recording a `GraphicsLayer` with an explicit size, applying `RenderEffect`, and transforming the layer when it is drawn. The lesson does not claim a measured speedup, allocation strategy, exact GPU bandwidth reduction, or Android's private resampling filter.
 
 ## New-learning gate
 
@@ -147,8 +126,8 @@ If planned material is mostly consolidation, make it a short checkpoint or merge
 ## Android preview rules
 
 - Complete chapter-screen previews live in `Chapter07Screen.kt`.
-- Direct custom-composable previews for Lesson 7.3 live in `BlurEdgeTreatmentExplorer.kt`.
+- Direct custom-composable previews for Lesson 7.4 live in `DownsampledBlurExplorer.kt`.
 - Both preview levels provide light and dark variants.
 - Both preview levels allow vertical scrolling through the complete generated content in finite-height Android Studio Preview.
 
-Course progress: 64 of 216 lessons completed.
+Course progress: 65 of 216 lessons completed.

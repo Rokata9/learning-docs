@@ -1,7 +1,7 @@
 # Liquid Glass Android course — implementation handoff
 
 **Updated:** 2026-08-17  
-**Course version:** 7.3.0
+**Course version:** 7.4.0
 
 ## Read order
 
@@ -19,82 +19,94 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 64
-completed_through: "Lesson 7.2 — Blur radius"
+learner_confirmed_complete: 65
+completed_through: "Lesson 7.3 — Edge treatment"
 completed_chapters: [1, 2, 3, 4, 5, 6]
-chapter_7_complete: "2 of 12"
-next_unresolved_checkpoint: "Lesson 7.3 — Edge treatment"
-generated_frontier: "Lesson 7.3 — Edge treatment"
-next_planned_after_checkpoint: "Lesson 7.4 — Downsampled blur"
+chapter_7_complete: "3 of 12"
+next_unresolved_checkpoint: "Lesson 7.4 — Downsampled blur"
+generated_frontier: "Lesson 7.4 — Downsampled blur"
+next_planned_after_checkpoint: "Lesson 7.5 — Tint layer"
 ```
 
-Lesson 7.3 is generated and is not learner-confirmed complete.
+Lesson 7.4 is generated and is not learner-confirmed complete.
 
 ## Completed blur prerequisites
 
-Lesson 7.1 established neighborhood dependence. Lesson 7.2 established blur radius as spatial influence distance. Their transparent equal-weight models do not describe Android's internal blur implementation.
+Lesson 7.1 established neighborhood dependence. Lesson 7.2 established radius as spatial influence distance. Lesson 7.3 established how `edgeTreatment` supplies values outside the blur input.
 
-Lesson 7.3 may rely on those facts but must not repeat their full arithmetic or rebuild Chapter 6 capture architecture.
+Lesson 7.4 may rely on those facts but must not repeat their complete teaching arithmetic or rebuild Chapter 6 backdrop ownership.
 
-## Revised Lesson 7.3 contract
+## Lesson 7.4 contract
 
 ### Principal idea
 
 ```text
-blur requests a source coordinate outside the input
-→ edgeTreatment supplies the value for that missing coordinate
+full-size source
+→ smaller working image
+→ blur fewer pixel positions
+→ enlarge the blurred result
 ```
 
-The main explanation must remain this direct. Do not reintroduce unexplained “hue,” “overscan,” “padded source,” or “crop center” language.
+Define **downsample** as creating a smaller image by combining source pixels. Define **upsample** as enlarging that smaller image to the required output dimensions.
+
+### Controlled arithmetic
+
+The browser lesson uses a `32 × 16` model image and scale presets `1.0`, `0.5`, and `0.25`.
+
+```text
+working width  = full width × scale
+working height = full height × scale
+working area ratio = scale × scale
+```
+
+At half width and half height, the working image contains `25%` of the full pixel positions. At quarter width and quarter height, it contains `6.25%`.
+
+One separate `2 × 2` trace averages four RGB source pixels into one working pixel. It is explicitly a transparent teaching calculation.
+
+### Radius mapping
+
+```text
+working radius = desired final radius × scale
+```
+
+The reason is coordinate scaling: after a half-size result is enlarged by `2`, one working-image pixel spans two final-output pixels.
+
+Do not claim that this equation describes Android's private kernel, weights, or sample count.
 
 ### Browser lesson
 
-The revised standalone lesson contains:
+The standalone lesson contains:
 
-- a direct five-cell source example;
-- a clear distinction between an internal color boundary and the outer source boundary;
-- `Clamp`, `Decal`, `Mirror`, and `Repeated` controls;
-- edge and interior target controls;
-- a synchronized six-state walkthrough;
-- a direct explanation that transparent black has alpha zero and contributes no visible black;
-- the uniform-orange premultiplied trace, ending in the plain conclusion “same orange straight RGB, alpha 0.60”;
-- a separate glass-panel application section that defines the larger source rectangle, the panel rectangle, and `crop after blur`;
+- one direct shrink → blur → enlarge explanation;
+- three scale presets;
+- full source, working image, and enlarged result canvases;
+- one synchronized eight-state walkthrough;
+- one `2 × 2` RGB downsample trace;
+- working-size and radius calculations;
+- a short Android route;
 - one styled prediction;
 - one three-blank Kotlin challenge;
-- four explain-back exercises;
+- four explain-back checks;
 - a ten-item Preview/device checkpoint.
 
 ### Android implementation
 
-`BlurEdgeTreatmentExplorer.kt` keeps one controlled route:
+`DownsampledBlurExplorer.kt` keeps one clean route:
 
 ```text
-selected mode
-→ tileMode
-→ isSupported()
-→ selected mode or Clamp fallback
-→ BlurEffect.edgeTreatment
+sourceLayer at full bounds
+→ workingLayer recorded with smaller IntSize
+→ source scaled into workingLayer
+→ BlurEffect with scaled radius
+→ workingLayer enlarged from TransformOrigin(0, 0)
+→ current draw target
 ```
 
-The explorer fixes radius at 18 dp and changes only edge treatment. Its UI defines transparent black directly and renames the “opaque crop” test to an opaque source image.
+The explorer exposes only `1×`, `1/2`, and `1/4` working-size presets. It has no error-mode enum, stale geometry, crop callbacks, or duplicate production branches.
 
-### Glass-panel application
+### Performance boundary
 
-The lesson now says:
-
-```text
-read a larger rectangle from the real backdrop
-→ blur it
-→ select the smaller inner rectangle matching the visible panel
-```
-
-`Crop after blur` is defined as selecting that smaller inner rectangle and ignoring the extra outer border. No exact extra-margin formula is claimed.
-
-### Evidence boundary
-
-Compose defines `edgeTreatment` as the strategy for pixels outside the original input bounds. `Clamp`, `Mirror`, and `Repeated` are guaranteed. `Decal` is capability-checked; an unsupported mode consumes `Clamp`.
-
-Lesson 7.3 does not claim Android's exact kernel, weights, sample positions, extra-margin requirement, allocation behavior, or measured performance.
+A smaller working layer contains fewer pixel positions. This does not prove proportional frame-time improvement. Performance must be measured in a release-like build on the Pixel 8 Pro.
 
 ## New-learning rule
 
@@ -120,16 +132,16 @@ CURRENT_STATE.md
 curriculum/liquid_glass_android_handoff.md
 curriculum/liquid_glass_android_curriculum.md
 course/chapters/chapter-07/lesson-build-convincing-frosted-glass-without-a-custom-lens.html
-course/chapters/chapter-07/lesson-07-02-blur-radius.html
 course/chapters/chapter-07/lesson-07-03-edge-treatment.html
+course/chapters/chapter-07/lesson-07-04-downsampled-blur.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/Chapter07Screen.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurRadiusExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurEdgeTreatmentExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/DownsampledBlurExplorer.kt
 ```
 
 ## Completion rule
 
-Do not mark Lesson 7.3 complete merely because it was generated or reviewed. Wait for explicit learner confirmation. Do not generate Lesson 7.4 before that confirmation unless the learner explicitly asks to generate ahead.
+Do not mark Lesson 7.4 complete merely because it was generated or reviewed. Wait for explicit learner confirmation. Do not generate Lesson 7.5 before that confirmation unless the learner explicitly asks to generate ahead.
 
-Course progress: 64 of 216 lessons completed.
+Course progress: 65 of 216 lessons completed.
