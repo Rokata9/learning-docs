@@ -718,3 +718,11 @@ When several variables form a causal chain, include a compact dependency table n
 5. Compare transform combinations only when the new concept requires them, and calculate every combination from one canonical geometry model. The diagram, formulas, controls, and Android readout must agree.
 6. A screenshot proves only its visible screenshot-space bounds. Do not silently treat screenshot pixels as runtime device pixels. When the screenshot contradicts a simplified calculation, expose actual runtime output size, rounded working size, pivots, transformed bounds, and gaps instead of forcing an explanation.
 7. Use the current public `GraphicsLayer` property for the API being taught. For explicit layer scaling, use and explain pixel-based `pivotOffset`; do not substitute the fraction-based `TransformOrigin` terminology from `Modifier.graphicsLayer`.
+
+### Source-to-smaller-layer selection gate — Lesson 7.4 follow-up
+
+1. When source commands are replayed into a smaller layer, never describe `record(size = ...)` as choosing a crop from the source. It creates a destination/layer size and a `DrawScope` with that size.
+2. Show the three operations separately: source-command transform, intersection with the finite raster target, and inverse mapping back to original-source coordinates.
+3. For every pivot combination that materially changes the result, keep these four images visible together: full original source with selected original region, full transformed command bounds, stored working-buffer pixels, and final replayed output.
+4. Explain same-container scaling before switching coordinate spaces. Explicitly say when a pivot belongs to the original source, the smaller recording `DrawScope`, or the completed `GraphicsLayer`.
+5. Name the operation that actually enforces finite bounds. In the Lesson 7.4 route, `RenderEffect` promotes the layer to an offscreen buffer and clips content to the layer bounds; the size argument alone does not guarantee command clipping.

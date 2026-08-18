@@ -393,3 +393,10 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 - Use the original artwork and layout-derived portrait bounds close to the real 412 dp Preview. Do not use invented bounds that reverse the observed gap proportions.
 - Compare top-left/center combinations when they are necessary to explain this pipeline, but derive every result from one shared geometry model.
 - When a screenshot and a simplified formula disagree, say so and add runtime measurements rather than inventing values that make the story fit.
+
+## Source selection must be shown, not implied — Lesson 7.4 follow-up
+
+- When full-size source commands are drawn into a smaller target, show the original source region that contributes, the transformed command bounds, the pixels actually stored by the finite target, and the final enlarged result side by side.
+- Do not call `record(size = ...)` a crop or imply that it automatically takes the top-left `workingSize` rectangle. Explain which transform maps the source and which later clipping/raster operation determines what survives.
+- Start from familiar same-container scaling, then explicitly announce the switch to a new smaller `DrawScope`; otherwise center-pivot arithmetic looks contradictory.
+- For each relevant pivot combination, show both the source selection and the resulting image, with the responsible code highlighted in the same step.
