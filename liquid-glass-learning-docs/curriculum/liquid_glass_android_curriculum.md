@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 7.4.0
-**Updated:** 2026-08-17
+**Version:** 7.5.0
+**Updated:** 2026-08-19
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
 **Physical test device:** Pixel 8 Pro  
@@ -9,13 +9,13 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **65 of 216**.
-- Completed through: **Lesson 7.3 — Edge treatment**.
+- Learner-confirmed complete: **66 of 216**.
+- Completed through: **Lesson 7.4 — Downsampled blur**.
 - Completed chapters: **1–6**.
-- Chapter 7 is in progress: **3 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.4 — Downsampled blur**.
-- Generated frontier: **Lesson 7.4 — Downsampled blur**. Lesson 7.4 is generated and is not learner-confirmed complete.
-- Next planned lesson after the unresolved checkpoint: **Lesson 7.5 — Tint layer**.
+- Chapter 7 is in progress: **4 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.5 — Tint layer**.
+- Generated frontier: **Lesson 7.5 — Tint layer**. Lesson 7.5 is generated and is not learner-confirmed complete.
+- Next planned lesson after the unresolved checkpoint: **Lesson 7.6 — Saturation and contrast**.
 
 ## 2. Course construction principles
 
@@ -365,6 +365,21 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 - `TileMode.Clamp` remains fixed so Lesson 7.3 can isolate edge treatment.
 - It does not repeat Chapter 6 capture architecture or add diagnostic rendering branches.
 - Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `BlurRadiusExplorer.kt`.
+
+**Completed implementation record — Lesson 7.4**
+
+- Learner-confirmed complete; the completed total advances to 66 of 216.
+- Introduces shrink → blur → enlarge on a smaller working image.
+- Section 7 of the lesson HTML is a link to `lesson-07-04-scaling-cases-companion.html`.
+- `DownsampledBlurExplorer.kt` records a smaller working layer, blurs it, and enlarges from `Offset.Zero` in production.
+
+**Generated implementation record — Lesson 7.5**
+
+- Generated; not learner-confirmed complete.
+- Introduces a tint layer: a later `drawRect` of a translucent tint source over an already-blurred destination.
+- Reuses the Lesson 3.8 short formula. Does not repeat downsample or edge-treatment arithmetic.
+- `TintLayerExplorer.kt` keeps blur radius and `TileMode.Clamp` fixed. Amount presets are `0`, `0.25`, `0.50`, and `1.00`.
+- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `TintLayerExplorer.kt`.
 
 **Completed implementation record — Lesson 7.3**
 

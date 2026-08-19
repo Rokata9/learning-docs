@@ -22,12 +22,12 @@ CURRENT_STATE.md
 curriculum/liquid_glass_android_handoff.md
 curriculum/liquid_glass_android_curriculum.md
 course/chapters/chapter-07/lesson-build-convincing-frosted-glass-without-a-custom-lens.html
-course/chapters/chapter-07/lesson-07-03-edge-treatment.html
 course/chapters/chapter-07/lesson-07-04-downsampled-blur.html
+course/chapters/chapter-07/lesson-07-05-tint-layer.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/Chapter07Screen.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/BlurEdgeTreatmentExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/DownsampledBlurExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/TintLayerExplorer.kt
 ```
 
 If I ask to revise an older lesson, I must also attach that lesson's current HTML and relevant Kotlin file. Do not reconstruct an unseen file from memory.
@@ -50,145 +50,65 @@ If no source files are attached, conceptual discussion may continue from this pr
 ## 2. Exact authoritative course state
 
 - Total course size: **216 lessons**.
-- Learner-confirmed complete: **65 of 216 lessons**.
-- Completed through: **Lesson 7.3 — Edge treatment**.
+- Learner-confirmed complete: **66 of 216 lessons**.
+- Completed through: **Lesson 7.4 — Downsampled blur**.
 - Completed chapters: **1 through 6**.
-- Chapter 7 is in progress: **3 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.4 — Downsampled blur**.
-- Generated frontier: **Lesson 7.4 — Downsampled blur**.
-- Next planned lesson after confirmation: **Lesson 7.5 — Tint layer**.
-- Lesson 7.4 is generated and is not learner-confirmed complete.
+- Chapter 7 is in progress: **4 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.5 — Tint layer**.
+- Generated frontier: **Lesson 7.5 — Tint layer**.
+- Next planned lesson after confirmation: **Lesson 7.6 — Saturation and contrast**.
+- Lesson 7.5 is generated and is not learner-confirmed complete.
 
 Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
-## 3. Completed Lesson 7.3 prerequisite contract
+## 3. Completed Lesson 7.4 prerequisite contract
 
-Lesson 7.3 established:
+Lesson 7.4 established:
 
 ```text
-blur requests a source coordinate outside the input
-→ edgeTreatment supplies the missing value
+full-size source
+→ smaller working image
+→ blur fewer pixel positions
+→ enlarge the blurred result
 ```
 
-It distinguished:
+Lesson 7.5 may treat a blurred image as a finished destination. Do not repeat downsample size or radius arithmetic unless a new operation needs one brief reminder.
 
-1. an internal color boundary, where valid source pixels exist on both sides; and
-2. the outer source boundary, where a requested source coordinate does not exist.
+Lesson 3.8 already taught tint as source-over of a translucent color over an opaque destination. Lesson 7.5 reuses that short formula. It must not rebuild the 3.8 derivation.
 
-It defined transparent black as `RGBA(0, 0, 0, 0)`. Alpha zero contributes no visible black. In the controlled uniform-orange Decal trace, straight RGB remains orange while output alpha falls.
-
-Do not repeat the complete edge-mode arithmetic in Lesson 7.4 or later unless a new operation requires one brief prerequisite reminder.
-
-## 4. Current Lesson 7.4 contract
+## 4. Current Lesson 7.5 contract
 
 ### Principal new operation
 
 ```text
-full-size source
-→ create a smaller working image
-→ blur the smaller image
-→ enlarge the blurred result
+already-blurred destination
+→ draw a translucent tint rectangle
+→ keep a sharp label on top
 ```
 
-**Downsample** means create a smaller image by combining groups of source pixels.
-
-**Upsample** means enlarge the smaller image to the required output dimensions.
-
-### Size calculation
-
-For full width `W`, full height `H`, and scale `s` applied to both axes:
+A **tint layer** is that second draw. Amount is the tint source alpha.
 
 ```text
-working width  = W × s
-working height = H × s
-working pixels = (W × s) × (H × s)
+output = tint × amount + destination × (1 − amount)
 ```
 
-Controlled example:
-
-```text
-320 × 160 at s = 1.00 → 51,200 pixels
-320 × 160 at s = 0.50 → 12,800 pixels
-320 × 160 at s = 0.25 →  3,200 pixels
-```
-
-Half width and half height produce one quarter of the pixel positions. Do not call this a proven four-times speedup. Frame time must be measured.
-
-### One downsample trace
-
-A separate `2 × 2` block contains:
-
-```text
-P1 = RGB(20, 40, 80)
-P2 = RGB(60, 80, 120)
-P3 = RGB(100, 120, 160)
-P4 = RGB(140, 160, 200)
-```
-
-Averaging each channel produces one working pixel:
-
-```text
-RGB(80, 100, 140)
-```
-
-This is a transparent teaching model, not a claim about Android's private resampling filter.
-
-### Radius mapping
-
-The blur radius is measured in pixels of the image being blurred:
-
-```text
-working radius = desired final radius × s
-```
-
-Example for desired final radius `24 px`:
-
-```text
-s = 1.00 → 24 px
-s = 0.50 → 12 px
-s = 0.25 →  6 px
-```
-
-At half size, one working pixel becomes two final pixels after enlargement. This explains the coordinate conversion. It does not describe Android's private kernel or sample count.
-
-### Quality tradeoff
-
-Small dots, thin lines, narrow text strokes, and tiny color changes may be combined before blur. Enlarging restores dimensions but cannot restore detail removed during shrinking.
-
-### Browser lesson
-
-The lesson contains:
-
-- three working-size presets: `1.0`, `0.5`, and `0.25`;
-- full-source, smaller-working-image, and enlarged-output canvases;
-- one synchronized eight-state walkthrough;
-- one exact `2 × 2` RGB trace;
-- separate pixel-count and radius calculations;
-- one short Android route;
-- section 7 is a link to `lesson-07-04-scaling-cases-companion.html` (the 28-step transform stepper was removed);
-- one styled prediction;
-- one three-blank Kotlin challenge;
-- explain-back checks;
-- a Preview/device checkpoint.
+Navy destination `(0.10, 0.25, 0.40)` and orange destination `(0.90, 0.60, 0.20)` stay distinguishable at amount `0.25`. Amount `1.00` replaces both.
 
 ### Android route
 
-`DownsampledBlurExplorer.kt` uses one clean path:
+`TintLayerExplorer.kt` uses one clean path:
 
 ```text
-sourceLayer recorded at full bounds
-→ workingLayer recorded with smaller IntSize
-→ source scaled into workingLayer
-→ BlurEffect with working radius
-→ workingLayer enlarged from TransformOrigin(0, 0)
-→ current drawing target
+artwork Canvas + BlurEffect(Clamp)
+→ second Canvas drawRect(tintColor.copy(alpha = tintAmount))
+→ sharp label
 ```
 
-It contains no diagnostic error enum, stale geometry, crop callbacks, or duplicate production branches.
+Do not add a downsample path or a second production branch.
 
 ### Evidence boundary
 
-The public Compose API documents explicit `GraphicsLayer.record` size, `RenderEffect`, and layer transformations. It does not document the private blur kernel, resampling filter, allocation reuse, exact bandwidth, or expected speedup for this specific scene.
+This is not Apple's private glass tint and not a `ColorFilter` contract. A uniform tint and a linear blur commute; the later draw is for independence.
 
 ## 5. Learner calibration
 
@@ -225,7 +145,7 @@ A prerequisite recap must be brief and exist only to support the new operation. 
 ## 8. Android delivery rules
 
 - Complete chapter-screen previews live in `Chapter07Screen.kt`.
-- Direct Lesson 7.4 previews live in `DownsampledBlurExplorer.kt`.
+- Direct Lesson 7.5 previews live in `TintLayerExplorer.kt`.
 - Both levels provide light and dark variants.
 - Both levels allow vertical scrolling through all content in finite-height Android Studio Preview.
 - Deliver only changed files in separate learning-docs and Android ZIPs.
@@ -236,11 +156,11 @@ A prerequisite recap must be brief and exist only to support the new operation. 
 When all required files are attached, confirm that they were read, then restate only:
 
 ```text
-completed: 65 of 216, through Lesson 7.3
-current unresolved checkpoint: Lesson 7.4 — Downsampled blur
-generated frontier: Lesson 7.4
-next planned lesson after confirmation: Lesson 7.5
-Lesson 7.4 is generated and not complete
+completed: 66 of 216, through Lesson 7.4
+current unresolved checkpoint: Lesson 7.5 — Tint layer
+generated frontier: Lesson 7.5
+next planned lesson after confirmation: Lesson 7.6
+Lesson 7.5 is generated and not complete
 ```
 
 Then wait for my next message.
