@@ -30,6 +30,8 @@ next_planned_after_checkpoint: "Lesson 7.5 — Tint layer"
 
 Lesson 7.4 is generated and is not learner-confirmed complete.
 
+Lesson 7.4 section 7 is a link to `course/chapters/chapter-07/lesson-07-04-scaling-cases-companion.html`. The 28-state production-dimension walkthrough was removed. Do not mark 7.4 complete until the learner confirms the four cases.
+
 ## Completed blur prerequisites
 
 Lesson 7.1 established neighborhood dependence. Lesson 7.2 established radius as spatial influence distance. Lesson 7.3 established how `edgeTreatment` supplies values outside the blur input.
@@ -84,10 +86,11 @@ The standalone lesson contains:
 - one `2 × 2` RGB downsample trace;
 - working-size and radius calculations;
 - a short Android route;
+- section 7 as a link to `lesson-07-04-scaling-cases-companion.html`;
 - one styled prediction;
 - one three-blank Kotlin challenge;
-- four explain-back checks;
-- a ten-item Preview/device checkpoint.
+- explain-back checks;
+- a Preview/device checkpoint.
 
 ### Android implementation
 

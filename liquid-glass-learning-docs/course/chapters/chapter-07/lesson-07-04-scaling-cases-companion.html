@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 7.4 companion — the four scaling cases</title>
+<style>
+:root{
+  color-scheme:light dark;
+  --ink:#172033;--muted:#596579;--line:#d8e0ea;--paper:#fff;--soft:#f5f7fb;
+  --panel:#fbfcfe;--control:#fff;--green:#059669;--green-soft:#ecfdf5;
+  --indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;
+  --pink:#be185d;--pink-soft:#fce7f3;--blue:#1e40af;--blue-soft:#dbeafe;
+  --red:#dc2626;--red-soft:#fee2e2;--body-start:#f8fafc;--body-end:#edf2f7;
+  --shadow:0 18px 52px rgba(30,41,59,.09);--code-bg:#111827;--code-ink:#e5e7eb;
+  --navy:#173a63;--orange:#e39a31;--dot:#10b981;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --ink:#e7edf7;--muted:#aeb9c9;--line:#354154;--paper:#111827;--soft:#172033;
+    --panel:#151e2d;--control:#1b2535;--green:#34d399;--green-soft:#0b3429;
+    --indigo:#a5b4fc;--indigo-soft:#23234a;--amber:#fbbf24;--amber-soft:#402d0a;
+    --pink:#f472b6;--pink-soft:#43172d;--blue:#60a5fa;--blue-soft:#172d54;
+    --red:#f87171;--red-soft:#491b20;--body-start:#0b111c;--body-end:#101827;
+    --shadow:0 18px 52px rgba(0,0,0,.32);--code-bg:#080d16;--code-ink:#e5e7eb;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--body-start),var(--body-end));font:16px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+a{color:var(--blue)}
+button,input{font:inherit}
+button{cursor:pointer}
+code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;background:var(--indigo-soft);padding:.12em .36em;border-radius:6px}
+.page{width:min(2480px,calc(100% - 48px));margin:0 auto;padding:28px 0 96px}
+.topbar{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.crumbs{color:var(--muted)}
+.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:850}
+.chip.pending{color:var(--amber);background:var(--amber-soft)}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+.hero{padding:36px 40px}
+.eyebrow{color:var(--green);font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+h1{margin:.35rem 0 1rem;font-size:clamp(36px,3.4vw,58px);line-height:1.05;letter-spacing:-.04em}
+h2{margin:0 0 .65rem;font-size:28px;line-height:1.18}
+h3{margin:0 0 .45rem;font-size:19px;line-height:1.25}
+p{max-width:88ch}
+.lead{font-size:19px;color:var(--muted)}
+.section{margin-top:22px;padding:30px 34px}
+.section-no{color:var(--indigo);font-weight:900;letter-spacing:.04em;font-size:13px}
+.card{padding:16px 18px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+.card.green{background:var(--green-soft);border-color:color-mix(in srgb,var(--green) 45%,var(--line))}
+.card.amber{background:var(--amber-soft);border-color:color-mix(in srgb,var(--amber) 45%,var(--line))}
+.card.blue{background:var(--blue-soft);border-color:color-mix(in srgb,var(--blue) 45%,var(--line))}
+.card.indigo{background:var(--indigo-soft);border-color:color-mix(in srgb,var(--indigo) 45%,var(--line))}
+.card.red{background:var(--red-soft);border-color:color-mix(in srgb,var(--red) 45%,var(--line))}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{min-height:40px;border-radius:11px;padding:8px 13px;font-weight:850;border:1px solid var(--line);background:var(--control);color:var(--ink)}
+.btn:hover{border-color:#94a3b8;background:var(--soft)}
+.btn.selected{border-color:var(--indigo)!important;background:var(--indigo-soft)!important;color:var(--indigo)!important}
+.btn.primary{border-color:var(--blue);background:var(--blue);color:#fff}
+.note,.warning,.success{margin-top:16px;padding:14px 16px;border-radius:14px}
+.note{border-left:5px solid var(--blue);background:var(--blue-soft)}
+.warning{border-left:5px solid var(--amber);background:var(--amber-soft)}
+.success{border-left:5px solid var(--green);background:var(--green-soft)}
+.lab{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,.8fr);gap:22px;align-items:start;margin-top:16px}
+.lab-wide{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:16px}
+.readout{font:800 14px/1.55 "SFMono-Regular",Consolas,monospace;background:var(--indigo-soft);border:1px solid color-mix(in srgb,var(--indigo) 40%,var(--line));border-radius:12px;padding:12px 14px;white-space:pre-wrap}
+.caption{margin:.6rem 0 0;color:var(--muted);font-size:15px}
+.range{display:grid;grid-template-columns:180px minmax(160px,1fr) 80px;gap:12px;align-items:center;margin:10px 0}
+.range input[type=range]{width:100%}
+svg{display:block;width:100%;height:auto;max-width:100%;touch-action:none}
+.legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin:10px 0 0;font-size:13px;font-weight:750;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.cases{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}
+@media(min-width:2200px){.cases{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.case-card{border:2px solid var(--line);border-radius:18px;padding:14px;background:var(--panel);cursor:pointer;text-align:left}
+.case-card.selected{border-color:var(--indigo);background:var(--indigo-soft)}
+.case-card h3{font-size:16px}
+.case-detail{margin-top:16px}
+.nav{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.axis-note{font:800 13px/1.45 "SFMono-Regular",Consolas,monospace;color:var(--blue)}
+details{margin-top:10px}
+summary{cursor:pointer;font-weight:800}
+.pipeline{display:grid;grid-template-columns:minmax(0,1fr) 36px minmax(0,.72fr) 36px minmax(0,1fr);gap:8px;align-items:center}
+.arrow{text-align:center;font-size:28px;color:var(--indigo);font-weight:900}
+@media(max-width:1100px){
+  .lab,.two,.three,.pipeline{grid-template-columns:1fr}
+  .arrow{transform:rotate(90deg)}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <div class="crumbs"><a href="lesson-07-04-downsampled-blur.html">← Lesson 7.4</a> · four scaling cases · not a new course lesson</div>
+    <span class="chip pending">Companion to Lesson 7.4 · section 7</span>
+  </div>
+
+  <section class="panel hero">
+    <div class="eyebrow">One idea, then the four combinations</div>
+    <h1>Two photocopies. Two thumbtacks. Four pictures.</h1>
+    <p class="lead">The Android route does two photocopies: shrink the photo onto a smaller working layer, then enlarge that stored layer onto the display. This page uses a countable <strong>8 × 8</strong> photo and a <strong>4 × 4</strong> scratch paper so every number is a whole or half unit. Same navy / orange artwork as the lesson.</p>
+    <div class="three" style="margin-top:18px">
+      <div class="card blue"><strong>Photo</strong><br>8 wide × 8 tall. This is the original artwork.</div>
+      <div class="card amber"><strong>Scratch paper</strong><br>4 wide × 4 tall. This is the smaller working layer you blur.</div>
+      <div class="card green"><strong>Display</strong><br>8 wide × 8 tall again. This is the final output on screen.</div>
+    </div>
+    <p class="caption">The Android code does the same two photocopies: draw the photo onto the scratch paper (shrink), then draw the scratch paper onto the display (enlarge). Blur happens on the scratch paper, between the two photocopies. This page ignores blur on purpose. We are only answering: <em>which part of the photo is stored, and where does it land?</em></p>
+  </section>
+
+  <section class="panel section">
+    <div class="section-no">1 · THE ONLY RULE</div>
+    <h2>A thumbtack stays put. Everything else slides.</h2>
+    <p>A <strong>pivot</strong> is a thumbtack pushed through the paper. That one point does not move. Every other point moves toward the thumbtack when you shrink, or away from it when you enlarge.</p>
+    <p>In words: measure how far a point is from the thumbtack, multiply that distance by the scale, then walk the new distance starting from the thumbtack.</p>
+    <div class="readout">new position = thumbtack position + (old position − thumbtack position) × scale
+
+scale 0.5 = half as far from the thumbtack as before (shrink)
+scale 2 = twice as far from the thumbtack as before (enlarge)</div>
+    <div class="lab">
+      <div>
+        <svg id="pinSvg" viewBox="0 0 760 520" role="img" aria-label="Interactive pin scaling on one 8 by 8 paper"></svg>
+        <div class="legend">
+          <span><i style="background:var(--navy)"></i>navy left</span>
+          <span><i style="background:var(--orange)"></i>orange right</span>
+          <span><i style="background:var(--dot)"></i>green dot</span>
+          <span><i style="background:#fff;border:1px solid #94a3b8"></i>white bars</span>
+          <span><i style="background:var(--amber)"></i>thumbtack</span>
+          <span><i style="background:#94a3b8"></i>ghost = before the scale</span>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <h3>Try this first</h3>
+          <p>Leave the paper at 8 × 8. Move the scale slider. Switch the thumbtack. Watch the green dot and the two opposite corners.</p>
+          <div class="controls" style="margin:10px 0">
+            <button class="btn pin-btn selected" data-pin="topLeft">Thumbtack at top-left (0, 0)</button>
+            <button class="btn pin-btn" data-pin="center">Thumbtack at paper center (4, 4)</button>
+          </div>
+          <div class="range"><label>Scale</label><input id="pinScale" type="range" min="25" max="200" value="50"><strong id="pinScaleVal">0.50</strong></div>
+          <p class="caption">Drag the gold circle if you want a custom thumbtack. It stays on this same 8 × 8 paper.</p>
+        </div>
+        <div class="readout" id="pinReadout" style="margin-top:12px"></div>
+      </div>
+    </div>
+    <div class="note"><strong>Checkpoint:</strong> if the thumbtack is at the top-left and the scale is 0.5, the photo’s bottom-right corner (8, 8) must move to (4, 4). If the thumbtack is at the center (4, 4) and the scale is 0.5, that same corner must move to (6, 6), and the top-left corner (0, 0) must move to (2, 2). The photo becomes a 4 × 4 picture floating in the middle of the still-8 × 8 paper.</div>
+  </section>
+
+  <section class="panel section">
+    <div class="section-no">2 · THE TRAP</div>
+    <h2>The lesson does not shrink inside the photo’s paper.</h2>
+    <p>Your familiar picture keeps the 8 × 8 destination and shrinks the artwork inside it. The Android route first <strong>creates a new 4 × 4 paper</strong>, then draws onto that new paper. The thumbtack is chosen on the paper you are drawing <em>onto</em>, not on the original photo.</p>
+    <div class="two" style="margin-top:16px">
+      <div class="card">
+        <h3>Familiar · same 8 × 8 paper</h3>
+        <svg id="familiarSvg" viewBox="0 0 420 360" aria-label="Same-container shrink"></svg>
+        <p class="caption">The destination stays 8 × 8. A “center” thumbtack is the photo’s center (4, 4). Empty margins appear around a smaller picture.</p>
+      </div>
+      <div class="card amber">
+        <h3>This lesson · new 4 × 4 paper</h3>
+        <svg id="newPaperSvg" viewBox="0 0 420 360" aria-label="New smaller paper"></svg>
+        <p class="caption">The destination is only 4 × 4. A “center” thumbtack is the <em>scratch paper’s</em> center (2, 2). That is a different point.</p>
+      </div>
+    </div>
+    <h3 style="margin-top:22px">Line the top-left corners up. Then look at the number line.</h3>
+    <p>The code draws the photo into the scratch paper with both local top-left corners at (0, 0). No extra shift. So the number 2 means two units from the shared top-left — on both papers.</p>
+    <svg id="numberLineSvg" viewBox="0 0 1100 250" aria-label="Shared number line for photo and scratch paper"></svg>
+    <div class="warning"><strong>This is the whole trick.</strong> The scratch paper’s center sits at 2. The photo’s center sits at 4. After the top-lefts are lined up, a “center” thumbtack is only one quarter of the way across the photo. Shrinking toward that thumbtack keeps the photo’s top-left and throws the photo’s right side and bottom off the small paper.</div>
+  </section>
+
+  <section class="panel section">
+    <div class="section-no">3 · FIRST PHOTOCOPY · PHOTO → SCRATCH PAPER</div>
+    <h2>Which part of the photo is stored?</h2>
+    <p>The first scale is 0.5. It happens while recording into the 4 × 4 paper. Anything that lands outside 0…4 is not stored. Those original pixels are gone. The later enlargement cannot invent them back.</p>
+    <div class="controls">
+      <button class="btn shrink-btn selected" data-mode="topLeft">Shrink thumbtack: top-left of the 4 × 4 paper (0, 0)</button>
+      <button class="btn shrink-btn" data-mode="center">Shrink thumbtack: center of the 4 × 4 paper (2, 2)</button>
+    </div>
+    <div class="pipeline" style="margin-top:16px">
+      <div>
+        <svg id="shrinkSourceSvg" viewBox="0 0 420 460" aria-label="Original photo with retained region"></svg>
+      </div>
+      <div class="arrow">→</div>
+      <div>
+        <svg id="shrinkMapSvg" viewBox="0 0 420 460" aria-label="Where the photo wants to land"></svg>
+      </div>
+      <div class="arrow">→</div>
+      <div>
+        <svg id="shrinkStoredSvg" viewBox="0 0 420 460" aria-label="What the scratch paper actually keeps"></svg>
+      </div>
+    </div>
+    <div class="readout" id="shrinkReadout" style="margin-top:14px"></div>
+    <div class="note" id="shrinkNote"></div>
+  </section>
+
+  <section class="panel section">
+    <div class="section-no">4 · SECOND PHOTOCOPY · SCRATCH PAPER → DISPLAY</div>
+    <h2>Where do the already-stored pixels land?</h2>
+    <p>The second scale is 2. It happens later, when the finished 4 × 4 image is drawn onto the 8 × 8 display. This thumbtack only moves pixels that are already on the scratch paper. It cannot reach back into the original photo.</p>
+    <div class="controls">
+      <span style="font-weight:800">Start from:</span>
+      <button class="btn stored-btn selected" data-stored="full">A full scratch paper (after top-left shrink)</button>
+      <button class="btn stored-btn" data-stored="cropped">A cropped scratch paper (after center shrink)</button>
+    </div>
+    <div class="controls" style="margin-top:8px">
+      <button class="btn enlarge-btn selected" data-mode="topLeft">Enlarge thumbtack: top-left of the 4 × 4 paper (0, 0)</button>
+      <button class="btn enlarge-btn" data-mode="center">Enlarge thumbtack: center of the 4 × 4 paper (2, 2)</button>
+    </div>
+    <div class="pipeline" style="margin-top:16px">
+      <div>
+        <svg id="enlargeStoredSvg" viewBox="0 0 420 460" aria-label="Stored scratch paper"></svg>
+      </div>
+      <div class="arrow">→</div>
+      <div>
+        <svg id="enlargeGhostSvg" viewBox="0 0 420 460" aria-label="Enlarged image before clipping"></svg>
+      </div>
+      <div class="arrow">→</div>
+      <div>
+        <svg id="enlargeFinalSvg" viewBox="0 0 420 460" aria-label="Final display after clipping"></svg>
+      </div>
+    </div>
+    <div class="readout" id="enlargeReadout" style="margin-top:14px"></div>
+    <div class="note" id="enlargeNote"></div>
+  </section>
+
+  <section class="panel section">
+    <div class="section-no">5 · THE FOUR CASES</div>
+    <h2>Two thumbtacks, four combinations</h2>
+    <p>Each case answers two separate questions. Left question: what did the scratch paper capture? Right question: where was that capture placed on the display?</p>
+    <div class="cases" id="caseGrid"></div>
+    <div class="case-detail" id="caseDetail"></div>
+  </section>
+
+  <section class="panel section">
+    <div class="section-no">6 · BACK TO THE LESSON NUMBERS</div>
+    <h2>Same geometry. Just more pixels.</h2>
+    <p>The lesson uses a portrait near the Preview size, not 8 × 8. The two photocopies and the two thumbtacks are unchanged.</p>
+    <div class="two">
+      <div class="card">
+        <h3>Toy model on this page</h3>
+        <div class="readout">photo = 8 × 8
+scratch paper = 8 × 0.5 = 4 × 4
+enlarge scale = 1 ÷ 0.5 = 2
+scratch center = (2, 2)
+photo center = (4, 4)</div>
+      </div>
+      <div class="card">
+        <h3>Lesson 7.4 production numbers</h3>
+        <div class="readout">photo = 483 × 528
+scratch width = round(483 × 0.5) = 242
+scratch height = round(528 × 0.5) = 264
+enlarge scale = 2
+scratch center ≈ (121, 132)
+photo center = (241.5, 264)</div>
+      </div>
+    </div>
+    <p>The extra 0.5 pixel of width (241.5 rounded up to 242) only adds a sliver of empty or overflow. It is not why a case looks shifted or cropped. The shift and the crop come from which thumbtack you used, on which paper.</p>
+    <div class="success"><strong>Production choice in the Android explorer:</strong> both thumbtacks stay at the top-left <code>(0, 0)</code>. That is Case 1. The whole photo lands on the scratch paper. The scratch paper then fills the display. No discarded region. No empty margin. The other three cases exist so you can see what those two thumbtacks actually do. You do not want Cases 2–4 in the frosted-glass path.</div>
+    <div class="card indigo" style="margin-top:16px">
+      <h3>The two Kotlin sites</h3>
+      <div class="readout">scale(..., pivot = Offset.Zero)     // first photocopy: shrink onto the scratch paper
+workingLayer.pivotOffset = Offset.Zero
+workingLayer.scaleX = 2f            // second photocopy: enlarge onto the display
+workingLayer.scaleY = 2f</div>
+      <p class="caption"><code>Offset.Zero</code> means the thumbtack is the top-left of the scratch paper both times. Changing only the second one moves the already-blurred image. Changing the first one changes which original pixels were ever stored.</p>
+    </div>
+  </section>
+
+  <section class="panel section">
+    <div class="section-no">7 · CHECK YOURSELF</div>
+    <h2>Answer these in chat if you want them graded</h2>
+    <p>Do not open the hidden answers first. Use the 8 × 8 model.</p>
+    <div class="card">
+      <p><strong>1.</strong> During the first photocopy, the thumbtack is at the scratch paper’s center (2, 2). Does the green dot at (6.5, 2.2) get stored? Why?</p>
+      <p><strong>2.</strong> The scratch paper already holds the <em>whole</em> photo (Case 1’s first photocopy). You then enlarge around the scratch paper’s center. Which part of the original photo is still visible on the 8 × 8 display, and why is the top-left of the display not the top-left of the photo?</p>
+      <p><strong>3.</strong> Someone says: “If I change <code>pivotOffset</code> to the center, I will crop a different part of the original photo.” What is wrong with that sentence?</p>
+    </div>
+    <details>
+      <summary>Show answers</summary>
+      <p><strong>1.</strong> No. New x = 2 + (6.5 − 2) × 0.5 = 4.25. The scratch paper only exists from 0 to 4. The green dot lands just past the right edge, so it is discarded.</p>
+      <p><strong>2.</strong> Visible original region is (2, 2)…(8, 8): the bottom-right 6 × 6 of the photo. Enlarging around (2, 2) sends the stored top-left (0, 0) to (−2, −2), which is off the display. This is not “one stored pixel becoming a 2 × 2 block.” It is the same thumbtack rule run backwards, once per axis, to ask which stored point landed on the display’s top-left.</p>
+      <p>Forward enlarge: new = thumbtack + (old − thumbtack) × 2. Inverse: old = thumbtack + (new − thumbtack) ÷ 2. Display top-left is (0, 0), enlarge thumbtack is (2, 2), so scratch x = 2 + (0 − 2) ÷ 2 = 1, and scratch y is the same. Display (0, 0) therefore shows the color that was stored at scratch (1, 1). That stored point itself came from the first photocopy with shrink thumbtack (0, 0) and scale 0.5: original = 0 + (1 − 0) ÷ 0.5 = 2 on both axes. So display (0, 0) is original (2, 2).</p>
+      <p><strong>3.</strong> <code>pivotOffset</code> runs after the scratch paper is already filled. It only moves those stored pixels on the display. The original region was chosen by the first <code>DrawScope.scale</code> plus the 4 × 4 bounds. A later thumbtack cannot put discarded original pixels back.</p>
+    </details>
+  </section>
+</div>
+<script>
+const PHOTO = 8;
+const PAPER = 4;
+const GREEN_DOT = {x:6.5, y:2.2};
+const NAVY = "#173a63";
+const ORANGE = "#e39a31";
+const DOT = "#10b981";
+const PIN = "#d97706";
+
+const pinState = {mode:"topLeft", x:0, y:0, scale:0.5};
+const shrinkMode = {mode:"topLeft"};
+const enlargeState = {stored:"full", mode:"topLeft"};
+let selectedCase = "tl-tl";
+
+function clamp(n,a,b){return Math.max(a,Math.min(b,n))}
+function fmt(n){return (Math.round(n*100)/100).toString()}
+function pt(p){return `(${fmt(p.x)}, ${fmt(p.y)})`}
+function mapPoint(p,pivot,scale){return {x:pivot.x+(p.x-pivot.x)*scale, y:pivot.y+(p.y-pivot.y)*scale}}
+function mapRect(r,pivot,scale){
+  const a=mapPoint({x:r.l,y:r.t},pivot,scale), b=mapPoint({x:r.r,y:r.b},pivot,scale);
+  return {l:Math.min(a.x,b.x), t:Math.min(a.y,b.y), r:Math.max(a.x,b.x), b:Math.max(a.y,b.y)};
+}
+function intersect(a,b){
+  const l=Math.max(a.l,b.l), t=Math.max(a.t,b.t), r=Math.min(a.r,b.r), bot=Math.min(a.b,b.b);
+  return r>l && bot>t ? {l,t,r,b:bot} : {l:0,t:0,r:0,b:0};
+}
+function emptyRect(r){return r.r<=r.l || r.b<=r.t}
+function rect(l,t,r,b){return {l,t,r,b}}
+function bounds(size){return rect(0,0,size,size)}
+function fmtRect(r){return emptyRect(r) ? "nothing" : `${pt({x:r.l,y:r.t})}…${pt({x:r.r,y:r.b})}`}
+
+function artwork(w,h,opacity=1){
+  const bars=[.10,.16,.22,.28,.34].map(x=>`<rect x="${w*x}" y="${h*.68}" width="${w*.028}" height="${h*.16}" fill="#fff"/>`).join("");
+  return `<g opacity="${opacity}">
+    <rect width="${w}" height="${h}" fill="${NAVY}"/>
+    <rect x="${w/2}" width="${w/2}" height="${h}" fill="${ORANGE}"/>
+    <line x1="${w*.08}" y1="${h*.16}" x2="${w*.92}" y2="${h*.78}" stroke="#fff" stroke-width="${w/42}" stroke-linecap="round"/>
+    <circle cx="${w*(GREEN_DOT.x/PHOTO)}" cy="${h*(GREEN_DOT.y/PHOTO)}" r="${w*.07}" fill="${DOT}" stroke="#fff" stroke-width="${w/90}"/>
+    ${bars}
+  </g>`;
+}
+
+function checker(id){
+  return `<pattern id="${id}" width="14" height="14" patternUnits="userSpaceOnUse">
+    <rect width="14" height="14" fill="#e5e7eb"/><rect width="7" height="7" fill="#cbd5e1"/><rect x="7" y="7" width="7" height="7" fill="#cbd5e1"/>
+  </pattern>`;
+}
+
+function hatch(id,color="#dc2626"){
+  return `<pattern id="${id}" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <line x1="0" y1="0" x2="0" y2="8" stroke="${color}" stroke-width="3" opacity=".45"/>
+  </pattern>`;
+}
+
+function grid(size,step,color="rgba(255,255,255,.28)"){
+  let s="";
+  for(let i=0;i<=size;i+=step){
+    s+=`<line x1="${i}" y1="0" x2="${i}" y2="${size}" stroke="${color}" stroke-width="${i%2===0?.06:.035}"/>`;
+    s+=`<line x1="0" y1="${i}" x2="${size}" y2="${i}" stroke="${color}" stroke-width="${i%2===0?.06:.035}"/>`;
+  }
+  return s;
+}
+
+function pinMark(x,y,r=.22){
+  return `<circle cx="${x}" cy="${y}" r="${r}" fill="${PIN}" stroke="#fff" stroke-width="${r*.28}"/>
+    <circle cx="${x}" cy="${y}" r="${r*.28}" fill="#fff"/>`;
+}
+
+function paperFrame(x,y,w,h,label,sub,active=false){
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="16" fill="var(--panel)" stroke="${active?"#4338ca":"#94a3b8"}" stroke-width="${active?3:1.5}"/>
+    <text x="${x+16}" y="${y+26}" fill="currentColor" font-size="15" font-weight="900">${label}</text>
+    <text x="${x+16}" y="${y+44}" fill="#64748b" font-size="11" font-weight="700">${sub}</text>`;
+}
+
+function fit(rect,x,y,w,h,pad=0){
+  const rw=Math.max(.001,rect.r-rect.l), rh=Math.max(.001,rect.b-rect.t);
+  const s=Math.min((w-pad*2)/rw,(h-pad*2)/rh);
+  const ox=x+(w-rw*s)/2-rect.l*s, oy=y+(h-rh*s)/2-rect.t*s;
+  return {s,ox,oy,t:`translate(${ox} ${oy}) scale(${s})`};
+}
+
+function compute(recordMode, enlargeMode){
+  const recordPivot = recordMode==="topLeft" ? {x:0,y:0} : {x:PAPER/2,y:PAPER/2};
+  const enlargePivot = enlargeMode==="topLeft" ? {x:0,y:0} : {x:PAPER/2,y:PAPER/2};
+  const photo = bounds(PHOTO);
+  const paper = bounds(PAPER);
+  const display = bounds(PHOTO);
+  const mapped = mapRect(photo, recordPivot, 0.5);
+  const stored = intersect(mapped, paper);
+  const retained = intersect(mapRect(stored, recordPivot, 2), photo);
+  const placed = mapRect(stored, enlargePivot, 2);
+  const visible = intersect(placed, display);
+  const visibleStored = mapRect(visible, enlargePivot, 0.5);
+  const visibleOriginal = intersect(mapRect(visibleStored, recordPivot, 2), photo);
+  const dotOnPaper = mapPoint(GREEN_DOT, recordPivot, 0.5);
+  const dotStored = dotOnPaper.x>=0 && dotOnPaper.x<=PAPER && dotOnPaper.y>=0 && dotOnPaper.y<=PAPER;
+  const dotOnDisplay = dotStored ? mapPoint(dotOnPaper, enlargePivot, 2) : null;
+  const dotVisible = !!(dotOnDisplay && dotOnDisplay.x>=0 && dotOnDisplay.x<=PHOTO && dotOnDisplay.y>=0 && dotOnDisplay.y<=PHOTO);
+  return {recordMode,enlargeMode,recordPivot,enlargePivot,photo,paper,display,mapped,stored,retained,placed,visible,visibleOriginal,dotOnPaper,dotStored,dotOnDisplay,dotVisible};
+}
+
+function renderPinLab(){
+  const pivot = {x:pinState.x, y:pinState.y};
+  const scale = pinState.scale;
+  const tl = mapPoint({x:0,y:0}, pivot, scale);
+  const br = mapPoint({x:PHOTO,y:PHOTO}, pivot, scale);
+  const dot = mapPoint(GREEN_DOT, pivot, scale);
+  const ox=70, oy=58, unit=46;
+  const svg = document.getElementById("pinSvg");
+  svg.innerHTML = `<defs>${checker("pinCheck")}<clipPath id="pinPaperClip"><rect width="${PHOTO}" height="${PHOTO}"/></clipPath></defs>
+    <rect x="${ox}" y="${oy}" width="${PHOTO*unit}" height="${PHOTO*unit}" fill="url(#pinCheck)"/>
+    <g transform="translate(${ox} ${oy}) scale(${unit})">
+      <g clip-path="url(#pinPaperClip)">
+        <g opacity=".28">${artwork(PHOTO,PHOTO)}</g>
+        <g transform="translate(${pivot.x} ${pivot.y}) scale(${scale}) translate(${-pivot.x} ${-pivot.y})">${artwork(PHOTO,PHOTO)}</g>
+      </g>
+      ${grid(PHOTO,1)}
+      <rect x="0" y="0" width="${PHOTO}" height="${PHOTO}" fill="none" stroke="#334155" stroke-width=".07"/>
+      <g id="pinHandle" style="cursor:grab">${pinMark(pivot.x,pivot.y,.28)}</g>
+      <circle cx="${dot.x}" cy="${dot.y}" r=".16" fill="none" stroke="#064e3b" stroke-width=".05"/>
+    </g>
+    ${[0,2,4,6,8].map(n=>`<text x="${ox+n*unit}" y="${oy+PHOTO*unit+22}" text-anchor="middle" font-size="12" font-weight="800" fill="#64748b">${n}</text>`).join("")}
+    ${[0,2,4,6,8].map(n=>`<text x="${ox-16}" y="${oy+n*unit+4}" text-anchor="end" font-size="12" font-weight="800" fill="#64748b">${n}</text>`).join("")}
+    <text x="${ox}" y="28" font-size="15" font-weight="900" fill="currentColor">One 8 × 8 paper · scale ${fmt(scale)} · thumbtack ${pt(pivot)}</text>`;
+
+  document.getElementById("pinReadout").textContent =
+`thumbtack stays at ${pt(pivot)}
+scale = ${fmt(scale)}
+
+top-left (0, 0)
+  distance from thumbtack = (${fmt(0-pivot.x)}, ${fmt(0-pivot.y)})
+  new distance = that × ${fmt(scale)} = (${fmt((0-pivot.x)*scale)}, ${fmt((0-pivot.y)*scale)})
+  new position = ${pt(tl)}
+
+bottom-right (8, 8)
+  new position = ${pt(br)}
+
+green dot ${pt(GREEN_DOT)}
+  new position = ${pt(dot)}`;
+
+  const handle = svg.querySelector("#pinHandle");
+  handle.addEventListener("pointerdown", event => {
+    event.preventDefault();
+    handle.setPointerCapture(event.pointerId);
+    const move = ev => {
+      const ctm = svg.getScreenCTM().inverse();
+      const p = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(ctm);
+      pinState.x = clamp((p.x-ox)/unit, 0, PHOTO);
+      pinState.y = clamp((p.y-oy)/unit, 0, PHOTO);
+      pinState.mode = "custom";
+      document.querySelectorAll(".pin-btn").forEach(b=>b.classList.remove("selected"));
+      renderPinLab();
+    };
+    const up = ev => {
+      handle.releasePointerCapture(ev.pointerId);
+      handle.removeEventListener("pointermove", move);
+      handle.removeEventListener("pointerup", up);
+    };
+    handle.addEventListener("pointermove", move);
+    handle.addEventListener("pointerup", up);
+  });
+}
+
+function renderFamiliarAndNew(){
+  document.getElementById("familiarSvg").innerHTML = `<defs>${checker("famCheck")}<clipPath id="famPaper"><rect width="8" height="8"/></clipPath></defs>
+    <g transform="translate(70 56) scale(28)">
+      <rect width="8" height="8" fill="url(#famCheck)"/>
+      <g clip-path="url(#famPaper)">
+        <g transform="translate(4 4) scale(.5) translate(-4 -4)">${artwork(8,8)}</g>
+      </g>
+      <rect width="8" height="8" fill="none" stroke="#334155" stroke-width=".08"/>
+      ${pinMark(4,4,.22)}
+    </g>
+    <text x="70" y="40" font-size="13" font-weight="800" fill="#64748b">destination still 8 × 8</text>`;
+
+  document.getElementById("newPaperSvg").innerHTML = `<defs>${checker("newCheck")}</defs>
+    <g transform="translate(70 56) scale(28)">
+      <rect width="8" height="8" fill="none" stroke="#94a3b8" stroke-width=".07" stroke-dasharray=".25 .18"/>
+      <rect width="4" height="4" fill="url(#newCheck)" stroke="#d97706" stroke-width=".1"/>
+      ${pinMark(2,2,.22)}
+    </g>
+    <text x="70" y="40" font-size="13" font-weight="800" fill="#64748b">new destination is only 4 × 4</text>
+    <text x="182" y="178" font-size="12" font-weight="800" fill="#d97706">center (2, 2)</text>`;
+
+  document.getElementById("numberLineSvg").innerHTML = `
+    <text x="40" y="36" font-size="16" font-weight="900" fill="currentColor">Shared left edge = 0. The papers are different widths.</text>
+    <g transform="translate(40 78)">
+      <text x="0" y="0" font-size="13" font-weight="800" fill="#1e40af">photo, 8 units wide</text>
+      <line x1="0" y1="28" x2="960" y2="28" stroke="#1e40af" stroke-width="6" stroke-linecap="round"/>
+      ${[0,1,2,3,4,5,6,7,8].map(n=>`<g transform="translate(${n*120} 28)">
+        <line y1="-10" y2="10" stroke="#1e40af" stroke-width="3"/>
+        <text y="32" text-anchor="middle" font-size="14" font-weight="800" fill="#1e40af">${n}</text>
+      </g>`).join("")}
+      <circle cx="240" cy="28" r="9" fill="#d97706" stroke="#fff" stroke-width="3"/>
+      <circle cx="480" cy="28" r="9" fill="#4338ca" stroke="#fff" stroke-width="3"/>
+    </g>
+    <g transform="translate(40 168)">
+      <text x="0" y="0" font-size="13" font-weight="800" fill="#d97706">scratch paper, 4 units wide</text>
+      <line x1="0" y1="28" x2="480" y2="28" stroke="#d97706" stroke-width="6" stroke-linecap="round"/>
+      ${[0,1,2,3,4].map(n=>`<g transform="translate(${n*120} 28)">
+        <line y1="-10" y2="10" stroke="#d97706" stroke-width="3"/>
+        <text y="32" text-anchor="middle" font-size="14" font-weight="800" fill="#d97706">${n}</text>
+      </g>`).join("")}
+      <circle cx="240" cy="28" r="9" fill="#d97706" stroke="#fff" stroke-width="3"/>
+    </g>
+    <text x="250" y="118" font-size="13" font-weight="800" fill="#d97706">scratch center = 2</text>
+    <text x="500" y="70" font-size="13" font-weight="800" fill="#4338ca">photo center = 4</text>`;
+}
+
+function drawPhotoWithRetain(svg, g, title){
+  const ox=54, oy=70, unit=36;
+  svg.innerHTML = `<defs>${hatch("srcHatch")}</defs>
+    <text x="16" y="26" font-size="15" font-weight="900" fill="currentColor">${title}</text>
+    <g transform="translate(${ox} ${oy}) scale(${unit})">
+      ${artwork(PHOTO,PHOTO,.28)}
+      <clipPath id="retainClip"><rect x="${g.retained.l}" y="${g.retained.t}" width="${g.retained.r-g.retained.l}" height="${g.retained.b-g.retained.t}"/></clipPath>
+      <g clip-path="url(#retainClip)">${artwork(PHOTO,PHOTO)}</g>
+      ${emptyRect({l:g.retained.r,t:0,r:PHOTO,b:PHOTO})?"":""}
+      <rect x="${g.retained.r}" y="0" width="${Math.max(0,PHOTO-g.retained.r)}" height="${PHOTO}" fill="url(#srcHatch)"/>
+      <rect x="0" y="${g.retained.b}" width="${g.retained.r}" height="${Math.max(0,PHOTO-g.retained.b)}" fill="url(#srcHatch)"/>
+      <rect x="${g.retained.l}" y="${g.retained.t}" width="${Math.max(0,g.retained.r-g.retained.l)}" height="${Math.max(0,g.retained.b-g.retained.t)}" fill="none" stroke="#059669" stroke-width=".1"/>
+      ${grid(PHOTO,1)}
+      <rect width="${PHOTO}" height="${PHOTO}" fill="none" stroke="#334155" stroke-width=".07"/>
+    </g>
+    <text x="${ox}" y="${oy+PHOTO*unit+24}" font-size="12" font-weight="800" fill="#059669">kept ${fmtRect(g.retained)}</text>
+    <text x="${ox}" y="${oy+PHOTO*unit+42}" font-size="12" font-weight="800" fill="${g.retained.r<PHOTO || g.retained.b<PHOTO ? "#dc2626" : "#059669"}">${g.retained.r<PHOTO || g.retained.b<PHOTO ? "hatched = thrown away" : "nothing thrown away"}</text>`;
+}
+
+function drawMapped(svg, g){
+  const ox=70, oy=90, unit=36;
+  const pad = bounds(6);
+  svg.innerHTML = `<defs>${checker("mapCheck")}${hatch("mapHatch","#d97706")}</defs>
+    <text x="16" y="26" font-size="15" font-weight="900" fill="currentColor">Where the photo wants to land</text>
+    <g transform="translate(${ox} ${oy}) scale(${unit})">
+      <rect x="-0.6" y="-0.6" width="6.4" height="6.4" fill="url(#mapCheck)"/>
+      <g transform="translate(${g.recordPivot.x} ${g.recordPivot.y}) scale(0.5) translate(${-g.recordPivot.x} ${-g.recordPivot.y})">${artwork(PHOTO,PHOTO,.55)}</g>
+      <rect width="${PAPER}" height="${PAPER}" fill="none" stroke="#2563eb" stroke-width=".12"/>
+      <rect x="${g.mapped.l}" y="${g.mapped.t}" width="${g.mapped.r-g.mapped.l}" height="${g.mapped.b-g.mapped.t}" fill="none" stroke="#dc2626" stroke-width=".08" stroke-dasharray=".16 .12"/>
+      ${pinMark(g.recordPivot.x,g.recordPivot.y,.2)}
+    </g>
+    <text x="16" y="52" font-size="12" font-weight="800" fill="#2563eb">blue = 4 × 4 scratch paper</text>
+    <text x="16" y="${oy+6.2*unit}" font-size="12" font-weight="800" fill="#dc2626">dashed = full photo after shrink ${fmtRect(g.mapped)}</text>`;
+}
+
+function drawStored(svg, g, title="What is actually stored"){
+  const ox=70, oy=90, unit=52;
+  svg.innerHTML = `<defs>${checker("stCheck")}<clipPath id="paperClip"><rect width="${PAPER}" height="${PAPER}"/></clipPath></defs>
+    <text x="16" y="26" font-size="15" font-weight="900" fill="currentColor">${title}</text>
+    <g transform="translate(${ox} ${oy}) scale(${unit})">
+      <rect width="${PAPER}" height="${PAPER}" fill="url(#stCheck)"/>
+      <g clip-path="url(#paperClip)">
+        <g transform="translate(${g.recordPivot.x} ${g.recordPivot.y}) scale(0.5) translate(${-g.recordPivot.x} ${-g.recordPivot.y})">${artwork(PHOTO,PHOTO)}</g>
+      </g>
+      <rect width="${PAPER}" height="${PAPER}" fill="none" stroke="#2563eb" stroke-width=".08"/>
+      ${pinMark(g.recordPivot.x,g.recordPivot.y,.16)}
+    </g>
+    <text x="${ox}" y="${oy+PAPER*unit+24}" font-size="12" font-weight="800" fill="#059669">stored ${fmtRect(g.stored)}</text>`;
+}
+
+function renderShrink(){
+  const g = compute(shrinkMode.mode, "topLeft");
+  drawPhotoWithRetain(document.getElementById("shrinkSourceSvg"), g, "1. Original photo");
+  drawMapped(document.getElementById("shrinkMapSvg"), g);
+  drawStored(document.getElementById("shrinkStoredSvg"), g, "3. Stored on scratch paper");
+  const dotLine = g.dotStored
+    ? `green dot ${pt(GREEN_DOT)} → scratch ${pt(g.dotOnPaper)} · stored`
+    : `green dot ${pt(GREEN_DOT)} → scratch ${pt(g.dotOnPaper)} · OFF the paper, discarded`;
+  document.getElementById("shrinkReadout").textContent =
+`shrink thumbtack = ${pt(g.recordPivot)} on the 4 × 4 paper
+scale = 0.5
+
+top-left of photo (0, 0) lands at ${pt(mapPoint({x:0,y:0}, g.recordPivot, 0.5))}
+bottom-right of photo (8, 8) lands at ${pt(mapPoint({x:8,y:8}, g.recordPivot, 0.5))}
+
+mapped photo rectangle = ${fmtRect(g.mapped)}
+scratch paper rectangle = (0, 0)…(4, 4)
+overlap actually stored = ${fmtRect(g.stored)}
+original region that produced that overlap = ${fmtRect(g.retained)}
+
+${dotLine}`;
+  document.getElementById("shrinkNote").innerHTML = shrinkMode.mode==="topLeft"
+    ? "<strong>Top-left shrink:</strong> the photo’s top-left is pinned to the scratch paper’s top-left. (8, 8) moves to (4, 4). The whole photo lands exactly on the 4 × 4 paper. Every original landmark is stored, just smaller."
+    : "<strong>Center shrink:</strong> (0, 0) moves to (1, 1). (8, 8) moves to (5, 5). The right 1 unit and the bottom 1 unit of that 4 × 4 landing hang off the paper and are cut. Empty checkerboard appears in the scratch paper’s top-left. The original right 2 units and bottom 2 units are gone.";
+}
+
+function storedGeometry(kind){
+  return kind==="full" ? compute("topLeft","topLeft") : compute("center","topLeft");
+}
+
+function drawEnlargeChain(){
+  const base = storedGeometry(enlargeState.stored);
+  const g = compute(base.recordMode, enlargeState.mode);
+  const ox=70, oy=90;
+
+  const storedSvg = document.getElementById("enlargeStoredSvg");
+  drawStored(storedSvg, g, "Already stored. This is the only input.");
+
+  document.getElementById("enlargeGhostSvg").innerHTML = `<defs>${checker("ghCheck")}</defs>
+    <text x="16" y="26" font-size="15" font-weight="900" fill="currentColor">After enlarge, before the display cuts</text>
+    <g transform="translate(36 70) scale(36)">
+      <rect width="8" height="8" fill="url(#ghCheck)"/>
+      <g opacity=".38" transform="translate(${g.enlargePivot.x} ${g.enlargePivot.y}) scale(2) translate(${-g.enlargePivot.x} ${-g.enlargePivot.y})">
+        <clipPath id="ghStored"><rect x="${g.stored.l}" y="${g.stored.t}" width="${Math.max(0,g.stored.r-g.stored.l)}" height="${Math.max(0,g.stored.b-g.stored.t)}"/></clipPath>
+        <g clip-path="url(#ghStored)">
+          <g transform="translate(${g.recordPivot.x} ${g.recordPivot.y}) scale(0.5) translate(${-g.recordPivot.x} ${-g.recordPivot.y})">${artwork(PHOTO,PHOTO)}</g>
+        </g>
+      </g>
+      <rect x="${g.placed.l}" y="${g.placed.t}" width="${g.placed.r-g.placed.l}" height="${g.placed.b-g.placed.t}" fill="none" stroke="#059669" stroke-width=".1"/>
+      <rect width="8" height="8" fill="none" stroke="#334155" stroke-width=".08"/>
+      ${pinMark(g.enlargePivot.x,g.enlargePivot.y,.2)}
+    </g>
+    <text x="16" y="52" font-size="12" font-weight="800" fill="#059669">green box can stick out past 0…8</text>`;
+
+  document.getElementById("enlargeFinalSvg").innerHTML = `<defs>${checker("fnCheck")}<clipPath id="dispClip"><rect width="8" height="8"/></clipPath></defs>
+    <text x="16" y="26" font-size="15" font-weight="900" fill="currentColor">What the display actually shows</text>
+    <g transform="translate(54 70) scale(36)">
+      <rect width="8" height="8" fill="url(#fnCheck)"/>
+      <g clip-path="url(#dispClip)">
+        <g transform="translate(${g.enlargePivot.x} ${g.enlargePivot.y}) scale(2) translate(${-g.enlargePivot.x} ${-g.enlargePivot.y})">
+          <clipPath id="fnStored"><rect x="${g.stored.l}" y="${g.stored.t}" width="${Math.max(0,g.stored.r-g.stored.l)}" height="${Math.max(0,g.stored.b-g.stored.t)}"/></clipPath>
+          <g clip-path="url(#fnStored)">
+            <g transform="translate(${g.recordPivot.x} ${g.recordPivot.y}) scale(0.5) translate(${-g.recordPivot.x} ${-g.recordPivot.y})">${artwork(PHOTO,PHOTO)}</g>
+          </g>
+        </g>
+      </g>
+      <rect width="8" height="8" fill="none" stroke="#334155" stroke-width=".08"/>
+      ${pinMark(g.enlargePivot.x,g.enlargePivot.y,.2)}
+    </g>
+    <text x="54" y="382" font-size="12" font-weight="800" fill="#4338ca">visible original ${fmtRect(g.visibleOriginal)}</text>`;
+
+  const overflowLeft = Math.max(0,-g.placed.l);
+  const overflowTop = Math.max(0,-g.placed.t);
+  const emptyRight = Math.max(0, PHOTO-g.placed.r);
+  const emptyBottom = Math.max(0, PHOTO-g.placed.b);
+  document.getElementById("enlargeReadout").textContent =
+`enlarge thumbtack = ${pt(g.enlargePivot)} on the 4 × 4 paper
+scale = 2
+
+stored rectangle ${fmtRect(g.stored)} becomes ${fmtRect(g.placed)}
+display rectangle = (0, 0)…(8, 8)
+after the display cuts: ${fmtRect(g.visible)}
+original photo still on screen: ${fmtRect(g.visibleOriginal)}
+
+overflow off the left = ${fmt(overflowLeft)}, off the top = ${fmt(overflowTop)}
+empty on the right = ${fmt(emptyRight)}, empty on the bottom = ${fmt(emptyBottom)}`;
+
+  document.getElementById("enlargeNote").innerHTML = enlargeState.mode==="topLeft"
+    ? "<strong>Top-left enlarge:</strong> the scratch paper’s top-left stays at the display’s top-left. Everything grows down and right. If the scratch paper was full, the display fills. If the scratch paper had empty top-left padding, that empty padding also grows, so the picture sits down and right on the display."
+    : "<strong>Center enlarge:</strong> the scratch paper’s center stays put at (2, 2) on the display. The stored top-left goes into negative coordinates and is cut off. You see the bottom-right of whatever was stored, and the display’s top-left is no longer the photo’s top-left.";
+}
+
+const CASE_META = {
+  "tl-tl": {record:"topLeft", enlarge:"topLeft", title:"Case 1 · both top-left", why:"Production case. Whole photo is stored, then put back to fill the display."},
+  "tl-c":  {record:"topLeft", enlarge:"center", title:"Case 2 · shrink top-left, enlarge center", why:"Whole photo was stored. Enlarging around the scratch center shoves the top-left off screen."},
+  "c-tl":  {record:"center", enlarge:"topLeft", title:"Case 3 · shrink center, enlarge top-left", why:"Right and bottom of the photo were never stored. Empty scratch padding grows into a top-left margin."},
+  "c-c":   {record:"center", enlarge:"center", title:"Case 4 · both center", why:"The two center thumbtacks undo each other’s shift for pixels that survived. Discarded pixels stay gone."}
+};
+
+function miniCase(id){
+  const meta = CASE_META[id];
+  const g = compute(meta.record, meta.enlarge);
+  const uid = id.replace("-","");
+  return `<button class="case-card ${selectedCase===id?"selected":""}" data-case="${id}">
+    <h3>${meta.title}</h3>
+    <svg viewBox="0 0 360 168" aria-hidden="true">${miniPipeline(g, uid)}</svg>
+    <p class="caption">${meta.why}</p>
+  </button>`;
+}
+
+function miniPipeline(g, uid){
+  return `<defs>${checker("m"+uid)}<clipPath id="ms${uid}"><rect width="4" height="4"/></clipPath><clipPath id="md${uid}"><rect width="8" height="8"/></clipPath></defs>
+    <g transform="translate(16 28) scale(14)">
+      ${artwork(8,8,.25)}
+      <clipPath id="mr${uid}"><rect x="${g.retained.l}" y="${g.retained.t}" width="${Math.max(0,g.retained.r-g.retained.l)}" height="${Math.max(0,g.retained.b-g.retained.t)}"/></clipPath>
+      <g clip-path="url(#mr${uid})">${artwork(8,8)}</g>
+      <rect width="8" height="8" fill="none" stroke="#64748b" stroke-width=".08"/>
+    </g>
+    <text x="16" y="20" font-size="11" font-weight="800" fill="#64748b">kept</text>
+    <text x="150" y="96" font-size="20" fill="#4338ca">→</text>
+    <g transform="translate(176 42) scale(14)">
+      <rect width="4" height="4" fill="url(#m${uid})"/>
+      <g clip-path="url(#ms${uid})">
+        <g transform="translate(${g.recordPivot.x} ${g.recordPivot.y}) scale(.5) translate(${-g.recordPivot.x} ${-g.recordPivot.y})">${artwork(8,8)}</g>
+      </g>
+      <rect width="4" height="4" fill="none" stroke="#2563eb" stroke-width=".1"/>
+    </g>
+    <text x="176" y="20" font-size="11" font-weight="800" fill="#64748b">scratch</text>
+    <text x="250" y="96" font-size="20" fill="#4338ca">→</text>
+    <g transform="translate(270 28) scale(14)">
+      <rect width="8" height="8" fill="url(#m${uid})"/>
+      <g clip-path="url(#md${uid})">
+        <g transform="translate(${g.enlargePivot.x} ${g.enlargePivot.y}) scale(2) translate(${-g.enlargePivot.x} ${-g.enlargePivot.y})">
+          <g clip-path="url(#ms${uid})">
+            <g transform="translate(${g.recordPivot.x} ${g.recordPivot.y}) scale(.5) translate(${-g.recordPivot.x} ${-g.recordPivot.y})">${artwork(8,8)}</g>
+          </g>
+        </g>
+      </g>
+      <rect width="8" height="8" fill="none" stroke="#334155" stroke-width=".08"/>
+    </g>
+    <text x="270" y="20" font-size="11" font-weight="800" fill="#64748b">display</text>`;
+}
+
+function oneAxisTrace(axis, oldVal, pinVal, scale){
+  const delta = oldVal - pinVal;
+  const scaled = delta * scale;
+  const result = pinVal + scaled;
+  return `${axis} = thumbtack ${axis} + (old ${axis} − thumbtack ${axis}) × scale
+  = ${fmt(pinVal)} + (${fmt(oldVal)} − ${fmt(pinVal)}) × ${fmt(scale)}
+  = ${fmt(pinVal)} + (${fmt(delta)} × ${fmt(scale)})
+  = ${fmt(pinVal)} + (${fmt(scaled)})
+  = ${fmt(result)}`;
+}
+
+function greenDotTrace(g){
+  const shrinkX = oneAxisTrace("x", GREEN_DOT.x, g.recordPivot.x, 0.5);
+  const shrinkY = oneAxisTrace("y", GREEN_DOT.y, g.recordPivot.y, 0.5);
+  const storedLine = g.dotStored
+    ? `This point is inside 0…4 on both axes, so it is stored at ${pt(g.dotOnPaper)}.`
+    : `This point is outside the 4 × 4 paper (needs 0…4 on both axes), so it is discarded. Photocopy 2 never sees it.`;
+  let enlargeBlock = `Photocopy 2 is not applied to the green dot, because the dot was never stored.`;
+  if(g.dotStored){
+    const enlargeX = oneAxisTrace("x", g.dotOnPaper.x, g.enlargePivot.x, 2);
+    const enlargeY = oneAxisTrace("y", g.dotOnPaper.y, g.enlargePivot.y, 2);
+    const visibleLine = g.dotVisible
+      ? `This point is inside the 8 × 8 display, so it is visible at ${pt(g.dotOnDisplay)}.`
+      : `This point landed at ${pt(g.dotOnDisplay)}, outside 0…8, so the display cuts it off.`;
+    enlargeBlock = `Photocopy 2 · enlarge onto the display
+old position = the already-stored scratch point ${pt(g.dotOnPaper)}
+thumbtack = ${pt(g.enlargePivot)}
+scale = 2
+
+${enlargeX}
+
+${enlargeY}
+
+${visibleLine}`;
+  }
+  return `The same rule is used twice. Photocopy 2 does not start from the original photo point. It starts from the stored scratch-paper point.
+
+new position = thumbtack + (old position − thumbtack) × scale
+
+Photocopy 1 · shrink onto the scratch paper
+old position = original green dot ${pt(GREEN_DOT)}
+thumbtack = ${pt(g.recordPivot)}
+scale = 0.5
+
+${shrinkX}
+
+${shrinkY}
+
+${storedLine}
+
+${enlargeBlock}`;
+}
+
+function renderCases(){
+  document.getElementById("caseGrid").innerHTML = Object.keys(CASE_META).map(miniCase).join("");
+  document.querySelectorAll(".case-card").forEach(btn => {
+    btn.addEventListener("click", () => { selectedCase = btn.dataset.case; renderCases(); });
+  });
+  const meta = CASE_META[selectedCase];
+  const g = compute(meta.record, meta.enlarge);
+  const sentences = {
+    "tl-tl": "The photo shrinks onto the entire scratch paper. Then it grows from the same top-left and fills the display. The green dot goes (6.5, 2.2) → (3.25, 1.1) → (6.5, 2.2). It comes home.",
+    "tl-c": "The scratch paper still holds the whole photo. Enlarging around (2, 2) sends stored (0, 0) to (−2, −2). The display therefore shows the bottom-right of the photo, and the photo’s top-left has slid off the screen.",
+    "c-tl": "Center shrink already threw away the original right 2 and bottom 2. The scratch paper’s top-left is empty. Enlarging from that empty top-left makes a blank margin on the display. The surviving top-left of the photo sits down and right. The green dot never comes back.",
+    "c-c": "Center shrink stored the top-left 6 × 6 of the photo in the bottom-right of the scratch paper. Center enlarge grows that stored patch back to the top-left of the display. Surviving pixels look almost unshifted. The missing right and bottom of the photo stay missing, as empty display margin."
+  };
+  document.getElementById("caseDetail").innerHTML = `
+    <div class="card indigo">
+      <h3>${meta.title}</h3>
+      <p>${sentences[selectedCase]}</p>
+      <div class="readout">${greenDotTrace(g)}</div>
+      <div class="readout" style="margin-top:10px">scratch thumbtack ${pt(g.recordPivot)} · display thumbtack ${pt(g.enlargePivot)}
+stored on scratch paper: ${fmtRect(g.stored)}
+original region stored: ${fmtRect(g.retained)}
+placed on display before cut: ${fmtRect(g.placed)}
+original region still visible: ${fmtRect(g.visibleOriginal)}</div>
+    </div>`;
+}
+
+function bind(){
+  document.querySelectorAll(".pin-btn").forEach(btn => btn.addEventListener("click", () => {
+    document.querySelectorAll(".pin-btn").forEach(b=>b.classList.toggle("selected", b===btn));
+    pinState.mode = btn.dataset.pin;
+    pinState.x = pinState.mode==="topLeft" ? 0 : 4;
+    pinState.y = pinState.mode==="topLeft" ? 0 : 4;
+    renderPinLab();
+  }));
+  document.getElementById("pinScale").addEventListener("input", e => {
+    pinState.scale = Number(e.target.value)/100;
+    document.getElementById("pinScaleVal").textContent = pinState.scale.toFixed(2);
+    renderPinLab();
+  });
+  document.querySelectorAll(".shrink-btn").forEach(btn => btn.addEventListener("click", () => {
+    document.querySelectorAll(".shrink-btn").forEach(b=>b.classList.toggle("selected", b===btn));
+    shrinkMode.mode = btn.dataset.mode;
+    renderShrink();
+  }));
+  document.querySelectorAll(".stored-btn").forEach(btn => btn.addEventListener("click", () => {
+    document.querySelectorAll(".stored-btn").forEach(b=>b.classList.toggle("selected", b===btn));
+    enlargeState.stored = btn.dataset.stored;
+    renderEnlarge();
+  }));
+  document.querySelectorAll(".enlarge-btn").forEach(btn => btn.addEventListener("click", () => {
+    document.querySelectorAll(".enlarge-btn").forEach(b=>b.classList.toggle("selected", b===btn));
+    enlargeState.mode = btn.dataset.mode;
+    renderEnlarge();
+  }));
+}
+
+function renderEnlarge(){ drawEnlargeChain(); }
+
+function renderAll(){
+  renderPinLab();
+  renderFamiliarAndNew();
+  renderShrink();
+  renderEnlarge();
+  renderCases();
+}
+
+bind();
+renderAll();
+</script>
+</body>
+</html>

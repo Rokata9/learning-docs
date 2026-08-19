@@ -113,6 +113,8 @@ record sharp source at full size
 
 The explorer contains one production route and three scale presets: `1.0`, `0.5`, and `0.25`. It contains no diagnostic error modes, stale-state branches, or repeated crop geometry.
 
+Lesson HTML section 7 is a link to `course/chapters/chapter-07/lesson-07-04-scaling-cases-companion.html`. The 28-step transform walkthrough was removed.
+
 ### Evidence boundary
 
 The public Compose API supports recording a `GraphicsLayer` with an explicit size, applying `RenderEffect`, and transforming the layer when it is drawn. The lesson does not claim a measured speedup, allocation strategy, exact GPU bandwidth reduction, or Android's private resampling filter.

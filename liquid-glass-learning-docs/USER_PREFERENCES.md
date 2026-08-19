@@ -400,3 +400,30 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 - Do not call `record(size = ...)` a crop or imply that it automatically takes the top-left `workingSize` rectangle. Explain which transform maps the source and which later clipping/raster operation determines what survives.
 - Start from familiar same-container scaling, then explicitly announce the switch to a new smaller `DrawScope`; otherwise center-pivot arithmetic looks contradictory.
 - For each relevant pivot combination, show both the source selection and the resulting image, with the responsible code highlighted in the same step.
+
+## Full calculations and consecutive transform selection — Lesson 7.4
+
+- Do not jump from a rule to substituted numbers or show result-only coordinate bounds. Keep descriptive definitions, the rule in words, named-value substitution, intermediate arithmetic, rounding, result, and next consumer together in the current state.
+- When a large source is replayed into a smaller `DrawScope`, explicitly show the bridge from source-local coordinates to pre-scale working-local coordinates. Explain why the numeric pair is initially unchanged when the two origins align, even though the working bounds are smaller.
+- Keep “retained during recording” separate from “visible after final replay.” The final layer pivot must never be described as changing the source region already retained by the working buffer.
+- For each meaningful pivot combination, show the source retained while recording, the working pixels stored, the later stored-point-to-output mapping, the output clip, and the original source coordinates still visible—all beside the responsible code and full arithmetic.
+- Repeat the current dimensions, raw products, rounding results, pivots, scales, and coordinate-space labels in every detailed step so the learner never has to click backward to recover provenance.
+
+
+## Word-first transform explanations and dimension lines — Lesson 7.4 follow-up
+
+- Do not make me memorize letters such as `S`, `W`, `R`, `F`, and `O` to follow a transform. Use full names such as original artwork point, recording pivot, stored working-layer point, enlargement pivot, and final displayed point.
+- Explain consecutive transforms separately. Keep the recording transform and later enlargement transform as two readable rules; do not merge and algebraically simplify them into one formula.
+- State the reusable rule in words: keep the pivot fixed, multiply the point's horizontal and vertical distance from that pivot by the scale, then add those scaled distances back to the pivot.
+- Repeat the complete current values and arithmetic in the active state rather than requiring me to navigate backward.
+- In diagrams, draw dimension lines or brackets for the image width and height and for non-zero left, top, right, and bottom margins, gaps, or overflow wherever the layout permits.
+
+## Countable two-paper scales before production arithmetic — Lesson 7.4
+
+- Teach one scale on one destination first, with a thumbtack that stays put. Trace two opposite corners and one landmark before introducing the second scale.
+- Use an even toy grid such as `8 × 8 → 4 × 4` before `483 × 528`. Rounding is a footnote, not the first number.
+- Name two papers: the small working paper and the large display paper. “Center” means the center of the paper being drawn into right now.
+- After the two top-left origins line up, show that the small paper’s center sits in the original photo’s top-left quadrant. That aligned number line is why a center recording pivot discards the original right and bottom.
+- Mark discarded original pixels as gone before enlargement. The second scale cannot restore them.
+- Show the four pivot combinations as a 2 × 2 of pictures, not as four more arithmetic-only states.
+- A 20-plus-state substitution stepper is not a substitute for this sequence.

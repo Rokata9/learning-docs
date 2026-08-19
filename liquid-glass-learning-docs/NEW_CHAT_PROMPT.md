@@ -165,10 +165,11 @@ The lesson contains:
 - one exact `2 × 2` RGB trace;
 - separate pixel-count and radius calculations;
 - one short Android route;
+- section 7 is a link to `lesson-07-04-scaling-cases-companion.html` (the 28-step transform stepper was removed);
 - one styled prediction;
 - one three-blank Kotlin challenge;
-- four explain-back checks;
-- a ten-item Preview/device checkpoint.
+- explain-back checks;
+- a Preview/device checkpoint.
 
 ### Android route
 

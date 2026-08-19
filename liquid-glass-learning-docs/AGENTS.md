@@ -726,3 +726,35 @@ When several variables form a causal chain, include a compact dependency table n
 3. For every pivot combination that materially changes the result, keep these four images visible together: full original source with selected original region, full transformed command bounds, stored working-buffer pixels, and final replayed output.
 4. Explain same-container scaling before switching coordinate spaces. Explicitly say when a pivot belongs to the original source, the smaller recording `DrawScope`, or the completed `GraphicsLayer`.
 5. Name the operation that actually enforces finite bounds. In the Lesson 7.4 route, `RenderEffect` promotes the layer to an offscreen buffer and clips content to the layer bounds; the size argument alone does not guarantee command clipping.
+
+### Full-provenance and consecutive-transform gate — Lesson 7.4
+
+1. Never show a derived transform bound, pivot, margin, retained region, gap, or coordinate as a result-only number. In the same visible state, define every descriptive value, state its coordinate space, show the rule in words, substitute named values, show intermediate arithmetic including rounding, state the result, and name its next consumer.
+2. When `drawLayer(sourceLayer)` replays a large source inside a smaller recording `DrawScope`, show the origin-alignment bridge explicitly: an original artwork point first receives the same numeric coordinate in the working drawing space when both local origins are `(0, 0)`. Only then apply `DrawScope.scale`.
+3. Treat `record(size = ...)` as finite destination bounds, not as a resize or source selection. Show that drawing coordinates may extend beyond those bounds and that offscreen rasterization/clipping decides which transformed pixels are stored.
+4. Keep two outcomes permanently separate: the original source retained while recording is determined by the recording transform plus working-buffer bounds; the original source still visible after final drawing is determined by the already-stored working image plus the later layer transform and final-output clipping.
+5. A later `GraphicsLayer.pivotOffset` never changes which original source pixels were retained earlier. It transforms already-stored working-layer points into output-local points and can only change their placement and final visibility.
+6. For every pivot combination, keep the original retained region, mapped commands, stored working pixels, final visible output, active code, and complete calculations in the same state. Do not require the learner to remember values from an earlier step.
+
+
+### Word-first transform traces and measured diagram geometry — Lesson 7.4 follow-up
+
+1. Do not require the learner to memorize one-letter aliases such as `S`, `W`, `R`, `F`, or `O` in a graphics transform walkthrough. Use descriptive names in visible material: original artwork point, recording pivot, stored working-layer point, enlargement pivot, and final displayed point.
+2. Keep successive transforms as successive rules. Do not substitute one transform formula into another or simplify them into a closed algebraic expression unless that closed form is required by a later implementation step.
+3. State the transform rule in words before arithmetic: new position = fixed pivot position + distance from the pivot after applying the scale. Apply the rule independently to horizontal and vertical positions.
+4. When a stored point passes through a later layer transform, explicitly state that the later pivot cannot change which original point was retained. It changes only the output position of the already-stored working-layer point.
+5. In spatial diagrams, draw measurement lines or brackets wherever space permits. Mark the full rectangle width and height, the stored/displayed image width and height, and every non-zero empty margin, clipped overflow, or uncovered output strip with its current numeric amount.
+6. Dimension graphics, formulas, controls, and explanatory prose must use the same canonical geometry. Never draw a margin whose direction or amount disagrees with the active calculation.
+
+
+### Countable two-paper scale teaching gate — Lesson 7.4
+
+The 28-state production-dimension walkthrough did not make the two scales understandable. The learner still could not see why a given original region is stored or why that region lands at a given output place. More substitution arithmetic was not the missing piece.
+
+1. Teach one scale on one destination first. Use a thumbtack/pin metaphor. Trace two opposite corners and one landmark. Do not introduce the second scale until those three points are predictable.
+2. Use an even toy grid such as `8 × 8 → 4 × 4` with no rounding before `483 × 528` production numbers. Rounding is a later footnote, not the first number the learner meets.
+3. Name two physical papers: the small working paper and the large display paper. State that “center” is the center of the paper being drawn into right now.
+4. After lining up the two top-left origins, show that the small paper’s center sits in the original photo’s top-left quadrant. This single aligned number line is what makes a center recording pivot discard the original right and bottom.
+5. Show discarded original pixels as gone before discussing enlargement. State that the second scale cannot restore them.
+6. Present the four pivot combinations as a 2 × 2 of pictures — small-paper contents plus final display — not as four more arithmetic-only states.
+7. A 20-plus-state stepper of full substitution arithmetic is not a substitute for this sequence.
