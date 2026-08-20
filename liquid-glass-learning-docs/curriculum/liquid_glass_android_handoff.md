@@ -1,7 +1,7 @@
 # Liquid Glass Android course — implementation handoff
 
 **Updated:** 2026-08-19  
-**Course version:** 7.5.0
+**Course version:** 7.6.0
 
 ## Read order
 
@@ -19,58 +19,35 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 66
-completed_through: "Lesson 7.4 — Downsampled blur"
+learner_confirmed_complete: 67
+completed_through: "Lesson 7.5 — Tint layer"
 completed_chapters: [1, 2, 3, 4, 5, 6]
-chapter_7_complete: "4 of 12"
-next_unresolved_checkpoint: "Lesson 7.5 — Tint layer"
-generated_frontier: "Lesson 7.5 — Tint layer"
-next_planned_after_checkpoint: "Lesson 7.6 — Saturation and contrast"
+chapter_7_complete: "5 of 12"
+next_unresolved_checkpoint: "Lesson 7.6 — Saturation and contrast"
+generated_frontier: "Lesson 7.6 — Saturation and contrast"
+next_planned_after_checkpoint: "Lesson 7.7 — Static rim"
 ```
 
-Lesson 7.5 is generated and is not learner-confirmed complete.
+Lesson 7.6 is generated and is not learner-confirmed complete.
 
-## Completed through Lesson 7.4
+## Completed through Lesson 7.5
 
-Lesson 7.1 established neighborhood dependence. Lesson 7.2 established radius as spatial influence distance. Lesson 7.3 established how `edgeTreatment` supplies values outside the blur input. Lesson 7.4 established shrink → blur → enlarge on a smaller working image.
+Lesson 7.5 established a later translucent tint draw over an already-blurred destination. Lesson 7.6 must not repeat that mix, downsample arithmetic, or edge-mode arithmetic.
 
-Lesson 7.5 may treat a blurred image as an already-finished destination. It must not repeat downsample size/radius arithmetic, edge-mode arithmetic, or Chapter 6 backdrop ownership.
+Lesson 3.9 already taught `setToSaturation`. Lesson 3.7 already taught contrast ratio. Lesson 7.6 attaches those operations to the glass group.
 
-## Lesson 7.5 contract
-
-### Principal idea
+## Lesson 7.6 contract
 
 ```text
-blurred destination
-→ later translucent tint draw
-→ sharp label on top
+blur + fixed pale tint
+→ ColorFilter.colorMatrix(setToSaturation)
+→ measure white/black contrast on the new RGB
+→ label stays outside the filter
 ```
 
-Reuse the Lesson 3.8 short formula. The new step is that the mix happens after blur, as its own draw.
-
-### Browser lesson
-
-- one pale-tint-over-blurred-image lab;
-- navy and orange interior probes;
-- six-state walkthrough;
-- amount `0` / `0.25` / `1.00` identity comparison;
-- one Android `drawRect` route;
-- prediction, two-blank challenge, four explain-back checks, checkpoint.
-
-### Android implementation
-
-`TintLayerExplorer.kt` keeps one production route: `BlurEffect` on the artwork `Canvas`, then `drawRect` of `tintColor.copy(alpha = tintAmount)`, then a sharp label. Presets are white / cool / warm and amounts `0`, `0.25`, `0.50`, `1.00`.
+`SaturationContrastExplorer.kt` uses one production route. Tint amount stays `0.25`. Factor presets are `0`, `0.40`, and `1.00`.
 
 ## Current files to attach in a future conversation
-
-Recommended:
-
-```text
-complete liquid-glass-learning-docs repository
-complete LiquidGlassLab repository
-```
-
-Minimum:
 
 ```text
 USER_PREFERENCES.md
@@ -79,15 +56,15 @@ CURRENT_STATE.md
 curriculum/liquid_glass_android_handoff.md
 curriculum/liquid_glass_android_curriculum.md
 course/chapters/chapter-07/lesson-build-convincing-frosted-glass-without-a-custom-lens.html
-course/chapters/chapter-07/lesson-07-04-downsampled-blur.html
 course/chapters/chapter-07/lesson-07-05-tint-layer.html
+course/chapters/chapter-07/lesson-07-06-saturation-and-contrast.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/Chapter07Screen.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/TintLayerExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/SaturationContrastExplorer.kt
 ```
 
 ## Completion rule
 
-Do not mark Lesson 7.5 complete merely because it was generated or reviewed. Wait for explicit learner confirmation. Do not generate Lesson 7.6 before that confirmation unless the learner explicitly asks to generate ahead.
+Do not mark Lesson 7.6 complete merely because it was generated. Wait for explicit learner confirmation. Do not generate Lesson 7.7 before that confirmation unless the learner asks to generate ahead.
 
-Course progress: 66 of 216 lessons completed.
+Course progress: 67 of 216 lessons completed.

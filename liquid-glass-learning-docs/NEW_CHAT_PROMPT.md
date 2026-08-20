@@ -22,12 +22,12 @@ CURRENT_STATE.md
 curriculum/liquid_glass_android_handoff.md
 curriculum/liquid_glass_android_curriculum.md
 course/chapters/chapter-07/lesson-build-convincing-frosted-glass-without-a-custom-lens.html
-course/chapters/chapter-07/lesson-07-04-downsampled-blur.html
 course/chapters/chapter-07/lesson-07-05-tint-layer.html
+course/chapters/chapter-07/lesson-07-06-saturation-and-contrast.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/Chapter07Screen.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/DownsampledBlurExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/TintLayerExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/SaturationContrastExplorer.kt
 ```
 
 If I ask to revise an older lesson, I must also attach that lesson's current HTML and relevant Kotlin file. Do not reconstruct an unseen file from memory.
@@ -50,35 +50,20 @@ If no source files are attached, conceptual discussion may continue from this pr
 ## 2. Exact authoritative course state
 
 - Total course size: **216 lessons**.
-- Learner-confirmed complete: **66 of 216 lessons**.
-- Completed through: **Lesson 7.4 — Downsampled blur**.
+- Learner-confirmed complete: **67 of 216 lessons**.
+- Completed through: **Lesson 7.5 — Tint layer**.
 - Completed chapters: **1 through 6**.
-- Chapter 7 is in progress: **4 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.5 — Tint layer**.
-- Generated frontier: **Lesson 7.5 — Tint layer**.
-- Next planned lesson after confirmation: **Lesson 7.6 — Saturation and contrast**.
-- Lesson 7.5 is generated and is not learner-confirmed complete.
+- Chapter 7 is in progress: **5 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.6 — Saturation and contrast**.
+- Generated frontier: **Lesson 7.6 — Saturation and contrast**.
+- Next planned lesson after confirmation: **Lesson 7.7 — Static rim**.
+- Lesson 7.6 is generated and is not learner-confirmed complete.
 
 Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
-## 3. Completed Lesson 7.4 prerequisite contract
+## 3. Completed Lesson 7.5 prerequisite contract
 
-Lesson 7.4 established:
-
-```text
-full-size source
-→ smaller working image
-→ blur fewer pixel positions
-→ enlarge the blurred result
-```
-
-Lesson 7.5 may treat a blurred image as a finished destination. Do not repeat downsample size or radius arithmetic unless a new operation needs one brief reminder.
-
-Lesson 3.8 already taught tint as source-over of a translucent color over an opaque destination. Lesson 7.5 reuses that short formula. It must not rebuild the 3.8 derivation.
-
-## 4. Current Lesson 7.5 contract
-
-### Principal new operation
+Lesson 7.5 established:
 
 ```text
 already-blurred destination
@@ -86,29 +71,30 @@ already-blurred destination
 → keep a sharp label on top
 ```
 
-A **tint layer** is that second draw. Amount is the tint source alpha.
+Lesson 7.6 keeps that tint amount fixed at `0.25`. Do not repeat the 3.8 mix or downsample arithmetic.
+
+Lesson 3.9 already taught `setToSaturation`. Lesson 3.7 already taught contrast ratio. Lesson 7.6 must not rebuild those derivations.
+
+## 4. Current Lesson 7.6 contract
+
+### Principal new operation
 
 ```text
-output = tint × amount + destination × (1 − amount)
+blurred + tinted glass group
+→ ColorFilter.colorMatrix(setToSaturation(factor))
+→ measure label contrast from the new RGB
+→ keep the label outside the filter
 ```
 
-Navy destination `(0.10, 0.25, 0.40)` and orange destination `(0.90, 0.60, 0.20)` stay distinguishable at amount `0.25`. Amount `1.00` replaces both.
+Navy after tint `(0.3250, 0.4375, 0.5500)` and orange after tint `(0.9250, 0.7000, 0.4000)` are the destinations of the saturation transform. Factor `0` makes each a gray from its own gray reference.
 
 ### Android route
 
-`TintLayerExplorer.kt` uses one clean path:
-
-```text
-artwork Canvas + BlurEffect(Clamp)
-→ second Canvas drawRect(tintColor.copy(alpha = tintAmount))
-→ sharp label
-```
-
-Do not add a downsample path or a second production branch.
+`SaturationContrastExplorer.kt` wraps blur and tint in a `graphicsLayer` with `colorFilter = ColorFilter.colorMatrix(...)`. The sharp label is a sibling.
 
 ### Evidence boundary
 
-This is not Apple's private glass tint and not a `ColorFilter` contract. A uniform tint and a linear blur commute; the later draw is for independence.
+Saturation does not guarantee a 4.5 : 1 pass. The gray reference is not relative luminance.
 
 ## 5. Learner calibration
 
@@ -145,7 +131,7 @@ A prerequisite recap must be brief and exist only to support the new operation. 
 ## 8. Android delivery rules
 
 - Complete chapter-screen previews live in `Chapter07Screen.kt`.
-- Direct Lesson 7.5 previews live in `TintLayerExplorer.kt`.
+- Direct Lesson 7.6 previews live in `SaturationContrastExplorer.kt`.
 - Both levels provide light and dark variants.
 - Both levels allow vertical scrolling through all content in finite-height Android Studio Preview.
 - Deliver only changed files in separate learning-docs and Android ZIPs.
@@ -156,11 +142,11 @@ A prerequisite recap must be brief and exist only to support the new operation. 
 When all required files are attached, confirm that they were read, then restate only:
 
 ```text
-completed: 66 of 216, through Lesson 7.4
-current unresolved checkpoint: Lesson 7.5 — Tint layer
-generated frontier: Lesson 7.5
-next planned lesson after confirmation: Lesson 7.6
-Lesson 7.5 is generated and not complete
+completed: 67 of 216, through Lesson 7.5
+current unresolved checkpoint: Lesson 7.6 — Saturation and contrast
+generated frontier: Lesson 7.6
+next planned lesson after confirmation: Lesson 7.7
+Lesson 7.6 is generated and not complete
 ```
 
 Then wait for my next message.
