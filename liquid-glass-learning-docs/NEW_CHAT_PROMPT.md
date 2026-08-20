@@ -27,6 +27,8 @@ course/chapters/chapter-07/lesson-07-07-static-rim.html
 course/chapters/chapter-07/lesson-07-08-inner-highlight.html
 course/chapters/chapter-07/lesson-07-09-outer-shadow.html
 course/chapters/chapter-07/lesson-07-10-fine-noise.html
+course/chapters/chapter-07/lesson-07-11-compose-the-layers.html
+course/chapters/chapter-07/lesson-07-12-compare-backgrounds.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/Chapter07Screen.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/SaturationContrastExplorer.kt
@@ -34,6 +36,8 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/StaticRimE
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/InnerHighlightExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/OuterShadowExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/FineNoiseExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/ComposeLayersExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/CompareBackgroundsExplorer.kt
 ```
 
 If I ask to revise an older lesson, I must also attach that lesson's current HTML and relevant Kotlin file. Do not reconstruct an unseen file from memory.
@@ -61,10 +65,10 @@ If no source files are attached, conceptual discussion may continue from this pr
 - Completed chapters: **1 through 6**.
 - Chapter 7 is in progress: **6 of 12 lessons complete**.
 - Current unresolved checkpoint: **Lesson 7.7 — Static rim**.
-- Generated frontier: **Lesson 7.10 — Fine noise or dither**.
-- Next planned lesson after the generated frontier: **Lesson 7.11 — Compose the layers**.
+- Generated frontier: **Lesson 7.12 — Compare backgrounds**.
+- Next planned lesson after the generated frontier: **Lesson 8.1 — What a shader does**.
 - Lesson 7.7 is generated and is not learner-confirmed complete.
-- Lessons 7.8, 7.9, and 7.10 are generated ahead and are not learner-confirmed complete.
+- Lessons 7.8 through 7.12 are generated ahead and are not learner-confirmed complete.
 
 Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
@@ -79,11 +83,11 @@ blurred + tinted glass group
 → keep the label outside the filter
 ```
 
-Lessons 7.7–7.9 keep blur `18.dp`, tint amount `0.25`, and saturation `0.40` fixed. Do not repeat those derivations. Lesson 7.10 does not rebuild them either.
+Lessons 7.7–7.12 keep blur `18.dp`, tint amount `0.25`, and saturation `0.40` fixed. Do not repeat those derivations. Lessons 7.10–7.12 do not rebuild them either.
 
 Lesson 4.5 already taught `Stroke`. Lesson 4.7 already taught clipping. Lesson 4.4 already taught concentric inner radius. Lesson 7.7 must not rebuild those derivations.
 
-## 4. Unresolved 7.7 and generated-ahead 7.8 / 7.9 contracts
+## 4. Unresolved 7.7 and generated-ahead 7.8–7.12 contracts
 
 ### Lesson 7.7 — unresolved checkpoint
 
@@ -120,7 +124,7 @@ dark copy of the panel rounded rectangle
 
 A same-size layer cannot put a halo on the surround. Downward offset is a convention, not a simulated lamp.
 
-### Lesson 7.10 — generated frontier
+### Lesson 7.10 — generated ahead
 
 ```text
 slow true ramp
@@ -132,13 +136,35 @@ slow true ramp
 
 Chroma noise uses a different offset per channel and looks dirty. The remainder recipe is a teaching table, not a GPU program.
 
+### Lesson 7.11 — generated ahead
+
+```text
+slot(ingredient) = (clip membership, effect owner, sibling order)
+wrong clip membership → pixels outside the path are discarded
+wrong sibling order → the later sibling covers the earlier sibling
+```
+
+Production: unclipped shadow, then clipped fill → grain → band → unblurred rim → sharp label. The Android grain overlay occupies the noise slot. It is not a second 7.10 store formula.
+
+### Lesson 7.12 — generated frontier
+
+```text
+destination class
+→ frozen 7.11 recipe
+→ sample interior RGB
+→ Lesson 3.7 white-label contrast
+→ pass if ≥ 4.5:1, else fail
+```
+
+Structure leftover is a second observation, not a second formula. Chapter 7’s frost is still not a lens, a lamp, a shader, or a morph.
+
 ### Android route
 
-`Chapter07Screen.kt` stacks `StaticRimExplorer`, `InnerHighlightExplorer`, `OuterShadowExplorer`, and `FineNoiseExplorer`. Direct previews live in each explorer file.
+`Chapter07Screen.kt` stacks `StaticRimExplorer`, `InnerHighlightExplorer`, `OuterShadowExplorer`, `FineNoiseExplorer`, `ComposeLayersExplorer`, and `CompareBackgroundsExplorer`. Direct previews live in each explorer file.
 
 ### Evidence boundary
 
-None of these strokes, bands, shadows, or noise fields is a specular highlight, a signed-distance glow, a custom shader, or Apple’s private edge treatment. Lesson 7.11 will treat full stack order as its own topic.
+None of these strokes, bands, shadows, noise fields, slot assignments, or destination-class verdicts is a specular highlight, a signed-distance glow, a custom shader, or Apple’s private edge treatment. Chapter 8 begins per-pixel GPU programs.
 
 ## 5. Learner calibration
 
@@ -179,6 +205,8 @@ A prerequisite recap must be brief and exist only to support the new operation. 
 - Direct Lesson 7.8 previews live in `InnerHighlightExplorer.kt`.
 - Direct Lesson 7.9 previews live in `OuterShadowExplorer.kt`.
 - Direct Lesson 7.10 previews live in `FineNoiseExplorer.kt`.
+- Direct Lesson 7.11 previews live in `ComposeLayersExplorer.kt`.
+- Direct Lesson 7.12 previews live in `CompareBackgroundsExplorer.kt`.
 - Both levels provide light and dark variants.
 - Both levels allow vertical scrolling through all content in finite-height Android Studio Preview.
 - When stacking both theme `@Preview` annotations, put dark (`UI_MODE_NIGHT_YES`) first, then light.
@@ -192,10 +220,10 @@ When all required files are attached, confirm that they were read, then restate 
 ```text
 completed: 68 of 216, through Lesson 7.6
 current unresolved checkpoint: Lesson 7.7 — Static rim
-generated frontier: Lesson 7.10
-next planned lesson after the frontier: Lesson 7.11
+generated frontier: Lesson 7.12
+next planned lesson after the frontier: Lesson 8.1
 Lesson 7.7 is generated and not complete
-Lessons 7.8, 7.9, and 7.10 are generated ahead and not complete
+Lessons 7.8 through 7.12 are generated ahead and not complete
 ```
 
 Then wait for my next message.

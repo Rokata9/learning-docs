@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 7.10.0
+**Version:** 7.12.0
 **Updated:** 2026-08-20
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
@@ -14,8 +14,8 @@
 - Completed chapters: **1–6**.
 - Chapter 7 is in progress: **6 of 12 lessons complete**.
 - Current unresolved checkpoint: **Lesson 7.7 — Static rim**.
-- Generated frontier: **Lesson 7.10 — Fine noise or dither**. Lessons 7.7 through 7.10 are generated and are not learner-confirmed complete.
-- Next planned lesson after the generated frontier: **Lesson 7.11 — Compose the layers**.
+- Generated frontier: **Lesson 7.12 — Compare backgrounds**. Lessons 7.7 through 7.12 are generated and are not learner-confirmed complete.
+- Next planned lesson after the generated frontier: **Lesson 8.1 — What a shader does**.
 
 ## 2. Course construction principles
 
@@ -430,6 +430,28 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 - Default amount is `0.02`. Amount `0` shows banding. Amount `0.12` looks dirty even as luminance noise.
 - `FineNoiseExplorer.kt` writes a card-sized bitmap with the exact store formula and `FilterQuality.None`.
 - Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `FineNoiseExplorer.kt`.
+
+**Generated implementation record — Lesson 7.11**
+
+- Generated ahead of unresolved Lesson 7.7; not learner-confirmed complete.
+- Introduces one new mechanism: a slot is the triple (clip membership, effect owner, sibling order) for one already-taught ingredient.
+- Wrong clip membership discards pixels (shadow inside the clip loses the surround halo). Wrong sibling order covers pixels (rim before fill loses the rim). Those faults are independent.
+- Does not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
+- Production tree: unclipped stage → padded shadow → clipped fill, grain, band, unblurred rim, sharp label.
+- The Android grain overlay occupies the noise slot with a low-alpha gray bitmap. The exact per-channel add remains Lesson 7.10.
+- `ComposeLayersExplorer.kt` compares production, shadow-inside-clip, and rim-before-fill.
+- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `ComposeLayersExplorer.kt`.
+
+**Generated implementation record — Lesson 7.12**
+
+- Generated ahead of unresolved Lesson 7.7; not learner-confirmed complete.
+- Introduces one new measurement: destination-class verdict. Frozen 7.11 recipe → sample interior RGB → Lesson 3.7 white-label contrast → pass if ≥ `4.5:1`.
+- Destination classes: photo-like patches, text glyphs, slow gradient, dark field, light field.
+- Structure leftover is a second observation, not a second formula.
+- Uniform dark/light samples use tint-then-saturation arithmetic and match the blurred GPU color. Photo, text, and gradient numbers are teaching samples, not GPU readbacks.
+- Chapter 7 checkpoint: the frost is still not a lens, a lamp, a shader, or a morph, and the fill is an owned copy rather than live capture.
+- `CompareBackgroundsExplorer.kt` switches the five classes on the frozen tree.
+- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `CompareBackgroundsExplorer.kt`.
 
 **Completed implementation record — Lesson 7.3**
 

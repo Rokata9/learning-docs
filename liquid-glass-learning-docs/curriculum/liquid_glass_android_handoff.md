@@ -1,7 +1,7 @@
 # Liquid Glass Android course — implementation handoff
 
 **Updated:** 2026-08-20  
-**Course version:** 7.10.0
+**Course version:** 7.12.0
 
 ## Read order
 
@@ -24,28 +24,41 @@ completed_through: "Lesson 7.6 — Saturation and contrast"
 completed_chapters: [1, 2, 3, 4, 5, 6]
 chapter_7_complete: "6 of 12"
 next_unresolved_checkpoint: "Lesson 7.7 — Static rim"
-generated_frontier: "Lesson 7.10 — Fine noise or dither"
-next_planned_after_frontier: "Lesson 7.11 — Compose the layers"
+generated_frontier: "Lesson 7.12 — Compare backgrounds"
+next_planned_after_frontier: "Lesson 8.1 — What a shader does"
 ```
 
-Lesson 7.7 is generated and is not learner-confirmed complete. Lessons 7.8, 7.9, and 7.10 are generated ahead and are not learner-confirmed complete.
+Lesson 7.7 is generated and is not learner-confirmed complete. Lessons 7.8 through 7.12 are generated ahead and are not learner-confirmed complete.
 
 ## Generate-ahead note
 
-The learner asked to generate ahead without marking Lesson 7.7 complete. The pending-question completion gate covers that. No new reusable lesson-quality failure was evidenced. Do not treat 7.8, 7.9, or 7.10 as the checkpoint.
+The learner asked to generate the next two lessons after the 7.10 frontier without marking pending items done. No new reusable lesson-quality failure was evidenced. Do not treat 7.8–7.12 as the checkpoint.
 
-## Generated-ahead Lesson 7.10
+## Generated-ahead Lesson 7.11
 
 ```text
-slow true ramp
-→ signed offset from a column-and-row remainder recipe
-→ same offset on R, G, and B
-→ store8 = round(clamp(sum) × 255)
+slot(ingredient) = (clip membership, effect owner, sibling order)
+wrong clip membership → pixels outside the path are discarded
+wrong sibling order → the later sibling covers the earlier sibling
 ```
 
-Lesson 3.1 already taught 8-bit rounding. This lesson adds the offset before that store. Chroma noise (different offset per channel) is the dirty comparison. Amount default `0.02`. The ramp is a stand-in for post-blur interiors; blur is not rebuilt. No `RuntimeShader`.
+Does not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the noise store formula. The Android grain overlay occupies the noise slot; the exact per-channel add remains Lesson 7.10.
 
-`FineNoiseExplorer.kt` writes a card-sized bitmap with that formula.
+`ComposeLayersExplorer.kt` compares production slots, shadow-inside-clip, and rim-before-fill.
+
+## Generated-ahead Lesson 7.12
+
+```text
+destination class
+→ frozen 7.11 recipe
+→ sample interior RGB
+→ Lesson 3.7 white-label contrast
+→ pass if ≥ 4.5:1, else fail
+```
+
+Structure leftover is a second observation. Uniform classes match the blurred GPU color. Photo, text, and gradient numbers are teaching samples, not GPU readbacks. Chapter 7’s frost is still not a lens, a lamp, a shader, or a morph.
+
+`CompareBackgroundsExplorer.kt` switches photo-like, text, gradient, dark, and light destinations.
 
 ## Current files to attach in a future conversation
 
@@ -60,17 +73,21 @@ course/chapters/chapter-07/lesson-07-07-static-rim.html
 course/chapters/chapter-07/lesson-07-08-inner-highlight.html
 course/chapters/chapter-07/lesson-07-09-outer-shadow.html
 course/chapters/chapter-07/lesson-07-10-fine-noise.html
+course/chapters/chapter-07/lesson-07-11-compose-the-layers.html
+course/chapters/chapter-07/lesson-07-12-compare-backgrounds.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/Chapter07Screen.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/StaticRimExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/InnerHighlightExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/OuterShadowExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/FineNoiseExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/ComposeLayersExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/CompareBackgroundsExplorer.kt
 ```
 
 ## Completion rule
 
-Do not mark Lesson 7.7–7.10 complete merely because they were generated. Wait for explicit learner confirmation. Do not generate Lesson 7.11 before 7.10 confirmation unless the learner asks to generate ahead.
+Do not mark Lesson 7.7–7.12 complete merely because they were generated. Wait for explicit learner confirmation. Do not generate Lesson 8.1 before 7.12 confirmation unless the learner asks to generate ahead.
 
 ## Standing delivery preferences recorded 2026-08-20
 
