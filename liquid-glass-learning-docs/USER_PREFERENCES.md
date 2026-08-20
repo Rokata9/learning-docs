@@ -301,7 +301,7 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 - When a walkthrough has **10 or fewer** states, direct buttons for every state may be shown. When it has **more than 10**, use **Previous · Step X of N · Next** instead of one button per state. A compact phase label or optional jump control is acceptable, but a wall of numbered buttons is not.
 - For unfamiliar mathematics, define every variable in plain language before the formula. State its symbol, input object, unit or numeric range, and role. Then show the symbolic formula, substitute actual values, show every intermediate result, and name the next operation that consumes the output.
 - More verbosity is preferred for the harder remaining graphics, shader, geometry, physics, and rendering lessons. The explanation must remain usable by a total mathematics and graphics beginner.
-- The **total-beginner comprehension audit happens first**, before syntax checks, screenshots, link checks, ZIP checks, or Android static checks. Audit the first sentence, first two sections, first formula, every unfamiliar term, and the longest walkthrough state. If the causal model is not understandable from completed prerequisites, regenerate or split the lesson before performing technical QA.
+- The **total-beginner comprehension audit happens first**, before syntax checks, screenshots, link checks, or Android static checks. Audit the first sentence, first two sections, first formula, every unfamiliar term, and the longest walkthrough state. If the causal model is not understandable from completed prerequisites, regenerate or split the lesson before performing technical QA.
 
 
 ## Liquid Glass course — adaptive diagram and stepper layout
@@ -340,6 +340,10 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 - **Android preview location:** keep complete chapter-screen previews in `ChapterXXScreen.kt`, but place the direct preview of a custom lesson composable in that custom composable's own Kotlin file.
 
 - **Android Studio preview scrollability:** for every newly generated lesson, make both the complete chapter-screen preview and the direct custom-composable preview vertically scrollable so the entire lesson can be inspected without a device. Do not retrofit previous lessons unless explicitly requested.
+
+- **Dark `@Preview` annotation first (recorded 2026-08-20):** when a preview wrapper has both theme variants, stack the dark annotation first (`uiMode = Configuration.UI_MODE_NIGHT_YES`), then the light annotation (`UI_MODE_NIGHT_NO`), immediately above the composable. This is annotation order in source, not a change to the app's default theme. Apply to newly written or newly revised preview wrappers. Do not bulk-reorder completed historical lessons unless asked.
+
+- **No ZIP delivery (recorded 2026-08-20):** do not generate `.zip` files, incremental learning-docs archives, or Android code archives. I work from the `liquid-glass-learning-docs` and `LiquidGlassLab` repositories directly. Leave changed files in those trees. Package a ZIP only if I explicitly ask for one.
 
 ## Liquid Glass course — production path before diagnostic machinery
 

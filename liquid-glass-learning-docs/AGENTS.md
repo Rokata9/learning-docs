@@ -100,7 +100,7 @@ Before delivering any lesson for a total beginner in graphics, mathematics, colo
    - Why does it exist?
    - What consumes it next?
    If an essential answer appears only in a later section, rewrite the order.
-10. **A polished artifact is not evidence of a good lesson.** Working controls, correct Kotlin, screenshots, ZIP integrity, and numerical correctness do not pass the lesson if the first-time learner cannot explain the causal chain.
+10. **A polished artifact is not evidence of a good lesson.** Working controls, correct Kotlin, screenshots, and numerical correctness do not pass the lesson if the first-time learner cannot explain the causal chain.
 11. **Beginner-comprehension verification is mandatory.** Before packaging, write a short internal audit of the first sentence, every term in the first two sections, and the first displayed formula. A lesson fails verification when any essential term requires unstated expert knowledge.
 12. **VERY IMPORTANT — uncertainty means failure, not approval.** Perform the final audit while assuming no graphics or mathematics knowledge beyond the learner-confirmed completed lessons. When there is any hesitation about whether a sentence, diagram, formula, or intermediate value is understandable under that assumption, treat it as not understandable. Rewrite or split the material before packaging.
 
@@ -306,14 +306,15 @@ At the end of every response:
 Update the handoff whenever the learner completes a lesson so the count remains reliable across conversations.
 
 
-## Incremental delivery packages
+## Incremental delivery — no ZIP archives
 
-After the initial repository package, deliver only incremental ZIP archives for each new lesson.
+Recorded 2026-08-20. The learner works from the repositories directly.
 
-- The learning-docs ZIP contains only files created or modified for that lesson. Preserve their paths beneath `liquid-glass-learning-docs/`.
-- The Android code ZIP contains only Android project files created or modified for that lesson. Preserve their paths beneath `LiquidGlassLab/`.
-- Do not include unchanged files, cumulative course copies, duplicate standalone downloads, verification screenshots, or a complete Android project unless the user explicitly requests them.
-- When a lesson changes no Android source, state that fact and do not create an empty Android ZIP.
+- Do not generate `.zip` files after a lesson, revision, or Android patch.
+- Leave changed learning-docs files in `liquid-glass-learning-docs/` and changed Android files in `LiquidGlassLab/`.
+- Do not create incremental learning-docs archives, Android code archives, empty ZIP placeholders, or verification-screenshot archives.
+- Package a ZIP only when the learner explicitly asks for one.
+- When a lesson changes no Android source, say so. Still do not create an archive.
 
 ## Compose scope-extension imports and preview coverage
 
@@ -337,9 +338,11 @@ Apply these rules to every Android lesson patch:
 
 3. For Lesson 3.1 and later, provide light and dark variants for both preview levels. Wrap each preview in `LiquidGlassLabTheme`. Wrap a direct child preview in a theme-aware `Surface` when the child normally receives its page background or content color from the parent screen.
 
-4. Preview wrapper functions must take no parameters. Supply representative values inside the wrapper when the child composable requires arguments.
+4. When stacking both theme `@Preview` annotations on one wrapper, put the dark variant first (`uiMode = Configuration.UI_MODE_NIGHT_YES`), then the light variant (`UI_MODE_NIGHT_NO`). This is source annotation order only. It does not change the app's runtime default theme. Apply to newly written or newly revised preview wrappers. Do not bulk-reorder completed historical lessons unless asked.
 
-5. **All lesson content must be inspectable by scrolling inside Android Studio Preview.** For every newly generated lesson:
+5. Preview wrapper functions must take no parameters. Supply representative values inside the wrapper when the child composable requires arguments.
+
+6. **All lesson content must be inspectable by scrolling inside Android Studio Preview.** For every newly generated lesson:
 
    - the complete chapter-screen preview must expose the whole lesson through vertical scrolling;
    - the direct custom-composable preview must also be vertically scrollable, either because the custom composable already owns a scroll container or because the preview wrapper supplies one;
@@ -366,7 +369,7 @@ This rule was added after the Lesson 3.9 clarification questions.
 
 1. Do not embed complete Android source files or source-tab viewers in lesson HTML. The learner views complete files in Android Studio.
 2. Keep only short code excerpts required for a causal explanation, the manual value path, or a coding challenge.
-3. Continue delivering changed Android files in the separate incremental Android ZIP.
+3. Continue writing changed Android files into `LiquidGlassLab/`. Do not package them as a ZIP unless the learner asks.
 4. Remove the complete-source section from a lesson whenever that lesson is otherwise revised. Do not bulk-edit already completed historical lessons solely for this preference unless the learner asks.
 
 ## Construction-time versus restore-time blend operations

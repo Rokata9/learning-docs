@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 7.6.0
-**Updated:** 2026-08-19
+**Version:** 7.7.0
+**Updated:** 2026-08-20
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
 **Physical test device:** Pixel 8 Pro  
@@ -9,13 +9,13 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **67 of 216**.
-- Completed through: **Lesson 7.5 — Tint layer**.
+- Learner-confirmed complete: **68 of 216**.
+- Completed through: **Lesson 7.6 — Saturation and contrast**.
 - Completed chapters: **1–6**.
-- Chapter 7 is in progress: **5 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.6 — Saturation and contrast**.
-- Generated frontier: **Lesson 7.6 — Saturation and contrast**. Lesson 7.6 is generated and is not learner-confirmed complete.
-- Next planned lesson after the unresolved checkpoint: **Lesson 7.7 — Static rim**.
+- Chapter 7 is in progress: **6 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.7 — Static rim**.
+- Generated frontier: **Lesson 7.7 — Static rim**. Lesson 7.7 is generated and is not learner-confirmed complete.
+- Next planned lesson after the unresolved checkpoint: **Lesson 7.8 — Inner highlight**.
 
 ## 2. Course construction principles
 
@@ -35,7 +35,7 @@
 - For every future Android lesson, both complete-screen and direct-child previews must let the learner scroll through all generated content inside Android Studio Preview; do not retrofit earlier lessons unless requested.
 - In standalone HTML prose, render code identifiers with semantic `<code>` elements; never rely on Markdown backticks.
 - Keep click-controlled popups inside the viewport and reset nested `<code>` styling inside dark code containers.
-- Deliver only incremental changed files.
+- Deliver only incremental changed files in the repositories. Do not generate `.zip` archives unless explicitly requested.
 - Count only explicit learner completion.
 - Put one clean production route before diagnostic defects. Add executable failure modes only when they are necessary to understand or verify the principal idea.
 - Prefer compact diagrams or predictions over duplicate layers, mode enums, and branches created solely to show broken output.
@@ -381,13 +381,23 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 - `TintLayerExplorer.kt` keeps blur radius and `TileMode.Clamp` fixed. Amount presets are `0`, `0.25`, `0.50`, and `1.00`.
 - Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `TintLayerExplorer.kt`.
 
-**Generated implementation record — Lesson 7.6**
+**Completed implementation record — Lesson 7.6**
 
-- Generated; not learner-confirmed complete.
+- Learner-confirmed complete; the completed total advances to 68 of 216.
 - Attaches `ColorFilter.colorMatrix(setToSaturation)` to the blurred-and-tinted glass group, then measures label contrast from the new RGB.
 - Does not rebuild the 3.9 matrix derivation or the 3.7 contrast derivation.
 - `SaturationContrastExplorer.kt` keeps tint amount at `0.25` and places the sharp label outside the filtered box.
 - Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `SaturationContrastExplorer.kt`.
+
+**Generated implementation record — Lesson 7.7**
+
+- Generated; not learner-confirmed complete.
+- Introduces one new mechanism: a Canvas / Compose `Stroke` is centered on its path, so clipping to that path discards the outer half. Production insets the path by `width ÷ 2` and shrinks the corner radius by the same inset (Lesson 4.4).
+- The stroke uses one color on every side. It is not a lighting model.
+- Keeps blur `18.dp`, tint amount `0.25`, and saturation `0.40` fixed.
+- HTML teaching width is `8` CSS px. Android default is `3.dp`. Those units are not interchangeable.
+- `StaticRimExplorer.kt` stacks no-rim, clip-centered, and inset-path cards. The rim canvas is a sibling of the glass group, still inside `Modifier.clip`.
+- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `StaticRimExplorer.kt`.
 
 **Completed implementation record — Lesson 7.3**
 
