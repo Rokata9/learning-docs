@@ -24,10 +24,16 @@ curriculum/liquid_glass_android_curriculum.md
 course/chapters/chapter-07/lesson-build-convincing-frosted-glass-without-a-custom-lens.html
 course/chapters/chapter-07/lesson-07-06-saturation-and-contrast.html
 course/chapters/chapter-07/lesson-07-07-static-rim.html
+course/chapters/chapter-07/lesson-07-08-inner-highlight.html
+course/chapters/chapter-07/lesson-07-09-outer-shadow.html
+course/chapters/chapter-07/lesson-07-10-fine-noise.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/Chapter07Screen.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/SaturationContrastExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/StaticRimExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/InnerHighlightExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/OuterShadowExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/FineNoiseExplorer.kt
 ```
 
 If I ask to revise an older lesson, I must also attach that lesson's current HTML and relevant Kotlin file. Do not reconstruct an unseen file from memory.
@@ -55,9 +61,10 @@ If no source files are attached, conceptual discussion may continue from this pr
 - Completed chapters: **1 through 6**.
 - Chapter 7 is in progress: **6 of 12 lessons complete**.
 - Current unresolved checkpoint: **Lesson 7.7 — Static rim**.
-- Generated frontier: **Lesson 7.7 — Static rim**.
-- Next planned lesson after confirmation: **Lesson 7.8 — Inner highlight**.
+- Generated frontier: **Lesson 7.10 — Fine noise or dither**.
+- Next planned lesson after the generated frontier: **Lesson 7.11 — Compose the layers**.
 - Lesson 7.7 is generated and is not learner-confirmed complete.
+- Lessons 7.8, 7.9, and 7.10 are generated ahead and are not learner-confirmed complete.
 
 Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
@@ -72,13 +79,13 @@ blurred + tinted glass group
 → keep the label outside the filter
 ```
 
-Lesson 7.7 keeps blur `18.dp`, tint amount `0.25`, and saturation `0.40` fixed. Do not repeat those derivations.
+Lessons 7.7–7.9 keep blur `18.dp`, tint amount `0.25`, and saturation `0.40` fixed. Do not repeat those derivations. Lesson 7.10 does not rebuild them either.
 
 Lesson 4.5 already taught `Stroke`. Lesson 4.7 already taught clipping. Lesson 4.4 already taught concentric inner radius. Lesson 7.7 must not rebuild those derivations.
 
-## 4. Current Lesson 7.7 contract
+## 4. Unresolved 7.7 and generated-ahead 7.8 / 7.9 contracts
 
-### Principal new operation
+### Lesson 7.7 — unresolved checkpoint
 
 ```text
 quieted frosted fill, clipped to the panel path
@@ -90,13 +97,48 @@ quieted frosted fill, clipped to the panel path
 
 The stroke uses one color on every side. It is not a lighting model.
 
+### Lesson 7.8 — generated ahead
+
+```text
+wide inset Stroke on its own layer
+→ small BlurEffect on that layer only
+→ parent clip discards the outward fade
+→ inward fade remains
+→ thin unblurred 7.7 rim is a later sibling
+```
+
+Band blur is not the glass fill’s `18.dp` blur. The band is not a lighting model.
+
+### Lesson 7.9 — generated ahead
+
+```text
+dark copy of the panel rounded rectangle
+→ empty room ≥ shadow blur radius
+→ BlurEffect on that larger layer
+→ draw behind the clipped glass
+```
+
+A same-size layer cannot put a halo on the surround. Downward offset is a convention, not a simulated lamp.
+
+### Lesson 7.10 — generated frontier
+
+```text
+slow true ramp
+→ signed = 2 × unitNoise(column, row) − 1
+→ offset = signed × amount
+→ add the same offset to R, G, and B
+→ store8 = round(clamp(sum) × 255)
+```
+
+Chroma noise uses a different offset per channel and looks dirty. The remainder recipe is a teaching table, not a GPU program.
+
 ### Android route
 
-`StaticRimExplorer.kt` keeps the 7.6 glass group, then draws a sibling `Stroke`. Three stacked cards compare no rim, a stroke on the clip path, and a stroke on the inset path.
+`Chapter07Screen.kt` stacks `StaticRimExplorer`, `InnerHighlightExplorer`, `OuterShadowExplorer`, and `FineNoiseExplorer`. Direct previews live in each explorer file.
 
 ### Evidence boundary
 
-This is not a specular highlight, not a signed-distance inner glow, and not Apple’s private edge treatment. Lesson 7.8 will add a soft inner band as a separate object.
+None of these strokes, bands, shadows, or noise fields is a specular highlight, a signed-distance glow, a custom shader, or Apple’s private edge treatment. Lesson 7.11 will treat full stack order as its own topic.
 
 ## 5. Learner calibration
 
@@ -134,6 +176,9 @@ A prerequisite recap must be brief and exist only to support the new operation. 
 
 - Complete chapter-screen previews live in `Chapter07Screen.kt`.
 - Direct Lesson 7.7 previews live in `StaticRimExplorer.kt`.
+- Direct Lesson 7.8 previews live in `InnerHighlightExplorer.kt`.
+- Direct Lesson 7.9 previews live in `OuterShadowExplorer.kt`.
+- Direct Lesson 7.10 previews live in `FineNoiseExplorer.kt`.
 - Both levels provide light and dark variants.
 - Both levels allow vertical scrolling through all content in finite-height Android Studio Preview.
 - When stacking both theme `@Preview` annotations, put dark (`UI_MODE_NIGHT_YES`) first, then light.
@@ -147,9 +192,10 @@ When all required files are attached, confirm that they were read, then restate 
 ```text
 completed: 68 of 216, through Lesson 7.6
 current unresolved checkpoint: Lesson 7.7 — Static rim
-generated frontier: Lesson 7.7
-next planned lesson after confirmation: Lesson 7.8
+generated frontier: Lesson 7.10
+next planned lesson after the frontier: Lesson 7.11
 Lesson 7.7 is generated and not complete
+Lessons 7.8, 7.9, and 7.10 are generated ahead and not complete
 ```
 
 Then wait for my next message.

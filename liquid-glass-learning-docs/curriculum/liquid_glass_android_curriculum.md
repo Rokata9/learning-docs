@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 7.7.0
+**Version:** 7.10.0
 **Updated:** 2026-08-20
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
@@ -14,8 +14,8 @@
 - Completed chapters: **1–6**.
 - Chapter 7 is in progress: **6 of 12 lessons complete**.
 - Current unresolved checkpoint: **Lesson 7.7 — Static rim**.
-- Generated frontier: **Lesson 7.7 — Static rim**. Lesson 7.7 is generated and is not learner-confirmed complete.
-- Next planned lesson after the unresolved checkpoint: **Lesson 7.8 — Inner highlight**.
+- Generated frontier: **Lesson 7.10 — Fine noise or dither**. Lessons 7.7 through 7.10 are generated and are not learner-confirmed complete.
+- Next planned lesson after the generated frontier: **Lesson 7.11 — Compose the layers**.
 
 ## 2. Course construction principles
 
@@ -398,6 +398,38 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 - HTML teaching width is `8` CSS px. Android default is `3.dp`. Those units are not interchangeable.
 - `StaticRimExplorer.kt` stacks no-rim, clip-centered, and inset-path cards. The rim canvas is a sibling of the glass group, still inside `Modifier.clip`.
 - Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `StaticRimExplorer.kt`.
+
+**Generated implementation record — Lesson 7.8**
+
+- Generated ahead of unresolved Lesson 7.7; not learner-confirmed complete.
+- Introduces one new mechanism: blur a wide inset stroke on its own layer, then clip the blurred pixels to the panel path. The clip discards the outward fade. The inner fade remains.
+- The band blur (`6.dp` / `8` CSS px) is a separate `BlurEffect` from the glass fill’s `18.dp` blur.
+- The thin Lesson 7.7 rim stays an unblurred later sibling.
+- The band uses one color on every side. It is not a lighting model and not a signed-distance glow.
+- `InnerHighlightExplorer.kt` compares no band, a stage-sized unclipped band blur, and a clipped band blur.
+- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `InnerHighlightExplorer.kt`.
+
+**Generated implementation record — Lesson 7.9**
+
+- Generated ahead of unresolved Lesson 7.7; not learner-confirmed complete.
+- Introduces one new mechanism: a darker copy of the panel shape is blurred on a layer with empty room ≥ the shadow blur radius, then drawn behind the clipped glass.
+- A same-size layer has no surround pixels, so it cannot put a halo around the card.
+- Downward offset is a named convention (`4.dp` / `8` CSS px), not a simulated lamp.
+- `Modifier.shadow` is named and not reverse-engineered.
+- Fill, rim, and inner band stay fixed inside the clip. Shadow blur is the only control.
+- `OuterShadowExplorer.kt` compares no shadow, a glass-sized shadow layer, and a padded behind-layer.
+- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `OuterShadowExplorer.kt`.
+
+**Generated implementation record — Lesson 7.10**
+
+- Generated ahead of unresolved Lesson 7.7; not learner-confirmed complete.
+- Introduces one new mechanism: add one small signed offset, from a fixed column-and-row remainder recipe, to red, green, and blue, then store `round(clamp(sum) × 255)`.
+- Reuses Lesson 3.1 8-bit rounding. Does not rebuild blur, tint, rim, band, or shadow.
+- A slow navy-family ramp stands in for post-blur interiors so 8-bit stripes are countable.
+- Luminance noise uses one signed value for all three channels. Chroma noise uses a different salt per channel and is the dirty comparison.
+- Default amount is `0.02`. Amount `0` shows banding. Amount `0.12` looks dirty even as luminance noise.
+- `FineNoiseExplorer.kt` writes a card-sized bitmap with the exact store formula and `FilterQuality.None`.
+- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `FineNoiseExplorer.kt`.
 
 **Completed implementation record — Lesson 7.3**
 

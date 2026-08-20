@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 7.10 — Fine noise or dither</title>
+<style>
+:root{color-scheme:light dark;--ink:#172033;--muted:#596579;--line:#d8e0ea;--paper:#fff;--soft:#f5f7fb;--panel:#fbfcfe;--control:#fff;--green:#059669;--green-soft:#ecfdf5;--indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;--blue:#1e40af;--blue-soft:#dbeafe;--red:#dc2626;--red-soft:#fee2e2;--body-start:#f8fafc;--body-end:#edf2f7;--shadow:0 18px 52px rgba(30,41,59,.09);--code:#111827;--code-ink:#e5e7eb}
+@media(prefers-color-scheme:dark){:root{--ink:#e7edf7;--muted:#aeb9c9;--line:#354154;--paper:#111827;--soft:#172033;--panel:#151e2d;--control:#1b2535;--green:#34d399;--green-soft:#0b3429;--indigo:#a5b4fc;--indigo-soft:#23234a;--amber:#fbbf24;--amber-soft:#402d0a;--blue:#60a5fa;--blue-soft:#172d54;--red:#f87171;--red-soft:#491b20;--body-start:#0b111c;--body-end:#101827;--shadow:0 18px 52px rgba(0,0,0,.32);--code:#080d16;--code-ink:#e5e7eb}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--body-start),var(--body-end));font:16px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.45}code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}code{background:var(--indigo-soft);padding:.12em .36em;border-radius:6px;white-space:nowrap}.code-block>code,.code-block code{display:block;background:transparent;color:inherit;padding:0;border-radius:0;white-space:pre-wrap}.page{width:min(2260px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.topbar{display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:22px}.crumbs{color:var(--muted)}.chips{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:850}.chip.progress{color:var(--green);background:var(--green-soft)}.chip.pending{color:var(--amber);background:var(--amber-soft)}.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(480px,.85fr);gap:28px;padding:42px}.eyebrow,.section-no{color:var(--indigo);font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase}h1{margin:.35rem 0 1rem;font-size:clamp(42px,4vw,70px);line-height:1.04;letter-spacing:-.045em}h2{margin:0 0 .7rem;font-size:31px;line-height:1.18}h3{margin:0 0 .5rem;font-size:21px;line-height:1.25}p{max-width:110ch}.lead{font-size:19px;color:var(--muted)}.plain-rule{font-size:clamp(20px,1.8vw,28px);font-weight:950;line-height:1.3;padding:20px;border:2px solid var(--indigo);border-radius:16px;background:var(--indigo-soft)}.section{margin-top:24px;padding:32px}.section-head{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:22px}.section-head p{margin:0;color:var(--muted)}.card{padding:20px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}.card.green{background:var(--green-soft)}.card.blue{background:var(--blue-soft)}.card.amber{background:var(--amber-soft)}.card.indigo{background:var(--indigo-soft)}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.note,.warning,.success{margin-top:18px;padding:16px 18px;border-radius:14px}.note{border-left:5px solid var(--blue);background:var(--blue-soft)}.warning{border-left:5px solid var(--amber);background:var(--amber-soft)}.success{border-left:5px solid var(--green);background:var(--green-soft)}.formula{padding:14px 16px;border-radius:13px;background:var(--indigo-soft);border:1px solid color-mix(in srgb,var(--indigo) 45%,var(--line));font:800 15px/1.64 "SFMono-Regular",Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.btn{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:850;border:1px solid var(--line);background:var(--control);color:var(--ink);text-decoration:none;display:inline-flex;align-items:center}.btn:hover,.btn:focus-visible{border-color:var(--blue);outline:none}.btn.primary{border-color:var(--blue);background:var(--blue);color:#fff}.btn.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.hero-art{min-height:340px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,var(--blue-soft),var(--indigo-soft));padding:22px;display:grid;align-content:center;gap:14px}.hero-pipeline{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center}.hero-stage{padding:16px 12px;text-align:center;border-radius:14px;background:var(--paper);border:1px solid var(--line);font-weight:900}.arrow{font-size:28px;color:var(--indigo);font-weight:950}.lab-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.canvas-card{padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--panel);min-width:0}.canvas-card canvas,.canvas-card svg,.section-svg{display:block;width:100%;height:auto;border-radius:11px;border:1px solid var(--line);background:#0f172a}.canvas-card canvas{aspect-ratio:2/1}.mag-canvas{aspect-ratio:8/1!important}.canvas-title{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:9px}.canvas-title span,.origin{color:var(--muted);font-size:13px;font-weight:700}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}.metric{padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--control)}.metric strong{display:block;color:var(--indigo);margin-bottom:4px}.metric .origin{display:block;margin-bottom:6px}.metric .value{display:block;font-weight:850}.range{display:grid;grid-template-columns:220px minmax(160px,1fr) 90px;gap:12px;align-items:center;margin:10px 0}.lesson-grid{display:grid;grid-template-columns:minmax(860px,1.25fr) minmax(430px,.75fr);gap:18px;align-items:start}.pipeline-panel{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:22px;overflow:auto}.pipeline-row{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:12px;min-width:760px}.pipe-stage{border:2px solid var(--line);background:var(--control);border-radius:14px;padding:16px;min-height:140px}.pipe-stage.active{border-color:var(--indigo);background:var(--indigo-soft)}.pipe-stage strong{display:block;color:var(--indigo);margin-bottom:7px}.stepper{position:sticky;top:18px;border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden}.step-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}.step-body{padding:18px}.step-title{font-size:22px;font-weight:950}.step-caption{min-height:190px}.step-buttons{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}.step-dot{width:40px;height:40px;padding:0;border-radius:10px;border:1px solid var(--line);background:var(--control);color:var(--ink);font-weight:900}.step-dot.selected{background:var(--indigo);border-color:var(--indigo);color:#fff}.code-grid{display:grid;grid-template-columns:minmax(650px,1fr) minmax(500px,.8fr);gap:18px}.code-block{background:var(--code);color:var(--code-ink);border-radius:14px;padding:16px;white-space:pre-wrap;overflow:auto;font:14px/1.62 "SFMono-Regular",Consolas,monospace}.prediction{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.choice{appearance:none;min-height:112px;padding:16px;border:2px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);text-align:left;font-weight:800;line-height:1.5}.choice:hover,.choice:focus-visible{border-color:var(--blue);outline:none}.choice.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.challenge{display:grid;grid-template-columns:minmax(650px,1fr) minmax(500px,.75fr);gap:18px}.editor{width:100%;min-height:280px;resize:vertical;background:var(--code);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace;white-space:pre;overflow:auto}.result{min-height:55px;margin-top:12px;padding:12px;border-radius:11px;background:var(--soft)}details{margin:10px 0;border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:13px 15px}summary{cursor:pointer;font-weight:900}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.check{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}.record{width:100%;min-height:240px;margin-top:12px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);font:14px/1.6 "SFMono-Regular",Consolas,monospace}.footer{margin-top:24px;padding:18px 24px;display:flex;justify-content:space-between;gap:18px;align-items:center}.chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.swatch{width:44px;height:44px;border-radius:8px;border:1px solid var(--line)}
+@media(max-width:1200px){.hero,.lesson-grid,.code-grid,.challenge{grid-template-columns:1fr}.lab-grid,.metrics{grid-template-columns:1fr 1fr}.stepper{position:static}}
+@media(max-width:760px){.page{width:min(100% - 24px,2260px)}.two,.three,.prediction,.checklist,.lab-grid,.metrics{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <div class="crumbs"><a href="lesson-build-convincing-frosted-glass-without-a-custom-lens.html">Chapter 7</a> · Lesson 7.10 · generated ahead</div>
+    <div class="chips"><span class="chip progress">68 of 216 complete</span><span class="chip pending">Checkpoint 7.7 unresolved</span><span class="chip pending">7.10 generated ahead</span></div>
+  </div>
+
+  <header class="hero panel">
+    <div>
+      <div class="eyebrow">Chapter 7 · Break stripes without dirty specks</div>
+      <h1>Fine noise or dither</h1>
+      <p class="lead"><strong>Question:</strong> Lesson 7.6 left a quieted frosted fill whose interiors still change slowly from pixel to pixel. A slow change can look like a set of stripes instead of a smooth ramp. How do we break those stripes without covering the glass with colored specks?</p>
+      <div class="plain-rule"><strong>Banding</strong> is a visible stripe of neighboring pixels that all stored the same 8-bit RGB. <strong>Fine noise</strong> is a small signed offset added to a pixel before that store. <strong>Dither</strong> is the use of that offset so neighboring pixels can round to different integers and the eye averages the field.</div>
+      <div class="note"><strong>Generated ahead.</strong> Lesson 7.7 remains the unresolved checkpoint. Lessons 7.8 and 7.9 are generated and not complete. This lesson does not rebuild blur, tint, rim, band, or shadow. Lesson 3.1 already taught <code>channel8 = round(normalized × 255)</code>. The new operation is the signed offset that runs <strong>before</strong> that rounding.</div>
+    </div>
+    <div class="hero-art" aria-label="True ramp, 8-bit store, then a signed offset">
+      <div class="hero-pipeline">
+        <div class="hero-stage">slow true<br>ramp</div><div class="arrow">→</div>
+        <div class="hero-stage">add a small<br>signed offset</div><div class="arrow">→</div>
+        <div class="hero-stage">store 8-bit<br>RGB</div>
+      </div>
+      <p style="margin:0;font-weight:800">The same offset goes to red, green, and blue. Different offsets per channel look like colored dirt.</p>
+    </div>
+  </header>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">1 · THE NEW OBJECTS</div><h2>A stripe is a store collision. Noise is an offset.</h2></div></div>
+    <div class="three">
+      <article class="card blue"><h3>True ramp</h3><p>Each column of the teaching panel has a normalized RGB that changes slowly from left to right. This ramp stands in for the slow interiors left by blur and tint. It is not a new blur.</p></article>
+      <article class="card indigo"><h3>8-bit store</h3><p>Lesson 3.1: each channel is stored as an integer from <code>0</code> through <code>255</code>. <code>channel8 = round(normalized × 255)</code>. Many neighboring true values round to the same integer. That run is a stripe.</p></article>
+      <article class="card green"><h3>Signed offset</h3><p>A number in <code>−1 .. +1</code> taken from the pixel’s column and row with a fixed recipe. <code>offset = signed × amount</code> is added to the true channel, then the sum is stored. Amount <code>0</code> is no noise.</p></article>
+    </div>
+    <div class="formula" style="margin-top:16px">unit = ((column + 3) × 7 + (row + 5) × 13) remainder 16
+     ÷ 15
+signed = 2 × unit − 1
+offset = signed × amount
+stored8 = round(clamp(true channel + offset) × 255)</div>
+    <div class="success" style="margin-top:14px"><strong>Luminance noise</strong> uses one signed value for red, green, and blue. <strong>Chroma noise</strong> uses a different signed value per channel. Production uses luminance noise at a small amount.</div>
+  </section>
+
+  <section class="section panel" id="lab">
+    <div class="section-head"><div><div class="section-no">2 · INTERACTIVE LAB</div><h2>Change only the noise amount</h2></div><p>The three cards store the same slow ramp. Look at the stripes first, then at whether the grain is gray or colored.</p></div>
+    <div class="controls" role="group" aria-label="Noise amount presets">
+      <button class="btn amount-btn" data-amount="0">0 · none</button>
+      <button class="btn amount-btn selected" data-amount="0.02">0.02 · fine</button>
+      <button class="btn amount-btn" data-amount="0.12">0.12 · dirty</button>
+    </div>
+    <div class="range"><label for="amountSlider"><strong>Amount</strong> <span class="origin">controlled · normalized channel</span></label><input id="amountSlider" type="range" min="0" max="16" value="2"><strong id="amountLabel">0.02</strong></div>
+    <div class="metrics">
+      <div class="metric"><strong>Amount</strong><span class="origin">controlled</span><span class="value" id="amountMetric">0.02</span></div>
+      <div class="metric"><strong>Max |offset|</strong><span class="origin">derived · equals amount</span><span class="value" id="offsetMetric">0.02</span></div>
+      <div class="metric"><strong>Selected column</strong><span class="origin">fixed teaching pixel</span><span class="value">200</span></div>
+      <div class="metric"><strong>Stored red there</strong><span class="origin">derived · 8-bit</span><span class="value" id="storedMetric"></span></div>
+    </div>
+    <div class="lab-grid" style="margin-top:14px">
+      <article class="canvas-card"><div class="canvas-title"><strong>8-bit, no noise</strong><span>stripes</span></div><canvas id="noneCanvas" width="640" height="320"></canvas><p>Neighboring columns round to the same stored RGB. Those runs are banding.</p></article>
+      <article class="canvas-card"><div class="canvas-title"><strong>Luminance noise · production</strong><span>same offset on RGB</span></div><canvas id="lumaCanvas" width="640" height="320"></canvas><p>One signed value is added to red, green, and blue. The field stays in the same color family.</p></article>
+      <article class="canvas-card"><div class="canvas-title"><strong>Chroma noise · dirty</strong><span>different offset per channel</span></div><canvas id="chromaCanvas" width="640" height="320"></canvas><p>Red, green, and blue each get their own signed value. The specks are colored. That is dirt, not glass grain.</p></article>
+    </div>
+    <article class="canvas-card" style="margin-top:14px">
+      <div class="canvas-title"><strong>Twelve stored pixels around column 200</strong><span>one cell = one column, row 80</span></div>
+      <canvas id="magCanvas" class="mag-canvas" width="960" height="120"></canvas>
+      <p id="magCaption"></p>
+    </article>
+    <div class="note"><strong>Browser versus Android.</strong> This canvas uses CSS pixels and writes one 8-bit RGB per teaching pixel with the exact formula above. Android uses the same recipe on a bitmap whose size is the card in device pixels. Amount is a normalized channel number, not dp. The slow ramp is a visible stand-in for the post-blur interiors from Lessons 7.1–7.6. This lesson does not rebuild blur. Chapter 8 will write per-pixel GPU programs. This lesson does not use <code>RuntimeShader</code>.</div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">3 · ONE PIXEL</div><h2>True red → offset → stored integer</h2></div></div>
+    <div class="two">
+      <article class="card indigo">
+        <h3>Inputs at column 200, row 80</h3>
+        <div class="formula" id="pixelInputs"></div>
+      </article>
+      <article class="card green">
+        <h3>Operations and who consumes them</h3>
+        <div class="formula" id="pixelOps"></div>
+        <p>The stored integer is what the panel actually shows. The true ramp is not displayed. The later rim and label sit on top and do not receive this offset.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">4 · THE PRODUCTION RULE</div><h2>After you have seen stripes and dirt</h2></div></div>
+    <div class="plain-rule">add one signed offset to red, green, and blue<br>then store each channel as an 8-bit integer<br>keep the amount small<br>do not give each channel its own offset</div>
+    <div class="two" style="margin-top:16px">
+      <article class="card indigo">
+        <h3>Inputs</h3>
+        <p><strong>Amount</strong> — the slider. Normalized channel units. Teaching default: <code>0.02</code>. Android default: the same <code>0.02</code>.</p>
+        <p><strong>Column and row</strong> — integer pixel coordinates in the bitmap. They are not dp.</p>
+        <p><strong>True channel</strong> — the slow ramp at that column, still normalized <code>0..1</code>.</p>
+      </article>
+      <article class="card green">
+        <h3>Outputs, and who consumes them</h3>
+        <p><strong>Signed</strong> is consumed by the offset multiply.</p>
+        <p><strong>Offset</strong> is consumed by the add, then by Lesson 3.1 rounding.</p>
+        <p><strong>Stored 8-bit RGB</strong> is consumed by the panel bitmap. Rim, band, shadow, and label do not read it.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">5 · SIX STEPS</div><h2>Stripe → offset → gray grain, not colored dirt</h2></div></div>
+    <div class="lesson-grid">
+      <div class="pipeline-panel">
+        <div class="pipeline-row">
+          <div class="pipe-stage" data-stage="ramp"><strong>True ramp</strong><span>slow normalized RGB</span></div>
+          <div class="pipe-stage" data-stage="store"><strong>8-bit store</strong><span>stripes from rounding</span></div>
+          <div class="pipe-stage" data-stage="offset"><strong>Signed offset</strong><span>from column and row</span></div>
+          <div class="pipe-stage" data-stage="kind"><strong>Same vs per-channel</strong><span>fine vs dirty</span></div>
+        </div>
+      </div>
+      <aside class="stepper">
+        <div class="step-head"><button class="btn" id="stepPrev">Previous</button><strong id="stepCounter">Step 1 of 6</strong><button class="btn primary" id="stepNext">Next</button></div>
+        <div class="step-body">
+          <div class="step-title" id="stepTitle"></div>
+          <div class="step-caption" id="stepCaption"></div>
+          <div class="step-buttons" id="stepButtons"></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">6 · NOT A PHOTOGRAPH</div><h2>The recipe is arithmetic, not a grain scan</h2></div></div>
+    <div class="two">
+      <article class="card">
+        <h3>What the recipe does</h3>
+        <p>Column and row are integers. The remainder recipe always returns the same unit value for the same pair. That is why the grain does not crawl from frame to frame.</p>
+        <p>The numbers <code>7</code>, <code>13</code>, <code>3</code>, and <code>5</code> are chosen so the 16-slot table is easy to compute by hand. They are not a claim about camera sensors or film.</p>
+      </article>
+      <article class="card amber">
+        <h3>What this noise is not</h3>
+        <p>It is not a second photograph of sand. It is not a custom GPU program. It is not Apple’s private grain. A large amount, or a different offset per channel, makes the panel look dirty. The label stays outside this store so the letters do not get speckled.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">7 · ANDROID ROUTE</div><h2>Write the stored integers into a bitmap, then draw it</h2></div></div>
+    <div class="code-grid">
+      <pre class="code-block"><code>val t = x / (width - 1).toFloat()
+var red = lerp(leftRed, rightRed, t)
+var green = lerp(leftGreen, rightGreen, t)
+var blue = lerp(leftBlue, rightBlue, t)
+
+val signed = unitNoise(x, y, salt = 0) * 2f - 1f
+val offset = signed * amount
+red += offset
+green += offset
+blue += offset
+
+pixels[y * width + x] = android.graphics.Color.rgb(
+    store8(red),
+    store8(green),
+    store8(blue),
+)</code></pre>
+      <div class="card">
+        <h3>What each part changes</h3>
+        <p><code>unitNoise</code> is the remainder recipe. Salt <code>0</code> is luminance noise. Chroma noise would pass a different salt per channel. Production does not.</p>
+        <p><code>store8</code> is Lesson 3.1 rounding. The bitmap then holds those integers. <code>Canvas.drawImage</code> shows the bitmap. Rim and label are later siblings, still sharp.</p>
+        <p>This explorer writes a bitmap the size of the card. That is the exact store formula. It is not a <code>RuntimeShader</code>. Chapter 8 will move per-pixel programs onto the GPU.</p>
+        <p><strong>Android files:</strong><br><code>chapter07/FineNoiseExplorer.kt</code><br><code>chapter07/Chapter07Screen.kt</code></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">8 · PREDICTION</div><h2>Two neighbors, one true red</h2></div></div>
+    <p>Two neighboring pixels have the same true red <code>0.401</code>. Luminance noise amount is <code>0.02</code>. Must they still share one stored red integer?</p>
+    <div class="prediction">
+      <button class="choice" data-answer="wrong">Yes. The true values match, so rounding always stores the same integer.</button>
+      <button class="choice" data-answer="correct">No. Column and row can produce different signed offsets, so the sums can round to different integers.</button>
+      <button class="choice" data-answer="wrong">Yes, unless a lamp is shining on one of them.</button>
+    </div>
+    <div class="result" id="predictionResult">Choose one answer.</div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">9 · CODING CHALLENGE</div><h2>One offset, then store</h2></div></div>
+    <div class="challenge">
+      <div>
+        <textarea class="editor" id="challengeEditor" spellcheck="false">val signed = unitNoise(column, row, salt = 0) * 2f - 1f
+val offset = signed * ___
+val r8 = store8(trueRed + offset)
+val g8 = store8(trueGreen + ___)
+val b8 = store8(trueBlue + offset)</textarea>
+        <div class="controls" style="margin-top:10px">
+          <button class="btn primary" id="checkChallenge">Check</button>
+          <button class="btn" id="showSolution">Show solution</button>
+          <button class="btn" id="resetChallenge">Reset</button>
+        </div>
+        <div class="result" id="challengeResult">Fill the amount multiply and the green addend.</div>
+      </div>
+      <div class="card indigo">
+        <h3>Available names</h3>
+        <div class="formula">amount
+offset</div>
+        <p>The first blank scales the signed value. The second blank must reuse that same offset so the grain stays gray.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">10 · EXERCISES</div><h2>Answer before opening each hidden solution</h2></div></div>
+    <details><summary>What is banding in this lesson?</summary><p>A visible stripe of neighboring pixels that all stored the same 8-bit RGB because their true normalized values rounded to one integer.</p></details>
+    <details><summary>Why add the offset before <code>store8</code>, not after?</summary><p>The store is what creates the stripe. Adding an offset to an already-stored integer cannot split a run of identical stored values into different integers unless you also re-store. The lesson adds, then rounds, so two neighbors can land on different integers.</p></details>
+    <details><summary>A panel looks speckled with tiny red and green dots. Which choice went wrong?</summary><p>Chroma noise: a different signed value per channel. Production uses one signed value for red, green, and blue, at a small amount. A large luminance amount can also look dirty, but the specks stay gray.</p></details>
+    <details><summary>How is this different from Lesson 7.11?</summary><p>This lesson only adds a signed offset before the 8-bit store. Lesson 7.11 will put blur, tint, saturation, rim, band, shadow, and noise in one deliberate order. That order is not this lesson’s new operation.</p></details>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">11 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div></div>
+    <div class="checklist">
+      <label class="check"><input type="checkbox">Amount 0 shows visible stripes on the slow ramp.</label>
+      <label class="check"><input type="checkbox">Fine luminance noise breaks the stripes without colored specks.</label>
+      <label class="check"><input type="checkbox">Chroma noise at the same amount looks colored and dirty.</label>
+      <label class="check"><input type="checkbox">Amount 0.12 looks dirty even as luminance noise.</label>
+      <label class="check"><input type="checkbox">The selected-column stored red matches the live formula.</label>
+      <label class="check"><input type="checkbox">The sharp label is not speckled.</label>
+      <label class="check"><input type="checkbox">The direct explorer Preview scrolls in light and dark.</label>
+      <label class="check"><input type="checkbox">The complete Chapter 7 Preview scrolls in light and dark.</label>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">12 · EVIDENCE BOUNDARY</div><h2>What this lesson establishes</h2></div></div>
+    <div class="two">
+      <div class="card green"><h3>Established</h3><p>A slow ramp stored with Lesson 3.1 rounding can band. Adding one small signed offset, from a fixed column-and-row recipe, to all three channels before that store breaks the stripes without colored dirt.</p></div>
+      <div class="card amber"><h3>Not claimed</h3><p>The remainder recipe is a teaching table, not a camera model and not a GPU hash. This is not <code>RuntimeShader</code>, not film grain from a photo, and not Apple’s private noise. Lesson 7.11 will order the full material stack.</p></div>
+    </div>
+    <button class="btn primary" id="buildRecord" style="margin-top:16px">Build local review record</button>
+    <textarea class="record" id="record" readonly>No record generated yet.</textarea>
+  </section>
+
+  <footer class="footer panel"><span>68 of 216 complete · checkpoint 7.7 unresolved · 7.10 generated ahead</span><span>Previous generated: <a href="lesson-07-09-outer-shadow.html">7.9 — Outer shadow</a> · Next planned: <strong>7.11 — Compose the layers</strong></span></footer>
+</main>
+<script>
+const LEFT=[0.32,0.40,0.52];
+const RIGHT=[0.36,0.44,0.56];
+const PANEL_R=36;
+const SEL_COL=200;
+const SEL_ROW=80;
+const MAG_COUNT=12;
+const MAG_START=194;
+let amount=0.02, currentStep=0;
+const fmt=n=>String(Math.round(n*1000)/1000);
+const fmt2=n=>String(Math.round(n*100)/100);
+
+function lerp(a,b,t){return a+(b-a)*t}
+function store8(v){return Math.round(Math.max(0,Math.min(1,v))*255)}
+function unitNoise(col,row,salt){
+  const raw=((col+3)*7+(row+5)*13+salt*11)%16;
+  return raw/15;
+}
+function trueRgb(col,w){
+  const t=w<=1?0:col/(w-1);
+  return [lerp(LEFT[0],RIGHT[0],t),lerp(LEFT[1],RIGHT[1],t),lerp(LEFT[2],RIGHT[2],t)];
+}
+function storedRgb(col,row,w,mode,amt){
+  const t=trueRgb(col,w);
+  let R=t[0],G=t[1],B=t[2];
+  if(amt>0 && mode!=='none'){
+    if(mode==='luma'){
+      const o=(unitNoise(col,row,0)*2-1)*amt;
+      R+=o;G+=o;B+=o;
+    }else{
+      R+=(unitNoise(col,row,1)*2-1)*amt;
+      G+=(unitNoise(col,row,2)*2-1)*amt;
+      B+=(unitNoise(col,row,3)*2-1)*amt;
+    }
+  }
+  return [store8(R),store8(G),store8(B)];
+}
+function roundRect(ctx,x,y,w,h,r){
+  const rr=Math.max(0,Math.min(r,w/2,h/2));
+  ctx.beginPath();
+  ctx.moveTo(x+rr,y);
+  ctx.arcTo(x+w,y,x+w,y+h,rr);
+  ctx.arcTo(x+w,y+h,x,y+h,rr);
+  ctx.arcTo(x,y+h,x,y,rr);
+  ctx.arcTo(x,y,x+w,y,rr);
+  ctx.closePath();
+}
+const rampOff=document.createElement('canvas');
+const rampOffCtx=rampOff.getContext('2d');
+function paintRamp(ctx,w,h,mode){
+  if(rampOff.width!==w||rampOff.height!==h){rampOff.width=w;rampOff.height=h}
+  const img=rampOffCtx.createImageData(w,h);
+  const data=img.data;
+  const useAmt=mode==='none'?0:amount;
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      const rgb=storedRgb(x,y,w,mode,useAmt);
+      const i=(y*w+x)*4;
+      data[i]=rgb[0];data[i+1]=rgb[1];data[i+2]=rgb[2];data[i+3]=255;
+    }
+  }
+  rampOffCtx.putImageData(img,0,0);
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='#0f172a';
+  ctx.fillRect(0,0,w,h);
+  ctx.save();
+  roundRect(ctx,0,0,w,h,PANEL_R);
+  ctx.clip();
+  ctx.drawImage(rampOff,0,0);
+  ctx.restore();
+  ctx.save();
+  roundRect(ctx,0,0,w,h,PANEL_R);
+  ctx.clip();
+  ctx.strokeStyle='rgba(255,255,255,0.90)';
+  ctx.lineWidth=4;
+  const inset=2, ir=Math.max(0,PANEL_R-inset);
+  roundRect(ctx,inset,inset,w-4,h-4,ir);
+  ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle='#fff';ctx.font='700 26px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('Sharp label',w/2,h/2);
+}
+function paintMag(){
+  const c=document.getElementById('magCanvas');
+  const ctx=c.getContext('2d');
+  const w=c.width,h=c.height;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='#0f172a';ctx.fillRect(0,0,w,h);
+  const cell=w/MAG_COUNT;
+  for(let i=0;i<MAG_COUNT;i++){
+    const col=MAG_START+i;
+    const rgb=storedRgb(col,SEL_ROW,640,'luma',amount);
+    ctx.fillStyle=`rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
+    ctx.fillRect(i*cell+1,8,cell-2,h-36);
+    ctx.fillStyle='#e5e7eb';
+    ctx.font='700 13px ui-monospace,monospace';
+    ctx.textAlign='center';
+    ctx.fillText(String(rgb[0]), i*cell+cell/2, h-12);
+    if(col===SEL_COL){
+      ctx.strokeStyle='#fbbf24';
+      ctx.lineWidth=3;
+      ctx.strokeRect(i*cell+2,10,cell-4,h-40);
+    }
+  }
+  document.getElementById('magCaption').textContent=
+    `Each cell is one column of the 640-pixel ramp at row ${SEL_ROW}. The number is stored red (0–255). The yellow outline is column ${SEL_COL}.`;
+}
+function paintLab(){
+  const n=document.getElementById('noneCanvas');
+  const l=document.getElementById('lumaCanvas');
+  const ch=document.getElementById('chromaCanvas');
+  paintRamp(n.getContext('2d'),n.width,n.height,'none');
+  paintRamp(l.getContext('2d'),l.width,l.height,'luma');
+  paintRamp(ch.getContext('2d'),ch.width,ch.height,'chroma');
+  document.getElementById('amountMetric').textContent=fmt2(amount);
+  document.getElementById('offsetMetric').textContent=fmt2(amount);
+  const trueC=trueRgb(SEL_COL,640);
+  const none=storedRgb(SEL_COL,SEL_ROW,640,'none',0);
+  const luma=storedRgb(SEL_COL,SEL_ROW,640,'luma',amount);
+  const unit=unitNoise(SEL_COL,SEL_ROW,0);
+  const signed=unit*2-1;
+  const offset=signed*amount;
+  document.getElementById('storedMetric').textContent=amount===0
+    ?`no noise ${none[0]}`
+    :`no noise ${none[0]} → luma ${luma[0]}`;
+  document.getElementById('pixelInputs').textContent=
+`column = ${SEL_COL}   row = ${SEL_ROW}
+true red = ${fmt(trueC[0])}   ← slow ramp at this column
+unit = ((${SEL_COL} + 3) × 7 + (${SEL_ROW} + 5) × 13) remainder 16 ÷ 15
+     = ${Math.round(unitNoise(SEL_COL,SEL_ROW,0)*15)} / 15
+     = ${fmt(unit)}
+signed = 2 × ${fmt(unit)} − 1 = ${fmt(signed)}
+amount = ${fmt2(amount)}   ← slider`;
+  document.getElementById('pixelOps').textContent=
+`offset = ${fmt(signed)} × ${fmt2(amount)} = ${fmt(offset)}
+sum red = ${fmt(trueC[0])} + ${fmt(offset)} = ${fmt(trueC[0]+offset)}
+stored red without noise = round(${fmt(trueC[0])} × 255) = ${none[0]}
+stored red with luma noise = round(clamp(${fmt(trueC[0]+offset)}) × 255) = ${luma[0]}
+next consumer = the panel bitmap pixel at (${SEL_COL}, ${SEL_ROW})`;
+  paintMag();
+}
+
+const steps=[
+  {stage:'ramp',title:'The quieted fill is a slow change',copy:()=>`Lesson 7.6 already quieted navy and orange. After blur and tint, neighboring pixels often differ by a tiny normalized amount. This lesson’s teaching panel is a slow ramp from RGB(${LEFT.join(', ')}) to RGB(${RIGHT.join(', ')}). That ramp stands in for those interiors. It is not a new blur.`},
+  {stage:'store',title:'8-bit rounding can glue neighbors together',copy:()=>`Lesson 3.1: stored red = round(true red × 255). At column ${SEL_COL}, true red = ${fmt(trueRgb(SEL_COL,640)[0])}. Stored red with amount 0 = ${storedRgb(SEL_COL,SEL_ROW,640,'none',0)[0]}. Nearby columns with true red in the same rounding bin keep that same integer. The run is a stripe.`},
+  {stage:'offset',title:'A recipe turns column and row into a unit',copy:()=>`unit at (${SEL_COL}, ${SEL_ROW}) = ${fmt(unitNoise(SEL_COL,SEL_ROW,0))}. The same pair always produces that unit. This is not a photograph and not a live random roll. signed = ${fmt(unitNoise(SEL_COL,SEL_ROW,0)*2-1)}.`},
+  {stage:'offset',title:'Offset = signed × amount, then store',copy:()=>`Current amount = ${fmt2(amount)}. offset = ${fmt((unitNoise(SEL_COL,SEL_ROW,0)*2-1)*amount)}. Add that to the true channel, then round. Stored red becomes ${storedRgb(SEL_COL,SEL_ROW,640,'luma',amount)[0]}. Without noise it was ${storedRgb(SEL_COL,SEL_ROW,640,'none',0)[0]}.`},
+  {stage:'kind',title:'One offset for all three channels',copy:()=>`Luminance noise adds the same offset to red, green, and blue. The pixel stays in its color family. That is the production grain. It is still one color family on every side of the panel.`},
+  {stage:'kind',title:'A different offset per channel is dirt',copy:()=>`Chroma noise uses a different salt per channel. Specks go red, green, or blue. Amount ${fmt2(amount)} on chroma looks dirtier than the same amount on luminance. The sharp label is drawn later and is not stored through this recipe. Lesson 7.11 will order the full stack.`}
+];
+function renderStep(){
+  const s=steps[currentStep];
+  document.getElementById('stepCounter').textContent=`Step ${currentStep+1} of ${steps.length}`;
+  document.getElementById('stepTitle').textContent=s.title;
+  document.getElementById('stepCaption').textContent=s.copy();
+  document.querySelectorAll('.pipe-stage').forEach(el=>el.classList.toggle('active',el.dataset.stage===s.stage));
+  [...document.getElementById('stepButtons').children].forEach((b,i)=>b.classList.toggle('selected',i===currentStep));
+  document.getElementById('stepPrev').disabled=currentStep===0;
+  document.getElementById('stepNext').disabled=currentStep===steps.length-1;
+}
+const stepButtons=document.getElementById('stepButtons');
+steps.forEach((_,i)=>{const b=document.createElement('button');b.className='step-dot';b.textContent=String(i+1);b.addEventListener('click',()=>{currentStep=i;renderStep()});stepButtons.appendChild(b)});
+document.getElementById('stepPrev').addEventListener('click',()=>{if(currentStep>0){currentStep--;renderStep()}});
+document.getElementById('stepNext').addEventListener('click',()=>{if(currentStep<steps.length-1){currentStep++;renderStep()}});
+
+function setAmount(v){
+  amount=Math.max(0,Math.min(0.16,v));
+  document.getElementById('amountSlider').value=String(Math.round(amount*100));
+  document.getElementById('amountLabel').textContent=fmt2(amount);
+  document.querySelectorAll('.amount-btn').forEach(b=>b.classList.toggle('selected',Math.abs(Number(b.dataset.amount)-amount)<0.0005));
+  paintLab();renderStep();
+}
+document.querySelectorAll('.amount-btn').forEach(b=>b.addEventListener('click',()=>setAmount(Number(b.dataset.amount))));
+document.getElementById('amountSlider').addEventListener('input',e=>setAmount(Number(e.target.value)/100));
+
+document.querySelectorAll('.choice').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.choice').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('predictionResult').textContent=btn.dataset.answer==='correct'
+    ?'Correct. The recipe depends on column and row. Different offsets can push the two sums into different rounding bins.'
+    :'Not this one. Matching true values are not enough after an offset that depends on coordinates. A lamp is not an input.';
+}));
+const starter=`val signed = unitNoise(column, row, salt = 0) * 2f - 1f
+val offset = signed * ___
+val r8 = store8(trueRed + offset)
+val g8 = store8(trueGreen + ___)
+val b8 = store8(trueBlue + offset)`;
+const solution=`val signed = unitNoise(column, row, salt = 0) * 2f - 1f
+val offset = signed * amount
+val r8 = store8(trueRed + offset)
+val g8 = store8(trueGreen + offset)
+val b8 = store8(trueBlue + offset)`;
+const editor=document.getElementById('challengeEditor');
+document.getElementById('checkChallenge').addEventListener('click',()=>{
+  document.getElementById('challengeResult').textContent=editor.value.replace(/\s+/g,'')===solution.replace(/\s+/g,'')
+    ?'Correct. amount scales the signed value. Green reuses offset, so the grain stays gray.'
+    :'Not complete yet. The first blank is amount. The second is offset.';
+});
+document.getElementById('showSolution').addEventListener('click',()=>{editor.value=solution;document.getElementById('challengeResult').textContent='Solution inserted. Chroma noise would not reuse offset.';});
+document.getElementById('resetChallenge').addEventListener('click',()=>{editor.value=starter;document.getElementById('challengeResult').textContent='Fill the amount multiply and the green addend.';});
+document.getElementById('buildRecord').addEventListener('click',()=>{
+  document.getElementById('record').value=`# Lesson 7.10 — Fine noise or dither
+Completed: pending learner confirmation
+Generated ahead of unresolved Lesson 7.7
+New mechanism: add one small signed offset, from a fixed column-and-row recipe, to all three channels before Lesson 3.1 8-bit rounding.
+Chroma noise (a different offset per channel) looks dirty.
+Android: chapter07/FineNoiseExplorer.kt
+`;
+});
+paintLab();
+renderStep();
+</script>
+</body>
+</html>
