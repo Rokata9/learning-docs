@@ -1,7 +1,7 @@
 # Liquid Glass Android course — implementation handoff
 
-**Updated:** 2026-08-20  
-**Course version:** 7.12.0
+**Updated:** 2026-08-23  
+**Course version:** 7.12.1
 
 ## Read order
 
@@ -19,20 +19,24 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 68
-completed_through: "Lesson 7.6 — Saturation and contrast"
+learner_confirmed_complete: 70
+completed_through: "Lesson 7.8 — Inner highlight"
 completed_chapters: [1, 2, 3, 4, 5, 6]
-chapter_7_complete: "6 of 12"
-next_unresolved_checkpoint: "Lesson 7.7 — Static rim"
+chapter_7_complete: "8 of 12"
+next_unresolved_checkpoint: "Lesson 7.9 — Outer shadow"
 generated_frontier: "Lesson 7.12 — Compare backgrounds"
 next_planned_after_frontier: "Lesson 8.1 — What a shader does"
 ```
 
-Lesson 7.7 is generated and is not learner-confirmed complete. Lessons 7.8 through 7.12 are generated ahead and are not learner-confirmed complete.
+Lesson 7.9 is generated and is not learner-confirmed complete. Lessons 7.10 through 7.12 are generated ahead and are not learner-confirmed complete. Lessons 7.7 and 7.8 are learner-confirmed complete.
 
 ## Generate-ahead note
 
-The learner asked to generate the next two lessons after the 7.10 frontier without marking pending items done. No new reusable lesson-quality failure was evidenced. Do not treat 7.8–7.12 as the checkpoint.
+Lessons 7.11 and 7.12 remain generated ahead. Lessons 7.7 and 7.8 are learner-confirmed complete. The checkpoint is 7.9. 7.9 was revised 2026-08-20. 7.10 was revised again 2026-08-23 so ramp, stripe, rounding bin, and the remainder tile are labelled pictures; do not mark either complete until the learner confirms.
+
+Reusable 7.9/7.10 rules are in `AGENTS.md` under “Rounded-shape halo, leaked blur, and 8-bit store gates” and “Teaching-stand-in, labelled-region, and recipe-pattern gate.”
+
+Compact record of the Q&A also lives in `CURRENT_STATE.md` and `~/.grok/memory/learning-docs-0cd75f1a/MEMORY.md`.
 
 ## Generated-ahead Lesson 7.11
 
@@ -73,6 +77,7 @@ course/chapters/chapter-07/lesson-07-07-static-rim.html
 course/chapters/chapter-07/lesson-07-08-inner-highlight.html
 course/chapters/chapter-07/lesson-07-09-outer-shadow.html
 course/chapters/chapter-07/lesson-07-10-fine-noise.html
+course/chapters/chapter-07/lesson-07-10-store-and-recipe-companion.html
 course/chapters/chapter-07/lesson-07-11-compose-the-layers.html
 course/chapters/chapter-07/lesson-07-12-compare-backgrounds.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
@@ -87,11 +92,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/CompareBac
 
 ## Completion rule
 
-Do not mark Lesson 7.7–7.12 complete merely because they were generated. Wait for explicit learner confirmation. Do not generate Lesson 8.1 before 7.12 confirmation unless the learner asks to generate ahead.
+Do not mark Lesson 7.9–7.12 complete merely because they were generated or revised. Wait for explicit learner confirmation. Do not generate Lesson 8.1 before 7.12 confirmation unless the learner asks to generate ahead.
 
 ## Standing delivery preferences recorded 2026-08-20
 
 - Do not generate `.zip` files. The learner works from the repositories.
 - When a preview wrapper has both themes, put the dark `@Preview` annotation first, then light. Prospective only.
 
-Course progress: 68 of 216 lessons completed.
+Course progress: 70 of 216 lessons completed.

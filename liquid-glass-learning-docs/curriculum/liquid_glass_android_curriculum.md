@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 7.12.0
+**Version:** 7.12.1
 **Updated:** 2026-08-20
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
@@ -9,12 +9,12 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **68 of 216**.
-- Completed through: **Lesson 7.6 — Saturation and contrast**.
+- Learner-confirmed complete: **70 of 216**.
+- Completed through: **Lesson 7.8 — Inner highlight**.
 - Completed chapters: **1–6**.
-- Chapter 7 is in progress: **6 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.7 — Static rim**.
-- Generated frontier: **Lesson 7.12 — Compare backgrounds**. Lessons 7.7 through 7.12 are generated and are not learner-confirmed complete.
+- Chapter 7 is in progress: **8 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.9 — Outer shadow**.
+- Generated frontier: **Lesson 7.12 — Compare backgrounds**. Lessons 7.9 through 7.12 are generated and are not learner-confirmed complete.
 - Next planned lesson after the generated frontier: **Lesson 8.1 — What a shader does**.
 
 ## 2. Course construction principles
@@ -389,9 +389,9 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 - `SaturationContrastExplorer.kt` keeps tint amount at `0.25` and places the sharp label outside the filtered box.
 - Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `SaturationContrastExplorer.kt`.
 
-**Generated implementation record — Lesson 7.7**
+**Completed implementation record — Lesson 7.7**
 
-- Generated; not learner-confirmed complete.
+- Learner-confirmed complete; the completed total advances to 69 of 216.
 - Introduces one new mechanism: a Canvas / Compose `Stroke` is centered on its path, so clipping to that path discards the outer half. Production insets the path by `width ÷ 2` and shrinks the corner radius by the same inset (Lesson 4.4).
 - The stroke uses one color on every side. It is not a lighting model.
 - Keeps blur `18.dp`, tint amount `0.25`, and saturation `0.40` fixed.
@@ -399,9 +399,9 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 - `StaticRimExplorer.kt` stacks no-rim, clip-centered, and inset-path cards. The rim canvas is a sibling of the glass group, still inside `Modifier.clip`.
 - Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `StaticRimExplorer.kt`.
 
-**Generated implementation record — Lesson 7.8**
+**Completed implementation record — Lesson 7.8**
 
-- Generated ahead of unresolved Lesson 7.7; not learner-confirmed complete.
+- Learner-confirmed complete; the completed total advances to 70 of 216.
 - Introduces one new mechanism: blur a wide inset stroke on its own layer, then clip the blurred pixels to the panel path. The clip discards the outward fade. The inner fade remains.
 - The band blur (`6.dp` / `8` CSS px) is a separate `BlurEffect` from the glass fill’s `18.dp` blur.
 - The thin Lesson 7.7 rim stays an unblurred later sibling.
@@ -422,13 +422,14 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 
 **Generated implementation record — Lesson 7.10**
 
-- Generated ahead of unresolved Lesson 7.7; not learner-confirmed complete.
+- Generated ahead of unresolved Lesson 7.9; not learner-confirmed complete.
 - Introduces one new mechanism: add one small signed offset, from a fixed column-and-row remainder recipe, to red, green, and blue, then store `round(clamp(sum) × 255)`.
 - Reuses Lesson 3.1 8-bit rounding. Does not rebuild blur, tint, rim, band, or shadow.
-- A slow navy-family ramp stands in for post-blur interiors so 8-bit stripes are countable.
+- A navy-family teaching ramp stands in for the short mixed seam after blur so 8-bit stripes are countable. The 7.6 navy and orange interiors stay flat.
 - Luminance noise uses one signed value for all three channels. Chroma noise uses a different salt per channel and is the dirty comparison.
 - Default amount is `0.02`. Amount `0` shows banding. Amount `0.12` looks dirty even as luminance noise.
 - `FineNoiseExplorer.kt` writes a card-sized bitmap with the exact store formula and `FilterQuality.None`.
+- Companion `lesson-07-10-store-and-recipe-companion.html` labels the 7.6 flats versus the teaching ramp, draws ramp versus stripe on one picture, shows rounding bins as buckets, and shows the remainder recipe as a frozen 16-by-16 tile rather than a random roll.
 - Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `FineNoiseExplorer.kt`.
 
 **Generated implementation record — Lesson 7.11**

@@ -27,6 +27,7 @@ course/chapters/chapter-07/lesson-07-07-static-rim.html
 course/chapters/chapter-07/lesson-07-08-inner-highlight.html
 course/chapters/chapter-07/lesson-07-09-outer-shadow.html
 course/chapters/chapter-07/lesson-07-10-fine-noise.html
+course/chapters/chapter-07/lesson-07-10-store-and-recipe-companion.html
 course/chapters/chapter-07/lesson-07-11-compose-the-layers.html
 course/chapters/chapter-07/lesson-07-12-compare-backgrounds.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
@@ -60,15 +61,15 @@ If no source files are attached, conceptual discussion may continue from this pr
 ## 2. Exact authoritative course state
 
 - Total course size: **216 lessons**.
-- Learner-confirmed complete: **68 of 216 lessons**.
-- Completed through: **Lesson 7.6 — Saturation and contrast**.
+- Learner-confirmed complete: **70 of 216 lessons**.
+- Completed through: **Lesson 7.8 — Inner highlight**.
 - Completed chapters: **1 through 6**.
-- Chapter 7 is in progress: **6 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.7 — Static rim**.
+- Chapter 7 is in progress: **8 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.9 — Outer shadow**.
 - Generated frontier: **Lesson 7.12 — Compare backgrounds**.
 - Next planned lesson after the generated frontier: **Lesson 8.1 — What a shader does**.
-- Lesson 7.7 is generated and is not learner-confirmed complete.
-- Lessons 7.8 through 7.12 are generated ahead and are not learner-confirmed complete.
+- Lesson 7.9 is generated and is not learner-confirmed complete. Open questions remain.
+- Lessons 7.10 through 7.12 are generated ahead and are not learner-confirmed complete.
 
 Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
@@ -87,9 +88,9 @@ Lessons 7.7–7.12 keep blur `18.dp`, tint amount `0.25`, and saturation `0.40` 
 
 Lesson 4.5 already taught `Stroke`. Lesson 4.7 already taught clipping. Lesson 4.4 already taught concentric inner radius. Lesson 7.7 must not rebuild those derivations.
 
-## 4. Unresolved 7.7 and generated-ahead 7.8–7.12 contracts
+## 4. Unresolved 7.9 and generated-ahead 7.10–7.12 contracts
 
-### Lesson 7.7 — unresolved checkpoint
+### Lesson 7.7 — complete
 
 ```text
 quieted frosted fill, clipped to the panel path
@@ -101,7 +102,7 @@ quieted frosted fill, clipped to the panel path
 
 The stroke uses one color on every side. It is not a lighting model.
 
-### Lesson 7.8 — generated ahead
+### Lesson 7.8 — complete
 
 ```text
 wide inset Stroke on its own layer
@@ -113,7 +114,7 @@ wide inset Stroke on its own layer
 
 Band blur is not the glass fill’s `18.dp` blur. The band is not a lighting model.
 
-### Lesson 7.9 — generated ahead
+### Lesson 7.9 — unresolved checkpoint
 
 ```text
 dark copy of the panel rounded rectangle
@@ -122,19 +123,19 @@ dark copy of the panel rounded rectangle
 → draw behind the clipped glass
 ```
 
-A same-size layer cannot put a halo on the surround. Downward offset is a convention, not a simulated lamp.
+A same-size layer cannot put a halo on the surround. Downward offset is a translation of the same-height rounded rect, not a shorter shape. The four bounding-box corner pockets sit outside the rounded path and are never filled with dark paint.
 
 ### Lesson 7.10 — generated ahead
 
 ```text
-slow true ramp
+teaching ramp (stand-in, not the 7.6 navy/orange card)
 → signed = 2 × unitNoise(column, row) − 1
 → offset = signed × amount
 → add the same offset to R, G, and B
 → store8 = round(clamp(sum) × 255)
 ```
 
-Chroma noise uses a different offset per channel and looks dirty. The remainder recipe is a teaching table, not a GPU program.
+The 7.6 navy and orange interiors stay flat. After blur, only the seam mixes. The 7.10 card stretches that slow-change idea so stripes are countable. Store means write `round(clamp(channel) × 255)` into the bitmap. A rounding bin is the bucket of true values that all store one integer. The remainder recipe is a frozen 16-by-16 tile, not a random roll and not the stripe generator. A step of 7 wrapping at 16 visits all 16 remainder slots in 16 consecutive columns; a step of 8 does not. `unit = slot/15` is never negative; slot 2 has signed `−0.733`, and gray encoding is not `abs(signed)`. Luminance noise (this lesson) uses one offset on R, G, and B. Chroma noise uses a different offset per channel. The pictures live in `lesson-07-10-store-and-recipe-companion.html`.
 
 ### Lesson 7.11 — generated ahead
 
@@ -218,12 +219,12 @@ A prerequisite recap must be brief and exist only to support the new operation. 
 When all required files are attached, confirm that they were read, then restate only:
 
 ```text
-completed: 68 of 216, through Lesson 7.6
-current unresolved checkpoint: Lesson 7.7 — Static rim
+completed: 70 of 216, through Lesson 7.8
+current unresolved checkpoint: Lesson 7.9 — Outer shadow
 generated frontier: Lesson 7.12
 next planned lesson after the frontier: Lesson 8.1
-Lesson 7.7 is generated and not complete
-Lessons 7.8 through 7.12 are generated ahead and not complete
+Lesson 7.9 is generated and not complete
+Lessons 7.10 through 7.12 are generated ahead and not complete
 ```
 
 Then wait for my next message.
