@@ -77,7 +77,7 @@ course/chapters/chapter-07/lesson-07-07-static-rim.html
 course/chapters/chapter-07/lesson-07-08-inner-highlight.html
 course/chapters/chapter-07/lesson-07-09-outer-shadow.html
 course/chapters/chapter-07/lesson-07-10-fine-noise.html
-course/chapters/chapter-07/lesson-07-10-store-and-recipe-companion.html
+course/chapters/chapter-07/lesson-07-10-companion-why-7-gives-unique-remainders.html
 course/chapters/chapter-07/lesson-07-11-compose-the-layers.html
 course/chapters/chapter-07/lesson-07-12-compare-backgrounds.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt

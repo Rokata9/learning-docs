@@ -27,7 +27,7 @@ course/chapters/chapter-07/lesson-07-07-static-rim.html
 course/chapters/chapter-07/lesson-07-08-inner-highlight.html
 course/chapters/chapter-07/lesson-07-09-outer-shadow.html
 course/chapters/chapter-07/lesson-07-10-fine-noise.html
-course/chapters/chapter-07/lesson-07-10-store-and-recipe-companion.html
+course/chapters/chapter-07/lesson-07-10-companion-why-7-gives-unique-remainders.html
 course/chapters/chapter-07/lesson-07-11-compose-the-layers.html
 course/chapters/chapter-07/lesson-07-12-compare-backgrounds.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
@@ -135,7 +135,7 @@ teaching ramp (stand-in, not the 7.6 navy/orange card)
 → store8 = round(clamp(sum) × 255)
 ```
 
-The 7.6 navy and orange interiors stay flat. After blur, only the seam mixes. The 7.10 card stretches that slow-change idea so stripes are countable. Store means write `round(clamp(channel) × 255)` into the bitmap. A rounding bin is the bucket of true values that all store one integer. The remainder recipe is a frozen 16-by-16 tile, not a random roll and not the stripe generator. A step of 7 wrapping at 16 visits all 16 remainder slots in 16 consecutive columns; a step of 8 does not. `unit = slot/15` is never negative; slot 2 has signed `−0.733`, and gray encoding is not `abs(signed)`. Luminance noise (this lesson) uses one offset on R, G, and B. Chroma noise uses a different offset per channel. The pictures live in `lesson-07-10-store-and-recipe-companion.html`.
+The 7.6 navy and orange interiors stay flat. After blur, only the seam mixes. The 7.10 card stretches that slow-change idea so stripes are countable. Store means write `round(clamp(channel) × 255)` into the bitmap. A rounding bin is the bucket of true values that all store one integer. The remainder recipe is a frozen 16-by-16 tile, not a random roll and not the stripe generator. Why +7 wrapping at 16 visits every leftover once is in `lesson-07-10-companion-why-7-gives-unique-remainders.html`. Luminance noise (this lesson) uses one offset on R, G, and B. Chroma noise uses a different offset per channel.
 
 ### Lesson 7.11 — generated ahead
 

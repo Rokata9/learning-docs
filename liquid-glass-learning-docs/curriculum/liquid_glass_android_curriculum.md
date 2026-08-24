@@ -429,7 +429,7 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 - Luminance noise uses one signed value for all three channels. Chroma noise uses a different salt per channel and is the dirty comparison.
 - Default amount is `0.02`. Amount `0` shows banding. Amount `0.12` looks dirty even as luminance noise.
 - `FineNoiseExplorer.kt` writes a card-sized bitmap with the exact store formula and `FilterQuality.None`.
-- Companion `lesson-07-10-store-and-recipe-companion.html` labels the 7.6 flats versus the teaching ramp, draws ramp versus stripe on one picture, shows rounding bins as buckets, and shows the remainder recipe as a frozen 16-by-16 tile rather than a random roll.
+- Companion `lesson-07-10-companion-why-7-gives-unique-remainders.html` is the canonical proof that +7 wrapping at 16 visits every leftover once. Light and dark themes.
 - Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `FineNoiseExplorer.kt`.
 
 **Generated implementation record — Lesson 7.11**

@@ -25,7 +25,7 @@ Do not increase the completion count merely because a lesson was generated, revi
 ```text
 course/chapters/chapter-07/lesson-07-09-outer-shadow.html
 course/chapters/chapter-07/lesson-07-10-fine-noise.html
-course/chapters/chapter-07/lesson-07-10-store-and-recipe-companion.html
+course/chapters/chapter-07/lesson-07-10-companion-why-7-gives-unique-remainders.html
 course/chapters/chapter-07/lesson-07-11-compose-the-layers.html
 course/chapters/chapter-07/lesson-07-12-compare-backgrounds.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/OuterShadowExplorer.kt
@@ -46,7 +46,7 @@ Follow-up on **7.10** after the 2026-08-20 store/luma/chroma answers. The compan
 - A step of 7 wrapping at 16 visits all 16 remainder slots: if `k × 7` were a multiple of 16 for `k` in 1..15, `k` would need the four factors of 2, hence be a multiple of 16. A step of 8 collides at `k = 2`. These slots are not the 8-bit rounding bins.
 - Slot-walk gray encodes `signed` from dark to light. It is not stored red. At amount `0.02`, one true red that stores 85 can land on about 80..90 (`0.02 × 255 ≈ 5.1` steps). The 83/84/85 picture holds only for a tiny amount near `0.5/255 ≈ 0.002`.
 - `unit = slot/15` is never negative. `signed = 2×unit−1` for slot 2 is `−0.733`. Gray encodes that as a darker 0..255 byte; the add still uses the minus. Slot chips now show signed with its sign.
-- Companion: `lesson-07-10-store-and-recipe-companion.html`.
+- Remainder uniqueness companion: `lesson-07-10-companion-why-7-gives-unique-remainders.html` (light and dark). The learner-authored walk-and-gap proof is the canonical explanation for why +7 wrapping at 16 visits every leftover once.
 
 **7.9 answers from 2026-08-20 remain in that lesson (not complete until learner confirms):**
 - Corner squares = **corner pockets** of the rounded path’s sharp bounding box.

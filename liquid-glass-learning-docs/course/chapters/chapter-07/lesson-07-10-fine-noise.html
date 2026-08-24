@@ -25,7 +25,7 @@
       <h1>Fine noise or dither</h1>
       <p class="lead"><strong>Question:</strong> Lesson 7.6’s navy half looks like one navy. The orange half looks like one orange. After blur, only the place those two fields meet is a short mix of slightly different pixels. When each channel is stored as an integer <code>0..255</code>, that mix can turn into visible stripes. How do we break those stripes without covering the glass with colored specks?</p>
       <div class="plain-rule"><strong>Store</strong> means write each channel as an 8-bit integer <code>0..255</code> into the bitmap. The true <code>0..1</code> value is not what the screen keeps. <strong>Banding</strong> is a visible stripe of neighbors that all stored the same integer. <strong>Fine noise</strong> is a small signed offset added before that write. <strong>Dither</strong> is using that offset so neighbors can round to different integers and the eye averages the field.</div>
-      <div class="note"><strong>Generated ahead.</strong> Lesson 7.9 remains the unresolved checkpoint. This lesson does not rebuild blur, tint, rim, band, or shadow. Lesson 3.1 already taught <code>channel8 = round(normalized × 255)</code>. The new operation is the signed offset that runs <strong>before</strong> that store. This page’s card is a teaching ramp, not the 7.6 navy/orange glass. The remainder recipe lives in the companion.</div>
+      <div class="note"><strong>Generated ahead.</strong> Lesson 7.9 remains the unresolved checkpoint. This lesson does not rebuild blur, tint, rim, band, or shadow. Lesson 3.1 already taught <code>channel8 = round(normalized × 255)</code>. The new operation is the signed offset that runs <strong>before</strong> that store. This page’s card is a teaching ramp, not the 7.6 navy/orange glass. Why the remainder recipe visits every leftover once is in the companion.</div>
     </div>
     <div class="hero-art" aria-label="7.6 flats versus the teaching ramp">
       <canvas id="heroFlat" width="640" height="150" style="width:100%;height:auto;border-radius:12px;border:1px solid var(--line);image-rendering:pixelated"></canvas>
@@ -45,7 +45,7 @@
     <div class="formula" style="margin-top:16px">offset = signed × amount
 stored8 = round(clamp(true channel + offset) × 255)</div>
     <div class="success" style="margin-top:14px"><strong>Luminance noise, in this lesson,</strong> means the same signed offset is added to red, green, and blue. The speck only gets lighter or darker. <strong>Chroma noise, in this lesson,</strong> means a different signed offset is added to each channel. The speck changes color family. Production uses luminance noise at a small amount. The remainder recipe that produces <code>signed</code> is in the companion, not required to use the production rule.</div>
-    <p style="margin-top:14px"><a class="btn primary" href="lesson-07-10-store-and-recipe-companion.html">Open the companion: ramp vs stripe, rounding bins, remainder tile</a></p>
+    <p style="margin-top:14px"><a class="btn primary" href="lesson-07-10-companion-why-7-gives-unique-remainders.html">Why +7 visits every remainder exactly once</a></p>
   </section>
 
   <section class="section panel" id="lab">
@@ -151,7 +151,7 @@ stored8 = round(clamp(true channel + offset) × 255)</div>
         <p>It is not a photograph of sand, a GPU program, or Apple’s private grain. The numbers 7, 13, 3, and 5 only feed the remainder table in the companion. They are not camera constants. The label is drawn later, so it is not stored through this write.</p>
       </article>
     </div>
-    <p style="margin-top:14px"><a class="btn" href="lesson-07-10-store-and-recipe-companion.html">Draw the rounding buckets and the 16-by-16 remainder tile</a></p>
+    <p style="margin-top:14px"><a class="btn" href="lesson-07-10-companion-why-7-gives-unique-remainders.html">Why multiplying by 7 gives every remainder once</a></p>
   </section>
 
   <section class="section panel">
@@ -224,7 +224,7 @@ offset</div>
     <details><summary>What does store mean in this lesson?</summary><p>Write each channel as an 8-bit integer from 0 through 255 into the bitmap: <code>channel8 = round(clamp(normalized) × 255)</code>. The true 0..1 value is not kept as the displayed value.</p></details>
     <details><summary>Do the 7.6 navy and orange interiors change from pixel to pixel?</summary><p>No. Deep inside navy, neighbors are navy, so the stored color stays navy. Deep inside orange, it stays orange. After blur, only the seam where the two fields meet is a short mix of slightly different pixels. This lesson’s card is a teaching ramp that stretches that slow-change idea so the 8-bit stripes are countable.</p></details>
     <details><summary>Why add the offset before <code>store8</code>, not after?</summary><p>The store is what creates the stripe. Adding an offset to an already-stored integer cannot split a run of identical stored values into different integers unless you also re-store. The lesson adds, then rounds, so two neighbors can land on different integers.</p></details>
-    <details><summary>Is the remainder formula random, and does it draw the stripes?</summary><p>It is a frozen 16-by-16 tile. The same column and row always return the same slot. Amount 0 with no recipe still bands. The stripes come from 8-bit rounding bins on the teaching ramp. The companion draws both patterns side by side.</p></details>
+    <details><summary>Is the remainder formula random, and does it draw the stripes?</summary><p>It is a frozen 16-by-16 tile. The same column and row always return the same slot. Amount 0 with no recipe still bands. The stripes come from 8-bit rounding bins on the teaching ramp. The companion proves that +7 wrapping at 16 visits every leftover once.</p></details>
   </section>
 
   <section class="section panel">
@@ -412,7 +412,7 @@ const steps=[
   {stage:'ramp',title:'The 7.6 interiors are flat. This card is a teaching ramp.',copy:()=>`Lesson 7.6’s navy half is one color. The orange half is one color. After blur, only the seam between them mixes. This lesson does not redraw that glass. It uses a teaching ramp from RGB(${LEFT.join(', ')}) to RGB(${RIGHT.join(', ')}) so the 8-bit staircase is wide enough to count.`},
   {stage:'store',title:'Store writes the 8-bit integer',copy:()=>`Store means: write round(true × 255) into the bitmap. At column ${SEL_COL}, true red = ${fmt(trueRgb(SEL_COL,640)[0])}. Amount 0 stores ${storedRgb(SEL_COL,SEL_ROW,640,'none',0)[0]}. Nearby columns whose true red still rounds to that integer keep it. That run is a stripe. The gold box on the no-noise card marks one stripe. The remainder recipe is not involved yet.`},
   {stage:'offset',title:'A small signed offset is added before that write',copy:()=>`Current amount = ${fmt2(amount)}. The companion builds signed from column and row. Here we only need: offset = signed × amount = ${fmt((unitNoise(SEL_COL,SEL_ROW,0)*2-1)*amount)}. Add it, then store. Luminance stored RGB = (${storedRgb(SEL_COL,SEL_ROW,640,'luma',amount).join(', ')}).`},
-  {stage:'offset',title:'Stripes are rounding bins, not a random recipe',copy:()=>`A teaching ramp spends many columns inside one rounding bin. Amount 0 still bands. The remainder formula is a frozen 16-by-16 tile, not a dice roll. The numbers 7, 13, 3, and 5 only scramble neighbor slots so the grain does not look like bars. They do not draw the 8-bit stripes. Open the companion for both pictures.`},
+  {stage:'offset',title:'Stripes are rounding bins, not a random recipe',copy:()=>`A teaching ramp spends many columns inside one rounding bin. Amount 0 still bands. The remainder formula is a frozen 16-by-16 tile, not a dice roll. The numbers 7, 13, 3, and 5 only scramble neighbor slots so the grain does not look like bars. They do not draw the 8-bit stripes. Open the companion to see why +7 visits every remainder once.`},
   {stage:'kind',title:'Luminance noise: one offset on R, G, and B',copy:()=>`Luminance, in this lesson, means brightness-only specks. Stored RGB = (${storedRgb(SEL_COL,SEL_ROW,640,'luma',amount).join(', ')}). The three integers move together. A large amount looks dirty as strong gray specks, still in the navy family.`},
   {stage:'kind',title:'Chroma noise: a different offset per channel',copy:()=>`Chroma, in this lesson, means colored specks. Stored RGB = (${storedRgb(SEL_COL,SEL_ROW,640,'chroma',amount).join(', ')}). Compare that triple with the luminance triple. If the scaled cards still look close, trust these three integers. The label is drawn later and is not stored through this write.`}
 ];
