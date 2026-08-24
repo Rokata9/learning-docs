@@ -9,12 +9,12 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **70 of 216**.
-- Completed through: **Lesson 7.8 — Inner highlight**.
+- Learner-confirmed complete: **71 of 216**.
+- Completed through: **Lesson 7.9 — Outer shadow**.
 - Completed chapters: **1–6**.
-- Chapter 7 is in progress: **8 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.9 — Outer shadow**.
-- Generated frontier: **Lesson 7.12 — Compare backgrounds**. Lessons 7.9 through 7.12 are generated and are not learner-confirmed complete.
+- Chapter 7 is in progress: **9 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.10 — Fine noise**.
+- Generated frontier: **Lesson 7.12 — Compare backgrounds**. Lessons 7.10 through 7.12 are generated and are not learner-confirmed complete.
 - Next planned lesson after the generated frontier: **Lesson 8.1 — What a shader does**.
 
 ## 2. Course construction principles
@@ -409,9 +409,9 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 - `InnerHighlightExplorer.kt` compares no band, a stage-sized unclipped band blur, and a clipped band blur.
 - Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `InnerHighlightExplorer.kt`.
 
-**Generated implementation record — Lesson 7.9**
+**Completed implementation record — Lesson 7.9**
 
-- Generated ahead of unresolved Lesson 7.7; not learner-confirmed complete.
+- Learner-confirmed complete; the completed total advances to 71 of 216.
 - Introduces one new mechanism: a darker copy of the panel shape is blurred on a layer with empty room ≥ the shadow blur radius, then drawn behind the clipped glass.
 - A same-size layer has no surround pixels, so it cannot put a halo around the card.
 - Downward offset is a named convention (`4.dp` / `8` CSS px), not a simulated lamp.
@@ -422,7 +422,7 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 
 **Generated implementation record — Lesson 7.10**
 
-- Generated ahead of unresolved Lesson 7.9; not learner-confirmed complete.
+- Generated ahead of complete Lesson 7.9; not learner-confirmed complete.
 - Introduces one new mechanism: add one small signed offset, from a fixed column-and-row remainder recipe, to red, green, and blue, then store `round(clamp(sum) × 255)`.
 - Reuses Lesson 3.1 8-bit rounding. Does not rebuild blur, tint, rim, band, or shadow.
 - A navy-family teaching ramp stands in for the short mixed seam after blur so 8-bit stripes are countable. The 7.6 navy and orange interiors stay flat.
@@ -434,7 +434,7 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 
 **Generated implementation record — Lesson 7.11**
 
-- Generated ahead of unresolved Lesson 7.7; not learner-confirmed complete.
+- Generated ahead of unresolved Lesson 7.10; not learner-confirmed complete.
 - Introduces one new mechanism: a slot is the triple (clip membership, effect owner, sibling order) for one already-taught ingredient.
 - Wrong clip membership discards pixels (shadow inside the clip loses the surround halo). Wrong sibling order covers pixels (rim before fill loses the rim). Those faults are independent.
 - Does not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
@@ -445,7 +445,7 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 
 **Generated implementation record — Lesson 7.12**
 
-- Generated ahead of unresolved Lesson 7.7; not learner-confirmed complete.
+- Generated ahead of unresolved Lesson 7.10; not learner-confirmed complete.
 - Introduces one new measurement: destination-class verdict. Frozen 7.11 recipe → sample interior RGB → Lesson 3.7 white-label contrast → pass if ≥ `4.5:1`.
 - Destination classes: photo-like patches, text glyphs, slow gradient, dark field, light field.
 - Structure leftover is a second observation, not a second formula.
