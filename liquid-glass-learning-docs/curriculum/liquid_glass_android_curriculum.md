@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 7.12.1
-**Updated:** 2026-08-20
+**Version:** 7.12.3
+**Updated:** 2026-08-25
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
 **Physical test device:** Pixel 8 Pro  
@@ -9,12 +9,12 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **71 of 216**.
-- Completed through: **Lesson 7.9 — Outer shadow**.
+- Learner-confirmed complete: **73 of 216**.
+- Completed through: **Lesson 7.11 — Compose the layers**.
 - Completed chapters: **1–6**.
-- Chapter 7 is in progress: **9 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.10 — Fine noise**.
-- Generated frontier: **Lesson 7.12 — Compare backgrounds**. Lessons 7.10 through 7.12 are generated and are not learner-confirmed complete.
+- Chapter 7 is in progress: **11 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.12 — Compare backgrounds**.
+- Generated frontier: **Lesson 7.12 — Compare backgrounds**. Lesson 7.12 is generated and is not learner-confirmed complete. Lessons 7.10 and 7.11 are learner-confirmed complete.
 - Next planned lesson after the generated frontier: **Lesson 8.1 — What a shader does**.
 
 ## 2. Course construction principles
@@ -420,21 +420,21 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 - `OuterShadowExplorer.kt` compares no shadow, a glass-sized shadow layer, and a padded behind-layer.
 - Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `OuterShadowExplorer.kt`.
 
-**Generated implementation record — Lesson 7.10**
+**Completed implementation record — Lesson 7.10**
 
-- Generated ahead of complete Lesson 7.9; not learner-confirmed complete.
+- Learner-confirmed complete.
 - Introduces one new mechanism: add one small signed offset, from a fixed column-and-row remainder recipe, to red, green, and blue, then store `round(clamp(sum) × 255)`.
 - Reuses Lesson 3.1 8-bit rounding. Does not rebuild blur, tint, rim, band, or shadow.
 - A navy-family teaching ramp stands in for the short mixed seam after blur so 8-bit stripes are countable. The 7.6 navy and orange interiors stay flat.
 - Luminance noise uses one signed value for all three channels. Chroma noise uses a different salt per channel and is the dirty comparison.
 - Default amount is `0.02`. Amount `0` shows banding. Amount `0.12` looks dirty even as luminance noise.
 - `FineNoiseExplorer.kt` writes a card-sized bitmap with the exact store formula and `FilterQuality.None`.
-- Companion `lesson-07-10-companion-why-7-gives-unique-remainders.html` is the canonical proof that +7 wrapping at 16 visits every leftover once. Light and dark themes.
+- Companion `lesson-07-10-companion-why-7-gives-unique-remainders.html` is the canonical proof that +7 wrapping at 16 visits every leftover once. Light and dark themes. Picture C steps 8 and 9 paint leftover 14 as stored navy. `#zoomed-navy` maps leftover 14 next to leftover 5 as the darker-then-lighter pairing on Lesson 7.12’s dark interior.
 - Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `FineNoiseExplorer.kt`.
 
-**Generated implementation record — Lesson 7.11**
+**Completed implementation record — Lesson 7.11**
 
-- Generated ahead of unresolved Lesson 7.10; not learner-confirmed complete.
+- Learner-confirmed complete; the completed total advances to 73 of 216.
 - Introduces one new mechanism: a slot is the triple (clip membership, effect owner, sibling order) for one already-taught ingredient.
 - Wrong clip membership discards pixels (shadow inside the clip loses the surround halo). Wrong sibling order covers pixels (rim before fill loses the rim). Those faults are independent.
 - Does not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
@@ -445,7 +445,7 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 
 **Generated implementation record — Lesson 7.12**
 
-- Generated ahead of unresolved Lesson 7.10; not learner-confirmed complete.
+- Generated ahead of complete Lessons 7.10 and 7.11; not learner-confirmed complete.
 - Introduces one new measurement: destination-class verdict. Frozen 7.11 recipe → sample interior RGB → Lesson 3.7 white-label contrast → pass if ≥ `4.5:1`.
 - Destination classes: photo-like patches, text glyphs, slow gradient, dark field, light field.
 - Structure leftover is a second observation, not a second formula.

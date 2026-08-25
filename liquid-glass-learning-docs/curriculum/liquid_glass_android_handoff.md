@@ -1,7 +1,7 @@
 # Liquid Glass Android course — implementation handoff
 
-**Updated:** 2026-08-24  
-**Course version:** 7.12.1
+**Updated:** 2026-08-25  
+**Course version:** 7.12.3
 
 ## Read order
 
@@ -19,26 +19,26 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 71
-completed_through: "Lesson 7.9 — Outer shadow"
+learner_confirmed_complete: 73
+completed_through: "Lesson 7.11 — Compose the layers"
 completed_chapters: [1, 2, 3, 4, 5, 6]
-chapter_7_complete: "9 of 12"
-next_unresolved_checkpoint: "Lesson 7.10 — Fine noise"
+chapter_7_complete: "11 of 12"
+next_unresolved_checkpoint: "Lesson 7.12 — Compare backgrounds"
 generated_frontier: "Lesson 7.12 — Compare backgrounds"
 next_planned_after_frontier: "Lesson 8.1 — What a shader does"
 ```
 
-Lesson 7.9 is learner-confirmed complete. Lessons 7.10 through 7.12 are generated ahead and are not learner-confirmed complete. Lessons 7.7 through 7.9 are learner-confirmed complete.
+Lessons 7.7 through 7.11 are learner-confirmed complete. Lesson 7.12 is generated ahead and is not learner-confirmed complete.
 
 ## Generate-ahead note
 
-Lessons 7.11 and 7.12 remain generated ahead. Lessons 7.7 through 7.9 are learner-confirmed complete. The checkpoint is 7.10. The uniqueness companion is the canonical +7 proof and also draws ramp-versus-stripe and the 16×16 remainder tile. Do not mark 7.10 complete until the learner confirms.
+The checkpoint is 7.12. The uniqueness companion is the canonical +7 proof and also draws ramp-versus-stripe, the 16×16 remainder tile, and a zoomed stored-navy map of leftover 14 next to leftover 5. Do not mark 7.12 complete until the learner confirms.
 
 Reusable 7.9/7.10 rules are in `AGENTS.md` under “Rounded-shape halo, leaked blur, and 8-bit store gates” and “Teaching-stand-in, labelled-region, and recipe-pattern gate.”
 
 Compact record of the Q&A also lives in `CURRENT_STATE.md` and `~/.grok/memory/learning-docs-0cd75f1a/MEMORY.md`.
 
-## Generated-ahead Lesson 7.11
+## Completed Lesson 7.11
 
 ```text
 slot(ingredient) = (clip membership, effect owner, sibling order)
@@ -92,11 +92,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/CompareBac
 
 ## Completion rule
 
-Do not mark Lesson 7.10–7.12 complete merely because they were generated or revised. Wait for explicit learner confirmation. Do not generate Lesson 8.1 before 7.12 confirmation unless the learner asks to generate ahead.
+Do not mark Lesson 7.12 complete merely because it was generated or revised. Wait for explicit learner confirmation. Do not generate Lesson 8.1 before 7.12 confirmation unless the learner asks to generate ahead.
 
 ## Standing delivery preferences recorded 2026-08-20
 
 - Do not generate `.zip` files. The learner works from the repositories.
 - When a preview wrapper has both themes, put the dark `@Preview` annotation first, then light. Prospective only.
 
-Course progress: 71 of 216 lessons completed.
+Course progress: 73 of 216 lessons completed.

@@ -61,15 +61,15 @@ If no source files are attached, conceptual discussion may continue from this pr
 ## 2. Exact authoritative course state
 
 - Total course size: **216 lessons**.
-- Learner-confirmed complete: **71 of 216 lessons**.
-- Completed through: **Lesson 7.9 — Outer shadow**.
+- Learner-confirmed complete: **73 of 216 lessons**.
+- Completed through: **Lesson 7.11 — Compose the layers**.
 - Completed chapters: **1 through 6**.
-- Chapter 7 is in progress: **9 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.10 — Fine noise**.
+- Chapter 7 is in progress: **11 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 7.12 — Compare backgrounds**.
 - Generated frontier: **Lesson 7.12 — Compare backgrounds**.
 - Next planned lesson after the generated frontier: **Lesson 8.1 — What a shader does**.
-- Lesson 7.9 is learner-confirmed complete.
-- Lessons 7.10 through 7.12 are generated ahead and are not learner-confirmed complete.
+- Lessons 7.10 and 7.11 are learner-confirmed complete.
+- Lesson 7.12 is generated ahead and is not learner-confirmed complete.
 
 Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
@@ -88,7 +88,7 @@ Lessons 7.7–7.12 keep blur `18.dp`, tint amount `0.25`, and saturation `0.40` 
 
 Lesson 4.5 already taught `Stroke`. Lesson 4.7 already taught clipping. Lesson 4.4 already taught concentric inner radius. Lesson 7.7 must not rebuild those derivations.
 
-## 4. Completed 7.9 and generated-ahead 7.10–7.12 contracts
+## 4. Completed 7.9–7.11 and generated-ahead 7.12 contracts
 
 ### Lesson 7.7 — complete
 
@@ -125,7 +125,7 @@ dark copy of the panel rounded rectangle
 
 A same-size layer cannot put a halo on the surround. Downward offset is a translation of the same-height rounded rect, not a shorter shape. The four bounding-box corner pockets sit outside the rounded path and are never filled with dark paint.
 
-### Lesson 7.10 — unresolved checkpoint · generated ahead
+### Lesson 7.10 — complete
 
 ```text
 teaching ramp (stand-in, not the 7.6 navy/orange card)
@@ -137,7 +137,7 @@ teaching ramp (stand-in, not the 7.6 navy/orange card)
 
 The 7.6 navy and orange interiors stay flat. After blur, only the seam mixes. The 7.10 card stretches that slow-change idea so stripes are countable. Store means write `round(clamp(channel) × 255)` into the bitmap. A rounding bin is the bucket of true values that all store one integer. The remainder recipe is a frozen 16-by-16 tile, not a random roll and not the stripe generator. Why +7 wrapping at 16 visits every leftover once is in `lesson-07-10-companion-why-7-gives-unique-remainders.html`. Luminance noise (this lesson) uses one offset on R, G, and B. Chroma noise uses a different offset per channel.
 
-### Lesson 7.11 — generated ahead
+### Lesson 7.11 — complete
 
 ```text
 slot(ingredient) = (clip membership, effect owner, sibling order)
@@ -147,7 +147,7 @@ wrong sibling order → the later sibling covers the earlier sibling
 
 Production: unclipped shadow, then clipped fill → grain → band → unblurred rim → sharp label. The Android grain overlay occupies the noise slot. It is not a second 7.10 store formula.
 
-### Lesson 7.12 — generated frontier
+### Lesson 7.12 — unresolved checkpoint · generated frontier
 
 ```text
 destination class
@@ -219,12 +219,12 @@ A prerequisite recap must be brief and exist only to support the new operation. 
 When all required files are attached, confirm that they were read, then restate only:
 
 ```text
-completed: 71 of 216, through Lesson 7.9
-current unresolved checkpoint: Lesson 7.10 — Fine noise
+completed: 73 of 216, through Lesson 7.11
+current unresolved checkpoint: Lesson 7.12 — Compare backgrounds
 generated frontier: Lesson 7.12
 next planned lesson after the frontier: Lesson 8.1
-Lesson 7.9 is complete
-Lessons 7.10 through 7.12 are generated ahead and not complete
+Lessons 7.10 and 7.11 are complete
+Lesson 7.12 is generated ahead and not complete
 ```
 
 Then wait for my next message.
