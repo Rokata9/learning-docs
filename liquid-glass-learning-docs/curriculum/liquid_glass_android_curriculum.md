@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 8.1.0
+**Version:** 8.3.0
 **Updated:** 2026-08-26
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
@@ -9,13 +9,14 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **73 of 216**.
-- Completed through: **Lesson 7.11 — Compose the layers**.
-- Completed chapters: **1–6**.
-- Chapter 7 is in progress: **11 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 7.12 — Compare backgrounds**.
-- Generated frontier: **Lesson 8.1 — What a shader does**. Lessons 7.12 and 8.1 are generated and are not learner-confirmed complete. Lessons 7.10 and 7.11 are learner-confirmed complete.
-- Next planned lesson after the generated frontier: **Lesson 8.2 — Create a RuntimeShader**.
+- Learner-confirmed complete: **75 of 216**.
+- Completed through: **Lesson 8.1 — What a shader does**.
+- Completed chapters: **1–7**.
+- Chapter 7 is complete: **12 of 12**.
+- Chapter 8 is in progress: **1 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 8.2 — Create a RuntimeShader**.
+- Generated frontier: **Lesson 8.3 — Return one fixed color**. Lessons 8.2 and 8.3 are generated and are not learner-confirmed complete. Lessons 7.12 and 8.1 are learner-confirmed complete.
+- Next planned lesson after the generated frontier: **Lesson 8.4 — fragCoord**.
 
 ## 2. Course construction principles
 
@@ -443,24 +444,39 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 - `ComposeLayersExplorer.kt` compares production, shadow-inside-clip, and rim-before-fill.
 - Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `ComposeLayersExplorer.kt`.
 
-**Generated implementation record — Lesson 8.1**
+**Completed implementation record — Lesson 8.1**
 
-- Generated ahead of unconfirmed Lesson 7.12; not learner-confirmed complete. Completion stays 73 of 216. Checkpoint stays 7.12.
+- Learner-confirmed complete; the completed total advances to 75 of 216.
 - Introduces one new mechanism: a pixel function `colorAt(column, row)` runs once per output pixel and stores that color. Same body every call. Only column and row change.
 - Teaching grid is 8×4 so 32 calls are countable. Paint always stores orange `(224, 122, 46)`. Stripe uses column remainder 2; leftover 0 is orange, leftover 1 is navy `(26, 64, 102)`.
-- The browser canvas and `ShaderIdeaExplorer.kt` are CPU loops. They are not `RuntimeShader`, not AGSL, and not `fragCoord`. A shader is this idea when the GPU runs it. Lessons 8.2–8.4 take that next.
-- `MainActivity` defaults to Chapter 7. A chapter switcher opens Chapter 8. Direct previews live in `ShaderIdeaExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
+- The browser canvas and `ShaderIdeaExplorer.kt` are CPU loops. They are not `RuntimeShader`, not AGSL, and not `fragCoord`. A shader is this idea when the GPU runs it.
+- Direct previews live in `ShaderIdeaExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
 
-**Generated implementation record — Lesson 7.12**
+**Completed implementation record — Lesson 7.12**
 
-- Generated ahead of complete Lessons 7.10 and 7.11; not learner-confirmed complete.
+- Learner-confirmed complete. Chapter 7 is 12 of 12.
 - Introduces one new measurement: destination-class verdict. Frozen 7.11 recipe → sample interior RGB → Lesson 3.7 white-label contrast → pass if ≥ `4.5:1`.
 - Destination classes: photo-like patches, text glyphs, slow gradient, dark field, light field.
 - Structure leftover is a second observation, not a second formula.
 - Uniform dark/light samples use tint-then-saturation arithmetic and match the blurred GPU color. Photo, text, and gradient numbers are teaching samples, not GPU readbacks.
-- Chapter 7 checkpoint: the frost is still not a lens, a lamp, a shader, or a morph, and the fill is an owned copy rather than live capture.
+- Chapter 7 frost is still not a lens, a lamp, a shader, or a morph, and the fill is an owned copy rather than live capture.
 - `CompareBackgroundsExplorer.kt` switches the five classes on the frozen tree.
 - Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `CompareBackgroundsExplorer.kt`.
+
+**Generated implementation record — Lesson 8.2**
+
+- Generated ahead of unconfirmed Lesson 8.2; not learner-confirmed complete. Completion stays 75 of 216. Checkpoint stays 8.2.
+- Introduces one new mechanism: an AGSL string is compiled by `RuntimeShader`, wrapped in `ShaderBrush`, and drawn with `drawRect`. The GPU calls `main` once per output pixel of that rectangle. There is no Kotlin cell loop.
+- `fragCoord` is required by the signature and is unread. The four `half4` numbers are present and unexplained. Lesson 8.3 unpacks them.
+- The HTML fill is a JavaScript stand-in. `RuntimeShaderExplorer.kt` is the real constructor. `PanelHeightDp` is 140.
+- `MainActivity` defaults to Chapter 8. Direct previews live in `RuntimeShaderExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
+
+**Generated implementation record — Lesson 8.3**
+
+- Generated ahead of unconfirmed Lesson 8.2; not learner-confirmed complete.
+- Introduces one new mechanism: `return half4(r, g, b, a)` is the store. Channels are 0..1. Teaching orange is `(0.88, 0.48, 0.18, 1.0)` from 8-bit `(224, 122, 46)` after divide-by-255. Teaching navy is `(0.10, 0.25, 0.40, 1.0)`.
+- Rewriting the AGSL string builds a new `RuntimeShader`. Uniforms are not used. An unused Kotlin `Color` paints a separate box and does not change the fill.
+- `half` versus `float` is deferred to 8.7. `fragCoord` is unread. Direct previews live in `FixedColorShaderExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
 
 **Completed implementation record — Lesson 7.3**
 

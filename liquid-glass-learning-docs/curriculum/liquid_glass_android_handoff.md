@@ -1,7 +1,7 @@
 # Liquid Glass Android course — implementation handoff
 
 **Updated:** 2026-08-26  
-**Course version:** 8.1.0
+**Course version:** 8.3.0
 
 ## Read order
 
@@ -19,45 +19,45 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 73
-completed_through: "Lesson 7.11 — Compose the layers"
-completed_chapters: [1, 2, 3, 4, 5, 6]
-chapter_7_complete: "11 of 12"
-chapter_8_complete: "0 of 12"
-next_unresolved_checkpoint: "Lesson 7.12 — Compare backgrounds"
-generated_frontier: "Lesson 8.1 — What a shader does"
-next_planned_after_frontier: "Lesson 8.2 — Create a RuntimeShader"
+learner_confirmed_complete: 75
+completed_through: "Lesson 8.1 — What a shader does"
+completed_chapters: [1, 2, 3, 4, 5, 6, 7]
+chapter_7_complete: "12 of 12"
+chapter_8_complete: "1 of 12"
+next_unresolved_checkpoint: "Lesson 8.2 — Create a RuntimeShader"
+generated_frontier: "Lesson 8.3 — Return one fixed color"
+next_planned_after_frontier: "Lesson 8.4 — fragCoord"
 ```
 
-Lessons 7.7 through 7.11 are learner-confirmed complete. Lessons 7.12 and 8.1 are generated ahead and are not learner-confirmed complete.
+Lessons 7.12 and 8.1 are learner-confirmed complete. Lessons 8.2 and 8.3 are generated ahead and are not learner-confirmed complete.
 
 ## Generate-ahead note
 
-The checkpoint is still 7.12. Lesson 8.1 exists as files. Do not mark 7.12 or 8.1 complete until the learner confirms.
+The checkpoint is 8.2. Lesson 8.3 exists as files. Do not mark 8.2 or 8.3 complete until the learner confirms.
 
-## Generated-ahead Lesson 8.1
-
-```text
-pixel function colorAt(column, row)
-→ CPU loop calls it once per output pixel
-→ store that color in the cell
-```
-
-A shader is that pixel function when the GPU runs it. This lesson does not create `RuntimeShader`, compile AGSL, or introduce `fragCoord`. Paint always returns orange. Stripe uses column remainder 2. Teaching grid is 8×4.
-
-`ShaderIdeaExplorer.kt` is the CPU loop. `MainActivity` still defaults to Chapter 7.
-
-## Generated-ahead Lesson 7.12
+## Generated-ahead Lesson 8.2
 
 ```text
-destination class
-→ frozen 7.11 recipe
-→ sample interior RGB
-→ Lesson 3.7 white-label contrast
-→ pass if ≥ 4.5:1, else fail
+AGSL string
+→ RuntimeShader(string) compiles it
+→ ShaderBrush(shader)
+→ drawRect(brush)
 ```
 
-Leftover is remaining destination structure in the fill, not a 4.5 pass and not the sharp rim. A local backing is a plate under the letters, not the 7.9 shadow.
+The GPU calls `main` once per output pixel of that rectangle. There is no Kotlin cell loop. `fragCoord` is unread. The four `half4` numbers are deferred to 8.3. The HTML fill is a JavaScript stand-in.
+
+`RuntimeShaderExplorer.kt` is the real constructor. `MainActivity` defaults to Chapter 8.
+
+## Generated-ahead Lesson 8.3
+
+```text
+8-bit RGB / 255
+→ teaching half4
+→ return is the store
+→ unused Kotlin Color is a separate box
+```
+
+Teaching orange `half4(0.88, 0.48, 0.18, 1.0)`. Teaching navy `half4(0.10, 0.25, 0.40, 1.0)`. Rewriting the string rebuilds `RuntimeShader`. Uniforms are not used.
 
 ## Future conversation
 
@@ -65,11 +65,11 @@ Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions.
 
 ## Completion rule
 
-Do not mark Lesson 7.12 or Lesson 8.1 complete merely because they were generated or revised. Wait for explicit learner confirmation. Do not generate Lesson 8.2 unless the learner asks.
+Do not mark Lesson 8.2 or Lesson 8.3 complete merely because they were generated or revised. Wait for explicit learner confirmation. Do not generate Lesson 8.4 unless the learner asks.
 
 ## Standing delivery preferences recorded 2026-08-20
 
 - Do not generate `.zip` files. The learner works from the repositories.
 - When a preview wrapper has both themes, put the dark `@Preview` annotation first, then light. Prospective only.
 
-Course progress: 73 of 216 lessons completed.
+Course progress: 75 of 216 lessons completed.

@@ -151,44 +151,20 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-08-26 with `CURRENT_STATE.md` (course version 8.1.0).
+**Last aligned:** 2026-08-26 with `CURRENT_STATE.md` (course version 8.3.0).
 
 ```text
-completed: 73 of 216, through Lesson 7.11
-current unresolved checkpoint: Lesson 7.12 — Compare backgrounds
-generated frontier: Lesson 8.1 — What a shader does
-next planned lesson after the frontier: Lesson 8.2 — Create a RuntimeShader
-Lesson 7.12 is generated ahead and not complete
-Lesson 8.1 is generated ahead and not complete
+completed: 75 of 216, through Lesson 8.1
+current unresolved checkpoint: Lesson 8.2 — Create a RuntimeShader
+generated frontier: Lesson 8.3 — Return one fixed color
+next planned lesson after the frontier: Lesson 8.4 — fragCoord
+Lesson 8.2 is generated ahead and not complete
+Lesson 8.3 is generated ahead and not complete
 ```
 
-Chapter 7 frost constants, still fixed through 7.12: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Lessons 7.7–7.11 are complete. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
+Chapter 7 is complete. Frost constants stay fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
-**7.11 slot, for 7.12 questions and for 8.1:**
-
-```text
-slot(ingredient) = (clip membership, effect owner, sibling order)
-wrong clip membership → pixels outside the path are discarded
-wrong sibling order → the later sibling covers the earlier sibling
-```
-
-Production order: unclipped shadow, then clipped fill → grain → band → unblurred rim → sharp label.
-
-**7.12 checkpoint contract:**
-
-```text
-destination class
-→ frozen 7.11 recipe
-→ sample interior RGB
-→ Lesson 3.7 white-label contrast
-→ pass if ≥ 4.5:1, else fail
-```
-
-Leftover is an eye observation of remaining destination structure in the fill. It is not a 4.5 pass and not the sharp rim or inner band. A uniform field is one starting RGB; its leftover is a remaining color neighborhood (still dark navy or still light gray). Text glyphs tile across the field. “Both miss” means white and black are both below 4.5; this lab’s five classes do not do that. A local backing is a more-opaque plate under the letters, not the Lesson 7.9 outer shadow. The next consumer of a miss is label color, then stronger tint or that plate. Do not offer blur radius as the contrast repair.
-
-Chapter 7’s frost is still not a lens, a lamp, a shader, or a morph.
-
-**8.1 frontier contract:**
+**8.1 completed contract:**
 
 ```text
 pixel function colorAt(column, row)
@@ -196,20 +172,37 @@ pixel function colorAt(column, row)
 → store that color in the cell
 ```
 
-A shader is that pixel function when the GPU runs it. Lesson 8.1 does not create `RuntimeShader`, compile AGSL, or introduce `fragCoord`. Paint always returns orange. Stripe uses column remainder 2. Teaching grid is 8×4. Do not generate Lesson 8.2 unless I ask.
+A shader is that pixel function when the GPU runs it. Teaching grid is 8×4. Paint always stores orange `(224, 122, 46)`. Stripe uses column remainder 2.
+
+**8.2 checkpoint contract:**
+
+```text
+AGSL string
+→ RuntimeShader(string) compiles it
+→ ShaderBrush(shader)
+→ drawRect(brush)
+→ GPU calls main once per output pixel of that rectangle
+```
+
+AGSL means Android Graphics Shading Language. Compile means the constructor builds a GPU program; construction does not draw. `fragCoord` is required by `half4 main(float2 fragCoord)` and is unread. The four `half4` numbers are present so the program is complete; Lesson 8.3 unpacks them. The HTML fill is a JavaScript stand-in. The Android explorer is the real constructor. Do not introduce uniforms, resolution, or compiler errors.
+
+**8.3 frontier contract:**
+
+```text
+8-bit RGB / 255
+→ teaching half4 in 0..1
+→ return half4 is the store
+→ unused Kotlin Color is a separate box
+```
+
+Teaching orange `half4(0.88, 0.48, 0.18, 1.0)` from `(224, 122, 46)`. Teaching navy `half4(0.10, 0.25, 0.40, 1.0)` from `(26, 64, 102)`. Rewriting the string builds a new `RuntimeShader`. Do not use uniforms. Do not return `224`. Do not read `fragCoord`. Do not generate Lesson 8.4 unless I ask.
 
 Current files:
 
 ```text
-course/chapters/chapter-07/lesson-07-12-compare-backgrounds.html
-course/chapters/chapter-08/lesson-08-01-what-a-shader-does.html
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/CompareBackgroundsExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/ShaderIdeaExplorer.kt
+course/chapters/chapter-08/lesson-08-02-create-a-runtime-shader.html
+course/chapters/chapter-08/lesson-08-03-return-one-fixed-color.html
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/RuntimeShaderExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/FixedColorShaderExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/Chapter08Screen.kt
-```
-
-7.10 remainder companion, only if a 7.12 grain question needs it:
-
-```text
-course/chapters/chapter-07/lesson-07-10-companion-why-7-gives-unique-remainders.html
 ```
