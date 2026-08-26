@@ -151,42 +151,20 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-08-26 with `CURRENT_STATE.md` (course version 8.3.0).
+**Last aligned:** 2026-08-26 with `CURRENT_STATE.md` (course version 8.5.0).
 
 ```text
-completed: 75 of 216, through Lesson 8.1
-current unresolved checkpoint: Lesson 8.2 — Create a RuntimeShader
-generated frontier: Lesson 8.3 — Return one fixed color
-next planned lesson after the frontier: Lesson 8.4 — fragCoord
-Lesson 8.2 is generated ahead and not complete
-Lesson 8.3 is generated ahead and not complete
+completed: 77 of 216, through Lesson 8.3
+current unresolved checkpoint: Lesson 8.4 — fragCoord
+generated frontier: Lesson 8.5 — Resolution
+next planned lesson after the frontier: Lesson 8.6 — UV coordinates
+Lesson 8.4 is generated ahead and not complete
+Lesson 8.5 is generated ahead and not complete
 ```
 
 Chapter 7 is complete. Frost constants stay fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
-**8.1 completed contract:**
-
-```text
-pixel function colorAt(column, row)
-→ CPU loop calls it once per output pixel
-→ store that color in the cell
-```
-
-A shader is that pixel function when the GPU runs it. Teaching grid is 8×4. Paint always stores orange `(224, 122, 46)`. Stripe uses column remainder 2.
-
-**8.2 checkpoint contract:**
-
-```text
-AGSL string
-→ RuntimeShader(string) compiles it
-→ ShaderBrush(shader)
-→ drawRect(brush)
-→ GPU calls main once per output pixel of that rectangle
-```
-
-AGSL means Android Graphics Shading Language. Compile means the constructor builds a GPU program; construction does not draw. `fragCoord` is required by `half4 main(float2 fragCoord)` and is unread. The four `half4` numbers are present so the program is complete; Lesson 8.3 unpacks them. The HTML fill is a JavaScript stand-in. The Android explorer is the real constructor. Do not introduce uniforms, resolution, or compiler errors.
-
-**8.3 frontier contract:**
+**8.3 completed contract:**
 
 ```text
 8-bit RGB / 255
@@ -195,14 +173,35 @@ AGSL means Android Graphics Shading Language. Compile means the constructor buil
 → unused Kotlin Color is a separate box
 ```
 
-Teaching orange `half4(0.88, 0.48, 0.18, 1.0)` from `(224, 122, 46)`. Teaching navy `half4(0.10, 0.25, 0.40, 1.0)` from `(26, 64, 102)`. Rewriting the string builds a new `RuntimeShader`. Do not use uniforms. Do not return `224`. Do not read `fragCoord`. Do not generate Lesson 8.4 unless I ask.
+Teaching orange `half4(0.88, 0.48, 0.18, 1.0)` from `(224, 122, 46)`. Teaching navy `half4(0.10, 0.25, 0.40, 1.0)` from `(26, 64, 102)`. Rewriting the string builds a new `RuntimeShader`.
+
+**8.4 checkpoint contract:**
+
+```text
+fragCoord float2
+→ x pixels from left of the draw rectangle
+→ if (x < 80.0) orange else navy
+```
+
+Origin is the top-left of the `drawRect` rectangle. y increases downward with Canvas, not GLSL’s lower-left origin. 80 is a pixel count, not half. y is unread. Do not pass width or height. Do not divide position by size. Lesson 8.1’s column is a cell index, not this pixel count.
+
+**8.5 frontier contract:**
+
+```text
+DrawScope.size
+→ setFloatUniform("resolution", width, height)
+→ splitX = resolution.x / 2.0
+→ if (fragCoord.x < splitX) orange else navy
+```
+
+`fragCoord` is this pixel. Resolution is the whole rectangle’s size in pixels. Kotlin writes the slot once per draw. The GPU then calls `main` many times with the same pair. This lesson’s uniform is only resolution. UV (`fragCoord / resolution`) is Lesson 8.6. Other uniforms are Lesson 8.9. Do not generate Lesson 8.6 unless I ask.
 
 Current files:
 
 ```text
-course/chapters/chapter-08/lesson-08-02-create-a-runtime-shader.html
-course/chapters/chapter-08/lesson-08-03-return-one-fixed-color.html
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/RuntimeShaderExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/FixedColorShaderExplorer.kt
+course/chapters/chapter-08/lesson-08-04-fragcoord.html
+course/chapters/chapter-08/lesson-08-05-resolution.html
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/FragCoordExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/ResolutionShaderExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/Chapter08Screen.kt
 ```

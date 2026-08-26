@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 8.3.0
+**Version:** 8.5.0
 **Updated:** 2026-08-26
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
@@ -9,14 +9,14 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **75 of 216**.
-- Completed through: **Lesson 8.1 — What a shader does**.
+- Learner-confirmed complete: **77 of 216**.
+- Completed through: **Lesson 8.3 — Return one fixed color**.
 - Completed chapters: **1–7**.
 - Chapter 7 is complete: **12 of 12**.
-- Chapter 8 is in progress: **1 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 8.2 — Create a RuntimeShader**.
-- Generated frontier: **Lesson 8.3 — Return one fixed color**. Lessons 8.2 and 8.3 are generated and are not learner-confirmed complete. Lessons 7.12 and 8.1 are learner-confirmed complete.
-- Next planned lesson after the generated frontier: **Lesson 8.4 — fragCoord**.
+- Chapter 8 is in progress: **3 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 8.4 — fragCoord**.
+- Generated frontier: **Lesson 8.5 — Resolution**. Lessons 8.4 and 8.5 are generated and are not learner-confirmed complete. Lessons 8.2 and 8.3 are learner-confirmed complete.
+- Next planned lesson after the generated frontier: **Lesson 8.6 — UV coordinates**.
 
 ## 2. Course construction principles
 
@@ -463,20 +463,34 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 - `CompareBackgroundsExplorer.kt` switches the five classes on the frozen tree.
 - Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `CompareBackgroundsExplorer.kt`.
 
-**Generated implementation record — Lesson 8.2**
+**Completed implementation record — Lesson 8.2**
 
-- Generated ahead of unconfirmed Lesson 8.2; not learner-confirmed complete. Completion stays 75 of 216. Checkpoint stays 8.2.
+- Learner-confirmed complete; the completed total advances to 76 of 216.
 - Introduces one new mechanism: an AGSL string is compiled by `RuntimeShader`, wrapped in `ShaderBrush`, and drawn with `drawRect`. The GPU calls `main` once per output pixel of that rectangle. There is no Kotlin cell loop.
 - `fragCoord` is required by the signature and is unread. The four `half4` numbers are present and unexplained. Lesson 8.3 unpacks them.
 - The HTML fill is a JavaScript stand-in. `RuntimeShaderExplorer.kt` is the real constructor. `PanelHeightDp` is 140.
 - `MainActivity` defaults to Chapter 8. Direct previews live in `RuntimeShaderExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
 
-**Generated implementation record — Lesson 8.3**
+**Completed implementation record — Lesson 8.3**
 
-- Generated ahead of unconfirmed Lesson 8.2; not learner-confirmed complete.
+- Learner-confirmed complete; the completed total advances to 77 of 216.
 - Introduces one new mechanism: `return half4(r, g, b, a)` is the store. Channels are 0..1. Teaching orange is `(0.88, 0.48, 0.18, 1.0)` from 8-bit `(224, 122, 46)` after divide-by-255. Teaching navy is `(0.10, 0.25, 0.40, 1.0)`.
 - Rewriting the AGSL string builds a new `RuntimeShader`. Uniforms are not used. An unused Kotlin `Color` paints a separate box and does not change the fill.
 - `half` versus `float` is deferred to 8.7. `fragCoord` is unread. Direct previews live in `FixedColorShaderExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
+
+**Generated implementation record — Lesson 8.4**
+
+- Generated ahead of unconfirmed Lesson 8.4; not learner-confirmed complete. Completion stays 77 of 216. Checkpoint stays 8.4.
+- Introduces one new mechanism: `fragCoord` is the current pixel’s position in the draw rectangle. `float2` is `(x from left, y from top)` in pixels. `if (fragCoord.x < 80.0)` stores orange or navy.
+- Origin is the top-left of that rectangle. y increases downward with Canvas. 80 is a pixel count, not half. y is unread. Resolution is not passed.
+- `FragCoordExplorer.kt` compares the unread 8.3 program with the 8.4 read. The overlay line is 80 Canvas pixels. Direct previews live in `FragCoordExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
+
+**Generated implementation record — Lesson 8.5**
+
+- Generated ahead of unconfirmed Lesson 8.4; not learner-confirmed complete.
+- Introduces one new mechanism: Kotlin writes the draw rectangle’s pixel width and height into `uniform float2 resolution` with `setFloatUniform`. `splitX = resolution.x / 2.0` follows Canvas size without rebuilding `RuntimeShader`.
+- `fragCoord` is this pixel. Resolution is the whole rectangle’s size. The slot is written once per draw, then the GPU calls `main` many times with the same pair. UV is Lesson 8.6. Other uniforms are Lesson 8.9.
+- `ResolutionShaderExplorer.kt` compares the 8.5 half-split with the 8.4 leftover of 80 px at 240.dp and 360.dp. Direct previews live in `ResolutionShaderExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
 
 **Completed implementation record — Lesson 7.3**
 

@@ -1,7 +1,7 @@
 # Liquid Glass Android course — implementation handoff
 
 **Updated:** 2026-08-26  
-**Course version:** 8.3.0
+**Course version:** 8.5.0
 
 ## Read order
 
@@ -19,23 +19,23 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 75
-completed_through: "Lesson 8.1 — What a shader does"
+learner_confirmed_complete: 77
+completed_through: "Lesson 8.3 — Return one fixed color"
 completed_chapters: [1, 2, 3, 4, 5, 6, 7]
 chapter_7_complete: "12 of 12"
-chapter_8_complete: "1 of 12"
-next_unresolved_checkpoint: "Lesson 8.2 — Create a RuntimeShader"
-generated_frontier: "Lesson 8.3 — Return one fixed color"
-next_planned_after_frontier: "Lesson 8.4 — fragCoord"
+chapter_8_complete: "3 of 12"
+next_unresolved_checkpoint: "Lesson 8.4 — fragCoord"
+generated_frontier: "Lesson 8.5 — Resolution"
+next_planned_after_frontier: "Lesson 8.6 — UV coordinates"
 ```
 
-Lessons 7.12 and 8.1 are learner-confirmed complete. Lessons 8.2 and 8.3 are generated ahead and are not learner-confirmed complete.
+Lessons 8.2 and 8.3 are learner-confirmed complete. Lessons 8.4 and 8.5 are generated ahead and are not learner-confirmed complete.
 
 ## Generate-ahead note
 
-The checkpoint is 8.2. Lesson 8.3 exists as files. Do not mark 8.2 or 8.3 complete until the learner confirms.
+The checkpoint is 8.4. Lesson 8.5 exists as files. Do not mark 8.4 or 8.5 complete until the learner confirms.
 
-## Generated-ahead Lesson 8.2
+## Completed Lesson 8.2
 
 ```text
 AGSL string
@@ -44,11 +44,9 @@ AGSL string
 → drawRect(brush)
 ```
 
-The GPU calls `main` once per output pixel of that rectangle. There is no Kotlin cell loop. `fragCoord` is unread. The four `half4` numbers are deferred to 8.3. The HTML fill is a JavaScript stand-in.
+The GPU calls `main` once per output pixel of that rectangle. There is no Kotlin cell loop. `fragCoord` is unread in 8.2 and 8.3.
 
-`RuntimeShaderExplorer.kt` is the real constructor. `MainActivity` defaults to Chapter 8.
-
-## Generated-ahead Lesson 8.3
+## Completed Lesson 8.3
 
 ```text
 8-bit RGB / 255
@@ -59,17 +57,38 @@ The GPU calls `main` once per output pixel of that rectangle. There is no Kotlin
 
 Teaching orange `half4(0.88, 0.48, 0.18, 1.0)`. Teaching navy `half4(0.10, 0.25, 0.40, 1.0)`. Rewriting the string rebuilds `RuntimeShader`. Uniforms are not used.
 
+## Generated-ahead Lesson 8.4
+
+```text
+fragCoord float2
+→ x pixels from left of the draw rectangle
+→ if (x < 80.0) orange else navy
+```
+
+Origin is the top-left of the `drawRect` rectangle. y increases downward with Canvas, not GLSL’s lower-left origin. 80 is a pixel count, not half. y is unread. Resolution is not passed.
+
+## Generated-ahead Lesson 8.5
+
+```text
+DrawScope.size
+→ setFloatUniform("resolution", width, height)
+→ splitX = resolution.x / 2.0
+→ if (fragCoord.x < splitX) orange else navy
+```
+
+`fragCoord` is this pixel. Resolution is the whole rectangle’s size. Kotlin writes the slot once per draw. The GPU then calls `main` many times with the same pair. UV (`fragCoord / resolution`) is Lesson 8.6. Other uniforms are Lesson 8.9.
+
 ## Future conversation
 
 Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions. When the checkpoint or frontier moves, refresh section 12 of `NEW_CHAT_PROMPT.md` after this file.
 
 ## Completion rule
 
-Do not mark Lesson 8.2 or Lesson 8.3 complete merely because they were generated or revised. Wait for explicit learner confirmation. Do not generate Lesson 8.4 unless the learner asks.
+Do not mark Lesson 8.4 or Lesson 8.5 complete merely because they were generated or revised. Wait for explicit learner confirmation. Do not generate Lesson 8.6 unless the learner asks.
 
 ## Standing delivery preferences recorded 2026-08-20
 
 - Do not generate `.zip` files. The learner works from the repositories.
 - When a preview wrapper has both themes, put the dark `@Preview` annotation first, then light. Prospective only.
 
-Course progress: 75 of 216 lessons completed.
+Course progress: 77 of 216 lessons completed.
