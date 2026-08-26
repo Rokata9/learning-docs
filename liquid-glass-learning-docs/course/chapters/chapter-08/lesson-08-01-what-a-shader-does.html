@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 8.1 — What a shader does</title>
+<style>
+:root{color-scheme:light;--ink:#172033;--muted:#596579;--line:#d8e0ea;--paper:#fff;--soft:#f5f7fb;--panel:#fbfcfe;--control:#fff;--green:#059669;--green-soft:#ecfdf5;--indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;--blue:#1e40af;--blue-soft:#dbeafe;--red:#dc2626;--red-soft:#fee2e2;--orange:#e07a2e;--navy:#1a4066;--empty:#e2e8f0;--body-start:#f8fafc;--body-end:#edf2f7;--shadow:0 18px 52px rgba(30,41,59,.09);--code:#111827;--code-ink:#e5e7eb}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--body-start),var(--body-end));font:16px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.45}code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}code{background:var(--indigo-soft);padding:.12em .36em;border-radius:6px;overflow-wrap:anywhere}.code-block>code,.code-block code{display:block;background:transparent;color:inherit;padding:0;border-radius:0;white-space:pre-wrap}.page{width:min(2260px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.topbar{display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:22px}.crumbs{color:var(--muted)}.chips{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:850}.chip.progress{color:var(--green);background:var(--green-soft)}.chip.pending{color:var(--amber);background:var(--amber-soft)}.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(480px,.85fr);gap:28px;padding:42px}.eyebrow,.section-no{color:var(--indigo);font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase}h1{margin:.35rem 0 1rem;font-size:clamp(42px,4vw,70px);line-height:1.04;letter-spacing:-.045em}h2{margin:0 0 .7rem;font-size:31px;line-height:1.18}h3{margin:0 0 .5rem;font-size:21px;line-height:1.25}p{max-width:110ch}.lead{font-size:19px;color:var(--muted)}.plain-rule{font-size:clamp(20px,1.8vw,28px);font-weight:950;line-height:1.3;padding:20px;border:2px solid var(--indigo);border-radius:16px;background:var(--indigo-soft)}.section{margin-top:24px;padding:32px}.section-head{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:22px}.section-head p{margin:0;color:var(--muted)}.card{padding:20px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}.card.green{background:var(--green-soft)}.card.blue{background:var(--blue-soft)}.card.amber{background:var(--amber-soft)}.card.indigo{background:var(--indigo-soft)}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.note,.warning,.success{margin-top:18px;padding:16px 18px;border-radius:14px}.note{border-left:5px solid var(--blue);background:var(--blue-soft)}.warning{border-left:5px solid var(--amber);background:var(--amber-soft)}.success{border-left:5px solid var(--green);background:var(--green-soft)}.formula{padding:14px 16px;border-radius:13px;background:var(--indigo-soft);border:1px solid color-mix(in srgb,var(--indigo) 45%,var(--line));font:800 15px/1.64 "SFMono-Regular",Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.btn{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:850;border:1px solid var(--line);background:var(--control);color:var(--ink);text-decoration:none;display:inline-flex;align-items:center}.btn:hover,.btn:focus-visible{border-color:var(--blue);outline:none}.btn.primary{border-color:var(--blue);background:var(--blue);color:#fff}.btn.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.hero-art{min-height:320px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,var(--blue-soft),var(--indigo-soft));padding:22px;display:grid;align-content:center;gap:14px}.hero-pipeline{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center}.hero-stage{padding:16px 12px;text-align:center;border-radius:14px;background:var(--paper);border:1px solid var(--line);font-weight:900}.arrow{font-size:28px;color:var(--indigo);font-weight:950}.lab-grid{display:grid;grid-template-columns:minmax(720px,1.2fr) minmax(420px,.8fr);gap:18px}.canvas-card{padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--panel);min-width:0}.canvas-card canvas,.section-svg{display:block;width:100%;height:auto;border-radius:11px;border:1px solid var(--line);background:#f8fafc}.canvas-title{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:9px}.canvas-title span,.origin{color:var(--muted);font-size:13px;font-weight:700}.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:14px}.metric{padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--control)}.metric strong{display:block;color:var(--indigo);margin-bottom:4px}.metric .origin{display:block;margin-bottom:6px}.metric .value{display:block;font-weight:850}.swatch{display:inline-block;width:18px;height:18px;border-radius:4px;border:1px solid var(--line);vertical-align:-3px;margin-right:6px}.lesson-grid{display:grid;grid-template-columns:minmax(860px,1.25fr) minmax(430px,.75fr);gap:18px;align-items:start}.stepper{position:sticky;top:18px;border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden}.step-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}.step-body{padding:18px}.step-title{font-size:22px;font-weight:950}.step-caption{min-height:168px}.step-buttons{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}.step-dot{width:40px;height:40px;padding:0;border-radius:10px;border:1px solid var(--line);background:var(--control);color:var(--ink);font-weight:900}.step-dot.selected{background:var(--indigo);border-color:var(--indigo);color:#fff}.io{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}.io>div{padding:11px;border:1px solid var(--line);border-radius:11px;background:var(--control)}.io strong,.io span{display:block}.code-grid{display:grid;grid-template-columns:minmax(650px,1fr) minmax(500px,.8fr);gap:18px}.code-block{background:var(--code);color:var(--code-ink);border-radius:14px;padding:16px;white-space:pre-wrap;overflow:auto;font:14px/1.62 "SFMono-Regular",Consolas,monospace}.prediction{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.choice{appearance:none;min-height:112px;padding:16px;border:2px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);text-align:left;font-weight:800;line-height:1.5}.choice:hover,.choice:focus-visible{border-color:var(--blue);outline:none}.choice.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.challenge{display:grid;grid-template-columns:minmax(650px,1fr) minmax(500px,.75fr);gap:18px}.editor{width:100%;min-height:260px;resize:vertical;background:var(--code);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace;white-space:pre;overflow:auto}.result{min-height:55px;margin-top:12px;padding:12px;border-radius:11px;background:var(--soft)}details{margin:10px 0;border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:13px 15px}summary{cursor:pointer;font-weight:900}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.check{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}.record{width:100%;min-height:240px;margin-top:12px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);font:14px/1.6 "SFMono-Regular",Consolas,monospace}.footer{margin-top:24px;padding:18px 24px;display:flex;justify-content:space-between;gap:18px;align-items:center}.compare-svg{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:16px;background:var(--soft)}.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-weight:800}.legend i{display:inline-block;width:16px;height:16px;border-radius:4px;border:1px solid var(--line);vertical-align:-3px;margin-right:6px}
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-your-first-agsl-shader.html">Chapter 8</a> · Lesson 8.1 · generated ahead</div>
+    <div class="chips"><span class="chip progress">73 of 216 complete</span><span class="chip pending">Checkpoint 7.12 unresolved</span><span class="chip pending">8.1 generated ahead</span></div>
+  </div>
+
+  <header class="hero panel">
+    <div>
+      <div class="eyebrow">Chapter 8 · Same function, every output pixel</div>
+      <h1>What a shader does</h1>
+      <p class="lead"><strong>Question:</strong> Lesson 7.11 stacked the frosted card as whole layers: one blur, one tint, one grain, one band, one rim, and a sharp label. You attached those effects to the card. You did not write “for this pixel, return this color.” How do you choose one output pixel’s color yourself?</p>
+      <div class="plain-rule">A <strong>pixel function</strong> is a small function that returns one color for one output pixel. The same function body runs once for every pixel. Only that pixel’s column and row change between calls.</div>
+      <div class="note"><strong>Generated ahead.</strong> Lesson 7.12 remains the unresolved checkpoint. This lesson does not rebuild frost, leftover, or contrast. It does not create Android RuntimeShader. It does not introduce AGSL, the Android Graphics Shading Language, as a compiled string. Those are Lessons 8.2 and 8.3. The loop on this page is a teaching stand-in so each call is visible.</div>
+    </div>
+    <div class="hero-art" aria-label="Pixel function, one call per pixel, then a stored image">
+      <div class="hero-pipeline">
+        <div class="hero-stage">pixel<br>function</div><div class="arrow">→</div>
+        <div class="hero-stage">one call per<br>output pixel</div><div class="arrow">→</div>
+        <div class="hero-stage">stored<br>image</div>
+      </div>
+      <p style="margin:0;font-weight:800">A <strong>shader</strong>, in this course, is a pixel function that the GPU will run. This lesson watches the same idea in a CPU loop. Canonical wording: <a href="../../glossary.html#pixel-function">pixel function</a>, <a href="../../glossary.html#shader">shader</a>.</p>
+    </div>
+  </header>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">1 · THE NEW OBJECTS</div><h2>Name the grid, the function, and one call</h2></div></div>
+    <div class="four">
+      <article class="card blue"><h3>Output grid</h3><p>An 8-column by 4-row rectangle of pixels we will fill. Lesson 2.1 already defined a pixel as one addressable position. Column 0 is the leftmost column. Row 0 is the top row. There are <code>8 × 4 = 32</code> pixels.</p></article>
+      <article class="card indigo"><h3>Pixel function</h3><p>A function named <code>colorAt(column, row)</code>. It returns one straight RGB color with alpha 1 for that one pixel. Straight RGB means the red, green, and blue fields are stored independently from alpha, as Lesson 3.1 and Lesson 3.5 taught.</p></article>
+      <article class="card green"><h3>Call</h3><p>One run of <code>colorAt</code> for one pair <code>(column, row)</code>. Call 1 is <code>(0, 0)</code>. Call 2 is <code>(1, 0)</code>. After column 7 it wraps to the next row. The function text does not change.</p></article>
+      <article class="card amber"><h3>Store</h3><p>Write the returned color into that cell as 8-bit integers. Lesson 7.10 already defined store as writing round(channel × 255) with alpha 1. The empty cell color is only a “not filled yet” marker. It is not a destination photograph.</p></article>
+    </div>
+    <div class="two" style="margin-top:16px">
+      <article class="card">
+        <h3>CPU loop — this lesson’s stand-in</h3>
+        <p>The <strong>CPU</strong> is the phone’s main processor. This page’s JavaScript, and the Android explorer’s Kotlin, run a loop on the CPU: visit the next pixel, call <code>colorAt</code>, store, then visit the next pixel.</p>
+      </article>
+      <article class="card">
+        <h3>Shader — the GPU name for the same idea</h3>
+        <p>The <strong>GPU</strong> is the phone’s graphics processor. A shader is a pixel function that processor will run. The GPU may fill many pixels at the same time. The function still has to make sense for one pixel by itself. Lesson 8.2 hands the function to Android. This lesson does not.</p>
+      </article>
+    </div>
+    <div class="formula" style="margin-top:16px">for row from 0 to 3:
+  for column from 0 to 7:
+    color = colorAt(column, row)
+    store color in the cell at (column, row)</div>
+    <p>8 columns and 4 rows are a teaching size so 32 calls are countable. They are not the Pixel 8 Pro screen size. CSS pixels are not dp.</p>
+  </section>
+
+  <section class="section panel" id="lab">
+    <div class="section-head"><div><div class="section-no">2 · INTERACTIVE LAB</div><h2>Change only the function, then watch each call</h2></div><p>Two function bodies share the same loop. Paint always returns orange. Stripe reads column remainder 2: leftover 0 is orange, leftover 1 is navy. Remainder 2 is the leftover after dividing the column by 2, the same leftover idea Lesson 7.10 used with 16.</p></div>
+    <div class="controls" role="group" aria-label="Pixel function">
+      <button class="btn mode-btn selected" data-mode="paint">Paint · always orange</button>
+      <button class="btn mode-btn" data-mode="stripe">Stripe · column remainder 2</button>
+      <button class="btn" id="prevPixel">Previous pixel</button>
+      <button class="btn primary" id="nextPixel">Next pixel</button>
+      <button class="btn" id="fillAll">Fill all 32</button>
+      <button class="btn" id="resetFill">Empty the grid</button>
+    </div>
+    <div class="metrics">
+      <div class="metric"><strong>Function</strong><span class="origin">controlled</span><span class="value" id="modeMetric">paint</span></div>
+      <div class="metric"><strong>Current pixel</strong><span class="origin">column, row · 0-based</span><span class="value" id="pixelMetric">(0, 0)</span></div>
+      <div class="metric"><strong>Call number</strong><span class="origin">row × 8 + column + 1</span><span class="value" id="callMetric">1 of 32</span></div>
+      <div class="metric"><strong>Returned RGB</strong><span class="origin">straight RGB · alpha 1</span><span class="value" id="rgbMetric"></span></div>
+      <div class="metric"><strong>Filled cells</strong><span class="origin">stores completed</span><span class="value" id="filledMetric">0 of 32</span></div>
+    </div>
+    <div class="lab-grid" style="margin-top:14px">
+      <article class="canvas-card">
+        <div class="canvas-title"><strong>Output grid · 8 × 4</strong><span>click a cell to select it · gold outline is the current pixel</span></div>
+        <canvas id="gridCanvas" width="960" height="520" aria-label="Eight by four output grid"></canvas>
+        <p id="gridCaption"></p>
+        <div class="legend"><span><i style="background:#e07a2e"></i>orange (224, 122, 46)</span><span><i style="background:#1a4066"></i>navy (26, 64, 102)</span><span><i style="background:#e2e8f0"></i>empty · not stored yet</span></div>
+      </article>
+      <article class="canvas-card">
+        <div class="canvas-title"><strong>This call</strong><span>same function text every time</span></div>
+        <div class="formula" id="fnText"></div>
+        <div class="formula" id="callText" style="margin-top:10px"></div>
+        <p id="callCaption"></p>
+      </article>
+    </div>
+    <div class="note"><strong>Browser versus Android.</strong> This canvas loop is JavaScript on the CPU. The Android explorer uses the same colorAt in Kotlin and paints enlarged cells. Neither path is RuntimeShader. Lesson 8.4 will teach how the GPU names the current pixel. This lesson’s loop passes column and row because it owns the for-loop counters.</div>
+  </section>
+
+  <section class="section panel" id="trace">
+    <div class="section-head"><div><div class="section-no">3 · ONE PIXEL</div><h2>Column 3, row 1, stripe function</h2></div></div>
+    <p>Follow one actual value. The stripe function is selected. The current pixel is column 3, row 1. That is call number <code>1 × 8 + 3 + 1 = 12</code>.</p>
+    <div class="two">
+      <article class="card indigo">
+        <h3>Inputs</h3>
+        <div class="formula">column = 3          ← loop counter, 0-based, leftmost is 0
+row = 1             ← loop counter, 0-based, top is 0
+mode = stripe
+orange = (224, 122, 46)   ← fixed teaching color, alpha 1
+navy   = (26, 64, 102)    ← Chapter 7 dark navy, alpha 1</div>
+      </article>
+      <article class="card green">
+        <h3>Operation, output, next consumer</h3>
+        <div class="formula">3 remainder 2 = 1
+1 is not 0, so colorAt returns navy
+store (26, 64, 102) in cell (3, 1)
+the next consumer is the visible cell in the output grid</div>
+        <p>Row is passed because every pixel has a row. Paint and stripe do not read row. The function still receives it so later lessons can use it without changing the call shape.</p>
+      </article>
+    </div>
+    <p>The neighbor on the right is column 4, row 1. <code>4 remainder 2 = 0</code>, so that call returns orange. The function text is the same. Only the column the loop passed in changed. That pairing — leftover 1 then leftover 0 — is why stripe looks like navy, orange, navy, orange across a row.</p>
+  </section>
+
+  <section class="section panel" id="stepper">
+    <div class="section-head"><div><div class="section-no">4 · EIGHT STEPS</div><h2>Empty grid, then 32 stores, then the Chapter 7 contrast</h2></div><p>The diagram and the caption share one canonical state. Stripe is the teaching function here so two colors appear.</p></div>
+    <div class="lesson-grid">
+      <article class="canvas-card">
+        <div class="canvas-title"><strong>Current step</strong><span id="stepGridLabel">Step 1 of 8</span></div>
+        <canvas id="stepCanvas" width="960" height="420" aria-label="Stepper output grid and Chapter 7 contrast"></canvas>
+      </article>
+      <aside class="stepper">
+        <div class="step-head"><button class="btn" id="stepPrev">Previous</button><strong id="stepCounter">Step 1 of 8</strong><button class="btn primary" id="stepNext">Next</button></div>
+        <div class="step-body">
+          <div class="step-title" id="stepTitle"></div>
+          <div class="step-caption" id="stepCaption"></div>
+          <div class="formula" id="stepRule"></div>
+          <div class="io">
+            <div><strong>Input</strong><span id="stepInput"></span></div>
+            <div><strong>Operation</strong><span id="stepOperation"></span></div>
+            <div><strong>Output</strong><span id="stepOutput"></span></div>
+          </div>
+          <div class="step-buttons" id="stepButtons"></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">5 · WHY CHAPTER 7 CANNOT WRITE THIS</div><h2>A whole-layer effect is not your pixel function</h2></div></div>
+    <svg class="compare-svg" viewBox="0 0 1180 300" role="img" aria-label="Whole-layer blur on the left, per-pixel function calls on the right">
+      <text x="40" y="32" fill="#172033" font-size="18" font-weight="800">Left: Lesson 7.11. One BlurEffect sits on the fill layer.</text>
+      <rect x="40" y="52" width="500" height="180" rx="28" fill="#1a4066"/>
+      <rect x="40" y="52" width="500" height="180" rx="28" fill="#94a3b8" opacity="0.35"/>
+      <rect x="40" y="52" width="500" height="180" rx="28" fill="none" stroke="#f8fafc" stroke-width="6"/>
+      <text x="290" y="150" text-anchor="middle" fill="#f8fafc" font-size="22" font-weight="900">you did not write colorAt</text>
+      <text x="40" y="258" fill="#172033" font-size="15">The renderer owns the per-pixel work inside blur.</text>
+      <text x="40" y="280" fill="#172033" font-size="15">You attached one effect to the whole card.</text>
+      <text x="620" y="32" fill="#172033" font-size="18" font-weight="800">Right: this lesson. 32 separate calls of the same function.</text>
+      <rect x="620" y="52" width="80" height="80" fill="#e07a2e" stroke="#0f172a"/>
+      <rect x="700" y="52" width="80" height="80" fill="#1a4066" stroke="#0f172a"/>
+      <rect x="780" y="52" width="80" height="80" fill="#e07a2e" stroke="#0f172a"/>
+      <rect x="860" y="52" width="80" height="80" fill="#1a4066" stroke="#0f172a"/>
+      <rect x="940" y="52" width="80" height="80" fill="#e07a2e" stroke="#0f172a"/>
+      <rect x="1020" y="52" width="80" height="80" fill="#1a4066" stroke="#0f172a"/>
+      <rect x="620" y="132" width="80" height="80" fill="#e07a2e" stroke="#0f172a"/>
+      <rect x="700" y="132" width="80" height="80" fill="#1a4066" stroke="#0f172a"/>
+      <rect x="780" y="132" width="80" height="80" fill="#e07a2e" stroke="#0f172a"/>
+      <rect x="860" y="132" width="80" height="80" fill="#1a4066" stroke="#0f172a"/>
+      <rect x="940" y="132" width="80" height="80" fill="#e07a2e" stroke="#0f172a"/>
+      <rect x="1020" y="132" width="80" height="80" fill="#1a4066" stroke="#0f172a"/>
+      <text x="620" y="258" fill="#172033" font-size="15">You wrote colorAt. The loop calls it once per cell.</text>
+      <text x="620" y="280" fill="#172033" font-size="15">Stripe reads that cell’s column.</text>
+    </svg>
+    <div class="two" style="margin-top:16px">
+      <article class="card amber">
+        <h3>Blur still produces one color per output pixel</h3>
+        <p>Lesson 7.1 already mixed neighbors into one output color. That work was the renderer’s. You did not author the function body. Paint and stripe also produce one color per pixel, and you can read the body.</p>
+      </article>
+      <article class="card green">
+        <h3>Next consumer of this model</h3>
+        <p>Chapter 9 will need a different background sample coordinate at different pixels so a straight line can appear to bend. That is a per-pixel choice. This lesson only installs the programming model: same function, every output pixel. It does not bend anything.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">6 · ANDROID ROUTE</div><h2>The same colorAt in a Kotlin loop</h2></div></div>
+    <div class="code-grid">
+      <pre class="code-block"><code>fun colorAt(column: Int, row: Int, mode: Mode): Color {
+    if (mode == Mode.Paint) return Orange
+    return if (column % 2 == 0) Orange else Navy
+}
+
+for (row in 0 until 4) {
+    for (column in 0 until 8) {
+        val color = colorAt(column, row, mode)
+        drawCell(column, row, color)
+    }
+}</code></pre>
+      <div class="card">
+        <h3>What each part changes</h3>
+        <p><code>colorAt</code> is the pixel function. <code>column % 2</code> is remainder 2. Orange and navy are fixed teaching colors, not the 7.6 navy-and-orange artwork.</p>
+        <p>The nested <code>for</code> loops are the CPU stand-in. They are not a GPU program. Do not look for <code>RuntimeShader</code> in this file.</p>
+        <p><strong>Android files:</strong><br><code>chapter08/ShaderIdeaExplorer.kt</code><br><code>chapter08/Chapter08Screen.kt</code><br><code>MainActivity.kt</code> keeps Chapter 7 as the default because 7.12 is still the checkpoint. Open Chapter 8 from the chapter switcher.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">7 · PREDICTION</div><h2>How many times does stripe run on this grid?</h2></div></div>
+    <p>The output grid is 8 columns by 4 rows. The stripe function is selected. How many times does <code>colorAt</code> run, and does the function text change?</p>
+    <div class="prediction">
+      <button class="choice" data-answer="wrong">Once. The GPU paints the whole card in one call, the way <code>BlurEffect</code> sits on one layer.</button>
+      <button class="choice" data-answer="correct">32 times, once per output pixel. The function text stays the same. Only column and row change.</button>
+      <button class="choice" data-answer="wrong">8 times. One call fills a whole column, so rows do not need their own calls.</button>
+    </div>
+    <div class="result" id="predictionResult">Choose one answer.</div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">8 · CODING CHALLENGE</div><h2>Return navy on leftover 1</h2></div></div>
+    <div class="challenge">
+      <div>
+        <textarea class="editor" id="challengeEditor" spellcheck="false">fun colorAt(column: Int, row: Int): Color {
+    if (mode == Mode.Paint) return Orange
+    val leftover = column % ___
+    return if (leftover == 0) Orange else ___
+}</textarea>
+        <div class="controls" style="margin-top:10px">
+          <button class="btn primary" id="checkChallenge">Check</button>
+          <button class="btn" id="showSolution">Show solution</button>
+          <button class="btn" id="resetChallenge">Reset</button>
+        </div>
+        <div class="result" id="challengeResult">Fill remainder 2 and the navy fallback. Row can stay unused.</div>
+      </div>
+      <div class="card indigo">
+        <h3>Available names</h3>
+        <div class="formula">2
+Navy
+row
+BlurEffect</div>
+        <p>The first blank is the wrap used for even/odd columns. The second blank is the teaching navy, not a layer effect.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">9 · EXERCISES</div><h2>Answer before opening each hidden solution</h2></div></div>
+    <details><summary>What is a pixel function in this lesson?</summary><p>A small function that returns one color for one output pixel. This lesson’s name is <code>colorAt(column, row)</code>. The same function body runs once per pixel.</p></details>
+    <details><summary>Diagnostic: stripe is selected. Cell (3, 1) is navy and cell (4, 1) is orange. Did the function text change between those two calls?</summary><p>No. Call 12 passed column 3, remainder 2 was 1, so navy. Call 13 passed column 4, remainder 2 was 0, so orange. Only the column the loop supplied changed.</p></details>
+    <details><summary>Is this page’s loop a shader?</summary><p>No. A shader is a pixel function the GPU will run. This loop runs on the CPU so each call is visible. Lesson 8.2 connects a function string to Android drawing. Lesson 8.3 proves that GPU path with one fixed color.</p></details>
+    <details><summary>Why can Chapter 7’s <code>BlurEffect</code> not replace <code>colorAt</code>?</summary><p>Blur still produces one color per output pixel, but you did not write that body, and it reads a neighborhood. Paint and stripe are bodies you can read. They use this pixel’s column. They do not read neighbor cells. Chapter 9 will need a per-pixel sample coordinate; that still uses this call model.</p></details>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">10 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div></div>
+    <div class="checklist">
+      <label class="check"><input type="checkbox">Paint fills every stored cell orange.</label>
+      <label class="check"><input type="checkbox">Stripe alternates orange and navy across a row. Column 3 is navy. Column 4 is orange.</label>
+      <label class="check"><input type="checkbox">Next pixel advances one cell left to right, then the next row. The function text does not change.</label>
+      <label class="check"><input type="checkbox">Empty cells stay the gray “not stored yet” marker until their call runs.</label>
+      <label class="check"><input type="checkbox">The live RGB for (3, 1) on stripe is (26, 64, 102).</label>
+      <label class="check"><input type="checkbox">No <code>RuntimeShader</code> appears in the explorer.</label>
+      <label class="check"><input type="checkbox">The direct explorer Preview scrolls in light and dark.</label>
+      <label class="check"><input type="checkbox">The Chapter 8 screen Preview scrolls in light and dark. MainActivity still defaults to Chapter 7.</label>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">11 · EVIDENCE BOUNDARY</div><h2>What this lesson establishes</h2></div></div>
+    <div class="two">
+      <div class="card green"><h3>Established</h3><p>A pixel function returns one color per output pixel. The same body runs once per pixel. A CPU loop makes each call visible. Paint always stores orange. Stripe stores orange or navy from column remainder 2. A shader is this idea when the GPU runs it.</p></div>
+      <div class="card amber"><h3>Not claimed</h3><p>This loop is not a GPU program. It is not AGSL. It is not <code>RuntimeShader</code>. Column and row here come from the teaching loop, not from <code>fragCoord</code>. The GPU may run many pixels at once; this lesson does not measure that. Chapter 7 frost is unchanged. Lesson 7.12 is still the checkpoint.</p></div>
+    </div>
+    <button class="btn primary" id="buildRecord" style="margin-top:16px">Build local review record</button>
+    <textarea class="record" id="record" readonly>No record generated yet.</textarea>
+  </section>
+
+  <footer class="footer panel"><span>73 of 216 complete · checkpoint 7.12 unresolved · 8.1 generated ahead</span><span>Previous generated: <a href="../chapter-07/lesson-07-12-compare-backgrounds.html">7.12 — Compare backgrounds</a> · Next planned: <strong>8.2 — Create a RuntimeShader</strong></span></footer>
+</main>
+<script>
+const COLS=8, ROWS=4, TOTAL=COLS*ROWS;
+const ORANGE=[224,122,46], NAVY=[26,64,102], EMPTY=[226,232,240];
+const ORANGE_N=[0.88,0.48,0.18], NAVY_N=[0.10,0.25,0.40];
+let mode='paint', selected=0, filled=0, currentStep=0;
+
+function colorAt(column,row,which){
+  if((which||mode)==='paint') return ORANGE;
+  return (column%2===0) ? ORANGE : NAVY;
+}
+function rgbCss(rgb){return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`}
+function rgbLabel(rgb){return `(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`}
+function colOf(i){return i%COLS}
+function rowOf(i){return Math.floor(i/COLS)}
+function fnBody(which){
+  if(which==='paint'){
+    return `colorAt(column, row):
+  return orange
+  // orange = (224, 122, 46), alpha 1
+  // row is received and not read`;
+  }
+  return `colorAt(column, row):
+  leftover = column remainder 2
+  if leftover == 0: return orange
+  else: return navy
+  // row is received and not read`;
+}
+
+function drawGrid(canvas, fillCount, selectIndex, which, showAll){
+  const ctx=canvas.getContext('2d');
+  const w=canvas.width, h=canvas.height;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='#f8fafc';
+  ctx.fillRect(0,0,w,h);
+  const padL=56, padT=44, padR=18, padB=28;
+  const gw=w-padL-padR, gh=h-padT-padB;
+  const cw=gw/COLS, ch=gh/ROWS;
+  const limit = showAll ? TOTAL : fillCount;
+  ctx.font='700 16px ui-sans-serif,system-ui';
+  ctx.fillStyle='#596579';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  for(let c=0;c<COLS;c++){
+    ctx.fillText('C'+c, padL+cw*(c+0.5), 22);
+  }
+  ctx.textAlign='right';
+  for(let r=0;r<ROWS;r++){
+    ctx.fillText('R'+r, padL-10, padT+ch*(r+0.5));
+  }
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      const i=r*COLS+c;
+      const x=padL+c*cw, y=padT+r*ch;
+      const stored=i<limit;
+      ctx.fillStyle=stored?rgbCss(colorAt(c,r,which)):rgbCss(EMPTY);
+      ctx.fillRect(x+1,y+1,cw-2,ch-2);
+      if(i===selectIndex){
+        ctx.strokeStyle='#d97706';
+        ctx.lineWidth=5;
+        ctx.strokeRect(x+4,y+4,cw-8,ch-8);
+      }
+      ctx.strokeStyle='#94a3b8';
+      ctx.lineWidth=1;
+      ctx.strokeRect(x+0.5,y+0.5,cw-1,ch-1);
+    }
+  }
+}
+
+function updateLab(){
+  const col=colOf(selected), row=rowOf(selected);
+  const rgb=colorAt(col,row);
+  document.getElementById('modeMetric').textContent=mode;
+  document.getElementById('pixelMetric').textContent=`(${col}, ${row})`;
+  document.getElementById('callMetric').textContent=`${selected+1} of ${TOTAL}`;
+  document.getElementById('rgbMetric').innerHTML=`<span class="swatch" style="background:${rgbCss(rgb)}"></span>${rgbLabel(rgb)}`;
+  document.getElementById('filledMetric').textContent=`${filled} of ${TOTAL}`;
+  document.getElementById('fnText').textContent=fnBody(mode);
+  const leftover = col%2;
+  const stored = selected<filled;
+  document.getElementById('callText').textContent =
+    `call ${selected+1}: colorAt(${col}, ${row})\n`+
+    (mode==='stripe' ? `column remainder 2 = ${leftover}\n` : `paint ignores column remainder\n`)+
+    `returns ${rgbLabel(rgb)}\n`+
+    (stored ? `stored in cell (${col}, ${row})` : `not stored yet · empty marker still showing`);
+  document.getElementById('callCaption').textContent =
+    stored
+      ? 'This cell has already received its call. The gold outline is the selected pixel, which can be a filled cell or a later cell.'
+      : 'The loop has not reached this pixel. The gray marker means “no store yet.” It is not navy.';
+  document.getElementById('gridCaption').textContent =
+    `Filled ${filled} of 32, left to right, then the next row. Selected call ${selected+1} at column ${col}, row ${row}.`;
+  drawGrid(document.getElementById('gridCanvas'), filled, selected, mode, false);
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('selected', b.dataset.mode===mode));
+}
+
+const STEPS=[
+  {
+    title:'The output grid starts empty',
+    caption:'Eight columns, four rows. Thirty-two pixels. Every cell shows the empty marker. No call has run. Lesson 2.1 already named these positions. This lesson will write a color into each one.',
+    rule:'output grid = 8 columns × 4 rows\nfilled = 0',
+    input:'an empty 8 × 4 raster',
+    operation:'none yet',
+    output:'32 empty markers',
+    fill:0, select:0, which:'stripe', contrast:false
+  },
+  {
+    title:'Write the stripe function once',
+    caption:'The function text is the program. It is not a layer effect. Remainder 2 splits columns into leftover 0 and leftover 1. Orange is leftover 0. Navy is leftover 1.',
+    rule:'leftover = column remainder 2\nif leftover == 0: orange else navy',
+    input:'function body, not yet a pixel',
+    operation:'define colorAt',
+    output:'a reusable pixel function',
+    fill:0, select:0, which:'stripe', contrast:false
+  },
+  {
+    title:'Call 1 · column 0, row 0',
+    caption:'The loop passes column 0 and row 0. Remainder 2 of 0 is 0, so the call returns orange. Store (224, 122, 46) in the top-left cell. The function text did not change.',
+    rule:'colorAt(0, 0)\n0 remainder 2 = 0 → orange',
+    input:'column 0, row 0, stripe',
+    operation:'remainder, then pick orange or navy',
+    output:'store (224, 122, 46) at (0, 0)',
+    fill:1, select:0, which:'stripe', contrast:false
+  },
+  {
+    title:'Call 2 · column 1, row 0',
+    caption:'The loop advances one column. Remainder 2 of 1 is 1, so this call returns navy. Store (26, 64, 102). Same function text. Different column.',
+    rule:'colorAt(1, 0)\n1 remainder 2 = 1 → navy',
+    input:'column 1, row 0, stripe',
+    operation:'same remainder test',
+    output:'store (26, 64, 102) at (1, 0)',
+    fill:2, select:1, which:'stripe', contrast:false
+  },
+  {
+    title:'Call 12 · column 3, row 1',
+    caption:'Skip forward to the teaching pixel. Call number is 1 × 8 + 3 + 1 = 12. Remainder 2 of 3 is 1, so navy. The right neighbor will be orange because 4 remainder 2 is 0.',
+    rule:'colorAt(3, 1)\n3 remainder 2 = 1 → navy\nnext consumer: cell (3, 1)',
+    input:'column 3, row 1, stripe',
+    operation:'remainder 2, then store',
+    output:'store (26, 64, 102) at (3, 1)',
+    fill:12, select:11, which:'stripe', contrast:false
+  },
+  {
+    title:'All 32 calls have stored a color',
+    caption:'The grid is a finished image. Stripe looks like repeating orange and navy columns. That pattern is leftover 0 next to leftover 1, not a second function.',
+    rule:'32 calls\nsame colorAt every time',
+    input:'every (column, row) in the grid',
+    operation:'32 independent stores',
+    output:'a complete 8 × 4 image',
+    fill:32, select:11, which:'stripe', contrast:false
+  },
+  {
+    title:'Chapter 7 attached one effect to a layer',
+    caption:'Lesson 7.11 put BlurEffect on the fill. The renderer then produced a color at every pixel of that layer. You did not write colorAt. A whole-layer effect is still not your pixel function.',
+    rule:'Chapter 7: attach BlurEffect to the fill layer\nthis lesson: call colorAt once per cell',
+    input:'a Compose layer versus a pixel function',
+    operation:'compare ownership of the per-pixel body',
+    output:'you own colorAt; the renderer owned blur',
+    fill:32, select:11, which:'stripe', contrast:true
+  },
+  {
+    title:'A shader is this idea on the GPU',
+    caption:'The GPU is the graphics processor. A shader is a pixel function that processor will run. This loop was a CPU stand-in so each call was visible. Lesson 8.2 connects a function string to Android drawing. Lesson 8.3 proves it with one fixed color. Lesson 8.4 teaches how the GPU names the current pixel.',
+    rule:'shader = pixel function the GPU will run\nthis lesson did not create RuntimeShader',
+    input:'the pixel-function model',
+    operation:'name the later consumer',
+    output:'Lesson 8.2 receives this model',
+    fill:32, select:11, which:'stripe', contrast:false
+  }
+];
+
+function renderStep(){
+  const s=STEPS[currentStep];
+  document.getElementById('stepCounter').textContent=`Step ${currentStep+1} of ${STEPS.length}`;
+  document.getElementById('stepGridLabel').textContent=`Step ${currentStep+1} of ${STEPS.length}`;
+  document.getElementById('stepTitle').textContent=s.title;
+  document.getElementById('stepCaption').textContent=s.caption;
+  document.getElementById('stepRule').textContent=s.rule;
+  document.getElementById('stepInput').textContent=s.input;
+  document.getElementById('stepOperation').textContent=s.operation;
+  document.getElementById('stepOutput').textContent=s.output;
+  document.querySelectorAll('.step-dot').forEach((b,i)=>b.classList.toggle('selected', i===currentStep));
+  const canvas=document.getElementById('stepCanvas');
+  if(s.contrast){
+    const ctx=canvas.getContext('2d');
+    const w=canvas.width, h=canvas.height;
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#f8fafc';
+    ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#1a4066';
+    roundRectPath(ctx,40,70,400,260,36);
+    ctx.fill();
+    ctx.fillStyle='rgba(148,163,184,0.4)';
+    roundRectPath(ctx,40,70,400,260,36);
+    ctx.fill();
+    ctx.strokeStyle='#f8fafc';
+    ctx.lineWidth=6;
+    roundRectPath(ctx,40,70,400,260,36);
+    ctx.stroke();
+    ctx.fillStyle='#172033';
+    ctx.font='800 18px ui-sans-serif,system-ui';
+    ctx.textAlign='left';
+    ctx.fillText('Lesson 7.11 fill · you did not write colorAt', 40, 36);
+    ctx.fillStyle='#f8fafc';
+    ctx.font='900 20px ui-sans-serif,system-ui';
+    ctx.textAlign='center';
+    ctx.fillText('one BlurEffect on the layer', 240, 210);
+    const ox=480;
+    ctx.fillStyle='#172033';
+    ctx.font='800 18px ui-sans-serif,system-ui';
+    ctx.textAlign='left';
+    ctx.fillText('this lesson · you wrote colorAt', ox, 36);
+    const cw=56, ch=56;
+    for(let r=0;r<4;r++){
+      for(let c=0;c<8;c++){
+        ctx.fillStyle=rgbCss(colorAt(c,r,'stripe'));
+        ctx.fillRect(ox+c*cw, 70+r*ch, cw-2, ch-2);
+      }
+    }
+  } else {
+    drawGrid(canvas, s.fill, s.select, s.which, false);
+  }
+}
+function roundRectPath(ctx,x,y,w,h,r){
+  const rr=Math.max(0,Math.min(r,w/2,h/2));
+  ctx.beginPath();
+  ctx.moveTo(x+rr,y);
+  ctx.arcTo(x+w,y,x+w,y+h,rr);
+  ctx.arcTo(x+w,y+h,x,y+h,rr);
+  ctx.arcTo(x,y+h,x,y,rr);
+  ctx.arcTo(x,y,x+w,y,rr);
+  ctx.closePath();
+}
+
+document.querySelectorAll('.mode-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{mode=btn.dataset.mode;updateLab();});
+});
+document.getElementById('nextPixel').addEventListener('click',()=>{
+  if(selected<TOTAL-1) selected+=1;
+  if(filled<selected+1) filled=selected+1;
+  updateLab();
+});
+document.getElementById('prevPixel').addEventListener('click',()=>{
+  if(selected>0) selected-=1;
+  updateLab();
+});
+document.getElementById('fillAll').addEventListener('click',()=>{filled=TOTAL;updateLab();});
+document.getElementById('resetFill').addEventListener('click',()=>{filled=0;selected=0;updateLab();});
+document.getElementById('gridCanvas').addEventListener('click',ev=>{
+  const canvas=ev.currentTarget;
+  const rect=canvas.getBoundingClientRect();
+  const scaleX=canvas.width/rect.width, scaleY=canvas.height/rect.height;
+  const x=(ev.clientX-rect.left)*scaleX, y=(ev.clientY-rect.top)*scaleY;
+  const padL=56, padT=44, padR=18, padB=28;
+  const cw=(canvas.width-padL-padR)/COLS, ch=(canvas.height-padT-padB)/ROWS;
+  const c=Math.floor((x-padL)/cw), r=Math.floor((y-padT)/ch);
+  if(c>=0&&c<COLS&&r>=0&&r<ROWS){
+    selected=r*COLS+c;
+    updateLab();
+  }
+});
+
+const stepButtons=document.getElementById('stepButtons');
+STEPS.forEach((_,i)=>{
+  const b=document.createElement('button');
+  b.className='step-dot';
+  b.textContent=String(i+1);
+  b.addEventListener('click',()=>{currentStep=i;renderStep();});
+  stepButtons.appendChild(b);
+});
+document.getElementById('stepPrev').addEventListener('click',()=>{currentStep=Math.max(0,currentStep-1);renderStep();});
+document.getElementById('stepNext').addEventListener('click',()=>{currentStep=Math.min(STEPS.length-1,currentStep+1);renderStep();});
+
+document.querySelectorAll('.choice').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.choice').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    const box=document.getElementById('predictionResult');
+    if(btn.dataset.answer==='correct'){
+      box.textContent='Yes. 8 × 4 = 32 calls. The body is reused. Column and row are the values that change.';
+      box.style.background='var(--green-soft)';
+    } else {
+      box.textContent='A whole-layer effect is Chapter 7. This lesson’s loop calls colorAt once per cell, including every row.';
+      box.style.background='var(--amber-soft)';
+    }
+  });
+});
+
+const starter=document.getElementById('challengeEditor').value;
+document.getElementById('checkChallenge').addEventListener('click',()=>{
+  const text=document.getElementById('challengeEditor').value;
+  const hasTwo=/%\s*2\b/.test(text) || /remainder\s*2/i.test(text);
+  const hasNavy=/Navy/.test(text);
+  const box=document.getElementById('challengeResult');
+  if(hasTwo && hasNavy){
+    box.textContent='Correct. Remainder 2 splits even and odd columns. Navy is the leftover-1 color.';
+    box.style.background='var(--green-soft)';
+  } else {
+    box.textContent='Need remainder 2 and Navy. BlurEffect is a Chapter 7 layer effect, not this return value.';
+    box.style.background='var(--amber-soft)';
+  }
+});
+document.getElementById('showSolution').addEventListener('click',()=>{
+  document.getElementById('challengeEditor').value=`fun colorAt(column: Int, row: Int): Color {
+    if (mode == Mode.Paint) return Orange
+    val leftover = column % 2
+    return if (leftover == 0) Orange else Navy
+}`;
+});
+document.getElementById('resetChallenge').addEventListener('click',()=>{
+  document.getElementById('challengeEditor').value=starter;
+  document.getElementById('challengeResult').textContent='Fill remainder 2 and the navy fallback. Row can stay unused.';
+  document.getElementById('challengeResult').style.background='var(--soft)';
+});
+document.getElementById('buildRecord').addEventListener('click',()=>{
+  document.getElementById('record').value=`# Lesson 8.1 — What a shader does
+
+- Date:
+- Pixel function: colorAt(column, row) returns one straight RGB with alpha 1.
+- Call model: same body, once per output pixel. 8 × 4 = 32 calls.
+- Paint: always orange (224, 122, 46).
+- Stripe: column remainder 2; leftover 0 orange, leftover 1 navy (26, 64, 102).
+- Teaching pixel (3, 1): 3 remainder 2 = 1 → navy.
+- CPU loop is a stand-in. A shader is this idea when the GPU runs it.
+- Not claimed: RuntimeShader, AGSL compile, fragCoord.
+- Checkpoint still Lesson 7.12. Completion count still 73 of 216.
+`;
+});
+
+const qa=new URLSearchParams(location.search).get('qa');
+if(qa==='stripe'){mode='stripe';filled=TOTAL;selected=11;}
+if(qa==='step7'){currentStep=6;}
+updateLab();
+renderStep();
+</script>
+</body>
+</html>

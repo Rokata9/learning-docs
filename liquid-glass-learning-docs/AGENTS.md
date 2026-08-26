@@ -734,6 +734,17 @@ This rule was added after the learner asked why Lesson 7.6 interiors “change s
 
 **Positive-pattern status (Lesson 7.10 confirmation, 2026-08-25):** leftover-order versus column-order stored-navy rows, plus gold leftover 14 next to pink leftover 5 on the actual destination color, made the darker-then-lighter grain pairing understandable. Keep that pairing picture when a remainder step of about half the wrap looks like two shades.
 
+### Contrast verdict versus leftover structure versus backing — Lesson 7.12 follow-up
+
+This rule was added after the learner asked what “uniform fields leave a color family” meant, whether a short left-aligned text column and a sharp rim counted as leftover, what “both miss” required, and whether a local backing was the outer shadow.
+
+1. **Leftover is an eye observation, not a 4.5 pass.** After the frozen recipe, ask whether the destination class is still nameable from the frosted fill. Contrast asks a different question: whether the label separates from the interior RGB.
+2. **Define a uniform field with one color.** Every pixel starts as the same RGB. Dark is rgb(26, 64, 102). Light is rgb(224, 230, 237). Its leftover is the remaining color neighborhood, still dark navy or still light gray. Do not write “color family” without that meaning in the same sentence.
+3. **Rim and inner band are not leftover.** They are later siblings on the path. They stay sharp because they are not in the fill blur. A blurry fill is the recipe working.
+4. **Tile destination glyphs across the full field.** A short left-aligned text column hides leftover in the interior and makes the class look like a caption strip. Repeat the line across width and height.
+5. **“Both miss” means white contrast below 4.5 and black contrast below 4.5.** Show the live pair for the current class. If none of the lesson’s classes do that, say so. Do not imply a repair that the live numbers do not need.
+6. **A local backing is a more-opaque plate under the letters.** It is not the Lesson 7.9 outer shadow. Name stronger tint as the other material change. Do not offer blur radius as the contrast repair.
+
 ## Simple-mechanism clarity gate — Lesson 7.3 revision
 
 - For a simple API behavior, state the exact question it answers in one plain sentence before introducing diagrams, formulas, or production integration.

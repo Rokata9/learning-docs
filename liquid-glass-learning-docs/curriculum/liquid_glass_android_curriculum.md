@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 7.12.3
-**Updated:** 2026-08-25
+**Version:** 8.1.0
+**Updated:** 2026-08-26
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
 **Physical test device:** Pixel 8 Pro  
@@ -14,8 +14,8 @@
 - Completed chapters: **1–6**.
 - Chapter 7 is in progress: **11 of 12 lessons complete**.
 - Current unresolved checkpoint: **Lesson 7.12 — Compare backgrounds**.
-- Generated frontier: **Lesson 7.12 — Compare backgrounds**. Lesson 7.12 is generated and is not learner-confirmed complete. Lessons 7.10 and 7.11 are learner-confirmed complete.
-- Next planned lesson after the generated frontier: **Lesson 8.1 — What a shader does**.
+- Generated frontier: **Lesson 8.1 — What a shader does**. Lessons 7.12 and 8.1 are generated and are not learner-confirmed complete. Lessons 7.10 and 7.11 are learner-confirmed complete.
+- Next planned lesson after the generated frontier: **Lesson 8.2 — Create a RuntimeShader**.
 
 ## 2. Course construction principles
 
@@ -442,6 +442,14 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 - The Android grain overlay occupies the noise slot with a low-alpha gray bitmap. The exact per-channel add remains Lesson 7.10.
 - `ComposeLayersExplorer.kt` compares production, shadow-inside-clip, and rim-before-fill.
 - Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `ComposeLayersExplorer.kt`.
+
+**Generated implementation record — Lesson 8.1**
+
+- Generated ahead of unconfirmed Lesson 7.12; not learner-confirmed complete. Completion stays 73 of 216. Checkpoint stays 7.12.
+- Introduces one new mechanism: a pixel function `colorAt(column, row)` runs once per output pixel and stores that color. Same body every call. Only column and row change.
+- Teaching grid is 8×4 so 32 calls are countable. Paint always stores orange `(224, 122, 46)`. Stripe uses column remainder 2; leftover 0 is orange, leftover 1 is navy `(26, 64, 102)`.
+- The browser canvas and `ShaderIdeaExplorer.kt` are CPU loops. They are not `RuntimeShader`, not AGSL, and not `fragCoord`. A shader is this idea when the GPU runs it. Lessons 8.2–8.4 take that next.
+- `MainActivity` defaults to Chapter 7. A chapter switcher opens Chapter 8. Direct previews live in `ShaderIdeaExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
 
 **Generated implementation record — Lesson 7.12**
 

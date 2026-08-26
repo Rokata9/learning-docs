@@ -1,7 +1,7 @@
 # Liquid Glass Android course — implementation handoff
 
-**Updated:** 2026-08-25  
-**Course version:** 7.12.3
+**Updated:** 2026-08-26  
+**Course version:** 8.1.0
 
 ## Read order
 
@@ -23,32 +23,29 @@ learner_confirmed_complete: 73
 completed_through: "Lesson 7.11 — Compose the layers"
 completed_chapters: [1, 2, 3, 4, 5, 6]
 chapter_7_complete: "11 of 12"
+chapter_8_complete: "0 of 12"
 next_unresolved_checkpoint: "Lesson 7.12 — Compare backgrounds"
-generated_frontier: "Lesson 7.12 — Compare backgrounds"
-next_planned_after_frontier: "Lesson 8.1 — What a shader does"
+generated_frontier: "Lesson 8.1 — What a shader does"
+next_planned_after_frontier: "Lesson 8.2 — Create a RuntimeShader"
 ```
 
-Lessons 7.7 through 7.11 are learner-confirmed complete. Lesson 7.12 is generated ahead and is not learner-confirmed complete.
+Lessons 7.7 through 7.11 are learner-confirmed complete. Lessons 7.12 and 8.1 are generated ahead and are not learner-confirmed complete.
 
 ## Generate-ahead note
 
-The checkpoint is 7.12. The uniqueness companion is the canonical +7 proof and also draws ramp-versus-stripe, the 16×16 remainder tile, and a zoomed stored-navy map of leftover 14 next to leftover 5. Do not mark 7.12 complete until the learner confirms.
+The checkpoint is still 7.12. Lesson 8.1 exists as files. Do not mark 7.12 or 8.1 complete until the learner confirms.
 
-Reusable 7.9/7.10 rules are in `AGENTS.md` under “Rounded-shape halo, leaked blur, and 8-bit store gates” and “Teaching-stand-in, labelled-region, and recipe-pattern gate.”
-
-Compact record of the Q&A also lives in `CURRENT_STATE.md` and `~/.grok/memory/learning-docs-0cd75f1a/MEMORY.md`.
-
-## Completed Lesson 7.11
+## Generated-ahead Lesson 8.1
 
 ```text
-slot(ingredient) = (clip membership, effect owner, sibling order)
-wrong clip membership → pixels outside the path are discarded
-wrong sibling order → the later sibling covers the earlier sibling
+pixel function colorAt(column, row)
+→ CPU loop calls it once per output pixel
+→ store that color in the cell
 ```
 
-Does not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the noise store formula. The Android grain overlay occupies the noise slot; the exact per-channel add remains Lesson 7.10.
+A shader is that pixel function when the GPU runs it. This lesson does not create `RuntimeShader`, compile AGSL, or introduce `fragCoord`. Paint always returns orange. Stripe uses column remainder 2. Teaching grid is 8×4.
 
-`ComposeLayersExplorer.kt` compares production slots, shadow-inside-clip, and rim-before-fill.
+`ShaderIdeaExplorer.kt` is the CPU loop. `MainActivity` still defaults to Chapter 7.
 
 ## Generated-ahead Lesson 7.12
 
@@ -60,39 +57,15 @@ destination class
 → pass if ≥ 4.5:1, else fail
 ```
 
-Structure leftover is a second observation. Uniform classes match the blurred GPU color. Photo, text, and gradient numbers are teaching samples, not GPU readbacks. Chapter 7’s frost is still not a lens, a lamp, a shader, or a morph.
+Leftover is remaining destination structure in the fill, not a 4.5 pass and not the sharp rim. A local backing is a plate under the letters, not the 7.9 shadow.
 
-`CompareBackgroundsExplorer.kt` switches photo-like, text, gradient, dark, and light destinations.
+## Future conversation
 
-## Current files to attach in a future conversation
-
-```text
-USER_PREFERENCES.md
-AGENTS.md
-CURRENT_STATE.md
-curriculum/liquid_glass_android_handoff.md
-curriculum/liquid_glass_android_curriculum.md
-course/chapters/chapter-07/lesson-build-convincing-frosted-glass-without-a-custom-lens.html
-course/chapters/chapter-07/lesson-07-07-static-rim.html
-course/chapters/chapter-07/lesson-07-08-inner-highlight.html
-course/chapters/chapter-07/lesson-07-09-outer-shadow.html
-course/chapters/chapter-07/lesson-07-10-fine-noise.html
-course/chapters/chapter-07/lesson-07-10-companion-why-7-gives-unique-remainders.html
-course/chapters/chapter-07/lesson-07-11-compose-the-layers.html
-course/chapters/chapter-07/lesson-07-12-compare-backgrounds.html
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/Chapter07Screen.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/StaticRimExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/InnerHighlightExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/OuterShadowExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/FineNoiseExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/ComposeLayersExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter07/CompareBackgroundsExplorer.kt
-```
+Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions. When the checkpoint or frontier moves, refresh section 12 of `NEW_CHAT_PROMPT.md` after this file.
 
 ## Completion rule
 
-Do not mark Lesson 7.12 complete merely because it was generated or revised. Wait for explicit learner confirmation. Do not generate Lesson 8.1 before 7.12 confirmation unless the learner asks to generate ahead.
+Do not mark Lesson 7.12 or Lesson 8.1 complete merely because they were generated or revised. Wait for explicit learner confirmation. Do not generate Lesson 8.2 unless the learner asks.
 
 ## Standing delivery preferences recorded 2026-08-20
 
