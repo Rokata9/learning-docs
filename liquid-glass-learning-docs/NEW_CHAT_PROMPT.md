@@ -151,15 +151,18 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-08-26 with `CURRENT_STATE.md` (course version 8.5.0).
+**Last aligned:** 2026-08-27 with `CURRENT_STATE.md` (course version 8.9.0).
 
 ```text
-completed: 77 of 216, through Lesson 8.3
-current unresolved checkpoint: Lesson 8.4 — fragCoord
-generated frontier: Lesson 8.5 — Resolution
-next planned lesson after the frontier: Lesson 8.6 — UV coordinates
-Lesson 8.4 is generated ahead and not complete
+completed: 78 of 216, through Lesson 8.4
+current unresolved checkpoint: Lesson 8.5 — Resolution
+generated frontier: Lesson 8.9 — Uniforms
+next planned lesson after the frontier: Lesson 8.10 — Time uniform
 Lesson 8.5 is generated ahead and not complete
+Lesson 8.6 is generated ahead and not complete
+Lesson 8.7 is generated ahead and not complete
+Lesson 8.8 is generated ahead and not complete
+Lesson 8.9 is generated ahead and not complete
 ```
 
 Chapter 7 is complete. Frost constants stay fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
@@ -175,7 +178,7 @@ Chapter 7 is complete. Frost constants stay fixed: blur `18.dp` / `18` CSS px, t
 
 Teaching orange `half4(0.88, 0.48, 0.18, 1.0)` from `(224, 122, 46)`. Teaching navy `half4(0.10, 0.25, 0.40, 1.0)` from `(26, 64, 102)`. Rewriting the string builds a new `RuntimeShader`.
 
-**8.4 checkpoint contract:**
+**8.4 completed contract:**
 
 ```text
 fragCoord float2
@@ -185,7 +188,7 @@ fragCoord float2
 
 Origin is the top-left of the `drawRect` rectangle. y increases downward with Canvas, not GLSL’s lower-left origin. 80 is a pixel count, not half. y is unread. Do not pass width or height. Do not divide position by size. Lesson 8.1’s column is a cell index, not this pixel count.
 
-**8.5 frontier contract:**
+**8.5 checkpoint contract:**
 
 ```text
 DrawScope.size
@@ -194,14 +197,61 @@ DrawScope.size
 → if (fragCoord.x < splitX) orange else navy
 ```
 
-`fragCoord` is this pixel. Resolution is the whole rectangle’s size in pixels. Kotlin writes the slot once per draw. The GPU then calls `main` many times with the same pair. This lesson’s uniform is only resolution. UV (`fragCoord / resolution`) is Lesson 8.6. Other uniforms are Lesson 8.9. Do not generate Lesson 8.6 unless I ask.
+**8.6 generated-ahead contract:**
+
+```text
+uv = fragCoord / resolution
+→ u = x / width, v = y / height
+→ red ramp stores u; four regions read v
+```
+
+Matching members. `uv.x < 0.5` matches 8.5’s half and is not the proof. Last pixel is not exactly 1.
+
+**8.7 generated-ahead contract:**
+
+```text
+scalar = one number
+→ vector = packed group
+→ member = named slot
+→ half 16-bit, float 32-bit
+```
+
+y-split paints orange on the top half. No GPU timing claim.
+
+**8.8 generated-ahead contract:**
+
+```text
+subtract a pair → origin moves
+→ multiply by one number → distances scale, origin stays
+```
+
+After `uv - 0.5`, negative y is the top. Band `−0.25 < p.x < 0.25` shrinks after × 2. Not a circle.
+
+**8.9 frontier contract:**
+
+```text
+uniform float splitU
+→ uniform half4 leftColor
+→ setFloatUniform writes them
+→ mismatch leaves splitU at 0
+```
+
+Resolution is still written. RuntimeShader is not rebuilt. Time is Lesson 8.10. `setColorUniform` is unused. Do not generate Lesson 8.10 unless I ask.
 
 Current files:
 
 ```text
 course/chapters/chapter-08/lesson-08-04-fragcoord.html
 course/chapters/chapter-08/lesson-08-05-resolution.html
+course/chapters/chapter-08/lesson-08-06-uv-coordinates.html
+course/chapters/chapter-08/lesson-08-07-scalars-and-vectors.html
+course/chapters/chapter-08/lesson-08-08-vector-arithmetic.html
+course/chapters/chapter-08/lesson-08-09-uniforms.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/FragCoordExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/ResolutionShaderExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/UvShaderExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/ScalarVectorExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/VectorArithmeticExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/UniformsExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/Chapter08Screen.kt
 ```
