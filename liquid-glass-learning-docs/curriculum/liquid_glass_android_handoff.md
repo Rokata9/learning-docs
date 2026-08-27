@@ -1,7 +1,7 @@
 # Liquid Glass Android course — implementation handoff
 
 **Updated:** 2026-08-27  
-**Course version:** 8.9.0
+**Course version:** 8.10.0
 
 ## Read order
 
@@ -19,21 +19,21 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 78
-completed_through: "Lesson 8.4 — fragCoord"
+learner_confirmed_complete: 82
+completed_through: "Lesson 8.8 — Vector arithmetic"
 completed_chapters: [1, 2, 3, 4, 5, 6, 7]
 chapter_7_complete: "12 of 12"
-chapter_8_complete: "4 of 12"
-next_unresolved_checkpoint: "Lesson 8.5 — Resolution"
-generated_frontier: "Lesson 8.9 — Uniforms"
-next_planned_after_frontier: "Lesson 8.10 — Time uniform"
+chapter_8_complete: "8 of 12"
+next_unresolved_checkpoint: "Lesson 8.9 — Uniforms"
+generated_frontier: "Lesson 8.10 — Time uniform"
+next_planned_after_frontier: "Lesson 8.11 — clamp, mix, and smoothstep"
 ```
 
-Lessons 8.2, 8.3, and 8.4 are learner-confirmed complete. Lessons 8.5 through 8.9 are generated ahead and are not learner-confirmed complete.
+Lessons 8.2 through 8.8 are learner-confirmed complete. Lessons 8.9 and 8.10 are generated ahead and are not learner-confirmed complete.
 
 ## Generate-ahead note
 
-The checkpoint is 8.5. Lessons 8.5 through 8.9 exist as files. Do not mark 8.5 through 8.9 complete until the learner confirms.
+The checkpoint is 8.9. Lessons 8.9 and 8.10 exist as files. Do not mark 8.9 complete until the learner confirms. Generating 8.10 does not complete 8.9.
 
 ## Completed Lesson 8.2
 
@@ -67,7 +67,7 @@ fragCoord float2
 
 Origin is the top-left of the `drawRect` rectangle. y increases downward with Canvas, not GLSL’s lower-left origin. 80 is a pixel count, not half. y is unread. Resolution is not passed.
 
-## Generated-ahead Lesson 8.5
+## Completed Lesson 8.5
 
 ```text
 DrawScope.size
@@ -78,7 +78,7 @@ DrawScope.size
 
 `fragCoord` is this pixel. Resolution is the whole rectangle’s size. Kotlin writes the slot once per draw. The GPU then calls `main` many times with the same pair. UV (`fragCoord / resolution`) is Lesson 8.6. Other uniforms are Lesson 8.9.
 
-## Generated-ahead Lesson 8.6
+## Completed Lesson 8.6
 
 ```text
 uv = fragCoord / resolution
@@ -89,7 +89,7 @@ uv = fragCoord / resolution
 
 Matching members. `uv.x < 0.5` matches 8.5’s half split and is not the proof. Last pixel is not exactly 1. Not a texture sample.
 
-## Generated-ahead Lesson 8.7
+## Completed Lesson 8.7
 
 ```text
 scalar = one number
@@ -100,15 +100,15 @@ scalar = one number
 
 y-split paints orange on the top half. No GPU timing claim.
 
-## Generated-ahead Lesson 8.8
+## Completed Lesson 8.8
 
 ```text
-origin of a pair = where both numbers are 0
-→ subtract moves the origin
-→ multiply by one number scales distances from it
+UV answers from the top-left
+→ p = uv - 0.5 answers from the middle
+→ × 2 puts edges near ±1; 1 = one half-width
 ```
 
-After `uv - 0.5`, negative y is the top. The band `−0.25 < p.x < 0.25` shrinks after × 2. Not a circle.
+0.5 is the UV of the visual center. Subtract is required. × 2 is a convention. After × 2 the span of `p.x` is about 2, so the same `if` covers less of the rectangle. That shrink previews Lesson 9.9. Chapter 9 circle / center-scale / sample offset consume `p`.
 
 ## Generated-ahead Lesson 8.9
 
@@ -121,17 +121,33 @@ uniform float splitU
 
 Resolution is still written. RuntimeShader is not rebuilt. Time is Lesson 8.10. `setColorUniform` is unused.
 
+## Generated-ahead Lesson 8.10
+
+```text
+withFrameNanos elapsed seconds
+→ trips = elapsedSeconds / 4.0
+→ setFloatUniform("time", trips)
+→ stripe = fract(uv.x - time)
+→ return half4(stripe, 0, 0, 1)
+```
+
+A trip is one left-to-right crossing of the black edge (stored red = 0). `SecondsPerTrip = 4` is a teaching duration. `fract(x) = x - floor(x)`. Pause freezes the slot. mix / smoothstep / sine are unused. Preview freezes at 0.25 trips.
+
 ## Future conversation
 
 Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions. When the checkpoint or frontier moves, refresh section 12 of `NEW_CHAT_PROMPT.md` after this file.
 
 ## Completion rule
 
-Do not mark Lessons 8.5 through 8.9 complete merely because they were generated or revised. Wait for explicit learner confirmation. Do not generate Lesson 8.10 unless the learner asks.
+Do not mark Lesson 8.9 complete merely because 8.10 was generated. Wait for explicit learner confirmation. Do not generate Lesson 8.11 unless the learner asks.
+
+## Pair-origin remap — Lesson 8.8 clarification (2026-08-27)
+
+The learner then asked why the lesson exists: why remap, and why increase the span from ~1 to ~2 with × 2. UV answers “from the top-left.” `p` answers “from the middle.” Subtract 0.5 is required. × 2 is the convention that puts the edges at ±1 so 1 means one half-width. The smaller stripe is the 1D preview of Lesson 9.9. Name Chapter 9’s circle, center-scale, and sample offsets as the consumers. Do not leave the arithmetic unmotivated.
 
 ## Standing delivery preferences recorded 2026-08-20
 
 - Do not generate `.zip` files. The learner works from the repositories.
 - When a preview wrapper has both themes, put the dark `@Preview` annotation first, then light. Prospective only.
 
-Course progress: 78 of 216 lessons completed.
+Course progress: 82 of 216 lessons completed.

@@ -151,18 +151,14 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-08-27 with `CURRENT_STATE.md` (course version 8.9.0).
+**Last aligned:** 2026-08-27 with `CURRENT_STATE.md` (course version 8.10.0).
 
 ```text
-completed: 78 of 216, through Lesson 8.4
-current unresolved checkpoint: Lesson 8.5 — Resolution
-generated frontier: Lesson 8.9 — Uniforms
-next planned lesson after the frontier: Lesson 8.10 — Time uniform
-Lesson 8.5 is generated ahead and not complete
-Lesson 8.6 is generated ahead and not complete
-Lesson 8.7 is generated ahead and not complete
-Lesson 8.8 is generated ahead and not complete
-Lesson 8.9 is generated ahead and not complete
+completed: 82 of 216, through Lesson 8.8
+current unresolved checkpoint: Lesson 8.9 — Uniforms
+generated frontier: Lesson 8.10 — Time uniform
+next planned lesson after the frontier: Lesson 8.11 — clamp, mix, and smoothstep
+Lesson 8.9 and Lesson 8.10 are generated ahead and not complete
 ```
 
 Chapter 7 is complete. Frost constants stay fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
@@ -188,7 +184,7 @@ fragCoord float2
 
 Origin is the top-left of the `drawRect` rectangle. y increases downward with Canvas, not GLSL’s lower-left origin. 80 is a pixel count, not half. y is unread. Do not pass width or height. Do not divide position by size. Lesson 8.1’s column is a cell index, not this pixel count.
 
-**8.5 checkpoint contract:**
+**8.5 completed contract:**
 
 ```text
 DrawScope.size
@@ -197,7 +193,9 @@ DrawScope.size
 → if (fragCoord.x < splitX) orange else navy
 ```
 
-**8.6 generated-ahead contract:**
+`fragCoord` is this pixel. Resolution is the whole rectangle’s size. Kotlin writes the slot once per draw. UV is Lesson 8.6.
+
+**8.6 completed contract:**
 
 ```text
 uv = fragCoord / resolution
@@ -207,7 +205,7 @@ uv = fragCoord / resolution
 
 Matching members. `uv.x < 0.5` matches 8.5’s half and is not the proof. Last pixel is not exactly 1.
 
-**8.7 generated-ahead contract:**
+**8.7 completed contract:**
 
 ```text
 scalar = one number
@@ -218,16 +216,18 @@ scalar = one number
 
 y-split paints orange on the top half. No GPU timing claim.
 
-**8.8 generated-ahead contract:**
+**8.8 completed contract:**
 
 ```text
-subtract a pair → origin moves
-→ multiply by one number → distances scale, origin stays
+UV answers from the top-left
+→ p = uv - 0.5 answers from the middle
+→ × 2 is the convention that puts edges near ±1
+→ 1 means one half-width
 ```
 
-After `uv - 0.5`, negative y is the top. Band `−0.25 < p.x < 0.25` shrinks after × 2. Not a circle.
+0.5 is the UV of the visual center, not random. Subtract is required. × 2 is not required to center. After × 2 the span of `p.x` is about 2, so the same `if` covers less of the rectangle. Chapter 9 circle / center-scale / sample offset consume `p`. Canvas stays put.
 
-**8.9 frontier contract:**
+**8.9 checkpoint contract:**
 
 ```text
 uniform float splitU
@@ -236,22 +236,28 @@ uniform float splitU
 → mismatch leaves splitU at 0
 ```
 
-Resolution is still written. RuntimeShader is not rebuilt. Time is Lesson 8.10. `setColorUniform` is unused. Do not generate Lesson 8.10 unless I ask.
+Resolution is still written. RuntimeShader is not rebuilt. Time is Lesson 8.10. `setColorUniform` is unused.
+
+**8.10 frontier contract:**
+
+```text
+withFrameNanos elapsed seconds
+→ trips = elapsedSeconds / 4.0
+→ setFloatUniform("time", trips)
+→ stripe = fract(uv.x - time)
+→ return half4(stripe, 0, 0, 1)
+```
+
+A trip is one left-to-right crossing of the black edge (stored red = 0). `SecondsPerTrip = 4` is a teaching duration. `fract(x) = x - floor(x)`. Pause freezes the slot. mix / smoothstep / sine are unused. Preview freezes at 0.25 trips. Do not generate Lesson 8.11 unless I ask.
 
 Current files:
 
 ```text
-course/chapters/chapter-08/lesson-08-04-fragcoord.html
-course/chapters/chapter-08/lesson-08-05-resolution.html
-course/chapters/chapter-08/lesson-08-06-uv-coordinates.html
-course/chapters/chapter-08/lesson-08-07-scalars-and-vectors.html
 course/chapters/chapter-08/lesson-08-08-vector-arithmetic.html
 course/chapters/chapter-08/lesson-08-09-uniforms.html
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/FragCoordExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/ResolutionShaderExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/UvShaderExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/ScalarVectorExplorer.kt
+course/chapters/chapter-08/lesson-08-10-time-uniform.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/VectorArithmeticExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/UniformsExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/TimeUniformExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/Chapter08Screen.kt
 ```

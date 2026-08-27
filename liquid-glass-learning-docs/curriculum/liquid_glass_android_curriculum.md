@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 8.9.0
+**Version:** 8.10.0
 **Updated:** 2026-08-27
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
@@ -9,14 +9,14 @@
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **78 of 216**.
-- Completed through: **Lesson 8.4 — fragCoord**.
+- Learner-confirmed complete: **82 of 216**.
+- Completed through: **Lesson 8.8 — Vector arithmetic**.
 - Completed chapters: **1–7**.
 - Chapter 7 is complete: **12 of 12**.
-- Chapter 8 is in progress: **4 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 8.5 — Resolution**.
-- Generated frontier: **Lesson 8.9 — Uniforms**. Lessons 8.5 through 8.9 are generated and are not learner-confirmed complete. Lessons 8.2, 8.3, and 8.4 are learner-confirmed complete.
-- Next planned lesson after the generated frontier: **Lesson 8.10 — Time uniform**.
+- Chapter 8 is in progress: **8 of 12 lessons complete**.
+- Current unresolved checkpoint: **Lesson 8.9 — Uniforms**.
+- Generated frontier: **Lesson 8.10 — Time uniform**. Lessons 8.9 and 8.10 are generated and are not learner-confirmed complete. Lessons 8.2 through 8.8 are learner-confirmed complete.
+- Next planned lesson after the generated frontier: **Lesson 8.11 — clamp, mix, and smoothstep**.
 
 ## 2. Course construction principles
 
@@ -485,41 +485,49 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 - Origin is the top-left of that rectangle. y increases downward with Canvas. 80 is a pixel count, not half. y is unread. Resolution is not passed.
 - `FragCoordExplorer.kt` compares the unread 8.3 program with the 8.4 read. The overlay line is 80 Canvas pixels. Direct previews live in `FragCoordExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
 
-**Generated implementation record — Lesson 8.5**
+**Completed implementation record — Lesson 8.5**
 
-- Generated ahead of unconfirmed Lesson 8.5; not learner-confirmed complete.
+- Learner-confirmed complete; the completed total advances to 79 of 216.
 - Introduces one new mechanism: Kotlin writes the draw rectangle’s pixel width and height into `uniform float2 resolution` with `setFloatUniform`. `splitX = resolution.x / 2.0` follows Canvas size without rebuilding `RuntimeShader`.
 - `fragCoord` is this pixel. Resolution is the whole rectangle’s size. The slot is written once per draw, then the GPU calls `main` many times with the same pair. UV is Lesson 8.6. Other uniforms are Lesson 8.9.
 - `ResolutionShaderExplorer.kt` compares the 8.5 half-split with the 8.4 leftover of 80 px at 240.dp and 360.dp. Direct previews live in `ResolutionShaderExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
 
-**Generated implementation record — Lesson 8.6**
+**Completed implementation record — Lesson 8.6**
 
-- Generated ahead of unconfirmed Lesson 8.5; not learner-confirmed complete.
+- Learner-confirmed complete; the completed total advances to 80 of 216.
 - Introduces one new operation: `float2 uv = fragCoord / resolution` is two matching divisions, x / width and y / height. U is the horizontal fraction. V is the vertical fraction. Lesson 2.8 called this a normalized coordinate.
 - `uv.x < 0.5` matches 8.5’s half split and is not the proof. The red ramp stores u as the red channel. The four-region fill reads v. Dividing both members by width is the diagnostic fault.
-- The last pixel is not exactly u = 1. UV is not a texture sample. Types are 8.7. Origin shift is 8.8. Other uniforms are 8.9.
+- The last pixel is not exactly u = 1. UV is not a texture sample. Types are 8.7. Origin remap is 8.8. Other uniforms are 8.9.
 - Direct previews live in `UvShaderExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
 
-**Generated implementation record — Lesson 8.7**
+**Completed implementation record — Lesson 8.7**
 
-- Generated ahead of unconfirmed Lesson 8.5; not learner-confirmed complete.
+- Learner-confirmed complete; the completed total advances to 81 of 216.
 - Introduces named types: a scalar is one number (`float t = uv.x`); a vector is a packed group (`float2`, `half4`); a member is a named slot. `half` is 16-bit. `float` is 32-bit. AGSL’s usual contract is float2 for position and half4 for the store. No GPU timing claim.
 - `.r` is `.x` on a half4. A y-split paints orange on the top half because y increases downward.
 - Direct previews live in `ScalarVectorExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
 
-**Generated implementation record — Lesson 8.8**
+**Completed implementation record — Lesson 8.8**
 
-- Generated ahead of unconfirmed Lesson 8.5; not learner-confirmed complete.
-- Introduces two operations: subtracting a pair moves the origin of that pair; multiplying by one number scales distances from the current origin and does not move it.
-- After `uv - float2(0.5, 0.5)`, (0, 0) is the visual center and negative y is the top. The band `−0.25 < p.x < 0.25` shrinks after × 2. The band is not a circle. Distance is Chapter 9.
+- Learner-confirmed complete; the completed total advances to 82 of 216.
+- Introduces the from-middle numbering: UV answers from the top-left; `p = uv - 0.5` answers from the middle. Subtract is required. × 2 is the convention that puts the edges near ±1 so 1 means one half-width.
+- After × 2 the span of `p.x` is about 2, so the same `if` covers less of the rectangle. That shrink previews Lesson 9.9. Chapter 9 circle / center-scale / sample offset consume `p`. Canvas stays put. Negative y is the top.
 - Direct previews live in `VectorArithmeticExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
 
 **Generated implementation record — Lesson 8.9**
 
-- Generated ahead of unconfirmed Lesson 8.5; not learner-confirmed complete.
+- Generated ahead of unconfirmed Lesson 8.9; not learner-confirmed complete.
 - Introduces uniforms besides resolution: `uniform float splitU` and `uniform half4 leftColor`. Kotlin writes them with `setFloatUniform`. `remember { RuntimeShader }` does not run again. A mismatched Kotlin name leaves `splitU` at 0 and the orange band vanishes.
 - Four-float color writes keep Lesson 8.3’s 0..1 numbers. `setColorUniform` is unused. Time is Lesson 8.10.
 - Direct previews live in `UniformsExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
+
+**Generated implementation record — Lesson 8.10**
+
+- Generated ahead of unconfirmed Lesson 8.9; not learner-confirmed complete. Generating 8.10 does not complete 8.9.
+- Introduces `uniform float time` as a trip count. Kotlin converts elapsed seconds from `withFrameNanos` with `trips = elapsedSeconds / 4.0`. `SecondsPerTrip = 4` is a teaching duration so 0.25 and 0.50 stay readable.
+- AGSL stores `fract(uv.x - time)` as red, so Lesson 8.6’s ramp travels. `fract(x) = x - floor(x)`. Pause freezes the slot. `RuntimeShader` is not rebuilt.
+- mix, smoothstep, and sine are unused. Preview freezes at 0.25 trips.
+- Direct previews live in `TimeUniformExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
 
 **Completed implementation record — Lesson 7.3**
 
@@ -560,9 +568,9 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 5. **8.5 — Resolution.** Tell the shader the drawing width and height.
 6. **8.6 — UV coordinates.** Divide position by resolution to obtain values near `0..1`.
 7. **8.7 — Scalars and vectors.** Learn `float`, `float2`, `half`, and `half4` through visible examples.
-8. **8.8 — Vector arithmetic.** Move, scale, and center coordinates.
+8. **8.8 — Vector arithmetic.** Number the same pixels from the middle. Subtract is required. × 2 puts the edges near ±1.
 9. **8.9 — Uniforms.** Change shader behavior from Kotlin without rewriting the program.
-10. **8.10 — Time uniform.** Animate a simple wave or gradient.
+10. **8.10 — Time uniform.** Write elapsed time into a uniform and travel Lesson 8.6’s red ramp with `fract`.
 11. **8.11 — `clamp`, `mix`, and `smoothstep`.** Use three essential functions with graph previews.
 12. **8.12 — Shader error workflow.** Read compiler errors and reduce a failing shader to its smallest form.
 

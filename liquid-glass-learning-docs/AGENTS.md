@@ -792,7 +792,20 @@ This rule was added after the learner asked what “uniform fields leave a color
 6. Dimension graphics, formulas, controls, and explanatory prose must use the same canonical geometry. Never draw a margin whose direction or amount disagrees with the active calculation.
 
 
+### Pair-origin remap is not a canvas transform — Lesson 8.8 clarification
+
+This rule was added after the learner asked whether “moving origin / center” translates the canvas, then asked what a “fixed window” was, and rejected “distance from 0 means distance from the middle” because the center’s UV is still `(0.5, 0.5)`.
+
+1. **Name the objects that stay put.** When a lesson remaps a coordinate pair, state in the same section that the draw rectangle, Canvas, `drawRect`, and `fragCoord` do not move. The new pair is extra numbers computed from UV. It is not `Canvas.translate` and not a `DrawScope` transform.
+2. **Define origin of a pair as a pixel, not as a moving paper.** The origin of a pair is the pixel whose two numbers in that pair are both 0. Subtracting `(0.5, 0.5)` makes the visual-center pixel’s extra pair `(0, 0)`. It does not slide the rectangle. Do not reuse Lesson 7.4 thumbtack/paper-slide language for this remap. If a diagram draws a cross, say the cross is painted at the pixel whose extra pair is `(0, 0)`.
+3. **Keep UV and the extra pair as two labelled tuples for one pixel.** The visual-center pixel still has `uv = (0.5, 0.5)`. That is the fraction from the top-left. After subtract, that same pixel has `p = (0, 0)`. Do not call `(0.5, 0.5)` a leftover distance. Do not add 0.5 back. Do not write “distance from 0 means distance from the middle.”
+4. **The practical result must be visible in this lesson.** Show a stripe around the visual center, or another test that uses `p` now. Do not open with an undefined Chapter 9 lens as the first sentence.
+5. **State why the lesson exists, as two questions.** UV answers “how far from the top-left?” The extra pair answers “which way from the middle?” 0.5 is the UV of the visual center, not a random number. Name the later consumers after that: Chapter 9 circle in the middle, scale around the center, background-sample offsets, and Chapter 8’s radial checkpoint. Do not leave the arithmetic as an unmotivated remap.
+6. **Separate required subtract from optional × 2.** Subtract puts 0 at the middle. After subtract the left edge is about −0.5 and the span of `p.x` is still about 1. Multiply by 2 maps that edge to about −1, so 1 means one half-width. Confirm the learner’s span observation: after × 2 the numbering covers about 2, so a fixed numeric test covers less of the rectangle. That shrink is the 1D preview of Lesson 9.9. × 2 is not required to center.
+7. **Name the two comparison numbers. Do not say “window.”** Both stripe programs contain `if (p.x > -0.25 && p.x < 0.25)`. Those two numbers stay written in the string. Multiply changes each pixel’s `p.x`. The rectangle size is unchanged. Show one pixel whose `p.x` was `-0.25` and becomes `-0.50`, so it leaves the stripe.
+
 ### Countable two-paper scale teaching gate — Lesson 7.4
+
 
 The 28-state production-dimension walkthrough did not make the two scales understandable. The learner still could not see why a given original region is stored or why that region lands at a given output place. More substitution arithmetic was not the missing piece.
 
