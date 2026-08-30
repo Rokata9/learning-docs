@@ -816,3 +816,42 @@ The 28-state production-dimension walkthrough did not make the two scales unders
 5. Show discarded original pixels as gone before discussing enlargement. State that the second scale cannot restore them.
 6. Present the four pivot combinations as a 2 × 2 of pictures — small-paper contents plus final display — not as four more arithmetic-only states.
 7. A 20-plus-state stepper of full substitution arithmetic is not a substitute for this sequence.
+
+### Exact-root geometry values and square UV rectangle — Lesson 9.1
+
+Recorded when Chapter 9 started. Lessons 8.11 and 8.12 completed without questions. Those lessons stayed clear because one teaching pixel had hand-checkable arithmetic, production was one AGSL path, and comparisons lived in HTML. Reuse that, plus these geometry rules:
+
+1. Draw a right triangle with labelled legs before any square-root formula. Do not open with the words Euclidean, hypotenuse, or Pythagorean theorem. Define square corner, legs, and long side first. Historical names may appear after the arithmetic.
+2. Use teaching values whose squares add to an exact square (3-4-5, or 0.30 / 0.40 / 0.50). The learner must be able to check `sqrt` by multiplying, not by trusting a calculator.
+3. When a UV-space length must match a pixel-space length, the teaching rectangle is square. State that a non-square UV stretch makes one UV step right a different pixel length than one UV step down.
+4. Unsigned `length` is never negative. A minus on a difference is squared away. Signed distance is a later subtract of a radius, not a property of `length`.
+5. Keep two zeros distinct when a later subtract moves the zero: 0 in `p` remains the visual center; 0 in `sd` is the shape boundary.
+
+### Comparison-mode and control-row gate — Lesson 9.1 lab
+
+The lab put two gray-store rules and three pixel-mark buttons in one unlabeled row. Walk-around was named in the lab and explained only in a later section. The learner could not tell what Walk-around gray stored, why its dark region was a diamond, why Straight-line gray stayed dark outside the green circle, or why the last three buttons did not look selected.
+
+1. Before a comparison mode is clickable, state the exact number it stores, at the teaching pixel, and the visible shape of equal-value pixels.
+2. State the gray contract: stored channel = that number, 0 is black, 1 would be white. Name the largest number that actually appears in this rectangle so the learner does not expect white outside an equal-value outline.
+3. Separate “which number is stored” from “which pixel is selected” into two control groups. Each group has its own selected styling. A pixel-mark button must not look like a third store rule.
+4. An equal-value outline is the set of pixels that share the selected pixel’s number. It is not a cutoff after which the picture becomes white. If four lighter corners make a circular dark region look diamond-shaped, say so and point at the outline.
+
+### Nested equal-value gray-field gate — Lesson 9.1
+
+The learner could see that Straight-line gray looked circular and Walk-around gray looked diamond-shaped, but the lesson did not name the nested family of equal-value outlines that produces that spread. The analog of “a smaller-radius circle” for the diamond was unstated. “Diamond” was not reconciled with “a square rotated 45 degrees.”
+
+1. When a lesson stores a scalar as gray across the rectangle, show at least two nested equal-value outlines of that scalar. A smaller stored number is darker. A larger stored number is lighter. The picture is stacked outlines, not one filled blob of a single gray.
+2. Name the analog of radius for each store rule. For `length(p)` the analog is the straight-line length, and equal values form a circle. For `abs(p.x) + abs(p.y)` the analog is that same walk-around number, and equal values form a diamond.
+3. Point at one inner outline in both pictures, using the same stored number when possible (for example 0.25), so the learner can match “smaller circle” to “smaller diamond.”
+4. If a diamond is a square standing on a vertex, say so in the same paragraph: four straight sides join the axis points; on a square teaching rectangle those sides are equal and meet at square corners; the vertices point along the axes, not at the teaching square’s corners. Keep the course word diamond so the outline is not confused with the axis-aligned teaching square.
+5. Confirm a correct learner reading in the same wording the learner used, then add only the missing precision. Do not replace a working picture (“smaller radius is darker”) with a denser synonym.
+
+### Comparison-table leftover and path-naming gate — Lesson 9.1 section 6
+
+Section 6 opened with Lesson 8.11’s “Green cells increased… Stored red is the gray channel.” Those sentences named a color-coding scheme and a red-channel leftover without saying what the table compared. “The straight run cuts the corner” was used instead of naming two paths. Walk-around was repeated across the lesson without stating the question it answers.
+
+1. A comparison table must open by naming the object (one teaching pixel), the candidate operations, and the output in the same units as the store.
+2. Do not write “stored red” when the store is a gray triple. Name the number written into red, green, and blue.
+3. If row cells are colored by increase or decrease, define that coloring in the same paragraph, as a comparison to the row above, not as a quality judgment. Do not copy another lesson’s table legend.
+4. Do not write “cuts the corner” or “straight run.” Name both paths: the two-leg path through the right-angle point, and the one segment that does not visit that point.
+5. If a comparison quantity is named in several sections, one section must state the question it answers, the picture it would paint, and why production does not use it.

@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 9.2 — Circle signed distance field</title>
+<style>
+:root{color-scheme:light;--ink:#172033;--muted:#596579;--line:#d8e0ea;--paper:#fff;--soft:#f5f7fb;--panel:#fbfcfe;--control:#fff;--green:#059669;--green-soft:#ecfdf5;--indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;--blue:#1e40af;--blue-soft:#dbeafe;--red:#dc2626;--red-soft:#fee2e2;--orange:#e07a2e;--navy:#1a4066;--pink:#be185d;--body-start:#f8fafc;--body-end:#edf2f7;--shadow:0 18px 52px rgba(30,41,59,.09);--code:#111827;--code-ink:#e5e7eb}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--body-start),var(--body-end));font:16px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}button,input,textarea{font:inherit}button{cursor:pointer}code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}code{background:var(--indigo-soft);padding:.12em .36em;border-radius:6px;white-space:nowrap}.code-block>code,.code-block code{display:block;background:transparent;color:inherit;padding:0;border-radius:0;white-space:pre-wrap}.page{width:min(2260px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.topbar{display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:22px}.crumbs{color:var(--muted)}.chips{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:850}.chip.progress{color:var(--green);background:var(--green-soft)}.chip.pending{color:var(--amber);background:var(--amber-soft)}.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(480px,.85fr);gap:28px;padding:42px}.eyebrow,.section-no{color:var(--indigo);font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase}h1{margin:.35rem 0 1rem;font-size:clamp(42px,4vw,70px);line-height:1.04;letter-spacing:-.045em}h2{margin:0 0 .7rem;font-size:31px;line-height:1.18}h3{margin:0 0 .5rem;font-size:21px;line-height:1.25}p{max-width:110ch}.lead{font-size:19px;color:var(--muted)}.plain-rule{font-size:clamp(20px,1.8vw,28px);font-weight:950;line-height:1.3;padding:20px;border:2px solid var(--indigo);border-radius:16px;background:var(--indigo-soft)}.section{margin-top:24px;padding:32px}.section-head{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:22px}.section-head p{margin:0;color:var(--muted)}.card{padding:20px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}.card.green{background:var(--green-soft)}.card.blue{background:var(--blue-soft)}.card.amber{background:var(--amber-soft)}.card.indigo{background:var(--indigo-soft)}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.note,.warning{margin-top:18px;padding:16px 18px;border-radius:14px}.note{border-left:5px solid var(--blue);background:var(--blue-soft)}.warning{border-left:5px solid var(--amber);background:var(--amber-soft)}.formula{padding:14px 16px;border-radius:13px;background:var(--indigo-soft);border:1px solid color-mix(in srgb,var(--indigo) 45%,var(--line));font:800 15px/1.64 "SFMono-Regular",Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.btn{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:850;border:1px solid var(--line);background:var(--control);color:var(--ink);text-decoration:none;display:inline-flex;align-items:center}.btn:hover,.btn:focus-visible{border-color:var(--blue);outline:none}.btn.primary{border-color:var(--blue);background:var(--blue);color:#fff}.btn.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.hero-art{min-height:320px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,var(--blue-soft),var(--indigo-soft));padding:22px;display:grid;align-content:center;gap:14px}.hero-pipeline{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;gap:8px;align-items:center}.hero-stage{padding:16px 10px;text-align:center;border-radius:14px;background:var(--paper);border:1px solid var(--line);font-weight:900}.arrow{font-size:28px;color:var(--indigo);font-weight:950}.lab-grid{display:grid;grid-template-columns:minmax(520px,1fr) minmax(420px,.85fr);gap:18px}.canvas-card{padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--panel);min-width:0}.canvas-card canvas{display:block;height:auto;border-radius:11px;border:1px solid var(--line);background:#f8fafc}#labCanvas{background:#0b1220;cursor:crosshair;width:min(400px,100%)}#stepCanvas{width:100%}.canvas-title{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:9px}.canvas-title span,.origin{color:var(--muted);font-size:13px;font-weight:700}.metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:14px}.metric{padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--control)}.metric strong{display:block;color:var(--indigo);margin-bottom:4px}.metric .origin{display:block;margin-bottom:6px}.metric .value{display:block;font-weight:850}.swatch{display:inline-block;width:18px;height:18px;border-radius:4px;border:1px solid var(--line);vertical-align:-3px;margin-right:6px}.lesson-grid{display:grid;grid-template-columns:minmax(860px,1.25fr) minmax(430px,.75fr);gap:18px;align-items:start}.stepper{position:sticky;top:18px;border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden}.step-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}.step-body{padding:18px}.step-title{font-size:22px;font-weight:950}.step-caption{min-height:220px}.step-buttons{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}.step-dot{width:40px;height:40px;padding:0;border-radius:10px;border:1px solid var(--line);background:var(--control);color:var(--ink);font-weight:900}.step-dot.selected{background:var(--indigo);border-color:var(--indigo);color:#fff}.io{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}.io>div{padding:11px;border:1px solid var(--line);border-radius:11px;background:var(--control)}.io strong,.io span{display:block}.code-grid{display:grid;grid-template-columns:minmax(650px,1fr) minmax(500px,.8fr);gap:18px}.code-block{background:var(--code);color:var(--code-ink);border-radius:14px;padding:16px;white-space:pre-wrap;overflow:auto;font:14px/1.62 "SFMono-Regular",Consolas,monospace}.prediction{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.choice{appearance:none;min-height:112px;padding:16px;border:2px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);text-align:left;font-weight:800;line-height:1.5}.choice:hover,.choice:focus-visible{border-color:var(--blue);outline:none}.choice.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.challenge{display:grid;grid-template-columns:minmax(650px,1fr) minmax(500px,.75fr);gap:18px}.editor{width:100%;min-height:300px;resize:vertical;background:var(--code);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace;white-space:pre;overflow:auto}.result{min-height:55px;margin-top:12px;padding:12px;border-radius:11px;background:var(--soft)}details{margin:10px 0;border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:13px 15px}summary{cursor:pointer;font-weight:900}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.check{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}.record{width:100%;min-height:240px;margin-top:12px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);font:14px/1.6 "SFMono-Regular",Consolas,monospace}.footer{margin-top:24px;padding:18px 24px;display:flex;justify-content:space-between;gap:18px;align-items:center}.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-weight:800}.legend i{display:inline-block;width:16px;height:16px;border-radius:4px;border:1px solid var(--line);vertical-align:-3px;margin-right:6px}.formulas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:12px}.trace-table{width:100%;border-collapse:collapse;margin-top:12px;font:800 14px/1.5 "SFMono-Regular",Consolas,monospace}.trace-table th,.trace-table td{border:1px solid var(--line);padding:10px 12px;text-align:left}.trace-table th{background:var(--soft)}.trace-table td.up{background:#ecfdf5}.trace-table td.down{background:#fee2e2}.trace-table td.same{background:#eef2ff}label.range-row{display:grid;grid-template-columns:170px minmax(220px,1fr) 80px;gap:12px;align-items:center;font-weight:850}input[type=range]{width:100%}.number-line{width:100%;height:auto;border:1px solid var(--line);border-radius:16px;background:#f8fafc;display:block}
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-distance-fields-image-sampling-and-refraction.html">Chapter 9</a> · Lesson 9.2 · generated ahead</div>
+    <div class="chips"><span class="chip progress">86 of 216 complete</span><span class="chip pending">Checkpoint 9.1 unresolved</span><span class="chip pending">9.2 generated ahead</span></div>
+  </div>
+
+  <header class="hero panel">
+    <div>
+      <div class="eyebrow">Chapter 9 · Subtract the radius so a minus means inside</div>
+      <h1>Circle signed distance field</h1>
+      <p class="lead"><strong>Question:</strong> Lesson 9.1’s <code>length(p)</code> is never negative. It answers “how far is this pixel from the visual center?” Lesson 4.1 already defined a circle as a center plus a radius: every boundary pixel is one radius from the center. How do you turn that unsigned length into one number that is negative inside the circle, zero on the boundary, and positive outside?</p>
+      <div class="plain-rule">Subtract the radius from Lesson 9.1’s length: <code>sd = length(p) − radius</code>. That result is a <strong>signed distance</strong>: a length that also carries a plus or a minus. This course’s convention: minus means inside, zero means on the boundary, plus means outside. A <strong>signed distance field</strong> is that number computed at every pixel. Production then stores orange when <code>sd &lt; 0</code> and navy otherwise.</div>
+      <div class="note"><strong>Generated ahead.</strong> Lesson 9.1 remains the unresolved checkpoint. This page is a JavaScript stand-in. The Android explorer compiles the subtract and the <code>if</code>. Default radius is 0.25. Teaching pixel <code>p = (0.30, −0.40)</code> still has <code>d = 0.50</code>, so <code>sd = +0.25</code> (outside). <code>smoothstep</code> is unused. The inside/outside cut is still a hard <code>if</code>.</div>
+    </div>
+    <div class="hero-art" aria-label="length minus radius becomes a signed distance">
+      <div class="hero-pipeline">
+        <div class="hero-stage">d = length(p)<br>always ≥ 0</div><div class="arrow">→</div>
+        <div class="hero-stage">subtract<br>radius 0.25</div><div class="arrow">→</div>
+        <div class="hero-stage">sd = +0.25<br>outside</div><div class="arrow">→</div>
+        <div class="hero-stage">if sd &lt; 0<br>orange else navy</div>
+      </div>
+      <p style="margin:0;font-weight:800">Canonical wording: <a href="../../glossary.html#signed-distance">signed distance</a>, <a href="../../glossary.html#signed-distance-field">signed distance field</a>, <a href="../../glossary.html#length">length</a>, <a href="../../glossary.html#straight-line-distance">straight-line distance</a>.</p>
+    </div>
+  </header>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">1 · THE NEW QUESTION</div><h2>Unsigned length cannot say inside or outside by itself.</h2></div></div>
+    <div class="four">
+      <article class="card blue"><h3>9.1 leftover</h3><p>The teaching pixel has <code>p = (0.30, −0.40)</code> and <code>d = 0.50</code>. That 0.50 is how far the pixel is from the visual center. It is the long side of the right triangle. It has no minus.</p></article>
+      <article class="card indigo"><h3>4.1 leftover</h3><p>A circle’s boundary is every pixel whose straight-line length from the center equals the radius. Inside, that length is smaller than the radius. Outside, it is larger. Lesson 4.1 used a horizontal radius handle. This lesson uses 9.1’s length in every direction.</p></article>
+      <article class="card green"><h3>New subtract</h3><p>Default radius is 0.25. That is half of the teaching 0.50, so the teaching pixel sits one radius beyond the boundary. <code>sd = 0.50 − 0.25 = +0.25</code>. The plus is the new information: outside.</p></article>
+      <article class="card amber"><h3>Not a soft edge</h3><p>Production uses a hard <code>if (sd &lt; 0.0)</code>, the Lesson 8.4-style cut, now on this new number. Lesson 9.3 will feed <code>sd</code> into <code>smoothstep</code>. This lesson keeps the cut so you can see the sign without a blend.</p></article>
+    </div>
+    <div class="formulas">
+      <div class="formula">d  = length(p)           ← Lesson 9.1, never negative
+sd = d − radius          ← this lesson
+  ← radius = 0.25 unless the slider moves it
+  ← teaching pixel: 0.50 − 0.25 = +0.25  (outside)
+  ← center:         0.00 − 0.25 = −0.25  (inside)
+  ← boundary:       0.25 − 0.25 =  0.00</div>
+      <div class="formula">This course’s sign convention:
+  sd &lt; 0   inside the circle
+  sd = 0   on the boundary
+  sd &gt; 0   outside the circle
+
+The opposite convention would also work if every later lesson used it.
+This course keeps minus = inside.</div>
+    </div>
+  </section>
+
+  <section class="section panel" id="line">
+    <div class="section-head"><div><div class="section-no">2 · ONE NUMBER LINE</div><h2>The same subtract, shown as a line of numbers</h2></div><p>The teaching pixel does not move. Radius stays 0.25 on this picture. Three named pixels sit on the line. The zero mark is the circle boundary, not the visual center.</p></div>
+    <svg class="number-line" viewBox="0 0 1180 220" role="img" aria-label="Signed-distance number line from inside to outside">
+      <text x="28" y="36" fill="#172033" font-size="20" font-weight="800">sd = d − 0.25. Zero is the boundary. The visual center is at −0.25, not at zero.</text>
+      <line x1="80" y1="120" x2="1100" y2="120" stroke="#172033" stroke-width="4"/>
+      <polygon points="1100,120 1074,108 1074,132" fill="#172033"/>
+      <!-- ticks: -0.25, 0, +0.25 -->
+      <line x1="280" y1="104" x2="280" y2="136" stroke="#e07a2e" stroke-width="4"/>
+      <line x1="590" y1="100" x2="590" y2="140" stroke="#059669" stroke-width="5"/>
+      <line x1="900" y1="104" x2="900" y2="136" stroke="#1a4066" stroke-width="4"/>
+      <circle cx="280" cy="120" r="12" fill="#e07a2e"/>
+      <circle cx="590" cy="120" r="12" fill="#059669"/>
+      <circle cx="900" cy="120" r="12" fill="#1a4066"/>
+      <text x="280" y="84" text-anchor="middle" fill="#e07a2e" font-size="16" font-weight="800">center · sd = −0.25</text>
+      <text x="590" y="80" text-anchor="middle" fill="#059669" font-size="16" font-weight="800">boundary · sd = 0</text>
+      <text x="900" y="84" text-anchor="middle" fill="#1a4066" font-size="16" font-weight="800">teaching pixel · sd = +0.25</text>
+      <text x="280" y="176" text-anchor="middle" fill="#172033" font-size="15" font-weight="800">d = 0, inside</text>
+      <text x="590" y="176" text-anchor="middle" fill="#172033" font-size="15" font-weight="800">d = 0.25 = radius</text>
+      <text x="900" y="176" text-anchor="middle" fill="#172033" font-size="15" font-weight="800">d = 0.50, outside</text>
+      <text x="80" y="208" fill="#e07a2e" font-size="15" font-weight="800">minus = inside</text>
+      <text x="980" y="208" fill="#1a4066" font-size="15" font-weight="800">plus = outside</text>
+    </svg>
+    <div class="three" style="margin-top:16px">
+      <article class="card green">
+        <h3>Center</h3>
+        <p><code>p = (0, 0)</code>. Lesson 9.1’s length is 0: the pixel is the origin of <code>p</code>. Subtract 0.25 and you get −0.25. The minus says inside. The 0.25 says how far inside: one full default radius from the boundary toward the center.</p>
+      </article>
+      <article class="card indigo">
+        <h3>Boundary pixel</h3>
+        <p><code>p = (0.15, −0.20)</code> is the 3-4-5 triangle again, scaled so the long side is 0.25. <code>0.15 × 0.15 + 0.20 × 0.20 = 0.0225 + 0.0400 = 0.0625</code>, and <code>0.25 × 0.25 = 0.0625</code>. Then <code>sd = 0.25 − 0.25 = 0</code>.</p>
+      </article>
+      <article class="card amber">
+        <h3>Teaching pixel</h3>
+        <p>Still <code>p = (0.30, −0.40)</code>, <code>d = 0.50</code>. <code>sd = +0.25</code>. The plus says outside. The 0.25 says how far outside: the pixel is as far beyond the boundary as the center is inside it.</p>
+      </article>
+    </div>
+    <div class="warning"><strong>Zero moved.</strong> In Lesson 8.8 and Lesson 9.1, 0 in <code>p</code> was the visual center. In <code>sd</code>, 0 is the circle boundary. The center’s <code>p</code> is still <code>(0, 0)</code>. The center’s <code>sd</code> is <code>−radius</code>, not 0. Those are two different zeros for two different numbers on the same pixel.</div>
+  </section>
+
+  <section class="section panel" id="lab">
+    <div class="section-head"><div><div class="section-no">3 · INTERACTIVE LAB</div><h2>One production cut, and a comparison that keeps the magnitude</h2></div><p>Hard cut is production: orange inside, navy outside. Field view is a comparison picture that still paints orange-ish for minus and navy-ish for plus, but fades with <code>|sd|</code> so you can see how far from the boundary. Walk-around subtract is a diagnostic diamond, not a circle. The displayed AGSL string stays the hard cut.</p></div>
+    <div class="controls" role="group" aria-label="Store rule">
+      <button class="btn mode-btn selected" data-mode="hard">Hard if (production)</button>
+      <button class="btn mode-btn" data-mode="field">Signed-field view</button>
+      <button class="btn mode-btn" data-mode="diamond">Walk-around diamond</button>
+      <button class="btn" id="markTeaching">Mark teaching outside</button>
+      <button class="btn" id="markCenter">Mark center</button>
+      <button class="btn" id="markBound">Mark boundary p = (0.15, −0.20)</button>
+    </div>
+    <label class="range-row" style="margin-top:12px"><span>radius (p units)</span><input id="radiusRange" type="range" min="0.05" max="0.70" step="0.01" value="0.25"><span class="mono" id="radiusValue">0.25</span></label>
+    <div class="metrics">
+      <div class="metric"><strong>p</strong><span class="origin">uv − 0.5</span><span class="value" id="pMetric"></span></div>
+      <div class="metric"><strong>d = length(p)</strong><span class="origin">Lesson 9.1 leftover</span><span class="value" id="dMetric"></span></div>
+      <div class="metric"><strong>radius</strong><span class="origin">uniform</span><span class="value" id="rMetric"></span></div>
+      <div class="metric"><strong>sd = d − radius</strong><span class="origin">this lesson</span><span class="value" id="sdMetric"></span></div>
+      <div class="metric"><strong>region</strong><span class="origin">from the sign</span><span class="value" id="regionMetric"></span></div>
+      <div class="metric"><strong>Store</strong><span class="origin">this pixel half4</span><span class="value" id="retMetric"></span></div>
+    </div>
+    <div class="lab-grid" style="margin-top:14px">
+      <article class="canvas-card">
+        <div class="canvas-title"><strong>Draw rectangle 400 × 400</strong><span>click a pixel · green = boundary</span></div>
+        <canvas id="labCanvas" width="400" height="400" aria-label="Circle signed distance teaching rectangle"></canvas>
+        <p id="labCaption"></p>
+        <div class="legend">
+          <span><i style="background:#e07a2e"></i>inside orange</span>
+          <span><i style="background:#1a4066"></i>outside navy</span>
+          <span><i style="background:#059669"></i>boundary circle</span>
+          <span><i style="background:#4338ca"></i>teaching pixel</span>
+        </div>
+      </article>
+      <article class="canvas-card">
+        <div class="canvas-title"><strong>AGSL string</strong><span>Hard if is the production route</span></div>
+        <pre class="code-block" id="labCode"></pre>
+        <div class="formula" id="liveFormula" style="margin-top:12px"></div>
+        <p id="labCodeCaption" style="margin-top:10px"></p>
+      </article>
+    </div>
+    <div class="note"><strong>Browser versus Android.</strong> This page paints with JavaScript copies of <code>length</code> and the subtract. Android compiles those names. The radius slider is a uniform write. <code>RuntimeShader</code> is not rebuilt. Neither measures GPU frame time.</div>
+  </section>
+
+  <section class="section panel" id="why">
+    <div class="section-head"><div><div class="section-no">4 · WHY SUBTRACT, NOT COMPARE ONLY</div><h2>The sign answers inside or outside. The size still has a later job.</h2></div></div>
+    <div class="two">
+      <article class="card green">
+        <h3>A yes/no test would discard the size</h3>
+        <p><code>if (d &lt; radius)</code> already paints a filled circle. That test is enough for a hard silhouette. This lesson still writes <code>sd = d − radius</code> first, then tests <code>sd &lt; 0</code>, which is the same cut. The extra number is the reason for writing the subtract: at the teaching pixel you keep +0.25, not only the word “outside.”</p>
+        <p>Lesson 9.3 will need that size. A soft band around a boundary is a few pixels on both sides of <code>sd = 0</code>. A yes/no value cannot say “0.02 past the boundary.”</p>
+      </article>
+      <article class="card indigo">
+        <h3>If radius increases, sd decreases</h3>
+        <p>Keep the teaching pixel fixed. Its <code>d</code> stays 0.50. If radius moves from 0.25 to 0.60, then <code>sd</code> moves from +0.25 to −0.10. The number decreased. It crossed zero. The pixel became inside. That is the directional proof: larger radius, smaller <code>sd</code>, same pixel.</p>
+        <div class="formula">d stays 0.50
+radius 0.25 → sd = +0.25  (outside, navy)
+radius 0.50 → sd =  0.00  (boundary)
+radius 0.60 → sd = −0.10  (inside, orange)</div>
+      </article>
+    </div>
+    <div class="warning"><strong>Walk-around diamond.</strong> If you subtract radius from <code>abs(p.x) + abs(p.y)</code> instead of from <code>length(p)</code>, equal-zero pixels form a diamond, not a circle. That is Lesson 9.1’s walk-around leftover applied to this subtract. Production uses <code>length</code>. The diamond button exists only so you can see the wrong shape.</div>
+  </section>
+
+  <section class="section panel" id="trace">
+    <div class="section-head"><div><div class="section-no">5 · THREE PIXELS, ONE RADIUS</div><h2>radius = 0.25. d comes from Lesson 9.1. sd is new.</h2></div></div>
+    <p>Green cells increased from the previous row. Red cells decreased. Indigo cells stayed the same. Stored color is the hard-cut production store.</p>
+    <table class="trace-table">
+      <thead>
+        <tr><th>pixel</th><th>d = length(p)</th><th>sd = d − 0.25</th><th>sign</th><th>store</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>center p = (0, 0)</td><td>0.00</td><td class="down">−0.25</td><td>minus / inside</td><td>orange</td></tr>
+        <tr><td>boundary p = (0.15, −0.20)</td><td class="up">0.25</td><td class="up">0.00</td><td>zero / boundary</td><td>navy (sd &lt; 0 is false)</td></tr>
+        <tr><td>teaching p = (0.30, −0.40)</td><td class="up">0.50</td><td class="up">+0.25</td><td>plus / outside</td><td>navy</td></tr>
+      </tbody>
+    </table>
+    <div class="two" style="margin-top:16px">
+      <article class="card">
+        <h3>Boundary is navy in this if</h3>
+        <p><code>if (sd &lt; 0.0)</code> is false at exactly 0, so the boundary stores navy with the outside. A later soft band will cover both sides of zero. Exact 0 is one pixel-wide in theory and rarely hit in a 400-wide raster. The green overlay circle is drawn by JavaScript at radius 0.25 so you can see the intended boundary even when no pixel lands on 0.</p>
+      </article>
+      <article class="card indigo">
+        <h3>Who consumes this next</h3>
+        <p>Lesson 9.3 will pass a distance-to-boundary into <code>smoothstep</code>, the way Lesson 8.11 passed <code>uv.x</code>. The input will be this <code>sd</code>, not <code>uv.x</code>. This lesson stops at the hard cut so the sign is visible as orange versus navy.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section panel" id="stepper">
+    <div class="section-head"><div><div class="section-no">6 · TEN STEPS</div><h2>From unsigned length to a signed inside/outside number</h2></div><p>Direct buttons are shown because there are ten or fewer states. The lab slider does not drive this stepper. Radius stays 0.25 except the step that grows it to 0.60. The teaching pixel stays <code>p = (0.30, −0.40)</code> unless a step names the center or the boundary pixel.</p></div>
+    <div class="lesson-grid">
+      <article class="canvas-card">
+        <div class="canvas-title"><strong>Current step</strong><span id="stepGridLabel">Step 1 of 10</span></div>
+        <canvas id="stepCanvas" width="960" height="460" aria-label="Stepper signed distance diagram"></canvas>
+      </article>
+      <aside class="stepper">
+        <div class="step-head"><button class="btn" id="stepPrev">Previous</button><strong id="stepCounter">Step 1 of 10</strong><button class="btn primary" id="stepNext">Next</button></div>
+        <div class="step-body">
+          <div class="step-title" id="stepTitle"></div>
+          <div class="step-caption" id="stepCaption"></div>
+          <div class="formula" id="stepRule"></div>
+          <div class="io">
+            <div><strong>Input</strong><span id="stepInput"></span></div>
+            <div><strong>Operation</strong><span id="stepOperation"></span></div>
+            <div><strong>Output</strong><span id="stepOutput"></span></div>
+          </div>
+          <div class="step-buttons" id="stepButtons"></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">7 · ANDROID ROUTE</div><h2>One radius uniform, one subtract, one if</h2></div></div>
+    <div class="code-grid">
+      <pre class="code-block"><code>private const val PanelSizeDp = 360
+private const val DefaultRadius = 0.25f
+private const val TeachPx = 0.30f
+private const val TeachPy = -0.40f
+
+private const val CircleAgsl = """
+uniform float2 resolution;
+uniform float radius;
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / resolution;
+    float2 p = uv - float2(0.5, 0.5);
+    float d = length(p);
+    float sd = d - radius;
+    half4 navy = half4(0.10, 0.25, 0.40, 1.0);
+    half4 orange = half4(0.88, 0.48, 0.18, 1.0);
+    if (sd &lt; 0.0) {
+        return orange;
+    }
+    return navy;
+}
+"""
+
+val shader = remember { RuntimeShader(CircleAgsl) }
+
+Canvas(...) {
+    shader.setFloatUniform("resolution", size.width, size.height)
+    shader.setFloatUniform("radius", radius)
+    drawRect(brush = brush)
+}</code></pre>
+      <div class="card">
+        <h3>What each part changes</h3>
+        <p><code>remember { RuntimeShader(CircleAgsl) }</code> compiles once. Moving the radius slider only writes the <code>radius</code> uniform. That is Lesson 8.9’s slot write.</p>
+        <p><code>DefaultRadius = 0.25</code> is the teaching radius so the teaching pixel’s <code>sd</code> is exactly +0.25. <code>PanelSizeDp = 360</code> stays square for the same UV reason as Lesson 9.1.</p>
+        <p>At the teaching pixel, Kotlin prints <code>d = 0.50</code> and <code>sd = 0.50 − radius</code> using the same arithmetic as the HTML table. The overlay circle is Compose drawing, not a second shader.</p>
+        <p>Field view and diamond comparison live in the HTML lab. The Android production route is the hard <code>if</code> only.</p>
+        <p><strong>Android files:</strong><br><code>chapter09/CircleSdfExplorer.kt</code><br><code>chapter09/Chapter09Screen.kt</code></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel" id="predict">
+    <div class="section-head"><div><div class="section-no">8 · PREDICTION</div><h2>Teaching pixel d = 0.50, radius = 0.25. What is sd, and which color?</h2></div></div>
+    <p>Production is <code>sd = length(p) − radius</code>, then <code>if (sd &lt; 0.0) orange else navy</code>.</p>
+    <div class="prediction">
+      <button class="choice" data-answer="wrong-inside">sd = −0.25 and orange, because 0.25 is smaller than 0.50 so the pixel must be inside.</button>
+      <button class="choice" data-answer="wrong-add">sd = 0.75 and navy, because you add the radius to the length.</button>
+      <button class="choice" data-answer="correct">sd = +0.25 and navy, because 0.50 − 0.25 is positive, so the pixel is outside.</button>
+    </div>
+    <div class="result" id="predictionResult">Choose one answer.</div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">9 · CODING CHALLENGE</div><h2>Subtract the radius, then test the sign</h2></div></div>
+    <div class="challenge">
+      <div>
+        <textarea class="editor" id="challengeEditor" spellcheck="false">uniform float2 resolution;
+uniform float radius;
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / resolution;
+    float2 p = uv - float2(0.5, 0.5);
+    float d = length(p);
+    float sd = d ___ radius;
+    half4 navy = half4(0.10, 0.25, 0.40, 1.0);
+    half4 orange = half4(0.88, 0.48, 0.18, 1.0);
+    if (___ &lt; 0.0) {
+        return orange;
+    }
+    return navy;
+}</textarea>
+        <div class="controls" style="margin-top:10px">
+          <button class="btn primary" id="checkChallenge">Check</button>
+          <button class="btn" id="showSolution">Show solution</button>
+          <button class="btn" id="resetChallenge">Reset</button>
+        </div>
+        <div class="result" id="challengeResult">The blanks are the subtract and the name of the signed number.</div>
+      </div>
+      <div class="card indigo">
+        <h3>Available names</h3>
+        <div class="formula">-
++
+sd
+d
+smoothstep
+abs(p.x) + abs(p.y)</div>
+        <p>Subtract radius from <code>d</code>. Test <code>sd</code>. Adding would push every pixel farther outside. Walk-around is the diamond. <code>smoothstep</code> is Lesson 9.3.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">10 · EXERCISES</div><h2>Answer before opening each hidden solution</h2></div></div>
+    <details><summary>At the visual center, radius = 0.25, what is sd, and which color does production store?</summary><p>d = 0, so sd = 0 − 0.25 = −0.25. The minus means inside, so the hard if stores orange. Zero in p is still the center. Zero in sd is not the center; it is the boundary.</p></details>
+    <details><summary>Diagnostic: someone writes <code>float sd = abs(p.x) + abs(p.y) − radius</code>. What shape is sd = 0, and why is that not this lesson’s circle?</summary><p>sd = 0 when abs(p.x) + abs(p.y) = radius. That is Lesson 9.1’s walk-around number, whose equal-value shape is a diamond. A circle needs the long-side length, so production subtracts radius from length(p).</p></details>
+    <details><summary>Keep the teaching pixel fixed at d = 0.50. Radius moves from 0.25 to 0.60. What happens to sd, and when does the stored color flip?</summary><p>sd decreases: +0.25 → −0.10. It crosses zero when radius = 0.50. For radius above 0.50 the teaching pixel is inside and stores orange. Larger radius, smaller sd, same pixel.</p></details>
+    <details><summary>Why keep sd = +0.25 instead of only the Boolean “outside”?</summary><p>The Boolean is enough to pick navy versus orange in this lesson’s hard if. The size +0.25 is how far past the boundary. Lesson 9.3 needs that size to build a soft band around sd = 0. Throwing the size away now would force you to recompute it later.</p></details>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">11 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div></div>
+    <div class="checklist">
+      <label class="check"><input type="checkbox">At default radius 0.25, the teaching pixel prints sd = +0.25 and the store is navy (outside).</label>
+      <label class="check"><input type="checkbox">The center prints sd = −0.25 and the store is orange (inside).</label>
+      <label class="check"><input type="checkbox">The boundary mark p = (0.15, −0.20) prints d = 0.25 and sd = 0.00.</label>
+      <label class="check"><input type="checkbox">Raising radius past 0.50 flips the teaching pixel from navy to orange. d stays 0.50. sd decreases through zero.</label>
+      <label class="check"><input type="checkbox">Walk-around diamond is not a circle. The displayed AGSL string stays the hard if on length.</label>
+      <label class="check"><input type="checkbox">This HTML page never claims to compile AGSL or to run smoothstep on sd.</label>
+      <label class="check"><input type="checkbox">The Android panel is square. Radius is a uniform. Light <code>@Preview</code> is first, then dark. Both previews scroll.</label>
+      <label class="check"><input type="checkbox">Chapter 7 frost is unchanged. Lesson 9.1’s unsigned gray explorer still runs on the Chapter 9 screen.</label>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">12 · EVIDENCE BOUNDARY</div><h2>What this lesson establishes</h2></div></div>
+    <div class="two">
+      <div class="card green"><h3>Established</h3><p><code>sd = length(p) − radius</code> is negative inside, zero on the boundary, and positive outside. Default radius 0.25. Teaching pixel sd = +0.25 (outside, navy). Center sd = −0.25 (inside, orange). Production is <code>if (sd &lt; 0.0) orange else navy</code>. The size of sd is kept for Lesson 9.3. Two zeros stay distinct: 0 in <code>p</code> is the visual center; 0 in <code>sd</code> is the circle boundary.</p></div>
+      <div class="card amber"><h3>Not claimed</h3><p>No <code>smoothstep</code> band. No rounded rectangle. No image sampling. No refraction. Walk-around diamond is a comparison. The opposite sign convention is not used. Chapter 7 frost is unchanged.</p></div>
+    </div>
+    <button class="btn primary" id="buildRecord" style="margin-top:16px">Build local review record</button>
+    <textarea class="record" id="record" readonly>No record generated yet.</textarea>
+  </section>
+
+  <footer class="footer panel"><span>86 of 216 complete · checkpoint 9.1 unresolved · 9.2 generated ahead</span><span>Previous generated: <a href="lesson-09-01-distance-between-two-points.html">9.1 — Distance between two points</a> · Next planned: <strong>9.3 — Turn distance into a soft mask</strong></span></footer>
+</main>
+<script>
+const W=400, H=400;
+const TEACH={x:320,y:40};
+const CENTER={x:200,y:200};
+const BOUND={x:200+0.15*400, y:200-0.20*400};
+const NAVY=[0.10,0.25,0.40,1];
+const ORANGE=[0.88,0.48,0.18,1];
+const PROD=`uniform float2 resolution;
+uniform float radius;
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / resolution;
+    float2 p = uv - float2(0.5, 0.5);
+    float d = length(p);
+    float sd = d - radius;
+    half4 navy = half4(0.10, 0.25, 0.40, 1.0);
+    half4 orange = half4(0.88, 0.48, 0.18, 1.0);
+    if (sd < 0.0) {
+        return orange;
+    }
+    return navy;
+}`;
+let px=TEACH.x, py=TEACH.y;
+let radius=0.25;
+let mode='hard';
+let currentStep=0;
+const fmt2=n=>n.toFixed(2);
+const fmt3=n=>n.toFixed(3);
+const fmt4=n=>n.toFixed(4);
+function clamp(x,lo,hi){ return Math.min(hi, Math.max(lo, x)); }
+function pOf(x,y){ return {x:x/W-0.5, y:y/H-0.5}; }
+function lengthP(p){ return Math.hypot(p.x, p.y); }
+function walkP(p){ return Math.abs(p.x)+Math.abs(p.y); }
+function mix1(a,b,t){ return a+(b-a)*t; }
+function rgbCss(c){
+  const r=Math.round(clamp(c[0],0,1)*255);
+  const g=Math.round(clamp(c[1],0,1)*255);
+  const b=Math.round(clamp(c[2],0,1)*255);
+  return `rgb(${r},${g},${b})`;
+}
+function regionOf(sd){
+  if(sd< -1e-6) return 'inside (minus)';
+  if(sd> 1e-6) return 'outside (plus)';
+  return 'boundary (zero)';
+}
+function colorAt(p, rule, r){
+  const d = rule==='diamond' ? walkP(p) : lengthP(p);
+  const sd = d - r;
+  if(rule==='hard' || rule==='diamond'){
+    return sd<0 ? ORANGE : NAVY;
+  }
+  const t=clamp(0.5 + sd, 0, 1);
+  return [mix1(ORANGE[0],NAVY[0],t), mix1(ORANGE[1],NAVY[1],t), mix1(ORANGE[2],NAVY[2],t), 1];
+}
+function drawField(ctx, rule, r){
+  const img=ctx.createImageData(W,H);
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      const col=colorAt(pOf(x,y), rule, r);
+      const i=(y*W+x)*4;
+      img.data[i]=Math.round(col[0]*255);
+      img.data[i+1]=Math.round(col[1]*255);
+      img.data[i+2]=Math.round(col[2]*255);
+      img.data[i+3]=255;
+    }
+  }
+  ctx.putImageData(img,0,0);
+}
+function drawOverlay(ctx, x, y, r){
+  ctx.save();
+  ctx.strokeStyle='#4338ca'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(CENTER.x+0.5, 12); ctx.lineTo(CENTER.x+0.5, H-12); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(12, CENTER.y+0.5); ctx.lineTo(W-12, CENTER.y+0.5); ctx.stroke();
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3;
+  if(mode==='diamond'){
+    const R=r*W;
+    ctx.beginPath();
+    ctx.moveTo(CENTER.x, CENTER.y-R);
+    ctx.lineTo(CENTER.x+R, CENTER.y);
+    ctx.lineTo(CENTER.x, CENTER.y+R);
+    ctx.lineTo(CENTER.x-R, CENTER.y);
+    ctx.closePath();
+    ctx.stroke();
+  } else {
+    ctx.beginPath(); ctx.arc(CENTER.x, CENTER.y, r*W, 0, Math.PI*2); ctx.stroke();
+  }
+  ctx.strokeStyle='#4338ca'; ctx.lineWidth=3;
+  ctx.strokeRect(TEACH.x-6, TEACH.y-6, 12, 12);
+  ctx.strokeStyle='#d97706'; ctx.lineWidth=2;
+  ctx.strokeRect(BOUND.x-6, BOUND.y-6, 12, 12);
+  ctx.fillStyle='#059669';
+  ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+function updateLab(){
+  px=clamp(px,0.5,W-0.5); py=clamp(py,0.5,H-0.5);
+  radius=clamp(radius,0.05,0.70);
+  const p=pOf(px,py);
+  const d=lengthP(p);
+  const sd=d-radius;
+  const col=colorAt(p, mode==='field'?'field':mode==='diamond'?'diamond':'hard', radius);
+  const canvas=document.getElementById('labCanvas');
+  const ctx=canvas.getContext('2d');
+  drawField(ctx, mode, radius);
+  drawOverlay(ctx, px, py, radius);
+  document.getElementById('radiusRange').value=String(radius);
+  document.getElementById('radiusValue').textContent=fmt2(radius);
+  document.getElementById('pMetric').textContent=`(${fmt3(p.x)}, ${fmt3(p.y)})`;
+  document.getElementById('dMetric').textContent=fmt4(d);
+  document.getElementById('rMetric').textContent=fmt2(radius);
+  document.getElementById('sdMetric').textContent=(sd>=0?'+':'')+fmt4(sd);
+  document.getElementById('regionMetric').textContent=regionOf(sd);
+  document.getElementById('retMetric').innerHTML=`<span class="swatch" style="background:${rgbCss(col)}"></span>half4(${fmt2(col[0])}, ${fmt2(col[1])}, ${fmt2(col[2])}, 1)`;
+  document.getElementById('labCode').textContent=PROD;
+  document.getElementById('liveFormula').textContent=
+`d  = length(p) = ${fmt4(d)}
+sd = d − radius = ${fmt4(d)} − ${fmt2(radius)} = ${fmt4(sd)}
+region = ${regionOf(sd)}
+hard-cut store = ${sd<0?'orange':'navy'}`;
+  document.getElementById('labCaption').textContent=
+    mode==='hard'
+      ? `Pixel (${Math.round(px)}, ${Math.round(py)}). Green circle is radius ${fmt2(radius)}. Production stores ${sd<0?'orange inside':'navy outside'}.`
+      : mode==='field'
+        ? `Signed-field view. Minus stays nearer orange, plus nearer navy. Displayed AGSL stays the hard if.`
+        : `Walk-around diamond. sd uses abs(p.x)+abs(p.y) − radius. Displayed AGSL stays length.`;
+  document.getElementById('labCodeCaption').textContent=
+    mode==='hard'
+      ? 'Displayed string is the production route. The radius slider only changes a uniform.'
+      : 'Displayed string stays the production route. The rectangle on the left is a comparison.';
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('selected', b.dataset.mode===mode));
+}
+document.getElementById('radiusRange').addEventListener('input',e=>{radius=Number(e.target.value); updateLab();});
+document.getElementById('markTeaching').addEventListener('click',()=>{px=TEACH.x; py=TEACH.y; updateLab();});
+document.getElementById('markCenter').addEventListener('click',()=>{px=CENTER.x; py=CENTER.y; updateLab();});
+document.getElementById('markBound').addEventListener('click',()=>{px=BOUND.x; py=BOUND.y; updateLab();});
+document.querySelectorAll('.mode-btn').forEach(btn=>btn.addEventListener('click',()=>{mode=btn.dataset.mode; updateLab();}));
+document.getElementById('labCanvas').addEventListener('click',e=>{
+  const r=e.currentTarget.getBoundingClientRect();
+  px=clamp((e.clientX-r.left)*(W/r.width),0.5,W-0.5);
+  py=clamp((e.clientY-r.top)*(H/r.height),0.5,H-0.5);
+  updateLab();
+});
+
+const STEPS=[
+  {
+    title:'Lesson 9.1’s length is never negative',
+    caption:'The teaching pixel still has p = (0.30, −0.40) and d = 0.50. That 0.50 is the long side of the right triangle from the visual center. It does not yet know about a circle. It cannot answer inside versus outside, because every pixel’s d is zero or greater.',
+    rule:'d = length(p) ≥ 0',
+    input:'p = (0.30, −0.40)',
+    operation:'Lesson 9.1 length',
+    output:'d = 0.50, unsigned'
+  },
+  {
+    title:'A circle needs a radius compared with that length',
+    caption:'Lesson 4.1: the boundary is every pixel whose straight-line length from the center equals the radius. Inside, d is smaller than the radius. Outside, d is larger. Default radius is 0.25. The green overlay is that circle. The teaching pixel sits outside it, because 0.50 is larger than 0.25.',
+    rule:'inside: d < radius · boundary: d = radius · outside: d > radius',
+    input:'d = 0.50, radius = 0.25',
+    operation:'compare d with radius',
+    output:'outside, because 0.50 > 0.25'
+  },
+  {
+    title:'Subtract, do not add. sd = d − radius',
+    caption:'0.50 − 0.25 = +0.25. Adding would give 0.75 and would move every pixel in the same direction, never creating a minus. Subtracting radius from d puts zero on the boundary: when d equals radius, sd is 0.',
+    rule:'sd = d − radius = 0.50 − 0.25',
+    input:'d and radius',
+    operation:'subtract radius',
+    output:'sd = +0.25'
+  },
+  {
+    title:'The plus means outside. The 0.25 is how far.',
+    caption:'Sign and size are two facts in one number. Plus: the teaching pixel is outside. 0.25: it is as far past the boundary as the default radius itself. A Boolean “outside” would keep the first fact and throw the second away.',
+    rule:'sd > 0 → outside, |sd| = distance to boundary',
+    input:'sd = +0.25',
+    operation:'read sign, then size',
+    output:'outside, 0.25 beyond'
+  },
+  {
+    title:'The center gets a minus: 0 − 0.25 = −0.25',
+    caption:'At the visual center, Lesson 9.1’s d is 0. Subtract 0.25 and you get −0.25. Minus means inside. 0.25 is how far inside. Notice the two zeros: p is (0, 0) at this pixel, and sd is not 0. sd’s zero is the boundary, drawn in green.',
+    rule:'center sd = 0 − radius = −0.25',
+    input:'d = 0, radius = 0.25',
+    operation:'same subtract',
+    output:'minus / inside'
+  },
+  {
+    title:'A boundary pixel uses the 3-4-5 triangle again',
+    caption:'p = (0.15, −0.20). 0.15 × 0.15 + 0.20 × 0.20 = 0.0625, and 0.25 × 0.25 = 0.0625, so d = 0.25. Then sd = 0.25 − 0.25 = 0. This is the same countable triangle as Lesson 9.1, scaled so the long side equals the radius.',
+    rule:'d = 0.25 = radius, so sd = 0',
+    input:'p = (0.15, −0.20)',
+    operation:'length, then subtract',
+    output:'boundary'
+  },
+  {
+    title:'Production tests the sign with a hard if',
+    caption:'if (sd < 0.0) return orange; else return navy. At the teaching pixel sd is +0.25, so the test is false and the store is navy. At the center sd is −0.25, so the store is orange. Exact 0 is navy because < is false at 0. This is Lesson 8.4’s cut, now on sd instead of on fragCoord.x.',
+    rule:'if (sd < 0.0) orange else navy',
+    input:'sd = +0.25',
+    operation:'test the sign',
+    output:'navy (outside)'
+  },
+  {
+    title:'If radius grows past 0.50, this pixel flips to orange',
+    caption:'Keep the teaching pixel fixed. d stays 0.50. Radius 0.60 gives sd = −0.10. The number decreased and crossed zero. The store flips from navy to orange. That is the directional proof that sd = d − radius: larger radius, smaller sd.',
+    rule:'radius 0.25 → sd +0.25\nradius 0.60 → sd −0.10',
+    input:'fixed d = 0.50, larger radius',
+    operation:'subtract a larger radius',
+    output:'sd decreased through zero'
+  },
+  {
+    title:'Walk-around subtract paints a diamond, not a circle',
+    caption:'abs(p.x)+abs(p.y) − radius is zero on a diamond. Production uses length(p) − radius, zero on a circle. The diamond is the diagnostic leftover from Lesson 9.1. It is not the Android route.',
+    rule:'length → circle · walk-around → diamond',
+    input:'the same radius 0.25',
+    operation:'change only the distance used',
+    output:'wrong silhouette if you use walk-around'
+  },
+  {
+    title:'Keep sd. Lesson 9.3 will feed it to smoothstep.',
+    caption:'The hard if already draws a filled circle. The reason this lesson named sd, instead of only writing if (d < radius), is the later soft band. Lesson 9.3 will use the size of sd the way Lesson 8.11 used uv.x. This lesson does not call smoothstep.',
+    rule:'sd is the next consumer’s input',
+    input:'signed distance field',
+    operation:'stop at the hard cut',
+    output:'orange inside, navy outside'
+  }
+];
+function drawStepPicture(ctx, index){
+  ctx.clearRect(0,0,960,460);
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,960,460);
+  const ox=40, oy=40, S=360;
+  const tmp=document.createElement('canvas');
+  tmp.width=W; tmp.height=H;
+  const tctx=tmp.getContext('2d');
+  const r = index===7 ? 0.60 : 0.25;
+  const rule = index===8 ? 'diamond' : (index>=6 ? 'hard' : 'hard');
+  if(index===0){
+    const img=tctx.createImageData(W,H);
+    for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+      const d=lengthP(pOf(x,y));
+      const g=Math.round(clamp(d,0,1)*255);
+      const i=(y*W+x)*4;
+      img.data[i]=g; img.data[i+1]=g; img.data[i+2]=g; img.data[i+3]=255;
+    }
+    tctx.putImageData(img,0,0);
+  } else {
+    drawField(tctx, rule, r);
+  }
+  ctx.drawImage(tmp, ox, oy, S, S);
+  ctx.strokeStyle='#172033'; ctx.lineWidth=2; ctx.strokeRect(ox,oy,S,S);
+  const sx=S/W, sy=S/H;
+  const cx=ox+CENTER.x*sx, cy=oy+CENTER.y*sy;
+  const tx=ox+TEACH.x*sx, ty=oy+TEACH.y*sy;
+  const bx=ox+BOUND.x*sx, by=oy+BOUND.y*sy;
+  if(index>=1){
+    ctx.save();
+    ctx.beginPath(); ctx.rect(ox, oy, S, S); ctx.clip();
+    ctx.strokeStyle='#059669'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.arc(cx, cy, r*S, 0, Math.PI*2); ctx.stroke();
+    ctx.restore();
+  }
+  ctx.strokeStyle='#4338ca'; ctx.lineWidth=3;
+  ctx.strokeRect(tx-8, ty-8, 16, 16);
+  if(index>=5){
+    ctx.strokeStyle='#d97706'; ctx.lineWidth=2;
+    ctx.strokeRect(bx-8, by-8, 16, 16);
+  }
+  ctx.fillStyle='#059669';
+  ctx.beginPath(); ctx.arc(index>=4&&index<6?cx:tx, index>=4&&index<6?cy:ty, 6, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle='#172033'; ctx.font='800 18px ui-sans-serif,system-ui';
+  ctx.fillText(STEPS[index].title, 430, 70);
+  ctx.font='800 22px SFMono-Regular,Consolas,monospace';
+  ctx.fillStyle='#4338ca';
+  const nums=['d = 0.50 unsigned','d > 0.25 → outside','sd = +0.25','plus = outside','center sd = −0.25','boundary sd = 0','navy at teaching pixel','radius 0.60 → orange','diamond is wrong','keep sd for 9.3'];
+  ctx.fillText(nums[index], 430, 160);
+}
+function renderStep(){
+  const s=STEPS[currentStep];
+  document.getElementById('stepCounter').textContent=`Step ${currentStep+1} of ${STEPS.length}`;
+  document.getElementById('stepGridLabel').textContent=`Step ${currentStep+1} of ${STEPS.length}`;
+  document.getElementById('stepTitle').textContent=s.title;
+  document.getElementById('stepCaption').textContent=s.caption;
+  document.getElementById('stepRule').textContent=s.rule;
+  document.getElementById('stepInput').textContent=s.input;
+  document.getElementById('stepOperation').textContent=s.operation;
+  document.getElementById('stepOutput').textContent=s.output;
+  document.querySelectorAll('.step-dot').forEach((b,i)=>b.classList.toggle('selected', i===currentStep));
+  drawStepPicture(document.getElementById('stepCanvas').getContext('2d'), currentStep);
+}
+const stepButtons=document.getElementById('stepButtons');
+STEPS.forEach((_,i)=>{
+  const b=document.createElement('button');
+  b.className='step-dot'; b.textContent=String(i+1);
+  b.addEventListener('click',()=>{currentStep=i;renderStep();});
+  stepButtons.appendChild(b);
+});
+document.getElementById('stepPrev').addEventListener('click',()=>{currentStep=Math.max(0,currentStep-1);renderStep();});
+document.getElementById('stepNext').addEventListener('click',()=>{currentStep=Math.min(STEPS.length-1,currentStep+1);renderStep();});
+document.querySelectorAll('.choice').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.choice').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    const box=document.getElementById('predictionResult');
+    if(btn.dataset.answer==='correct'){
+      box.textContent='Yes. sd = 0.50 − 0.25 = +0.25. Plus means outside. The hard if is false, so production stores navy.';
+      box.style.background='var(--green-soft)';
+    } else if(btn.dataset.answer==='wrong-inside'){
+      box.textContent='0.25 is the radius, not the pixel’s length. The pixel’s length is 0.50, which is larger than 0.25, so the pixel is outside. Subtract: +0.25, navy.';
+      box.style.background='var(--amber-soft)';
+    } else {
+      box.textContent='Adding radius would give 0.75 and would never create a minus at the center. Production subtracts: 0.50 − 0.25 = +0.25, navy.';
+      box.style.background='var(--amber-soft)';
+    }
+  });
+});
+const starter=document.getElementById('challengeEditor').value;
+document.getElementById('checkChallenge').addEventListener('click',()=>{
+  const text=document.getElementById('challengeEditor').value;
+  const box=document.getElementById('challengeResult');
+  const sub=/sd\s*=\s*d\s*-\s*radius/.test(text);
+  const test=/if\s*\(\s*sd\s*</.test(text);
+  const add=/sd\s*=\s*d\s*\+\s*radius/.test(text);
+  const walk=/abs\s*\(\s*p\.x/.test(text);
+  const sm=/smoothstep\s*\(/.test(text);
+  if(sub && test && !add && !walk && !sm){
+    box.textContent='Correct. Subtract radius from d. Test sd. Orange when sd is negative.';
+    box.style.background='var(--green-soft)';
+  } else {
+    box.textContent='Need sd = d - radius and if (sd < 0.0). Plus is wrong. Walk-around is the diamond. smoothstep is 9.3.';
+    box.style.background='var(--amber-soft)';
+  }
+});
+document.getElementById('showSolution').addEventListener('click',()=>{
+  document.getElementById('challengeEditor').value=`uniform float2 resolution;
+uniform float radius;
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / resolution;
+    float2 p = uv - float2(0.5, 0.5);
+    float d = length(p);
+    float sd = d - radius;
+    half4 navy = half4(0.10, 0.25, 0.40, 1.0);
+    half4 orange = half4(0.88, 0.48, 0.18, 1.0);
+    if (sd < 0.0) {
+        return orange;
+    }
+    return navy;
+}`;
+});
+document.getElementById('resetChallenge').addEventListener('click',()=>{
+  document.getElementById('challengeEditor').value=starter;
+  document.getElementById('challengeResult').textContent='The blanks are the subtract and the name of the signed number.';
+  document.getElementById('challengeResult').style.background='var(--soft)';
+});
+document.getElementById('buildRecord').addEventListener('click',()=>{
+  document.getElementById('record').value=`# Lesson 9.2 — Circle signed distance field
+
+- Date:
+- sd = length(p) − radius.
+- Minus = inside, zero = boundary, plus = outside.
+- Default radius 0.25. Teaching pixel sd = +0.25 (outside, navy).
+- Center sd = −0.25 (inside, orange).
+- Boundary p = (0.15, −0.20), d = 0.25, sd = 0.
+- Production: if (sd < 0.0) orange else navy.
+- Walk-around diamond is a comparison. smoothstep unused.
+- Checkpoint still Lesson 9.1. Completion count still 86 of 216.
+`;
+});
+const qa=new URLSearchParams(location.search).get('qa');
+if(qa==='field') mode='field';
+if(qa==='diamond') mode='diamond';
+if(qa==='center'){ px=CENTER.x; py=CENTER.y; }
+if(qa==='bound'){ px=BOUND.x; py=BOUND.y; }
+if(qa==='r60'){ radius=0.60; }
+if(qa==='step8') currentStep=7;
+if(qa==='step9') currentStep=8;
+if(qa==='step10') currentStep=9;
+updateLab();
+renderStep();
+if(qa==='predict'){
+  const correct=[...document.querySelectorAll('.choice')].find(b=>b.dataset.answer==='correct');
+  if(correct) correct.click();
+}
+function revealFrom(id){
+  let keep=false;
+  document.querySelectorAll('.topbar, .hero, .section, .footer').forEach(el=>{
+    if(el.id===id) keep=true;
+    if(!keep) el.style.display='none';
+  });
+}
+if(qa==='lab'||qa==='field'||qa==='diamond'||qa==='center'||qa==='bound'||qa==='r60') revealFrom('lab');
+if(qa==='line') revealFrom('line');
+if(qa==='step8'||qa==='step9'||qa==='step10') revealFrom('stepper');
+</script>
+</body>
+</html>

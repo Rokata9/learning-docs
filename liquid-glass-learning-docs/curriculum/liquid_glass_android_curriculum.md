@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 8.12.0  
-**Updated:** 2026-08-28  
+**Version:** 9.2.0  
+**Updated:** 2026-08-30  
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
 **Physical test device:** Pixel 8 Pro  
@@ -11,11 +11,11 @@ Live progress, current files, and the checkpoint/frontier contracts live in `CUR
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **84 of 216**, through **Lesson 8.10**.
-- Completed chapters: **1–7**. Chapter 8: **10 of 12**.
-- Unresolved checkpoint: **Lesson 8.11 — clamp, mix, and smoothstep**.
-- Generated frontier: **Lesson 8.12 — Shader error workflow** (generated ahead, not complete).
-- Next planned after the frontier: **Lesson 9.1 — Distance between two points**.
+- Learner-confirmed complete: **86 of 216**, through **Lesson 8.12**.
+- Completed chapters: **1–8**. Chapter 9: **0 of 14**.
+- Unresolved checkpoint: **Lesson 9.1 — Distance between two points**.
+- Generated frontier: **Lesson 9.2 — Circle signed distance field** (generated ahead, not complete).
+- Next planned after the frontier: **Lesson 9.3 — Turn distance into a soft mask**.
 
 ## 2. How this file relates to the rule sources
 
@@ -177,7 +177,7 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 9. **8.9 — Uniforms.** Change shader behavior from Kotlin without rewriting the program.
 10. **8.10 — Time uniform.** Write elapsed time into a uniform and travel Lesson 8.6’s red ramp with `fract`.
 11. **8.11 — `clamp`, `mix`, and `smoothstep`.** Use three essential functions with graph previews.
-12. **8.12 — Shader error workflow.** Read compiler errors and reduce a failing shader to its smallest form.
+12. **8.12 — Shader error workflow.** Read compiler errors and reduce a failing shader to its smallest form. **Complete.**
 
 **Checkpoint:** Animate a size-independent radial effect and explain every line.
 
@@ -411,11 +411,6 @@ Chapters **1–7** are complete. Do not reopen blur, tint, saturation, inset-str
 8.8  p = uv - 0.5 from the middle; × 2 puts edges near ±1; 1 = one half-width
 8.9  uniform splitU and leftColor; setFloatUniform; mismatch leaves splitU at 0
 8.10 trips = elapsedSeconds / 4.0; fract(uv.x - time) as red; RuntimeShader not rebuilt
-```
-
-**Generated ahead, not complete**
-
-```text
 8.11 clamp → mix(a,b,t)=a+(b−a)×t → smoothstep bends linearFraction
      mix(navy, orange, smoothstep(0.40, 0.60, uv.x))
      teaching x=180, uv.x=0.45, stored red 0.221875
@@ -423,8 +418,15 @@ Chapters **1–7** are complete. Do not reopen blur, tint, saturation, inset-str
      shrink to smallest failing program; teaching fault is gl_FragCoord
 ```
 
+**Generated ahead, not complete**
+
+```text
+9.1  right triangle first; 0.30 / 0.40 / 0.50; length(p) as gray
+9.2  sd = length(p) − radius; minus inside; if (sd < 0) orange else navy
+```
+
 **Policy**
 
-- Count only explicit learner confirmation. Generating 8.12 does not complete 8.11.
+- Count only explicit learner confirmation. Generating 9.2 does not complete 9.1.
 - Current HTML/Kotlin paths live in `CURRENT_STATE.md`. Explorer names for older lessons live in those lesson files and `ChapterNNScreen.kt`.
 - 5.8/5.9 stay consolidated: 5.8 is the teaching page; 5.9 is the archive redirect.

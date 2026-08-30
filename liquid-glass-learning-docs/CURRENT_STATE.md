@@ -45,7 +45,7 @@ Learner confirmed Lessons 8.11 and 8.12 complete and asked for the next two less
 
 8.12 completed contract: compilation is `RuntimeShader(string)`; `IllegalArgumentException.message` holds the compiler text; shrink to a smallest failing program; teaching failure is `gl_FragCoord` in an otherwise legal 8.11 string. HTML does not compile AGSL.
 
-9.1 contract: a right triangle is drawn first. Teaching `p = (0.30, −0.40)`. Legs 0.30 and 0.40. Walk-around `0.70` is not the straight-line length. `0.09 + 0.16 = 0.25`. `sqrt(0.25) = 0.50` because `0.50 × 0.50 = 0.25`. Production is `length(p)` stored as gray. Teaching rectangle is square. `× 2` unused. Sign unused.
+9.1 contract: a right triangle is drawn first. Teaching `p = (0.30, −0.40)`. Legs 0.30 and 0.40. Walk-around `0.70` is not the straight-line length. `0.09 + 0.16 = 0.25`. `sqrt(0.25) = 0.50` because `0.50 × 0.50 = 0.25`. Production is `length(p)` stored as gray. Teaching rectangle is square. `× 2` unused. Sign unused. Nested equal-value outlines: smaller `length` circles are darker; smaller walk-around diamonds are the analog of those smaller circles. The diamond is a square standing on a vertex.
 
 9.2 contract: `sd = length(p) − radius`. Negative inside, zero on the boundary, positive outside. Default radius `0.25`. Teaching pixel `sd = +0.25` (outside). Center `sd = −0.25` (inside). Production is `if (sd < 0.0) orange else navy`. `smoothstep` unused.
 

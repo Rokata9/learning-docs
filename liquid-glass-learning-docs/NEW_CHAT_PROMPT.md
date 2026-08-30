@@ -151,14 +151,14 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-08-28 with `CURRENT_STATE.md` (course version 8.12.0).
+**Last aligned:** 2026-08-30 with `CURRENT_STATE.md` (course version 9.2.0).
 
 ```text
-completed: 84 of 216, through Lesson 8.10
-current unresolved checkpoint: Lesson 8.11 — clamp, mix, and smoothstep
-generated frontier: Lesson 8.12 — Shader error workflow
-next planned lesson after the frontier: Lesson 9.1 — Distance between two points
-Lesson 8.11 and Lesson 8.12 are generated ahead and not complete
+completed: 86 of 216, through Lesson 8.12
+current unresolved checkpoint: Lesson 9.1 — Distance between two points
+generated frontier: Lesson 9.2 — Circle signed distance field
+next planned lesson after the frontier: Lesson 9.3 — Turn distance into a soft mask
+Lesson 9.1 and Lesson 9.2 are generated ahead and not complete
 ```
 
 Chapter 7 is complete. Frost constants stay fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
@@ -250,7 +250,7 @@ withFrameNanos elapsed seconds
 
 A trip is one left-to-right crossing of the black edge (stored red = 0). `SecondsPerTrip = 4` is a teaching duration. `fract(x) = x - floor(x)`. Pause freezes the slot. mix / smoothstep / sine are unused. Preview freezes at 0.25 trips.
 
-**8.11 checkpoint contract:**
+**8.11 completed contract:**
 
 ```text
 clamp(x, lo, hi)
@@ -262,7 +262,7 @@ clamp(x, lo, hi)
 
 Teaching pixel x=180, uv.x=0.45, edges 0.40 / 0.60. linearFraction 0.25. curvedFraction 0.15625. stored red 0.221875. mix is Lesson 5.4 under an AGSL name. t is a blend fraction, not 7.10 amount. Sine unused. Distance fields are Lesson 9.3.
 
-**8.12 frontier contract:**
+**8.12 completed contract:**
 
 ```text
 RuntimeShader(string) compiles
@@ -272,16 +272,37 @@ RuntimeShader(string) compiles
 → restore the rest
 ```
 
-Teaching failure is `gl_FragCoord` in an otherwise legal 8.11 program. HTML does not compile AGSL. A Lesson 8.9 name mismatch is not a compile error. Preview starts on the working string. Do not generate Lesson 9.1 unless I ask.
+Teaching failure is `gl_FragCoord` in an otherwise legal 8.11 program. HTML does not compile AGSL. A Lesson 8.9 name mismatch is not a compile error. Preview starts on the working string.
+
+**9.1 checkpoint contract:**
+
+```text
+right triangle first (square corner, two legs, long side)
+→ countable 3-4-5, then teaching 0.30 / 0.40 / 0.50
+→ 0.09 + 0.16 = 0.25
+→ sqrt(0.25) = 0.50 because 0.50 × 0.50 = 0.25
+→ length(p) stored as gray
+```
+
+Teaching `p = (0.30, −0.40)` on a square 400×400 rectangle. Walk-around 0.70 is not the long side. × 2 unused. Sign unused. Rectangle is square so UV x and UV y share one pixel length. Nested equal-value outlines: smaller length circles are darker; smaller walk-around diamonds are that analog. The diamond is a square standing on a vertex.
+
+**9.2 frontier contract:**
+
+```text
+sd = length(p) − radius
+→ minus inside, zero boundary, plus outside
+→ if (sd < 0.0) orange else navy
+```
+
+Default radius 0.25. Teaching pixel sd = +0.25 (outside, navy). Center sd = −0.25 (inside, orange). Boundary `p = (0.15, −0.20)` has sd = 0. `smoothstep` unused. Walk-around diamond is HTML-only. Do not generate Lesson 9.3 unless I ask.
 
 Current files:
 
 ```text
-course/chapters/chapter-08/lesson-08-10-time-uniform.html
-course/chapters/chapter-08/lesson-08-11-clamp-mix-smoothstep.html
-course/chapters/chapter-08/lesson-08-12-shader-error-workflow.html
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/TimeUniformExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/ClampMixSmoothstepExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/ShaderErrorExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/Chapter08Screen.kt
+course/chapters/chapter-09/lesson-09-01-distance-between-two-points.html
+course/chapters/chapter-09/lesson-09-02-circle-signed-distance-field.html
+course/chapters/chapter-09/lesson-distance-fields-image-sampling-and-refraction.html
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/DistanceBetweenPointsExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/CircleSdfExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/Chapter09Screen.kt
 ```
