@@ -1,0 +1,828 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 9.4 — Rounded rectangle distance field</title>
+<style>
+:root{color-scheme:light;--ink:#172033;--muted:#596579;--line:#d8e0ea;--paper:#fff;--soft:#f5f7fb;--panel:#fbfcfe;--control:#fff;--green:#059669;--green-soft:#ecfdf5;--indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;--blue:#1e40af;--blue-soft:#dbeafe;--red:#dc2626;--red-soft:#fee2e2;--orange:#e07a2e;--navy:#1a4066;--pink:#be185d;--body-start:#f8fafc;--body-end:#edf2f7;--shadow:0 18px 52px rgba(30,41,59,.09);--code:#111827;--code-ink:#e5e7eb}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--body-start),var(--body-end));font:16px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}button,input,textarea{font:inherit}button{cursor:pointer}code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}code{background:var(--indigo-soft);padding:.12em .36em;border-radius:6px;white-space:nowrap}.code-block>code,.code-block code{display:block;background:transparent;color:inherit;padding:0;border-radius:0;white-space:pre-wrap}.page{width:min(2260px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.topbar{display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:22px}.crumbs{color:var(--muted)}.chips{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:850}.chip.progress{color:var(--green);background:var(--green-soft)}.chip.pending{color:var(--amber);background:var(--amber-soft)}.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(480px,.85fr);gap:28px;padding:42px}.eyebrow,.section-no{color:var(--indigo);font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase}h1{margin:.35rem 0 1rem;font-size:clamp(42px,4vw,70px);line-height:1.04;letter-spacing:-.045em}h2{margin:0 0 .7rem;font-size:31px;line-height:1.18}h3{margin:0 0 .5rem;font-size:21px;line-height:1.25}p{max-width:110ch}.lead{font-size:19px;color:var(--muted)}.plain-rule{font-size:clamp(20px,1.8vw,28px);font-weight:950;line-height:1.3;padding:20px;border:2px solid var(--indigo);border-radius:16px;background:var(--indigo-soft)}.plain-rule code{white-space:normal}.section{margin-top:24px;padding:32px}.section-head{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:22px}.section-head p{margin:0;color:var(--muted)}.card{padding:20px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}.card.green{background:var(--green-soft)}.card.blue{background:var(--blue-soft)}.card.amber{background:var(--amber-soft)}.card.indigo{background:var(--indigo-soft)}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.note,.warning{margin-top:18px;padding:16px 18px;border-radius:14px}.note{border-left:5px solid var(--blue);background:var(--blue-soft)}.warning{border-left:5px solid var(--amber);background:var(--amber-soft)}.formula{padding:14px 16px;border-radius:13px;background:var(--indigo-soft);border:1px solid color-mix(in srgb,var(--indigo) 45%,var(--line));font:800 15px/1.64 "SFMono-Regular",Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.btn{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:850;border:1px solid var(--line);background:var(--control);color:var(--ink);text-decoration:none;display:inline-flex;align-items:center}.btn:hover,.btn:focus-visible{border-color:var(--blue);outline:none}.btn.primary{border-color:var(--blue);background:var(--blue);color:#fff}.btn.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.hero-art{min-height:320px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,var(--blue-soft),var(--indigo-soft));padding:22px;display:grid;align-content:center;gap:14px}.hero-pipeline{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;gap:8px;align-items:center}.hero-stage{padding:16px 10px;text-align:center;border-radius:14px;background:var(--paper);border:1px solid var(--line);font-weight:900}.arrow{font-size:28px;color:var(--indigo);font-weight:950}.lab-grid{display:grid;grid-template-columns:minmax(520px,1fr) minmax(420px,.85fr);gap:18px}.canvas-card{padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--panel);min-width:0}.canvas-card canvas{display:block;height:auto;border-radius:11px;border:1px solid var(--line);background:#f8fafc}#labCanvas{background:#0b1220;cursor:crosshair;width:min(400px,100%)}#stepCanvas{width:100%}.canvas-title{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:9px}.canvas-title span,.origin{color:var(--muted);font-size:13px;font-weight:700}.metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:14px}.metric{padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--control)}.metric strong{display:block;color:var(--indigo);margin-bottom:4px}.metric .origin{display:block;margin-bottom:6px}.metric .value{display:block;font-weight:850}.swatch{display:inline-block;width:18px;height:18px;border-radius:4px;border:1px solid var(--line);vertical-align:-3px;margin-right:6px}.lesson-grid{display:grid;grid-template-columns:minmax(860px,1.25fr) minmax(430px,.75fr);gap:18px;align-items:start}.stepper{position:sticky;top:18px;border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden}.step-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}.step-body{padding:18px}.step-title{font-size:22px;font-weight:950}.step-caption{min-height:220px}.step-buttons{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}.step-dot{width:40px;height:40px;padding:0;border-radius:10px;border:1px solid var(--line);background:var(--control);color:var(--ink);font-weight:900}.step-dot.selected{background:var(--indigo);border-color:var(--indigo);color:#fff}.io{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}.io>div{padding:11px;border:1px solid var(--line);border-radius:11px;background:var(--control)}.io strong,.io span{display:block}.code-grid{display:grid;grid-template-columns:minmax(650px,1fr) minmax(500px,.8fr);gap:18px}.code-block{background:var(--code);color:var(--code-ink);border-radius:14px;padding:16px;white-space:pre-wrap;overflow:auto;font:14px/1.62 "SFMono-Regular",Consolas,monospace}.prediction{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.choice{appearance:none;min-height:112px;padding:16px;border:2px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);text-align:left;font-weight:800;line-height:1.5}.choice:hover,.choice:focus-visible{border-color:var(--blue);outline:none}.choice.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.challenge{display:grid;grid-template-columns:minmax(650px,1fr) minmax(500px,.75fr);gap:18px}.editor{width:100%;min-height:320px;resize:vertical;background:var(--code);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace;white-space:pre;overflow:auto}.result{min-height:55px;margin-top:12px;padding:12px;border-radius:11px;background:var(--soft)}details{margin:10px 0;border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:13px 15px}summary{cursor:pointer;font-weight:900}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.check{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}.record{width:100%;min-height:240px;margin-top:12px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);font:14px/1.6 "SFMono-Regular",Consolas,monospace}.footer{margin-top:24px;padding:18px 24px;display:flex;justify-content:space-between;gap:18px;align-items:center}.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-weight:800}.legend i{display:inline-block;width:16px;height:16px;border-radius:4px;border:1px solid var(--line);vertical-align:-3px;margin-right:6px}.formulas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:12px}.trace-table{width:100%;border-collapse:collapse;margin-top:12px;font:800 14px/1.5 "SFMono-Regular",Consolas,monospace}.trace-table th,.trace-table td{border:1px solid var(--line);padding:10px 12px;text-align:left}.trace-table th{background:var(--soft)}.trace-table td.up{background:#ecfdf5}.trace-table td.down{background:#fee2e2}.trace-table td.same{background:#eef2ff}label.range-row{display:grid;grid-template-columns:210px minmax(220px,1fr) 80px;gap:12px;align-items:center;font-weight:850}input[type=range]{width:100%}.grow-svg{width:100%;height:auto;border:1px solid var(--line);border-radius:16px;background:#f8fafc;display:block}
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-distance-fields-image-sampling-and-refraction.html">Chapter 9</a> · Lesson 9.4 · generated ahead</div>
+    <div class="chips"><span class="chip progress">87 of 216 complete</span><span class="chip pending">Checkpoint 9.2 unresolved</span><span class="chip pending">9.4 generated ahead · frontier</span></div>
+  </div>
+
+  <header class="hero panel">
+    <div>
+      <div class="eyebrow">Chapter 9 · Grow an inner sharp box by the corner radius</div>
+      <h1>Rounded rectangle distance field</h1>
+      <p class="lead"><strong>Question:</strong> Lesson 4.2 already drew a rounded rectangle: the leftmost, topmost, rightmost, and bottommost positions stay put, and each sharp corner is replaced by a quarter-circle of one corner radius. Lesson 9.2 measured signed distance to a circle by growing a point. How do you measure signed distance to that rounded-rectangle boundary from the same center pair <code>p</code>?</p>
+      <div class="plain-rule">Build an <strong>inner box</strong> whose half-size is <code>outerHalf − cornerRadius</code>. Compute signed distance to that inner box, then subtract the corner radius. Growing the inner box keeps the flats flat and turns each corner into a quarter-circle. Production then uses <code>if (sd &lt; 0.0)</code> on this new <code>sd</code>.</div>
+      <div class="note"><strong>Generated ahead.</strong> Lesson 9.2 remains the unresolved checkpoint. This page is a JavaScript stand-in. Default outer half-size is <code>(0.30, 0.20)</code>. Default corner radius is 0.10. Teaching corner-boundary pixel <code>p = (0.26, −0.18)</code> has <code>sd = 0</code>. Lesson 9.3’s soft mask is unused here so the new zero contour is a hard silhouette. A capsule is Lesson 9.5. Combining two complete fields is Lesson 9.6.</div>
+    </div>
+    <div class="hero-art" aria-label="inner box grown by corner radius becomes a rounded rectangle">
+      <div class="hero-pipeline">
+        <div class="hero-stage">outer half<br>(0.30, 0.20)</div><div class="arrow">→</div>
+        <div class="hero-stage">inner half<br>(0.20, 0.10)</div><div class="arrow">→</div>
+        <div class="hero-stage">sdBox, then<br>− radius 0.10</div><div class="arrow">→</div>
+        <div class="hero-stage">sd = 0 on the<br>quarter-circle</div>
+      </div>
+      <p style="margin:0;font-weight:800">Canonical wording: <a href="../../glossary.html#inner-box">inner box</a>, <a href="../../glossary.html#agsl-abs">abs</a>, <a href="../../glossary.html#edge-leftover">edge leftover</a>, <a href="../../glossary.html#signed-distance">signed distance</a>, <a href="../../glossary.html#rounded-corner-shape">rounded corner shape</a>.</p>
+    </div>
+  </header>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">1 · THE NEW QUESTION</div><h2>A circle signed distance cannot draw Lesson 4.2’s flats and quarter-circles.</h2></div></div>
+    <div class="four">
+      <article class="card blue"><h3>4.2 leftover</h3><p>A rounded rectangle keeps the same outer bounds as a sharp rectangle. The corner radius is the distance from one construction-circle center to that corner’s quarter-circle. Join points are where a straight edge ends and the arc begins.</p></article>
+      <article class="card indigo"><h3>9.2 leftover</h3><p>A circle is a point grown by a radius: <code>sd = length(p) − radius</code>. Minus still means inside. That formula’s zero contour is always a circle. Lesson 4.2’s shape has long flat sides.</p></article>
+      <article class="card green"><h3>New grow</h3><p>Grow an inner sharp box by the same corner radius. The zero contour becomes Lesson 4.2’s rounded rectangle. Teaching outer half-size is <code>(0.30, 0.20)</code> so the shape is clearly wider than it is tall.</p></article>
+      <article class="card amber"><h3>Not those later tools</h3><p>A capsule is Lesson 9.5. Combining two complete signed-distance fields with <code>min</code> or <code>max</code> is Lesson 9.6. This lesson picks the larger of two leftover numbers only inside the inner box, as a comparison, not as a shape union.</p></article>
+    </div>
+    <div class="formulas">
+      <div class="formula">outerHalf = (0.30, 0.20)     ← center to each flat side, p units
+cornerRadius = 0.10          ← Lesson 4.2’s corner radius, same units
+innerHalf = outerHalf − cornerRadius
+          = (0.20, 0.10)
+
+q = abs(p) − innerHalf       ← leftover past each inner edge
+sd = sdBox − cornerRadius    ← grow the inner box</div>
+      <div class="formula">Teaching corner-boundary pixel
+p = (0.26, −0.18)
+  ← inner corner (0.20, 0.10) plus 0.10 × (0.6, 0.8)
+  ← 0.6² + 0.8² = 1, so that direction has length 1
+q = (0.06, 0.08)
+length(q) = 0.10
+sdBox = 0.10
+sd = 0.10 − 0.10 = 0</div>
+    </div>
+  </section>
+
+  <section class="section panel" id="grow">
+    <div class="section-head"><div><div class="section-no">2 · GROW THE INNER BOX</div><h2>Flat sides move out by r. Corners swing through a quarter-circle.</h2></div><p>The dashed indigo rectangle is the inner box. The four green circles are Lesson 4.2’s construction circles. The orange outline is the rounded rectangle: the set of points whose signed distance to the inner box equals zero after subtracting r.</p></div>
+    <svg class="grow-svg" viewBox="0 0 1180 420" role="img" aria-label="Inner box, four construction circles, and the grown rounded rectangle">
+      <text x="28" y="36" fill="#172033" font-size="20" font-weight="800">Center at C. Inner half (0.20, 0.10). Corner radius 0.10. Outer flats at 0.30 and 0.20.</text>
+      <g transform="translate(590 230)">
+        <rect x="-180" y="-120" width="360" height="240" fill="none" stroke="#d8e0ea" stroke-width="2"/>
+        <text x="0" y="-132" text-anchor="middle" fill="#596579" font-size="14" font-weight="800">outer sharp box · not the final boundary</text>
+        <rect x="-120" y="-60" width="240" height="120" fill="rgba(67,56,202,0.08)" stroke="#4338ca" stroke-width="3" stroke-dasharray="8 6"/>
+        <circle cx="120" cy="-60" r="60" fill="none" stroke="#059669" stroke-width="2" stroke-dasharray="6 5"/>
+        <circle cx="-120" cy="-60" r="60" fill="none" stroke="#059669" stroke-width="2" stroke-dasharray="6 5"/>
+        <circle cx="120" cy="60" r="60" fill="none" stroke="#059669" stroke-width="2" stroke-dasharray="6 5"/>
+        <circle cx="-120" cy="60" r="60" fill="none" stroke="#059669" stroke-width="2" stroke-dasharray="6 5"/>
+        <path d="M -120,-120 H 120 A 60 60 0 0 1 180,-60 V 60 A 60 60 0 0 1 120,120 H -120 A 60 60 0 0 1 -180,60 V -60 A 60 60 0 0 1 -120,-120 Z" fill="rgba(224,122,46,0.18)" stroke="#e07a2e" stroke-width="4"/>
+        <circle cx="0" cy="0" r="7" fill="#4338ca"/>
+        <text x="8" y="-10" fill="#4338ca" font-size="16" font-weight="800">C</text>
+        <circle cx="120" cy="-60" r="6" fill="#059669"/>
+        <text x="110" y="-78" text-anchor="end" fill="#059669" font-size="14" font-weight="800">inner corner</text>
+        <circle cx="156" cy="-108" r="7" fill="#d97706"/>
+        <text x="168" y="-118" fill="#d97706" font-size="14" font-weight="800">p = (0.26, −0.18)</text>
+        <line x1="120" y1="-60" x2="156" y2="-108" stroke="#be185d" stroke-width="3"/>
+        <text x="200" y="8" fill="#e07a2e" font-size="15" font-weight="800">outer right flat x = 0.30</text>
+        <text x="8" y="150" fill="#4338ca" font-size="15" font-weight="800">inner box</text>
+      </g>
+    </svg>
+    <div class="three" style="margin-top:16px">
+      <article class="card green">
+        <h3>Why subtract r from the outer half</h3>
+        <p>Lesson 4.2 placed each construction-circle center one corner radius in from both meeting edges. In <code>p</code> units that center sits at <code>(outerHalf.x − r, outerHalf.y − r)</code> in the right-and-bottom quarter after <code>abs</code>. That is the inner-box corner.</p>
+      </article>
+      <article class="card indigo">
+        <h3>Why subtract r a second time</h3>
+        <p>Signed distance to the inner box is zero on the inner box’s own boundary. Subtracting r moves that zero out by r. A point grown by r is Lesson 9.2. A box grown by r is this lesson.</p>
+      </article>
+      <article class="card amber">
+        <h3>The AABB corner pocket</h3>
+        <p>The outer sharp box’s top-right corner is <code>p = (0.30, −0.20)</code>. The quarter-circle does not reach it. That leftover square is outside the rounded rectangle, the same pocket Lesson 7.9 showed around a shadow card. Production stores navy there.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section panel" id="abs">
+    <div class="section-head"><div><div class="section-no">3 · ABS, THEN FOUR REGIONS</div><h2>Solve one quarter. The other three match by symmetry.</h2></div><p>AGSL <code>abs(p)</code> is the non-negative version of each member. After that, both members are zero or greater. A pixel in the left half is treated like its mirror in the right half. A pixel in the top half is treated like its mirror in the bottom half. The rounded rectangle looks the same in all four quarters.</p></div>
+    <div class="formulas">
+      <div class="formula">q = abs(p) − innerHalf
+qx &gt; 0  → past the inner right edge
+qy &gt; 0  → past the inner bottom edge (after abs)
+qx ≤ 0  → still inside that inner edge
+qy ≤ 0  → still inside that inner edge
+
+Both positive: nearest inner point is the inner corner
+  sdBox = length(q)          ← Lesson 9.1 at that corner
+Only qx positive: nearest is the inner right flat
+  sdBox = qx
+Only qy positive: nearest is the inner bottom flat
+  sdBox = qy
+Both ≤ 0: inside the inner box
+  sdBox = the larger leftover (the one nearer zero)</div>
+      <div class="formula">Then grow:
+sd = sdBox − cornerRadius
+
+Center: q = (−0.20, −0.10)
+  sdBox = −0.10
+  sd = −0.20  inside, orange
+
+Right flat p = (0.30, −0.05)
+  q = (0.10, −0.05)
+  sdBox = 0.10
+  sd = 0  on the outer flat
+
+AABB pocket p = (0.30, −0.20)
+  q = (0.10, 0.10)
+  length(q) = 0.14142
+  sd = +0.04142  outside, navy</div>
+    </div>
+    <div class="warning"><strong>Larger of two negatives is a comparison, not a shape union.</strong> Inside the inner box both leftovers are negative or zero. The closer inner edge is the leftover nearer zero, which is the larger number. Lesson 9.6 will apply <code>min</code> and <code>max</code> to two complete signed-distance fields. This lesson does not combine two shapes.</div>
+  </section>
+
+  <section class="section panel" id="lab">
+    <div class="section-head"><div><div class="section-no">4 · INTERACTIVE LAB</div><h2>One production cut, and a circle comparison</h2></div><p>Hard if is production: orange inside the rounded rectangle, navy outside. Circle comparison uses <code>length(p) − 0.20</code>, which cannot grow flats. The displayed AGSL string stays the piecewise rounded-rectangle route. Soft mask is Lesson 9.3 leftover and is unused here.</p></div>
+    <div class="controls" role="group" aria-label="Store rule">
+      <button class="btn mode-btn selected" data-mode="hard">Hard if (production)</button>
+      <button class="btn mode-btn" data-mode="circle">Circle comparison</button>
+      <button class="btn" id="markCorner">Mark corner boundary</button>
+      <button class="btn" id="markOut">Mark corner outside</button>
+      <button class="btn" id="markFlat">Mark right flat</button>
+      <button class="btn" id="markPocket">Mark AABB pocket</button>
+      <button class="btn" id="markCenter">Mark center</button>
+    </div>
+    <label class="range-row" style="margin-top:12px"><span>corner radius (p units)</span><input id="radiusRange" type="range" min="0.00" max="0.20" step="0.01" value="0.10"><span class="mono" id="radiusValue">0.10</span></label>
+    <div class="metrics">
+      <div class="metric"><strong>p</strong><span class="origin">uv − 0.5</span><span class="value" id="pMetric"></span></div>
+      <div class="metric"><strong>abs(p)</strong><span class="origin">both members ≥ 0</span><span class="value" id="absMetric"></span></div>
+      <div class="metric"><strong>q leftover</strong><span class="origin">abs(p) − innerHalf</span><span class="value" id="qMetric"></span></div>
+      <div class="metric"><strong>sdBox</strong><span class="origin">inner-box signed distance</span><span class="value" id="boxMetric"></span></div>
+      <div class="metric"><strong>sd</strong><span class="origin">sdBox − cornerRadius</span><span class="value" id="sdMetric"></span></div>
+      <div class="metric"><strong>Store</strong><span class="origin">this pixel half4</span><span class="value" id="retMetric"></span></div>
+    </div>
+    <div class="lab-grid" style="margin-top:14px">
+      <article class="canvas-card">
+        <div class="canvas-title"><strong>Draw rectangle 400 × 400</strong><span>click a pixel · green = rounded boundary</span></div>
+        <canvas id="labCanvas" width="400" height="400" aria-label="Rounded-rectangle signed distance teaching rectangle"></canvas>
+        <p id="labCaption"></p>
+        <div class="legend">
+          <span><i style="background:#e07a2e"></i>inside orange</span>
+          <span><i style="background:#1a4066"></i>outside navy</span>
+          <span><i style="background:#059669"></i>rounded boundary</span>
+          <span><i style="background:#4338ca"></i>inner box</span>
+          <span><i style="background:#d97706"></i>teaching corner</span>
+        </div>
+      </article>
+      <article class="canvas-card">
+        <div class="canvas-title"><strong>AGSL string</strong><span>Hard if on this sd is production</span></div>
+        <div class="formula" id="liveFormula"></div>
+        <pre class="code-block" id="labCode" style="margin-top:12px;max-height:280px"></pre>
+        <p id="labCodeCaption" style="margin-top:10px"></p>
+      </article>
+    </div>
+    <div class="note"><strong>Browser versus Android.</strong> This page paints with a JavaScript copy of the four-region inner-box arithmetic. Android compiles the same branches. The corner-radius slider is a uniform write. <code>RuntimeShader</code> is not rebuilt. At radius 0 the shape is a sharp rectangle. At radius 0.20 the inner height is 0; a capsule is Lesson 9.5, so the slider stops there as a limit, not as that later shape.</div>
+  </section>
+
+  <section class="section panel" id="trace">
+    <div class="section-head"><div><div class="section-no">5 · FIVE PIXELS, ONE CORNER RADIUS</div><h2>outerHalf = (0.30, 0.20). r = 0.10. sd is new.</h2></div></div>
+    <p>Green cells increased from the previous row. Red cells decreased. Indigo cells stayed the same. Stored color is the hard-cut production store.</p>
+    <table class="trace-table">
+      <thead>
+        <tr><th>pixel</th><th>q</th><th>sdBox</th><th>sd</th><th>store</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>center p = (0, 0)</td><td>(−0.20, −0.10)</td><td>−0.10</td><td class="down">−0.20</td><td>orange</td></tr>
+        <tr><td>right flat p = (0.30, −0.05)</td><td class="up">(0.10, −0.05)</td><td class="up">0.10</td><td class="up">0.00</td><td>navy (sd &lt; 0 is false)</td></tr>
+        <tr><td>corner boundary p = (0.26, −0.18)</td><td class="down">(0.06, 0.08)</td><td class="same">0.10</td><td class="same">0.00</td><td>navy</td></tr>
+        <tr><td>corner outside p = (0.29, −0.22)</td><td class="up">(0.09, 0.12)</td><td class="up">0.15</td><td class="up">+0.05</td><td>navy</td></tr>
+        <tr><td>AABB pocket p = (0.30, −0.20)</td><td class="up">(0.10, 0.10)</td><td class="down">0.14142</td><td class="down">+0.04142</td><td>navy</td></tr>
+      </tbody>
+    </table>
+    <div class="two" style="margin-top:16px">
+      <article class="card">
+        <h3>If corner radius grows, sd decreases</h3>
+        <p>Keep the AABB pocket pixel fixed. Its geometry does not move. If corner radius moves from 0.10 toward 0.20, the quarter-circle reaches farther into that pocket and <code>sd</code> decreases toward zero. Larger corner radius, smaller pocket, smaller <code>sd</code> at that fixed pixel.</p>
+      </article>
+      <article class="card indigo">
+        <h3>Who consumes this next</h3>
+        <p>Lesson 9.3’s mask can wrap this <code>sd</code> later. This lesson stops at the hard cut so the new zero contour is visible as orange versus navy. Lesson 9.5 will grow a different inner shape: a line segment, which makes a capsule.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section panel" id="stepper">
+    <div class="section-head"><div><div class="section-no">6 · TEN STEPS</div><h2>From Lesson 4.2’s picture to a signed number at one pixel</h2></div><p>Direct buttons are shown because there are ten states. The lab slider does not drive this stepper. Corner radius stays 0.10. The selected pixel is the corner-boundary pixel unless a step names another.</p></div>
+    <div class="lesson-grid">
+      <article class="canvas-card">
+        <div class="canvas-title"><strong>Current step</strong><span id="stepGridLabel">Step 1 of 10</span></div>
+        <canvas id="stepCanvas" width="960" height="460" aria-label="Stepper rounded-rectangle diagram"></canvas>
+      </article>
+      <aside class="stepper">
+        <div class="step-head"><button class="btn" id="stepPrev">Previous</button><strong id="stepCounter">Step 1 of 10</strong><button class="btn primary" id="stepNext">Next</button></div>
+        <div class="step-body">
+          <div class="step-title" id="stepTitle"></div>
+          <div class="step-caption" id="stepCaption"></div>
+          <div class="formula" id="stepRule"></div>
+          <div class="io">
+            <div><strong>Input</strong><span id="stepInput"></span></div>
+            <div><strong>Operation</strong><span id="stepOperation"></span></div>
+            <div><strong>Output</strong><span id="stepOutput"></span></div>
+          </div>
+          <div class="step-buttons" id="stepButtons"></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">7 · ANDROID ROUTE</div><h2>Three uniforms, four branches, one subtract</h2></div></div>
+    <div class="code-grid">
+      <pre class="code-block"><code>private const val PanelSizeDp = 360
+private const val HalfWidth = 0.30f
+private const val HalfHeight = 0.20f
+private const val DefaultCornerRadius = 0.10f
+private const val TeachPx = 0.26f
+private const val TeachPy = -0.18f
+
+uniform float2 resolution;
+uniform float halfWidth;
+uniform float halfHeight;
+uniform float cornerRadius;
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / resolution;
+    float2 p = uv - float2(0.5, 0.5);
+    float2 q = abs(p) - float2(
+        halfWidth - cornerRadius,
+        halfHeight - cornerRadius
+    );
+    float sdBox;
+    if (q.x &gt; 0.0) {
+        if (q.y &gt; 0.0) {
+            sdBox = length(q);
+        } else {
+            sdBox = q.x;
+        }
+    } else {
+        if (q.y &gt; 0.0) {
+            sdBox = q.y;
+        } else {
+            sdBox = q.x &gt; q.y ? q.x : q.y;
+        }
+    }
+    float sd = sdBox - cornerRadius;
+    ...
+}</code></pre>
+      <div class="card">
+        <h3>What each part changes</h3>
+        <p><code>remember { RuntimeShader(...) }</code> compiles once. Moving the corner-radius slider only writes <code>cornerRadius</code>. Half-width and half-height stay teaching constants.</p>
+        <p><code>DefaultCornerRadius = 0.10</code> so the teaching corner pixel’s <code>sd</code> is exactly 0. <code>PanelSizeDp = 360</code> stays square so one UV step right equals one UV step down in pixels. The shape is still a rectangle because the two half-sizes differ.</p>
+        <p>The green overlay is Compose <code>drawRoundRect</code>, not a second shader. Circle comparison lives in the HTML lab.</p>
+        <p><strong>Android files:</strong><br><code>chapter09/RoundedRectSdfExplorer.kt</code><br><code>chapter09/Chapter09Screen.kt</code></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel" id="predict">
+    <div class="section-head"><div><div class="section-no">8 · PREDICTION</div><h2>Teaching corner p = (0.26, −0.18), r = 0.10. What is sd, and which color?</h2></div></div>
+    <p>Production grows the inner box, then uses <code>if (sd &lt; 0.0) orange else navy</code>.</p>
+    <div class="prediction">
+      <button class="choice" data-answer="wrong-circle">sd = length(p) − 0.10 = 0.216 − 0.10 = +0.116 and navy, because a rounded rectangle is basically a circle.</button>
+      <button class="choice" data-answer="wrong-inside">sd is negative and orange, because this pixel sits inside the outer sharp box.</button>
+      <button class="choice" data-answer="correct">sd = 0 and navy, because q = (0.06, 0.08), length(q) = 0.10, and 0.10 − 0.10 = 0. The hard if is false at 0.</button>
+    </div>
+    <div class="result" id="predictionResult">Choose one answer.</div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">9 · CODING CHALLENGE</div><h2>Build q, pick the inner-box distance, then grow</h2></div></div>
+    <div class="challenge">
+      <div>
+        <textarea class="editor" id="challengeEditor" spellcheck="false">uniform float2 resolution;
+uniform float halfWidth;
+uniform float halfHeight;
+uniform float cornerRadius;
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / resolution;
+    float2 p = uv - float2(0.5, 0.5);
+    float2 q = ___(p) - float2(
+        halfWidth - cornerRadius,
+        halfHeight - cornerRadius
+    );
+    float sdBox;
+    if (q.x &gt; 0.0) {
+        if (q.y &gt; 0.0) {
+            sdBox = ___(q);
+        } else {
+            sdBox = q.x;
+        }
+    } else {
+        if (q.y &gt; 0.0) {
+            sdBox = q.y;
+        } else {
+            sdBox = q.x &gt; q.y ? q.x : q.y;
+        }
+    }
+    float sd = sdBox ___ cornerRadius;
+    half4 navy = half4(0.10, 0.25, 0.40, 1.0);
+    half4 orange = half4(0.88, 0.48, 0.18, 1.0);
+    if (sd &lt; 0.0) return orange;
+    return navy;
+}</textarea>
+        <div class="controls" style="margin-top:10px">
+          <button class="btn primary" id="checkChallenge">Check</button>
+          <button class="btn" id="showSolution">Show solution</button>
+          <button class="btn" id="resetChallenge">Reset</button>
+        </div>
+        <div class="result" id="challengeResult">The blanks are abs, length, and the grow subtract.</div>
+      </div>
+      <div class="card indigo">
+        <h3>Available names</h3>
+        <div class="formula">abs
+length
+-
++
+min
+max</div>
+        <p>Use <code>abs</code> on <code>p</code>, <code>length</code> only in the both-positive corner, and subtract <code>cornerRadius</code>. Adding would shrink the shape. <code>min</code> / <code>max</code> of two complete fields is Lesson 9.6.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">10 · EXERCISES</div><h2>Answer before opening each hidden solution</h2></div></div>
+    <details><summary>At the visual center, r = 0.10, what is sd, and which color does production store?</summary><p>q = (−0.20, −0.10). Both leftovers are negative, so sdBox is the larger, −0.10. sd = −0.10 − 0.10 = −0.20. Minus means inside, so the hard if stores orange. That −0.20 is also minus the outer half-height, the nearer outer flat.</p></details>
+    <details><summary>Diagnostic: someone writes <code>float sd = length(p) − cornerRadius</code>. What shape is sd = 0, and why is the AABB pocket then wrong?</summary><p>sd = 0 is a circle of radius 0.10. The teaching shape’s outer flats sit at 0.30 and 0.20, so that circle is much smaller than the rounded rectangle. The AABB pocket pixel would be classified by circle distance, not by distance to the quarter-circle from the inner corner.</p></details>
+    <details><summary>The AABB pocket pixel is inside the outer sharp box. Why does production store navy?</summary><p>Inside the outer sharp box is not the test. The test is sd of the rounded rectangle. q = (0.10, 0.10), length(q) = 0.14142, sd = +0.04142. Plus means outside the quarter-circle. The leftover square between the sharp corner and the arc is outside the shape.</p></details>
+    <details><summary>If corner radius is 0, what is the inner box, and what silhouette do you get?</summary><p>innerHalf = outerHalf. The inner box is the outer sharp box. Growing by 0 leaves that sharp rectangle. Production stores orange inside that rectangle, including the four corner squares that a positive radius would leave as navy pockets.</p></details>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">11 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div></div>
+    <div class="checklist">
+      <label class="check"><input type="checkbox">At default r = 0.10, the teaching corner pixel prints q = (0.06, 0.08), sd = 0.00, and the store is navy.</label>
+      <label class="check"><input type="checkbox">The center prints sd = −0.20 and the store is orange.</label>
+      <label class="check"><input type="checkbox">The right-flat mark prints sd = 0.00.</label>
+      <label class="check"><input type="checkbox">The AABB pocket prints a small plus and stores navy. It sits inside the outer sharp box overlay.</label>
+      <label class="check"><input type="checkbox">Circle comparison is not this silhouette. Displayed AGSL stays the four-region inner-box route.</label>
+      <label class="check"><input type="checkbox">At r = 0 the fill is a sharp rectangle. Soft mask is unused.</label>
+      <label class="check"><input type="checkbox">This HTML page never claims to compile AGSL or to combine two complete fields with min or max.</label>
+      <label class="check"><input type="checkbox">The Android panel is square. Corner radius is a uniform. Light <code>@Preview</code> is first, then dark. Both previews scroll.</label>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">12 · EVIDENCE BOUNDARY</div><h2>What this lesson establishes</h2></div></div>
+    <div class="two">
+      <div class="card green"><h3>Established</h3><p>A rounded-rectangle signed distance is inner-box signed distance minus the corner radius. Default outer half <code>(0.30, 0.20)</code>, corner radius 0.10, inner half <code>(0.20, 0.10)</code>. <code>abs(p)</code> mirrors left onto right and top onto bottom. Teaching corner-boundary <code>p = (0.26, −0.18)</code> has <code>sd = 0</code>. Center <code>sd = −0.20</code>. AABB pocket is outside. Production is <code>if (sd &lt; 0.0) orange else navy</code>.</p></div>
+      <div class="card amber"><h3>Not claimed</h3><p>No soft mask. No capsule. No union, intersection, or subtraction of two complete fields. No image sampling. No refraction. Circle comparison is a diagnostic. Chapter 7 frost is unchanged.</p></div>
+    </div>
+    <button class="btn primary" id="buildRecord" style="margin-top:16px">Build local review record</button>
+    <textarea class="record" id="record" readonly>No record generated yet.</textarea>
+  </section>
+
+  <footer class="footer panel"><span>87 of 216 complete · checkpoint 9.2 unresolved · 9.4 generated ahead</span><span>Previous generated: <a href="lesson-09-03-turn-distance-into-a-soft-mask.html">9.3 — Turn distance into a soft mask</a> · Next planned: <strong>9.5 — Capsule distance field</strong></span></footer>
+</main>
+<script>
+const W=400, H=400;
+const HX=0.30, HY=0.20;
+const CORNER={x:200+0.26*400, y:200-0.18*400};
+const OUT={x:200+0.29*400, y:200-0.22*400};
+const FLAT={x:200+0.30*400, y:200-0.05*400};
+const POCKET={x:200+0.30*400, y:200-0.20*400};
+const CENTER={x:200,y:200};
+const NAVY=[0.10,0.25,0.40,1];
+const ORANGE=[0.88,0.48,0.18,1];
+const PROD=`uniform float2 resolution;
+uniform float halfWidth;
+uniform float halfHeight;
+uniform float cornerRadius;
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / resolution;
+    float2 p = uv - float2(0.5, 0.5);
+    float2 q = abs(p) - float2(
+        halfWidth - cornerRadius,
+        halfHeight - cornerRadius
+    );
+    float sdBox;
+    if (q.x > 0.0) {
+        if (q.y > 0.0) {
+            sdBox = length(q);
+        } else {
+            sdBox = q.x;
+        }
+    } else {
+        if (q.y > 0.0) {
+            sdBox = q.y;
+        } else {
+            sdBox = q.x > q.y ? q.x : q.y;
+        }
+    }
+    float sd = sdBox - cornerRadius;
+    half4 navy = half4(0.10, 0.25, 0.40, 1.0);
+    half4 orange = half4(0.88, 0.48, 0.18, 1.0);
+    if (sd < 0.0) return orange;
+    return navy;
+}`;
+let px=CORNER.x, py=CORNER.y;
+let radius=0.10;
+let mode='hard';
+let currentStep=0;
+const fmt2=n=>n.toFixed(2);
+const fmt3=n=>n.toFixed(3);
+const fmt4=n=>n.toFixed(4);
+const fmt5=n=>n.toFixed(5);
+function clamp(x,lo,hi){ return Math.min(hi, Math.max(lo, x)); }
+function pOf(x,y){ return {x:x/W-0.5, y:y/H-0.5}; }
+function rgbCss(c){
+  const r=Math.round(clamp(c[0],0,1)*255);
+  const g=Math.round(clamp(c[1],0,1)*255);
+  const b=Math.round(clamp(c[2],0,1)*255);
+  return `rgb(${r},${g},${b})`;
+}
+function innerBox(r){
+  return {w: HX-r, h: HY-r};
+}
+function signedBox(p, r){
+  const inn=innerBox(r);
+  const ax=Math.abs(p.x), ay=Math.abs(p.y);
+  const qx=ax-inn.w, qy=ay-inn.h;
+  let sdBox, region;
+  if(qx>0 && qy>0){ sdBox=Math.hypot(qx,qy); region='corner (length(q))'; }
+  else if(qx>0){ sdBox=qx; region='horizontal flat'; }
+  else if(qy>0){ sdBox=qy; region='vertical flat'; }
+  else { sdBox=qx>qy?qx:qy; region='inside inner box'; }
+  return {qx, qy, sdBox, sd: sdBox-r, region, ax, ay};
+}
+function colorAt(p, rule, r){
+  const sd = rule==='circle' ? Math.hypot(p.x,p.y)-HY : signedBox(p,r).sd;
+  return sd<0 ? ORANGE.slice() : NAVY.slice();
+}
+function drawField(ctx, rule, r){
+  const img=ctx.createImageData(W,H);
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      const col=colorAt(pOf(x,y), rule, r);
+      const i=(y*W+x)*4;
+      img.data[i]=Math.round(col[0]*255);
+      img.data[i+1]=Math.round(col[1]*255);
+      img.data[i+2]=Math.round(col[2]*255);
+      img.data[i+3]=255;
+    }
+  }
+  ctx.putImageData(img,0,0);
+}
+function pxX(p){ return CENTER.x + p*W; }
+function pxY(p){ return CENTER.y + p*H; }
+function drawOverlay(ctx, x, y, r){
+  ctx.save();
+  ctx.strokeStyle='#4338ca'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(CENTER.x+0.5, 12); ctx.lineTo(CENTER.x+0.5, H-12); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(12, CENTER.y+0.5); ctx.lineTo(W-12, CENTER.y+0.5); ctx.stroke();
+  const inn=innerBox(r);
+  ctx.strokeStyle='#4338ca'; ctx.lineWidth=2; ctx.setLineDash([6,5]);
+  ctx.strokeRect(pxX(-inn.w), pxY(-inn.h), inn.w*2*W, inn.h*2*H);
+  ctx.setLineDash([]);
+  ctx.strokeStyle='#059669'; ctx.lineWidth=2; ctx.setLineDash([4,4]);
+  [[inn.w,-inn.h],[-inn.w,-inn.h],[inn.w,inn.h],[-inn.w,inn.h]].forEach(c=>{
+    ctx.beginPath(); ctx.arc(pxX(c[0]), pxY(c[1]), r*W, 0, Math.PI*2); ctx.stroke();
+  });
+  ctx.setLineDash([]);
+  ctx.strokeStyle='#d8e0ea'; ctx.lineWidth=1;
+  ctx.strokeRect(pxX(-HX), pxY(-HY), HX*2*W, HY*2*H);
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3;
+  if(typeof ctx.roundRect==='function'){
+    ctx.beginPath();
+    ctx.roundRect(pxX(-HX), pxY(-HY), HX*2*W, HY*2*H, r*W);
+    ctx.stroke();
+  }
+  ctx.strokeStyle='#d97706'; ctx.lineWidth=3;
+  ctx.strokeRect(CORNER.x-6, CORNER.y-6, 12, 12);
+  ctx.strokeStyle='#be185d'; ctx.lineWidth=2;
+  ctx.strokeRect(POCKET.x-6, POCKET.y-6, 12, 12);
+  ctx.fillStyle='#059669';
+  ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+function updateLab(){
+  px=clamp(px,0.5,W-0.5); py=clamp(py,0.5,H-0.5);
+  radius=clamp(radius,0,0.20);
+  const p=pOf(px,py);
+  const s=signedBox(p, radius);
+  const col=colorAt(p, mode, radius);
+  const canvas=document.getElementById('labCanvas');
+  const ctx=canvas.getContext('2d');
+  drawField(ctx, mode, radius);
+  drawOverlay(ctx, px, py, radius);
+  document.getElementById('radiusRange').value=String(radius);
+  document.getElementById('radiusValue').textContent=fmt2(radius);
+  document.getElementById('pMetric').textContent=`(${fmt3(p.x)}, ${fmt3(p.y)})`;
+  document.getElementById('absMetric').textContent=`(${fmt3(s.ax)}, ${fmt3(s.ay)})`;
+  document.getElementById('qMetric').textContent=`(${fmt3(s.qx)}, ${fmt3(s.qy)})`;
+  document.getElementById('boxMetric').textContent=fmt4(s.sdBox)+' · '+s.region;
+  document.getElementById('sdMetric').textContent=(s.sd>=0?'+':'')+fmt4(s.sd);
+  document.getElementById('retMetric').innerHTML=`<span class="swatch" style="background:${rgbCss(col)}"></span>half4(${fmt2(col[0])}, ${fmt2(col[1])}, ${fmt2(col[2])}, 1)`;
+  document.getElementById('labCode').textContent=PROD;
+  document.getElementById('liveFormula').textContent=
+`innerHalf = (${fmt2(HX-radius)}, ${fmt2(HY-radius)})
+q = (${fmt3(s.qx)}, ${fmt3(s.qy)})
+sdBox = ${fmt4(s.sdBox)}  (${s.region})
+sd = ${fmt4(s.sdBox)} − ${fmt2(radius)} = ${fmt4(s.sd)}
+hard-cut store = ${s.sd<0?'orange':'navy'}`;
+  document.getElementById('labCaption').textContent=
+    mode==='hard'
+      ? `Pixel (${Math.round(px)}, ${Math.round(py)}). Green outline is the rounded rectangle at r = ${fmt2(radius)}.`
+      : `Circle comparison uses length(p) − 0.20. Displayed AGSL stays the four-region route.`;
+  document.getElementById('labCodeCaption').textContent=
+    mode==='hard'
+      ? 'Displayed string is the production route. The radius slider only changes a uniform.'
+      : 'Displayed string stays the production route. The rectangle on the left is a comparison.';
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('selected', b.dataset.mode===mode));
+}
+document.getElementById('radiusRange').addEventListener('input',e=>{radius=Number(e.target.value); updateLab();});
+document.getElementById('markCorner').addEventListener('click',()=>{px=CORNER.x; py=CORNER.y; updateLab();});
+document.getElementById('markOut').addEventListener('click',()=>{px=OUT.x; py=OUT.y; updateLab();});
+document.getElementById('markFlat').addEventListener('click',()=>{px=FLAT.x; py=FLAT.y; updateLab();});
+document.getElementById('markPocket').addEventListener('click',()=>{px=POCKET.x; py=POCKET.y; updateLab();});
+document.getElementById('markCenter').addEventListener('click',()=>{px=CENTER.x; py=CENTER.y; updateLab();});
+document.querySelectorAll('.mode-btn').forEach(btn=>btn.addEventListener('click',()=>{mode=btn.dataset.mode; updateLab();}));
+document.getElementById('labCanvas').addEventListener('click',e=>{
+  const box=e.currentTarget.getBoundingClientRect();
+  px=clamp((e.clientX-box.left)*(W/box.width),0.5,W-0.5);
+  py=clamp((e.clientY-box.top)*(H/box.height),0.5,H-0.5);
+  updateLab();
+});
+
+const STEPS=[
+  {
+    title:'Lesson 4.2 already named the shape. Lesson 9.2 cannot draw it.',
+    caption:'A rounded rectangle keeps the outer flats and replaces each sharp corner with a quarter-circle of one corner radius. length(p) − radius is always a circle. The teaching outer half-size is (0.30, 0.20), so the shape is wider than it is tall. That difference is the proof that this is not a circle.',
+    rule:'need sd to Lesson 4.2’s boundary, not to a circle',
+    input:'p from Lesson 8.8, radius from Lesson 4.2',
+    operation:'state the new output',
+    output:'a signed distance whose zero contour is a rounded rectangle'
+  },
+  {
+    title:'The inner box sits one corner radius in from the outer flats',
+    caption:'outerHalf = (0.30, 0.20). cornerRadius = 0.10. innerHalf = (0.20, 0.10). Lesson 4.2 placed each construction-circle center one radius in from both meeting edges. Those four centers are the inner-box corners. The dashed indigo rectangle is that inner box.',
+    rule:'innerHalf = outerHalf − cornerRadius',
+    input:'outer flats and corner radius',
+    operation:'shrink each half-size by r',
+    output:'inner box (0.20, 0.10)'
+  },
+  {
+    title:'Grow the inner box by r. Flats stay flat. Corners become quarter-circles.',
+    caption:'Signed distance to the inner box is zero on the inner box. Subtracting r moves that zero out by r. A point grown by r was Lesson 9.2’s circle. A box grown by r is this rounded rectangle. The green construction circles show why the corners are circular and the sides are not.',
+    rule:'sd = sdBox − cornerRadius',
+    input:'inner-box signed distance',
+    operation:'the same grow-by-r subtract as 9.2, new inner shape',
+    output:'zero on the orange outline'
+  },
+  {
+    title:'abs(p) mirrors left onto right and top onto bottom',
+    caption:'abs makes both members zero or greater. A pixel at p = (−0.26, −0.18) uses the same leftovers as p = (0.26, −0.18) after abs. The draw rectangle does not move. This is not Lesson 9.1’s walk-around sum. Walk-around added the two abs members. Here they stay a pair.',
+    rule:'q = abs(p) − innerHalf',
+    input:'this pixel’s p',
+    operation:'mirror, then subtract the inner half-size',
+    output:'edge leftovers qx, qy'
+  },
+  {
+    title:'Four regions after abs, one leftover pair',
+    caption:'Both leftovers positive: nearest inner point is the inner corner, so sdBox = length(q). Only qx positive: sdBox = qx, the inner right flat. Only qy positive: sdBox = qy. Both ≤ 0: inside the inner box, sdBox is the larger leftover because that leftover is nearer zero. That last comparison is not a shape union.',
+    rule:'corner / horizontal flat / vertical flat / inside',
+    input:'qx and qy',
+    operation:'choose the nearest inner-box point',
+    output:'sdBox'
+  },
+  {
+    title:'Teaching corner pixel: 3-4-5 direction, sd = 0',
+    caption:'Inner corner after abs is (0.20, 0.10). Direction (0.6, 0.8) has length 1 because 0.36 + 0.64 = 1. 0.10 × (0.6, 0.8) = (0.06, 0.08). Add: (0.26, 0.18). The teaching pixel uses the top half, so p = (0.26, −0.18). q = (0.06, 0.08). length 0.10. sd = 0. On the quarter-circle.',
+    rule:'length(0.06, 0.08) = 0.10 = r, so sd = 0',
+    input:'p = (0.26, −0.18)',
+    operation:'corner region, then grow',
+    output:'boundary, navy in the hard if'
+  },
+  {
+    title:'Right-flat pixel never uses length',
+    caption:'p = (0.30, −0.05). abs = (0.30, 0.05). q = (0.10, −0.05). Only qx is positive, so the nearest inner point is on the inner right flat, not the inner corner. sdBox = 0.10. sd = 0. The pixel sits on the outer right flat, away from the corner arc.',
+    rule:'sdBox = qx = 0.10   sd = 0',
+    input:'p = (0.30, −0.05)',
+    operation:'horizontal-flat region',
+    output:'outer right boundary'
+  },
+  {
+    title:'The center is inside: sd = −0.20',
+    caption:'p = (0, 0). q = (−0.20, −0.10). Both leftovers negative. The larger is −0.10, the leftover toward the nearer inner flat. sd = −0.10 − 0.10 = −0.20. Minus means inside. The store is orange. 0 in p is still the visual center. 0 in sd is the rounded boundary, not the center.',
+    rule:'sdBox = −0.10   sd = −0.20',
+    input:'p = (0, 0)',
+    operation:'inside-inner-box region, then grow',
+    output:'orange'
+  },
+  {
+    title:'The AABB pocket is outside. A circle formula is the wrong silhouette.',
+    caption:'p = (0.30, −0.20) is the outer sharp box’s top-right corner. q = (0.10, 0.10). length = 0.14142. sd = +0.04142. Plus means outside the quarter-circle. length(p) − 0.20 would classify a different set of pixels. Production uses the four-region inner-box route, not a circle.',
+    rule:'pocket sd = +0.04142   circle comparison is diagnostic',
+    input:'AABB corner and the circle leftover',
+    operation:'compare two zero contours',
+    output:'navy in the pocket, rounded silhouette in production'
+  },
+  {
+    title:'Production tests this sd with a hard if. Mask is unused.',
+    caption:'if (sd < 0.0) orange else navy. Soft mask from Lesson 9.3 can wrap this sd later. This lesson keeps the hard cut so the new zero contour is the picture. A capsule is Lesson 9.5: grow a line segment instead of a box. Combining two complete fields is Lesson 9.6.',
+    rule:'if (sd < 0.0) orange else navy',
+    input:'rounded-rectangle sd',
+    operation:'Lesson 9.2’s cut on a new number',
+    output:'orange inside, navy outside'
+  }
+];
+function drawStepPicture(ctx, index){
+  ctx.clearRect(0,0,960,460);
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,960,460);
+  const ox=40, oy=40, S=360;
+  const tmp=document.createElement('canvas');
+  tmp.width=W; tmp.height=H;
+  const tctx=tmp.getContext('2d');
+  const r=0.10;
+  const rule = index===8 ? 'circle' : 'hard';
+  if(index===0){
+    drawField(tctx, 'circle', r);
+  } else {
+    drawField(tctx, rule, r);
+  }
+  ctx.drawImage(tmp, ox, oy, S, S);
+  ctx.strokeStyle='#172033'; ctx.lineWidth=2; ctx.strokeRect(ox,oy,S,S);
+  const scale=S/W;
+  const mapX=x=>ox+x*scale, mapY=y=>oy+y*scale;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(ox, oy, S, S); ctx.clip();
+  if(index>=1){
+    const inn=innerBox(r);
+    ctx.strokeStyle='#4338ca'; ctx.lineWidth=2; ctx.setLineDash([6,5]);
+    ctx.strokeRect(mapX(pxX(-inn.w)), mapY(pxY(-inn.h)), inn.w*2*S, inn.h*2*S);
+    ctx.setLineDash([]);
+  }
+  if(index>=2){
+    ctx.strokeStyle='#059669'; ctx.lineWidth=3;
+    if(typeof ctx.roundRect==='function'){
+      ctx.beginPath();
+      ctx.roundRect(mapX(pxX(-HX)), mapY(pxY(-HY)), HX*2*S, HY*2*S, r*S);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+  ctx.strokeStyle='#d97706'; ctx.lineWidth=3;
+  ctx.strokeRect(mapX(CORNER.x)-8, mapY(CORNER.y)-8, 16, 16);
+  if(index>=8){
+    ctx.strokeStyle='#be185d'; ctx.lineWidth=2;
+    ctx.strokeRect(mapX(POCKET.x)-8, mapY(POCKET.y)-8, 16, 16);
+  }
+  let sel={x:mapX(CORNER.x), y:mapY(CORNER.y)};
+  if(index===6) sel={x:mapX(FLAT.x), y:mapY(FLAT.y)};
+  if(index===7) sel={x:mapX(CENTER.x), y:mapY(CENTER.y)};
+  if(index===8) sel={x:mapX(POCKET.x), y:mapY(POCKET.y)};
+  ctx.fillStyle='#059669';
+  ctx.beginPath(); ctx.arc(sel.x, sel.y, 6, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle='#172033'; ctx.font='800 18px ui-sans-serif,system-ui';
+  ctx.fillText(STEPS[index].title, 430, 70);
+  ctx.font='800 22px SFMono-Regular,Consolas,monospace';
+  ctx.fillStyle='#4338ca';
+  const nums=['not a circle','inner half (0.20, 0.10)','grow by r','abs then q','four regions','corner sd = 0','flat sd = 0','center sd = −0.20','pocket is outside','hard if on this sd'];
+  ctx.fillText(nums[index], 430, 160);
+}
+function renderStep(){
+  const s=STEPS[currentStep];
+  document.getElementById('stepCounter').textContent=`Step ${currentStep+1} of ${STEPS.length}`;
+  document.getElementById('stepGridLabel').textContent=`Step ${currentStep+1} of ${STEPS.length}`;
+  document.getElementById('stepTitle').textContent=s.title;
+  document.getElementById('stepCaption').textContent=s.caption;
+  document.getElementById('stepRule').textContent=s.rule;
+  document.getElementById('stepInput').textContent=s.input;
+  document.getElementById('stepOperation').textContent=s.operation;
+  document.getElementById('stepOutput').textContent=s.output;
+  document.querySelectorAll('.step-dot').forEach((b,i)=>b.classList.toggle('selected', i===currentStep));
+  drawStepPicture(document.getElementById('stepCanvas').getContext('2d'), currentStep);
+}
+const stepButtons=document.getElementById('stepButtons');
+STEPS.forEach((_,i)=>{
+  const b=document.createElement('button');
+  b.className='step-dot'; b.textContent=String(i+1);
+  b.addEventListener('click',()=>{currentStep=i;renderStep();});
+  stepButtons.appendChild(b);
+});
+document.getElementById('stepPrev').addEventListener('click',()=>{currentStep=Math.max(0,currentStep-1);renderStep();});
+document.getElementById('stepNext').addEventListener('click',()=>{currentStep=Math.min(STEPS.length-1,currentStep+1);renderStep();});
+document.querySelectorAll('.choice').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.choice').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    const box=document.getElementById('predictionResult');
+    if(btn.dataset.answer==='correct'){
+      box.textContent='Yes. q = (0.06, 0.08), length = 0.10, sd = 0. The hard if is false at 0, so production stores navy with the outside.';
+      box.style.background='var(--green-soft)';
+    } else if(btn.dataset.answer==='wrong-circle'){
+      box.textContent='length(p) − r is a circle. This pixel is on the quarter-circle grown from the inner corner, so you need length(q), not length(p). sd = 0, navy.';
+      box.style.background='var(--amber-soft)';
+    } else {
+      box.textContent='Inside the outer sharp box is not the test. This pixel sits on the rounded boundary, so sd = 0. The hard if is false. Navy.';
+      box.style.background='var(--amber-soft)';
+    }
+  });
+});
+const starter=document.getElementById('challengeEditor').value;
+document.getElementById('checkChallenge').addEventListener('click',()=>{
+  const text=document.getElementById('challengeEditor').value;
+  const box=document.getElementById('challengeResult');
+  const abs=/q\s*=\s*abs\s*\(\s*p\s*\)/.test(text);
+  const len=/sdBox\s*=\s*length\s*\(\s*q\s*\)/.test(text);
+  const sub=/sd\s*=\s*sdBox\s*-\s*cornerRadius/.test(text);
+  const add=/sd\s*=\s*sdBox\s*\+\s*cornerRadius/.test(text);
+  if(abs && len && sub && !add){
+    box.textContent='Correct. abs(p), length(q) in the corner, then subtract cornerRadius.';
+    box.style.background='var(--green-soft)';
+  } else {
+    box.textContent='Need abs(p), length(q) in the both-positive branch, and sd = sdBox - cornerRadius.';
+    box.style.background='var(--amber-soft)';
+  }
+});
+document.getElementById('showSolution').addEventListener('click',()=>{
+  document.getElementById('challengeEditor').value=`uniform float2 resolution;
+uniform float halfWidth;
+uniform float halfHeight;
+uniform float cornerRadius;
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / resolution;
+    float2 p = uv - float2(0.5, 0.5);
+    float2 q = abs(p) - float2(
+        halfWidth - cornerRadius,
+        halfHeight - cornerRadius
+    );
+    float sdBox;
+    if (q.x > 0.0) {
+        if (q.y > 0.0) {
+            sdBox = length(q);
+        } else {
+            sdBox = q.x;
+        }
+    } else {
+        if (q.y > 0.0) {
+            sdBox = q.y;
+        } else {
+            sdBox = q.x > q.y ? q.x : q.y;
+        }
+    }
+    float sd = sdBox - cornerRadius;
+    half4 navy = half4(0.10, 0.25, 0.40, 1.0);
+    half4 orange = half4(0.88, 0.48, 0.18, 1.0);
+    if (sd < 0.0) return orange;
+    return navy;
+}`;
+});
+document.getElementById('resetChallenge').addEventListener('click',()=>{
+  document.getElementById('challengeEditor').value=starter;
+  document.getElementById('challengeResult').textContent='The blanks are abs, length, and the grow subtract.';
+  document.getElementById('challengeResult').style.background='var(--soft)';
+});
+document.getElementById('buildRecord').addEventListener('click',()=>{
+  document.getElementById('record').value=`# Lesson 9.4 — Rounded rectangle distance field
+
+- Date:
+- innerHalf = outerHalf − cornerRadius.
+- q = abs(p) − innerHalf.
+- piecewise sdBox, then sd = sdBox − cornerRadius.
+- Default outer half (0.30, 0.20), r = 0.10, inner half (0.20, 0.10).
+- Corner-boundary p = (0.26, −0.18), q = (0.06, 0.08), sd = 0.
+- Center sd = −0.20. AABB pocket is outside.
+- Production: if (sd < 0.0) orange else navy.
+- Soft mask unused. Capsule is 9.5. Two-field min/max is 9.6.
+- Checkpoint still Lesson 9.2. Completion count still 87 of 216.
+`;
+});
+const qa=new URLSearchParams(location.search).get('qa');
+if(qa==='circle') mode='circle';
+if(qa==='out'){ px=OUT.x; py=OUT.y; }
+if(qa==='flat'){ px=FLAT.x; py=FLAT.y; }
+if(qa==='pocket'){ px=POCKET.x; py=POCKET.y; }
+if(qa==='center'){ px=CENTER.x; py=CENTER.y; }
+if(qa==='r0'){ radius=0; }
+if(qa==='step10') currentStep=9;
+updateLab();
+renderStep();
+if(qa==='predict'){
+  const correct=[...document.querySelectorAll('.choice')].find(b=>b.dataset.answer==='correct');
+  if(correct) correct.click();
+}
+function revealFrom(id){
+  let keep=false;
+  document.querySelectorAll('.topbar, .hero, .section, .footer').forEach(el=>{
+    if(el.id===id) keep=true;
+    if(!keep) el.style.display='none';
+  });
+}
+if(qa==='lab'||qa==='circle'||qa==='out'||qa==='flat'||qa==='pocket'||qa==='center'||qa==='r0') revealFrom('lab');
+if(qa==='grow') revealFrom('grow');
+if(qa==='step10') revealFrom('stepper');
+</script>
+</body>
+</html>

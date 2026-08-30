@@ -1,6 +1,6 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 9.2.0  
+**Version:** 9.4.0  
 **Updated:** 2026-08-30  
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
@@ -11,11 +11,11 @@ Live progress, current files, and the checkpoint/frontier contracts live in `CUR
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **86 of 216**, through **Lesson 8.12**.
-- Completed chapters: **1–8**. Chapter 9: **0 of 14**.
-- Unresolved checkpoint: **Lesson 9.1 — Distance between two points**.
-- Generated frontier: **Lesson 9.2 — Circle signed distance field** (generated ahead, not complete).
-- Next planned after the frontier: **Lesson 9.3 — Turn distance into a soft mask**.
+- Learner-confirmed complete: **87 of 216**, through **Lesson 9.1**.
+- Completed chapters: **1–8**. Chapter 9: **1 of 14**.
+- Unresolved checkpoint: **Lesson 9.2 — Circle signed distance field**.
+- Generated frontier: **Lesson 9.4 — Rounded rectangle distance field** (generated ahead, not complete).
+- Next planned after the frontier: **Lesson 9.5 — Capsule distance field**.
 
 ## 2. How this file relates to the rule sources
 
@@ -187,7 +187,7 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 
 **Purpose:** Build the mathematical tools that let a shader know where a glass boundary is and how to bend the background.
 
-1. **9.1 — Distance between two points.** Use a right triangle visually before introducing the formula.
+1. **9.1 — Distance between two points.** Use a right triangle visually before introducing the formula. **Complete.**
 2. **9.2 — Circle signed distance field.** Make the sign tell whether a point is inside or outside.
 3. **9.3 — Turn distance into a soft mask.** Use `smoothstep` around the boundary.
 4. **9.4 — Rounded rectangle distance field.** Build it from local coordinates and corner radius.
@@ -418,15 +418,24 @@ Chapters **1–7** are complete. Do not reopen blur, tint, saturation, inset-str
      shrink to smallest failing program; teaching fault is gl_FragCoord
 ```
 
-**Generated ahead, not complete**
+**Completed Chapter 9**
 
 ```text
 9.1  right triangle first; 0.30 / 0.40 / 0.50; length(p) as gray
+```
+
+**Generated ahead, not complete**
+
+```text
 9.2  sd = length(p) − radius; minus inside; if (sd < 0) orange else navy
+9.3  mask = 1 − smoothstep(−band, band, sd); mix(navy, orange, mask)
+     teaching sd +0.05 → mask 0.15625 → stored red 0.221875
+9.4  innerHalf = outerHalf − r; q = abs(p) − innerHalf; sd = sdBox − r
+     outer half (0.30, 0.20); r = 0.10; corner-boundary p = (0.26, −0.18)
 ```
 
 **Policy**
 
-- Count only explicit learner confirmation. Generating 9.2 does not complete 9.1.
+- Count only explicit learner confirmation. Generating 9.3 or 9.4 does not complete 9.2.
 - Current HTML/Kotlin paths live in `CURRENT_STATE.md`. Explorer names for older lessons live in those lesson files and `ChapterNNScreen.kt`.
 - 5.8/5.9 stay consolidated: 5.8 is the teaching page; 5.9 is the archive redirect.

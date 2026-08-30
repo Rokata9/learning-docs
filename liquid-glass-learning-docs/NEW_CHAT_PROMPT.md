@@ -151,14 +151,14 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-08-30 with `CURRENT_STATE.md` (course version 9.2.0).
+**Last aligned:** 2026-08-30 with `CURRENT_STATE.md` (course version 9.4.0).
 
 ```text
-completed: 86 of 216, through Lesson 8.12
-current unresolved checkpoint: Lesson 9.1 — Distance between two points
-generated frontier: Lesson 9.2 — Circle signed distance field
-next planned lesson after the frontier: Lesson 9.3 — Turn distance into a soft mask
-Lesson 9.1 and Lesson 9.2 are generated ahead and not complete
+completed: 87 of 216, through Lesson 9.1
+current unresolved checkpoint: Lesson 9.2 — Circle signed distance field
+generated frontier: Lesson 9.4 — Rounded rectangle distance field
+next planned lesson after the frontier: Lesson 9.5 — Capsule distance field
+Lesson 9.2, Lesson 9.3, and Lesson 9.4 are generated ahead and not complete
 ```
 
 Chapter 7 is complete. Frost constants stay fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
@@ -274,7 +274,7 @@ RuntimeShader(string) compiles
 
 Teaching failure is `gl_FragCoord` in an otherwise legal 8.11 program. HTML does not compile AGSL. A Lesson 8.9 name mismatch is not a compile error. Preview starts on the working string.
 
-**9.1 checkpoint contract:**
+**9.1 completed contract:**
 
 ```text
 right triangle first (square corner, two legs, long side)
@@ -286,7 +286,7 @@ right triangle first (square corner, two legs, long side)
 
 Teaching `p = (0.30, −0.40)` on a square 400×400 rectangle. Walk-around 0.70 is not the long side. × 2 unused. Sign unused. Rectangle is square so UV x and UV y share one pixel length. Nested equal-value outlines: smaller length circles are darker; smaller walk-around diamonds are that analog. The diamond is a square standing on a vertex.
 
-**9.2 frontier contract:**
+**9.2 checkpoint contract:**
 
 ```text
 sd = length(p) − radius
@@ -294,15 +294,40 @@ sd = length(p) − radius
 → if (sd < 0.0) orange else navy
 ```
 
-Default radius 0.25. Teaching pixel sd = +0.25 (outside, navy). Center sd = −0.25 (inside, orange). Boundary `p = (0.15, −0.20)` has sd = 0. `smoothstep` unused. Walk-around diamond is HTML-only. Do not generate Lesson 9.3 unless I ask.
+Default radius 0.25. Teaching pixel sd = +0.25 (outside, navy). Center sd = −0.25 (inside, orange). Boundary `p = (0.15, −0.20)` has sd = 0. `smoothstep` unused. Walk-around diamond is HTML-only.
+
+**9.3 generated-ahead contract:**
+
+```text
+mask = 1.0 − smoothstep(−band, band, sd)
+→ mix(navy, orange, mask)
+→ teaching sd = +0.05 → mask = 0.15625 → stored red 0.221875
+```
+
+Default band 0.10. Teaching band pixel `p = (0.18, −0.24)`, `d = 0.30`. linearFraction 0.75. curvedFraction 0.84375. Far pixel `p = (0.30, −0.40)` clamps to mask 0. Center mask 1. Boundary mask 0.50. Requires `edge1 > edge0`. Not 4.8 binary, not 4.9 coverage, not blur.
+
+**9.4 frontier contract:**
+
+```text
+innerHalf = outerHalf − cornerRadius
+→ q = abs(p) − innerHalf
+→ piecewise sdBox, then sd = sdBox − cornerRadius
+→ if (sd < 0.0) orange else navy
+```
+
+Default outer half `(0.30, 0.20)`, corner radius 0.10. Corner-boundary `p = (0.26, −0.18)` has sd = 0. `abs(p)` mirrors left onto right and top onto bottom. Capsule is Lesson 9.5. Combining two complete fields is Lesson 9.6.
 
 Current files:
 
 ```text
 course/chapters/chapter-09/lesson-09-01-distance-between-two-points.html
 course/chapters/chapter-09/lesson-09-02-circle-signed-distance-field.html
+course/chapters/chapter-09/lesson-09-03-turn-distance-into-a-soft-mask.html
+course/chapters/chapter-09/lesson-09-04-rounded-rectangle-distance-field.html
 course/chapters/chapter-09/lesson-distance-fields-image-sampling-and-refraction.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/DistanceBetweenPointsExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/CircleSdfExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/SoftMaskExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/RoundedRectSdfExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/Chapter09Screen.kt
 ```

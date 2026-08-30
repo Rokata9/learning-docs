@@ -1,7 +1,7 @@
 # Liquid Glass Android course — implementation handoff
 
 **Updated:** 2026-08-30  
-**Course version:** 9.2.0
+**Course version:** 9.4.0
 
 ## Read order
 
@@ -19,17 +19,17 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 86
-completed_through: "Lesson 8.12 — Shader error workflow"
+learner_confirmed_complete: 87
+completed_through: "Lesson 9.1 — Distance between two points"
 completed_chapters: [1, 2, 3, 4, 5, 6, 7, 8]
 chapter_8_complete: "12 of 12"
-chapter_9_complete: "0 of 14"
-next_unresolved_checkpoint: "Lesson 9.1 — Distance between two points"
-generated_frontier: "Lesson 9.2 — Circle signed distance field"
-next_planned_after_frontier: "Lesson 9.3 — Turn distance into a soft mask"
+chapter_9_complete: "1 of 14"
+next_unresolved_checkpoint: "Lesson 9.2 — Circle signed distance field"
+generated_frontier: "Lesson 9.4 — Rounded rectangle distance field"
+next_planned_after_frontier: "Lesson 9.5 — Capsule distance field"
 ```
 
-Lessons 8.2 through 8.12 are learner-confirmed complete. Lessons 9.1 and 9.2 are generated ahead and are not complete. Generating 9.2 does not complete 9.1. Do not generate Lesson 9.3 unless the learner asks.
+Lessons 8.2 through 9.1 are learner-confirmed complete. Lessons 9.2, 9.3, and 9.4 are generated ahead and are not complete. Generating 9.3 or 9.4 does not complete 9.2.
 
 Chapter 7 frost stays fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
@@ -52,7 +52,7 @@ Chapter 7 frost stays fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, sat
 
 8.8 subtract is required. × 2 is the convention that makes 1 mean one half-width. The smaller stripe previews Lesson 9.9. Chapter 9 circle, center-scale, and sample offset consume `p`.
 
-## Generated-ahead Lesson 9.1
+## Completed Lesson 9.1
 
 ```text
 right triangle first
@@ -64,7 +64,9 @@ right triangle first
 
 Teaching `p = (0.30, −0.40)` on a square rectangle. Walk-around 0.70 is not the long side. × 2 unused. Sign unused.
 
-Nested equal-value outlines (added after a 9.1 question): smaller `length` circles are darker; a smaller walk-around diamond is the analog of a smaller-radius circle. The diamond is a square standing on a vertex, rotated 45 degrees so vertices point along the axes.
+Nested equal-value outlines: smaller `length` circles are darker; a smaller walk-around diamond is the analog of a smaller-radius circle. The diamond is a square standing on a vertex, rotated 45 degrees so vertices point along the axes.
+
+Learner marked 9.1 ready with no questions. Keep the countable integer triangle before the 0.30 / 0.40 / 0.50 copy, and keep nested equal-value outlines when a scalar field is stored as gray.
 
 ## Generated-ahead Lesson 9.2
 
@@ -76,10 +78,30 @@ sd = length(p) − radius
 
 Default radius 0.25. Teaching pixel sd = +0.25 (outside). Center sd = −0.25 (inside). `smoothstep` unused.
 
+## Generated-ahead Lesson 9.3
+
+```text
+mask = 1.0 − smoothstep(−band, band, sd)
+→ mix(navy, orange, mask)
+```
+
+Default band 0.10 (teaching width, 40 pixels on the 400-wide square). Teaching band pixel `p = (0.18, −0.24)`, `sd = +0.05`. linearFraction 0.75. curvedFraction 0.84375. mask 0.15625. stored red 0.221875 (same mix arithmetic as 8.11, different input). The 1 minus turns the growing-as-you-leave-the-shape smoothstep into an inside-amount. Not 4.8 binary, not 4.9 coverage, not blur.
+
+## Generated-ahead Lesson 9.4
+
+```text
+innerHalf = outerHalf − cornerRadius
+→ q = abs(p) − innerHalf
+→ piecewise sdBox, then sd = sdBox − cornerRadius
+→ if (sd < 0.0) orange else navy
+```
+
+Default outer half `(0.30, 0.20)`, corner radius 0.10. Growing the inner sharp box by the corner radius produces Lesson 4.2’s rounded rectangle. `abs(p)` mirrors left onto right and top onto bottom. Corner-boundary `p = (0.26, −0.18)` uses the 3-4-5 direction `(0.6, 0.8)` and has `sd = 0`. AABB corner pocket is outside. Capsule is 9.5. Combining two complete fields with min/max is 9.6.
+
 ## Future conversation
 
 Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions. When the checkpoint or frontier moves, refresh section 12 of that prompt after `CURRENT_STATE.md`.
 
 Standing delivery: no ZIP archives; new `@Preview` stacks light then dark. Details in `USER_PREFERENCES.md`.
 
-Course progress: 86 of 216 lessons completed.
+Course progress: 87 of 216 lessons completed.
