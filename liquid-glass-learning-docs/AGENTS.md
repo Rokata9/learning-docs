@@ -338,7 +338,7 @@ Apply these rules to every Android lesson patch:
 
 3. For Lesson 3.1 and later, provide light and dark variants for both preview levels. Wrap each preview in `LiquidGlassLabTheme`. Wrap a direct child preview in a theme-aware `Surface` when the child normally receives its page background or content color from the parent screen.
 
-4. When stacking both theme `@Preview` annotations on one wrapper, put the dark variant first (`uiMode = Configuration.UI_MODE_NIGHT_YES`), then the light variant (`UI_MODE_NIGHT_NO`). This is source annotation order only. It does not change the app's runtime default theme. Apply to newly written or newly revised preview wrappers. Do not bulk-reorder completed historical lessons unless asked.
+4. When stacking both theme `@Preview` annotations on one wrapper, put the light variant first (`uiMode = Configuration.UI_MODE_NIGHT_NO`), then the dark variant (`UI_MODE_NIGHT_YES`). This is source annotation order only. It does not change the app's runtime default theme. Apply to newly written or newly revised preview wrappers. Do not bulk-reorder completed historical lessons unless asked.
 
 5. Preview wrapper functions must take no parameters. Supply representative values inside the wrapper when the child composable requires arguments.
 
@@ -556,7 +556,7 @@ If a full-range graph hides residual motion, provide a near-target zoom or stop 
 
 - `CURRENT_STATE.md` contains only the authoritative current state and current checkpoint. It is not a chronological revision log.
 - The handoff keeps active rules, canonical exemplars, current files, and recent decisions. Compress superseded revision narratives into short lessons learned.
-- The curriculum keeps the full course plan plus concise implementation status. Do not duplicate complete lesson prose or every patch history there.
+- The curriculum keeps the full 216-lesson plan plus frozen locks needed to generate later lessons. Do not add per-lesson implementation diaries, patch history, or complete lesson prose there.
 - `AGENTS.md` and `USER_PREFERENCES.md` remain the canonical permanent-rule sources. Avoid copying their full contents into the state, handoff, or curriculum.
 - Preserve facts needed for continuation. Remove repeated package manifests, repeated QA reports, superseded status blocks, and prose already present in the lesson HTML or Kotlin source.
 

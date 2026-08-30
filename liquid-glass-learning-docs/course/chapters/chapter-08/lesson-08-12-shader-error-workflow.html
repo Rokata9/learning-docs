@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 8.12 — Shader error workflow</title>
+<style>
+:root{color-scheme:light;--ink:#172033;--muted:#596579;--line:#d8e0ea;--paper:#fff;--soft:#f5f7fb;--panel:#fbfcfe;--control:#fff;--green:#059669;--green-soft:#ecfdf5;--indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;--blue:#1e40af;--blue-soft:#dbeafe;--red:#dc2626;--red-soft:#fee2e2;--orange:#e07a2e;--navy:#1a4066;--body-start:#f8fafc;--body-end:#edf2f7;--shadow:0 18px 52px rgba(30,41,59,.09);--code:#111827;--code-ink:#e5e7eb}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--body-start),var(--body-end));font:16px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}button,input,textarea{font:inherit}button{cursor:pointer}code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}code{background:var(--indigo-soft);padding:.12em .36em;border-radius:6px;white-space:nowrap}.code-block>code,.code-block code{display:block;background:transparent;color:inherit;padding:0;border-radius:0;white-space:pre-wrap}.page{width:min(2260px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.topbar{display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:22px}.crumbs{color:var(--muted)}.chips{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:850}.chip.progress{color:var(--green);background:var(--green-soft)}.chip.pending{color:var(--amber);background:var(--amber-soft)}.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(480px,.85fr);gap:28px;padding:42px}.eyebrow,.section-no{color:var(--indigo);font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase}h1{margin:.35rem 0 1rem;font-size:clamp(42px,4vw,70px);line-height:1.04;letter-spacing:-.045em}h2{margin:0 0 .7rem;font-size:31px;line-height:1.18}h3{margin:0 0 .5rem;font-size:21px;line-height:1.25}p{max-width:110ch}.lead{font-size:19px;color:var(--muted)}.plain-rule{font-size:clamp(20px,1.8vw,28px);font-weight:950;line-height:1.3;padding:20px;border:2px solid var(--indigo);border-radius:16px;background:var(--indigo-soft)}.section{margin-top:24px;padding:32px}.section-head{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:22px}.section-head p{margin:0;color:var(--muted)}.card{padding:20px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}.card.green{background:var(--green-soft)}.card.blue{background:var(--blue-soft)}.card.amber{background:var(--amber-soft)}.card.indigo{background:var(--indigo-soft)}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.note,.warning{margin-top:18px;padding:16px 18px;border-radius:14px}.note{border-left:5px solid var(--blue);background:var(--blue-soft)}.warning{border-left:5px solid var(--amber);background:var(--amber-soft)}.formula{padding:14px 16px;border-radius:13px;background:var(--indigo-soft);border:1px solid color-mix(in srgb,var(--indigo) 45%,var(--line));font:800 15px/1.64 "SFMono-Regular",Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.btn{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:850;border:1px solid var(--line);background:var(--control);color:var(--ink);text-decoration:none;display:inline-flex;align-items:center}.btn:hover,.btn:focus-visible{border-color:var(--blue);outline:none}.btn.primary{border-color:var(--blue);background:var(--blue);color:#fff}.btn.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.hero-art{min-height:320px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,var(--blue-soft),var(--indigo-soft));padding:22px;display:grid;align-content:center;gap:14px}.hero-pipeline{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;gap:8px;align-items:center}.hero-stage{padding:16px 10px;text-align:center;border-radius:14px;background:var(--paper);border:1px solid var(--line);font-weight:900}.arrow{font-size:28px;color:var(--indigo);font-weight:950}.lab-grid{display:grid;grid-template-columns:minmax(720px,1.2fr) minmax(420px,.8fr);gap:18px}.canvas-card{padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--panel);min-width:0}.canvas-title{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:9px}.canvas-title span,.origin{color:var(--muted);font-size:13px;font-weight:700}.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:14px}.metric{padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--control)}.metric strong{display:block;color:var(--indigo);margin-bottom:4px}.metric .origin{display:block;margin-bottom:6px}.metric .value{display:block;font-weight:850}.lesson-grid{display:grid;grid-template-columns:minmax(860px,1.25fr) minmax(430px,.75fr);gap:18px;align-items:start}.stepper{position:sticky;top:18px;border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden}.step-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}.step-body{padding:18px}.step-title{font-size:22px;font-weight:950}.step-caption{min-height:200px}.step-buttons{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}.step-dot{width:40px;height:40px;padding:0;border-radius:10px;border:1px solid var(--line);background:var(--control);color:var(--ink);font-weight:900}.step-dot.selected{background:var(--indigo);border-color:var(--indigo);color:#fff}.io{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}.io>div{padding:11px;border:1px solid var(--line);border-radius:11px;background:var(--control)}.io strong,.io span{display:block}.code-grid{display:grid;grid-template-columns:minmax(650px,1fr) minmax(500px,.8fr);gap:18px}.code-block{background:var(--code);color:var(--code-ink);border-radius:14px;padding:16px;white-space:pre-wrap;overflow:auto;font:14px/1.62 "SFMono-Regular",Consolas,monospace}.code-block .bad{background:#7f1d1d;color:#fecaca}.code-block .ok{background:#064e3b;color:#a7f3d0}.prediction{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.choice{appearance:none;min-height:112px;padding:16px;border:2px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);text-align:left;font-weight:800;line-height:1.5}.choice:hover,.choice:focus-visible{border-color:var(--blue);outline:none}.choice.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.challenge{display:grid;grid-template-columns:minmax(650px,1fr) minmax(500px,.75fr);gap:18px}.editor{width:100%;min-height:300px;resize:vertical;background:var(--code);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace;white-space:pre;overflow:auto}.result{min-height:55px;margin-top:12px;padding:12px;border-radius:11px;background:var(--soft)}details{margin:10px 0;border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:13px 15px}summary{cursor:pointer;font-weight:900}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.check{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}.record{width:100%;min-height:240px;margin-top:12px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);font:14px/1.6 "SFMono-Regular",Consolas,monospace}.footer{margin-top:24px;padding:18px 24px;display:flex;justify-content:space-between;gap:18px;align-items:center}.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-weight:800}.formulas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:12px}.line-table{width:100%;border-collapse:collapse;margin-top:12px;font:800 14px/1.5 "SFMono-Regular",Consolas,monospace}.line-table th,.line-table td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}.line-table th{background:var(--soft)}.line-table tr.fail td{background:#fee2e2}.line-table tr.pass td{background:#ecfdf5}.line-table .ln{color:var(--muted);width:3ch}
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-your-first-agsl-shader.html">Chapter 8</a> · Lesson 8.12 · generated ahead</div>
+    <div class="chips"><span class="chip progress">84 of 216 complete</span><span class="chip pending">Checkpoint 8.11 unresolved</span><span class="chip pending">8.12 generated ahead</span></div>
+  </div>
+
+  <header class="hero panel">
+    <div>
+      <div class="eyebrow">Chapter 8 · Compile the string, then shrink a failure</div>
+      <h1>Shader error workflow</h1>
+      <p class="lead"><strong>Question:</strong> Lesson 8.2 compiles an AGSL string when Kotlin constructs <code>RuntimeShader(string)</code>. If that string is illegal, there is no running program. How do you read the constructor exception and shrink the string until one bad line is isolated?</p>
+      <div class="plain-rule">A <strong>shader compile error</strong> is a failure of <code>RuntimeShader(string)</code>. Android throws <code>IllegalArgumentException</code>. The message usually starts with <code>error:</code>, then a 1-based line number, then the complaint. A <strong>smallest failing program</strong> is the shortest string that still throws. Fix that string. Then restore the other lines.</div>
+      <div class="note"><strong>Generated ahead.</strong> Lesson 8.11 remains the unresolved checkpoint. This page does not compile AGSL. It maps three prepared strings to typical message shapes taken from public Android compiler output. The Android explorer constructs real <code>RuntimeShader</code> objects and prints the thrown message.</div>
+    </div>
+    <div class="hero-art" aria-label="Compile, read the line, shrink, fix">
+      <div class="hero-pipeline">
+        <div class="hero-stage">AGSL<br>string</div><div class="arrow">→</div>
+        <div class="hero-stage">RuntimeShader<br>constructor</div><div class="arrow">→</div>
+        <div class="hero-stage">error: line<br>complaint</div><div class="arrow">→</div>
+        <div class="hero-stage">smallest<br>failing form</div>
+      </div>
+      <p style="margin:0;font-weight:800">Canonical wording: <a href="../../glossary.html#shader-compile-error">shader compile error</a>, <a href="../../glossary.html#smallest-failing-program">smallest failing program</a>, <a href="../../glossary.html#agsl">AGSL</a>.</p>
+    </div>
+  </header>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">1 · THE NEW MOMENT</div><h2>Construction compiles. A later uniform write does not.</h2></div></div>
+    <div class="four">
+      <article class="card blue"><h3>8.2 leftover</h3><p>Lesson 8.2 constructed <code>RuntimeShader(agslString)</code>. That call compiles the string. A legal string becomes a running program. This lesson is the illegal-string path of that same call.</p></article>
+      <article class="card indigo"><h3>8.9 leftover</h3><p>A mismatched Kotlin uniform name is not a compile error. The program still constructs. The unread slot stays at 0. Do not hunt a compile message for that case.</p></article>
+      <article class="card green"><h3>Exception</h3><p>An exception is an object the runtime throws instead of returning a value. <code>IllegalArgumentException</code> is the type Android documents for a bad <code>RuntimeShader</code> string. Its <code>message</code> field holds the compiler text.</p></article>
+      <article class="card amber"><h3>Line number</h3><p>The number after <code>error:</code> counts lines in the string passed to the constructor, starting at 1. A leading newline in a Kotlin <code>"""</code> string is line 1 if that newline is inside the string.</p></article>
+    </div>
+    <div class="formulas">
+      <div class="formula">Kotlin:
+try {
+    RuntimeShader(agslString)
+} catch (e: IllegalArgumentException) {
+    // e.message is the compiler text
+}
+  ← no running ShaderBrush if this catch runs
+  ← setFloatUniform is not reached</div>
+      <div class="formula">Typical message shape, from public Android output:
+error: 13: expected ';', but found '
+  ← 13 is a 1-based line number in that string
+  ← this page does not claim every device prints the same punctuation
+  ← the Android explorer prints the live message</div>
+    </div>
+  </section>
+
+  <section class="section panel" id="lab">
+    <div class="section-head"><div><div class="section-no">2 · INTERACTIVE LAB</div><h2>Four prepared strings. One production route.</h2></div><p>Working is Lesson 8.11’s production program. The other three are prepared failures. This page matches them to typical message shapes. It does not run SkSL.</p></div>
+    <div class="controls" role="group" aria-label="Prepared strings">
+      <button class="btn sample-btn selected" data-sample="working">Working 8.11</button>
+      <button class="btn sample-btn" data-sample="ident">Unknown name</button>
+      <button class="btn sample-btn" data-sample="semi">Missing semicolon</button>
+      <button class="btn sample-btn" data-sample="type">Wrong return type</button>
+    </div>
+    <div class="metrics">
+      <div class="metric"><strong>Constructor</strong><span class="origin">RuntimeShader(string)</span><span class="value" id="ctorMetric"></span></div>
+      <div class="metric"><strong>Line in message</strong><span class="origin">1-based in this string</span><span class="value" id="lineMetric"></span></div>
+      <div class="metric"><strong>Complaint</strong><span class="origin">typical shape</span><span class="value" id="complaintMetric"></span></div>
+      <div class="metric"><strong>Smallest failing?</strong><span class="origin">already reduced?</span><span class="value" id="smallMetric"></span></div>
+      <div class="metric"><strong>Next move</strong><span class="origin">workflow step</span><span class="value" id="nextMetric"></span></div>
+    </div>
+    <div class="lab-grid" style="margin-top:14px">
+      <article class="canvas-card">
+        <div class="canvas-title"><strong>Prepared AGSL string</strong><span id="sampleLabel">Working 8.11</span></div>
+        <pre class="code-block" id="labCode"></pre>
+        <p id="labCaption"></p>
+      </article>
+      <article class="canvas-card">
+        <div class="canvas-title"><strong>Typical constructor result</strong><span>not a live compiler</span></div>
+        <pre class="code-block" id="labResult"></pre>
+        <p id="labResultCaption" style="margin-top:10px"></p>
+      </article>
+    </div>
+    <div class="note"><strong>Browser versus Android.</strong> The Android explorer calls <code>RuntimeShader</code> inside <code>try/catch</code> and prints <code>e.message</code>. Preview starts on the working string so construction succeeds. Broken samples are buttons. This HTML page never throws.</div>
+  </section>
+
+  <section class="section panel" id="reduce">
+    <div class="section-head"><div><div class="section-no">3 · REDUCE</div><h2>Start from 8.11 with one GLSL name left in</h2></div><p><code>gl_FragCoord</code> is GLSL’s name for the current pixel. AGSL’s name is the <code>fragCoord</code> argument taught in Lesson 8.4. The rest of the program is legal. The job is to prove that with shrinking, not by rereading the whole string.</p></div>
+    <table class="line-table" id="reduceTable"></table>
+    <div class="two" style="margin-top:16px">
+      <article class="card green">
+        <h3>If the tiny body compiles</h3>
+        <p>Replace the body with <code>return half4(0.88, 0.48, 0.18, 1.0);</code>. If construction now succeeds, the <code>uniform</code> lines and <code>main</code> signature were not the failure. The bad line is in the body you removed.</p>
+      </article>
+      <article class="card amber">
+        <h3>If the tiny body still fails</h3>
+        <p>The failure is in the leftover declarations or the signature. Shrink those next. Do not restore mix and smoothstep until the tiny program constructs.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section panel" id="stepper">
+    <div class="section-head"><div><div class="section-no">4 · EIGHT STEPS</div><h2>From a long failure to one renamed identifier</h2></div><p>Direct buttons are shown because there are ten or fewer states. The lab buttons do not drive this stepper.</p></div>
+    <div class="lesson-grid">
+      <article class="canvas-card">
+        <div class="canvas-title"><strong>Current string</strong><span id="stepGridLabel">Step 1 of 8</span></div>
+        <pre class="code-block" id="stepCode"></pre>
+      </article>
+      <aside class="stepper">
+        <div class="step-head"><button class="btn" id="stepPrev">Previous</button><strong id="stepCounter">Step 1 of 8</strong><button class="btn primary" id="stepNext">Next</button></div>
+        <div class="step-body">
+          <div class="step-title" id="stepTitle"></div>
+          <div class="step-caption" id="stepCaption"></div>
+          <div class="formula" id="stepRule"></div>
+          <div class="io">
+            <div><strong>Input</strong><span id="stepInput"></span></div>
+            <div><strong>Operation</strong><span id="stepOperation"></span></div>
+            <div><strong>Output</strong><span id="stepOutput"></span></div>
+          </div>
+          <div class="step-buttons" id="stepButtons"></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">5 · THREE FAILURES, ONE RULE</div><h2>The workflow does not change with the complaint</h2></div></div>
+    <div class="three">
+      <article class="card">
+        <h3>Unknown name</h3>
+        <p><code>gl_FragCoord</code> is not an AGSL identifier. Typical complaint names that token. Smallest failing form is one <code>main</code> that uses it once.</p>
+      </article>
+      <article class="card">
+        <h3>Missing semicolon</h3>
+        <p>AGSL statements end with <code>;</code>. Public Android output for this class of error looks like <code>error: 13: expected ';', but found '</code>. Smallest failing form is <code>return half4(1.0, 0.0, 0.0, 1.0)</code> without the semicolon.</p>
+      </article>
+      <article class="card">
+        <h3>Wrong return type</h3>
+        <p>Lesson 8.3’s contract is <code>half4 main(...)</code>. A <code>float main</code> that returns <code>1.0</code> is a different signature. Smallest failing form is that signature alone.</p>
+      </article>
+    </div>
+    <div class="warning"><strong>Not a compile error:</strong> Lesson 8.9’s name mismatch still constructs. <code>setFloatUniform("splitX", ...)</code> when AGSL declared <code>splitU</code> is a later write failure or a silent 0, not a constructor exception. Do not shrink the AGSL string for that.</div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">6 · ANDROID ROUTE</div><h2>Construct inside try, keep the working string first</h2></div></div>
+    <div class="code-grid">
+      <pre class="code-block"><code>private fun compile(source: String): CompileResult {
+    return try {
+        CompileResult.Ok(RuntimeShader(source))
+    } catch (e: IllegalArgumentException) {
+        CompileResult.Fail(e.message ?: "IllegalArgumentException")
+    }
+}
+
+val result = remember(sampleKey) { compile(source) }
+
+when (val current = result) {
+    is CompileResult.Ok -> {
+        Canvas(...) {
+            current.shader.setFloatUniform(
+                "resolution",
+                size.width,
+                size.height,
+            )
+            current.shader.setFloatUniform("edge0", 0.40f)
+            current.shader.setFloatUniform("edge1", 0.60f)
+            drawRect(brush = ShaderBrush(current.shader))
+        }
+    }
+    is CompileResult.Fail -> {
+        Text(current.message)
+    }
+}</code></pre>
+      <div class="card">
+        <h3>What each part changes</h3>
+        <p>The production path is the working 8.11 string. Broken strings exist only because this lesson’s new operation is reading a constructor failure. They are opt-in buttons, not extra drawing modes in the main glass engine.</p>
+        <p><code>remember(sampleKey)</code> reconstructs when the selected string changes. A successful compile still does not rebuild while uniforms change. That is 8.9. A failed compile never reaches <code>setFloatUniform</code>.</p>
+        <p>The printed message is the live <code>IllegalArgumentException.message</code>. This HTML page’s typical shapes can differ in punctuation from a given device.</p>
+        <p><strong>Android files:</strong><br><code>chapter08/ShaderErrorExplorer.kt</code><br><code>chapter08/Chapter08Screen.kt</code></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel" id="predict">
+    <div class="section-head"><div><div class="section-no">7 · PREDICTION</div><h2>You paste <code>gl_FragCoord</code> into 8.11’s otherwise legal program. What fails first?</h2></div></div>
+    <div class="prediction">
+      <button class="choice" data-answer="wrong-uniform">setFloatUniform throws, because the GPU never sees a resolution slot.</button>
+      <button class="choice" data-answer="correct">RuntimeShader(string) throws IllegalArgumentException before any uniform write.</button>
+      <button class="choice" data-answer="wrong-draw">The program constructs, then every pixel stores transparent black.</button>
+    </div>
+    <div class="result" id="predictionResult">Choose one answer.</div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">8 · CODING CHALLENGE</div><h2>Catch the constructor, then name the smallest form</h2></div></div>
+    <div class="challenge">
+      <div>
+        <textarea class="editor" id="challengeEditor" spellcheck="false">val shader = try {
+    RuntimeShader(source)
+} catch (e: __________) {
+    log(e.message)
+    null
+}
+
+// Smallest failing form of the gl_FragCoord mistake:
+half4 main(float2 fragCoord) {
+    return half4(___.x, 0.0, 0.0, 1.0);
+}</textarea>
+        <div class="controls" style="margin-top:10px">
+          <button class="btn primary" id="checkChallenge">Check</button>
+          <button class="btn" id="showSolution">Show solution</button>
+          <button class="btn" id="resetChallenge">Reset</button>
+        </div>
+        <div class="result" id="challengeResult">The blanks are the exception type and the illegal identifier.</div>
+      </div>
+      <div class="card indigo">
+        <h3>Available names</h3>
+        <div class="formula">IllegalArgumentException
+IllegalStateException
+gl_FragCoord
+fragCoord
+setFloatUniform</div>
+        <p>Construction throws <code>IllegalArgumentException</code>. The smallest failing identifier is <code>gl_FragCoord</code>. <code>fragCoord</code> is the legal argument. <code>setFloatUniform</code> is not this failure.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">9 · EXERCISES</div><h2>Answer before opening each hidden solution</h2></div></div>
+    <details><summary>When does AGSL compilation run in this course’s Android path?</summary><p>When Kotlin constructs <code>RuntimeShader(string)</code>. A later <code>setFloatUniform</code> write is not compilation. Lesson 8.9 already wrote extra slots into a program that had constructed successfully.</p></details>
+    <details><summary>Diagnostic: Kotlin writes <code>setFloatUniform("splitX", 0.25f)</code> but AGSL declared <code>uniform float splitU</code>. Is the next step shrinking the AGSL string?</summary><p>No. That program still compiles. Lesson 8.9’s mismatch leaves <code>splitU</code> at 0 or throws at the write, depending on the call. It is not a constructor compile error. Do not delete mix and smoothstep to debug it.</p></details>
+    <details><summary>You replace the body of a failing 8.11 string with <code>return half4(0.88, 0.48, 0.18, 1.0);</code> and construction succeeds. What did that prove?</summary><p>The uniforms and the <code>half4 main(float2 fragCoord)</code> signature were legal. The bad line was in the body you removed. Restore body lines one at a time until construction fails again. That restored line belongs in the smallest failing program.</p></details>
+    <details><summary>Why keep a leading newline in mind when you read <code>error: 6:</code>?</summary><p>The line number counts lines in the exact string passed to the constructor, starting at 1. A Kotlin <code>"""</code> string that starts on the next source line includes that first newline. Line 6 in the exception may be line 5 of the visible AGSL if you ignored that newline.</p></details>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">10 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div></div>
+    <div class="checklist">
+      <label class="check"><input type="checkbox">The Android explorer opens on the working 8.11 string and draws the navy-to-orange band.</label>
+      <label class="check"><input type="checkbox">Unknown-name, missing-semicolon, and wrong-return buttons each show a thrown message, not a rectangle.</label>
+      <label class="check"><input type="checkbox">Returning to Working 8.11 draws the band again. <code>remember</code> reconstructed a legal RuntimeShader.</label>
+      <label class="check"><input type="checkbox">The reduction stepper’s smallest failing form still contains <code>gl_FragCoord</code> and nothing else from mix or smoothstep.</label>
+      <label class="check"><input type="checkbox">This HTML page never claims to compile AGSL or to print a guaranteed exact punctuation.</label>
+      <label class="check"><input type="checkbox">The direct explorer Preview scrolls. Light <code>@Preview</code> is first, then dark. Preview uses the working string.</label>
+      <label class="check"><input type="checkbox">The Chapter 8 screen Preview scrolls and includes this explorer under 8.12.</label>
+      <label class="check"><input type="checkbox">Chapter 7 frost is unchanged. No new blur, tint, or saturation constants.</label>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">11 · EVIDENCE BOUNDARY</div><h2>What this lesson establishes</h2></div></div>
+    <div class="two">
+      <div class="card green"><h3>Established</h3><p>Compilation happens at <code>RuntimeShader(string)</code>. A bad string throws <code>IllegalArgumentException</code> before uniform writes. The useful next step is to shrink to a smallest failing program, fix that line, then restore. A Lesson 8.9 name mismatch is a different failure moment.</p></div>
+      <div class="card amber"><h3>Not claimed</h3><p>This HTML page does not run the AGSL compiler. Exact punctuation of <code>e.message</code> is device and SkSL-version evidence; the Android explorer is the live source. No logcat-only workflow. No GPU timing. Chapter 9 distance fields are unused. Chapter 7 frost is unchanged.</p></div>
+    </div>
+    <button class="btn primary" id="buildRecord" style="margin-top:16px">Build local review record</button>
+    <textarea class="record" id="record" readonly>No record generated yet.</textarea>
+  </section>
+
+  <footer class="footer panel"><span>84 of 216 complete · checkpoint 8.11 unresolved · 8.12 generated ahead</span><span>Previous generated: <a href="lesson-08-11-clamp-mix-smoothstep.html">8.11 — clamp, mix, and smoothstep</a> · Next planned: <strong>9.1 — Distance between two points</strong></span></footer>
+</main>
+<script>
+const WORKING=`uniform float2 resolution;
+uniform float edge0;
+uniform float edge1;
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / resolution;
+    half4 navy = half4(0.10, 0.25, 0.40, 1.0);
+    half4 orange = half4(0.88, 0.48, 0.18, 1.0);
+    float t = smoothstep(edge0, edge1, uv.x);
+    return mix(navy, orange, t);
+}`;
+const IDENT=`uniform float2 resolution;
+uniform float edge0;
+uniform float edge1;
+
+half4 main(float2 fragCoord) {
+    float2 uv = gl_FragCoord / resolution;
+    half4 navy = half4(0.10, 0.25, 0.40, 1.0);
+    half4 orange = half4(0.88, 0.48, 0.18, 1.0);
+    float t = smoothstep(edge0, edge1, uv.x);
+    return mix(navy, orange, t);
+}`;
+const SEMI=`half4 main(float2 fragCoord) {
+    return half4(1.0, 0.0, 0.0, 1.0)
+}`;
+const TYPE=`float main(float2 fragCoord) {
+    return 1.0;
+}`;
+const SAMPLES={
+  working:{
+    label:'Working 8.11',
+    source:WORKING,
+    ctor:'succeeds',
+    line:'none',
+    complaint:'no compile error',
+    smallest:'n/a — this string is legal',
+    next:'draw with setFloatUniform',
+    result:'RuntimeShader(source) returns a program.\nsetFloatUniform can run.\nThis is the production route.',
+    caption:'Lesson 8.11’s mix of smoothstep. Construction succeeds. Uniform writes are 8.9.'
+  },
+  ident:{
+    label:'Unknown name',
+    source:IDENT,
+    ctor:'throws',
+    line:'6',
+    complaint:"unknown identifier 'gl_FragCoord' (typical)",
+    smallest:'not yet — still has mix and uniforms',
+    next:'replace the body with one return',
+    result:"IllegalArgumentException\nerror: 6: unknown identifier 'gl_FragCoord'\n  ← typical shape; Android prints the live text\n  ← line 6 is float2 uv = gl_FragCoord / resolution;",
+    caption:'GLSL’s gl_FragCoord leaked into an otherwise legal 8.11 program. Shrink next. Do not start by deleting uniforms at random.'
+  },
+  semi:{
+    label:'Missing semicolon',
+    source:SEMI,
+    ctor:'throws',
+    line:'2',
+    complaint:"expected ';' (typical)",
+    smallest:'yes — one return without ;',
+    next:'add the semicolon, then restore callers',
+    result:"IllegalArgumentException\nerror: 2: expected ';', but found '}'\n  ← typical shape, same family as public Android output\n    error: 13: expected ';', but found '",
+    caption:'This string is already the smallest failing form for a missing semicolon. Fix the one statement, then restore any surrounding program.'
+  },
+  type:{
+    label:'Wrong return type',
+    source:TYPE,
+    ctor:'throws',
+    line:'1',
+    complaint:'main must return half4 / vec4 (typical)',
+    smallest:'yes — the signature is the failure',
+    next:'restore half4 main and a half4 return',
+    result:'IllegalArgumentException\nerror: 1: functions named \'main\' must return \'vec4\' or \'half4\'\n  ← typical SkSL wording; live text is on the device',
+    caption:'Lesson 8.3’s store is a half4. A float main is a different program, not a color with red 1.'
+  }
+};
+let sample='working';
+function paintSample(){
+  const s=SAMPLES[sample];
+  document.getElementById('sampleLabel').textContent=s.label;
+  document.getElementById('labCode').textContent=s.source;
+  document.getElementById('labResult').textContent=s.result;
+  document.getElementById('labCaption').textContent=s.caption;
+  document.getElementById('labResultCaption').textContent=
+    sample==='working'
+      ? 'This page did not compile. It labels the prepared working string as the production route.'
+      : 'This page did not compile. Compare the live Android explorer message with this typical shape.';
+  document.getElementById('ctorMetric').textContent=s.ctor;
+  document.getElementById('lineMetric').textContent=s.line;
+  document.getElementById('complaintMetric').textContent=s.complaint;
+  document.getElementById('smallMetric').textContent=s.smallest;
+  document.getElementById('nextMetric').textContent=s.next;
+  document.querySelectorAll('.sample-btn').forEach(b=>b.classList.toggle('selected', b.dataset.sample===sample));
+}
+document.querySelectorAll('.sample-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{sample=btn.dataset.sample; paintSample();});
+});
+
+const REDUCE=[
+  {ln:1, text:'uniform float2 resolution;', state:'keep'},
+  {ln:2, text:'uniform float edge0;', state:'keep'},
+  {ln:3, text:'uniform float edge1;', state:'keep'},
+  {ln:4, text:'', state:'keep'},
+  {ln:5, text:'half4 main(float2 fragCoord) {', state:'keep'},
+  {ln:6, text:'    float2 uv = gl_FragCoord / resolution;', state:'fail'},
+  {ln:7, text:'    half4 navy = half4(0.10, 0.25, 0.40, 1.0);', state:'keep'},
+  {ln:8, text:'    half4 orange = half4(0.88, 0.48, 0.18, 1.0);', state:'keep'},
+  {ln:9, text:'    float t = smoothstep(edge0, edge1, uv.x);', state:'keep'},
+  {ln:10, text:'    return mix(navy, orange, t);', state:'keep'},
+  {ln:11, text:'}', state:'keep'}
+];
+function paintReduce(){
+  const table=document.getElementById('reduceTable');
+  table.innerHTML='<thead><tr><th>line</th><th>text in the failing 8.11 string</th><th>after shrinking</th></tr></thead>';
+  const body=document.createElement('tbody');
+  REDUCE.forEach(row=>{
+    const tr=document.createElement('tr');
+    tr.className=row.state==='fail'?'fail':'pass';
+    const verdict=row.state==='fail'
+      ? 'stays in the smallest failing program'
+      : row.ln===5 || row.ln===11
+        ? 'needed for any main'
+        : 'removed while shrinking; restored after the fix';
+    tr.innerHTML=`<td class="ln">${row.ln}</td><td>${row.text.replaceAll('<','&lt;')}</td><td>${verdict}</td>`;
+    body.appendChild(tr);
+  });
+  table.appendChild(body);
+}
+
+const STEPS=[
+  {
+    title:'Start from the 8.11 program with one GLSL name',
+    caption:'The string is Lesson 8.11’s production program except line 6 uses gl_FragCoord. Construction throws. The typical message points at line 6. You do not yet know whether uniforms, mix, or that one identifier are involved.',
+    rule:'RuntimeShader(longString) throws',
+    input:'8.11 string + gl_FragCoord',
+    operation:'construct',
+    output:'IllegalArgumentException, line 6',
+    code:IDENT
+  },
+  {
+    title:'Read error: then the line number, then the complaint',
+    caption:'Public Android output for a different missing semicolon looked like error: 13: expected \';\', but found \'. The useful pieces are the line number and the complaint. This gl_FragCoord case typically names the unknown identifier. Do not start by rewriting mix.',
+    rule:'error: <line>: <complaint>',
+    input:'e.message',
+    operation:'split off the line number',
+    output:'look at line 6 of this string',
+    code:IDENT
+  },
+  {
+    title:'Replace the body with one legal return',
+    caption:'Keep the three uniforms and half4 main(float2 fragCoord). Replace the body with return half4(0.88, 0.48, 0.18, 1.0); which Lesson 8.3 already stored. If this constructs, the leftover header was legal.',
+    rule:'tiny legal body',
+    input:'same uniforms, new body',
+    operation:'construct again',
+    output:'succeeds, so the header was not the failure',
+    code:`uniform float2 resolution;
+uniform float edge0;
+uniform float edge1;
+
+half4 main(float2 fragCoord) {
+    return half4(0.88, 0.48, 0.18, 1.0);
+}`
+  },
+  {
+    title:'Restore only the uv line',
+    caption:'Put float2 uv = gl_FragCoord / resolution; back, and keep the 8.3 return. Construction fails again. mix and smoothstep are still absent, so they were not required to reproduce the error.',
+    rule:'one restored body line',
+    input:'tiny program + uv line',
+    operation:'construct',
+    output:'throws again',
+    code:`uniform float2 resolution;
+uniform float edge0;
+uniform float edge1;
+
+half4 main(float2 fragCoord) {
+    float2 uv = gl_FragCoord / resolution;
+    return half4(0.88, 0.48, 0.18, 1.0);
+}`
+  },
+  {
+    title:'Drop uniforms that the tiny body does not read',
+    caption:'The smallest failing program does not need edge0, edge1, mix, or smoothstep. It still needs a main. Using gl_FragCoord.x in the return makes the illegal name visible in one line.',
+    rule:'smallest failing program',
+    input:'the reproduced failure',
+    operation:'delete unused lines',
+    output:'one main that names gl_FragCoord',
+    code:`half4 main(float2 fragCoord) {
+    return half4(gl_FragCoord.x, 0.0, 0.0, 1.0);
+}`
+  },
+  {
+    title:'Fix that one identifier',
+    caption:'AGSL’s current-pixel position is the fragCoord argument from Lesson 8.4. Replace gl_FragCoord with fragCoord. Construction succeeds. The picture is a red ramp of x, which is enough to prove the name is legal. It is not the 8.11 band yet.',
+    rule:'gl_FragCoord → fragCoord',
+    input:'smallest failing program',
+    operation:'rename',
+    output:'constructs',
+    code:`half4 main(float2 fragCoord) {
+    return half4(fragCoord.x, 0.0, 0.0, 1.0);
+}`
+  },
+  {
+    title:'Restore mix and smoothstep',
+    caption:'Put the 8.11 body back, still using fragCoord. Construction succeeds. Uniform writes can run. The navy-to-orange band returns. Restoring last is what keeps a later typo from hiding inside a 40-line string.',
+    rule:'restore after the fix',
+    input:'legal identifier + 8.11 body',
+    operation:'construct, then setFloatUniform',
+    output:'the 8.11 production store',
+    code:WORKING
+  },
+  {
+    title:'A name mismatch is not this workflow',
+    caption:'If construction already succeeded, do not shrink the AGSL string. Lesson 8.9’s splitU versus splitX is a slot-write problem. Chapter 9 will need this compile workflow when a distance formula fails to compile. This lesson does not introduce distance.',
+    rule:'compile error → shrink. slot error → check names.',
+    input:'constructor result versus later write',
+    operation:'classify the moment',
+    output:'8.11 still unresolved; 9.1 is next planned',
+    code:WORKING
+  }
+];
+let currentStep=0;
+function renderStep(){
+  const s=STEPS[currentStep];
+  document.getElementById('stepCounter').textContent=`Step ${currentStep+1} of ${STEPS.length}`;
+  document.getElementById('stepGridLabel').textContent=`Step ${currentStep+1} of ${STEPS.length}`;
+  document.getElementById('stepTitle').textContent=s.title;
+  document.getElementById('stepCaption').textContent=s.caption;
+  document.getElementById('stepRule').textContent=s.rule;
+  document.getElementById('stepInput').textContent=s.input;
+  document.getElementById('stepOperation').textContent=s.operation;
+  document.getElementById('stepOutput').textContent=s.output;
+  document.getElementById('stepCode').textContent=s.code;
+  document.querySelectorAll('.step-dot').forEach((b,i)=>b.classList.toggle('selected', i===currentStep));
+}
+const stepButtons=document.getElementById('stepButtons');
+STEPS.forEach((_,i)=>{
+  const b=document.createElement('button');
+  b.className='step-dot'; b.textContent=String(i+1);
+  b.addEventListener('click',()=>{currentStep=i;renderStep();});
+  stepButtons.appendChild(b);
+});
+document.getElementById('stepPrev').addEventListener('click',()=>{currentStep=Math.max(0,currentStep-1);renderStep();});
+document.getElementById('stepNext').addEventListener('click',()=>{currentStep=Math.min(STEPS.length-1,currentStep+1);renderStep();});
+document.querySelectorAll('.choice').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.choice').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    const box=document.getElementById('predictionResult');
+    if(btn.dataset.answer==='correct'){
+      box.textContent='Yes. Compilation is the constructor. gl_FragCoord is illegal AGSL, so RuntimeShader throws before setFloatUniform runs.';
+      box.style.background='var(--green-soft)';
+    } else if(btn.dataset.answer==='wrong-uniform'){
+      box.textContent='setFloatUniform runs only after a program exists. A compile error never reaches that write.';
+      box.style.background='var(--amber-soft)';
+    } else {
+      box.textContent='There is no constructed program to draw. The catch path has no ShaderBrush.';
+      box.style.background='var(--amber-soft)';
+    }
+  });
+});
+const starter=document.getElementById('challengeEditor').value;
+document.getElementById('checkChallenge').addEventListener('click',()=>{
+  const text=document.getElementById('challengeEditor').value;
+  const box=document.getElementById('challengeResult');
+  const ex=/IllegalArgumentException/.test(text);
+  const ident=/gl_FragCoord/.test(text);
+  const bad=/IllegalStateException|setFloatUniform/.test(text) && !/not this failure|not this/.test(text);
+  if(ex && ident && /half4\(gl_FragCoord/.test(text)){
+    box.textContent='Correct. Construction throws IllegalArgumentException. The smallest failing identifier is gl_FragCoord.';
+    box.style.background='var(--green-soft)';
+  } else {
+    box.textContent='Need IllegalArgumentException and gl_FragCoord in the smallest return. setFloatUniform is the 8.9 write, not this constructor failure.';
+    box.style.background='var(--amber-soft)';
+  }
+});
+document.getElementById('showSolution').addEventListener('click',()=>{
+  document.getElementById('challengeEditor').value=`val shader = try {
+    RuntimeShader(source)
+} catch (e: IllegalArgumentException) {
+    log(e.message)
+    null
+}
+
+// Smallest failing form of the gl_FragCoord mistake:
+half4 main(float2 fragCoord) {
+    return half4(gl_FragCoord.x, 0.0, 0.0, 1.0);
+}`;
+});
+document.getElementById('resetChallenge').addEventListener('click',()=>{
+  document.getElementById('challengeEditor').value=starter;
+  document.getElementById('challengeResult').textContent='The blanks are the exception type and the illegal identifier.';
+  document.getElementById('challengeResult').style.background='var(--soft)';
+});
+document.getElementById('buildRecord').addEventListener('click',()=>{
+  document.getElementById('record').value=`# Lesson 8.12 — Shader error workflow
+
+- Date:
+- Compilation is RuntimeShader(string). IllegalArgumentException.message holds the compiler text.
+- Typical shape: error: <1-based line>: <complaint>. Live punctuation is the Android explorer.
+- Smallest failing program: shortest string that still throws. Fix it, then restore.
+- Teaching failure: gl_FragCoord in an otherwise legal 8.11 program.
+- 8.9 name mismatch is not a compile error.
+- HTML does not compile AGSL.
+- Checkpoint still Lesson 8.11. Completion count still 84 of 216.
+`;
+});
+const qa=new URLSearchParams(location.search).get('qa');
+if(qa==='ident') sample='ident';
+if(qa==='semi') sample='semi';
+if(qa==='type') sample='type';
+if(qa==='step5') currentStep=4;
+if(qa==='step6') currentStep=5;
+if(qa==='step8') currentStep=7;
+paintSample();
+paintReduce();
+renderStep();
+if(qa==='predict'){
+  const correct=[...document.querySelectorAll('.choice')].find(b=>b.dataset.answer==='correct');
+  if(correct) correct.click();
+}
+function revealFrom(id){
+  let keep=false;
+  document.querySelectorAll('.topbar, .hero, .section, .footer').forEach(el=>{
+    if(el.id===id) keep=true;
+    if(!keep) el.style.display='none';
+  });
+}
+if(qa==='lab'||qa==='ident'||qa==='semi'||qa==='type') revealFrom('lab');
+if(qa==='reduce') revealFrom('reduce');
+if(qa==='step5'||qa==='step6'||qa==='step8') revealFrom('stepper');
+</script>
+</body>
+</html>

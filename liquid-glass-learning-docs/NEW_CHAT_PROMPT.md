@@ -118,7 +118,7 @@ Run the beginner-comprehension audit in `AGENTS.md` before packaging a lesson. I
 - Direct lesson previews live in that lesson’s explorer file.
 - Both levels provide light and dark variants.
 - Both levels allow vertical scrolling through all content in finite-height Android Studio Preview.
-- When stacking both theme `@Preview` annotations, put dark (`UI_MODE_NIGHT_YES`) first, then light.
+- When stacking both theme `@Preview` annotations, put light (`UI_MODE_NIGHT_NO`) first, then dark.
 - Leave changed files in the two repositories. Do not package a ZIP unless I ask.
 
 ## 9. First response
@@ -151,14 +151,14 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-08-27 with `CURRENT_STATE.md` (course version 8.10.0).
+**Last aligned:** 2026-08-28 with `CURRENT_STATE.md` (course version 8.12.0).
 
 ```text
-completed: 82 of 216, through Lesson 8.8
-current unresolved checkpoint: Lesson 8.9 — Uniforms
-generated frontier: Lesson 8.10 — Time uniform
-next planned lesson after the frontier: Lesson 8.11 — clamp, mix, and smoothstep
-Lesson 8.9 and Lesson 8.10 are generated ahead and not complete
+completed: 84 of 216, through Lesson 8.10
+current unresolved checkpoint: Lesson 8.11 — clamp, mix, and smoothstep
+generated frontier: Lesson 8.12 — Shader error workflow
+next planned lesson after the frontier: Lesson 9.1 — Distance between two points
+Lesson 8.11 and Lesson 8.12 are generated ahead and not complete
 ```
 
 Chapter 7 is complete. Frost constants stay fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
@@ -227,7 +227,7 @@ UV answers from the top-left
 
 0.5 is the UV of the visual center, not random. Subtract is required. × 2 is not required to center. After × 2 the span of `p.x` is about 2, so the same `if` covers less of the rectangle. Chapter 9 circle / center-scale / sample offset consume `p`. Canvas stays put.
 
-**8.9 checkpoint contract:**
+**8.9 completed contract:**
 
 ```text
 uniform float splitU
@@ -238,7 +238,7 @@ uniform float splitU
 
 Resolution is still written. RuntimeShader is not rebuilt. Time is Lesson 8.10. `setColorUniform` is unused.
 
-**8.10 frontier contract:**
+**8.10 completed contract:**
 
 ```text
 withFrameNanos elapsed seconds
@@ -248,16 +248,40 @@ withFrameNanos elapsed seconds
 → return half4(stripe, 0, 0, 1)
 ```
 
-A trip is one left-to-right crossing of the black edge (stored red = 0). `SecondsPerTrip = 4` is a teaching duration. `fract(x) = x - floor(x)`. Pause freezes the slot. mix / smoothstep / sine are unused. Preview freezes at 0.25 trips. Do not generate Lesson 8.11 unless I ask.
+A trip is one left-to-right crossing of the black edge (stored red = 0). `SecondsPerTrip = 4` is a teaching duration. `fract(x) = x - floor(x)`. Pause freezes the slot. mix / smoothstep / sine are unused. Preview freezes at 0.25 trips.
+
+**8.11 checkpoint contract:**
+
+```text
+clamp(x, lo, hi)
+→ mix(a, b, t) = a + (b − a) × t
+→ linearFraction = clamp((x − edge0) / (edge1 − edge0), 0, 1)
+→ curvedFraction = t × t × (3 − 2t)
+→ mix(navy, orange, smoothstep(edge0, edge1, uv.x))
+```
+
+Teaching pixel x=180, uv.x=0.45, edges 0.40 / 0.60. linearFraction 0.25. curvedFraction 0.15625. stored red 0.221875. mix is Lesson 5.4 under an AGSL name. t is a blend fraction, not 7.10 amount. Sine unused. Distance fields are Lesson 9.3.
+
+**8.12 frontier contract:**
+
+```text
+RuntimeShader(string) compiles
+→ IllegalArgumentException carries error: line: message
+→ reduce to smallest failing string
+→ fix that line
+→ restore the rest
+```
+
+Teaching failure is `gl_FragCoord` in an otherwise legal 8.11 program. HTML does not compile AGSL. A Lesson 8.9 name mismatch is not a compile error. Preview starts on the working string. Do not generate Lesson 9.1 unless I ask.
 
 Current files:
 
 ```text
-course/chapters/chapter-08/lesson-08-08-vector-arithmetic.html
-course/chapters/chapter-08/lesson-08-09-uniforms.html
 course/chapters/chapter-08/lesson-08-10-time-uniform.html
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/VectorArithmeticExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/UniformsExplorer.kt
+course/chapters/chapter-08/lesson-08-11-clamp-mix-smoothstep.html
+course/chapters/chapter-08/lesson-08-12-shader-error-workflow.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/TimeUniformExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/ClampMixSmoothstepExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/ShaderErrorExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter08/Chapter08Screen.kt
 ```

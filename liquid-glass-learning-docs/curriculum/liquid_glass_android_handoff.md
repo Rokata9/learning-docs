@@ -1,7 +1,7 @@
 # Liquid Glass Android course — implementation handoff
 
-**Updated:** 2026-08-27  
-**Course version:** 8.10.0
+**Updated:** 2026-08-28  
+**Course version:** 8.12.0
 
 ## Read order
 
@@ -9,7 +9,7 @@
 2. `AGENTS.md`
 3. `CURRENT_STATE.md`
 4. this handoff
-5. `liquid_glass_android_curriculum.md` only when the full plan is needed
+5. `liquid_glass_android_curriculum.md` only for the named lesson and its immediate neighbors in the 216-lesson plan
 6. current and immediately preceding lesson HTML
 7. the current Android files
 
@@ -19,135 +19,65 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 82
-completed_through: "Lesson 8.8 — Vector arithmetic"
+learner_confirmed_complete: 84
+completed_through: "Lesson 8.10 — Time uniform"
 completed_chapters: [1, 2, 3, 4, 5, 6, 7]
 chapter_7_complete: "12 of 12"
-chapter_8_complete: "8 of 12"
-next_unresolved_checkpoint: "Lesson 8.9 — Uniforms"
-generated_frontier: "Lesson 8.10 — Time uniform"
-next_planned_after_frontier: "Lesson 8.11 — clamp, mix, and smoothstep"
+chapter_8_complete: "10 of 12"
+next_unresolved_checkpoint: "Lesson 8.11 — clamp, mix, and smoothstep"
+generated_frontier: "Lesson 8.12 — Shader error workflow"
+next_planned_after_frontier: "Lesson 9.1 — Distance between two points"
 ```
 
-Lessons 8.2 through 8.8 are learner-confirmed complete. Lessons 8.9 and 8.10 are generated ahead and are not learner-confirmed complete.
+Lessons 8.2 through 8.10 are learner-confirmed complete. Lessons 8.11 and 8.12 are generated ahead and are not complete. Generating 8.12 does not complete 8.11. Do not generate Lesson 9.1 unless the learner asks.
 
-## Generate-ahead note
+Chapter 7 frost stays fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
-The checkpoint is 8.9. Lessons 8.9 and 8.10 exist as files. Do not mark 8.9 complete until the learner confirms. Generating 8.10 does not complete 8.9.
-
-## Completed Lesson 8.2
+## Completed Chapter 8 chain (8.2–8.10)
 
 ```text
-AGSL string
-→ RuntimeShader(string) compiles it
-→ ShaderBrush(shader)
-→ drawRect(brush)
+8.2  AGSL string → RuntimeShader → ShaderBrush → drawRect
+8.3  8-bit / 255 → teaching half4 0..1 → return is the store
+     orange half4(0.88, 0.48, 0.18, 1.0); navy half4(0.10, 0.25, 0.40, 1.0)
+8.4  fragCoord.x from left; if (x < 80.0) orange else navy; Canvas y-down
+8.5  setFloatUniform("resolution"); splitX = resolution.x / 2.0
+8.6  uv = fragCoord / resolution; last pixel is not exactly 1
+8.7  scalar / vector / member; half 16-bit; float 32-bit
+8.8  p = uv - 0.5 from the middle; × 2 puts edges near ±1; 1 = one half-width
+8.9  uniform splitU, leftColor; mismatch leaves splitU at 0; no setColorUniform
+8.10 trips = elapsedSeconds / 4.0; fract(uv.x - time) as red
 ```
 
-The GPU calls `main` once per output pixel of that rectangle. There is no Kotlin cell loop. `fragCoord` is unread in 8.2 and 8.3.
+8.8 subtract is required. × 2 is the convention that makes 1 mean one half-width. The smaller stripe previews Lesson 9.9. Chapter 9 circle, center-scale, and sample offset consume `p`.
 
-## Completed Lesson 8.3
+## Generated-ahead Lesson 8.11
 
 ```text
-8-bit RGB / 255
-→ teaching half4
-→ return is the store
-→ unused Kotlin Color is a separate box
+clamp(x, lo, hi)
+→ mix(a, b, t) = a + (b − a) × t
+→ linearFraction = clamp((x − edge0) / (edge1 − edge0), 0, 1)
+→ curvedFraction = t × t × (3 − 2t)
+→ mix(navy, orange, smoothstep(edge0, edge1, uv.x))
 ```
 
-Teaching orange `half4(0.88, 0.48, 0.18, 1.0)`. Teaching navy `half4(0.10, 0.25, 0.40, 1.0)`. Rewriting the string rebuilds `RuntimeShader`. Uniforms are not used.
+Teaching pixel x=180, uv.x=0.45, edges 0.40 / 0.60. linearFraction 0.25. curvedFraction 0.15625. stored red 0.221875. mix is Lesson 5.4 under an AGSL name. t is a blend fraction, not 7.10 amount. Sine unused. Distance fields are Lesson 9.3.
 
-## Completed Lesson 8.4
+## Generated-ahead Lesson 8.12
 
 ```text
-fragCoord float2
-→ x pixels from left of the draw rectangle
-→ if (x < 80.0) orange else navy
+RuntimeShader(string) compiles
+→ IllegalArgumentException carries error: line: message
+→ reduce to smallest failing string
+→ fix that line
+→ restore the rest
 ```
 
-Origin is the top-left of the `drawRect` rectangle. y increases downward with Canvas, not GLSL’s lower-left origin. 80 is a pixel count, not half. y is unread. Resolution is not passed.
-
-## Completed Lesson 8.5
-
-```text
-DrawScope.size
-→ setFloatUniform("resolution", width, height)
-→ splitX = resolution.x / 2.0
-→ if (fragCoord.x < splitX) orange else navy
-```
-
-`fragCoord` is this pixel. Resolution is the whole rectangle’s size. Kotlin writes the slot once per draw. The GPU then calls `main` many times with the same pair. UV (`fragCoord / resolution`) is Lesson 8.6. Other uniforms are Lesson 8.9.
-
-## Completed Lesson 8.6
-
-```text
-uv = fragCoord / resolution
-→ u = x / width
-→ v = y / height
-→ red ramp stores u; four regions read v
-```
-
-Matching members. `uv.x < 0.5` matches 8.5’s half split and is not the proof. Last pixel is not exactly 1. Not a texture sample.
-
-## Completed Lesson 8.7
-
-```text
-scalar = one number
-→ vector = packed group (float2, half4)
-→ member = named slot
-→ half 16-bit, float 32-bit
-```
-
-y-split paints orange on the top half. No GPU timing claim.
-
-## Completed Lesson 8.8
-
-```text
-UV answers from the top-left
-→ p = uv - 0.5 answers from the middle
-→ × 2 puts edges near ±1; 1 = one half-width
-```
-
-0.5 is the UV of the visual center. Subtract is required. × 2 is a convention. After × 2 the span of `p.x` is about 2, so the same `if` covers less of the rectangle. That shrink previews Lesson 9.9. Chapter 9 circle / center-scale / sample offset consume `p`.
-
-## Generated-ahead Lesson 8.9
-
-```text
-uniform float splitU
-→ uniform half4 leftColor
-→ setFloatUniform writes them
-→ mismatch leaves splitU at 0
-```
-
-Resolution is still written. RuntimeShader is not rebuilt. Time is Lesson 8.10. `setColorUniform` is unused.
-
-## Generated-ahead Lesson 8.10
-
-```text
-withFrameNanos elapsed seconds
-→ trips = elapsedSeconds / 4.0
-→ setFloatUniform("time", trips)
-→ stripe = fract(uv.x - time)
-→ return half4(stripe, 0, 0, 1)
-```
-
-A trip is one left-to-right crossing of the black edge (stored red = 0). `SecondsPerTrip = 4` is a teaching duration. `fract(x) = x - floor(x)`. Pause freezes the slot. mix / smoothstep / sine are unused. Preview freezes at 0.25 trips.
+Teaching failure is `gl_FragCoord` in an otherwise legal 8.11 program. HTML does not compile AGSL. A Lesson 8.9 name mismatch is not a compile error. Preview starts on the working string.
 
 ## Future conversation
 
-Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions. When the checkpoint or frontier moves, refresh section 12 of `NEW_CHAT_PROMPT.md` after this file.
+Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions. When the checkpoint or frontier moves, refresh section 12 of that prompt after `CURRENT_STATE.md`.
 
-## Completion rule
+Standing delivery: no ZIP archives; new `@Preview` stacks light then dark. Details in `USER_PREFERENCES.md`.
 
-Do not mark Lesson 8.9 complete merely because 8.10 was generated. Wait for explicit learner confirmation. Do not generate Lesson 8.11 unless the learner asks.
-
-## Pair-origin remap — Lesson 8.8 clarification (2026-08-27)
-
-The learner then asked why the lesson exists: why remap, and why increase the span from ~1 to ~2 with × 2. UV answers “from the top-left.” `p` answers “from the middle.” Subtract 0.5 is required. × 2 is the convention that puts the edges at ±1 so 1 means one half-width. The smaller stripe is the 1D preview of Lesson 9.9. Name Chapter 9’s circle, center-scale, and sample offsets as the consumers. Do not leave the arithmetic unmotivated.
-
-## Standing delivery preferences recorded 2026-08-20
-
-- Do not generate `.zip` files. The learner works from the repositories.
-- When a preview wrapper has both themes, put the dark `@Preview` annotation first, then light. Prospective only.
-
-Course progress: 82 of 216 lessons completed.
+Course progress: 84 of 216 lessons completed.

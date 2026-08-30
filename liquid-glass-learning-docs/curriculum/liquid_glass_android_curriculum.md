@@ -1,53 +1,27 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 8.10.0
-**Updated:** 2026-08-27
+**Version:** 8.12.0  
+**Updated:** 2026-08-28  
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
 **Physical test device:** Pixel 8 Pro  
-**Total lessons:** 216  
+**Total lessons:** 216
+
+Live progress, current files, and the checkpoint/frontier contracts live in `CURRENT_STATE.md`. This file is the 216-lesson plan plus frozen locks needed to generate later lessons. Lesson HTML and Kotlin keep the full teaching prose. Do not add per-lesson implementation diaries here.
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **82 of 216**.
-- Completed through: **Lesson 8.8 — Vector arithmetic**.
-- Completed chapters: **1–7**.
-- Chapter 7 is complete: **12 of 12**.
-- Chapter 8 is in progress: **8 of 12 lessons complete**.
-- Current unresolved checkpoint: **Lesson 8.9 — Uniforms**.
-- Generated frontier: **Lesson 8.10 — Time uniform**. Lessons 8.9 and 8.10 are generated and are not learner-confirmed complete. Lessons 8.2 through 8.8 are learner-confirmed complete.
-- Next planned lesson after the generated frontier: **Lesson 8.11 — clamp, mix, and smoothstep**.
+- Learner-confirmed complete: **84 of 216**, through **Lesson 8.10**.
+- Completed chapters: **1–7**. Chapter 8: **10 of 12**.
+- Unresolved checkpoint: **Lesson 8.11 — clamp, mix, and smoothstep**.
+- Generated frontier: **Lesson 8.12 — Shader error workflow** (generated ahead, not complete).
+- Next planned after the frontier: **Lesson 9.1 — Distance between two points**.
 
-## 2. Course construction principles
+## 2. How this file relates to the rule sources
 
-- Assume a total beginner in graphics and mathematics.
-- Introduce one principal graphics idea and at most one principal mathematical idea per lesson.
-- A full lesson must introduce a genuinely new mechanism, API behavior, mathematical operation, measurement method, or implementation step. Convert mostly repetitive consolidation into a checkpoint or merge it into the next substantive lesson.
-- Define every new term before relying on it.
-- State the practical problem before vocabulary and formulas.
-- For hard formulas: variable ledger → symbolic formula → substituted values → intermediate results → final output → next consumer.
-- Label every coordinate tuple by coordinate space and keep each walkthrough formula self-contained with its current inputs and substituted values.
-- Use visual intermediate states before summaries.
-- Time-trace matrices must repeat compact substituted formulas in their cells and visually separate target crossings from velocity-reversal bounces.
-- When a lesson uses multiple formulas, keep one prominent all-formulas panel near the top.
-- Let walkthrough length follow the actual dependency chain. Fourteen is not a template.
-- Use side-by-side diagram and stepper by default when both fit readably. Use a full-width diagram with hidden controls only when spatial evidence requires it.
-- Complete beginner-comprehension QA before technical QA.
-- For every future Android lesson, both complete-screen and direct-child previews must let the learner scroll through all generated content inside Android Studio Preview; do not retrofit earlier lessons unless requested.
-- In standalone HTML prose, render code identifiers with semantic `<code>` elements; never rely on Markdown backticks.
-- Keep click-controlled popups inside the viewport and reset nested `<code>` styling inside dark code containers.
-- Deliver only incremental changed files in the repositories. Do not generate `.zip` archives unless explicitly requested.
-- Count only explicit learner completion.
-- Put one clean production route before diagnostic defects. Add executable failure modes only when they are necessary to understand or verify the principal idea.
-- Prefer compact diagrams or predictions over duplicate layers, mode enums, and branches created solely to show broken output.
-- Name non-obvious layout, geometry, sampling, and visual constants and explain why each value exists near its declaration or use.
-- Before diagnosing motion trail as a performance limit, verify that placement and sampling geometry are derived from the same current state; keep estimates distinct from measured device cost.
-- Distinguish retained drawing commands from an allocated raster target. A `GraphicsLayer` count is not automatically a buffer count.
-- State whether explicit `CompositingStrategy.Offscreen` is required for correctness, redundant because another property already forces rasterization, or deliberately forced only for a controlled teaching experiment.
-- When a panel-sized destination replays a full-backdrop source, state both sides of the cost boundary: destination pixel area can be small while full-source recording, normal drawing, and replay work still remain.
-- Keep labels and icons outside the sample/effect layer when they must remain sharp after the material receives blur.
+Permanent teaching and delivery rules live in `AGENTS.md` and `USER_PREFERENCES.md`. Do not copy them here.
 
-Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are not duplicated here.
+This plan assumes a total beginner in graphics and mathematics, one new mechanism per full lesson, and explicit learner confirmation before a completed-count increase.
 
 ## 3. Full 216-lesson plan
 
@@ -63,7 +37,6 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 6. **1.6 — Learn the first formula.** Understand the simple alpha mixture between foreground and background.
 7. **1.7 — Run a controlled device experiment.** Compare 0%, 25%, 50%, 75%, and 100% opacity.
 8. **1.8 — Explain what is still missing.** Finish with a written diagnosis instead of trying to “fix everything.”
-
 
 ---
 
@@ -148,152 +121,7 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 
 ---
 
-## 4. Generated-ahead implementation record — Lesson 5.11
-
-- Twenty-two-state side-by-side walkthrough.
-- Prominent interruption formulas and variable ledger.
-- Interactive one- and two-interruption traces.
-- Smooth / reset-velocity / snap-value comparison.
-- Exact post-reversal calculations showing brief old-direction motion.
-- Android `Animatable` explorer with rapid target toggles and current value/velocity readouts.
-- Lesson 5.10 remains unresolved.
-
-## 5. Current implementation record — Lesson 5.10
-
-- Prominent all-formulas panel and variable ledger.
-- Twenty-state two-column walkthrough with synchronized diagram and stepper navigation.
-- Live local pointer position, q snapshot, scale, radius, pivot, draw bounds, and tracked-point proofs.
-- Dependency table, prediction, coding challenge, four exercises, ten-item checkpoint, and evidence boundary.
-- Android explorer uses actual Compose pointer, animation, graphics-layer, and Canvas APIs.
-
-
 ### Chapter 6 — How Android draws the scene
-
-**Completed implementation record — Lesson 6.11**
-
-- Learner-confirmed complete; the completed total advances to 62 of 216.
-- Introduces one principal architecture: two controlled `GraphicsLayer` objects plus one ordinary foreground role.
-- The owner tree is `ParentScene` → sibling `BackdropHost` and `GlassPanel`; inside the panel, `GlassMaterial` is declared before `ForegroundContent`.
-- `backgroundLayer` retains the complete backdrop command source. `panelSampleLayer` retains the panel-sized translated crop commands. `ForegroundContent` is not a third layer.
-- The one-way route is `BackdropArtwork` → `backgroundLayer` → `panelSampleLayer` → tint and border → `ForegroundContent` → `ParentScene`.
-- Source and consumer remain siblings, preventing the panel from entering its own backdrop recording.
-- The sharp label and dot are ordinary later Compose children outside both `record` calls, so a future effect on `panelSampleLayer` will not own them.
-- One `panelLeftDp` value controls both panel placement and negative crop translation in the controlled shared-origin scene.
-- Neither controlled layer explicitly forces `Offscreen`, and no `RenderEffect` is present yet. Two `GraphicsLayer` objects therefore do not imply two guaranteed pixel textures.
-- The browser lesson contains one production route, an eleven-state walkthrough, one coordinate/ownership trace, a styled three-choice prediction, a three-blank coding challenge, four explain-back checks, and a ten-item Chapter 6 checkpoint.
-- Android uses named and commented dimensions, positions, slider detents, landmark coordinates, and visual alpha values. It contains no diagnostic mode enum, duplicate failure branch, or callback-written crop state.
-- Complete previews live in `Chapter06Screen.kt`; direct scrollable previews live in `TwoLayerSceneArchitectureExplorer.kt`.
-
-**Completed implementation record — Lesson 6.10**
-
-- Learner-confirmed complete.
-- Separates three different facts: a full-backdrop command recording, a panel-sized destination pixel target, and measured device cost.
-- Uses one production route: `backgroundLayer` full command source → matching crop replay → panel-sized `panelSampleLayer` → panel material → final scene.
-- Explicit `CompositingStrategy.Offscreen` is deliberately forced only to make one concrete target available for target-extent arithmetic. It does not improve the sharp result and is not presented as a general optimization.
-- The panel-sized estimate describes only the explicitly forced `panelSampleLayer` color target. The full backdrop command recording, normal full-backdrop rendering, and second source replay still remain.
-- A small destination bounds destination pixel storage and output area; it does not prove that all upstream command traversal, culling, bandwidth, or frame-time cost becomes panel-sized.
-- The hypothetical full-scene target remains arithmetic and diagram evidence only; the Android production route does not allocate it.
-- The variable ledger precedes dp-to-px conversion, pixel count, the deliberately limited four-byte teaching assumption, MiB conversion, and display interval.
-- At teaching density 3.0 px/dp, the 196 × 116 dp panel estimates to 588 × 348 px, 204,624 pixels, and about 0.781 MiB under that assumption.
-- Android uses actual `LocalDensity`, one `backgroundLayer`, one `panelSampleLayer`, one position source, and named constants with nearby reasons.
-- The corrected movement route derives both panel placement and crop translation from the same current position rather than a callback-written duplicate rectangle.
-- The lesson does not claim exact GPU allocation, bandwidth, frame time, command-culling behavior, or dropped-frame counts. Those require release-like device measurement.
-- Complete previews originally lived in `Chapter06Screen.kt`; direct scrollable previews remain in `OffscreenCostExplorer.kt`.
-
-**Completed implementation record — Lesson 6.9**
-
-- Learner-confirmed complete.
-- Prevents feedback by keeping the recorded `BackdropHost` producer and `GlassPanel` consumer in separate sibling ownership subtrees.
-- The browser uses one production route and one compact forbidden-cycle diagram; no alternate executable failure architecture is required.
-- The cumulative Lesson 6.10 correction removes the separately stored crop rectangle from the controlled Android scene.
-- One `panelLeftDp` value and the fixed panel-top value now drive both panel placement and negative crop translation because `BackdropHost` and `ParentScene` share origin `(0, 0)` in that controlled scene.
-- This removes a post-layout crop-state round trip that could make sampled content trail the newest panel position for one update.
-- Android retains one `backgroundLayer`, one recorded `BackdropHost`, one later `GlassPanel` sibling, and no diagnostic rendering branches.
-- Scene dimensions, slider intervals, landmark coordinates, tint alpha, border alpha, and coordinate conversions remain named and commented.
-- Complete previews originally lived in `Chapter06Screen.kt`; direct scrollable previews remain in `AvoidFeedbackLoopsExplorer.kt`.
-
-**Completed implementation record — Lesson 6.8**
-
-- Learner-confirmed complete.
-- Proves that a dynamic sharp backdrop sample is current only when its selected layer recording and selected crop bounds both correspond to their latest producers.
-- Separates backdrop-content changes from panel-geometry changes before introducing the two update routes.
-- The controlled trace defines `R_b(s)`, `P_p(m)`, and `C_b(m)` with explicit coordinate spaces and isolates stale-layer, stale-bounds, and both-stale errors.
-- Android records current layer content and recomputes current bounds; retained captured objects are explicitly diagnostic evidence rather than production guidance.
-- The lesson's prediction choices now have dedicated visible styling and selected-state behavior.
-- The lesson defers blur, feedback prevention, atomic production synchronization, CPU readback, and offscreen cost.
-- Complete previews live in `Chapter06Screen.kt`; direct scrollable previews live in `KeepSampleCurrentExplorer.kt`.
-
-**Completed implementation record — Lesson 6.7**
-
-- Learner-confirmed complete.
-- Converts `GlassPanel` bounds into the recorded backdrop owner's local coordinate space before selecting the panel-sized source region.
-- Android uses `backgroundCoordinates.localBoundingBoxOf(panelCoordinates, clipBounds = false)` and translates the full layer by the negative crop origin inside a panel-local clip.
-- The controlled default derives crop origin `(52, 60) dp`, crop max `(262, 190) dp`, and replay translation `(-52, -60) dp`.
-- Two deliberate defects expose use of parent coordinates directly and replay without translation.
-- A seventeen-state walkthrough, tracked point, prediction, coding challenge, explanation exercises, and checkpoint establish the prerequisite for freshness.
-- Complete previews live in `Chapter06Screen.kt`; direct scrollable previews live in `CropCorrectRegionExplorer.kt`.
-
-**Completed implementation record — Lesson 6.6**
-
-- Learner-confirmed complete.
-- Records only `BackdropArtwork` into a controlled `GraphicsLayer` and replays the full layer deliberately into one or more targets.
-- Four route states compare direct draw, record without replay, visible-scene replay, and a second inspector replay.
-- The record-only state proves that `record` does not automatically display its result.
-- `GlassPanel` remains a later sibling outside the recorded owner.
-- A thirteen-state walkthrough and real line-command trace establish the prerequisite route for Lesson 6.7.
-- The Lesson 6.6 provenance popups now choose a viewport-safe horizontal direction, and the Android-route dark code block resets nested inline-code styling.
-- Complete previews live in `Chapter06Screen.kt`; direct scrollable previews live in `RecordBackgroundExplorer.kt`.
-
-**Completed implementation record — Lesson 6.5**
-
-- Learner-confirmed complete.
-
-- Proves that same-position source-over does not provide a readable image of unrelated sibling pixels.
-- Separates panel-owned `RenderEffect` input from the backdrop region required by neighborhood blur.
-- Uses a three-sample one-channel average only as an explicitly labelled teaching bridge.
-- Moves the panel and backdrop pattern independently to show that the required parent-coordinate crop changes while panel artwork can remain unchanged.
-- Android executes the real panel-owned effect and draws a separately labelled reference crop by reusing the teaching backdrop function; it does not claim sibling capture.
-- Sixteen-state side-by-side walkthrough ends at the explicit record → map → select → replay/read route introduced in Lesson 6.6.
-- Complete and direct Android Studio previews are vertically scrollable.
-
-
-**Lesson 6.3 implementation clarification:** Step 10 explicitly separates owner-local coordinates, layout-slot-relative output, and parent coordinates. It compares the point before and after the transform only in parent coordinates and repeats every current input inside the walkthrough state.
-
-
-**Current implementation record — Lesson 6.1**
-
-- One controlled card is traced through composition, layout, and drawing.
-- Composition outputs the current UI tree.
-- Layout outputs measured sizes and placed coordinates.
-- Drawing outputs the rendered frame.
-- The browser separates badge existence, content inset, and card fill as phase-focused inputs.
-- The Android explorer reads those state values inside composition, layout, and drawing scopes respectively.
-- Nine walkthrough states are used because this dependency chain does not require fourteen or more.
-- Complete previews live in `Chapter06Screen.kt`; direct explorer previews live in `CompositionLayoutDrawingExplorer.kt`.
-
-
-**Current implementation record — Lesson 6.2**
-
-- One Box contains BackdropScene, GlassPanel, and ForegroundLabel as siblings.
-- Ownership stays fixed while source order and zIndex change.
-- The browser compares correct order, background-last defect, panel-last defect, and a label zIndex rescue.
-- A selected-position trace lists only owners whose geometry covers the coordinate.
-- Sibling order is separated from one node's internal drawBehind → drawContent → overlay order.
-- Twelve walkthrough states are used; the diagram and stepper remain visible together.
-- Complete previews live in Chapter06Screen.kt; direct previews live in DrawOrderOwnershipExplorer.kt.
-
-
-**Current implementation record — Lesson 6.3**
-
-- One `LayerArtwork` owner contains a base, stripe, status dot, and label.
-- `Modifier.graphicsLayer` groups those owner-local drawing instructions into one draw layer.
-- Translation, rotation, scale, alpha, and transform origin apply to the complete group.
-- The measured 360 × 200 slot remains fixed while transformed drawing can extend outside it.
-- One tracked point reuses the completed transform-origin path to prove the common layer transform.
-- The lesson distinguishes a draw layer from offscreen rasterized pixels. Under the default Auto strategy, alpha below 1 causes offscreen compositing.
-- The lesson explicitly states that graphicsLayer does not supply a readable image of backdrop siblings.
-- Thirteen walkthrough states use the normal two-column diagram/stepper layout.
-- Complete previews live in `Chapter06Screen.kt`; direct scrollable previews live in `GraphicsLayersExplorer.kt`.
 
 **Purpose:** Understand why a normal blur modifier is not enough for real backdrop glass.
 
@@ -313,17 +141,6 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 
 ---
 
-
-**Current implementation record — Lesson 6.4**
-
-- One parent scene contains a separately owned sharp backdrop sibling and one `OwnedCard` effect owner.
-- The browser compares whole-owner, green-dot-only, and no-effect attachment.
-- A four-image pipeline shows parent-before-owner, sharp effect input, effect output, and final composite.
-- `RenderEffect` forces offscreen rasterization for the selected owner.
-- The lesson proves that visible backdrop content does not automatically become part of the owner's effect input.
-- The Android explorer converts dp radius to runtime px and applies `BlurEffect` through `graphicsLayer.renderEffect`.
-- Complete previews live in `Chapter06Screen.kt`; direct scrollable previews live in `RenderEffectOwnedContentExplorer.kt`.
-
 ### Chapter 7 — Build convincing frosted glass without a custom lens
 
 **Purpose:** Combine the classic material ingredients before adding refraction.
@@ -342,218 +159,6 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 12. **7.12 — Compare backgrounds.** Test photos, text, gradients, dark content, and light content.
 
 **Checkpoint:** Produce a polished frosted card and list exactly why it is still not a complete Liquid Glass material.
-
-**Completed implementation record — Lesson 7.1**
-
-- Learner-confirmed complete; the completed total advances to 63 of 216.
-- Introduces one blur output receiving color contributions from nearby source positions.
-- Uses a transparent 3 × 3 equal-weight model and traces the exact output `RGB(133, 109, 65)`.
-- Keeps the teaching model separate from Android's undocumented renderer kernel.
-- The Android explorer contains one readable `averageRgb8` function plus a sharp-versus-real-`BlurEffect` comparison with a fixed 12 dp radius.
-- It does not rebuild Chapter 6 backdrop capture or add stale-state, feedback, alignment, or diagnostic branches.
-
-**Completed implementation record — Lesson 7.2**
-
-- Learner-confirmed complete; the completed total advances to 64 of 216.
-- Introduces one new control: blur radius as spatial influence distance rather than opacity.
-- Uses a transparent one-dimensional source strip with four blue cells, five amber cells, and selected output index 5.
-- Compares teaching radii `0`, `1`, `2`, and `3` cells. The exact outputs are `RGB(225, 153, 45)`, `RGB(225, 153, 45)`, `RGB(184, 133, 54)`, and `RGB(166, 125, 58)`.
-- Explicitly limits `N = 2r + 1` to the teaching box model. It does not claim Android uses that sample count or equal weights.
-- Pairs the model levels with Android test radii `0`, `4`, `12`, and `24` dp without equating teaching cells to dp.
-- The browser provides four radius presets, a controlled density slider, a synchronized ten-state walkthrough, one complete RGB and dp-to-px trace, a styled prediction, one focused Kotlin challenge, five explain-back exercises, and a ten-item checkpoint.
-- `BlurRadiusExplorer.kt` provides presets plus a continuous `0..28` dp slider, converts dp to px, and feeds equal values to `radiusX` and `radiusY`.
-- The Android source compares identical sharp and variable-radius artwork and uses named constants for every non-obvious dimension and landmark.
-- `TileMode.Clamp` remains fixed so Lesson 7.3 can isolate edge treatment.
-- It does not repeat Chapter 6 capture architecture or add diagnostic rendering branches.
-- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `BlurRadiusExplorer.kt`.
-
-**Completed implementation record — Lesson 7.4**
-
-- Learner-confirmed complete; the completed total advances to 66 of 216.
-- Introduces shrink → blur → enlarge on a smaller working image.
-- Section 7 of the lesson HTML is a link to `lesson-07-04-scaling-cases-companion.html`.
-- `DownsampledBlurExplorer.kt` records a smaller working layer, blurs it, and enlarges from `Offset.Zero` in production.
-
-**Completed implementation record — Lesson 7.5**
-
-- Learner-confirmed complete; the completed total advances to 67 of 216.
-- Introduces a tint layer: a later `drawRect` of a translucent tint source over an already-blurred destination.
-- Reuses the Lesson 3.8 short formula. Does not repeat downsample or edge-treatment arithmetic.
-- `TintLayerExplorer.kt` keeps blur radius and `TileMode.Clamp` fixed. Amount presets are `0`, `0.25`, `0.50`, and `1.00`.
-- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `TintLayerExplorer.kt`.
-
-**Completed implementation record — Lesson 7.6**
-
-- Learner-confirmed complete; the completed total advances to 68 of 216.
-- Attaches `ColorFilter.colorMatrix(setToSaturation)` to the blurred-and-tinted glass group, then measures label contrast from the new RGB.
-- Does not rebuild the 3.9 matrix derivation or the 3.7 contrast derivation.
-- `SaturationContrastExplorer.kt` keeps tint amount at `0.25` and places the sharp label outside the filtered box.
-- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `SaturationContrastExplorer.kt`.
-
-**Completed implementation record — Lesson 7.7**
-
-- Learner-confirmed complete; the completed total advances to 69 of 216.
-- Introduces one new mechanism: a Canvas / Compose `Stroke` is centered on its path, so clipping to that path discards the outer half. Production insets the path by `width ÷ 2` and shrinks the corner radius by the same inset (Lesson 4.4).
-- The stroke uses one color on every side. It is not a lighting model.
-- Keeps blur `18.dp`, tint amount `0.25`, and saturation `0.40` fixed.
-- HTML teaching width is `8` CSS px. Android default is `3.dp`. Those units are not interchangeable.
-- `StaticRimExplorer.kt` stacks no-rim, clip-centered, and inset-path cards. The rim canvas is a sibling of the glass group, still inside `Modifier.clip`.
-- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `StaticRimExplorer.kt`.
-
-**Completed implementation record — Lesson 7.8**
-
-- Learner-confirmed complete; the completed total advances to 70 of 216.
-- Introduces one new mechanism: blur a wide inset stroke on its own layer, then clip the blurred pixels to the panel path. The clip discards the outward fade. The inner fade remains.
-- The band blur (`6.dp` / `8` CSS px) is a separate `BlurEffect` from the glass fill’s `18.dp` blur.
-- The thin Lesson 7.7 rim stays an unblurred later sibling.
-- The band uses one color on every side. It is not a lighting model and not a signed-distance glow.
-- `InnerHighlightExplorer.kt` compares no band, a stage-sized unclipped band blur, and a clipped band blur.
-- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `InnerHighlightExplorer.kt`.
-
-**Completed implementation record — Lesson 7.9**
-
-- Learner-confirmed complete; the completed total advances to 71 of 216.
-- Introduces one new mechanism: a darker copy of the panel shape is blurred on a layer with empty room ≥ the shadow blur radius, then drawn behind the clipped glass.
-- A same-size layer has no surround pixels, so it cannot put a halo around the card.
-- Downward offset is a named convention (`4.dp` / `8` CSS px), not a simulated lamp.
-- `Modifier.shadow` is named and not reverse-engineered.
-- Fill, rim, and inner band stay fixed inside the clip. Shadow blur is the only control.
-- `OuterShadowExplorer.kt` compares no shadow, a glass-sized shadow layer, and a padded behind-layer.
-- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `OuterShadowExplorer.kt`.
-
-**Completed implementation record — Lesson 7.10**
-
-- Learner-confirmed complete.
-- Introduces one new mechanism: add one small signed offset, from a fixed column-and-row remainder recipe, to red, green, and blue, then store `round(clamp(sum) × 255)`.
-- Reuses Lesson 3.1 8-bit rounding. Does not rebuild blur, tint, rim, band, or shadow.
-- A navy-family teaching ramp stands in for the short mixed seam after blur so 8-bit stripes are countable. The 7.6 navy and orange interiors stay flat.
-- Luminance noise uses one signed value for all three channels. Chroma noise uses a different salt per channel and is the dirty comparison.
-- Default amount is `0.02`. Amount `0` shows banding. Amount `0.12` looks dirty even as luminance noise.
-- `FineNoiseExplorer.kt` writes a card-sized bitmap with the exact store formula and `FilterQuality.None`.
-- Companion `lesson-07-10-companion-why-7-gives-unique-remainders.html` is the canonical proof that +7 wrapping at 16 visits every leftover once. Light and dark themes. Picture C steps 8 and 9 paint leftover 14 as stored navy. `#zoomed-navy` maps leftover 14 next to leftover 5 as the darker-then-lighter pairing on Lesson 7.12’s dark interior.
-- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `FineNoiseExplorer.kt`.
-
-**Completed implementation record — Lesson 7.11**
-
-- Learner-confirmed complete; the completed total advances to 73 of 216.
-- Introduces one new mechanism: a slot is the triple (clip membership, effect owner, sibling order) for one already-taught ingredient.
-- Wrong clip membership discards pixels (shadow inside the clip loses the surround halo). Wrong sibling order covers pixels (rim before fill loses the rim). Those faults are independent.
-- Does not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
-- Production tree: unclipped stage → padded shadow → clipped fill, grain, band, unblurred rim, sharp label.
-- The Android grain overlay occupies the noise slot with a low-alpha gray bitmap. The exact per-channel add remains Lesson 7.10.
-- `ComposeLayersExplorer.kt` compares production, shadow-inside-clip, and rim-before-fill.
-- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `ComposeLayersExplorer.kt`.
-
-**Completed implementation record — Lesson 8.1**
-
-- Learner-confirmed complete; the completed total advances to 75 of 216.
-- Introduces one new mechanism: a pixel function `colorAt(column, row)` runs once per output pixel and stores that color. Same body every call. Only column and row change.
-- Teaching grid is 8×4 so 32 calls are countable. Paint always stores orange `(224, 122, 46)`. Stripe uses column remainder 2; leftover 0 is orange, leftover 1 is navy `(26, 64, 102)`.
-- The browser canvas and `ShaderIdeaExplorer.kt` are CPU loops. They are not `RuntimeShader`, not AGSL, and not `fragCoord`. A shader is this idea when the GPU runs it.
-- Direct previews live in `ShaderIdeaExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
-
-**Completed implementation record — Lesson 7.12**
-
-- Learner-confirmed complete. Chapter 7 is 12 of 12.
-- Introduces one new measurement: destination-class verdict. Frozen 7.11 recipe → sample interior RGB → Lesson 3.7 white-label contrast → pass if ≥ `4.5:1`.
-- Destination classes: photo-like patches, text glyphs, slow gradient, dark field, light field.
-- Structure leftover is a second observation, not a second formula.
-- Uniform dark/light samples use tint-then-saturation arithmetic and match the blurred GPU color. Photo, text, and gradient numbers are teaching samples, not GPU readbacks.
-- Chapter 7 frost is still not a lens, a lamp, a shader, or a morph, and the fill is an owned copy rather than live capture.
-- `CompareBackgroundsExplorer.kt` switches the five classes on the frozen tree.
-- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `CompareBackgroundsExplorer.kt`.
-
-**Completed implementation record — Lesson 8.2**
-
-- Learner-confirmed complete; the completed total advances to 76 of 216.
-- Introduces one new mechanism: an AGSL string is compiled by `RuntimeShader`, wrapped in `ShaderBrush`, and drawn with `drawRect`. The GPU calls `main` once per output pixel of that rectangle. There is no Kotlin cell loop.
-- `fragCoord` is required by the signature and is unread. The four `half4` numbers are present and unexplained. Lesson 8.3 unpacks them.
-- The HTML fill is a JavaScript stand-in. `RuntimeShaderExplorer.kt` is the real constructor. `PanelHeightDp` is 140.
-- `MainActivity` defaults to Chapter 8. Direct previews live in `RuntimeShaderExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
-
-**Completed implementation record — Lesson 8.3**
-
-- Learner-confirmed complete; the completed total advances to 77 of 216.
-- Introduces one new mechanism: `return half4(r, g, b, a)` is the store. Channels are 0..1. Teaching orange is `(0.88, 0.48, 0.18, 1.0)` from 8-bit `(224, 122, 46)` after divide-by-255. Teaching navy is `(0.10, 0.25, 0.40, 1.0)`.
-- Rewriting the AGSL string builds a new `RuntimeShader`. Uniforms are not used. An unused Kotlin `Color` paints a separate box and does not change the fill.
-- `half` versus `float` is deferred to 8.7. `fragCoord` is unread. Direct previews live in `FixedColorShaderExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
-
-**Completed implementation record — Lesson 8.4**
-
-- Learner-confirmed complete; the completed total advances to 78 of 216.
-- Introduces one new mechanism: `fragCoord` is the current pixel’s position in the draw rectangle. `float2` is `(x from left, y from top)` in pixels. `if (fragCoord.x < 80.0)` stores orange or navy.
-- Origin is the top-left of that rectangle. y increases downward with Canvas. 80 is a pixel count, not half. y is unread. Resolution is not passed.
-- `FragCoordExplorer.kt` compares the unread 8.3 program with the 8.4 read. The overlay line is 80 Canvas pixels. Direct previews live in `FragCoordExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
-
-**Completed implementation record — Lesson 8.5**
-
-- Learner-confirmed complete; the completed total advances to 79 of 216.
-- Introduces one new mechanism: Kotlin writes the draw rectangle’s pixel width and height into `uniform float2 resolution` with `setFloatUniform`. `splitX = resolution.x / 2.0` follows Canvas size without rebuilding `RuntimeShader`.
-- `fragCoord` is this pixel. Resolution is the whole rectangle’s size. The slot is written once per draw, then the GPU calls `main` many times with the same pair. UV is Lesson 8.6. Other uniforms are Lesson 8.9.
-- `ResolutionShaderExplorer.kt` compares the 8.5 half-split with the 8.4 leftover of 80 px at 240.dp and 360.dp. Direct previews live in `ResolutionShaderExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
-
-**Completed implementation record — Lesson 8.6**
-
-- Learner-confirmed complete; the completed total advances to 80 of 216.
-- Introduces one new operation: `float2 uv = fragCoord / resolution` is two matching divisions, x / width and y / height. U is the horizontal fraction. V is the vertical fraction. Lesson 2.8 called this a normalized coordinate.
-- `uv.x < 0.5` matches 8.5’s half split and is not the proof. The red ramp stores u as the red channel. The four-region fill reads v. Dividing both members by width is the diagnostic fault.
-- The last pixel is not exactly u = 1. UV is not a texture sample. Types are 8.7. Origin remap is 8.8. Other uniforms are 8.9.
-- Direct previews live in `UvShaderExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
-
-**Completed implementation record — Lesson 8.7**
-
-- Learner-confirmed complete; the completed total advances to 81 of 216.
-- Introduces named types: a scalar is one number (`float t = uv.x`); a vector is a packed group (`float2`, `half4`); a member is a named slot. `half` is 16-bit. `float` is 32-bit. AGSL’s usual contract is float2 for position and half4 for the store. No GPU timing claim.
-- `.r` is `.x` on a half4. A y-split paints orange on the top half because y increases downward.
-- Direct previews live in `ScalarVectorExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
-
-**Completed implementation record — Lesson 8.8**
-
-- Learner-confirmed complete; the completed total advances to 82 of 216.
-- Introduces the from-middle numbering: UV answers from the top-left; `p = uv - 0.5` answers from the middle. Subtract is required. × 2 is the convention that puts the edges near ±1 so 1 means one half-width.
-- After × 2 the span of `p.x` is about 2, so the same `if` covers less of the rectangle. That shrink previews Lesson 9.9. Chapter 9 circle / center-scale / sample offset consume `p`. Canvas stays put. Negative y is the top.
-- Direct previews live in `VectorArithmeticExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
-
-**Generated implementation record — Lesson 8.9**
-
-- Generated ahead of unconfirmed Lesson 8.9; not learner-confirmed complete.
-- Introduces uniforms besides resolution: `uniform float splitU` and `uniform half4 leftColor`. Kotlin writes them with `setFloatUniform`. `remember { RuntimeShader }` does not run again. A mismatched Kotlin name leaves `splitU` at 0 and the orange band vanishes.
-- Four-float color writes keep Lesson 8.3’s 0..1 numbers. `setColorUniform` is unused. Time is Lesson 8.10.
-- Direct previews live in `UniformsExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
-
-**Generated implementation record — Lesson 8.10**
-
-- Generated ahead of unconfirmed Lesson 8.9; not learner-confirmed complete. Generating 8.10 does not complete 8.9.
-- Introduces `uniform float time` as a trip count. Kotlin converts elapsed seconds from `withFrameNanos` with `trips = elapsedSeconds / 4.0`. `SecondsPerTrip = 4` is a teaching duration so 0.25 and 0.50 stay readable.
-- AGSL stores `fract(uv.x - time)` as red, so Lesson 8.6’s ramp travels. `fract(x) = x - floor(x)`. Pause freezes the slot. `RuntimeShader` is not rebuilt.
-- mix, smoothstep, and sine are unused. Preview freezes at 0.25 trips.
-- Direct previews live in `TimeUniformExplorer.kt`. Complete previews live in `Chapter08Screen.kt`.
-
-**Completed implementation record — Lesson 7.3**
-
-- Learner-confirmed complete; the completed total advances to 65 of 216.
-- Introduces one mechanism only: `edgeTreatment` supplies values for blur reads outside the original input bounds.
-- Separates an internal color boundary from the outer source boundary in plain language.
-- Uses a five-cell `A…E` source and a six-state walkthrough: bounds → target → requests → missing requests → replacements → output.
-- Defines `T` as transparent black `RGBA(0, 0, 0, 0)` before using it.
-- The uniform-orange example keeps straight RGB `(1.00, 0.40, 0.10)` while alpha falls to `0.60`.
-- Defines the later panel selection directly instead of using unexplained “overscan,” “padded source,” or “crop center” shorthand.
-- `BlurEdgeTreatmentExplorer.kt` keeps one fixed radius, capability-checks the selected mode, uses an explicit `Clamp` fallback, and defines transparent black directly in the UI.
-
-**Current implementation record — Lesson 7.4**
-
-- Generated and awaiting learner confirmation; the completed total remains 65 of 216.
-- Introduces one new operation: create a smaller working image, blur it, then enlarge the blurred result to the final output size.
-- Defines downsampling and upsampling before using those terms.
-- Uses scale presets `1.0`, `0.5`, and `0.25` on both width and height.
-- Shows that pixel-position area scales by `s × s`: half width and half height keep `25%`; quarter width and quarter height keep `6.25%`.
-- Uses one separate `2 × 2` RGB average to show how four source pixels become one working pixel; this is a teaching model, not a claim about Android's private resizing filter.
-- Defines `working radius = desired final radius × scale` so radius remains expressed in the smaller image's pixel coordinates before enlargement.
-- States that pixel-count reduction is not proof of proportional frame-time improvement.
-- The browser provides three source/working/output canvases, an eight-state walkthrough, exact size and radius arithmetic, a styled prediction, one focused Kotlin challenge, four explain-back checks, and a ten-item checkpoint.
-- `DownsampledBlurExplorer.kt` records a full-size source layer, records it into a smaller `IntSize`, applies `BlurEffect` with a scaled radius, and enlarges the working layer from top-left origin.
-- The Android source contains one route and no error modes, stale geometry, or duplicate crop branches.
-- Complete previews live in `Chapter07Screen.kt`; direct scrollable previews live in `DownsampledBlurExplorer.kt`.
 
 ---
 
@@ -638,7 +243,7 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 9. **11.9 — Complex-content diffusion.** Increase diffusion when the background becomes visually busy.
 10. **11.10 — Reduced transparency.** Replace the effect with a more opaque and readable material.
 11. **11.11 — Increased contrast.** Strengthen edges and foreground separation.
-12. **11.12 — Reduced motion.** replace morphing and overshoot with calmer transitions.
+12. **11.12 — Reduced motion.** Replace morphing and overshoot with calmer transitions.
 13. **11.13 — `GlassStyle` and `GlassEnvironment`.** Put the decisions behind a reusable model.
 14. **11.14 — Debug controls.** Display all measured values and chosen adaptations.
 
@@ -780,129 +385,46 @@ Permanent detailed rules live in `AGENTS.md` and `USER_PREFERENCES.md`; they are
 
 ---
 
+## 4. Frozen locks (do not rebuild)
 
-## 4. Completed implementation summary
+Chapters **1–7** are complete. Do not reopen blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula unless a later lesson explicitly redefines them.
 
-| Chapter | Status | Completed lessons |
-|---|---|---:|
-| 1 · Transparent panel foundations | Complete | 8 |
-| 2 · Screen grid and coordinates | Complete | 9 |
-| 3 · Color, opacity, compositing | Complete | 11 |
-| 4 · Shapes, paths, masks | Complete | 11 |
-| 5 · Motion without mystery | Complete | 12 |
-| 6 · How Android draws the scene | In progress | 7 of 11 |
+**Chapter 7 frost constants**
 
-Total learner-confirmed completion: **58**.
+- Blur `18.dp` / `18` CSS px.
+- Tint amount `0.25`.
+- Saturation `0.40`.
+- 7.10 store: one signed remainder offset added to RGB, then `round(clamp(sum) × 255)`. Default amount `0.02`.
 
-## 5. Historical implementation record — Lesson 5.10
-
-### New graphics idea
-
-A press deformation uses the local pointer-down position as the transform pivot, so the contact point remains stationary while the drawing squashes and spreads.
-
-### New motion idea
-
-Pressed Boolean state selects target press amount 1; release or cancellation selects 0. A spring supplies a current amount between those targets.
-
-### Variables
+**Chapter 8 completed chain (8.1–8.10)**
 
 ```text
-W, H      measured control size
-pₓ, pᵧ    local pointer-down position
-fₓ, fᵧ    normalized pivot fractions
-b         pressed Boolean
-q         current press amount, 0..1
-sₓ, sᵧ    current scale
-r         current corner radius
+8.1  colorAt(column, row) once per pixel; CPU loop is not RuntimeShader
+8.2  AGSL string → RuntimeShader → ShaderBrush → drawRect
+8.3  8-bit / 255 → teaching half4 0..1 → return is the store
+     orange half4(0.88, 0.48, 0.18, 1.0) from (224, 122, 46)
+     navy   half4(0.10, 0.25, 0.40, 1.0) from (26, 64, 102)
+8.4  fragCoord.x pixels from left; if (x < 80.0) orange else navy; y unread
+8.5  setFloatUniform("resolution", width, height); splitX = resolution.x / 2.0
+8.6  uv = fragCoord / resolution; last pixel is not exactly 1; not a texture sample
+8.7  scalar / vector / member; half 16-bit; float 32-bit; no GPU timing claim
+8.8  p = uv - 0.5 from the middle; × 2 puts edges near ±1; 1 = one half-width
+8.9  uniform splitU and leftColor; setFloatUniform; mismatch leaves splitU at 0
+8.10 trips = elapsedSeconds / 4.0; fract(uv.x - time) as red; RuntimeShader not rebuilt
 ```
 
-### Controlled formulas
+**Generated ahead, not complete**
 
 ```text
-fₓ = clamp(pₓ / W, 0, 1)
-fᵧ = clamp(pᵧ / H, 0, 1)
-
-q_target = b ? 1 : 0
-
-sₓ = 1 + (1.04 - 1) × q
-sᵧ = 1 + (0.90 - 1) × q
-r  = 32 + (24 - 32) × q
+8.11 clamp → mix(a,b,t)=a+(b−a)×t → smoothstep bends linearFraction
+     mix(navy, orange, smoothstep(0.40, 0.60, uv.x))
+     teaching x=180, uv.x=0.45, stored red 0.221875
+8.12 RuntimeShader(string) throws IllegalArgumentException
+     shrink to smallest failing program; teaching fault is gl_FragCoord
 ```
 
-### Browser lesson
+**Policy**
 
-- Two-column layout keeps diagram and stepper visible together.
-- Sixteen states are used because the lesson introduces input lifecycle, local coordinates, normalization, pivot, Boolean target, current spring amount, three derived visual values, pivot proof, and release/cancellation.
-- Pointer interaction and presets update one shared state.
-- The browser exposes `q` manually; it does not claim to reproduce Compose’s spring solver.
-
-### Android files
-
-```text
-app/src/main/java/com/example/liquidglasslab/chapter05/Chapter05Screen.kt
-app/src/main/java/com/example/liquidglasslab/chapter05/PressDeformationExplorer.kt
-```
-
-### Android APIs
-
-- `onSizeChanged` for measured local bounds;
-- `detectTapGestures(onPress)` for local pointer-down position and press lifetime;
-- `animateFloatAsState` with `spring` for current press amount;
-- `TransformOrigin` and `graphicsLayer` for pivoted scale;
-- `Canvas.drawRoundRect` for the animated radius.
-
-### Explicit deferrals
-
-- physical pressure/force;
-- multi-touch deformation;
-- drag-following pivot updates;
-- interruption policy beyond normal press release;
-- full Liquid Glass refraction or backdrop sampling.
-
-## 6. Current file manifest
-
-```text
-Learning:
-course/chapters/chapter-06/lesson-how-android-draws-the-scene.html
-course/chapters/chapter-06/lesson-06-08-keep-the-sample-current.html
-course/chapters/chapter-06/lesson-06-09-avoid-feedback-loops.html
-
-Android:
-app/src/main/java/com/example/liquidglasslab/chapter06/Chapter06Screen.kt
-app/src/main/java/com/example/liquidglasslab/chapter06/AvoidFeedbackLoopsExplorer.kt
-```
-
-## 7. State and history policy
-
-The curriculum preserves the full plan and concise active implementation records. Patch-by-patch history was compacted in version 5.10.0. Lesson HTML, Kotlin source, prior packages, and version control preserve detailed history without forcing every new conversation to read it.
-
-
-## 2026-08-10 visual-quality repair for consolidated 5.8/5.9
-
-- The first consolidation flattened lesson design too much. The repaired consolidated Lesson 5.8 restores the advanced course visual language: hero/status area, prominent all-formulas panel, rich trace graphs, side-by-side stepper, and a paged moment-by-moment variable matrix.
-- Memory files should remain compact but structured as rule indexes, not as deleted guidance. Preserve canonical exemplar summaries and current state; avoid patch-by-patch logs.
-
-## Consolidated Lesson 5.8 trace and matrix contract
-
-- One global tick coordinate maps every curve segment, event marker, and selected marker.
-- Displacement and spring pull use one shared value scale when drawn together.
-- The moment matrix uses variable rows and tick columns, with adaptive horizontal paging when needed.
-- The consolidated lesson retains its 24-state walkthrough, prediction, coding challenge, exercises, review checkpoint, and evidence boundary.
-
-- Consolidated Lesson 5.8 includes a conditional dependency table (`x → d → S`, `v → D`, `S + D → N → Δv → v_next → x_next`) and a live selected-tick chain. Each arrow states which other inputs are held fixed.
-
-
-## 5.12 implementation record
-
-- Prominent variable ledger and all-formulas panel define real frame delta, scaled simulation delta, direction, play time, progress, and fixed debug step.
-- Eighteen-state walkthrough follows timestamps → real delta → speed scaling → signed accumulation → progress → geometry → pause → frame step → Android boundary.
-- Browser model supports live speed, pause, one-step, reverse direction, and a controlled five-frame trace.
-- Android uses `withFrameNanos` as a timestamp source and `TargetBasedAnimation.getValueFromNanos` as a stateless calculation engine.
-- Complete chapter previews remain in `Chapter05Screen.kt`; direct child light/dark previews live in `SlowMotionController.kt`.
-
-
-### Lesson 6.2 clarification record
-
-- Draw order changes final stacking but does not automatically provide a readable sibling-backdrop image to foreground code.
-- The missing future data route is stated explicitly: record the backdrop, map/crop the panel region, then replay or read the recorded pixels.
-- All order controls, metrics, traces, and walkthrough SVG states now consume one canonical preset value; step-specific demonstrations set that value explicitly instead of silently overriding rendering.
+- Count only explicit learner confirmation. Generating 8.12 does not complete 8.11.
+- Current HTML/Kotlin paths live in `CURRENT_STATE.md`. Explorer names for older lessons live in those lesson files and `ChapterNNScreen.kt`.
+- 5.8/5.9 stay consolidated: 5.8 is the teaching page; 5.9 is the archive redirect.

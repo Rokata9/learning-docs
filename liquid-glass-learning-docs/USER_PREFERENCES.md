@@ -341,7 +341,7 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 
 - **Android Studio preview scrollability:** for every newly generated lesson, make both the complete chapter-screen preview and the direct custom-composable preview vertically scrollable so the entire lesson can be inspected without a device. Do not retrofit previous lessons unless explicitly requested.
 
-- **Dark `@Preview` annotation first (recorded 2026-08-20):** when a preview wrapper has both theme variants, stack the dark annotation first (`uiMode = Configuration.UI_MODE_NIGHT_YES`), then the light annotation (`UI_MODE_NIGHT_NO`), immediately above the composable. This is annotation order in source, not a change to the app's default theme. Apply to newly written or newly revised preview wrappers. Do not bulk-reorder completed historical lessons unless asked.
+- **Light `@Preview` annotation first (recorded 2026-08-28):** when a preview wrapper has both theme variants, stack the light annotation first (`uiMode = Configuration.UI_MODE_NIGHT_NO`), then the dark annotation (`UI_MODE_NIGHT_YES`), immediately above the composable. This is annotation order in source, not a change to the app's default theme. Apply to newly written or newly revised preview wrappers. Do not bulk-reorder completed historical lessons unless asked.
 
 - **No ZIP delivery (recorded 2026-08-20):** do not generate `.zip` files, incremental learning-docs archives, or Android code archives. I work from the `liquid-glass-learning-docs` and `LiquidGlassLab` repositories directly. Leave changed files in those trees. Package a ZIP only if I explicitly ask for one.
 
