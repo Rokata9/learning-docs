@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 9.4.0  
-**Updated:** 2026-08-30  
+**Version:** 9.5.0  
+**Updated:** 2026-08-31  
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
 **Physical test device:** Pixel 8 Pro  
@@ -11,11 +11,11 @@ Live progress, current files, and the checkpoint/frontier contracts live in `CUR
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **87 of 216**, through **Lesson 9.1**.
-- Completed chapters: **1–8**. Chapter 9: **1 of 14**.
-- Unresolved checkpoint: **Lesson 9.2 — Circle signed distance field**.
-- Generated frontier: **Lesson 9.4 — Rounded rectangle distance field** (generated ahead, not complete).
-- Next planned after the frontier: **Lesson 9.5 — Capsule distance field**.
+- Learner-confirmed complete: **89 of 216**, through **Lesson 9.3**.
+- Completed chapters: **1–8**. Chapter 9: **3 of 14**.
+- Unresolved checkpoint: **Lesson 9.4 — Rounded rectangle distance field**.
+- Generated frontier: **Lesson 9.5 — Capsule distance field** (generated ahead, not complete).
+- Next planned after the frontier: **Lesson 9.6 — Combine shapes**.
 
 ## 2. How this file relates to the rule sources
 
@@ -188,8 +188,8 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 **Purpose:** Build the mathematical tools that let a shader know where a glass boundary is and how to bend the background.
 
 1. **9.1 — Distance between two points.** Use a right triangle visually before introducing the formula. **Complete.**
-2. **9.2 — Circle signed distance field.** Make the sign tell whether a point is inside or outside.
-3. **9.3 — Turn distance into a soft mask.** Use `smoothstep` around the boundary.
+2. **9.2 — Circle signed distance field.** Make the sign tell whether a point is inside or outside. **Complete.**
+3. **9.3 — Turn distance into a soft mask.** Use `smoothstep` around the boundary. **Complete.**
 4. **9.4 — Rounded rectangle distance field.** Build it from local coordinates and corner radius.
 5. **9.5 — Capsule distance field.** Build a common control shape.
 6. **9.6 — Combine shapes.** Learn union, intersection, and subtraction through `min` and `max`.
@@ -422,20 +422,22 @@ Chapters **1–7** are complete. Do not reopen blur, tint, saturation, inset-str
 
 ```text
 9.1  right triangle first; 0.30 / 0.40 / 0.50; length(p) as gray
+9.2  sd = length(p) − radius; minus inside; if (sd < 0) orange else navy
+9.3  mask = 1 − smoothstep(−band, band, sd); mix(navy, orange, mask)
+     teaching sd +0.05 → mask 0.15625 → stored red 0.221875
 ```
 
 **Generated ahead, not complete**
 
 ```text
-9.2  sd = length(p) − radius; minus inside; if (sd < 0) orange else navy
-9.3  mask = 1 − smoothstep(−band, band, sd); mix(navy, orange, mask)
-     teaching sd +0.05 → mask 0.15625 → stored red 0.221875
 9.4  innerHalf = outerHalf − r; q = abs(p) − innerHalf; sd = sdBox − r
      outer half (0.30, 0.20); r = 0.10; corner-boundary p = (0.26, −0.18)
+9.5  nearestX = clamp(p.x, ±innerHalfW); sd = length(p − (nearestX, 0)) − r
+     outer half (0.40, 0.20); r = 0.20; cap-boundary p = (0.32, −0.16)
 ```
 
 **Policy**
 
-- Count only explicit learner confirmation. Generating 9.3 or 9.4 does not complete 9.2.
+- Count only explicit learner confirmation. Generating 9.5 does not complete 9.4.
 - Current HTML/Kotlin paths live in `CURRENT_STATE.md`. Explorer names for older lessons live in those lesson files and `ChapterNNScreen.kt`.
 - 5.8/5.9 stay consolidated: 5.8 is the teaching page; 5.9 is the archive redirect.

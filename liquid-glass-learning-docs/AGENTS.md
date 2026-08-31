@@ -855,3 +855,36 @@ Section 6 opened with Lesson 8.11’s “Green cells increased… Stored red is 
 3. If row cells are colored by increase or decrease, define that coloring in the same paragraph, as a comparison to the row above, not as a quality judgment. Do not copy another lesson’s table legend.
 4. Do not write “cuts the corner” or “straight run.” Name both paths: the two-leg path through the right-angle point, and the one segment that does not visit that point.
 5. If a comparison quantity is named in several sections, one section must state the question it answers, the picture it would paint, and why production does not use it.
+
+### Load-bearing section budget — Lesson 9.3 quality review
+
+Recorded 2026-08-31 after the learner confirmed 9.2 and 9.3 were progressing well, then named reusable friction in the later sections. Overall quality stays high. Beginner-first traces stay. The failure was padding after the concept was already understood.
+
+The first few sections carry the lesson. Later sections that restate the same causal chain waste time.
+
+**Canonical 9.3 mapping (reuse the roles, not the exact titles):**
+
+1. **Intro stays.** Practical question, leftover objects, new operation, one teaching value.
+2. **Known-info visualization merges into the intro.** If a section mostly restates a completed lesson and the picture is the only new help, fold that picture into section 1. Do not keep a standalone recap section.
+3. **Essence section is load-bearing.** This is the new operation, with objects, formula, one traced value, and (when it helps) the interactive lab. If the learner misses this section, later sections cannot repair it.
+4. **Skip a multi-pixel comparison table** that only restates values the essence section or lab already computed, unless a new branch or region is otherwise invisible.
+5. **Stepper is not automatic.** Keep a stepper only when the new operation is a sequence the lab cannot show in order (piecewise region, nearest-on-segment, multi-stage grow). If the essence section plus lab already traces the value, omit the stepper. When kept, every step must change the current operation. Do not spend steps recapping a prior lesson.
+6. **Android route stays.** Short production excerpt plus what each new line consumes and produces. Preview into the full explorer.
+7. **Prediction, coding challenge, and exercises stay.**
+8. **Device checkpoint stays**, but keep it short. Do not pad it. The learner often skips it.
+9. **Evidence: keep Established. Replace Not claimed with What’s next.** Name the next lesson that consumes this object. Do not list topics this lesson did not teach.
+
+**Wording cuts (apply to every later lesson):**
+
+1. **Do not negate-reference a prior lesson as the point of a sentence.** “This is NOT Lesson 4.8’s binary mask” is noise when the new formula is already named. A leftover is named only to identify the input this lesson consumes.
+2. **Do not write meta-lab sentences.** Forbidden examples: “The displayed AGSL string stays the smooth production route.” “Direct buttons are shown because there are ten states.” “Kotlin prints sd using the same arithmetic as the HTML table.” “Hard if and linear comparison live in the HTML lab.”
+3. **Do not repeat the 8.9 slot-write recap.** `remember { RuntimeShader(...) }` compiling once, and a slider writing a uniform, is known. Mention a uniform only when this lesson adds a new slot or a new consumer of that slot.
+4. **Stepper captions name this lesson’s objects and numbers.** Do not open a step with “Lesson N.M already blended across a band. Its x was uv.x.” If a prior function is reused, say the function, the new input object, and the current teaching numbers in one breath.
+5. **Cut sentences that only restate a comparison already visible.** “Linear mask uses 1 − linearFraction with no bend” is a vague comparison unless the two numbers sit side by side. Prefer one live pair: linearFraction = …, curvedFraction = ….
+6. **Simplify wording slightly**, but never by deleting a beginner definition, a teaching-value trace, or a required unit/range. If a cut would make the causal chain uncertain, keep the sentence.
+
+**Verification before packaging:**
+
+- Can the learner explain the new operation after sections 1–3 (or 1–4 if a stepper is justified) without reading the table, the later stepper, or Not claimed?
+- Does every remaining section add a new object, a new operation, or a new consumer?
+- If a stepper exists, delete any step whose diagram and caption would still make sense in a prior completed lesson.

@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 9.5 — Capsule distance field</title>
+<style>
+:root{color-scheme:light;--ink:#172033;--muted:#596579;--line:#d8e0ea;--paper:#fff;--soft:#f5f7fb;--panel:#fbfcfe;--control:#fff;--green:#059669;--green-soft:#ecfdf5;--indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;--blue:#1e40af;--blue-soft:#dbeafe;--red:#dc2626;--red-soft:#fee2e2;--orange:#e07a2e;--navy:#1a4066;--pink:#be185d;--body-start:#f8fafc;--body-end:#edf2f7;--shadow:0 18px 52px rgba(30,41,59,.09);--code:#111827;--code-ink:#e5e7eb}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--body-start),var(--body-end));font:16px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}button,input,textarea{font:inherit}button{cursor:pointer}code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}code{background:var(--indigo-soft);padding:.12em .36em;border-radius:6px;white-space:nowrap}.code-block>code,.code-block code{display:block;background:transparent;color:inherit;padding:0;border-radius:0;white-space:pre-wrap}.page{width:min(2260px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.topbar{display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:22px}.crumbs{color:var(--muted)}.chips{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:850}.chip.progress{color:var(--green);background:var(--green-soft)}.chip.pending{color:var(--amber);background:var(--amber-soft)}.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(480px,.85fr);gap:28px;padding:42px}.eyebrow,.section-no{color:var(--indigo);font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase}h1{margin:.35rem 0 1rem;font-size:clamp(42px,4vw,70px);line-height:1.04;letter-spacing:-.045em}h2{margin:0 0 .7rem;font-size:31px;line-height:1.18}h3{margin:0 0 .5rem;font-size:21px;line-height:1.25}p{max-width:110ch}.lead{font-size:19px;color:var(--muted)}.plain-rule{font-size:clamp(20px,1.8vw,28px);font-weight:950;line-height:1.3;padding:20px;border:2px solid var(--indigo);border-radius:16px;background:var(--indigo-soft)}.plain-rule code{white-space:normal}.section{margin-top:24px;padding:32px}.section-head{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:22px}.section-head p{margin:0;color:var(--muted)}.card{padding:20px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}.card.green{background:var(--green-soft)}.card.blue{background:var(--blue-soft)}.card.amber{background:var(--amber-soft)}.card.indigo{background:var(--indigo-soft)}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.note{margin-top:18px;padding:16px 18px;border-radius:14px;border-left:5px solid var(--blue);background:var(--blue-soft)}.formula{padding:14px 16px;border-radius:13px;background:var(--indigo-soft);border:1px solid color-mix(in srgb,var(--indigo) 45%,var(--line));font:800 15px/1.64 "SFMono-Regular",Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.btn{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:850;border:1px solid var(--line);background:var(--control);color:var(--ink);text-decoration:none;display:inline-flex;align-items:center}.btn:hover,.btn:focus-visible{border-color:var(--blue);outline:none}.btn.primary{border-color:var(--blue);background:var(--blue);color:#fff}.btn.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.hero-art{min-height:320px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,var(--blue-soft),var(--indigo-soft));padding:22px;display:grid;align-content:center;gap:14px}.hero-pipeline{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;gap:8px;align-items:center}.hero-stage{padding:16px 10px;text-align:center;border-radius:14px;background:var(--paper);border:1px solid var(--line);font-weight:900}.arrow{font-size:28px;color:var(--indigo);font-weight:950}.lab-grid{display:grid;grid-template-columns:minmax(520px,1fr) minmax(420px,.85fr);gap:18px}.canvas-card{padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--panel);min-width:0}.canvas-card canvas{display:block;height:auto;border-radius:11px;border:1px solid var(--line);background:#f8fafc}#labCanvas{background:#0b1220;cursor:crosshair;width:min(400px,100%)}#stepCanvas{width:100%}.canvas-title{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:9px}.canvas-title span,.origin{color:var(--muted);font-size:13px;font-weight:700}.metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:14px}.metric{padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--control)}.metric strong{display:block;color:var(--indigo);margin-bottom:4px}.metric .origin{display:block;margin-bottom:6px}.metric .value{display:block;font-weight:850}.swatch{display:inline-block;width:18px;height:18px;border-radius:4px;border:1px solid var(--line);vertical-align:-3px;margin-right:6px}.lesson-grid{display:grid;grid-template-columns:minmax(860px,1.25fr) minmax(430px,.75fr);gap:18px;align-items:start}.stepper{position:sticky;top:18px;border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden}.step-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}.step-body{padding:18px}.step-title{font-size:22px;font-weight:950}.step-caption{min-height:110px}.step-buttons{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}.step-dot{width:40px;height:40px;padding:0;border-radius:10px;border:1px solid var(--line);background:var(--control);color:var(--ink);font-weight:900}.step-dot.selected{background:var(--indigo);border-color:var(--indigo);color:#fff}.io{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}.io>div{padding:11px;border:1px solid var(--line);border-radius:11px;background:var(--control)}.io strong,.io span{display:block}.code-grid{display:grid;grid-template-columns:minmax(650px,1fr) minmax(500px,.8fr);gap:18px}.code-block{background:var(--code);color:var(--code-ink);border-radius:14px;padding:16px;white-space:pre-wrap;overflow:auto;font:14px/1.62 "SFMono-Regular",Consolas,monospace}.prediction{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.choice{appearance:none;min-height:112px;padding:16px;border:2px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);text-align:left;font-weight:800;line-height:1.5}.choice:hover,.choice:focus-visible{border-color:var(--blue);outline:none}.choice.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.challenge{display:grid;grid-template-columns:minmax(650px,1fr) minmax(500px,.75fr);gap:18px}.editor{width:100%;min-height:280px;resize:vertical;background:var(--code);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace;white-space:pre;overflow:auto}.result{min-height:55px;margin-top:12px;padding:12px;border-radius:11px;background:var(--soft)}details{margin:10px 0;border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:13px 15px}summary{cursor:pointer;font-weight:900}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.check{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}.record{width:100%;min-height:240px;margin-top:12px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);font:14px/1.6 "SFMono-Regular",Consolas,monospace}.footer{margin-top:24px;padding:18px 24px;display:flex;justify-content:space-between;gap:18px;align-items:center}.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-weight:800}.legend i{display:inline-block;width:16px;height:16px;border-radius:4px;border:1px solid var(--line);vertical-align:-3px;margin-right:6px}.formulas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:12px}label.range-row{display:grid;grid-template-columns:210px minmax(220px,1fr) 80px;gap:12px;align-items:center;font-weight:850}input[type=range]{width:100%}.grow-svg{width:100%;height:auto;border:1px solid var(--line);border-radius:16px;background:#f8fafc;display:block}
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-distance-fields-image-sampling-and-refraction.html">Chapter 9</a> · Lesson 9.5 · generated ahead</div>
+    <div class="chips"><span class="chip progress">89 of 216 complete</span><span class="chip pending">Checkpoint 9.4 unresolved</span><span class="chip pending">9.5 generated ahead · frontier</span></div>
+  </div>
+
+  <header class="hero panel">
+    <div>
+      <div class="eyebrow">Chapter 9 · Grow a line segment by the end radius</div>
+      <h1>Capsule distance field</h1>
+      <p class="lead"><strong>Question:</strong> Lesson 4.3 named a <strong>capsule</strong>: a rounded rectangle whose short ends are semicircles. Height owns the radius: <code>radius = height ÷ 2</code>. Width owns the straight span between those ends. Lesson 9.4 grew an inner box. When that inner height hits 0, the inner box is a horizontal line segment. How do you measure signed distance to that capsule from <code>p</code>?</p>
+      <div class="plain-rule">Find the nearest point on the inner segment, take <code>length</code> to it, then subtract the radius. <code>clamp</code> picks the nearest segment x: if <code>p.x</code> sits between the endpoints it stays; if it sits past an end it becomes that end. Production then uses <code>if (sd &lt; 0.0)</code> on this <code>sd</code>.</div>
+      <div class="note"><strong>Generated ahead.</strong> Lesson 9.4 remains the unresolved checkpoint. This page is a JavaScript stand-in. Default outer half-size is <code>(0.40, 0.20)</code>. Radius is 0.20, equal to the half-height. Teaching cap-boundary pixel <code>p = (0.32, −0.16)</code> has <code>sd = 0</code>.</div>
+    </div>
+    <div class="hero-art" aria-label="inner segment grown by radius becomes a capsule">
+      <div class="hero-pipeline">
+        <div class="hero-stage">outer half<br>(0.40, 0.20)</div><div class="arrow">→</div>
+        <div class="hero-stage">inner segment<br>x = ±0.20</div><div class="arrow">→</div>
+        <div class="hero-stage">length to nearest<br>− radius 0.20</div><div class="arrow">→</div>
+        <div class="hero-stage">sd = 0 on the<br>semicircle</div>
+      </div>
+      <p style="margin:0;font-weight:800">Canonical wording: <a href="../../glossary.html#inner-segment">inner segment</a>, <a href="../../glossary.html#nearest-on-segment">nearest on segment</a>, <a href="../../glossary.html#signed-distance">signed distance</a>, <a href="../../glossary.html#clamp">clamp</a>.</p>
+    </div>
+  </header>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">1 · THE NEW QUESTION</div><h2>A box grow still has vertical leftovers. A capsule does not.</h2></div></div>
+    <div class="three">
+      <article class="card blue"><h3>4.3 leftover</h3><p>A horizontal capsule has width at least as large as height. Radius equals height ÷ 2, so the left and right vertical flats have length zero. Each end is one semicircle. Width only moves the two end centers apart.</p></article>
+      <article class="card indigo"><h3>9.4 leftover</h3><p>Growing an inner box by r keeps vertical flats when inner height is greater than 0. At r = half-height, inner height is 0 and that inner box is a horizontal segment. This lesson starts from that segment.</p></article>
+      <article class="card green"><h3>New nearest point</h3><p>The new number is distance to the nearest point on that segment, minus r. Teaching outer half-size is <code>(0.40, 0.20)</code> so the pill is clearly wider than a circle.</p></article>
+    </div>
+    <div class="formulas">
+      <div class="formula">outerHalf = (0.40, 0.20)
+radius    = 0.20          ← half of the height, p units
+innerHalfW = 0.40 − 0.20 = 0.20
+inner segment: x from −0.20 to +0.20, y = 0
+
+nearestX = clamp(p.x, −innerHalfW, innerHalfW)
+sd = length(p − (nearestX, 0)) − radius</div>
+      <div class="formula">Teaching cap-boundary pixel
+p = (0.32, −0.16)
+  ← right end (0.20, 0) plus 0.20 × (0.6, −0.8)
+  ← 0.6² + 0.8² = 1
+nearestX = clamp(0.32, −0.20, 0.20) = 0.20
+length((0.12, −0.16)) = 0.20
+sd = 0.20 − 0.20 = 0</div>
+    </div>
+  </section>
+
+  <section class="section panel" id="grow">
+    <div class="section-head"><div><div class="section-no">2 · GROW THE INNER SEGMENT</div><h2>The middle stays a flat band. Each end is a semicircle.</h2></div><p>The dashed indigo line is the inner segment. The two green circles are Lesson 4.3’s construction circles, now with the same center as each segment end. The orange outline is the capsule: every point whose signed distance to the segment equals the radius.</p></div>
+    <svg class="grow-svg" viewBox="0 0 1180 400" role="img" aria-label="Inner segment, two construction circles, and the grown capsule">
+      <text x="28" y="36" fill="#172033" font-size="20" font-weight="800">Center at C. Inner segment x = ±0.20. Radius 0.20. Outer right end at x = 0.40.</text>
+      <g transform="translate(590 220)">
+        <rect x="-240" y="-120" width="480" height="240" fill="none" stroke="#d8e0ea" stroke-width="2"/>
+        <text x="0" y="-132" text-anchor="middle" fill="#596579" font-size="14" font-weight="800">outer sharp box · only a size guide</text>
+        <line x1="-120" y1="0" x2="120" y2="0" stroke="#4338ca" stroke-width="6" stroke-dasharray="10 7"/>
+        <circle cx="120" cy="0" r="120" fill="none" stroke="#059669" stroke-width="2" stroke-dasharray="6 5"/>
+        <circle cx="-120" cy="0" r="120" fill="none" stroke="#059669" stroke-width="2" stroke-dasharray="6 5"/>
+        <path d="M -120,-120 H 120 A 120 120 0 0 1 120,120 H -120 A 120 120 0 0 1 -120,-120 Z" fill="rgba(224,122,46,0.18)" stroke="#e07a2e" stroke-width="4"/>
+        <circle cx="0" cy="0" r="7" fill="#4338ca"/>
+        <text x="8" y="-14" fill="#4338ca" font-size="16" font-weight="800">C</text>
+        <circle cx="120" cy="0" r="6" fill="#059669"/>
+        <text x="128" y="-14" fill="#059669" font-size="14" font-weight="800">right end (0.20, 0)</text>
+        <circle cx="192" cy="-96" r="7" fill="#d97706"/>
+        <text x="204" y="-108" fill="#d97706" font-size="14" font-weight="800">p = (0.32, −0.16)</text>
+        <line x1="120" y1="0" x2="192" y2="-96" stroke="#be185d" stroke-width="3"/>
+        <text x="8" y="150" fill="#4338ca" font-size="15" font-weight="800">inner segment</text>
+      </g>
+    </svg>
+    <div class="three" style="margin-top:16px">
+      <article class="card green">
+        <h3>Why the radius equals the half-height</h3>
+        <p>Lesson 4.3 solved <code>height − radius − radius = 0</code>. In <code>p</code> units the half-height is 0.20, so radius is 0.20. The top and bottom of the capsule then sit at <code>y = ±0.20</code>.</p>
+      </article>
+      <article class="card indigo">
+        <h3>Why a segment, not a box</h3>
+        <p>There is no leftover vertical inner edge. Every pixel’s nearest inner point lies on this one horizontal segment: either between the ends, or at an end.</p>
+      </article>
+      <article class="card amber">
+        <h3>Width owns the middle</h3>
+        <p>Raising half-width lengthens the segment and the top and bottom flats. Radius stays 0.20. At half-width 0.20 the segment length is 0 and the capsule is a circle.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section panel" id="nearest">
+    <div class="section-head"><div><div class="section-no">3 · NEAREST POINT ON THE SEGMENT</div><h2>clamp picks the x. length measures the rest.</h2></div><p>Lesson 8.11’s <code>clamp(x, lo, hi)</code> returns <code>x</code> when it already sits in the interval, <code>lo</code> when <code>x</code> is below, and <code>hi</code> when <code>x</code> is above. Here the interval is the inner segment’s x range, and the input is this pixel’s <code>p.x</code>. The five steps walk one pixel through that pick, then the grow.</p></div>
+    <div class="formulas">
+      <div class="formula">If p.x is between −0.20 and +0.20:
+  nearest = (p.x, 0)
+  distance = |p.y|
+
+If p.x is past the right end:
+  nearest = (0.20, 0)
+  distance = length(p − that end)
+
+Same on the left with −0.20.
+
+One spelling:
+  nearestX = clamp(p.x, −0.20, 0.20)
+  sd = length(p − (nearestX, 0)) − 0.20</div>
+      <div class="formula">Top-flat pixel p = (0.00, −0.20)
+  nearestX = 0.00
+  length = 0.20
+  sd = 0
+
+Center p = (0, 0)
+  nearestX = 0
+  length = 0
+  sd = −0.20  inside, orange</div>
+    </div>
+    <div class="lesson-grid" style="margin-top:18px">
+      <article class="canvas-card">
+        <div class="canvas-title"><strong>Current step</strong><span id="stepGridLabel">Step 1 of 5</span></div>
+        <canvas id="stepCanvas" width="960" height="400" aria-label="Stepper capsule diagram"></canvas>
+      </article>
+      <aside class="stepper">
+        <div class="step-head"><button class="btn" id="stepPrev">Previous</button><strong id="stepCounter">Step 1 of 5</strong><button class="btn primary" id="stepNext">Next</button></div>
+        <div class="step-body">
+          <div class="step-title" id="stepTitle"></div>
+          <div class="step-caption" id="stepCaption"></div>
+          <div class="formula" id="stepRule"></div>
+          <div class="io">
+            <div><strong>Input</strong><span id="stepInput"></span></div>
+            <div><strong>Operation</strong><span id="stepOperation"></span></div>
+            <div><strong>Output</strong><span id="stepOutput"></span></div>
+          </div>
+          <div class="step-buttons" id="stepButtons"></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section panel" id="lab">
+    <div class="section-head"><div><div class="section-no">4 · INTERACTIVE LAB</div><h2>Click a pixel. Read nearestX, length, and sd.</h2></div><p>Production stores orange when <code>sd &lt; 0</code>, navy otherwise. Circle comparison uses <code>length(p) − 0.20</code>, which cannot grow the middle flats. The width slider changes half-width only. Radius stays 0.20.</p></div>
+    <div class="controls" role="group" aria-label="Store rule">
+      <button class="btn mode-btn selected" data-mode="hard">Hard if (production)</button>
+      <button class="btn mode-btn" data-mode="circle">Circle comparison</button>
+      <button class="btn" id="markCap">Mark cap boundary</button>
+      <button class="btn" id="markFlat">Mark top flat</button>
+      <button class="btn" id="markEnd">Mark rightmost</button>
+      <button class="btn" id="markCenter">Mark center</button>
+    </div>
+    <label class="range-row" style="margin-top:12px"><span>half-width (p units)</span><input id="widthRange" type="range" min="0.20" max="0.45" step="0.01" value="0.40"><span class="mono" id="widthValue">0.40</span></label>
+    <div class="metrics">
+      <div class="metric"><strong>p</strong><span class="origin">uv − 0.5</span><span class="value" id="pMetric"></span></div>
+      <div class="metric"><strong>innerHalfW</strong><span class="origin">halfWidth − radius</span><span class="value" id="innerMetric"></span></div>
+      <div class="metric"><strong>nearestX</strong><span class="origin">clamp(p.x, ±innerHalfW)</span><span class="value" id="nearMetric"></span></div>
+      <div class="metric"><strong>length</strong><span class="origin">to (nearestX, 0)</span><span class="value" id="lenMetric"></span></div>
+      <div class="metric"><strong>sd</strong><span class="origin">length − radius</span><span class="value" id="sdMetric"></span></div>
+      <div class="metric"><strong>Store</strong><span class="origin">this pixel half4</span><span class="value" id="retMetric"></span></div>
+    </div>
+    <div class="lab-grid" style="margin-top:14px">
+      <article class="canvas-card">
+        <div class="canvas-title"><strong>Draw rectangle 400 × 400</strong><span>click a pixel · green = capsule boundary</span></div>
+        <canvas id="labCanvas" width="400" height="400" aria-label="Capsule signed distance teaching rectangle"></canvas>
+        <p id="labCaption"></p>
+        <div class="legend">
+          <span><i style="background:#e07a2e"></i>inside orange</span>
+          <span><i style="background:#1a4066"></i>outside navy</span>
+          <span><i style="background:#059669"></i>capsule boundary</span>
+          <span><i style="background:#4338ca"></i>inner segment</span>
+          <span><i style="background:#d97706"></i>teaching cap</span>
+        </div>
+      </article>
+      <article class="canvas-card">
+        <div class="canvas-title"><strong>This pixel’s arithmetic</strong><span>same clamp route as Android</span></div>
+        <div class="formula" id="liveFormula"></div>
+        <pre class="code-block" id="labCode" style="margin-top:12px;max-height:260px"></pre>
+      </article>
+    </div>
+    <div class="note"><strong>Browser versus Android.</strong> This page paints with a JavaScript copy of the clamp-and-length arithmetic. Android compiles the same three lines. At half-width 0.20 the inner segment has length 0 and the silhouette is a circle of radius 0.20.</div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">5 · ANDROID ROUTE</div><h2>Width uniform, derived radius, one clamp</h2></div></div>
+    <div class="code-grid">
+      <pre class="code-block"><code>private const val PanelSizeDp = 360
+private const val DefaultHalfWidth = 0.40f
+private const val HalfHeight = 0.20f
+private const val Radius = HalfHeight
+private const val TeachPx = 0.32f
+private const val TeachPy = -0.16f
+
+uniform float2 resolution;
+uniform float halfWidth;
+uniform float radius;
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / resolution;
+    float2 p = uv - float2(0.5, 0.5);
+    float innerHalfW = halfWidth - radius;
+    float nearestX = clamp(p.x, -innerHalfW, innerHalfW);
+    float sd = length(p - float2(nearestX, 0.0)) - radius;
+    ...
+}</code></pre>
+      <div class="card">
+        <h3>What each part changes</h3>
+        <p><code>Radius = HalfHeight</code> is Lesson 4.3’s derived radius, written once. The slider writes <code>halfWidth</code>. It does not write radius.</p>
+        <p><code>innerHalfW</code> is half the inner-segment length. <code>clamp</code> picks the nearest x on that segment. <code>length</code> to <code>(nearestX, 0)</code> is the unsigned distance. Subtracting radius signs it.</p>
+        <p><code>DefaultHalfWidth = 0.40</code> so the teaching cap pixel’s <code>sd</code> is exactly 0. <code>PanelSizeDp = 360</code> stays square.</p>
+        <p>The green overlay is Compose <code>drawRoundRect</code> with corner radius equal to half the height in pixels.</p>
+        <p><strong>Android files:</strong><br><code>chapter09/CapsuleSdfExplorer.kt</code><br><code>chapter09/Chapter09Screen.kt</code></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel" id="predict">
+    <div class="section-head"><div><div class="section-no">6 · PREDICTION</div><h2>Teaching cap p = (0.32, −0.16), r = 0.20. What is sd, and which color?</h2></div></div>
+    <p>Production clamps onto the inner segment, then uses <code>if (sd &lt; 0.0) orange else navy</code>.</p>
+    <div class="prediction">
+      <button class="choice" data-answer="wrong-circle">sd = length(p) − 0.20 ≈ 0.16 and navy, because the end is a circle around the visual center.</button>
+      <button class="choice" data-answer="wrong-inside">sd is negative and orange, because this pixel sits inside the outer sharp box.</button>
+      <button class="choice" data-answer="correct">sd = 0 and navy, because nearestX = 0.20, length((0.12, −0.16)) = 0.20, and 0.20 − 0.20 = 0. The hard if is false at 0.</button>
+    </div>
+    <div class="result" id="predictionResult">Choose one answer.</div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">7 · CODING CHALLENGE</div><h2>Clamp onto the segment, then grow</h2></div></div>
+    <div class="challenge">
+      <div>
+        <textarea class="editor" id="challengeEditor" spellcheck="false">uniform float2 resolution;
+uniform float halfWidth;
+uniform float radius;
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / resolution;
+    float2 p = uv - float2(0.5, 0.5);
+    float innerHalfW = halfWidth - radius;
+    float nearestX = ___(p.x, -innerHalfW, innerHalfW);
+    float sd = ___(p - float2(nearestX, 0.0)) ___ radius;
+    half4 navy = half4(0.10, 0.25, 0.40, 1.0);
+    half4 orange = half4(0.88, 0.48, 0.18, 1.0);
+    if (sd &lt; 0.0) return orange;
+    return navy;
+}</textarea>
+        <div class="controls" style="margin-top:10px">
+          <button class="btn primary" id="checkChallenge">Check</button>
+          <button class="btn" id="showSolution">Show solution</button>
+          <button class="btn" id="resetChallenge">Reset</button>
+        </div>
+        <div class="result" id="challengeResult">The blanks are clamp, length, and the grow subtract.</div>
+      </div>
+      <div class="card indigo">
+        <h3>Available names</h3>
+        <div class="formula">clamp
+length
+-
++</div>
+        <p>Use <code>clamp</code> on <code>p.x</code>, <code>length</code> to the nearest point, and subtract <code>radius</code>. Adding would shrink the shape.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">8 · EXERCISES</div><h2>Answer before opening each hidden solution</h2></div></div>
+    <details><summary>At the visual center, r = 0.20, what is sd, and which color does production store?</summary><p>nearestX = clamp(0, −0.20, 0.20) = 0. length to (0, 0) is 0. sd = 0 − 0.20 = −0.20. Minus means inside, so the hard if stores orange.</p></details>
+    <details><summary>Diagnostic: someone writes <code>float sd = length(p) − radius</code>. What silhouette do you get, and what happens to the top flat at p = (0, −0.20)?</summary><p>sd = 0 is a circle of radius 0.20 around the visual center. The teaching capsule’s top flat sits at y = −0.20 only between x = −0.20 and x = 0.20. On that circle, p = (0, −0.20) happens to be on the boundary too, but p = (0.10, −0.20) has circle length 0.2236 and sd = +0.0236 (navy), while the capsule stores sd = 0 (still on the flat).</p></details>
+    <details><summary>The top-flat pixel p = (0.00, −0.20) is not at an end. Why is sd still 0?</summary><p>p.x = 0 already sits on the segment, so nearestX stays 0. Distance to (0, 0) is |−0.20| = 0.20, equal to the radius. The grow subtract lands on 0. The pixel sits on the outer top flat.</p></details>
+    <details><summary>If half-width equals the radius 0.20, what is the inner segment, and what silhouette do you get?</summary><p>innerHalfW = 0. The segment is one point: the visual center. nearestX is always 0. sd = length(p) − 0.20, which is Lesson 9.2’s circle. That is Lesson 4.3’s circle limit.</p></details>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">9 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div></div>
+    <div class="checklist">
+      <label class="check"><input type="checkbox">At default half-width 0.40, the teaching cap pixel prints nearestX = 0.20, sd = 0.00, and the store is navy.</label>
+      <label class="check"><input type="checkbox">The center prints sd = −0.20 and the store is orange.</label>
+      <label class="check"><input type="checkbox">The top-flat mark prints sd = 0.00.</label>
+      <label class="check"><input type="checkbox">At half-width 0.20 the silhouette is a circle of radius 0.20.</label>
+      <label class="check"><input type="checkbox">The Android panel is square. Half-width is a uniform. Radius stays 0.20. Light <code>@Preview</code> is first, then dark. Both previews scroll.</label>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">10 · EVIDENCE BOUNDARY</div><h2>What this lesson establishes</h2></div></div>
+    <div class="two">
+      <div class="card green"><h3>Established</h3><p>A capsule signed distance is length to the nearest inner-segment point, minus the radius. Default outer half <code>(0.40, 0.20)</code>, radius 0.20, inner segment x from −0.20 to +0.20. <code>nearestX = clamp(p.x, −innerHalfW, innerHalfW)</code>. Teaching cap-boundary <code>p = (0.32, −0.16)</code> has <code>sd = 0</code>. Center <code>sd = −0.20</code>. Production is <code>if (sd &lt; 0.0) orange else navy</code>.</p></div>
+      <div class="card indigo"><h3>What’s next</h3><p>Lesson 9.6 will combine two complete signed-distance fields with <code>min</code> and <code>max</code>: union, intersection, and subtraction of whole shapes. The 9.3 soft mask can wrap this capsule <code>sd</code> the same way it wrapped the circle. This lesson keeps the hard cut so the new zero contour is the picture.</p></div>
+    </div>
+    <button class="btn primary" id="buildRecord" style="margin-top:16px">Build local review record</button>
+    <textarea class="record" id="record" readonly>No record generated yet.</textarea>
+  </section>
+
+  <footer class="footer panel"><span>89 of 216 complete · checkpoint 9.4 unresolved · 9.5 generated ahead</span><span>Previous generated: <a href="lesson-09-04-rounded-rectangle-distance-field.html">9.4 — Rounded rectangle distance field</a> · Next planned: <strong>9.6 — Combine shapes</strong></span></footer>
+</main>
+<script>
+const W=400, H=400;
+const HY=0.20, RADIUS=0.20;
+const CAP={x:200+0.32*400, y:200-0.16*400};
+const FLAT={x:200, y:200-0.20*400};
+const END={x:200+0.40*400, y:200};
+const CENTER={x:200,y:200};
+const NAVY=[0.10,0.25,0.40,1];
+const ORANGE=[0.88,0.48,0.18,1];
+const PROD=`uniform float2 resolution;
+uniform float halfWidth;
+uniform float radius;
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / resolution;
+    float2 p = uv - float2(0.5, 0.5);
+    float innerHalfW = halfWidth - radius;
+    float nearestX = clamp(p.x, -innerHalfW, innerHalfW);
+    float sd = length(p - float2(nearestX, 0.0)) - radius;
+    half4 navy = half4(0.10, 0.25, 0.40, 1.0);
+    half4 orange = half4(0.88, 0.48, 0.18, 1.0);
+    if (sd < 0.0) return orange;
+    return navy;
+}`;
+let px=CAP.x, py=CAP.y;
+let halfW=0.40;
+let mode='hard';
+let currentStep=0;
+const fmt2=n=>n.toFixed(2);
+const fmt3=n=>n.toFixed(3);
+const fmt4=n=>n.toFixed(4);
+function clamp(x,lo,hi){ return Math.min(hi, Math.max(lo, x)); }
+function pOf(x,y){ return {x:x/W-0.5, y:y/H-0.5}; }
+function rgbCss(c){
+  const r=Math.round(clamp(c[0],0,1)*255);
+  const g=Math.round(clamp(c[1],0,1)*255);
+  const b=Math.round(clamp(c[2],0,1)*255);
+  return `rgb(${r},${g},${b})`;
+}
+function signedCapsule(p, hw){
+  const inner=hw-RADIUS;
+  const nearestX=clamp(p.x, -inner, inner);
+  const len=Math.hypot(p.x-nearestX, p.y);
+  let sd=len-RADIUS;
+  if(Math.abs(sd)<1e-8) sd=0;
+  const region = Math.abs(p.x)>inner ? 'past an end (length to endpoint)' : 'above the segment (|p.y|)';
+  return {inner, nearestX, len, sd, region};
+}
+function colorAt(p, rule, hw){
+  const sd = rule==='circle' ? Math.hypot(p.x,p.y)-RADIUS : signedCapsule(p,hw).sd;
+  return sd<0 ? ORANGE.slice() : NAVY.slice();
+}
+function drawField(ctx, rule, hw){
+  const img=ctx.createImageData(W,H);
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      const col=colorAt(pOf(x,y), rule, hw);
+      const i=(y*W+x)*4;
+      img.data[i]=Math.round(col[0]*255);
+      img.data[i+1]=Math.round(col[1]*255);
+      img.data[i+2]=Math.round(col[2]*255);
+      img.data[i+3]=255;
+    }
+  }
+  ctx.putImageData(img,0,0);
+}
+function pxX(p){ return CENTER.x + p*W; }
+function pxY(p){ return CENTER.y + p*H; }
+function drawOverlay(ctx, x, y, hw){
+  ctx.save();
+  ctx.strokeStyle='#4338ca'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(CENTER.x+0.5, 12); ctx.lineTo(CENTER.x+0.5, H-12); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(12, CENTER.y+0.5); ctx.lineTo(W-12, CENTER.y+0.5); ctx.stroke();
+  const inner=hw-RADIUS;
+  ctx.strokeStyle='#4338ca'; ctx.lineWidth=4; ctx.setLineDash([8,6]);
+  ctx.beginPath(); ctx.moveTo(pxX(-inner), CENTER.y); ctx.lineTo(pxX(inner), CENTER.y); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.strokeStyle='#059669'; ctx.lineWidth=2; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.arc(pxX(-inner), CENTER.y, RADIUS*W, 0, Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(pxX(inner), CENTER.y, RADIUS*W, 0, Math.PI*2); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3;
+  if(typeof ctx.roundRect==='function'){
+    ctx.beginPath();
+    ctx.roundRect(pxX(-hw), pxY(-HY), hw*2*W, HY*2*H, RADIUS*W);
+    ctx.stroke();
+  }
+  ctx.strokeStyle='#d97706'; ctx.lineWidth=3;
+  ctx.strokeRect(CAP.x-6, CAP.y-6, 12, 12);
+  ctx.fillStyle='#059669';
+  ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+function updateLab(){
+  px=clamp(px,0.5,W-0.5); py=clamp(py,0.5,H-0.5);
+  halfW=clamp(halfW,0.20,0.45);
+  const p=pOf(px,py);
+  const s=signedCapsule(p, halfW);
+  const col=colorAt(p, mode, halfW);
+  const canvas=document.getElementById('labCanvas');
+  const ctx=canvas.getContext('2d');
+  drawField(ctx, mode, halfW);
+  drawOverlay(ctx, px, py, halfW);
+  document.getElementById('widthRange').value=String(halfW);
+  document.getElementById('widthValue').textContent=fmt2(halfW);
+  document.getElementById('pMetric').textContent=`(${fmt3(p.x)}, ${fmt3(p.y)})`;
+  document.getElementById('innerMetric').textContent=fmt2(s.inner);
+  document.getElementById('nearMetric').textContent=fmt3(s.nearestX);
+  document.getElementById('lenMetric').textContent=fmt4(s.len)+' · '+s.region;
+  document.getElementById('sdMetric').textContent=(s.sd>=0?'+':'')+fmt4(s.sd);
+  document.getElementById('retMetric').innerHTML=`<span class="swatch" style="background:${rgbCss(col)}"></span>half4(${fmt2(col[0])}, ${fmt2(col[1])}, ${fmt2(col[2])}, 1)`;
+  document.getElementById('labCode').textContent=PROD;
+  document.getElementById('liveFormula').textContent=
+`innerHalfW = ${fmt2(s.inner)}
+nearestX = clamp(${fmt3(p.x)}, ${fmt2(-s.inner)}, ${fmt2(s.inner)}) = ${fmt3(s.nearestX)}
+length = ${fmt4(s.len)}
+sd = ${fmt4(s.len)} − 0.20 = ${fmt4(s.sd)}
+store = ${s.sd<0?'orange':'navy'}`;
+  document.getElementById('labCaption').textContent=
+    mode==='hard'
+      ? `Pixel (${Math.round(px)}, ${Math.round(py)}). Green outline is the capsule at half-width ${fmt2(halfW)}.`
+      : `Circle comparison uses length(p) − 0.20. The middle flats disappear because a grown point has no inner segment.`;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('selected', b.dataset.mode===mode));
+}
+document.getElementById('widthRange').addEventListener('input',e=>{halfW=Number(e.target.value); updateLab();});
+document.getElementById('markCap').addEventListener('click',()=>{px=CAP.x; py=CAP.y; updateLab();});
+document.getElementById('markFlat').addEventListener('click',()=>{px=FLAT.x; py=FLAT.y; updateLab();});
+document.getElementById('markEnd').addEventListener('click',()=>{px=END.x; py=END.y; updateLab();});
+document.getElementById('markCenter').addEventListener('click',()=>{px=CENTER.x; py=CENTER.y; updateLab();});
+document.querySelectorAll('.mode-btn').forEach(btn=>btn.addEventListener('click',()=>{mode=btn.dataset.mode; updateLab();}));
+document.getElementById('labCanvas').addEventListener('click',e=>{
+  const box=e.currentTarget.getBoundingClientRect();
+  px=clamp((e.clientX-box.left)*(W/box.width),0.5,W-0.5);
+  py=clamp((e.clientY-box.top)*(H/box.height),0.5,H-0.5);
+  updateLab();
+});
+
+const STEPS=[
+  {
+    title:'The inner segment is a box with height 0',
+    caption:'outerHalf = (0.40, 0.20). Radius = 0.20, equal to the half-height. innerHalfW = 0.20. The inner segment runs from (−0.20, 0) to (0.20, 0). Lesson 9.4’s inner box becomes this segment when the inner height hits 0.',
+    rule:'inner segment: x from −0.20 to +0.20, y = 0',
+    input:'outer half (0.40, 0.20) and r = 0.20',
+    operation:'shrink the height to zero',
+    output:'a horizontal segment of half-length 0.20'
+  },
+  {
+    title:'Grow that segment by r. Ends become semicircles.',
+    caption:'Signed distance to the segment is zero on the segment. Subtracting 0.20 moves that zero out by 0.20. A point grown by r was a circle. A segment grown by r is this capsule. The middle stays a flat band of height 0.40.',
+    rule:'sd = length to nearest segment point − 0.20',
+    input:'inner-segment unsigned distance',
+    operation:'the same grow-by-r subtract as 9.2 and 9.4',
+    output:'zero on the orange outline'
+  },
+  {
+    title:'clamp picks the nearest x on the segment',
+    caption:'p = (0.32, −0.16). p.x = 0.32 sits past the right end 0.20, so clamp returns 0.20. A pixel at p.x = 0.00 is already on the segment, so clamp returns 0.00. A pixel at p.x = −0.35 becomes −0.20. The y of the nearest point is always 0.',
+    rule:'nearestX = clamp(p.x, −0.20, 0.20)',
+    input:'this pixel’s p.x',
+    operation:'restrict x to the segment',
+    output:'nearestX'
+  },
+  {
+    title:'Teaching cap pixel: 3-4-5 direction, sd = 0',
+    caption:'Right end is (0.20, 0). Direction (0.6, −0.8) has length 1 because 0.36 + 0.64 = 1. 0.20 × (0.6, −0.8) = (0.12, −0.16). Add: p = (0.32, −0.16). length to the end is 0.20. sd = 0.20 − 0.20 = 0. On the right semicircle.',
+    rule:'length(0.12, −0.16) = 0.20 = r, so sd = 0',
+    input:'p = (0.32, −0.16)',
+    operation:'clamp to the right end, then grow',
+    output:'boundary, navy in the hard if'
+  },
+  {
+    title:'Top flat never uses an endpoint. Center is inside.',
+    caption:'p = (0.00, −0.20). nearestX stays 0.00. length = 0.20. sd = 0. The pixel sits on the outer top flat, between the ends. Center p = (0, 0) has length 0, sd = −0.20, orange. 0 in p is still the visual center. 0 in sd is the capsule boundary.',
+    rule:'flat sd = 0   center sd = −0.20',
+    input:'p = (0.00, −0.20) and p = (0, 0)',
+    operation:'clamp keeps p.x, then grow',
+    output:'navy on the flat, orange at the center'
+  }
+];
+function drawStepPicture(ctx, index){
+  ctx.clearRect(0,0,960,400);
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,960,400);
+  const ox=40, oy=20, S=360;
+  const tmp=document.createElement('canvas');
+  tmp.width=W; tmp.height=H;
+  const tctx=tmp.getContext('2d');
+  drawField(tctx, index===0?'circle':'hard', 0.40);
+  ctx.drawImage(tmp, ox, oy, S, S);
+  ctx.strokeStyle='#172033'; ctx.lineWidth=2; ctx.strokeRect(ox,oy,S,S);
+  const scale=S/W;
+  const mapX=x=>ox+x*scale, mapY=y=>oy+y*scale;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(ox, oy, S, S); ctx.clip();
+  const inner=0.20;
+  ctx.strokeStyle='#4338ca'; ctx.lineWidth=4; ctx.setLineDash([8,6]);
+  ctx.beginPath(); ctx.moveTo(mapX(pxX(-inner)), mapY(CENTER.y)); ctx.lineTo(mapX(pxX(inner)), mapY(CENTER.y)); ctx.stroke();
+  ctx.setLineDash([]);
+  if(index>=1){
+    ctx.strokeStyle='#059669'; ctx.lineWidth=3;
+    if(typeof ctx.roundRect==='function'){
+      ctx.beginPath();
+      ctx.roundRect(mapX(pxX(-0.40)), mapY(pxY(-HY)), 0.40*2*S, HY*2*S, RADIUS*S);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+  ctx.strokeStyle='#d97706'; ctx.lineWidth=3;
+  ctx.strokeRect(mapX(CAP.x)-8, mapY(CAP.y)-8, 16, 16);
+  let sel={x:mapX(CAP.x), y:mapY(CAP.y)};
+  if(index===4) sel={x:mapX(FLAT.x), y:mapY(FLAT.y)};
+  ctx.fillStyle='#059669';
+  ctx.beginPath(); ctx.arc(sel.x, sel.y, 6, 0, Math.PI*2); ctx.fill();
+  ctx.font='800 22px SFMono-Regular,Consolas,monospace';
+  ctx.fillStyle='#4338ca';
+  const nums=['inner segment ±0.20','grow by r = 0.20','clamp p.x','cap sd = 0','flat 0 · center −0.20'];
+  ctx.fillText(nums[index], 430, 90);
+}
+function renderStep(){
+  const s=STEPS[currentStep];
+  document.getElementById('stepCounter').textContent=`Step ${currentStep+1} of ${STEPS.length}`;
+  document.getElementById('stepGridLabel').textContent=`Step ${currentStep+1} of ${STEPS.length}`;
+  document.getElementById('stepTitle').textContent=s.title;
+  document.getElementById('stepCaption').textContent=s.caption;
+  document.getElementById('stepRule').textContent=s.rule;
+  document.getElementById('stepInput').textContent=s.input;
+  document.getElementById('stepOperation').textContent=s.operation;
+  document.getElementById('stepOutput').textContent=s.output;
+  document.querySelectorAll('.step-dot').forEach((b,i)=>b.classList.toggle('selected', i===currentStep));
+  drawStepPicture(document.getElementById('stepCanvas').getContext('2d'), currentStep);
+}
+const stepButtons=document.getElementById('stepButtons');
+STEPS.forEach((_,i)=>{
+  const b=document.createElement('button');
+  b.className='step-dot'; b.textContent=String(i+1);
+  b.addEventListener('click',()=>{currentStep=i;renderStep();});
+  stepButtons.appendChild(b);
+});
+document.getElementById('stepPrev').addEventListener('click',()=>{currentStep=Math.max(0,currentStep-1);renderStep();});
+document.getElementById('stepNext').addEventListener('click',()=>{currentStep=Math.min(STEPS.length-1,currentStep+1);renderStep();});
+document.querySelectorAll('.choice').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.choice').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    const box=document.getElementById('predictionResult');
+    if(btn.dataset.answer==='correct'){
+      box.textContent='Yes. nearestX = 0.20, length = 0.20, sd = 0. The hard if is false at 0, so production stores navy with the outside.';
+      box.style.background='var(--green-soft)';
+    } else if(btn.dataset.answer==='wrong-circle'){
+      box.textContent='length(p) − r is a circle around the visual center. This pixel is on the semicircle grown from the right end (0.20, 0). sd = 0, navy.';
+      box.style.background='var(--amber-soft)';
+    } else {
+      box.textContent='Inside the outer sharp box is not the test. This pixel sits on the capsule boundary, so sd = 0. The hard if is false. Navy.';
+      box.style.background='var(--amber-soft)';
+    }
+  });
+});
+const starter=document.getElementById('challengeEditor').value;
+document.getElementById('checkChallenge').addEventListener('click',()=>{
+  const text=document.getElementById('challengeEditor').value;
+  const box=document.getElementById('challengeResult');
+  const cl=/nearestX\s*=\s*clamp\s*\(\s*p\.x/.test(text);
+  const len=/sd\s*=\s*length\s*\(/.test(text);
+  const sub=/length\s*\([^)]*\)\s*-\s*radius/.test(text);
+  const add=/length\s*\([^)]*\)\s*\+\s*radius/.test(text);
+  if(cl && len && sub && !add){
+    box.textContent='Correct. clamp(p.x), length to (nearestX, 0), then subtract radius.';
+    box.style.background='var(--green-soft)';
+  } else {
+    box.textContent='Need clamp(p.x, -innerHalfW, innerHalfW), length to that point, and subtract radius.';
+    box.style.background='var(--amber-soft)';
+  }
+});
+document.getElementById('showSolution').addEventListener('click',()=>{
+  document.getElementById('challengeEditor').value=`uniform float2 resolution;
+uniform float halfWidth;
+uniform float radius;
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / resolution;
+    float2 p = uv - float2(0.5, 0.5);
+    float innerHalfW = halfWidth - radius;
+    float nearestX = clamp(p.x, -innerHalfW, innerHalfW);
+    float sd = length(p - float2(nearestX, 0.0)) - radius;
+    half4 navy = half4(0.10, 0.25, 0.40, 1.0);
+    half4 orange = half4(0.88, 0.48, 0.18, 1.0);
+    if (sd < 0.0) return orange;
+    return navy;
+}`;
+});
+document.getElementById('resetChallenge').addEventListener('click',()=>{
+  document.getElementById('challengeEditor').value=starter;
+  document.getElementById('challengeResult').textContent='The blanks are clamp, length, and the grow subtract.';
+  document.getElementById('challengeResult').style.background='var(--soft)';
+});
+document.getElementById('buildRecord').addEventListener('click',()=>{
+  document.getElementById('record').value=`# Lesson 9.5 — Capsule distance field
+
+- Date:
+- nearestX = clamp(p.x, −innerHalfW, innerHalfW).
+- sd = length(p − (nearestX, 0)) − radius.
+- Default outer half (0.40, 0.20), r = 0.20, inner segment ±0.20.
+- Cap-boundary p = (0.32, −0.16), nearestX = 0.20, sd = 0.
+- Center sd = −0.20. Top flat p = (0, −0.20) has sd = 0.
+- Production: if (sd < 0.0) orange else navy.
+- Checkpoint still Lesson 9.4. Completion count 89 of 216.
+`;
+});
+const qa=new URLSearchParams(location.search).get('qa');
+if(qa==='circle') mode='circle';
+if(qa==='flat'){ px=FLAT.x; py=FLAT.y; }
+if(qa==='end'){ px=END.x; py=END.y; }
+if(qa==='center'){ px=CENTER.x; py=CENTER.y; }
+if(qa==='circleLimit'){ halfW=0.20; }
+if(qa==='step5') currentStep=4;
+updateLab();
+renderStep();
+if(qa==='predict'){
+  const correct=[...document.querySelectorAll('.choice')].find(b=>b.dataset.answer==='correct');
+  if(correct) correct.click();
+}
+function revealFrom(id){
+  let keep=false;
+  document.querySelectorAll('.topbar, .hero, .section, .footer').forEach(el=>{
+    if(el.id===id) keep=true;
+    if(!keep) el.style.display='none';
+  });
+}
+if(qa==='lab'||qa==='circle'||qa==='flat'||qa==='end'||qa==='center'||qa==='circleLimit') revealFrom('lab');
+if(qa==='grow') revealFrom('grow');
+if(qa==='step5') revealFrom('nearest');
+</script>
+</body>
+</html>

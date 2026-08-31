@@ -151,14 +151,14 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-08-30 with `CURRENT_STATE.md` (course version 9.4.0).
+**Last aligned:** 2026-08-31 with `CURRENT_STATE.md` (course version 9.5.0).
 
 ```text
-completed: 87 of 216, through Lesson 9.1
-current unresolved checkpoint: Lesson 9.2 — Circle signed distance field
-generated frontier: Lesson 9.4 — Rounded rectangle distance field
-next planned lesson after the frontier: Lesson 9.5 — Capsule distance field
-Lesson 9.2, Lesson 9.3, and Lesson 9.4 are generated ahead and not complete
+completed: 89 of 216, through Lesson 9.3
+current unresolved checkpoint: Lesson 9.4 — Rounded rectangle distance field
+generated frontier: Lesson 9.5 — Capsule distance field
+next planned lesson after the frontier: Lesson 9.6 — Combine shapes
+Lesson 9.4 and Lesson 9.5 are generated ahead and not complete
 ```
 
 Chapter 7 is complete. Frost constants stay fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
@@ -286,7 +286,7 @@ right triangle first (square corner, two legs, long side)
 
 Teaching `p = (0.30, −0.40)` on a square 400×400 rectangle. Walk-around 0.70 is not the long side. × 2 unused. Sign unused. Rectangle is square so UV x and UV y share one pixel length. Nested equal-value outlines: smaller length circles are darker; smaller walk-around diamonds are that analog. The diamond is a square standing on a vertex.
 
-**9.2 checkpoint contract:**
+**9.2 completed contract:**
 
 ```text
 sd = length(p) − radius
@@ -296,7 +296,7 @@ sd = length(p) − radius
 
 Default radius 0.25. Teaching pixel sd = +0.25 (outside, navy). Center sd = −0.25 (inside, orange). Boundary `p = (0.15, −0.20)` has sd = 0. `smoothstep` unused. Walk-around diamond is HTML-only.
 
-**9.3 generated-ahead contract:**
+**9.3 completed contract:**
 
 ```text
 mask = 1.0 − smoothstep(−band, band, sd)
@@ -306,7 +306,7 @@ mask = 1.0 − smoothstep(−band, band, sd)
 
 Default band 0.10. Teaching band pixel `p = (0.18, −0.24)`, `d = 0.30`. linearFraction 0.75. curvedFraction 0.84375. Far pixel `p = (0.30, −0.40)` clamps to mask 0. Center mask 1. Boundary mask 0.50. Requires `edge1 > edge0`. Not 4.8 binary, not 4.9 coverage, not blur.
 
-**9.4 frontier contract:**
+**9.4 checkpoint contract:**
 
 ```text
 innerHalf = outerHalf − cornerRadius
@@ -317,6 +317,16 @@ innerHalf = outerHalf − cornerRadius
 
 Default outer half `(0.30, 0.20)`, corner radius 0.10. Corner-boundary `p = (0.26, −0.18)` has sd = 0. `abs(p)` mirrors left onto right and top onto bottom. Capsule is Lesson 9.5. Combining two complete fields is Lesson 9.6.
 
+**9.5 frontier contract:**
+
+```text
+nearestX = clamp(p.x, −innerHalfW, innerHalfW)
+→ sd = length(p − (nearestX, 0)) − radius
+→ if (sd < 0.0) orange else navy
+```
+
+Default outer half `(0.40, 0.20)`, radius `0.20` equal to half-height. Teaching cap-boundary `p = (0.32, −0.16)` has sd = 0. Inner segment x from −0.20 to +0.20. Combining two complete fields is Lesson 9.6.
+
 Current files:
 
 ```text
@@ -324,10 +334,12 @@ course/chapters/chapter-09/lesson-09-01-distance-between-two-points.html
 course/chapters/chapter-09/lesson-09-02-circle-signed-distance-field.html
 course/chapters/chapter-09/lesson-09-03-turn-distance-into-a-soft-mask.html
 course/chapters/chapter-09/lesson-09-04-rounded-rectangle-distance-field.html
+course/chapters/chapter-09/lesson-09-05-capsule-distance-field.html
 course/chapters/chapter-09/lesson-distance-fields-image-sampling-and-refraction.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/DistanceBetweenPointsExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/CircleSdfExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/SoftMaskExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/RoundedRectSdfExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/CapsuleSdfExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/Chapter09Screen.kt
 ```
