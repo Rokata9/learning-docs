@@ -888,3 +888,26 @@ The first few sections carry the lesson. Later sections that restate the same ca
 - Can the learner explain the new operation after sections 1–3 (or 1–4 if a stepper is justified) without reading the table, the later stepper, or Not claimed?
 - Does every remaining section add a new object, a new operation, or a new consumer?
 - If a stepper exists, delete any step whose diagram and caption would still make sense in a prior completed lesson.
+
+### First-section labelled geometry and teaching-pixel provenance — Lesson 9.4 quality review
+
+Recorded 2026-08-31 after the learner stopped in the first sections of Lesson 9.4. The load-bearing section budget is about later padding. Applying it by shrinking the opening produced the opposite failure: leftover cards, undefined names, and a static stepper.
+
+The first sections must still carry the lesson. They must do it with pictures and provenances, not with denser jargon.
+
+1. **Do not “budget” the opening.** Cutting later recap must not remove first-section pictures, term definitions, or “why this number” traces. Merging known-info into the intro still requires a picture of each leftover object. Three leftover cards with no diagram are not a merge.
+2. **Open with the new output and the practical question.** The first learner-facing picture is the new field or shape. Do not open with a formula pipeline of undefined names, leftover cards, or the phrase `zero contour`.
+3. **Label every new geometric object before any formula.** For a rounded-rectangle distance field those objects are: visual center `C`, outer sharp box, outer flat, construction-circle center, inner box, join point, teaching pixel, and `q`. A name in a card is not a definition until the picture points at the object.
+4. **`C` is not a construction-circle center.** The visual center is the origin of `p`. A construction-circle center is one corner radius in from both meeting outer edges. Draw both. In a corner, the signed-distance analog of Lesson 9.2’s `length(p)` is the straight-line length from the pixel to that construction-circle center, not the length from `C`.
+5. **Draw half-size versus full size.** `outerHalf = (0.30, 0.20)` means center-to-right-edge 0.30 and center-to-top-edge 0.20. Full width is 0.60. Full height is 0.40. The corner radius is not extra height. Dimension-line this. Do not leave the learner to guess `0.60 × 0.30`.
+6. **A teaching pixel needs provenance on one picture.** Show the starting point, the direction, why that direction has length 1, the scale by the radius, and the resulting coordinates. For `p = (0.26, −0.18)`, the pair `(0.6, 0.8)` is a 3-4-5 direction whose long side is 1 because `0.6² + 0.8² = 1`. It is not a pixel coordinate. `0.10 × (0.6, 0.8)` is the radius-long step from the inner corner.
+7. **Define spatial nicknames in the same sentence.** Do not write `outer right flat x` until the lesson has said: the right straight edge of the rounded rectangle, which sits at `x = +0.30`. Do not write `zero contour`; write `pixels where sd = 0`, which is the shape boundary.
+8. **A stepper’s left picture must change the drawn objects every step.** New points, new segments, new dimension lines, or a new highlighted region. Caption-only change over a static filled field is a failed stepper.
+9. **`length(p)` does not become a rounded-rectangle formula.** `length(p)` remains the straight-line length from `C` to the pixel. For this shape, production uses inner-box distance minus the corner radius. In the corner region that inner-box distance is `length(q)`.
+
+**Verification before packaging a geometry lesson:**
+
+- Can the learner point at `C`, one construction-circle center, the inner box, one outer flat, and the teaching pixel on the first labelled figure?
+- Can they say why the teaching pixel’s coordinates are exactly those numbers, and which drawn segment is `sd`?
+- Does each stepper step draw a different set of objects?
+- Is full size stated next to half-size, with the corner radius not added into the height?

@@ -315,7 +315,7 @@ innerHalf = outerHalf − cornerRadius
 → if (sd < 0.0) orange else navy
 ```
 
-Default outer half `(0.30, 0.20)`, corner radius 0.10. Corner-boundary `p = (0.26, −0.18)` has sd = 0. `abs(p)` mirrors left onto right and top onto bottom. Capsule is Lesson 9.5. Combining two complete fields is Lesson 9.6.
+Default outer half `(0.30, 0.20)` means full size `0.60 × 0.40`. Corner radius 0.10. Teaching pixel `p = (0.26, −0.18)` is the inner-corner plus a 3-4-5 unit step of length 0.10, and has sd = 0. Visual center `C` is not a construction-circle center. `abs(p)` mirrors left onto right and top onto bottom. Capsule is Lesson 9.5. Combining two complete fields is Lesson 9.6. 9.4 HTML was rewritten visual-first on 2026-08-31; it is still not complete.
 
 **9.5 frontier contract:**
 

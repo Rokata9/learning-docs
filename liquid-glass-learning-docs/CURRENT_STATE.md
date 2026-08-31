@@ -43,7 +43,9 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 
 ## Last session compact record (2026-08-31)
 
-Learner confirmed 9.2 and 9.3 complete, with quality feedback on later-section padding. Completion advances to 89 of 216 through **9.3**. Checkpoint moves to **9.4**. Frontier advances to **9.5**. Existing 9.2–9.4 Android explorer math was not changed.
+Learner stopped in the first sections of generated-ahead Lesson 9.4: leftover cards, undefined names (construction-circle center, zero contour, outer right flat x), missing pictures, unexplained teaching pixel `(0.26, −0.18)` and `(0.6, 0.8)`, static stepper, and half-size mistaken for full size `0.60 × 0.30`. HTML was rewritten visual-first. Android explorer math was not changed. 9.4 is still not complete.
+
+Reusable rule recorded in `AGENTS.md` as **First-section labelled geometry and teaching-pixel provenance**. Compressing later sections must not strip opening pictures. `C` and a construction-circle center are different points. Half-size is dimension-lined to full size. A teaching pixel needs a 3-4-5 provenance picture. A stepper’s left pane must change drawn objects every step.
 
 Reusable teaching pattern recorded in `AGENTS.md` as **Load-bearing section budget**. First sections carry the lesson. Merge known-info visualization into the intro. Keep the essence section. Skip multi-pixel comparison tables that restate the lab. Keep a stepper only when the new operation is sequential. Replace **Not claimed** with **What’s next**. Cut negate-references, meta-lab sentences, and 8.9 slot-write recaps.
 

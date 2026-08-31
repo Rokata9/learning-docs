@@ -106,7 +106,9 @@ innerHalf = outerHalf − cornerRadius
 → if (sd < 0.0) orange else navy
 ```
 
-Default outer half `(0.30, 0.20)`, corner radius 0.10. Growing the inner sharp box by the corner radius produces Lesson 4.2’s rounded rectangle. Corner-boundary `p = (0.26, −0.18)` has `sd = 0`. HTML was rewritten to the load-bearing section budget: intro, grow picture, four-region stepper, lab, Android, prediction, challenge, exercises, short checkpoint, Established + What’s next. Android explorer math was not changed.
+Default outer half `(0.30, 0.20)` means full size `0.60 × 0.40`, not `0.60 × 0.30`. Corner radius 0.10. Growing the inner sharp box by the corner radius produces Lesson 4.2’s rounded rectangle. Teaching pixel `p = (0.26, −0.18)` is the top-right inner corner plus a 3-4-5 unit direction scaled by 0.10; `sd = 0`. Visual center `C` is not a construction-circle center.
+
+2026-08-31 quality rewrite after the learner stopped in the first sections: named-object picture, half-size dimension lines, why-not-circle picture, 3-4-5 provenance for `(0.6, 0.8)`, and an 8-step stepper whose left figure changes objects every step. Do not re-apply the load-bearing section budget by shrinking that opening. Android explorer math was not changed.
 
 ## Generated-ahead Lesson 9.5
 
