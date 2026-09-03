@@ -151,14 +151,14 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-08-31 with `CURRENT_STATE.md` (course version 9.5.0).
+**Last aligned:** 2026-09-02 with `CURRENT_STATE.md` (course version 9.8.0).
 
 ```text
-completed: 89 of 216, through Lesson 9.3
-current unresolved checkpoint: Lesson 9.4 — Rounded rectangle distance field
-generated frontier: Lesson 9.5 — Capsule distance field
-next planned lesson after the frontier: Lesson 9.6 — Combine shapes
-Lesson 9.4 and Lesson 9.5 are generated ahead and not complete
+completed: 90 of 216, through Lesson 9.4
+current unresolved checkpoint: Lesson 9.5 — Capsule distance field
+generated frontier: Lesson 9.8 — Translate sample coordinates
+next planned lesson after the frontier: Lesson 9.9 — Scale around the center
+Lessons 9.5, 9.6, 9.7, and 9.8 are generated ahead and not complete
 ```
 
 Chapter 7 is complete. Frost constants stay fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
@@ -306,7 +306,7 @@ mask = 1.0 − smoothstep(−band, band, sd)
 
 Default band 0.10. Teaching band pixel `p = (0.18, −0.24)`, `d = 0.30`. linearFraction 0.75. curvedFraction 0.84375. Far pixel `p = (0.30, −0.40)` clamps to mask 0. Center mask 1. Boundary mask 0.50. Requires `edge1 > edge0`. Not 4.8 binary, not 4.9 coverage, not blur.
 
-**9.4 checkpoint contract:**
+**9.4 completed contract:**
 
 ```text
 innerHalf = outerHalf − cornerRadius
@@ -315,9 +315,9 @@ innerHalf = outerHalf − cornerRadius
 → if (sd < 0.0) orange else navy
 ```
 
-Default outer half `(0.30, 0.20)` means full size `0.60 × 0.40`. Corner radius 0.10. Teaching pixel `p = (0.26, −0.18)` is the inner-corner plus a 3-4-5 unit step of length 0.10, and has sd = 0. Visual center `C` is not a construction-circle center. `abs(p)` mirrors left onto right and top onto bottom. Capsule is Lesson 9.5. Combining two complete fields is Lesson 9.6. 9.4 HTML was rewritten visual-first on 2026-08-31; it is still not complete.
+Default outer half `(0.30, 0.20)` means full size `0.60 × 0.40`. Corner radius 0.10. Teaching pixel `p = (0.26, −0.18)` is the inner-corner plus a 3-4-5 unit step of length 0.10, and has sd = 0. Visual center `C` is not a construction-circle center. `abs(p)` mirrors left onto right and top onto bottom. Capsule is Lesson 9.5.
 
-**9.5 frontier contract:**
+**9.5 checkpoint contract:**
 
 ```text
 nearestX = clamp(p.x, −innerHalfW, innerHalfW)
@@ -325,7 +325,39 @@ nearestX = clamp(p.x, −innerHalfW, innerHalfW)
 → if (sd < 0.0) orange else navy
 ```
 
-Default outer half `(0.40, 0.20)`, radius `0.20` equal to half-height. Teaching cap-boundary `p = (0.32, −0.16)` has sd = 0. Inner segment x from −0.20 to +0.20. Combining two complete fields is Lesson 9.6.
+Default outer half `(0.40, 0.20)`, radius `0.20` equal to half-height. Teaching cap-boundary `p = (0.32, −0.16)` has sd = 0. Inner segment x from −0.20 to +0.20. Combining two complete fields is Lesson 9.6. 9.5 is still not complete.
+
+**9.6 frontier contract:**
+
+```text
+sdA = length(p) − 0.25
+→ pB = p − (0.20, 0)
+→ sdB = length(pB) − 0.25
+→ union min · intersection max · B minus A max(sdB, −sdA)
+→ if (sd < 0.0) orange else navy
+```
+
+Two Lesson 9.2 circles. Teaching left-only `p = (−0.10, 0)` has `sdA = −0.15`, `sdB = +0.05`. Does not consume the unfinished capsule.
+
+**9.7 frontier contract:**
+
+```text
+uniform shader background
+→ sampled = background.eval(fragCoord)
+→ if (fragCoord.x < resolution.x / 2.0) sampled else orange
+```
+
+Stripe input uses `fract(uv.x * 5.0)`. Teaching `uv.x = 0.15` is navy. Kotlin `setInputShader`. Offset is Lesson 9.8.
+
+**9.8 frontier contract:**
+
+```text
+readCoord = fragCoord − float2(offsetU * resolution.x, 0)
+→ sampled = background.eval(readCoord)
+→ return sampled
+```
+
+Default `offsetU = 0.10`. Teaching write `uv.x = 0.15` reads `0.05` and stores orange. Picture shifts opposite the read offset. Scale around the center is Lesson 9.9.
 
 Current files:
 
@@ -335,11 +367,17 @@ course/chapters/chapter-09/lesson-09-02-circle-signed-distance-field.html
 course/chapters/chapter-09/lesson-09-03-turn-distance-into-a-soft-mask.html
 course/chapters/chapter-09/lesson-09-04-rounded-rectangle-distance-field.html
 course/chapters/chapter-09/lesson-09-05-capsule-distance-field.html
+course/chapters/chapter-09/lesson-09-06-combine-shapes.html
+course/chapters/chapter-09/lesson-09-07-sample-an-input-shader.html
+course/chapters/chapter-09/lesson-09-08-translate-sample-coordinates.html
 course/chapters/chapter-09/lesson-distance-fields-image-sampling-and-refraction.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/DistanceBetweenPointsExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/CircleSdfExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/SoftMaskExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/RoundedRectSdfExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/CapsuleSdfExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/CombineShapesExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/SampleInputShaderExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/TranslateSampleExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/Chapter09Screen.kt
 ```

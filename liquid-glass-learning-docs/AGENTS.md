@@ -827,6 +827,23 @@ Recorded when Chapter 9 started. Lessons 8.11 and 8.12 completed without questio
 4. Unsigned `length` is never negative. A minus on a difference is squared away. Signed distance is a later subtract of a radius, not a property of `length`.
 5. Keep two zeros distinct when a later subtract moves the zero: 0 in `p` remains the visual center; 0 in `sd` is the shape boundary.
 
+### Exercise-answer compared-silhouette gate — Lesson 9.5
+
+Recorded 2026-09-02 after the learner could not parse two hidden 9.5 answers. One compared the capsule to `length(p) − radius` using a calculator length 0.2236 and no picture. The other named “Lesson 4.3’s circle limit” without showing the inner segment collapsing to a point.
+
+Hidden exercise answers are still teaching. They follow the same exact-root and labelled-geometry rules as the lesson body.
+
+1. **A comparison question names both formulas and the visible question.** Do not ask “what silhouette” and “what happens to the top flat” in one breath. Name the mistaken formula, the production formula, and whether the named pixel is on the boundary or outside.
+2. **The hidden answer draws both boundaries and the named pixel on one picture.** Caption-only comparison of two shapes is a failed answer. Point at the pixel that both formulas agree on, and the pixel that splits them, when that split is the diagnostic.
+3. **Lengths in the answer stay exact-root.** Do not introduce a calculator length such as `sqrt(0.10² + 0.20²) ≈ 0.2236`. Move the teaching pixel to a 3-4-5 pair (here `0.15 / 0.20 / 0.25`) so the learner can check by multiplying.
+4. **A named limit is a picture, not a cross-reference.** If shrinking a slider makes a capsule become a circle, draw the inner segment becoming one point at `C`, then the grown circle. Do not leave “Lesson 4.3’s circle limit” as the only explanation.
+
+**Verification before packaging an exercise that compares two formulas or two shapes:**
+
+- Can the learner point at both boundaries and the named pixel on the answer figure?
+- Can they check every length in that answer by multiplying, with no calculator root?
+- Does the question state which formula is the mistake and which visible object changes?
+
 ### Comparison-mode and control-row gate — Lesson 9.1 lab
 
 The lab put two gray-store rules and three pixel-mark buttons in one unlabeled row. Walk-around was named in the lab and explained only in a later section. The learner could not tell what Walk-around gray stored, why its dark region was a diamond, why Straight-line gray stayed dark outside the green circle, or why the last three buttons did not look selected.

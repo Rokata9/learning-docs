@@ -1,7 +1,7 @@
 # Liquid Glass Android course — implementation handoff
 
-**Updated:** 2026-08-31  
-**Course version:** 9.5.0
+**Updated:** 2026-09-02  
+**Course version:** 9.8.0
 
 ## Read order
 
@@ -19,17 +19,17 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 89
-completed_through: "Lesson 9.3 — Turn distance into a soft mask"
+learner_confirmed_complete: 90
+completed_through: "Lesson 9.4 — Rounded rectangle distance field"
 completed_chapters: [1, 2, 3, 4, 5, 6, 7, 8]
 chapter_8_complete: "12 of 12"
-chapter_9_complete: "3 of 14"
-next_unresolved_checkpoint: "Lesson 9.4 — Rounded rectangle distance field"
-generated_frontier: "Lesson 9.5 — Capsule distance field"
-next_planned_after_frontier: "Lesson 9.6 — Combine shapes"
+chapter_9_complete: "4 of 14"
+next_unresolved_checkpoint: "Lesson 9.5 — Capsule distance field"
+generated_frontier: "Lesson 9.8 — Translate sample coordinates"
+next_planned_after_frontier: "Lesson 9.9 — Scale around the center"
 ```
 
-Lessons 8.2 through 9.3 are learner-confirmed complete. Lessons 9.4 and 9.5 are generated ahead and are not complete. Generating 9.5 does not complete 9.4.
+Lessons 8.2 through 9.4 are learner-confirmed complete. Lessons 9.5 through 9.8 are generated ahead and are not complete. Generating 9.6 does not complete 9.5.
 
 Chapter 7 frost stays fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
@@ -42,7 +42,7 @@ Learner confirmed 9.2 and 9.3 were progressing well, then named reusable frictio
 - First sections carry the lesson. Merge known-info visualization into the intro.
 - The essence section (formula + one traced value, plus lab when it is the practice) is load-bearing.
 - Skip a multi-pixel comparison table that restates the lab.
-- Keep a stepper only when the new operation is sequential. 9.3’s stepper was obsolete (smoothstep already known). 9.4 and 9.5 keep short steppers because region pick and nearest-on-segment are new sequences.
+- Keep a stepper only when the new operation is a sequence the lab cannot show in order (piecewise region, nearest-on-segment, multi-stage grow, two fields then min/max). If the essence section plus lab already traces the value, omit the stepper. When kept, every step must change the current operation.
 - Replace **Not claimed** with **What’s next**.
 - Cut negate-references, meta-lab sentences, 8.9 slot-write recaps, and vague “same arithmetic as the HTML table” lines.
 - Beginner traces stay. If a cut would make the causal chain uncertain, keep the sentence.
@@ -97,7 +97,7 @@ mask = 1.0 − smoothstep(−band, band, sd)
 
 Default band 0.10. Teaching band pixel `p = (0.18, −0.24)`, `sd = +0.05`. linearFraction 0.75. curvedFraction 0.84375. mask 0.15625. stored red 0.221875. The 1 minus turns the growing-as-you-leave-the-shape smoothstep into an inside-amount.
 
-## Generated-ahead Lesson 9.4
+## Completed Lesson 9.4
 
 ```text
 innerHalf = outerHalf − cornerRadius
@@ -106,9 +106,11 @@ innerHalf = outerHalf − cornerRadius
 → if (sd < 0.0) orange else navy
 ```
 
-Default outer half `(0.30, 0.20)` means full size `0.60 × 0.40`, not `0.60 × 0.30`. Corner radius 0.10. Growing the inner sharp box by the corner radius produces Lesson 4.2’s rounded rectangle. Teaching pixel `p = (0.26, −0.18)` is the top-right inner corner plus a 3-4-5 unit direction scaled by 0.10; `sd = 0`. Visual center `C` is not a construction-circle center.
+Default outer half `(0.30, 0.20)` means full size `0.60 × 0.40`. Corner radius 0.10. Growing the inner sharp box by the corner radius produces Lesson 4.2’s rounded rectangle. Teaching pixel `p = (0.26, −0.18)` is the top-right inner corner plus a 3-4-5 unit direction scaled by 0.10; `sd = 0`. Visual center `C` is not a construction-circle center.
 
-2026-08-31 quality rewrite after the learner stopped in the first sections: named-object picture, half-size dimension lines, why-not-circle picture, 3-4-5 provenance for `(0.6, 0.8)`, and an 8-step stepper whose left figure changes objects every step. Do not re-apply the load-bearing section budget by shrinking that opening. Android explorer math was not changed.
+## Exercise-answer compared silhouettes (2026-09-02)
+
+Learner could not parse two 9.5 hidden answers: the circle-vs-capsule diagnostic used a calculator length 0.2236 with no picture, and the half-width-equals-radius item named “Lesson 4.3’s circle limit” without showing the inner segment collapsing to a point. Recorded in `AGENTS.md`. Hidden answers still need labelled pictures and exact-root lengths. The diagnostic pixel is now `p = (0.15, −0.20)` so `0.15² + 0.20² = 0.25²`.
 
 ## Generated-ahead Lesson 9.5
 
@@ -118,7 +120,41 @@ nearestX = clamp(p.x, −innerHalfW, innerHalfW)
 → if (sd < 0.0) orange else navy
 ```
 
-Default outer half `(0.40, 0.20)`, radius 0.20 equal to half-height. Teaching cap-boundary `p = (0.32, −0.16)` has `sd = 0`. Width slider; radius stays derived from height. Combining two complete fields with min/max is Lesson 9.6.
+Default outer half `(0.40, 0.20)`, radius 0.20 equal to half-height. Teaching cap-boundary `p = (0.32, −0.16)` has `sd = 0`. Width slider; radius stays derived from height. Combining two complete fields with min/max is Lesson 9.6. 9.5 is still not complete.
+
+## Generated-ahead Lesson 9.6
+
+```text
+sdA = length(p) − 0.25
+→ pB = p − (0.20, 0)
+→ sdB = length(pB) − 0.25
+→ union min(sdA, sdB)
+→ intersection max(sdA, sdB)
+→ B minus A max(sdB, −sdA)
+→ if (sd < 0.0) orange else navy
+```
+
+Two Lesson 9.2 circles. Does not consume the unfinished 9.5 capsule. Teaching left-only `p = (−0.10, 0)` has `sdA = −0.15`, `sdB = +0.05`. `pB` is the same 8.8 subtract, now from B’s center. Soft mask unused.
+
+## Generated-ahead Lesson 9.7
+
+```text
+uniform shader background
+→ sampled = background.eval(fragCoord)
+→ if (fragCoord.x < resolution.x / 2.0) sampled else orange
+```
+
+The sampled color is the half4 that `eval` returns: a copy of the input shader’s color at the read coordinate. Stripe input: `fract(uv.x * 5.0)`, `cell < 0.5` orange else navy. Teaching `uv.x = 0.15` is navy. Kotlin `setInputShader("background", stripeShader)`. Offset is Lesson 9.8. Geometry mask unused.
+
+## Generated-ahead Lesson 9.8
+
+```text
+readCoord = fragCoord − float2(offsetU * resolution.x, 0)
+→ sampled = background.eval(readCoord)
+→ return sampled
+```
+
+Default `offsetU = 0.10` is one stripe width as a fraction of the rectangle width. Teaching write `uv.x = 0.15` reads `0.05` and stores orange. The picture shifts opposite the read offset. Scale around the center is Lesson 9.9. Edge safety is Lesson 9.12.
 
 ## Future conversation
 
@@ -126,4 +162,4 @@ Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions.
 
 Standing delivery: no ZIP archives; new `@Preview` stacks light then dark. Details in `USER_PREFERENCES.md`.
 
-Course progress: 89 of 216 lessons completed.
+Course progress: 90 of 216 lessons completed.

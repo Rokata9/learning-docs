@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 9.7 — Sample an input shader</title>
+<style>
+:root{color-scheme:light;--ink:#172033;--muted:#596579;--line:#d8e0ea;--paper:#fff;--soft:#f5f7fb;--panel:#fbfcfe;--control:#fff;--green:#059669;--green-soft:#ecfdf5;--indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;--blue:#1e40af;--blue-soft:#dbeafe;--red:#dc2626;--red-soft:#fee2e2;--orange:#e07a2e;--navy:#1a4066;--pink:#be185d;--body-start:#f8fafc;--body-end:#edf2f7;--shadow:0 18px 52px rgba(30,41,59,.09);--code:#111827;--code-ink:#e5e7eb}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--body-start),var(--body-end));font:16px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}button,input,textarea{font:inherit}button{cursor:pointer}code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}code{background:var(--indigo-soft);padding:.12em .36em;border-radius:6px;white-space:nowrap}.code-block>code,.code-block code{display:block;background:transparent;color:inherit;padding:0;border-radius:0;white-space:pre-wrap}.page{width:min(2260px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.topbar{display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:22px}.crumbs{color:var(--muted)}.chips{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:850}.chip.progress{color:var(--green);background:var(--green-soft)}.chip.pending{color:var(--amber);background:var(--amber-soft)}.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(560px,.95fr);gap:28px;padding:42px}.eyebrow,.section-no{color:var(--indigo);font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase}h1{margin:.35rem 0 1rem;font-size:clamp(42px,4vw,70px);line-height:1.04;letter-spacing:-.045em}h2{margin:0 0 .7rem;font-size:31px;line-height:1.18}h3{margin:0 0 .5rem;font-size:21px;line-height:1.25}p{max-width:110ch}.lead{font-size:19px;color:var(--muted)}.plain-rule{font-size:clamp(20px,1.8vw,28px);font-weight:950;line-height:1.3;padding:20px;border:2px solid var(--indigo);border-radius:16px;background:var(--indigo-soft)}.plain-rule code{white-space:normal}.section{margin-top:24px;padding:32px}.section-head{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:22px}.section-head p{margin:0;color:var(--muted)}.card{padding:20px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}.card.green{background:var(--green-soft)}.card.blue{background:var(--blue-soft)}.card.amber{background:var(--amber-soft)}.card.indigo{background:var(--indigo-soft)}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.note{margin-top:18px;padding:16px 18px;border-radius:14px;border-left:5px solid var(--blue);background:var(--blue-soft)}.formula{padding:14px 16px;border-radius:13px;background:var(--indigo-soft);border:1px solid color-mix(in srgb,var(--indigo) 45%,var(--line));font:800 15px/1.64 "SFMono-Regular",Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.btn{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:850;border:1px solid var(--line);background:var(--control);color:var(--ink);text-decoration:none;display:inline-flex;align-items:center}.btn:hover,.btn:focus-visible{border-color:var(--blue);outline:none}.btn.primary{border-color:var(--blue);background:var(--blue);color:#fff}.btn.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.hero-art{min-height:320px;border:1px solid var(--line);border-radius:18px;background:#f8fafc;padding:0;overflow:hidden}.hero-art svg,.fig-svg{width:100%;height:auto;display:block}.lab-grid{display:grid;grid-template-columns:minmax(520px,1fr) minmax(420px,.85fr);gap:18px}.canvas-card{padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--panel);min-width:0}.canvas-card canvas{display:block;height:auto;border-radius:11px;border:1px solid var(--line);background:#f8fafc}#labCanvas{background:#0b1220;cursor:crosshair;width:min(400px,100%)}#stepCanvas{width:100%}.canvas-title{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:9px}.canvas-title span,.origin{color:var(--muted);font-size:13px;font-weight:700}.metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:14px}.metric{padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--control)}.metric strong{display:block;color:var(--indigo);margin-bottom:4px}.metric .origin{display:block;margin-bottom:6px}.metric .value{display:block;font-weight:850}.swatch{display:inline-block;width:18px;height:18px;border-radius:4px;border:1px solid var(--line);vertical-align:-3px;margin-right:6px}.lesson-grid{display:grid;grid-template-columns:minmax(860px,1.25fr) minmax(430px,.75fr);gap:18px;align-items:start}.stepper{position:sticky;top:18px;border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden}.step-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}.step-body{padding:18px}.step-title{font-size:22px;font-weight:950}.step-caption{min-height:150px}.step-buttons{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}.step-dot{width:40px;height:40px;padding:0;border-radius:10px;border:1px solid var(--line);background:var(--control);color:var(--ink);font-weight:900}.step-dot.selected{background:var(--indigo);border-color:var(--indigo);color:#fff}.io{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}.io>div{padding:11px;border:1px solid var(--line);border-radius:11px;background:var(--control)}.io strong,.io span{display:block}.code-grid{display:grid;grid-template-columns:minmax(650px,1fr) minmax(500px,.8fr);gap:18px}.code-block{background:var(--code);color:var(--code-ink);border-radius:14px;padding:16px;white-space:pre-wrap;overflow:auto;font:14px/1.62 "SFMono-Regular",Consolas,monospace}.prediction{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.choice{appearance:none;min-height:112px;padding:16px;border:2px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);text-align:left;font-weight:800;line-height:1.5}.choice:hover,.choice:focus-visible{border-color:var(--blue);outline:none}.choice.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.challenge{display:grid;grid-template-columns:minmax(650px,1fr) minmax(500px,.75fr);gap:18px}.editor{width:100%;min-height:280px;resize:vertical;background:var(--code);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace;white-space:pre;overflow:auto}.result{min-height:55px;margin-top:12px;padding:12px;border-radius:11px;background:var(--soft)}details{margin:10px 0;border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:13px 15px}summary{cursor:pointer;font-weight:900}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.check{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}.record{width:100%;min-height:240px;margin-top:12px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);font:14px/1.6 "SFMono-Regular",Consolas,monospace}.footer{margin-top:24px;padding:18px 24px;display:flex;justify-content:space-between;gap:18px;align-items:center}.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-weight:800}.legend i{display:inline-block;width:16px;height:16px;border-radius:4px;border:1px solid var(--line);vertical-align:-3px;margin-right:6px}.formulas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:12px}
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-distance-fields-image-sampling-and-refraction.html">Chapter 9</a> · Lesson 9.7 · generated ahead</div>
+    <div class="chips"><span class="chip progress">90 of 216 complete</span><span class="chip pending">Checkpoint 9.5 unresolved</span><span class="chip pending">9.7 generated ahead</span></div>
+  </div>
+
+  <header class="hero panel">
+    <div>
+      <div class="eyebrow">Chapter 9 · Ask another shader for a color</div>
+      <h1>Sample an input shader</h1>
+      <p class="lead"><strong>Question:</strong> Lessons 8.3 through 9.4 compute the stored <code>half4</code> with arithmetic: a fixed orange, an <code>if</code> on <code>fragCoord</code>, a mix, a signed distance. Glass also needs colors that already exist in another picture. How does this pixel’s <code>main</code> ask that other picture for the color at one coordinate?</p>
+      <div class="plain-rule">Declare <code>uniform shader background</code>. Call <code>background.eval(fragCoord)</code>. The returned <code>half4</code> is the sampled color: a copy of the input shader’s color at that read coordinate. Production stores that copy on the left half, and teaching orange on the right half, so you can see the ask working.</div>
+      <p style="margin-top:16px;font-weight:800">Canonical wording: <a href="../../glossary.html#shader-uniform">shader uniform</a>, <a href="../../glossary.html#eval">eval</a>, <a href="../../glossary.html#sampled-color">sampled color</a>, <a href="../../glossary.html#read-coordinate">read coordinate</a>.</p>
+      <div class="note"><strong>Generated ahead.</strong> Lesson 9.5 remains the unresolved checkpoint. This page does not use a distance field. Default teaching rectangle is 400×400. Teaching pixel <code>uv.x = 0.15</code> sits in a navy stripe. HTML is a JavaScript stand-in. Android binds a second <code>RuntimeShader</code> with <code>setInputShader</code>.</div>
+    </div>
+    <div class="hero-art" aria-label="input stripe picture, teaching pixel, and the split store">
+      <svg viewBox="0 0 1180 420" role="img">
+        <rect width="1180" height="420" fill="#f8fafc"/>
+        <text x="28" y="36" fill="#172033" font-size="20" font-weight="800">Write location is this pixel. Read coordinate is the pair passed to eval. Identity uses the same pair.</text>
+        <g transform="translate(40 70)">
+          <text x="0" y="18" fill="#4338ca" font-size="16" font-weight="800">Input shader picture</text>
+          <rect x="0" y="30" width="40" height="280" fill="#e07a2e"/>
+          <rect x="40" y="30" width="40" height="280" fill="#1a4066"/>
+          <rect x="80" y="30" width="40" height="280" fill="#e07a2e"/>
+          <rect x="120" y="30" width="40" height="280" fill="#1a4066"/>
+          <rect x="160" y="30" width="40" height="280" fill="#e07a2e"/>
+          <rect x="200" y="30" width="40" height="280" fill="#1a4066"/>
+          <rect x="240" y="30" width="40" height="280" fill="#e07a2e"/>
+          <rect x="280" y="30" width="40" height="280" fill="#1a4066"/>
+          <rect x="320" y="30" width="40" height="280" fill="#e07a2e"/>
+          <rect x="360" y="30" width="40" height="280" fill="#1a4066"/>
+          <rect x="0" y="30" width="400" height="280" fill="none" stroke="#172033" stroke-width="2"/>
+          <circle cx="60" cy="170" r="8" fill="#d97706"/>
+          <text x="0" y="336" fill="#d97706" font-size="14" font-weight="800">T uv.x = 0.15 sits in navy</text>
+        </g>
+        <g transform="translate(520 160)">
+          <path d="M0 20 H80" stroke="#be185d" stroke-width="4"/>
+          <polygon points="80,10 110,20 80,30" fill="#be185d"/>
+          <text x="0" y="0" fill="#be185d" font-size="15" font-weight="800">eval(fragCoord)</text>
+        </g>
+        <g transform="translate(680 70)">
+          <text x="0" y="18" fill="#4338ca" font-size="16" font-weight="800">This shader’s store</text>
+          <rect x="0" y="30" width="40" height="280" fill="#e07a2e"/>
+          <rect x="40" y="30" width="40" height="280" fill="#1a4066"/>
+          <rect x="80" y="30" width="40" height="280" fill="#e07a2e"/>
+          <rect x="120" y="30" width="40" height="280" fill="#1a4066"/>
+          <rect x="160" y="30" width="40" height="280" fill="#e07a2e"/>
+          <rect x="200" y="30" width="200" height="280" fill="#e07a2e"/>
+          <rect x="0" y="30" width="400" height="280" fill="none" stroke="#172033" stroke-width="2"/>
+          <line x1="200" y1="30" x2="200" y2="310" stroke="#4338ca" stroke-width="3" stroke-dasharray="8 6"/>
+          <text x="40" y="336" fill="#4338ca" font-size="14" font-weight="800">left: sampled</text>
+          <text x="230" y="336" fill="#e07a2e" font-size="14" font-weight="800">right: orange</text>
+          <circle cx="60" cy="170" r="8" fill="#d97706"/>
+          <text x="0" y="336" fill="#d97706" font-size="14" font-weight="800">T stores the copied navy</text>
+        </g>
+      </svg>
+    </div>
+  </header>
+
+  <section class="section panel" id="question">
+    <div class="section-head"><div><div class="section-no">1 · THE NEW QUESTION</div><h2>The stored color can be a copy, not a newly computed orange.</h2></div></div>
+    <div class="three">
+      <article class="card blue"><h3>8.3 leftover</h3><p>A shader’s <code>return</code> is the store: the <code>half4</code> written at this pixel. Teaching orange is <code>half4(0.88, 0.48, 0.18, 1.0)</code>. Teaching navy is <code>half4(0.10, 0.25, 0.40, 1.0)</code>.</p></article>
+      <article class="card indigo"><h3>Input shader</h3><p>An input shader is a second AGSL program bound into a named slot of type <code>shader</code>, not <code>float</code>. Kotlin writes that slot with <code>setInputShader</code>. The slot holds a runnable color source, not a single number.</p></article>
+      <article class="card green"><h3>eval</h3><p><code>eval</code> is AGSL’s name for the ask: given a read coordinate in pixels, return the input shader’s <code>half4</code> at that pair. The returned value is the <strong>sampled color</strong>. It is a copy. The input picture is not rewritten.</p></article>
+    </div>
+    <div class="formulas">
+      <div class="formula">Stripe input (another main)
+uv = fragCoord / resolution
+cell = fract(uv.x × 5.0)
+if (cell &lt; 0.5) orange else navy
+
+5.0 means five orange-navy pairs across the width.
+One stripe is 0.10 of the width. On 400 px that is 40 px.</div>
+      <div class="formula">Teaching pixel T
+uv.x = 0.15
+  ← x = 0.15 × 400 = 60 px from the left
+5.0 × 0.15 = 0.75
+fract(0.75) = 0.75
+0.75 is not &lt; 0.5, so the input stores navy
+eval(fragCoord) returns that navy</div>
+    </div>
+  </section>
+
+  <section class="section panel" id="eval">
+    <div class="section-head"><div><div class="section-no">2 · EVAL COPIES. THE SPLIT PROVES THE ASK RAN.</div><h2>Read coordinate and write location are the same pair in this lesson.</h2></div><p>The <strong>write location</strong> is this pixel: <code>fragCoord</code>, pixels from the top-left of the draw rectangle. The <strong>read coordinate</strong> is the pair passed to <code>eval</code>. Identity sampling uses <code>eval(fragCoord)</code>, so those two pairs match. Lesson 9.8 will subtract before the ask.</p></div>
+    <div class="two">
+      <article class="card green">
+        <h3>Left half stores the sampled color</h3>
+        <p>Lesson 8.5’s split: <code>fragCoord.x &lt; resolution.x / 2.0</code>. On that half, production returns the sampled color unchanged. At T, x = 60 and half of 400 is 200, so T is on the left and stores navy.</p>
+      </article>
+      <article class="card amber">
+        <h3>Right half stores teaching orange</h3>
+        <p>The right half ignores <code>eval</code>. It returns the 8.3 orange. If the whole rectangle looked like stripes, you could not tell this shader from the input shader. The orange half is the proof that this <code>main</code> ran.</p>
+      </article>
+    </div>
+    <div class="formula" style="margin-top:16px">sampled = background.eval(fragCoord)
+if (fragCoord.x &lt; resolution.x / 2.0) return sampled
+return orange</div>
+  </section>
+
+  <section class="section panel" id="stepper">
+    <div class="section-head"><div><div class="section-no">3 · FOUR STEPS</div><h2>Each step draws a new object: the input, T on the input, the copy, then the split.</h2></div></div>
+    <div class="lesson-grid">
+      <div class="canvas-card">
+        <div class="canvas-title"><strong>Current step</strong><span id="stepGridLabel">Step 1 of 4</span></div>
+        <canvas id="stepCanvas" width="960" height="400" aria-label="Stepper input-shader diagram"></canvas>
+      </div>
+      <div class="stepper">
+        <div class="step-head"><button class="btn" id="stepPrev">Previous</button><strong id="stepCounter">Step 1 of 4</strong><button class="btn primary" id="stepNext">Next</button></div>
+        <div class="step-body">
+          <div class="step-title" id="stepTitle"></div>
+          <div class="step-caption" id="stepCaption"></div>
+          <div class="formula" id="stepRule"></div>
+          <div class="io">
+            <div><strong>Input</strong><span id="stepInput"></span></div>
+            <div><strong>Operation</strong><span id="stepOperation"></span></div>
+            <div><strong>Output</strong><span id="stepOutput"></span></div>
+          </div>
+          <div class="step-buttons" id="stepButtons"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel" id="lab">
+    <div class="section-head"><div><div class="section-no">4 · INTERACTIVE LAB</div><h2>Click a pixel. Read the sampled color and the stored color.</h2></div><p>Production is the split. Input-only shows the stripe program with no split, so you can compare the two pictures. The amber mark is T. The indigo dashed line is the half cut at x = 200.</p></div>
+    <div class="controls">
+      <button class="btn mode-btn" data-mode="split">Production split</button>
+      <button class="btn mode-btn" data-mode="input">Input only</button>
+    </div>
+    <div class="controls" style="margin-top:10px">
+      <button class="btn" id="markTeach">Mark T uv.x = 0.15</button>
+      <button class="btn" id="markOrange">Mark first orange stripe</button>
+      <button class="btn" id="markRight">Mark right half</button>
+    </div>
+    <div class="metrics">
+      <div class="metric"><strong>fragCoord.x</strong><span class="origin">pixels from the left</span><span class="value" id="xMetric"></span></div>
+      <div class="metric"><strong>uv.x</strong><span class="origin">x / 400</span><span class="value" id="uMetric"></span></div>
+      <div class="metric"><strong>cell</strong><span class="origin">fract(uv.x × 5)</span><span class="value" id="cellMetric"></span></div>
+      <div class="metric"><strong>sampled</strong><span class="origin">eval at fragCoord</span><span class="value" id="sampMetric"></span></div>
+      <div class="metric"><strong>split</strong><span class="origin">x &lt; 200?</span><span class="value" id="splitMetric"></span></div>
+      <div class="metric"><strong>Store</strong><span class="origin">this pixel half4</span><span class="value" id="retMetric"></span></div>
+    </div>
+    <div class="lab-grid" style="margin-top:16px">
+      <div class="canvas-card">
+        <canvas id="labCanvas" width="400" height="400" aria-label="Input-shader sampling teaching rectangle"></canvas>
+        <p id="labCaption"></p>
+      </div>
+      <div>
+        <div class="formula" id="liveFormula"></div>
+        <pre class="code-block" id="labCode" style="margin-top:12px;max-height:260px"></pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">5 · ANDROID ROUTE</div><h2>Two RuntimeShader objects. One setInputShader bind.</h2></div></div>
+    <div class="code-grid">
+      <pre class="code-block"><code>private const val StripeCount = 5.0f
+private const val TeachU = 0.15f
+
+uniform shader background;
+uniform float2 resolution;
+
+half4 main(float2 fragCoord) {
+    half4 sampled = background.eval(fragCoord);
+    if (fragCoord.x &lt; resolution.x / 2.0) {
+        return sampled;
+    }
+    half4 orange = half4(0.88, 0.48, 0.18, 1.0);
+    return orange;
+}
+
+shader.setInputShader("background", stripeShader)
+shader.setFloatUniform("resolution", width, height)
+stripeShader.setFloatUniform("resolution", width, height)</code></pre>
+      <div class="card">
+        <h3>What each part changes</h3>
+        <p>The stripe program is a separate <code>RuntimeShader</code>. It paints vertical orange and navy bands with <code>fract(uv.x × 5.0)</code>. 5.0 is <code>StripeCount</code>: five pairs across the width.</p>
+        <p><code>setInputShader("background", stripeShader)</code> writes that program into the <code>uniform shader background</code> slot. The name must match. A float uniform cannot hold a shader.</p>
+        <p>Both programs need <code>resolution</code> because both divide <code>fragCoord</code> by it. The sample program also needs it for the half cut.</p>
+        <p>Chapter 6 recorded a panel-sized picture in Compose. This lesson’s bind is an AGSL shader slot. A later <code>RenderEffect.createRuntimeShaderEffect</code> can fill that same slot with a layer’s pixels. This explorer uses <code>setInputShader</code>.</p>
+        <p><strong>Android files:</strong><br><code>chapter09/SampleInputShaderExplorer.kt</code><br><code>chapter09/Chapter09Screen.kt</code></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel" id="predict">
+    <div class="section-head"><div><div class="section-no">6 · PREDICTION</div><h2>T has uv.x = 0.15 on the 400-wide square. What does eval return, and what does production store?</h2></div></div>
+    <p>Production returns the sampled color when x is less than 200, else teaching orange.</p>
+    <div class="prediction">
+      <button class="choice" data-answer="wrong-orange">Navy from the stripe, but the store is orange, because every teaching pixel uses teaching orange.</button>
+      <button class="choice" data-answer="wrong-uv">Orange, because 0.15 is less than 0.5, so the stripe test matches the 8.6 half cut.</button>
+      <button class="choice" data-answer="correct">eval returns navy because fract(0.75) = 0.75. x = 60 is less than 200, so production stores that navy.</button>
+    </div>
+    <div class="result" id="predictionResult">Choose one answer.</div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">7 · CODING CHALLENGE</div><h2>Declare the shader slot, then eval at this pixel</h2></div></div>
+    <div class="challenge">
+      <div>
+        <textarea class="editor" id="challengeEditor" spellcheck="false">uniform ___ background;
+uniform float2 resolution;
+
+half4 main(float2 fragCoord) {
+    half4 sampled = background.___(fragCoord);
+    if (fragCoord.x &lt; resolution.x / 2.0) {
+        return sampled;
+    }
+    half4 orange = half4(0.88, 0.48, 0.18, 1.0);
+    return orange;
+}</textarea>
+        <div class="controls" style="margin-top:10px">
+          <button class="btn primary" id="checkChallenge">Check</button>
+          <button class="btn" id="showSolution">Show solution</button>
+          <button class="btn" id="resetChallenge">Reset</button>
+        </div>
+        <div class="result" id="challengeResult">The blanks are the shader type and the ask name.</div>
+      </div>
+      <div class="card indigo">
+        <h3>Available names</h3>
+        <div class="formula">shader
+eval
+float
+mix</div>
+        <p>The slot type is <code>shader</code>. The ask is <code>eval</code>. <code>mix</code> would blend two colors. This lesson copies one color, then uses an <code>if</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">8 · EXERCISES</div><h2>Answer before opening each hidden solution</h2></div></div>
+    <details><summary>At uv.x = 0.05, what is cell, what does eval return, and what does the left half store?</summary><p>5 × 0.05 = 0.25. fract(0.25) = 0.25, which is less than 0.5, so the input is orange. x = 20, which is less than 200, so production stores that orange. The sampled color and the stored color match.</p></details>
+    <details><summary>Diagnostic: someone writes <code>return background.eval(uv)</code>. Why is the teaching navy stripe in the wrong place?</summary><p>eval’s argument is in pixels, the same units as fragCoord. uv.x at T is 0.15. The input shader then treats 0.15 as 0.15 pixels from the left, which sits in the first orange stripe. The navy band that should be at 40–80 px is read from the far left of the input. Pass fragCoord, not uv.</p></details>
+    <details><summary>A pixel at x = 300 is on the right half. The input stripe there is navy. What does production store?</summary><p>eval would return navy, but the hard if takes the else branch because 300 is not less than 200. The store is teaching orange. The sampled color is computed and then unused on the right half.</p></details>
+    <details><summary>Does <code>eval</code> change the input shader’s stored pixels?</summary><p>No. The sampled color is a copy returned to this pixel’s main. The input program still stores the same stripe color at that coordinate the next time it is asked.</p></details>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">9 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div></div>
+    <div class="checklist">
+      <label class="check"><input type="checkbox">At T, production prints sampled navy and store navy. x is less than half.</label>
+      <label class="check"><input type="checkbox">The first orange-stripe mark stores orange on the left half.</label>
+      <label class="check"><input type="checkbox">The right-half mark stores teaching orange even when the input stripe there is navy.</label>
+      <label class="check"><input type="checkbox">Input-only shows stripes across the whole square, with no orange half.</label>
+      <label class="check"><input type="checkbox">The Android panel is square. setInputShader binds the stripe program. Light <code>@Preview</code> is first, then dark. Both previews scroll.</label>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">10 · EVIDENCE BOUNDARY</div><h2>What this lesson establishes</h2></div></div>
+    <div class="two">
+      <div class="card green"><h3>Established</h3><p>A shader can ask another shader for a color. <code>uniform shader background</code> is the slot. <code>sampled = background.eval(fragCoord)</code> is the ask. The sampled color is a copy of the input’s <code>half4</code> at that pixel coordinate. Teaching T <code>uv.x = 0.15</code> is navy. Production stores the sampled color on the left half and teaching orange on the right half. Kotlin binds the input with <code>setInputShader</code>.</p></div>
+      <div class="card indigo"><h3>What’s next</h3><p>Lesson 9.8 will subtract a width-fraction offset from the read coordinate so the ask reads a different pixel than the write location. The picture will appear to shift. Geometry masks stay unused. Edge reads past the rectangle are Lesson 9.12.</p></div>
+    </div>
+    <button class="btn primary" id="buildRecord" style="margin-top:16px">Build local review record</button>
+    <textarea class="record" id="record" readonly>No record generated yet.</textarea>
+  </section>
+
+  <footer class="footer panel"><span>90 of 216 complete · checkpoint 9.5 unresolved · 9.7 generated ahead</span><span>Previous generated: <a href="lesson-09-06-combine-shapes.html">9.6 — Combine shapes</a> · Next generated: <a href="lesson-09-08-translate-sample-coordinates.html">9.8 — Translate sample coordinates</a></span></footer>
+</main>
+<script>
+const W=400, H=400;
+const STRIPES=5;
+const TEACH={x:0.15*400, y:200};
+const ORANGE_MARK={x:0.05*400, y:200};
+const RIGHT_MARK={x:300, y:200};
+const NAVY=[0.10,0.25,0.40,1];
+const ORANGE=[0.88,0.48,0.18,1];
+const PROD=`uniform shader background;
+uniform float2 resolution;
+
+half4 main(float2 fragCoord) {
+    half4 sampled = background.eval(fragCoord);
+    if (fragCoord.x < resolution.x / 2.0) {
+        return sampled;
+    }
+    half4 orange = half4(0.88, 0.48, 0.18, 1.0);
+    return orange;
+}`;
+let px=TEACH.x, py=TEACH.y;
+let mode='split';
+let currentStep=0;
+const fmt2=n=>n.toFixed(2);
+const fmt3=n=>n.toFixed(3);
+function clamp(x,lo,hi){ return Math.min(hi, Math.max(lo, x)); }
+function fract(x){ return x-Math.floor(x); }
+function rgbCss(c){
+  const r=Math.round(clamp(c[0],0,1)*255);
+  const g=Math.round(clamp(c[1],0,1)*255);
+  const b=Math.round(clamp(c[2],0,1)*255);
+  return `rgb(${r},${g},${b})`;
+}
+function stripeAt(x){
+  const u=x/W;
+  const cell=fract(u*STRIPES);
+  const col=cell<0.5 ? ORANGE.slice() : NAVY.slice();
+  return {u, cell, col};
+}
+function storeAt(x, rule){
+  const s=stripeAt(x);
+  if(rule==='input') return s.col;
+  return x<W/2 ? s.col : ORANGE.slice();
+}
+function drawField(ctx, rule){
+  const img=ctx.createImageData(W,H);
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      const col=storeAt(x, rule);
+      const i=(y*W+x)*4;
+      img.data[i]=Math.round(col[0]*255);
+      img.data[i+1]=Math.round(col[1]*255);
+      img.data[i+2]=Math.round(col[2]*255);
+      img.data[i+3]=255;
+    }
+  }
+  ctx.putImageData(img,0,0);
+}
+function drawOverlay(ctx, x, y, rule){
+  ctx.save();
+  if(rule==='split'){
+    ctx.strokeStyle='#4338ca'; ctx.lineWidth=3; ctx.setLineDash([8,6]);
+    ctx.beginPath(); ctx.moveTo(W/2+0.5, 8); ctx.lineTo(W/2+0.5, H-8); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  ctx.strokeStyle='#d97706'; ctx.lineWidth=3;
+  ctx.strokeRect(TEACH.x-6, TEACH.y-6, 12, 12);
+  ctx.fillStyle='#059669';
+  ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+function updateLab(){
+  px=clamp(px,0.5,W-0.5); py=clamp(py,0.5,H-0.5);
+  const s=stripeAt(px);
+  const col=storeAt(px, mode);
+  const canvas=document.getElementById('labCanvas');
+  const ctx=canvas.getContext('2d');
+  drawField(ctx, mode);
+  drawOverlay(ctx, px, py, mode);
+  document.getElementById('xMetric').textContent=fmt2(px);
+  document.getElementById('uMetric').textContent=fmt3(s.u);
+  document.getElementById('cellMetric').textContent=fmt3(s.cell);
+  document.getElementById('sampMetric').innerHTML=`<span class="swatch" style="background:${rgbCss(s.col)}"></span>${s.cell<0.5?'orange':'navy'}`;
+  document.getElementById('splitMetric').textContent=px<W/2?'yes · left':'no · right';
+  document.getElementById('retMetric').innerHTML=`<span class="swatch" style="background:${rgbCss(col)}"></span>half4(${fmt2(col[0])}, ${fmt2(col[1])}, ${fmt2(col[2])}, 1)`;
+  document.getElementById('labCode').textContent=PROD;
+  document.getElementById('liveFormula').textContent=
+`uv.x = ${fmt3(s.u)}
+cell = fract(${fmt3(s.u)} × 5) = ${fmt3(s.cell)}
+sampled = ${s.cell<0.5?'orange':'navy'}
+store = ${mode==='input'?(s.cell<0.5?'orange':'navy'):(px<W/2?(s.cell<0.5?'orange':'navy'):'orange')}`;
+  document.getElementById('labCaption').textContent=
+    mode==='split'
+      ? `Pixel (${Math.round(px)}, ${Math.round(py)}). Dashed indigo is x = 200.`
+      : `Input-only. Every pixel stores the stripe color. eval is still identity.`;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('selected', b.dataset.mode===mode));
+}
+document.getElementById('markTeach').addEventListener('click',()=>{px=TEACH.x; py=TEACH.y; updateLab();});
+document.getElementById('markOrange').addEventListener('click',()=>{px=ORANGE_MARK.x; py=ORANGE_MARK.y; updateLab();});
+document.getElementById('markRight').addEventListener('click',()=>{px=RIGHT_MARK.x; py=RIGHT_MARK.y; updateLab();});
+document.querySelectorAll('.mode-btn').forEach(btn=>btn.addEventListener('click',()=>{mode=btn.dataset.mode; updateLab();}));
+document.getElementById('labCanvas').addEventListener('click',e=>{
+  const box=e.currentTarget.getBoundingClientRect();
+  px=clamp((e.clientX-box.left)*(W/box.width),0.5,W-0.5);
+  py=clamp((e.clientY-box.top)*(H/box.height),0.5,H-0.5);
+  updateLab();
+});
+
+const STEPS=[
+  {
+    title:'The input shader already paints stripes',
+    caption:'fract(uv.x × 5.0) splits the width into five orange-navy pairs. Each stripe is 0.10 of the width. On this 400-wide square that is 40 pixels. y is unread, so the bands are vertical. This picture is the input. This lesson’s main has not asked yet.',
+    rule:'cell = fract(uv.x × 5.0); cell < 0.5 orange else navy',
+    input:'fragCoord of the input program',
+    operation:'the stripe if',
+    output:'a vertical orange/navy picture',
+    draw:'input'
+  },
+  {
+    title:'T is one pixel on that input',
+    caption:'uv.x = 0.15, so x = 60. 5 × 0.15 = 0.75. fract(0.75) = 0.75, which is not less than 0.5, so the input color at T is navy. The amber square is that pixel. The ask has not run.',
+    rule:'at T, input stores navy',
+    input:'uv.x = 0.15',
+    operation:'the stripe if at T',
+    output:'navy waiting to be copied',
+    draw:'input'
+  },
+  {
+    title:'eval copies that navy to this pixel',
+    caption:'sampled = background.eval(fragCoord). The read coordinate equals the write location. The whole rectangle would look like the input if every pixel returned sampled. That identity copy is the new mechanism. It is still invisible as a difference, so the next step adds the orange proof.',
+    rule:'sampled = background.eval(fragCoord)',
+    input:'this pixel’s fragCoord',
+    operation:'ask the input shader',
+    output:'a copied half4, navy at T',
+    draw:'input'
+  },
+  {
+    title:'The right half stores orange so you can see this main ran',
+    caption:'if (fragCoord.x < 200.0) return sampled; else return orange. T is at x = 60, so it keeps the copied navy. The right half is solid orange. The dashed indigo line is that cut.',
+    rule:'left sampled · right orange',
+    input:'sampled navy at T, x = 60',
+    operation:'8.5 half cut',
+    output:'store navy at T',
+    draw:'split'
+  }
+];
+function drawStepPicture(ctx, index){
+  ctx.clearRect(0,0,960,400);
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,960,400);
+  const ox=40, oy=20, S=360;
+  const tmp=document.createElement('canvas');
+  tmp.width=W; tmp.height=H;
+  const tctx=tmp.getContext('2d');
+  drawField(tctx, STEPS[index].draw);
+  ctx.drawImage(tmp, ox, oy, S, S);
+  ctx.strokeStyle='#172033'; ctx.lineWidth=2; ctx.strokeRect(ox,oy,S,S);
+  const scale=S/W;
+  const mapX=x=>ox+x*scale, mapY=y=>oy+y*scale;
+  if(index>=3){
+    ctx.save();
+    ctx.beginPath(); ctx.rect(ox, oy, S, S); ctx.clip();
+    ctx.strokeStyle='#4338ca'; ctx.lineWidth=3; ctx.setLineDash([8,6]);
+    ctx.beginPath(); ctx.moveTo(mapX(W/2), mapY(8)); ctx.lineTo(mapX(W/2), mapY(H-8)); ctx.stroke();
+    ctx.restore();
+  }
+  if(index>=1){
+    ctx.strokeStyle='#d97706'; ctx.lineWidth=3;
+    ctx.strokeRect(mapX(TEACH.x)-8, mapY(TEACH.y)-8, 16, 16);
+    ctx.fillStyle='#059669';
+    ctx.beginPath(); ctx.arc(mapX(TEACH.x), mapY(TEACH.y), 6, 0, Math.PI*2); ctx.fill();
+  }
+  if(index===2){
+    const tx=mapX(TEACH.x), ty=mapY(TEACH.y);
+    ctx.strokeStyle='#be185d'; ctx.lineWidth=4;
+    ctx.beginPath(); ctx.moveTo(tx+18, ty-28); ctx.lineTo(tx+6, ty-8); ctx.stroke();
+    ctx.fillStyle='#be185d';
+    ctx.beginPath(); ctx.moveTo(tx+1, ty-2); ctx.lineTo(tx+14, ty-12); ctx.lineTo(tx+4, ty-18); ctx.closePath(); ctx.fill();
+    ctx.font='800 16px Inter,system-ui,sans-serif';
+    ctx.fillText('copy into this pixel', tx+22, ty-32);
+  }
+  ctx.font='800 22px SFMono-Regular,Consolas,monospace';
+  ctx.fillStyle='#4338ca';
+  const nums=['input stripes','T is navy','eval copies','left copy · right orange'];
+  ctx.fillText(nums[index], 430, 90);
+  if(index>=2){
+    ctx.font='700 16px Inter,system-ui,sans-serif';
+    ctx.fillStyle='#be185d';
+    ctx.fillText('read coordinate = write location', 430, 140);
+  }
+}
+function renderStep(){
+  const s=STEPS[currentStep];
+  document.getElementById('stepCounter').textContent=`Step ${currentStep+1} of ${STEPS.length}`;
+  document.getElementById('stepGridLabel').textContent=`Step ${currentStep+1} of ${STEPS.length}`;
+  document.getElementById('stepTitle').textContent=s.title;
+  document.getElementById('stepCaption').textContent=s.caption;
+  document.getElementById('stepRule').textContent=s.rule;
+  document.getElementById('stepInput').textContent=s.input;
+  document.getElementById('stepOperation').textContent=s.operation;
+  document.getElementById('stepOutput').textContent=s.output;
+  document.querySelectorAll('.step-dot').forEach((b,i)=>b.classList.toggle('selected', i===currentStep));
+  drawStepPicture(document.getElementById('stepCanvas').getContext('2d'), currentStep);
+}
+const stepButtons=document.getElementById('stepButtons');
+STEPS.forEach((_,i)=>{
+  const b=document.createElement('button');
+  b.className='step-dot'; b.textContent=String(i+1);
+  b.addEventListener('click',()=>{currentStep=i;renderStep();});
+  stepButtons.appendChild(b);
+});
+document.getElementById('stepPrev').addEventListener('click',()=>{currentStep=Math.max(0,currentStep-1);renderStep();});
+document.getElementById('stepNext').addEventListener('click',()=>{currentStep=Math.min(STEPS.length-1,currentStep+1);renderStep();});
+document.querySelectorAll('.choice').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.choice').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    const box=document.getElementById('predictionResult');
+    if(btn.dataset.answer==='correct'){
+      box.textContent='Yes. fract(0.75) = 0.75, so eval returns navy. x = 60 is on the left half, so production stores that navy.';
+      box.style.background='var(--green-soft)';
+    } else if(btn.dataset.answer==='wrong-orange'){
+      box.textContent='Teaching orange is the right-half proof, not every pixel. T is on the left, so the store is the sampled navy.';
+      box.style.background='var(--amber-soft)';
+    } else {
+      box.textContent='0.15 < 0.5 is an 8.6 half test on uv.x. The stripe test is fract(uv.x × 5). 0.75 is not less than 0.5, so the input is navy.';
+      box.style.background='var(--amber-soft)';
+    }
+  });
+});
+const starter=document.getElementById('challengeEditor').value;
+document.getElementById('checkChallenge').addEventListener('click',()=>{
+  const text=document.getElementById('challengeEditor').value;
+  const box=document.getElementById('challengeResult');
+  const ty=/uniform\s+shader\s+background/.test(text);
+  const ev=/background\s*\.\s*eval\s*\(\s*fragCoord\s*\)/.test(text);
+  const uv=/background\s*\.\s*eval\s*\(\s*uv\s*\)/.test(text);
+  if(ty && ev && !uv){
+    box.textContent='Correct. uniform shader background, then background.eval(fragCoord).';
+    box.style.background='var(--green-soft)';
+  } else {
+    box.textContent='Need uniform shader background and background.eval(fragCoord), not eval(uv).';
+    box.style.background='var(--amber-soft)';
+  }
+});
+document.getElementById('showSolution').addEventListener('click',()=>{
+  document.getElementById('challengeEditor').value=`uniform shader background;
+uniform float2 resolution;
+
+half4 main(float2 fragCoord) {
+    half4 sampled = background.eval(fragCoord);
+    if (fragCoord.x < resolution.x / 2.0) {
+        return sampled;
+    }
+    half4 orange = half4(0.88, 0.48, 0.18, 1.0);
+    return orange;
+}`;
+});
+document.getElementById('resetChallenge').addEventListener('click',()=>{
+  document.getElementById('challengeEditor').value=starter;
+  document.getElementById('challengeResult').textContent='The blanks are the shader type and the ask name.';
+  document.getElementById('challengeResult').style.background='var(--soft)';
+});
+document.getElementById('buildRecord').addEventListener('click',()=>{
+  document.getElementById('record').value=`# Lesson 9.7 — Sample an input shader
+
+- Date:
+- uniform shader background.
+- sampled = background.eval(fragCoord).
+- The sampled color is a copy of the input half4 at that pixel coordinate.
+- Stripe input: fract(uv.x × 5.0); cell < 0.5 orange else navy.
+- Teaching T uv.x = 0.15, cell = 0.75, sampled navy.
+- Production: left half stores sampled; right half stores teaching orange.
+- Kotlin: setInputShader("background", stripeShader).
+- Checkpoint still Lesson 9.5. Completion count 90 of 216.
+`;
+});
+const qa=new URLSearchParams(location.search).get('qa');
+if(qa==='orange'){ px=ORANGE_MARK.x; py=ORANGE_MARK.y; }
+if(qa==='right'){ px=RIGHT_MARK.x; py=RIGHT_MARK.y; }
+if(qa==='input') mode='input';
+if(qa==='step4') currentStep=3;
+updateLab();
+renderStep();
+if(qa==='predict'){
+  const correct=[...document.querySelectorAll('.choice')].find(b=>b.dataset.answer==='correct');
+  if(correct) correct.click();
+}
+function revealFrom(id){
+  let keep=false;
+  document.querySelectorAll('.topbar, .hero, .section, .footer').forEach(el=>{
+    if(el.id===id) keep=true;
+    if(!keep) el.style.display='none';
+  });
+}
+if(qa==='lab'||qa==='orange'||qa==='right'||qa==='input') revealFrom('lab');
+if(qa==='eval') revealFrom('eval');
+if(qa==='step4') revealFrom('stepper');
+</script>
+</body>
+</html>
