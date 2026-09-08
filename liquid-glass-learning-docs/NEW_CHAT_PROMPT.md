@@ -151,14 +151,14 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-09-02 with `CURRENT_STATE.md` (course version 9.8.0).
+**Last aligned:** 2026-09-08 with `CURRENT_STATE.md` (course version 9.8.0).
 
 ```text
-completed: 90 of 216, through Lesson 9.4
-current unresolved checkpoint: Lesson 9.5 — Capsule distance field
+completed: 92 of 216, through Lesson 9.6
+current unresolved checkpoint: Lesson 9.7 — Sample an input shader
 generated frontier: Lesson 9.8 — Translate sample coordinates
 next planned lesson after the frontier: Lesson 9.9 — Scale around the center
-Lessons 9.5, 9.6, 9.7, and 9.8 are generated ahead and not complete
+Lessons 9.7 and 9.8 are generated ahead and not complete
 ```
 
 Chapter 7 is complete. Frost constants stay fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
@@ -317,7 +317,7 @@ innerHalf = outerHalf − cornerRadius
 
 Default outer half `(0.30, 0.20)` means full size `0.60 × 0.40`. Corner radius 0.10. Teaching pixel `p = (0.26, −0.18)` is the inner-corner plus a 3-4-5 unit step of length 0.10, and has sd = 0. Visual center `C` is not a construction-circle center. `abs(p)` mirrors left onto right and top onto bottom. Capsule is Lesson 9.5.
 
-**9.5 checkpoint contract:**
+**9.5 completed contract:**
 
 ```text
 nearestX = clamp(p.x, −innerHalfW, innerHalfW)
@@ -325,21 +325,23 @@ nearestX = clamp(p.x, −innerHalfW, innerHalfW)
 → if (sd < 0.0) orange else navy
 ```
 
-Default outer half `(0.40, 0.20)`, radius `0.20` equal to half-height. Teaching cap-boundary `p = (0.32, −0.16)` has sd = 0. Inner segment x from −0.20 to +0.20. Combining two complete fields is Lesson 9.6. 9.5 is still not complete.
+Default outer half `(0.40, 0.20)`, radius `0.20` equal to half-height. Teaching cap-boundary `p = (0.32, −0.16)` has sd = 0. Inner segment x from −0.20 to +0.20.
 
-**9.6 frontier contract:**
+**9.6 completed contract:**
 
 ```text
-sdA = length(p) − 0.25
-→ pB = p − (0.20, 0)
-→ sdB = length(pB) − 0.25
-→ union min · intersection max · B minus A max(sdB, −sdA)
+sdA = length(p) − radiusA
+→ pB = p − B
+→ sdB = length(pB) − radiusB
+→ union sd = min(sdA, sdB)
+→ intersection sd = max(sdA, sdB)
+→ B minus A sd = max(sdB, −sdA)
 → if (sd < 0.0) orange else navy
 ```
 
-Two Lesson 9.2 circles. Teaching left-only `p = (−0.10, 0)` has `sdA = −0.15`, `sdB = +0.05`. Does not consume the unfinished capsule.
+Two Lesson 9.2 circles. Teaching left-only `p = (−0.10, 0)` has `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15` and `sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05`. Named formula stays visible before substitution.
 
-**9.7 frontier contract:**
+**9.7 checkpoint contract:**
 
 ```text
 uniform shader background

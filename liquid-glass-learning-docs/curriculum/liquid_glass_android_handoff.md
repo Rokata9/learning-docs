@@ -19,17 +19,17 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 90
-completed_through: "Lesson 9.4 — Rounded rectangle distance field"
+learner_confirmed_complete: 92
+completed_through: "Lesson 9.6 — Combine shapes"
 completed_chapters: [1, 2, 3, 4, 5, 6, 7, 8]
 chapter_8_complete: "12 of 12"
-chapter_9_complete: "4 of 14"
-next_unresolved_checkpoint: "Lesson 9.5 — Capsule distance field"
+chapter_9_complete: "6 of 14"
+next_unresolved_checkpoint: "Lesson 9.7 — Sample an input shader"
 generated_frontier: "Lesson 9.8 — Translate sample coordinates"
 next_planned_after_frontier: "Lesson 9.9 — Scale around the center"
 ```
 
-Lessons 8.2 through 9.4 are learner-confirmed complete. Lessons 9.5 through 9.8 are generated ahead and are not complete. Generating 9.6 does not complete 9.5.
+Lessons 8.2 through 9.6 are learner-confirmed complete. Lessons 9.7 and 9.8 are generated ahead and are not complete. Generating 9.8 does not complete 9.7.
 
 Chapter 7 frost stays fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
@@ -112,7 +112,7 @@ Default outer half `(0.30, 0.20)` means full size `0.60 × 0.40`. Corner radius 
 
 Learner could not parse two 9.5 hidden answers: the circle-vs-capsule diagnostic used a calculator length 0.2236 with no picture, and the half-width-equals-radius item named “Lesson 4.3’s circle limit” without showing the inner segment collapsing to a point. Recorded in `AGENTS.md`. Hidden answers still need labelled pictures and exact-root lengths. The diagnostic pixel is now `p = (0.15, −0.20)` so `0.15² + 0.20² = 0.25²`.
 
-## Generated-ahead Lesson 9.5
+## Completed Lesson 9.5
 
 ```text
 nearestX = clamp(p.x, −innerHalfW, innerHalfW)
@@ -120,9 +120,9 @@ nearestX = clamp(p.x, −innerHalfW, innerHalfW)
 → if (sd < 0.0) orange else navy
 ```
 
-Default outer half `(0.40, 0.20)`, radius 0.20 equal to half-height. Teaching cap-boundary `p = (0.32, −0.16)` has `sd = 0`. Width slider; radius stays derived from height. Combining two complete fields with min/max is Lesson 9.6. 9.5 is still not complete.
+Default outer half `(0.40, 0.20)`, radius 0.20 equal to half-height. Teaching cap-boundary `p = (0.32, −0.16)` has `sd = 0`. Width slider; radius stays derived from height. Combining two complete fields with min/max is Lesson 9.6.
 
-## Generated-ahead Lesson 9.6
+## Completed Lesson 9.6
 
 ```text
 sdA = length(p) − radiusA
@@ -134,7 +134,7 @@ sdA = length(p) − radiusA
 → if (sd < 0.0) orange else navy
 ```
 
-Two Lesson 9.2 circles. Does not consume the unfinished 9.5 capsule. Teaching left-only `p = (−0.10, 0)` has `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15` and `sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05`. `pB = p − B` is the same 8.8 subtract, now from B’s center. Soft mask unused.
+Two Lesson 9.2 circles. Teaching left-only `p = (−0.10, 0)` has `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15` and `sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05`. `pB = p − B` is the same 8.8 subtract, now from B’s center. Soft mask unused.
 
 Named-formula-before-substitution (2026-09-08, recorded in `AGENTS.md`): every teaching calculation keeps the named operations visible. Write `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15`, never `sdA = 0.10 − 0.25` or `sdA = −0.15` as the formula. Live readouts recompute that chain.
 
@@ -164,4 +164,4 @@ Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions.
 
 Standing delivery: no ZIP archives; new `@Preview` stacks light then dark. Details in `USER_PREFERENCES.md`.
 
-Course progress: 90 of 216 lessons completed.
+Course progress: 92 of 216 lessons completed.

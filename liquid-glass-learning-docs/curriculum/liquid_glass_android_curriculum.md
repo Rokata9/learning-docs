@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
 **Version:** 9.8.0  
-**Updated:** 2026-09-02  
+**Updated:** 2026-09-08  
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
 **Physical test device:** Pixel 8 Pro  
@@ -11,9 +11,9 @@ Live progress, current files, and the checkpoint/frontier contracts live in `CUR
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **90 of 216**, through **Lesson 9.4**.
-- Completed chapters: **1–8**. Chapter 9: **4 of 14**.
-- Unresolved checkpoint: **Lesson 9.5 — Capsule distance field**.
+- Learner-confirmed complete: **92 of 216**, through **Lesson 9.6**.
+- Completed chapters: **1–8**. Chapter 9: **6 of 14**.
+- Unresolved checkpoint: **Lesson 9.7 — Sample an input shader**.
 - Generated frontier: **Lesson 9.8 — Translate sample coordinates** (generated ahead, not complete).
 - Next planned after the frontier: **Lesson 9.9 — Scale around the center**.
 

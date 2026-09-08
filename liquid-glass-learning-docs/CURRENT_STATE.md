@@ -8,18 +8,18 @@
 
 ## Authoritative progress
 
-- Learner-confirmed complete: **90 of 216 lessons**.
-- Completed through: **Lesson 9.4 — Rounded rectangle distance field**.
+- Learner-confirmed complete: **92 of 216 lessons**.
+- Completed through: **Lesson 9.6 — Combine shapes**.
 - Completed chapters: **1, 2, 3, 4, 5, 6, 7, and 8**.
 - Chapter 8: **12 of 12 lessons complete**.
-- Chapter 9: **4 of 14 lessons complete**.
-- Current unresolved checkpoint: **Lesson 9.5 — Capsule distance field**.
+- Chapter 9: **6 of 14 lessons complete**.
+- Current unresolved checkpoint: **Lesson 9.7 — Sample an input shader**.
 - Generated frontier: **Lesson 9.8 — Translate sample coordinates**.
 - Next planned lesson after the generated frontier: **Lesson 9.9 — Scale around the center**.
-- Lessons 8.2 through 9.4 are learner-confirmed complete.
-- Lessons 9.5 through 9.8 are generated ahead and are not learner-confirmed complete.
+- Lessons 8.2 through 9.6 are learner-confirmed complete.
+- Lessons 9.7 and 9.8 are generated ahead and are not learner-confirmed complete.
 
-Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation. Do not mark 9.5 complete because 9.6 exists.
+Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation. Do not mark 9.7 complete because 9.8 exists.
 
 Reusable new-chat starter: `NEW_CHAT_PROMPT.md`. Paste it, then name generate or questions in the same message. Progress in this file wins. When the checkpoint or frontier moves, refresh section 12 of that prompt.
 
@@ -49,7 +49,9 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 
 ## Last session compact record (2026-09-08)
 
-Learner rejected Lesson 9.6 formula presentation: calculations were shown as bare numbers (`sdA = −0.15`, `sdA = 0.10 − 0.25`) instead of the named formula then substitution. 9.6 was rewritten so every teaching surface uses `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15`. Reusable rule recorded in `AGENTS.md` as **Named-formula-before-substitution**. Checkpoint is still 9.5. Completion count is still 90 of 216.
+Learner confirmed Lessons 9.5 and 9.6 complete. Count is **92 of 216**. Unresolved checkpoint is **Lesson 9.7**. Generated frontier remains **Lesson 9.8**.
+
+9.6 formula presentation was rewritten before this confirmation: every teaching surface uses `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15`. Reusable rule recorded in `AGENTS.md` as **Named-formula-before-substitution**.
 
 ## Prior session compact record (2026-09-02)
 
@@ -69,16 +71,16 @@ Reusable teaching pattern recorded in `AGENTS.md` as **Load-bearing section budg
 
 9.4 completed contract: grow an inner sharp box by the corner radius. `innerHalf = outerHalf − cornerRadius`. `q = abs(p) − innerHalf`. Piecewise `sdBox`, then `sd = sdBox − cornerRadius`. Default outer half `(0.30, 0.20)` means full size `0.60 × 0.40`. Corner radius `0.10`. Teaching pixel `p = (0.26, −0.18)` is the top-right inner corner plus a 3-4-5 unit direction scaled by `0.10`; `sd = 0`. Visual center `C` is not a construction-circle center. Production is the hard `if` on this `sd`.
 
-9.5 checkpoint contract (generated ahead, not complete): grow an inner horizontal segment. `nearestX = clamp(p.x, −innerHalfW, innerHalfW)`. `sd = length(p − (nearestX, 0)) − radius`. Default outer half `(0.40, 0.20)`, radius `0.20` equal to half-height. Teaching cap-boundary `p = (0.32, −0.16)` has `sd = 0`. Width slider; radius stays derived from height.
+9.5 completed contract: grow an inner horizontal segment. `nearestX = clamp(p.x, −innerHalfW, innerHalfW)`. `sd = length(p − (nearestX, 0)) − radius`. Default outer half `(0.40, 0.20)`, radius `0.20` equal to half-height. Teaching cap-boundary `p = (0.32, −0.16)` has `sd = 0`. Width slider; radius stays derived from height.
 
-9.6 frontier contract (generated ahead): two complete circle fields. `sdA = length(p) − radiusA`. `pB = p − B`. `sdB = length(pB) − radiusB`. Union `sd = min(sdA, sdB)`. Intersection `sd = max(sdA, sdB)`. B minus A `sd = max(sdB, −sdA)`. Teaching left-only pixel `p = (−0.10, 0)` has `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15` and `sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05`. Production is the hard `if` on the combined `sd`. Every teaching calculation keeps the named formula visible, then substitutes numbers.
+9.6 completed contract: two complete circle fields. `sdA = length(p) − radiusA`. `pB = p − B`. `sdB = length(pB) − radiusB`. Union `sd = min(sdA, sdB)`. Intersection `sd = max(sdA, sdB)`. B minus A `sd = max(sdB, −sdA)`. Teaching left-only pixel `p = (−0.10, 0)` has `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15` and `sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05`. Production is the hard `if` on the combined `sd`. Every teaching calculation keeps the named formula visible, then substitutes numbers.
 
-9.7 contract (generated ahead): `uniform shader background`, then `sampled = background.eval(fragCoord)`. Left half stores that sampled `half4`. Right half stores teaching orange. Stripe input: `fract((fragCoord.x / resolution.x) * 5.0)`; `cell < 0.5` orange else navy. Teaching `uv.x = 0.15` is navy. Kotlin binds the input with `setInputShader`.
+9.7 checkpoint contract (generated ahead, not complete): `uniform shader background`, then `sampled = background.eval(fragCoord)`. Left half stores that sampled `half4`. Right half stores teaching orange. Stripe input: `fract((fragCoord.x / resolution.x) * 5.0)`; `cell < 0.5` orange else navy. Teaching `uv.x = 0.15` is navy. Kotlin binds the input with `setInputShader`.
 
 9.8 contract (generated ahead): `readCoord = fragCoord − float2(offsetU * resolution.x, 0)`. `sampled = background.eval(readCoord)`. Default `offsetU = 0.10` (one stripe width). Teaching write `uv.x = 0.15` reads `uv.x = 0.05` and stores orange. The picture shifts opposite the read offset.
 
-## Unresolved checkpoint — Lesson 9.5
+## Unresolved checkpoint — Lesson 9.7
 
-Do not mark 9.5 complete until the learner confirms.
+Do not mark 9.7 complete until the learner confirms.
 
-Course progress: 90 of 216 lessons completed.
+Course progress: 92 of 216 lessons completed.
