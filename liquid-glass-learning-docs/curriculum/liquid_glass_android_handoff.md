@@ -1,6 +1,6 @@
 # Liquid Glass Android course — implementation handoff
 
-**Updated:** 2026-09-02  
+**Updated:** 2026-09-08  
 **Course version:** 9.8.0
 
 ## Read order
@@ -125,16 +125,18 @@ Default outer half `(0.40, 0.20)`, radius 0.20 equal to half-height. Teaching ca
 ## Generated-ahead Lesson 9.6
 
 ```text
-sdA = length(p) − 0.25
-→ pB = p − (0.20, 0)
-→ sdB = length(pB) − 0.25
-→ union min(sdA, sdB)
-→ intersection max(sdA, sdB)
-→ B minus A max(sdB, −sdA)
+sdA = length(p) − radiusA
+→ pB = p − B
+→ sdB = length(pB) − radiusB
+→ union sd = min(sdA, sdB)
+→ intersection sd = max(sdA, sdB)
+→ B minus A sd = max(sdB, −sdA)
 → if (sd < 0.0) orange else navy
 ```
 
-Two Lesson 9.2 circles. Does not consume the unfinished 9.5 capsule. Teaching left-only `p = (−0.10, 0)` has `sdA = −0.15`, `sdB = +0.05`. `pB` is the same 8.8 subtract, now from B’s center. Soft mask unused.
+Two Lesson 9.2 circles. Does not consume the unfinished 9.5 capsule. Teaching left-only `p = (−0.10, 0)` has `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15` and `sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05`. `pB = p − B` is the same 8.8 subtract, now from B’s center. Soft mask unused.
+
+Named-formula-before-substitution (2026-09-08, recorded in `AGENTS.md`): every teaching calculation keeps the named operations visible. Write `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15`, never `sdA = 0.10 − 0.25` or `sdA = −0.15` as the formula. Live readouts recompute that chain.
 
 ## Generated-ahead Lesson 9.7
 

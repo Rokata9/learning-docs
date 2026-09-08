@@ -1,6 +1,6 @@
 # Liquid Glass Android course — current state
 
-**Updated:** 2026-09-02  
+**Updated:** 2026-09-08  
 **Course version:** 9.8.0  
 **Platform:** Kotlin + Jetpack Compose  
 **Test device:** Pixel 8 Pro  
@@ -47,7 +47,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/Chapter09S
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 ```
 
-## Last session compact record (2026-09-02)
+## Last session compact record (2026-09-08)
+
+Learner rejected Lesson 9.6 formula presentation: calculations were shown as bare numbers (`sdA = −0.15`, `sdA = 0.10 − 0.25`) instead of the named formula then substitution. 9.6 was rewritten so every teaching surface uses `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15`. Reusable rule recorded in `AGENTS.md` as **Named-formula-before-substitution**. Checkpoint is still 9.5. Completion count is still 90 of 216.
+
+## Prior session compact record (2026-09-02)
 
 Learner confirmed Lesson 9.4 complete. Lesson 9.5 remains the unresolved checkpoint. Lessons 9.6, 9.7, and 9.8 were generated ahead of that checkpoint.
 
@@ -67,7 +71,7 @@ Reusable teaching pattern recorded in `AGENTS.md` as **Load-bearing section budg
 
 9.5 checkpoint contract (generated ahead, not complete): grow an inner horizontal segment. `nearestX = clamp(p.x, −innerHalfW, innerHalfW)`. `sd = length(p − (nearestX, 0)) − radius`. Default outer half `(0.40, 0.20)`, radius `0.20` equal to half-height. Teaching cap-boundary `p = (0.32, −0.16)` has `sd = 0`. Width slider; radius stays derived from height.
 
-9.6 frontier contract (generated ahead): two complete circle fields. `sdA = length(p) − 0.25`. `pB = p − (0.20, 0)`. `sdB = length(pB) − 0.25`. Union `min(sdA, sdB)`. Intersection `max(sdA, sdB)`. B minus A `max(sdB, −sdA)`. Teaching left-only pixel `p = (−0.10, 0)` has `sdA = −0.15`, `sdB = +0.05`. Production is the hard `if` on the combined `sd`.
+9.6 frontier contract (generated ahead): two complete circle fields. `sdA = length(p) − radiusA`. `pB = p − B`. `sdB = length(pB) − radiusB`. Union `sd = min(sdA, sdB)`. Intersection `sd = max(sdA, sdB)`. B minus A `sd = max(sdB, −sdA)`. Teaching left-only pixel `p = (−0.10, 0)` has `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15` and `sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05`. Production is the hard `if` on the combined `sd`. Every teaching calculation keeps the named formula visible, then substitutes numbers.
 
 9.7 contract (generated ahead): `uniform shader background`, then `sampled = background.eval(fragCoord)`. Left half stores that sampled `half4`. Right half stores teaching orange. Stripe input: `fract((fragCoord.x / resolution.x) * 5.0)`; `cell < 0.5` orange else navy. Teaching `uv.x = 0.15` is navy. Kotlin binds the input with `setInputShader`.
 

@@ -928,3 +928,42 @@ The first sections must still carry the lesson. They must do it with pictures an
 - Can they say why the teaching pixel’s coordinates are exactly those numbers, and which drawn segment is `sd`?
 - Does each stepper step draw a different set of objects?
 - Is full size stated next to half-size, with the corner radius not added into the height?
+
+### Named-formula-before-substitution gate — Lesson 9.6 clarification
+
+The learner asked, repeatedly, that formulas be written in full with named operations. Lesson 9.6 had failed this: the live lab printed `sdA = −0.15`, the hero printed `sdA = 0.10 − 0.25 = −0.15`, and the stepper printed `min(−0.15, +0.05)`. Those are substitutions and results, not the formula.
+
+**Required chain, everywhere a calculation is shown** (hero, all-formulas panel, stepper rule, live lab readout, prediction, exercises, checkpoint, review record):
+
+```text
+sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15
+```
+
+or stacked:
+
+```text
+sdA = length(p) − radiusA
+    = 0.10 − 0.25
+    = −0.15
+```
+
+**Forbidden as the displayed formula:**
+
+- `sdA = −0.15`
+- `sdA = 0.10 − 0.25 = −0.15` (dropped `length(p)` and `radiusA`)
+- `min(−0.15, +0.05) = −0.15` (dropped `min(sdA, sdB)`)
+- a live readout that only prints the current number
+
+**Rules:**
+
+1. The symbolic formula with named operations and variables is always visible.
+2. Numbers appear only as a substitution of that same formula.
+3. The result is the last term, not a replacement for the formula.
+4. Live readouts recompute this full chain on every click or slider move.
+5. Do not re-expand a completed prior operation unless that operation is itself being corrected. In Lesson 9.6, keep `length(p)` as the named Lesson 9.1 leftover; do not rewrite it as `sqrt` on every line.
+6. Production AGSL may still use literals such as `0.25`. Teaching text next to that code still names `radiusA`, `radiusB`, and `B`.
+
+**Verification before packaging:**
+
+- Open the live formula box at the teaching pixel. Can the learner read `sdA = length(p) − radiusA = …` without reconstructing the operations from memory?
+- Does every stepper rule, hidden exercise answer, and prediction verdict keep the named operations in the same sentence as the numbers?
