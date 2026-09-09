@@ -1,6 +1,6 @@
 # Liquid Glass Android course — current state
 
-**Updated:** 2026-09-08  
+**Updated:** 2026-09-09  
 **Course version:** 9.8.0  
 **Platform:** Kotlin + Jetpack Compose  
 **Test device:** Pixel 8 Pro  
@@ -8,18 +8,18 @@
 
 ## Authoritative progress
 
-- Learner-confirmed complete: **92 of 216 lessons**.
-- Completed through: **Lesson 9.6 — Combine shapes**.
+- Learner-confirmed complete: **93 of 216 lessons**.
+- Completed through: **Lesson 9.7 — Sample an input shader**.
 - Completed chapters: **1, 2, 3, 4, 5, 6, 7, and 8**.
 - Chapter 8: **12 of 12 lessons complete**.
-- Chapter 9: **6 of 14 lessons complete**.
-- Current unresolved checkpoint: **Lesson 9.7 — Sample an input shader**.
+- Chapter 9: **7 of 14 lessons complete**.
+- Current unresolved checkpoint: **Lesson 9.8 — Translate sample coordinates**.
 - Generated frontier: **Lesson 9.8 — Translate sample coordinates**.
 - Next planned lesson after the generated frontier: **Lesson 9.9 — Scale around the center**.
-- Lessons 8.2 through 9.6 are learner-confirmed complete.
-- Lessons 9.7 and 9.8 are generated ahead and are not learner-confirmed complete.
+- Lessons 8.2 through 9.7 are learner-confirmed complete.
+- Lesson 9.8 is generated and is not learner-confirmed complete.
 
-Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation. Do not mark 9.7 complete because 9.8 exists.
+Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
 Reusable new-chat starter: `NEW_CHAT_PROMPT.md`. Paste it, then name generate or questions in the same message. Progress in this file wins. When the checkpoint or frontier moves, refresh section 12 of that prompt.
 
@@ -47,7 +47,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/Chapter09S
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 ```
 
-## Last session compact record (2026-09-08)
+## Last session compact record (2026-09-09)
+
+Learner confirmed Lesson 9.7 complete. Count is **93 of 216**. Unresolved checkpoint is **Lesson 9.8**. Generated frontier remains **Lesson 9.8**.
+
+## Prior session compact record (2026-09-08)
 
 Learner confirmed Lessons 9.5 and 9.6 complete. Count is **92 of 216**. Unresolved checkpoint is **Lesson 9.7**. Generated frontier remains **Lesson 9.8**.
 
@@ -75,12 +79,12 @@ Reusable teaching pattern recorded in `AGENTS.md` as **Load-bearing section budg
 
 9.6 completed contract: two complete circle fields. `sdA = length(p) − radiusA`. `pB = p − B`. `sdB = length(pB) − radiusB`. Union `sd = min(sdA, sdB)`. Intersection `sd = max(sdA, sdB)`. B minus A `sd = max(sdB, −sdA)`. Teaching left-only pixel `p = (−0.10, 0)` has `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15` and `sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05`. Production is the hard `if` on the combined `sd`. Every teaching calculation keeps the named formula visible, then substitutes numbers.
 
-9.7 checkpoint contract (generated ahead, not complete): `uniform shader background`, then `sampled = background.eval(fragCoord)`. Left half stores that sampled `half4`. Right half stores teaching orange. Stripe input: `fract((fragCoord.x / resolution.x) * 5.0)`; `cell < 0.5` orange else navy. Teaching `uv.x = 0.15` is navy. Kotlin binds the input with `setInputShader`.
+9.7 completed contract: `uniform shader background`, then `sampled = background.eval(fragCoord)`. Left half stores that sampled `half4`. Right half stores teaching orange. Stripe input: `fract((fragCoord.x / resolution.x) * 5.0)`; `cell < 0.5` orange else navy. Teaching `uv.x = 0.15` is navy. Kotlin binds the input with `setInputShader`.
 
-9.8 contract (generated ahead): `readCoord = fragCoord − float2(offsetU * resolution.x, 0)`. `sampled = background.eval(readCoord)`. Default `offsetU = 0.10` (one stripe width). Teaching write `uv.x = 0.15` reads `uv.x = 0.05` and stores orange. The picture shifts opposite the read offset.
+9.8 checkpoint contract: `readCoord = fragCoord − float2(offsetU * resolution.x, 0)`. `sampled = background.eval(readCoord)`. Default `offsetU = 0.10` (one stripe width). Teaching write `uv.x = 0.15` reads `uv.x = 0.05` and stores orange. The picture shifts opposite the read offset.
 
-## Unresolved checkpoint — Lesson 9.7
+## Unresolved checkpoint — Lesson 9.8
 
-Do not mark 9.7 complete until the learner confirms.
+Do not mark 9.8 complete until the learner confirms.
 
-Course progress: 92 of 216 lessons completed.
+Course progress: 93 of 216 lessons completed.

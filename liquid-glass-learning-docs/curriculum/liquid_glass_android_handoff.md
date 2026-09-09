@@ -1,6 +1,6 @@
 # Liquid Glass Android course — implementation handoff
 
-**Updated:** 2026-09-08  
+**Updated:** 2026-09-09  
 **Course version:** 9.8.0
 
 ## Read order
@@ -19,17 +19,17 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 92
-completed_through: "Lesson 9.6 — Combine shapes"
+learner_confirmed_complete: 93
+completed_through: "Lesson 9.7 — Sample an input shader"
 completed_chapters: [1, 2, 3, 4, 5, 6, 7, 8]
 chapter_8_complete: "12 of 12"
-chapter_9_complete: "6 of 14"
-next_unresolved_checkpoint: "Lesson 9.7 — Sample an input shader"
+chapter_9_complete: "7 of 14"
+next_unresolved_checkpoint: "Lesson 9.8 — Translate sample coordinates"
 generated_frontier: "Lesson 9.8 — Translate sample coordinates"
 next_planned_after_frontier: "Lesson 9.9 — Scale around the center"
 ```
 
-Lessons 8.2 through 9.6 are learner-confirmed complete. Lessons 9.7 and 9.8 are generated ahead and are not complete. Generating 9.8 does not complete 9.7.
+Lessons 8.2 through 9.7 are learner-confirmed complete. Lesson 9.8 is generated and is not complete.
 
 Chapter 7 frost stays fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
@@ -138,7 +138,7 @@ Two Lesson 9.2 circles. Teaching left-only `p = (−0.10, 0)` has `sdA = length(
 
 Named-formula-before-substitution (2026-09-08, recorded in `AGENTS.md`): every teaching calculation keeps the named operations visible. Write `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15`, never `sdA = 0.10 − 0.25` or `sdA = −0.15` as the formula. Live readouts recompute that chain.
 
-## Generated-ahead Lesson 9.7
+## Completed Lesson 9.7
 
 ```text
 uniform shader background
@@ -148,7 +148,7 @@ uniform shader background
 
 The sampled color is the half4 that `eval` returns: a copy of the input shader’s color at the read coordinate. Stripe input: `fract(uv.x * 5.0)`, `cell < 0.5` orange else navy. Teaching `uv.x = 0.15` is navy. Kotlin `setInputShader("background", stripeShader)`. Offset is Lesson 9.8. Geometry mask unused.
 
-## Generated-ahead Lesson 9.8
+## Unresolved checkpoint — Lesson 9.8
 
 ```text
 readCoord = fragCoord − float2(offsetU * resolution.x, 0)
@@ -164,4 +164,4 @@ Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions.
 
 Standing delivery: no ZIP archives; new `@Preview` stacks light then dark. Details in `USER_PREFERENCES.md`.
 
-Course progress: 92 of 216 lessons completed.
+Course progress: 93 of 216 lessons completed.

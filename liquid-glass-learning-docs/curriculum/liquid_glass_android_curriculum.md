@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
 **Version:** 9.8.0  
-**Updated:** 2026-09-08  
+**Updated:** 2026-09-09  
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
 **Physical test device:** Pixel 8 Pro  
@@ -11,10 +11,10 @@ Live progress, current files, and the checkpoint/frontier contracts live in `CUR
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **92 of 216**, through **Lesson 9.6**.
-- Completed chapters: **1–8**. Chapter 9: **6 of 14**.
-- Unresolved checkpoint: **Lesson 9.7 — Sample an input shader**.
-- Generated frontier: **Lesson 9.8 — Translate sample coordinates** (generated ahead, not complete).
+- Learner-confirmed complete: **93 of 216**, through **Lesson 9.7**.
+- Completed chapters: **1–8**. Chapter 9: **7 of 14**.
+- Unresolved checkpoint: **Lesson 9.8 — Translate sample coordinates**.
+- Generated frontier: **Lesson 9.8 — Translate sample coordinates** (generated, not complete).
 - Next planned after the frontier: **Lesson 9.9 — Scale around the center**.
 
 ## 2. How this file relates to the rule sources
@@ -427,23 +427,23 @@ Chapters **1–7** are complete. Do not reopen blur, tint, saturation, inset-str
      teaching sd +0.05 → mask 0.15625 → stored red 0.221875
 9.4  innerHalf = outerHalf − r; q = abs(p) − innerHalf; sd = sdBox − r
      outer half (0.30, 0.20); r = 0.10; corner-boundary p = (0.26, −0.18)
-```
-
-**Generated ahead, not complete**
-
-```text
 9.5  nearestX = clamp(p.x, ±innerHalfW); sd = length(p − (nearestX, 0)) − r
      outer half (0.40, 0.20); r = 0.20; cap-boundary p = (0.32, −0.16)
 9.6  two circles; union min; intersection max; B minus A max(sdB, −sdA)
      teaching left-only p = (−0.10, 0); sdA = −0.15; sdB = +0.05
 9.7  uniform shader background; sampled = background.eval(fragCoord)
      left half stores sampled; teaching uv.x = 0.15 is navy
+```
+
+**Unresolved checkpoint, generated, not complete**
+
+```text
 9.8  readCoord = fragCoord − (offsetU × width, 0); default offsetU = 0.10
      teaching write uv.x = 0.15 reads 0.05 and stores orange
 ```
 
 **Policy**
 
-- Count only explicit learner confirmation. Generating 9.6 does not complete 9.5.
+- Count only explicit learner confirmation. Generating 9.8 did not complete 9.7.
 - Current HTML/Kotlin paths live in `CURRENT_STATE.md`. Explorer names for older lessons live in those lesson files and `ChapterNNScreen.kt`.
 - 5.8/5.9 stay consolidated: 5.8 is the teaching page; 5.9 is the archive redirect.

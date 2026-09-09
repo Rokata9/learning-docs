@@ -151,14 +151,13 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-09-08 with `CURRENT_STATE.md` (course version 9.8.0).
+**Last aligned:** 2026-09-09 with `CURRENT_STATE.md` (course version 9.8.0).
 
 ```text
-completed: 92 of 216, through Lesson 9.6
-current unresolved checkpoint: Lesson 9.7 — Sample an input shader
+completed: 93 of 216, through Lesson 9.7
+current unresolved checkpoint: Lesson 9.8 — Translate sample coordinates
 generated frontier: Lesson 9.8 — Translate sample coordinates
 next planned lesson after the frontier: Lesson 9.9 — Scale around the center
-Lessons 9.7 and 9.8 are generated ahead and not complete
 ```
 
 Chapter 7 is complete. Frost constants stay fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
@@ -341,7 +340,7 @@ sdA = length(p) − radiusA
 
 Two Lesson 9.2 circles. Teaching left-only `p = (−0.10, 0)` has `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15` and `sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05`. Named formula stays visible before substitution.
 
-**9.7 checkpoint contract:**
+**9.7 completed contract:**
 
 ```text
 uniform shader background
@@ -351,7 +350,7 @@ uniform shader background
 
 Stripe input uses `fract(uv.x * 5.0)`. Teaching `uv.x = 0.15` is navy. Kotlin `setInputShader`. Offset is Lesson 9.8.
 
-**9.8 frontier contract:**
+**9.8 checkpoint contract:**
 
 ```text
 readCoord = fragCoord − float2(offsetU * resolution.x, 0)
