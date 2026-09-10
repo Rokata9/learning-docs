@@ -177,7 +177,7 @@ dir = p / length(p)
 → sampled = background.eval(readUv × resolution)
 ```
 
-The write pixel stays. The bump is a copied neighbor, not 3D geometry. Horizontal proof: `uv.x = 0.80` reads `0.70` at `dispLen = 0.10`. Divide doubles the leftover 3-4-5 (`length 0.50`) into a length-1 stick so the walk does not grow with distance from `C`. Subtract asks toward `C`. Rings expand by adding `dispLen`; scale multiplies. Teaching write reuses Lesson 9.1: `p = (0.30, −0.40)`, `dir = (0.60, −0.80)`, `disp = (0.06, −0.08)`, `readUv = (0.74, 0.18)`, store orange. Skip the divide at `C`. Refraction falloff is Lesson 9.11. Not complete.
+A vertical side tilts because its two ends sit on two rays. `H = (0.75, 0.50)` walks to `(0.85, 0.50)`; `Q = (0.75, 0.25)` splits the same walk on the 45° ray, so they no longer share an x. Four corners → trapezoid leaning toward `C`. Shader inward ask is the inverse. `dir = p / length(p)` so H and Q walk the same length. Default `dispLen = 0.10`. Skip the divide at `C`. Refraction falloff is Lesson 9.11. Not complete.
 
 ## Future conversation
 

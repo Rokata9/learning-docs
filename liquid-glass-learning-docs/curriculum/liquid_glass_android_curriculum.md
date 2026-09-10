@@ -450,9 +450,9 @@ Chapters **1–7** are complete. Do not reopen blur, tint, saturation, inset-str
 **Generated ahead of checkpoint 9.9, not complete**
 
 ```text
-9.10 write stays; horizontal 0.80 reads 0.70; dir = p / length(p) is the leftover doubled to length 1
-     disp = dir × dispLen; readUv = uv − disp; bump is inner colors farther out, not 3D
-     default dispLen = 0.10; teaching p = (0.30, −0.40) reads (0.74, 0.18)
+9.10 vertical side tilts: H (0.75, 0.50) walks to (0.85, 0.50); Q (0.75, 0.25) splits the same walk
+     they no longer share an x; four corners → trapezoid; shader ask is the inverse
+     default dispLen = 0.10
 ```
 
 **Policy**

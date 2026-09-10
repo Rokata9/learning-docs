@@ -1018,3 +1018,18 @@ Recorded 2026-09-10 after the learner opened Lesson 9.10 and saw the same failur
 - Can they say why we divide by length (chosen walk, independent of how far this pixel is)?
 - Can they say why we subtract (ask toward `C`, picture appears pushed out)?
 - Can they contrast this field with Lesson 9.8’s slide and Lesson 9.9’s zoom?
+
+### Hard visible result gets the construction — Lesson 9.10 second rewrite
+
+Recorded 2026-09-10 after the learner rejected the first 9.10 rewrite: leftovers and the unit-pair divide were explained at length, while the actual hard picture — axis-aligned checker squares looking tilted — was one sentence (“straight lines bow because each pixel’s ask has its own direction”). Easy leftovers were taught again. The hard result was skimmed.
+
+1. **Name the hard visible result first.** Here: a vertical side of an input square looks slanted in the store. That result gets the load-bearing sections. Leftovers the learner already has (write vs read, `p = uv − 0.5`, `eval` wants pixels) get one card, not a hero-length recap.
+2. **A qualitative phrase is a skimming failure.** “Lines bow,” “cells tilt,” “looks 3D” must be followed immediately by a construction with a new drawn object at each step. Required objects for this tilt: two ends of one vertical side; two rays from `C`; two equal-length walks; the new side that no longer shares an x.
+3. **Prove tilt from a split walk, not from a formula.** Pick one end on the horizontal through `C` (the whole walk goes right) and one end on a 45° ray (the walk splits). Same walk length, different new x. That is why the side leans. Do not start with `dir = (0.60, −0.80)`.
+4. **Then the rest of the bump, as extra objects.** Four corners → trapezoid leaning toward `C`. Whole line → bowed edge. Near `C` the same walk is a larger fraction → bigger middle. A side already on a ray through `C` does not tilt.
+5. **Do not spend the page re-teaching the easy inverse.** After the outward paint is understood, one paragraph may say the shader asks inward. Divide-by-length is “so H and Q walk the same length,” not a second main lesson.
+
+**Verification before packaging a lesson whose stored picture is the hard thing:**
+
+- Can the learner take two ends of one vertical side and say why they no longer share an x, without reciting `dir × dispLen`?
+- If the first two sections could be understood without looking at the hard picture, those sections are too long and the hard picture is too late.

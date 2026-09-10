@@ -54,7 +54,11 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 
 ## Last session compact record (2026-09-10)
 
-Rewrote Lesson 9.10 after the learner named the same failure as 9.9: unexplained numbers, no reason for the AGSL divide/multiply/subtract, and no word on why the stored checker looks 3D. New page: identity versus store first; bulge proved on a horizontal ray (`0.80` reads `0.70`); divide is doubling the leftover 3-4-5 to length 1 so the walk does not grow with distance from `C`; subtract asks toward `C`; rings expand by adding, scale multiplies. Four-step stepper removed. Reusable rule recorded in `AGENTS.md` as **Displacement is a chosen walk toward C, not a 3D formula**. Count stays **94 of 216**. Unresolved checkpoint remains **Lesson 9.9**. Lesson 9.10 is still generated ahead and not complete.
+Second rewrite of Lesson 9.10. The learner named the actual hard picture: tilted checker squares. The previous rewrite skimmed that with one sentence and re-taught leftovers. New page: two ends of one vertical side, two rays, equal-length walks that split differently so they no longer share an x; then four corners → trapezoid; then bow and bigger middle. Reusable rule recorded in `AGENTS.md` as **Hard visible result gets the construction**. Count stays **94 of 216**. Unresolved checkpoint remains **Lesson 9.9**. Lesson 9.10 is still not complete.
+
+## Prior session compact record (2026-09-10)
+
+Rewrote Lesson 9.10 after the learner named the same failure as 9.9: unexplained numbers, no reason for the AGSL divide/multiply/subtract, and no word on why the stored checker looks 3D. That rewrite still skimmed the tilted squares. Count stays **94 of 216**. Unresolved checkpoint remains **Lesson 9.9**.
 
 ## Prior session compact record (2026-09-10)
 
@@ -106,7 +110,7 @@ Reusable teaching pattern recorded in `AGENTS.md` as **Load-bearing section budg
 
 9.9 checkpoint contract: write stays. `p = uv − 0.5` is a rename. `scale = 2` means twice as large, so the walk is half as long (right edge `+0.50 / 2 = +0.25`, UV 0.75). `readUv = p / scale + 0.5`. Teaching write `uv = (0.80, 0.70)` has `p = (0.30, 0.20)`, reads `(0.65, 0.60)`, stores orange. `C` still copies `C`. × 2 unused. Not complete.
 
-9.10 generated-ahead contract: write stays. Horizontal proof `uv.x = 0.80` reads `0.70`. `dir = p / length(p)` doubles the leftover walk to length 1 so the walk does not grow with distance from `C`. `disp = dir × dispLen`. `readUv = uv − disp` asks toward `C`. Default `dispLen = 0.10`. Teaching write `p = (0.30, −0.40)` reads `(0.74, 0.18)` and stores orange. The bump is inner colors sitting farther out on a flat square. Skip the divide at `C`. Not complete.
+9.10 generated-ahead contract: a vertical side tilts because its two ends sit on two rays. `H = (0.75, 0.50)` walks to `(0.85, 0.50)`; `Q = (0.75, 0.25)` splits the same walk on the 45° ray. They no longer share an x. Four corners → trapezoid leaning toward `C`. Shader inward ask is the inverse. `dir = p / length(p)` so H and Q walk the same length. Default `dispLen = 0.10`. Not complete.
 
 ## Unresolved checkpoint — Lesson 9.9
 

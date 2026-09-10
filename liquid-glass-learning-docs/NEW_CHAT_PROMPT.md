@@ -380,7 +380,7 @@ dir = p / length(p)
 → sampled = background.eval(readUv × resolution)
 ```
 
-Write stays. Horizontal proof: `uv.x = 0.80` reads `0.70`. Divide doubles the leftover 3-4-5 to length 1 so the walk does not grow with distance from `C`. Subtract asks toward `C`. The bump is inner colors sitting farther out on a flat square, not 3D geometry. Default `dispLen = 0.10`. Teaching write `p = (0.30, −0.40)` reads `(0.74, 0.18)` and stores orange. Skip the divide at `C`. Refraction falloff is Lesson 9.11. Not complete. Rewritten after the same unexplained-number failure as 9.9.
+A vertical side tilts because its two ends sit on two rays. `H = (0.75, 0.50)` walks to `(0.85, 0.50)`; `Q = (0.75, 0.25)` splits the same walk on the 45° ray. They no longer share an x. Four corners → trapezoid leaning toward `C`. Shader inward ask is the inverse. `dir = p / length(p)` so H and Q walk the same length. Default `dispLen = 0.10`. Not complete. Second rewrite after the tilted squares were skimmed.
 
 Current files:
 
