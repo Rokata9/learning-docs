@@ -11,12 +11,12 @@ Live progress, current files, and the checkpoint/frontier contracts live in `CUR
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **93 of 216**, through **Lesson 9.7**.
-- Completed chapters: **1–8**. Chapter 9: **7 of 14**.
-- Unresolved checkpoint: **Lesson 9.8 — Translate sample coordinates**.
+- Learner-confirmed complete: **94 of 216**, through **Lesson 9.8**.
+- Completed chapters: **1–8**. Chapter 9: **8 of 14**.
+- Unresolved checkpoint: **Lesson 9.9 — Scale around the center**.
 - Generated frontier: **Lesson 9.10 — Build a displacement field** (generated ahead, not complete).
 - Next planned after the frontier: **Lesson 9.11 — Refraction as displaced sampling**.
-- Lessons 9.9 and 9.10 are generated ahead of checkpoint 9.8 and are not complete.
+- Lesson 9.10 is generated ahead of checkpoint 9.9 and is not complete.
 
 ## 2. How this file relates to the rule sources
 
@@ -434,26 +434,29 @@ Chapters **1–7** are complete. Do not reopen blur, tint, saturation, inset-str
      teaching left-only p = (−0.10, 0); sdA = −0.15; sdB = +0.05
 9.7  uniform shader background; sampled = background.eval(fragCoord)
      left half stores sampled; teaching uv.x = 0.15 is navy
+9.8  readCoord = fragCoord − (offsetU × width, 0); default offsetU = 0.10
+     teaching write uv.x = 0.15 reads 0.05 and stores orange
+     eval does not wrap a negative read x; stripe fract still returns a color
 ```
 
 **Unresolved checkpoint, generated, not complete**
 
 ```text
-9.8  readCoord = fragCoord − (offsetU × width, 0); default offsetU = 0.10
-     teaching write uv.x = 0.15 reads 0.05 and stores orange
+9.9  write stays; p = uv − 0.5 is a rename; scale 2 = half the walk
+     right edge +0.50 / 2 = +0.25 → UV 0.75
+     teaching write uv = (0.80, 0.70) reads (0.65, 0.60) and stores orange
 ```
 
-**Generated ahead of checkpoint 9.8, not complete**
+**Generated ahead of checkpoint 9.9, not complete**
 
 ```text
-9.9  p = uv − 0.5; readUv = p / scale + 0.5; default scale = 2.00
-     teaching write uv = (0.80, 0.70) reads (0.65, 0.60) and stores orange
-9.10 dir = p / length(p); disp = dir × dispLen; readUv = uv − disp
+9.10 write stays; horizontal 0.80 reads 0.70; dir = p / length(p) is the leftover doubled to length 1
+     disp = dir × dispLen; readUv = uv − disp; bump is inner colors farther out, not 3D
      default dispLen = 0.10; teaching p = (0.30, −0.40) reads (0.74, 0.18)
 ```
 
 **Policy**
 
-- Count only explicit learner confirmation. Generating 9.9 and 9.10 did not complete 9.8.
+- Count only explicit learner confirmation. Generating 9.10 did not complete 9.9.
 - Current HTML/Kotlin paths live in `CURRENT_STATE.md`. Explorer names for older lessons live in those lesson files and `ChapterNNScreen.kt`.
 - 5.8/5.9 stay consolidated: 5.8 is the teaching page; 5.9 is the archive redirect.

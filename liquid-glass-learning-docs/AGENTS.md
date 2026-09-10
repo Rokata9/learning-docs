@@ -967,3 +967,54 @@ sdA = length(p) − radiusA
 
 - Open the live formula box at the teaching pixel. Can the learner read `sdA = length(p) − radiusA = …` without reconstructing the operations from memory?
 - Does every stepper rule, hidden exercise answer, and prediction verdict keep the named operations in the same sentence as the numbers?
+
+### Eval does not wrap the read pair — Lesson 9.8 clarification
+
+Recorded 2026-09-10 after the learner asked whether `readCoord.x = 20 − 0.10 × 400 = −20` wraps to 380 because the translate shader has no `fract`.
+
+1. **`eval` passes the pair as written.** It does not `fract`, `mod`, clamp, or remap a pixel into the draw rectangle. A negative read x stays that negative number.
+2. **Name which program still produces a color.** A color appears at an out-of-range pair only if the *input* program is defined there. For the stripe input that definition is `fract(uv.x × 5.0)` inside the bound shader, which is Lesson 8.10’s leftover wrap (`fract(−0.25) = 0.75`), not a pixel wrap of −20 to 380.
+3. **State this in the same lesson, not only in What’s next.** The first lesson that asks `eval` at a transformed coordinate must show one left-edge write whose read x is negative, with the named input formula still visible.
+4. **Do not let a periodic input hide a later tile mode.** A bitmap or `RenderEffect` layer would not keep striping past the edge unless its tile mode was Repeat. That difference is Lesson 9.12. A same-color match between −20 and 380 is an accident of `fract(uv.x × 5)`, whose period is one orange–navy pair (0.20 of the width), not a property of `eval`.
+
+**Verification before packaging a sample-offset lesson:**
+
+- Can the learner say what pair `eval` receives at a write pixel with x below the offset in pixels?
+- Can they name the input formula that still returns a color there, and say that this is not wrapping the pixel into the rectangle?
+
+### Two rulers for a coordinate rename — Lesson 9.9 rewrite
+
+Recorded 2026-09-10 after the learner stopped at Lesson 9.9’s four-step stepper. The page treated `p = uv − 0.5`, `p / scale`, and `+ 0.5` as a pile of numbers. It never drew that 0.80 and 0.30 are two names for the same pixel, or that +0.5 is the inverse rename so `eval` can speak UV. Lesson 8.8 had said “do not add 0.5 back” because that lesson’s `if` tested `p`. This lesson’s `eval` needs UV. The contradiction was not reconciled. The write pixel looked as if it remapped to a new position.
+
+1. **Draw two rulers on the same pixels before the formula.** UV from the left: 0, 0.5 at `C`, 1 at the right. `p` from `C`: −0.5, 0, +0.5. The ticks occupy the same physical line. Subtract 0.5 is a rename of one pixel, not a slide.
+2. **Name write versus read as two pixels.** The write location still stores. It does not move to the read coordinate. Lesson 9.8 already used that split. A scale or displacement lesson that drops it makes `/ scale` look like Canvas.scale.
+3. **Show the inverse add as lining up one tick.** After `readP.x = 0.15`, a dashed line must connect that `p` tick to UV 0.65. That is why +0.5 exists. `eval` does not speak `p`. Passing 0.15 as UV would read a left-edge pixel. Draw that counterexample on the same rulers.
+4. **Reconcile 8.8 in the same section.** 8.8’s stripe tested `p`, so it stayed in `p`-space. This lesson converts back because the next consumer is `eval`, which wants a top-left pixel pair (`readUv × resolution`).
+5. **A stepper that dumps subtract, divide, and add into one caption is a failed stepper.** Each of those three operations is its own step with a new drawn object: the second ruler, the shortened arrow, then the alignment dashed line. Identity-then-field bookends do not replace those. If the three operations are already drawn as stacked labelled figures, omit the stepper.
+6. **Do not open with a formula of unexplained numbers.** 0.80, 0.30, 0.15, 0.65 must appear first as ticks on the two rulers. Provenance: 0.80 is 0.30 right of `C`; half of that walk is 0.15; 0.15 + 0.5 is the UV of that neighbor.
+7. **Divide is “walk a shorter segment,” not a magic `/ 2`.** Before `p / scale`, state the visible goal: which input region should fill the square. Prove it on the right-edge write: `p.x = +0.5`, scale 2, `readP.x = +0.25`, `readUv.x = 0.75`. That is the right edge of the inner half. scale 2 means twice as large, which is why the walk is half as long. The teaching pixel then uses the same shorten. Do not introduce 0.30 / 2.00 before that edge proof.
+
+**Verification before packaging a center-scale or displacement-sample lesson:**
+
+- Can the learner point at one pixel and say its UV name and its `p` name?
+- Can they say which pixel still stores, which pixel is asked, and that those are different pixels?
+- Can they point at the dashed alignment and say why +0.5 exists, including the 8.8 leftover that stayed in `p`-space?
+
+### Displacement is a chosen walk toward C, not a 3D formula — Lesson 9.10 rewrite
+
+Recorded 2026-09-10 after the learner opened Lesson 9.10 and saw the same failure as 9.9: a four-step stepper dumping `0.60`, `−0.80`, `0.06`, `−0.08`, `0.74`, `0.18`, with no picture of why the stored checker looks like a bump and no reason for the AGSL divide, multiply, or subtract.
+
+1. **Name the bump as a copy, not as geometry.** Identity versus store first. Inner colors now sit farther from `C`. The square is still flat. There is no height map in this shader. A brain reading radial expansion as a drop of water is an observation, not a 3D pipeline.
+2. **Prove the bulge on one horizontal ray before any diagonal.** Write `H` due right of `C` at `uv.x = 0.80`. Toward `C` is left. `readUv.x = 0.80 − dispLen`. At `dispLen = 0.10` that is `0.70`. The orange that lived at 0.70 now sits at 0.80. Do not open with Lesson 9.1’s 3-4-5 pixel.
+3. **Divide is “make a length-1 stick so the walk does not grow with distance from C.”** `p` is how far this pixel is, not the walk we want. Prove the doubling on the leftover 3-4-5: length `0.50` becomes length `1` when you double, and `p / 0.50` is that doubling. Then × `dispLen` puts the chosen walk on it. Using `p` itself as the arrow is Lesson 9.9’s growing offset.
+4. **Subtract is Lesson 9.8 on a ray.** Outward leftover, inward ask. Picture appears pushed out. Draw add-instead as the pinch. `eval` still wants `readUv × resolution`.
+5. **Rings expand by adding, scale multiplies.** An input ring at `0.25` is stored at `0.35` when `dispLen = 0.10`. Scale 2 would store it at `0.50`. Equal-length arrows versus growing arrows are the picture of that difference. Straight grid lines bow because each pixel’s ask has its own direction.
+6. **A stepper that dumps unit pair, scale, and subtract into numbered captions is a failed stepper.** If those operations are already stacked labelled figures (ray, doubling, copy), omit the stepper.
+7. **Do not open with a formula of unexplained numbers.** `0.60`, `−0.80`, `0.06`, `−0.08`, `0.74`, `0.18` appear only as substitutions after the ray proof and the doubling picture. Provenance: `dispLen = 0.10` is one tenth of the square, long enough that `H` leaves its navy cell.
+
+**Verification before packaging a displacement-field lesson:**
+
+- Can the learner say why the picture looks like a bump without reciting `dir × dispLen`?
+- Can they say why we divide by length (chosen walk, independent of how far this pixel is)?
+- Can they say why we subtract (ask toward `C`, picture appears pushed out)?
+- Can they contrast this field with Lesson 9.8’s slide and Lesson 9.9’s zoom?

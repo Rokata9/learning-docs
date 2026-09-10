@@ -8,17 +8,17 @@
 
 ## Authoritative progress
 
-- Learner-confirmed complete: **93 of 216 lessons**.
-- Completed through: **Lesson 9.7 — Sample an input shader**.
+- Learner-confirmed complete: **94 of 216 lessons**.
+- Completed through: **Lesson 9.8 — Translate sample coordinates**.
 - Completed chapters: **1, 2, 3, 4, 5, 6, 7, and 8**.
 - Chapter 8: **12 of 12 lessons complete**.
-- Chapter 9: **7 of 14 lessons complete**.
-- Current unresolved checkpoint: **Lesson 9.8 — Translate sample coordinates**.
+- Chapter 9: **8 of 14 lessons complete**.
+- Current unresolved checkpoint: **Lesson 9.9 — Scale around the center**.
 - Generated frontier: **Lesson 9.10 — Build a displacement field**.
 - Next planned lesson after the generated frontier: **Lesson 9.11 — Refraction as displaced sampling**.
-- Lessons 8.2 through 9.7 are learner-confirmed complete.
-- Lesson 9.8 is generated and is not learner-confirmed complete.
-- Lessons 9.9 and 9.10 are generated ahead and are not learner-confirmed complete.
+- Lessons 8.2 through 9.8 are learner-confirmed complete.
+- Lesson 9.9 is generated and is not learner-confirmed complete.
+- Lesson 9.10 is generated ahead and is not learner-confirmed complete.
 
 Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
@@ -54,11 +54,23 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 
 ## Last session compact record (2026-09-10)
 
-Generated Lessons 9.9 and 9.10 ahead of unresolved checkpoint 9.8. Count stays **93 of 216**. Unresolved checkpoint remains **Lesson 9.8**. Generated frontier is **Lesson 9.10**.
+Rewrote Lesson 9.10 after the learner named the same failure as 9.9: unexplained numbers, no reason for the AGSL divide/multiply/subtract, and no word on why the stored checker looks 3D. New page: identity versus store first; bulge proved on a horizontal ray (`0.80` reads `0.70`); divide is doubling the leftover 3-4-5 to length 1 so the walk does not grow with distance from `C`; subtract asks toward `C`; rings expand by adding, scale multiplies. Four-step stepper removed. Reusable rule recorded in `AGENTS.md` as **Displacement is a chosen walk toward C, not a 3D formula**. Count stays **94 of 216**. Unresolved checkpoint remains **Lesson 9.9**. Lesson 9.10 is still generated ahead and not complete.
+
+## Prior session compact record (2026-09-10)
+
+Rewrote Lesson 9.9 after the learner stopped at the four-step stepper. The old page dumped `p / 2 + 0.5` as unexplained numbers and looked like the write pixel remapped. New page: write stays; two rulers for the rename; divide proved on the right-edge write (`+0.50 / 2 = +0.25`, UV 0.75) because scale 2 means twice as large; `+ 0.5` is the UV name of that neighbor. Reusable rule recorded in `AGENTS.md` as **Two rulers for a coordinate rename**. Count stays **94 of 216**. Unresolved checkpoint remains **Lesson 9.9**.
+
+## Prior session compact record (2026-09-10)
+
+Learner confirmed Lesson 9.8 complete after asking whether `readCoord.x = −20` wraps to 380. It does not: `eval` passes the pair as written. The stripe input’s `fract(uv.x × 5)` still returns a color. Reusable rule recorded in `AGENTS.md` as **Eval does not wrap the read pair**. Count is **94 of 216**. Unresolved checkpoint is **Lesson 9.9**. Generated frontier remains **Lesson 9.10**.
+
+## Prior session compact record (2026-09-10)
+
+Generated Lessons 9.9 and 9.10 ahead of unresolved checkpoint 9.8. Count stayed **93 of 216**. Unresolved checkpoint was **Lesson 9.8**. Generated frontier is **Lesson 9.10**.
 
 ## Prior session compact record (2026-09-09)
 
-Learner confirmed Lesson 9.7 complete. Count is **93 of 216**. Unresolved checkpoint is **Lesson 9.8**. Generated frontier was **Lesson 9.8**.
+Learner confirmed Lesson 9.7 complete. Count was **93 of 216**. Unresolved checkpoint was **Lesson 9.8**. Generated frontier was **Lesson 9.8**.
 
 ## Prior session compact record (2026-09-08)
 
@@ -90,14 +102,14 @@ Reusable teaching pattern recorded in `AGENTS.md` as **Load-bearing section budg
 
 9.7 completed contract: `uniform shader background`, then `sampled = background.eval(fragCoord)`. Left half stores that sampled `half4`. Right half stores teaching orange. Stripe input: `fract((fragCoord.x / resolution.x) * 5.0)`; `cell < 0.5` orange else navy. Teaching `uv.x = 0.15` is navy. Kotlin binds the input with `setInputShader`.
 
-9.8 checkpoint contract: `readCoord = fragCoord − float2(offsetU * resolution.x, 0)`. `sampled = background.eval(readCoord)`. Default `offsetU = 0.10` (one stripe width). Teaching write `uv.x = 0.15` reads `uv.x = 0.05` and stores orange. The picture shifts opposite the read offset.
+9.8 completed contract: `readCoord = fragCoord − float2(offsetU * resolution.x, 0)`. `sampled = background.eval(readCoord)`. Default `offsetU = 0.10` (one stripe width). Teaching write `uv.x = 0.15` reads `uv.x = 0.05` and stores orange. The picture shifts opposite the read offset. `eval` does not wrap a negative read x. The stripe input’s `fract` still returns a color.
 
-9.9 generated-ahead contract: `p = uv − 0.5`. `readUv = p / scale + 0.5`. `sampled = background.eval(readUv * resolution)`. Default `scale = 2.00`. Teaching write `uv = (0.80, 0.70)` reads `(0.65, 0.60)` and stores orange. Inner 2 × 2 of a 4 × 4 checker fills the square. `C` still copies `C`. × 2 unused. Not complete.
+9.9 checkpoint contract: write stays. `p = uv − 0.5` is a rename. `scale = 2` means twice as large, so the walk is half as long (right edge `+0.50 / 2 = +0.25`, UV 0.75). `readUv = p / scale + 0.5`. Teaching write `uv = (0.80, 0.70)` has `p = (0.30, 0.20)`, reads `(0.65, 0.60)`, stores orange. `C` still copies `C`. × 2 unused. Not complete.
 
-9.10 generated-ahead contract: `dir = p / length(p)`. `disp = dir × dispLen`. `readUv = uv − disp`. Default `dispLen = 0.10`. Teaching write `p = (0.30, −0.40)` reads `(0.74, 0.18)` and stores orange. Skip the divide at `C`. Equal-length arrows, not scale. Not complete.
+9.10 generated-ahead contract: write stays. Horizontal proof `uv.x = 0.80` reads `0.70`. `dir = p / length(p)` doubles the leftover walk to length 1 so the walk does not grow with distance from `C`. `disp = dir × dispLen`. `readUv = uv − disp` asks toward `C`. Default `dispLen = 0.10`. Teaching write `p = (0.30, −0.40)` reads `(0.74, 0.18)` and stores orange. The bump is inner colors sitting farther out on a flat square. Skip the divide at `C`. Not complete.
 
-## Unresolved checkpoint — Lesson 9.8
+## Unresolved checkpoint — Lesson 9.9
 
-Do not mark 9.8 complete until the learner confirms.
+Do not mark 9.9 complete until the learner confirms.
 
-Course progress: 93 of 216 lessons completed.
+Course progress: 94 of 216 lessons completed.

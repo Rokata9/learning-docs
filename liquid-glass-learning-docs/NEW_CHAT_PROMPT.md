@@ -154,11 +154,11 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 **Last aligned:** 2026-09-10 with `CURRENT_STATE.md` (course version 9.10.0).
 
 ```text
-completed: 93 of 216, through Lesson 9.7
-current unresolved checkpoint: Lesson 9.8 — Translate sample coordinates
+completed: 94 of 216, through Lesson 9.8
+current unresolved checkpoint: Lesson 9.9 — Scale around the center
 generated frontier: Lesson 9.10 — Build a displacement field
 next planned lesson after the frontier: Lesson 9.11 — Refraction as displaced sampling
-Lessons 9.9 and 9.10 are generated ahead and not complete
+Lesson 9.10 is generated ahead and not complete
 ```
 
 Chapter 7 is complete. Frost constants stay fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
@@ -351,7 +351,7 @@ uniform shader background
 
 Stripe input uses `fract(uv.x * 5.0)`. Teaching `uv.x = 0.15` is navy. Kotlin `setInputShader`. Offset is Lesson 9.8.
 
-**9.8 checkpoint contract:**
+**9.8 completed contract:**
 
 ```text
 readCoord = fragCoord − float2(offsetU * resolution.x, 0)
@@ -359,9 +359,9 @@ readCoord = fragCoord − float2(offsetU * resolution.x, 0)
 → return sampled
 ```
 
-Default `offsetU = 0.10`. Teaching write `uv.x = 0.15` reads `0.05` and stores orange. Picture shifts opposite the read offset. Scale around the center is Lesson 9.9.
+Default `offsetU = 0.10`. Teaching write `uv.x = 0.15` reads `0.05` and stores orange. Picture shifts opposite the read offset. `eval` does not wrap a negative read x. The stripe input’s `fract` still returns a color. Scale around the center is Lesson 9.9.
 
-**9.9 generated-ahead contract:**
+**9.9 checkpoint contract:**
 
 ```text
 p = uv − 0.5
@@ -369,7 +369,7 @@ p = uv − 0.5
 → sampled = background.eval(readUv × resolution)
 ```
 
-Default `scale = 2.00`. Teaching write `uv = (0.80, 0.70)` reads `(0.65, 0.60)` and stores orange. Inner 2 × 2 of a 4 × 4 checker fills the square. `C` still copies `C`. × 2 unused. Not complete.
+Default `scale = 2.00` means twice as large, so the walk from `C` is half as long. Right-edge proof: `+0.50 / 2 = +0.25`, UV 0.75. Teaching write `uv = (0.80, 0.70)` has `p = (0.30, 0.20)`, reads `(0.65, 0.60)`, and stores orange. Write stays. `+ 0.5` is the UV name of the neighbor. `C` still copies `C`. × 2 unused. Not complete.
 
 **9.10 generated-ahead contract:**
 
@@ -380,7 +380,7 @@ dir = p / length(p)
 → sampled = background.eval(readUv × resolution)
 ```
 
-Default `dispLen = 0.10`. Teaching write `p = (0.30, −0.40)` reads `(0.74, 0.18)` and stores orange. Skip the divide at `C`. Equal-length arrows, not scale. Refraction falloff is Lesson 9.11. Not complete.
+Write stays. Horizontal proof: `uv.x = 0.80` reads `0.70`. Divide doubles the leftover 3-4-5 to length 1 so the walk does not grow with distance from `C`. Subtract asks toward `C`. The bump is inner colors sitting farther out on a flat square, not 3D geometry. Default `dispLen = 0.10`. Teaching write `p = (0.30, −0.40)` reads `(0.74, 0.18)` and stores orange. Skip the divide at `C`. Refraction falloff is Lesson 9.11. Not complete. Rewritten after the same unexplained-number failure as 9.9.
 
 Current files:
 

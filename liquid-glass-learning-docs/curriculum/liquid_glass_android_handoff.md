@@ -19,17 +19,17 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 93
-completed_through: "Lesson 9.7 — Sample an input shader"
+learner_confirmed_complete: 94
+completed_through: "Lesson 9.8 — Translate sample coordinates"
 completed_chapters: [1, 2, 3, 4, 5, 6, 7, 8]
 chapter_8_complete: "12 of 12"
-chapter_9_complete: "7 of 14"
-next_unresolved_checkpoint: "Lesson 9.8 — Translate sample coordinates"
+chapter_9_complete: "8 of 14"
+next_unresolved_checkpoint: "Lesson 9.9 — Scale around the center"
 generated_frontier: "Lesson 9.10 — Build a displacement field"
 next_planned_after_frontier: "Lesson 9.11 — Refraction as displaced sampling"
 ```
 
-Lessons 8.2 through 9.7 are learner-confirmed complete. Lesson 9.8 is generated and is not complete. Lessons 9.9 and 9.10 are generated ahead and are not complete.
+Lessons 8.2 through 9.8 are learner-confirmed complete. Lesson 9.9 is generated and is not complete. Lesson 9.10 is generated ahead and is not complete.
 
 Chapter 7 frost stays fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
@@ -148,7 +148,7 @@ uniform shader background
 
 The sampled color is the half4 that `eval` returns: a copy of the input shader’s color at the read coordinate. Stripe input: `fract(uv.x * 5.0)`, `cell < 0.5` orange else navy. Teaching `uv.x = 0.15` is navy. Kotlin `setInputShader("background", stripeShader)`. Offset is Lesson 9.8. Geometry mask unused.
 
-## Unresolved checkpoint — Lesson 9.8
+## Completed Lesson 9.8
 
 ```text
 readCoord = fragCoord − float2(offsetU * resolution.x, 0)
@@ -156,9 +156,9 @@ readCoord = fragCoord − float2(offsetU * resolution.x, 0)
 → return sampled
 ```
 
-Default `offsetU = 0.10` is one stripe width as a fraction of the rectangle width. Teaching write `uv.x = 0.15` reads `0.05` and stores orange. The picture shifts opposite the read offset. Scale around the center is Lesson 9.9. A displacement field is Lesson 9.10. Edge safety is Lesson 9.12.
+Default `offsetU = 0.10` is one stripe width as a fraction of the rectangle width. Teaching write `uv.x = 0.15` reads `0.05` and stores orange. The picture shifts opposite the read offset. `eval` does not wrap a negative read x. The stripe input’s `fract` still returns a color. Scale around the center is Lesson 9.9. A displacement field is Lesson 9.10. Edge safety is Lesson 9.12.
 
-## Generated ahead — Lesson 9.9
+## Unresolved checkpoint — Lesson 9.9
 
 ```text
 p = uv − 0.5
@@ -166,7 +166,7 @@ p = uv − 0.5
 → sampled = background.eval(readUv × resolution)
 ```
 
-Default `scale = 2.00`. Teaching write `uv = (0.80, 0.70)` has `p = (0.30, 0.20)`, reads `(0.65, 0.60)`, and stores orange. Inner 2 × 2 of a 4 × 4 checker fills the square. `C` still copies `C`. × 2 unused. Not complete.
+Default `scale = 2.00` means twice as large, so the walk from `C` is half as long. Right-edge proof: `p.x = +0.50`, `+0.50 / 2 = +0.25`, UV 0.75. Teaching write `uv = (0.80, 0.70)` has `p = (0.30, 0.20)`, `readP = (0.15, 0.10)`, reads `(0.65, 0.60)`, and stores orange. Write pixel stays put. `+ 0.5` is the UV name of the neighbor. `C` still copies `C`. × 2 unused. Not complete.
 
 ## Generated ahead — Lesson 9.10
 
@@ -177,7 +177,7 @@ dir = p / length(p)
 → sampled = background.eval(readUv × resolution)
 ```
 
-Default `dispLen = 0.10`. Teaching write reuses Lesson 9.1: `p = (0.30, −0.40)`, `dir = (0.60, −0.80)`, `disp = (0.06, −0.08)`, `readUv = (0.74, 0.18)`, store orange. Skip the divide at `C`. Equal-length arrows, not scale. Refraction falloff is Lesson 9.11. Not complete.
+The write pixel stays. The bump is a copied neighbor, not 3D geometry. Horizontal proof: `uv.x = 0.80` reads `0.70` at `dispLen = 0.10`. Divide doubles the leftover 3-4-5 (`length 0.50`) into a length-1 stick so the walk does not grow with distance from `C`. Subtract asks toward `C`. Rings expand by adding `dispLen`; scale multiplies. Teaching write reuses Lesson 9.1: `p = (0.30, −0.40)`, `dir = (0.60, −0.80)`, `disp = (0.06, −0.08)`, `readUv = (0.74, 0.18)`, store orange. Skip the divide at `C`. Refraction falloff is Lesson 9.11. Not complete.
 
 ## Future conversation
 
@@ -185,4 +185,4 @@ Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions.
 
 Standing delivery: no ZIP archives; new `@Preview` stacks light then dark. Details in `USER_PREFERENCES.md`.
 
-Course progress: 93 of 216 lessons completed.
+Course progress: 94 of 216 lessons completed.
