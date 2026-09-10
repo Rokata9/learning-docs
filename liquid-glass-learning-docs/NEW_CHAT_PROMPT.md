@@ -151,13 +151,14 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-09-09 with `CURRENT_STATE.md` (course version 9.8.0).
+**Last aligned:** 2026-09-10 with `CURRENT_STATE.md` (course version 9.10.0).
 
 ```text
 completed: 93 of 216, through Lesson 9.7
 current unresolved checkpoint: Lesson 9.8 — Translate sample coordinates
-generated frontier: Lesson 9.8 — Translate sample coordinates
-next planned lesson after the frontier: Lesson 9.9 — Scale around the center
+generated frontier: Lesson 9.10 — Build a displacement field
+next planned lesson after the frontier: Lesson 9.11 — Refraction as displaced sampling
+Lessons 9.9 and 9.10 are generated ahead and not complete
 ```
 
 Chapter 7 is complete. Frost constants stay fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
@@ -360,6 +361,27 @@ readCoord = fragCoord − float2(offsetU * resolution.x, 0)
 
 Default `offsetU = 0.10`. Teaching write `uv.x = 0.15` reads `0.05` and stores orange. Picture shifts opposite the read offset. Scale around the center is Lesson 9.9.
 
+**9.9 generated-ahead contract:**
+
+```text
+p = uv − 0.5
+→ readUv = p / scale + 0.5
+→ sampled = background.eval(readUv × resolution)
+```
+
+Default `scale = 2.00`. Teaching write `uv = (0.80, 0.70)` reads `(0.65, 0.60)` and stores orange. Inner 2 × 2 of a 4 × 4 checker fills the square. `C` still copies `C`. × 2 unused. Not complete.
+
+**9.10 generated-ahead contract:**
+
+```text
+dir = p / length(p)
+→ disp = dir × dispLen
+→ readUv = uv − disp
+→ sampled = background.eval(readUv × resolution)
+```
+
+Default `dispLen = 0.10`. Teaching write `p = (0.30, −0.40)` reads `(0.74, 0.18)` and stores orange. Skip the divide at `C`. Equal-length arrows, not scale. Refraction falloff is Lesson 9.11. Not complete.
+
 Current files:
 
 ```text
@@ -371,6 +393,8 @@ course/chapters/chapter-09/lesson-09-05-capsule-distance-field.html
 course/chapters/chapter-09/lesson-09-06-combine-shapes.html
 course/chapters/chapter-09/lesson-09-07-sample-an-input-shader.html
 course/chapters/chapter-09/lesson-09-08-translate-sample-coordinates.html
+course/chapters/chapter-09/lesson-09-09-scale-around-the-center.html
+course/chapters/chapter-09/lesson-09-10-build-a-displacement-field.html
 course/chapters/chapter-09/lesson-distance-fields-image-sampling-and-refraction.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/DistanceBetweenPointsExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/CircleSdfExplorer.kt
@@ -380,5 +404,7 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/CapsuleSdf
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/CombineShapesExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/SampleInputShaderExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/TranslateSampleExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/ScaleAroundCenterExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/DisplacementFieldExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/Chapter09Screen.kt
 ```

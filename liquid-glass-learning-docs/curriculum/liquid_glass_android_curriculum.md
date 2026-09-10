@@ -1,7 +1,7 @@
 # Liquid Glass on Android — Beginner-to-Expert Curriculum
 
-**Version:** 9.8.0  
-**Updated:** 2026-09-09  
+**Version:** 9.10.0  
+**Updated:** 2026-09-10  
 **Primary platform:** Kotlin + Jetpack Compose  
 **Minimum learning target:** Android 13 / API 33  
 **Physical test device:** Pixel 8 Pro  
@@ -14,8 +14,9 @@ Live progress, current files, and the checkpoint/frontier contracts live in `CUR
 - Learner-confirmed complete: **93 of 216**, through **Lesson 9.7**.
 - Completed chapters: **1–8**. Chapter 9: **7 of 14**.
 - Unresolved checkpoint: **Lesson 9.8 — Translate sample coordinates**.
-- Generated frontier: **Lesson 9.8 — Translate sample coordinates** (generated, not complete).
-- Next planned after the frontier: **Lesson 9.9 — Scale around the center**.
+- Generated frontier: **Lesson 9.10 — Build a displacement field** (generated ahead, not complete).
+- Next planned after the frontier: **Lesson 9.11 — Refraction as displaced sampling**.
+- Lessons 9.9 and 9.10 are generated ahead of checkpoint 9.8 and are not complete.
 
 ## 2. How this file relates to the rule sources
 
@@ -442,8 +443,17 @@ Chapters **1–7** are complete. Do not reopen blur, tint, saturation, inset-str
      teaching write uv.x = 0.15 reads 0.05 and stores orange
 ```
 
+**Generated ahead of checkpoint 9.8, not complete**
+
+```text
+9.9  p = uv − 0.5; readUv = p / scale + 0.5; default scale = 2.00
+     teaching write uv = (0.80, 0.70) reads (0.65, 0.60) and stores orange
+9.10 dir = p / length(p); disp = dir × dispLen; readUv = uv − disp
+     default dispLen = 0.10; teaching p = (0.30, −0.40) reads (0.74, 0.18)
+```
+
 **Policy**
 
-- Count only explicit learner confirmation. Generating 9.8 did not complete 9.7.
+- Count only explicit learner confirmation. Generating 9.9 and 9.10 did not complete 9.8.
 - Current HTML/Kotlin paths live in `CURRENT_STATE.md`. Explorer names for older lessons live in those lesson files and `ChapterNNScreen.kt`.
 - 5.8/5.9 stay consolidated: 5.8 is the teaching page; 5.9 is the archive redirect.

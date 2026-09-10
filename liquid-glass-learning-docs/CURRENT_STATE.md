@@ -1,7 +1,7 @@
 # Liquid Glass Android course — current state
 
-**Updated:** 2026-09-09  
-**Course version:** 9.8.0  
+**Updated:** 2026-09-10  
+**Course version:** 9.10.0  
 **Platform:** Kotlin + Jetpack Compose  
 **Test device:** Pixel 8 Pro  
 **Total curriculum size:** 216 lessons
@@ -14,10 +14,11 @@
 - Chapter 8: **12 of 12 lessons complete**.
 - Chapter 9: **7 of 14 lessons complete**.
 - Current unresolved checkpoint: **Lesson 9.8 — Translate sample coordinates**.
-- Generated frontier: **Lesson 9.8 — Translate sample coordinates**.
-- Next planned lesson after the generated frontier: **Lesson 9.9 — Scale around the center**.
+- Generated frontier: **Lesson 9.10 — Build a displacement field**.
+- Next planned lesson after the generated frontier: **Lesson 9.11 — Refraction as displaced sampling**.
 - Lessons 8.2 through 9.7 are learner-confirmed complete.
 - Lesson 9.8 is generated and is not learner-confirmed complete.
+- Lessons 9.9 and 9.10 are generated ahead and are not learner-confirmed complete.
 
 Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
@@ -34,6 +35,8 @@ course/chapters/chapter-09/lesson-09-05-capsule-distance-field.html
 course/chapters/chapter-09/lesson-09-06-combine-shapes.html
 course/chapters/chapter-09/lesson-09-07-sample-an-input-shader.html
 course/chapters/chapter-09/lesson-09-08-translate-sample-coordinates.html
+course/chapters/chapter-09/lesson-09-09-scale-around-the-center.html
+course/chapters/chapter-09/lesson-09-10-build-a-displacement-field.html
 course/chapters/chapter-09/lesson-distance-fields-image-sampling-and-refraction.html
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/DistanceBetweenPointsExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/CircleSdfExplorer.kt
@@ -43,13 +46,19 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/CapsuleSdf
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/CombineShapesExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/SampleInputShaderExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/TranslateSampleExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/ScaleAroundCenterExplorer.kt
+LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/DisplacementFieldExplorer.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/Chapter09Screen.kt
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 ```
 
-## Last session compact record (2026-09-09)
+## Last session compact record (2026-09-10)
 
-Learner confirmed Lesson 9.7 complete. Count is **93 of 216**. Unresolved checkpoint is **Lesson 9.8**. Generated frontier remains **Lesson 9.8**.
+Generated Lessons 9.9 and 9.10 ahead of unresolved checkpoint 9.8. Count stays **93 of 216**. Unresolved checkpoint remains **Lesson 9.8**. Generated frontier is **Lesson 9.10**.
+
+## Prior session compact record (2026-09-09)
+
+Learner confirmed Lesson 9.7 complete. Count is **93 of 216**. Unresolved checkpoint is **Lesson 9.8**. Generated frontier was **Lesson 9.8**.
 
 ## Prior session compact record (2026-09-08)
 
@@ -82,6 +91,10 @@ Reusable teaching pattern recorded in `AGENTS.md` as **Load-bearing section budg
 9.7 completed contract: `uniform shader background`, then `sampled = background.eval(fragCoord)`. Left half stores that sampled `half4`. Right half stores teaching orange. Stripe input: `fract((fragCoord.x / resolution.x) * 5.0)`; `cell < 0.5` orange else navy. Teaching `uv.x = 0.15` is navy. Kotlin binds the input with `setInputShader`.
 
 9.8 checkpoint contract: `readCoord = fragCoord − float2(offsetU * resolution.x, 0)`. `sampled = background.eval(readCoord)`. Default `offsetU = 0.10` (one stripe width). Teaching write `uv.x = 0.15` reads `uv.x = 0.05` and stores orange. The picture shifts opposite the read offset.
+
+9.9 generated-ahead contract: `p = uv − 0.5`. `readUv = p / scale + 0.5`. `sampled = background.eval(readUv * resolution)`. Default `scale = 2.00`. Teaching write `uv = (0.80, 0.70)` reads `(0.65, 0.60)` and stores orange. Inner 2 × 2 of a 4 × 4 checker fills the square. `C` still copies `C`. × 2 unused. Not complete.
+
+9.10 generated-ahead contract: `dir = p / length(p)`. `disp = dir × dispLen`. `readUv = uv − disp`. Default `dispLen = 0.10`. Teaching write `p = (0.30, −0.40)` reads `(0.74, 0.18)` and stores orange. Skip the divide at `C`. Equal-length arrows, not scale. Not complete.
 
 ## Unresolved checkpoint — Lesson 9.8
 

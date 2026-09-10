@@ -1,7 +1,7 @@
 # Liquid Glass Android course — implementation handoff
 
-**Updated:** 2026-09-09  
-**Course version:** 9.8.0
+**Updated:** 2026-09-10  
+**Course version:** 9.10.0
 
 ## Read order
 
@@ -25,11 +25,11 @@ completed_chapters: [1, 2, 3, 4, 5, 6, 7, 8]
 chapter_8_complete: "12 of 12"
 chapter_9_complete: "7 of 14"
 next_unresolved_checkpoint: "Lesson 9.8 — Translate sample coordinates"
-generated_frontier: "Lesson 9.8 — Translate sample coordinates"
-next_planned_after_frontier: "Lesson 9.9 — Scale around the center"
+generated_frontier: "Lesson 9.10 — Build a displacement field"
+next_planned_after_frontier: "Lesson 9.11 — Refraction as displaced sampling"
 ```
 
-Lessons 8.2 through 9.7 are learner-confirmed complete. Lesson 9.8 is generated and is not complete.
+Lessons 8.2 through 9.7 are learner-confirmed complete. Lesson 9.8 is generated and is not complete. Lessons 9.9 and 9.10 are generated ahead and are not complete.
 
 Chapter 7 frost stays fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
@@ -156,7 +156,28 @@ readCoord = fragCoord − float2(offsetU * resolution.x, 0)
 → return sampled
 ```
 
-Default `offsetU = 0.10` is one stripe width as a fraction of the rectangle width. Teaching write `uv.x = 0.15` reads `0.05` and stores orange. The picture shifts opposite the read offset. Scale around the center is Lesson 9.9. Edge safety is Lesson 9.12.
+Default `offsetU = 0.10` is one stripe width as a fraction of the rectangle width. Teaching write `uv.x = 0.15` reads `0.05` and stores orange. The picture shifts opposite the read offset. Scale around the center is Lesson 9.9. A displacement field is Lesson 9.10. Edge safety is Lesson 9.12.
+
+## Generated ahead — Lesson 9.9
+
+```text
+p = uv − 0.5
+→ readUv = p / scale + 0.5
+→ sampled = background.eval(readUv × resolution)
+```
+
+Default `scale = 2.00`. Teaching write `uv = (0.80, 0.70)` has `p = (0.30, 0.20)`, reads `(0.65, 0.60)`, and stores orange. Inner 2 × 2 of a 4 × 4 checker fills the square. `C` still copies `C`. × 2 unused. Not complete.
+
+## Generated ahead — Lesson 9.10
+
+```text
+dir = p / length(p)
+→ disp = dir × dispLen
+→ readUv = uv − disp
+→ sampled = background.eval(readUv × resolution)
+```
+
+Default `dispLen = 0.10`. Teaching write reuses Lesson 9.1: `p = (0.30, −0.40)`, `dir = (0.60, −0.80)`, `disp = (0.06, −0.08)`, `readUv = (0.74, 0.18)`, store orange. Skip the divide at `C`. Equal-length arrows, not scale. Refraction falloff is Lesson 9.11. Not complete.
 
 ## Future conversation
 

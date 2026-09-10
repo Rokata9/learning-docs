@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 9.10 — Build a displacement field</title>
+<style>
+:root{color-scheme:light;--ink:#172033;--muted:#596579;--line:#d8e0ea;--paper:#fff;--soft:#f5f7fb;--panel:#fbfcfe;--control:#fff;--green:#059669;--green-soft:#ecfdf5;--indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;--blue:#1e40af;--blue-soft:#dbeafe;--red:#dc2626;--red-soft:#fee2e2;--orange:#e07a2e;--navy:#1a4066;--pink:#be185d;--body-start:#f8fafc;--body-end:#edf2f7;--shadow:0 18px 52px rgba(30,41,59,.09);--code:#111827;--code-ink:#e5e7eb}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--body-start),var(--body-end));font:16px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}button,input,textarea{font:inherit}button{cursor:pointer}code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}code{background:var(--indigo-soft);padding:.12em .36em;border-radius:6px;white-space:nowrap}.code-block>code,.code-block code{display:block;background:transparent;color:inherit;padding:0;border-radius:0;white-space:pre-wrap}.page{width:min(2260px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.topbar{display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:22px}.crumbs{color:var(--muted)}.chips{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:850}.chip.progress{color:var(--green);background:var(--green-soft)}.chip.pending{color:var(--amber);background:var(--amber-soft)}.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(560px,.95fr);gap:28px;padding:42px}.eyebrow,.section-no{color:var(--indigo);font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase}h1{margin:.35rem 0 1rem;font-size:clamp(42px,4vw,70px);line-height:1.04;letter-spacing:-.045em}h2{margin:0 0 .7rem;font-size:31px;line-height:1.18}h3{margin:0 0 .5rem;font-size:21px;line-height:1.25}p{max-width:110ch}.lead{font-size:19px;color:var(--muted)}.plain-rule{font-size:clamp(20px,1.8vw,28px);font-weight:950;line-height:1.3;padding:20px;border:2px solid var(--indigo);border-radius:16px;background:var(--indigo-soft)}.plain-rule code{white-space:normal}.section{margin-top:24px;padding:32px}.section-head{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:22px}.section-head p{margin:0;color:var(--muted)}.card{padding:20px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}.card.green{background:var(--green-soft)}.card.blue{background:var(--blue-soft)}.card.amber{background:var(--amber-soft)}.card.indigo{background:var(--indigo-soft)}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.note{margin-top:18px;padding:16px 18px;border-radius:14px;border-left:5px solid var(--blue);background:var(--blue-soft)}.formula{padding:14px 16px;border-radius:13px;background:var(--indigo-soft);border:1px solid color-mix(in srgb,var(--indigo) 45%,var(--line));font:800 15px/1.64 "SFMono-Regular",Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.btn{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:850;border:1px solid var(--line);background:var(--control);color:var(--ink);text-decoration:none;display:inline-flex;align-items:center}.btn:hover,.btn:focus-visible{border-color:var(--blue);outline:none}.btn.primary{border-color:var(--blue);background:var(--blue);color:#fff}.btn.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.hero-art{min-height:320px;border:1px solid var(--line);border-radius:18px;background:#f8fafc;padding:0;overflow:hidden}.hero-art svg,.fig-svg{width:100%;height:auto;display:block}.lab-grid{display:grid;grid-template-columns:minmax(520px,1fr) minmax(420px,.85fr);gap:18px}.canvas-card{padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--panel);min-width:0}.canvas-card canvas{display:block;height:auto;border-radius:11px;border:1px solid var(--line);background:#f8fafc}#labCanvas{background:#0b1220;cursor:crosshair;width:min(400px,100%)}#stepCanvas{width:100%}.canvas-title{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:9px}.canvas-title span,.origin{color:var(--muted);font-size:13px;font-weight:700}.metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:14px}.metric{padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--control)}.metric strong{display:block;color:var(--indigo);margin-bottom:4px}.metric .origin{display:block;margin-bottom:6px}.metric .value{display:block;font-weight:850}.swatch{display:inline-block;width:18px;height:18px;border-radius:4px;border:1px solid var(--line);vertical-align:-3px;margin-right:6px}.lesson-grid{display:grid;grid-template-columns:minmax(860px,1.25fr) minmax(430px,.75fr);gap:18px;align-items:start}.stepper{position:sticky;top:18px;border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden}.step-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}.step-body{padding:18px}.step-title{font-size:22px;font-weight:950}.step-caption{min-height:150px}.step-buttons{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}.step-dot{width:40px;height:40px;padding:0;border-radius:10px;border:1px solid var(--line);background:var(--control);color:var(--ink);font-weight:900}.step-dot.selected{background:var(--indigo);border-color:var(--indigo);color:#fff}.io{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}.io>div{padding:11px;border:1px solid var(--line);border-radius:11px;background:var(--control)}.io strong,.io span{display:block}.code-grid{display:grid;grid-template-columns:minmax(650px,1fr) minmax(500px,.8fr);gap:18px}.code-block{background:var(--code);color:var(--code-ink);border-radius:14px;padding:16px;white-space:pre-wrap;overflow:auto;font:14px/1.62 "SFMono-Regular",Consolas,monospace}.prediction{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.choice{appearance:none;min-height:112px;padding:16px;border:2px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);text-align:left;font-weight:800;line-height:1.5}.choice:hover,.choice:focus-visible{border-color:var(--blue);outline:none}.choice.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.challenge{display:grid;grid-template-columns:minmax(650px,1fr) minmax(500px,.75fr);gap:18px}.editor{width:100%;min-height:280px;resize:vertical;background:var(--code);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace;white-space:pre;overflow:auto}.result{min-height:55px;margin-top:12px;padding:12px;border-radius:11px;background:var(--soft)}details{margin:10px 0;border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:13px 15px}summary{cursor:pointer;font-weight:900}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.check{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}.record{width:100%;min-height:240px;margin-top:12px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);font:14px/1.6 "SFMono-Regular",Consolas,monospace}.footer{margin-top:24px;padding:18px 24px;display:flex;justify-content:space-between;gap:18px;align-items:center}.formulas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:12px}label.range-row{display:grid;grid-template-columns:210px minmax(220px,1fr) 80px;gap:12px;align-items:center;font-weight:850}input[type=range]{width:100%}.answer-fig{width:min(560px,100%);height:auto;display:block;margin:10px 0}
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-distance-fields-image-sampling-and-refraction.html">Chapter 9</a> · Lesson 9.10 · generated ahead</div>
+    <div class="chips"><span class="chip progress">93 of 216 complete</span><span class="chip pending">Generated ahead · checkpoint is 9.8</span></div>
+  </div>
+
+  <header class="hero panel">
+    <div>
+      <div class="eyebrow">Chapter 9 · A two-number arrow at each pixel</div>
+      <h1>Build a displacement field</h1>
+      <p class="lead"><strong>Question:</strong> Lesson 9.7’s <code>eval</code> copies the input color at a read coordinate. Lesson 8.8’s <code>p</code> points from the visual center <code>C</code> to this pixel. Lesson 9.1’s <code>length(p)</code> is how far that is. How do you build a two-number arrow at this pixel that says which neighbor to read, with the same arrow length at every pixel except <code>C</code>?</p>
+      <div class="plain-rule">A <strong>displacement</strong> is a <code>float2</code> named <code>disp</code>: how far to move the read in UV. A <strong>unit pair</strong> is <code>p</code> divided by its length, so the straight-line length becomes 1. Then <code>disp = dir × dispLen</code>. Subtract that arrow from UV before <code>eval</code>. <code>dispLen</code> is a UV length, not Lesson 7.10’s grain slider.</div>
+      <p style="margin-top:16px;font-weight:800">Canonical wording: <a href="../../glossary.html#displacement">displacement</a>, <a href="../../glossary.html#unit-pair">unit pair</a>, <a href="../../glossary.html#eval">eval</a>.</p>
+      <div class="note"><strong>Generated ahead.</strong> Lesson 9.8 remains the unresolved checkpoint and is not complete. Default <code>dispLen = 0.10</code>. Teaching write <code>T</code> reuses Lesson 9.1’s pixel <code>p = (0.30, −0.40)</code>, so <code>uv = (0.80, 0.10)</code>, <code>dir = (0.60, −0.80)</code>, <code>disp = (0.06, −0.08)</code>, <code>readUv = (0.74, 0.18)</code>, and <code>T</code> stores orange. HTML is a JavaScript stand-in.</div>
+    </div>
+    <div class="hero-art" aria-label="unit pair at T, shorter displacement arrow, equal-length field arrows">
+      <svg viewBox="0 0 1180 470" role="img">
+        <rect width="1180" height="470" fill="#f8fafc"/>
+        <text x="28" y="30" fill="#172033" font-size="18" font-weight="800">Pink is the 3-4-5 walk p, length 0.50. Green is T to R, length 0.10, which is disp. Subtract disp to read toward C.</text>
+        <g transform="translate(36 52)">
+          <text x="0" y="16" fill="#4338ca" font-size="15" font-weight="800">T’s 3-4-5 walk · disp of length 0.10</text>
+          <rect x="0" y="28" width="360" height="360" fill="#f8fafc" stroke="#172033" stroke-width="2"/>
+          <line x1="180" y1="28" x2="180" y2="388" stroke="#4338ca" stroke-width="1.5" stroke-dasharray="6 5"/>
+          <line x1="0" y1="208" x2="360" y2="208" stroke="#4338ca" stroke-width="1.5" stroke-dasharray="6 5"/>
+          <circle cx="180" cy="208" r="7" fill="#4338ca"/>
+          <text x="80" y="200" fill="#4338ca" font-size="13" font-weight="800">C</text>
+          <line x1="180" y1="208" x2="288" y2="208" stroke="#be185d" stroke-width="3"/>
+          <line x1="288" y1="208" x2="288" y2="64" stroke="#be185d" stroke-width="3"/>
+          <line x1="180" y1="208" x2="288" y2="64" stroke="#be185d" stroke-width="4"/>
+          <rect x="276" y="196" width="12" height="12" fill="none" stroke="#be185d" stroke-width="2"/>
+          <text x="204" y="228" fill="#be185d" font-size="12" font-weight="800">leg 0.30</text>
+          <text x="298" y="150" fill="#be185d" font-size="12" font-weight="800">leg 0.40</text>
+          <text x="96" y="120" fill="#be185d" font-size="12" font-weight="800">p length 0.50</text>
+          <circle cx="288" cy="64" r="8" fill="#d97706"/>
+          <text x="300" y="58" fill="#d97706" font-size="13" font-weight="800">T navy</text>
+          <line x1="288" y1="64" x2="266" y2="93" stroke="#059669" stroke-width="4"/>
+          <polygon points="266,93 276,86 270,80" fill="#059669"/>
+          <circle cx="266" cy="93" r="7" fill="#059669"/>
+          <text x="168" y="104" fill="#059669" font-size="13" font-weight="800">R (0.74, 0.18)</text>
+        </g>
+        <g transform="translate(430 200)">
+          <path d="M0 20 H70" stroke="#be185d" stroke-width="4"/>
+          <polygon points="70,10 100,20 70,30" fill="#be185d"/>
+          <text x="-20" y="8" fill="#be185d" font-size="14" font-weight="800">copy orange to T</text>
+        </g>
+        <g transform="translate(570 52)">
+          <text x="0" y="16" fill="#4338ca" font-size="15" font-weight="800">Field of equal-length arrows · every |disp| = 0.10</text>
+          <rect x="0" y="28" width="90" height="90" fill="#e07a2e"/><rect x="90" y="28" width="90" height="90" fill="#1a4066"/><rect x="180" y="28" width="90" height="90" fill="#e07a2e"/><rect x="270" y="28" width="90" height="90" fill="#1a4066"/>
+          <rect x="0" y="118" width="90" height="90" fill="#1a4066"/><rect x="90" y="118" width="90" height="90" fill="#e07a2e"/><rect x="180" y="118" width="90" height="90" fill="#1a4066"/><rect x="270" y="118" width="90" height="90" fill="#e07a2e"/>
+          <rect x="0" y="208" width="90" height="90" fill="#e07a2e"/><rect x="90" y="208" width="90" height="90" fill="#1a4066"/><rect x="180" y="208" width="90" height="90" fill="#e07a2e"/><rect x="270" y="208" width="90" height="90" fill="#1a4066"/>
+          <rect x="0" y="298" width="90" height="90" fill="#1a4066"/><rect x="90" y="298" width="90" height="90" fill="#e07a2e"/><rect x="180" y="298" width="90" height="90" fill="#1a4066"/><rect x="270" y="298" width="90" height="90" fill="#e07a2e"/>
+          <rect x="0" y="28" width="360" height="360" fill="none" stroke="#172033" stroke-width="2"/>
+          <circle cx="180" cy="208" r="7" fill="#4338ca"/>
+          <!-- equal length arrows ~36px = 0.10 of 360 -->
+          <g stroke="#be185d" stroke-width="3" fill="#be185d">
+            <line x1="180" y1="92" x2="180" y2="128"/><polygon points="180,128 174,116 186,116"/>
+            <line x1="277" y1="111" x2="252" y2="136"/><polygon points="252,136 265,133 262,127"/>
+            <line x1="296" y1="208" x2="260" y2="208"/><polygon points="260,208 272,202 272,214"/>
+            <line x1="277" y1="305" x2="252" y2="280"/><polygon points="252,280 262,293 265,287"/>
+            <line x1="180" y1="324" x2="180" y2="288"/><polygon points="180,288 174,300 186,300"/>
+            <line x1="83" y1="305" x2="108" y2="280"/><polygon points="108,280 98,293 95,287"/>
+            <line x1="64" y1="208" x2="100" y2="208"/><polygon points="100,208 88,202 88,214"/>
+            <line x1="83" y1="111" x2="108" y2="136"/><polygon points="108,136 98,123 95,129"/>
+          </g>
+          <circle cx="288" cy="64" r="8" fill="#d97706"/>
+          <text x="200" y="80" fill="#d97706" font-size="13" font-weight="800">T now stores orange</text>
+        </g>
+        <text x="36" y="448" fill="#596579" font-size="14" font-weight="700">dir = p / length(p) = (0.30, −0.40) / 0.50 = (0.60, −0.80). Check: 0.60 × 0.60 + 0.80 × 0.80 = 1. disp = dir × 0.10. Far arrows have the same length as near arrows.</text>
+      </svg>
+    </div>
+  </header>
+
+  <section class="section panel" id="question">
+    <div class="section-head"><div><div class="section-no">1 · THE NEW QUESTION</div><h2>Each pixel owns its own two-number arrow.</h2></div></div>
+    <div class="three">
+      <article class="card blue"><h3>Leftovers</h3><p><code>eval</code> still wants pixels. <code>p = uv − 0.5</code> still numbers this pixel from <code>C</code>. <code>length(p)</code> is Lesson 9.1’s straight-line length. The input is a 4 × 4 orange/navy checker so both members of the arrow are visible. Column index = <code>floor(uv.x × 4)</code>. Orange when that column index plus the row index is even. It is a teaching stand-in for Lesson 9.7’s stripes, not a claim that the stripe program changed.</p></article>
+      <article class="card indigo"><h3>Unit pair dir</h3><p><code>dir = p / length(p)</code> points the same way as <code>p</code>, and its straight-line length is 1. At T that pair is <code>(0.60, −0.80)</code> because the legs 0.30 and 0.40 scaled by 2 are 0.60 and 0.80, and 0.60² + 0.80² = 1. You cannot divide at <code>C</code>, where the length is 0. There is no direction away from <code>C</code>. <code>disp</code> stays <code>(0, 0)</code> there.</p></article>
+      <article class="card green"><h3>disp and dispLen</h3><p><code>dispLen</code> is how long the arrow is, in the same 0..1 family as UV. Default 0.10. <code>disp = dir × dispLen</code>. Then <code>readUv = uv − disp</code>. Subtracting an outward arrow reads toward <code>C</code>, so the picture appears pushed outward. That is the same opposite-direction rule as Lesson 9.8’s subtract, now with a different arrow at every pixel.</p></article>
+    </div>
+    <div class="formulas">
+      <div class="formula">d = length(p)
+dir = p / d
+disp = dir × dispLen
+readUv = uv − disp
+sampled = background.eval(readUv × resolution)</div>
+      <div class="formula">Teaching write T
+p = (0.30, −0.40)
+d = length(p) = 0.50
+dir = p / d = (0.30, −0.40) / 0.50 = (0.60, −0.80)
+disp = dir × dispLen = (0.60, −0.80) × 0.10 = (0.06, −0.08)
+uv = (0.80, 0.10)
+readUv = uv − disp = (0.80, 0.10) − (0.06, −0.08) = (0.74, 0.18)
+T’s input cell is navy. R’s input cell is orange. T stores orange.</div>
+    </div>
+  </section>
+
+  <section class="section panel" id="arrows">
+    <div class="section-head"><div><div class="section-no">2 · EQUAL LENGTH IS THE NEW PICTURE</div><h2>Far pixels do not get a longer arrow.</h2></div><p>One shared scale would make the implied offset grow with distance from <code>C</code>: a pixel twice as far would read from twice as far away. This field does not do that. Every pixel except <code>C</code> reads a neighbor exactly <code>dispLen</code> away, along the ray from <code>C</code> through this pixel. The lab’s arrows from the write pixel to the read pixel are all the same length. That is how you see it is not a zoom.</p></div>
+    <div class="two">
+      <article class="card green">
+        <h3>Pixels closer than dispLen</h3>
+        <p>If <code>length(p)</code> is smaller than <code>dispLen</code>, subtracting the arrow walks past <code>C</code> to the opposite side. The lab draws a circle of radius <code>dispLen</code> around <code>C</code> so that disk is visible. Teaching T has length 0.50, which is larger than 0.10, so T does not sit in that disk.</p>
+      </article>
+      <article class="card indigo">
+        <h3>What Lesson 9.11 will consume</h3>
+        <p>The unit pair is the direction a later glass boundary will reuse. This lesson does not use signed distance, a radius, or a stronger push near an edge. Those are Lesson 9.11. Edge reads past the rectangle are Lesson 9.12.</p>
+      </article>
+    </div>
+    <div class="formula" style="margin-top:16px">outward disp, then subtract → read toward C → picture appears pushed outward
+at C, d = 0 → skip the divide → disp = (0, 0) → C still copies C</div>
+  </section>
+
+  <section class="section panel" id="stepper">
+    <div class="section-head"><div><div class="section-no">3 · FOUR STEPS</div><h2>Each step draws a new object: identity, the 3-4-5 unit pair, the copied cell, then the field of arrows.</h2></div></div>
+    <div class="lesson-grid">
+      <div class="canvas-card">
+        <div class="canvas-title"><strong>Current step</strong><span id="stepGridLabel">Step 1 of 4</span></div>
+        <canvas id="stepCanvas" width="960" height="400" aria-label="Stepper displacement-field diagram"></canvas>
+      </div>
+      <div class="stepper">
+        <div class="step-head"><button class="btn" id="stepPrev">Previous</button><strong id="stepCounter">Step 1 of 4</strong><button class="btn primary" id="stepNext">Next</button></div>
+        <div class="step-body">
+          <div class="step-title" id="stepTitle"></div>
+          <div class="step-caption" id="stepCaption"></div>
+          <div class="formula" id="stepRule"></div>
+          <div class="io">
+            <div><strong>Input</strong><span id="stepInput"></span></div>
+            <div><strong>Operation</strong><span id="stepOperation"></span></div>
+            <div><strong>Output</strong><span id="stepOutput"></span></div>
+          </div>
+          <div class="step-buttons" id="stepButtons"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel" id="lab">
+    <div class="section-head"><div><div class="section-no">4 · INTERACTIVE LAB</div><h2>Move dispLen. Click a write pixel. Read the neighbor along the arrow.</h2></div><p>Production returns the sampled color at every pixel. Equal-length pink arrows are the proof it is not scale. Indigo <code>C</code> is the thumbtack. Amber <code>T</code> is the write location. Green <code>R</code> is the read coordinate. The dashed circle is pixels closer to <code>C</code> than <code>dispLen</code>.</p></div>
+    <label class="range-row"><span>dispLen (UV length)</span><input id="lenRange" type="range" min="0" max="0.25" step="0.01" value="0.10"><span class="mono" id="lenValue">0.10</span></label>
+    <div class="controls" style="margin-top:10px">
+      <button class="btn" id="markTeach">Mark T p = (0.30, −0.40)</button>
+      <button class="btn" id="markCenter">Mark C</button>
+      <button class="btn" id="markZero">dispLen = 0</button>
+      <button class="btn" id="markTen">dispLen = 0.10</button>
+      <button class="btn" id="toggleArrows">Toggle field arrows</button>
+    </div>
+    <div class="metrics">
+      <div class="metric"><strong>write uv</strong><span class="origin">this pixel</span><span class="value" id="wMetric"></span></div>
+      <div class="metric"><strong>d</strong><span class="origin">length(p)</span><span class="value" id="dMetric"></span></div>
+      <div class="metric"><strong>dir</strong><span class="origin">p / d</span><span class="value" id="dirMetric"></span></div>
+      <div class="metric"><strong>disp</strong><span class="origin">dir × dispLen</span><span class="value" id="dispMetric"></span></div>
+      <div class="metric"><strong>readUv</strong><span class="origin">uv − disp</span><span class="value" id="rMetric"></span></div>
+      <div class="metric"><strong>Store</strong><span class="origin">this pixel half4</span><span class="value" id="retMetric"></span></div>
+    </div>
+    <div class="lab-grid" style="margin-top:16px">
+      <div class="canvas-card">
+        <canvas id="labCanvas" width="400" height="400" aria-label="Displacement field teaching rectangle"></canvas>
+        <p id="labCaption"></p>
+      </div>
+      <div>
+        <div class="formula" id="liveFormula"></div>
+        <pre class="code-block" id="labCode" style="margin-top:12px;max-height:280px"></pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">5 · ANDROID ROUTE</div><h2>One new uniform: dispLen. Skip the divide at C.</h2></div></div>
+    <div class="code-grid">
+      <pre class="code-block"><code>private const val DefaultDispLen = 0.10f
+private const val TeachU = 0.80f
+private const val TeachV = 0.10f
+
+uniform shader background;
+uniform float2 resolution;
+uniform float dispLen;
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / resolution;
+    float2 p = uv - float2(0.5, 0.5);
+    float d = length(p);
+    float2 disp = float2(0.0, 0.0);
+    if (d > 0.0001) {
+        // 0.0001 UV is 0.04 px on a 400 px square, so only C skips.
+        disp = (p / d) * dispLen;
+    }
+    float2 readUv = uv - disp;
+    return background.eval(readUv * resolution);
+}</code></pre>
+      <div class="card">
+        <h3>What each part changes</h3>
+        <p><code>dispLen</code> is a UV length, so a 360 dp panel and a 400 px HTML square push by the same fraction of the width.</p>
+        <p><code>p / d</code> is the unit pair. AGSL also names that <code>normalize(p)</code>. This file writes the divide so the teaching formula stays visible.</p>
+        <p>The <code>if (d &gt; 0.0001)</code> skips the divide at <code>C</code>. 0.0001 is one ten-thousandth of the width. On 400 px that is 0.04 px, so only the visual-center pixel hits the skip.</p>
+        <p>The slider writes <code>dispLen</code>. Default 0.10 so T stores orange on first draw.</p>
+        <p><strong>Android files:</strong><br><code>chapter09/DisplacementFieldExplorer.kt</code><br><code>chapter09/Chapter09Screen.kt</code></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel" id="predict">
+    <div class="section-head"><div><div class="section-no">6 · PREDICTION</div><h2>T has p = (0.30, −0.40). dispLen = 0.10. Which color is stored at T?</h2></div></div>
+    <p>Production returns <code>background.eval(readUv × resolution)</code> with no split.</p>
+    <div class="prediction">
+      <button class="choice" data-answer="wrong-navy">Navy, because T still sits in a navy cell of the input picture.</button>
+      <button class="choice" data-answer="wrong-length">Orange, and the arrow length is 0.50, because that is length(p).</button>
+      <button class="choice" data-answer="correct">Orange. dir = (0.60, −0.80), disp = (0.06, −0.08), readUv = (0.74, 0.18) is an orange cell. The arrow length is 0.10, not 0.50.</button>
+    </div>
+    <div class="result" id="predictionResult">Choose one answer.</div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">7 · CODING CHALLENGE</div><h2>Unit pair, scale by dispLen, subtract</h2></div></div>
+    <div class="challenge">
+      <div>
+        <textarea class="editor" id="challengeEditor" spellcheck="false">uniform shader background;
+uniform float2 resolution;
+uniform float dispLen;
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / resolution;
+    float2 p = uv - float2(0.5, 0.5);
+    float d = length(p);
+    float2 disp = float2(0.0, 0.0);
+    if (d > 0.0001) {
+        float2 dir = p ___ d;
+        disp = dir * dispLen;
+    }
+    float2 readUv = uv ___ disp;
+    return background.eval(readUv * resolution);
+}</textarea>
+        <div class="controls" style="margin-top:10px">
+          <button class="btn primary" id="checkChallenge">Check</button>
+          <button class="btn" id="showSolution">Show solution</button>
+          <button class="btn" id="resetChallenge">Reset</button>
+        </div>
+        <div class="result" id="challengeResult">The blanks are the divide that makes length 1, and the subtract before eval.</div>
+      </div>
+      <div class="card indigo">
+        <h3>Available names</h3>
+        <div class="formula">/ d
+* d
+- disp
++ disp</div>
+        <p>Divide <code>p</code> by its length. Subtract <code>disp</code> from UV. Adding would read farther out and push the picture inward.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">8 · EXERCISES</div><h2>Answer before opening each hidden solution</h2></div></div>
+    <details>
+      <summary>At dispLen = 0, what is disp at T, and what color does T store?</summary>
+      <p><code>disp = dir × 0 = (0, 0)</code>. <code>readUv = uv</code>. Identity. T’s input cell is navy, so T stores navy. <code>C</code> also copies itself, same as every other pixel.</p>
+    </details>
+    <details>
+      <summary>Diagnostic: someone uses Lesson 9.9’s <code>readUv = p / scale + 0.5</code> with scale = 2 and says that is a displacement field. What did they get wrong?</summary>
+      <p>Scale is one shared number. The implied offset is <code>p − p / scale</code>, which grows as you leave <code>C</code>. A displacement field is a <code>float2</code> at each pixel. This lesson’s teaching field has the same length 0.10 at T and at a neighbor closer to <code>C</code>. The picture of equal-length arrows is the proof. Scale’s arrows would get longer farther out.</p>
+      <svg class="answer-fig" viewBox="0 0 640 240" role="img">
+        <rect width="640" height="240" fill="#f8fafc"/>
+        <text x="16" y="24" fill="#4338ca" font-size="14" font-weight="800">Left: this lesson, |disp| = 0.10. Right: scale, offset grows with |p|.</text>
+        <circle cx="120" cy="140" r="6" fill="#4338ca"/>
+        <line x1="120" y1="140" x2="156" y2="140" stroke="#be185d" stroke-width="4"/>
+        <line x1="120" y1="140" x2="145" y2="115" stroke="#be185d" stroke-width="4"/>
+        <line x1="120" y1="140" x2="120" y2="104" stroke="#be185d" stroke-width="4"/>
+        <text x="40" y="210" fill="#172033" font-size="13" font-weight="700">same length</text>
+        <circle cx="420" cy="140" r="6" fill="#4338ca"/>
+        <line x1="420" y1="140" x2="500" y2="140" stroke="#4338ca" stroke-width="4"/>
+        <line x1="420" y1="140" x2="476" y2="84" stroke="#4338ca" stroke-width="4"/>
+        <line x1="420" y1="140" x2="420" y2="70" stroke="#4338ca" stroke-width="4"/>
+        <text x="360" y="210" fill="#172033" font-size="13" font-weight="700">farther = longer</text>
+      </svg>
+    </details>
+    <details>
+      <summary>At C, why is dir not (0.60, −0.80), and what is stored?</summary>
+      <p><code>p = (0, 0)</code> and <code>d = length(p) = 0</code>. There is no direction away from C. The program keeps <code>disp = (0, 0)</code> and does not divide. <code>readUv = uv</code>, so C still copies C. The pair (0.60, −0.80) belongs to T, where the 3-4-5 legs exist.</p>
+      <svg class="answer-fig" viewBox="0 0 420 180" role="img">
+        <rect width="420" height="180" fill="#f8fafc"/>
+        <circle cx="90" cy="90" r="8" fill="#4338ca"/>
+        <text x="104" y="80" fill="#4338ca" font-size="14" font-weight="800">C · no arrow</text>
+        <text x="104" y="102" fill="#172033" font-size="14" font-weight="700">d = 0, disp = (0, 0)</text>
+        <circle cx="280" cy="50" r="8" fill="#d97706"/>
+        <line x1="210" y1="90" x2="280" y2="50" stroke="#be185d" stroke-width="3"/>
+        <text x="250" y="90" fill="#d97706" font-size="14" font-weight="800">T owns dir</text>
+      </svg>
+    </details>
+    <details>
+      <summary>If you add disp instead of subtracting, with dispLen = 0.10 at T, what is readUv, and which way does the picture appear to move?</summary>
+      <p><code>readUv = uv + disp = (0.80, 0.10) + (0.06, −0.08) = (0.86, 0.02)</code>. Adding an outward arrow reads farther from C. The color from farther out is painted here, so the picture appears pushed inward, opposite the usual subtract. T’s store color then depends on the cell at (0.86, 0.02), not on (0.74, 0.18).</p>
+    </details>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">9 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div></div>
+    <div class="checklist">
+      <label class="check"><input type="checkbox">At default dispLen 0.10, T prints dir (0.60, −0.80), disp (0.06, −0.08), readUv (0.74, 0.18), store orange.</label>
+      <label class="check"><input type="checkbox">At dispLen 0, T prints disp (0, 0) and store navy.</label>
+      <label class="check"><input type="checkbox">At C, the readout skips the divide and stores the center cell.</label>
+      <label class="check"><input type="checkbox">Field arrows away from C have the same length as each other.</label>
+      <label class="check"><input type="checkbox">The Android panel is square. dispLen is a uniform. Light <code>@Preview</code> is first, then dark. Both previews scroll.</label>
+    </div>
+  </section>
+
+  <section class="section panel">
+    <div class="section-head"><div><div class="section-no">10 · EVIDENCE BOUNDARY</div><h2>What this lesson establishes</h2></div></div>
+    <div class="two">
+      <div class="card green"><h3>Established</h3><p>A displacement is a <code>float2</code> at each pixel. Teaching field: <code>dir = p / length(p)</code>, <code>disp = dir × dispLen</code>, <code>readUv = uv − disp</code>. Default <code>dispLen = 0.10</code>. Teaching write <code>p = (0.30, −0.40)</code> reads <code>(0.74, 0.18)</code> and stores orange. Arrow length is the same at every pixel except C, where the divide is skipped. Production returns the sampled color at every pixel. Canvas does not move.</p></div>
+      <div class="card indigo"><h3>What’s next</h3><p>Lesson 9.11 will multiply this unit pair by a term that is stronger near a glass boundary, so straight background lines bend there. Edge reads past the rectangle are Lesson 9.12. Lesson 9.8 remains the unresolved checkpoint.</p></div>
+    </div>
+    <button class="btn primary" id="buildRecord" style="margin-top:16px">Build local review record</button>
+    <textarea class="record" id="record" readonly>No record generated yet.</textarea>
+  </section>
+
+  <footer class="footer panel"><span>93 of 216 complete · 9.10 generated ahead · checkpoint 9.8 unresolved</span><span>Previous generated: <a href="lesson-09-09-scale-around-the-center.html">9.9 — Scale around the center</a> · Next planned: <strong>9.11 — Refraction as displaced sampling</strong></span></footer>
+</main>
+<script>
+const W=400, H=400;
+const CELLS=4;
+const TEACH={x:0.80*400, y:0.10*400};
+const CENTER={x:0.50*400, y:0.50*400};
+const NAVY=[0.10,0.25,0.40,1];
+const ORANGE=[0.88,0.48,0.18,1];
+const OUTSIDE=[0.77,0.80,0.85,1];
+const PROD=`uniform shader background;
+uniform float2 resolution;
+uniform float dispLen;
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / resolution;
+    float2 p = uv - float2(0.5, 0.5);
+    float d = length(p);
+    float2 disp = float2(0.0, 0.0);
+    if (d > 0.0001) {
+        disp = (p / d) * dispLen;
+    }
+    float2 readUv = uv - disp;
+    return background.eval(readUv * resolution);
+}`;
+let px=TEACH.x, py=TEACH.y;
+let dispLen=0.10;
+let showArrows=true;
+let currentStep=0;
+const fmt2=n=>n.toFixed(2);
+const fmt3=n=>n.toFixed(3);
+function clamp(x,lo,hi){ return Math.min(hi, Math.max(lo, x)); }
+function fract(x){ return x-Math.floor(x); }
+function rgbCss(c){
+  const r=Math.round(clamp(c[0],0,1)*255);
+  const g=Math.round(clamp(c[1],0,1)*255);
+  const b=Math.round(clamp(c[2],0,1)*255);
+  return `rgb(${r},${g},${b})`;
+}
+function checkerAtUv(u,v){
+  if(u<0 || u>=1 || v<0 || v>=1){
+    return {outside:true, col:OUTSIDE.slice(), even:false, colI:-1, rowI:-1};
+  }
+  const colI=Math.floor(u*CELLS);
+  const rowI=Math.floor(v*CELLS);
+  const even = fract((colI+rowI)*0.5) < 0.5;
+  return {outside:false, colI, rowI, even, col: even ? ORANGE.slice() : NAVY.slice()};
+}
+function dispAt(u,v,len){
+  const p=[u-0.5, v-0.5];
+  const d=Math.hypot(p[0], p[1]);
+  if(d<=0.0001) return {p, d, dir:[0,0], disp:[0,0], u:u, v:v, skipped:true};
+  const dir=[p[0]/d, p[1]/d];
+  const disp=[dir[0]*len, dir[1]*len];
+  return {p, d, dir, disp, u:u-disp[0], v:v-disp[1], skipped:false};
+}
+function storeAt(x,y,len){
+  const writeU=x/W, writeV=y/H;
+  const t=dispAt(writeU, writeV, len);
+  return {writeU, writeV, ...t, sample:checkerAtUv(t.u, t.v)};
+}
+function drawField(ctx, len){
+  const img=ctx.createImageData(W,H);
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      const col=storeAt(x,y,len).sample.col;
+      const i=(y*W+x)*4;
+      img.data[i]=Math.round(col[0]*255);
+      img.data[i+1]=Math.round(col[1]*255);
+      img.data[i+2]=Math.round(col[2]*255);
+      img.data[i+3]=255;
+    }
+  }
+  ctx.putImageData(img,0,0);
+}
+function drawIdentity(ctx){ drawField(ctx, 0); }
+function drawArrow(ctx, x0,y0,x1,y1, color, width){
+  ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=width;
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+  const ang=Math.atan2(y1-y0, x1-x0);
+  ctx.beginPath();
+  ctx.moveTo(x1,y1);
+  ctx.lineTo(x1-10*Math.cos(ang-0.4), y1-10*Math.sin(ang-0.4));
+  ctx.lineTo(x1-10*Math.cos(ang+0.4), y1-10*Math.sin(ang+0.4));
+  ctx.closePath(); ctx.fill();
+}
+function drawFieldArrows(ctx, len){
+  if(len<=0) return;
+  const step=W/8;
+  for(let y=step/2; y<H; y+=step){
+    for(let x=step/2; x<W; x+=step){
+      const t=dispAt(x/W, y/H, len);
+      if(t.skipped) continue;
+      drawArrow(ctx, x, y, t.u*W, t.v*H, '#be185d', 2);
+    }
+  }
+}
+function drawOverlay(ctx, x, y, len){
+  const t=dispAt(x/W, y/H, len);
+  ctx.save();
+  ctx.strokeStyle='#4338ca'; ctx.lineWidth=2; ctx.setLineDash([6,5]);
+  ctx.beginPath(); ctx.moveTo(W/2,0); ctx.lineTo(W/2,H); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(W/2, H/2, len*W, 0, Math.PI*2); ctx.stroke();
+  ctx.setLineDash([]);
+  if(!t.skipped){
+    ctx.strokeStyle='#be185d'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(W/2, H/2); ctx.lineTo(x, y); ctx.stroke();
+    drawArrow(ctx, x, y, t.u*W, t.v*H, '#059669', 3);
+    ctx.fillStyle='#059669';
+    ctx.beginPath(); ctx.arc(t.u*W, t.v*H, 6, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.fillStyle='#4338ca';
+  ctx.beginPath(); ctx.arc(W/2, H/2, 6, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle='#d97706'; ctx.lineWidth=3;
+  ctx.strokeRect(TEACH.x-6, TEACH.y-6, 12, 12);
+  ctx.fillStyle='#d97706';
+  ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+function colorName(sample){
+  if(sample.outside) return 'gray (outside)';
+  return sample.even ? 'orange' : 'navy';
+}
+function updateLab(){
+  px=clamp(px,0.5,W-0.5); py=clamp(py,0.5,H-0.5);
+  dispLen=clamp(dispLen,0,0.25);
+  const st=storeAt(px, py, dispLen);
+  const canvas=document.getElementById('labCanvas');
+  const ctx=canvas.getContext('2d');
+  drawField(ctx, dispLen);
+  if(showArrows) drawFieldArrows(ctx, dispLen);
+  drawOverlay(ctx, px, py, dispLen);
+  document.getElementById('lenRange').value=String(dispLen);
+  document.getElementById('lenValue').textContent=fmt2(dispLen);
+  document.getElementById('wMetric').textContent=`(${fmt2(st.writeU)}, ${fmt2(st.writeV)})`;
+  document.getElementById('dMetric').textContent=fmt3(st.d);
+  document.getElementById('dirMetric').textContent=st.skipped ? 'skipped at C' : `(${fmt2(st.dir[0])}, ${fmt2(st.dir[1])})`;
+  document.getElementById('dispMetric').textContent=`(${fmt3(st.disp[0])}, ${fmt3(st.disp[1])})`;
+  document.getElementById('rMetric').textContent=`(${fmt3(st.u)}, ${fmt3(st.v)})`;
+  document.getElementById('retMetric').innerHTML=`<span class="swatch" style="background:${rgbCss(st.sample.col)}"></span>${colorName(st.sample)}`;
+  document.getElementById('labCode').textContent=PROD;
+  if(st.skipped){
+    document.getElementById('liveFormula').textContent=
+`p = uv − 0.5 = (${fmt2(st.writeU)}, ${fmt2(st.writeV)}) − (0.50, 0.50) = (0.00, 0.00)
+d = length(p) = 0.00
+dir skipped because d = 0
+disp = (0.00, 0.00)
+readUv = uv − disp = uv
+store = ${colorName(st.sample)}`;
+  } else {
+    document.getElementById('liveFormula').textContent=
+`p = uv − 0.5 = (${fmt2(st.writeU)}, ${fmt2(st.writeV)}) − (0.50, 0.50) = (${fmt2(st.p[0])}, ${fmt2(st.p[1])})
+d = length(p) = ${fmt3(st.d)}
+dir = p / d = (${fmt2(st.p[0])}, ${fmt2(st.p[1])}) / ${fmt3(st.d)} = (${fmt2(st.dir[0])}, ${fmt2(st.dir[1])})
+disp = dir × dispLen = (${fmt2(st.dir[0])}, ${fmt2(st.dir[1])}) × ${fmt2(dispLen)} = (${fmt3(st.disp[0])}, ${fmt3(st.disp[1])})
+readUv = uv − disp = (${fmt2(st.writeU)}, ${fmt2(st.writeV)}) − (${fmt3(st.disp[0])}, ${fmt3(st.disp[1])}) = (${fmt3(st.u)}, ${fmt3(st.v)})
+store = ${colorName(st.sample)}`;
+  }
+  document.getElementById('labCaption').textContent=
+    `Write (${Math.round(px)}, ${Math.round(py)}). Green is the read pixel. Dashed circle is radius dispLen.`;
+}
+document.getElementById('lenRange').addEventListener('input',e=>{dispLen=Number(e.target.value); updateLab();});
+document.getElementById('markTeach').addEventListener('click',()=>{px=TEACH.x; py=TEACH.y; updateLab();});
+document.getElementById('markCenter').addEventListener('click',()=>{px=CENTER.x; py=CENTER.y; updateLab();});
+document.getElementById('markZero').addEventListener('click',()=>{dispLen=0; updateLab();});
+document.getElementById('markTen').addEventListener('click',()=>{dispLen=0.10; updateLab();});
+document.getElementById('toggleArrows').addEventListener('click',()=>{showArrows=!showArrows; updateLab();});
+document.getElementById('labCanvas').addEventListener('click',e=>{
+  const box=e.currentTarget.getBoundingClientRect();
+  px=clamp((e.clientX-box.left)*(W/box.width),0.5,W-0.5);
+  py=clamp((e.clientY-box.top)*(H/box.height),0.5,H-0.5);
+  updateLab();
+});
+
+const STEPS=[
+  {
+    title:'Identity: dispLen = 0, read equals write',
+    caption:'dispLen = 0. disp = dir × 0 = (0, 0). T’s uv = (0.80, 0.10) sits in input column 3, row 0, navy. C still copies C. No pink arrow yet.',
+    rule:'disp = dir × 0 = (0.00, 0.00)\nreadUv = uv',
+    input:'dispLen = 0, T at (0.80, 0.10)',
+    operation:'identity eval',
+    output:'T stores navy',
+    len:0,
+    showTriangle:false,
+    paintT:false,
+    field:false
+  },
+  {
+    title:'The 3-4-5 triangle and the unit pair at T',
+    caption:'p = (0.30, −0.40). d = length(p) = 0.50 because 0.30² + 0.40² = 0.25 and 0.50 × 0.50 = 0.25. dir = p / d = (0.60, −0.80). Check: 0.60 × 0.60 + 0.80 × 0.80 = 1. The green direction is the same walk as p, with length 1. The input has not moved.',
+    rule:'d = length(p) = 0.50\ndir = p / d = (0.30, −0.40) / 0.50 = (0.60, −0.80)',
+    input:'p = (0.30, −0.40)',
+    operation:'length, then divide',
+    output:'dir = (0.60, −0.80)',
+    len:0,
+    showTriangle:true,
+    paintT:false,
+    field:false
+  },
+  {
+    title:'disp = dir × 0.10. Subtract. T stores orange.',
+    caption:'disp = dir × dispLen = (0.60, −0.80) × 0.10 = (0.06, −0.08). readUv = uv − disp = (0.80, 0.10) − (0.06, −0.08) = (0.74, 0.18). R sits in column 2, row 0, orange. That copy is written at T. The rest of the field still shows identity until every pixel builds its own arrow.',
+    rule:'disp = dir × dispLen = (0.60, −0.80) × 0.10 = (0.06, −0.08)\nreadUv = uv − disp = (0.74, 0.18)',
+    input:'dir = (0.60, −0.80), dispLen = 0.10',
+    operation:'multiply, subtract, eval',
+    output:'T is orange',
+    len:0,
+    showTriangle:true,
+    paintT:true,
+    field:false
+  },
+  {
+    title:'Every pixel builds its own arrow of length 0.10.',
+    caption:'The store is now the checker read 0.10 toward C from each write location. Pink arrows all have UV length 0.10. That is not scale: far pixels do not get a longer arrow. C has no arrow. Pixels inside the dashed circle walk past C.',
+    rule:'disp = (p / length(p)) × 0.10 at every pixel except C',
+    input:'dispLen = 0.10 at every pixel',
+    operation:'the same unit pair × dispLen, per pixel',
+    output:'equal-length field, T orange',
+    len:0.10,
+    showTriangle:true,
+    paintT:false,
+    field:true
+  }
+];
+function blit(ctx, src, dx, dy, S){
+  ctx.imageSmoothingEnabled=false;
+  ctx.drawImage(src, dx, dy, S, S);
+  ctx.strokeStyle='#172033'; ctx.lineWidth=2; ctx.strokeRect(dx,dy,S,S);
+}
+function drawStepPicture(ctx, index){
+  ctx.clearRect(0,0,960,400);
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,960,400);
+  const S=320, oy=40;
+  const input=document.createElement('canvas'); input.width=W; input.height=H;
+  const store=document.createElement('canvas'); store.width=W; store.height=H;
+  drawIdentity(input.getContext('2d'));
+  const s=STEPS[index];
+  const sctx=store.getContext('2d');
+  drawField(sctx, s.len);
+  if(s.paintT){
+    sctx.fillStyle=rgbCss(checkerAtUv(0.74,0.18).col);
+    sctx.fillRect(TEACH.x-6, TEACH.y-6, 12, 12);
+  }
+  if(s.field) drawFieldArrows(sctx, s.len);
+  blit(ctx, input, 40, oy, S);
+  blit(ctx, store, 420, oy, S);
+  ctx.font='800 16px Inter,system-ui,sans-serif';
+  ctx.fillStyle='#4338ca';
+  ctx.fillText('Input · not moved', 40, 28);
+  ctx.fillText(s.field ? 'Store · displaced' : (s.paintT ? 'Store · T copied' : 'Store · still identity'), 420, 28);
+  const map=(base,x,y)=>({x:base+x*(S/W), y:oy+y*(S/H)});
+  const c=map(40, CENTER.x, CENTER.y);
+  const t=map(40, TEACH.x, TEACH.y);
+  const r=map(40, 0.74*W, 0.18*H);
+  const corner={x:t.x, y:c.y};
+  ctx.fillStyle='#4338ca';
+  ctx.beginPath(); ctx.arc(c.x,c.y,6,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#d97706';
+  ctx.beginPath(); ctx.arc(t.x,t.y,6,0,Math.PI*2); ctx.fill();
+  const t2=map(420, TEACH.x, TEACH.y);
+  ctx.beginPath(); ctx.arc(t2.x,t2.y,6,0,Math.PI*2); ctx.fill();
+  if(s.showTriangle){
+    ctx.strokeStyle='#be185d'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(c.x,c.y); ctx.lineTo(corner.x, corner.y); ctx.lineTo(t.x,t.y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(c.x,c.y); ctx.lineTo(t.x,t.y); ctx.stroke();
+    ctx.fillStyle='#be185d';
+    ctx.font='700 13px Inter,system-ui,sans-serif';
+    ctx.fillText('0.30', (c.x+corner.x)/2-10, c.y+16);
+    ctx.fillText('0.40', t.x+8, (c.y+t.y)/2);
+    ctx.fillText('0.50', (c.x+t.x)/2-28, (c.y+t.y)/2);
+    ctx.fillStyle='#059669';
+    ctx.beginPath(); ctx.arc(r.x,r.y,6,0,Math.PI*2); ctx.fill();
+    if(index>=2){
+      ctx.strokeStyle='#059669'; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.moveTo(t.x,t.y); ctx.lineTo(r.x,r.y); ctx.stroke();
+    }
+  }
+  ctx.font='700 15px Inter,system-ui,sans-serif';
+  ctx.fillStyle='#172033';
+  ctx.fillText('C thumbtack', 760, 80);
+  ctx.fillStyle='#d97706'; ctx.fillText('Amber is write T', 760, 110);
+  if(s.showTriangle){ ctx.fillStyle='#059669'; ctx.fillText('Green is read R', 760, 140); }
+  if(s.field){ ctx.fillStyle='#be185d'; ctx.fillText('Equal-length arrows', 760, 170); }
+}
+function renderStep(){
+  const s=STEPS[currentStep];
+  document.getElementById('stepCounter').textContent=`Step ${currentStep+1} of ${STEPS.length}`;
+  document.getElementById('stepGridLabel').textContent=`Step ${currentStep+1} of ${STEPS.length}`;
+  document.getElementById('stepTitle').textContent=s.title;
+  document.getElementById('stepCaption').textContent=s.caption;
+  document.getElementById('stepRule').textContent=s.rule;
+  document.getElementById('stepInput').textContent=s.input;
+  document.getElementById('stepOperation').textContent=s.operation;
+  document.getElementById('stepOutput').textContent=s.output;
+  document.querySelectorAll('.step-dot').forEach((b,i)=>b.classList.toggle('selected', i===currentStep));
+  drawStepPicture(document.getElementById('stepCanvas').getContext('2d'), currentStep);
+}
+const stepButtons=document.getElementById('stepButtons');
+STEPS.forEach((_,i)=>{
+  const b=document.createElement('button');
+  b.className='step-dot'; b.textContent=String(i+1);
+  b.addEventListener('click',()=>{currentStep=i;renderStep();});
+  stepButtons.appendChild(b);
+});
+document.getElementById('stepPrev').addEventListener('click',()=>{currentStep=Math.max(0,currentStep-1);renderStep();});
+document.getElementById('stepNext').addEventListener('click',()=>{currentStep=Math.min(STEPS.length-1,currentStep+1);renderStep();});
+document.querySelectorAll('.choice').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.choice').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    const box=document.getElementById('predictionResult');
+    if(btn.dataset.answer==='correct'){
+      box.textContent='Yes. dir = (0.60, −0.80), disp = (0.06, −0.08), readUv = (0.74, 0.18) is orange. The arrow length is dispLen = 0.10.';
+      box.style.background='var(--green-soft)';
+    } else if(btn.dataset.answer==='wrong-navy'){
+      box.textContent='The input at T is still navy. eval does not read T after the subtract. It reads R at (0.74, 0.18), which is orange.';
+      box.style.background='var(--amber-soft)';
+    } else {
+      box.textContent='length(p) = 0.50 is the walk from C to T. The arrow that moves the read is disp = dir × dispLen, length 0.10.';
+      box.style.background='var(--amber-soft)';
+    }
+  });
+});
+const starter=document.getElementById('challengeEditor').value;
+document.getElementById('checkChallenge').addEventListener('click',()=>{
+  const text=document.getElementById('challengeEditor').value;
+  const box=document.getElementById('challengeResult');
+  const div=/dir\s*=\s*p\s*\/\s*d/.test(text);
+  const sub=/readUv\s*=\s*uv\s*-\s*disp/.test(text);
+  const add=/readUv\s*=\s*uv\s*\+\s*disp/.test(text);
+  if(div && sub && !add){
+    box.textContent='Correct. dir = p / d, then readUv = uv − disp.';
+    box.style.background='var(--green-soft)';
+  } else {
+    box.textContent='Need dir = p / d, then uv minus disp, then eval in pixels.';
+    box.style.background='var(--amber-soft)';
+  }
+});
+document.getElementById('showSolution').addEventListener('click',()=>{
+  document.getElementById('challengeEditor').value=`uniform shader background;
+uniform float2 resolution;
+uniform float dispLen;
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / resolution;
+    float2 p = uv - float2(0.5, 0.5);
+    float d = length(p);
+    float2 disp = float2(0.0, 0.0);
+    if (d > 0.0001) {
+        float2 dir = p / d;
+        disp = dir * dispLen;
+    }
+    float2 readUv = uv - disp;
+    return background.eval(readUv * resolution);
+}`;
+});
+document.getElementById('resetChallenge').addEventListener('click',()=>{
+  document.getElementById('challengeEditor').value=starter;
+  document.getElementById('challengeResult').textContent='The blanks are the divide that makes length 1, and the subtract before eval.';
+  document.getElementById('challengeResult').style.background='var(--soft)';
+});
+document.getElementById('buildRecord').addEventListener('click',()=>{
+  document.getElementById('record').value=`# Lesson 9.10 — Build a displacement field
+
+- Date:
+- d = length(p). dir = p / d. disp = dir × dispLen.
+- readUv = uv − disp.
+- sampled = background.eval(readUv × resolution).
+- Default dispLen = 0.10 (UV length). Skip the divide at C.
+- Teaching write p = (0.30, −0.40) reads (0.74, 0.18) and stores orange.
+- Arrow length is the same at every pixel except C. Not scale.
+- Generated ahead. Checkpoint is Lesson 9.8. Completion count 93 of 216.
+`;
+});
+const qa=new URLSearchParams(location.search).get('qa');
+if(qa==='zero') dispLen=0;
+if(qa==='step4') currentStep=3;
+updateLab();
+renderStep();
+if(qa==='predict'){
+  const correct=[...document.querySelectorAll('.choice')].find(b=>b.dataset.answer==='correct');
+  if(correct) correct.click();
+}
+function revealFrom(id){
+  let keep=false;
+  document.querySelectorAll('.topbar, .hero, .section, .footer').forEach(el=>{
+    if(el.id===id) keep=true;
+    if(!keep) el.style.display='none';
+  });
+}
+if(qa==='lab'||qa==='zero') revealFrom('lab');
+if(qa==='arrows') revealFrom('arrows');
+if(qa==='step4') revealFrom('stepper');
+</script>
+</body>
+</html>
