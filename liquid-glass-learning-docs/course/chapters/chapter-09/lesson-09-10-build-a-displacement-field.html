@@ -354,15 +354,56 @@ function paintField(ctx, w, h, len){
   }
   ctx.putImageData(img,0,0);
 }
+function withHalo(ctx, color, width, dash, draw){
+  ctx.save();
+  ctx.lineJoin='round';
+  ctx.lineCap='round';
+  if(dash) ctx.setLineDash(dash);
+  ctx.strokeStyle='#ffffff';
+  ctx.lineWidth=width+3;
+  draw();
+  ctx.stroke();
+  ctx.strokeStyle=color;
+  ctx.lineWidth=width;
+  draw();
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+function fillHalo(ctx, color, x, y, r){
+  ctx.save();
+  ctx.fillStyle='#ffffff';
+  ctx.beginPath(); ctx.arc(x, y, r+2.5, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle=color;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+function drawCross(ctx, size){
+  withHalo(ctx, '#fbbf24', 2, [6,5], ()=>{
+    ctx.beginPath();
+    ctx.moveTo(size/2, 0); ctx.lineTo(size/2, size);
+    ctx.moveTo(0, size/2); ctx.lineTo(size, size/2);
+  });
+}
 function drawArrow(ctx, x0,y0,x1,y1, color, width){
-  ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=width;
-  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+  withHalo(ctx, color, width, null, ()=>{
+    ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1);
+  });
   const ang=Math.atan2(y1-y0, x1-x0);
+  ctx.save();
+  ctx.fillStyle='#ffffff';
+  ctx.beginPath();
+  ctx.moveTo(x1,y1);
+  ctx.lineTo(x1-12*Math.cos(ang-0.4), y1-12*Math.sin(ang-0.4));
+  ctx.lineTo(x1-12*Math.cos(ang+0.4), y1-12*Math.sin(ang+0.4));
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle=color;
   ctx.beginPath();
   ctx.moveTo(x1,y1);
   ctx.lineTo(x1-10*Math.cos(ang-0.4), y1-10*Math.sin(ang-0.4));
   ctx.lineTo(x1-10*Math.cos(ang+0.4), y1-10*Math.sin(ang+0.4));
   ctx.closePath(); ctx.fill();
+  ctx.restore();
 }
 function drawFieldArrows(ctx, len, size){
   if(len<=0) return;
@@ -379,89 +420,78 @@ function mappedSq(len){
   return SQ.map(([u,v])=>outward(u,v,len));
 }
 function drawPoly(ctx, pts, size, stroke, fill, width){
-  ctx.beginPath();
-  pts.forEach((pt,i)=>{
-    const x=pt.u*size, y=pt.v*size;
-    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-  });
-  ctx.closePath();
-  if(fill){ ctx.fillStyle=fill; ctx.fill(); }
-  ctx.strokeStyle=stroke; ctx.lineWidth=width; ctx.stroke();
+  const path=()=>{
+    ctx.beginPath();
+    pts.forEach((pt,i)=>{
+      const x=pt.u*size, y=pt.v*size;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.closePath();
+  };
+  if(fill){ path(); ctx.fillStyle=fill; ctx.fill(); }
+  withHalo(ctx, stroke, width, null, path);
 }
 function drawTeachingSquare(ctx, size, len, mapped){
   if(!showSquare) return;
-  ctx.save();
   const cx=size/2, cy=size/2;
   if(!mapped){
     const x0=SQ[0][0]*size, y0=SQ[0][1]*size, x1=SQ[2][0]*size, y1=SQ[2][1]*size;
-    ctx.strokeStyle='#be185d'; ctx.lineWidth=3;
-    ctx.strokeRect(x0, y0, x1-x0, y1-y0);
+    withHalo(ctx, '#be185d', 3, null, ()=>{ ctx.strokeRect(x0, y0, x1-x0, y1-y0); });
     SQ.forEach(([u,v])=>{
-      ctx.strokeStyle='#4338ca'; ctx.setLineDash([5,4]); ctx.lineWidth=1.5;
-      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(u*size, v*size); ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.fillStyle='#be185d';
-      ctx.beginPath(); ctx.arc(u*size, v*size, 5, 0, Math.PI*2); ctx.fill();
+      withHalo(ctx, '#fbbf24', 2, [5,4], ()=>{
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(u*size, v*size);
+      });
+      fillHalo(ctx, '#be185d', u*size, v*size, 5);
     });
   } else {
     const pts=mappedSq(len);
-    SQ.forEach(([u,v],i)=>{
-      ctx.strokeStyle='#4338ca'; ctx.setLineDash([5,4]); ctx.lineWidth=1.5;
-      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(pts[i].u*size, pts[i].v*size); ctx.stroke();
-      ctx.setLineDash([]);
+    SQ.forEach((_,i)=>{
+      withHalo(ctx, '#fbbf24', 2, [5,4], ()=>{
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(pts[i].u*size, pts[i].v*size);
+      });
     });
     drawPoly(ctx, pts, size, '#059669', 'rgba(5,150,105,0.18)', 3);
-    pts.forEach(pt=>{
-      ctx.fillStyle='#059669';
-      ctx.beginPath(); ctx.arc(pt.u*size, pt.v*size, 5, 0, Math.PI*2); ctx.fill();
-    });
+    pts.forEach(pt=>fillHalo(ctx, '#059669', pt.u*size, pt.v*size, 5));
   }
-  ctx.restore();
 }
 function drawHQ(ctx, size, mapped, connect, bow){
   const H=mapped?outward(HPT.u,HPT.v,dispLen):{u:HPT.u,v:HPT.v};
   const Q=mapped?outward(QPT.u,QPT.v,dispLen):{u:QPT.u,v:QPT.v};
   const cx=size/2, cy=size/2;
-  ctx.save();
   if(connect){
-    ctx.strokeStyle=mapped?'#059669':'#be185d';
-    ctx.lineWidth=4;
-    ctx.beginPath(); ctx.moveTo(H.u*size, H.v*size); ctx.lineTo(Q.u*size, Q.v*size); ctx.stroke();
+    withHalo(ctx, mapped?'#059669':'#be185d', 4, null, ()=>{
+      ctx.beginPath(); ctx.moveTo(H.u*size, H.v*size); ctx.lineTo(Q.u*size, Q.v*size);
+    });
   }
   if(bow && mapped){
-    ctx.beginPath();
-    let first=true;
-    for(let y=0.15; y<=0.50; y+=0.01){
-      const p=outward(0.75, y, dispLen);
-      if(first){ ctx.moveTo(p.u*size, p.v*size); first=false; }
-      else ctx.lineTo(p.u*size, p.v*size);
-    }
-    ctx.strokeStyle='#059669'; ctx.lineWidth=2; ctx.setLineDash([4,3]); ctx.stroke();
-    ctx.setLineDash([]);
+    withHalo(ctx, '#fbbf24', 2.5, [5,4], ()=>{
+      ctx.beginPath();
+      let first=true;
+      for(let y=0.15; y<=0.50; y+=0.01){
+        const p=outward(0.75, y, dispLen);
+        if(first){ ctx.moveTo(p.u*size, p.v*size); first=false; }
+        else ctx.lineTo(p.u*size, p.v*size);
+      }
+    });
   }
-  ctx.fillStyle='#d97706';
-  ctx.beginPath(); ctx.arc(H.u*size, H.v*size, 7, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle='#be185d';
-  ctx.beginPath(); ctx.arc(Q.u*size, Q.v*size, 7, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle='#4338ca';
-  ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI*2); ctx.fill();
-  ctx.restore();
+  fillHalo(ctx, '#d97706', H.u*size, H.v*size, 7);
+  fillHalo(ctx, '#be185d', Q.u*size, Q.v*size, 7);
+  fillHalo(ctx, '#4338ca', cx, cy, 6);
   return {H,Q};
 }
 function drawRays(ctx, size, throughH, throughQ){
   const cx=size/2, cy=size/2;
-  ctx.save();
-  ctx.strokeStyle='#4338ca'; ctx.lineWidth=2; ctx.setLineDash([6,5]);
   if(throughH){
-    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(size, cy); ctx.stroke();
+    withHalo(ctx, '#fbbf24', 2.5, [6,5], ()=>{
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(size, cy);
+    });
   }
   if(throughQ){
-    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(QPT.u*size, QPT.v*size); ctx.stroke();
     const q2=outward(QPT.u, QPT.v, 0.35);
-    ctx.beginPath(); ctx.moveTo(QPT.u*size, QPT.v*size); ctx.lineTo(q2.u*size, q2.v*size); ctx.stroke();
+    withHalo(ctx, '#fbbf24', 2.5, [6,5], ()=>{
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(q2.u*size, q2.v*size);
+    });
   }
-  ctx.setLineDash([]);
-  ctx.restore();
 }
 
 const TILT_STEPS=[
@@ -503,7 +533,7 @@ const TILT_STEPS=[
   },
   {
     title:'Four corners, then every point on the line',
-    caption:'The pink square’s four corners each walk out on their own ray. The stored cell is a trapezoid that leans toward C. The dashed green curve is the whole vertical line x = 0.75 after the same walk: not only tilted, bowed, because every y has its own ray. That is the stored checker.',
+    caption:'The pink square’s four corners each walk out on their own ray. The stored cell is a trapezoid that leans toward C. The dashed yellow curve is the whole vertical line x = 0.75 after the same walk: not only tilted, bowed, because every y has its own ray. That is the stored checker.',
     rule:'four corners → trapezoid leaning toward C\nwhole line → bowed edge\nsides on a ray through C stay untilted',
     drawn:'Mapped square + bowed line',
     change:'The rest of the bump is this walk on every side',
@@ -530,11 +560,7 @@ function drawTilt(){
   paintField(ic, W, H, 0);
   paintField(sc, W, H, s.walk?dispLen:0);
   function overlay(dest, mapped){
-    dest.save();
-    dest.strokeStyle='#4338ca'; dest.lineWidth=2; dest.setLineDash([6,5]);
-    dest.beginPath(); dest.moveTo(W/2,0); dest.lineTo(W/2,H); dest.moveTo(0,H/2); dest.lineTo(W,H/2); dest.stroke();
-    dest.setLineDash([]);
-    dest.restore();
+    drawCross(dest, W);
     if(s.rays && !mapped) drawRays(dest, W, true, true);
     if(s.square) drawTeachingSquare(dest, W, dispLen, mapped && s.walk);
     drawHQ(dest, W, mapped && s.walk, s.connect || !mapped, mapped && s.bow);
@@ -599,13 +625,11 @@ function updateLab(){
   const store=document.getElementById('storeCanvas').getContext('2d');
   paintField(id, W, H, 0);
   paintField(store, W, H, dispLen);
-  id.save(); id.strokeStyle='#4338ca'; id.lineWidth=2; id.setLineDash([6,5]);
-  id.beginPath(); id.moveTo(W/2,0); id.lineTo(W/2,H); id.moveTo(0,H/2); id.lineTo(W,H/2); id.stroke();
-  id.setLineDash([]); id.restore();
-  store.save(); store.strokeStyle='#4338ca'; store.lineWidth=2; store.setLineDash([6,5]);
-  store.beginPath(); store.moveTo(W/2,0); store.lineTo(W/2,H); store.moveTo(0,H/2); store.lineTo(W,H/2); store.stroke();
-  store.beginPath(); store.arc(W/2, H/2, dispLen*W, 0, Math.PI*2); store.stroke();
-  store.setLineDash([]); store.restore();
+  drawCross(id, W);
+  drawCross(store, W);
+  withHalo(store, '#fbbf24', 2.5, [6,5], ()=>{
+    store.beginPath(); store.arc(W/2, H/2, dispLen*W, 0, Math.PI*2);
+  });
   drawTeachingSquare(id, W, dispLen, false);
   drawTeachingSquare(store, W, dispLen, true);
   drawHQ(id, W, false, true, false);
@@ -615,11 +639,11 @@ function updateLab(){
   if(!t.skipped){
     drawArrow(id, px, py, t.u*W, t.v*H, '#059669', 3);
     drawArrow(store, px, py, t.u*W, t.v*H, '#059669', 3);
-    id.fillStyle='#059669'; id.beginPath(); id.arc(t.u*W, t.v*H, 6, 0, Math.PI*2); id.fill();
-    store.fillStyle='#059669'; store.beginPath(); store.arc(t.u*W, t.v*H, 6, 0, Math.PI*2); store.fill();
+    fillHalo(id, '#059669', t.u*W, t.v*H, 6);
+    fillHalo(store, '#059669', t.u*W, t.v*H, 6);
   }
-  id.fillStyle='#d97706'; id.beginPath(); id.arc(px, py, 6, 0, Math.PI*2); id.fill();
-  store.fillStyle='#d97706'; store.beginPath(); store.arc(px, py, 6, 0, Math.PI*2); store.fill();
+  fillHalo(id, '#d97706', px, py, 6);
+  fillHalo(store, '#d97706', px, py, 6);
   document.getElementById('lenRange').value=String(dispLen);
   document.getElementById('lenValue').textContent=fmt2(dispLen);
   document.getElementById('lenRangeLab').value=String(dispLen);

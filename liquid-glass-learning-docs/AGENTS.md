@@ -1033,3 +1033,11 @@ Recorded 2026-09-10 after the learner rejected the first 9.10 rewrite: leftovers
 
 - Can the learner take two ends of one vertical side and say why they no longer share an x, without reciting `dir × dispLen`?
 - If the first two sections could be understood without looking at the hard picture, those sections are too long and the hard picture is too late.
+
+### Checker overlay contrast
+
+Recorded 2026-09-10 after the learner could not see dashed construction lines on Lesson 9.10’s orange/navy checker. Indigo `#4338ca` on navy `#1a4066` and amber on orange vanish.
+
+1. **A construction stroke on a two-color checker needs a halo.** Draw a light understroke (`#ffffff`, thicker) then the hue. Marks get a white ring, then the fill.
+2. **Do not use the cell hue for the overlay.** Indigo dashes on navy, or amber dots on orange, fail even at 2px.
+3. **Verify both cell colors.** Screenshot the overlay where a ray, axis, or mark crosses a navy cell and an orange cell. If either crossing disappears, the stroke fails.
