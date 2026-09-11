@@ -166,7 +166,7 @@ p = uv − 0.5
 → sampled = background.eval(readUv × resolution)
 ```
 
-Default `scale = 2.00` asks a neighbor half as far from `C` and stores that nearer color here. Right-edge proof: 0.50 / 2 = 0.25 from `C`. Teaching write is 0.30 of the square right of `C`, asks 0.15 from `C`, stores orange. Write pixel stays put. `− 0.5` / `+ 0.5` are leftover UV convert. `C` still copies `C`. Not complete.
+No inner-half `if`. Inner 2 × 2 is the image of the square under a halved walk. Right outer navy always stores inner orange. Left outer orange always stores inner navy. Half of `C → (1,1)` is `(0.75, 0.75)`, still orange on that diagonal. Outer input would be painted off-picture. Teaching write 0.30 from `C` asks 0.15 from `C`, stores orange. Not complete.
 
 ## Generated ahead — Lesson 9.10
 

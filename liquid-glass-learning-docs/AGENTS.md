@@ -1019,6 +1019,24 @@ Learner picture (confirmed): scale 2 means this write pixel reaches a neighbor t
 - Can they say why that makes the middle look larger?
 - If the first two sections could be understood without the walk, those sections are leftover.
 
+### Inner rectangle is drawn sub-bounds; no if; both sides and the diagonal — Lesson 9.9
+
+Recorded 2026-09-11 after the learner said the inner rectangle was not visible, asked why the formula has no inner-half check, asked for more distances proving navy-right always stores orange and orange-left always stores navy, asked what half the walk is at 45° on `(0,0) → (1,1)`, and asked what happens for points outside the inner half (off-picture / negative).
+
+1. **Draw the inner rectangle as actual sub-bounds.** On a 4 × 4 checker each cell is 0.25, so the middle 2 × 2 is 0.25 from `C` on each axis. Stroke that rectangle on the input. Dim the outer ring as never asked. Do not only say “inner half.”
+2. **There is no `if`.** The inner rectangle is the image of the square under “halve the walk from `C`.” Edge write 0.50 from `C` asks 0.25 from `C`. Corner write `(1,1)` asks `(0.75, 0.75)`. Every closer write asks closer than that, so still inside. The formula does not test membership.
+3. **Several distances, both directions, prove “always.”** One teaching 0.30 is not a proof. Right outer navy is every write 0.25..0.50 from `C` on the right; half is 0.125..0.25, inner orange. Left outer orange halves into inner navy. Show 0, 0.10, 0.25, 0.30, 0.40, 0.50 and the left mirrors.
+4. **Diagonal `(0,0) → (1,1)` is its own construction.** Midpoint is `C`. Half of `C → (1,1)` is `(0.75, 0.75)`, the inner-rect corner. On this checker `col = row` so the diagonal stays orange. That crossing is not orange/navy. The orange/navy border is the axis-aligned cell edge at 0.25 from `C`.
+5. **Outside the inner rect is inverse off-picture.** In-square writes at scale 2 never ask outside the inner rect and never ask negative. An input point 0.40 from `C` would be painted at 0.80 from `C` (`uv` 1.30 or −0.30). That is why the outer ring vanishes.
+
+**Verification before packaging:**
+
+- Can the learner point at the inner 2 × 2 on the input and say it fills the store?
+- Can they say why there is no inner-half `if`?
+- Can they take one right navy and one left orange and say the nearer color without a formula dump?
+- Can they say what half of `(0,0) → (1,1)` is, and that it is the inner-rect corner, not an orange/navy border on this diagonal?
+- Can they say where an outer input point would be painted?
+
 ### Displacement is a chosen walk toward C, not a 3D formula — Lesson 9.10 rewrite
 
 Recorded 2026-09-10 after the learner opened Lesson 9.10 and saw the same failure as 9.9: a four-step stepper dumping `0.60`, `−0.80`, `0.06`, `−0.08`, `0.74`, `0.18`, with no picture of why the stored checker looks like a bump and no reason for the AGSL divide, multiply, or subtract.

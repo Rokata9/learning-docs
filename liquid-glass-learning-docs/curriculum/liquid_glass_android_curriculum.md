@@ -442,9 +442,9 @@ Chapters **1–7** are complete. Do not reopen blur, tint, saturation, inset-str
 **Unresolved checkpoint, generated, not complete**
 
 ```text
-9.9  write stays; scale 2 asks a neighbor half as far from C
-     right edge 0.50 / 2 = 0.25 from C
-     teaching write 0.30 from C asks 0.15 from C and stores orange
+9.9  no if; inner 2×2 is the image of the square under a halved walk
+     navy-right always → orange; orange-left always → navy
+     half of C→(1,1) is (0.75, 0.75), still orange; outer input off-picture
 ```
 
 **Generated ahead of checkpoint 9.9, not complete**
