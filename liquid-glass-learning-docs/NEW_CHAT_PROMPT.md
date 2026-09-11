@@ -369,7 +369,7 @@ p = uv − 0.5
 → sampled = background.eval(readUv × resolution)
 ```
 
-Default `scale = 2.00` means twice as large, so the walk from `C` is half as long. Right-edge proof: `+0.50 / 2 = +0.25`, UV 0.75. Teaching write `uv = (0.80, 0.70)` has `p = (0.30, 0.20)`, reads `(0.65, 0.60)`, and stores orange. Write stays. `+ 0.5` is the UV name of the neighbor. `C` still copies `C`. × 2 unused. Not complete.
+Default `scale = 2.00` asks a neighbor half as far from `C` and stores that nearer color here. Right-edge proof: 0.50 / 2 = 0.25 from `C`. Teaching write is 0.30 of the square right of `C`, asks 0.15 from `C`, stores orange. Write stays. `− 0.5` / `+ 0.5` are leftover UV convert. `C` still copies `C`. Not complete.
 
 **9.10 generated-ahead contract:**
 

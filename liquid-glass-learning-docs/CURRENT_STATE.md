@@ -1,6 +1,6 @@
 # Liquid Glass Android course — current state
 
-**Updated:** 2026-09-10  
+**Updated:** 2026-09-11  
 **Course version:** 9.10.0  
 **Platform:** Kotlin + Jetpack Compose  
 **Test device:** Pixel 8 Pro  
@@ -52,9 +52,9 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/Chapter09S
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 ```
 
-## Last session compact record (2026-09-10)
+## Last session compact record (2026-09-11)
 
-Second rewrite of Lesson 9.10. The learner named the actual hard picture: tilted checker squares. The previous rewrite skimmed that with one sentence and re-taught leftovers. New page: two ends of one vertical side, two rays, equal-length walks that split differently so they no longer share an x; then four corners → trapezoid; then bow and bigger middle. Reusable rule recorded in `AGENTS.md` as **Hard visible result gets the construction**. Count stays **94 of 216**. Unresolved checkpoint remains **Lesson 9.9**. Lesson 9.10 is still not complete.
+Rewrote Lesson 9.9 around the walk after the learner confirmed the causal picture: scale 2 asks a neighbor twice as close to `C` (half as far), stores that nearer color at the write pixel, and that drag is magnification. Dual UV/`p` rulers and `+ 0.5` sections were leftover. New page: one-ray walk, divide proved as 0.50 / 2 = 0.25 from `C`, teaching write 0.30 from `C` asks 0.15 from `C`. Reusable rule recorded in `AGENTS.md` as **Confirmed scale walk; UV convert is leftover**. Count stays **94 of 216**. Unresolved checkpoint remains **Lesson 9.9**. Lesson 9.10 is still not complete.
 
 ## Prior session compact record (2026-09-10)
 
@@ -108,7 +108,7 @@ Reusable teaching pattern recorded in `AGENTS.md` as **Load-bearing section budg
 
 9.8 completed contract: `readCoord = fragCoord − float2(offsetU * resolution.x, 0)`. `sampled = background.eval(readCoord)`. Default `offsetU = 0.10` (one stripe width). Teaching write `uv.x = 0.15` reads `uv.x = 0.05` and stores orange. The picture shifts opposite the read offset. `eval` does not wrap a negative read x. The stripe input’s `fract` still returns a color.
 
-9.9 checkpoint contract: write stays. `p = uv − 0.5` is a rename. `scale = 2` means twice as large, so the walk is half as long (right edge `+0.50 / 2 = +0.25`, UV 0.75). `readUv = p / scale + 0.5`. Teaching write `uv = (0.80, 0.70)` has `p = (0.30, 0.20)`, reads `(0.65, 0.60)`, stores orange. `C` still copies `C`. × 2 unused. Not complete.
+9.9 checkpoint contract: write stays. `scale = 2` asks a neighbor half as far from `C` and stores that nearer color here. Right-edge proof: 0.50 / 2 = 0.25 from `C`. Teaching write is 0.30 of the square right of `C`, asks 0.15 from `C`, stores orange. `readUv = p / scale + 0.5` (`− 0.5` / `+ 0.5` are leftover UV convert). `C` still copies `C`. Not complete.
 
 9.10 generated-ahead contract: a vertical side tilts because its two ends sit on two rays. `H = (0.75, 0.50)` walks to `(0.85, 0.50)`; `Q = (0.75, 0.25)` splits the same walk on the 45° ray. They no longer share an x. Four corners → trapezoid leaning toward `C`. Shader inward ask is the inverse. `dir = p / length(p)` so H and Q walk the same length. Default `dispLen = 0.10`. Not complete.
 

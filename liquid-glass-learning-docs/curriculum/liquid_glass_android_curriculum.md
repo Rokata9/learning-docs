@@ -442,9 +442,9 @@ Chapters **1–7** are complete. Do not reopen blur, tint, saturation, inset-str
 **Unresolved checkpoint, generated, not complete**
 
 ```text
-9.9  write stays; p = uv − 0.5 is a rename; scale 2 = half the walk
-     right edge +0.50 / 2 = +0.25 → UV 0.75
-     teaching write uv = (0.80, 0.70) reads (0.65, 0.60) and stores orange
+9.9  write stays; scale 2 asks a neighbor half as far from C
+     right edge 0.50 / 2 = 0.25 from C
+     teaching write 0.30 from C asks 0.15 from C and stores orange
 ```
 
 **Generated ahead of checkpoint 9.9, not complete**

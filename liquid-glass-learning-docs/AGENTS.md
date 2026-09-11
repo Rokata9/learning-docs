@@ -984,6 +984,8 @@ Recorded 2026-09-10 after the learner asked whether `readCoord.x = 20 − 0.10 �
 
 ### Two rulers for a coordinate rename — Lesson 9.9 rewrite
 
+Superseded for this learner by **Confirmed scale walk; UV convert is leftover** (2026-09-11). Keep the write-versus-read split. Do not reopen dual UV/`p` rulers after the learner has said they already convert points to UV.
+
 Recorded 2026-09-10 after the learner stopped at Lesson 9.9’s four-step stepper. The page treated `p = uv − 0.5`, `p / scale`, and `+ 0.5` as a pile of numbers. It never drew that 0.80 and 0.30 are two names for the same pixel, or that +0.5 is the inverse rename so `eval` can speak UV. Lesson 8.8 had said “do not add 0.5 back” because that lesson’s `if` tested `p`. This lesson’s `eval` needs UV. The contradiction was not reconciled. The write pixel looked as if it remapped to a new position.
 
 1. **Draw two rulers on the same pixels before the formula.** UV from the left: 0, 0.5 at `C`, 1 at the right. `p` from `C`: −0.5, 0, +0.5. The ticks occupy the same physical line. Subtract 0.5 is a rename of one pixel, not a slide.
@@ -996,9 +998,26 @@ Recorded 2026-09-10 after the learner stopped at Lesson 9.9’s four-step steppe
 
 **Verification before packaging a center-scale or displacement-sample lesson:**
 
-- Can the learner point at one pixel and say its UV name and its `p` name?
-- Can they say which pixel still stores, which pixel is asked, and that those are different pixels?
-- Can they point at the dashed alignment and say why +0.5 exists, including the 8.8 leftover that stayed in `p`-space?
+- Can the learner say which pixel still stores, which pixel is asked, and that those are different pixels?
+- After the learner already converts UV, do not re-test UV versus `p` names or why +0.5 exists. Those questions are leftover.
+
+### Confirmed scale walk; UV convert is leftover — Lesson 9.9 second rewrite
+
+Recorded 2026-09-11 after the learner stated the causal picture of scale 2 and asked to delete converting points to UV. Dual rulers and `+ 0.5` sections were leftover-first: the easy convert taught again, the walk buried in numbers.
+
+Learner picture (confirmed): scale 2 means this write pixel reaches a neighbor twice as close to `C` (half as far from `C`). That nearer color is stored here. Near-center content is dragged onto farther write pixels. That is magnification. Write does not move.
+
+1. **The load-bearing object is the walk.** Write stays. Divide shortens the ask toward `C`. Store the nearer color. That is the lesson.
+2. **Do not re-teach UV ↔ `p`.** `p = uv − 0.5` and `+ 0.5` stay in the AGSL because `eval` wants UV. They get one leftover sentence, not a section, not two rulers, not a dashed alignment figure.
+3. **Prove divide on distances from `C`.** Right edge is half a square from `C`. The inner-half’s right edge is a quarter from `C`. Half / 2 = quarter. The 2 is the enlargement we chose. Do not prove it by lining up UV ticks.
+4. **Do not dump `0.80 / 0.30 / 0.15 / 0.65`.** Those are convert leftovers. Name a teaching pixel as “this far from `C`” and show the shortened walk on the same ray.
+5. **The first 9.9 rewrite’s dual-ruler page is the same class of failure as 9.10 leftover-first:** easy convert taught at length, walk and magnification skimmed.
+
+**Verification before packaging this scale lesson:**
+
+- Can the learner say, without UV names, that scale 2 asks a point half as far from `C` and stores that nearer color at the write pixel?
+- Can they say why that makes the middle look larger?
+- If the first two sections could be understood without the walk, those sections are leftover.
 
 ### Displacement is a chosen walk toward C, not a 3D formula — Lesson 9.10 rewrite
 
