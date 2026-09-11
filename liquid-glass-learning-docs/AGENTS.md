@@ -1037,6 +1037,16 @@ Recorded 2026-09-11 after the learner said the inner rectangle was not visible, 
 - Can they say what half of `(0,0) → (1,1)` is, and that it is the inner-rect corner, not an orange/navy border on this diagonal?
 - Can they say where an outer input point would be painted?
 
+### Name the four store squares; do not code “navy-right → orange”
+
+Recorded 2026-09-11 after the learner confirmed Lesson 9.9 complete, then could not parse “Always navy-right → orange,” “There is no navy-right write at scale 2 that stores navy,” and “Always orange-left → navy.” They were looking at the four big store squares: top-left orange, top-right navy, bottom-left navy, bottom-right orange. The page had named a write by the input color at that seat.
+
+1. **Name which picture.** Input or store. A hyphenated color-side code does not say which.
+2. **Name which of the four store squares.** Top-left, top-right, bottom-left, bottom-right. Those four are the inner 2 × 2, each cell now twice as wide and twice as tall.
+3. **“Always X → Y” is a failed answer.** Write a sentence: this store square is this inner input cell, copied.
+4. **Many writes can share one read.** Scale 2 still evals once per write pixel. Asks pack into the inner half, so a block of neighboring writes copy the same input cell. That is repeat, not an average of neighbors.
+5. **Same cell is not “rounded to the same pixel.”** Write seats stay discrete. `eval` of a shader is a function of a float pair. Write `(1, 0)` asks 100.5 px; write `(0, 0)` asks 100.0 px. Both sit in the inner top-left cell `[100, 200)`. Lesson 2.8 already used a pixel center at 7.5; Lesson 8.6 used `399.5`. Do not snap the ask to an integer before the checker runs. Bitmap filtering is later.
+
 ### Displacement is a chosen walk toward C, not a 3D formula — Lesson 9.10 rewrite
 
 Recorded 2026-09-10 after the learner opened Lesson 9.10 and saw the same failure as 9.9: a four-step stepper dumping `0.60`, `−0.80`, `0.06`, `−0.08`, `0.74`, `0.18`, with no picture of why the stored checker looks like a bump and no reason for the AGSL divide, multiply, or subtract.

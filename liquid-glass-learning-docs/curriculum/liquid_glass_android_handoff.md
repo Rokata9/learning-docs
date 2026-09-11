@@ -19,17 +19,17 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 94
-completed_through: "Lesson 9.8 — Translate sample coordinates"
+learner_confirmed_complete: 95
+completed_through: "Lesson 9.9 — Scale around the center"
 completed_chapters: [1, 2, 3, 4, 5, 6, 7, 8]
 chapter_8_complete: "12 of 12"
-chapter_9_complete: "8 of 14"
-next_unresolved_checkpoint: "Lesson 9.9 — Scale around the center"
+chapter_9_complete: "9 of 14"
+next_unresolved_checkpoint: "Lesson 9.10 — Build a displacement field"
 generated_frontier: "Lesson 9.10 — Build a displacement field"
 next_planned_after_frontier: "Lesson 9.11 — Refraction as displaced sampling"
 ```
 
-Lessons 8.2 through 9.8 are learner-confirmed complete. Lesson 9.9 is generated and is not complete. Lesson 9.10 is generated ahead and is not complete.
+Lessons 8.2 through 9.9 are learner-confirmed complete. Lesson 9.10 is generated and is not complete.
 
 Chapter 7 frost stays fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
@@ -158,7 +158,7 @@ readCoord = fragCoord − float2(offsetU * resolution.x, 0)
 
 Default `offsetU = 0.10` is one stripe width as a fraction of the rectangle width. Teaching write `uv.x = 0.15` reads `0.05` and stores orange. The picture shifts opposite the read offset. `eval` does not wrap a negative read x. The stripe input’s `fract` still returns a color. Scale around the center is Lesson 9.9. A displacement field is Lesson 9.10. Edge safety is Lesson 9.12.
 
-## Unresolved checkpoint — Lesson 9.9
+## Completed — Lesson 9.9
 
 ```text
 p = uv − 0.5
@@ -166,9 +166,9 @@ p = uv − 0.5
 → sampled = background.eval(readUv × resolution)
 ```
 
-No inner-half `if`. Inner 2 × 2 is the image of the square under a halved walk. Right outer navy always stores inner orange. Left outer orange always stores inner navy. Half of `C → (1,1)` is `(0.75, 0.75)`, still orange on that diagonal. Outer input would be painted off-picture. Teaching write 0.30 from `C` asks 0.15 from `C`, stores orange. Not complete.
+No inner-half `if`. Store is four big squares: inner 2 × 2 copied onto many writes (repeat, not average). Top-left orange, top-right navy, bottom-left navy, bottom-right orange. Half of `C → (1,1)` is `(0.75, 0.75)`, still orange on that diagonal. Outer input would be painted off-picture.
 
-## Generated ahead — Lesson 9.10
+## Unresolved checkpoint — Lesson 9.10
 
 ```text
 dir = p / length(p)
@@ -185,4 +185,4 @@ Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions.
 
 Standing delivery: no ZIP archives; new `@Preview` stacks light then dark. Details in `USER_PREFERENCES.md`.
 
-Course progress: 94 of 216 lessons completed.
+Course progress: 95 of 216 lessons completed.

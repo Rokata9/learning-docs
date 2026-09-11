@@ -8,17 +8,16 @@
 
 ## Authoritative progress
 
-- Learner-confirmed complete: **94 of 216 lessons**.
-- Completed through: **Lesson 9.8 — Translate sample coordinates**.
+- Learner-confirmed complete: **95 of 216 lessons**.
+- Completed through: **Lesson 9.9 — Scale around the center**.
 - Completed chapters: **1, 2, 3, 4, 5, 6, 7, and 8**.
 - Chapter 8: **12 of 12 lessons complete**.
-- Chapter 9: **8 of 14 lessons complete**.
-- Current unresolved checkpoint: **Lesson 9.9 — Scale around the center**.
+- Chapter 9: **9 of 14 lessons complete**.
+- Current unresolved checkpoint: **Lesson 9.10 — Build a displacement field**.
 - Generated frontier: **Lesson 9.10 — Build a displacement field**.
 - Next planned lesson after the generated frontier: **Lesson 9.11 — Refraction as displaced sampling**.
-- Lessons 8.2 through 9.8 are learner-confirmed complete.
-- Lesson 9.9 is generated and is not learner-confirmed complete.
-- Lesson 9.10 is generated ahead and is not learner-confirmed complete.
+- Lessons 8.2 through 9.9 are learner-confirmed complete.
+- Lesson 9.10 is generated and is not learner-confirmed complete.
 
 Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
@@ -54,7 +53,7 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 
 ## Last session compact record (2026-09-11)
 
-Rewrote Lesson 9.9 so the inner rectangle is drawn sub-bounds, with no `if`, both-axis color proofs, the 45° walk `(0,0) → (1,1)`, and inverse off-picture. The learner had confirmed the walk, then named these as the missing hard picture. Reusable rule recorded in `AGENTS.md` as **Inner rectangle is drawn sub-bounds; no if; both sides and the diagonal**. Count stays **94 of 216**. Unresolved checkpoint remains **Lesson 9.9**. Lesson 9.10 is still not complete.
+Learner confirmed Lesson 9.9 complete, then named the “navy-right → orange” answer style as unreadable: they were looking at the four big store squares. Rewrote those answers to name top-left / top-right / bottom-left / bottom-right, and added that many writes copy one input cell (repeat, not bilinear average). Reusable rule recorded in `AGENTS.md` as **Name the four store squares; do not code “navy-right → orange”**. Count is **95 of 216**. Unresolved checkpoint is **Lesson 9.10**. Do not generate 9.11 unless asked.
 
 ## Prior session compact record (2026-09-10)
 
@@ -108,12 +107,12 @@ Reusable teaching pattern recorded in `AGENTS.md` as **Load-bearing section budg
 
 9.8 completed contract: `readCoord = fragCoord − float2(offsetU * resolution.x, 0)`. `sampled = background.eval(readCoord)`. Default `offsetU = 0.10` (one stripe width). Teaching write `uv.x = 0.15` reads `uv.x = 0.05` and stores orange. The picture shifts opposite the read offset. `eval` does not wrap a negative read x. The stripe input’s `fract` still returns a color.
 
-9.9 checkpoint contract: no inner-half `if`. Inner 2 × 2 (0.25 from `C` on each axis) is the image of the square under a halved walk. Right outer navy always stores inner orange. Left outer orange always stores inner navy. Half of `C → (1,1)` is `(0.75, 0.75)`, inner-rect corner, still orange on that diagonal. Outer input would be painted off-picture (UV 1.30 or −0.30). Teaching write 0.30 from `C` asks 0.15 from `C`, stores orange. Not complete.
+9.9 completed contract: no inner-half `if`. Store is four big squares (inner 2 × 2 copied onto many writes: about 2 × 2 writes per input cell). Top-left orange, top-right navy, bottom-left navy, bottom-right orange. Repeat, not average. Half of `C → (1,1)` is `(0.75, 0.75)`, inner-rect corner, still orange on that diagonal. Outer input would be painted off-picture. `readUv = p / scale + 0.5`.
 
-9.10 generated-ahead contract: a vertical side tilts because its two ends sit on two rays. `H = (0.75, 0.50)` walks to `(0.85, 0.50)`; `Q = (0.75, 0.25)` splits the same walk on the 45° ray. They no longer share an x. Four corners → trapezoid leaning toward `C`. Shader inward ask is the inverse. `dir = p / length(p)` so H and Q walk the same length. Default `dispLen = 0.10`. Not complete.
+9.10 checkpoint contract: a vertical side tilts because its two ends sit on two rays. `H = (0.75, 0.50)` walks to `(0.85, 0.50)`; `Q = (0.75, 0.25)` splits the same walk on the 45° ray. They no longer share an x. Four corners → trapezoid leaning toward `C`. Shader inward ask is the inverse. `dir = p / length(p)` so H and Q walk the same length. Default `dispLen = 0.10`. Not complete.
 
-## Unresolved checkpoint — Lesson 9.9
+## Unresolved checkpoint — Lesson 9.10
 
-Do not mark 9.9 complete until the learner confirms.
+Do not mark 9.10 complete until the learner confirms.
 
-Course progress: 94 of 216 lessons completed.
+Course progress: 95 of 216 lessons completed.

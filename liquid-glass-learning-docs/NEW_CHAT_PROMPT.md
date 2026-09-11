@@ -151,14 +151,14 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-09-10 with `CURRENT_STATE.md` (course version 9.10.0).
+**Last aligned:** 2026-09-11 with `CURRENT_STATE.md` (course version 9.10.0).
 
 ```text
-completed: 94 of 216, through Lesson 9.8
-current unresolved checkpoint: Lesson 9.9 — Scale around the center
+completed: 95 of 216, through Lesson 9.9
+current unresolved checkpoint: Lesson 9.10 — Build a displacement field
 generated frontier: Lesson 9.10 — Build a displacement field
 next planned lesson after the frontier: Lesson 9.11 — Refraction as displaced sampling
-Lesson 9.10 is generated ahead and not complete
+Lesson 9.10 is generated and not complete
 ```
 
 Chapter 7 is complete. Frost constants stay fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
@@ -361,7 +361,7 @@ readCoord = fragCoord − float2(offsetU * resolution.x, 0)
 
 Default `offsetU = 0.10`. Teaching write `uv.x = 0.15` reads `0.05` and stores orange. Picture shifts opposite the read offset. `eval` does not wrap a negative read x. The stripe input’s `fract` still returns a color. Scale around the center is Lesson 9.9.
 
-**9.9 checkpoint contract:**
+**9.9 completed contract:**
 
 ```text
 p = uv − 0.5
@@ -369,9 +369,9 @@ p = uv − 0.5
 → sampled = background.eval(readUv × resolution)
 ```
 
-No inner-half `if`. Inner 2 × 2 is the image of the square under a halved walk. Right outer navy always stores inner orange. Left outer orange always stores inner navy. Half of `C → (1,1)` is `(0.75, 0.75)`, still orange on that diagonal. Outer input would be painted off-picture. Teaching write 0.30 from `C` asks 0.15 from `C`, stores orange. Not complete.
+No inner-half `if`. Store is four big squares: inner 2 × 2 copied onto many writes (repeat, not average). Top-left orange, top-right navy, bottom-left navy, bottom-right orange. Half of `C → (1,1)` is `(0.75, 0.75)`, still orange on that diagonal. Outer input would be painted off-picture.
 
-**9.10 generated-ahead contract:**
+**9.10 checkpoint contract:**
 
 ```text
 dir = p / length(p)

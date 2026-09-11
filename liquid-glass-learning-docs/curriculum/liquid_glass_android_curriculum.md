@@ -11,12 +11,12 @@ Live progress, current files, and the checkpoint/frontier contracts live in `CUR
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **94 of 216**, through **Lesson 9.8**.
-- Completed chapters: **1–8**. Chapter 9: **8 of 14**.
-- Unresolved checkpoint: **Lesson 9.9 — Scale around the center**.
-- Generated frontier: **Lesson 9.10 — Build a displacement field** (generated ahead, not complete).
+- Learner-confirmed complete: **95 of 216**, through **Lesson 9.9**.
+- Completed chapters: **1–8**. Chapter 9: **9 of 14**.
+- Unresolved checkpoint: **Lesson 9.10 — Build a displacement field**.
+- Generated frontier: **Lesson 9.10 — Build a displacement field**.
 - Next planned after the frontier: **Lesson 9.11 — Refraction as displaced sampling**.
-- Lesson 9.10 is generated ahead of checkpoint 9.9 and is not complete.
+- Lesson 9.10 is generated and is not complete.
 
 ## 2. How this file relates to the rule sources
 
@@ -439,15 +439,15 @@ Chapters **1–7** are complete. Do not reopen blur, tint, saturation, inset-str
      eval does not wrap a negative read x; stripe fract still returns a color
 ```
 
-**Unresolved checkpoint, generated, not complete**
+**9.9 complete**
 
 ```text
-9.9  no if; inner 2×2 is the image of the square under a halved walk
-     navy-right always → orange; orange-left always → navy
-     half of C→(1,1) is (0.75, 0.75), still orange; outer input off-picture
+9.9  no if; store is four big squares (inner 2×2 copied, not averaged)
+     TL orange, TR navy, BL navy, BR orange
+     many writes share one input cell; half of C→(1,1) is (0.75, 0.75)
 ```
 
-**Generated ahead of checkpoint 9.9, not complete**
+**Unresolved checkpoint, generated, not complete**
 
 ```text
 9.10 vertical side tilts: H (0.75, 0.50) walks to (0.85, 0.50); Q (0.75, 0.25) splits the same walk
