@@ -1,6 +1,6 @@
-# Liquid Glass on Android — Learning Documents
+# Liquid Glass on iOS — Learning Documents
 
-Interactive, graphics-first lessons for building Liquid Glass effects on Android from first principles.
+Interactive, graphics-first lessons for building Liquid Glass effects on iOS from first principles.
 
 ## Start here
 
@@ -8,16 +8,25 @@ Open `liquid-glass-course.html` in a browser.
 
 Live progress, current files, and the checkpoint/frontier live in `CURRENT_STATE.md`. That file wins when this README disagrees.
 
-To continue in a new chat, paste `NEW_CHAT_PROMPT.md` and name generate or questions in the same message.
+To continue the iOS translation in a new chat, paste:
+
+```text
+Read liquid-glass-learning-docs/IOS_TRANSLATION_PROMPT.md and execute the next step of the plan.
+```
+
+To continue as a learner, paste `NEW_CHAT_PROMPT.md` and name generate or questions in the same message.
 
 ## Repos
 
-- Docs: this repository (`liquid-glass-learning-docs`).
-- Android: `/Users/rosen/Code/LiquidGlassLab` (sibling). Do not create an `android/` directory here.
+- Docs: this repository (`liquid-glass-learning-docs`). Edit in place. Do not copy this folder.
+- iOS lab: `/Users/rosen/Code/LiquidGlassLab-iOS` (sibling). Create and write only there.
+- Do not create an `ios/` or `android/` directory in this repo.
 
 ## Rule sources
 
-- `AGENTS.md` — lesson quality, verification, Android preview rules.
+- `IOS_TRANSLATION_PROMPT.md` — one-step translation resume.
+- `PLATFORM_MAP.md` — Swift / SwiftUI / Metal noun and API map.
+- `AGENTS.md` — lesson quality, verification, Xcode `#Preview` rules.
 - `USER_PREFERENCES.md` — explanation calibration, visualization target, delivery preferences.
 - `curriculum/liquid_glass_android_curriculum.md` — the 216-lesson plan and frozen locks.
 - `curriculum/liquid_glass_android_handoff.md` — short continuation contracts for the current chapter.

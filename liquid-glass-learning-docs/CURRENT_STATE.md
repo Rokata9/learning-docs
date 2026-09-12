@@ -1,31 +1,94 @@
-# Liquid Glass Android course — current state
+# Liquid Glass iOS course — current state
 
-**Updated:** 2026-09-11  
+**Updated:** 2026-09-12  
 **Course version:** 9.10.0  
-**Platform:** Kotlin + Jetpack Compose  
-**Test device:** Pixel 8 Pro  
+**Platform:** Swift / SwiftUI / Metal (lab pixel-function strings)  
+**Test device:** iPhone 16 Pro  
+**Min OS:** iOS 17  
 **Total curriculum size:** 216 lessons
 
 ## Authoritative progress
 
-- Learner-confirmed complete: **95 of 216 lessons**.
-- Completed through: **Lesson 9.9 — Scale around the center**.
-- Completed chapters: **1, 2, 3, 4, 5, 6, 7, and 8**.
-- Chapter 8: **12 of 12 lessons complete**.
-- Chapter 9: **9 of 14 lessons complete**.
-- Current unresolved checkpoint: **Lesson 9.10 — Build a displacement field**.
-- Generated frontier: **Lesson 9.10 — Build a displacement field**.
-- Next planned lesson after the generated frontier: **Lesson 9.11 — Refraction as displaced sampling**.
-- Lessons 8.2 through 9.9 are learner-confirmed complete.
-- Lesson 9.10 is generated and is not learner-confirmed complete.
+```text
+platform: Swift / SwiftUI / Metal (lab pixel-function strings)
+test device: iPhone 16 Pro
+min OS: iOS 17
+
+learner-confirmed complete: 40 of 216
+completed through: Lesson 9.6 — Combine shapes
+  (Chapters 3, 4, 5, and Lessons 9.1–9.6 only)
+
+must re-read before the frontier (platform chapters, in order):
+  Chapter 1, Chapter 2, Chapter 6, Chapter 7, Chapter 8, Lessons 9.7–9.9
+
+current unresolved checkpoint: Lesson 1.3 — Create LiquidGlassLab
+  (first lesson of the iOS on-ramp)
+
+on-ramp then returns the checkpoint to: Lesson 9.10 — Build a displacement field
+generated frontier: Lesson 9.10 — Build a displacement field
+next planned after the frontier: Lesson 9.11 — Refraction as displaced sampling
+```
+
+Do not restore **95 of 216**. That count was the prior lab. It is not the iOS state.
+
+Do not mark Lesson 1.3 complete just because the prior 1.3 was complete.
 
 Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
+Do not generate Lesson 9.11 unless asked.
+
 Reusable new-chat starter: `NEW_CHAT_PROMPT.md`. Paste it, then name generate or questions in the same message. Progress in this file wins. When the checkpoint or frontier moves, refresh section 12 of that prompt.
+
+## Stay complete — graphics and math
+
+These lessons stay learner-confirmed complete. HTML will still be updated so excerpts are Swift, but the learner does not need to sit through them again before the on-ramp.
+
+| Chapter / lessons | Count | Why they stay complete |
+|-------------------|------:|------------------------|
+| Chapter 3 | 11 | Color, alpha, over, luminance, tint, saturation as math |
+| Chapter 4 | 11 | Shapes, corners, paths, masks as geometry |
+| Chapter 5 | 12 | Time, progress, lerp, easing, springs as math. Skim 5.2 / 5.11 / 5.12 later only if an iOS clock API is needed. |
+| Lessons 9.1–9.6 | 6 | Distance, SDF, min/max. Pixel arithmetic is unchanged. |
+
+**iOS-confirmed complete: 40 of 216** (11+11+12+6).
+
+Also still known, but not counted as extra complete lessons: 1.1 / 1.2 / 1.6 / 1.8 vocabulary, Chapter 7 frost *formulas* (18 pt / 0.25 / 0.40), Chapter 8 mix/smoothstep *math*. Those live inside chapters that must be re-read for the iOS project and APIs.
+
+## Must re-read before Lesson 9.10 — platform chapters
+
+Read each of these, in order, on the translated HTML + new lab, before treating 9.10 as the live checkpoint.
+
+| Order | What to read | Why it is iOS, not math |
+|-------|----------------|-------------------------|
+| 1 | **Chapter 1 entire** (1.1–1.8) | Creates the SwiftUI project, study background, translucent panel, iPhone 16 Pro experiment. 1.3 and 1.7 are the load-bearing ones; the rest of the chapter is the iOS baseline around them. |
+| 2 | **Chapter 2 entire** (2.1–2.9) | Points vs pixels vs `displayScale`, SwiftUI local/parent/screen coordinates. 2.5 is the unit rewrite; the inspector in 2.9 is the iOS API. |
+| 3 | **Chapter 6 entire** (6.1–6.11) | **How SwiftUI draws the scene.** Owned `.blur()` vs captured backdrop. This chapter is new on iOS. |
+| 4 | **Chapter 7 entire** (7.1–7.12) | Frost *recipes* are known; the **lab path** is new (owned blur, snapshot crop, saturation matrix on a SwiftUI layer). Re-run the explorers. Do not rebuild the frozen constants. |
+| 5 | **Chapter 8 entire** (8.1–8.12) | **Your first Metal shader.** `RuntimeMetalShader`, pixel `fragCoord`, uniforms, compile errors. 8.3–8.8 / 8.11 math is familiar; the host is new. Re-read the chapter as iOS. |
+| 6 | **Lessons 9.7–9.9** | `uniform shader` / `eval` / `setInputShader` on Metal. 9.1–9.6 stay complete; these three are the sampling API. |
+
+Then the unresolved checkpoint is again **Lesson 9.10 — Build a displacement field**.
+
+As the learner finishes a must-re-read chapter, increase the count by that chapter’s lesson total and move the checkpoint forward along the on-ramp table. After 9.9 is confirmed on iOS, count is 40+8+9+11+12+12+3 = **95** again, checkpoint **9.10**. That is the equivalent of the old 95, earned on iOS.
+
+## Frozen frost stack (do not rebuild)
+
+blur **18 pt**, tint **0.25**, saturation **0.40**, rim **3 pt**, inner band **12 pt** with band blur **6 pt**, shadow blur **12 pt** offset **4 pt**. Saturation matrix weights stay **0.213 / 0.715 / 0.072**.
 
 ## Current lesson files
 
+Live checkpoint is Lesson 1.3. Frontier HTML is Lesson 9.10. Swift explorers do not exist yet; they will be listed here as they appear under `/Users/rosen/Code/LiquidGlassLab-iOS`.
+
 ```text
+course/chapters/chapter-01/lesson-01-01-visible-ingredients.html
+course/chapters/chapter-01/lesson-01-02-observe-the-transition.html
+course/chapters/chapter-01/lesson-01-03-create-the-android-project.html
+course/chapters/chapter-01/lesson-01-04-build-a-study-background.html
+course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html
+course/chapters/chapter-01/lesson-01-06-alpha-mixture.html
+course/chapters/chapter-01/lesson-01-07-pixel-8-pro-experiment.html
+course/chapters/chapter-01/lesson-01-08-diagnosis-and-checkpoint.html
+course/chapters/chapter-01/lesson-a-transparent-panel-is-not-yet-liquid-glass.html
 course/chapters/chapter-09/lesson-09-01-distance-between-two-points.html
 course/chapters/chapter-09/lesson-09-02-circle-signed-distance-field.html
 course/chapters/chapter-09/lesson-09-03-turn-distance-into-a-soft-mask.html
@@ -37,92 +100,96 @@ course/chapters/chapter-09/lesson-09-08-translate-sample-coordinates.html
 course/chapters/chapter-09/lesson-09-09-scale-around-the-center.html
 course/chapters/chapter-09/lesson-09-10-build-a-displacement-field.html
 course/chapters/chapter-09/lesson-distance-fields-image-sampling-and-refraction.html
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/DistanceBetweenPointsExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/CircleSdfExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/SoftMaskExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/RoundedRectSdfExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/CapsuleSdfExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/CombineShapesExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/SampleInputShaderExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/TranslateSampleExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/ScaleAroundCenterExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/DisplacementFieldExplorer.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/Chapter09Screen.kt
-LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 ```
 
-## Current feedback and revision (2026-09-11)
+Filenames stay until a dedicated sweep. Content and titles become iOS in each lesson’s own translation step.
 
-The learner requested a simpler Lesson 9.10 with better diagrams, centered on navy appearing above the exact input cell x `[0.50, 0.75)`, y `[0.25, 0.50)`, and the meaning of `dispLen = 0.10`. The earlier lesson followed the adjacent orange cell, relied on straight corner joins over curved output edges, and left read-distance versus size unclear.
+## Stay-complete contracts — Lessons 9.1–9.6
 
-The revised HTML follows W = `(0.65, 0.20)`; y = 0.20 is an explicit choice because the learner specified only x and “slightly above.” At length 0.10 the read is approximately `(0.60528, 0.28944)`, inside the named navy cell. A six-operation walkthrough derives the read. The lab, added-region map, vertical slice, curved-edge construction, and center-crossing demonstration use the same shader calculation. Long coordinates are outside the diagrams. Corner-join error has a magnified view.
+**9.1 completed contract:**
 
-Reusable rule: **Exact-cell readback and curved-region proof** in `AGENTS.md`. Verification: mathematical readback and raster comparisons, all walkthrough/control states, center and length boundaries, provenance popups, copyable record, and file:// screenshots at 1920×1080 and 5120×1440. The detailed audit and results live in `verification/lesson-09-10-review.md` and `verification/lesson-09-10-checks.json`. Android's actual `DisplaceAgsl` was inspected and is unchanged; the HTML explains its different teaching marks. No device validation is claimed.
+```text
+right triangle first (square corner, two legs, long side)
+→ countable 3-4-5, then teaching 0.30 / 0.40 / 0.50
+→ 0.09 + 0.16 = 0.25
+→ sqrt(0.25) = 0.50 because 0.50 × 0.50 = 0.25
+→ length(p) stored as gray
+```
 
-Count stays **95 of 216**. Lesson **9.10** remains the unresolved checkpoint and generated frontier. No Lesson 9.11 was generated.
+Teaching `p = (0.30, −0.40)` on a square 400×400 rectangle. Walk-around 0.70 is not the long side. × 2 unused. Sign unused. Rectangle is square so UV x and UV y share one pixel length. Nested equal-value outlines: smaller length circles are darker; smaller walk-around diamonds are that analog. The diamond is a square standing on a vertex.
 
-## Prior session compact record (2026-09-11)
+**9.2 completed contract:**
 
-Learner confirmed Lesson 9.9 complete, then named the “navy-right → orange” answer style as unreadable: they were looking at the four big store squares. Rewrote those answers to name top-left / top-right / bottom-left / bottom-right, and added that many writes copy one input cell (repeat, not bilinear average). Reusable rule recorded in `AGENTS.md` as **Name the four store squares; do not code “navy-right → orange”**. Count is **95 of 216**. Unresolved checkpoint is **Lesson 9.10**. Do not generate 9.11 unless asked.
+```text
+sd = length(p) − radius
+→ minus inside, zero boundary, plus outside
+→ if (sd < 0.0) orange else navy
+```
 
-## Prior session compact record (2026-09-10)
+Default radius 0.25. Teaching pixel sd = +0.25 (outside, navy). Center sd = −0.25 (inside, orange). Boundary `p = (0.15, −0.20)` has sd = 0. `smoothstep` unused. Walk-around diamond is HTML-only.
 
-Rewrote Lesson 9.10 after the learner named the same failure as 9.9: unexplained numbers, no reason for the AGSL divide/multiply/subtract, and no word on why the stored checker looks 3D. That rewrite still skimmed the tilted squares. Count stays **94 of 216**. Unresolved checkpoint remains **Lesson 9.9**.
+**9.3 completed contract:**
 
-## Prior session compact record (2026-09-10)
+```text
+mask = 1.0 − smoothstep(−band, band, sd)
+→ mix(navy, orange, mask)
+→ teaching sd = +0.05 → mask = 0.15625 → stored red 0.221875
+```
 
-Rewrote Lesson 9.9 after the learner stopped at the four-step stepper. The old page dumped `p / 2 + 0.5` as unexplained numbers and looked like the write pixel remapped. New page: write stays; two rulers for the rename; divide proved on the right-edge write (`+0.50 / 2 = +0.25`, UV 0.75) because scale 2 means twice as large; `+ 0.5` is the UV name of that neighbor. Reusable rule recorded in `AGENTS.md` as **Two rulers for a coordinate rename**. Count stays **94 of 216**. Unresolved checkpoint remains **Lesson 9.9**.
+Default band 0.10. Teaching band pixel `p = (0.18, −0.24)`, `d = 0.30`. linearFraction 0.75. curvedFraction 0.84375. Far pixel `p = (0.30, −0.40)` clamps to mask 0. Center mask 1. Boundary mask 0.50. Requires `edge1 > edge0`. Not 4.8 binary, not 4.9 coverage, not blur.
 
-## Prior session compact record (2026-09-10)
+**9.4 completed contract:**
 
-Learner confirmed Lesson 9.8 complete after asking whether `readCoord.x = −20` wraps to 380. It does not: `eval` passes the pair as written. The stripe input’s `fract(uv.x × 5)` still returns a color. Reusable rule recorded in `AGENTS.md` as **Eval does not wrap the read pair**. Count is **94 of 216**. Unresolved checkpoint is **Lesson 9.9**. Generated frontier remains **Lesson 9.10**.
+```text
+innerHalf = outerHalf − cornerRadius
+→ q = abs(p) − innerHalf
+→ piecewise sdBox, then sd = sdBox − cornerRadius
+→ if (sd < 0.0) orange else navy
+```
 
-## Prior session compact record (2026-09-10)
+Default outer half `(0.30, 0.20)` means full size `0.60 × 0.40`. Corner radius 0.10. Teaching pixel `p = (0.26, −0.18)` is the inner-corner plus a 3-4-5 unit step of length 0.10, and has sd = 0. Visual center `C` is not a construction-circle center. `abs(p)` mirrors left onto right and top onto bottom. Capsule is Lesson 9.5.
 
-Generated Lessons 9.9 and 9.10 ahead of unresolved checkpoint 9.8. Count stayed **93 of 216**. Unresolved checkpoint was **Lesson 9.8**. Generated frontier is **Lesson 9.10**.
+**9.5 completed contract:**
 
-## Prior session compact record (2026-09-09)
+```text
+nearestX = clamp(p.x, −innerHalfW, innerHalfW)
+→ sd = length(p − (nearestX, 0)) − radius
+→ if (sd < 0.0) orange else navy
+```
 
-Learner confirmed Lesson 9.7 complete. Count was **93 of 216**. Unresolved checkpoint was **Lesson 9.8**. Generated frontier was **Lesson 9.8**.
+Default outer half `(0.40, 0.20)`, radius `0.20` equal to half-height. Teaching cap-boundary `p = (0.32, −0.16)` has sd = 0. Inner segment x from −0.20 to +0.20.
 
-## Prior session compact record (2026-09-08)
+**9.6 completed contract:**
 
-Learner confirmed Lessons 9.5 and 9.6 complete. Count is **92 of 216**. Unresolved checkpoint is **Lesson 9.7**. Generated frontier remains **Lesson 9.8**.
+```text
+sdA = length(p) − radiusA
+→ pB = p − B
+→ sdB = length(pB) − radiusB
+→ union sd = min(sdA, sdB)
+→ intersection sd = max(sdA, sdB)
+→ B minus A sd = max(sdB, −sdA)
+→ if (sd < 0.0) orange else navy
+```
 
-9.6 formula presentation was rewritten before this confirmation: every teaching surface uses `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15`. Reusable rule recorded in `AGENTS.md` as **Named-formula-before-substitution**.
+Two Lesson 9.2 circles. Teaching left-only `p = (−0.10, 0)` has `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15` and `sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05`. Named formula stays visible before substitution.
 
-## Prior session compact record (2026-09-02)
+## Destination after the on-ramp — Lesson 9.10
 
-Learner confirmed Lesson 9.4 complete. Lesson 9.5 remains the unresolved checkpoint. Lessons 9.6, 9.7, and 9.8 were generated ahead of that checkpoint.
+Not complete. Not the live checkpoint until Chapters 1, 2, 6, 7, 8, and Lessons 9.7–9.9 are re-read on iOS.
 
-9.6 uses two Lesson 9.2 circles so it does not consume the unfinished capsule. Combining is `min` / `max` / `max(sdB, −sdA)` of two complete signed-distance numbers at one pixel.
+**9.10 checkpoint contract:**
 
-9.7 introduces `uniform shader` and `eval`. 9.8 subtracts a width-fraction offset from the read coordinate. Geometry masks are unused in 9.7 and 9.8.
+```text
+dir = p / length(p)
+→ disp = dir × dispLen
+→ readUv = uv − disp
+→ sampled = background.eval(readUv × resolution)
+```
 
-Reusable rule recorded in `AGENTS.md` as **First-section labelled geometry and teaching-pixel provenance**. Compressing later sections must not strip opening pictures. `C` and a construction-circle center are different points. Half-size is dimension-lined to full size. A teaching pixel needs a 3-4-5 provenance picture. A stepper’s left pane must change drawn objects every step.
+Follow the navy input cell x `[0.50, 0.75)`, y `[0.25, 0.50)`. W `(0.65, 0.20)` reads approximately `(0.60528, 0.28944)` at `dispLen = 0.10` and stores navy. The selected W first reaches navy at length approximately `0.055902`. At output x = 0.65 the default top boundary is near y = `0.15844`. `dispLen` is the UV read distance, not a percentage enlargement. Use the six-operation read walkthrough, actual added-region mask, and curved-edge construction; straight corner joins are only approximations. Reads inside the radius `dispLen` can cross C. The shader skips division within its `0.0001` guard. The lab Metal pixel-function string stays 1:1 with the prior body; its old teaching marks differ from this HTML’s exact navy-cell example. Lesson 9.10 is not complete.
 
-Reusable teaching pattern recorded in `AGENTS.md` as **Load-bearing section budget**. First sections carry the lesson. Merge known-info visualization into the intro. Keep the essence section. Skip multi-pixel comparison tables that restate the lab. Keep a stepper only when the new operation is sequential. Replace **Not claimed** with **What’s next**. Cut negate-references, meta-lab sentences, and 8.9 slot-write recaps.
+## Unresolved checkpoint — Lesson 1.3
 
-9.2 completed contract: `sd = length(p) − radius`. Negative inside, zero on the boundary, positive outside. Default radius `0.25`. Teaching pixel `sd = +0.25` (outside). Center `sd = −0.25` (inside). Production is `if (sd < 0.0) orange else navy`. `smoothstep` unused.
+Do not mark 1.3 complete until the learner confirms on iOS.
 
-9.3 completed contract: `mask = 1.0 − smoothstep(−band, band, sd)`, then `mix(navy, orange, mask)`. Default `band = 0.10`. Teaching band pixel `p = (0.18, −0.24)`, `d = 0.30`, `sd = +0.05`. linearFraction `0.75`. curvedFraction `0.84375`. mask `0.15625`. stored red `0.221875`. Far 9.1/9.2 pixel stays navy. Center mask `1`. Boundary mask `0.50`. `edge1 > edge0` required.
-
-9.4 completed contract: grow an inner sharp box by the corner radius. `innerHalf = outerHalf − cornerRadius`. `q = abs(p) − innerHalf`. Piecewise `sdBox`, then `sd = sdBox − cornerRadius`. Default outer half `(0.30, 0.20)` means full size `0.60 × 0.40`. Corner radius `0.10`. Teaching pixel `p = (0.26, −0.18)` is the top-right inner corner plus a 3-4-5 unit direction scaled by `0.10`; `sd = 0`. Visual center `C` is not a construction-circle center. Production is the hard `if` on this `sd`.
-
-9.5 completed contract: grow an inner horizontal segment. `nearestX = clamp(p.x, −innerHalfW, innerHalfW)`. `sd = length(p − (nearestX, 0)) − radius`. Default outer half `(0.40, 0.20)`, radius `0.20` equal to half-height. Teaching cap-boundary `p = (0.32, −0.16)` has `sd = 0`. Width slider; radius stays derived from height.
-
-9.6 completed contract: two complete circle fields. `sdA = length(p) − radiusA`. `pB = p − B`. `sdB = length(pB) − radiusB`. Union `sd = min(sdA, sdB)`. Intersection `sd = max(sdA, sdB)`. B minus A `sd = max(sdB, −sdA)`. Teaching left-only pixel `p = (−0.10, 0)` has `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15` and `sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05`. Production is the hard `if` on the combined `sd`. Every teaching calculation keeps the named formula visible, then substitutes numbers.
-
-9.7 completed contract: `uniform shader background`, then `sampled = background.eval(fragCoord)`. Left half stores that sampled `half4`. Right half stores teaching orange. Stripe input: `fract((fragCoord.x / resolution.x) * 5.0)`; `cell < 0.5` orange else navy. Teaching `uv.x = 0.15` is navy. Kotlin binds the input with `setInputShader`.
-
-9.8 completed contract: `readCoord = fragCoord − float2(offsetU * resolution.x, 0)`. `sampled = background.eval(readCoord)`. Default `offsetU = 0.10` (one stripe width). Teaching write `uv.x = 0.15` reads `uv.x = 0.05` and stores orange. The picture shifts opposite the read offset. `eval` does not wrap a negative read x. The stripe input’s `fract` still returns a color.
-
-9.9 completed contract: no inner-half `if`. Store is four big squares (inner 2 × 2 copied onto many writes: about 2 × 2 writes per input cell). Top-left orange, top-right navy, bottom-left navy, bottom-right orange. Repeat, not average. Half of `C → (1,1)` is `(0.75, 0.75)`, inner-rect corner, still orange on that diagonal. Outer input would be painted off-picture. `readUv = p / scale + 0.5`.
-
-9.10 checkpoint contract: follow the navy input cell x `[0.50, 0.75)`, y `[0.25, 0.50)`. Output W `(0.65, 0.20)` reads approximately `(0.60528, 0.28944)` at `dispLen = 0.10` and stores navy. First entry for this W is at length approximately `0.055902`. At x = 0.65 the output top is y approximately `0.15844`; y = 0.15 remains orange and y = 0.16 becomes navy at the default length. `dispLen` is a UV read distance, not a cell-size percentage. The top and right edges curve; a four-corner polygon is only an approximation. Reads within `dispLen` of C can cross C into another input cell. The `d <= 0.0001` guard keeps displacement zero in its tiny neighborhood. Not complete.
-
-## Unresolved checkpoint — Lesson 9.10
-
-Do not mark 9.10 complete until the learner confirms.
-
-Course progress: 95 of 216 lessons completed.
+Course progress: 40 of 216 lessons completed.
