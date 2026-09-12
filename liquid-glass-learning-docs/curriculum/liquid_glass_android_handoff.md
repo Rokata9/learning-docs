@@ -1,6 +1,6 @@
 # Liquid Glass Android course — implementation handoff
 
-**Updated:** 2026-09-10  
+**Updated:** 2026-09-11
 **Course version:** 9.10.0
 
 ## Read order
@@ -177,7 +177,15 @@ dir = p / length(p)
 → sampled = background.eval(readUv × resolution)
 ```
 
-A vertical side tilts because its two ends sit on two rays. `H = (0.75, 0.50)` walks to `(0.85, 0.50)`; `Q = (0.75, 0.25)` splits the same walk on the 45° ray, so they no longer share an x. Four corners → trapezoid leaning toward `C`. Shader inward ask is the inverse. `dir = p / length(p)` so H and Q walk the same length. Default `dispLen = 0.10`. Skip the divide at `C`. Refraction falloff is Lesson 9.11. Not complete.
+The revised explanation follows the learner's exact navy input cell: x `[0.50, 0.75)`, y `[0.25, 0.50)`. W = `(0.65, 0.20)` reads approximately `(0.60528, 0.28944)` at `dispLen = 0.10`, so it stores navy. The missing y coordinate was explicitly chosen as 0.20. For that W, navy first appears at length approximately `0.055902`. At the default length and output x = 0.65, the curved top edge is near y = `0.15844`.
+
+The feedback failure was the adjacent orange teaching cell, straight corner polygons over curved boundaries, crowded labels, and no exact proof of the apparent extra triangle or size dependence. The reusable **Exact-cell readback and curved-region proof** gate in `AGENTS.md` requires exact input-cell ownership, the complete read, a nearby counterexample, a distance-versus-size distinction, actual curved edges, and the center-crossing limit of an outward construction.
+
+`dispLen` is an absolute distance in square-image UV units. At 400 teaching pixels, 0.10 is 40 pixels; an original cell is 100 pixels wide. It does not mean 10% enlargement. The complete footprint is calculated per output position. Close reads can pass C, creating a second footprint in the opposite quadrant. The shader's guard covers `d <= 0.0001`, not automatically only C itself.
+
+Verification and beginner audit: `verification/lesson-09-10-review.md` and `verification/lesson-09-10-checks.json`. Check the same-cell readback, numerical/raster agreement, every step and preset, both length extrema, center crossing, popup and record controls, label collisions, and 1920×1080 / 5120×1440 light-mode screenshots. The HTML's shader excerpt matches the inspected `DisplaceAgsl`. Android source was not edited or device-tested in this revision. Its existing overlay follows the neighboring cell and a different selected output position, which the HTML explicitly explains.
+
+Lesson 9.10 remains unfinished; count is 95 of 216. Do not generate 9.11 unless asked.
 
 ## Future conversation
 

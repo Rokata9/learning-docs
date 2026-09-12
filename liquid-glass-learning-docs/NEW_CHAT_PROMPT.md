@@ -380,7 +380,7 @@ dir = p / length(p)
 → sampled = background.eval(readUv × resolution)
 ```
 
-A vertical side tilts because its two ends sit on two rays. `H = (0.75, 0.50)` walks to `(0.85, 0.50)`; `Q = (0.75, 0.25)` splits the same walk on the 45° ray. They no longer share an x. Four corners → trapezoid leaning toward `C`. Shader inward ask is the inverse. `dir = p / length(p)` so H and Q walk the same length. Default `dispLen = 0.10`. Not complete. Second rewrite after the tilted squares were skimmed.
+Follow the navy input cell x `[0.50, 0.75)`, y `[0.25, 0.50)`. W `(0.65, 0.20)` reads approximately `(0.60528, 0.28944)` at `dispLen = 0.10` and stores navy. The selected W first reaches navy at length approximately `0.055902`. At output x = 0.65 the default top boundary is near y = `0.15844`. `dispLen` is the UV read distance, not a percentage enlargement. Use the six-operation read walkthrough, actual added-region mask, and curved-edge construction; straight corner joins are only approximations. Reads inside the radius `dispLen` can cross C. The shader skips division within its `0.0001` guard. The Android shader is unchanged; its old teaching marks differ from this HTML's exact navy-cell example. Lesson 9.10 is not complete.
 
 Current files:
 

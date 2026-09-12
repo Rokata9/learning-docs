@@ -51,7 +51,17 @@ LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/Chapter09S
 LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/MainActivity.kt
 ```
 
-## Last session compact record (2026-09-11)
+## Current feedback and revision (2026-09-11)
+
+The learner requested a simpler Lesson 9.10 with better diagrams, centered on navy appearing above the exact input cell x `[0.50, 0.75)`, y `[0.25, 0.50)`, and the meaning of `dispLen = 0.10`. The earlier lesson followed the adjacent orange cell, relied on straight corner joins over curved output edges, and left read-distance versus size unclear.
+
+The revised HTML follows W = `(0.65, 0.20)`; y = 0.20 is an explicit choice because the learner specified only x and “slightly above.” At length 0.10 the read is approximately `(0.60528, 0.28944)`, inside the named navy cell. A six-operation walkthrough derives the read. The lab, added-region map, vertical slice, curved-edge construction, and center-crossing demonstration use the same shader calculation. Long coordinates are outside the diagrams. Corner-join error has a magnified view.
+
+Reusable rule: **Exact-cell readback and curved-region proof** in `AGENTS.md`. Verification: mathematical readback and raster comparisons, all walkthrough/control states, center and length boundaries, provenance popups, copyable record, and file:// screenshots at 1920×1080 and 5120×1440. The detailed audit and results live in `verification/lesson-09-10-review.md` and `verification/lesson-09-10-checks.json`. Android's actual `DisplaceAgsl` was inspected and is unchanged; the HTML explains its different teaching marks. No device validation is claimed.
+
+Count stays **95 of 216**. Lesson **9.10** remains the unresolved checkpoint and generated frontier. No Lesson 9.11 was generated.
+
+## Prior session compact record (2026-09-11)
 
 Learner confirmed Lesson 9.9 complete, then named the “navy-right → orange” answer style as unreadable: they were looking at the four big store squares. Rewrote those answers to name top-left / top-right / bottom-left / bottom-right, and added that many writes copy one input cell (repeat, not bilinear average). Reusable rule recorded in `AGENTS.md` as **Name the four store squares; do not code “navy-right → orange”**. Count is **95 of 216**. Unresolved checkpoint is **Lesson 9.10**. Do not generate 9.11 unless asked.
 
@@ -109,7 +119,7 @@ Reusable teaching pattern recorded in `AGENTS.md` as **Load-bearing section budg
 
 9.9 completed contract: no inner-half `if`. Store is four big squares (inner 2 × 2 copied onto many writes: about 2 × 2 writes per input cell). Top-left orange, top-right navy, bottom-left navy, bottom-right orange. Repeat, not average. Half of `C → (1,1)` is `(0.75, 0.75)`, inner-rect corner, still orange on that diagonal. Outer input would be painted off-picture. `readUv = p / scale + 0.5`.
 
-9.10 checkpoint contract: a vertical side tilts because its two ends sit on two rays. `H = (0.75, 0.50)` walks to `(0.85, 0.50)`; `Q = (0.75, 0.25)` splits the same walk on the 45° ray. They no longer share an x. Four corners → trapezoid leaning toward `C`. Shader inward ask is the inverse. `dir = p / length(p)` so H and Q walk the same length. Default `dispLen = 0.10`. Not complete.
+9.10 checkpoint contract: follow the navy input cell x `[0.50, 0.75)`, y `[0.25, 0.50)`. Output W `(0.65, 0.20)` reads approximately `(0.60528, 0.28944)` at `dispLen = 0.10` and stores navy. First entry for this W is at length approximately `0.055902`. At x = 0.65 the output top is y approximately `0.15844`; y = 0.15 remains orange and y = 0.16 becomes navy at the default length. `dispLen` is a UV read distance, not a cell-size percentage. The top and right edges curve; a four-corner polygon is only an approximation. Reads within `dispLen` of C can cross C into another input cell. The `d <= 0.0001` guard keeps displacement zero in its tiny neighborhood. Not complete.
 
 ## Unresolved checkpoint — Lesson 9.10
 

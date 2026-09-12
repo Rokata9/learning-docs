@@ -5,152 +5,130 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Lesson 9.10 — Build a displacement field</title>
 <style>
-:root{color-scheme:light;--ink:#172033;--muted:#596579;--line:#d8e0ea;--paper:#fff;--soft:#f5f7fb;--panel:#fbfcfe;--control:#fff;--green:#059669;--green-soft:#ecfdf5;--indigo:#4338ca;--indigo-soft:#eef2ff;--amber:#d97706;--amber-soft:#fef3c7;--blue:#1e40af;--blue-soft:#dbeafe;--red:#dc2626;--red-soft:#fee2e2;--orange:#e07a2e;--navy:#1a4066;--pink:#be185d;--body-start:#f8fafc;--body-end:#edf2f7;--shadow:0 18px 52px rgba(30,41,59,.09);--code:#111827;--code-ink:#e5e7eb}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:linear-gradient(180deg,var(--body-start),var(--body-end));font:16px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}button,input,textarea{font:inherit}button{cursor:pointer}code,pre,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}code{background:var(--indigo-soft);padding:.12em .36em;border-radius:6px;white-space:nowrap}.code-block>code,.code-block code{display:block;background:transparent;color:inherit;padding:0;border-radius:0;white-space:pre-wrap}.page{width:min(2260px,calc(100% - 64px));margin:0 auto;padding:28px 0 90px}.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.topbar{display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:22px;flex-wrap:wrap}.crumbs{color:var(--muted)}.chips{display:flex;gap:9px;flex-wrap:wrap;justify-content:end}.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:850}.chip.progress{color:var(--green);background:var(--green-soft)}.chip.pending{color:var(--amber);background:var(--amber-soft)}.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:28px;padding:42px}.eyebrow,.section-no{color:var(--indigo);font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase}h1{margin:.35rem 0 1rem;font-size:clamp(42px,4vw,70px);line-height:1.04;letter-spacing:-.045em}h2{margin:0 0 .7rem;font-size:31px;line-height:1.18}h3{margin:0 0 .5rem;font-size:21px;line-height:1.25}p{max-width:110ch}.lead{font-size:19px;color:var(--muted)}.plain-rule{font-size:clamp(20px,1.8vw,28px);font-weight:950;line-height:1.3;padding:20px;border:2px solid var(--indigo);border-radius:16px;background:var(--indigo-soft)}.plain-rule code{white-space:normal}.section{margin-top:24px;padding:32px}.section-head{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:22px}.section-head p{margin:0;color:var(--muted)}.card{padding:20px;border:1px solid var(--line);border-radius:17px;background:var(--panel)}.card.green{background:var(--green-soft)}.card.blue{background:var(--blue-soft)}.card.amber{background:var(--amber-soft)}.card.indigo{background:var(--indigo-soft)}.card.red{background:var(--red-soft)}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.note{margin-top:18px;padding:16px 18px;border-radius:14px;border-left:5px solid var(--blue);background:var(--blue-soft)}.warning{margin-top:18px;padding:16px 18px;border-radius:14px;border-left:5px solid var(--amber);background:var(--amber-soft)}.formula{padding:14px 16px;border-radius:13px;background:var(--indigo-soft);border:1px solid color-mix(in srgb,var(--indigo) 45%,var(--line));font:800 15px/1.64 "SFMono-Regular",Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.btn{min-height:42px;border-radius:11px;padding:9px 14px;font-weight:850;border:1px solid var(--line);background:var(--control);color:var(--ink);text-decoration:none;display:inline-flex;align-items:center}.btn:hover,.btn:focus-visible{border-color:var(--blue);outline:none}.btn.primary{border-color:var(--blue);background:var(--blue);color:#fff}.btn.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.hero-art{min-height:280px;border:1px solid var(--line);border-radius:18px;background:#f8fafc;padding:16px;overflow:hidden;max-width:720px}.hero-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}.hero-pair canvas,.canvas-card canvas{display:block;width:100%;height:auto;border-radius:11px;border:1px solid var(--line);background:#f8fafc}.hero-pair figcaption,.canvas-title span,.origin{color:var(--muted);font-size:13px;font-weight:700}.fig-svg{width:100%;max-width:1180px;height:auto;display:block}.lab-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.8fr);gap:18px}.build-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(300px,.7fr);gap:18px;align-items:start}.canvas-card{padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--panel);min-width:0}#idCanvas,#storeCanvas{cursor:crosshair;width:min(400px,100%)}#tiltCanvas{width:100%;background:#f8fafc}.canvas-title{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:9px}.metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:14px}.metric{padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--control)}.metric strong{display:block;color:var(--indigo);margin-bottom:4px}.metric .origin{display:block;margin-bottom:6px}.metric .value{display:block;font-weight:850}.swatch{display:inline-block;width:18px;height:18px;border-radius:4px;border:1px solid var(--line);vertical-align:-3px;margin-right:6px}.code-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.8fr);gap:18px}.code-block{background:var(--code);color:var(--code-ink);border-radius:14px;padding:16px;white-space:pre-wrap;overflow:auto;font:14px/1.62 "SFMono-Regular",Consolas,monospace}.prediction{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.choice{appearance:none;min-height:112px;padding:16px;border:2px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);text-align:left;font-weight:800;line-height:1.5}.choice:hover,.choice:focus-visible{border-color:var(--blue);outline:none}.choice.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}.challenge{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.75fr);gap:18px}.editor{width:100%;min-height:220px;resize:vertical;background:var(--code);color:var(--code-ink);border:1px solid var(--line);border-radius:14px;padding:16px;font:14px/1.62 "SFMono-Regular",Consolas,monospace;white-space:pre;overflow:auto}.result{min-height:55px;margin-top:12px;padding:12px;border-radius:11px;background:var(--soft)}details{margin:10px 0;border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:13px 15px}summary{cursor:pointer;font-weight:900}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.check{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}.record{width:100%;min-height:220px;margin-top:12px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--control);color:var(--ink);font:14px/1.6 "SFMono-Regular",Consolas,monospace}.footer{margin-top:24px;padding:18px 24px;display:flex;justify-content:space-between;gap:18px;align-items:center}label.range-row{display:grid;grid-template-columns:210px minmax(220px,1fr) 80px;gap:12px;align-items:center;font-weight:850}input[type=range]{width:100%}.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-weight:800}.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:6px;vertical-align:-2px;border:1px solid var(--line)}.answer-fig{width:min(720px,100%);height:auto;display:block;margin:10px 0}.agsl-line{display:grid;grid-template-columns:minmax(280px,.9fr) minmax(0,1.2fr);gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.agsl-line:last-child{border-bottom:0}.agsl-line code{white-space:normal}.step-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}.step-body{padding:18px}.step-title{font-size:22px;font-weight:950}.step-caption{min-height:130px}.step-buttons{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}.step-dot{width:40px;height:40px;padding:0;border-radius:10px;border:1px solid var(--line);background:var(--control);color:var(--ink);font-weight:900}.step-dot.selected{background:var(--indigo);border-color:var(--indigo);color:#fff}.io{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}.io>div{padding:11px;border:1px solid var(--line);border-radius:11px;background:var(--control)}.io strong,.io span{display:block}
-@media (max-width:1100px){
-  .page{width:calc(100% - 24px);max-width:100%;overflow-x:hidden}
-  .hero,.two,.three,.lab-grid,.code-grid,.challenge,.prediction,.hero-pair,.agsl-line,.checklist,.build-grid{grid-template-columns:1fr}
-  .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
-  label.range-row{grid-template-columns:1fr}
-  h1{font-size:32px;overflow-wrap:anywhere}
-  .hero,.section{padding:20px}
-  .plain-rule{font-size:18px;overflow-wrap:anywhere}
-  .crumbs{flex:1 1 100%}
-  .chips{justify-content:flex-start;width:100%}
-  .chip{font-size:13px;white-space:normal;max-width:100%}
-  code{white-space:normal}
-  p,.lead,.plain-rule{max-width:100%}
-}
+:root{color-scheme:light;--ink:#19263b;--muted:#596779;--line:#dbe3ed;--paper:#fff;--soft:#f3f6fa;--blue:#2457b2;--pink:#ff4d8d;--cyan:#22d3ee;--lime:#86efac;--navy:#1a4066;--orange:#e07a2e;--mono:ui-monospace,SFMono-Regular,Consolas,monospace}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:24px}body{margin:0;background:#edf2f7;color:var(--ink);font:17px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{width:calc(100% - 80px);max-width:1760px;margin:28px auto 70px}a{color:#2457b2;text-underline-offset:3px}button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid #2563eb;outline-offset:3px}h1,h2,h3,p{margin-top:0}h1{font-size:50px;line-height:1.12;letter-spacing:-.04em;margin-bottom:22px}h2{font-size:31px;line-height:1.24;letter-spacing:-.02em;margin-bottom:14px}h3{font-size:21px;line-height:1.35;margin-bottom:12px}p{max-width:100ch;margin-bottom:15px}.eyebrow{font-size:13px;font-weight:850;letter-spacing:.12em;text-transform:uppercase;color:#436281;margin-bottom:12px}.topbar,.footer{display:flex;justify-content:space-between;align-items:center;gap:24px;font-size:15px;padding:10px 0 20px}.badge{background:#fff7df;border:1px solid #ead5a0;padding:7px 14px;border-radius:30px;white-space:nowrap}.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:32px;margin:24px 0;box-shadow:0 7px 24px #1b345708}.hero{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:30px;padding:36px}.hero-copy{align-self:center}.lead{font-size:20px;line-height:1.6}.quiet{color:var(--muted)}.small{font-size:14px}.callout{border-left:4px solid var(--blue);padding:15px 19px;background:#edf4ff;border-radius:0 12px 12px 0}.callout p:last-child{margin-bottom:0}.row,.controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.figure-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}.card,figure{margin:0;border:1px solid var(--line);border-radius:15px;padding:18px;background:#f9fbfd;min-width:0}figure{padding:16px 12px}figcaption{padding:0 8px;font-size:15px;color:var(--muted);line-height:1.55}figure h3{padding:0 8px;margin:0;font-size:18px}.picture{display:block;width:100%;max-width:420px;margin:0 auto;height:auto}.diagram{display:block;width:100%;max-width:790px;height:auto;margin:0 auto}.legend{font-size:14px;display:flex;gap:18px;flex-wrap:wrap;margin:12px 0}.key{display:inline-block;width:16px;height:7px;vertical-align:2px;border:1px solid #162536;border-radius:2px;margin-right:7px}.chip{display:inline-block;width:22px;height:18px;vertical-align:-3px;border:1px solid #20314b35;border-radius:5px;margin-right:7px}.btn,button.choice{border:1px solid #c8d4e3;background:#fff;border-radius:10px;color:var(--ink);min-height:42px;padding:8px 15px;font-weight:700}.btn:hover,button.choice:hover{background:#edf4ff}.btn.primary,.btn[aria-pressed=true]{background:#2457b2;color:#fff;border-color:#2457b2}.btn:disabled{cursor:default;opacity:.4}.spaced{margin-top:20px}.navlinks{display:flex;gap:18px;flex-wrap:wrap;font-size:15px;margin:24px 0 4px}.section-intro{max-width:110ch}.walk-grid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:26px;align-items:start}.walk-panel{padding:22px;border:1px solid #cbdcf0;border-radius:16px;background:#f4f8ff;min-height:492px}.walk-panel p{margin-bottom:12px}.stepbar{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:20px 0 16px}.steps{display:flex;gap:7px}.steps button{padding:0;width:42px;height:42px;border:1px solid #c8d4e3;border-radius:10px;background:white;font-weight:750}.steps button[aria-current=step]{background:#2457b2;color:#fff;border-color:#2457b2}.stage-number{font-size:13px;font-weight:800;color:#436281;letter-spacing:.06em;margin-bottom:9px}.formula{font:15px/1.72 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere;background:#eaf0fc;border:1px solid #ccd9ef;border-radius:12px;padding:14px 17px;margin:14px 0;color:#1d3555}.code{font:14px/1.7 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere;background:#152237;color:#e8f1ff;border-radius:13px;padding:18px;margin:0}.code code{background:transparent;padding:0;color:inherit;white-space:pre-wrap}.code .active-line{display:block;background:#24456b;margin:0 -10px;padding:0 10px}code{font: .91em var(--mono);background:#eaf0fb;border-radius:5px;padding:2px 5px;overflow-wrap:anywhere}pre{tab-size:4}.v{white-space:nowrap}.info{font:11px/1 system-ui;border:1px solid #94a6bd;color:#355779;background:#fff;width:17px;height:17px;border-radius:50%;padding:0;margin-left:3px;vertical-align:super;cursor:pointer}.pop{position:fixed;width:340px;z-index:100;background:white;border:1px solid #9fb1c8;border-radius:13px;padding:17px;box-shadow:0 12px 40px #12253d30;font-size:14px;line-height:1.6}.pop[hidden]{display:none}.pop button{float:right;margin:-5px -4px 4px 12px;border:0;background:#eef2f7;border-radius:6px;padding:3px 7px}.controlbox{border:1px solid var(--line);background:var(--soft);padding:16px 20px;border-radius:14px;margin:18px 0}.sliders{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:28px}.slider label{display:flex;justify-content:space-between;gap:12px;font-size:15px;font-weight:750}.slider input{width:100%;accent-color:#2457b2;margin-top:10px}.readouts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:16px 0}.readouts>div{border:1px solid var(--line);border-radius:12px;padding:14px 17px;background:#fff}.readouts strong{display:block;font-size:14px;color:var(--muted);margin-bottom:5px}.reading{font-size:18px;font-weight:700}.table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:16px 0;font-size:15px}.table th,.table td{text-align:left;padding:11px 15px;border-bottom:1px solid var(--line);vertical-align:top}.table th{background:#edf3fa;font-weight:750}.table tr:last-child td{border-bottom:0}.table tbody tr.selected{background:#eaf4ff}.table button{border:0;background:none;text-align:left;padding:0;color:#2457b2;font-weight:750;cursor:pointer}.comparison-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:26px}.side-controls{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}.length-widget{max-width:720px}.prediction{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}button.choice{text-align:left;line-height:1.55;padding:16px}.choice[aria-pressed=true]{border-color:#2457b2;background:#eaf2ff;box-shadow:inset 0 0 0 1px #2457b2}.result{padding:14px 17px;background:#f0f5fb;border-radius:12px;margin-top:14px;min-height:57px}.challenge-fields{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:20px 0}.challenge-fields input{width:70px;border:1px solid #94a6bd;border-radius:8px;padding:8px;text-align:center;font:20px var(--mono)}details{border:1px solid var(--line);border-radius:12px;background:#f8fafc;padding:14px 18px;margin:14px 0}summary{cursor:pointer;font-weight:750}details>p:first-of-type{margin-top:15px}details p:last-child{margin-bottom:0}.record{width:100%;height:235px;resize:vertical;border:1px solid #c7d3e2;border-radius:12px;padding:16px;margin:16px 0 10px;background:#f8fafc;font:14px/1.65 var(--mono);color:var(--ink)}.checks{display:grid;grid-template-columns:1fr 1fr;gap:12px}.checks label{padding:10px 14px;border-radius:9px;background:#f4f7fa}.checks input{margin-right:8px}svg[hidden]{display:none}.svgtext{font-family:system-ui,sans-serif;fill:#26394f;font-size:15px}.svgsmall{font-family:system-ui,sans-serif;fill:#51647c;font-size:14px}.svgbold{font-family:system-ui,sans-serif;fill:#192d45;font-size:16px;font-weight:750}.pill-text{font-family:system-ui,sans-serif;fill:#fff;font-size:14px;font-weight:800}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 </style>
 </head>
 <body>
-<main class="page">
-  <div class="topbar">
-    <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-distance-fields-image-sampling-and-refraction.html">Chapter 9</a> · Lesson 9.10 · checkpoint</div>
-    <div class="chips"><span class="chip progress">95 of 216 complete</span><span class="chip pending">Checkpoint 9.10 unresolved</span></div>
-  </div>
+<main>
+<nav class="topbar" aria-label="Course"><span><a href="../../../liquid-glass-course.html">Course home</a> / <a href="lesson-distance-fields-image-sampling-and-refraction.html">Chapter 9</a></span><span class="badge">95 of 216 complete · Lesson 9.10 unresolved</span></nav>
+<header class="hero panel">
+<div class="hero-copy">
+<p class="eyebrow">Lesson 9.10 · Build a displacement field</p>
+<h1>Why does navy reach above this square?</h1>
+<p class="lead">The checkerboard from Lesson 9.9 gives us an input image with square orange and navy cells.</p>
+<p>We will follow the navy input cell just above and to the right of the picture’s center. After the shader runs, navy also appears above that cell’s original top edge. The edge curves. The whole pattern can look like a raised surface.</p>
+<p><strong>Start with your position:</strong> x is <span class="v"><code>0.65</code><button class="info" data-origin="example" aria-label="Origin of example x">i</button></span>. I chose y = <code>0.20</code> for “slightly above.” The two pictures show this fixed example with <code>dispLen = 0.10</code>.</p>
+<div class="callout"><p><strong>The output pixel stays at W.</strong> It reads the input color at R, a short distance toward the center, and copies that color. R is inside the navy cell. That is why W becomes navy.</p></div>
+</div>
+<div>
+<div class="figure-pair">
+<figure><h3>Input image</h3><svg class="picture" id="heroInput" viewBox="0 0 400 415" role="img" aria-label="Original checker with W above the named navy cell and R inside it"></svg><figcaption>The pink outline names the exact navy cell. W’s position is orange here.</figcaption></figure>
+<figure><h3>Output image</h3><svg class="picture" id="heroOutput" viewBox="0 0 400 415" role="img" aria-label="Displaced checker with navy at output W"></svg><figcaption>W is navy here. The pink outline is the original cell’s location for comparison.</figcaption></figure>
+</div>
+<div class="legend"><span><i class="key" style="background:var(--cyan)"></i>W · output position</span><span><i class="key" style="background:var(--lime)"></i>R · input read position</span><span><i class="key" style="background:#fff"></i>C · picture center</span></div>
+</div>
+</header>
+<nav class="navlinks" aria-label="Lesson sections"><a href="#walk">Follow one pixel</a><a href="#lab">Change the distance</a><a href="#patch">See the added region</a><a href="#edges">Build the curved edge</a><a href="#size">Understand the size</a><a href="#center">Near the center</a><a href="#shader">Read the shader</a><a href="#practice">Practice</a></nav>
 
-  <header class="hero panel">
-    <div>
-      <div class="eyebrow">Chapter 9 · Why the squares tilt</div>
-      <h1>Build a displacement field</h1>
-      <p class="lead"><strong>Hard question:</strong> The input cells are axis-aligned squares. The store shows those same cells leaning, like a checker painted on a bump. Nobody rotated a square. How does one walk along each ray from <code>C</code> tilt a vertical side, and what else does that walk do?</p>
-      <div class="plain-rule">A vertical side has two ends. Those ends sit on two different rays from C. Each end is painted farther out on its own ray, same walk length. They no longer share an x. That is the tilt. The rest of the bump is the same walk, on every side of every cell.</div>
-      <p style="margin-top:16px;font-weight:800">Canonical wording: <a href="../../glossary.html#displacement">displacement</a>, <a href="../../glossary.html#unit-pair">unit pair</a>, <a href="../../glossary.html#eval">eval</a>.</p>
-      <div class="note"><strong>Unresolved checkpoint.</strong> Lesson 9.9 is complete. Default walk <code>dispLen = 0.10</code> is one tenth of the square. Leftovers from 9.7–9.9 sit in one card below, then the page spends itself on the tilt. HTML is a JavaScript stand-in.</div>
-    </div>
-    <div class="hero-art" aria-label="axis-aligned teaching square versus the same four corners walked out along their rays">
-      <div class="hero-pair">
-        <figure style="margin:0">
-          <canvas id="heroId" width="320" height="320" aria-label="Input checker with one axis-aligned square"></canvas>
-          <figcaption>Input · pink square is axis-aligned</figcaption>
-        </figure>
-        <figure style="margin:0">
-          <canvas id="heroStore" width="320" height="320" aria-label="Stored checker with the same square’s corners walked outward"></canvas>
-          <figcaption>Store · same four corners, each on its own ray</figcaption>
-        </figure>
-      </div>
-      <p style="margin:12px 0 0;font-weight:800">Green is not a rotated copy. The two ends of a vertical side walked different directions, so they no longer share an x.</p>
-    </div>
-  </header>
+<section class="panel" id="walk">
+<p class="eyebrow">1 · Follow the actual calculation</p>
+<h2>Build the read coordinate, one operation at a time.</h2>
+<p class="section-intro">Both images use the same <strong>UV coordinates</strong> from Lesson 8.6: x is a fraction of the image width; y is a fraction of its height. Zero is at the top-left. x increases rightward. y increases downward. The picture is square, so the same fraction has the same physical length in both directions.</p>
+<div class="three">
+<div class="card"><h3>The exact input cell</h3><p><code>0.50 ≤ x &lt; 0.75</code><br><code>0.25 ≤ y &lt; 0.50</code></p><p class="small">This is also written <code>[0.50, 0.75)</code> and <code>[0.25, 0.50)</code>. Include the first endpoint; exclude the second. The cell is one quarter of the image wide and tall.</p></div>
+<div class="card"><h3>The current output position</h3><p id="walkInput"></p><p class="small">This position is named W. Its UV pair is <code>uv</code> in the shader. We keep W fixed while calculating which input color to store there.</p></div>
+<div class="card"><h3>The chosen read distance</h3><p id="walkLength"></p><p class="small"><code>dispLen</code> is the straight-line distance from W to the input read position. The default is one tenth of the full square’s width. It is chosen by the slider, not calculated from the cell.</p></div>
+</div>
+<p class="spaced">The picture center is <strong>C</strong>, at <code>(0.50, 0.50)</code>. First find the direction from C to W. Then give that direction the chosen length. Finally subtract the resulting pair from W to read toward C. The walkthrough explains the signs and each arithmetic operation before using them.</p>
+<div class="stepbar"><button class="btn" id="prevStep">← Previous</button><div class="steps" id="stepButtons" aria-label="Calculation steps"></div><button class="btn primary" id="nextStep">Next →</button></div>
+<div class="walk-grid" id="walkViewport">
+<figure><svg class="diagram" id="walkSvg" viewBox="0 0 760 440" role="img" aria-label="Current operation on the chosen pixel"></svg><figcaption id="walkFigureCaption"></figcaption></figure>
+<div class="walk-panel"><div class="stage-number" id="stepCount"></div><h3 id="stepTitle"></h3><div id="stepProse"></div><div class="formula" id="stepFormula"></div><div id="stepConsumer"></div></div>
+</div>
+<div class="row spaced"><button class="btn" data-preset="example">Reset worked example</button><span class="small quiet">All live diagrams below share the chosen position and distance. Displayed calculated decimals are rounded; calculations keep full precision.</span></div>
+</section>
 
-  <section class="section panel" id="machine">
-    <div class="section-head"><div><div class="section-no">1 · THE MACHINE, ONCE</div><h2>Every input point is painted farther from C on its own ray.</h2></div></div>
-    <p>Lesson 9.8 already split write and read: this pixel stores; <code>eval</code> asks a possibly different pixel. This lesson’s ask is not a shared slide. At a store pixel <code>W</code>, walk a fixed UV length <code>dispLen</code> toward <code>C</code> and copy that neighbor. The inverse picture is the one that explains the squares: an input point <code>Q</code> is seen in the store at the point you reach by walking that same length <em>away</em> from <code>C</code>, along the ray through <code>Q</code>.</p>
-    <div class="three">
-      <article class="card indigo"><h3>What we will not re-teach</h3><p><code>uv</code> from the top-left. <code>p = uv − 0.5</code> names the same pixel from <code>C</code>. <code>length(p)</code> is how far that is. <code>eval</code> wants pixels. Write does not move.</p></article>
-      <article class="card green"><h3>The new walk</h3><p>Same length at every pixel except <code>C</code>. Direction is the ray from <code>C</code> through this pixel. Default length 0.10, one tenth of the square.</p></article>
-      <article class="card amber"><h3>Why divide exists, in one line</h3><p><code>p</code> already points along the ray, but its length is “how far from C,” different at every pixel. Divide by that length so the walk we put back on is the length we chose, not the leftover distance.</p></article>
-    </div>
-  </section>
+<section class="panel" id="lab">
+<p class="eyebrow">2 · What does dispLen change?</p>
+<h2>A longer read can reach across the cell boundary.</h2>
+<p>At the fixed example W = <code>(0.65, 0.20)</code>, the input is orange at W. The navy cell starts at y = <code>0.25</code>, below W. A small read distance stops before that edge. A large enough read reaches the navy cell. The read also moves left because the center is left of W.</p>
+<div class="controlbox"><div class="sliders">
+<div class="slider"><label for="length">Read distance · dispLen <output id="lengthValue"></output></label><input type="range" id="length" min="0" max="0.20" step="0.001" value="0.10"></div>
+<div class="slider"><label for="writeX">Output x <output id="xValue"></output></label><input type="range" id="writeX" min="0" max="1" step="any" value="0.65"></div>
+<div class="slider"><label for="writeY">Output y · downwards <output id="yValue"></output></label><input type="range" id="writeY" min="0" max="1" step="any" value="0.20"></div>
+</div><div class="controls spaced"><button class="btn" data-preset="example">Your example</button><button class="btn" data-preset="higher">Higher · y = 0.15</button><button class="btn" data-preset="nearer">Just below that · y = 0.16</button><button class="btn" data-preset="above">Just above old edge · y = 0.24</button><button class="btn" data-preset="right">To the right of the cell</button><button class="btn" data-preset="zero">Distance 0</button><button class="btn" data-preset="maximum">Distance 0.20</button></div></div>
+<div class="comparison-layout">
+<div class="figure-pair"><figure><h3>Input · where the read lands</h3><svg class="picture" id="labInput" viewBox="0 0 400 415" role="img" aria-label="Input checker with the exact current read"></svg><figcaption>W is a comparison mark on the input. The green R mark identifies the color actually read.</figcaption></figure><figure><h3>Output · where the color is written</h3><svg class="picture" id="labOutput" viewBox="0 0 400 415" role="img" aria-label="Clickable output checker"></svg><figcaption>Click this picture to select W. Colored marker circles make coordinates visible; their centers identify the selected positions.</figcaption></figure></div>
+<div><div class="readouts" id="liveReadouts"></div><div class="formula" id="liveMath"></div><div class="callout" id="liveVerdict"></div><p class="small quiet spaced">The pixel’s original input color and its new output color are two different questions. The shader uses the color at R, even when the input at W is another color.</p></div>
+</div>
+<details open><summary>Exactly when does your default position first become navy?</summary>
+<p>This comparison fixes W at <code>(0.65, 0.20)</code>. Each row changes only the read distance. Click a row to load it into every live diagram.</p>
+<table class="table"><thead><tr><th>Chosen distance</th><th>Read x</th><th>Read y</th><th>Output at W</th></tr></thead><tbody id="thresholdRows"></tbody></table>
+<p>The vertical part of the length-one direction has magnitude <code>0.894427…</code>, calculated in step 3. A magnitude is the size without the direction’s minus sign. The read needs to go down <code>0.05</code>, from y = 0.20 to y = 0.25. Divide that required downward distance by the downward part produced by one unit of read distance:</p>
+<div class="formula">first-entry distance = required downward change / downward part per unit
+                     = (0.25 − 0.20) / 0.894427…
+                     ≈ 0.055902</div>
+<p>At that distance, read x is <code>0.625</code>, still inside the cell’s horizontal bounds. So this really is entry through the top edge. At the default <code>0.10</code>, the read is already farther inside the cell. This threshold belongs to this exact W; another output position has another direction and another threshold.</p>
+</details>
+</section>
 
-  <section class="section panel" id="side">
-    <div class="section-head"><div><div class="section-no">2 · ONE VERTICAL SIDE</div><h2>Two ends. Two rays. The walk splits differently. The side tilts.</h2></div></div>
-    <p>Take the vertical input line <code>x = 0.75</code>. The five steps on the right each add one drawn object. Do not skip to step 4. The tilt is the last object, not the first sentence.</p>
-    <div class="build-grid">
-      <div class="canvas-card">
-        <div class="canvas-title"><strong>Left is the input side. Right is where those points are painted.</strong><span id="tiltLabel">Step 1 of 5</span></div>
-        <canvas id="tiltCanvas" width="1100" height="400" aria-label="Step-by-step tilt construction of one vertical side, then one square"></canvas>
-      </div>
-      <div class="card indigo" style="padding:0;overflow:hidden">
-        <div class="step-head"><button class="btn" id="tiltPrev">Previous</button><strong id="tiltCounter">Step 1 of 5</strong><button class="btn primary" id="tiltNext">Next</button></div>
-        <div class="step-body">
-          <div class="step-title" id="tiltTitle"></div>
-          <div class="step-caption" id="tiltCaption"></div>
-          <div class="formula" id="tiltRule"></div>
-          <div class="io">
-            <div><strong>Drawn now</strong><span id="tiltDrawn"></span></div>
-            <div><strong>What changed</strong><span id="tiltChange"></span></div>
-            <div><strong>Not yet</strong><span id="tiltNot"></span></div>
-          </div>
-          <div class="step-buttons" id="tiltButtons"></div>
-        </div>
-      </div>
-    </div>
-    <label class="range-row" style="margin-top:16px"><span>dispLen (walk length)</span><input id="lenRange" type="range" min="0" max="0.20" step="0.01" value="0.10"><span class="mono" id="lenValue">0.10</span></label>
-    <p style="margin-top:12px">Move the walk. At 0 the side stays vertical. As the walk grows, <code>H′</code> keeps moving purely right and <code>Q′</code> keeps splitting, so the slant gets stronger. That slider is the same walk the AGSL will use.</p>
-  </section>
+<section class="panel" id="patch">
+<p class="eyebrow">3 · The apparent extra triangle</p>
+<h2>See every added position, then inspect one vertical slice.</h2>
+<p>The green region below has one precise meaning: <strong>output positions outside the original navy square whose read is inside that navy input cell</strong>. We calculate the read for every position before coloring the region. That is the same membership test used for W.</p>
+<div class="comparison-layout">
+<div class="figure-pair"><figure><h3>Output with the added region marked</h3><svg class="picture" id="gainSvg" viewBox="0 0 400 415" role="img" aria-label="Actual output positions gained by the specified navy cell"></svg><figcaption>Green shows the added positions. Pink marks the original square’s bounds. Green is an explanatory highlight, not a shader color. The small piece below-left of C also reads this cell: those reads pass C. Section 6 shows that crossing.</figcaption></figure><figure><h3>The top edge at output x = 0.65</h3><svg class="picture" id="sliceSvg" viewBox="0 0 400 415" role="img" aria-label="Two vertical strips comparing the original and displaced top boundary at x 0.65"></svg><figcaption>This enlarged vertical slice shows y from 0.05 to 0.32. Left: input at x = 0.65. Right: output at x = 0.65.</figcaption></figure></div>
+<div><div class="length-widget controlbox"><div class="slider"><label for="patchLength">Read distance · shared with the lab <output id="patchLengthValue"></output></label><input type="range" id="patchLength" min="0" max="0.20" step="0.001" value="0.10"></div></div><div id="sliceFacts"></div>
+<p>Your “extra triangle” is a useful first impression of the narrow added part near an edge. The exact added patch has curved boundaries. It also extends above and to the right of the old square. A single straight triangle cannot describe all those positions.</p>
+<p>Each output position runs its own read. There is no code that draws an extra triangle or fills a gap after moving a square. Several neighboring output positions can read different positions inside the same navy cell. All of them receive navy.</p></div>
+</div>
+</section>
 
-  <section class="section panel" id="square">
-    <div class="section-head"><div><div class="section-no">3 · THE SAME WALK ON FOUR CORNERS</div><h2>A square becomes a trapezoid that leans toward C.</h2></div></div>
-    <p>Step 5 of the construction above does this to one pink square. Each corner has its own ray. Each corner is painted farther out on that ray, same walk. Connect the four new corners. The vertical sides tilt for the reason in section 2. The horizontal sides tilt for the same reason with x and y swapped: two ends that shared a y sit on two rays, so the walk splits differently, and they no longer share a y.</p>
-    <p>The side closer to <code>C</code> is the short one. The side farther from <code>C</code> is the long one. Sides lean as if they were vanishing toward <code>C</code>. That is the “tilted squares” in the stored checker. Every checker cell is four sides. Every side that is not already a ray through <code>C</code> does this.</p>
-    <div class="warning"><strong>A side that already lies on a ray through C does not tilt.</strong> Both ends share that one ray, so they stay on the same line. The vertical through <code>C</code> stays vertical. The horizontal through <code>C</code> stays horizontal. The stored picture keeps that cross. Everything off the cross leans.</div>
-  </section>
+<section class="panel" id="edges">
+<p class="eyebrow">4 · Where the curved edge comes from</p>
+<h2>One side contains many points. Their horizontal and vertical changes differ.</h2>
+<p>Now follow an input boundary point to an output position that reads it. Start at C. Draw a straight line through the input point and continue it: this is a <strong>ray</strong>. Move outward by the chosen distance along that ray. From that new position, the shader’s inward read returns to the original input point.</p>
+<p>This construction describes output positions farther from C than <code>dispLen</code>. There the inward read stops before C. Section 6 shows what happens when a read passes C. Boundary dots here describe the geometric dividing line; the checker’s include/exclude rule decides the color exactly on that line.</p>
+<div class="side-controls"><button class="btn" id="topEdge" aria-pressed="true">Follow the top edge</button><button class="btn" id="rightEdge" aria-pressed="false">Follow the right edge</button><button class="btn" id="showChord" aria-pressed="false">Compare a straight corner join</button></div>
+<div class="comparison-layout">
+<div class="figure-pair"><figure><h3>Input boundary points</h3><svg class="picture" id="edgeInput" viewBox="0 0 400 415" role="img" aria-label="Three named points along the selected input edge"></svg><figcaption>Each numbered point has its own ray from C. The table gives the full coordinates outside the picture.</figcaption></figure><figure><h3>Output positions that read those points</h3><svg class="picture" id="edgeOutput" viewBox="0 0 400 415" role="img" aria-label="Curved output edge calculated from many boundary points"></svg><figcaption>Pink is the actual curve. Dots 1, 2, and 3 use the same calculation as all the other points on that curve.</figcaption></figure></div>
+<div><div class="length-widget controlbox"><div class="slider"><label for="edgeLength">Outward construction distance <output id="edgeLengthValue"></output></label><input type="range" id="edgeLength" min="0" max="0.20" step="0.001" value="0.10"></div></div><div id="edgeExplanation"></div><div class="formula" id="edgeFormula"></div><div class="small" id="chordExplanation"></div><svg class="diagram" id="edgeZoom" viewBox="0 0 760 180" role="img" aria-label="Magnified difference between the actual curve and a straight corner join" hidden></svg></div>
+</div>
+<table class="table"><thead><tr><th>Named input boundary point</th><th>Input UV</th><th>Outward change<br><code>(input − C) / length(input − C) × dispLen</code></th><th>Output UV<br><code>input + outward change</code></th></tr></thead><tbody id="edgeRows"></tbody></table>
+<div class="two"><div class="card"><h3>Why the diagonal change is about 0.07071</h3><p>At the top-right input corner, the horizontal and upward distances from C are both 0.25. The ray is diagonal. Its outward change therefore has equal horizontal and vertical parts.</p><p>At the default length 0.10, each part is about 0.07071. These parts are the two short sides of a right triangle. The 0.10 walk is its long side. From Lesson 9.1: <code>0.07071² + 0.07071² ≈ 0.10²</code>. Here <code>²</code> means multiply a number by itself. Giving each short side 0.05 would produce a long side of only about 0.07071.</p></div><div class="card"><h3>Which sides stay straight?</h3><p>The original cell’s left boundary is x = 0.50, the vertical line through C. Moving a point along that line keeps x = 0.50. The bottom boundary is y = 0.50; its outward points keep that y.</p><p>The top and right boundaries miss C. Their points have different directions, so their horizontal or vertical changes differ. The actual outline includes curves. Rotating a square would keep four straight sides and the same side lengths.</p></div></div>
+</section>
 
-  <section class="section panel" id="rest">
-    <div class="section-head"><div><div class="section-no">4 · THE REST OF THE BUMP</div><h2>Bow, bigger middle, still a flat square.</h2></div></div>
-    <p>The two-end picture is a straight slant. The real vertical line has a point at every y, each on its own ray. Step 5 draws that as a green curve. The stored edge is not only tilted. It is bowed. That is why cell edges look bent, not just diamond-cut.</p>
-    <div class="three">
-      <article class="card green"><h3>Bow</h3><p>Every point on a vertical line has a different leftover <code>p</code>, so a different split of the walk. The image of the line is a curve. Horizontal lines bow for the same reason.</p></article>
-      <article class="card indigo"><h3>Bigger middle</h3><p>Near <code>C</code> the leftover walk is short, so the same 0.10 is a large fraction of it. Those cells stretch more. Far from <code>C</code>, 0.10 is a small nudge. The middle looks thicker. Inside the dashed disk, the leftover is smaller than 0.10, so the ask walks past <code>C</code>.</p></article>
-      <article class="card amber"><h3>Not zoom, not 3D</h3><p>Zoom would move a far corner farther than a near corner by a growing offset. This walk is the same length on every ray, which is why a vertical side tilts instead of staying vertical and merely scaling. The draw rectangle is still flat. The “3D” is a checker whose sides lean toward <code>C</code> and whose middle is stretched.</p></article>
-    </div>
-  </section>
+<section class="panel" id="size">
+<p class="eyebrow">5 · Size and the impression of depth</p>
+<h2>0.10 is a distance. It is not “make this cell 10% bigger.”</h2>
+<div class="comparison-layout">
+<div><svg class="diagram" id="lengthSvg" viewBox="0 0 760 355" role="img" aria-label="Full image width, cell width, and read distance on one common ruler"></svg><div class="formula" id="lengthFacts"></div></div>
+<div><p>On a teaching picture 400 pixels wide, the default walk is 40 pixels long. An original cell is 100 pixels wide. So the walk is 10% of the image width and 40% of an original cell width. Neither percentage says how much the cell’s width or area increases.</p><p>The cell gets a larger visible footprint because output positions beyond its old top and right edges now read inside it. The lab’s <strong>Your example</strong> and <strong>To the right of the cell</strong> presets show one position on each side. The top and right boundaries do not all move by the same x or y change.</p><p>For any chosen direction, doubling <code>dispLen</code> doubles both parts of the read displacement. The cell boundary changes accordingly. At zero, the read coordinate equals the output coordinate, so the original checker returns.</p></div>
+</div>
+<div class="two"><div class="card"><h3>A fixed extra distance differs from scale</h3><p>Consider two input points on one ray. Their distances from C are 0.25 and 0.40. With the default outward construction, their output distances are 0.35 and 0.50.</p><div class="formula">first output distance = input distance + dispLen
+                      = 0.25 + 0.10 = 0.35
+second output distance = 0.40 + 0.10 = 0.50
+separation before = 0.40 − 0.25 = 0.15
+separation after  = 0.50 − 0.35 = 0.15</div><p>Along this ray, that separation stays the same. A scale of 2 from Lesson 9.9 would double it. Growth here comes from the different directions of neighboring rays, which the curved-edge picture shows.</p></div><div class="card"><h3>What creates the “3D” appearance?</h3><p><strong>Visible observation:</strong> the straight checker boundaries become curves around C. The center-side cells occupy more of the picture. This pattern can resemble a checkerboard seen through a raised drop of glass.</p><p><strong>What the code establishes:</strong> the shader calculates a new two-number read coordinate for each output position. It then copies orange or navy. The drawing surface remains flat. There is no height value, raised geometry, or lighting calculation in this shader.</p><p>The visual impression comes from the arrangement of the colored output pixels. Lesson 9.11 will use displaced reads for refraction, where a transparent material changes the apparent location of the background.</p></div></div>
+</section>
 
-  <section class="section panel" id="lab">
-    <div class="section-head"><div><div class="section-no">5 · INTERACTIVE LAB</div><h2>Pink is the input square. Green is those four corners after the walk.</h2></div></div>
-    <p>Click either square to pick a write pixel if you want the leftover ask. The pink/green overlay is the tilt construction: four input corners, four rays, four outward walks. Toggle it off to see the checker alone.</p>
-    <label class="range-row"><span>dispLen (walk length)</span><input id="lenRangeLab" type="range" min="0" max="0.20" step="0.01" value="0.10"><span class="mono" id="lenValueLab">0.10</span></label>
-    <div class="controls" style="margin-top:10px">
-      <button class="btn" id="markH">Mark H (0.75, 0.50)</button>
-      <button class="btn" id="markQ">Mark Q (0.75, 0.25)</button>
-      <button class="btn" id="markTeach">Mark T (0.80, 0.10)</button>
-      <button class="btn" id="markCenter">Mark C</button>
-      <button class="btn" id="markZero">dispLen = 0</button>
-      <button class="btn" id="markTen">dispLen = 0.10</button>
-      <button class="btn" id="toggleSquare">Toggle teaching square</button>
-      <button class="btn" id="toggleArrows">Toggle field arrows</button>
-    </div>
-    <div class="metrics">
-      <div class="metric"><strong>write uv</strong><span class="origin">this pixel, stays</span><span class="value" id="wMetric"></span></div>
-      <div class="metric"><strong>H′</strong><span class="origin">H walked out</span><span class="value" id="hMetric"></span></div>
-      <div class="metric"><strong>Q′</strong><span class="origin">Q walked out</span><span class="value" id="qMetric"></span></div>
-      <div class="metric"><strong>shared x?</strong><span class="origin">H and Q started at 0.75</span><span class="value" id="shareMetric"></span></div>
-      <div class="metric"><strong>readUv</strong><span class="origin">uv − disp, the ask</span><span class="value" id="rMetric"></span></div>
-      <div class="metric"><strong>Store</strong><span class="origin">color copied onto W</span><span class="value" id="retMetric"></span></div>
-    </div>
-    <div class="lab-grid" style="margin-top:16px">
-      <div class="canvas-card">
-        <div class="canvas-title"><strong>Input · axis-aligned cells</strong><span>pink square / H and Q</span></div>
-        <canvas id="idCanvas" width="400" height="400" aria-label="Identity checker input"></canvas>
-      </div>
-      <div class="canvas-card">
-        <div class="canvas-title"><strong>Store · same cells after the walk</strong><span id="labCaption"></span></div>
-        <canvas id="storeCanvas" width="400" height="400" aria-label="Displaced store rectangle"></canvas>
-      </div>
-      <div>
-        <div class="formula" id="liveFormula"></div>
-        <pre class="code-block" id="labCode" style="margin-top:12px;max-height:240px"></pre>
-      </div>
-    </div>
-  </section>
+<section class="panel" id="center">
+<p class="eyebrow">6 · The small region around C</p>
+<h2>If the read distance exceeds the distance to C, the read passes C.</h2>
+<p>This matters because our navy cell touches the center. At the default distance, some output positions near C read the opposite navy cell. Equal color does not prove that two positions read the same input cell.</p>
+<div class="comparison-layout">
+<div class="figure-pair"><figure><h3>Input · read may cross C</h3><svg class="picture" id="centerInput" viewBox="0 0 400 415" role="img" aria-label="A near-center output position reading across the center"></svg><figcaption>This example fixes W at (0.54, 0.46). The distance follows the shared slider.</figcaption></figure><figure><h3>Where our named cell is actually read</h3><svg class="picture" id="ownedSvg" viewBox="0 0 400 415" role="img" aria-label="Output footprint of only the specified navy input cell"></svg><figcaption>Navy here means the read belongs to our exact input cell. Pale means another cell is read, even if that cell also returns navy.</figcaption></figure></div>
+<div><div id="centerExplanation"></div><div class="formula" id="centerFormula"></div><p>The white circle marks output positions exactly <code>dispLen</code> from C. Outside it, the read stops on the same side of C. Inside it, the read passes C, except for the tiny guard described below.</p><div class="callout"><p>At C, the distance is zero. Dividing by zero cannot produce a direction. The shader keeps displacement at zero whenever <code>d ≤ 0.0001</code>. This is a tiny circular neighborhood in UV units. At a 400-pixel width its radius is 0.04 pixels. Those positions read themselves.</p></div></div>
+</div>
+</section>
 
-  <section class="section panel">
-    <div class="section-head"><div><div class="section-no">6 · ANDROID ROUTE</div><h2>The AGSL is the inward ask that paints the outward square.</h2></div></div>
-    <p>The construction walked input points <em>out</em>. The shader, at each store pixel, walks <em>in</em> and copies. Those are inverses. Subtract is the inward walk. Divide by length is how a diagonal ray still gets a walk of 0.10 instead of the leftover distance.</p>
-    <div class="code-grid">
-      <pre class="code-block"><code>uniform shader background;
+<section class="panel" id="shader">
+<p class="eyebrow">7 · The code uses the same objects</p>
+<h2>The shader builds a displacement field.</h2>
+<p>A <strong>displacement</strong> is a coordinate-change pair: one horizontal change and one vertical change. A <strong>displacement field</strong> supplies such a pair at every output position. Here the direction depends on the position, while the pair’s length is the chosen <code>dispLen</code> outside the center guard.</p>
+<p>This is the current <code>DisplaceAgsl</code> from <code>DisplacementFieldExplorer.kt</code>. The walkthrough calls the intermediate result <code>p / d</code> by the name <code>dir</code>. The actual shader writes it directly inside the multiplication.</p>
+<div class="two"><pre class="code"><code>uniform shader background;
 uniform float2 resolution;
 uniform float dispLen;
 
@@ -159,643 +137,276 @@ half4 main(float2 fragCoord) {
     float2 p = uv - float2(0.5, 0.5);
     float d = length(p);
     float2 disp = float2(0.0, 0.0);
-    if (d > 0.0001) {
+    if (d &gt; 0.0001) {
         disp = (p / d) * dispLen;
     }
     float2 readUv = uv - disp;
     return background.eval(readUv * resolution);
-}</code></pre>
-      <div class="card">
-        <div class="agsl-line"><code>p / d</code><span>Length-1 direction along this pixel’s ray. At H that is (1, 0). At Q that is about (0.71, −0.71), the 45° split.</span></div>
-        <div class="agsl-line"><code>* dispLen</code><span>Puts the chosen walk on that direction. Same 0.10 at H and at Q. That equal length is why Q cannot keep up in x, which is the tilt.</span></div>
-        <div class="agsl-line"><code>uv - disp</code><span>Inward ask. The store pixel copies the neighbor toward C. That is how an input point appears farther out.</span></div>
-        <div class="agsl-line"><code>eval(readUv * resolution)</code><span>Lesson 9.7 leftover. eval wants pixels.</span></div>
-        <p style="margin-top:12px"><strong>Android files:</strong><br><code>chapter09/DisplacementFieldExplorer.kt</code><br><code>chapter09/Chapter09Screen.kt</code></p>
-      </div>
-    </div>
-  </section>
+}</code></pre><div class="card"><h3>From a draw to one output color</h3><p>Kotlin supplies the checker as <code>background</code>, the square’s pixel dimensions as <code>resolution</code>, and the slider value as <code>dispLen</code>. A draw of the rectangle runs the shader at its output positions.</p><p><code>fragCoord</code> identifies the current position in the rectangle’s local pixel coordinates. Dividing by <code>resolution</code> produces its UV pair. At the end, multiplying the read UV by <code>resolution</code> converts the read back to the pixel coordinates that the input shader receives.</p><p><code>background.eval(...)</code> evaluates the checker at that exact read coordinate. It returns a color. <code>return</code> makes that the color at the original output position.</p><p>The checker is a formula, not a stored bitmap being filtered. It returns one of two opaque colors; neighboring output positions can return the same color.</p></div></div>
+<details><summary>Refresher: why the input shader returns navy at the read</summary>
+<p>There are four columns and four rows across the displayed square. Multiplying a UV coordinate by 4 expresses it in cell widths. <code>floor</code> takes the integer at or below that number. This gives a column or row index, counted from zero.</p>
+<div class="two"><pre class="code"><code>float col = floor(uv.x * 4.0);
+float row = floor(uv.y * 4.0);
+if (fract((col + row) * 0.5) &lt; 0.5) {
+    return orange;
+}
+return navy;</code></pre><div><div class="formula">Worked example read ≈ (0.60528, 0.28944)
+col = floor(read.x × 4) = floor(2.42111…) = 2
+row = floor(read.y × 4) = floor(1.15777…) = 1
+half the index sum = (col + row) × 0.5 = 1.5
+fract(1.5) = 1.5 − floor(1.5) = 0.5
+0.5 &lt; 0.5 is false → return navy</div></div></div>
+<p><code>fract</code>, from Lesson 8.10, keeps the amount after subtracting <code>floor</code>. The multiplication by 0.5 divides the index sum by 2. Even sums produce zero after <code>fract</code>; odd sums produce 0.5. This alternates the two colors.</p>
+<p><span class="chip" style="background:#1a4066"></span>Navy is <span class="v"><code>half4(0.10, 0.25, 0.40, 1.0)</code><button class="info" data-origin="rgba" aria-label="Origin and representation of navy">i</button></span>. <span class="chip" style="background:#e07a2e"></span>Orange is <span class="v"><code>half4(0.88, 0.48, 0.18, 1.0)</code><button class="info" data-origin="rgba" aria-label="Origin and representation of orange">i</button></span>. These RGBA fields are red, green, blue, and alpha. Alpha is 1 for both colors, so straight and premultiplied RGB agree. The browser shows their rounded 8-bit sRGB chips.</p>
+</details>
+<div class="two spaced"><div class="card"><h3>Browser and Android</h3><p>The browser runs this arithmetic in JavaScript and draws the results on a canvas. It does not compile AGSL. You may inspect any mathematical UV position without snapping the read to an integer pixel.</p><p>The browser paints its image at pixel-center coordinates. The sliders also allow the exact geometric edges, 0 and 1; those endpoints are not the centers of the first and last pixels. Android evaluates the shader at its actual draw positions, using its shader precision and display color handling. A 400-pixel square is a teaching size. The Android explorer uses 360 dp, converted to actual pixels by the device density.</p><p>AGSL uses the drawing’s local coordinates and follows Canvas’s downward y direction. <a href="https://developer.android.com/develop/ui/views/graphics/agsl/agsl-vs-glsl">Android’s coordinate documentation</a> describes that contract. <a href="https://developer.android.com/develop/ui/views/graphics/agsl/agsl-quick-reference">The AGSL reference</a> documents the arithmetic functions.</p></div><div class="card"><h3>Existing Android source</h3><p>The inspected file is:</p><p class="small"><code>/Users/rosen/Code/LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter09/DisplacementFieldExplorer.kt</code></p><p>The Android shader is unchanged. Its existing teaching marks follow the neighboring cell at x = 0.75 to 1.00 and a different selected output position. This HTML follows your navy cell at x = 0.50 to 0.75. The shader calculation and default distance match.</p><p>On the device, set <code>dispLen</code> to zero and then 0.10. Compare the checker’s actual top and right boundaries. Browser diagrams and numeric checks do not substitute for checking the device image.</p></div></div>
+</section>
 
-  <section class="section panel" id="predict">
-    <div class="section-head"><div><div class="section-no">7 · PREDICTION</div><h2>The stored cells look tilted. What happened to one vertical side?</h2></div></div>
-    <div class="prediction">
-      <button class="choice" data-answer="wrong-rot">Each square was rotated around its own center.</button>
-      <button class="choice" data-answer="wrong-zoom">The side stayed vertical and only moved farther from C, like a zoom.</button>
-      <button class="choice" data-answer="correct">The two ends sat on two rays. Each walked the same length out on its own ray. The horizontal end used the whole walk going right. The diagonal end split the walk, so they no longer share an x.</button>
-    </div>
-    <div class="result" id="predictionResult">Choose one answer.</div>
-  </section>
+<section class="panel" id="practice">
+<p class="eyebrow">8 · Try it before reading the answers</p>
+<h2>Predict which color is copied.</h2>
+<p>Keep x = 0.65 and <code>dispLen = 0.10</code>. Compare W at y = 0.15 with W at y = 0.16.</p>
+<div class="prediction"><button class="choice" data-answer="both" aria-pressed="false">Both must be navy because both positions are close to the old square.</button><button class="choice" data-answer="cross" aria-pressed="false">The first is orange and the second is navy, if their reads land on opposite sides of the input top edge.</button><button class="choice" data-answer="original" aria-pressed="false">Both must stay orange because both output positions are above y = 0.25.</button></div><div class="result" id="predictionResult" aria-live="polite">Choose a prediction.</div>
+<h3 class="spaced">Small coding challenge: preserve the chosen length and read inward.</h3>
+<p>Fill in the two operators. Assume the existing <code>d &gt; 0.0001</code> guard has passed.</p>
+<div class="challenge-fields"><code>float2 dir = p</code><label><span class="sr">Operator between p and d</span><input id="divideAnswer" maxlength="1" autocomplete="off"></label><code>d;</code><code>disp = dir * dispLen;</code><code>readUv = uv</code><label><span class="sr">Operator between uv and disp</span><input id="subtractAnswer" maxlength="1" autocomplete="off"></label><code>disp;</code></div>
+<div class="controls"><button class="btn primary" id="checkChallenge">Check operators</button><button class="btn" id="showSolution">Show solution</button><button class="btn" id="resetChallenge">Reset challenge</button></div><div class="result" id="challengeResult" aria-live="polite">The first operation gives the direction a length of one. The second makes the read go toward C.</div>
+<details><summary>Why replacing the formula with p changes the effect</summary><p><code>p</code> is the whole center-to-output vector. If <code>disp = p</code>, then <code>readUv = uv − (uv − C) = C</code>. Every output position reads the center.</p><p>If instead <code>disp = p × dispLen</code>, then <code>readUv = C + p × (1 − dispLen)</code>. At 0.10, read distances are 90% of output distances. This is uniform scaling, so straight sides remain straight. It does not produce the same curved boundary.</p><p>Multiplying by distance again, <code>p × d × dispLen</code>, varies the displacement differently still. It is neither the chosen-length field nor a uniform scale.</p></details>
+<h3 class="spaced">Final exercises</h3>
+<details><summary>1. At W = (0.65, 0.20), why is “the position is above the navy square” insufficient to predict its output color?</summary><p>The output is chosen at the read coordinate. With distance 0.10, <code>readUv = uv − disp ≈ (0.65, 0.20) − (0.04472, −0.08944) ≈ (0.60528, 0.28944)</code>. The read satisfies both bounds of the navy cell. <span class="chip" style="background:#1a4066"></span>W therefore receives navy even though the input at W is orange.</p></details>
+<details><summary>2. Does dispLen = 0.10 add 0.10 to both the cell’s width and height, or enlarge each by 10%?</summary><p>Neither description states what the shader does. It chooses a read distance of 0.10 in image-width units. Different directions split that length into different horizontal and vertical parts. At the default top-left boundary point, the outward vertical change is −0.10. At the top-right corner it is about −0.07071. The edges therefore change unevenly.</p></details>
+<details><summary>3. Why is joining only the transformed top corners with a straight line insufficient?</summary><p>The boundary includes every point between the corners. For the top midpoint <code>(0.625, 0.25)</code>, the actual output is approximately <code>(0.66972, 0.16056)</code> at distance 0.10. A straight join between the transformed corners misses that point. The complete top edge curves. Use the comparison button in section 4 to see the difference.</p></details>
+<details><summary>4. At W = (0.54, 0.46) and distance 0.10, must the read stay above and right of C?</summary><p>No. <code>d = length(0.04, −0.04) ≈ 0.05657</code>, smaller than the chosen 0.10. The read passes C and reaches approximately <code>(0.46929, 0.53071)</code>, inside the navy input cell below and left of C. That cell has the same color as our chosen cell, but different bounds.</p></details>
+</section>
 
-  <section class="section panel">
-    <div class="section-head"><div><div class="section-no">8 · CODING CHALLENGE</div><h2>Same-length walk on this pixel’s ray, then ask inward</h2></div></div>
-    <div class="challenge">
-      <div>
-        <textarea class="editor" id="challengeEditor" spellcheck="false">uniform shader background;
-uniform float2 resolution;
-uniform float dispLen;
-
-half4 main(float2 fragCoord) {
-    float2 uv = fragCoord / resolution;
-    float2 p = uv - float2(0.5, 0.5);
-    float d = length(p);
-    float2 disp = float2(0.0, 0.0);
-    if (d > 0.0001) {
-        float2 dir = p ___ d;
-        disp = dir * dispLen;
-    }
-    float2 readUv = uv ___ disp;
-    return background.eval(readUv * resolution);
-}</textarea>
-        <div class="controls" style="margin-top:10px">
-          <button class="btn primary" id="checkChallenge">Check</button>
-          <button class="btn" id="showSolution">Show solution</button>
-          <button class="btn" id="resetChallenge">Reset</button>
-        </div>
-        <div class="result" id="challengeResult">Divide so H and Q walk the same length. Subtract so the ask is toward C.</div>
-      </div>
-      <div class="card indigo">
-        <h3>Available names</h3>
-        <div class="formula">/ d
-* d
-- disp
-+ disp</div>
-        <p>If you multiply by <code>d</code> instead of dividing, Q walks its leftover 0.35 and H walks 0.25: far ends run farther, which is zoom, and a vertical side stays vertical. Adding <code>disp</code> asks outward and pinches.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="section panel">
-    <div class="section-head"><div><div class="section-no">9 · EXERCISES</div><h2>Answer before opening each hidden solution</h2></div></div>
-    <details>
-      <summary>H is at (0.75, 0.50) and walks to (0.85, 0.50). Q is at (0.75, 0.25). Why is Q′ not at x = 0.85 as well?</summary>
-      <p>Q is 0.25 right of C and 0.25 up from C. Its ray is the 45° diagonal, so a walk of 0.10 splits: about 0.07 right and 0.07 up. H’s ray is horizontal, so H uses the whole 0.10 going right. Same walk length, different split, different new x. That is the tilt.</p>
-    </details>
-    <details>
-      <summary>The vertical line through C, x = 0.50, does not look tilted in the store. Why not?</summary>
-      <p>Every point on that line already sits on the same ray (straight up or straight down from C). Both ends of a side on that line stay on that line after the walk. A side tilts only when its two ends sit on two different rays.</p>
-    </details>
-    <details>
-      <summary>Why do cells near C look more warped than cells near the edge?</summary>
-      <p>The walk is the same length 0.10 everywhere. Near C that 0.10 is a large fraction of the leftover distance, so a small input cell is painted across a much larger store region. Far from C, 0.10 is a small nudge on a long leftover. The two ends of a near-C side also have rays that spread apart more quickly, so the tilt is stronger.</p>
-    </details>
-    <details>
-      <summary>If the shader used p as the arrow instead of (p / length(p)) × dispLen, would a vertical side still tilt?</summary>
-      <p>No. Then each point would walk a distance equal to its leftover length (or a fixed fraction of it). That is Lesson 9.9’s growing offset: a zoom. H at leftover 0.25 and Q at leftover 0.35 would walk different lengths along similar-enough rays that the side stays a scaled vertical, not a slant from a split walk of equal length.</p>
-    </details>
-  </section>
-
-  <section class="section panel">
-    <div class="section-head"><div><div class="section-no">10 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div></div>
-    <div class="checklist">
-      <label class="check"><input type="checkbox">Construction step 4: H′ is farther right than Q′. The side that was vertical now leans.</label>
-      <label class="check"><input type="checkbox">At dispLen 0 the pink square and the green quad match. Both are axis-aligned.</label>
-      <label class="check"><input type="checkbox">Step 5: the pink square’s stored image is a trapezoid leaning toward C. The vertical through C stays vertical.</label>
-      <label class="check"><input type="checkbox">Lab: H′ x is 0.85 and Q′ x is about 0.82 at dispLen 0.10. They do not share an x.</label>
-      <label class="check"><input type="checkbox">Android panel is square. Light @Preview first, then dark. Both previews scroll.</label>
-    </div>
-  </section>
-
-  <section class="section panel">
-    <div class="section-head"><div><div class="section-no">11 · EVIDENCE BOUNDARY</div><h2>What this lesson establishes</h2></div></div>
-    <div class="two">
-      <div class="card green"><h3>Established</h3><p>The tilted squares are one walk, on two rays. A vertical side’s ends no longer share an x because the horizontal end spends the whole walk going right and the diagonal end splits it. Four corners do that → trapezoid leaning toward C. The rest is bow (every point has its own ray) and a bigger middle (same walk is a larger fraction near C). The shader’s inward ask is the inverse of that outward paint. Default <code>dispLen = 0.10</code>. C copies C.</p></div>
-      <div class="card indigo"><h3>What’s next</h3><p>Lesson 9.11 will reuse the length-1 direction and make the walk stronger near a glass boundary, so background lines bend there instead of across the whole square. Lesson 9.9 remains the unresolved checkpoint.</p></div>
-    </div>
-    <button class="btn primary" id="buildRecord" style="margin-top:16px">Build local review record</button>
-    <textarea class="record" id="record" readonly>No record generated yet.</textarea>
-  </section>
-
-  <footer class="footer panel"><span>95 of 216 complete · checkpoint 9.10 unresolved</span><span>Previous complete: <a href="lesson-09-09-scale-around-the-center.html">9.9 — Scale around the center</a> · Next planned: <strong>9.11 — Refraction as displaced sampling</strong></span></footer>
+<section class="panel" id="completion">
+<p class="eyebrow">Review record</p><h2>Keep the checkpoint unresolved until you confirm completion.</h2>
+<div class="checks"><label><input type="checkbox" id="checkRead">I can trace W to R and explain the copied color.</label><label><input type="checkbox" id="checkLength">I can explain the unit and role of dispLen.</label><label><input type="checkbox" id="checkCurve">I can explain the curved added region using several boundary points.</label><label><input type="checkbox" id="checkCenter">I can explain the center crossing and zero-distance guard.</label></div>
+<div class="controls spaced"><button class="btn primary" id="buildRecord">Build Markdown record</button><button class="btn" id="copyRecord">Copy record</button></div><textarea class="record" id="record" readonly aria-label="Copyable Markdown review record"></textarea><div class="small quiet" id="copyStatus" aria-live="polite">Building or copying this record does not mark the lesson complete.</div>
+</section>
+<footer class="footer"><span>Course progress: 95 of 216 lessons completed.</span><span><a href="lesson-09-09-scale-around-the-center.html">Previous: 9.9</a> · Next planned: 9.11 — Refraction as displaced sampling</span></footer>
 </main>
+<div id="provenance" class="pop" role="dialog" aria-label="Value origin" hidden><button id="closePop" aria-label="Close value origin">×</button><div id="provenanceText"></div></div>
 <script>
-const W=400, H=400;
-const CELLS=4;
-const TEACH={x:0.80*400, y:0.10*400};
-const HPT={u:0.75, v:0.50};
-const QPT={u:0.75, v:0.25};
-const CENTER={x:0.50*400, y:0.50*400};
-const NAVY=[0.10,0.25,0.40,1];
-const ORANGE=[0.88,0.48,0.18,1];
-const OUTSIDE=[0.77,0.80,0.85,1];
-const SQ=[[0.60,0.20],[0.80,0.20],[0.80,0.40],[0.60,0.40]];
-const PROD=`uniform shader background;
-uniform float2 resolution;
-uniform float dispLen;
-
-half4 main(float2 fragCoord) {
-    float2 uv = fragCoord / resolution;
-    float2 p = uv - float2(0.5, 0.5);
-    float d = length(p);
-    float2 disp = float2(0.0, 0.0);
-    if (d > 0.0001) {
-        disp = (p / d) * dispLen;
-    }
-    float2 readUv = uv - disp;
-    return background.eval(readUv * resolution);
-}`;
-let px=HPT.u*W, py=HPT.v*H;
-let dispLen=0.10;
-let showArrows=false;
-let showSquare=true;
-let tiltStep=0;
-const fmt2=n=>n.toFixed(2);
-const fmt3=n=>n.toFixed(3);
-function clamp(x,lo,hi){ return Math.min(hi, Math.max(lo, x)); }
-function fract(x){ return x-Math.floor(x); }
-function rgbCss(c){
-  const r=Math.round(clamp(c[0],0,1)*255);
-  const g=Math.round(clamp(c[1],0,1)*255);
-  const b=Math.round(clamp(c[2],0,1)*255);
-  return `rgb(${r},${g},${b})`;
+'use strict';
+const state = {u:0.65,v:0.20,len:0.10,step:0,edge:'top',chord:false};
+const C = {u:0.5,v:0.5};
+const GUARD = 0.0001;
+const colors = {navy:[26,64,102],orange:[224,122,46],ink:'#122239',pink:'#ff4d8d',cyan:'#22d3ee',lime:'#86efac',white:'#fff',violet:'#c4b5fd'};
+const $ = id => document.getElementById(id);
+const f = (n,d=5) => (Math.abs(n)<0.5*10**(-d)?0:n).toFixed(d).replace('-', '−');
+const pair = (u,v,d=5) => `(${f(u,d)}, ${f(v,d)})`;
+const signed = n => (n>0?'+':'')+f(n);
+const esc = text => String(text).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+const value = (text,key) => `<span class="v"><code>${esc(text)}</code><button class="info" data-origin="${key}" aria-label="Value origin: ${esc(text)}">i</button></span>`;
+const chip = navy => `<span class="chip" style="background:${navy?'#1a4066':'#e07a2e'}"></span>${navy?'navy':'orange'}`;
+function checker(u,v){const col=Math.floor(u*4),row=Math.floor(v*4);return {col,row,navy:Math.abs((col+row)%2)===1};}
+function inCell(u,v){return u>=.5&&u<.75&&v>=.25&&v<.5;}
+function trace(u,v,len){
+ const px=u-.5,py=v-.5,d=Math.hypot(px,py),skip=d<=GUARD;
+ const nx=skip?0:px/d,ny=skip?0:py/d,dx=nx*len,dy=ny*len,ru=u-dx,rv=v-dy;
+ return {u,v,len,px,py,d,skip,nx,ny,dx,dy,ru,rv,...checker(ru,rv),owned:inCell(ru,rv)};
 }
-function checkerAtUv(u,v){
-  if(u<0 || u>=1 || v<0 || v>=1){
-    return {outside:true, col:OUTSIDE.slice(), even:false, colI:-1, rowI:-1};
+function outward(u,v,len){const t=trace(u,v,len);return {u:u+t.dx,v:v+t.dy,dx:t.dx,dy:t.dy,d:t.d};}
+const origins={
+ example:'Chosen worked example. The learner supplied x = 0.65. This page chooses y = 0.20 to make “slightly above” reproducible. Both are UV fractions of the square and are consumed by the displacement calculation.',
+ uv:'Chosen output coordinate in UV: x / image width and y / image height. Its position stays fixed. Subtracting C produces p; subtracting disp later produces the read.',
+ a:'Chosen slider distance, in UV units of this square image. Default 0.10; range 0 to 0.20. It multiplies the length-one direction to produce disp. It is not a cell-enlargement percentage.',
+ p:'Calculated from the selected output: p = uv − (0.5, 0.5). The signed entries describe right/left and down/up from the picture center. length(p) and p / d consume this pair.',
+ d:'Calculated as length(p), the straight-line UV distance from the picture center to the current output. The center guard checks it; division by d produces the length-one direction.',
+ dir:'Calculated as p / d outside the center guard. Its two signed entries form a direction whose length is one. Multiplication by dispLen makes the chosen displacement.',
+ disp:'Calculated as (p / d) × dispLen, with zero inside the center guard. This signed UV pair points outward. Subtracting it from uv produces the inward read coordinate.',
+ read:'Calculated from the current output position: readUv = uv − disp. It is an input-image UV coordinate. Multiplying by resolution supplies the coordinate to background.eval.',
+ color:'Returned by the input checker at the calculated read coordinate. The checker returns opaque orange or navy. The output stores this color at the original W position.',
+ cell:'The named input cell has column index 2 and row index 1. Its bounds are 0.50 ≤ x < 0.75 and 0.25 ≤ y < 0.50. The calculated read is tested against both intervals.',
+ boundary:'Calculated by extending a ray from C through this input boundary point by dispLen. These output positions lie outside the center-crossing region. Their inward reads return to the boundary.',
+ slice:'Calculated for the vertical output slice x = 0.65. The browser finds the top boundary by testing where read y reaches 0.25 while read x stays in the named cell. The position depends on dispLen.',
+ pixels:'A 400 × 400 pixel square is a teaching ruler. UV distances multiply by 400 to become pixel distances. Android uses its actual draw size instead.',
+ rgba:'Fixed teaching colors from Lesson 8.3, also used by the current checker shader. Alpha is 1. Straight and premultiplied channel numbers therefore agree. The browser chips round the channels to 8-bit sRGB.',
+ guard:'The shader uses a fixed threshold of 0.0001 UV units. If d is at or below it, displacement stays zero. The read remains at W and division by zero is avoided.'
+};
+const rasterCache=new Map();
+function raster(kind,len,u0=0,v0=0,span=1){
+ const key=[kind,len,u0,v0,span].join('|');if(rasterCache.has(key))return rasterCache.get(key);
+ const size=640,cv=document.createElement('canvas');cv.width=cv.height=size;const ctx=cv.getContext('2d'),im=ctx.createImageData(size,size);
+ for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+  const u=u0+(x+.5)/size*span,v=v0+(y+.5)/size*span,t=trace(u,v,kind==='input'?0:len);
+  let rgb=t.navy?colors.navy:colors.orange;
+  if(kind==='gain'&&t.owned&&!inCell(u,v))rgb=[134,239,172];
+  if(kind==='owned')rgb=t.owned?colors.navy:[235,240,246];
+  const i=(y*size+x)*4;im.data[i]=rgb[0];im.data[i+1]=rgb[1];im.data[i+2]=rgb[2];im.data[i+3]=255;
+ }
+ ctx.putImageData(im,0,0);const url=cv.toDataURL();if(rasterCache.size>24)rasterCache.delete(rasterCache.keys().next().value);rasterCache.set(key,url);return url;
+}
+const PLOT={x:48,y:28,s:320};
+function xy(u,v,p=PLOT){return [p.x+u*p.s,p.y+v*p.s];}
+function line(a,b,color,width=2,halo=true){return `${halo?`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${colors.ink}" stroke-width="${width+3}"/>`:''}<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${color}" stroke-width="${width}"/>`;}
+function arrow(a,b,color,width=2.5){
+ const dx=b[0]-a[0],dy=b[1]-a[1],d=Math.hypot(dx,dy);if(d<1)return '';
+ const ux=dx/d,uy=dy/d,k=Math.min(9,d*.3),head=[[b[0]-ux*k-uy*k*.5,b[1]-uy*k+ux*k*.5],b,[b[0]-ux*k+uy*k*.5,b[1]-uy*k-ux*k*.5]];
+ return line(a,b,color,width)+`<polyline points="${head.map(q=>q.join(',')).join(' ')}" fill="none" stroke="${colors.ink}" stroke-width="${width+3}" stroke-linejoin="round"/><polyline points="${head.map(q=>q.join(',')).join(' ')}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linejoin="round"/>`;
+}
+function text(x,y,t,cl='svgtext',anchor='start'){return `<text x="${x}" y="${y}" class="${cl}" text-anchor="${anchor}">${esc(t)}</text>`;}
+function dot(u,v,color,label='',p=PLOT,off=[11,-12]){
+ const [x,y]=xy(u,v,p);let s=`<circle cx="${x}" cy="${y}" r="7" fill="${color}" stroke="${colors.ink}" stroke-width="2.5"/>`;
+ if(label){const ww=label.length*8+14;const xx=Math.max(p.x-20,Math.min(p.x+p.s-ww+22,x+off[0]));const yy=Math.max(p.y-20,Math.min(p.y+p.s-5,y+off[1]));s+=`<g class="point-label" data-x="${x}" data-y="${y}" data-px="${p.x}" data-py="${p.y}" data-size="${p.s}" data-width="${ww}" data-dx="${off[0]}" data-dy="${off[1]}" transform="translate(${xx},${yy})"><rect x="0" y="-13" width="${ww}" height="23" rx="6" fill="${colors.ink}"/>`+text(ww/2,3,label,'pill-text','middle')+'</g>';}
+ return s;
+}
+function pathPoints(points,color,width=3,halo=true){const d=points.map((q,i)=>`${i?'L':'M'}${q[0]},${q[1]}`).join(' ');return `${halo?`<path d="${d}" fill="none" stroke="${colors.ink}" stroke-width="${width+3}"/>`:''}<path d="${d}" fill="none" stroke="${color}" stroke-width="${width}"/>`;}
+function frame(kind,len,p=PLOT,axes=true){
+ let s=`<image href="${raster(kind,len)}" x="${p.x}" y="${p.y}" width="${p.s}" height="${p.s}"/><rect x="${p.x}" y="${p.y}" width="${p.s}" height="${p.s}" fill="none" stroke="#adbdce"/>`;
+ if(axes){for(const t of [0,.25,.5,.75,1]){s+=text(p.x+t*p.s,p.y+p.s+24,f(t,2),'svgsmall','middle');s+=text(p.x-9,p.y+t*p.s+5,f(t,2),'svgsmall','end');}s+=text(p.x+p.s/2,p.y+p.s+51,'x →','svgsmall','middle');}
+ return s;
+}
+function cellOutline(p=PLOT){return pathPoints([[.5,.25],[.75,.25],[.75,.5],[.5,.5],[.5,.25]].map(q=>xy(...q,p)),colors.pink,2.5);}
+function centerMark(p=PLOT,label=true){const c=xy(.5,.5,p);return line([c[0]-5,c[1]],[c[0]+5,c[1]],'#fff',2)+line([c[0],c[1]-5],[c[0],c[1]+5],'#fff',2)+(label?`<rect x="${c[0]-30}" y="${c[1]+8}" width="23" height="23" rx="6" fill="${colors.ink}"/>`+text(c[0]-18.5,c[1]+25,'C','pill-text','middle'): '');}
+function arrangePointLabels(){
+ for(const svg of document.querySelectorAll('svg')){
+  if(!svg.getClientRects().length)continue;
+  const occupied=[...svg.querySelectorAll('text')].filter(e=>!e.closest('.point-label')).map(e=>{const r=e.getBBox();return {x:r.x-4,y:r.y-4,w:r.width+8,h:r.height+8};});
+  for(const g of svg.querySelectorAll('.point-label')){
+   const d=g.dataset,x=Number(d.x),y=Number(d.y),px=Number(d.px),py=Number(d.py),size=Number(d.size),w=Number(d.width);
+   const options=[[Number(d.dx),Number(d.dy)],[11,-12],[-w-11,-12],[11,26],[-w-11,26],[11,50],[-w-11,50],[32,8],[-w-32,8],[11,-38],[-w-11,-38]];
+   let chosen=null;
+   for(const [dx,dy] of options){
+    const left=Math.max(px+2,Math.min(px+size-w-2,x+dx)),base=Math.max(py+16,Math.min(py+size-11,y+dy));
+    const box={x:left-3,y:base-16,w:w+6,h:29};
+    if(occupied.every(o=>box.x+box.w<=o.x||o.x+o.w<=box.x||box.y+box.h<=o.y||o.y+o.h<=box.y)){chosen={left,base,box};break;}
+   }
+   if(chosen){g.setAttribute('transform',`translate(${chosen.left},${chosen.base})`);occupied.push(chosen.box);}
   }
-  const colI=Math.floor(u*CELLS);
-  const rowI=Math.floor(v*CELLS);
-  const even = fract((colI+rowI)*0.5) < 0.5;
-  return {outside:false, colI, rowI, even, col: even ? ORANGE.slice() : NAVY.slice()};
+ }
 }
-function rayOf(u,v){
-  const p=[u-0.5, v-0.5];
-  const d=Math.hypot(p[0], p[1]);
-  if(d<=0.0001) return {p, d, dir:[0,0], skipped:true};
-  return {p, d, dir:[p[0]/d, p[1]/d], skipped:false};
+function readLabelOffset(t){return [t.ru<t.u?-30:11,t.rv>=t.v?26:-12];}
+function writeLabelOffset(t){return [t.u>=t.ru?11:-30,t.v<=t.rv?-12:26];}
+function mapPicture(id,kind,t,options={}){
+ let s=frame(kind,t.len)+cellOutline();
+ const cp=xy(.5,.5),w=xy(t.u,t.v),r=xy(t.ru,t.rv);
+ if(options.circle&&t.len>0)s+=`<circle cx="${cp[0]}" cy="${cp[1]}" r="${t.len*PLOT.s}" fill="none" stroke="${colors.ink}" stroke-width="5"/><circle cx="${cp[0]}" cy="${cp[1]}" r="${t.len*PLOT.s}" fill="none" stroke="#fff" stroke-width="2.5"/>`;
+ if(options.read){s+=line(w,cp,'#fff',1.2)+arrow(w,r,colors.lime);}
+ s+=centerMark(PLOT,kind!=='gain'&&Math.hypot(t.u-.5,t.v-.5)>.09&&Math.hypot(t.ru-.5,t.rv-.5)>.08);
+ if(options.write!==false)s+=dot(t.u,t.v,colors.cyan,options.read&&Math.hypot(t.dx,t.dy)<1e-10?'W/R':'W',PLOT,options.read?writeLabelOffset(t):[11,-12]);
+ if(options.read&&Math.hypot(t.dx,t.dy)>=1e-10)s+=dot(t.ru,t.rv,colors.lime,'R',PLOT,readLabelOffset(t));
+ $(id).innerHTML=s;
 }
-function outward(u,v,len){
-  const r=rayOf(u,v);
-  if(r.skipped) return {u, v, ...r};
-  return {u:u+r.dir[0]*len, v:v+r.dir[1]*len, ...r};
+function trianglePanel(t,mode){
+ const dx=mode==='unit'?t.nx:t.dx,dy=mode==='unit'?t.ny:t.dy,long=mode==='unit'?1:t.len;
+ let s=text(564,36,mode==='unit'?'Direction with length 1':'The chosen displacement','svgbold','middle');
+ if(t.skip||long===0)return s+text(550,188,'No nonzero arrow.','svgtext','middle');
+ const sc=182/Math.max(Math.abs(dx),Math.abs(dy),1e-8),ox=dx>=0?453:680,oy=dy>=0?86:288;
+ const start=[ox,oy],elbow=[ox+dx*sc,oy],end=[elbow[0],oy+dy*sc];
+ s+=line(start,elbow,colors.cyan,3)+line(elbow,end,colors.violet,3)+arrow(start,end,colors.lime,3);
+ s+=text((start[0]+elbow[0])/2,oy+(dy>0?-16:29),`x: ${signed(dx)}`,'svgsmall','middle');
+ s+=text(568,350,`y part: ${signed(dy)} · length: ${f(long,3)}`,'svgsmall','middle');
+ s+=text(568,383,'Enlarged diagram; read the labelled lengths.','svgsmall','middle');
+ return s;
 }
-function dispAt(u,v,len){
-  const r=rayOf(u,v);
-  if(r.skipped) return {p:r.p, d:r.d, dir:[0,0], disp:[0,0], u:u, v:v, skipped:true};
-  const disp=[r.dir[0]*len, r.dir[1]*len];
-  return {p:r.p, d:r.d, dir:r.dir, disp, u:u-disp[0], v:v-disp[1], skipped:false};
+function walkDrawing(t){
+ const p={x:48,y:36,s:326};let s='';
+ if(state.step===5){const q={x:422,y:36,s:290},pp={x:40,y:36,s:290};s=frame('input',t.len,pp,false)+frame('output',t.len,q,false)+cellOutline(pp)+cellOutline(q);s+=dot(t.ru,t.rv,colors.lime,'R',pp,[-30,26])+dot(t.u,t.v,colors.cyan,'W',q);s+=text(185,391,'Read the input at R','svgbold','middle')+text(567,391,'Store that color at W','svgbold','middle');s+=arrow([346,180],[403,180],colors.lime,3);return s;}
+ s=frame('input',0,p,false)+cellOutline(p);const a=xy(.5,.5,p),b=xy(t.u,t.v,p),e=xy(t.u,.5,p);
+ s+=line(a,e,colors.cyan,2.5)+line(e,b,colors.violet,2.5);
+ if(state.step>=1)s+=arrow(a,b,'#fff',2.5);
+ if(state.step===3)s+=arrow(a,xy(.5+t.dx,.5+t.dy,p),colors.lime,3);
+ if(state.step===4){s+=arrow(b,xy(t.ru,t.rv,p),colors.lime,3);if(Math.hypot(t.dx,t.dy)>1e-10)s+=dot(t.ru,t.rv,colors.lime,'R',p,readLabelOffset(t));}
+ s+=centerMark(p,t.d>.10)+dot(t.u,t.v,colors.cyan,state.step===4&&Math.hypot(t.dx,t.dy)<=1e-10?'W/R':'W',p,state.step===4?writeLabelOffset(t):[11,-12]);
+ s+=text(211,398,'One square image · y increases down','svgsmall','middle');
+ if(state.step===0){s+=text(566,85,'Horizontal change from C','svgbold','middle')+text(566,123,`p.x = ${signed(t.px)}`,'svgtext','middle')+text(566,187,'Vertical change from C','svgbold','middle')+text(566,225,`p.y = ${signed(t.py)}`,'svgtext','middle');}
+ if(state.step===1){s+=text(566,83,'The straight-line distance','svgbold','middle')+text(566,130,`d ≈ ${f(t.d)} UV`,'svgtext','middle')+text(566,188,`horizontal size: ${f(Math.abs(t.px))}`,'svgsmall','middle')+text(566,221,`vertical size: ${f(Math.abs(t.py))}`,'svgsmall','middle')+text(566,275,'The white line is the long side.','svgsmall','middle');}
+ if(state.step===2||state.step===3)s+=trianglePanel(t,state.step===2?'unit':'disp');
+ if(state.step===4){s+=text(568,85,'Start at the output W','svgbold','middle')+text(568,121,pair(t.u,t.v,3),'svgtext','middle')+text(568,184,'Subtract the displacement','svgbold','middle')+text(568,220,pair(t.dx,t.dy),'svgtext','middle')+text(568,284,'Arrive at input read R','svgbold','middle')+text(568,320,pair(t.ru,t.rv),'svgtext','middle');}
+ return s;
 }
-function storeAt(x,y,len){
-  const writeU=x/W, writeV=y/H;
-  const t=dispAt(writeU, writeV, len);
-  return {writeU, writeV, ...t, sample:checkerAtUv(t.u, t.v)};
+function updateWalk(t){
+ $('walkInput').innerHTML=value(`W = ${pair(t.u,t.v,3)}`,'uv');$('walkLength').innerHTML=value(`dispLen = ${f(t.len,3)} UV`,'a');
+ const records=[
+ {title:'Describe W from the center.',prose:`<p><code>p</code> is a pair: its first entry is the horizontal change from C to W; its second is the vertical change. These entries are also called <strong>components</strong>. Each subtraction uses matching entries.</p><p>In the worked example, the horizontal change is positive because W is right of C. The vertical change is negative because W is above C, and y increases downward.</p>`,formula:`p = uv − C\np.x = uv.x − C.x = ${f(t.u,3)} − 0.500 = ${f(t.px,3)}\np.y = uv.y − C.y = ${f(t.v,3)} − 0.500 = ${f(t.py,3)}`,next:`This pair ${value(pair(t.px,t.py),'p')} describes the full center-to-W arrow. Next, measure its length.`,caption:'C and W keep their positions. Cyan and violet show the horizontal and vertical parts.'},
+ {title:'Measure the full arrow before choosing a shorter one.',prose:`<p><code>d</code> is the straight-line distance from C to W. <code>length(p)</code> calculates it. The horizontal and vertical parts form the two short sides of a right triangle, as in Lesson 9.1.</p><p>Multiply each component by itself, add the two results, then take the square root. The square root asks: which zero or positive number multiplied by itself gives this sum?</p>`,formula:`d = length(p) = sqrt(p.x × p.x + p.y × p.y)\n  = sqrt((${f(t.px,3)}) × (${f(t.px,3)}) + (${f(t.py,3)}) × (${f(t.py,3)}))\n  = sqrt(${f(t.px*t.px,6)} + ${f(t.py*t.py,6)})\n  = sqrt(${f(t.d*t.d,6)}) ≈ ${f(t.d)}`,next:`The measured distance ${value(f(t.d)+' UV','d')} lets the next operation remove the original arrow length.`,caption:'The white line is the straight-line distance d. It is not the sum of the two shorter sides.'},
+ {title:t.skip?'The center guard skips division here.':'Keep the direction and give it length one.',prose:t.skip?`<p>The current distance is at or below <code>0.0001</code>. The shader leaves displacement at zero. At C, division would be division by zero. No direction is calculated for this guarded position.</p>`:`<p>We want the final arrow length to come from <code>dispLen</code>, rather than from W’s distance to C. First divide <em>both components</em> by <code>d</code>. Scaling both parts by the same amount keeps the direction.</p><p>The old length was d. Dividing every length by d makes the new length <code>d / d = 1</code>. This operation is called <strong>normalization</strong>. Here <code>dir</code> names its resulting pair.</p>`,formula:t.skip?`d = ${f(t.d)} ≤ 0.0001\ndisp remains (0, 0); division is skipped`:`dir = p / d\ndir.x = p.x / d = ${f(t.px)} / ${f(t.d)} ≈ ${f(t.nx)}\ndir.y = p.y / d = ${f(t.py)} / ${f(t.d)} ≈ ${f(t.ny)}\nlength(dir) = d / d = 1`,next:t.skip?`Next, keep the zero displacement.`:`The new pair ${value(pair(t.nx,t.ny),'dir')} supplies direction. Length 1 means one whole image width here. Next, multiply by the chosen distance.`,caption:'The triangle on the right has its own enlarged drawing scale. Its labelled numbers give the actual lengths.'},
+ {title:'Make that arrow exactly dispLen long.',prose:`<p>Multiplying both components by the chosen distance keeps the direction again. A length of 1 becomes a length of <code>dispLen</code>. The resulting coordinate-change pair is named <code>disp</code>. A <strong>displacement</strong> means this pair of horizontal and vertical changes.</p><p>Follow x first: its direction component times the chosen distance gives the horizontal part. Repeat for y. These are parts of one diagonal distance. They are not two copies of that distance.</p>`,formula:`disp = dir × dispLen\ndisp.x = dir.x × dispLen = ${f(t.nx)} × ${f(t.len,3)} ≈ ${f(t.dx)}\ndisp.y = dir.y × dispLen = ${f(t.ny)} × ${f(t.len,3)} ≈ ${f(t.dy)}\nlength(disp) ${t.skip?'= 0 (center guard)':'= 1 × dispLen = '+f(t.len,3)}`,next:t.len===0||t.skip?`The pair is ${value('(0, 0)','disp')}. Subtracting zero will leave both coordinates unchanged.`:`The pair ${value(pair(t.dx,t.dy),'disp')} points outward. Next, subtract it from W to read in the opposite direction.`,caption:'The green arrow starts at C to display its outward direction and actual chosen length. The triangle at right enlarges its parts. In the next step we subtract this pair at W.'},
+ {title:'Subtract the outward pair to read inward.',prose:`<p><code>readUv</code> names R, the position evaluated in the input image. The output position <code>uv</code> stays fixed.</p><p>For the default example, subtracting positive <code>disp.x</code> moves the read left. <code>disp.y</code> is negative, so subtracting it adds its positive size: y increases, and the read moves down. Both changes point toward C.</p>`,formula:`readUv = uv − disp\nreadUv.x = uv.x − disp.x\n         = ${f(t.u,3)} − (${f(t.dx)}) ≈ ${f(t.ru)}\nreadUv.y = uv.y − disp.y\n         = ${f(t.v,3)} − (${f(t.dy)}) ≈ ${f(t.rv)}`,next:`Input read ${value(pair(t.ru,t.rv),'read')} is ready. The next operation asks the checker for its color.`,caption:'The green arrow now starts at W and ends at R. This is the actual read direction.'},
+ {title:'Read the checker, then copy the color onto W.',prose:`<p>The input checker receives R. For our named navy cell, the read must satisfy both the horizontal and vertical bounds.</p><p>The current read ${t.owned?'is inside that exact cell.':'is outside that exact cell; the checker evaluates the cell that contains R.'} The returned color is ${chip(t.navy)}. The output pixel at W stores that color.</p>`,formula:`readUv ≈ ${pair(t.ru,t.rv)}\nnamed cell x test: 0.50 ≤ ${f(t.ru)} < 0.75 → ${t.ru>=.5&&t.ru<.75}\nnamed cell y test: 0.25 ≤ ${f(t.rv)} < 0.50 → ${t.rv>=.25&&t.rv<.5}\ncolor = background.eval(readUv × resolution)\nreturn color at the original W = ${pair(t.u,t.v,3)}`,next:`Result: ${value(t.navy?'navy':'orange','color')} at W. The next section lets you change the distance and see the read cross an edge.`,caption:'Two different images. Read the color at R in the input; write it at W in the output.'}
+ ];
+ const r=records[state.step];$('stepCount').textContent=`STEP ${state.step+1} OF 6`;$('stepTitle').textContent=r.title;$('stepProse').innerHTML=r.prose;$('stepFormula').textContent=r.formula;$('stepConsumer').innerHTML=r.next;$('walkFigureCaption').textContent=r.caption;$('walkSvg').innerHTML=walkDrawing(t);$('prevStep').disabled=state.step===0;$('nextStep').disabled=state.step===5;
+ document.querySelectorAll('#stepButtons button').forEach((b,i)=>{if(i===state.step)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');});arrangePointLabels();
 }
-function paintField(ctx, w, h, len){
-  const img=ctx.createImageData(w,h);
-  for(let y=0;y<h;y++){
-    for(let x=0;x<w;x++){
-      const col = len===0
-        ? checkerAtUv((x+0.5)/w,(y+0.5)/h).col
-        : storeAt(x*(W/w), y*(H/h), len).sample.col;
-      const i=(y*w+x)*4;
-      img.data[i]=Math.round(col[0]*255);
-      img.data[i+1]=Math.round(col[1]*255);
-      img.data[i+2]=Math.round(col[2]*255);
-      img.data[i+3]=255;
-    }
-  }
-  ctx.putImageData(img,0,0);
+function updateLab(t){
+ mapPicture('labInput','input',t,{read:true});mapPicture('labOutput','output',t);
+ $('liveReadouts').innerHTML=`<div><strong>Input color at W</strong><span class="reading">${chip(checker(t.u,t.v).navy)}</span></div><div><strong>Input read R</strong>${value(pair(t.ru,t.rv),'read')}</div><div><strong>Output color at W</strong><span class="reading">${chip(t.navy)}</span></div>`;
+ $('liveMath').textContent=`disp = (p / length(p)) × dispLen\n     ≈ ${pair(t.nx,t.ny)} × ${f(t.len,3)}\n     ≈ ${pair(t.dx,t.dy)}\nreadUv = uv − disp\n       ≈ ${pair(t.u,t.v,3)} − ${pair(t.dx,t.dy)}\n       ≈ ${pair(t.ru,t.rv)}`;
+ if(t.skip)$('liveMath').textContent=`d = length(p) = ${f(t.d)} ≤ 0.0001\ndisp = (0, 0) (the guard skips division)\nreadUv = uv − disp = ${pair(t.ru,t.rv)}`;
+ $('liveVerdict').innerHTML=`<p><strong>${t.owned?'The read is inside your navy cell.':'The read is outside your named navy cell.'}</strong> ${t.owned?`Both read coordinates satisfy its bounds. The output stores ${chip(t.navy)}.`:`It is in column ${t.col}, row ${t.row}, counted from zero. That input cell returns ${chip(t.navy)}.`}</p>${t.d<t.len&&!t.skip?'<p>The chosen read distance passes C. Section 6 follows this case.</p>':''}`;
 }
-function withHalo(ctx, color, width, dash, draw){
-  ctx.save();
-  ctx.lineJoin='round';
-  ctx.lineCap='round';
-  if(dash) ctx.setLineDash(dash);
-  ctx.strokeStyle='#ffffff';
-  ctx.lineWidth=width+3;
-  draw();
-  ctx.stroke();
-  ctx.strokeStyle=color;
-  ctx.lineWidth=width;
-  draw();
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.restore();
+function topBoundary(len){let lo=.01,hi=.25;for(let i=0;i<55;i++){const mid=(lo+hi)/2,t=trace(.65,mid,len);if(t.rv<.25)lo=mid;else hi=mid;}return (lo+hi)/2;}
+function updatePatch(t){
+ mapPicture('gainSvg','gain',t,{write:true});
+ const start=.05,end=.32,yy=v=>45+(v-start)/(end-start)*302;let s=text(145,24,'Input','svgbold','middle')+text(238,24,'Output','svgbold','middle');
+ for(const [x,boundary] of [[120,.25],[214,topBoundary(t.len)]]){s+=`<rect x="${x}" y="45" width="50" height="302" fill="#1a4066"/><rect x="${x}" y="45" width="50" height="${yy(boundary)-45}" fill="#e07a2e"/>`;}
+ for(const y of [.05,.10,.15,.20,.25,.30])s+=line([86,yy(y)],[276,yy(y)],'#acbdcf',.8,false)+text(76,yy(y)+5,f(y,2),'svgsmall','end');
+ const b=topBoundary(t.len);s+=line([112,yy(.25)],[178,yy(.25)],colors.pink,3)+line([206,yy(b)],[272,yy(b)],colors.lime,3);s+=text(195,389,'Same output x = 0.65','svgsmall','middle');
+ if(b<.25-.000001){s+=line([302,yy(b)],[302,yy(.25)],'#2457b2',2,false)+line([295,yy(b)],[309,yy(b)],'#2457b2',2,false)+line([295,yy(.25)],[309,yy(.25)],'#2457b2',2,false);s+=text(316,(yy(.25)+yy(b))/2-6,'added','svgsmall')+text(316,(yy(.25)+yy(b))/2+15,'navy','svgsmall');}
+ $('sliceSvg').innerHTML=s;
+ $('sliceFacts').innerHTML=`<p>At the current distance ${value(f(t.len,3),'a')}, the top boundary at output x = 0.65 is near y = ${value(f(b),'slice')}. The original input top was y = 0.25.</p><div class="formula">added height on this slice = old top y − new top y\n                          = 0.25 − ${f(b)}\n                          ≈ ${f(.25-b)} UV</div><p>At the default 0.10, y = 0.20 lies inside this added interval. But y = 0.15 is above it, so that output is still orange. Nearby positions can fall on different sides of the curved boundary.</p>`;
 }
-function fillHalo(ctx, color, x, y, r){
-  ctx.save();
-  ctx.fillStyle='#ffffff';
-  ctx.beginPath(); ctx.arc(x, y, r+2.5, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle=color;
-  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill();
-  ctx.restore();
+function edgePoints(){return state.edge==='top'?[[.5,.25],[.625,.25],[.75,.25]]:[[.75,.25],[.75,.375],[.75,.5]];}
+function updateEdges(){
+ const pts=edgePoints(),outs=pts.map(q=>outward(...q,state.len));let input=frame('input',0)+cellOutline(),output=frame('output',state.len)+cellOutline();
+ let curve=[];for(let i=0;i<=100;i++){const t=i/100;const q=state.edge==='top'?[.5+.25*t,.25]:[.75,.25+.25*t];const o=outward(...q,state.len);curve.push(xy(o.u,o.v));}
+ pts.forEach((q,i)=>{input+=line(xy(.5,.5),xy(...q),'#fff',1.4);output+=line(xy(...q),xy(outs[i].u,outs[i].v),colors.lime,2);});
+ output+=pathPoints(curve,colors.pink,3.5);
+ if(state.chord)output+=line(curve[0],curve.at(-1),colors.cyan,2.5);
+ pts.forEach((q,i)=>{input+=dot(...q,[colors.white,colors.lime,colors.cyan][i],String(i+1),PLOT,i===0?[-28,-12]:[10,-12]);output+=dot(outs[i].u,outs[i].v,[colors.white,colors.lime,colors.cyan][i],String(i+1),PLOT,i===0?[-28,-12]:[10,-12]);});
+ input+=centerMark();output+=centerMark();$('edgeInput').innerHTML=input;$('edgeOutput').innerHTML=output;
+ const names=state.edge==='top'?['Top-left corner','Top midpoint','Top-right corner']:['Top-right corner','Right midpoint','Bottom-right corner'];
+ $('edgeRows').innerHTML=pts.map((q,i)=>`<tr><td>${i+1} · ${names[i]}</td><td>${value(pair(...q,3),'cell')}</td><td>${value(pair(outs[i].dx,outs[i].dy),'boundary')}</td><td>${value(pair(outs[i].u,outs[i].v),'boundary')}</td></tr>`).join('');
+ if(state.edge==='top'){
+ $('edgeExplanation').innerHTML=`<p>All three input points start at y = 0.25. Point 1 is directly above C. Its outward movement is entirely upward. Point 3 is above and right of C. Its movement splits into horizontal and vertical parts.</p><p>The upward changes are ${value(f(Math.abs(outs[0].dy)),'boundary')} at point 1 and ${value(f(Math.abs(outs[2].dy)),'boundary')} at point 3. ${state.len===0?'Both changes are zero, so the edge stays horizontal.':'Point 1 rises farther. Their output y values no longer match, so even the corner-to-corner join tilts.'}</p>`;
+ $('edgeFormula').textContent=`output y = input y + vertical change\npoint 1: 0.25 + (${f(outs[0].dy)}) = ${f(outs[0].v)}\npoint 3: 0.25 + (${f(outs[2].dy)}) = ${f(outs[2].v)}\ndifference in output y ≈ ${f(outs[2].v-outs[0].v)}`;
+ }else{
+ $('edgeExplanation').innerHTML=`<p>All three input points start at x = 0.75. Point 3 is directly right of C. Its entire outward movement is horizontal. Point 1 is on a diagonal, so only part of its movement is horizontal.</p><p>The rightward changes are ${value(f(outs[2].dx),'boundary')} at point 3 and ${value(f(outs[0].dx),'boundary')} at point 1. ${state.len===0?'Both are zero, so the edge stays vertical.':'The lower point gains more x. The output points no longer share one x.'}</p>`;
+ $('edgeFormula').textContent=`output x = input x + horizontal change\npoint 1: 0.75 + ${f(outs[0].dx)} = ${f(outs[0].u)}\npoint 3: 0.75 + ${f(outs[2].dx)} = ${f(outs[2].u)}\ndifference in output x ≈ ${f(outs[2].u-outs[0].u)}`;
+ }
+ const a=outs[0],b=outs[2],m=outs[1];const chordAt=state.edge==='top'?a.v+(b.v-a.v)*(m.u-a.u)/(b.u-a.u):a.u+(b.u-a.u)*(m.v-a.v)/(b.v-a.v);const actual=state.edge==='top'?m.v:m.u;
+ $('chordExplanation').innerHTML=state.chord?`<p><i class="key" style="background:var(--cyan)"></i>Cyan joins only the corners with a straight line. At point 2’s ${state.edge==='top'?'x':'y'}, it misses the actual curve by ${value(f(Math.abs(actual-chordAt))+' UV','boundary')}. ${state.len===0?'At zero distance, both lines coincide.':'The extra intermediate point proves that the boundary is curved.'}</p>`:'<p>Every boundary point is calculated independently. Moving point 1 does not rotate a rigid side or move point 3. Use the comparison button to inspect the error from joining only the two corners.</p>';
+ $('edgeZoom').toggleAttribute('hidden',!state.chord);
+ if(state.chord){
+  const zoomScale=5000,project=q=>[380+(q.u-m.u)*zoomScale,88+(q.v-m.v)*zoomScale];
+  const whole=[];for(let i=0;i<=1000;i++){const v=i/1000;const q=state.edge==='top'?[.5+.25*v,.25]:[.75,.25+.25*v];whole.push(project(outward(...q,state.len)));}
+  const ca=project(a),cb=project(b),mid=project(m),hit=project(state.edge==='top'?{u:m.u,v:chordAt}:{u:chordAt,v:m.v});
+  $('edgeZoom').innerHTML=`<defs><clipPath id="detailClip"><rect x="40" y="24" width="680" height="120"/></clipPath></defs><rect x="40" y="24" width="680" height="120" fill="#edf3fa" stroke="#c4d3e5"/><g clip-path="url(#detailClip)">`+line(ca,cb,colors.cyan,2.5)+pathPoints(whole,colors.pink,2.5)+line(mid,hit,'#26394f',1.5,false)+`<circle cx="${mid[0]}" cy="${mid[1]}" r="5" fill="${colors.pink}" stroke="#122239"/><circle cx="${hit[0]}" cy="${hit[1]}" r="4" fill="${colors.cyan}" stroke="#122239"/></g>`+text(380,169,'Detail at point 2 · both axes enlarged equally','svgsmall','middle');
+ }
+ $('topEdge').setAttribute('aria-pressed',String(state.edge==='top'));$('rightEdge').setAttribute('aria-pressed',String(state.edge==='right'));$('showChord').setAttribute('aria-pressed',String(state.chord));arrangePointLabels();
 }
-function drawCross(ctx, size){
-  withHalo(ctx, '#fbbf24', 2, [6,5], ()=>{
-    ctx.beginPath();
-    ctx.moveTo(size/2, 0); ctx.lineTo(size/2, size);
-    ctx.moveTo(0, size/2); ctx.lineTo(size, size/2);
-  });
+function updateSize(){
+ const sx=55,scale=640;let s=text(55,29,'One shared ruler · 1 UV = the whole image width','svgbold');
+ for(const [y,len,label,c] of [[76,1,'Image width · 1.00 UV','#94b3d6'],[157,.25,'Original cell width · 0.25 UV',colors.pink],[238,state.len,'Chosen read length · '+f(state.len,3)+' UV',colors.lime]]){s+=`<rect x="${sx}" y="${y}" width="${Math.max(1,len*scale)}" height="19" rx="3" fill="${c}" stroke="#34506e"/>`+text(sx,y+47,label,'svgtext');}
+ $('lengthSvg').innerHTML=s;
+ $('lengthFacts').textContent=`read length in teaching pixels = dispLen × image width\n                               = ${f(state.len,3)} × 400 = ${f(state.len*400,1)} px\noriginal cell width = 0.25 × 400 = 100 px\nread length / cell width = ${f(state.len,3)} / 0.25 = ${f(state.len/.25,3)}`;
 }
-function drawArrow(ctx, x0,y0,x1,y1, color, width){
-  withHalo(ctx, color, width, null, ()=>{
-    ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1);
-  });
-  const ang=Math.atan2(y1-y0, x1-x0);
-  ctx.save();
-  ctx.fillStyle='#ffffff';
-  ctx.beginPath();
-  ctx.moveTo(x1,y1);
-  ctx.lineTo(x1-12*Math.cos(ang-0.4), y1-12*Math.sin(ang-0.4));
-  ctx.lineTo(x1-12*Math.cos(ang+0.4), y1-12*Math.sin(ang+0.4));
-  ctx.closePath(); ctx.fill();
-  ctx.fillStyle=color;
-  ctx.beginPath();
-  ctx.moveTo(x1,y1);
-  ctx.lineTo(x1-10*Math.cos(ang-0.4), y1-10*Math.sin(ang-0.4));
-  ctx.lineTo(x1-10*Math.cos(ang+0.4), y1-10*Math.sin(ang+0.4));
-  ctx.closePath(); ctx.fill();
-  ctx.restore();
+function updateCenter(){const t=trace(.54,.46,state.len);mapPicture('centerInput','input',t,{read:true,circle:true});mapPicture('ownedSvg','owned',t,{write:false,circle:true});
+ $('centerExplanation').innerHTML=`<p>Here W is ${value('(0.54, 0.46)','uv')}. Its distance to C is ${value(f(t.d)+' UV','d')}. The current read distance is ${value(f(state.len,3)+' UV','a')}.</p><p>${state.len>t.d?'The read is longer than the distance to C. It continues beyond C into the opposite side.':state.len===0?'The read distance is zero, so W reads itself.':'The read ends before C, on W’s side of the center.'} R lies in input column ${t.col}, row ${t.row}, counted from zero, and returns ${chip(t.navy)}.</p>`;
+ $('centerFormula').textContent=`d = length(0.04, −0.04) ≈ ${f(t.d)}\nreadUv = uv − (p / d) × dispLen\n       ≈ (0.54, 0.46) − ${pair(t.dx,t.dy)}\n       ≈ ${pair(t.ru,t.rv)}`;
 }
-function drawFieldArrows(ctx, len, size){
-  if(len<=0) return;
-  const step=size/8;
-  for(let y=step/2; y<size; y+=step){
-    for(let x=step/2; x<size; x+=step){
-      const t=dispAt(x/size, y/size, len);
-      if(t.skipped) continue;
-      drawArrow(ctx, x, y, t.u*size, t.v*size, '#be185d', 2);
-    }
-  }
-}
-function mappedSq(len){
-  return SQ.map(([u,v])=>outward(u,v,len));
-}
-function drawPoly(ctx, pts, size, stroke, fill, width){
-  const path=()=>{
-    ctx.beginPath();
-    pts.forEach((pt,i)=>{
-      const x=pt.u*size, y=pt.v*size;
-      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-    });
-    ctx.closePath();
-  };
-  if(fill){ path(); ctx.fillStyle=fill; ctx.fill(); }
-  withHalo(ctx, stroke, width, null, path);
-}
-function drawTeachingSquare(ctx, size, len, mapped){
-  if(!showSquare) return;
-  const cx=size/2, cy=size/2;
-  if(!mapped){
-    const x0=SQ[0][0]*size, y0=SQ[0][1]*size, x1=SQ[2][0]*size, y1=SQ[2][1]*size;
-    withHalo(ctx, '#be185d', 3, null, ()=>{ ctx.strokeRect(x0, y0, x1-x0, y1-y0); });
-    SQ.forEach(([u,v])=>{
-      withHalo(ctx, '#fbbf24', 2, [5,4], ()=>{
-        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(u*size, v*size);
-      });
-      fillHalo(ctx, '#be185d', u*size, v*size, 5);
-    });
-  } else {
-    const pts=mappedSq(len);
-    SQ.forEach((_,i)=>{
-      withHalo(ctx, '#fbbf24', 2, [5,4], ()=>{
-        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(pts[i].u*size, pts[i].v*size);
-      });
-    });
-    drawPoly(ctx, pts, size, '#059669', 'rgba(5,150,105,0.18)', 3);
-    pts.forEach(pt=>fillHalo(ctx, '#059669', pt.u*size, pt.v*size, 5));
-  }
-}
-function drawHQ(ctx, size, mapped, connect, bow){
-  const H=mapped?outward(HPT.u,HPT.v,dispLen):{u:HPT.u,v:HPT.v};
-  const Q=mapped?outward(QPT.u,QPT.v,dispLen):{u:QPT.u,v:QPT.v};
-  const cx=size/2, cy=size/2;
-  if(connect){
-    withHalo(ctx, mapped?'#059669':'#be185d', 4, null, ()=>{
-      ctx.beginPath(); ctx.moveTo(H.u*size, H.v*size); ctx.lineTo(Q.u*size, Q.v*size);
-    });
-  }
-  if(bow && mapped){
-    withHalo(ctx, '#fbbf24', 2.5, [5,4], ()=>{
-      ctx.beginPath();
-      let first=true;
-      for(let y=0.15; y<=0.50; y+=0.01){
-        const p=outward(0.75, y, dispLen);
-        if(first){ ctx.moveTo(p.u*size, p.v*size); first=false; }
-        else ctx.lineTo(p.u*size, p.v*size);
-      }
-    });
-  }
-  fillHalo(ctx, '#d97706', H.u*size, H.v*size, 7);
-  fillHalo(ctx, '#be185d', Q.u*size, Q.v*size, 7);
-  fillHalo(ctx, '#4338ca', cx, cy, 6);
-  return {H,Q};
-}
-function drawRays(ctx, size, throughH, throughQ){
-  const cx=size/2, cy=size/2;
-  if(throughH){
-    withHalo(ctx, '#fbbf24', 2.5, [6,5], ()=>{
-      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(size, cy);
-    });
-  }
-  if(throughQ){
-    const q2=outward(QPT.u, QPT.v, 0.35);
-    withHalo(ctx, '#fbbf24', 2.5, [6,5], ()=>{
-      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(q2.u*size, q2.v*size);
-    });
-  }
-}
-
-const TILT_STEPS=[
-  {
-    title:'A vertical side, two ends',
-    caption:'Pink Q and amber H share x = 0.75. That is one vertical side of a checker cell. C is the thumbtack. The store on the right is still identity. Nothing has walked yet.',
-    rule:'H = (0.75, 0.50)  on the horizontal through C\nQ = (0.75, 0.25)  same x, 0.25 up from C\nboth x = 0.75, so the side is vertical',
-    drawn:'H, Q, vertical side, identity store',
-    change:'Named two ends of one side',
-    not:'No rays, no walk, no tilt',
-    rays:false, walk:false, connect:false, square:false, bow:false
-  },
-  {
-    title:'Each end sits on its own ray from C',
-    caption:'H is purely right of C, so its ray is the horizontal. Q is equally right and up from C, so its ray is the 45° diagonal. Two ends of one vertical side, two different rays. That is the fact the rest of the page uses.',
-    rule:'ray through H = horizontal\nray through Q = 45° diagonal\n(0.25 right and 0.25 up are equal legs)',
-    drawn:'Two rays from C',
-    change:'The side is no longer “just a vertical line.” It is two points on two rays.',
-    not:'The walk has not happened',
-    rays:true, walk:false, connect:false, square:false, bow:false
-  },
-  {
-    title:'Same walk length, along each ray',
-    caption:'Walk 0.10 along H’s ray: all of it goes right. H′ is at x = 0.85, same height. Walk the same 0.10 along Q’s ray: half goes right, half goes up. Q′ only reaches about x = 0.82. The walk length is equal. The split is not.',
-    rule:'H′ = H + 0.10 right = (0.85, 0.50)\nQ′ splits 0.10 on the diagonal ≈ (0.82, 0.18)\nH′.x = 0.85,  Q′.x ≈ 0.82',
-    drawn:'H′ and Q′ on the store',
-    change:'Equal-length walks, different new x',
-    not:'The new side is not drawn yet',
-    rays:true, walk:true, connect:false, square:false, bow:false
-  },
-  {
-    title:'Connect H′ to Q′. That is the tilt.',
-    caption:'The side that was vertical now leans. H′ stuck out farther right because its ray spent the whole walk going right. Q′ spent part of the walk going up, so it could not keep up in x. Nobody rotated a square. The two ends walked different directions.',
-    rule:'started sharing x = 0.75\nnow H′.x = 0.85 and Q′.x ≈ 0.82\nvertical → slanted',
-    drawn:'The new side H′Q′',
-    change:'A vertical side became a slant',
-    not:'The other three sides of the cell',
-    rays:true, walk:true, connect:true, square:false, bow:false
-  },
-  {
-    title:'Four corners, then every point on the line',
-    caption:'The pink square’s four corners each walk out on their own ray. The stored cell is a trapezoid that leans toward C. The dashed yellow curve is the whole vertical line x = 0.75 after the same walk: not only tilted, bowed, because every y has its own ray. That is the stored checker.',
-    rule:'four corners → trapezoid leaning toward C\nwhole line → bowed edge\nsides on a ray through C stay untilted',
-    drawn:'Mapped square + bowed line',
-    change:'The rest of the bump is this walk on every side',
-    not:'Nothing. This is the stored picture.',
-    rays:true, walk:true, connect:true, square:true, bow:true
-  }
-];
-
-function blitPane(ctx, src, dx, dy, S){
-  ctx.imageSmoothingEnabled=false;
-  ctx.drawImage(src, dx, dy, S, S);
-  ctx.strokeStyle='#172033'; ctx.lineWidth=2; ctx.strokeRect(dx, dy, S, S);
-}
-function drawTilt(){
-  const canvas=document.getElementById('tiltCanvas');
-  const ctx=canvas.getContext('2d');
-  const s=TILT_STEPS[tiltStep];
-  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,1100,400);
-  const S=320, oy=40, left=40, right=520;
-  const input=document.createElement('canvas'); input.width=W; input.height=H;
-  const store=document.createElement('canvas'); store.width=W; store.height=H;
-  const ic=input.getContext('2d');
-  const sc=store.getContext('2d');
-  paintField(ic, W, H, 0);
-  paintField(sc, W, H, s.walk?dispLen:0);
-  function overlay(dest, mapped){
-    drawCross(dest, W);
-    if(s.rays && !mapped) drawRays(dest, W, true, true);
-    if(s.square) drawTeachingSquare(dest, W, dispLen, mapped && s.walk);
-    drawHQ(dest, W, mapped && s.walk, s.connect || !mapped, mapped && s.bow);
-  }
-  overlay(ic, false);
-  overlay(sc, true);
-  blitPane(ctx, input, left, oy, S);
-  blitPane(ctx, store, right, oy, S);
-  ctx.font='800 16px Inter,system-ui,sans-serif';
-  ctx.fillStyle='#4338ca';
-  ctx.fillText('Input · axis-aligned', left, 28);
-  ctx.fillText(s.walk ? 'Store · after the walk' : 'Store · still identity', right, 28);
-  ctx.font='700 13px Inter,system-ui,sans-serif';
-  ctx.fillStyle='#d97706'; ctx.fillText('H on the horizontal through C', 860, 80);
-  ctx.fillStyle='#be185d'; ctx.fillText('Q on the 45° ray', 860, 104);
-  if(s.walk){
-    const Hp=outward(HPT.u,HPT.v,dispLen);
-    const Qp=outward(QPT.u,QPT.v,dispLen);
-    ctx.fillStyle='#172033';
-    ctx.fillText('H′ x = '+fmt2(Hp.u), 860, 140);
-    ctx.fillText('Q′ x = '+fmt2(Qp.u), 860, 164);
-    ctx.fillStyle='#059669';
-    ctx.fillText(Math.abs(Hp.u-Qp.u)<0.001 ? 'still share an x' : 'no longer share an x', 860, 196);
-  }
-  document.getElementById('tiltLabel').textContent=`Step ${tiltStep+1} of 5`;
-  document.getElementById('tiltCounter').textContent=`Step ${tiltStep+1} of 5`;
-  document.getElementById('tiltTitle').textContent=s.title;
-  document.getElementById('tiltCaption').textContent=s.caption;
-  document.getElementById('tiltRule').textContent=s.rule;
-  document.getElementById('tiltDrawn').textContent=s.drawn;
-  document.getElementById('tiltChange').textContent=s.change;
-  document.getElementById('tiltNot').textContent=s.not;
-  document.querySelectorAll('#tiltButtons .step-dot').forEach((b,i)=>b.classList.toggle('selected', i===tiltStep));
-}
-function colorName(sample){
-  if(sample.outside) return 'gray (outside)';
-  return sample.even ? 'orange' : 'navy';
-}
-function updateHero(){
-  const a=document.getElementById('heroId').getContext('2d');
-  const b=document.getElementById('heroStore').getContext('2d');
-  paintField(a, 320, 320, 0);
-  paintField(b, 320, 320, 0.10);
-  const prev=showSquare; showSquare=true;
-  drawTeachingSquare(a, 320, 0.10, false);
-  drawTeachingSquare(b, 320, 0.10, true);
-  showSquare=prev;
-}
-function pickFromEvent(e, canvas){
-  const box=canvas.getBoundingClientRect();
-  px=clamp((e.clientX-box.left)*(W/box.width),0.5,W-0.5);
-  py=clamp((e.clientY-box.top)*(H/box.height),0.5,H-0.5);
-  updateLab();
-}
-function updateLab(){
-  px=clamp(px,0.5,W-0.5); py=clamp(py,0.5,H-0.5);
-  dispLen=clamp(dispLen,0,0.20);
-  const st=storeAt(px, py, dispLen);
-  const Hp=outward(HPT.u,HPT.v,dispLen);
-  const Qp=outward(QPT.u,QPT.v,dispLen);
-  const id=document.getElementById('idCanvas').getContext('2d');
-  const store=document.getElementById('storeCanvas').getContext('2d');
-  paintField(id, W, H, 0);
-  paintField(store, W, H, dispLen);
-  drawCross(id, W);
-  drawCross(store, W);
-  withHalo(store, '#fbbf24', 2.5, [6,5], ()=>{
-    store.beginPath(); store.arc(W/2, H/2, dispLen*W, 0, Math.PI*2);
-  });
-  drawTeachingSquare(id, W, dispLen, false);
-  drawTeachingSquare(store, W, dispLen, true);
-  drawHQ(id, W, false, true, false);
-  drawHQ(store, W, true, true, true);
-  if(showArrows) drawFieldArrows(store, dispLen, W);
-  const t=dispAt(px/W, py/H, dispLen);
-  if(!t.skipped){
-    drawArrow(id, px, py, t.u*W, t.v*H, '#059669', 3);
-    drawArrow(store, px, py, t.u*W, t.v*H, '#059669', 3);
-    fillHalo(id, '#059669', t.u*W, t.v*H, 6);
-    fillHalo(store, '#059669', t.u*W, t.v*H, 6);
-  }
-  fillHalo(id, '#d97706', px, py, 6);
-  fillHalo(store, '#d97706', px, py, 6);
-  document.getElementById('lenRange').value=String(dispLen);
-  document.getElementById('lenValue').textContent=fmt2(dispLen);
-  document.getElementById('lenRangeLab').value=String(dispLen);
-  document.getElementById('lenValueLab').textContent=fmt2(dispLen);
-  document.getElementById('wMetric').textContent=`(${fmt2(st.writeU)}, ${fmt2(st.writeV)})`;
-  document.getElementById('hMetric').textContent=`(${fmt2(Hp.u)}, ${fmt2(Hp.v)})`;
-  document.getElementById('qMetric').textContent=`(${fmt2(Qp.u)}, ${fmt2(Qp.v)})`;
-  document.getElementById('shareMetric').textContent=Math.abs(Hp.u-Qp.u)<0.001 ? 'yes, still 0.75' : `no · Δx = ${fmt2(Hp.u-Qp.u)}`;
-  document.getElementById('rMetric').textContent=`(${fmt3(st.u)}, ${fmt3(st.v)})`;
-  document.getElementById('retMetric').innerHTML=`<span class="swatch" style="background:${rgbCss(st.sample.col)}"></span>${colorName(st.sample)}`;
-  document.getElementById('labCode').textContent=PROD;
-  document.getElementById('liveFormula').textContent=
-`H is on C’s horizontal, so the whole walk goes right
-H′ = (${fmt2(Hp.u)}, ${fmt2(Hp.v)})
-Q is on the 45° ray, so the walk splits
-Q′ = (${fmt2(Qp.u)}, ${fmt2(Qp.v)})
-started at x = 0.75 · now ${Math.abs(Hp.u-Qp.u)<0.001 ? 'still share x' : 'do not share x — that is the tilt'}
-shader ask at this write: readUv = (${fmt3(st.u)}, ${fmt3(st.v)})`;
-  document.getElementById('labCaption').textContent= showSquare ? 'green quad is the pink square after the walk' : 'green curve is x = 0.75 after the walk';
-  drawTilt();
-}
-function setLen(v){ dispLen=v; updateLab(); updateHero(); }
-document.getElementById('lenRange').addEventListener('input',e=>setLen(Number(e.target.value)));
-document.getElementById('lenRangeLab').addEventListener('input',e=>setLen(Number(e.target.value)));
-document.getElementById('markH').addEventListener('click',()=>{px=HPT.u*W; py=HPT.v*H; updateLab();});
-document.getElementById('markQ').addEventListener('click',()=>{px=QPT.u*W; py=QPT.v*H; updateLab();});
-document.getElementById('markTeach').addEventListener('click',()=>{px=TEACH.x; py=TEACH.y; updateLab();});
-document.getElementById('markCenter').addEventListener('click',()=>{px=CENTER.x; py=CENTER.y; updateLab();});
-document.getElementById('markZero').addEventListener('click',()=>{dispLen=0; updateLab(); updateHero();});
-document.getElementById('markTen').addEventListener('click',()=>{dispLen=0.10; updateLab(); updateHero();});
-document.getElementById('toggleSquare').addEventListener('click',()=>{showSquare=!showSquare; updateLab(); updateHero();});
-document.getElementById('toggleArrows').addEventListener('click',()=>{showArrows=!showArrows; updateLab();});
-document.getElementById('idCanvas').addEventListener('click',e=>pickFromEvent(e, e.currentTarget));
-document.getElementById('storeCanvas').addEventListener('click',e=>pickFromEvent(e, e.currentTarget));
-document.getElementById('tiltPrev').addEventListener('click',()=>{tiltStep=Math.max(0,tiltStep-1); drawTilt();});
-document.getElementById('tiltNext').addEventListener('click',()=>{tiltStep=Math.min(TILT_STEPS.length-1,tiltStep+1); drawTilt();});
-const tiltButtons=document.getElementById('tiltButtons');
-TILT_STEPS.forEach((_,i)=>{
-  const b=document.createElement('button');
-  b.className='step-dot'; b.textContent=String(i+1);
-  b.addEventListener('click',()=>{tiltStep=i; drawTilt();});
-  tiltButtons.appendChild(b);
-});
-document.querySelectorAll('.choice').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.choice').forEach(b=>b.classList.remove('selected'));
-    btn.classList.add('selected');
-    const box=document.getElementById('predictionResult');
-    if(btn.dataset.answer==='correct'){
-      box.textContent='Yes. Equal walk, different split. H′ is farther right than Q′, so the side leans.';
-      box.style.background='var(--green-soft)';
-    } else if(btn.dataset.answer==='wrong-rot'){
-      box.textContent='No square was rotated around its center. The two ends walked along two rays from C. That is a different operation.';
-      box.style.background='var(--amber-soft)';
-    } else {
-      box.textContent='A zoom would keep the side vertical and only change its distance from C. Here H′ and Q′ do not share an x, so it is a slant, not a scaled vertical.';
-      box.style.background='var(--amber-soft)';
-    }
-  });
-});
-const starter=document.getElementById('challengeEditor').value;
-document.getElementById('checkChallenge').addEventListener('click',()=>{
-  const text=document.getElementById('challengeEditor').value;
-  const box=document.getElementById('challengeResult');
-  const div=/dir\s*=\s*p\s*\/\s*d/.test(text);
-  const sub=/readUv\s*=\s*uv\s*-\s*disp/.test(text);
-  const add=/readUv\s*=\s*uv\s*\+\s*disp/.test(text);
-  if(div && sub && !add){
-    box.textContent='Correct. Divide so the walk length matches at H and Q. Subtract so the ask is toward C.';
-    box.style.background='var(--green-soft)';
-  } else {
-    box.textContent='Need dir = p / d (equal-length walk) and uv minus disp (inward ask).';
-    box.style.background='var(--amber-soft)';
-  }
-});
-document.getElementById('showSolution').addEventListener('click',()=>{
-  document.getElementById('challengeEditor').value=`uniform shader background;
-uniform float2 resolution;
-uniform float dispLen;
-
-half4 main(float2 fragCoord) {
-    float2 uv = fragCoord / resolution;
-    float2 p = uv - float2(0.5, 0.5);
-    float d = length(p);
-    float2 disp = float2(0.0, 0.0);
-    if (d > 0.0001) {
-        float2 dir = p / d;
-        disp = dir * dispLen;
-    }
-    float2 readUv = uv - disp;
-    return background.eval(readUv * resolution);
-}`;
-});
-document.getElementById('resetChallenge').addEventListener('click',()=>{
-  document.getElementById('challengeEditor').value=starter;
-  document.getElementById('challengeResult').textContent='Divide so H and Q walk the same length. Subtract so the ask is toward C.';
-  document.getElementById('challengeResult').style.background='var(--soft)';
-});
-document.getElementById('buildRecord').addEventListener('click',()=>{
-  document.getElementById('record').value=`# Lesson 9.10 — Build a displacement field
-
-- Date:
-- A vertical side tilts because its two ends sit on two rays from C.
-- H on the horizontal uses the whole walk going right. Q on the 45° ray splits the walk.
-- They start at x = 0.75 and no longer share an x.
-- Four corners → trapezoid leaning toward C. Whole line → bowed edge.
-- Shader: inward ask is the inverse of that outward paint.
-- dir = p / length(p) makes the walk length equal on every ray.
-- Default dispLen = 0.10. Checkpoint is Lesson 9.10. 95 of 216.
-`;
-});
-const params=new URLSearchParams(location.search);
-const qa=params.get('qa');
-if(params.has('narrow') || qa==='narrow'){
-  const s=document.createElement('style');
-  s.textContent='html,body{max-width:390px;margin:0 auto;overflow-x:hidden}.page{width:calc(100% - 16px)}';
-  document.head.appendChild(s);
-}
-if(qa==='zero') dispLen=0;
-if(qa==='step4') tiltStep=3;
-if(qa==='step5') tiltStep=4;
-updateHero();
-updateLab();
-if(qa==='predict'){
-  const correct=[...document.querySelectorAll('.choice')].find(b=>b.dataset.answer==='correct');
-  if(correct) correct.click();
-}
-function revealFrom(id){
-  let keep=false;
-  document.querySelectorAll('.topbar, .hero, .section, .footer').forEach(el=>{
-    if(el.id===id) keep=true;
-    if(!keep) el.style.display='none';
-  });
-}
-if(qa==='lab'||qa==='zero') revealFrom('lab');
-if(qa==='side'||qa==='step4'||qa==='step5') revealFrom('side');
-if(qa==='rest') revealFrom('rest');
-if(qa==='square') revealFrom('square');
-if(qa==='selftest'){
-  const lines=[];
-  const near=(a,b)=>Math.abs(a-b)<0.01;
-  const Hp=outward(0.75,0.50,0.10);
-  const Qp=outward(0.75,0.25,0.10);
-  lines.push(near(Hp.u,0.85)&&near(Hp.v,0.50)?'H out PASS':'H out FAIL '+Hp.u+','+Hp.v);
-  lines.push(near(Qp.u,0.82)&&near(Qp.v,0.18)?'Q out PASS':'Q out FAIL '+Qp.u+','+Qp.v);
-  lines.push(Hp.u-Qp.u>0.02?'tilt PASS':'tilt FAIL');
-  const box=document.createElement('pre');
-  box.id='selftestOut';
-  box.style.cssText='margin:12px;padding:12px;background:#ecfdf5;border:2px solid #059669;font:16px/1.4 monospace';
-  box.textContent=lines.join('\n');
-  document.body.prepend(box);
-}
+function update(){const t=trace(state.u,state.v,state.len);for(const id of ['length','patchLength','edgeLength'])$(id).value=state.len;for(const id of ['lengthValue','patchLengthValue','edgeLengthValue'])$(id).textContent=f(state.len,3)+' UV';$('writeX').value=state.u;$('writeY').value=state.v;$('xValue').textContent=f(state.u,3);$('yValue').textContent=f(state.v,3);updateWalk(t);updateLab(t);updatePatch(t);updateEdges();updateSize();updateCenter();arrangePointLabels();}
+function setPreset(which){const presets={example:[.65,.2,.1],higher:[.65,.15,.1],nearer:[.65,.16,.1],above:[.65,.24,.1],right:[.8,.35,.1],zero:[state.u,state.v,0],maximum:[state.u,state.v,.2]};[state.u,state.v,state.len]=presets[which];update();}
+for(let i=0;i<6;i++){const b=document.createElement('button');b.textContent=i+1;b.setAttribute('aria-label',`Calculation step ${i+1}`);b.addEventListener('click',()=>{state.step=i;updateWalk(trace(state.u,state.v,state.len));});$('stepButtons').append(b);}
+$('prevStep').onclick=()=>{state.step=Math.max(0,state.step-1);updateWalk(trace(state.u,state.v,state.len));};$('nextStep').onclick=()=>{state.step=Math.min(5,state.step+1);updateWalk(trace(state.u,state.v,state.len));};
+document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>setPreset(b.dataset.preset));
+for(const id of ['length','patchLength','edgeLength'])$(id).addEventListener('input',e=>{state.len=Number(e.target.value);update();});
+for(const [id,key] of [['writeX','u'],['writeY','v']])$(id).addEventListener('input',e=>{state[key]=Number(e.target.value);update();});
+$('labOutput').addEventListener('click',e=>{const pt=new DOMPoint(e.clientX,e.clientY).matrixTransform(e.currentTarget.getScreenCTM().inverse());if(pt.x<PLOT.x||pt.x>PLOT.x+PLOT.s||pt.y<PLOT.y||pt.y>PLOT.y+PLOT.s)return;state.u=(pt.x-PLOT.x)/PLOT.s;state.v=(pt.y-PLOT.y)/PLOT.s;update();});$('labOutput').style.cursor='crosshair';
+$('topEdge').onclick=()=>{state.edge='top';updateEdges();};$('rightEdge').onclick=()=>{state.edge='right';updateEdges();};$('showChord').onclick=()=>{state.chord=!state.chord;updateEdges();};
+for(const len of [0,.05,.06,.10,.20]){const t=trace(.65,.2,len),tr=document.createElement('tr');tr.innerHTML=`<td><button data-threshold="${len}">Load ${f(len,2)}</button></td><td>${value(f(t.ru),'read')}</td><td>${value(f(t.rv),'read')}</td><td>${chip(t.navy)}</td>`;tr.querySelector('button').onclick=()=>{state.u=.65;state.v=.2;state.len=len;update();};$('thresholdRows').append(tr);}
+const pop=$('provenance');let popTrigger=null;function closePop(){pop.hidden=true;if(popTrigger)popTrigger.setAttribute('aria-expanded','false');}
+document.addEventListener('click',e=>{const b=e.target.closest('.info');if(b){if(popTrigger===b&&!pop.hidden){closePop();return;}closePop();popTrigger=b;b.setAttribute('aria-expanded','true');$('provenanceText').textContent=origins[b.dataset.origin]||origins.uv;pop.hidden=false;const r=b.getBoundingClientRect(),w=pop.offsetWidth,h=pop.offsetHeight;pop.style.left=Math.max(16,Math.min(innerWidth-w-16,r.left))+'px';pop.style.top=Math.max(16,Math.min(innerHeight-h-16,r.bottom+9>innerHeight-h-16?r.top-h-9:r.bottom+9))+'px';return;}if(!pop.contains(e.target))closePop();});$('closePop').onclick=closePop;document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePop();if(popTrigger)popTrigger.focus();}});addEventListener('resize',closePop);addEventListener('scroll',closePop,{passive:true});
+const predictions={both:'Closeness at W does not decide the color. Read y is about 0.24191 for the first position and 0.25149 for the second. The reads straddle the input boundary at 0.25.',cross:'Correct. The first read is approximately (0.61061, 0.24191), still orange. The second is approximately (0.60964, 0.25149), inside the navy cell.',original:'The output uses the read coordinate, not the original color at W. The read from y = 0.16 reaches y ≈ 0.25149 and therefore returns navy.'};
+document.querySelectorAll('[data-answer]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-answer]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('predictionResult').textContent=predictions[b.dataset.answer];});
+function checkChallenge(){const a=$('divideAnswer').value.trim(),b=$('subtractAnswer').value.trim();$('challengeResult').textContent=a==='/'&&['-','−'].includes(b)?'Correct. Divide both entries of p by d to give the direction length 1. Multiply by dispLen to choose the length. Subtract the outward pair so the read goes toward C.':'Use / and −. Dividing by d changes the original length d to 1. Subtracting the outward displacement makes the read point inward.';}
+$('checkChallenge').onclick=checkChallenge;$('showSolution').onclick=()=>{$('divideAnswer').value='/';$('subtractAnswer').value='-';checkChallenge();};$('resetChallenge').onclick=()=>{$('divideAnswer').value='';$('subtractAnswer').value='';$('challengeResult').textContent='Fill in both operators, then explain why each is needed.';};
+function buildRecord(){const t=trace(state.u,state.v,state.len);$('record').value=`# Lesson 9.10 — Build a displacement field\n\ncompleted_by_learner: false\nreview_date: ${new Date().toISOString().slice(0,10)}\n\n- [${$('checkRead').checked?'x':' '}] I can trace a write position to its read and copied color.\n- [${$('checkLength').checked?'x':' '}] I can explain dispLen as a UV distance.\n- [${$('checkCurve').checked?'x':' '}] I can construct the curved boundary from several points.\n- [${$('checkCenter').checked?'x':' '}] I can explain the center crossing and guard.\n\nInspected output UV: ${pair(t.u,t.v)}\ndispLen: ${f(t.len)}\nreadUv = uv - disp ≈ ${pair(t.ru,t.rv)}\nOutput color: ${t.navy?'navy':'orange'}\nRead belongs to named navy cell: ${t.owned}\n\nQuestions remaining: \nAndroid device checked: \n\nCourse progress: 95 of 216 lessons completed.\n`;}
+$('buildRecord').onclick=buildRecord;$('copyRecord').onclick=async()=>{if(!$('record').value)buildRecord();let copied=false;try{if(navigator.clipboard){await navigator.clipboard.writeText($('record').value);copied=true;}}catch(e){}if(!copied){$('record').focus();$('record').select();copied=document.execCommand('copy');}$('copyStatus').textContent=copied?'Markdown copied. Lesson 9.10 remains unresolved until you confirm completion.':'Record selected. Use your system Copy shortcut to copy it.';};
+mapPicture('heroInput','input',trace(.65,.2,.1),{read:true});mapPicture('heroOutput','output',trace(.65,.2,.1));
+update();buildRecord();
 </script>
 </body>
 </html>

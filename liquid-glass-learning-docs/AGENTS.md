@@ -1073,7 +1073,7 @@ Recorded 2026-09-10 after the learner rejected the first 9.10 rewrite: leftovers
 1. **Name the hard visible result first.** Here: a vertical side of an input square looks slanted in the store. That result gets the load-bearing sections. Leftovers the learner already has (write vs read, `p = uv − 0.5`, `eval` wants pixels) get one card, not a hero-length recap.
 2. **A qualitative phrase is a skimming failure.** “Lines bow,” “cells tilt,” “looks 3D” must be followed immediately by a construction with a new drawn object at each step. Required objects for this tilt: two ends of one vertical side; two rays from `C`; two equal-length walks; the new side that no longer shares an x.
 3. **Prove tilt from a split walk, not from a formula.** Pick one end on the horizontal through `C` (the whole walk goes right) and one end on a 45° ray (the walk splits). Same walk length, different new x. That is why the side leans. Do not start with `dir = (0.60, −0.80)`.
-4. **Then the rest of the bump, as extra objects.** Four corners → trapezoid leaning toward `C`. Whole line → bowed edge. Near `C` the same walk is a larger fraction → bigger middle. A side already on a ray through `C` does not tilt.
+4. **Then the rest of the bump, as extra objects.** Several boundary points → the actual curved edge. A straight four-corner join is only an approximation. Near `C` the same walk is a larger fraction → bigger middle. A side already on a ray through `C` does not tilt.
 5. **Do not spend the page re-teaching the easy inverse.** After the outward paint is understood, one paragraph may say the shader asks inward. Divide-by-length is “so H and Q walk the same length,” not a second main lesson.
 
 **Verification before packaging a lesson whose stored picture is the hard thing:**
@@ -1081,10 +1081,58 @@ Recorded 2026-09-10 after the learner rejected the first 9.10 rewrite: leftovers
 - Can the learner take two ends of one vertical side and say why they no longer share an x, without reciting `dir × dispLen`?
 - If the first two sections could be understood without looking at the hard picture, those sections are too long and the hard picture is too late.
 
+### Diagonal walk is a little square, not “half”; not a rigid pole — Lesson 9.10
+
+Recorded 2026-09-11 after the learner stopped at section 2 step 3: the page dumped `Q′ ≈ (0.82, 0.18)` and said “half goes right, half goes up.” A beginner cannot derive 0.82 from that. “Half” reads as 0.05 + 0.05, which is the wrong length (legs of a right triangle are shorter than the hypotenuse, not half of it). The learner also asked whether moving H right first tilts the side so that Q’s walk goes left — a rigid-bar picture.
+
+1. **Do not dump Q′.** Every number is a named object: H′.x = 0.75 + the whole stick. Q′.x = 0.75 + the little square’s side. The canvas measures the side. `(0.82, 0.18)` is only the live substitution.
+2. **Ban “half goes right.”** The 0.10 stick on a 45° ray is the **diagonal of a little square**. Each side of that square is how far right and how far up. A square’s diagonal is longer than a side, so the rightward part is less than 0.10. Draw the square. The horizontal side is the **floor shadow** of the stick. After that picture, the word is **projection**: how much of the walk shows up as a change in x.
+3. **Two independent copies, not a pole.** H and Q do not take turns. The side HQ is not a rigid bar. Each end is copied along its own ray, same stick length, at once. Q’s ray from C is up-right, so Q still goes **right** (and up), just less far right than H. The new line slants because H gained more x, not because Q swung left. Draw the false pole (Q left of 0.75) and cross it out.
+4. **Lesson 9.1 leftover is the hypotenuse.** The walk is the long side of a right triangle. For 45°, the two legs are equal. Do not ask the learner to compute `0.10 / √2` by hand. Measure the square’s side on the figure.
+5. **Name the pink teaching cell before it is drawn.** It is one checker cell whose left side is HQ. It is not the little square at Q (that little square is a measuring tool for one stick). “Nobody rotated a square” is a skimming failure: show a rotated copy (still a square, equal sides, right angles) next to the four-ray walk (trapezoid, near-C side shorter). The teaching cell’s corners must be the points already named.
+
+### Drawn quad sides must be true — Lesson 9.10
+
+Recorded 2026-09-11 after the learner asked whether the green overlay was a diamond, and whether its top and bottom were parallel to the x-axis or only drawn that way. The SVG had faked a trapezoid with two horizontal sides.
+
+1. **Use the actual walked corners.** Do not substitute a “nice” trapezoid with two horizontal sides. For the HQ teaching cell, H and the bottom-right corner both sit on C’s horizontal, so the bottom stays horizontal. Q and the top-right corner sit on two different rays, so the top tilts. A figure that draws both top and bottom horizontal is a lie.
+2. **Name each side, with a number.** Bottom: `H′.y = BR′.y = 0.50`, on C’s floor, parallel to the x-axis. Top: `Q′.y ≠ TR′.y`, tilted. Left: the HQ tilt from section 2. Right: tilted. Draw a solid horizontal through `Q′` so `TR′` sitting off that line is a visible gap, not a 10-pixel accident.
+3. **Ban false shape names.** It is not a diamond (equal sides, a square on a point). It is not a parallelogram (opposite sides would stay parallel; the bottom is horizontal and the top is not). Call it four walked corners. Prove with the four equalities, not with a slogan.
+
+### Solid overlay strokes, not dashes, not checker hues — Lesson 9.10
+
+Recorded 2026-09-11 after the learner asked for solid lines in colors other than checker orange and navy.
+
+1. **Construction strokes are solid.** Dash is not a contrast strategy. A dashed yellow ray on orange disappears even with a halo.
+2. **Overlay hues must not be checker orange `#e07a2e`, checker navy `#1a4066`, or amber `#d97706` (too close to orange).** Use cyan, hot pink, lime, white, violet. Dark halo (`#0f172a`) then the hue, so the stroke reads on both cells.
+3. **H is not amber.** Amber on orange is the original contrast failure.
+
+### Shader formula is those same sticks — Lesson 9.10
+
+Recorded 2026-09-11 after the learner could not connect `p / d` to moving H and Q by 0.10. The AGSL sat in a later card as if it were a new machine.
+
+1. **Do not introduce AGSL as a new machine.** `p` is the leftover from C to this pixel (`0.25` at H, about `0.35` at Q), not the 0.10 walk. `p / d` throws away how far and keeps which way (length 1). `(p / d) × dispLen` is H’s floor stick and Q’s little-square diagonal from section 2.
+2. **Trace H and Q through every symbol** before showing the assembled shader. A gloss that says “length-1 direction” without those two sticks is a disconnect.
+3. **Length 1 is the whole picture width.** Do not draw a length-1 stick on the checker at 1:1. Say so. Multiply by 0.10 immediately; that shorter stick is what section 2 already drew.
+4. **Subtract is the inverse of the outward paint.** Sitting at H′, `uv − disp` is H. The picture added the stick. The shader subtracts it.
+
 ### Checker overlay contrast
 
 Recorded 2026-09-10 after the learner could not see dashed construction lines on Lesson 9.10’s orange/navy checker. Indigo `#4338ca` on navy `#1a4066` and amber on orange vanish.
 
-1. **A construction stroke on a two-color checker needs a halo.** Draw a light understroke (`#ffffff`, thicker) then the hue. Marks get a white ring, then the fill.
-2. **Do not use the cell hue for the overlay.** Indigo dashes on navy, or amber dots on orange, fail even at 2px.
+1. **A construction stroke on a two-color checker needs a dark halo.** Draw a dark understroke (`#0f172a`, thicker) then the hue. Marks get a dark ring, then the fill. White halo fails for a light stroke on orange.
+2. **Do not use the cell hue for the overlay.** Indigo on navy, amber on orange, and dashed yellow on orange all fail.
 3. **Verify both cell colors.** Screenshot the overlay where a ray, axis, or mark crosses a navy cell and an orange cell. If either crossing disappears, the stroke fails.
+4. **Solid, not dashed.** See the solid-overlay rule above.
+
+### Exact-cell readback and curved-region proof — Lesson 9.10
+
+Recorded 2026-09-11 after the learner could not explain navy above the input cell at x `[0.50, 0.75)`, y `[0.25, 0.50)`, its growth at `dispLen = 0.10`, or the apparent added triangle. The earlier lesson followed the adjacent orange cell and overlaid straight corner joins on curved boundaries. This rule supersedes those earlier 9.10 constructions wherever they imply a complete quadrilateral or an unrestricted outward inverse.
+
+1. **Follow the exact cell the learner identifies.** Name its input-image bounds and color. If a coordinate is incomplete, state the chosen missing coordinate. Show the original color at the output position, the actual read inside the named input cell, and the copied output color.
+2. **Prove the added region by readback.** Highlight output positions outside the original cell whose calculated read is inside it. Include one nearby position that remains outside. A triangle-like patch is an observation; its boundary must come from the shader's per-position test.
+3. **Separate distance from enlargement.** `dispLen` is the read-segment length in square-image UV units. Show its pixel-length equivalent and compare it with a cell width. It is not a percentage increase in cell width or area. Show several values including zero and the selected pixel's color-changing threshold.
+4. **Transform the whole edge.** Construct endpoints and at least one intermediate point from the same formula as the image. Straight corner joins are only labelled approximations. Keep full coordinates and long calculations outside the picture.
+5. **State the inverse's domain.** Reading a fixed distance toward C has a same-ray outward counterpart when the output is farther from C than that distance. A read closer than `dispLen` crosses C. A center guard covers its stated nonzero radius, not automatically only one point. Do not use one outward polygon as the entire input cell's output footprint.
+6. **Audit alternative formulas algebraically.** `disp = p * dispLen` gives uniform scaling of read distances; `disp = p` sends every read to C; `disp = p * d * dispLen` is neither of those. Do not call every distance-dependent offset a zoom.
+7. **Required evidence.** Verify `(0.65, 0.20)` at 0.10 reads about `(0.60528, 0.28944)`, y = 0.15 remains orange and y = 0.16 becomes navy at that x, true curved boundaries, all length extrema, center crossing, and unobstructed diagrams and controls at both desktop targets. Record the failure, rule, and actual verification in current state and handoff.
