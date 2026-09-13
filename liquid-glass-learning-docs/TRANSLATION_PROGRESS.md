@@ -1,6 +1,6 @@
 # iOS translation progress
 
-next_step: 3B
+next_step: 3F
 
 completed:
   - A1
@@ -27,6 +27,10 @@ completed:
   - 2E
   - 2F
   - 3A
+  - 3B
+  - 3C
+  - 3D
+  - 3E
 
 session_order: A1 A2 A3 A4 B1 B2 B3 C1 C2 D1 D2 1A 1B 1C 1D 1E 1F 2A 2B 2C 2D 2E 2F 3A 3B 3C 3D 3E 3F 3G 3H 4A 4B 4C 4D 4E 4F 4G 5A 5B 5C 5D 5E 5F 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 6.9 6.10 6.11 6H 7A 7B 7C 7D 7E 7F 7G 7H 8A 8B 8C 8D 8E 8F 8H 9A 9B 9C 9D 9E 9F 9H F1 F2 F3 F4 F5
 
@@ -83,3 +87,15 @@ notes:
   - 3A: lessons 3.1 and 3.2 HTML — SwiftUI Color (opacity = alpha channel);
     RgbChannelsExplorer + AlphaExplorer on Chapter03Screen. iPhone 16 Pro sim
     build succeeded. Leftover grep of the step files is clean.
+  - 3B: lesson 3.3 HTML — source-over math unchanged; SwiftUI BlendMode.normal;
+    OverOperationExplorer on Chapter03Screen. iPhone 16 Pro sim build succeeded.
+    Leftover grep of the step files is clean.
+  - 3C: lesson 3.4 HTML — draw-order math unchanged; SwiftUI BlendMode.normal;
+    DrawOrderExplorer on Chapter03Screen. iPhone 16 Pro sim build succeeded.
+    Leftover grep of the step files is clean.
+  - 3D: lesson 3.5 HTML — source-over math unchanged; SwiftUI Color + lab
+    compositeOver helper; PremultipliedRgbaExplorer on Chapter03Screen.
+    iPhone 16 Pro sim build succeeded. Leftover grep of the step files is clean.
+  - 3E: lesson 3.6 HTML — sRGB Rec.709 math unchanged; SwiftUI Color + lab
+    luminance helper; BrightnessLuminanceExplorer on Chapter03Screen.
+    iPhone 16 Pro sim build succeeded. Leftover grep of the step files is clean.
