@@ -1,6 +1,6 @@
 # iOS translation progress
 
-next_step: 1C
+next_step: 2B
 
 completed:
   - A1
@@ -16,6 +16,11 @@ completed:
   - D2
   - 1A
   - 1B
+  - 1C
+  - 1D
+  - 1E
+  - 1F
+  - 2A
 
 session_order: A1 A2 A3 A4 B1 B2 B3 C1 C2 D1 D2 1A 1B 1C 1D 1E 1F 2A 2B 2C 2D 2E 2F 3A 3B 3C 3D 3E 3F 3G 3H 4A 4B 4C 4D 4E 4F 4G 5A 5B 5C 5D 5E 5F 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 6.9 6.10 6.11 6H 7A 7B 7C 7D 7E 7F 7G 7H 8A 8B 8C 8D 8E 8F 8H 9A 9B 9C 9D 9E 9F 9H F1 F2 F3 F4 F5
 
@@ -45,3 +50,13 @@ notes:
     challenges. No Kotlin, no new explorer. Leftover grep of the two files is clean.
   - 1B: lesson 1.3 HTML is a full Xcode walkthrough (iPhone 16 Pro, deployment 17.0,
     LabApp + Chapter01Screen). Centered baseline; iPhone 16 Pro sim build succeeded. Filename unchanged. Grep clean.
+  - 1C: lessons 1.4 and 1.5 HTML — StudyBackground.swift + TranslucentRoundedPanel.swift
+    (328×190 pt, 0.25 fill). Chapter01Screen ZStack; iPhone 16 Pro sim build succeeded. Grep clean.
+  - 1D: lesson 1.6 HTML — alpha math unchanged; Kotlin mixChannel challenge → Swift/CGFloat;
+    map section is Shader-free Color.white.opacity + BlendMode.normal. No lab files. Grep clean.
+  - 1E: lesson 1.7 HTML — iPhone 16 Pro experiment; OpacityExperimentControls.swift;
+    Chapter01Screen owns panelAlpha; Slider step 0.25. iPhone 16 Pro sim build succeeded. Grep clean.
+  - 1F: 1.8 HTML + Ch 1 hub to SwiftUI/iPhone 16 Pro; Chapter01Screen ZStack
+    fill/center polish. Hub live checkpoint 1.3. Sim build succeeded. Filename leftovers only.
+  - 2A: lessons 2.1 and 2.2 HTML — iOS/SwiftUI, iPhone 16 Pro, 34 pt cells;
+    EnlargedPixelGrid + XAxisExplorer on Chapter02Screen. LabHost wired. Sim build succeeded. id leftovers only.
