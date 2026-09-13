@@ -1,5 +1,7 @@
 # Verification helper
 
+This helper is **browser-only**. It checks HTML lesson files (local links, optional Chromium screenshot). It does not build, run, or inspect `/Users/rosen/Code/LiquidGlassLab-iOS`.
+
 From the repository root:
 
 ```bash
@@ -11,3 +13,5 @@ node tools/verify-lesson.mjs \
 The script checks enabled local links. When Chromium is available, it also captures the initial state at `1920×1080`.
 
 Interactive states still need a manual browser check or a purpose-built driver because a plain screenshot does not move sliders or press buttons.
+
+`tools/verify-lesson.mjs` stays as-is. Swift explorers are verified in Xcode (`#Preview`, then iPhone 16 Pro), not by this script.

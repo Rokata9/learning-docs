@@ -19,7 +19,7 @@
      - **Short declarative sentences; one idea each.** Break up sentences with stacked qualifiers, nested parentheticals, or chained em-dashes. Lead with the point, then support it.
      - After writing an explanation, reread it as the reader: would each term/claim survive the question "what does that mean, concretely?" If not, rewrite before delivering.
      - **A definition is not a causal explanation.** For unfamiliar graphics, math, rendering, or systems behavior, trace one actual value through exact input → operation → output before summarizing the API. State which code line supplies each input and which later line consumes the result.
-     - **Use toy arithmetic only as an explicitly labeled bridge.** Show a small numeric model when framework internals are hidden, then map it back to the production radius/data flow and state exactly which numbers are illustrative rather than Android's real internal weights.
+     - **Use toy arithmetic only as an explicitly labeled bridge.** Show a small numeric model when framework internals are hidden, then map it back to the production radius/data flow and state exactly which numbers are illustrative rather than the framework's real internal weights.
      - **Start coordinate explanations from the real widget.** Calculate the actual view size, padding, Drawable bounds, framework transform, and one point's final position. Keep Drawable-local, View-local, and screen coordinates separate. Do not lead with arbitrary invented bounds when real bounds are available.
    - **For transform-origin scaling, isolate one transform first.** Define the transformed object, destination rectangle, origin fractions, resulting pivot coordinate, and scale factor. Trace two opposite corners through the pivot formula and visualize the final bounds before discussing a second transform. Explain whether the selected origin is mandatory or simply removes a corrective translation.
      - **Separate boundaries before explaining boundary modes.** In graphics, distinguish a vector-path edge, the child Drawable rectangle, and the renderer input rectangle. Show both the current case and a counterexample that makes modes such as DECAL and CLAMP visibly different.
@@ -117,7 +117,7 @@ console.log(`\npost-process: ${fixed} fixed, ${skipped} skipped.`);
     - mutation/state-write: `fill:#e0e7ff,stroke:#4338ca,color:#1e1b4b` (indigo)
     - shortcut/early-return/danger: `fill:#fee2e2,stroke:#dc2626,color:#7f1d1d` (red)
     - forward/handoff: `fill:#fce7f3,stroke:#be185d,color:#831843` (pink)
-    - SDK/external/Android: `fill:#dbeafe,stroke:#1e40af,color:#1e3a8a` (blue)
+    - SDK/external/iOS: `fill:#dbeafe,stroke:#1e40af,color:#1e3a8a` (blue)
     - explanation/side-note: `fill:#f3f4f6,stroke:#6b7280,color:#1f2937,font-style:italic` (gray italic)
 7. **Side notes for paragraph-length explanations**, pinned to their target with `-.->` (dotted edges). Keeps the structural diagram tight while still carrying explanatory prose.
 8. **If a node text grows past ~4 lines, move it to surrounding prose.** Diagrams are visual references, not textbook pages.
@@ -136,7 +136,7 @@ flowchart TD
     classDef forward fill:#fce7f3,stroke:#be185d,stroke-width:2px,color:#831843
     classDef explanation fill:#f3f4f6,stroke:#6b7280,stroke-width:1px,color:#1f2937,font-style:italic
 
-    Entry["<b>methodName(args)</b><br/><code>File.kt:NN</code><br/><br/>What triggers it, on what thread, in response to what event.<br/><br/><b>Goal:</b> one-line summary."]:::method
+    Entry["<b>methodName(args)</b><br/><code>File.swift:NN</code><br/><br/>What triggers it, on what thread, in response to what event.<br/><br/><b>Goal:</b> one-line summary."]:::method
 
     Decision{"<b>Branch — what's being checked?</b><br/><code>if (condition)</code><br/><br/>What scenario each branch protects against."}:::decision
 
@@ -209,7 +209,7 @@ If a normal-width diagram is > ~2400px, retry not more than 2 times to compact i
 
 ## Call-stack / control-flow visualization (interactive HTML)
 
-**Scope: visualizing a CALL STACK or control/data flow through real code** — "show me every method from X to pixels", "trace this pipeline", "what runs on which thread". This is the bespoke-HTML approach refined on mini-litho's async-insert diagram (`D:\Code\Android\mini-litho\docs\diagrams\27-*`); reach for it over a plain Mermaid flowchart whenever the flow is long enough to want progressive disclosure, decision-branch detail, or depth-on-demand. Mermaid stays the right tool for a *small* flow (≤~20 nodes) or a quick orientation sketch.
+**Scope: visualizing a CALL STACK or control/data flow through real code** — "show me every method from X to pixels", "trace this pipeline", "what runs on which thread". This is the bespoke-HTML approach refined on mini-litho's async-insert diagram (`docs/diagrams/27-*` in that project); reach for it over a plain Mermaid flowchart whenever the flow is long enough to want progressive disclosure, decision-branch detail, or depth-on-demand. Mermaid stays the right tool for a *small* flow (≤~20 nodes) or a quick orientation sketch.
 
 ### The two-artifact discipline (non-negotiable)
 
@@ -275,7 +275,7 @@ Established 2026-06-10 from tiled-engine learning-path chapter-1 feedback. These
 
 1. **Stepper over free-running animation whenever a sequence must be *understood*.** Back/Next buttons + dot indicators, exactly ONE state change per step, caption naming cause → effect in full sentences. A fast/auto-running simulator may be offered as optional free play AFTER the stepper has taught the mechanism — never as the primary explainer ("things go very fast and I can't wrap my head around them").
 2. **Code anchors must carry excerpts, not bare names.** When referencing implementation, inline the few relevant lines (trimmed, with a `// file — function` attribution comment) followed by prose explaining them. Citing only `File.cpp · function()` is insufficient — the reader must be able to understand the point without leaving the document. The full comments stay in the code regardless; the doc duplicates the relevant slice.
-3. **Define every term of art at first use** ("latch", "re-arm", "spin hot", …) and never leave shorthand unexplained in diagrams or labels ("3 doubles" → say "three numbers: zoom scale + x/y offset" at least once nearby). Watch for name collisions the reader can trip on (e.g. an engine's own "render thread" vs Android's system "RenderThread") and disambiguate explicitly.
+3. **Define every term of art at first use** ("latch", "re-arm", "spin hot", …) and never leave shorthand unexplained in diagrams or labels ("3 doubles" → say "three numbers: zoom scale + x/y offset" at least once nearby). Watch for name collisions the reader can trip on (e.g. an engine's own "render thread" vs the system's render server) and disambiguate explicitly.
 4. **Reference UI controls by their exact bolded label** ("press **App: render one frame**"), so instructions are never ambiguous about which control is meant.
 5. **Simulator labels/logs teach too**: event logs in free-play widgets should narrate state transitions verbosely ("vsync tick: display latched frame #67 from buffer 2 → buffer 1 returned to FREE, which un-parks the waiting app"), not just announce them.
 6. **Incremental chapters with explicit deferrals.** Each section should deliver the smallest useful whole mental model before adding another layer. Introduce a concept before relying on it. If a dependency genuinely belongs later, say “Topic X is explained in Chapter Y; for now assume …” and state exactly what the reader may safely treat as a black box.
@@ -290,7 +290,7 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 1. **Every chapter/lesson ends with 2–4 exercises, answers hidden** (`<details>` in docs). At least one exercise should be *diagnostic* — deliberately aimed at the most likely misconception (e.g. "what's the max wrap-distance?" exposing the line-segment-with-endpoints intuition) rather than recall. Tie exercises to the real artifact's numbers wherever possible (the actual ring radius, the actual token values), so answers connect back to the codebase.
 2. **The user answers in chat without peeking; I grade.** Format: a compact verdict table (✓ / 🟡 / ❌) first, then per item: the correct answer, the exact step where their reasoning diverged (quote their wording), and the generalizable takeaway. Honest grading — no smoothing a wrong answer into "partially right" (house rule #4 applies to me too). Distinguish "arithmetic right, verdict wrong" explicitly; credit correct working.
 3. **Cross-answer diagnosis**: when several misses share one root cause, NAME that missing intuition in one sentence ("your mental model still has the ring as a line segment with endpoints") and point at the exact widget/section for a ~2-minute re-drill. Frame it as good news — the exercises located precisely what to fix.
-4. **Offer a retake**: 2–3 fresh quickies targeting only the missed concepts (never repeat the same question verbatim). Grade that too. If one misconception survives the retake, finish with a single "seal" micro-drill anchored in a real-world example the user already knows (e.g. Android's OvershootInterpolator returning f > 1 to legitimize out-of-range lerp), answer hidden.
+4. **Offer a retake**: 2–3 fresh quickies targeting only the missed concepts (never repeat the same question verbatim). Grade that too. If one misconception survives the retake, finish with a single "seal" micro-drill anchored in a real-world example the user already knows (e.g. a spring animation returning a value greater than 1 to legitimize out-of-range lerp), answer hidden.
 5. **Tone**: playful-rigorous. Wrong answers are diagnostic gold, not failures; say so. Celebrate when the user self-diagnoses ("I completely misunderstood X") by confirming precisely what they now own.
 
 
@@ -302,7 +302,7 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 - For unfamiliar mathematics, define every variable in plain language before the formula. State its symbol, input object, unit or numeric range, and role. Then show the symbolic formula, substitute actual values, show every intermediate result, and name the next operation that consumes the output.
 - **Never write a calculation as bare numbers.** Keep the named formula visible, then substitute, then the result: `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15`. Forbidden as the displayed formula: `sdA = 0.10 − 0.25` and `sdA = −0.15`. Live lab readouts, stepper rules, hero callouts, predictions, and hidden exercise answers all use this chain.
 - More verbosity is preferred for the harder remaining graphics, shader, geometry, physics, and rendering lessons. The explanation must remain usable by a total mathematics and graphics beginner.
-- The **total-beginner comprehension audit happens first**, before syntax checks, screenshots, link checks, or Android static checks. Audit the first sentence, first two sections, first formula, every unfamiliar term, and the longest walkthrough state. If the causal model is not understandable from completed prerequisites, regenerate or split the lesson before performing technical QA.
+- The **total-beginner comprehension audit happens first**, before syntax checks, screenshots, link checks, or Xcode/Swift static checks. Audit the first sentence, first two sections, first formula, every unfamiliar term, and the longest walkthrough state. If the causal model is not understandable from completed prerequisites, regenerate or split the lesson before performing technical QA.
 
 
 ## Liquid Glass course — adaptive diagram and stepper layout
@@ -320,7 +320,7 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 - The handoff keeps active rules, canonical exemplars, current files, and recent decisions. Compress superseded revision narratives into short lessons learned.
 - The curriculum keeps the full course plan plus concise implementation status. Do not duplicate complete lesson prose or every patch history there.
 - `AGENTS.md` and `USER_PREFERENCES.md` remain the canonical permanent-rule sources. Avoid copying their full contents into the state, handoff, or curriculum.
-- Preserve facts needed for continuation. Remove repeated package manifests, repeated QA reports, superseded status blocks, and prose already present in the lesson HTML or Kotlin source.
+- Preserve facts needed for continuation. Remove repeated package manifests, repeated QA reports, superseded status blocks, and prose already present in the lesson HTML or Swift source.
 
 - **Layout choice is contextual.** The large full-width diagram with a hidden stepper was the right choice for dense mask and layer lessons. In most lessons, keep diagram and stepper visible together in two columns when the evidence still fits readably.
 - **A visible all-formulas panel is valuable.** When several formulas interact, keep a prominent formulas summary near the top instead of hiding it deep in the lesson.
@@ -338,20 +338,20 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 
 - **Show causal dependency tables for coupled variables.** For physics or animation systems, include a compact table such as “if X increases while these other inputs stay fixed, Y decreases, which changes Z and produces this visible result.” Also show one live substituted chain for the selected moment.
 
-- **Android preview location:** keep complete chapter-screen previews in `ChapterXXScreen.kt`, but place the direct preview of a custom lesson composable in that custom composable's own Kotlin file.
+- **Xcode `#Preview` location:** keep complete chapter-screen previews in `ChapterXXScreen.swift`, but place the direct preview of a custom lesson explorer in that explorer's own Swift file.
 
-- **Android Studio preview scrollability:** for every newly generated lesson, make both the complete chapter-screen preview and the direct custom-composable preview vertically scrollable so the entire lesson can be inspected without a device. Do not retrofit previous lessons unless explicitly requested.
+- **Xcode `#Preview` scrollability:** for every newly generated lesson, make both the complete chapter-screen preview and the direct explorer preview vertically scrollable so the entire lesson can be inspected without a device. Do not retrofit previous lessons unless explicitly requested.
 
-- **Light `@Preview` annotation first (recorded 2026-08-28):** when a preview wrapper has both theme variants, stack the light annotation first (`uiMode = Configuration.UI_MODE_NIGHT_NO`), then the dark annotation (`UI_MODE_NIGHT_YES`), immediately above the composable. This is annotation order in source, not a change to the app's default theme. Apply to newly written or newly revised preview wrappers. Do not bulk-reorder completed historical lessons unless asked.
+- **Light `#Preview` first (recorded 2026-08-28):** when stacking both theme `#Preview` blocks, put light first, then dark, immediately above the view. This is source order, not a change to the app's default theme. Preview canvas is **412 × 915 points**. Test device is **iPhone 16 Pro**. Apply to newly written or newly revised preview wrappers. Do not bulk-reorder completed historical lessons unless asked.
 
-- **No ZIP delivery (recorded 2026-08-20):** do not generate `.zip` files, incremental learning-docs archives, or Android code archives. I work from the `liquid-glass-learning-docs` and `LiquidGlassLab` repositories directly. Leave changed files in those trees. Package a ZIP only if I explicitly ask for one.
+- **No ZIP delivery (recorded 2026-08-20):** do not generate `.zip` files, incremental learning-docs archives, or iOS code archives. I work from the `liquid-glass-learning-docs` and `LiquidGlassLab-iOS` repositories directly. Leave changed files in those trees. Package a ZIP only if I explicitly ask for one.
 
 ## Liquid Glass course — production path before diagnostic machinery
 
-- Keep the Android example centered on one readable production route. I should not need to study several intentionally broken modes before I can understand the intended code.
+- Keep the iOS example centered on one readable production route. I should not need to study several intentionally broken modes before I can understand the intended code.
 - Decide case by case whether an error example adds enough teaching value. Prefer a compact explanation or diagram when executable error modes would introduce duplicate layers, extra state, enums, or branching unrelated to the main implementation.
 - Name and comment non-obvious constants. Explain why scene dimensions, positions, intervals, ratios, alpha values, and coordinate calculations were chosen instead of leaving them as unexplained “magic numbers.”
-- Favor controlled dp coordinates and plain arithmetic over unnecessary fraction-based placement when both express the same lesson geometry.
+- Favor controlled point coordinates and plain arithmetic over unnecessary fraction-based placement when both express the same lesson geometry.
 - Prediction choices must look like interactive controls in both themes, retain visible selected styling, and be tested by clicking every option.
 
 ## Synchronization before performance diagnosis — Lesson 6.10
@@ -360,15 +360,15 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 - In a controlled scene where the coordinate relationship is already known, derive placement and crop translation from the same state value. Do not add callback-written duplicate geometry state that can update later.
 - Explain the exact scope of any simplification. A shared origin in a teaching scene does not prove that arbitrary production layouts share that origin.
 - Keep target-size arithmetic, color-storage assumptions, frame intervals, and measured GPU facts visibly separate. Label four bytes per pixel as a teaching model unless the real target format and allocation have been measured.
-- A deliberately wasteful full-scene comparison should stay in arithmetic or a diagram unless executing it is essential to the concept. The Android main path should allocate only the intended production target.
+- A deliberately wasteful full-scene comparison should stay in arithmetic or a diagram unless executing it is essential to the concept. The iOS main path should allocate only the intended production target.
 - Performance optimization remains a planned part of the course: target-size control first, then downsampling, device profiling, caching, adaptive quality, and separate CPU/GPU/memory measurement.
 
 ## Graphics command, buffer, and foreground separation — Lesson 6.11
 
-- Distinguish replayable drawing commands from allocated pixel storage. Do not call every `GraphicsLayer` a buffer.
-- Explain whether explicit `Offscreen` is necessary, redundant, or present only to make a teaching experiment concrete.
+- Distinguish replayable drawing commands from allocated pixel storage. Do not call every `drawingGroup` or extra render target a buffer.
+- Explain whether explicit `drawingGroup()` is necessary, redundant, or present only to make a teaching experiment concrete.
 - When a panel-sized destination replays a full backdrop source, explain which panel-sized pixel costs are reduced and which full-source recording, drawing, and replay costs remain.
-- Keep labels and icons outside the sample/effect layer when they must remain sharp. Make that ownership visible in both the object tree and the Android declaration order.
+- Keep labels and icons outside the sample/effect layer when they must remain sharp. Make that ownership visible in both the object tree and the SwiftUI declaration order.
 - Prefer one clean two-layer production route over executable comparison modes that add unrelated state or branching.
 
 ## New-learning gate and recap budget — Lesson 7.1
@@ -376,8 +376,8 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 - A full lesson must introduce a genuinely new mechanism, API behavior, mathematical operation, measurement method, or implementation step. Do not present another arrangement of already learned objects as sufficient new progress.
 - Keep prerequisite recap brief. Use it only to identify the input consumed by the new operation.
 - If planned material is mostly consolidation, turn it into a short checkpoint or merge it into the next substantive lesson instead of counting it as a standalone conceptual lesson.
-- The lesson title must correspond to an operation that becomes visible in the diagram, arithmetic, and Android code.
-- For blur, distinguish a transparent teaching model from the renderer's undocumented implementation. Explain exactly what the model proves and what the public Android API does not expose.
+- The lesson title must correspond to an operation that becomes visible in the diagram, arithmetic, and Swift code.
+- For blur, distinguish a transparent teaching model from the renderer's undocumented implementation. Explain exactly what the model proves and what the public iOS API does not expose.
 - Prefer one readable new production or experiment path. Do not duplicate stale-state, feedback, alignment, or other diagnostic branches unless the new concept genuinely requires them.
 
 
@@ -392,24 +392,24 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 
 ## Transform pipelines must be explained beside their code — Lesson 7.4 revision
 
-- When size, `DrawScope.scale`, blur, layer pivot, layer scale, and final replay interact, consolidate them into one detailed stepper in execution order.
-- Keep the active Kotlin lines beside the current visual result so I do not have to connect detached explanations mentally.
-- Show what `record(size = ...)` does by itself, what the inner `DrawScope.scale` changes, and what the later `GraphicsLayer` transform changes.
-- Use the original artwork and layout-derived portrait bounds close to the real 412 dp Preview. Do not use invented bounds that reverse the observed gap proportions.
+- When size, `GraphicsContext` scale, blur, layer pivot, layer scale, and final replay interact, consolidate them into one detailed stepper in execution order.
+- Keep the active Swift lines beside the current visual result so I do not have to connect detached explanations mentally.
+- Show what a snapshot/`ImageRenderer` with a given size does by itself, what the inner `GraphicsContext` scale changes, and what the later `.scaleEffect` transform changes.
+- Use the original artwork and layout-derived portrait bounds close to the real 412 × 915 point `#Preview`. Do not use invented bounds that reverse the observed gap proportions.
 - Compare top-left/center combinations when they are necessary to explain this pipeline, but derive every result from one shared geometry model.
 - When a screenshot and a simplified formula disagree, say so and add runtime measurements rather than inventing values that make the story fit.
 
 ## Source selection must be shown, not implied — Lesson 7.4 follow-up
 
 - When full-size source commands are drawn into a smaller target, show the original source region that contributes, the transformed command bounds, the pixels actually stored by the finite target, and the final enlarged result side by side.
-- Do not call `record(size = ...)` a crop or imply that it automatically takes the top-left `workingSize` rectangle. Explain which transform maps the source and which later clipping/raster operation determines what survives.
-- Start from familiar same-container scaling, then explicitly announce the switch to a new smaller `DrawScope`; otherwise center-pivot arithmetic looks contradictory.
+- Do not call a sized snapshot/`ImageRenderer` a crop or imply that it automatically takes the top-left `workingSize` rectangle. Explain which transform maps the source and which later clipping/raster operation determines what survives.
+- Start from familiar same-container scaling, then explicitly announce the switch to a new smaller `GraphicsContext`; otherwise center-pivot arithmetic looks contradictory.
 - For each relevant pivot combination, show both the source selection and the resulting image, with the responsible code highlighted in the same step.
 
 ## Full calculations and consecutive transform selection — Lesson 7.4
 
 - Do not jump from a rule to substituted numbers or show result-only coordinate bounds. Keep descriptive definitions, the rule in words, named-value substitution, intermediate arithmetic, rounding, result, and next consumer together in the current state.
-- When a large source is replayed into a smaller `DrawScope`, explicitly show the bridge from source-local coordinates to pre-scale working-local coordinates. Explain why the numeric pair is initially unchanged when the two origins align, even though the working bounds are smaller.
+- When a large source is replayed into a smaller `GraphicsContext`, explicitly show the bridge from source-local coordinates to pre-scale working-local coordinates. Explain why the numeric pair is initially unchanged when the two origins align, even though the working bounds are smaller.
 - Keep “retained during recording” separate from “visible after final replay.” The final layer pivot must never be described as changing the source region already retained by the working buffer.
 - For each meaningful pivot combination, show the source retained while recording, the working pixels stored, the later stored-point-to-output mapping, the output clip, and the original source coordinates still visible—all beside the responsible code and full arithmetic.
 - Repeat the current dimensions, raw products, rounding results, pivots, scales, and coordinate-space labels in every detailed step so the learner never has to click backward to recover provenance.

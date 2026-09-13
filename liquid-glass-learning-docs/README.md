@@ -28,8 +28,8 @@ To continue as a learner, paste `NEW_CHAT_PROMPT.md` and name generate or questi
 - `PLATFORM_MAP.md` — Swift / SwiftUI / Metal noun and API map.
 - `AGENTS.md` — lesson quality, verification, Xcode `#Preview` rules.
 - `USER_PREFERENCES.md` — explanation calibration, visualization target, delivery preferences.
-- `curriculum/liquid_glass_android_curriculum.md` — the 216-lesson plan and frozen locks.
-- `curriculum/liquid_glass_android_handoff.md` — short continuation contracts for the current chapter.
+- `curriculum/liquid_glass_ios_curriculum.md` — the 216-lesson plan and frozen locks.
+- `curriculum/liquid_glass_ios_handoff.md` — short continuation contracts for the current chapter.
 
 ## New-learning rule
 

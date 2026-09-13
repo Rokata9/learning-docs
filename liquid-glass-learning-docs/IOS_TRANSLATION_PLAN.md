@@ -121,32 +121,13 @@ The named test device is **iPhone 16 Pro**. Physical device is the source of tru
 
 Lesson 8.4’s `80.0` remains **80 pixels**, not 80 points. On @3x that is a smaller slice of the view than 80 dp was on a density-2.625 Pixel — call that out once in 2.5 and 8.4. Do not rescale the teaching number; the Android code used pixels.
 
-### D4. Shader language: lab Metal dialect, 1:1 with AGSL bodies
+### D4. Shader language: `.metal` files + SwiftUI `ShaderLibrary`
 
-AGSL pixel functions, `half4`, `float2`, `mix`, `smoothstep`, `fract`, `length`, `uniform float2 resolution`, and `background.eval(coord)` **keep that source text**. Those tokens exist in Metal. What Android’s `RuntimeShader` provided as a host, the lab provides as `RuntimeMetalShader`.
+Pixel **math** stays 1:1. The host is a `.metal` file compiled by Xcode, applied with `ShaderLibrary` + `colorEffect`.
 
-Learner-facing name: **Metal Shading Language (MSL)**. The lab compiles a pixel-function string that looks like the Android AGSL string so Chapters 8–9 math, walkthroughs, and numbers stay identical.
+Do **not** rebuild `RuntimeMetalShader` / `makeLibrary(source:)`.
 
-```metal
-uniform float2 resolution;
-
-half4 main(float2 fragCoord) {
-    float2 uv = fragCoord / resolution;
-    return half4(uv.x, 0.0, 0.0, 1.0);
-}
-```
-
-`RuntimeMetalShader`:
-
-1. Parses `uniform` declarations into a constant buffer (unread named slots stay **0**, preserving Lesson 8.9).
-2. Implements `uniform shader name` + `name.eval(coord)` as a **Metal function call** into the input shader’s `main`, **not** a clamped texture sample. This preserves Lesson 9.8: eval does not wrap a negative x.
-3. Wraps the body in a real Metal library compiled with `MTLDevice.makeLibrary(source:)`.
-4. Exposes `setFloatUniform(_:_:)`, `setInputShader(_:_:)`, and compile errors as `Error` with the Metal log (Lesson 8.12).
-5. Draws through `ShaderRect`, a SwiftUI view that fills a rectangle (the `ShaderBrush` + `drawRect` pair).
-
-Teaching failure in 8.12 stays `gl_FragCoord` in an otherwise legal 8.11 program.
-
-Do **not** switch the course to compile-time `.metal` + `ShaderLibrary` as the primary path. That would replace “compile a string at runtime” (8.2, 8.12).
+`[[ stitchable ]]` functions take SwiftUI’s `float2 position, half4 color` first. Old uniforms become extra arguments. `background.eval` is a Metal function call in the same file, not a texture sample. Lesson 8.12 is an Xcode Metal compile error (`gl_FragCoord`), not a runtime `try`. `position` is points; convert with `displayScale` when a lesson uses pixel `fragCoord` (8.4’s `80.0`).
 
 ### D5. Chapter 6 is a platform-equivalent rewrite of the **API**, not of the **idea**
 
@@ -212,8 +193,8 @@ These chapters are not “the same lesson with new keywords.” They teach the i
 | 2 | **Chapter 2 entire** (2.1–2.9) | Points vs pixels vs `displayScale`, SwiftUI local/parent/screen coordinates. 2.5 is the unit rewrite; the inspector in 2.9 is the iOS API. |
 | 3 | **Chapter 6 entire** (6.1–6.11) | **How SwiftUI draws the scene.** Owned `.blur()` vs captured backdrop. No Android Compose phases, no `GraphicsLayer.record`. This chapter is new. |
 | 4 | **Chapter 7 entire** (7.1–7.12) | Frost *recipes* are known; the **lab path** is new (owned blur, snapshot crop, saturation matrix on a SwiftUI layer). Re-run the explorers. Do not rebuild the frozen constants. |
-| 5 | **Chapter 8 entire** (8.1–8.12) | **Your first Metal shader.** `RuntimeMetalShader`, pixel `fragCoord`, uniforms, compile errors. 8.3–8.8 / 8.11 math is familiar; the host is new. Re-read the chapter as iOS. |
-| 6 | **Lessons 9.7–9.9** | `uniform shader` / `eval` / `setInputShader` on Metal. 9.1–9.6 stay complete; these three are the sampling API. |
+| 5 | **Chapter 8 entire** (8.1–8.12) | **Your first Metal shader.** `.metal` + `ShaderLibrary`, `position`, uniforms as Shader arguments, Xcode compile errors. 8.3–8.8 / 8.11 math is familiar; the host is new. Re-read the chapter as iOS. |
+| 6 | **Lessons 9.7–9.9** | Input color is a Metal function call, not a texture sample. 9.1–9.6 stay complete; these three are the sampling API. |
 
 Then the unresolved checkpoint is again **Lesson 9.10 — Build a displacement field**.
 
@@ -222,7 +203,7 @@ Then the unresolved checkpoint is again **Lesson 9.10 — Build a displacement f
 Write these exactly (update file lists as explorers appear):
 
 ```text
-platform: Swift / SwiftUI / Metal (lab pixel-function strings)
+platform: Swift / SwiftUI / Metal (.metal + ShaderLibrary)
 test device: iPhone 16 Pro
 min OS: iOS 17
 
@@ -272,18 +253,18 @@ Keep this table in `PLATFORM_MAP.md`. Executors do not invent synonyms.
 | `withFrameNanos` | `TimelineView(.animation)` or `CADisplayLink` |
 | `Animatable` + `spring()` | custom clock first (5.8 coefficients stay teaching-only); later `spring` retuned, not copied blindly |
 | `Indication` | `ButtonStyle` / `configuration.isPressed` |
-| `RuntimeShader(string)` | `RuntimeMetalShader(string) throws` |
-| `ShaderBrush` + `drawRect` | `ShaderRect(shader:)` |
-| `setFloatUniform` | `shader.setFloatUniform` (same names) |
-| `setInputShader` + `eval` | `setInputShader` + `background.eval` in the lab dialect |
-| `IllegalArgumentException` shader log | thrown `Error` whose message is the Metal compiler log |
+| `RuntimeShader(string)` | `.metal` file + `ShaderLibrary` |
+| `ShaderBrush` + `drawRect` | `ShaderRect` = `colorEffect` |
+| `setFloatUniform` | `Shader` arguments (`.float`, `.float2`) |
+| `setInputShader` + `eval` | Metal function call in the same `.metal` file |
+| `IllegalArgumentException` shader log | Xcode Metal compile error |
 | `MainActivity` / `setContent` | `@main App` + `WindowGroup` + `LabHost` |
 | Android Studio Preview | Xcode `#Preview` |
 | Gradle / APK / ADB | Xcode / `.app` / `devicectl` or Run |
 | `minSdk` | iOS deployment target |
 | `dp` | points |
 | Pixel 8 Pro | iPhone 16 Pro |
-| AGSL | Metal Shading Language (lab pixel-function string) |
+| AGSL | Metal Shading Language (`.metal` `[[ stitchable ]]` function) |
 | `safeDrawingPadding` | `.safeAreaPadding()` / `safeAreaInset` |
 | API 31 fallbacks (16.14) | iOS 16: frost without runtime Metal shaders |
 | Reduced transparency / motion / contrast | `UIAccessibility.isReduceTransparencyEnabled` and siblings (Chapter 11 outline) |
@@ -322,7 +303,7 @@ Work on the branch you created. All writes in this phase are in `liquid-glass-le
 - `IOS_TRANSLATION_PLAN.md` — this plan, copied into the repo so later chats do not depend on a session path.
 - `IOS_TRANSLATION_PROMPT.md` — the durable agent prompt (full text in the template section below).
 - `TRANSLATION_PROGRESS.md` — ordered step list, `completed: []`, `next_step: A2` after A1 finishes (`A1` if writing these files is all A1 did).
-- `PLATFORM_MAP.md` — D1–D8, type map, frost constants, `RuntimeMetalShader` contract, Chapter 6 snapshot rule, context protocol, must-re-read chapter list, test device iPhone 16 Pro.
+- `PLATFORM_MAP.md` — D1–D8, type map, frost constants, `.metal` / `ShaderLibrary` contract, Chapter 6 snapshot rule, context protocol, must-re-read chapter list, test device iPhone 16 Pro.
 - `.gitignore` entry if needed so `LiquidGlassLab-iOS` is not invented inside this repo.
 
 **Accept:** those five files exist; `TRANSLATION_PROGRESS.md` points at `A2`; `git status` is on your branch; no second docs folder exists. The user can now open a new chat and paste only `Read liquid-glass-learning-docs/IOS_TRANSLATION_PROMPT.md and execute the next step of the plan.`
@@ -350,7 +331,7 @@ Replace platform nouns and API names. Keep every lesson title’s **graphics** c
 - 1.3 Create `LiquidGlassLab` as a SwiftUI iOS app on iPhone 16 Pro.
 - 2.5 points and scale, not dp.
 - Chapter 6 title: **How SwiftUI draws the scene**.
-- Chapter 8 title: **Your first Metal shader**; 8.2 compiles a Metal pixel-function string with `RuntimeMetalShader`.
+- Chapter 8 title: **Your first Metal shader**; 8.2 adds a `.metal` file and applies it with `ShaderLibrary`.
 - 15.27 profile on iPhone 16 Pro.
 - 16.5 points vs pixels vs UV vs time.
 - 16.14 iOS 16 fallbacks.
@@ -378,7 +359,7 @@ Swap Android Preview / Kotlin / Pixel sentences for Xcode Preview / Swift / iPho
 |------|-------|----------------|
 | **B1** | Scope, file naming, lesson requirements, gates through Chapter 3 terminology | Android → iOS; “state when the browser differs from iOS”; Swift target path outside this repo |
 | **B2** | Beginner gates, formula gates, remaining teaching rules that mention Kotlin/Android | `Kotlin` → `Swift`; Android Studio Preview → Xcode Preview (light then dark, scrollable, 412×915) |
-| **B3** | Delivery / verification / reusable rules that name explorers or AGSL | `RuntimeShader` → `RuntimeMetalShader`; AGSL → MSL; Pixel → iPhone; keep 9.x teaching rules (exact-cell readback, two rulers, named-formula-before-substitution) |
+| **B3** | Delivery / verification / reusable rules that name explorers or AGSL | `RuntimeShader` → `.metal` / `ShaderLibrary`; AGSL → MSL; Pixel → iPhone; keep 9.x teaching rules (exact-cell readback, two rulers, named-formula-before-substitution) |
 
 **Accept after B3:** grep `AGENTS.md` for `Android`, `Kotlin`, `AGSL`, `Pixel 8`, `Android Studio` is empty (except a one-line “this fork was translated from the Android course” if useful). Teaching rules otherwise intact.
 
@@ -397,17 +378,17 @@ Swap Android Preview / Kotlin / Pixel sentences for Xcode Preview / Swift / iPho
 
 **Do not** generate explorers yet. Prove the untouched template on Simulator, then replace root content with a three-line baseline (Lesson 1.3’s first proof, even if 1.3 HTML is later).
 
-### C2. `RuntimeMetalShader` + `ShaderRect`
+### C2. `.metal` + `ShaderLibrary` + `ShaderRect`
 
 **Reads:** Android `RuntimeShaderExplorer.kt` (pattern only). **Writes:**
 
-- `RuntimeMetalShader.swift` — compile string, named uniforms default 0, `setInputShader` as function-eval, pixel coords y-down.
-- `ShaderRect.swift` — SwiftUI representable drawing a full-rect quad.
-- A tiny `ShaderSmokeView` that compiles the 8.3 orange program and fills a 140 pt tall rectangle.
+- `LabOrange.metal` — `[[ stitchable ]]` 8.3 orange.
+- `ShaderRect.swift` — `Rectangle().fill(.white).colorEffect(shader)`.
+- A tiny `ShaderSmokeView` that fills a 140 pt tall rectangle.
 
-**Accept:** orange `half4(0.88, 0.48, 0.18, 1.0)` on device/simulator; a deliberately broken string (`gl_FragCoord`) throws a message containing a line number. This unblocks every Chapter 8–9 step.
+**Accept:** orange `half4(0.88, 0.48, 0.18, 1.0)` via `ShaderLibrary`. Do not add a runtime string compiler. This unblocks every Chapter 8–9 step.
 
-**Budget:** small sources. Include Metal snippets in `PLATFORM_MAP.md` after this step so later chats do not re-derive the helper.
+**Budget:** small sources. Include Metal snippets in `PLATFORM_MAP.md` after this step so later chats do not re-derive the host.
 
 ---
 
@@ -415,7 +396,7 @@ Swap Android Preview / Kotlin / Pixel sentences for Xcode Preview / Swift / iPho
 
 ### D1. `course/glossary.html` (~100 KB, ~25k tokens)
 
-One session. Retarget Android/Compose/AGSL terms to iOS/SwiftUI/MSL. Keep portable graphics terms. Add `RuntimeMetalShader`, points, scale, `ShaderRect`. Keep ids stable where possible (`#fragcoord`, `#mix`) so existing lesson hrefs work.
+One session. Retarget Android/Compose/AGSL terms to iOS/SwiftUI/MSL. Keep portable graphics terms. Add `ShaderLibrary`, `.metal`, points, scale, `ShaderRect`. Keep ids stable where possible (`#fragcoord`, `#mix`) so existing lesson hrefs work.
 
 ### D2. `liquid-glass-course.html` + tools README
 
@@ -539,7 +520,7 @@ Must re-read on iOS (lab path is new). Do not rebuild frost math.
 
 ### Chapter 8 — ~143k HTML + 36k Kotlin → 7 steps
 
-**Must re-read entire chapter on iOS.** Requires C2. Shader **bodies** copy-paste; the host is Metal.
+**Must re-read entire chapter on iOS.** Requires C2. Pixel **math** copy-paste into `[[ stitchable ]]` functions; the host is `ShaderLibrary`.
 
 | Step | Lessons | Android files |
 |------|---------|---------------|
@@ -547,8 +528,8 @@ Must re-read on iOS (lab path is new). Do not rebuild frost math.
 | **8B** | 8.2, 8.3 | `RuntimeShaderExplorer`, `FixedColorShaderExplorer` |
 | **8C** | 8.4, 8.5 | `FragCoordExplorer`, `ResolutionShaderExplorer` — 80 px; resolution in **pixels** |
 | **8D** | 8.6, 8.7, 8.8 | UV, scalars, `p = uv - 0.5` |
-| **8E** | 8.9, 8.10 | uniforms + time; unread slot stays 0 |
-| **8F** | 8.11, 8.12 | mix/smoothstep numbers unchanged; `gl_FragCoord` error workflow |
+| **8E** | 8.9, 8.10 | Shader arguments + time; missing argument is a compile error; pass 0 to show a zero slot |
+| **8F** | 8.11, 8.12 | mix/smoothstep numbers unchanged; `gl_FragCoord` is an Xcode Metal error |
 | **8H** | hub `lesson-your-first-agsl-shader.html` | `Chapter08Screen` |
 
 ### Chapter 9 generated — ~152k HTML + 34k Kotlin → 7 steps
@@ -561,7 +542,7 @@ Must re-read on iOS (lab path is new). Do not rebuild frost math.
 | **9B** | 9.2, 9.3 |
 | **9C** | 9.4, 9.5 |
 | **9D** | 9.6 |
-| **9E** | 9.7, 9.8 | `setInputShader` + `eval`; no wrap |
+| **9E** | 9.7, 9.8 | Metal function call for input color; no wrap |
 | **9F** | 9.9, 9.10 | displacement contract unchanged (W = (0.65, 0.20), dispLen 0.10, …) |
 | **9H** | hub | `Chapter09Screen` |
 
@@ -575,7 +556,7 @@ Lesson 9.10 remains **not complete**. Do not restore 95/216. Do not mark 9.10 co
 
 Repo-wide grep in **`liquid-glass-learning-docs` + `LiquidGlassLab-iOS` only**:
 
-`Android`, `Kotlin`, `Compose`, `AGSL`, `RuntimeShader` (except the mapping sentence “Android RuntimeShader ↔ RuntimeMetalShader” in `PLATFORM_MAP.md`), `Pixel 8`, `Jetpack`, `Gradle`, `ADB`, `APK`, `minSdk`, `Android Studio`, `MainActivity`, `setContent`, `composable`.
+`Android`, `Kotlin`, `Compose`, `AGSL`, `RuntimeShader` (except the mapping sentence “Android RuntimeShader ↔ ShaderLibrary / `.metal`” in `PLATFORM_MAP.md`), `Pixel 8`, `Jetpack`, `Gradle`, `ADB`, `APK`, `minSdk`, `Android Studio`, `MainActivity`, `setContent`, `composable`.
 
 Fix hits in one or two follow-up sessions grouped by folder if the first F1 chat gets large. Do not open PNG binaries.
 

@@ -1,10 +1,20 @@
 # iOS translation progress
 
-next_step: A3
+next_step: 1B
 
 completed:
   - A1
   - A2
+  - A3
+  - A4
+  - B1
+  - B2
+  - B3
+  - C1
+  - C2
+  - D1
+  - D2
+  - 1A
 
 session_order: A1 A2 A3 A4 B1 B2 B3 C1 C2 D1 D2 1A 1B 1C 1D 1E 1F 2A 2B 2C 2D 2E 2F 3A 3B 3C 3D 3E 3F 3G 3H 4A 4B 4C 4D 4E 4F 4G 5A 5B 5C 5D 5E 5F 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 6.9 6.10 6.11 6H 7A 7B 7C 7D 7E 7F 7G 7H 8A 8B 8C 8D 8E 8F 8H 9A 9B 9C 9D 9E 9F 9H F1 F2 F3 F4 F5
 
@@ -12,3 +22,23 @@ notes:
   - A1: wrote prompt, plan copy, progress, PLATFORM_MAP.md; gitignore blocks an in-repo LiquidGlassLab-iOS
   - A2: rewrote README, CURRENT_STATE, NEW_CHAT_PROMPT to iOS (SwiftUI/MSL, iPhone 16 Pro).
     Learner progress is 40/216 through 9.6; live checkpoint is 1.3; frontier stays 9.10. Did not restore 95/216.
+  - A3: renamed curriculum + handoff to liquid_glass_ios_*; swapped platform nouns/APIs;
+    progress is 40/216, checkpoint 1.3, must-re-read Ch 1/2/6/7/8 and 9.7–9.9. curriculum/ grep is clean.
+  - A4: USER_PREFERENCES.md — Xcode #Preview / Swift / iPhone 16 Pro; lab path LiquidGlassLab-iOS;
+    explanation-calibration and visualization-target rules left in place. Step-file leftover grep is clean.
+  - B1: AGENTS.md through Chapter 3 terminology — iOS/Xcode, no ios/ or android/ dir;
+    browser vs iOS; Swift target path; SwiftUI Color / straight-RGBA over. B1-slice grep is clean.
+  - B2: AGENTS.md beginner/formula gates through Ch 7 — Kotlin→Swift; Compose preview →
+    Xcode #Preview (light then dark, 412×915, scrollable). B2-slice grep is clean; 9.x/delivery left for B3.
+  - B3: AGENTS.md delivery + 9.x rules — ZIP path LiquidGlassLab-iOS; AGSL→MSL;
+    RuntimeShader→RuntimeMetalShader. Teaching rules kept; leftover grep is the origin line only.
+  - C1: created /Users/rosen/Code/LiquidGlassLab-iOS — Xcode 16 synchronized-root SwiftUI
+    app (iOS 17, com.example.liquidglasslab), LabHost 1–9, theme, 1.3 baseline. Grep clean. No Xcode.app so Simulator was not run.
+  - C2: originally RuntimeMetalShader; replaced with LabOrange.metal +
+    ShaderLibrary colorEffect. Runtime compiler deleted. No Simulator.
+  - D1: course/glossary.html — platform terms to iOS/SwiftUI/MSL; added
+    ShaderLibrary, .metal, points, scale, ShaderRect. Stable ids kept.
+  - D2: liquid-glass-course.html — iOS/SwiftUI/Metal, lab path LiquidGlassLab-iOS,
+    Ch 6/8 titles, 40/216 checkpoint 1.3. tools/README browser-only. Leftover grep is filenames only.
+  - 1A: lessons 1.1 and 1.2 HTML — iOS connection, iPhone 16 Pro, Swift enum/struct
+    challenges. No Kotlin, no new explorer. Leftover grep of the two files is clean.

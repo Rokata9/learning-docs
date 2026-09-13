@@ -2,7 +2,7 @@
 
 ## Scope
 
-This repository contains the interactive learning documents for the Liquid Glass on Android course. The runnable Android Studio project is separate. Do not create an `android/` directory here.
+This repository contains the interactive learning documents for the Liquid Glass on iOS course. This fork was translated from the Android course. The runnable Xcode project is separate. Do not create an `ios/` or `android/` directory here.
 
 ## File naming
 
@@ -27,8 +27,8 @@ Every lesson must:
 6. Include at least one small coding challenge before the final exercises.
 7. End with two to four exercises. Keep answers hidden in `<details>` elements.
 8. Include a copyable Markdown completion record.
-9. State when the browser model differs from Android.
-10. State the exact Android target path when Android code changes, but keep Android source outside this repository.
+9. State when the browser model differs from iOS.
+10. State the exact Swift target path when iOS code changes, but keep Swift source outside this repository.
 
 ### Prerequisite and causal-operation gate
 
@@ -61,7 +61,7 @@ Apply these rules to every Chapter 3 lesson and to later lessons that use color 
 4. Teach the general source-over case before an opaque-destination shortcut. For straight inputs, write the full destination term as `destination straight RGB × destination alpha × (1 − source alpha)`. Remove destination alpha only after stating that it equals `1`.
 5. Use the precise Lesson 3.3 names `output premultiplied RGB` and `output straight RGB`. The old labels `weighted total` and `ordinary output` may appear only when explicitly mapping old wording to the corrected names.
 6. When two representations describe the same color, show the two different stored tuples. State what each field means. State which formula consumes each tuple. Show why both paths produce the same represented output.
-7. Explain the practical choice of representation through an API or buffer contract. Compose `Color` and `Color.compositeOver` use straight values. A premultiplied bitmap or custom premultiplied math path uses premultiplied values only when its contract says so. Convert once at the boundary.
+7. Explain the practical choice of representation through an API or buffer contract. SwiftUI `Color` and the taught straight-RGBA over formula use straight values. A premultiplied bitmap or custom premultiplied math path uses premultiplied values only when its contract says so. Convert once at the boundary. Do not switch the lesson to premultiplied UIKit blending as the taught contract.
 8. Explain both conversion directions and their purpose. Straight to premultiplied multiplies RGB by alpha so the fields become color contributions. Premultiplied to straight divides RGB by alpha when alpha is greater than zero so the color components are stored independently again.
 9. At alpha zero, state that many straight RGB tuples collapse to the same premultiplied `(0, 0, 0, 0)` tuple. The original straight RGB cannot be recovered by division.
 10. Before delivery, compare terminology and values with the preceding lesson. Correct earlier ambiguous labels in changed files rather than asking the learner to remember a hidden reinterpretation.
@@ -78,7 +78,7 @@ The following failure pattern is prohibited:
 
 This pattern produces technically correct arithmetic but an unusable beginner lesson. It caused the rejected first version of Lesson 3.6.
 
-Before delivering any lesson for a total beginner in graphics, mathematics, color science, GPU work, or Android rendering:
+Before delivering any lesson for a total beginner in graphics, mathematics, color science, GPU work, or iOS rendering:
 
 1. **Start from an object already learned.** The first learner-facing sentence must name a concrete object from a completed lesson, or define every new term in that same sentence. It must not begin with revision history, quality-process commentary, an unexplained “failure,” or an arrow pipeline containing undefined terms. Phrases such as `This revision starts...` and `Trace one exact...` are forbidden unless every named object and operation is already known.
 2. **Build a prerequisite ledger before prose.** List every new noun, acronym, symbol, constant, representation, and operation that the lesson intends to use. For each item, record the earlier lesson that taught it or the exact earlier paragraph in the current lesson that defines it. If neither exists, teach or defer the item before writing the sentence that uses it.
@@ -100,7 +100,7 @@ Before delivering any lesson for a total beginner in graphics, mathematics, colo
    - Why does it exist?
    - What consumes it next?
    If an essential answer appears only in a later section, rewrite the order.
-10. **A polished artifact is not evidence of a good lesson.** Working controls, correct Kotlin, screenshots, and numerical correctness do not pass the lesson if the first-time learner cannot explain the causal chain.
+10. **A polished artifact is not evidence of a good lesson.** Working controls, correct Swift, screenshots, and numerical correctness do not pass the lesson if the first-time learner cannot explain the causal chain.
 11. **Beginner-comprehension verification is mandatory.** Before packaging, write a short internal audit of the first sentence, every term in the first two sections, and the first displayed formula. A lesson fails verification when any essential term requires unstated expert knowledge.
 12. **VERY IMPORTANT — uncertainty means failure, not approval.** Perform the final audit while assuming no graphics or mathematics knowledge beyond the learner-confirmed completed lessons. When there is any hesitation about whether a sentence, diagram, formula, or intermediate value is understandable under that assumption, treat it as not understandable. Rewrite or split the material before packaging.
 
@@ -149,7 +149,7 @@ This rule was added for Lesson 3.9 because its saturation transform uses three f
 2. **State the input representation.** For every RGB formula, say whether it consumes stored straight sRGB channel values, premultiplied RGB contributions, decoded linear-light channels, or another explicitly defined representation.
 3. **State the output type.** A transform may output another RGB color. A measurement may output one scalar. A gray-reference channel value is neither automatically relative luminance nor a complete color until it is assigned to red, green, and blue.
 4. **Compare look-alike formulas directly.** When coefficients resemble an earlier formula, show both complete paths side by side: preprocessing, coefficients, output type, and next consumer. Explain why one cannot replace the other.
-5. **Define the exact saturation contract.** The word `saturation` can name different operations in different color models. A lesson must name the API or mathematical definition it teaches. Do not silently substitute HSL, HSV, a design-tool control, or an Android `ColorMatrix` transform for one another.
+5. **Define the exact saturation contract.** The word `saturation` can name different operations in different color models. A lesson must name the API or mathematical definition it teaches. Do not silently substitute HSL, HSV, a design-tool control, Core Image's default saturation, or the taught 4×5 saturation matrix for one another.
 6. **Prove factor regions from distances.** For a saturation-like factor, show the gray or neutral reference, each channel's signed distance from it, the scaled distance, the raw output, and any clamp. This is required before using labels such as `gray`, `closer to gray`, `unchanged`, or `farther from gray`.
 7. **Recalculate downstream measurements.** When the transform changes RGB, relative luminance and contrast must be calculated from the transformed output. State whether the transform promises to preserve any measurement; do not infer preservation from similar coefficients.
 8. **Keep alpha in its own causal position.** When the transform leaves alpha unchanged, say so. An output with alpha below `1` still requires compositing over its actual destination before visible-output luminance or contrast can be known.
@@ -192,15 +192,15 @@ This rule was added after the Lesson 4.2 interactive diagram placed several full
 
 This rule supersedes the three earlier Lesson 4.8 mask-rule sections. Those sections accumulated correct facts but turned one beginner lesson into a catalogue of special cases. The learner could not identify the exact layer-creation line, the current drawing target, the meaning of a binary mask, or the reason two alpha restrictions multiply. The failure was one of scope and causal ordering, not merely missing terminology.
 
-1. **Teach one actual mask path first.** The required path is: content object → complete mask image → masked content group → later source-over background. Do not require `SrcIn`, luminance masks, premultiplied storage, per-draw shortcuts, or performance internals before this path is understood. Put those connections in an explicitly optional section or defer them.
-2. **Use exact scene-object names before blend roles.** Name the content being masked, the complete mask image, and the background. Assign `source` and `destination` only at one exact blend call. For the current `DstIn` path: destination = completed content image; source = complete mask image.
+1. **Teach one actual mask path first.** The required path is: content object → complete mask image → masked content group → later source-over background. Do not require `.sourceIn`, luminance masks, premultiplied storage, per-draw shortcuts, or performance internals before this path is understood. Put those connections in an explicitly optional section or defer them.
+2. **Use exact scene-object names before blend roles.** Name the content being masked, the complete mask image, and the background. Assign `source` and `destination` only at one exact blend call. For the current `.destinationIn` path: destination = completed content image; source = complete mask image.
 3. **Define binary with values.** A binary mask permits exactly two values: `0` and `1`. State `0 outside` and `1 inside` for clearly inspected positions. A mask containing `0.60` is partial and therefore not binary. Keep rendered edge coverage deferred to the antialiasing lesson.
-4. **Point to the exact layer-creation call.** Every offscreen explanation must quote the exact `graphicsLayer` or `saveLayer` line that creates the boundary. Name its bounds, the target that receives subsequent draws, every object drawn into it, and the Paint or operation applied when it is restored. Do not call an ordinary RGBA target an `alpha-only layer` merely because the blend mode consumes alpha.
+4. **Point to the exact layer-creation call.** Every offscreen explanation must quote the exact `drawingGroup()` or `GraphicsContext` transparency-layer line that creates the boundary. Name its bounds, the target that receives subsequent draws, every object drawn into it, and the blend or operation applied when the transparency layer is composited. Do not call an ordinary RGBA target an `alpha-only layer` merely because the blend mode consumes alpha.
 5. **Show the active drawing target at every step.** A layer stepper must identify parent target, pattern target, and mask target. It must show what each target contains before and after every draw and restore. The words `grouped drawing` or `isolated destination` are forbidden unless the exact draw calls included in that object are named.
 6. **Construct the complete mask domain explicitly.** The mask target covers the complete content-group bounds. Write alpha `0` across those bounds or establish an equivalently explicit transparent target, then write the intended alpha inside the mask geometry. Show one inside position and one outside position before generalizing.
 7. **Separate two consecutive operations.** Stage A applies the mask: `masked content alpha = original content alpha × mask alpha`. Stage B draws that masked result over the background with source-over. Never present these formulas as alternatives. Do not introduce `effective source alpha`; call the value `masked content alpha` until Stage B actually uses it as source alpha.
 8. **Explain multiplication as sequential restriction.** Trace `1 → content alpha → mask keeps a fraction of the remainder`. Show why addition would let two restrictions increase visibility or exceed `1`.
-9. **Choose one visible pattern-isolation boundary.** Use either `CompositingStrategy.Offscreen` or an explicit pattern-target `Canvas.saveLayer` when one is required. Do not stack both without a separate need. Prefer the implementation whose containment is visible in the lesson code. Do not speculate about hidden framework layers to explain why removing a boundary happened to look correct.
+9. **Choose one visible pattern-isolation boundary.** Use either `drawingGroup()` or an explicit pattern-target `GraphicsContext` transparency layer when one is required. Do not stack both without a separate need. Prefer the implementation whose containment is visible in the lesson code. Do not speculate about hidden framework layers to explain why removing a boundary happened to look correct.
 10. **Keep the production decision simple.** A hard `0/1` geometry should use clipping when no independent or partial mask data is required. Explain general alpha-mask layers only when they add a capability the clip cannot express.
 11. **Required QA states.** Verify mask alpha `0`, `0.60`, and `1`; one inside and one outside position; fixed mask with moving content; fixed content with moving mask; every layer-stepper state; the longest formula; and the physical-device result outside and inside the capsule.
 
@@ -218,7 +218,7 @@ This rule was added after the Lesson 4.8 layer rewrite still relied on long pros
 7. **Attach provenance controls to inherited and derived values.** A value copied from an earlier lesson, fixed by an API, selected by a control, measured at runtime, or derived in the current section receives a small click-controlled information mark beside the value. Position the mark like a superscript at the value's upper-right. If mathematical superscript notation already occupies that position, place the information mark immediately after the superscript. The popup explains origin, representation, and next consumer only; essential mathematics remains visible without opening it.
 8. **Maintain tooltip coverage after revisions.** Once a lesson family establishes value-origin controls, later rewrites must not silently drop them. Verification includes a sweep for repeated values that cross sections without provenance.
 9. **Explain the per-position algorithm explicitly.** A mask or blend lesson must let the learner choose one exact coordinate and see the content pixel, mask pixel, blend output pixel, and final composited pixel. State whether alpha-zero pixels are valid inputs or absent data. Separate API semantics from possible GPU optimizations: an implementation may skip physical work only if it preserves the same required per-position output.
-10. **Compare isolation arrangements with pictures.** For `graphicsLayer`, `saveLayer`, or another offscreen boundary, show at least: one safe arrangement using the current implementation, one safe alternative, one unsafe arrangement with no pattern isolation, and the result after the blend. State which exact pixels belong to the blend destination in each arrangement.
+10. **Compare isolation arrangements with pictures.** For `drawingGroup()`, a `GraphicsContext` transparency layer, or another offscreen boundary, show at least: one safe arrangement using the current implementation, one safe alternative, one unsafe arrangement with no pattern isolation, and the result after the blend. State which exact pixels belong to the blend destination in each arrangement.
 11. **Explain cost with visible target counts.** Show the number and bounds of explicit temporary targets, one concrete memory estimate, and the additional restore/compositing passes. Label the estimate as a model rather than a guaranteed GPU allocation.
 12. **Feedback-analysis record is mandatory and visible in state files.** After every learner correction, update the current state and handoff with the concrete failure, the reusable prevention rule, and the verification that will catch it next time. Do not merely claim that the feedback was analyzed in the chat response.
 13. **Required QA states.** Test every sequence step, every representation case, inside and outside positions, alpha `0`, one partial alpha, alpha `1`, every isolation scenario, every provenance popup, color-chip presence, 3D rotation/reset when present, and horizontal overflow with a popup open.
@@ -232,26 +232,21 @@ This section records a successful reference artifact, not another rule created o
 
 ```text
 course/chapters/chapter-04/lesson-04-08-masks.html
-app/src/main/java/com/example/liquidglasslab/chapter04/MasksExplorer.kt
+MasksExplorer.swift (iOS lab under /Users/rosen/Code/LiquidGlassLab-iOS)
 ```
 
-Use the versions delivered in:
-
-```text
-liquid-glass-lesson-04-08-visual-layer-movie-rewrite-learning-docs.zip
-liquid-glass-lesson-04-08-visual-layer-movie-rewrite-android.zip
-```
+The HTML visual-layer movie is the canonical teaching structure. The Swift explorer is the 1:1 lab counterpart once Chapter 4 is translated.
 
 The exemplar succeeded because it combines all of these choices in one coherent order:
 
 1. **It begins with visible objects.** The learner first sees the complete pattern image, complete mask image, masked-pattern intermediate image, and final image over navy. The explanation does not begin with an API, formula, or abstract layer name.
-2. **It gives every temporary target a stable concrete name and a visible image.** The parent target, pattern target, and mask target are shown after every operation. The active target is highlighted. The exact Kotlin line is attached to the corresponding visual state.
-3. **It makes intermediate results the main teaching medium.** The seven-step layer movie shows the complete result after every `saveLayer`, draw, and restore. The learner never has to imagine what an invisible buffer currently contains.
+2. **It gives every temporary target a stable concrete name and a visible image.** The parent target, pattern target, and mask target are shown after every operation. The active target is highlighted. The exact Swift line is attached to the corresponding visual state.
+3. **It makes intermediate results the main teaching medium.** The seven-step layer movie shows the complete result after every transparency-layer draw and composite. The learner never has to imagine what an invisible buffer currently contains.
 4. **It combines 3D orientation with exact 2D evidence.** The rotatable stack explains ordering and separation. Front-view thumbnails remain the authoritative view of pixel contents.
-5. **It proves the algorithm at one selected coordinate.** The microscope shows the content pixel, mask pixel at the same coordinate, `DstIn` output, and final source-over result. Alpha-zero mask pixels are shown as valid inputs rather than described as missing work.
+5. **It proves the algorithm at one selected coordinate.** The microscope shows the content pixel, mask pixel at the same coordinate, `.destinationIn` output, and final source-over result. Alpha-zero mask pixels are shown as valid inputs rather than described as missing work.
 6. **It calculates both representations instead of merely naming them.** Straight and premultiplied RGBA receive parallel worked cases for opaque and translucent content. Each RGB or RGBA tuple has an adjacent rounded color chip showing the represented color.
 7. **It preserves value provenance.** Inherited, controlled, fixed, and derived values carry click-controlled superscript-style information marks. The popup states origin, representation, and next consumer.
-8. **It compares architecture choices visually.** Safe explicit `saveLayer`, safe `graphicsLayer(Offscreen)`, unsafe no-isolation, and redundant double-isolation arrangements are drawn with their intermediate destinations and results.
+8. **It compares architecture choices visually.** Safe explicit `GraphicsContext` transparency layer, safe `drawingGroup()`, unsafe no-isolation, and redundant double-isolation arrangements are drawn with their intermediate destinations and results.
 9. **It makes performance cost concrete.** Target count, target bounds, restore/compositing passes, and one labelled memory estimate are visible. The estimate is not presented as a guaranteed GPU allocation.
 10. **It keeps the production boundary honest.** The lesson still says that a hard binary capsule should normally use clipping. The more general mask path is retained because it teaches capabilities that clipping cannot represent.
 
@@ -275,7 +270,7 @@ This rule was added after Lesson 6.6 exposed two browser-only visual defects: a 
 - Lessons 1.1 through 2.9 are legacy light-only files. Do not revise them only to add dark mode.
 - Starting with Lesson 3.1, every new lesson and every revision of Lesson 3.1 or later must follow the operating-system light or dark preference automatically with `prefers-color-scheme`.
 - Do not add a manual theme switch unless a lesson specifically teaches theme switching.
-- Starting with Lesson 3.1, Android lesson screens must also follow the OS theme through the project theme root and `MaterialTheme.colorScheme`. Do not hardcode light-only page, panel, border, or ordinary text colors.
+- Starting with Lesson 3.1, iOS lesson screens must also follow the OS theme through `LabTheme` and SwiftUI's color scheme. Do not hardcode light-only page, panel, border, or ordinary text colors.
 - Theme-dependent interface chrome includes page backgrounds, panels, borders, ordinary text, controls, code containers, and diagram scaffolding.
 - Instructional color data must remain numerically exact. Do not recolor RGB swatches, sampled pixels, tint samples, masks, shader outputs, or other data merely to fit the theme. Adapt labels and surrounding chrome instead.
 - Verify each changed Lesson 3.1-or-later HTML file in both OS theme modes at `1920×1080` or larger.
@@ -310,45 +305,40 @@ Update the handoff whenever the learner completes a lesson so the count remains 
 
 Recorded 2026-08-20. The learner works from the repositories directly.
 
-- Do not generate `.zip` files after a lesson, revision, or Android patch.
-- Leave changed learning-docs files in `liquid-glass-learning-docs/` and changed Android files in `LiquidGlassLab/`.
-- Do not create incremental learning-docs archives, Android code archives, empty ZIP placeholders, or verification-screenshot archives.
+- Do not generate `.zip` files after a lesson, revision, or iOS patch.
+- Leave changed learning-docs files in `liquid-glass-learning-docs/` and changed iOS files in `LiquidGlassLab-iOS/`.
+- Do not create incremental learning-docs archives, iOS code archives, empty ZIP placeholders, or verification-screenshot archives.
 - Package a ZIP only when the learner explicitly asks for one.
-- When a lesson changes no Android source, say so. Still do not create an archive.
+- When a lesson changes no iOS source, say so. Still do not create an archive.
 
-## Compose scope-extension imports and preview coverage
+## SwiftUI layout containers and preview coverage
 
-Apply these rules to every Android lesson patch:
+Apply these rules to every iOS lesson patch:
 
-1. Do not add these explicit imports:
+1. Use SwiftUI layout containers in lesson views. Do not mix UIKit Auto Layout into a SwiftUI `View` body.
 
-   ```kotlin
-   import androidx.compose.foundation.layout.weight
-   import androidx.compose.foundation.layout.matchParentSize
-   ```
+   Use `HStack` and `VStack` for row and column layout. Give a child flexible space with `Spacer()` or `.frame(maxWidth: .infinity)` / `.frame(maxHeight: .infinity)` inside that stack. Use `ZStack` when children overlay. To fill the parent in a `ZStack`, use `.frame(maxWidth: .infinity, maxHeight: .infinity)` or an overlay aligned to the parent. Those fill modifiers belong on a child of the stack that should expand; they are not a substitute for the stack itself.
 
-   `weight` is a member extension supplied by `RowScope` or `ColumnScope`. Use `Modifier.weight(...)` only inside the corresponding row or column content block. `matchParentSize` is a member extension supplied by `BoxScope`. Use `Modifier.matchParentSize()` only inside a `Box` content block. The scope receiver makes the function available; the package imports above are invalid for the course's Compose version.
+2. Every lesson that changes the active iOS child view must provide both preview levels, but keep each preview beside the code it primarily verifies:
 
-2. Every lesson that changes the active Android child composable must provide both preview levels, but keep each preview beside the code it primarily verifies:
+   - keep complete chapter-screen previews in `ChapterXXScreen.swift`;
+   - keep direct previews of the active custom child view in that child view's own Swift file.
 
-   - keep complete chapter-screen previews in the chapter screen file;
-   - keep direct previews of the active custom child composable in that child composable's own file.
+   Do not place the direct child preview in `ChapterXXScreen.swift`. This keeps the preview next to the custom view it is meant to inspect.
 
-   Do not place the direct child preview in `ChapterXXScreen.kt`. This keeps the preview next to the custom composable it is meant to inspect.
+3. For Lesson 3.1 and later, provide light and dark variants for both preview levels. Wrap each preview in `LabTheme`. Wrap a direct child preview in a theme-aware container when the child normally receives its page background or content color from the parent screen.
 
-3. For Lesson 3.1 and later, provide light and dark variants for both preview levels. Wrap each preview in `LiquidGlassLabTheme`. Wrap a direct child preview in a theme-aware `Surface` when the child normally receives its page background or content color from the parent screen.
+4. When stacking both theme `#Preview` blocks, put light first, then dark, immediately above the view. This is source order only. It does not change the app's runtime default theme. Preview canvas is **412 × 915 points**. Test device is **iPhone 16 Pro**. Do not substitute another model. Apply to newly written or newly revised preview wrappers. Do not bulk-reorder completed historical lessons unless asked.
 
-4. When stacking both theme `@Preview` annotations on one wrapper, put the light variant first (`uiMode = Configuration.UI_MODE_NIGHT_NO`), then the dark variant (`UI_MODE_NIGHT_YES`). This is source annotation order only. It does not change the app's runtime default theme. Apply to newly written or newly revised preview wrappers. Do not bulk-reorder completed historical lessons unless asked.
+5. Preview wrappers must take no parameters. Supply representative values inside the wrapper when the child view requires arguments.
 
-5. Preview wrapper functions must take no parameters. Supply representative values inside the wrapper when the child composable requires arguments.
-
-6. **All lesson content must be inspectable by scrolling inside Android Studio Preview.** For every newly generated lesson:
+6. **All lesson content must be inspectable by scrolling inside Xcode `#Preview`.** For every newly generated lesson:
 
    - the complete chapter-screen preview must expose the whole lesson through vertical scrolling;
-   - the direct custom-composable preview must also be vertically scrollable, either because the custom composable already owns a scroll container or because the preview wrapper supplies one;
+   - the direct custom-view preview must also be vertically scrollable, either because the custom view already owns a scroll container or because the preview wrapper supplies one;
    - do not rely on a physical device to reach content below the preview height;
    - avoid accidental nested scrolling when the child is already scrollable;
-   - verify the longest generated content in Android Studio Preview or an equivalent finite-height preview container before delivery.
+   - verify the longest generated content in Xcode `#Preview` or an equivalent finite-height preview container before delivery.
 
    This rule applies prospectively. Do not rewrite earlier lessons solely to retrofit preview scrolling unless the learner explicitly requests it.
 
@@ -361,15 +351,15 @@ This rule was added after the Lesson 3.9 clarification questions.
 2. **Avoid unexplained `raw`.** Do not write `raw RGB`, `raw channel`, or `raw output` without defining the exact stage. Prefer `matrix result before clamping`, `pre-clamp channel result`, or another operation-specific name. State that this meaning is unrelated to camera RAW, file bytes, or premultiplication.
 3. **Show both sides of clamping.** Display the pre-clamp number, the allowed range, and the final clamped number. Use `clamped`, not an unexplained `clipped`, for a numeric range restriction.
 4. **Explain all five matrix columns.** For a 4×5 color matrix, define the four input multipliers and the fifth constant offset before showing rows. State which coefficients change with the current control and which remain fixed for the selected API operation.
-5. **Explain identity rows causally.** For `[0, 0, 0, 1, 0]`, show `A′ = 0R + 0G + 0B + 1A + 0 = A`. State that this row is fixed by `setToSaturation`, not by every possible ColorMatrix.
+5. **Explain identity rows causally.** For `[0, 0, 0, 1, 0]`, show `A′ = 0R + 0G + 0B + 1A + 0 = A`. State that this row is fixed by the taught saturation matrix, not by every possible 4×5 color matrix.
 6. **Separate transform from compositing.** For translucent input, trace `source RGBA → transformed source RGBA → source-over destination → final visible RGB → luminance → contrast`. If the destination is translucent, continue compositing until an opaque backing is reached.
 7. **Do not imply a transform repairs contrast.** Recalculate contrast from the final visible RGB. If the selected foreground fails, test allowed foreground candidates, then change a relevant material or foreground input and measure again. For Liquid Glass, name stabilizing options such as stronger tint, dimming, or a more opaque local backing; do not rely on saturation or blur alone.
 
 ### Complete-source-section preference
 
-1. Do not embed complete Android source files or source-tab viewers in lesson HTML. The learner views complete files in Android Studio.
+1. Do not embed complete Swift source files or source-tab viewers in lesson HTML. The learner views complete files in Xcode.
 2. Keep only short code excerpts required for a causal explanation, the manual value path, or a coding challenge.
-3. Continue writing changed Android files into `LiquidGlassLab/`. Do not package them as a ZIP unless the learner asks.
+3. Continue writing changed Swift files into `/Users/rosen/Code/LiquidGlassLab-iOS`. Do not package them as a ZIP unless the learner asks.
 4. Remove the complete-source section from a lesson whenever that lesson is otherwise revised. Do not bulk-edit already completed historical lessons solely for this preference unless the learner asks.
 
 ## Construction-time versus restore-time blend operations
@@ -377,9 +367,9 @@ This rule was added after the Lesson 3.9 clarification questions.
 Lesson 4.8 exposed a reusable ambiguity: one blend mode can construct a temporary target while a different blend mode is attached to that target's later restore. Future layer lessons must separate these moments visually and in code comments.
 
 1. Name the current drawing target before every draw.
-2. State whether a blend mode applies to the current draw command or to the later `restore()` of a saved layer.
-3. For the Lesson 4.8 mask, `BlendMode.Src` constructs the mask image by replacing every full-bounds position with transparent RGBA. `BlendMode.DstIn` runs later at restore and performs the per-position multiplication `pattern premultiplied RGBA × mask alpha`.
-4. Treat the later source-over of the masked pattern over navy as a separate per-position operation. Do not describe its arithmetic as part of `DstIn`.
+2. State whether a blend mode applies to the current draw command or to the later composite of a transparency layer.
+3. For the Lesson 4.8 mask, `BlendMode.copy` constructs the mask image by replacing every full-bounds position with transparent RGBA. `BlendMode.destinationIn` runs later when the transparency layer is composited and performs the per-position multiplication `pattern premultiplied RGBA × mask alpha`.
+4. Treat the later source-over of the masked pattern over navy as a separate per-position operation. Do not describe its arithmetic as part of `.destinationIn`.
 5. Label checkerboards as teaching visualizations of transparency. A checkerboard is not stored pixel content unless the program explicitly draws one.
 
 
@@ -401,9 +391,9 @@ The learner correctly asked whether partial alpha alone makes an edge appealing 
 1. Do not imply that arbitrary lower alpha is visually beneficial. State that the alpha is useful only when it encodes the estimated geometric coverage of that exact output position.
 2. Show the causal reason for visual smoothness: intermediate coverage values encode where a continuous boundary passes between discrete pixel centers.
 3. State that the same local coverage contract applies to lines, circles, Bézier curves, waves, text glyphs, and arbitrary paths.
-4. Separate the conceptual coverage contract from the renderer implementation. A teaching sub-sample grid is one estimator, not proof of Android's internal algorithm or sample count.
+4. Separate the conceptual coverage contract from the renderer implementation. A teaching sub-sample grid is one estimator, not proof of the iOS renderer's internal algorithm or sample count.
 5. Show a finite-sampling failure case. A thin feature can pass between every selected sample position and receive an estimated coverage of zero even when true geometric coverage is non-zero.
-6. Explain the tradeoff: more samples usually improve the estimate but cost more work. Name possible alternatives such as analytic coverage, multisample antialiasing, distance-based methods, or renderer-specific hybrids without claiming which one Android used unless verified.
+6. Explain the tradeoff: more samples usually improve the estimate but cost more work. Name possible alternatives such as analytic coverage, multisample antialiasing, distance-based methods, or renderer-specific hybrids without claiming which one the iOS renderer used unless verified.
 7. Keep antialiasing separate from blur. Coverage uses geometry at the current output position; blur reads neighboring image positions.
 
 ### Point-sample visualization and thin-band gate — Lesson 4.9
@@ -416,7 +406,7 @@ This rule was added after the learner could see sample markers touching the oran
 4. **Distinguish one-boundary and two-boundary shapes.** A line, curve, or wave may divide the pixel into two sides. A thin band has two boundaries. Only the strip between them is inside; positions on both outer sides are outside.
 5. **Show two different finite-sampling failures.** Include both a complete miss, where a narrow feature crosses subcells but misses every center, and a detected-but-inexact case, where some center samples are inside yet the hit fraction differs from the true covered area.
 6. **Show one mitigation that does not merely add samples.** For a straight edge, visualize direct edge-to-pixel intersection and covered-area calculation. Define this as analytic coverage: geometry is measured directly instead of estimated from point votes.
-7. **Keep implementation depth proportional to the course goal.** State that Android's renderer owns rasterization. Teach only the result contract needed for Liquid Glass unless later custom shader work requires more detail.
+7. **Keep implementation depth proportional to the course goal.** State that the iOS renderer owns rasterization. Teach only the result contract needed for Liquid Glass unless later custom shader work requires more detail.
 
 
 
@@ -436,7 +426,7 @@ Future geometric-predicate explanations must use this order:
 8. **Count only after one vote is understood.** Repeat the same signed test for every probe in the selected output pixel. State exactly how `insideProbeCount` is obtained, where `totalProbeCount = 12 × 12 = 144` comes from, and why equal-area subcells give equal-weight votes.
 9. **Distinguish classification from area.** The signed-distance calculation classifies one point. The later vote fraction estimates area. Neither point classification nor vote counting splits a subcell at the true boundary.
 10. **Use one-new-object-per-step visuals.** The required stepper order is: complete output grid → selected output pixel and center → 144 subcells/probes → one probe → visible boundary angle and perpendicular normal → `Δ` → projection → signed ruler and sign → all-probe count.
-11. **Make code comments follow the identical order.** Kotlin names and comments must say which counts apply to one output pixel, where the anchor comes from, which angle is controlled, which is derived, why the dot product exists, and what each sign means.
+11. **Make code comments follow the identical order.** Swift names and comments must say which counts apply to one output pixel, where the anchor comes from, which angle is controlled, which is derived, why the dot product exists, and what each sign means.
 12. **Cold-read requirement.** A beginner must be able to answer “what exact object is this?” for every symbol, angle, coordinate, multiplication, and count by looking at the current or preceding visual state. Hesitation fails the lesson.
 
 ### Vector components, scalar projection, and anchored-offset gate — Lesson 4.9
@@ -525,7 +515,7 @@ This rule was added after Lessons 5.8 and 5.9 were mechanically generated with f
 4. **Expand hard formulas in four layers.** Before numeric substitution, show: (a) a variable ledger with plain-language meanings, symbols, units/ranges, and origins; (b) the symbolic formula; (c) the same formula with current values substituted; and (d) every intermediate and final output with its next consumer.
 5. **Name hidden time assumptions.** A discrete teaching update must state whether its time step is fixed, what value it uses, and whether that factor has been absorbed into coefficients. Do not present position and velocity updates as physical equations without the time boundary.
 6. **Prefer signed causal terms.** When direction matters, preserve signs through intermediate values and explain them. For the spring teaching model, `D = -c × v` is clearer than an unsigned “resistance” followed by unexplained subtraction.
-7. **The beginner audit is QA stage zero.** Before JavaScript syntax, screenshots, links, Android parsing, or archive integrity, cold-read the first sentence, first two sections, first formula, all new terms, and the longest state using only learner-confirmed prerequisites. Any unexplained dependency fails the artifact and triggers regeneration or splitting.
+7. **The beginner audit is QA stage zero.** Before JavaScript syntax, screenshots, links, Xcode/Swift static checks, or archive integrity, cold-read the first sentence, first two sections, first formula, all new terms, and the longest state using only learner-confirmed prerequisites. Any unexplained dependency fails the artifact and triggers regeneration or splitting.
 8. **Technical correctness cannot rescue incomprehension.** A page with valid code, working controls, and clean screenshots is still rejected when a total math and graphics beginner cannot state what every variable is, why each operation runs, and what consumes its result.
 9. **Harder future chapters may be deliberately verbose.** Shader, sampling, physics, rendering, geometry, and capstone lessons should err toward complete causal explanation rather than compressed expert prose.
 
@@ -558,7 +548,7 @@ If a full-range graph hides residual motion, provide a near-target zoom or stop 
 - The handoff keeps active rules, canonical exemplars, current files, and recent decisions. Compress superseded revision narratives into short lessons learned.
 - The curriculum keeps the full 216-lesson plan plus frozen locks needed to generate later lessons. Do not add per-lesson implementation diaries, patch history, or complete lesson prose there.
 - `AGENTS.md` and `USER_PREFERENCES.md` remain the canonical permanent-rule sources. Avoid copying their full contents into the state, handoff, or curriculum.
-- Preserve facts needed for continuation. Remove repeated package manifests, repeated QA reports, superseded status blocks, and prose already present in the lesson HTML or Kotlin source.
+- Preserve facts needed for continuation. Remove repeated package manifests, repeated QA reports, superseded status blocks, and prose already present in the lesson HTML or Swift source.
 
 ### Consolidation, formulas-panel, and layout-choice gate
 
@@ -606,7 +596,7 @@ When several variables form a causal chain, include a compact dependency table n
 
 1. Draw the base control or material first. Paint pointer guides, dimensions, pivot markers, tracked points, labels, and proof overlays afterward so the fill cannot occlude the explanation.
 2. A pivoted transform lesson must prove at least two points: one that changes on a single axis and one that changes on both axes. Show symbolic formula, numeric substitution, and visible point movement.
-3. Keep measured layout bounds and transformed draw bounds visible simultaneously. Do not imply that `graphicsLayer` remeasures the composable.
+3. Keep measured layout bounds and transformed draw bounds visible simultaneously. Do not imply that `.scaleEffect`, `.offset`, or `.rotationEffect` remeasures the view.
 4. Distinguish local pointer pixels, normalized pivot fractions, Boolean pressed state, q target, and current q before deriving scale or radius.
 5. After a repeated structural defect, regenerate the lesson coherently rather than stacking another visual patch. QA every walkthrough state for occlusion, empty SVG output, and synchronized navigation.
 
@@ -630,9 +620,9 @@ When several variables form a causal chain, include a compact dependency table n
 ### Whole-group property and evidence-overlay gate
 
 1. When a lesson isolates a whole-layer property such as alpha, keep the controlled child primitives opaque unless a child-specific alpha is itself the concept being taught. Apply the lesson property once at the owner boundary.
-2. A faded ghost or comparison copy is evidence, not production content. Apply its evidence alpha outside the reused content composable and label it separately. Do not introduce an `overallAlpha` parameter that makes every child duplicate the whole-layer property.
+2. A faded ghost or comparison copy is evidence, not production content. Apply its evidence alpha outside the reused content view and label it separately. Do not introduce an `overallAlpha` parameter that makes every child duplicate the whole-layer property.
 3. Every diagnostic overlay must be anchored to a named object and labelled with its meaning. Remove detached arrows or lines that can be mistaken for scene content.
-4. The default transformed state must fit inside the finite Android Studio preview viewport without clipping. Choose scene bounds, artwork size, transform defaults, and slider ranges together; verify the complete transformed outline, not only the measured slot.
+4. The default transformed state must fit inside the finite Xcode `#Preview` canvas (412 × 915 points) without clipping. Choose scene bounds, artwork size, transform defaults, and slider ranges together; verify the complete transformed outline, not only the measured slot.
 
 
 ### Whole-owner property and inspection-overlay gate
@@ -640,13 +630,13 @@ When several variables form a causal chain, include a compact dependency table n
 1. When a lesson claims that a property is applied once to a complete owner, the sample code must apply that teaching property at the owner boundary. Do not also thread the same teaching value through every child.
 2. If a faded ghost or comparison copy is needed, make it a separately named evidence copy and apply its fade once at that copy's owner boundary. Do not let reference-only opacity obscure the production property path.
 3. Internal child colors may have intentional intrinsic opacity only when that distinction is necessary and explicitly named. For a lesson whose purpose is whole-owner alpha, prefer opaque child content so the single owner alpha remains visually and structurally obvious.
-4. A transformed-drawing inspector must reserve enough space for the required presets. Do not decorate the inspection stage with a clipping boundary that cuts the evidence the lesson is trying to show. Verify the default and named presets in the finite Android Studio Preview size.
+4. A transformed-drawing inspector must reserve enough space for the required presets. Do not decorate the inspection stage with a clipping boundary that cuts the evidence the lesson is trying to show. Verify the default and named presets in the finite Xcode `#Preview` size (412 × 915 points).
 5. Every explanatory overlay must have a visible label or legend and a stated purpose. Remove unlabeled arrows or vectors that can be mistaken for scene content.
 
 
 ### HTML inline-code rendering gate
 
-1. Standalone lesson HTML must use semantic HTML for visible code references: `<code>RenderEffect</code>`, `<code>graphicsLayer</code>`, and similar.
+1. Standalone lesson HTML must use semantic HTML for visible code references: `<code>drawingGroup()</code>`, `<code>.blur()</code>`, and similar.
 2. Do not place Markdown backticks in ordinary HTML prose. Browsers do not interpret Markdown there; the backticks become visible punctuation.
 3. JavaScript template-literal backticks inside `<script>` remain valid and must not be replaced.
 4. Before packaging, scan the visible HTML portion before `<script>` for unmatched or literal Markdown backticks. Any visible code token surrounded by backticks is a failed formatting check.
@@ -666,28 +656,28 @@ When several variables form a causal chain, include a compact dependency table n
 
 1. For Liquid Glass lesson implementations, begin with one clean production route that directly expresses the principal graphics idea.
 2. Add an executable failure case only when it is required to understand, distinguish, or verify that idea. A failure case is not automatically worth a second layer, duplicate state, mode enum, or large conditional branch.
-3. Prefer a compact static diagram, prediction, or isolated explanation when it can teach the defect without bloating the Android source.
+3. Prefer a compact static diagram, prediction, or isolated explanation when it can teach the defect without bloating the Swift source.
 4. The main code path must be understandable without reverse-engineering diagnostic machinery. Production ownership, inputs, intermediate values, and consumers should be readable from top to bottom.
 5. Replace unexplained numeric literals with named constants when they affect layout, geometry, sampling, or visible output. Explain why each non-obvious value was chosen and whether it is a coordinate, dimension, interval, visual alpha, or derived result.
-6. Do not use fractional placement math merely for convenience when fixed lesson-local dp coordinates communicate the same controlled geometry more clearly.
+6. Do not use fractional placement math merely for convenience when fixed lesson-local point coordinates communicate the same controlled geometry more clearly.
 7. Prediction controls require dedicated visible button styling in light and dark themes. Browser QA must click every choice and verify selected-state styling and result text.
 
 ### Synchronization-first and estimate-boundary gate — Lesson 6.10
 
 1. A moving sampled image that trails its consumer is not automatically a GPU-performance defect. Audit whether placement, crop, transform, and recording freshness come from the same current state before discussing optimization.
-2. When controlled scene geometry makes a coordinate conversion directly derivable, use one source of truth. Do not write a second geometry state from `onGloballyPositioned` or another later callback merely to reproduce values already known from the motion input.
+2. When controlled scene geometry makes a coordinate conversion directly derivable, use one source of truth. Do not write a second geometry state from `GeometryReader` or another later layout callback merely to reproduce values already known from the motion input.
 3. State why the direct derivation is valid and where it stops being valid. Never generalize a shared teaching-scene origin to arbitrary nested production layouts without a real mapping architecture.
 4. Treat width × height × bytes-per-pixel arithmetic as a scale estimate only. Explicitly name the assumed format and list the major omitted implementation details before making any memory claim.
 5. Frame intervals such as 16.67 ms at 60 Hz and 8.33 ms at 120 Hz are total display intervals, not exclusive GPU budgets for one effect.
-6. Keep wasteful comparison targets out of the Android production route when arithmetic and diagrams can teach the extent difference. Do not bloat the code with a full-scene mode solely to demonstrate that it is larger.
-7. Any claim about actual frame time, allocation, bandwidth, or dropped frames must come from a release-like device measurement. Debug Preview behavior and teaching estimates are not sufficient evidence.
+6. Keep wasteful comparison targets out of the iOS production route when arithmetic and diagrams can teach the extent difference. Do not bloat the code with a full-scene mode solely to demonstrate that it is larger.
+7. Any claim about actual frame time, allocation, bandwidth, or dropped frames must come from a release-like device measurement. Xcode `#Preview` debug behavior and teaching estimates are not sufficient evidence.
 
 ### Command-source, raster-target, and sharp-foreground gate — Lesson 6.11
 
-1. Never equate a `GraphicsLayer` object with a guaranteed same-sized offscreen texture. State whether the layer currently retains replayable drawing commands, is explicitly rasterized, or is forced into pixels by another property such as a `RenderEffect`.
-2. Whenever `CompositingStrategy.Offscreen` appears, state its exact role: required for correctness, redundant because another operation already forces rasterization, or deliberately forced only to make a controlled teaching target concrete.
+1. Never equate `drawingGroup()` or an extra render target with a guaranteed same-sized offscreen texture. State whether the view currently retains replayable drawing commands, is explicitly rasterized, or is forced into pixels by another property such as `.blur()`.
+2. Whenever `drawingGroup()` appears, state its exact role: required for correctness, redundant because another operation already forces rasterization, or deliberately forced only to make a controlled teaching target concrete.
 3. When a small destination replays a large source recording, name both cost domains. The small destination limits destination pixel storage and output area, but full-source command recording, ordinary scene drawing, replay traversal, culling, and other upstream work may remain.
-4. Layer count is not buffer count. Do not describe an architecture as consuming N pixel buffers merely because it owns N `GraphicsLayer` objects.
+4. Layer count is not buffer count. Do not describe an architecture as consuming N pixel buffers merely because it owns N `drawingGroup()` calls or extra render targets.
 5. Keep content that must remain sharp—labels, icons, controls, highlights, or status marks—outside the layer that will receive the blur or distortion effect. Show the owner tree and declaration/draw order that enforces this separation.
 6. Build the architecture through one readable production route before adding effects. The learner should be able to identify the producer, sample layer, material additions, sharp foreground, and final destination directly from top-to-bottom code.
 7. For controlled shared-origin scenes, one position value may drive both consumer placement and negative source translation. State the shared-origin prerequisite and do not silently generalize the shortcut to arbitrary nested layouts.
@@ -697,10 +687,10 @@ When several variables form a causal chain, include a compact dependency table n
 1. Before generating a full lesson, name the genuinely new mechanism, API behavior, mathematical operation, measurement method, or implementation step in one sentence. If none exists, do not generate a full conceptual lesson.
 2. Limit prerequisite recap to the minimum inputs required by the new operation. Do not spend another numbered lesson proving ownership, coordinate, freshness, feedback, or command-versus-buffer rules that are already prerequisites.
 3. Convert mostly repetitive consolidation into a short chapter checkpoint or merge it into the next substantive lesson. Do not count repeated architecture prose as new graphics progress.
-4. Make the lesson title's operation visible in all three places: the main diagram, one exact value trace, and the Android implementation.
+4. Make the lesson title's operation visible in all three places: the main diagram, one exact value trace, and the Swift implementation.
 5. When a transparent model differs from framework internals, label the model before using it. State what the model proves, what the public API documents, what remains renderer-owned, and whether the unknown changes the current design conclusion.
-6. For Lesson 7.1, the equal-weight 3 × 3 RGB average is the teaching model. Android `BlurEffect` is the production API demonstration. Do not claim the renderer uses nine equal samples, displayed 8-bit RGB arithmetic, or the shown rounding.
-7. Keep the Android explorer centered on the new mechanism. Do not rebuild Chapter 6 backdrop capture merely to attach one fixed blur.
+6. For Lesson 7.1, the equal-weight 3 × 3 RGB average is the teaching model. iOS `.blur()` is the production API demonstration. Do not claim the renderer uses nine equal samples, displayed 8-bit RGB arithmetic, or the shown rounding.
+7. Keep the iOS explorer centered on the new mechanism. Do not rebuild Chapter 6 backdrop capture merely to attach one fixed blur.
 
 ### Rounded-shape halo, leaked blur, and 8-bit store gates — Lessons 7.9 / 7.10
 
@@ -708,7 +698,7 @@ These rules were added after the learner’s 7.9 and 7.10 questions. The same-si
 
 1. **Name the AABB corner pockets of a rounded rectangle.** The bounding box is a sharp rectangle. The four leftover squares between those box corners and the arcs sit outside the path. A shadow that copies the rounded path never fills those squares with dark paint. Show them on the diagram before claiming the halo “goes around the card.”
 2. **A downward offset is a translation, not a shorter rectangle.** If `top` increases by `offsetY` and `height` stays the panel height, the bottom moves down by the same `offsetY`. Draw the stage number line: glass top, shadow top, glass bottom, shadow bottom, stage bottom. State that subtracting `offsetY` from height would keep the bottom aligned and would not put extra halo below the card.
-3. **A same-size comparison must not leak blur into the parent.** If `BlurEffect` can paint outside its composable, clip that teaching card to the panel path so a fake side halo cannot appear. Do not let leaked blur along the flat sides contradict “no surround pixels.”
+3. **A same-size comparison must not leak blur into the parent.** If `.blur()` can paint outside its view, clip that teaching card to the panel path so a fake side halo cannot appear. Do not let leaked blur along the flat sides contradict “no surround pixels.”
 4. **Define `store` as writing the 8-bit integer.** “Store” means `channel8 = round(clamp(normalized) × 255)` is written into the bitmap. The true `0..1` ramp is not what the screen keeps.
 5. **Define lesson luminance noise and chroma noise with one pixel.** Luminance noise (this lesson): the same signed offset is added to red, green, and blue, so the speck only gets lighter or darker. Chroma noise (this lesson): a different signed offset is added to each channel, so the speck changes color family. Show the three stored integers and three color chips before using those names in a comparison.
 6. **Show rounding bins if the lesson claims stripes.** Neighboring true values that all round to one integer are a stripe. That is ordinary 8-bit rounding of a slow ramp, not a special property of the remainder recipe. A bin diagram that does not say what the bin is *for* is incomplete: the bin is the bucket that makes those neighbors collide on one stored integer.
@@ -756,29 +746,29 @@ This rule was added after the learner asked what “uniform fields leave a color
 
 ### Code-synchronized transform-pipeline gate — Lesson 7.4 revision
 
-1. When several transforms act at different stages, explain them in one execution-ordered stepper rather than separate origin steppers. Keep the responsible code lines visible beside the current image.
-2. Distinguish target sizing from command transformation: `record(size = ...)` defines layer bounds; it does not automatically resize previously recorded source commands.
-3. Distinguish a `DrawScope` pivot from a `GraphicsLayer` pivot. Name the owning object, local coordinate space, units, execution time, and downstream consumer for each.
-4. Use the sample's real aspect ratio and layout-derived bounds. Do not replace a portrait Preview with an invented landscape rectangle that reverses the observed right-versus-bottom error.
-5. Compare transform combinations only when the new concept requires them, and calculate every combination from one canonical geometry model. The diagram, formulas, controls, and Android readout must agree.
+1. When several transforms act at different stages, explain them in one execution-ordered stepper rather than separate origin steppers. Keep the responsible Swift lines visible beside the current image.
+2. Distinguish target sizing from command transformation: a snapshot/`ImageRenderer` with a given size defines destination bounds; it does not automatically resize previously recorded source commands.
+3. Distinguish a `GraphicsContext` pivot from a later `.scaleEffect` pivot. Name the owning object, local coordinate space, units, execution time, and downstream consumer for each.
+4. Use the sample's real aspect ratio and layout-derived bounds. Do not replace a portrait `#Preview` with an invented landscape rectangle that reverses the observed right-versus-bottom error. Use bounds close to the real 412 × 915 point `#Preview`.
+5. Compare transform combinations only when the new concept requires them, and calculate every combination from one canonical geometry model. The diagram, formulas, controls, and Swift readout must agree.
 6. A screenshot proves only its visible screenshot-space bounds. Do not silently treat screenshot pixels as runtime device pixels. When the screenshot contradicts a simplified calculation, expose actual runtime output size, rounded working size, pivots, transformed bounds, and gaps instead of forcing an explanation.
-7. Use the current public `GraphicsLayer` property for the API being taught. For explicit layer scaling, use and explain pixel-based `pivotOffset`; do not substitute the fraction-based `TransformOrigin` terminology from `Modifier.graphicsLayer`.
+7. Use the current public SwiftUI API being taught. For explicit layer scaling, use and explain the pivot on `.scaleEffect`; do not substitute a different origin API from another modifier.
 
 ### Source-to-smaller-layer selection gate — Lesson 7.4 follow-up
 
-1. When source commands are replayed into a smaller layer, never describe `record(size = ...)` as choosing a crop from the source. It creates a destination/layer size and a `DrawScope` with that size.
+1. When source commands are replayed into a smaller target, never describe a sized snapshot/`ImageRenderer` as choosing a crop from the source. It creates a destination size and a `GraphicsContext` with that size.
 2. Show the three operations separately: source-command transform, intersection with the finite raster target, and inverse mapping back to original-source coordinates.
 3. For every pivot combination that materially changes the result, keep these four images visible together: full original source with selected original region, full transformed command bounds, stored working-buffer pixels, and final replayed output.
-4. Explain same-container scaling before switching coordinate spaces. Explicitly say when a pivot belongs to the original source, the smaller recording `DrawScope`, or the completed `GraphicsLayer`.
-5. Name the operation that actually enforces finite bounds. In the Lesson 7.4 route, `RenderEffect` promotes the layer to an offscreen buffer and clips content to the layer bounds; the size argument alone does not guarantee command clipping.
+4. Explain same-container scaling before switching coordinate spaces. Explicitly say when a pivot belongs to the original source, the smaller recording `GraphicsContext`, or the later `.scaleEffect`.
+5. Name the operation that actually enforces finite bounds. In the Lesson 7.4 route, `.blur()` or `drawingGroup()` can promote the layer to an offscreen buffer and clip content to the layer bounds; the size argument alone does not guarantee command clipping.
 
 ### Full-provenance and consecutive-transform gate — Lesson 7.4
 
 1. Never show a derived transform bound, pivot, margin, retained region, gap, or coordinate as a result-only number. In the same visible state, define every descriptive value, state its coordinate space, show the rule in words, substitute named values, show intermediate arithmetic including rounding, state the result, and name its next consumer.
-2. When `drawLayer(sourceLayer)` replays a large source inside a smaller recording `DrawScope`, show the origin-alignment bridge explicitly: an original artwork point first receives the same numeric coordinate in the working drawing space when both local origins are `(0, 0)`. Only then apply `DrawScope.scale`.
-3. Treat `record(size = ...)` as finite destination bounds, not as a resize or source selection. Show that drawing coordinates may extend beyond those bounds and that offscreen rasterization/clipping decides which transformed pixels are stored.
+2. When a large source is replayed inside a smaller recording `GraphicsContext`, show the origin-alignment bridge explicitly: an original artwork point first receives the same numeric coordinate in the working drawing space when both local origins are `(0, 0)`. Only then apply the inner `GraphicsContext` scale.
+3. Treat a sized snapshot/`ImageRenderer` as finite destination bounds, not as a resize or source selection. Show that drawing coordinates may extend beyond those bounds and that offscreen rasterization/clipping decides which transformed pixels are stored.
 4. Keep two outcomes permanently separate: the original source retained while recording is determined by the recording transform plus working-buffer bounds; the original source still visible after final drawing is determined by the already-stored working image plus the later layer transform and final-output clipping.
-5. A later `GraphicsLayer.pivotOffset` never changes which original source pixels were retained earlier. It transforms already-stored working-layer points into output-local points and can only change their placement and final visibility.
+5. A later `.scaleEffect` pivot never changes which original source pixels were retained earlier. It transforms already-stored working-layer points into output-local points and can only change their placement and final visibility.
 6. For every pivot combination, keep the original retained region, mapped commands, stored working pixels, final visible output, active code, and complete calculations in the same state. Do not require the learner to remember values from an earlier step.
 
 
@@ -796,7 +786,7 @@ This rule was added after the learner asked what “uniform fields leave a color
 
 This rule was added after the learner asked whether “moving origin / center” translates the canvas, then asked what a “fixed window” was, and rejected “distance from 0 means distance from the middle” because the center’s UV is still `(0.5, 0.5)`.
 
-1. **Name the objects that stay put.** When a lesson remaps a coordinate pair, state in the same section that the draw rectangle, Canvas, `drawRect`, and `fragCoord` do not move. The new pair is extra numbers computed from UV. It is not `Canvas.translate` and not a `DrawScope` transform.
+1. **Name the objects that stay put.** When a lesson remaps a coordinate pair, state in the same section that the draw rectangle, Canvas, `ShaderRect`, and `fragCoord` do not move. The new pair is extra numbers computed from UV. It is not a Canvas translation and not a `GraphicsContext` transform.
 2. **Define origin of a pair as a pixel, not as a moving paper.** The origin of a pair is the pixel whose two numbers in that pair are both 0. Subtracting `(0.5, 0.5)` makes the visual-center pixel’s extra pair `(0, 0)`. It does not slide the rectangle. Do not reuse Lesson 7.4 thumbtack/paper-slide language for this remap. If a diagram draws a cross, say the cross is painted at the pixel whose extra pair is `(0, 0)`.
 3. **Keep UV and the extra pair as two labelled tuples for one pixel.** The visual-center pixel still has `uv = (0.5, 0.5)`. That is the fraction from the top-left. After subtract, that same pixel has `p = (0, 0)`. Do not call `(0.5, 0.5)` a leftover distance. Do not add 0.5 back. Do not write “distance from 0 means distance from the middle.”
 4. **The practical result must be visible in this lesson.** Show a stripe around the visual center, or another test that uses `p` now. Do not open with an undefined Chapter 9 lens as the first sentence.
@@ -819,7 +809,7 @@ The 28-state production-dimension walkthrough did not make the two scales unders
 
 ### Exact-root geometry values and square UV rectangle — Lesson 9.1
 
-Recorded when Chapter 9 started. Lessons 8.11 and 8.12 completed without questions. Those lessons stayed clear because one teaching pixel had hand-checkable arithmetic, production was one AGSL path, and comparisons lived in HTML. Reuse that, plus these geometry rules:
+Recorded when Chapter 9 started. Lessons 8.11 and 8.12 completed without questions. Those lessons stayed clear because one teaching pixel had hand-checkable arithmetic, production was one MSL path, and comparisons lived in HTML. Reuse that, plus these geometry rules:
 
 1. Draw a right triangle with labelled legs before any square-root formula. Do not open with the words Euclidean, hypotenuse, or Pythagorean theorem. Define square corner, legs, and long side first. Historical names may appear after the arithmetic.
 2. Use teaching values whose squares add to an exact square (3-4-5, or 0.30 / 0.40 / 0.50). The learner must be able to check `sqrt` by multiplying, not by trusting a calculator.
@@ -886,7 +876,7 @@ The first few sections carry the lesson. Later sections that restate the same ca
 3. **Essence section is load-bearing.** This is the new operation, with objects, formula, one traced value, and (when it helps) the interactive lab. If the learner misses this section, later sections cannot repair it.
 4. **Skip a multi-pixel comparison table** that only restates values the essence section or lab already computed, unless a new branch or region is otherwise invisible.
 5. **Stepper is not automatic.** Keep a stepper only when the new operation is a sequence the lab cannot show in order (piecewise region, nearest-on-segment, multi-stage grow). If the essence section plus lab already traces the value, omit the stepper. When kept, every step must change the current operation. Do not spend steps recapping a prior lesson.
-6. **Android route stays.** Short production excerpt plus what each new line consumes and produces. Preview into the full explorer.
+6. **iOS route stays.** Short production excerpt plus what each new line consumes and produces. Preview into the full explorer.
 7. **Prediction, coding challenge, and exercises stay.**
 8. **Device checkpoint stays**, but keep it short. Do not pad it. The learner often skips it.
 9. **Evidence: keep Established. Replace Not claimed with What’s next.** Name the next lesson that consumes this object. Do not list topics this lesson did not teach.
@@ -894,8 +884,8 @@ The first few sections carry the lesson. Later sections that restate the same ca
 **Wording cuts (apply to every later lesson):**
 
 1. **Do not negate-reference a prior lesson as the point of a sentence.** “This is NOT Lesson 4.8’s binary mask” is noise when the new formula is already named. A leftover is named only to identify the input this lesson consumes.
-2. **Do not write meta-lab sentences.** Forbidden examples: “The displayed AGSL string stays the smooth production route.” “Direct buttons are shown because there are ten states.” “Kotlin prints sd using the same arithmetic as the HTML table.” “Hard if and linear comparison live in the HTML lab.”
-3. **Do not repeat the 8.9 slot-write recap.** `remember { RuntimeShader(...) }` compiling once, and a slider writing a uniform, is known. Mention a uniform only when this lesson adds a new slot or a new consumer of that slot.
+2. **Do not write meta-lab sentences.** Forbidden examples: “The displayed MSL string stays the smooth production route.” “Direct buttons are shown because there are ten states.” “Swift prints sd using the same arithmetic as the HTML table.” “Hard if and linear comparison live in the HTML lab.”
+3. **Do not repeat the 8.9 slot-write recap.** The `.metal` file is compiled at build time, and a slider only passes a new Shader argument. Mention a uniform only when this lesson adds a new slot or a new consumer of that slot.
 4. **Stepper captions name this lesson’s objects and numbers.** Do not open a step with “Lesson N.M already blended across a band. Its x was uv.x.” If a prior function is reused, say the function, the new input object, and the current teaching numbers in one breath.
 5. **Cut sentences that only restate a comparison already visible.** “Linear mask uses 1 − linearFraction with no bend” is a vague comparison unless the two numbers sit side by side. Prefer one live pair: linearFraction = …, curvedFraction = ….
 6. **Simplify wording slightly**, but never by deleting a beginner definition, a teaching-value trace, or a required unit/range. If a cut would make the causal chain uncertain, keep the sentence.
@@ -961,7 +951,7 @@ sdA = length(p) − radiusA
 3. The result is the last term, not a replacement for the formula.
 4. Live readouts recompute this full chain on every click or slider move.
 5. Do not re-expand a completed prior operation unless that operation is itself being corrected. In Lesson 9.6, keep `length(p)` as the named Lesson 9.1 leftover; do not rewrite it as `sqrt` on every line.
-6. Production AGSL may still use literals such as `0.25`. Teaching text next to that code still names `radiusA`, `radiusB`, and `B`.
+6. Production MSL may still use literals such as `0.25`. Teaching text next to that code still names `radiusA`, `radiusB`, and `B`.
 
 **Verification before packaging:**
 
@@ -975,7 +965,7 @@ Recorded 2026-09-10 after the learner asked whether `readCoord.x = 20 − 0.10 �
 1. **`eval` passes the pair as written.** It does not `fract`, `mod`, clamp, or remap a pixel into the draw rectangle. A negative read x stays that negative number.
 2. **Name which program still produces a color.** A color appears at an out-of-range pair only if the *input* program is defined there. For the stripe input that definition is `fract(uv.x × 5.0)` inside the bound shader, which is Lesson 8.10’s leftover wrap (`fract(−0.25) = 0.75`), not a pixel wrap of −20 to 380.
 3. **State this in the same lesson, not only in What’s next.** The first lesson that asks `eval` at a transformed coordinate must show one left-edge write whose read x is negative, with the named input formula still visible.
-4. **Do not let a periodic input hide a later tile mode.** A bitmap or `RenderEffect` layer would not keep striping past the edge unless its tile mode was Repeat. That difference is Lesson 9.12. A same-color match between −20 and 380 is an accident of `fract(uv.x × 5)`, whose period is one orange–navy pair (0.20 of the width), not a property of `eval`.
+4. **Do not let a periodic input hide a later tile mode.** A bitmap or Metal/CI sampled layer would not keep striping past the edge unless its sampler wrap was Repeat. That difference is Lesson 9.12. A same-color match between −20 and 380 is an accident of `fract(uv.x × 5)`, whose period is one orange–navy pair (0.20 of the width), not a property of `eval`.
 
 **Verification before packaging a sample-offset lesson:**
 
@@ -1008,7 +998,7 @@ Recorded 2026-09-11 after the learner stated the causal picture of scale 2 and a
 Learner picture (confirmed): scale 2 means this write pixel reaches a neighbor twice as close to `C` (half as far from `C`). That nearer color is stored here. Near-center content is dragged onto farther write pixels. That is magnification. Write does not move.
 
 1. **The load-bearing object is the walk.** Write stays. Divide shortens the ask toward `C`. Store the nearer color. That is the lesson.
-2. **Do not re-teach UV ↔ `p`.** `p = uv − 0.5` and `+ 0.5` stay in the AGSL because `eval` wants UV. They get one leftover sentence, not a section, not two rulers, not a dashed alignment figure.
+2. **Do not re-teach UV ↔ `p`.** `p = uv − 0.5` and `+ 0.5` stay in the MSL because `eval` wants UV. They get one leftover sentence, not a section, not two rulers, not a dashed alignment figure.
 3. **Prove divide on distances from `C`.** Right edge is half a square from `C`. The inner-half’s right edge is a quarter from `C`. Half / 2 = quarter. The 2 is the enlargement we chose. Do not prove it by lining up UV ticks.
 4. **Do not dump `0.80 / 0.30 / 0.15 / 0.65`.** Those are convert leftovers. Name a teaching pixel as “this far from `C`” and show the shortened walk on the same ray.
 5. **The first 9.9 rewrite’s dual-ruler page is the same class of failure as 9.10 leftover-first:** easy convert taught at length, walk and magnification skimmed.
@@ -1049,7 +1039,7 @@ Recorded 2026-09-11 after the learner confirmed Lesson 9.9 complete, then could 
 
 ### Displacement is a chosen walk toward C, not a 3D formula — Lesson 9.10 rewrite
 
-Recorded 2026-09-10 after the learner opened Lesson 9.10 and saw the same failure as 9.9: a four-step stepper dumping `0.60`, `−0.80`, `0.06`, `−0.08`, `0.74`, `0.18`, with no picture of why the stored checker looks like a bump and no reason for the AGSL divide, multiply, or subtract.
+Recorded 2026-09-10 after the learner opened Lesson 9.10 and saw the same failure as 9.9: a four-step stepper dumping `0.60`, `−0.80`, `0.06`, `−0.08`, `0.74`, `0.18`, with no picture of why the stored checker looks like a bump and no reason for the MSL divide, multiply, or subtract.
 
 1. **Name the bump as a copy, not as geometry.** Identity versus store first. Inner colors now sit farther from `C`. The square is still flat. There is no height map in this shader. A brain reading radial expansion as a drop of water is an observation, not a 3D pipeline.
 2. **Prove the bulge on one horizontal ray before any diagonal.** Write `H` due right of `C` at `uv.x = 0.80`. Toward `C` is left. `readUv.x = 0.80 − dispLen`. At `dispLen = 0.10` that is `0.70`. The orange that lived at 0.70 now sits at 0.80. Do not open with Lesson 9.1’s 3-4-5 pixel.
@@ -1109,9 +1099,9 @@ Recorded 2026-09-11 after the learner asked for solid lines in colors other than
 
 ### Shader formula is those same sticks — Lesson 9.10
 
-Recorded 2026-09-11 after the learner could not connect `p / d` to moving H and Q by 0.10. The AGSL sat in a later card as if it were a new machine.
+Recorded 2026-09-11 after the learner could not connect `p / d` to moving H and Q by 0.10. The MSL sat in a later card as if it were a new machine.
 
-1. **Do not introduce AGSL as a new machine.** `p` is the leftover from C to this pixel (`0.25` at H, about `0.35` at Q), not the 0.10 walk. `p / d` throws away how far and keeps which way (length 1). `(p / d) × dispLen` is H’s floor stick and Q’s little-square diagonal from section 2.
+1. **Do not introduce MSL as a new machine.** `p` is the leftover from C to this pixel (`0.25` at H, about `0.35` at Q), not the 0.10 walk. `p / d` throws away how far and keeps which way (length 1). `(p / d) × dispLen` is H’s floor stick and Q’s little-square diagonal from section 2.
 2. **Trace H and Q through every symbol** before showing the assembled shader. A gloss that says “length-1 direction” without those two sticks is a disconnect.
 3. **Length 1 is the whole picture width.** Do not draw a length-1 stick on the checker at 1:1. Say so. Multiply by 0.10 immediately; that shorter stick is what section 2 already drew.
 4. **Subtract is the inverse of the outward paint.** Sitting at H′, `uv − disp` is H. The picture added the stick. The shader subtracts it.

@@ -1,22 +1,24 @@
-# Liquid Glass on Android — Beginner-to-Expert Curriculum
+# Liquid Glass on iOS — Beginner-to-Expert Curriculum
 
 **Version:** 9.10.0  
-**Updated:** 2026-09-10  
-**Primary platform:** Kotlin + Jetpack Compose  
-**Minimum learning target:** Android 13 / API 33  
-**Physical test device:** Pixel 8 Pro  
+**Updated:** 2026-09-12  
+**Primary platform:** Swift + SwiftUI  
+**Minimum learning target:** iOS 17  
+**Physical test device:** iPhone 16 Pro  
 **Total lessons:** 216
 
-Live progress, current files, and the checkpoint/frontier contracts live in `CURRENT_STATE.md`. This file is the 216-lesson plan plus frozen locks needed to generate later lessons. Lesson HTML and Kotlin keep the full teaching prose. Do not add per-lesson implementation diaries here.
+Live progress, current files, and the checkpoint/frontier contracts live in `CURRENT_STATE.md`. This file is the 216-lesson plan plus frozen locks needed to generate later lessons. Lesson HTML and Swift keep the full teaching prose. Do not add per-lesson implementation diaries here.
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **95 of 216**, through **Lesson 9.9**.
-- Completed chapters: **1–8**. Chapter 9: **9 of 14**.
-- Unresolved checkpoint: **Lesson 9.10 — Build a displacement field**.
+- Learner-confirmed complete: **40 of 216**, through **Lesson 9.6** (Chapters 3, 4, 5, and Lessons 9.1–9.6 only).
+- Must re-read before the frontier (platform chapters, in order): **Chapter 1**, **Chapter 2**, **Chapter 6**, **Chapter 7**, **Chapter 8**, **Lessons 9.7–9.9**.
+- Unresolved checkpoint: **Lesson 1.3 — Create `LiquidGlassLab`** (first lesson of the iOS on-ramp).
+- On-ramp then returns the checkpoint to: **Lesson 9.10 — Build a displacement field**.
 - Generated frontier: **Lesson 9.10 — Build a displacement field**.
 - Next planned after the frontier: **Lesson 9.11 — Refraction as displaced sampling**.
 - Lesson 9.10 is generated and is not complete.
+- Do not restore **95 of 216**. Do not mark Lesson 1.3 complete just because the prior 1.3 was complete.
 
 ## 2. How this file relates to the rule sources
 
@@ -32,7 +34,7 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 
 1. **1.1 — Name the visible ingredients.** Learn the words translucency, blur, diffusion, refraction, tint, highlight, shadow, and morph.
 2. **1.2 — Observe before coding.** Study a control at rest, during press, during expansion, and after settling.
-3. **1.3 — Create `LiquidGlassLab`.** Make a small Compose project that runs on the Pixel 8 Pro.
+3. **1.3 — Create `LiquidGlassLab`.** Make a small SwiftUI iOS app that runs on the iPhone 16 Pro.
 4. **1.4 — Build a study background.** Use large color areas, circles, text, and sharp lines so future distortion is easy to see.
 5. **1.5 — Draw a translucent rounded panel.** Change only the white fill opacity.
 6. **1.6 — Learn the first formula.** Understand the simple alpha mixture between foreground and background.
@@ -43,13 +45,13 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 
 ### Chapter 2 — The screen is a grid
 
-**Purpose:** Learn the minimum coordinate math needed for Android graphics.
+**Purpose:** Learn the minimum coordinate math needed for iOS graphics.
 
 1. **2.1 — What a pixel is.** Treat a screen image as a rectangular collection of tiny samples.
 2. **2.2 — The X axis.** Move right by increasing X.
-3. **2.3 — The Y axis.** Move down by increasing Y in Android screen coordinates.
+3. **2.3 — The Y axis.** Move down by increasing Y in iOS screen coordinates.
 4. **2.4 — Width, height, edges, and center.** Calculate a center using half the width and half the height.
-5. **2.5 — Pixels, dp, and density.** Understand why layout dimensions and shader coordinates use different units.
+5. **2.5 — Pixels, points, and scale.** Understand why layout dimensions and shader coordinates use different units.
 6. **2.6 — Local coordinates.** See how a child starts its own coordinate system.
 7. **2.7 — Parent and screen coordinates.** Locate a control relative to a larger scene.
 8. **2.8 — Normalized coordinates.** Convert a value into the range `0..1` so an effect works at many sizes.
@@ -68,7 +70,7 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 3. **3.3 — The “over” operation.** Combine one translucent color over another.
 4. **3.4 — Draw order matters.** Reverse two layers and observe a different result.
 5. **3.5 — Straight and premultiplied RGBA.** Continue the complete Lesson 3.3 source-over example. Name the straight and premultiplied forms of source, destination, and output. Relate output premultiplied RGB to output straight RGB. Explain which API or buffer contract expects each representation.
-6. **3.6 — From a visible color to relative luminance.** Start from one opaque Compose `Color`, decode one sRGB channel before all three, then combine the three linear-light channels into one relative-luminance number.
+6. **3.6 — From a visible color to relative luminance.** Start from one opaque SwiftUI `Color`, decode one sRGB channel before all three, then combine the three linear-light channels into one relative-luminance number.
 7. **3.7 — Foreground contrast.** Start from one final opaque background. Calculate black and white contrast ratios separately. Choose the larger ratio, then check accessibility targets as a separate policy step.
 8. **3.8 — Tint.** Add a controlled color influence without replacing the background.
 9. **3.9 — Saturation.** Reduce or enlarge each RGB channel’s distance from the transform’s gray reference.
@@ -114,24 +116,24 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 7. **5.7 — Velocity.** Understand movement per unit of time.
 8. **5.8 — Spring motion, overshoot, and settle.** Merge spring intuition with overshoot/settle so the full causal chain stays visible in one lesson.
 9. **5.9 — Archive / backward-compatible redirect.** Keep the lesson number stable while pointing learners back to the consolidated Lesson 5.8 teaching page.
-10. **5.10 — Press deformation.** Convert one local pointer-down position into a transform pivot; distinguish pressed Boolean, q target, and current q; derive non-uniform scale and radius; prove point movement around the pivot; keep layout bounds separate from draw bounds; finish release/cancellation and the reusable Indication boundary.
-11. **5.11 — Reversal and interruption.** Change the target during in-flight motion while preserving current value and velocity; compare smooth reversal with velocity reset and value snap defects; connect the contract to `Animatable.animateTo` cancellation and continuity.
-12. **5.12 — Slow-motion controller.** Separate real frame time from local simulation play time; add a speed multiplier, pause, deterministic 16 ms debug step, reverse direction, and manual `TargetBasedAnimation` play-time control.
+10. **5.10 — Press deformation.** Convert one local pointer-down position into a transform pivot; distinguish pressed Boolean, q target, and current q; derive non-uniform scale and radius; prove point movement around the pivot; keep layout bounds separate from draw bounds; finish release/cancellation and the reusable `ButtonStyle` / `isPressed` boundary.
+11. **5.11 — Reversal and interruption.** Change the target during in-flight motion while preserving current value and velocity; compare smooth reversal with velocity reset and value snap defects; connect the contract to SwiftUI animation cancellation and continuity.
+12. **5.12 — Slow-motion controller.** Separate real frame time from local simulation play time; add a speed multiplier, pause, deterministic 16 ms debug step, reverse direction, and manual `TimelineView` play-time control.
 
 **Checkpoint:** Build a reversible capsule-to-panel animation whose values can be inspected at any progress.
 
 ---
 
-### Chapter 6 — How Android draws the scene
+### Chapter 6 — How SwiftUI draws the scene
 
 **Purpose:** Understand why a normal blur modifier is not enough for real backdrop glass.
 
-1. **6.1 — Composition, layout, and drawing.** Learn what each Compose phase is responsible for.
-2. **6.2 — Draw order and ownership.** Identify which content belongs to which composable.
+1. **6.1 — View update, layout, and rendering.** Learn what each SwiftUI phase is responsible for.
+2. **6.2 — Draw order and ownership.** Identify which content belongs to which view.
 3. **6.3 — Graphics layers.** Separate drawing commands from later transformations and effects.
-4. **6.4 — `RenderEffect` on owned content.** Blur a layer and observe that its own contents are blurred.
+4. **6.4 — `.blur()` on owned content.** Blur a view and observe that its own contents are blurred.
 5. **6.5 — The backdrop problem.** Demonstrate why a foreground panel cannot automatically sample arbitrary siblings behind it.
-6. **6.6 — Record the background.** Use a controlled `GraphicsLayer` to record background drawing and replay it deliberately into one or more targets.
+6. **6.6 — Record the background.** Snapshot a dedicated background `View` with `ImageRenderer` or an offscreen Metal texture, then replay it deliberately into one or more targets.
 7. **6.7 — Crop the correct region.** Map glass bounds into background coordinates.
 8. **6.8 — Keep the sample current.** Update the captured scene as content scrolls or animates.
 9. **6.9 — Avoid feedback loops.** Prevent the glass from capturing itself.
@@ -156,29 +158,29 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 8. **7.8 — Inner highlight.** Add a soft edge band inside the shape.
 9. **7.9 — Outer shadow.** Create separation from busy content.
 10. **7.10 — Fine noise or dither.** Reduce visible color banding without making the panel dirty.
-11. **7.11 — Compose the layers.** Put the effects in a deliberate order.
+11. **7.11 — Combine the layers.** Put the effects in a deliberate order.
 12. **7.12 — Compare backgrounds.** Test photos, text, gradients, dark content, and light content.
 
 **Checkpoint:** Produce a polished frosted card and list exactly why it is still not a complete Liquid Glass material.
 
 ---
 
-### Chapter 8 — Your first AGSL shader
+### Chapter 8 — Your first Metal shader
 
 **Purpose:** Learn shaders as small per-pixel functions, not as magic GPU code.
 
 1. **8.1 — What a shader does.** Run the same small function for every output pixel.
-2. **8.2 — Create a `RuntimeShader`.** Connect an AGSL string to Android drawing.
+2. **8.2 — Create a Metal shader.** Add a `.metal` file; Xcode compiles it; SwiftUI applies it with `ShaderLibrary` + `colorEffect`.
 3. **8.3 — Return one fixed color.** Prove the shader is running.
 4. **8.4 — `fragCoord`.** Receive the current pixel position.
 5. **8.5 — Resolution.** Tell the shader the drawing width and height.
 6. **8.6 — UV coordinates.** Divide position by resolution to obtain values near `0..1`.
 7. **8.7 — Scalars and vectors.** Learn `float`, `float2`, `half`, and `half4` through visible examples.
 8. **8.8 — Vector arithmetic.** Number the same pixels from the middle. Subtract is required. × 2 puts the edges near ±1.
-9. **8.9 — Uniforms.** Change shader behavior from Kotlin without rewriting the program.
+9. **8.9 — Uniforms.** Change shader behavior from Swift without rewriting the program.
 10. **8.10 — Time uniform.** Write elapsed time into a uniform and travel Lesson 8.6’s red ramp with `fract`.
 11. **8.11 — `clamp`, `mix`, and `smoothstep`.** Use three essential functions with graph previews.
-12. **8.12 — Shader error workflow.** Read compiler errors and reduce a failing shader to its smallest form. **Complete.**
+12. **8.12 — Shader error workflow.** Read compiler errors and reduce a failing shader to its smallest form.
 
 **Checkpoint:** Animate a size-independent radial effect and explain every line.
 
@@ -352,7 +354,7 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 24. **15.24 — Handle rapid taps.** Prevent jumps when open and close commands overlap.
 25. **15.25 — Handle interrupted and dragged states.** Continue from the current visual state rather than restarting.
 26. **15.26 — Build reduced-motion and reduced-transparency versions.** Preserve source relationship and readability.
-27. **15.27 — Profile on the Pixel 8 Pro.** Inspect frame time, shader cost, render-target size, recomposition, and allocations.
+27. **15.27 — Profile on the iPhone 16 Pro.** Inspect frame time, shader cost, render-target size, view updates, and allocations.
 28. **15.28 — Compare at normal and slow speed.** Judge both the final appearance and the quality of intermediate frames.
 29. **15.29 — Final capstone review.** Explain every material and motion layer from first principles.
 
@@ -368,8 +370,8 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 2. **16.2 — `GlassContainer`.** Own background capture and shared context.
 3. **16.3 — `GlassEffect`.** Apply a material to a shape without owning app-specific content.
 4. **16.4 — `GlassTransition`.** Describe source, destination, progress, interruption, and content timing.
-5. **16.5 — Use meaningful units.** Distinguish dp, pixels, normalized values, angles, and time.
-6. **16.6 — Cache shaders and graphics layers.** Avoid construction and allocation every frame.
+5. **16.5 — Use meaningful units.** Distinguish points, pixels, UV, angles, and time.
+6. **16.6 — Cache shaders and offscreen snapshots.** Avoid construction and allocation every frame.
 7. **16.7 — Update uniforms efficiently.** Change visual values without rebuilding unrelated UI.
 8. **16.8 — Control render-target size.** Crop, downsample, and reuse offscreen buffers.
 9. **16.9 — Adaptive quality.** Reduce expensive details under load without abruptly changing the design.
@@ -377,49 +379,52 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 11. **16.11 — Benchmark 60 Hz and 120 Hz behavior.** Use frame budgets appropriate to the display mode.
 12. **16.12 — Screenshot and golden tests.** Verify stable material states.
 13. **16.13 — Motion tests.** Sample important progress values instead of checking only start and end.
-14. **16.14 — API 31 and older fallbacks.** Provide frosted, tinted, or opaque alternatives.
+14. **16.14 — iOS 16 fallbacks.** Provide frosted, tinted, or opaque alternatives.
 15. **16.15 — Build the gallery app and documentation.** Make every parameter and tradeoff inspectable.
 16. **16.16 — Independent capstone.** Choose an iOS Liquid Glass behavior not taught directly and reproduce it.
 17. **16.17 — Expert explanation.** Teach the final system to another beginner using simple language.
 
-**Final standard:** You can observe an unfamiliar glass effect, divide it into geometry, sampling, light, compositing, motion, accessibility, and performance problems, then build and justify an Android implementation.
+**Final standard:** You can observe an unfamiliar glass effect, divide it into geometry, sampling, light, compositing, motion, accessibility, and performance problems, then build and justify an iOS implementation.
 
 ---
 
 ## 4. Frozen locks (do not rebuild)
 
-Chapters **1–7** are complete. Do not reopen blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula unless a later lesson explicitly redefines them.
+Chapters **3–5** and Lessons **9.1–9.6** stay learner-complete (graphics and math). Do not reopen blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula unless a later lesson explicitly redefines them.
+
+Chapters **1, 2, 6, 7, 8** and Lessons **9.7–9.9** must be re-read on iOS for project and API differences. Frost *formulas* stay frozen.
 
 **Chapter 7 frost constants**
 
-- Blur `18.dp` / `18` CSS px.
+- Blur `18` pt / `18` CSS px.
 - Tint amount `0.25`.
 - Saturation `0.40`.
 - 7.10 store: one signed remainder offset added to RGB, then `round(clamp(sum) × 255)`. Default amount `0.02`.
 
-**Chapter 8 completed chain (8.1–8.10)**
+**Chapter 8 teaching chain (8.1–8.12) — re-read on iOS**
 
 ```text
-8.1  colorAt(column, row) once per pixel; CPU loop is not RuntimeShader
-8.2  AGSL string → RuntimeShader → ShaderBrush → drawRect
+8.1  colorAt(column, row) once per pixel; CPU loop is not a .metal file
+8.2  .metal file → ShaderLibrary → ShaderRect (colorEffect)
 8.3  8-bit / 255 → teaching half4 0..1 → return is the store
      orange half4(0.88, 0.48, 0.18, 1.0) from (224, 122, 46)
      navy   half4(0.10, 0.25, 0.40, 1.0) from (26, 64, 102)
 8.4  fragCoord.x pixels from left; if (x < 80.0) orange else navy; y unread
-8.5  setFloatUniform("resolution", width, height); splitX = resolution.x / 2.0
+8.5  pass resolution as a Shader argument; splitX = resolution.x / 2.0
 8.6  uv = fragCoord / resolution; last pixel is not exactly 1; not a texture sample
 8.7  scalar / vector / member; half 16-bit; float 32-bit; no GPU timing claim
 8.8  p = uv - 0.5 from the middle; × 2 puts edges near ±1; 1 = one half-width
-8.9  uniform splitU and leftColor; setFloatUniform; mismatch leaves splitU at 0
-8.10 trips = elapsedSeconds / 4.0; fract(uv.x - time) as red; RuntimeShader not rebuilt
+8.9  splitU and leftColor as Shader arguments; missing argument is a Swift compile error; pass 0 to show a zero slot
+8.10 trips = elapsedSeconds / 4.0; fract(uv.x - time) as red; .metal file is not rebuilt
 8.11 clamp → mix(a,b,t)=a+(b−a)×t → smoothstep bends linearFraction
      mix(navy, orange, smoothstep(0.40, 0.60, uv.x))
      teaching x=180, uv.x=0.45, stored red 0.221875
-8.12 RuntimeShader(string) throws IllegalArgumentException
+8.12 Xcode Metal compile error
+     message is the Metal compiler log
      shrink to smallest failing program; teaching fault is gl_FragCoord
 ```
 
-**Completed Chapter 9**
+**Stay-complete Chapter 9 (9.1–9.6)**
 
 ```text
 9.1  right triangle first; 0.30 / 0.40 / 0.50; length(p) as gray
@@ -432,6 +437,11 @@ Chapters **1–7** are complete. Do not reopen blur, tint, saturation, inset-str
      outer half (0.40, 0.20); r = 0.20; cap-boundary p = (0.32, −0.16)
 9.6  two circles; union min; intersection max; B minus A max(sdB, −sdA)
      teaching left-only p = (−0.10, 0); sdA = −0.15; sdB = +0.05
+```
+
+**Lessons 9.7–9.9 teaching contracts — re-read on iOS (sampling API)**
+
+```text
 9.7  uniform shader background; sampled = background.eval(fragCoord)
      left half stores sampled; teaching uv.x = 0.15 is navy
 9.8  readCoord = fragCoord − (offsetU × width, 0); default offsetU = 0.10
@@ -439,7 +449,7 @@ Chapters **1–7** are complete. Do not reopen blur, tint, saturation, inset-str
      eval does not wrap a negative read x; stripe fract still returns a color
 ```
 
-**9.9 complete**
+**9.9 teaching contract — re-read on iOS**
 
 ```text
 9.9  no if; store is four big squares (inner 2×2 copied, not averaged)
@@ -447,7 +457,7 @@ Chapters **1–7** are complete. Do not reopen blur, tint, saturation, inset-str
      many writes share one input cell; half of C→(1,1) is (0.75, 0.75)
 ```
 
-**Unresolved checkpoint, generated, not complete**
+**Unresolved checkpoint after the on-ramp, generated, not complete**
 
 ```text
 9.10 vertical side tilts: H (0.75, 0.50) walks to (0.85, 0.50); Q (0.75, 0.25) splits the same walk
@@ -457,6 +467,6 @@ Chapters **1–7** are complete. Do not reopen blur, tint, saturation, inset-str
 
 **Policy**
 
-- Count only explicit learner confirmation. Generating 9.10 did not complete 9.9.
-- Current HTML/Kotlin paths live in `CURRENT_STATE.md`. Explorer names for older lessons live in those lesson files and `ChapterNNScreen.kt`.
+- Count only explicit learner confirmation. Generating 9.10 did not complete 9.9. Do not restore 95 of 216.
+- Current HTML/Swift paths live in `CURRENT_STATE.md`. Explorer names for older lessons live in those lesson files and the chapter screen in `LiquidGlassLab-iOS`.
 - 5.8/5.9 stay consolidated: 5.8 is the teaching page; 5.9 is the archive redirect.

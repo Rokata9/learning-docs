@@ -1,6 +1,6 @@
-# Liquid Glass Android course — implementation handoff
+# Liquid Glass iOS course — implementation handoff
 
-**Updated:** 2026-09-11
+**Updated:** 2026-09-12
 **Course version:** 9.10.0
 
 ## Read order
@@ -9,9 +9,9 @@
 2. `AGENTS.md`
 3. `CURRENT_STATE.md`
 4. this handoff
-5. `liquid_glass_android_curriculum.md` only for the named lesson and its immediate neighbors in the 216-lesson plan
+5. `liquid_glass_ios_curriculum.md` only for the named lesson and its immediate neighbors in the 216-lesson plan
 6. current and immediately preceding lesson HTML
-7. the current Android files
+7. the current iOS files under `/Users/rosen/Code/LiquidGlassLab-iOS`
 
 Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
@@ -19,21 +19,22 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 95
-completed_through: "Lesson 9.9 — Scale around the center"
-completed_chapters: [1, 2, 3, 4, 5, 6, 7, 8]
-chapter_8_complete: "12 of 12"
-chapter_9_complete: "9 of 14"
-next_unresolved_checkpoint: "Lesson 9.10 — Build a displacement field"
+learner_confirmed_complete: 40
+completed_through: "Lesson 9.6 — Combine shapes"
+completed_chapters: [3, 4, 5]
+chapter_9_complete: "6 of 14 (9.1–9.6 only)"
+must_reread: "Chapter 1, Chapter 2, Chapter 6, Chapter 7, Chapter 8, Lessons 9.7–9.9"
+next_unresolved_checkpoint: "Lesson 1.3 — Create LiquidGlassLab"
+on_ramp_returns_checkpoint_to: "Lesson 9.10 — Build a displacement field"
 generated_frontier: "Lesson 9.10 — Build a displacement field"
 next_planned_after_frontier: "Lesson 9.11 — Refraction as displaced sampling"
 ```
 
-Lessons 8.2 through 9.9 are learner-confirmed complete. Lesson 9.10 is generated and is not complete.
+Chapters 3, 4, 5 and Lessons 9.1–9.6 stay learner-confirmed complete (graphics and math). HTML will still be updated so excerpts are Swift. Lessons 8.2–8.12 and 9.7–9.9 must be re-read on iOS. Lesson 9.10 is generated and is not complete. Do not restore 95 of 216. Do not mark Lesson 1.3 complete just because the prior 1.3 was complete.
 
-Chapter 7 frost stays fixed: blur `18.dp` / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
+Chapter 7 frost stays fixed: blur `18` pt / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
-Do not edit CircleSdfExplorer, SoftMaskExplorer, or RoundedRectSdfExplorer math. Those Android files were confirmed excellent.
+Do not edit CircleSdfExplorer, SoftMaskExplorer, or RoundedRectSdfExplorer math. Those explorer math contracts were confirmed excellent. Keep the same pixel arithmetic when the Swift explorers are written.
 
 ## Load-bearing section budget (2026-08-31)
 
@@ -47,21 +48,21 @@ Learner confirmed 9.2 and 9.3 were progressing well, then named reusable frictio
 - Cut negate-references, meta-lab sentences, 8.9 slot-write recaps, and vague “same arithmetic as the HTML table” lines.
 - Beginner traces stay. If a cut would make the causal chain uncertain, keep the sentence.
 
-## Completed Chapter 8 chain (8.2–8.12)
+## Chapter 8 teaching chain (8.2–8.12) — re-read on iOS
 
 ```text
-8.2  AGSL string → RuntimeShader → ShaderBrush → drawRect
+8.2  .metal file → ShaderLibrary → ShaderRect (colorEffect)
 8.3  8-bit / 255 → teaching half4 0..1 → return is the store
      orange half4(0.88, 0.48, 0.18, 1.0); navy half4(0.10, 0.25, 0.40, 1.0)
-8.4  fragCoord.x from left; if (fragCoord.x < 80.0) orange else navy; Canvas y-down
-8.5  setFloatUniform("resolution"); splitX = resolution.x / 2.0
-8.6  uv = fragCoord / resolution; last pixel is not exactly 1
+8.4  position.x from left; if (x < 80.0 pixels) orange else navy; y-down; convert points with displayScale
+8.5  pass resolution as a Shader argument; splitX = resolution.x / 2.0
+8.6  uv = position / resolution; last pixel is not exactly 1
 8.7  scalar / vector / member; half 16-bit; float 32-bit
 8.8  p = uv - 0.5 from the middle; × 2 puts edges near ±1; 1 = one half-width
-8.9  uniform splitU, leftColor; mismatch leaves splitU at 0; no setColorUniform
+8.9  splitU, leftColor as Shader arguments; missing argument is a Swift compile error; pass 0 to show a zero slot
 8.10 trips = elapsedSeconds / 4.0; fract(uv.x - time) as red
 8.11 clamp; mix = 5.4; smoothstep bends 0..1; store red 0.221875 at uv.x=0.45
-8.12 RuntimeShader throws; shrink to smallest failing program; gl_FragCoord
+8.12 Xcode Metal compile error; shrink to smallest failing program; gl_FragCoord
 ```
 
 8.8 subtract is required. × 2 is the convention that makes 1 mean one half-width. The smaller stripe previews Lesson 9.9. Chapter 9 circle, center-scale, and sample offset consume `p`.
@@ -138,7 +139,7 @@ Two Lesson 9.2 circles. Teaching left-only `p = (−0.10, 0)` has `sdA = length(
 
 Named-formula-before-substitution (2026-09-08, recorded in `AGENTS.md`): every teaching calculation keeps the named operations visible. Write `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15`, never `sdA = 0.10 − 0.25` or `sdA = −0.15` as the formula. Live readouts recompute that chain.
 
-## Completed Lesson 9.7
+## Lesson 9.7 teaching contract — re-read on iOS
 
 ```text
 uniform shader background
@@ -146,9 +147,9 @@ uniform shader background
 → if (fragCoord.x < resolution.x / 2.0) sampled else orange
 ```
 
-The sampled color is the half4 that `eval` returns: a copy of the input shader’s color at the read coordinate. Stripe input: `fract(uv.x * 5.0)`, `cell < 0.5` orange else navy. Teaching `uv.x = 0.15` is navy. Kotlin `setInputShader("background", stripeShader)`. Offset is Lesson 9.8. Geometry mask unused.
+The sampled color is the half4 that `eval` returns: a copy of the input shader’s color at the read coordinate. Stripe input: `fract(uv.x * 5.0)`, `cell < 0.5` orange else navy. Teaching `uv.x = 0.15` is navy. Swift `setInputShader("background", stripeShader)`. Offset is Lesson 9.8. Geometry mask unused.
 
-## Completed Lesson 9.8
+## Lesson 9.8 teaching contract — re-read on iOS
 
 ```text
 readCoord = fragCoord − float2(offsetU * resolution.x, 0)
@@ -158,7 +159,7 @@ readCoord = fragCoord − float2(offsetU * resolution.x, 0)
 
 Default `offsetU = 0.10` is one stripe width as a fraction of the rectangle width. Teaching write `uv.x = 0.15` reads `0.05` and stores orange. The picture shifts opposite the read offset. `eval` does not wrap a negative read x. The stripe input’s `fract` still returns a color. Scale around the center is Lesson 9.9. A displacement field is Lesson 9.10. Edge safety is Lesson 9.12.
 
-## Completed — Lesson 9.9
+## Lesson 9.9 teaching contract — re-read on iOS
 
 ```text
 p = uv − 0.5
@@ -168,7 +169,7 @@ p = uv − 0.5
 
 No inner-half `if`. Store is four big squares: inner 2 × 2 copied onto many writes (repeat, not average). Top-left orange, top-right navy, bottom-left navy, bottom-right orange. Half of `C → (1,1)` is `(0.75, 0.75)`, still orange on that diagonal. Outer input would be painted off-picture.
 
-## Unresolved checkpoint — Lesson 9.10
+## Unresolved checkpoint after the on-ramp — Lesson 9.10
 
 ```text
 dir = p / length(p)
@@ -183,14 +184,14 @@ The feedback failure was the adjacent orange teaching cell, straight corner poly
 
 `dispLen` is an absolute distance in square-image UV units. At 400 teaching pixels, 0.10 is 40 pixels; an original cell is 100 pixels wide. It does not mean 10% enlargement. The complete footprint is calculated per output position. Close reads can pass C, creating a second footprint in the opposite quadrant. The shader's guard covers `d <= 0.0001`, not automatically only C itself.
 
-Verification and beginner audit: `verification/lesson-09-10-review.md` and `verification/lesson-09-10-checks.json`. Check the same-cell readback, numerical/raster agreement, every step and preset, both length extrema, center crossing, popup and record controls, label collisions, and 1920×1080 / 5120×1440 light-mode screenshots. The HTML's shader excerpt matches the inspected `DisplaceAgsl`. Android source was not edited or device-tested in this revision. Its existing overlay follows the neighboring cell and a different selected output position, which the HTML explicitly explains.
+Verification and beginner audit: `verification/lesson-09-10-review.md` and `verification/lesson-09-10-checks.json`. Check the same-cell readback, numerical/raster agreement, every step and preset, both length extrema, center crossing, popup and record controls, label collisions, and 1920×1080 / 5120×1440 light-mode screenshots. The HTML's shader excerpt matches the lab Metal pixel-function string (1:1 with the prior body). The iOS explorer does not exist yet; when it is ported, its overlay may still follow the neighboring cell and a different selected output position, which the HTML explicitly explains.
 
-Lesson 9.10 remains unfinished; count is 95 of 216. Do not generate 9.11 unless asked.
+Lesson 9.10 remains unfinished. Live checkpoint is Lesson 1.3. Count is 40 of 216. Do not generate 9.11 unless asked.
 
 ## Future conversation
 
 Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions. When the checkpoint or frontier moves, refresh section 12 of that prompt after `CURRENT_STATE.md`.
 
-Standing delivery: no ZIP archives; new `@Preview` stacks light then dark. Details in `USER_PREFERENCES.md`.
+Standing delivery: no ZIP archives; new `#Preview` stacks light then dark. Details in `USER_PREFERENCES.md`.
 
-Course progress: 95 of 216 lessons completed.
+Course progress: 40 of 216 lessons completed.

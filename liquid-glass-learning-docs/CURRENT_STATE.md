@@ -2,7 +2,7 @@
 
 **Updated:** 2026-09-12  
 **Course version:** 9.10.0  
-**Platform:** Swift / SwiftUI / Metal (lab pixel-function strings)  
+**Platform:** Swift / SwiftUI / Metal (`.metal` + `ShaderLibrary`)  
 **Test device:** iPhone 16 Pro  
 **Min OS:** iOS 17  
 **Total curriculum size:** 216 lessons
@@ -10,7 +10,7 @@
 ## Authoritative progress
 
 ```text
-platform: Swift / SwiftUI / Metal (lab pixel-function strings)
+platform: Swift / SwiftUI / Metal (.metal + ShaderLibrary)
 test device: iPhone 16 Pro
 min OS: iOS 17
 
@@ -64,8 +64,8 @@ Read each of these, in order, on the translated HTML + new lab, before treating 
 | 2 | **Chapter 2 entire** (2.1–2.9) | Points vs pixels vs `displayScale`, SwiftUI local/parent/screen coordinates. 2.5 is the unit rewrite; the inspector in 2.9 is the iOS API. |
 | 3 | **Chapter 6 entire** (6.1–6.11) | **How SwiftUI draws the scene.** Owned `.blur()` vs captured backdrop. This chapter is new on iOS. |
 | 4 | **Chapter 7 entire** (7.1–7.12) | Frost *recipes* are known; the **lab path** is new (owned blur, snapshot crop, saturation matrix on a SwiftUI layer). Re-run the explorers. Do not rebuild the frozen constants. |
-| 5 | **Chapter 8 entire** (8.1–8.12) | **Your first Metal shader.** `RuntimeMetalShader`, pixel `fragCoord`, uniforms, compile errors. 8.3–8.8 / 8.11 math is familiar; the host is new. Re-read the chapter as iOS. |
-| 6 | **Lessons 9.7–9.9** | `uniform shader` / `eval` / `setInputShader` on Metal. 9.1–9.6 stay complete; these three are the sampling API. |
+| 5 | **Chapter 8 entire** (8.1–8.12) | **Your first Metal shader.** `.metal` + `ShaderLibrary`, `position`, uniforms as Shader arguments, Xcode compile errors. 8.3–8.8 / 8.11 math is familiar; the host is new. Re-read the chapter as iOS. |
+| 6 | **Lessons 9.7–9.9** | Input color is a Metal function call, not a texture sample. 9.1–9.6 stay complete; these three are the sampling API. |
 
 Then the unresolved checkpoint is again **Lesson 9.10 — Build a displacement field**.
 
@@ -77,7 +77,7 @@ blur **18 pt**, tint **0.25**, saturation **0.40**, rim **3 pt**, inner band **1
 
 ## Current lesson files
 
-Live checkpoint is Lesson 1.3. Frontier HTML is Lesson 9.10. Swift explorers do not exist yet; they will be listed here as they appear under `/Users/rosen/Code/LiquidGlassLab-iOS`.
+Live checkpoint is Lesson 1.3. Frontier HTML is Lesson 9.10. Shader host is `LabOrange.metal` + `ShaderRect` (`colorEffect`). Lesson explorers will be listed here as they appear under `/Users/rosen/Code/LiquidGlassLab-iOS`.
 
 ```text
 course/chapters/chapter-01/lesson-01-01-visible-ingredients.html

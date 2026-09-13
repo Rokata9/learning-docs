@@ -34,8 +34,8 @@ Do not generate `.zip` files unless I ask for one.
 1. `USER_PREFERENCES.md`
 2. `AGENTS.md`
 3. `CURRENT_STATE.md`
-4. `curriculum/liquid_glass_android_handoff.md`
-5. `curriculum/liquid_glass_android_curriculum.md` only for the named lesson and its immediate neighbors
+4. `curriculum/liquid_glass_ios_handoff.md`
+5. `curriculum/liquid_glass_ios_curriculum.md` only for the named lesson and its immediate neighbors
 6. files required by the job (section 4)
 
 `CURRENT_STATE.md` is authoritative when older prose disagrees.
