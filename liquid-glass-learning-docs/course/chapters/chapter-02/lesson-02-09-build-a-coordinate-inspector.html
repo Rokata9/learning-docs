@@ -11,691 +11,795 @@
 </head>
 <body>
 <main class="page">
-<nav class="topbar"><div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-the-screen-is-a-grid.html">Chapter 2</a> · <a href="../../glossary.html">Glossary</a></div><span class="lesson-chip">Lesson 2.9 · Completed</span></nav>
-<header class="hero panel"><div><div class="eyebrow">Chapter 2 · The screen is a grid</div><h1>Build a coordinate inspector</h1><p class="lead">A <strong>coordinate inspector</strong> is a diagnostic view that shows one selected point together with the exact coordinate system and unit used by each number. You will combine the nine Chapter 2 ideas into one Android tool.</p><div class="formula">one visible point → several named descriptions</div></div><aside class="goal-box"><h2>Lesson goal</h2><ul><li>Draw a grid, local origin, bounds, center, crosshair, and point marker.</li><li>Read the point as local px, local dp, normalized coordinates, parent px, window px, and screen px.</li><li>Explain why the numbers differ without saying that the point moved.</li><li>Trace the real Pixel 8 Pro values from input to drawing.</li></ul><div class="progress-line">17 of 216 lessons are complete after this checkpoint.</div></aside></header>
+<nav class="topbar"><div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-the-screen-is-a-grid.html">Chapter 2</a> · <a href="../../glossary.html">Glossary</a></div><span class="lesson-chip">Lesson 2.9 · Coordinate inspector</span></nav>
+<header class="hero panel"><div><div class="eyebrow">Chapter 2 · The screen is a grid</div><h1>Build a coordinate inspector</h1><p class="lead">A <strong>coordinate inspector</strong> is a diagnostic view that shows one selected point together with the exact coordinate system and unit used by each number. You will combine the nine Chapter 2 ideas into one iOS tool.</p><div class="formula">one visible point → several named descriptions</div></div><aside class="goal-box"><h2>Lesson goal</h2><ul><li>Draw a grid, local origin, bounds, center, crosshair, and point marker.</li><li>Read the point as local pt, local px, normalized coordinates, parent pt, window pt, and screen pt.</li><li>Explain why the numbers differ without saying that the point moved.</li><li>Trace the real iPhone 16 Pro values from input to drawing.</li></ul><div class="progress-line">iOS-confirmed complete remains 40 of 216 through Lesson 9.6. Chapter 2 is a must-re-read on-ramp chapter.</div></aside></header>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">1 · New input words</div><h2>Define the objects before using them</h2></div><p>The tool needs one small amount of pointer vocabulary.</p></div><div class="four-column"><article class="card green"><h3>Pointer</h3><p>A <strong>pointer</strong> is a physical object that can point at a screen coordinate. On the Pixel 8 Pro, the pointer is normally your finger. A stylus or mouse can also be a pointer.</p></article><article class="card indigo"><h3>Pointer event</h3><p>A <strong>pointer event</strong> is one data record produced when a pointer goes down, moves, or goes up. The event contains a position relative to the element receiving it.</p></article><article class="card amber"><h3>Crosshair</h3><p>A <strong>crosshair</strong> is one horizontal guide and one vertical guide that meet at the selected point. It makes the point’s X and Y distances visible.</p></article><article class="card blue"><h3>Inspector bounds</h3><p>The <strong>inspector bounds</strong> are the rectangle occupied by the diagnostic drawing area. Its local left and top are 0. Its local right and bottom equal its measured width and height.</p></article></div><div class="note"><strong>Evidence limit:</strong> the browser laboratory below uses teaching coordinates. The Android readout uses the size, density, and placement measured by Compose on your Pixel 8 Pro.</div></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">1 · New input words</div><h2>Define the objects before using them</h2></div><p>The tool needs one small amount of pointer vocabulary.</p></div><div class="four-column"><article class="card green"><h3>Pointer</h3><p>A <strong>pointer</strong> is a physical object that can point at a screen coordinate. On the iPhone 16 Pro, the pointer is normally your finger. A stylus or mouse can also be a pointer.</p></article><article class="card indigo"><h3>Pointer event</h3><p>A <strong>pointer event</strong> is one data record produced when a pointer goes down, moves, or goes up. The event contains a position relative to the element receiving it.</p></article><article class="card amber"><h3>Crosshair</h3><p>A <strong>crosshair</strong> is one horizontal guide and one vertical guide that meet at the selected point. It makes the point’s X and Y distances visible.</p></article><article class="card blue"><h3>Inspector bounds</h3><p>The <strong>inspector bounds</strong> are the rectangle occupied by the diagnostic drawing area. Its local left and top are 0. Its local right and bottom equal its measured width and height.</p></article></div><div class="note"><strong>Evidence limit:</strong> the browser laboratory below uses teaching coordinates. The iOS readout uses the size, scale, and placement measured by SwiftUI on your iPhone 16 Pro.</div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">2 · Interactive inspector laboratory</div><h2>Drag one point and read every description</h2></div><p>All positions are calculated from the visible dimensions and origins.</p></div><div class="lab-shell"><div class="lab-toolbar"><strong>Nested screen → window → parent → inspector → point</strong><div class="controls"><button class="preset-button" data-point="origin" type="button">Origin</button><button class="preset-button" data-point="center" type="button">Center</button><button class="preset-button selected" data-point="quarter" type="button">Quarter / three-quarter</button><button class="preset-button" data-point="bottom" type="button">Bottom-right boundary</button></div></div><div class="lab-layout"><div class="lab-stage"><svg id="mainSvg" viewBox="0 0 1500 760" aria-label="Interactive coordinate inspector"></svg></div><aside class="lab-controls"><h3>Inspector size and point</h3><div class="range-row"><label for="widthRange">Width</label><input id="widthRange" type="range" min="480" max="960" step="40" value="640"><strong id="widthValue"></strong></div><div class="range-row"><label for="heightRange">Height</label><input id="heightRange" type="range" min="280" max="560" step="40" value="360"><strong id="heightValue"></strong></div><div class="range-row"><label for="xRange">Pointer local X</label><input id="xRange" type="range" min="0" max="640" step="1" value="160"><strong id="xValue"></strong></div><div class="range-row"><label for="yRange">Pointer local Y</label><input id="yRange" type="range" min="0" max="360" step="1" value="270"><strong id="yValue"></strong></div><div class="range-row"><label for="densityRange">Density</label><input id="densityRange" type="range" min="1" max="4" step="0.25" value="2.5"><strong id="densityValue"></strong></div><h3>Placement experiments</h3><div class="controls"><button class="preset-button selected" data-placement="baseline" type="button">Baseline origins</button><button class="preset-button" data-placement="moveInspector" type="button">Move only inspector</button><button class="preset-button" data-placement="fullScreen" type="button">Window starts at screen (0, 0)</button></div><div class="toggle-row"><label><input id="showGrid" type="checkbox" checked> Show grid</label><label><input id="showCenter" type="checkbox" checked> Show center</label><label><input id="showBounds" type="checkbox" checked> Show bounds</label></div><div class="metric-grid"><div class="metric"><strong>Local bounds</strong><span id="mBounds"></span></div><div class="metric"><strong>Local center</strong><span id="mCenter"></span></div><div class="metric"><strong>Pointer local px</strong><span id="mLocal"></span></div><div class="metric"><strong>Pointer local dp</strong><span id="mDp"></span></div><div class="metric"><strong>Pointer normalized</strong><span id="mNormalized"></span></div><div class="metric"><strong>Pointer in parent</strong><span id="mParent"></span></div><div class="metric"><strong>Pointer in window</strong><span id="mWindow"></span></div><div class="metric"><strong>Pointer on screen</strong><span id="mScreen"></span></div></div><div class="formula" id="liveFormula"></div></aside></div></div><div class="warning"><strong>Do not add unlike units.</strong> A normalized value such as <code>0.25</code> is unitless. It cannot be added directly to a screen origin measured in pixels. Convert it to local pixels first.</div></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">2 · Interactive inspector laboratory</div><h2>Drag one point and read every description</h2></div><p>All positions are calculated from the visible dimensions and origins.</p></div><div class="lab-shell"><div class="lab-toolbar"><strong>Nested screen → window → parent → inspector → point</strong><div class="controls"><button class="preset-button" data-point="origin" type="button">Origin</button><button class="preset-button" data-point="center" type="button">Center</button><button class="preset-button selected" data-point="quarter" type="button">Quarter / three-quarter</button><button class="preset-button" data-point="bottom" type="button">Bottom-right boundary</button></div></div><div class="lab-layout"><div class="lab-stage"><svg id="mainSvg" viewBox="0 0 1500 760" aria-label="Interactive coordinate inspector"></svg></div><aside class="lab-controls"><h3>Inspector size and point</h3><div class="range-row"><label for="widthRange">Width</label><input id="widthRange" type="range" min="480" max="960" step="40" value="640"><strong id="widthValue"></strong></div><div class="range-row"><label for="heightRange">Height</label><input id="heightRange" type="range" min="280" max="560" step="40" value="360"><strong id="heightValue"></strong></div><div class="range-row"><label for="xRange">Pointer local X</label><input id="xRange" type="range" min="0" max="640" step="1" value="160"><strong id="xValue"></strong></div><div class="range-row"><label for="yRange">Pointer local Y</label><input id="yRange" type="range" min="0" max="360" step="1" value="270"><strong id="yValue"></strong></div><div class="range-row"><label for="densityRange">Scale</label><input id="densityRange" type="range" min="1" max="4" step="0.25" value="2.5"><strong id="densityValue"></strong></div><h3>Placement experiments</h3><div class="controls"><button class="preset-button selected" data-placement="baseline" type="button">Baseline origins</button><button class="preset-button" data-placement="moveInspector" type="button">Move only inspector</button><button class="preset-button" data-placement="fullScreen" type="button">Window starts at screen (0, 0)</button></div><div class="toggle-row"><label><input id="showGrid" type="checkbox" checked> Show grid</label><label><input id="showCenter" type="checkbox" checked> Show center</label><label><input id="showBounds" type="checkbox" checked> Show bounds</label></div><div class="metric-grid"><div class="metric"><strong>Local bounds</strong><span id="mBounds"></span></div><div class="metric"><strong>Local center</strong><span id="mCenter"></span></div><div class="metric"><strong>Pointer local pt</strong><span id="mLocal"></span></div><div class="metric"><strong>Pointer local px</strong><span id="mDp"></span></div><div class="metric"><strong>Pointer normalized</strong><span id="mNormalized"></span></div><div class="metric"><strong>Pointer in parent</strong><span id="mParent"></span></div><div class="metric"><strong>Pointer in window</strong><span id="mWindow"></span></div><div class="metric"><strong>Pointer on screen</strong><span id="mScreen"></span></div></div><div class="formula" id="liveFormula"></div></aside></div></div><div class="warning"><strong>Do not add unlike units.</strong> A normalized value such as <code>0.25</code> is unitless. It cannot be added directly to a screen origin measured in points. Convert it to local points first.</div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">3 · Read the default snapshot</div><h2>Follow one complete set of numbers</h2></div><p>The default values are the bridge between the diagrams and the Android code.</p></div><div class="snapshot"><table><thead><tr><th>Description</th><th>Input</th><th>Operation</th><th>Output</th></tr></thead><tbody><tr><td>Local bounds</td><td>width 640 px, height 360 px</td><td>left = 0, top = 0, right = width, bottom = height</td><td>(0, 0, 640, 360) px</td></tr><tr><td>Local center</td><td>640 × 360 px</td><td>(640 ÷ 2, 360 ÷ 2)</td><td>(320, 180) px</td></tr><tr><td>Pointer normalized</td><td>local (160, 270) px</td><td>(160 ÷ 640, 270 ÷ 360)</td><td>(0.25, 0.75)</td></tr><tr><td>Pointer local dp</td><td>local (160, 270) px, density 2.5 px/dp</td><td>(160 ÷ 2.5, 270 ÷ 2.5)</td><td>(64, 108) dp</td></tr><tr><td>Pointer in parent</td><td>inspector origin in parent (120, 80) px</td><td>(120, 80) + (160, 270)</td><td>(280, 350) px</td></tr><tr><td>Pointer in window</td><td>parent in window (180, 100) px</td><td>(180, 100) + (280, 350)</td><td>(460, 450) px</td></tr><tr><td>Pointer on screen</td><td>window on screen (40, 60) px</td><td>(40, 60) + (460, 450)</td><td>(500, 510) px</td></tr></tbody></table></div><div class="success-note"><strong>The point did not move.</strong> Every row describes the same visible point. The origin, unit, or numeric scale changed.</div></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">3 · Read the default snapshot</div><h2>Follow one complete set of numbers</h2></div><p>The default values are the bridge between the diagrams and the iOS code.</p></div><div class="snapshot"><table><thead><tr><th>Description</th><th>Input</th><th>Operation</th><th>Output</th></tr></thead><tbody><tr><td>Local bounds</td><td>width 640 pt, height 360 pt</td><td>left = 0, top = 0, right = width, bottom = height</td><td>(0, 0, 640, 360) pt</td></tr><tr><td>Local center</td><td>640 × 360 pt</td><td>(640 ÷ 2, 360 ÷ 2)</td><td>(320, 180) pt</td></tr><tr><td>Pointer normalized</td><td>local (160, 270) pt</td><td>(160 ÷ 640, 270 ÷ 360)</td><td>(0.25, 0.75)</td></tr><tr><td>Pointer local px</td><td>local (160, 270) pt, scale 2.5 px/pt</td><td>(160 × 2.5, 270 × 2.5)</td><td>(400, 675) px</td></tr><tr><td>Pointer in parent</td><td>inspector origin in parent (120, 80) pt</td><td>(120, 80) + (160, 270)</td><td>(280, 350) pt</td></tr><tr><td>Pointer in window</td><td>parent in window (180, 100) pt</td><td>(180, 100) + (280, 350)</td><td>(460, 450) pt</td></tr><tr><td>Pointer on screen</td><td>window on screen (40, 60) pt</td><td>(40, 60) + (460, 450)</td><td>(500, 510) pt</td></tr></tbody></table></div><div class="success-note"><strong>The point did not move.</strong> Every row describes the same visible point. The origin, unit, or numeric scale changed.</div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">4 · One number can refer to different objects</div><h2>Name the value before reading it</h2></div><p>The label is part of the data.</p></div><div class="four-column"><article class="card indigo"><h3><code>160 px</code></h3><p>This is the local horizontal distance from the inspector’s left edge to the point.</p></article><article class="card green"><h3><code>64 dp</code></h3><p>This is the same local horizontal distance after division by the teaching density 2.5 px per dp.</p></article><article class="card amber"><h3><code>0.25</code></h3><p>This is the unitless horizontal fraction of the inspector width.</p></article><article class="card blue"><h3><code>500 px</code></h3><p>This is the point’s horizontal screen-relative position in the default nested example.</p></article></div><div class="warning"><strong>Diagnostic question:</strong> is <code>0.25</code> “smaller” than <code>160 px</code>? That comparison has no useful meaning. The two values use different numeric scales and describe the distance in different ways.</div></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">4 · One number can refer to different objects</div><h2>Name the value before reading it</h2></div><p>The label is part of the data.</p></div><div class="four-column"><article class="card indigo"><h3><code>160 pt</code></h3><p>This is the local horizontal distance from the inspector’s left edge to the point.</p></article><article class="card green"><h3><code>400 px</code></h3><p>This is the same local horizontal distance after multiplication by the teaching scale 2.5 px per pt.</p></article><article class="card amber"><h3><code>0.25</code></h3><p>This is the unitless horizontal fraction of the inspector width.</p></article><article class="card blue"><h3><code>500 pt</code></h3><p>This is the point’s horizontal screen-relative position in the default nested example.</p></article></div><div class="warning"><strong>Diagnostic question:</strong> is <code>0.25</code> “smaller” than <code>160 px</code>? That comparison has no useful meaning. The two values use different numeric scales and describe the distance in different ways.</div></section>
 
 <section class="section panel"><div class="section-intro"><div><div class="section-number">5 · Manual construction</div><h2>Build the inspector one operation at a time</h2></div><p>Use Back and Next. Each step adds one new responsibility.</p></div><div class="stepper-layout"><div class="step-figure"><svg id="stepSvg" viewBox="0 0 1040 650"></svg></div><div class="stepper-card"><div class="stepper-nav" id="stepButtons"></div><div class="step-body"><div class="step-title" id="stepTitle"></div><p class="step-caption" id="stepCaption"></p><pre class="code-excerpt" id="stepCode"></pre><div class="io-row"><div class="io-box"><strong>Input</strong><span id="stepInput"></span></div><div class="io-box"><strong>Operation</strong><span id="stepOperation"></span></div><div class="io-box"><strong>Output</strong><span id="stepOutput"></span></div></div><div class="step-actions"><button class="secondary-button" id="stepBack" type="button">Back</button><button class="primary-button" id="stepNext" type="button">Next</button></div></div></div></div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">6 · Android value trace</div><h2>Follow one finger position to every readout</h2></div><p>The code stores immutable numbers, not a long-lived <code>LayoutCoordinates</code> object.</p></div><div class="trace-grid"><article class="trace-box"><strong>1 · Read density</strong><p><code>LocalDensity.current</code> supplies the current px-per-dp conversion scale.</p><span class="trace-code">val density = LocalDensity.current</span></article><article class="trace-box"><strong>2 · Measure geometry</strong><p><code>onGloballyPositioned</code> copies size and three origins into <code>InspectorGeometry</code>.</p><span class="trace-code">sizePx = coordinates.size
-originInWindowPx = coordinates.positionInWindow()</span></article><article class="trace-box"><strong>3 · Receive pointer input</strong><p><code>awaitFirstDown</code> receives the first pressed pointer inside the inspector.</p><span class="trace-code">val down = awaitFirstDown(...)</span></article><article class="trace-box"><strong>4 · Clamp to bounds</strong><p>The point is restricted to local X from 0 through width and local Y from 0 through height.</p><span class="trace-code">down.position.clampTo(geometry.sizePx)</span></article><article class="trace-box"><strong>5 · Store normalized state</strong><p>Division converts local pixels into a pair that survives a later size change.</p><span class="trace-code">normalizedX = value / width
-normalizedY = value / height</span></article><article class="trace-box"><strong>6 · Rebuild local px</strong><p>The current width and height convert the stored fractions back into drawing coordinates.</p><span class="trace-code">Offset(
- x = normalizedX * widthPx,
- y = normalizedY * heightPx,
-)</span></article><article class="trace-box"><strong>7 · Derive other spaces</strong><p>Density division produces dp. Origin addition produces parent, window, and screen positions.</p><span class="trace-code">localPx / density
-originInWindowPx + localPointPx</span></article><article class="trace-box"><strong>8 · Draw the evidence</strong><p>The Canvas consumes the grid, bounds, center, and point values. The text rows consume the same state.</p><span class="trace-code">drawInspectorGrid(
- localPointPx,
- localCenterPx,
- pointerPressed,
-)</span></article></div><div class="formula" style="margin-top:18px">pointer event → local px → normalized state → current local px → dp and larger spaces → Canvas + text readouts</div><div class="note"><strong>Why raw pointer input is used here:</strong> this teaching tool needs the exact down position and every movement position. The implementation uses one custom pointer handler and consumes its active changes so dragging inside the inspector does not become vertical page scrolling. Gesture design in a production control requires additional accessibility and interaction semantics; this diagnostic surface is not a general-purpose button.</div></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">6 · iOS value trace</div><h2>Follow one finger position to every readout</h2></div><p>The code stores immutable numbers, not a long-lived geometry object.</p></div><div class="trace-grid"><article class="trace-box"><strong>1 · Read scale</strong><p><code>displayScale</code> supplies the current px-per-pt conversion scale.</p><span class="trace-code">@Environment(\.displayScale)
+private var displayScale</span></article><article class="trace-box"><strong>2 · Measure geometry</strong><p><code>GeometryReader</code> copies size and the parent origin into <code>InspectorGeometry</code>. Window and screen origins come from <code>UIView.convert</code>.</p><span class="trace-code">sizePt = proxy.size
+originInParentPt = proxy.frame(
+  in: .named("inspectorParent")
+).origin</span></article><article class="trace-box"><strong>3 · Receive pointer input</strong><p><code>DragGesture(minimumDistance: 0)</code> receives the first press and every movement inside the inspector.</p><span class="trace-code">DragGesture(minimumDistance: 0)
+  .onChanged { value in
+    updateNormalized(from: value.location)
+  }</span></article><article class="trace-box"><strong>4 · Clamp to bounds</strong><p>The point is restricted to local X from 0 through width and local Y from 0 through height.</p><span class="trace-code">location.x.clamped(
+  to: 0...widthPt
+)</span></article><article class="trace-box"><strong>5 · Store normalized state</strong><p>Division converts local points into a pair that survives a later size change.</p><span class="trace-code">normalizedX = value / width
+normalizedY = value / height</span></article><article class="trace-box"><strong>6 · Rebuild local pt</strong><p>The current width and height convert the stored fractions back into drawing coordinates.</p><span class="trace-code">CGPoint(
+ x: normalizedX * widthPt,
+ y: normalizedY * heightPt
+)</span></article><article class="trace-box"><strong>7 · Derive other spaces</strong><p>Scale multiplication produces px. Origin addition produces parent, window, and screen positions.</p><span class="trace-code">localPt * displayScale
+originInWindowPt + localPointPt</span></article><article class="trace-box"><strong>8 · Draw the evidence</strong><p>The Canvas consumes the grid, bounds, center, and point values. The text rows consume the same state.</p><span class="trace-code">drawInspectorGrid(
+ localPointPt,
+ localCenterPt,
+ pointerPressed
+)</span></article></div><div class="formula" style="margin-top:18px">pointer event → local pt → normalized state → current local pt → px and larger spaces → Canvas + text readouts</div><div class="note"><strong>Why a high-priority drag is used here:</strong> this teaching tool needs the exact down position and every movement position. The implementation uses one drag gesture with <code>highPriorityGesture</code> so dragging inside the inspector does not become vertical page scrolling. Gesture design in a production control requires additional accessibility and interaction semantics; this diagnostic surface is not a general-purpose button.</div></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">7 · iOS source</div><h2>Two files change in Lesson 2.9</h2></div><p><code>NormalizedCoordinatesExplorer.swift</code> remains unchanged. The running <code>Chapter02Screen</code> also still hosts the earlier Chapter 2 explorers.</p></div><div class="source-tabs"><button class="mode-button selected" data-source="screen" type="button">Chapter02Screen.swift</button><button class="mode-button" data-source="inspector" type="button">CoordinateInspector.swift</button></div><div class="source-pane active" id="source-screen"><pre class="source-code">import SwiftUI
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">7 · Complete changed source</div><h2>Read the Android implementation</h2></div><p>The source below exactly matches the two files in the Android ZIP.</p></div><div class="source-tabs"><button class="mode-button selected" data-source="screen" type="button">Chapter02Screen.kt</button><button class="mode-button" data-source="inspector" type="button">CoordinateInspector.kt</button></div><div class="source-pane active" id="source-screen"><pre class="source-code">package com.example.liquidglasslab.chapter02
+struct Chapter02Screen: View {
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 28) {
+                Text(&quot;THE SCREEN IS A GRID&quot;)
+                    .font(.system(size: 14, weight: .black))
+                    .foregroundStyle(Color(hex: 0x059669))
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.example.liquidglasslab.ui.theme.LiquidGlassLabTheme
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 2.2 · The X axis&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;X is the horizontal position. &quot; +
+                        &quot;A larger X value moves the selected sample to the right.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    XAxisExplorer()
+                }
 
-@Composable
-fun Chapter02Screen(modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        color = Color(0xFFF8FAFC),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .safeDrawingPadding()
-                .padding(horizontal = 24.dp, vertical = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            Text(
-                text = &quot;THE SCREEN IS A GRID&quot;,
-                color = Color(0xFF059669),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = &quot;Lesson 2.9 · Coordinate inspector&quot;,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = &quot;Touch or drag inside the inspector. Read the same point as local pixels, &quot; +
-                    &quot;dp, normalized coordinates, and positions in larger coordinate systems.&quot;,
-                style = MaterialTheme.typography.bodyLarge,
-            )
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 2.3 · The Y axis&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Y is the vertical position. &quot; +
+                        &quot;In iOS screen coordinates, a larger Y value moves downward.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    YAxisExplorer()
+                }
 
-            CoordinateInspector()
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 2.4 · Width, height, edges, and center&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;A rectangle's bounds are its four edges. &quot; +
+                        &quot;Its center is halfway across its width and halfway down its height.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    BoundsCenterExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 2.5 · Pixels, points, and scale&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;SwiftUI receives layout sizes in points and converts them with displayScale. &quot; +
+                        &quot;SwiftUI Canvas drawing stays in points. Multiply by scale before a shader pixel distance.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    DensityExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 2.6 · Local coordinates&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Tap inside the child panel. The reported point starts at the child's own &quot; +
+                        &quot;top-left origin, even when the child moves inside its parent.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    LocalCoordinatesExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 2.7 · Parent, window, and screen coordinates&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Move one control inside its parent. Compare the same control's top-left &quot; +
+                        &quot;position relative to the parent, the app window, and the device screen.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    ParentScreenCoordinatesExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 2.8 · Normalized coordinates&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Describe one point with values from 0 to 1. Resize the drawing area and &quot; +
+                        &quot;keep the point at the same relative position.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    NormalizedCoordinatesExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 2.9 · Coordinate inspector&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Touch or drag inside the inspector. Read the same point as local points, &quot; +
+                        &quot;pixels, normalized coordinates, and positions in larger coordinate systems.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    CoordinateInspector()
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 20)
+            .frame(maxWidth: .infinity)
         }
+        .background(Color(hex: 0xF8FAFC))
+        .safeAreaPadding()
     }
 }
 
-@Preview(
-    name = &quot;Lesson 2.9 coordinate inspector&quot;,
-    showBackground = true,
-    widthDp = 412,
-    heightDp = 915,
-)
-@Composable
-private fun Chapter02ScreenPreview() {
-    LiquidGlassLabTheme {
+private extension Color {
+    init(hex: UInt32) {
+        self.init(
+            red: Double((hex &gt;&gt; 16) &amp; 0xFF) / 255,
+            green: Double((hex &gt;&gt; 8) &amp; 0xFF) / 255,
+            blue: Double(hex &amp; 0xFF) / 255
+        )
+    }
+}
+
+#Preview(&quot;Chapter 2 explorers · light&quot;) {
+    LabTheme {
         Chapter02Screen()
     }
-}
-</pre></div><div class="source-pane" id="source-inspector"><pre class="source-code">package com.example.liquidglasslab.chapter02
-
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.layout.positionOnScreen
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
-import java.util.Locale
-
-private val InspectorShape = RoundedCornerShape(22.dp)
-private val ReadoutShape = RoundedCornerShape(14.dp)
-
-private data class InspectorGeometry(
-    val sizePx: IntSize = IntSize.Zero,
-    val originInParentPx: Offset = Offset.Zero,
-    val originInWindowPx: Offset = Offset.Zero,
-    val originOnScreenPx: Offset? = null,
-)
-
-private enum class InspectorPointPreset(
-    val buttonLabel: String,
-    val normalizedX: Float,
-    val normalizedY: Float,
-) {
-    Origin(
-        buttonLabel = &quot;Origin&quot;,
-        normalizedX = 0f,
-        normalizedY = 0f,
-    ),
-    Center(
-        buttonLabel = &quot;Center&quot;,
-        normalizedX = 0.5f,
-        normalizedY = 0.5f,
-    ),
-    QuarterThreeQuarter(
-        buttonLabel = &quot;Quarter / three-quarter&quot;,
-        normalizedX = 0.25f,
-        normalizedY = 0.75f,
-    ),
-    BottomRight(
-        buttonLabel = &quot;Bottom-right boundary&quot;,
-        normalizedX = 1f,
-        normalizedY = 1f,
-    ),
+    .labPreviewCanvas()
 }
 
-@Composable
-internal fun CoordinateInspector(
-    modifier: Modifier = Modifier,
-) {
-    val density = LocalDensity.current
-    val densityScale = density.density
+#Preview(&quot;Chapter 2 explorers · dark&quot;) {
+    LabTheme {
+        Chapter02Screen()
+    }
+    .preferredColorScheme(.dark)
+    .labPreviewCanvas()
+}
+</pre></div><div class="source-pane" id="source-inspector"><pre class="source-code">import SwiftUI
+import UIKit
 
-    var geometry by remember {
-        mutableStateOf(InspectorGeometry())
-    }
-    var normalizedX by rememberSaveable {
-        mutableFloatStateOf(0.25f)
-    }
-    var normalizedY by rememberSaveable {
-        mutableFloatStateOf(0.75f)
-    }
-    var pointerPressed by remember {
-        mutableStateOf(false)
+private struct InspectorGeometry {
+    var sizePt: CGSize = .zero
+    var originInParentPt: CGPoint = .zero
+    var originInWindowPt: CGPoint?
+    var originOnScreenPt: CGPoint?
+}
+
+private enum InspectorPointPreset: String, CaseIterable {
+    case origin
+    case center
+    case quarterThreeQuarter
+    case bottomRight
+
+    var buttonLabel: String {
+        switch self {
+        case .origin: return &quot;Origin&quot;
+        case .center: return &quot;Center&quot;
+        case .quarterThreeQuarter: return &quot;Quarter / three-quarter&quot;
+        case .bottomRight: return &quot;Bottom-right boundary&quot;
+        }
     }
 
-    val widthPx = geometry.sizePx.width.toFloat()
-    val heightPx = geometry.sizePx.height.toFloat()
-    val localPointPx = Offset(
-        x = normalizedX * widthPx,
-        y = normalizedY * heightPx,
-    )
-    val localCenterPx = Offset(
-        x = widthPx / 2f,
-        y = heightPx / 2f,
-    )
-    val localPointDp = Offset(
-        x = divideByDensity(localPointPx.x, densityScale),
-        y = divideByDensity(localPointPx.y, densityScale),
-    )
-    val pointInParentPx = geometry.originInParentPx + localPointPx
-    val pointInWindowPx = geometry.originInWindowPx + localPointPx
-    val pointOnScreenPx = geometry.originOnScreenPx?.plus(localPointPx)
+    var normalizedX: CGFloat {
+        switch self {
+        case .origin: return 0
+        case .center: return 0.5
+        case .quarterThreeQuarter: return 0.25
+        case .bottomRight: return 1
+        }
+    }
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-    ) {
-        Text(
-            text = &quot;One point. Several descriptions.&quot;,
-            color = Color(0xFF4338CA),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Black,
+    var normalizedY: CGFloat {
+        switch self {
+        case .origin: return 0
+        case .center: return 0.5
+        case .quarterThreeQuarter: return 0.75
+        case .bottomRight: return 1
+        }
+    }
+}
+
+struct CoordinateInspector: View {
+    @Environment(\.displayScale) private var displayScale
+    @State private var geometry = InspectorGeometry()
+    @State private var normalizedX: CGFloat = 0.25
+    @State private var normalizedY: CGFloat = 0.75
+    @State private var pointerPressed = false
+
+    private var widthPt: CGFloat { geometry.sizePt.width }
+    private var heightPt: CGFloat { geometry.sizePt.height }
+    private var localPointPt: CGPoint {
+        CGPoint(x: normalizedX * widthPt, y: normalizedY * heightPt)
+    }
+    private var localCenterPt: CGPoint {
+        CGPoint(x: widthPt / 2, y: heightPt / 2)
+    }
+    private var localPointPx: CGPoint {
+        CGPoint(
+            x: multiplyByScale(localPointPt.x, displayScale),
+            y: multiplyByScale(localPointPt.y, displayScale)
         )
-        Text(
-            text = &quot;Touch or drag inside the rectangle. The crosshair marks one point. Every &quot; +
-                &quot;readout below describes that same point from a named origin or with a named unit.&quot;,
-            style = MaterialTheme.typography.bodyLarge,
-        )
+    }
+    private var pointInParentPt: CGPoint {
+        addPoints(geometry.originInParentPt, localPointPt)
+    }
+    private var pointInWindowPt: CGPoint? {
+        addOrNil(geometry.originInWindowPt, localPointPt)
+    }
+    private var pointOnScreenPt: CGPoint? {
+        addOrNil(geometry.originOnScreenPt, localPointPt)
+    }
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(340.dp)
-                .background(
-                    color = Color.White,
-                    shape = InspectorShape,
-                )
-                .border(
-                    width = 1.dp,
-                    color = Color(0xFFCBD5E1),
-                    shape = InspectorShape,
-                )
-                .onGloballyPositioned { coordinates -&gt;
-                    geometry = InspectorGeometry(
-                        sizePx = coordinates.size,
-                        originInParentPx = coordinates.positionInParent(),
-                        originInWindowPx = coordinates.positionInWindow(),
-                        originOnScreenPx = coordinates
-                            .positionOnScreen()
-                            .toFiniteOffsetOrNull(),
+    var body: some View {
+        VStack(spacing: 14) {
+            Text(&quot;One point. Several descriptions.&quot;)
+                .font(.system(size: 22, weight: .black))
+                .foregroundStyle(Color(hex: 0x4338CA))
+            Text(
+                &quot;Touch or drag inside the rectangle. The crosshair marks one point. Every &quot; +
+                &quot;readout below describes that same point from a named origin or with a named unit.&quot;
+            )
+            .font(LabType.bodyLarge)
+
+            ZStack(alignment: .topLeading) {
+                Canvas { context, size in
+                    drawInspectorGrid(
+                        context: context,
+                        size: size,
+                        localPointPt: localPointPt,
+                        localCenterPt: localCenterPt,
+                        pointerPressed: pointerPressed
                     )
                 }
-                .pointerInput(geometry.sizePx) {
-                    awaitEachGesture {
-                        val down = awaitFirstDown(requireUnconsumed = false)
-                        val downPoint = down.position.clampTo(geometry.sizePx)
-                        normalizedX = normalize(downPoint.x, geometry.sizePx.width)
-                        normalizedY = normalize(downPoint.y, geometry.sizePx.height)
-                        pointerPressed = true
-                        down.consume()
 
-                        try {
-                            var anyPointerPressed = true
-                            while (anyPointerPressed) {
-                                val event = awaitPointerEvent()
-                                val trackedChange = event.changes.firstOrNull {
-                                    it.id == down.id
-                                }
+                Text(&quot;origin (0, 0)&quot;)
+                    .font(LabType.label)
+                    .fontWeight(.black)
+                    .foregroundStyle(Color(hex: 0x1E3A8A))
+                    .padding(10)
 
-                                if (trackedChange != null) {
-                                    val trackedPoint = trackedChange.position
-                                        .clampTo(geometry.sizePx)
-                                    normalizedX = normalize(
-                                        value = trackedPoint.x,
-                                        size = geometry.sizePx.width,
-                                    )
-                                    normalizedY = normalize(
-                                        value = trackedPoint.y,
-                                        size = geometry.sizePx.height,
-                                    )
-                                    trackedChange.consume()
-                                }
+                Text(&quot;right = \(formatCoordinate(widthPt)) pt&quot;)
+                    .font(LabType.label)
+                    .fontWeight(.black)
+                    .foregroundStyle(Color(hex: 0x92400E))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                    .padding(10)
 
-                                anyPointerPressed = event.changes.any { it.pressed }
+                Text(&quot;bottom = \(formatCoordinate(heightPt)) pt&quot;)
+                    .font(LabType.label)
+                    .fontWeight(.black)
+                    .foregroundStyle(Color(hex: 0x92400E))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+                    .padding(10)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 340)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .strokeBorder(Color(hex: 0xCBD5E1), lineWidth: 1)
+            )
+            .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .background {
+                GeometryReader { proxy in
+                    Color.clear
+                        .preference(
+                            key: InspectorSizeKey.self,
+                            value: proxy.size
+                        )
+                        .preference(
+                            key: InspectorParentOriginKey.self,
+                            value: proxy.frame(in: .named(&quot;inspectorParent&quot;)).origin
+                        )
+                        .background {
+                            WindowScreenProbe { inWindow, onScreen in
+                                geometry.originInWindowPt = inWindow
+                                geometry.originOnScreenPt = onScreen
                             }
-                        } finally {
-                            pointerPressed = false
                         }
+                }
+            }
+            .onPreferenceChange(InspectorSizeKey.self) { geometry.sizePt = $0 }
+            .onPreferenceChange(InspectorParentOriginKey.self) { geometry.originInParentPt = $0 }
+            .highPriorityGesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in
+                        updateNormalized(from: value.location)
+                        pointerPressed = true
+                    }
+                    .onEnded { _ in
+                        pointerPressed = false
+                    }
+            )
+            .accessibilityLabel(
+                &quot;Coordinate inspector. Local point \(formatOffset(localPointPt)) points. &quot; +
+                &quot;Normalized point \(formatNormalizedPair(normalizedX, normalizedY)).&quot;
+            )
+
+            Text(
+                pointerPressed
+                    ? &quot;Pointer state: pressed. The inspector is receiving movement events.&quot;
+                    : &quot;Pointer state: released. Touch inside the rectangle to update the point.&quot;
+            )
+            .font(.system(size: 14, weight: .semibold))
+            .foregroundStyle(pointerPressed ? Color(hex: 0xBE185D) : Color(hex: 0x5C687A))
+
+            HStack(spacing: 8) {
+                ForEach(Array(InspectorPointPreset.allCases.prefix(2)), id: \.self) { preset in
+                    InspectorPresetButton(
+                        preset: preset,
+                        selected: normalizedX == preset.normalizedX &amp;&amp;
+                            normalizedY == preset.normalizedY
+                    ) {
+                        normalizedX = preset.normalizedX
+                        normalizedY = preset.normalizedY
                     }
                 }
-                .semantics {
-                    contentDescription =
-                        &quot;Coordinate inspector. Local point ${formatOffset(localPointPx)} pixels. &quot; +
-                        &quot;Normalized point ${formatNormalizedPair(normalizedX, normalizedY)}.&quot;
-                },
-        ) {
-            Canvas(
-                modifier = Modifier.matchParentSize(),
-            ) {
-                drawInspectorGrid(
-                    localPointPx = localPointPx,
-                    localCenterPx = localCenterPx,
-                    pointerPressed = pointerPressed,
-                )
             }
-
-            Text(
-                text = &quot;origin (0, 0)&quot;,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(10.dp),
-                color = Color(0xFF1E3A8A),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = &quot;right = ${formatCoordinate(widthPx)} px&quot;,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(10.dp),
-                color = Color(0xFF92400E),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = &quot;bottom = ${formatCoordinate(heightPx)} px&quot;,
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(10.dp),
-                color = Color(0xFF92400E),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Black,
-            )
-        }
-
-        Text(
-            text = if (pointerPressed) {
-                &quot;Pointer state: pressed. The inspector is receiving movement events.&quot;
-            } else {
-                &quot;Pointer state: released. Touch inside the rectangle to update the point.&quot;
-            },
-            color = if (pointerPressed) Color(0xFFBE185D) else Color(0xFF5C687A),
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.SemiBold,
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            InspectorPointPreset.entries.take(2).forEach { preset -&gt;
-                InspectorPresetButton(
-                    preset = preset,
-                    selected = normalizedX == preset.normalizedX &amp;&amp;
-                        normalizedY == preset.normalizedY,
-                    modifier = Modifier.weight(1f),
-                    onClick = {
+            HStack(spacing: 8) {
+                ForEach(Array(InspectorPointPreset.allCases.dropFirst(2)), id: \.self) { preset in
+                    InspectorPresetButton(
+                        preset: preset,
+                        selected: normalizedX == preset.normalizedX &amp;&amp;
+                            normalizedY == preset.normalizedY
+                    ) {
                         normalizedX = preset.normalizedX
                         normalizedY = preset.normalizedY
-                    },
-                )
+                    }
+                }
             }
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            InspectorPointPreset.entries.drop(2).forEach { preset -&gt;
-                InspectorPresetButton(
-                    preset = preset,
-                    selected = normalizedX == preset.normalizedX &amp;&amp;
-                        normalizedY == preset.normalizedY,
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-                        normalizedX = preset.normalizedX
-                        normalizedY = preset.normalizedY
-                    },
-                )
-            }
-        }
 
-        InspectorReadouts(
-            geometry = geometry,
-            densityScale = densityScale,
-            localPointPx = localPointPx,
-            localPointDp = localPointDp,
-            localCenterPx = localCenterPx,
-            normalizedX = normalizedX,
-            normalizedY = normalizedY,
-            pointInParentPx = pointInParentPx,
-            pointInWindowPx = pointInWindowPx,
-            pointOnScreenPx = pointOnScreenPx,
-        )
+            InspectorReadouts(
+                geometry: geometry,
+                displayScale: displayScale,
+                localPointPt: localPointPt,
+                localPointPx: localPointPx,
+                localCenterPt: localCenterPt,
+                normalizedX: normalizedX,
+                normalizedY: normalizedY,
+                pointInParentPt: pointInParentPt,
+                pointInWindowPt: pointInWindowPt,
+                pointOnScreenPt: pointOnScreenPt
+            )
 
-        Text(
-            text = &quot;The parent, window, and screen calculations below assume this lesson&#x27;s &quot; +
+            Text(
+                &quot;The parent, window, and screen calculations below assume this lesson's &quot; +
                 &quot;inspector is not rotated or scaled. A later transform would require a coordinate &quot; +
-                &quot;conversion API instead of simple addition.&quot;,
-            style = MaterialTheme.typography.bodySmall,
-            color = Color(0xFF5C687A),
-        )
-    }
-}
-
-@Composable
-private fun InspectorPresetButton(
-    preset: InspectorPointPreset,
-    selected: Boolean,
-    modifier: Modifier,
-    onClick: () -&gt; Unit,
-) {
-    if (selected) {
-        Button(
-            modifier = modifier,
-            onClick = onClick,
-        ) {
-            Text(preset.buttonLabel)
-        }
-    } else {
-        OutlinedButton(
-            modifier = modifier,
-            onClick = onClick,
-        ) {
-            Text(preset.buttonLabel)
-        }
-    }
-}
-
-@Composable
-private fun InspectorReadouts(
-    geometry: InspectorGeometry,
-    densityScale: Float,
-    localPointPx: Offset,
-    localPointDp: Offset,
-    localCenterPx: Offset,
-    normalizedX: Float,
-    normalizedY: Float,
-    pointInParentPx: Offset,
-    pointInWindowPx: Offset,
-    pointOnScreenPx: Offset?,
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        InspectorReadout(
-            label = &quot;Local bounds&quot;,
-            value = &quot;left 0 · top 0 · right ${formatCoordinate(
-                geometry.sizePx.width.toFloat(),
-            )} · bottom ${formatCoordinate(geometry.sizePx.height.toFloat())} px&quot;,
-            explanation = &quot;Origin: inspector top-left. Right and bottom are boundary coordinates.&quot;,
-        )
-        InspectorReadout(
-            label = &quot;Local center&quot;,
-            value = &quot;${formatOffset(localCenterPx)} px&quot;,
-            explanation = &quot;Operation: width ÷ 2 and height ÷ 2.&quot;,
-        )
-        InspectorReadout(
-            label = &quot;Pointer in local pixels&quot;,
-            value = &quot;${formatOffset(localPointPx)} px&quot;,
-            explanation = &quot;Origin: inspector top-left. Unit: px.&quot;,
-        )
-        InspectorReadout(
-            label = &quot;Pointer in local dp&quot;,
-            value = &quot;${formatOffset(localPointDp)} dp&quot;,
-            explanation = &quot;Operation: each local px value ÷ density ${formatDensity(densityScale)}.&quot;,
-        )
-        InspectorReadout(
-            label = &quot;Pointer normalized&quot;,
-            value = formatNormalizedPair(normalizedX, normalizedY),
-            explanation = &quot;Operation: local X ÷ width and local Y ÷ height.&quot;,
-        )
-        InspectorReadout(
-            label = &quot;Inspector origin in parent&quot;,
-            value = &quot;${formatOffset(geometry.originInParentPx)} px&quot;,
-            explanation = &quot;Origin: the immediate parent content area.&quot;,
-        )
-        InspectorReadout(
-            label = &quot;Pointer in parent&quot;,
-            value = &quot;${formatOffset(pointInParentPx)} px&quot;,
-            explanation = &quot;Inspector origin in parent + pointer local px.&quot;,
-        )
-        InspectorReadout(
-            label = &quot;Pointer in window&quot;,
-            value = &quot;${formatOffset(pointInWindowPx)} px&quot;,
-            explanation = &quot;Inspector origin in window + pointer local px.&quot;,
-        )
-        InspectorReadout(
-            label = &quot;Pointer on screen&quot;,
-            value = pointOnScreenPx?.let { &quot;${formatOffset(it)} px&quot; } ?: &quot;not available&quot;,
-            explanation = &quot;Inspector origin on screen + pointer local px, when available.&quot;,
-        )
-    }
-}
-
-@Composable
-private fun InspectorReadout(
-    label: String,
-    value: String,
-    explanation: String,
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = Color.White,
-                shape = ReadoutShape,
+                &quot;conversion API instead of simple addition.&quot;
             )
-            .border(
-                width = 1.dp,
-                color = Color(0xFFCBD5E1),
-                shape = ReadoutShape,
+            .font(.system(size: 12))
+            .foregroundStyle(Color(hex: 0x5C687A))
+        }
+        .frame(maxWidth: .infinity)
+        .coordinateSpace(.named(&quot;inspectorParent&quot;))
+    }
+
+    private func updateNormalized(from location: CGPoint) {
+        let clamped = CGPoint(
+            x: location.x.clamped(to: 0...max(widthPt, 0)),
+            y: location.y.clamped(to: 0...max(heightPt, 0))
+        )
+        normalizedX = normalize(clamped.x, size: widthPt)
+        normalizedY = normalize(clamped.y, size: heightPt)
+    }
+}
+
+private struct InspectorPresetButton: View {
+    var preset: InspectorPointPreset
+    var selected: Bool
+    var onClick: () -&gt; Void
+
+    var body: some View {
+        if selected {
+            Button(action: onClick) {
+                Text(preset.buttonLabel)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+        } else {
+            Button(action: onClick) {
+                Text(preset.buttonLabel)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+        }
+    }
+}
+
+private struct InspectorReadouts: View {
+    var geometry: InspectorGeometry
+    var displayScale: CGFloat
+    var localPointPt: CGPoint
+    var localPointPx: CGPoint
+    var localCenterPt: CGPoint
+    var normalizedX: CGFloat
+    var normalizedY: CGFloat
+    var pointInParentPt: CGPoint
+    var pointInWindowPt: CGPoint?
+    var pointOnScreenPt: CGPoint?
+
+    var body: some View {
+        VStack(spacing: 8) {
+            InspectorReadout(
+                label: &quot;Local bounds&quot;,
+                value: &quot;left 0 · top 0 · right \(formatCoordinate(geometry.sizePt.width)) · &quot; +
+                    &quot;bottom \(formatCoordinate(geometry.sizePt.height)) pt&quot;,
+                explanation: &quot;Origin: inspector top-left. Right and bottom are boundary coordinates.&quot;
             )
-            .padding(horizontal = 14.dp, vertical = 10.dp),
-        verticalArrangement = Arrangement.spacedBy(3.dp),
-    ) {
-        Text(
-            text = label,
-            fontWeight = FontWeight.Black,
+            InspectorReadout(
+                label: &quot;Local center&quot;,
+                value: &quot;\(formatOffset(localCenterPt)) pt&quot;,
+                explanation: &quot;Operation: width ÷ 2 and height ÷ 2.&quot;
+            )
+            InspectorReadout(
+                label: &quot;Pointer in local points&quot;,
+                value: &quot;\(formatOffset(localPointPt)) pt&quot;,
+                explanation: &quot;Origin: inspector top-left. Unit: pt.&quot;
+            )
+            InspectorReadout(
+                label: &quot;Pointer in local pixels&quot;,
+                value: &quot;\(formatOffset(localPointPx)) px&quot;,
+                explanation: &quot;Operation: each local pt value × scale \(formatScale(displayScale)).&quot;
+            )
+            InspectorReadout(
+                label: &quot;Pointer normalized&quot;,
+                value: formatNormalizedPair(normalizedX, normalizedY),
+                explanation: &quot;Operation: local X ÷ width and local Y ÷ height.&quot;
+            )
+            InspectorReadout(
+                label: &quot;Inspector origin in parent&quot;,
+                value: &quot;\(formatOffset(geometry.originInParentPt)) pt&quot;,
+                explanation: &quot;Origin: the immediate parent content area.&quot;
+            )
+            InspectorReadout(
+                label: &quot;Pointer in parent&quot;,
+                value: &quot;\(formatOffset(pointInParentPt)) pt&quot;,
+                explanation: &quot;Inspector origin in parent + pointer local pt.&quot;
+            )
+            InspectorReadout(
+                label: &quot;Pointer in window&quot;,
+                value: formatOptionalOffset(pointInWindowPt),
+                explanation: &quot;Inspector origin in window + pointer local pt.&quot;
+            )
+            InspectorReadout(
+                label: &quot;Pointer on screen&quot;,
+                value: formatOptionalOffset(pointOnScreenPt),
+                explanation: &quot;Inspector origin on screen + pointer local pt, when available.&quot;
+            )
+        }
+    }
+}
+
+private struct InspectorReadout: View {
+    var label: String
+    var value: String
+    var explanation: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(label)
+                .fontWeight(.black)
+            Text(value)
+                .fontWeight(.black)
+                .foregroundStyle(Color(hex: 0x4338CA))
+            Text(explanation)
+                .font(.system(size: 12))
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color.white)
         )
-        Text(
-            text = value,
-            color = Color(0xFF4338CA),
-            fontWeight = FontWeight.Black,
-        )
-        Text(
-            text = explanation,
-            style = MaterialTheme.typography.bodySmall,
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(Color(hex: 0xCBD5E1), lineWidth: 1)
         )
     }
 }
 
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawInspectorGrid(
-    localPointPx: Offset,
-    localCenterPx: Offset,
-    pointerPressed: Boolean,
+private func drawInspectorGrid(
+    context: GraphicsContext,
+    size: CGSize,
+    localPointPt: CGPoint,
+    localCenterPt: CGPoint,
+    pointerPressed: Bool
 ) {
-    val gridSpacingPx = 32.dp.toPx()
-    val gridStrokePx = 1.dp.toPx()
-    val centerStrokePx = 2.dp.toPx()
-    val pointerStrokePx = 2.dp.toPx()
-    val boundaryStrokePx = 3.dp.toPx()
-    val dashEffect = PathEffect.dashPathEffect(
-        intervals = floatArrayOf(10.dp.toPx(), 7.dp.toPx()),
-    )
-
-    var gridX = gridSpacingPx
-    while (gridX &lt; size.width) {
-        drawLine(
-            color = Color(0xFFDCE6F5),
-            start = Offset(gridX, 0f),
-            end = Offset(gridX, size.height),
-            strokeWidth = gridStrokePx,
-        )
-        gridX += gridSpacingPx
+    let gridSpacingPt: CGFloat = 32
+    var gridX = gridSpacingPt
+    while gridX &lt; size.width {
+        var vertical = Path()
+        vertical.move(to: CGPoint(x: gridX, y: 0))
+        vertical.addLine(to: CGPoint(x: gridX, y: size.height))
+        context.stroke(vertical, with: .color(Color(hex: 0xDCE6F5)), lineWidth: 1)
+        gridX += gridSpacingPt
     }
 
-    var gridY = gridSpacingPx
-    while (gridY &lt; size.height) {
-        drawLine(
-            color = Color(0xFFDCE6F5),
-            start = Offset(0f, gridY),
-            end = Offset(size.width, gridY),
-            strokeWidth = gridStrokePx,
-        )
-        gridY += gridSpacingPx
+    var gridY = gridSpacingPt
+    while gridY &lt; size.height {
+        var horizontal = Path()
+        horizontal.move(to: CGPoint(x: 0, y: gridY))
+        horizontal.addLine(to: CGPoint(x: size.width, y: gridY))
+        context.stroke(horizontal, with: .color(Color(hex: 0xDCE6F5)), lineWidth: 1)
+        gridY += gridSpacingPt
     }
 
-    drawLine(
-        color = Color(0xFF4338CA),
-        start = Offset(localCenterPx.x, 0f),
-        end = Offset(localCenterPx.x, size.height),
-        strokeWidth = centerStrokePx,
-        pathEffect = dashEffect,
-    )
-    drawLine(
-        color = Color(0xFF4338CA),
-        start = Offset(0f, localCenterPx.y),
-        end = Offset(size.width, localCenterPx.y),
-        strokeWidth = centerStrokePx,
-        pathEffect = dashEffect,
+    var centerVertical = Path()
+    centerVertical.move(to: CGPoint(x: localCenterPt.x, y: 0))
+    centerVertical.addLine(to: CGPoint(x: localCenterPt.x, y: size.height))
+    context.stroke(
+        centerVertical,
+        with: .color(Color(hex: 0x4338CA)),
+        style: StrokeStyle(lineWidth: 2, dash: [10, 7])
     )
 
-    drawLine(
-        color = Color(0xFFBE185D),
-        start = Offset(0f, localPointPx.y),
-        end = localPointPx,
-        strokeWidth = pointerStrokePx,
-    )
-    drawLine(
-        color = Color(0xFF1E40AF),
-        start = Offset(localPointPx.x, 0f),
-        end = localPointPx,
-        strokeWidth = pointerStrokePx,
+    var centerHorizontal = Path()
+    centerHorizontal.move(to: CGPoint(x: 0, y: localCenterPt.y))
+    centerHorizontal.addLine(to: CGPoint(x: size.width, y: localCenterPt.y))
+    context.stroke(
+        centerHorizontal,
+        with: .color(Color(hex: 0x4338CA)),
+        style: StrokeStyle(lineWidth: 2, dash: [10, 7])
     )
 
-    val inset = boundaryStrokePx / 2f
-    drawRect(
-        color = Color(0xFFD97706),
-        topLeft = Offset(inset, inset),
-        size = Size(
-            width = (size.width - boundaryStrokePx).coerceAtLeast(0f),
-            height = (size.height - boundaryStrokePx).coerceAtLeast(0f),
-        ),
-        style = Stroke(width = boundaryStrokePx),
+    var fromLeft = Path()
+    fromLeft.move(to: CGPoint(x: 0, y: localPointPt.y))
+    fromLeft.addLine(to: localPointPt)
+    context.stroke(fromLeft, with: .color(Color(hex: 0xBE185D)), lineWidth: 2)
+
+    var fromTop = Path()
+    fromTop.move(to: CGPoint(x: localPointPt.x, y: 0))
+    fromTop.addLine(to: localPointPt)
+    context.stroke(fromTop, with: .color(Color(hex: 0x1E40AF)), lineWidth: 2)
+
+    let inset: CGFloat = 1.5
+    let bounds = CGRect(
+        x: inset,
+        y: inset,
+        width: max(size.width - 3, 0),
+        height: max(size.height - 3, 0)
+    )
+    context.stroke(
+        Path(roundedRect: bounds, cornerRadius: 0),
+        with: .color(Color(hex: 0xD97706)),
+        lineWidth: 3
     )
 
-    drawCircle(
-        color = if (pointerPressed) Color(0xFFBE185D) else Color(0xFF059669),
-        radius = 12.dp.toPx(),
-        center = localPointPx,
+    let markerColor = pointerPressed ? Color(hex: 0xBE185D) : Color(hex: 0x059669)
+    context.fill(
+        Path(ellipseIn: CGRect(
+            x: localPointPt.x - 12,
+            y: localPointPt.y - 12,
+            width: 24,
+            height: 24
+        )),
+        with: .color(markerColor)
     )
-    drawCircle(
-        color = Color.White,
-        radius = 5.dp.toPx(),
-        center = localPointPx,
+    context.fill(
+        Path(ellipseIn: CGRect(
+            x: localPointPt.x - 5,
+            y: localPointPt.y - 5,
+            width: 10,
+            height: 10
+        )),
+        with: .color(.white)
     )
-    drawCircle(
-        color = Color(0xFF4338CA),
-        radius = 5.dp.toPx(),
-        center = localCenterPx,
+    context.fill(
+        Path(ellipseIn: CGRect(
+            x: localCenterPt.x - 5,
+            y: localCenterPt.y - 5,
+            width: 10,
+            height: 10
+        )),
+        with: .color(Color(hex: 0x4338CA))
     )
 }
 
-private fun normalize(
-    value: Float,
-    size: Int,
-): Float = if (size &gt; 0) {
-    (value / size.toFloat()).coerceIn(0f, 1f)
-} else {
-    0f
+private struct InspectorSizeKey: PreferenceKey {
+    static var defaultValue = CGSize.zero
+
+    static func reduce(value: inout CGSize, nextValue: () -&gt; CGSize) {
+        value = nextValue()
+    }
 }
 
-private fun divideByDensity(
-    valuePx: Float,
-    densityScale: Float,
-): Float = if (densityScale &gt; 0f) {
-    valuePx / densityScale
-} else {
-    0f
+private struct InspectorParentOriginKey: PreferenceKey {
+    static var defaultValue = CGPoint.zero
+
+    static func reduce(value: inout CGPoint, nextValue: () -&gt; CGPoint) {
+        value = nextValue()
+    }
 }
 
-private fun Offset.clampTo(size: IntSize): Offset = Offset(
-    x = x.coerceIn(0f, size.width.toFloat()),
-    y = y.coerceIn(0f, size.height.toFloat()),
-)
+private struct WindowScreenProbe: UIViewRepresentable {
+    var onChange: (CGPoint?, CGPoint?) -&gt; Void
 
-private fun Offset.toFiniteOffsetOrNull(): Offset? =
-    takeIf { it.x.isFinite() &amp;&amp; it.y.isFinite() }
+    func makeCoordinator() -&gt; Coordinator {
+        Coordinator(onChange: onChange)
+    }
 
-private fun formatOffset(offset: Offset): String =
-    &quot;(${formatCoordinate(offset.x)}, ${formatCoordinate(offset.y)})&quot;
+    func makeUIView(context: Context) -&gt; ProbeView {
+        let view = ProbeView()
+        view.isUserInteractionEnabled = false
+        view.backgroundColor = .clear
+        view.onLayout = { [weak view] in
+            guard let view else { return }
+            context.coordinator.report(from: view)
+        }
+        return view
+    }
 
-private fun formatNormalizedPair(
-    x: Float,
-    y: Float,
-): String = &quot;(${formatNormalized(x)}, ${formatNormalized(y)})&quot;
+    func updateUIView(_ uiView: ProbeView, context: Context) {
+        context.coordinator.onChange = onChange
+        uiView.onLayout = { [weak uiView] in
+            guard let uiView else { return }
+            context.coordinator.report(from: uiView)
+        }
+        DispatchQueue.main.async {
+            context.coordinator.report(from: uiView)
+        }
+    }
 
-private fun formatCoordinate(value: Float): String =
-    String.format(Locale.US, &quot;%.1f&quot;, value)
+    final class Coordinator {
+        var onChange: (CGPoint?, CGPoint?) -&gt; Void
+        private var lastWindow: CGPoint?
+        private var lastScreen: CGPoint?
 
-private fun formatNormalized(value: Float): String =
-    String.format(Locale.US, &quot;%.3f&quot;, value)
+        init(onChange: @escaping (CGPoint?, CGPoint?) -&gt; Void) {
+            self.onChange = onChange
+        }
 
-private fun formatDensity(value: Float): String =
-    String.format(Locale.US, &quot;%.3f px/dp&quot;, value)
+        func report(from view: UIView) {
+            let inWindow: CGPoint?
+            let onScreen: CGPoint?
+            if let window = view.window {
+                inWindow = view.convert(.zero, to: nil)
+                if let screen = window.windowScene?.screen {
+                    onScreen = view.convert(.zero, to: screen.coordinateSpace)
+                } else {
+                    onScreen = nil
+                }
+            } else {
+                inWindow = nil
+                onScreen = nil
+            }
+
+            guard inWindow != lastWindow || onScreen != lastScreen else { return }
+            lastWindow = inWindow
+            lastScreen = onScreen
+            onChange(inWindow, onScreen)
+        }
+    }
+
+    final class ProbeView: UIView {
+        var onLayout: (() -&gt; Void)?
+
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            onLayout?()
+        }
+
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            onLayout?()
+        }
+    }
+}
+
+private func normalize(_ value: CGFloat, size: CGFloat) -&gt; CGFloat {
+    guard size &gt; 0 else { return 0 }
+    return (value / size).clamped(to: 0...1)
+}
+
+private func multiplyByScale(_ valuePt: CGFloat, _ scale: CGFloat) -&gt; CGFloat {
+    guard scale &gt; 0 else { return 0 }
+    return valuePt * scale
+}
+
+private func addPoints(_ first: CGPoint, _ second: CGPoint) -&gt; CGPoint {
+    CGPoint(x: first.x + second.x, y: first.y + second.y)
+}
+
+private func addOrNil(_ first: CGPoint?, _ second: CGPoint) -&gt; CGPoint? {
+    guard let first else { return nil }
+    return addPoints(first, second)
+}
+
+private func formatOffset(_ offset: CGPoint) -&gt; String {
+    &quot;(\(formatCoordinate(offset.x)), \(formatCoordinate(offset.y)))&quot;
+}
+
+private func formatOptionalOffset(_ offset: CGPoint?) -&gt; String {
+    guard let offset else { return &quot;not available&quot; }
+    return &quot;\(formatOffset(offset)) pt&quot;
+}
+
+private func formatNormalizedPair(_ x: CGFloat, _ y: CGFloat) -&gt; String {
+    &quot;(\(formatNormalized(x)), \(formatNormalized(y)))&quot;
+}
+
+private func formatCoordinate(_ value: CGFloat) -&gt; String {
+    String(format: &quot;%.1f&quot;, Double(value))
+}
+
+private func formatNormalized(_ value: CGFloat) -&gt; String {
+    String(format: &quot;%.3f&quot;, Double(value))
+}
+
+private func formatScale(_ value: CGFloat) -&gt; String {
+    String(format: &quot;%.3f px/pt&quot;, Double(value))
+}
+
+private extension Comparable {
+    func clamped(to range: ClosedRange&lt;Self&gt;) -&gt; Self {
+        min(max(self, range.lowerBound), range.upperBound)
+    }
+}
+
+private extension Color {
+    init(hex: UInt32) {
+        self.init(
+            red: Double((hex &gt;&gt; 16) &amp; 0xFF) / 255,
+            green: Double((hex &gt;&gt; 8) &amp; 0xFF) / 255,
+            blue: Double(hex &amp; 0xFF) / 255
+        )
+    }
+}
 </pre></div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">8 · Coding challenge</div><h2>Do not add normalized values to pixel origins</h2></div><p>The function name promises a screen-relative pixel result. The current implementation adds the wrong object.</p></div><div class="challenge-grid"><div class="editor-card"><div class="card-header"><strong>Editable Kotlin</strong><div class="controls"><button class="preset-button" data-addend="normalizedPoint" type="button">normalizedPoint · wrong unit</button><button class="preset-button" data-addend="pointerLocalPx" type="button">pointerLocalPx · correct unit</button></div></div><div class="editor-wrap"><textarea class="code-editor" id="codeEditor" spellcheck="false">fun pointerOnScreen(
-    inspectorOriginOnScreenPx: Offset,
-    pointerLocalPx: Offset,
-    normalizedPoint: Offset,
-): Offset {
-    return inspectorOriginOnScreenPx + normalizedPoint
-}</textarea><button class="primary-button" id="checkChallenge" type="button" style="margin-top:12px">Check repair</button><div class="challenge-result" id="challengeResult">Choose the value whose unit and coordinate system match the required addition.</div></div></div><div class="challenge-preview"><div class="card-header"><strong>Code-driven teaching preview</strong><span class="small">screen origin (40, 60) px · local point (160, 270) px</span></div><div class="challenge-body"><div class="challenge-stage"><svg id="challengeSvg" viewBox="0 0 820 470"></svg></div><div class="formula" id="challengeFormula" style="margin-top:14px"></div><div class="io-row" style="margin-top:14px"><div class="io-box"><strong>Input</strong><span id="challengeInput"></span></div><div class="io-box"><strong>Operation</strong><span id="challengeOperation"></span></div><div class="io-box"><strong>Output</strong><span id="challengeOutput"></span></div></div></div></div></div></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">8 · Coding challenge</div><h2>Do not add normalized values to point origins</h2></div><p>The function name promises a screen-relative point result. The current implementation adds the wrong object.</p></div><div class="challenge-grid"><div class="editor-card"><div class="card-header"><strong>Swift teaching fragment</strong><div class="controls"><button class="preset-button" data-addend="normalizedPoint" type="button">normalizedPoint · wrong unit</button><button class="preset-button" data-addend="pointerLocalPt" type="button">pointerLocalPt · correct unit</button></div></div><div class="editor-wrap"><textarea class="code-editor" id="codeEditor" spellcheck="false">func pointerOnScreen(
+    inspectorOriginOnScreen: CGPoint,
+    pointerLocalPt: CGPoint,
+    normalizedPoint: CGPoint
+) -> CGPoint {
+    CGPoint(
+        x: inspectorOriginOnScreen.x + normalizedPoint.x,
+        y: inspectorOriginOnScreen.y + normalizedPoint.y
+    )
+}</textarea><button class="primary-button" id="checkChallenge" type="button" style="margin-top:12px">Check repair</button><div class="challenge-result" id="challengeResult">Choose the value whose unit and coordinate system match the required addition.</div></div></div><div class="challenge-preview"><div class="card-header"><strong>Code-driven teaching preview</strong><span class="small">screen origin (40, 60) pt · local point (160, 270) pt</span></div><div class="challenge-body"><div class="challenge-stage"><svg id="challengeSvg" viewBox="0 0 820 470"></svg></div><div class="formula" id="challengeFormula" style="margin-top:14px"></div><div class="io-row" style="margin-top:14px"><div class="io-box"><strong>Input</strong><span id="challengeInput"></span></div><div class="io-box"><strong>Operation</strong><span id="challengeOperation"></span></div><div class="io-box"><strong>Output</strong><span id="challengeOutput"></span></div></div></div></div></div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">9 · Pixel 8 Pro checkpoint</div><h2>Verify the combined tool</h2></div><p>The Pixel supplies the real density, measured bounds, and placement values.</p></div><div class="checklist"><label class="check-row"><input data-check="archives" type="checkbox"><span>I applied both Lesson 2.9 incremental archives after the completed Lesson 2.8 state.</span></label><label class="check-row"><input data-check="build" type="checkbox"><span>The app builds and opens Lesson 2.9 on the Pixel 8 Pro.</span></label><label class="check-row"><input data-check="visual" type="checkbox"><span>I can see the grid, orange bounds, dashed center guides, pointer crosshair, and marker.</span></label><label class="check-row"><input data-check="drag" type="checkbox"><span>Touching and dragging inside the inspector updates the local point continuously.</span></label><label class="check-row"><input data-check="center" type="checkbox"><span>I selected <strong>Center</strong> and confirmed that local X is half the measured width, local Y is half the measured height, and normalized is (0.5, 0.5).</span></label><label class="check-row"><input data-check="boundary" type="checkbox"><span>I selected <strong>Bottom-right boundary</strong> and can explain why local X equals width and local Y equals height.</span></label><label class="check-row"><input data-check="spaces" type="checkbox"><span>I can explain why the parent, window, and screen numbers can differ while the visible point is unchanged.</span></label><label class="check-row"><input data-check="units" type="checkbox"><span>I can explain why normalized values cannot be added directly to pixel origins.</span></label><label class="check-row"><input data-check="challenge" type="checkbox"><span>I completed the coding challenge and the four exercises.</span></label><label class="check-row"><input data-check="commit" type="checkbox"><span>I committed the Lesson 2.9 Android work to Git.</span></label></div></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">9 · iPhone 16 Pro checkpoint</div><h2>Verify the combined tool</h2></div><p>The iPhone supplies the real scale, measured bounds, and placement values.</p></div><div class="checklist"><label class="check-row"><input data-check="archives" type="checkbox"><span>I applied both changed Swift files after Lesson 2.8.</span></label><label class="check-row"><input data-check="build" type="checkbox"><span>The application builds and opens Lesson 2.9 on the iPhone 16 Pro.</span></label><label class="check-row"><input data-check="visual" type="checkbox"><span>I can see the grid, orange bounds, dashed center guides, pointer crosshair, and marker.</span></label><label class="check-row"><input data-check="drag" type="checkbox"><span>Touching and dragging inside the inspector updates the local point continuously.</span></label><label class="check-row"><input data-check="center" type="checkbox"><span>I selected <strong>Center</strong> and confirmed that local X is half the measured width, local Y is half the measured height, and normalized is (0.5, 0.5).</span></label><label class="check-row"><input data-check="boundary" type="checkbox"><span>I selected <strong>Bottom-right boundary</strong> and can explain why local X equals width and local Y equals height.</span></label><label class="check-row"><input data-check="spaces" type="checkbox"><span>I can explain why the parent, window, and screen numbers can differ while the visible point is unchanged.</span></label><label class="check-row"><input data-check="units" type="checkbox"><span>I can explain why normalized values cannot be added directly to point origins.</span></label><label class="check-row"><input data-check="challenge" type="checkbox"><span>I completed the coding challenge and the four exercises.</span></label><label class="check-row"><input data-check="name" type="checkbox"><span>I can name the coordinate system and unit used by each inspector readout.</span></label></div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">10 · Exercises</div><h2>Answer before opening the solutions</h2></div><p>Exercise 4 targets the most likely unit-mixing mistake.</p></div><details><summary>Exercise 1 · Bounds, center, and normalized point</summary><p>An inspector measures 640 × 360 px. The pointer-local point is (160, 270) px. State the local bounds, local center, and normalized point.</p><hr><p><strong>Answer:</strong> bounds are left 0, top 0, right 640, bottom 360 px. Center is <code>(320, 180) px</code>. Normalized point is <code>(160 ÷ 640, 270 ÷ 360) = (0.25, 0.75)</code>.</p></details><details><summary>Exercise 2 · Convert local pixels to dp</summary><p>The pointer-local point is (180, 270) px. Density is 3 px per dp. What is the local dp pair?</p><hr><p><strong>Answer:</strong> <code>(180 ÷ 3, 270 ÷ 3) = (60, 90) dp</code>.</p></details><details><summary>Exercise 3 · Move through the larger coordinate systems</summary><p>Inspector origin in parent is (120, 80) px. Parent origin in window is (180, 100) px. Window origin on screen is (40, 60) px. Pointer local is (160, 270) px. Find pointer in parent, window, and screen.</p><hr><p><strong>Answer:</strong> parent is <code>(120, 80) + (160, 270) = (280, 350) px</code>. Window is <code>(180, 100) + (280, 350) = (460, 450) px</code>. Screen is <code>(40, 60) + (460, 450) = (500, 510) px</code>.</p></details><details><summary>Exercise 4 · Diagnostic: which pair may be added?</summary><p>An inspector origin on screen is (40, 60) px. The point is local (160, 270) px and normalized (0.25, 0.75). Which pair must be added to the screen origin, and why?</p><hr><p><strong>Answer:</strong> add the local pixel pair: <code>(40, 60) + (160, 270) = (200, 330) px</code>. Both operands are pixel offsets. The normalized pair is unitless and cannot be added directly to a pixel origin.</p></details></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">10 · Exercises</div><h2>Answer before opening the solutions</h2></div><p>Exercise 4 targets the most likely unit-mixing mistake.</p></div><details><summary>Exercise 1 · Bounds, center, and normalized point</summary><p>An inspector measures 640 × 360 pt. The pointer-local point is (160, 270) pt. State the local bounds, local center, and normalized point.</p><hr><p><strong>Answer:</strong> bounds are left 0, top 0, right 640, bottom 360 pt. Center is <code>(320, 180) pt</code>. Normalized point is <code>(160 ÷ 640, 270 ÷ 360) = (0.25, 0.75)</code>.</p></details><details><summary>Exercise 2 · Convert local points to pixels</summary><p>The pointer-local point is (180, 270) pt. Scale is 3 px per pt. What is the local px pair?</p><hr><p><strong>Answer:</strong> <code>(180 × 3, 270 × 3) = (540, 810) px</code>.</p></details><details><summary>Exercise 3 · Move through the larger coordinate systems</summary><p>Inspector origin in parent is (120, 80) pt. Parent origin in window is (180, 100) pt. Window origin on screen is (40, 60) pt. Pointer local is (160, 270) pt. Find pointer in parent, window, and screen.</p><hr><p><strong>Answer:</strong> parent is <code>(120, 80) + (160, 270) = (280, 350) pt</code>. Window is <code>(180, 100) + (280, 350) = (460, 450) pt</code>. Screen is <code>(40, 60) + (460, 450) = (500, 510) pt</code>.</p></details><details><summary>Exercise 4 · Diagnostic: which pair may be added?</summary><p>An inspector origin on screen is (40, 60) pt. The point is local (160, 270) pt and normalized (0.25, 0.75). Which pair must be added to the screen origin, and why?</p><hr><p><strong>Answer:</strong> add the local point pair: <code>(40, 60) + (160, 270) = (200, 330) pt</code>. Both operands are point offsets. The normalized pair is unitless and cannot be added directly to a point origin.</p></details></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">11 · Evidence and deferrals</div><h2>What this checkpoint proves</h2></div><p>Keep the design conclusion separate from framework details that were not measured.</p></div><div class="two-column"><article class="card green"><h3>The running app can prove</h3><p>It can prove the inspector’s measured pixel size, runtime density, pointer-local positions, normalized results, and the positions returned by the Compose coordinate APIs on your current device and window configuration.</p></article><article class="card amber"><h3>This lesson does not prove</h3><p>It does not prove how Android converts physical touch-sensor data into app-window coordinates, how the system compositor places every surface, or how transformed descendants should be mapped. Those questions require framework source, tracing, or later transform APIs.</p></article></div><div class="note"><strong>Design conclusion:</strong> later blur, refraction, and shader sampling code must name its coordinate system and unit. The inspector gives us a reusable way to verify that mapping before blaming a shader formula.</div><p class="small">Official references used for the Android behavior: <a href="https://developer.android.com/develop/ui/compose/touch-input/pointer-input/understand-gestures">Understand gestures</a>, <a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/LayoutCoordinates">LayoutCoordinates</a>, and <a href="https://developer.android.com/develop/ui/compose/graphics/draw/overview">Compose drawing overview</a>.</p></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">11 · Evidence and deferrals</div><h2>What this checkpoint proves</h2></div><p>Keep the design conclusion separate from framework details that were not measured.</p></div><div class="two-column"><article class="card green"><h3>The running app can prove</h3><p>It can prove the inspector’s measured point size, runtime scale, pointer-local positions, normalized results, and the positions returned by the SwiftUI and UIKit coordinate APIs on your current device and window configuration.</p></article><article class="card amber"><h3>This lesson does not prove</h3><p>It does not prove how iOS converts physical touch-sensor data into app-window coordinates, how the system compositor places every surface, or how transformed descendants should be mapped. Those questions require framework source, tracing, or later transform APIs.</p></article></div><div class="note"><strong>Design conclusion:</strong> later blur, refraction, and shader sampling code must name its coordinate system and unit. The inspector gives us a reusable way to verify that mapping before blaming a shader formula.</div><p class="small">Official references used for the iOS behavior: <a href="https://developer.apple.com/documentation/swiftui/draggesture">DragGesture</a>, <a href="https://developer.apple.com/documentation/swiftui/geometryreader">GeometryReader</a>, <a href="https://developer.apple.com/documentation/swiftui/environmentvalues/displayscale">displayScale</a>, and <a href="https://developer.apple.com/documentation/uikit/uiview/1622493-convert">UIView.convert(_:to:)</a>.</p></section>
 
 <section class="section panel"><div class="section-intro"><div><div class="section-number">12 · Completion record</div><h2>Copy this into the next conversation</h2></div><button class="primary-button" id="copyRecord" type="button">Copy record</button></div><textarea class="record-area" id="completionRecord" readonly></textarea><p class="small" id="copyStatus"></p></section>
 
@@ -704,13 +808,13 @@ private fun formatDensity(value: Float): String =
 <script>
 const $=id=>document.getElementById(id);const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));const f1=n=>Number(n).toFixed(1);const f2=n=>Number(n).toFixed(2);const f3=n=>Number(n).toFixed(3);const pair=(x,y,d=1)=>`(${Number(x).toFixed(d)}, ${Number(y).toFixed(d)})`;
 const state={width:640,height:360,x:160,y:270,density:2.5,inspectorParentX:120,inspectorParentY:80,parentWindowX:180,parentWindowY:100,windowScreenX:40,windowScreenY:60,showGrid:true,showCenter:true,showBounds:true};
-function derived(){const u=state.width?state.x/state.width:0,v=state.height?state.y/state.height:0;const center={x:state.width/2,y:state.height/2};const dp={x:state.x/state.density,y:state.y/state.density};const parent={x:state.inspectorParentX+state.x,y:state.inspectorParentY+state.y};const inspectorWindow={x:state.parentWindowX+state.inspectorParentX,y:state.parentWindowY+state.inspectorParentY};const win={x:inspectorWindow.x+state.x,y:inspectorWindow.y+state.y};const screen={x:state.windowScreenX+win.x,y:state.windowScreenY+win.y};return {u,v,center,dp,parent,inspectorWindow,win,screen};}
+function derived(){const u=state.width?state.x/state.width:0,v=state.height?state.y/state.height:0;const center={x:state.width/2,y:state.height/2};const px={x:state.x*state.density,y:state.y*state.density};const parent={x:state.inspectorParentX+state.x,y:state.inspectorParentY+state.y};const inspectorWindow={x:state.parentWindowX+state.inspectorParentX,y:state.parentWindowY+state.inspectorParentY};const win={x:inspectorWindow.x+state.x,y:inspectorWindow.y+state.y};const screen={x:state.windowScreenX+win.x,y:state.windowScreenY+win.y};return {u,v,center,px,parent,inspectorWindow,win,screen};}
 function stageGeometry(){const logicalW=state.windowScreenX+state.parentWindowX+state.inspectorParentX+state.width+110;const logicalH=state.windowScreenY+state.parentWindowY+state.inspectorParentY+state.height+90;const scale=Math.min(1400/logicalW,660/logicalH);return {ox:50,oy:50,scale,screenW:logicalW,screenH:logicalH,windowX:state.windowScreenX,parentX:state.windowScreenX+state.parentWindowX,parentY:state.windowScreenY+state.parentWindowY,inspectorX:state.windowScreenX+state.parentWindowX+state.inspectorParentX,inspectorY:state.windowScreenY+state.parentWindowY+state.inspectorParentY};}
 function drawMain(){const d=derived(),g=stageGeometry(),s=g.scale,ix=g.ox+g.inspectorX*s,iy=g.oy+g.inspectorY*s,iw=state.width*s,ih=state.height*s,px=ix+state.x*s,py=iy+state.y*s,cx=ix+d.center.x*s,cy=iy+d.center.y*s;const wx=g.ox+state.windowScreenX*s,wy=g.oy+state.windowScreenY*s,pax=g.ox+g.parentX*s,pay=g.oy+g.parentY*s;let grid='';if(state.showGrid){const spacing=40*s;for(let x=ix+spacing;x<ix+iw;x+=spacing)grid+=`<line x1="${x}" y1="${iy}" x2="${x}" y2="${iy+ih}" stroke="#dce6f5" stroke-width="1.5"/>`;for(let y=iy+spacing;y<iy+ih;y+=spacing)grid+=`<line x1="${ix}" y1="${y}" x2="${ix+iw}" y2="${y}" stroke="#dce6f5" stroke-width="1.5"/>`;}
 let center='';if(state.showCenter)center=`<line x1="${cx}" y1="${iy}" x2="${cx}" y2="${iy+ih}" stroke="#4338ca" stroke-width="3" stroke-dasharray="12 9"/><line x1="${ix}" y1="${cy}" x2="${ix+iw}" y2="${cy}" stroke="#4338ca" stroke-width="3" stroke-dasharray="12 9"/><circle cx="${cx}" cy="${cy}" r="7" fill="#4338ca"/>`;
 let bounds=state.showBounds?`<rect x="${ix}" y="${iy}" width="${iw}" height="${ih}" rx="14" fill="none" stroke="#d97706" stroke-width="5"/>`:'';
-$('mainSvg').innerHTML=`<defs><marker id="arrowPink" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#be185d"/></marker></defs><rect x="${g.ox}" y="${g.oy}" width="${g.screenW*s}" height="${g.screenH*s}" rx="28" fill="#eff6ff" stroke="#1e40af" stroke-width="5"/><text x="${g.ox+15}" y="${g.oy+30}" font-size="19" font-weight="900" fill="#1e3a8a">screen origin (0, 0)</text><rect x="${wx}" y="${wy}" width="${(g.screenW-state.windowScreenX-20)*s}" height="${(g.screenH-state.windowScreenY-20)*s}" rx="25" fill="#f8fafc" stroke="#64748b" stroke-width="4" stroke-dasharray="14 10"/><text x="${wx+15}" y="${wy+31}" font-size="18" font-weight="900" fill="#475569">window origin ${pair(state.windowScreenX,state.windowScreenY,0)} screen px</text><rect x="${pax}" y="${pay}" width="${(state.inspectorParentX+state.width+70)*s}" height="${(state.inspectorParentY+state.height+60)*s}" rx="22" fill="#fef3c7" fill-opacity=".42" stroke="#d97706" stroke-width="4"/><text x="${pax+14}" y="${pay+30}" font-size="18" font-weight="900" fill="#92400e">parent origin in window ${pair(state.parentWindowX,state.parentWindowY,0)} px</text><rect x="${ix}" y="${iy}" width="${iw}" height="${ih}" rx="14" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>${grid}${center}${bounds}<circle cx="${ix}" cy="${iy}" r="8" fill="#1e40af"/><text x="${ix+14}" y="${iy-14}" font-size="18" font-weight="900" fill="#1e3a8a">inspector origin in parent ${pair(state.inspectorParentX,state.inspectorParentY,0)} px</text><line x1="${ix}" y1="${py}" x2="${px}" y2="${py}" stroke="#be185d" stroke-width="4"/><line x1="${px}" y1="${iy}" x2="${px}" y2="${py}" stroke="#1e40af" stroke-width="4"/><circle id="mainHandle" cx="${px}" cy="${py}" r="17" fill="#059669" stroke="#fff" stroke-width="5" style="cursor:grab"/><text x="${px+22}" y="${py-18}" font-size="18" font-weight="900" fill="#065f46">local ${pair(state.x,state.y,1)} px</text><text x="${px+22}" y="${py+10}" font-size="18" font-weight="900" fill="#065f46">normalized ${pair(d.u,d.v,3)}</text><path d="M${g.ox+12} ${g.oy+58} L${wx+8} ${wy+58} L${pax+8} ${pay+58} L${ix+8} ${iy+58}" fill="none" stroke="#be185d" stroke-width="4" marker-end="url(#arrowPink)"/>`;
-$('widthValue').textContent=`${state.width} px`;$('heightValue').textContent=`${state.height} px`;$('xValue').textContent=`${f1(state.x)} px`;$('yValue').textContent=`${f1(state.y)} px`;$('densityValue').textContent=`${f2(state.density)} px/dp`;$('xRange').max=state.width;$('yRange').max=state.height;$('xRange').value=state.x;$('yRange').value=state.y;$('mBounds').textContent=`(0, 0, ${state.width}, ${state.height}) px`;$('mCenter').textContent=`${pair(d.center.x,d.center.y,1)} px`;$('mLocal').textContent=`${pair(state.x,state.y,1)} px`;$('mDp').textContent=`${pair(d.dp.x,d.dp.y,1)} dp`;$('mNormalized').textContent=pair(d.u,d.v,3);$('mParent').textContent=`${pair(d.parent.x,d.parent.y,1)} px`;$('mWindow').textContent=`${pair(d.win.x,d.win.y,1)} px`;$('mScreen').textContent=`${pair(d.screen.x,d.screen.y,1)} px`;$('liveFormula').innerHTML=`normalized = (${f1(state.x)} ÷ ${state.width}, ${f1(state.y)} ÷ ${state.height}) = ${pair(d.u,d.v,3)}<br>screen = ${pair(state.windowScreenX,state.windowScreenY,0)} + ${pair(d.win.x,d.win.y,1)} = ${pair(d.screen.x,d.screen.y,1)} px`;document.querySelectorAll('[data-point]').forEach(b=>{const key=b.dataset.point;const selected=(key==='origin'&&d.u===0&&d.v===0)||(key==='center'&&d.u===.5&&d.v===.5)||(key==='quarter'&&Math.abs(d.u-.25)<.0001&&Math.abs(d.v-.75)<.0001)||(key==='bottom'&&d.u===1&&d.v===1);b.classList.toggle('selected',selected);});}
+$('mainSvg').innerHTML=`<defs><marker id="arrowPink" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#be185d"/></marker></defs><rect x="${g.ox}" y="${g.oy}" width="${g.screenW*s}" height="${g.screenH*s}" rx="28" fill="#eff6ff" stroke="#1e40af" stroke-width="5"/><text x="${g.ox+15}" y="${g.oy+30}" font-size="19" font-weight="900" fill="#1e3a8a">screen origin (0, 0)</text><rect x="${wx}" y="${wy}" width="${(g.screenW-state.windowScreenX-20)*s}" height="${(g.screenH-state.windowScreenY-20)*s}" rx="25" fill="#f8fafc" stroke="#64748b" stroke-width="4" stroke-dasharray="14 10"/><text x="${wx+15}" y="${wy+31}" font-size="18" font-weight="900" fill="#475569">window origin ${pair(state.windowScreenX,state.windowScreenY,0)} screen pt</text><rect x="${pax}" y="${pay}" width="${(state.inspectorParentX+state.width+70)*s}" height="${(state.inspectorParentY+state.height+60)*s}" rx="22" fill="#fef3c7" fill-opacity=".42" stroke="#d97706" stroke-width="4"/><text x="${pax+14}" y="${pay+30}" font-size="18" font-weight="900" fill="#92400e">parent origin in window ${pair(state.parentWindowX,state.parentWindowY,0)} pt</text><rect x="${ix}" y="${iy}" width="${iw}" height="${ih}" rx="14" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>${grid}${center}${bounds}<circle cx="${ix}" cy="${iy}" r="8" fill="#1e40af"/><text x="${ix+14}" y="${iy-14}" font-size="18" font-weight="900" fill="#1e3a8a">inspector origin in parent ${pair(state.inspectorParentX,state.inspectorParentY,0)} pt</text><line x1="${ix}" y1="${py}" x2="${px}" y2="${py}" stroke="#be185d" stroke-width="4"/><line x1="${px}" y1="${iy}" x2="${px}" y2="${py}" stroke="#1e40af" stroke-width="4"/><circle id="mainHandle" cx="${px}" cy="${py}" r="17" fill="#059669" stroke="#fff" stroke-width="5" style="cursor:grab"/><text x="${px+22}" y="${py-18}" font-size="18" font-weight="900" fill="#065f46">local ${pair(state.x,state.y,1)} pt</text><text x="${px+22}" y="${py+10}" font-size="18" font-weight="900" fill="#065f46">normalized ${pair(d.u,d.v,3)}</text><path d="M${g.ox+12} ${g.oy+58} L${wx+8} ${wy+58} L${pax+8} ${pay+58} L${ix+8} ${iy+58}" fill="none" stroke="#be185d" stroke-width="4" marker-end="url(#arrowPink)"/>`;
+$('widthValue').textContent=`${state.width} pt`;$('heightValue').textContent=`${state.height} pt`;$('xValue').textContent=`${f1(state.x)} pt`;$('yValue').textContent=`${f1(state.y)} pt`;$('densityValue').textContent=`${f2(state.density)} px/pt`;$('xRange').max=state.width;$('yRange').max=state.height;$('xRange').value=state.x;$('yRange').value=state.y;$('mBounds').textContent=`(0, 0, ${state.width}, ${state.height}) pt`;$('mCenter').textContent=`${pair(d.center.x,d.center.y,1)} pt`;$('mLocal').textContent=`${pair(state.x,state.y,1)} pt`;$('mDp').textContent=`${pair(d.px.x,d.px.y,1)} px`;$('mNormalized').textContent=pair(d.u,d.v,3);$('mParent').textContent=`${pair(d.parent.x,d.parent.y,1)} pt`;$('mWindow').textContent=`${pair(d.win.x,d.win.y,1)} pt`;$('mScreen').textContent=`${pair(d.screen.x,d.screen.y,1)} pt`;$('liveFormula').innerHTML=`normalized = (${f1(state.x)} ÷ ${state.width}, ${f1(state.y)} ÷ ${state.height}) = ${pair(d.u,d.v,3)}<br>screen = ${pair(state.windowScreenX,state.windowScreenY,0)} + ${pair(d.win.x,d.win.y,1)} = ${pair(d.screen.x,d.screen.y,1)} pt`;document.querySelectorAll('[data-point]').forEach(b=>{const key=b.dataset.point;const selected=(key==='origin'&&d.u===0&&d.v===0)||(key==='center'&&d.u===.5&&d.v===.5)||(key==='quarter'&&Math.abs(d.u-.25)<.0001&&Math.abs(d.v-.75)<.0001)||(key==='bottom'&&d.u===1&&d.v===1);b.classList.toggle('selected',selected);});}
 function setNormalized(u,v){state.x=clamp(u,0,1)*state.width;state.y=clamp(v,0,1)*state.height;drawMain();}
 document.querySelectorAll('[data-point]').forEach(b=>b.addEventListener('click',()=>{({origin:()=>setNormalized(0,0),center:()=>setNormalized(.5,.5),quarter:()=>setNormalized(.25,.75),bottom:()=>setNormalized(1,1)})[b.dataset.point]();}));
 $('widthRange').addEventListener('input',e=>{const d=derived();state.width=Number(e.target.value);state.x=d.u*state.width;drawMain();});$('heightRange').addEventListener('input',e=>{const d=derived();state.height=Number(e.target.value);state.y=d.v*state.height;drawMain();});$('xRange').addEventListener('input',e=>{state.x=Number(e.target.value);drawMain();});$('yRange').addEventListener('input',e=>{state.y=Number(e.target.value);drawMain();});$('densityRange').addEventListener('input',e=>{state.density=Number(e.target.value);drawMain();});
@@ -718,21 +822,37 @@ document.querySelectorAll('[data-placement]').forEach(b=>b.addEventListener('cli
 ['showGrid','showCenter','showBounds'].forEach(id=>$(id).addEventListener('change',e=>{state[id]=e.target.checked;drawMain();}));
 let dragging=false;function eventToInspectorPoint(e){const svg=$('mainSvg'),pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const p=pt.matrixTransform(svg.getScreenCTM().inverse()),g=stageGeometry(),ix=g.ox+g.inspectorX*g.scale,iy=g.oy+g.inspectorY*g.scale;return {x:(p.x-ix)/g.scale,y:(p.y-iy)/g.scale};}function movePoint(e){const p=eventToInspectorPoint(e);state.x=clamp(p.x,0,state.width);state.y=clamp(p.y,0,state.height);drawMain();}$('mainSvg').addEventListener('pointerdown',e=>{const p=eventToInspectorPoint(e);if(p.x<0||p.x>state.width||p.y<0||p.y>state.height)return;dragging=true;$('mainSvg').setPointerCapture(e.pointerId);movePoint(e);});$('mainSvg').addEventListener('pointermove',e=>{if(dragging)movePoint(e);});$('mainSvg').addEventListener('pointerup',e=>{dragging=false;if($('mainSvg').hasPointerCapture(e.pointerId))$('mainSvg').releasePointerCapture(e.pointerId);});$('mainSvg').addEventListener('pointercancel',()=>{dragging=false;});
 const steps=[
-{title:'Measure the real inspector',caption:'Compose finishes layout, then onGloballyPositioned copies the inspector size and its origins. These numbers belong to the inspector that actually appears on the Pixel.',code:'// CoordinateInspector.kt — onGloballyPositioned\ngeometry = InspectorGeometry(\n    sizePx = coordinates.size,\n    originInParentPx = coordinates.positionInParent(),\n    originInWindowPx = coordinates.positionInWindow(),\n)',input:'Final Compose layout coordinates',operation:'Copy measured values into immutable state',output:'size and origins in px',stage:0},
-{title:'Declare the local bounds and origin',caption:'The inspector owns a local coordinate system. Its top-left is local (0, 0). Its right and bottom boundaries equal its measured width and height.',code:'left = 0\ntop = 0\nright = widthPx\nbottom = heightPx',input:'640 × 360 px',operation:'Use the inspector-local origin',output:'bounds (0, 0, 640, 360)',stage:1},
-{title:'Calculate the center',caption:'The center is a derived position. It does not come from the pointer event.',code:'val localCenterPx = Offset(\n    x = widthPx / 2f,\n    y = heightPx / 2f,\n)',input:'width 640, height 360',operation:'Divide each dimension by 2',output:'center (320, 180) px',stage:2},
-{title:'Receive the local pointer point',caption:'awaitFirstDown returns a pointer change. Its position is relative to the inspector because pointerInput belongs to that inspector.',code:'// CoordinateInspector.kt — pointerInput\nval down = awaitFirstDown(...)\nval downPoint = down.position.clampTo(geometry.sizePx)',input:'finger down at local (160, 270) px',operation:'Read and clamp local position',output:'safe local point (160, 270) px',stage:3},
-{title:'Store the normalized pair',caption:'Division changes local pixels into fractions of the current width and height.',code:'normalizedX = normalize(downPoint.x, width)\nnormalizedY = normalize(downPoint.y, height)',input:'local (160, 270), size 640 × 360',operation:'(160 ÷ 640, 270 ÷ 360)',output:'normalized (0.25, 0.75)',stage:4},
-{title:'Convert local pixels to dp',caption:'The density scale says how many pixels represent one dp. Division converts the two local pixel distances.',code:'val localPointDp = Offset(\n    x = localPointPx.x / densityScale,\n    y = localPointPx.y / densityScale,\n)',input:'local (160, 270) px, density 2.5 px/dp',operation:'divide each component by 2.5',output:'local (64, 108) dp',stage:5},
-{title:'Add larger-space origins',caption:'Each origin offset is added once. Every addition combines pixel values.',code:'pointInParentPx = originInParentPx + localPointPx\npointInWindowPx = originInWindowPx + localPointPx\npointOnScreenPx = originOnScreenPx + localPointPx',input:'local point and measured px origins',operation:'add matching pixel offsets',output:'parent, window, and screen positions',stage:6},
-{title:'Draw and display the shared state',caption:'The Canvas draws the grid, bounds, center, crosshair, and marker. Text rows display the same values. The drawing and text should agree because they consume the same state.',code:'drawInspectorGrid(\n    localPointPx = localPointPx,\n    localCenterPx = localCenterPx,\n    pointerPressed = pointerPressed,\n)',input:'measured geometry and derived point values',operation:'draw overlays and format readouts',output:'one inspectable coordinate snapshot',stage:7}
+{title:'Measure the real inspector',caption:'SwiftUI finishes layout, then GeometryReader copies the inspector size and parent origin. Window and screen origins come from UIView.convert. These numbers belong to the inspector that actually appears on the iPhone.',code:'// CoordinateInspector.swift — GeometryReader\nsizePt = proxy.size\noriginInParentPt = proxy.frame(\n    in: .named("inspectorParent")\n).origin',input:'Final SwiftUI layout coordinates',operation:'Copy measured values into immutable state',output:'size and origins in pt',stage:0},
+{title:'Declare the local bounds and origin',caption:'The inspector owns a local coordinate system. Its top-left is local (0, 0). Its right and bottom boundaries equal its measured width and height.',code:'left = 0\ntop = 0\nright = widthPt\nbottom = heightPt',input:'640 × 360 pt',operation:'Use the inspector-local origin',output:'bounds (0, 0, 640, 360)',stage:1},
+{title:'Calculate the center',caption:'The center is a derived position. It does not come from the pointer event.',code:'let localCenterPt = CGPoint(\n    x: widthPt / 2,\n    y: heightPt / 2\n)',input:'width 640, height 360',operation:'Divide each dimension by 2',output:'center (320, 180) pt',stage:2},
+{title:'Receive the local pointer point',caption:'DragGesture returns a value. Its location is relative to the inspector because the gesture belongs to that inspector.',code:'// CoordinateInspector.swift — DragGesture\nDragGesture(minimumDistance: 0)\n    .onChanged { value in\n        updateNormalized(from: value.location)\n    }',input:'finger down at local (160, 270) pt',operation:'Read and clamp local position',output:'safe local point (160, 270) pt',stage:3},
+{title:'Store the normalized pair',caption:'Division changes local points into fractions of the current width and height.',code:'normalizedX = normalize(location.x, size: width)\nnormalizedY = normalize(location.y, size: height)',input:'local (160, 270), size 640 × 360',operation:'(160 ÷ 640, 270 ÷ 360)',output:'normalized (0.25, 0.75)',stage:4},
+{title:'Convert local points to pixels',caption:'The display scale says how many pixels represent one point. Multiplication converts the two local point distances.',code:'let localPointPx = CGPoint(\n    x: localPointPt.x * displayScale,\n    y: localPointPt.y * displayScale\n)',input:'local (160, 270) pt, scale 2.5 px/pt',operation:'multiply each component by 2.5',output:'local (400, 675) px',stage:5},
+{title:'Add larger-space origins',caption:'Each origin offset is added once. Every addition combines point values.',code:'pointInParentPt = originInParentPt + localPointPt\npointInWindowPt = originInWindowPt + localPointPt\npointOnScreenPt = originOnScreenPt + localPointPt',input:'local point and measured pt origins',operation:'add matching point offsets',output:'parent, window, and screen positions',stage:6},
+{title:'Draw and display the shared state',caption:'The Canvas draws the grid, bounds, center, crosshair, and marker. Text rows display the same values. The drawing and text should agree because they consume the same state.',code:'drawInspectorGrid(\n    localPointPt: localPointPt,\n    localCenterPt: localCenterPt,\n    pointerPressed: pointerPressed\n)',input:'measured geometry and derived point values',operation:'draw overlays and format readouts',output:'one inspectable coordinate snapshot',stage:7}
 ];let stepIndex=0;$('stepButtons').innerHTML=steps.map((_,i)=>`<button class="step-button" type="button" data-step="${i}">${i+1}</button>`).join('');document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{stepIndex=Number(b.dataset.step);drawStep();}));$('stepBack').addEventListener('click',()=>{stepIndex=clamp(stepIndex-1,0,steps.length-1);drawStep();});$('stepNext').addEventListener('click',()=>{stepIndex=clamp(stepIndex+1,0,steps.length-1);drawStep();});
-function drawStep(){const s=steps[stepIndex],x=90,y=90,w=650,h=365,cx=x+w/2,cy=y+h/2,px=x+160,py=y+270;let c=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="22" fill="#fff" stroke="#cbd5e1" stroke-width="3"/>`;if(s.stage>=0)c+=`<rect x="62" y="42" width="710" height="470" rx="25" fill="none" stroke="#64748b" stroke-width="3" stroke-dasharray="13 9"/><text x="80" y="70" font-size="19" font-weight="900" fill="#475569">measured Compose element: 640 × 360 px</text>`;if(s.stage>=1)c+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="22" fill="none" stroke="#d97706" stroke-width="5"/><circle cx="${x}" cy="${y}" r="8" fill="#1e40af"/><text x="${x+14}" y="${y-14}" font-size="19" font-weight="900" fill="#1e3a8a">local origin (0, 0)</text><text x="${x+w-190}" y="${y+30}" font-size="18" font-weight="900" fill="#92400e">right = 640</text><text x="${x+14}" y="${y+h-14}" font-size="18" font-weight="900" fill="#92400e">bottom = 360</text>`;if(s.stage>=2)c+=`<line x1="${cx}" y1="${y}" x2="${cx}" y2="${y+h}" stroke="#4338ca" stroke-width="4" stroke-dasharray="12 9"/><line x1="${x}" y1="${cy}" x2="${x+w}" y2="${cy}" stroke="#4338ca" stroke-width="4" stroke-dasharray="12 9"/><circle cx="${cx}" cy="${cy}" r="8" fill="#4338ca"/><text x="${cx+16}" y="${cy-14}" font-size="19" font-weight="900" fill="#312e81">center (320, 180)</text>`;if(s.stage>=3)c+=`<line x1="${x}" y1="${py}" x2="${px}" y2="${py}" stroke="#be185d" stroke-width="4"/><line x1="${px}" y1="${y}" x2="${px}" y2="${py}" stroke="#1e40af" stroke-width="4"/><circle cx="${px}" cy="${py}" r="16" fill="#059669" stroke="#fff" stroke-width="5"/><text x="${px+22}" y="${py-16}" font-size="19" font-weight="900" fill="#065f46">local (160, 270) px</text>`;if(s.stage>=4)c+=`<rect x="790" y="90" width="220" height="78" rx="14" fill="#ecfdf5" stroke="#059669" stroke-width="3"/><text x="900" y="120" text-anchor="middle" font-size="17" font-weight="900" fill="#065f46">normalized</text><text x="900" y="151" text-anchor="middle" font-size="25" font-weight="900" fill="#065f46">(0.25, 0.75)</text>`;if(s.stage>=5)c+=`<rect x="790" y="184" width="220" height="78" rx="14" fill="#eef2ff" stroke="#4338ca" stroke-width="3"/><text x="900" y="214" text-anchor="middle" font-size="17" font-weight="900" fill="#312e81">local dp</text><text x="900" y="245" text-anchor="middle" font-size="25" font-weight="900" fill="#312e81">(64, 108)</text>`;if(s.stage>=6)c+=`<rect x="790" y="278" width="220" height="174" rx="14" fill="#dbeafe" stroke="#1e40af" stroke-width="3"/><text x="900" y="308" text-anchor="middle" font-size="17" font-weight="900" fill="#1e3a8a">larger spaces</text><text x="810" y="343" font-size="17" font-weight="800" fill="#1e3a8a">parent (280, 350)</text><text x="810" y="379" font-size="17" font-weight="800" fill="#1e3a8a">window (460, 450)</text><text x="810" y="415" font-size="17" font-weight="800" fill="#1e3a8a">screen (500, 510)</text>`;if(s.stage>=7)c+=`<text x="520" y="565" text-anchor="middle" font-size="23" font-weight="900" fill="#065f46">Canvas overlays and text readouts consume the same state</text>`;$('stepSvg').innerHTML=c;$('stepTitle').textContent=s.title;$('stepCaption').textContent=s.caption;$('stepCode').textContent=s.code;$('stepInput').textContent=s.input;$('stepOperation').textContent=s.operation;$('stepOutput').textContent=s.output;document.querySelectorAll('[data-step]').forEach(b=>b.classList.toggle('selected',Number(b.dataset.step)===stepIndex));$('stepBack').disabled=stepIndex===0;$('stepNext').disabled=stepIndex===steps.length-1;}
+function drawStep(){const s=steps[stepIndex],x=90,y=90,w=650,h=365,cx=x+w/2,cy=y+h/2,px=x+160,py=y+270;let c=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="22" fill="#fff" stroke="#cbd5e1" stroke-width="3"/>`;if(s.stage>=0)c+=`<rect x="62" y="42" width="710" height="470" rx="25" fill="none" stroke="#64748b" stroke-width="3" stroke-dasharray="13 9"/><text x="80" y="70" font-size="19" font-weight="900" fill="#475569">measured SwiftUI view: 640 × 360 pt</text>`;if(s.stage>=1)c+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="22" fill="none" stroke="#d97706" stroke-width="5"/><circle cx="${x}" cy="${y}" r="8" fill="#1e40af"/><text x="${x+14}" y="${y-14}" font-size="19" font-weight="900" fill="#1e3a8a">local origin (0, 0)</text><text x="${x+w-190}" y="${y+30}" font-size="18" font-weight="900" fill="#92400e">right = 640</text><text x="${x+14}" y="${y+h-14}" font-size="18" font-weight="900" fill="#92400e">bottom = 360</text>`;if(s.stage>=2)c+=`<line x1="${cx}" y1="${y}" x2="${cx}" y2="${y+h}" stroke="#4338ca" stroke-width="4" stroke-dasharray="12 9"/><line x1="${x}" y1="${cy}" x2="${x+w}" y2="${cy}" stroke="#4338ca" stroke-width="4" stroke-dasharray="12 9"/><circle cx="${cx}" cy="${cy}" r="8" fill="#4338ca"/><text x="${cx+16}" y="${cy-14}" font-size="19" font-weight="900" fill="#312e81">center (320, 180)</text>`;if(s.stage>=3)c+=`<line x1="${x}" y1="${py}" x2="${px}" y2="${py}" stroke="#be185d" stroke-width="4"/><line x1="${px}" y1="${y}" x2="${px}" y2="${py}" stroke="#1e40af" stroke-width="4"/><circle cx="${px}" cy="${py}" r="16" fill="#059669" stroke="#fff" stroke-width="5"/><text x="${px+22}" y="${py-16}" font-size="19" font-weight="900" fill="#065f46">local (160, 270) pt</text>`;if(s.stage>=4)c+=`<rect x="790" y="90" width="220" height="78" rx="14" fill="#ecfdf5" stroke="#059669" stroke-width="3"/><text x="900" y="120" text-anchor="middle" font-size="17" font-weight="900" fill="#065f46">normalized</text><text x="900" y="151" text-anchor="middle" font-size="25" font-weight="900" fill="#065f46">(0.25, 0.75)</text>`;if(s.stage>=5)c+=`<rect x="790" y="184" width="220" height="78" rx="14" fill="#eef2ff" stroke="#4338ca" stroke-width="3"/><text x="900" y="214" text-anchor="middle" font-size="17" font-weight="900" fill="#312e81">local px</text><text x="900" y="245" text-anchor="middle" font-size="25" font-weight="900" fill="#312e81">(400, 675)</text>`;if(s.stage>=6)c+=`<rect x="790" y="278" width="220" height="174" rx="14" fill="#dbeafe" stroke="#1e40af" stroke-width="3"/><text x="900" y="308" text-anchor="middle" font-size="17" font-weight="900" fill="#1e3a8a">larger spaces</text><text x="810" y="343" font-size="17" font-weight="800" fill="#1e3a8a">parent (280, 350)</text><text x="810" y="379" font-size="17" font-weight="800" fill="#1e3a8a">window (460, 450)</text><text x="810" y="415" font-size="17" font-weight="800" fill="#1e3a8a">screen (500, 510)</text>`;if(s.stage>=7)c+=`<text x="520" y="565" text-anchor="middle" font-size="23" font-weight="900" fill="#065f46">Canvas overlays and text readouts consume the same state</text>`;$('stepSvg').innerHTML=c;$('stepTitle').textContent=s.title;$('stepCaption').textContent=s.caption;$('stepCode').textContent=s.code;$('stepInput').textContent=s.input;$('stepOperation').textContent=s.operation;$('stepOutput').textContent=s.output;document.querySelectorAll('[data-step]').forEach(b=>b.classList.toggle('selected',Number(b.dataset.step)===stepIndex));$('stepBack').disabled=stepIndex===0;$('stepNext').disabled=stepIndex===steps.length-1;}
 document.querySelectorAll('[data-source]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-source]').forEach(b=>b.classList.remove('selected'));button.classList.add('selected');document.querySelectorAll('.source-pane').forEach(p=>p.classList.remove('active'));$(`source-${button.dataset.source}`).classList.add('active');}));
-const editor=$('codeEditor');let challengeWasCorrect=false;function stripComments(code){return code.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/.*$/gm,'');}function parseAddend(){const code=stripComments(editor.value);return (code.match(/return\s+inspectorOriginOnScreenPx\s*\+\s*(pointerLocalPx|normalizedPoint)/)||[])[1]||'unrecognized';}
-function drawChallenge(){const addend=parseAddend(),origin={x:40,y:60},local={x:160,y:270},norm={x:.25,y:.75},chosen=addend==='pointerLocalPx'?local:addend==='normalizedPoint'?norm:null,out=chosen?{x:origin.x+chosen.x,y:origin.y+chosen.y}:null,correct=addend==='pointerLocalPx';const marker=out?`<circle cx="${80+out.x}" cy="${40+out.y}" r="15" fill="${correct?'#059669':'#dc2626'}" stroke="#fff" stroke-width="5"/><text x="${80+out.x+20}" y="${40+out.y-16}" font-size="18" font-weight="900" fill="${correct?'#065f46':'#7f1d1d'}">${pair(out.x,out.y,2)} px</text>`:`<text x="410" y="245" text-anchor="middle" font-size="22" font-weight="900" fill="#7f1d1d">Unrecognized expression</text>`;$('challengeSvg').innerHTML=`<rect x="80" y="40" width="650" height="390" rx="24" fill="#eff6ff" stroke="#1e40af" stroke-width="5"/><circle cx="120" cy="100" r="9" fill="#1e40af"/><text x="138" y="92" font-size="18" font-weight="900" fill="#1e3a8a">inspector origin on screen (40, 60) px</text><line x1="120" y1="100" x2="280" y2="370" stroke="#be185d" stroke-width="5" stroke-dasharray="12 9"/><circle cx="280" cy="370" r="12" fill="#d97706"/><text x="300" y="397" font-size="18" font-weight="900" fill="#92400e">correct local displacement (160, 270) px</text>${marker}`;$('challengeFormula').innerHTML=out?`(${origin.x}, ${origin.y}) px + ${addend==='pointerLocalPx'?`(${local.x}, ${local.y}) px`:`(${norm.x}, ${norm.y}) unitless`} = ${pair(out.x,out.y,2)} px`:'The return expression was not recognized.';$('challengeInput').textContent='screen origin (40, 60) px; local (160, 270) px; normalized (0.25, 0.75)';$('challengeOperation').textContent=addend==='pointerLocalPx'?'add two pixel offsets':addend==='normalizedPoint'?'incorrectly add a unitless pair to px':'unrecognized';$('challengeOutput').textContent=out?`${pair(out.x,out.y,2)} px`:'no output';document.querySelectorAll('[data-addend]').forEach(b=>b.classList.toggle('selected',b.dataset.addend===addend));if(challengeWasCorrect){challengeWasCorrect=false;$('challengeResult').textContent='The code changed after the successful check. Check the repair again.';$('challengeResult').style.background='#fff';}}
-editor.addEventListener('input',drawChallenge);document.querySelectorAll('[data-addend]').forEach(button=>button.addEventListener('click',()=>{editor.value=editor.value.replace(/inspectorOriginOnScreenPx\s*\+\s*(pointerLocalPx|normalizedPoint)/,`inspectorOriginOnScreenPx + ${button.dataset.addend}`);drawChallenge();}));$('checkChallenge').addEventListener('click',()=>{if(parseAddend()==='pointerLocalPx'){challengeWasCorrect=true;$('challengeResult').textContent='Correct. The origin and the displacement are both measured in pixels. Their sum is a screen-relative pixel position.';$('challengeResult').style.background='#ecfdf5';}else{$('challengeResult').textContent='Not repaired yet. Convert the relative point to local pixels before adding it to a pixel origin.';$('challengeResult').style.background='#fee2e2';}});
-const checkboxes=[...document.querySelectorAll('[data-check]')];function updateRecord(){const done=checkboxes.filter(c=>c.checked).map(c=>c.dataset.check),all=done.length===checkboxes.length;$('completionRecord').value=`lesson_id: 02-09\nlesson_title: Build a coordinate inspector\nstatus: ${all?'completed':'in_progress'}\ncourse_lessons_completed_before_this_lesson: 16\ncourse_lessons_completed_after_completion: ${all?17:16}\ncourse_lessons_total: 216\nchapter_02_completed_after_this_lesson: ${all}\nandroid_files_applied:\n  - app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt\n  - app/src/main/java/com/example/liquidglasslab/chapter02/CoordinateInspector.kt\npixel_8_pro_tested: ${done.includes('build')&&done.includes('visual')&&done.includes('drag')}\ncheckpoint_items_complete: ${done.length}/${checkboxes.length}\ncan_explain_local_bounds_and_center: ${done.includes('center')&&done.includes('boundary')}\ncan_explain_units_and_larger_spaces: ${done.includes('spaces')&&done.includes('units')}\nnext_lesson_after_completion: 3.1 — Red, green, and blue channels\nremaining_questions:\n  - none`;}
+const editor=$('codeEditor');let challengeWasCorrect=false;function stripComments(code){return code.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/.*$/gm,'');}function parseAddend(){const code=stripComments(editor.value);const x=(code.match(/inspectorOriginOnScreen\.x\s*\+\s*(pointerLocalPt|normalizedPoint)/)||[])[1];const y=(code.match(/inspectorOriginOnScreen\.y\s*\+\s*(pointerLocalPt|normalizedPoint)/)||[])[1];if(x&&x===y)return x;return 'unrecognized';}
+function drawChallenge(){const addend=parseAddend(),origin={x:40,y:60},local={x:160,y:270},norm={x:.25,y:.75},chosen=addend==='pointerLocalPt'?local:addend==='normalizedPoint'?norm:null,out=chosen?{x:origin.x+chosen.x,y:origin.y+chosen.y}:null,correct=addend==='pointerLocalPt';const marker=out?`<circle cx="${80+out.x}" cy="${40+out.y}" r="15" fill="${correct?'#059669':'#dc2626'}" stroke="#fff" stroke-width="5"/><text x="${80+out.x+20}" y="${40+out.y-16}" font-size="18" font-weight="900" fill="${correct?'#065f46':'#7f1d1d'}">${pair(out.x,out.y,2)} pt</text>`:`<text x="410" y="245" text-anchor="middle" font-size="22" font-weight="900" fill="#7f1d1d">Unrecognized expression</text>`;$('challengeSvg').innerHTML=`<rect x="80" y="40" width="650" height="390" rx="24" fill="#eff6ff" stroke="#1e40af" stroke-width="5"/><circle cx="120" cy="100" r="9" fill="#1e40af"/><text x="138" y="92" font-size="18" font-weight="900" fill="#1e3a8a">inspector origin on screen (40, 60) pt</text><line x1="120" y1="100" x2="280" y2="370" stroke="#be185d" stroke-width="5" stroke-dasharray="12 9"/><circle cx="280" cy="370" r="12" fill="#d97706"/><text x="300" y="397" font-size="18" font-weight="900" fill="#92400e">correct local displacement (160, 270) pt</text>${marker}`;$('challengeFormula').innerHTML=out?`(${origin.x}, ${origin.y}) pt + ${addend==='pointerLocalPt'?`(${local.x}, ${local.y}) pt`:`(${norm.x}, ${norm.y}) unitless`} = ${pair(out.x,out.y,2)} pt`:'The return expression was not recognized.';$('challengeInput').textContent='screen origin (40, 60) pt; local (160, 270) pt; normalized (0.25, 0.75)';$('challengeOperation').textContent=addend==='pointerLocalPt'?'add two point offsets':addend==='normalizedPoint'?'incorrectly add a unitless pair to pt':'unrecognized';$('challengeOutput').textContent=out?`${pair(out.x,out.y,2)} pt`:'no output';document.querySelectorAll('[data-addend]').forEach(b=>b.classList.toggle('selected',b.dataset.addend===addend));if(challengeWasCorrect){challengeWasCorrect=false;$('challengeResult').textContent='The code changed after the successful check. Check the repair again.';$('challengeResult').style.background='#fff';}}
+editor.addEventListener('input',drawChallenge);document.querySelectorAll('[data-addend]').forEach(button=>button.addEventListener('click',()=>{const addend=button.dataset.addend;editor.value=editor.value.replace(/inspectorOriginOnScreen\.x\s*\+\s*(pointerLocalPt|normalizedPoint)\.x/,`inspectorOriginOnScreen.x + ${addend}.x`).replace(/inspectorOriginOnScreen\.y\s*\+\s*(pointerLocalPt|normalizedPoint)\.y/,`inspectorOriginOnScreen.y + ${addend}.y`);drawChallenge();}));$('checkChallenge').addEventListener('click',()=>{if(parseAddend()==='pointerLocalPt'){challengeWasCorrect=true;$('challengeResult').textContent='Correct. The origin and the displacement are both measured in points. Their sum is a screen-relative point position.';$('challengeResult').style.background='#ecfdf5';}else{$('challengeResult').textContent='Not repaired yet. Convert the relative point to local points before adding it to a point origin.';$('challengeResult').style.background='#fee2e2';}});
+const checkboxes=[...document.querySelectorAll('[data-check]')];function updateRecord(){const done=checkboxes.filter(c=>c.checked).map(c=>c.dataset.check),all=done.length===checkboxes.length;$('completionRecord').value=`lesson_id: 02-09
+lesson_title: Build a coordinate inspector
+status: ${all?'completed':'in_progress'}
+ios_confirmed_complete: 40
+completed_through: Lesson 9.6
+this_lesson_is_ios_on_ramp_reread: true
+course_lessons_total: 216
+ios_files_applied:
+  - LiquidGlassLab/chapter02/Chapter02Screen.swift
+  - LiquidGlassLab/chapter02/CoordinateInspector.swift
+iphone_16_pro_tested: ${done.includes('build')&&done.includes('visual')&&done.includes('drag')}
+checkpoint_items_complete: ${done.length}/${checkboxes.length}
+can_explain_local_bounds_and_center: ${done.includes('center')&&done.includes('boundary')}
+can_explain_units_and_larger_spaces: ${done.includes('spaces')&&done.includes('units')}
+next_lesson_after_completion: 3.1 — Red, green, and blue channels
+remaining_questions:
+  - none`;}
 checkboxes.forEach(c=>c.addEventListener('change',updateRecord));$('copyRecord').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('completionRecord').value);$('copyStatus').textContent='Copied.';}catch{$('completionRecord').select();document.execCommand('copy');$('copyStatus').textContent='Copied using the browser fallback.';}});
 drawMain();drawStep();drawChallenge();updateRecord();
 </script>

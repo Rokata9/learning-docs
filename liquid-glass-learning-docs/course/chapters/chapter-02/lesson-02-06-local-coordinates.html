@@ -18,19 +18,19 @@
 </div>
 <section class="panel hero">
 <div><div class="eyebrow">Chapter 2 · Coordinate spaces</div><h1>Local coordinates</h1><p class="lead">A child element starts its own coordinate system. Its top-left corner is local <code>(0, 0)</code>. A point inside that child is measured from that local origin.</p><div class="note"><strong>One graphics idea:</strong> the same visible point can have different coordinates in different coordinate systems. <strong>One math idea:</strong> subtract the child origin to convert a parent-local point into a child-local point.</div></div>
-<aside class="goal-box"><h2>By the end</h2><ul><li>Define a local coordinate system.</li><li>Identify the local origin of a child.</li><li>Calculate <code>local = parent point − child origin</code>.</li><li>Explain why moving a child does not change a point stored in the child's local coordinates.</li><li>Use the tap <code>Offset</code> returned to the child without adding the child's placement again.</li></ul><div class="progress-line">Course progress before this lesson: 13 of 216 lessons completed.</div></aside>
+<aside class="goal-box"><h2>By the end</h2><ul><li>Define a local coordinate system.</li><li>Identify the local origin of a child.</li><li>Calculate <code>local = parent point − child origin</code>.</li><li>Explain why moving a child does not change a point stored in the child's local coordinates.</li><li>Use the tap <code>CGPoint</code> returned to the child without adding the child's placement again.</li></ul><div class="progress-line">iOS-confirmed complete remains 40 of 216 through Lesson 9.6. Chapter 2 is a must-re-read on-ramp chapter.</div></aside>
 </section>
 <section class="panel section">
 <div class="section-intro"><div><div class="section-number">1 · Name the coordinate system</div><h2>A coordinate is incomplete without its owner</h2></div><p>The owner is the element whose origin and axes give the numbers their meaning.</p></div>
 <div class="three-column">
 <article class="card blue"><span class="space-tag space-parent">Parent-local</span><h3>Parent scene</h3><p>The parent scene has its own origin at its top-left corner. Positions inside that scene can be measured from that origin.</p></article>
 <article class="card indigo"><span class="space-tag space-child">Child-local</span><h3>Child panel</h3><p>The child panel starts another coordinate system. The child's top-left corner is child-local <code>(0, 0)</code>, even when the child is not at the parent's top-left.</p></article>
-<article class="card green"><span class="space-tag space-px">Unit: px</span><h3>Local drawing values</h3><p>Inside the Compose drawing and pointer-input code used here, X and Y are pixel-coordinate values. Lesson 2.5 explained the dp-to-px conversion.</p></article>
+<article class="card green"><span class="space-tag space-px">Unit: pt</span><h3>Local drawing values</h3><p>Inside the SwiftUI Canvas and tap-gesture code used here, X and Y are point-coordinate values. Lesson 2.5 explained the pt-to-px conversion.</p></article>
 </div>
-<div class="warning"><strong>Do not say only “the point is X = 48.”</strong> Say “the point is child-local X = 48 px” or “parent-local X = 48 px.” The coordinate-system name prevents two different positions from being confused.</div>
+<div class="warning"><strong>Do not say only “the point is X = 48.”</strong> Say “the point is child-local X = 48 pt” or “parent-local X = 48 pt.” The coordinate-system name prevents two different positions from being confused.</div>
 </section>
 <section class="panel section">
-<div class="section-intro"><div><div class="section-number">2 · Interactive local-coordinate laboratory</div><h2>Move the child and drag the point</h2></div><p>The green point is stored in child-local coordinates. Changing the child's parent-local placement does not change those stored local values. The browser values in this laboratory are SVG-local teaching units, not measured Pixel 8 Pro pixels.</p></div>
+<div class="section-intro"><div><div class="section-number">2 · Interactive local-coordinate laboratory</div><h2>Move the child and drag the point</h2></div><p>The green point is stored in child-local coordinates. Changing the child's parent-local placement does not change those stored local values. The browser values in this laboratory are SVG-local teaching units, not measured iPhone 16 Pro points.</p></div>
 <div class="lab-shell">
 <div class="lab-toolbar"><div><strong>Controlled teaching scene</strong><div class="small">Blue axes belong to the parent. Indigo axes belong to the child.</div></div><div class="controls"><button class="preset-button" data-placement="a" type="button">Placement A</button><button class="preset-button" data-placement="b" type="button">Placement B</button><button class="preset-button" data-point="center" type="button">Local center</button><button class="preset-button" data-point="fixed" type="button">Local (160, 110)</button></div></div>
 <div class="local-layout">
@@ -73,481 +73,488 @@
 </div>
 </section>
 <section class="panel section">
-<div class="section-intro"><div><div class="section-number">5 · Trace the real Android widget</div><h2>Follow one tap from the child to the marker</h2></div><p>The illustrative callback value is <code>Offset(144f, 96f)</code>. Your real value depends on where you tap.</p></div>
+<div class="section-intro"><div><div class="section-number">5 · Trace the real iOS widget</div><h2>Follow one tap from the child to the marker</h2></div><p>The illustrative callback value is <code>CGPoint(x: 144, y: 96)</code>. Your real value depends on where you tap.</p></div>
 <div class="trace-grid">
-<article class="trace-box"><strong>1 · Child owns the input area</strong><p>The <code>Box</code> carrying <code>pointerInput</code> is the containing element for this gesture detector.</p><code class="trace-code">Box(
-  Modifier
-    .size(244.dp, 180.dp)
-    .pointerInput(Unit) { ... }
-)</code></article>
-<article class="trace-box"><strong>2 · Tap occurs</strong><p>Assume the finger is 144 px right and 96 px down from the child's top-left corner.</p><code class="trace-code">child local input
-Offset(144f, 96f)</code></article>
-<article class="trace-box"><strong>3 · Gesture detector reports local Offset</strong><p>The callback parameter is relative to the containing element.</p><code class="trace-code">detectTapGestures {
-  localOffset -&gt; ...
+<article class="trace-box"><strong>1 · Child owns the input area</strong><p>The child <code>ZStack</code> carrying <code>onTapGesture</code> is the containing view for this tap.</p><code class="trace-code">ZStack(alignment: .topLeading) {
+  Canvas { ... }
+}
+.frame(width: 244, height: 180)
+.onTapGesture(coordinateSpace: .local) { ... }</code></article>
+<article class="trace-box"><strong>2 · Tap occurs</strong><p>Assume the finger is 144 pt right and 96 pt down from the child's top-left corner.</p><code class="trace-code">child local input
+CGPoint(x: 144, y: 96)</code></article>
+<article class="trace-box"><strong>3 · Gesture reports a local CGPoint</strong><p>The callback location is relative to the containing child view.</p><code class="trace-code">.onTapGesture(coordinateSpace: .local) { location in
+  ...
 }</code></article>
-<article class="trace-box"><strong>4 · State stores the same value</strong><p>No parent placement is added. The value remains child-local.</p><code class="trace-code">selectedLocalPx =
-  localOffset</code></article>
-<article class="trace-box"><strong>5 · Child Canvas reads state</strong><p>The Canvas fills the same child bounds. Its drawing origin is also the child's top-left corner.</p><code class="trace-code">drawCircle(
-  center = selectedPoint
+<article class="trace-box"><strong>4 · State stores the same value</strong><p>No parent placement is added. The value remains child-local.</p><code class="trace-code">selectedLocalPt =
+  location</code></article>
+<article class="trace-box"><strong>5 · Child Canvas reads state</strong><p>The Canvas fills the same child bounds. Its drawing origin is also the child's top-left corner, in points.</p><code class="trace-code">context.fill(
+  Path(ellipseIn: ...),
+  with: .color(...)
 )</code></article>
-<article class="trace-box"><strong>6 · Marker appears at the tap</strong><p>The output center is 144 px right and 96 px down inside the child.</p><code class="trace-code">output in child
-(144 px, 96 px)</code></article>
+<article class="trace-box"><strong>6 · Marker appears at the tap</strong><p>The output center is 144 pt right and 96 pt down inside the child.</p><code class="trace-code">output in child
+(144 pt, 96 pt)</code></article>
 </div>
-<div class="spaces-table"><table><thead><tr><th>Value</th><th>Exact object that owns it</th><th>Origin</th><th>Unit</th><th>Used in this lesson?</th></tr></thead><tbody><tr><td><code>localOffset</code></td><td>The child <code>Box</code> carrying <code>pointerInput</code></td><td>Child top-left</td><td>px</td><td>Yes</td></tr><tr><td><code>selectedPoint</code></td><td>The child-filling <code>Canvas</code></td><td>Canvas top-left, aligned with child top-left</td><td>px</td><td>Yes</td></tr><tr><td>Child position in parent</td><td>The parent layout</td><td>Parent top-left</td><td>dp request, then runtime px placement</td><td>Only moved by presets</td></tr><tr><td>Child position on the phone screen</td><td>The window and screen coordinate systems</td><td>Not introduced yet</td><td>px</td><td>No. Lesson 2.7</td></tr></tbody></table></div>
-<div class="note"><strong>Evidence limit:</strong> this code and the Compose gesture contract establish the child-local tap value. They do not tell us the child's window or physical-screen position. Lesson 2.7 will use layout-coordinate APIs to inspect those larger coordinate systems.</div>
+<div class="spaces-table"><table><thead><tr><th>Value</th><th>Exact object that owns it</th><th>Origin</th><th>Unit</th><th>Used in this lesson?</th></tr></thead><tbody><tr><td><code>location</code></td><td>The child <code>ZStack</code> carrying <code>onTapGesture</code></td><td>Child top-left</td><td>pt</td><td>Yes</td></tr><tr><td><code>selectedPoint</code></td><td>The child-filling <code>Canvas</code></td><td>Canvas top-left, aligned with child top-left</td><td>pt</td><td>Yes</td></tr><tr><td>Child position in parent</td><td>The parent layout</td><td>Parent top-left</td><td>pt request, then runtime pt placement</td><td>Only moved by presets</td></tr><tr><td>Child position on the phone screen</td><td>The window and screen coordinate systems</td><td>Not introduced yet</td><td>pt</td><td>No. Lesson 2.7</td></tr></tbody></table></div>
+<div class="note"><strong>Evidence limit:</strong> this code and the SwiftUI tap-gesture contract establish the child-local tap value. They do not tell us the child's window or physical-screen position. Lesson 2.7 will use <code>GeometryReader</code> and <code>UIView.convert</code> to inspect those larger coordinate systems.</div>
 </section>
 <section class="panel section">
-<div class="section-intro"><div><div class="section-number">6 · Android source</div><h2>Two files change in Lesson 2.6</h2></div><p><code>DensityExplorer.kt</code> remains unchanged.</p></div>
-<div class="source-tabs"><button class="mode-button selected" data-source="screen" type="button">Chapter02Screen.kt</button><button class="mode-button" data-source="explorer" type="button">LocalCoordinatesExplorer.kt</button></div>
-<div class="source-pane active" id="source-screen"><pre class="source-code">package com.example.liquidglasslab.chapter02
+<div class="section-intro"><div><div class="section-number">6 · iOS source</div><h2>Two files change in Lesson 2.6</h2></div><p><code>DensityExplorer.swift</code> remains unchanged. The earlier pixel-grid and axis explorers remain in the project. The running <code>Chapter02Screen</code> also still hosts them.</p></div>
+<div class="source-tabs"><button class="mode-button selected" data-source="screen" type="button">Chapter02Screen.swift</button><button class="mode-button" data-source="explorer" type="button">LocalCoordinatesExplorer.swift</button></div>
+<pre class="source-code source-pane active" id="source-screen">import SwiftUI
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.example.liquidglasslab.ui.theme.LiquidGlassLabTheme
+struct Chapter02Screen: View {
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 28) {
+                Text(&quot;THE SCREEN IS A GRID&quot;)
+                    .font(.system(size: 14, weight: .black))
+                    .foregroundStyle(Color(hex: 0x059669))
 
-@Composable
-fun Chapter02Screen(modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        color = Color(0xFFF8FAFC),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .safeDrawingPadding()
-                .padding(horizontal = 24.dp, vertical = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            Text(
-                text = "THE SCREEN IS A GRID",
-                color = Color(0xFF059669),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = "Lesson 2.6 · Local coordinates",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = "Tap inside the child panel. The reported point starts at the child's own " +
-                    "top-left origin, even when the child moves inside its parent.",
-                style = MaterialTheme.typography.bodyLarge,
-            )
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 2.2 · The X axis&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;X is the horizontal position. &quot; +
+                        &quot;A larger X value moves the selected sample to the right.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    XAxisExplorer()
+                }
 
-            LocalCoordinatesExplorer()
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 2.3 · The Y axis&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Y is the vertical position. &quot; +
+                        &quot;In iOS screen coordinates, a larger Y value moves downward.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    YAxisExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 2.4 · Width, height, edges, and center&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;A rectangle's bounds are its four edges. &quot; +
+                        &quot;Its center is halfway across its width and halfway down its height.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    BoundsCenterExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 2.5 · Pixels, points, and scale&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;SwiftUI receives layout sizes in points and converts them with displayScale. &quot; +
+                        &quot;SwiftUI Canvas drawing stays in points. Multiply by scale before a shader pixel distance.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    DensityExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 2.6 · Local coordinates&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Tap inside the child panel. The reported point starts at the child's own &quot; +
+                        &quot;top-left origin, even when the child moves inside its parent.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    LocalCoordinatesExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 2.7 · Parent, window, and screen coordinates&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Move one control inside its parent. Compare the same control's top-left &quot; +
+                        &quot;position relative to the parent, the app window, and the device screen.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    ParentScreenCoordinatesExplorer()
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 20)
+            .frame(maxWidth: .infinity)
         }
+        .background(Color(hex: 0xF8FAFC))
+        .safeAreaPadding()
     }
 }
 
-@Preview(
-    name = "Lesson 2.6 local-coordinate explorer",
-    showBackground = true,
-    widthDp = 412,
-    heightDp = 915,
-)
-@Composable
-private fun Chapter02ScreenPreview() {
-    LiquidGlassLabTheme {
+private extension Color {
+    init(hex: UInt32) {
+        self.init(
+            red: Double((hex &gt;&gt; 16) &amp; 0xFF) / 255,
+            green: Double((hex &gt;&gt; 8) &amp; 0xFF) / 255,
+            blue: Double(hex &amp; 0xFF) / 255
+        )
+    }
+}
+
+#Preview(&quot;Chapter 2 explorers · light&quot;) {
+    LabTheme {
         Chapter02Screen()
     }
-}
-</pre></div>
-<div class="source-pane" id="source-explorer"><pre class="source-code">package com.example.liquidglasslab.chapter02
-
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.absoluteOffset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
-import java.util.Locale
-
-private val ChildShape = RoundedCornerShape(20.dp)
-private const val ChildWidthDp = 244
-private const val ChildHeightDp = 180
-
-private enum class ChildPlacement(
-    val buttonLabel: String,
-    val xDp: Int,
-    val yDp: Int,
-) {
-    Left(
-        buttonLabel = "Placement A",
-        xDp = 16,
-        yDp = 70,
-    ),
-    Right(
-        buttonLabel = "Placement B",
-        xDp = 96,
-        yDp = 70,
-    ),
+    .labPreviewCanvas()
 }
 
-@Composable
-internal fun LocalCoordinatesExplorer(
-    modifier: Modifier = Modifier,
-) {
-    var placementName by rememberSaveable {
-        mutableStateOf(ChildPlacement.Left.name)
+#Preview(&quot;Chapter 2 explorers · dark&quot;) {
+    LabTheme {
+        Chapter02Screen()
     }
-    val placement = ChildPlacement.valueOf(placementName)
+    .preferredColorScheme(.dark)
+    .labPreviewCanvas()
+}
+</pre>
+<pre class="source-code source-pane" id="source-explorer">import SwiftUI
 
-    var childSizePx by remember {
-        mutableStateOf(IntSize.Zero)
+private let childWidthPt: CGFloat = 244
+private let childHeightPt: CGFloat = 180
+private let markerRadiusPt: CGFloat = 9
+
+private enum ChildPlacement: String, CaseIterable {
+    case left
+    case right
+
+    var buttonLabel: String {
+        switch self {
+        case .left: return &quot;Placement A&quot;
+        case .right: return &quot;Placement B&quot;
+        }
     }
-    var selectedLocalPx by remember {
-        mutableStateOf&lt;Offset?&gt;(null)
+
+    var xPt: CGFloat {
+        switch self {
+        case .left: return 16
+        case .right: return 96
+        }
     }
 
-    val selectedPoint = selectedLocalPx ?: childSizePx.centerOffset()
-    val density = LocalDensity.current
-    val markerRadiusPx = with(density) {
-        9.dp.toPx()
+    var yPt: CGFloat { 70 }
+}
+
+struct LocalCoordinatesExplorer: View {
+    @State private var placement = ChildPlacement.left
+    @State private var childSizePt = CGSize.zero
+    @State private var selectedLocalPt: CGPoint?
+
+    private var selectedPoint: CGPoint {
+        selectedLocalPt ?? childSizePt.centerPoint()
     }
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-    ) {
-        Text(
-            text = "Selected child-local point = " +
-                "(${formatNumber(selectedPoint.x)}, ${formatNumber(selectedPoint.y)}) px",
-            color = Color(0xFF4338CA),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Black,
-        )
-        Text(
-            text = "The point is measured from the child panel's top-left corner, not from the " +
-                "phone screen's top-left corner.",
-            style = MaterialTheme.typography.bodyLarge,
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
-                .background(
-                    color = Color.White,
-                    shape = RoundedCornerShape(22.dp),
-                )
-                .border(
-                    width = 2.dp,
-                    color = Color(0xFF1E40AF),
-                    shape = RoundedCornerShape(22.dp),
-                )
-                .semantics {
-                    contentDescription =
-                        "Parent scene containing a child panel at ${placement.xDp} density-independent " +
-                        "pixels from the left and ${placement.yDp} density-independent pixels from the top"
-                },
-        ) {
+    var body: some View {
+        VStack(spacing: 14) {
             Text(
-                text = "Parent scene origin (0, 0)",
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(12.dp),
-                color = Color(0xFF1E3A8A),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Black,
+                &quot;Selected child-local point = &quot; +
+                &quot;(\(formatNumber(selectedPoint.x)), \(formatNumber(selectedPoint.y))) pt&quot;
+            )
+            .font(.system(size: 22, weight: .black))
+            .foregroundStyle(Color(hex: 0x4338CA))
+            Text(
+                &quot;The point is measured from the child panel's top-left corner, not from the &quot; +
+                &quot;phone screen's top-left corner.&quot;
+            )
+            .font(LabType.bodyLarge)
+
+            ZStack(alignment: .topLeading) {
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .fill(Color.white)
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .strokeBorder(Color(hex: 0x1E40AF), lineWidth: 2)
+
+                Text(&quot;Parent scene origin (0, 0)&quot;)
+                    .font(LabType.label)
+                    .fontWeight(.black)
+                    .foregroundStyle(Color(hex: 0x1E3A8A))
+                    .padding(12)
+
+                childPanel
+                    .offset(x: placement.xPt, y: placement.yPt)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 300)
+            .accessibilityLabel(
+                &quot;Parent scene containing a child panel at \(Int(placement.xPt)) points &quot; +
+                &quot;from the left and \(Int(placement.yPt)) points from the top&quot;
             )
 
-            Box(
-                modifier = Modifier
-                    .absoluteOffset(
-                        x = placement.xDp.dp,
-                        y = placement.yDp.dp,
-                    )
-                    .size(
-                        width = ChildWidthDp.dp,
-                        height = ChildHeightDp.dp,
-                    )
-                    .clip(ChildShape)
-                    .background(Color(0xFFEEF2FF))
-                    .border(
-                        width = 3.dp,
-                        color = Color(0xFF4338CA),
-                        shape = ChildShape,
-                    )
-                    .onSizeChanged { newSize -&gt;
-                        childSizePx = newSize
-                        if (selectedLocalPx == null) {
-                            selectedLocalPx = newSize.centerOffset()
+            Text(
+                &quot;Child placement request = \(Int(placement.xPt)) pt from the parent's left and &quot; +
+                &quot;\(Int(placement.yPt)) pt from the parent's top · &quot; +
+                &quot;child measured size = \(formatNumber(childSizePt.width)) × &quot; +
+                &quot;\(formatNumber(childSizePt.height)) pt&quot;
+            )
+            .font(.system(size: 14, weight: .bold))
+
+            HStack(spacing: 8) {
+                ForEach(ChildPlacement.allCases, id: \.self) { option in
+                    let selected = placement == option
+                    if selected {
+                        Button {
+                            placement = option
+                        } label: {
+                            Text(option.buttonLabel)
+                                .frame(maxWidth: .infinity)
                         }
-                    }
-                    .pointerInput(Unit) {
-                        detectTapGestures { localOffset -&gt;
-                            selectedLocalPx = localOffset
+                        .buttonStyle(.borderedProminent)
+                    } else {
+                        Button {
+                            placement = option
+                        } label: {
+                            Text(option.buttonLabel)
+                                .frame(maxWidth: .infinity)
                         }
+                        .buttonStyle(.bordered)
                     }
-                    .semantics {
-                        contentDescription =
-                            "Child panel. Tap to choose a position in the child's local coordinate system. " +
-                            "Current local position is ${formatNumber(selectedPoint.x)} by " +
-                            "${formatNumber(selectedPoint.y)} pixels."
-                    },
-            ) {
-                Canvas(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    val verticalStep = size.width / 4f
-                    val horizontalStep = size.height / 4f
+                }
+            }
 
-                    for (index in 1 until 4) {
-                        drawLine(
-                            color = Color(0xFF94A3B8).copy(alpha = 0.45f),
-                            start = Offset(verticalStep * index, 0f),
-                            end = Offset(verticalStep * index, size.height),
-                            strokeWidth = 1f,
-                        )
-                        drawLine(
-                            color = Color(0xFF94A3B8).copy(alpha = 0.45f),
-                            start = Offset(0f, horizontalStep * index),
-                            end = Offset(size.width, horizontalStep * index),
-                            strokeWidth = 1f,
-                        )
-                    }
+            HStack(spacing: 8) {
+                Button {
+                    selectedLocalPt = CGPoint(x: 48, y: 36)
+                } label: {
+                    Text(&quot;Local (48, 36)&quot;)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
 
-                    drawLine(
-                        color = Color(0xFF1E40AF),
-                        start = Offset.Zero,
-                        end = Offset(size.width, 0f),
-                        strokeWidth = 4f,
+                Button {
+                    selectedLocalPt = childSizePt.centerPoint()
+                } label: {
+                    Text(&quot;Local center&quot;)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .disabled(childSizePt == .zero)
+
+                Button {
+                    selectedLocalPt = CGPoint(
+                        x: max(childSizePt.width - 48, 0),
+                        y: max(childSizePt.height - 36, 0)
                     )
-                    drawLine(
-                        color = Color(0xFF1E40AF),
-                        start = Offset.Zero,
-                        end = Offset(0f, size.height),
-                        strokeWidth = 4f,
+                } label: {
+                    Text(&quot;Near bottom-right&quot;)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .disabled(childSizePt == .zero)
+            }
+
+            Text(
+                &quot;Move the child with Placement A and Placement B. The green point moves on the &quot; +
+                &quot;phone, but its child-local X and Y values remain unchanged.&quot;
+            )
+            .font(LabType.bodyLarge)
+            .fontWeight(.bold)
+            .foregroundStyle(Color(hex: 0x065F46))
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var childPanel: some View {
+        ZStack(alignment: .topLeading) {
+            Canvas { context, size in
+                let verticalStep = size.width / 4
+                let horizontalStep = size.height / 4
+
+                for index in 1..&lt;4 {
+                    var vertical = Path()
+                    vertical.move(to: CGPoint(x: verticalStep * CGFloat(index), y: 0))
+                    vertical.addLine(to: CGPoint(x: verticalStep * CGFloat(index), y: size.height))
+                    context.stroke(
+                        vertical,
+                        with: .color(Color(hex: 0x94A3B8).opacity(0.45)),
+                        lineWidth: 1
                     )
 
-                    drawLine(
-                        color = Color(0xFFBE185D).copy(alpha = 0.55f),
-                        start = Offset(selectedPoint.x, 0f),
-                        end = Offset(selectedPoint.x, selectedPoint.y),
-                        strokeWidth = 2f,
-                    )
-                    drawLine(
-                        color = Color(0xFFBE185D).copy(alpha = 0.55f),
-                        start = Offset(0f, selectedPoint.y),
-                        end = Offset(selectedPoint.x, selectedPoint.y),
-                        strokeWidth = 2f,
-                    )
-                    drawCircle(
-                        color = Color(0xFF059669),
-                        radius = markerRadiusPx,
-                        center = selectedPoint,
-                    )
-                    drawCircle(
-                        color = Color.White,
-                        radius = markerRadiusPx * 0.38f,
-                        center = selectedPoint,
+                    var horizontal = Path()
+                    horizontal.move(to: CGPoint(x: 0, y: horizontalStep * CGFloat(index)))
+                    horizontal.addLine(to: CGPoint(x: size.width, y: horizontalStep * CGFloat(index)))
+                    context.stroke(
+                        horizontal,
+                        with: .color(Color(hex: 0x94A3B8).opacity(0.45)),
+                        lineWidth: 1
                     )
                 }
 
-                Text(
-                    text = "child local (0, 0)",
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(10.dp),
-                    color = Color(0xFF312E81),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Black,
+                var topAxis = Path()
+                topAxis.move(to: .zero)
+                topAxis.addLine(to: CGPoint(x: size.width, y: 0))
+                context.stroke(topAxis, with: .color(Color(hex: 0x1E40AF)), lineWidth: 4)
+
+                var leftAxis = Path()
+                leftAxis.move(to: .zero)
+                leftAxis.addLine(to: CGPoint(x: 0, y: size.height))
+                context.stroke(leftAxis, with: .color(Color(hex: 0x1E40AF)), lineWidth: 4)
+
+                var dropX = Path()
+                dropX.move(to: CGPoint(x: selectedPoint.x, y: 0))
+                dropX.addLine(to: selectedPoint)
+                context.stroke(
+                    dropX,
+                    with: .color(Color(hex: 0xBE185D).opacity(0.55)),
+                    lineWidth: 2
                 )
-                Text(
-                    text = "Tap inside this child",
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(10.dp),
-                    color = Color(0xFF475569),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
+
+                var dropY = Path()
+                dropY.move(to: CGPoint(x: 0, y: selectedPoint.y))
+                dropY.addLine(to: selectedPoint)
+                context.stroke(
+                    dropY,
+                    with: .color(Color(hex: 0xBE185D).opacity(0.55)),
+                    lineWidth: 2
+                )
+
+                context.fill(
+                    Path(ellipseIn: CGRect(
+                        x: selectedPoint.x - markerRadiusPt,
+                        y: selectedPoint.y - markerRadiusPt,
+                        width: markerRadiusPt * 2,
+                        height: markerRadiusPt * 2
+                    )),
+                    with: .color(Color(hex: 0x059669))
+                )
+                let innerRadius = markerRadiusPt * 0.38
+                context.fill(
+                    Path(ellipseIn: CGRect(
+                        x: selectedPoint.x - innerRadius,
+                        y: selectedPoint.y - innerRadius,
+                        width: innerRadius * 2,
+                        height: innerRadius * 2
+                    )),
+                    with: .color(.white)
                 )
             }
-        }
 
-        Text(
-            text = "Child placement request = ${placement.xDp} dp from the parent's left and " +
-                "${placement.yDp} dp from the parent's top · " +
-                "child measured size = ${childSizePx.width} × ${childSizePx.height} px",
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold,
+            Text(&quot;child local (0, 0)&quot;)
+                .font(.system(size: 12, weight: .black))
+                .foregroundStyle(Color(hex: 0x312E81))
+                .padding(10)
+
+            Text(&quot;Tap inside this child&quot;)
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(Color(hex: 0x475569))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                .padding(10)
+        }
+        .frame(width: childWidthPt, height: childHeightPt)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .background(Color(hex: 0xEEF2FF))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .strokeBorder(Color(hex: 0x4338CA), lineWidth: 3)
         )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            ChildPlacement.entries.forEach { option -&gt;
-                val selected = placement == option
-                if (selected) {
-                    Button(
-                        onClick = { placementName = option.name },
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        Text(option.buttonLabel)
-                    }
-                } else {
-                    OutlinedButton(
-                        onClick = { placementName = option.name },
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        Text(option.buttonLabel)
-                    }
-                }
+        .contentShape(Rectangle())
+        .background {
+            GeometryReader { proxy in
+                Color.clear.preference(key: ChildSizeKey.self, value: proxy.size)
             }
         }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            OutlinedButton(
-                onClick = {
-                    selectedLocalPx = Offset(48f, 36f)
-                },
-                modifier = Modifier.weight(1f),
-            ) {
-                Text("Local (48, 36)")
-            }
-            OutlinedButton(
-                onClick = {
-                    selectedLocalPx = childSizePx.centerOffset()
-                },
-                enabled = childSizePx != IntSize.Zero,
-                modifier = Modifier.weight(1f),
-            ) {
-                Text("Local center")
-            }
-            OutlinedButton(
-                onClick = {
-                    selectedLocalPx = Offset(
-                        x = (childSizePx.width - 48).coerceAtLeast(0).toFloat(),
-                        y = (childSizePx.height - 36).coerceAtLeast(0).toFloat(),
-                    )
-                },
-                enabled = childSizePx != IntSize.Zero,
-                modifier = Modifier.weight(1f),
-            ) {
-                Text("Near bottom-right")
+        .onPreferenceChange(ChildSizeKey.self) { newSize in
+            childSizePt = newSize
+            if selectedLocalPt == nil {
+                selectedLocalPt = newSize.centerPoint()
             }
         }
-
-        Text(
-            text = "Move the child with Placement A and Placement B. The green point moves on the " +
-                "phone, but its child-local X and Y values remain unchanged.",
-            color = Color(0xFF065F46),
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold,
+        .onTapGesture(coordinateSpace: .local) { location in
+            selectedLocalPt = location
+        }
+        .accessibilityLabel(
+            &quot;Child panel. Tap to choose a position in the child's local coordinate system. &quot; +
+            &quot;Current local position is \(formatNumber(selectedPoint.x)) by &quot; +
+            &quot;\(formatNumber(selectedPoint.y)) points.&quot;
         )
     }
 }
 
-private fun IntSize.centerOffset(): Offset = Offset(
-    x = width / 2f,
-    y = height / 2f,
-)
+private struct ChildSizeKey: PreferenceKey {
+    static var defaultValue = CGSize.zero
 
-private fun formatNumber(value: Float): String = String.format(
-    Locale.US,
-    "%.1f",
-    value,
-)
-</pre></div>
-<div class="note"><strong>Modifier owner:</strong> <code>pointerInput</code> is attached to the child <code>Box</code>. The callback's <code>Offset</code> therefore belongs to that containing child element. The child-filling <code>Canvas</code> uses the same local bounds for drawing. The teaching scene uses <code>absoluteOffset</code> so a positive placement X always moves the child to the right, independent of text layout direction.</div>
+    static func reduce(value: inout CGSize, nextValue: () -&gt; CGSize) {
+        value = nextValue()
+    }
+}
+
+private extension CGSize {
+    func centerPoint() -&gt; CGPoint {
+        CGPoint(x: width / 2, y: height / 2)
+    }
+}
+
+private func formatNumber(_ value: CGFloat) -&gt; String {
+    String(format: &quot;%.1f&quot;, Double(value))
+}
+
+private extension Color {
+    init(hex: UInt32) {
+        self.init(
+            red: Double((hex &gt;&gt; 16) &amp; 0xFF) / 255,
+            green: Double((hex &gt;&gt; 8) &amp; 0xFF) / 255,
+            blue: Double(hex &amp; 0xFF) / 255
+        )
+    }
+}
+</pre>
+<div class="note"><strong>Gesture owner:</strong> <code>onTapGesture</code> is attached to the child <code>ZStack</code>. The callback's <code>CGPoint</code> therefore belongs to that containing child view. The child-filling <code>Canvas</code> uses the same local bounds for drawing, in points. The teaching scene uses <code>.offset(x:y:)</code> so a positive placement X always moves the child to the right.</div>
 </section>
 <section class="panel section">
 <div class="section-intro"><div><div class="section-number">7 · Coding challenge</div><h2>Stop adding a parent-space value to a local point</h2></div><p>The broken function receives a point that is already child-local. It incorrectly adds the child's parent-local origin.</p></div>
 <div class="challenge-grid">
-<div class="editor-card"><div class="card-header"><strong>Editable Kotlin fragment</strong><span class="small">Repair the return expression.</span></div><div class="editor-wrap"><textarea class="code-editor" id="codeEditor" spellcheck="false">fun storeTap(
-    localOffset: Offset,
-    childOriginInParent: Offset,
-): Offset {
-    return localOffset + childOriginInParent
-}</textarea><div class="controls" style="margin-top:12px"><button class="preset-button" data-expression="local" type="button">Keep localOffset</button><button class="preset-button" data-expression="add" type="button">Add child origin</button><button class="preset-button" data-expression="subtract" type="button">Subtract child origin</button><button class="primary-button" id="checkChallenge" type="button">Check repair</button></div><div class="challenge-result" id="challengeResult">Change the code or use a button, then check the repair.</div></div></div>
+<div class="editor-card"><div class="card-header"><strong>Swift teaching fragment</strong><span class="small">Repair the return expression.</span></div><div class="editor-wrap"><textarea class="code-editor" id="codeEditor" spellcheck="false">func storeTap(
+    localPoint: CGPoint,
+    childOriginInParent: CGPoint
+) -> CGPoint {
+    CGPoint(x: localPoint.x + childOriginInParent.x, y: localPoint.y + childOriginInParent.y)
+}</textarea><div class="controls" style="margin-top:12px"><button class="preset-button" data-expression="local" type="button">Keep localPoint</button><button class="preset-button" data-expression="add" type="button">Add child origin</button><button class="preset-button" data-expression="subtract" type="button">Subtract child origin</button><button class="primary-button" id="checkChallenge" type="button">Check repair</button></div><div class="challenge-result" id="challengeResult">Change the code or use a button, then check the repair.</div></div></div>
 <div class="challenge-preview"><div class="card-header"><strong>Code-driven teaching preview</strong><span class="small">Input → operation → stored output</span></div><div class="challenge-body"><div class="challenge-stage"><svg aria-label="Expected child-local point compared with the point stored by the code" id="challengeSvg" role="img" viewbox="0 0 760 430"></svg></div><div class="formula" id="challengeFormula" style="margin-top:14px"></div><div class="io-row" style="margin-top:12px"><div class="io-box"><strong>Input</strong><span id="challengeInput"></span></div><div class="io-box"><strong>Operation</strong><span id="challengeOperation"></span></div><div class="io-box"><strong>Output</strong><span id="challengeOutput"></span></div></div></div></div>
 </div>
 </section>
 <section class="panel section">
-<div class="section-intro"><div><div class="section-number">8 · Pixel 8 Pro checkpoint</div><h2>Move the child without changing its local point</h2></div><p>Use the Android implementation as the final source of truth.</p></div>
+<div class="section-intro"><div><div class="section-number">8 · iPhone 16 Pro checkpoint</div><h2>Move the child without changing its local point</h2></div><p>Use the iOS implementation as the final source of truth.</p></div>
 <div class="checklist">
-<label class="check-row"><input data-check="apply" type="checkbox"/><span>I applied both Lesson 2.6 incremental archives after my completed Lesson 2.5 state.</span></label>
-<label class="check-row"><input data-check="build" type="checkbox"/><span>The app builds and opens Lesson 2.6 on the Pixel 8 Pro.</span></label>
+<label class="check-row"><input data-check="apply" type="checkbox"/><span>I applied both changed Swift files after Lesson 2.5.</span></label>
+<label class="check-row"><input data-check="build" type="checkbox"/><span>The application builds and opens Lesson 2.6 on the iPhone 16 Pro.</span></label>
 <label class="check-row"><input data-check="tap" type="checkbox"/><span>I tapped several places inside the child and saw the child-local X and Y values update.</span></label>
 <label class="check-row"><input data-check="presets" type="checkbox"/><span>I tested <strong>Local (48, 36)</strong>, <strong>Local center</strong>, and <strong>Near bottom-right</strong>.</span></label>
 <label class="check-row"><input data-check="move" type="checkbox"/><span>I switched between <strong>Placement A</strong> and <strong>Placement B</strong> and confirmed that the selected child-local values stayed unchanged.</span></label>
-<label class="check-row"><input data-check="explain" type="checkbox"/><span>I can explain why the tap <code>Offset</code> is stored directly instead of adding the child's placement.</span></label>
-<label class="check-row"><input data-check="commit" type="checkbox"/><span>I committed the lesson changes to Git.</span></label>
+<label class="check-row"><input data-check="explain" type="checkbox"/><span>I can explain why the tap <code>CGPoint</code> is stored directly instead of adding the child's placement.</span></label>
 </div>
-<div class="warning"><strong>Expected Android behavior:</strong> moving the child changes where the green point appears in the parent scene. The displayed child-local X and Y remain the same because the marker stays at the same position inside the child.</div>
+<div class="warning"><strong>Expected iOS behavior:</strong> moving the child changes where the green point appears in the parent scene. The displayed child-local X and Y remain the same because the marker stays at the same position inside the child.</div>
 </section>
 <section class="panel section">
 <div class="section-intro"><div><div class="section-number">9 · Exercises</div><h2>Answer before opening the details</h2></div><p>The first and fourth questions target the most common coordinate-space mistake.</p></div>
 <details><summary>Exercise 1 · Diagnostic subtraction</summary><p>A child origin is parent-local <code>(120, 70)</code>. A point is parent-local <code>(270, 190)</code>. What is the child-local point?</p><p><strong>Answer:</strong> <code>(270 − 120, 190 − 70) = (150, 120)</code>. Subtract matching coordinates.</p></details>
-<details><summary>Exercise 2 · Move the child</summary><p>A point is stored as child-local <code>(64, 48)</code>. The child moves 80 px to the right inside its parent. What happens to the stored child-local point?</p><p><strong>Answer:</strong> it remains <code>(64, 48)</code>. The corresponding parent-local X increases by 80 px because the entire child moved.</p></details>
-<details><summary>Exercise 3 · Read the callback</summary><p>The child <code>Box</code> receives <code>localOffset = Offset(144f, 96f)</code> from <code>detectTapGestures</code>. What do the two numbers describe?</p><p><strong>Answer:</strong> 144 px to the right and 96 px down from the containing child element's local top-left origin.</p></details>
-<details><summary>Exercise 4 · Diagnose the wrong marker</summary><p>The marker is drawn inside the child Canvas, but code first adds the child's parent-local origin to <code>localOffset</code>. Why does the marker move too far?</p><p><strong>Answer:</strong> the addition converts the value toward parent-local coordinates, then the result is incorrectly consumed by a child-local drawing operation. The code mixes two coordinate spaces.</p></details>
+<details><summary>Exercise 2 · Move the child</summary><p>A point is stored as child-local <code>(64, 48)</code>. The child moves 80 pt to the right inside its parent. What happens to the stored child-local point?</p><p><strong>Answer:</strong> it remains <code>(64, 48)</code>. The corresponding parent-local X increases by 80 pt because the entire child moved.</p></details>
+<details><summary>Exercise 3 · Read the callback</summary><p>The child view receives <code>location = CGPoint(x: 144, y: 96)</code> from <code>onTapGesture</code>. What do the two numbers describe?</p><p><strong>Answer:</strong> 144 pt to the right and 96 pt down from the containing child view's local top-left origin.</p></details>
+<details><summary>Exercise 4 · Diagnose the wrong marker</summary><p>The marker is drawn inside the child Canvas, but code first adds the child's parent-local origin to <code>location</code>. Why does the marker move too far?</p><p><strong>Answer:</strong> the addition converts the value toward parent-local coordinates, then the result is incorrectly consumed by a child-local drawing operation. The code mixes two coordinate spaces.</p></details>
 </section>
 <section class="panel section">
-<div class="section-intro"><div><div class="section-number">10 · Completion record</div><h2>Copy the checkpoint into the next conversation</h2></div><p>Completing this lesson will raise the course total from 13 to 14 of 216 lessons.</p></div>
+<div class="section-intro"><div><div class="section-number">10 · Completion record</div><h2>Copy the checkpoint into the next conversation</h2></div><p>This Chapter 2 re-read does not raise the 40 of 216 iOS-confirmed complete count.</p></div>
 <textarea class="record-area" id="completionRecord" readonly=""></textarea><div class="controls" style="margin-top:12px"><button class="primary-button" id="copyRecord" type="button">Copy completion record</button><span class="small" id="copyStatus"></span></div>
 </section>
 <section class="panel section">
-<div class="section-intro"><div><div class="section-number">References</div><h2>Official Android material used</h2></div><p>The browser scene is a teaching model. The API statements come from Android documentation and AndroidX source.</p></div>
-<p><a href="https://developer.android.com/develop/ui/compose/graphics/draw/overview">Graphics in Compose</a> — defines the drawing coordinate system used inside a Compose drawing surface.</p>
-<p><a href="https://developer.android.com/develop/ui/compose/touch-input/pointer-input/understand-gestures">Understand gestures</a> — shows <code>pointerInput</code>, pointer positions, and <code>detectTapGestures</code>.</p>
-<p><a href="https://android.googlesource.com/platform/frameworks/support/%2B/b2d47e614f6fc50dedf79ea726375270cdb85673%5E2..b2d47e614f6fc50dedf79ea726375270cdb85673/">AndroidX source change for gesture offsets</a> — records that gesture callback offsets are relative to the containing element.</p>
-    <p><a href="https://developer.android.com/develop/ui/compose/modifiers#offset">Compose modifiers: offset</a> — distinguishes layout-direction-aware <code>offset</code> from <code>absoluteOffset</code>.</p>
+<div class="section-intro"><div><div class="section-number">References</div><h2>Official Apple documentation used</h2></div><p>The browser scene is a teaching model. The iOS API statements come from these primary sources.</p></div>
+<ul>
+<li><a href="https://developer.apple.com/documentation/swiftui/view/ontapgesture(count:coordinatespace:perform:)">SwiftUI onTapGesture</a> — the tap location belongs to the view that owns the gesture.</li>
+<li><a href="https://developer.apple.com/documentation/swiftui/canvas">SwiftUI Canvas</a> — drawing coordinates are points, origin at the view's top-left.</li>
+<li><a href="https://developer.apple.com/documentation/swiftui/view/offset(x:y:)">SwiftUI offset(x:y:)</a> — a positive X value moves the child to the right.</li>
+</ul>
 </section>
 <nav class="footer-nav"><a href="lesson-02-05-pixels-dp-and-density.html">← Lesson 2.5</a><a href="lesson-the-screen-is-a-grid.html">Chapter 2 hub</a><a href="lesson-02-07-parent-window-and-screen-coordinates.html">Lesson 2.7 · Parent, window, and screen coordinates →</a></nav>
 </main>
@@ -594,7 +601,7 @@ const steps=[
   {title:'Name the parent coordinate system',caption:'The parent scene begins at its own top-left origin. All parent-local positions are measured from this point.',code:'parent origin = (0, 0)',input:'parent scene',operation:'choose its top-left as origin',output:'parent-local coordinate system',stage:0},
   {title:'Place the child inside the parent',caption:'The child top-left is parent-local (180, 100). These values describe where the child begins inside the parent.',code:'childOriginInParent = (180, 100)',input:'parent origin and child placement',operation:'move 180 right and 100 down',output:'child origin in parent (180, 100)',stage:1},
   {title:'Start the child local system',caption:'At the child top-left, the child-local coordinate resets to (0, 0). Parent-local (180, 100) and child-local (0, 0) name the same visible corner.',code:'same corner:\nparent-local = (180, 100)\nchild-local = (0, 0)',input:'child top-left corner',operation:'choose it as a new origin',output:'child-local origin (0, 0)',stage:2},
-  {title:'Name the point in parent coordinates',caption:'The selected visible point is parent-local (340, 220). We now want to express that same point relative to the child.',code:'pointInParent = Offset(340f, 220f)',input:'one visible point',operation:'measure from parent origin',output:'parent-local point (340, 220)',stage:3},
+  {title:'Name the point in parent coordinates',caption:'The selected visible point is parent-local (340, 220). We now want to express that same point relative to the child.',code:'pointInParent = CGPoint(x: 340, y: 220)',input:'one visible point',operation:'measure from parent origin',output:'parent-local point (340, 220)',stage:3},
   {title:'Subtract the child X origin',caption:'Remove the 180 diagram units that belong to the child placement. The remaining 160 diagram units are the point\'s horizontal distance from the child origin.',code:'localX = 340 - 180\nlocalX = 160',input:'point parent X 340; child origin X 180',operation:'subtract',output:'child-local X = 160',stage:4},
   {title:'Subtract the child Y origin',caption:'Remove the 100 diagram units that belong to the child placement. The remaining 120 diagram units are the point\'s vertical distance from the child origin.',code:'localY = 220 - 100\nlocalY = 120',input:'point parent Y 220; child origin Y 100',operation:'subtract',output:'child-local Y = 120',stage:5},
   {title:'Write the complete child-local point',caption:'The same visible point is parent-local (340, 220) and child-local (160, 120). Neither pair is universally “the” coordinate. Each pair belongs to a named system.',code:'local = pointInParent - childOriginInParent\nlocal = (340, 220) - (180, 100)\nlocal = (160, 120)',input:'two parent-local points',operation:'subtract matching coordinates',output:'child-local point (160, 120)',stage:6},
@@ -604,11 +611,11 @@ function drawStep(){const s=steps[stepIndex];const parent={x:80,y:70,w:820,h:430
 
 document.querySelectorAll('[data-source]').forEach((button)=>button.addEventListener('click',()=>{document.querySelectorAll('[data-source]').forEach((b)=>b.classList.remove('selected'));button.classList.add('selected');document.querySelectorAll('.source-pane').forEach((pane)=>pane.classList.remove('active'));$(`source-${button.dataset.source}`).classList.add('active');}));
 
-const editor=$('codeEditor');let challengeWasCorrect=false;function stripComments(code){return code.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/.*$/gm,'');}function parseChallenge(){const code=stripComments(editor.value);const returnLine=(code.match(/return\s+([^\n}]+)/)||[])[1]?.trim()||'';let mode='unknown';if(/^localOffset\s*$/.test(returnLine))mode='local';else if(/localOffset\s*\+\s*childOriginInParent/.test(returnLine))mode='add';else if(/localOffset\s*-\s*childOriginInParent/.test(returnLine))mode='subtract';const local={x:120,y:80},origin={x:180,y:100};const stored=mode==='local'?local:mode==='add'?{x:local.x+origin.x,y:local.y+origin.y}:mode==='subtract'?{x:local.x-origin.x,y:local.y-origin.y}:{x:0,y:0};return{mode,returnLine,local,origin,stored};}
-function drawChallenge(){const p=parseChallenge();const child={x:150,y:90,w:320,h:220};const expected={x:child.x+p.local.x,y:child.y+p.local.y};const stored={x:child.x+p.stored.x,y:child.y+p.stored.y};const storedVisible=stored.x>=child.x&&stored.x<=child.x+child.w&&stored.y>=child.y&&stored.y<=child.y+child.h;$('challengeSvg').innerHTML=`<rect x="70" y="40" width="620" height="340" rx="22" fill="#f8fafc" stroke="#1e40af" stroke-width="4"/><text x="90" y="72" font-size="18" font-weight="900" fill="#1e3a8a">parent scene</text><rect x="${child.x}" y="${child.y}" width="${child.w}" height="${child.h}" rx="20" fill="#eef2ff" stroke="#4338ca" stroke-width="5"/><text x="${child.x+12}" y="${child.y+27}" font-size="17" font-weight="900" fill="#312e81">child local (0, 0)</text><circle cx="${expected.x}" cy="${expected.y}" r="14" fill="none" stroke="#059669" stroke-width="5" stroke-dasharray="8 6"/><text x="${expected.x+18}" y="${expected.y-18}" font-size="17" font-weight="900" fill="#065f46">expected local (120, 80)</text>${storedVisible?`<circle cx="${stored.x}" cy="${stored.y}" r="12" fill="#d97706" stroke="#fff" stroke-width="4"/><text x="${stored.x+15}" y="${stored.y+24}" font-size="17" font-weight="900" fill="#92400e">stored (${p.stored.x}, ${p.stored.y})</text>`:`<rect x="500" y="275" width="165" height="75" rx="13" fill="#fee2e2" stroke="#dc2626" stroke-width="3"/><text x="582" y="305" text-anchor="middle" font-size="16" font-weight="900" fill="#7f1d1d">stored point is</text><text x="582" y="332" text-anchor="middle" font-size="17" font-weight="900" fill="#7f1d1d">outside child</text>`}`;$('challengeFormula').innerHTML=`local input = (120, 80) · child origin in parent = (180, 100)<br>stored output = (${p.stored.x}, ${p.stored.y})`;$('challengeInput').textContent='child-local Offset(120, 80)';$('challengeOperation').textContent=p.mode==='local'?'keep the local value':p.mode==='add'?'add a parent-local origin':p.mode==='subtract'?'subtract a parent-local origin':'unrecognized return expression';$('challengeOutput').textContent=`stored (${p.stored.x}, ${p.stored.y})`;document.querySelectorAll('[data-expression]').forEach((b)=>b.classList.toggle('selected',b.dataset.expression===p.mode));if(challengeWasCorrect){challengeWasCorrect=false;$('challengeResult').textContent='The code changed after the successful check. Check the repair again.';$('challengeResult').style.background='#fff';}}
-editor.addEventListener('input',drawChallenge);document.querySelectorAll('[data-expression]').forEach((button)=>button.addEventListener('click',()=>{const expression=button.dataset.expression==='local'?'localOffset':button.dataset.expression==='add'?'localOffset + childOriginInParent':'localOffset - childOriginInParent';editor.value=editor.value.replace(/return\s+[^\n}]+/,`return ${expression}`);drawChallenge();}));$('checkChallenge').addEventListener('click',()=>{const p=parseChallenge();if(p.mode==='local'){challengeWasCorrect=true;$('challengeResult').textContent='Correct. localOffset already belongs to the child. Store it directly for child-local drawing.';$('challengeResult').style.background='#ecfdf5';}else{$('challengeResult').textContent='Not repaired yet. The callback value is already child-local. Adding or subtracting the parent placement mixes coordinate spaces.';$('challengeResult').style.background='#fee2e2';}});
+const editor=$('codeEditor');let challengeWasCorrect=false;function stripComments(code){return code.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/.*$/gm,'');}function parseChallenge(){const code=stripComments(editor.value);const body=(code.match(/->\s*CGPoint\s*\{([\s\S]*)\}/)||[])[1]||code;let mode='unknown';if(/localPoint\.x\s*\+\s*childOriginInParent/.test(body))mode='add';else if(/localPoint\.x\s*-\s*childOriginInParent/.test(body))mode='subtract';else if(/\blocalPoint\b/.test(body))mode='local';const local={x:120,y:80},origin={x:180,y:100};const stored=mode==='local'?local:mode==='add'?{x:local.x+origin.x,y:local.y+origin.y}:mode==='subtract'?{x:local.x-origin.x,y:local.y-origin.y}:{x:0,y:0};return{mode,local,origin,stored};}
+function drawChallenge(){const p=parseChallenge();const child={x:150,y:90,w:320,h:220};const expected={x:child.x+p.local.x,y:child.y+p.local.y};const stored={x:child.x+p.stored.x,y:child.y+p.stored.y};const storedVisible=stored.x>=child.x&&stored.x<=child.x+child.w&&stored.y>=child.y&&stored.y<=child.y+child.h;$('challengeSvg').innerHTML=`<rect x="70" y="40" width="620" height="340" rx="22" fill="#f8fafc" stroke="#1e40af" stroke-width="4"/><text x="90" y="72" font-size="18" font-weight="900" fill="#1e3a8a">parent scene</text><rect x="${child.x}" y="${child.y}" width="${child.w}" height="${child.h}" rx="20" fill="#eef2ff" stroke="#4338ca" stroke-width="5"/><text x="${child.x+12}" y="${child.y+27}" font-size="17" font-weight="900" fill="#312e81">child local (0, 0)</text><circle cx="${expected.x}" cy="${expected.y}" r="14" fill="none" stroke="#059669" stroke-width="5" stroke-dasharray="8 6"/><text x="${expected.x+18}" y="${expected.y-18}" font-size="17" font-weight="900" fill="#065f46">expected local (120, 80)</text>${storedVisible?`<circle cx="${stored.x}" cy="${stored.y}" r="12" fill="#d97706" stroke="#fff" stroke-width="4"/><text x="${stored.x+15}" y="${stored.y+24}" font-size="17" font-weight="900" fill="#92400e">stored (${p.stored.x}, ${p.stored.y})</text>`:`<rect x="500" y="275" width="165" height="75" rx="13" fill="#fee2e2" stroke="#dc2626" stroke-width="3"/><text x="582" y="305" text-anchor="middle" font-size="16" font-weight="900" fill="#7f1d1d">stored point is</text><text x="582" y="332" text-anchor="middle" font-size="17" font-weight="900" fill="#7f1d1d">outside child</text>`}`;$('challengeFormula').innerHTML=`local input = (120, 80) · child origin in parent = (180, 100)<br>stored output = (${p.stored.x}, ${p.stored.y})`;$('challengeInput').textContent='child-local CGPoint(x: 120, y: 80)';$('challengeOperation').textContent=p.mode==='local'?'keep the local value':p.mode==='add'?'add a parent-local origin':p.mode==='subtract'?'subtract a parent-local origin':'unrecognized return expression';$('challengeOutput').textContent=`stored (${p.stored.x}, ${p.stored.y})`;document.querySelectorAll('[data-expression]').forEach((b)=>b.classList.toggle('selected',b.dataset.expression===p.mode));if(challengeWasCorrect){challengeWasCorrect=false;$('challengeResult').textContent='The code changed after the successful check. Check the repair again.';$('challengeResult').style.background='#fff';}}
+editor.addEventListener('input',drawChallenge);document.querySelectorAll('[data-expression]').forEach((button)=>button.addEventListener('click',()=>{const expression=button.dataset.expression==='local'?'localPoint':button.dataset.expression==='add'?'CGPoint(x: localPoint.x + childOriginInParent.x, y: localPoint.y + childOriginInParent.y)':'CGPoint(x: localPoint.x - childOriginInParent.x, y: localPoint.y - childOriginInParent.y)';editor.value=`func storeTap(\n    localPoint: CGPoint,\n    childOriginInParent: CGPoint\n) -> CGPoint {\n    ${expression}\n}`;drawChallenge();}));$('checkChallenge').addEventListener('click',()=>{const p=parseChallenge();if(p.mode==='local'){challengeWasCorrect=true;$('challengeResult').textContent='Correct. localPoint already belongs to the child. Store it directly for child-local drawing.';$('challengeResult').style.background='#ecfdf5';}else{$('challengeResult').textContent='Not repaired yet. The callback value is already child-local. Adding or subtracting the parent placement mixes coordinate spaces.';$('challengeResult').style.background='#fee2e2';}});
 
-const checkboxes=[...document.querySelectorAll('[data-check]')];function updateRecord(){const done=checkboxes.filter((c)=>c.checked).map((c)=>c.dataset.check);$('completionRecord').value=`lesson_id: 02-06\nlesson_title: Local coordinates\nstatus: ${done.length===checkboxes.length?'completed':'in_progress'}\ncourse_lessons_completed_before_this_lesson: 13\ncourse_lessons_completed_after_completion: ${done.length===checkboxes.length?14:13}\ncourse_lessons_total: 216\nandroid_files_applied:\n  - app/src/main/java/com/example/liquidglasslab/chapter02/Chapter02Screen.kt\n  - app/src/main/java/com/example/liquidglasslab/chapter02/LocalCoordinatesExplorer.kt\npixel_8_pro_tested: ${done.includes('build')&&done.includes('tap')&&done.includes('move')}\ncheckpoint_items_complete: ${done.length}/${checkboxes.length}\nlocal_origin_explained: ${done.includes('explain')}\nchild_move_preserved_local_point: ${done.includes('move')}\nremaining_questions:\n  - none`;}
+const checkboxes=[...document.querySelectorAll('[data-check]')];function updateRecord(){const done=checkboxes.filter((c)=>c.checked).map((c)=>c.dataset.check);$('completionRecord').value=`lesson_id: 02-06\nlesson_title: Local coordinates\nstatus: ${done.length===checkboxes.length?'completed':'in_progress'}\nios_confirmed_complete: 40\ncompleted_through: Lesson 9.6\nthis_lesson_is_ios_on_ramp_reread: true\ncourse_lessons_total: 216\nios_files_applied:\n  - LiquidGlassLab/chapter02/Chapter02Screen.swift\n  - LiquidGlassLab/chapter02/LocalCoordinatesExplorer.swift\niphone_16_pro_tested: ${done.includes('build')&&done.includes('tap')&&done.includes('move')}\ncheckpoint_items_complete: ${done.length}/${checkboxes.length}\nlocal_origin_explained: ${done.includes('explain')}\nchild_move_preserved_local_point: ${done.includes('move')}\nremaining_questions:\n  - none`;}
 checkboxes.forEach((c)=>c.addEventListener('change',updateRecord));$('copyRecord').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('completionRecord').value);$('copyStatus').textContent='Copied.';}catch{$('completionRecord').select();document.execCommand('copy');$('copyStatus').textContent='Copied using the browser fallback.';}});
 
 drawLocalLab();drawSameNumber();drawStep();drawChallenge();updateRecord();

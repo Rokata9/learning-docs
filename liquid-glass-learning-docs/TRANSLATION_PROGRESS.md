@@ -1,6 +1,6 @@
 # iOS translation progress
 
-next_step: 2B
+next_step: 2F
 
 completed:
   - A1
@@ -21,6 +21,10 @@ completed:
   - 1E
   - 1F
   - 2A
+  - 2B
+  - 2C
+  - 2D
+  - 2E
 
 session_order: A1 A2 A3 A4 B1 B2 B3 C1 C2 D1 D2 1A 1B 1C 1D 1E 1F 2A 2B 2C 2D 2E 2F 3A 3B 3C 3D 3E 3F 3G 3H 4A 4B 4C 4D 4E 4F 4G 5A 5B 5C 5D 5E 5F 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 6.9 6.10 6.11 6H 7A 7B 7C 7D 7E 7F 7G 7H 8A 8B 8C 8D 8E 8F 8H 9A 9B 9C 9D 9E 9F 9H F1 F2 F3 F4 F5
 
@@ -60,3 +64,14 @@ notes:
     fill/center polish. Hub live checkpoint 1.3. Sim build succeeded. Filename leftovers only.
   - 2A: lessons 2.1 and 2.2 HTML — iOS/SwiftUI, iPhone 16 Pro, 34 pt cells;
     EnlargedPixelGrid + XAxisExplorer on Chapter02Screen. LabHost wired. Sim build succeeded. id leftovers only.
+  - 2B: lessons 2.3 and 2.4 HTML — Y-down still iOS; 34 pt cells; 30 pt units;
+    YAxisExplorer + BoundsCenterExplorer on Chapter02Screen. Sim build succeeded. 2.5 href leftover only.
+  - 2C: lesson 2.5 HTML — px = pt × scale; SwiftUI Canvas stays in points;
+    DensityExplorer on Chapter02Screen; 80 px shader callout. Sim build succeeded.
+    Leftovers are filename/ids (dp, density) only.
+  - 2D: lessons 2.6 and 2.7 HTML — child-local taps in points; GeometryReader
+    named parent space + UIView.convert for window/screen. Sim build succeeded.
+    2.6 leftover is the 2.5 filename href only.
+  - 2E: lessons 2.8 and 2.9 HTML — SwiftUI Canvas/taps in points; px = pt ×
+    displayScale. NormalizedCoordinatesExplorer + CoordinateInspector on
+    Chapter02Screen. Sim build succeeded. Leftovers are filename/ids only.
