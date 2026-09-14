@@ -93,6 +93,8 @@ Use short declarative sentences. Do not invent shorthand such as “padded sourc
 
 Do not write `arctan`, “lattice,” “level-set,” or “X is not an input.” Amount means the Lesson 7.10 slider until a later lesson redefines it.
 
+**Imagination-first (standing, 2026-09-14).** Geometric and distortion proofs must be pictures the learner can replay in their head. Visuals dominate; numbers confirm, they do not replace, the construction. No blind trust in formulas. Introductions stay gentle and do not talk as if the topic is already understood. Do not bloat openings with later machinery. Do not add restatement-only cards, numeric-only threshold tables, or slices that repeat a 2D picture. After a local cell is shown, show how the same lines continue through neighboring cells and whether the effect ends at the picture frame or continues outside. Name what each of `x` and `y` does on screen. Hidden exercise answers include diagrams of the question and of the reason. Distorted checkers must draw the true curve, not a straight stand-in. Full rule list: `USER_PREFERENCES.md` → “Imagination-first geometric proofs” and `AGENTS.md` → the matching 9.10 gate.
+
 ## 6. New-learning gate
 
 Every full lesson must introduce a genuinely new mechanism, API behavior, mathematical operation, measurement method, or implementation step.
@@ -258,7 +260,7 @@ dir = p / length(p)
 → sampled = background.eval(readUv × resolution)
 ```
 
-Follow the navy input cell x `[0.50, 0.75)`, y `[0.25, 0.50)`. W `(0.65, 0.20)` reads approximately `(0.60528, 0.28944)` at `dispLen = 0.10` and stores navy. The selected W first reaches navy at length approximately `0.055902`. At output x = 0.65 the default top boundary is near y = `0.15844`. `dispLen` is the UV read distance, not a percentage enlargement. Use the six-operation read walkthrough, actual added-region mask, and curved-edge construction; straight corner joins are only approximations. Reads inside the radius `dispLen` can cross C. The shader skips division within its `0.0001` guard. The lab Metal pixel-function string stays 1:1 with the prior body; its old teaching marks differ from this HTML’s exact navy-cell example. Lesson 9.10 is not complete.
+Follow the navy input cell x `[0.50, 0.75)`, y `[0.25, 0.50)`. W `(0.65, 0.20)` reads approximately `(0.60528, 0.28944)` at `dispLen = 0.10` and stores navy. `dispLen` is the UV read distance, not a percentage enlargement. Use the six-operation read walkthrough, the added-region mask, and the spoke construction of the curve: same extra length on different rays from C; neighboring cells share the curve because they share the grid line; the curve continues outside the painted square and flattens far from C. `p.x` is the sideways part of the extra walk; `p.y` is the up/down part. Straight corner joins are only approximations. The shader skips division within its `0.0001` guard. Lesson 9.10 is not complete.
 
 Current files:
 

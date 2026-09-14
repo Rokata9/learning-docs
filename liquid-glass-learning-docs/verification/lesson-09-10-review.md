@@ -1,61 +1,50 @@
-# Lesson 9.10 revision audit — 2026-09-11
+# Lesson 9.10 revision audit — 2026-09-14
 
 ## Feedback diagnosis before authoring
 
-The learner could not explain why a position above the navy input cell becomes navy, or how `dispLen = 0.10` changes that cell's size. The previous lesson followed the adjacent orange cell instead. It foregrounded corner constructions, used informal terms such as "floor stick" and "leftover", and drew straight corner-joining polygons over genuinely curved shader boundaries. Overcrowded labels further separated the explanation from the actual output.
+The learner could follow W → R and liked chapters 1–2 plus the introduction: they start from named objects and do not talk as if the topic is already understood. The remaining hole was **why the checkerboard bows**.
 
-The revision follows exactly the input cell `0.50 <= x < 0.75`, `0.25 <= y < 0.50`. The learner specified x = 0.65 but no exact y. The worked example chooses y = 0.20 and states that choice. It also tests y = 0.15, 0.16, 0.24, and a position to the right of the cell.
+Low-value restatements did not create that imagination:
 
-Reusable prevention is recorded in AGENTS.md under "Exact-cell readback and curved-region proof". Existing viewport and label-separation rules apply; another generic layout rule is unnecessary.
+- Chapter 5 (size as percentage) and chapter 6 (center crossing)
+- “Exactly when does this pixel become navy?” number table
+- The vertical slice at output x = 0.65
+- Cards “Why the diagonal change is about 0.07071” and “Which sides stay straight?”
 
-## Prerequisite ledger (written before lesson prose)
+The Astra checker rasters already showed a true curve. The missing object was a spoke picture on a **whole grid line**, not only the navy cell’s short top.
 
-| Object, term, symbol, or operation | Earlier teaching / definition in this revision | Next consumer |
-| --- | --- | --- |
-| Input checker; output/write pixel; read coordinate; `eval` | 9.7–9.9; opening identifies the two actual images | Per-output read and copied color |
-| UV, x/u, y/v, top-left origin, y downward | 8.6; opening briefly restates fractions of a square | Coordinate arithmetic |
-| Center C = (0.5, 0.5); `p = uv - C` | 8.8; first walkthrough state | Distance and direction |
-| Navy cell; bounds; `[a,b)` | Opening names the exact cell; bracket means include a, exclude b | Membership of the computed read |
-| `dispLen`; UV length; 0.10; range 0–0.20 | Opening: chosen distance along the read segment; full square is one unit | Direction multiplied by chosen length |
-| Ray | Edge section: straight line from C through a named point, extended beyond it | Outward boundary construction |
-| Component, vector / pair | 8.7; walkthrough: horizontal and vertical entries, with signs | Matching-entry arithmetic |
-| `d`, `length`, square, square root | 9.1; walkthrough refreshes one triangle and its exact numbers | Division by current distance |
-| Direction with length one; `dir = p/d`; normalization | New mathematical idea; walkthrough defines it by making every length divide by d | Multiply both entries by dispLen |
-| Multiply a pair; subtract a negative | Walkthrough explicitly follows x, then y; signs linked to image directions | Actual read coordinate |
-| `disp`; displacement field | New graphics idea: a different coordinate-change pair at each output position | `readUv = uv - disp` |
-| Ratio, fraction, percentage | Length section: 0.10 of full image vs 0.25 cell width; plain division with units | Reject uniform 10% enlargement |
-| `floor`, `fract`, row/column indices, 4, 0.5 | 8.10 and 9.9; shader section refreshes exact checker calculation | Navy/orange return |
-| Boundary; outward counterpart; curved edge; straight corner join | Edge section constructs multiple points on one already identified side | Actual curve and added-region evidence |
-| Extra/gained region | Region section defines as outside original cell but reading inside that cell | Highlight and selected-pixel proof |
-| 3D appearance versus geometry | Size/appearance section: bowed grid is observed; shader only calculates two-coordinate reads | Interpretation of the visible image |
-| Center crossing; guard 0.0001 | Center section traces read past C; code defines tiny skip radius and zero division | Limits of outward explanation |
-| RGBA, alpha, straight/premultiplied | Chapter 3; shader colors explicitly alpha 1, so both RGB representations agree | Color chips and returned half4 |
-| Pixel coordinate vs inspectable mathematical coordinate | Browser/Android section; arbitrary decimal selection is not rounded to pixel center | Honest browser model |
+Reusable rules recorded in:
 
-## Verification plan
+- `USER_PREFERENCES.md` → Imagination-first geometric proofs
+- `AGENTS.md` → Imagination-first curve proof; cut leftover restatements
+- `NEW_CHAT_PROMPT.md` section 5 (read at every new chat)
 
-Cold-read first sentence, first two sections, first formula, and longest walkthrough state before browser QA. Verify the exact read, length, membership, center guard, center crossing, all boundary points, and the added region against the shader formula. Test all controls, every step, all presets, provenance controls, exercises, and completion-record copy. Inspect file:// screenshots at 1920×1080 and 5120×1440 in light mode. Check label bounds, horizontal overflow, relative links, and browser errors. Android source remains unchanged; do not claim device validation.
+## What this rewrite adds
 
-## Beginner cold-read audit (before final browser verification)
+1. **Spoke construction, six states.** C as a hub; spokes through the whole line y = 0.25; the nearest extra walk going all the way up; the same length on tilted spokes; landings off a straight join; p.x / p.y as the two legs of one stick.
+2. **Live x/y split.** Drag a point along y = 0.25. Cyan sideways leg from p.x, violet up/down leg from p.y, long side = dispLen. The pink arch is every landing of that line.
+3. **Neighboring cells.** They sit on the same grid line, so they share the same curve. The two lines through C stay straight.
+4. **Outside the frame.** Painting stops at [0, 1] × [0, 1]. The curve continues. Far from C the extra walk is almost along the line, so the bow flattens back toward the original straight line. Dedicated plots for y = 0.25 (left/right) and x = 0.75 (up/down).
+5. **Exercise answers are diagrams** of the question and of the reason. Exercise 4 is continuation, not center-crossing.
 
-- First prose sentence starts from the completed Lesson 9.9 checker. The opening names the actual input cell, output W, input read R, and the chosen missing y coordinate. The first two images show the result before formula expansion.
-- Before the first formula, section 1 defines both image coordinate systems, direction of y, the square-size condition, exact cell bounds including endpoint notation, W/uv, C, and the chosen read distance. The first displayed equation is the already learned `p = uv - C`, expanded entry by entry.
-- The stepper defines components, length, squaring, square root, normalization, and displacement before using their new formulas. Division's purpose is visible as `d / d = 1`; multiplication's purpose is visible as `1 * dispLen`. Subtracting a negative vertical component is explained as moving downward.
-- Section 2 consumes the exact read from section 1. It defines magnitude before the first-entry-distance calculation and verifies both x and y bounds. The default numerical example is explicitly fixed where live state could differ.
-- The added-region diagram exposes the secondary below-left patch and names its operation immediately: reads there pass C into the named input cell. The later center section supplies the complete numerical trace.
-- The term "mesh" was removed; no untaught 3D construction is needed. Straight corner joins are explicitly approximations and now have an equally scaled magnified comparison.
-- Each walkthrough operation changes the drawing. Full numeric labels remain beside the diagram. The final check must frame the step controls and body together, not the longer introductory section.
+Android `DisplaceAgsl` excerpt is unchanged.
 
-## Completed verification
+## Beginner cold-read
 
-- The lesson opened from `file://` with no external resource requests and no browser or JavaScript errors. All 13 enabled links resolved to existing local files/anchors or the cited official documentation.
-- The displayed displacement AGSL exactly matches the inspected Android `DisplaceAgsl` string. Android source was unchanged.
-- 4,356 coordinate/distance cases checked finite reads, constant displacement length outside the guard, valid read bounds for the permitted controls, and identity at zero. 606 constructed boundary positions read back to their original inputs.
-- 5,544 independently evaluated raster positions matched the input checker, output checker, gained-region highlight, and exact-cell ownership image.
-- Default W reads `(0.6052786404500042, 0.2894427190999916)`. First entry distance is `0.05590169943749475`. The top boundary at output x = 0.65 is `0.15844022805632396`. Nearby orange/navy and center-crossing counterexamples passed.
-- 112 layout states passed text bounds and overlap checks. These include all six steps, all presets, corners, exact C, nearby C, both edges, zero/default/maximum distance, very short distances, and ultrawide layout. Labels choose positions using actual text bounds and reserve space for axes and other labels. Exactly coincident W/R may share one label; small nonzero distances keep distinct labels.
-- Both length controls and position controls update the canonical state. Real pointer picking agrees within one physical browser event pixel. All 34 visible provenance controls opened within the viewport and closed with Escape. Prediction choices, challenge feedback/reset/solution, every details disclosure, review checkboxes, record generation, and asynchronous clipboard copy passed. The record still says `completed_by_learner: false`.
-- Inspected light-mode screenshots at 1920×1080 and 5120×1440. The longest step states fit with navigation, diagram, formula, and caption visible together. Detailed top/right edge screenshots include the enlarged curve-versus-corner-join gap. The slice uses continuous solid fills, with no artificial striped bands.
-- Browser QA found and fixed the original slice-strip seams, an SVG disclosure visibility issue, and corner label collisions. `git diff --check` passes. No mobile or dark-theme QA, Android build, or physical-device result is claimed.
+- First sentence still starts from the Lesson 9.9 checker. Opening names W, R, C, and the chosen y = 0.20.
+- Chapters 1–2 still name UV, the navy cell, dispLen, and one read before any curve theory.
+- The curve section asks the learner to imagine spokes and a fence-push before quoting decimals.
+- p.x and p.y are each given a visible job on the extra walk.
 
-The JSON report includes a SHA-256 hash of the tested lesson. Screenshots are named `lesson-09-10-revised-*.png` in this directory.
+## Verification completed
+
+- Default W = (0.65, 0.20), dispLen = 0.10 reads (0.6052786404500042, 0.2894427190999916).
+- y = 0.15 at that x stays orange (read y ≈ 0.24191). y = 0.16 becomes navy (read y ≈ 0.25149).
+- Nearest landing of y = 0.25 is (0.50, 0.15). Far along the same line the landing y returns toward 0.25.
+- Local links in the lesson body resolve. Template `href="${raster(...)}"` strings live only in JS.
+- Light-mode screenshots: `lesson-09-10-1920x1080.png`, `lesson-09-10-ultrawide-opening.png`, `lesson-09-10-revised-edges.png`, `lesson-09-10-revised-grid.png`, `lesson-09-10-revised-outside.png`, `lesson-09-10-revised-practice.png`.
+- Hash/query file:// screenshots of lower sections were blank in this Chrome; those sections were inspected from a 1920×16000 viewport capture of the same file, then cropped.
+- No JS error overlay. Nested shader `<code>` stays light-on-dark.
+- Lesson 9.10 remains unresolved. Count stays 40 of 216 on iOS (HTML chrome still shows the prior-lab 95, unchanged).
+
+Android source was not edited. iOS explorer does not exist yet.
