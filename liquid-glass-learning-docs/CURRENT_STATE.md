@@ -77,7 +77,7 @@ blur **18 pt**, tint **0.25**, saturation **0.40**, rim **3 pt**, inner band **1
 
 ## Current lesson files
 
-Live checkpoint is Lesson 1.3. Frontier HTML is Lesson 9.10. Shader host is `LabOrange.metal` + `ShaderRect` (`colorEffect`). Lesson explorers will be listed here as they appear under `/Users/rosen/Code/LiquidGlassLab-iOS`.
+Live checkpoint is Lesson 1.3. Frontier HTML is Lesson 9.10. Shader host is `LabOrange.metal` + `ShaderRect` (`colorEffect`). Lesson 9.10 explorer: `chapter09/DisplacementFieldExplorer.swift` + `chapter09/DisplacementField.metal` (input color is the Metal function `checkerBackground` in that file).
 
 ```text
 course/chapters/chapter-01/lesson-01-01-visible-ingredients.html
@@ -186,7 +186,7 @@ dir = p / length(p)
 → sampled = background.eval(readUv × resolution)
 ```
 
-Follow the navy input cell x `[0.50, 0.75)`, y `[0.25, 0.50)`. W `(0.65, 0.20)` reads approximately `(0.60528, 0.28944)` at `dispLen = 0.10` and stores navy. `dispLen` is the UV read distance, not a percentage enlargement. Use the six-operation read walkthrough, the added-region mask, and the spoke construction of the curve: same extra length on different rays from C; the nearest point of a non-radial grid line moves farther from C than the far points; neighboring cells share that curve because they share the grid line; the curve continues outside the painted square and flattens far from C. `p.x` is the sideways part of the extra walk; `p.y` is the up/down part. Straight corner joins are only approximations. The shader skips division within its `0.0001` guard. The lab Metal pixel-function string stays 1:1 with the prior body; its old teaching marks differ from this HTML’s exact navy-cell example. Lesson 9.10 is not complete.
+On iOS, `background.eval` is the Metal function `checkerBackground` in the same `.metal` file. Follow the navy input cell x `[0.50, 0.75)`, y `[0.25, 0.50)`. W `(0.65, 0.20)` reads approximately `(0.60528, 0.28944)` at `dispLen = 0.10` and stores navy. `dispLen` is the UV read distance, not a percentage enlargement. Use the six-operation read walkthrough, the added-region mask, and the spoke construction of the curve: same extra length on different rays from C; the nearest point of a non-radial grid line moves farther from C than the far points; neighboring cells share that curve because they share the grid line; the curve continues outside the painted square and flattens far from C. `p.x` is the sideways part of the extra walk; `p.y` is the up/down part. Straight corner joins are only approximations. The shader skips division within its `0.0001` guard. The lab Metal pixel-function string stays 1:1 with the prior body; its old teaching marks differ from this HTML’s exact navy-cell example. Lesson 9.10 is not complete.
 
 ## Unresolved checkpoint — Lesson 1.3
 
