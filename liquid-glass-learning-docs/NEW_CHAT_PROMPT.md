@@ -15,7 +15,7 @@ If this same first message already names the job, start that work after the read
 
 If the first message is only this prompt, restate course state from `CURRENT_STATE.md` and wait.
 
-Do not generate a later lesson than the one I named. Do not mark any lesson complete unless I explicitly confirm it. Do not generate Lesson 9.11 unless asked.
+Do not generate a later lesson than the one I named. Do not mark any lesson complete unless I explicitly confirm it. Do not generate Lesson 9.12 unless asked.
 
 ## 1. Where the files live
 
@@ -44,7 +44,7 @@ Do not generate `.zip` files unless I ask for one.
 
 Keep these three fields separate. Read them from `CURRENT_STATE.md`. Do not invent a fourth merged status.
 
-- **Learner-confirmed complete** — count and last completed lesson. Increases only after my explicit confirmation. iOS-confirmed complete is **40 of 216** (Chapters 3, 4, 5, and Lessons 9.1–9.6) until a must-re-read chapter is confirmed on iOS.
+- **Learner-confirmed complete** — count and last completed lesson. Increases only after my explicit confirmation. iOS-confirmed complete is **40 of 216** (Chapters 3, 4, 5, and Lessons 9.1–9.6) until a must-re-read chapter is confirmed on iOS. Those 40 are the math. The other 55 of the old 95 are platform-API lessons, not new graphics formulas.
 - **Unresolved checkpoint** — the unfinished lesson I am still on. Generating or revising it does not complete it. Live checkpoint is the iOS on-ramp starting at **Lesson 1.3**, not 9.10, until the must-re-read list is done.
 - **Generated frontier** — the latest lesson that exists as files. It may sit on the checkpoint, or ahead of it.
 
@@ -158,7 +158,7 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-09-12 with `CURRENT_STATE.md` (course version 9.10.0).
+**Last aligned:** 2026-09-16 with `CURRENT_STATE.md` (course version 9.11.0).
 
 ```text
 platform: Swift / SwiftUI / Metal (lab pixel-function strings)
@@ -167,6 +167,8 @@ min OS: iOS 17
 
 completed: 40 of 216, through Lesson 9.6 — Combine shapes
   (Chapters 3, 4, 5, and Lessons 9.1–9.6 only)
+  why 40 not 95: 40 is confirmed math. The other 55 are iOS project/API
+  chapters, not a graphics restart.
 
 must re-read before the frontier (in order):
   Chapter 1, Chapter 2, Chapter 6, Chapter 7, Chapter 8, Lessons 9.7–9.9
@@ -175,9 +177,10 @@ current unresolved checkpoint: Lesson 1.3 — Create LiquidGlassLab
   (first lesson of the iOS on-ramp)
 
 on-ramp then returns the checkpoint to: Lesson 9.10 — Build a displacement field
-generated frontier: Lesson 9.10 — Build a displacement field
-next planned lesson after the frontier: Lesson 9.11 — Refraction as displaced sampling
+generated frontier: Lesson 9.11 — Refraction as displaced sampling
+next planned lesson after the frontier: Lesson 9.12 — Edge safety
 Lesson 9.10 is generated and not complete
+Lesson 9.11 is generated ahead and not complete
 ```
 
 Do not restore 95 of 216. Do not mark 1.3 complete from the prior lab.
@@ -262,6 +265,17 @@ dir = p / length(p)
 
 Follow the navy input cell x `[0.50, 0.75)`, y `[0.25, 0.50)`. W `(0.65, 0.20)` reads approximately `(0.60528, 0.28944)` at `dispLen = 0.10` and stores navy. `dispLen` is the UV read distance, not a percentage enlargement. Use the six-operation read walkthrough, the added-region mask, and the spoke construction of the curve: same extra length on different rays from C; neighboring cells share the curve because they share the grid line; the curve continues outside the painted square and flattens far from C. `p.x` is the sideways part of the extra walk; `p.y` is the up/down part. Straight corner joins are only approximations. The shader skips division within its `0.0001` guard. Lesson 9.10 is not complete.
 
+**9.11 generated-ahead contract** (not complete; 9.10 stays unresolved):
+
+```text
+sd = length(p) − radius
+→ falloff = 1.0 − smoothstep(−band, band, sd)
+→ disp = dir × dispLen × falloff
+→ readUv = uv − disp
+```
+
+Teaching W = `(0.65, 0.30)`, `p = (0.15, −0.20)`, `sd = 0`, falloff = 0.50, `disp = (0.03, −0.04)`, `readUv = (0.62, 0.34)`. Falloff is a length scale, not a color mix. Miss line x = 0.90 stays straight.
+
 Current files:
 
 ```text
@@ -284,7 +298,16 @@ course/chapters/chapter-09/lesson-09-07-sample-an-input-shader.html
 course/chapters/chapter-09/lesson-09-08-translate-sample-coordinates.html
 course/chapters/chapter-09/lesson-09-09-scale-around-the-center.html
 course/chapters/chapter-09/lesson-09-10-build-a-displacement-field.html
+course/chapters/chapter-09/lesson-09-11-refraction-as-displaced-sampling.html
 course/chapters/chapter-09/lesson-distance-fields-image-sampling-and-refraction.html
 ```
 
-Swift explorers do not exist yet. They will be listed here as they appear under `/Users/rosen/Code/LiquidGlassLab-iOS`.
+iOS explorers under `/Users/rosen/Code/LiquidGlassLab-iOS/LiquidGlassLab/chapter09/`:
+
+```text
+DisplacementFieldExplorer.swift
+DisplacementField.metal
+RefractionSamplingExplorer.swift
+RefractionSampling.metal
+Chapter09Screen.swift
+```

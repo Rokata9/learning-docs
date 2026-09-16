@@ -1,7 +1,7 @@
 # Liquid Glass on iOS — Beginner-to-Expert Curriculum
 
-**Version:** 9.10.0  
-**Updated:** 2026-09-12  
+**Version:** 9.11.0  
+**Updated:** 2026-09-16  
 **Primary platform:** Swift + SwiftUI  
 **Minimum learning target:** iOS 17  
 **Physical test device:** iPhone 16 Pro  
@@ -15,9 +15,9 @@ Live progress, current files, and the checkpoint/frontier contracts live in `CUR
 - Must re-read before the frontier (platform chapters, in order): **Chapter 1**, **Chapter 2**, **Chapter 6**, **Chapter 7**, **Chapter 8**, **Lessons 9.7–9.9**.
 - Unresolved checkpoint: **Lesson 1.3 — Create `LiquidGlassLab`** (first lesson of the iOS on-ramp).
 - On-ramp then returns the checkpoint to: **Lesson 9.10 — Build a displacement field**.
-- Generated frontier: **Lesson 9.10 — Build a displacement field**.
-- Next planned after the frontier: **Lesson 9.11 — Refraction as displaced sampling**.
-- Lesson 9.10 is generated and is not complete.
+- Generated frontier: **Lesson 9.11 — Refraction as displaced sampling**.
+- Next planned after the frontier: **Lesson 9.12 — Edge safety**.
+- Lesson 9.10 is generated and is not complete. Lesson 9.11 is generated ahead and is not complete.
 - Do not restore **95 of 216**. Do not mark Lesson 1.3 complete just because the prior 1.3 was complete.
 
 ## 2. How this file relates to the rule sources
@@ -200,7 +200,7 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 8. **9.8 — Translate sample coordinates.** Shift where the background is read.
 9. **9.9 — Scale around the center.** Create simple magnification and minification.
 10. **9.10 — Build a displacement field.** Produce a vector that says where to sample instead.
-11. **9.11 — Refraction as displaced sampling.** Bend straight background lines near the glass boundary.
+11. **9.11 — Refraction as displaced sampling.** Bend straight background lines near the glass boundary. **Generated ahead. Not complete.**
 12. **9.12 — Edge safety.** Clamp, pad, or extend samples to prevent transparent seams.
 13. **9.13 — Gentle chromatic separation.** Sample red, green, and blue at slightly different positions.
 14. **9.14 — Lens checkpoint.** Build a rounded lens over a moving test pattern.
@@ -465,8 +465,17 @@ Chapters **1, 2, 6, 7, 8** and Lessons **9.7–9.9** must be re-read on iOS for 
      default dispLen = 0.10
 ```
 
+**Generated ahead, not complete**
+
+```text
+9.11 sd = length(p) − radius; falloff = 1 − smoothstep(−band, band, sd)
+     disp = dir × dispLen × falloff; readUv = uv − disp
+     teaching W (0.65, 0.30): sd = 0, falloff = 0.50, disp = (0.03, −0.04), read (0.62, 0.34)
+     falloff is a length scale, not a 9.3 color mix; miss line x = 0.90 stays straight
+```
+
 **Policy**
 
-- Count only explicit learner confirmation. Generating 9.10 did not complete 9.9. Do not restore 95 of 216.
+- Count only explicit learner confirmation. Generating 9.11 did not complete 9.10. Do not restore 95 of 216.
 - Current HTML/Swift paths live in `CURRENT_STATE.md`. Explorer names for older lessons live in those lesson files and the chapter screen in `LiquidGlassLab-iOS`.
 - 5.8/5.9 stay consolidated: 5.8 is the teaching page; 5.9 is the archive redirect.

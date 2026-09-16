@@ -1,7 +1,7 @@
 # Liquid Glass iOS course — current state
 
-**Updated:** 2026-09-12  
-**Course version:** 9.10.0  
+**Updated:** 2026-09-16  
+**Course version:** 9.11.0  
 **Platform:** Swift / SwiftUI / Metal (`.metal` + `ShaderLibrary`)  
 **Test device:** iPhone 16 Pro  
 **Min OS:** iOS 17  
@@ -25,9 +25,11 @@ current unresolved checkpoint: Lesson 1.3 — Create LiquidGlassLab
   (first lesson of the iOS on-ramp)
 
 on-ramp then returns the checkpoint to: Lesson 9.10 — Build a displacement field
-generated frontier: Lesson 9.10 — Build a displacement field
-next planned after the frontier: Lesson 9.11 — Refraction as displaced sampling
+generated frontier: Lesson 9.11 — Refraction as displaced sampling
+next planned after the frontier: Lesson 9.12 — Edge safety
 ```
+
+**Why 40, not 95:** 40 counts only math/graphics confirmed on this iOS fork (Chapters 3, 4, 5, Lessons 9.1–9.6). The other 55 of the old 95 are platform chapters: project, coordinates APIs, SwiftUI drawing, frost lab path, Metal host, and 9.7–9.9 sampling API. Those formulas stay known. The re-read is the new lab path, not a math restart. Generating a later lesson does not add those 55 back.
 
 Do not restore **95 of 216**. That count was the prior lab. It is not the iOS state.
 
@@ -35,7 +37,7 @@ Do not mark Lesson 1.3 complete just because the prior 1.3 was complete.
 
 Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
-Do not generate Lesson 9.11 unless asked.
+Do not generate Lesson 9.12 unless asked. Lesson 9.10 is generated and is not complete. Lesson 9.11 is generated ahead and is not complete.
 
 Reusable new-chat starter: `NEW_CHAT_PROMPT.md`. Paste it, then name generate or questions in the same message. Progress in this file wins. When the checkpoint or frontier moves, refresh section 12 of that prompt.
 
@@ -77,7 +79,7 @@ blur **18 pt**, tint **0.25**, saturation **0.40**, rim **3 pt**, inner band **1
 
 ## Current lesson files
 
-Live checkpoint is Lesson 1.3. Frontier HTML is Lesson 9.10. Shader host is `LabOrange.metal` + `ShaderRect` (`colorEffect`). Lesson 9.10 explorer: `chapter09/DisplacementFieldExplorer.swift` + `chapter09/DisplacementField.metal` (input color is the Metal function `checkerBackground` in that file).
+Live checkpoint is Lesson 1.3. Frontier HTML is Lesson 9.11. Shader host is `LabOrange.metal` + `ShaderRect` (`colorEffect`). Lesson 9.10 explorer: `chapter09/DisplacementFieldExplorer.swift` + `chapter09/DisplacementField.metal`. Lesson 9.11 explorer: `chapter09/RefractionSamplingExplorer.swift` + `chapter09/RefractionSampling.metal`.
 
 ```text
 course/chapters/chapter-01/lesson-01-01-visible-ingredients.html
@@ -99,6 +101,7 @@ course/chapters/chapter-09/lesson-09-07-sample-an-input-shader.html
 course/chapters/chapter-09/lesson-09-08-translate-sample-coordinates.html
 course/chapters/chapter-09/lesson-09-09-scale-around-the-center.html
 course/chapters/chapter-09/lesson-09-10-build-a-displacement-field.html
+course/chapters/chapter-09/lesson-09-11-refraction-as-displaced-sampling.html
 course/chapters/chapter-09/lesson-distance-fields-image-sampling-and-refraction.html
 ```
 
@@ -187,6 +190,23 @@ dir = p / length(p)
 ```
 
 On iOS, `background.eval` is the Metal function `checkerBackground` in the same `.metal` file. Follow the navy input cell x `[0.50, 0.75)`, y `[0.25, 0.50)`. W `(0.65, 0.20)` reads approximately `(0.60528, 0.28944)` at `dispLen = 0.10` and stores navy. `dispLen` is the UV read distance, not a percentage enlargement. Use the six-operation read walkthrough, the added-region mask, and the spoke construction of the curve: same extra length on different rays from C; the nearest point of a non-radial grid line moves farther from C than the far points; neighboring cells share that curve because they share the grid line; the curve continues outside the painted square and flattens far from C. `p.x` is the sideways part of the extra walk; `p.y` is the up/down part. Straight corner joins are only approximations. The shader skips division within its `0.0001` guard. The lab Metal pixel-function string stays 1:1 with the prior body; its old teaching marks differ from this HTML’s exact navy-cell example. Lesson 9.10 is not complete.
+
+## Generated ahead — Lesson 9.11
+
+Not complete. Not the live checkpoint. Lesson 9.10 stays unresolved.
+
+**9.11 teaching contract:**
+
+```text
+sd = length(p) − radius
+→ falloff = 1.0 − smoothstep(−band, band, sd)
+→ dir = p / length(p)
+→ disp = dir × dispLen × falloff
+→ readUv = uv − disp
+→ sampled = checkerBackground(readUv × resolution, resolution)
+```
+
+Default radius 0.25, band 0.10, dispLen 0.10. Teaching W = `(0.65, 0.30)` sits on wallpaper line x = 0.65 and on the circle: `p = (0.15, −0.20)`, `d = 0.25`, `sd = 0`, falloff = 0.50, `dir = (0.60, −0.80)`, `disp = (0.03, −0.04)`, `readUv = (0.62, 0.34)`, store navy. Falloff is a length scale, not a 9.3 color mix and not a 4.8 hole. The miss line x = 0.90 has min `sd = 0.15` and never moves. Deleting `× falloff` restores Lesson 9.10. Apparent line of x = 0.65 peels only near the circle; landings are not a straight join and not a tent. Edge safety is Lesson 9.12.
 
 ## Unresolved checkpoint — Lesson 1.3
 

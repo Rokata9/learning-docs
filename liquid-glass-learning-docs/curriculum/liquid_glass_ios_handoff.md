@@ -1,7 +1,7 @@
 # Liquid Glass iOS course — implementation handoff
 
-**Updated:** 2026-09-12
-**Course version:** 9.10.0
+**Updated:** 2026-09-16
+**Course version:** 9.11.0
 
 ## Read order
 
@@ -26,11 +26,11 @@ chapter_9_complete: "6 of 14 (9.1–9.6 only)"
 must_reread: "Chapter 1, Chapter 2, Chapter 6, Chapter 7, Chapter 8, Lessons 9.7–9.9"
 next_unresolved_checkpoint: "Lesson 1.3 — Create LiquidGlassLab"
 on_ramp_returns_checkpoint_to: "Lesson 9.10 — Build a displacement field"
-generated_frontier: "Lesson 9.10 — Build a displacement field"
-next_planned_after_frontier: "Lesson 9.11 — Refraction as displaced sampling"
+generated_frontier: "Lesson 9.11 — Refraction as displaced sampling"
+next_planned_after_frontier: "Lesson 9.12 — Edge safety"
 ```
 
-Chapters 3, 4, 5 and Lessons 9.1–9.6 stay learner-confirmed complete (graphics and math). HTML will still be updated so excerpts are Swift. Lessons 8.2–8.12 and 9.7–9.9 must be re-read on iOS. Lesson 9.10 is generated and is not complete. Do not restore 95 of 216. Do not mark Lesson 1.3 complete just because the prior 1.3 was complete.
+Chapters 3, 4, 5 and Lessons 9.1–9.6 stay learner-confirmed complete (graphics and math). HTML will still be updated so excerpts are Swift. Lessons 8.2–8.12 and 9.7–9.9 must be re-read on iOS. Lesson 9.10 is generated and is not complete. Lesson 9.11 is generated ahead and is not complete. Do not restore 95 of 216. Do not mark Lesson 1.3 complete just because the prior 1.3 was complete.
 
 Chapter 7 frost stays fixed: blur `18` pt / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
@@ -184,9 +184,22 @@ The revised explanation follows the learner's exact navy input cell: x `[0.50, 0
 
 `dispLen` is an absolute distance in square-image UV units, not 10% enlargement. Straight corner joins are only approximations. The shader's guard covers `d <= 0.0001`.
 
-Verification: `verification/lesson-09-10-review.md` and `verification/lesson-09-10-checks.json`. Check the same-cell readback, the six-step spoke construction, x/y split, whole-grid continuation, outside/flattening plots, exercise diagrams, and 1920×1080 light-mode screenshots. The HTML's shader excerpt matches the Android `DisplaceAgsl` string. The iOS explorer does not exist yet.
+Verification: `verification/lesson-09-10-review.md` and `verification/lesson-09-10-checks.json`. Check the same-cell readback, the six-step spoke construction, x/y split, whole-grid continuation, outside/flattening plots, exercise diagrams, and 1920×1080 light-mode screenshots. The HTML's shader excerpt matches the Android `DisplaceAgsl` string. The iOS explorer is `DisplacementFieldExplorer.swift` + `DisplacementField.metal`.
 
-Lesson 9.10 remains unfinished. Live checkpoint is Lesson 1.3. Count is 40 of 216. Do not generate 9.11 unless asked.
+Lesson 9.10 remains unfinished. Live checkpoint is Lesson 1.3. Count is 40 of 216.
+
+## Generated ahead — Lesson 9.11
+
+```text
+sd = length(p) − radius
+→ falloff = 1.0 − smoothstep(−band, band, sd)
+→ dir = p / d
+→ disp = dir × dispLen × falloff
+→ readUv = uv − disp
+→ sampled = checkerBackground(readUv × resolution, resolution)
+```
+
+Teaching W = `(0.65, 0.30)`: `p = (0.15, −0.20)`, `d = 0.25`, `sd = 0`, falloff = 0.50, `disp = (0.03, −0.04)`, `readUv = (0.62, 0.34)`. Falloff is a length scale, not a color mix. Miss line x = 0.90 stays straight. iOS explorer: `RefractionSamplingExplorer.swift` + `RefractionSampling.metal`. Do not generate 9.12 unless asked.
 
 ## Future conversation
 
