@@ -1158,3 +1158,11 @@ Recorded 2026-09-14 after the learner read the spoke section and still did not h
 4. **Do not prove a curve by rotating a square.** Rotation is a different operation and keeps straight sides. Cut it.
 5. **Do not enlarge a checker past ordinary picture size** (`max-width` ~420) unless the extra pixels carry a new measurement. A 640-tall “window −0.60 to 1.60” that only restates the bow is a failed figure.
 6. **Shorten restatement.** After W → R is known, one reminder sentence is enough. Fence metaphors, repeated “same extra length” paragraphs, and dual captions that repeat the walk-panel do not replace the two proofs above.
+
+### Size by overlay density, not leftover viewBox — Lesson 9.11
+
+Recorded 2026-09-16. Sparse checkers sat in a 760×440 viewBox with a 330 plot, so empty SVG padding made a thin picture look huge. The tent / straight-join / curve proof used `.diagram.compact` and a 240 plot, so cyan, violet, pink, and the Q / eq labels collided.
+
+1. **ViewBox matches drawn content.** If the explanation lives in an HTML column, the SVG is the plot plus axes (about a 400×415 picture). Do not leave a blank right half inside a 760-wide viewBox.
+2. **Overlay density sets plot size.** One checker plus one line stays ordinary picture size (~420). A figure that must show a curve, a straight join, a tent, and named landings at once gets a larger plot and a zoom of the measured gap. `.compact` is forbidden on that proof figure.
+3. **Empty padding is not a measurement.** Extra pixels have to show a gap, a zoom, or a second construction. Otherwise shrink.
