@@ -1159,6 +1159,22 @@ Recorded 2026-09-14 after the learner read the spoke section and still did not h
 5. **Do not enlarge a checker past ordinary picture size** (`max-width` ~420) unless the extra pixels carry a new measurement. A 640-tall “window −0.60 to 1.60” that only restates the bow is a failed figure.
 6. **Shorten restatement.** After W → R is known, one reminder sentence is enough. Fence metaphors, repeated “same extra length” paragraphs, and dual captions that repeat the walk-panel do not replace the two proofs above.
 
+### Compressed metaphor is not an explanation — Lesson 9.10 wording pass
+
+Recorded 2026-09-18 after the learner could follow the arithmetic but stalled for minutes on phrases such as “one whole image width”, “the peak leaves that height”, “the slope turns continuously”, “center-crossing region”, “a rigid side”, and “corner-to-corner join tilts”.
+
+1. **If a phrase names a geometric object, that object is on the current figure, labelled.** Do not mention Q, a join, a peak, or a W→R mapping unless the drawing shows it in that state.
+2. **Do not compress a unit into a metaphor.** After `dir = p / d`, say: UV length 1 equals the picture’s width (x = 0 at the left edge, x = 1 at the right edge). Then say the next multiply by `dispLen` makes the walk we actually use. Do not write “length 1 means one whole image width here” as if the drawn arrow were that long.
+3. **Substitute every named input before any derived quantity.** For `disp = (p / length(p)) × dispLen`, print `p`, then `length(p)`, then the divide, then the multiply. Jumping to the already-divided pair is a failed formula reveal.
+4. **One inference per sentence, then a diagram.** Do not stack “same |x − 0.50|, so same d, so same landing y, so cyan is level.” Draw the two ends at one height and the peak off that line.
+5. **A right-triangle truism is not the new fact.** If the learner already knows the short sides are shorter than the long side, say which short side shrinks, with the two lengths.
+6. **Say what a test does not prove.** A horizontal through the two ends kills one straight line. A tent still fits. Name both candidates and draw both.
+7. **Ban compressed labels** such as “center-crossing region”, “rigid side”, “join tilts”, “slope turns”, “leaves that height”. Replace with the pixels, the independent walks, the two y values, or “the height change per step of x is not one number.”
+8. **Selected demo controls stay pressed** for as long as that option is the active state (`aria-pressed`).
+9. **After writing, reread as the stalled reader.** If a sentence would take minutes to unpack, it is not written yet. Prefer a small diagram.
+
+The Q&A for this pass lives at `course/chapters/chapter-09/lesson-09-10-qa.html`.
+
 ### Size by overlay density, not leftover viewBox — Lesson 9.11
 
 Recorded 2026-09-16. Sparse checkers sat in a 760×440 viewBox with a 330 plot, so empty SVG padding made a thin picture look huge. The tent / straight-join / curve proof used `.diagram.compact` and a 240 plot, so cyan, violet, pink, and the Q / eq labels collided.
