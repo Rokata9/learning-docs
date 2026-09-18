@@ -1,6 +1,6 @@
 # Liquid Glass iOS course — current state
 
-**Updated:** 2026-09-16  
+**Updated:** 2026-09-18  
 **Course version:** 9.11.0  
 **Platform:** Swift / SwiftUI / Metal (`.metal` + `ShaderLibrary`)  
 **Test device:** iPhone 16 Pro  
@@ -189,7 +189,9 @@ dir = p / length(p)
 → sampled = background.eval(readUv × resolution)
 ```
 
-On iOS, `background.eval` is the Metal function `checkerBackground` in the same `.metal` file. Follow the navy input cell x `[0.50, 0.75)`, y `[0.25, 0.50)`. W `(0.65, 0.20)` reads approximately `(0.60528, 0.28944)` at `dispLen = 0.10` and stores navy. `dispLen` is the UV read distance, not a percentage enlargement. Use the six-operation read walkthrough, the added-region mask with W→R arrows, and the spoke construction of the curve: same extra length on different rays from C; the nearest point of a non-radial grid line moves farther from C than the far points. `p.x` is the sideways part of the extra walk; `p.y` is the up/down part. Quadrant changes the signs of those two parts, not the stick length. Straight corner joins are only approximations. The shader skips division within its `0.0001` guard. The lab Metal pixel-function string stays 1:1 with the prior body; its old teaching marks differ from this HTML’s exact navy-cell example. Lesson 9.10 is not complete.
+On iOS, `background.eval` is the Metal function `checkerBackground` in the same `.metal` file. Follow the navy input cell x `[0.50, 0.75)`, y `[0.25, 0.50)`. W `(0.65, 0.20)` reads approximately `(0.60528, 0.28944)` at `dispLen = 0.10` and stores navy. `dispLen` is the UV read distance, not a percentage enlargement. Keep the six-operation read walkthrough, W→R arrows, and spoke construction. Every outward walk has the same total length; the nearest input on y = 0.25 gains the largest upward part. The extra walk’s components are `(p.x / d) × dispLen` and `(p.y / d) × dispLen`, not bare `p.x` and `p.y`. Straight corner joins are only approximations. The shader skips division at `d <= 0.0001`. The iOS source remains separate. Lesson 9.10 is not complete.
+
+**Active feedback — visual Q&A (2026-09-18):** the learner could not imagine the geometry from the text-heavy answers. Both HTML files now put the construction before long arithmetic, with a five-step same-output-x straight-segment test and coordinate tooltips on plotted points. Permanent preference: every plotted point is clickable; inspection must not also reposition it. Rule: `AGENTS.md` → Picture-before-arithmetic and inspectable-point gate. Verification: `verification/lesson-09-10-visual-audit.md` and `verification/lesson-09-10-visual-checks.json` cover every step/point, coordinate space, overlap, cutoff equality, and desktop viewport. Completion remains 40 of 216; 9.10 remains unresolved.
 
 ## Generated ahead — Lesson 9.11
 

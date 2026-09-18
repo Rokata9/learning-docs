@@ -1175,6 +1175,16 @@ Recorded 2026-09-18 after the learner could follow the arithmetic but stalled fo
 
 The Q&A for this pass lives at `course/chapters/chapter-09/lesson-09-10-qa.html`.
 
+### Picture-before-arithmetic and inspectable-point gate — Lesson 9.10 Q&A
+
+Recorded 2026-09-18 after the learner reported that the Q&A still required too much mental imagery. Several answers placed paragraphs, full substitutions, and tables before the first useful diagram.
+
+1. Put the concrete input, operation, and resulting geometry before long arithmetic. Use one visible construction per step, with the current calculation beside it. Retain full derivations in optional expansions without hiding the essential reason.
+2. Every plotted point must open a click-controlled coordinate tooltip, including centers, unlabelled samples, comparison points, and arrow endpoints. Name its role and coordinate space. Derive the tooltip and geometry from the same data; never report SVG screen coordinates as lesson coordinates.
+3. Point inspection must not trigger the diagram's background placement action. Support Enter/Space, close, outside click, and Escape; constrain the popup to the viewport and invalidate it when its point changes.
+4. Test every point after each redraw and step, including coincident points and zoomed/outside-image points. Check visible-point coverage, coordinate accuracy, keyboard access, and popup bounds at both desktop widths.
+5. Compare slopes in the coordinates of the graph being discussed. On an output-position plot, use change in output y divided by change in output x. Equal steps of input x are not equal steps of output x. Test the exact center-guard boundary against the actual `>` condition before describing it.
+
 ### Size by overlay density, not leftover viewBox — Lesson 9.11
 
 Recorded 2026-09-16. Sparse checkers sat in a 760×440 viewBox with a 330 plot, so empty SVG padding made a thin picture look huge. The tent / straight-join / curve proof used `.diagram.compact` and a 240 plot, so cyan, violet, pink, and the Q / eq labels collided.

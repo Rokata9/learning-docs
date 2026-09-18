@@ -1,6 +1,6 @@
 # iOS translation progress
 
-next_step: 5F
+next_step: 6.4
 
 completed:
   - A1
@@ -46,6 +46,10 @@ completed:
   - 5C
   - 5D
   - 5E
+  - 5F
+  - 6.1
+  - 6.2
+  - 6.3
 
 session_order: A1 A2 A3 A4 B1 B2 B3 C1 C2 D1 D2 1A 1B 1C 1D 1E 1F 2A 2B 2C 2D 2E 2F 3A 3B 3C 3D 3E 3F 3G 3H 4A 4B 4C 4D 4E 4F 4G 5A 5B 5C 5D 5E 5F 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 6.9 6.10 6.11 6H 7A 7B 7C 7D 7E 7F 7G 7H 8A 8B 8C 8D 8E 8F 8H 9A 9B 9C 9D 9E 9F 9H F1 F2 F3 F4 F5
 
@@ -154,3 +158,15 @@ notes:
   - 5E: 5.11/5.12 HTML SwiftUI/iPhone 16 Pro; ReversalInterruptionExplorer
     (custom spring clock keeps q/v) + SlowMotionController (TimelineView play-time
     clock). Chapter05Screen wired. iPhone 16 Pro sim build succeeded. Grep clean.
+  - 5F: Ch 5 hub to SwiftUI/iPhone 16 Pro; stay-complete 40/216, checkpoint 1.3.
+    Chapter05Screen already hosts 5.1–5.12 (5.9 stub). iPhone 16 Pro sim build succeeded. Grep clean.
+  - 6.1: 6.1 HTML to SwiftUI view update / layout / rendering; CompositionLayoutDrawingExplorer
+    (Layout + Canvas) on Chapter06Screen; LabHost wired. Filename leftover is the Ch 6 hub href.
+    iPhone 16 Pro sim build succeeded. Stay-complete remains 40/216, checkpoint 1.3.
+  - 6.2: 6.2 HTML to SwiftUI ZStack sibling order / zIndex / .background–content–.overlay;
+    DrawOrderOwnershipExplorer on Chapter06Screen. Filename leftover is the Ch 6 hub href.
+    iPhone 16 Pro sim build succeeded. Stay-complete remains 40/216, checkpoint 1.3.
+  - 6.3: 6.3 HTML to SwiftUI owner transforms (scaleEffect, rotationEffect, offset,
+    compositingGroup, opacity). GraphicsLayersExplorer on Chapter06Screen. Filename
+    leftovers are the Ch 6 hub href and 6.4 render-effect filename. iPhone 16 Pro sim
+    build succeeded. Stay-complete remains 40/216, checkpoint 1.3.

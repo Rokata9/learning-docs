@@ -24,6 +24,7 @@ Rules:
 - Do not change graphics pedagogy, formulas, teaching pixels, or HTML/JS labs.
 - Swap platform nouns and APIs using PLATFORM_MAP.md only.
 - Shader pixel strings stay 1:1 (lab MSL). Host glue is Swift.
+- Teaching SwiftUI colors are `Color(#colorLiteral(...))` **at each draw/use site**, duplicated on purpose, not `Color(hex:)` and not a named `private let` that call sites pass. See USER_PREFERENCES.md and PLATFORM_MAP.md.
 - Test device is iPhone 16 Pro. Do not substitute another model.
 - Never use ultraThinMaterial / glassEffect as the glass implementation.
 - Do not open AGENTS.md unless the step is B1, B2, or B3.

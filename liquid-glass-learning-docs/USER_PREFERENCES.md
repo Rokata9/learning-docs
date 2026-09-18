@@ -185,6 +185,9 @@ If a normal-width diagram is > ~2400px, retry not more than 2 times to compact i
 
 ## Interactive math diagrams (HTML + SVG/canvas)
 
+- **Every plotted point is clickable (recorded 2026-09-18, Lesson 9.10).** Clicking any point, including centers, inputs, calculated landings, comparison points, and arrow endpoints, opens a tooltip with its coordinates and named coordinate space. Use the exact values that draw the point. Support keyboard activation, close, outside click, and Escape. Keep tooltips within the viewport. Selecting a point for inspection must not also move it.
+- **Show the operation before explaining it (reinforced 2026-09-18, Lesson 9.10 Q&A).** Put the input, the geometric change, and its result together before long arithmetic. Let me reveal one construction step at a time. Keep the essential reason visible; place repetitive full substitutions in an optional expansion. A picture after several paragraphs is too late.
+
 **Scope: math-heavy explanations** — geometry, curves/Béziers, trigonometry, animation & physics math, any algorithm whose meaning is spatial. For these, do NOT default to Mermaid: produce **interactive HTML diagrams** (vanilla JS + inline SVG, or canvas for heavy redraw scenes). Established 2026-06-10 from the M3E cookie-shape session; exemplars live at `C:\Users\rosen\Desktop\sample_diagrams\` and `D:\Code\android-ui-samples\material3-shapes\docs\learning\interactive\`.
 
 ### The four interaction patterns (pick whichever fit; combine freely)
@@ -360,6 +363,8 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 - **Xcode `#Preview` scrollability:** for every newly generated lesson, make both the complete chapter-screen preview and the direct explorer preview vertically scrollable so the entire lesson can be inspected without a device. Do not retrofit previous lessons unless explicitly requested.
 
 - **Light `#Preview` first (recorded 2026-08-28):** when stacking both theme `#Preview` blocks, put light first, then dark, immediately above the view. This is source order, not a change to the app's default theme. Preview canvas is **412 × 915 points**. Test device is **iPhone 16 Pro**. Apply to newly written or newly revised preview wrappers. Do not bulk-reorder completed historical lessons unless asked.
+
+- **SwiftUI color literals at every draw site (recorded 2026-09-18, tightened same day):** in LiquidGlassLab-iOS teaching/drawing Swift, write `Color(#colorLiteral(red:green:blue:alpha:))` **at the use site** (Canvas `fill`/`stroke`, `haloLine`/`fillCircle`/`strokeCircle` `color:`, `.foregroundStyle` of a teaching mark). Do **not** hide the chip behind a named `private let inkHalo` / `arrowColor` that call sites then pass. Repeat the same literal at every call even when RGB is identical. Xcode has no gutter color square; the chip exists only on the `#colorLiteral` token, and Rosen maps editor chips to the `#Preview` canvas on the right. `#colorLiteral` is a `UIColor`; wrap it in `Color(...)`. Convert hex as `channel / 255` in sRGB, alpha `1` unless the source has alpha. Do not add `Color.init(hex:)`. Do not turn component floats (`hu: Float = 0.75`) into literals. Leave `LabColor.*` and `Color(uiColor: .label/.separator/…)` as semantic chrome. `.metal` shaders and HTML/JS labs keep numeric / hex colors. Apply on newly written or rewritten Swift explorers; do not bulk-convert untouched files.
 
 - **No ZIP delivery (recorded 2026-08-20):** do not generate `.zip` files, incremental learning-docs archives, or iOS code archives. I work from the `liquid-glass-learning-docs` and `LiquidGlassLab-iOS` repositories directly. Leave changed files in those trees. Package a ZIP only if I explicitly ask for one.
 

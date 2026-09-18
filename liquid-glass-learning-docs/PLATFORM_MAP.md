@@ -150,6 +150,7 @@ Android `MainActivity` only launches Chapters 8–9 at runtime; 1–7 exist for 
 | `Modifier` | view modifiers |
 | `remember` / `rememberSaveable` | `@State` / `@SceneStorage` |
 | `MaterialTheme` / `Surface` / `Text` / `Slider` | small `LabTheme` + `SwiftUI` equivalents |
+| `Color(0xAARRGGBB)` / `Color(0xFFRRGGBB)` teaching colors | `Color(#colorLiteral(red:green:blue:alpha:))` **at each Canvas/draw use site**, even if RGB repeats. Wrap the UIKit literal. Do not factor into named `private let` colors and do not add `Color.init(hex:)`. `LabColor` / system `UIColor` chrome stay named. Component floats stay `Float`. Metal/HTML keep numeric hex. |
 | `Canvas` / `DrawScope` | `Canvas` / `GraphicsContext` |
 | `Path.moveTo/lineTo/close` | `Path` |
 | `graphicsLayer { translation/rotation/scale/alpha }` | `.offset` / `.rotationEffect` / `.scaleEffect` / `.opacity` |

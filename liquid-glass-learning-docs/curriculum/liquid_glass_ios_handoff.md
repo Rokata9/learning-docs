@@ -1,6 +1,6 @@
 # Liquid Glass iOS course — implementation handoff
 
-**Updated:** 2026-09-16
+**Updated:** 2026-09-18
 **Course version:** 9.11.0
 
 ## Read order
@@ -180,13 +180,15 @@ dir = p / length(p)
 
 The revised explanation follows the learner's exact navy input cell: x `[0.50, 0.75)`, y `[0.25, 0.50)`. W = `(0.65, 0.20)` reads approximately `(0.60528, 0.28944)` at `dispLen = 0.10`, so it stores navy. The missing y coordinate was explicitly chosen as 0.20.
 
-**2026-09-14 rewrite.** The remaining hole was why the checker bows. Chapters 1–2 stay as the gentle on-ramp. Removed: size-as-percentage chapter, center-crossing chapter, first-entry numeric table, x = 0.65 slice, and the 0.07071 / “which sides stay straight” cards. Load-bearing section is the spoke picture on the whole line y = 0.25: same extra length, different directions, middle landing off a straight join. Neighboring cells share that line, so they share the curve. The picture frame is not the end; far from C the bow flattens. `p.x` / `p.y` split one stick into sideways and up/down legs. Hidden exercise answers are diagrams. Standing rule: `USER_PREFERENCES.md` imagination-first and `AGENTS.md` Lesson 9.10 third rewrite.
+**Visual-first teaching contract.** Keep the gentle opening and the six-operation read walkthrough. Show one whole input line, spokes from C, equal-length outward walks, and the resulting landings. The sideways and vertical changes are `(p.x / d) × dispLen` and `(p.y / d) × dispLen`. Label the switch from output-to-input readback to input-to-output construction. Keep hidden exercise answers visual.
 
-**2026-09-18 wording pass.** The learner could follow the math and still stalled on stacked inferences and compressed labels. Section 2 now substitutes `p` and `length(p)` before the divide. Section 3 draws red W→R arrows on output and input. Section 4 names the `d > 0.0001` skip, uses an amber picture frame, labels Q vs landing, highlights the length buttons, and splits the tent/curve proof into two drawn tests plus interpolation. The navy–orange continuation, flattening plots, and three-points block were removed and replaced by a four-quadrant stick explorer. Q&A: `course/chapters/chapter-09/lesson-09-10-qa.html`. New rule: `AGENTS.md` compressed-metaphor pass.
+**Active feedback, 2026-09-18.** The Q&A still placed long prose, tables, and substitutions before its diagrams. The learner explicitly requested more visuals and clickable coordinate tooltips for every point. Both files now show the construction first; the parent retains its core labs and replaces the long proof with five visual states. The companion preserves all 19 original questions in disclosures. The same-output-x comparison draws Q′, the point T on the straight segment, a fraction ruler, and a magnified gap. Slope uses output-coordinate changes. The center guard is beside the code and correctly includes equality in the skipped branch. No Swift or Metal source changed.
+
+**Prevention and preference.** Consult `AGENTS.md` → Picture-before-arithmetic and inspectable-point gate and `USER_PREFERENCES.md` → Interactive math diagrams. Every plotted point opens coordinates in its named space, including centers, unlabelled samples, vector components, comparison points, and zoomed points. Click inspection must not also move a selected point. Verify every redraw, overlap, popup edge, and keyboard dismissal.
 
 `dispLen` is an absolute distance in square-image UV units, not 10% enlargement. Straight corner joins are only approximations. The shader's guard covers `d <= 0.0001`.
 
-Verification: `verification/lesson-09-10-review.md` and `verification/lesson-09-10-checks.json`. Check the same-cell readback, the six-step spoke construction, x/y split, whole-grid continuation, outside/flattening plots, exercise diagrams, and 1920×1080 light-mode screenshots. The HTML's shader excerpt matches the Android `DisplaceAgsl` string. The iOS explorer is `DisplacementFieldExplorer.swift` + `DisplacementField.metal`.
+Current verification: `verification/lesson-09-10-visual-audit.md` and `verification/lesson-09-10-visual-checks.json`. Check the same-cell readback, all steppers and tooltips, lengths 0/0.10/0.20, exact guard equality, same-output-x comparison, slope, and layouts at 1920×1080 and 5120×1440. Current `USER_PREFERENCES.md` requests light-only appearance; it stays light under either OS preference. The HTML shader excerpt was compared with the existing `DisplacementField.metal`. The iOS explorer is `DisplacementFieldExplorer.swift` + `DisplacementField.metal`.
 
 Lesson 9.10 remains unfinished. Live checkpoint is Lesson 1.3. Count is 40 of 216.
 
