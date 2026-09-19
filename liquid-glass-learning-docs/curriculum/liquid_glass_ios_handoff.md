@@ -188,6 +188,8 @@ The revised explanation follows the learner's exact navy input cell: x `[0.50, 0
 
 `dispLen` is an absolute distance in square-image UV units, not 10% enlargement. Straight corner joins are only approximations. The shader's guard covers `d <= 0.0001`.
 
+**2026-09-19 guard clarification:** Both pages compare the guarded and allowed branches at p `(0.000003, 0.000004)`, d `0.000005`: allowing it gives direction `(0.6, 0.8)`, displacement `(0.06, 0.08)`, and read `(0.440003, 0.420004)`. The latest correction separates necessity from an undocumented choice: skipping zero prevents undefined division; the inspected Metal source gives no reason for choosing 0.0001, and the lesson has not demonstrated a need for that wider cutoff. Earlier prose described the effect as though that answered why. Prevention: guard rule 6 now requires explicit evidence for the chosen cutoff or an explicit statement that the rationale is unknown. The latest change is wording only, with syntax checks only. No iOS source or completion change.
+
 Current verification: `verification/lesson-09-10-visual-audit.md` and `verification/lesson-09-10-visual-checks.json`. Check the same-cell readback, all steppers and tooltips, lengths 0/0.10/0.20, exact guard equality, same-output-x comparison, slope, and layouts at 1920×1080 and 5120×1440. Current `USER_PREFERENCES.md` requests light-only appearance; it stays light under either OS preference. The HTML shader excerpt was compared with the existing `DisplacementField.metal`. The iOS explorer is `DisplacementFieldExplorer.swift` + `DisplacementField.metal`.
 
 Lesson 9.10 remains unfinished. Live checkpoint is Lesson 1.3. Count is 40 of 216.

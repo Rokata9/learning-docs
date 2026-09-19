@@ -193,6 +193,8 @@ On iOS, `background.eval` is the Metal function `checkerBackground` in the same 
 
 **Active feedback — visual Q&A (2026-09-18):** the learner could not imagine the geometry from the text-heavy answers. Both HTML files now put the construction before long arithmetic, with a five-step same-output-x straight-segment test and coordinate tooltips on plotted points. Permanent preference: every plotted point is clickable; inspection must not also reposition it. Rule: `AGENTS.md` → Picture-before-arithmetic and inspectable-point gate. Verification: `verification/lesson-09-10-visual-audit.md` and `verification/lesson-09-10-visual-checks.json` cover every step/point, coordinate space, overlap, cutoff equality, and desktop viewport. Completion remains 40 of 216; 9.10 remains unresolved.
 
+**Guard clarification (2026-09-19):** Both pages compare the guarded and allowed branches at p `(0.000003, 0.000004)`, d `0.000005`: allowing it gives direction `(0.6, 0.8)`, displacement `(0.06, 0.08)`, and read `(0.440003, 0.420004)`. The latest correction separates necessity from an undocumented choice: skipping zero prevents undefined division; the inspected Metal source gives no reason for choosing 0.0001, and the lesson has not demonstrated a need for that wider cutoff. Earlier prose described the effect as though that answered why. Prevention: guard rule 6 now requires explicit evidence for the chosen cutoff or an explicit statement that the rationale is unknown. The latest change is wording only, with syntax checks only. No iOS source or completion change.
+
 ## Generated ahead — Lesson 9.11
 
 Not complete. Not the live checkpoint. Lesson 9.10 stays unresolved.

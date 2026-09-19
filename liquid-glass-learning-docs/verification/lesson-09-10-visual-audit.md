@@ -42,3 +42,15 @@ Completed. Both pages opened from `file://` with no external scripts or styles.
 The parent still starts with the known checkerboard. The companion now also starts with that image, defines input/output, W/R/C, and UV directions, and states the chosen 0.10 distance. Question 1 names p, d, dir, and disp before using their equations. Question 2 shows one operation per state. The first formulas have named input positions and a visible next consumer. Input positions, output landings, vector components, the comparison point T, and the enlarged gap carry explicit coordinate-space labels. Slope uses output changes on both axes. Formal derivative reasoning is deferred rather than inferred from a few finite samples.
 
 The learner subsequently requested lighter checking because of their remaining usage limit. The checks above were already complete; no additional test runs were started after that request. Lesson 9.10 remains unresolved, with 40 of 216 lessons completed.
+
+## Focused follow-up — 2026-09-19
+
+Feedback: the below-cutoff unit-length assertion still lacked a worked value. The guard widget in both pages now traces p `(0.000003, 0.000004)` through d `0.000005`, direction `(0.6, 0.8)`, displacement `(0.06, 0.08)`, and read `(0.440003, 0.420004)` when `d > 0` is allowed. The same W remains unchanged with the existing cutoff. Every new plotted point retains coordinate inspection. The text separates exact arithmetic, rounded computations, undefined direction at C, and the full chosen read length near C.
+
+Verification stayed focused: both inline scripts parse, both new branch results pass, and `lesson-09-10-guard-below-cutoff.png` shows the complete active explanation at 1920×1080. No full-suite rerun or device claim.
+
+
+Guard-purpose follow-up: the longer precision explanation created confusion about whether this was redundant-work avoidance. Replaced it in both pages with the branch purpose and its changed result (zero displacement). Arithmetic and diagrams are unchanged. Verification limited to parsing the two inline scripts.
+
+
+Guard-rationale correction: reread the existing Metal function. Its 0.0001 constant has no explanatory comment. Both pages now distinguish the necessary zero check from the positive cutoff whose reason is undocumented. No requirement for that wider cutoff is claimed. Updated guard rule 6, state, and handoff; syntax-only verification, with no arithmetic or diagram changes.
