@@ -1,6 +1,6 @@
 # Liquid Glass iOS course — implementation handoff
 
-**Updated:** 2026-09-18
+**Updated:** 2026-09-22
 **Course version:** 9.11.0
 
 ## Read order
@@ -182,7 +182,7 @@ The revised explanation follows the learner's exact navy input cell: x `[0.50, 0
 
 **Visual-first teaching contract.** Keep the gentle opening and the six-operation read walkthrough. Show one whole input line, spokes from C, equal-length outward walks, and the resulting landings. The sideways and vertical changes are `(p.x / d) × dispLen` and `(p.y / d) × dispLen`. Label the switch from output-to-input readback to input-to-output construction. Keep hidden exercise answers visual.
 
-**Active feedback, 2026-09-18.** The Q&A still placed long prose, tables, and substitutions before its diagrams. The learner explicitly requested more visuals and clickable coordinate tooltips for every point. Both files now show the construction first; the parent retains its core labs and replaces the long proof with five visual states. The companion preserves all 19 original questions in disclosures. The same-output-x comparison draws Q′, the point T on the straight segment, a fraction ruler, and a magnified gap. Slope uses output-coordinate changes. The center guard is beside the code and correctly includes equality in the skipped branch. No Swift or Metal source changed.
+**Active feedback — Q&A corrections (2026-09-22):** questions hidden below answers, repeated Input Q labels for different points, rounded component results, repeated Q11/Q15 answers, and a scale explanation that missed the tile-size question. Both pages now preserve A/Q/B through the full trace and expand Q′.y; the companion shows all 19 original questions at the top. Q12 uses the drawn horizontal/vertical changes without tangent or derivative terminology. Q15 explains corner-height differences; Q11 retains the intermediate-point curvature test. Q18 traces input bounds into output bounds: 0.25 / 0.90 = 0.277777… per side, an 11.111…% increase. Pink denotes the old reference boundary; cyan denotes the new boundary. Rules: `AGENTS.md` → Question visibility, distinct answers, and numeric identity; question visibility also saved in `USER_PREFERENCES.md`. Focused checks: `verification/lesson-09-10-sep22-checks.json` (13 revised states, precise values, question visibility, matching inline modules, no JS errors) and Q15/Q18 screenshots. No iOS source or learner completion changes.
 
 **Prevention and preference.** Consult `AGENTS.md` → Picture-before-arithmetic and inspectable-point gate and `USER_PREFERENCES.md` → Interactive math diagrams. Every plotted point opens coordinates in its named space, including centers, unlabelled samples, vector components, comparison points, and zoomed points. Click inspection must not also move a selected point. Verify every redraw, overlap, popup edge, and keyboard dismissal.
 
@@ -206,6 +206,8 @@ sd = length(p) − radius
 ```
 
 Teaching W = `(0.65, 0.30)`: `p = (0.15, −0.20)`, `d = 0.25`, `sd = 0`, falloff = 0.50, `disp = (0.03, −0.04)`, `readUv = (0.62, 0.34)`. Falloff is a length scale, not a color mix. Miss line x = 0.90 stays straight. iOS explorer: `RefractionSamplingExplorer.swift` + `RefractionSampling.metal`. Do not generate 9.12 unless asked.
+
+**2026-09-22 revamp.** The learner rejected the long accumulated guidelines. `AGENTS.md` is now a concise 25-rule rulebook with a self-improving loop; the course sections of `USER_PREFERENCES.md` point to it. Lesson 9.11 HTML was rewritten under it: plain short sentences, no metaphor names, every drawn element labelled, formulas fully expanded with `ⓘ` provenance and refreshers, no repeated sections, clickable points with UV tooltips. Future lessons must follow the new `AGENTS.md`, not the style of older files. No iOS source change; completion stays 40 of 216 with 9.10 and 9.11 unconfirmed. Follow-up: section 2's diagram had kept the old squeezed layout; it now gets a real 790px track, and rule 9 (diagram readable size) prevents recurrence.
 
 ## Future conversation
 

@@ -54,3 +54,14 @@ Guard-purpose follow-up: the longer precision explanation created confusion abou
 
 
 Guard-rationale correction: reread the existing Metal function. Its 0.0001 constant has no explanatory comment. Both pages now distinguish the necessary zero check from the positive cutoff whose reason is undocumented. No requirement for that wider cutoff is claimed. Updated guard rule 6, state, and handoff; syntax-only verification, with no arithmetic or diagram changes.
+
+
+## Focused Q&A revision — 2026-09-22
+
+Feedback review before authoring: original questions were hidden; the trace helper hardcoded Q for every input; rounded values did not provide the requested component expansion; Q15 reused Q11 rather than explaining corner heights; Q12 added unfamiliar derivative terminology; Q18 compared formulas without deriving tile size. Prevention recorded in AGENTS.md and the always-visible-question preference.
+
+Revisions: all 19 questions remain at the top of their cards. Traces name A, Q, and B independently. Q′.y expands from the named vertical input, operation, signed change, and the browser's full computed decimal: Q11 0.1642507074287456; Q15 0.16055728090000843. Q15 now has a separate three-step corner-height construction. Q12 explains the two visible change lengths and their ratio. Q18 has three states: selected input area, boundary mapping, and side-length measurement. New corner points retain coordinate tooltips.
+
+Prerequisites: existing input/output coordinates, centered read formula, division, square root, and slope ratio remain the inputs. Before the reciprocal-size calculation, the diagram names one input tile and its mapped output bounds. Output width is defined by 0.90 × output width = input width, then solved by division. The percentage compares output side length with the original side length. Pink/cyan ownership is visible before that calculation. No new calculus terminology.
+
+Focused verification: both scripts parse and their shared modules match; 19 visible question blocks; 13 states across Q11/Q12/Q15/Q18; correct A/Q/B labels and unrounded component values; output tile width 0.2777777777777778; side increase 11.111111111111116%; new corner tooltip opens; no JavaScript errors. Screenshots `lesson-09-10-sep22-q15.png` and `lesson-09-10-sep22-q18.png` inspected at 1920×1080. B′'s label was subsequently offset below its nearby horizontal reference to separate their labels. No full-suite rerun, consistent with the learner's request for focused checking.

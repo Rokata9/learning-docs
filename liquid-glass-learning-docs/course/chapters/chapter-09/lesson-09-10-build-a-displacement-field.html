@@ -126,7 +126,7 @@
 <div data-visual="round" data-step="2"></div>
 </details>
 <details><summary>Inspect one cell’s corners and their independent walks (Q&amp;A 15–17)</summary>
-<div data-visual="cell" data-step="4"></div>
+<div data-visual="cell" data-step="2"></div>
 <div data-visual="independent"></div>
 </details>
 <details><summary>Continue the line beyond the picture (Q&amp;A 5 and 14)</summary>
@@ -222,6 +222,8 @@ fract(1.5) = 1.5 − floor(1.5) = 0.5
 <div class="controls"><button class="btn primary" id="checkChallenge">Check operators</button><button class="btn" id="showSolution">Show solution</button><button class="btn" id="resetChallenge">Reset challenge</button></div><div class="result" id="challengeResult" aria-live="polite">The first operation gives the direction a length of one. The second makes the read go toward C.</div>
 <details><summary>Compare the chosen-length formula with disp = p and disp = p × 0.10</summary>
 <div data-visual="alternatives"></div>
+<h3>Why the ×0.90 read mapping keeps square tiles</h3>
+<div data-visual="scaleTiles"></div>
 <p><code>disp = p</code> sends every read to C. <code>disp = p × 0.10</code> multiplies every read distance from C by 0.90. That second formula enlarges the displayed checker uniformly. Its straight edges remain straight.</p>
 </details>
 <h3 class="spaced">Final exercises</h3>
@@ -297,7 +299,26 @@ function center(P){return mark(P,.5,.5,'#fff','C','Image UV · x right, y down',
 function cell(P){return path([[.5,.25],[.75,.25],[.75,.5],[.5,.5],[.5,.25]].map(p=>P.at(...p)),pink,2.5,true);}
 function graph(x0=.42,x1=1.14,y0=.12,y1=.27){const at=(u,v)=>[70+(u-x0)/(x1-x0)*550,36+(v-y0)/(y1-y0)*238];let svg=`<rect x="70" y="36" width="550" height="238" rx="3" fill="#fff" stroke="#cad7e7"/>`;for(let i=0;i<=4;i++){const x=x0+(x1-x0)*i/4,y=y0+(y1-y0)*i/4;svg+=seg(at(x,y0),at(x,y1),'#e3eaf3',1)+seg(at(x0,y),at(x1,y),'#e3eaf3',1)+text(at(x,y1)[0],298,num(x,2),'vsmall','middle')+text(60,at(x0,y)[1]+5,num(y,3),'vsmall','end');}svg+=text(345,324,'output x →','vsmall','middle')+text(14,20,'output y ↓','vsmall');return {svg,at};}
 function curve(P,l,a=0,b=1,y=.25){return path(Array.from({length:151},(_,i)=>{const q=out(a+(b-a)*i/150,y,l);return P.at(q.x,q.y);}),pink,3);}
-function chain(u,v,l){const q=out(u,v,l);return `Input Q = ${pp(u,v,3)}; center C = (0.50, 0.50)\np = Q − C = ${pp(u-.5,v-.5)}\nd = sqrt(p.x² + p.y²)\n  = sqrt(${num(q.px*q.px,6)} + ${num(q.py*q.py,6)}) = ${num(q.d)}\ndir = p / d = (${num(q.px)} / ${num(q.d)}, ${num(q.py)} / ${num(q.d)})\n    ≈ ${pp(q.nx,q.ny)}\nextra walk = dir × ${num(l,3)} ≈ ${pp(q.dx,q.dy)}\nlanding = Q + extra walk\n        ≈ ${pp(u,v)} + ${pp(q.dx,q.dy)}\n        ≈ ${pp(q.x,q.y)}\nThe inward shader read at this landing returns to Q.`;}
+function precise(n){return String(n).replace('-','−');}
+function chain(u,v,l,name='Q'){
+ const q=out(u,v,l);
+ return `Input ${name} = ${pp(u,v,3)}; center C = (0.50, 0.50)
+p = ${name} − C = ${pp(u-.5,v-.5)}
+d = sqrt(p.x² + p.y²)
+  = sqrt(${num(q.px*q.px,6)} + ${num(q.py*q.py,6)}) ≈ ${precise(q.d)}
+dir = p / d = (${num(q.px)} / ${precise(q.d)}, ${num(q.py)} / ${precise(q.d)})
+    ≈ ${pp(q.nx,q.ny,12)}
+extra walk = dir × ${num(l,3)} ≈ ${pp(q.dx,q.dy,12)}
+${name}′ = ${name} + extra walk ≈ ${pp(q.x,q.y,12)}
+
+Vertical component, expanded:
+${name}′.y = ${name}.y + (p.y / d) × dispLen
+     = ${precise(v)} + (${precise(q.py)} / ${precise(q.d)}) × ${precise(l)}
+     ≈ ${precise(v)} + (${precise(q.dy)})
+     ≈ ${precise(q.y)}
+This last decimal is the browser's calculated value, not an exact decimal expansion.
+The inward shader read at ${name}′ returns to ${name}.`;
+}
 let pop,trigger;
 function close(refocus=false){if(!pop)return;pop.hidden=true;if(trigger){trigger.setAttribute('aria-expanded','false');if(refocus&&trigger.isConnected)trigger.focus();}trigger=null;}
 function show(el){if(!pop)setupPopup();if(trigger===el&&!pop.hidden){close();return;}close();trigger=el;el.setAttribute('aria-expanded','true');const d=el.dataset,prec=Math.abs(Number(d.u)-.5)<.001||Math.abs(Number(d.v)-.5)<.001?8:6;pop.querySelector('.coord-name').textContent=d.point;pop.querySelector('.coord-space').textContent=d.space;pop.querySelector('.coord-values').textContent=`x = ${num(+d.u,prec)}\ny = ${num(+d.v,prec)}`;pop.querySelector('.coord-note').textContent=d.note||'These are the values used to draw this point. Displayed decimals are rounded.';const also=pop.querySelector('.coord-also');also.replaceChildren();const r=el.querySelector('.point-dot').getBoundingClientRect();const others=[...el.ownerSVGElement.querySelectorAll('[data-point]')].filter(p=>{if(p===el)return false;const b=p.querySelector('.point-dot').getBoundingClientRect();return Math.abs(b.x+b.width/2-r.x-r.width/2)<2&&Math.abs(b.y+b.height/2-r.y-r.height/2)<2;});for(const other of others){const b=document.createElement('button');b.textContent='Also here: '+other.dataset.point;b.onclick=()=>show(other);also.append(b);}pop.hidden=false;const w=pop.offsetWidth,h=pop.offsetHeight;pop.style.left=Math.max(12,Math.min(innerWidth-w-12,r.right+12))+'px';pop.style.top=Math.max(12,Math.min(innerHeight-h-12,r.bottom+10))+'px';}
@@ -374,11 +395,73 @@ R = W − disp = ${pp(ru,rv,7)}`;
  });
  caption='Each green arrow is drawn at the same scale. Its origin is (0, 0) in displacement components; its endpoint is the extra-walk pair. Input y is 0.25 for all three.';
  }else caption='Q is an input point. L is an output landing that copies Q. This outward construction describes positions farther than dispLen from C.';
-}else if(['level','proof','cell','round'].includes(w.kind)){
+}else if(w.kind==='cell'){
+ ['1 · Same input height','2 · Two separate walks','3 · Compare corner heights'].forEach((n,i)=>button(n,()=>w.n=i,w.n===i));
+ const a=out(.5,.25,l),b=out(.75,.25,l),q=out(.625,.25,l),delta=b.y-a.y;
+ const L=plane(48,43,250,'input',l),R=plane(397,43,250,w.n===0?'input':'output',l);
+ s=L.svg+cell(L)+center(L)+R.svg+cell(R)+center(R);
+ s+=text(172,21,'Input cell · one top edge','vhead','middle')+text(522,21,w.n===0?'Before the extra walks':'Output · compare the corners','vhead','middle');
+ for(const [x,name] of [[.5,'A'],[.75,'B']]){const o=out(x,.25,l);s+=mark(L,x,.25,'#fff',name,inputSpace,'One corner of the input cell.',[10,-14]);s+=seg(L.at(.5,.5),L.at(x,.25),'#fff',1.5,true);
+ if(w.n===0)s+=mark(R,x,.25,'#fff',name,inputSpace);
+ else s+=arr(R.at(x,.25),R.at(o.x,o.y),lime)+mark(R,o.x,o.y,lime,name+'′',outputSpace,'Independent landing of input '+name,name==='B'?[12,32]:[-25,-14]);}
+ if(w.n>=1)s+=curve(R,l,.5,.75);
+ if(w.n===2){s+=seg(R.at(a.x,a.y),R.at(b.x,a.y),cyan,2,true)+seg(R.at(b.x,a.y),R.at(b.x,b.y),blue,3,true)+seg(R.at(a.x,a.y),R.at(b.x,b.y),violet,3,true);
+ s+=point(...R.at(b.x,a.y),b.x,a.y,cyan,'Same-height reference',outputSpace,'Same y as A′; B′ lies below it.')+mark(R,q.x,q.y,pink,'Q′',outputSpace,'Landing of the input top midpoint (0.625, 0.25).',[8,28]);}
+ title=['The corners start at the same y.','A rises more than B.','Different heights make the corner join slant.'][w.n];
+ body=w.n===0?'A and B are the two top corners of the named navy cell. Both start at y = 0.25. A is directly above C; B is above and right of C.':w.n===1?'A’s whole walk is upward. B’s equally long walk also goes right, so its upward part is smaller. Calculate the two y values separately.':'Cyan is a horizontal reference through A′. B′ is below that reference. Violet connects A′ to B′, so violet slopes downward to the right. Pink is the actual curved edge.';
+ math=w.n===0?'A = (0.50, 0.25)\nB = (0.75, 0.25)\nA.y = B.y = 0.25':`A′.y = A.y + A's vertical change
+     = 0.25 − ${num(l,5)} ≈ ${precise(a.y)}
+B′.y = B.y + B's vertical change
+     = 0.25 − ${num(Math.abs(b.dy),12)} ≈ ${precise(b.y)}
+B′.y − A′.y ≈ ${precise(delta)}`;
+ evidence=l===0?'With no extra walk, both y values remain 0.25. The join is horizontal.':'Question 15 explains the slant using the two corner heights. Question 11 tests whether the points between two ends also lie on a straight line.';
+ detail=chain(.5,.25,l,'A')+'\n\n'+chain(.75,.25,l,'B')+'\n\n'+chain(.625,.25,l,'Q');
+ caption='Pink outline: original cell. A′ and B′: new corner positions. In step 3, cyan holds A′’s height; violet joins the corners. Q′ is the actual midpoint landing, with full arithmetic in the expansion.';
+}else if(w.kind==='scaleTiles'){
+ ['1 · The same checker pattern','2 · Where the edges go','3 · Measure the larger tile'].forEach((n,i)=>button(n,()=>w.n=i,w.n===i));
+ const factor=.9,left=.5,right=.5+.25/factor,top=.5-.25/factor,bottom=.5,width=.25/factor,ratio=1/factor,increase=(ratio-1)*100;
+ const L=plane(48,43,250,'input',.1),R=plane(397,43,250,'scale',.1);
+ s=L.svg+cell(L)+R.svg+cell(R);
+ const corners=[[left,top],[right,top],[right,bottom],[left,bottom],[left,top]];
+ s+=path(corners.map(c=>R.at(...c)),cyan,3,true);
+ s+=text(173,21,'Input · original navy cell','vhead','middle')+text(522,21,'Output · enlarged navy cell','vhead','middle');
+ for(const [u,v,name] of [[.5,.25,'A'],[.75,.25,'B'],[.5,.5,'C']]){
+ const ou=.5+(u-.5)/factor,ov=.5+(v-.5)/factor;
+ s+=mark(L,u,v,pink,name,inputSpace,'Input cell corner.',[8,name==='C'?25:-12])+mark(R,ou,ov,cyan,name+'′',outputSpace,'Output position whose read returns to input corner '+name,[8,name==='C'?25:-12]);
+ }
+ if(w.n===0){const edge=[[.05,.05],[.95,.05],[.95,.95],[.05,.95],[.05,.05]];s+=path(edge.map(c=>L.at(...c)),'#fff',1.5,true);}
+ if(w.n===1){s+=seg(L.at(.75,0),L.at(.75,1),pink,2,true)+seg(R.at(right,0),R.at(right,1),cyan,2,true);}
+ if(w.n===2){for(const [P,x0,x1,amount,col] of [[L,.5,.75,.25,pink],[R,left,right,width,cyan]]){const x=P.at(x0,0)[0],end=P.at(x1,0)[0];s+=seg([x,354],[end,354],col,4)+seg([x,348],[x,360],blue,2)+seg([end,348],[end,360],blue,2)+text((x+end)/2,385,'width '+num(amount,8),'vmeasure','middle');}vb='0 0 700 410';}
+ title=['The color pattern stays; the tile sizes change.','A straight input edge stays straight.','Each side grows by about 11.11%.'][w.n];
+ body=w.n===0?'The read uses only the central 90% of the input width and height. Those colors fill the entire output picture, so the tiles appear larger. The checker still returns alternating orange and navy. The pink box is the old cell boundary kept as a reference; cyan is its new boundary.':w.n===1?'Every input point on the cell’s right edge has x = 0.75. Every output point that reads that edge has x = 0.777777… . That one x value makes the output edge vertical. Horizontal edges stay horizontal for the same reason. Both directions use the same scale, so square tiles stay square.':'Multiplying a read distance by 0.90 means an output span must be larger to cover the same input tile. Divide the input tile width by 0.90. Height follows the same calculation.';
+ math=w.n===0?`Read R = C + (output W − C) × 0.90
+For either coordinate:
+output 0 → read 0.50 + (0 − 0.50) × 0.90 = 0.05
+output 1 → read 0.50 + (1 − 0.50) × 0.90 = 0.95
+input span read = 0.95 − 0.05 = 0.90`:w.n===1?`output = C + (input − C) / 0.90
+right edge x = 0.50 + (0.75 − 0.50) / 0.90
+             ≈ ${precise(right)}
+top edge y = 0.50 + (0.25 − 0.50) / 0.90
+           ≈ ${precise(top)}
+left x and bottom y remain 0.50`:`input width = 0.75 − 0.50 = 0.25
+0.90 × output width = input width
+output width = 0.25 / 0.90 ≈ ${precise(width)}
+size ratio = output width / input width
+           = 1 / 0.90 ≈ ${precise(ratio)}
+side increase = (size ratio − 1) × 100%
+              ≈ ${num(increase,8)}%`;
+ evidence='Pink = where the input cell used to sit. Cyan = where that same cell appears in the output. The pink box inside navy is a comparison outline, not another tile.';
+ detail=`Input navy bounds: x from 0.50 to 0.75; y from 0.25 to 0.50.
+Output navy bounds: x from 0.50 to ${precise(right)}; y from ${precise(top)} to 0.50.
+Input side = 0.25; output side = ${precise(width)}.
+An output side exactly 10% larger would be 0.25 × 1.10 = 0.275. The actual side is ${precise(width)}, so its increase is about 11.11%.
+The procedural checker can evaluate beyond the image frame, but only output positions inside the frame are drawn.`;
+ caption='Pink marks the original input cell in both pictures. Cyan marks the enlarged output cell. White, in step 1, bounds the input area read. All corner points are clickable.';
+}else if(['level','proof','round'].includes(w.kind)){
  const left=out(0,.25,l),a=out(.5,.25,l),b=out(w.kind==='cell'?.75:1,.25,l),q=out(w.kind==='cell'?.625:.65,.25,l),fraction=(q.x-a.x)/(b.x-a.x),ty=a.y+fraction*(b.y-a.y),gap=ty-q.y;
  if(w.kind==='level'){['Straight end-to-end','Two straight halves','Actual curve'].forEach((n,i)=>button(n,()=>w.n=i,w.n===i));}else if(w.kind!=='round'){['1 · Inputs','2 · Landings','3 · Straight join','4 · Locate T','5 · Compare'].forEach((n,i)=>button(n,()=>w.n=i,w.n===i));}
  if(w.n<2&&w.kind!=='level'&&w.kind!=='round'){
- const P=plane(66,44,288,'input',l);s=P.svg+center(P)+seg(P.at(0,.25),P.at(1,.25),pink,3,true);[[.5,'A'],[w.kind==='cell'?.625:.65,'Q'],[w.kind==='cell'?.75:1,'B']].forEach(([x,name])=>{const o=out(x,.25,l);s+=seg(P.at(.5,.5),P.at(x,.25),'#fff',1.5,true)+mark(P,x,.25,'#fff',name,inputSpace,'Input on the straight line y = 0.25.',[-15,28]);if(w.n===1)s+=arr(P.at(x,.25),P.at(o.x,o.y),lime)+mark(P,o.x,o.y,lime,name+'′',outputSpace,'Calculated by adding the outward walk.');});s+=text(535,99,'A: directly above C','vsmall','middle')+text(535,137,'Q: between A and B','vsmall','middle')+text(535,175,'B: the right endpoint','vsmall','middle');title=w.n===0?'Start with three inputs on one straight line.':'Extend each spoke by the same length.';body=w.n===0?'A, Q, and B all have input y = 0.25. The white lines show their separate directions from C.':'Each white input gets its own green landing. A′ keeps x = 0.50. Q′ and B′ also move right. These primed names mean calculated output positions.';math=w.n===0?`A = (0.50, 0.25)\nQ = ${pp(q.u,.25,3)}\nB = ${pp(b.u,.25,3)}`:`p = Q − C = ${pp(q.px,q.py)}\nd = sqrt(${num(q.px*q.px,6)} + 0.062500) ≈ ${num(q.d)}\nextra walk = (p / d) × ${num(l,2)}\n           ≈ ${pp(q.nx,q.ny)} × ${num(l,2)}\n           ≈ ${pp(q.dx,q.dy)}\nQ′ = Q + extra walk ≈ ${pp(q.x,q.y)}`;
+ const P=plane(66,44,288,'input',l);s=P.svg+center(P)+seg(P.at(0,.25),P.at(1,.25),pink,3,true);[[.5,'A'],[w.kind==='cell'?.625:.65,'Q'],[w.kind==='cell'?.75:1,'B']].forEach(([x,name])=>{const o=out(x,.25,l);s+=seg(P.at(.5,.5),P.at(x,.25),'#fff',1.5,true)+mark(P,x,.25,'#fff',name,inputSpace,'Input on the straight line y = 0.25.',[-15,28]);if(w.n===1)s+=arr(P.at(x,.25),P.at(o.x,o.y),lime)+mark(P,o.x,o.y,lime,name+'′',outputSpace,'Calculated by adding the outward walk.');});s+=text(535,99,'A: directly above C','vsmall','middle')+text(535,137,'Q: between A and B','vsmall','middle')+text(535,175,'B: the right endpoint','vsmall','middle');title=w.n===0?'Start with three inputs on one straight line.':'Extend each spoke by the same length.';body=w.n===0?'A, Q, and B all have input y = 0.25. The white lines show their separate directions from C.':'Each white input gets its own green landing. A′ keeps x = 0.50. Q′ and B′ also move right. These primed names mean calculated output positions.';math=w.n===0?`A = (0.50, 0.25)\nQ = ${pp(q.u,.25,3)}\nB = ${pp(b.u,.25,3)}`:`p = Q − C = ${pp(q.px,q.py)}\nd = sqrt(${num(q.px*q.px,6)} + 0.062500) ≈ ${num(q.d)}\nextra walk = (p / d) × ${num(l,2)}\n           ≈ ${pp(q.nx,q.ny)} × ${num(l,2)}\n           ≈ ${pp(q.dx,q.dy)}\nQ′ = Q + extra walk ≈ ${pp(q.x,q.y,12)}\nQ′.y ≈ ${precise(q.y)}`;
  }else {
  const range=w.kind==='cell'?[.47,.86,.14,.20]:w.kind==='round'?[.32,.68,.145,.185]:w.kind==='proof'?[.45,1.13,Math.max(-.02,.25-l-.025),.28]:[-.12,1.13,Math.max(-.02,.25-l-.025),.28];const P=graph(...range);s=P.svg;if(w.kind==='round'){const stops=Array.from({length:241},(_,i)=>out(.30+i*.40/240,.25,l)).filter(o=>o.x>=range[0]&&o.x<=range[1]);s+=path(stops.map(o=>P.at(o.x,o.y)),pink,3);}else if(w.n>=4||(w.kind==='level'&&w.n===2)||w.kind==='cell')s+=curve(P,l,(w.kind==='cell'||w.kind==='proof')?.5:0,w.kind==='cell'?.75:1);
  const L=P.at(left.x,left.y),A=P.at(a.x,a.y),B=P.at(b.x,b.y);if(w.kind==='level')s+=seg(L,B,cyan,2);if(w.kind==='round'){const tlx=.32,trx=.68;const tleft=a.y+(tlx-a.x)/(a.x-left.x)*(a.y-left.y),tright=a.y+(trx-a.x)/(b.x-a.x)*(b.y-a.y);s+=seg(P.at(tlx,tleft),A,violet,3)+seg(A,P.at(trx,tright),violet,3);}else if(w.kind!=='level'||w.n>0){if(w.kind==='level')s+=seg(L,A,violet,3);s+=seg(A,B,violet,3);}
@@ -386,7 +469,7 @@ R = W − disp = ${pp(ru,rv,7)}`;
  if(w.n>=3||w.kind==='cell'){s+=seg(P.at(q.x,q.y),P.at(q.x,ty),blue,2)+point(...P.at(q.x,q.y),q.x,q.y,pink,'Q′ actual',outputSpace,'Output that copies the middle input Q.')+label(P.at(q.x,q.y),'Q′',-22,-15)+point(...P.at(q.x,ty),q.x,ty,violet,'T on straight join',outputSpace,'Same output x as Q′, but y comes from the straight segment A′–B′.')+label(P.at(q.x,ty),'T',12,28);}
  if(w.kind==='round'){s+=mark(P,a.x,a.y,lime,'Peak',outputSpace,'At the nearest input, the whole extra walk is upward.',[12,-14]);title='Look closely at the top.';body='Pink follows the actual calculated landings. Violet joins the endpoints with two straight segments. Near the peak, pink becomes almost horizontal. Violet keeps its fixed tilt all the way to the corner.';math='The graph uses OUTPUT x and OUTPUT y.\nBoth axes are enlarged here.\nCompare the small rise/run triangles in Question 12.';evidence='Going up then down is not enough to prove a curve. The intermediate landings and changing slope are the evidence.';
  }else if(w.kind==='level'){title=['Same endpoint height makes cyan horizontal.','A tent also reaches the peak.','The intermediate positions distinguish the curve.'][w.n];body='The left and right inputs are equally far from C. Their upward changes are equal. Their landings therefore share one y value. The peak has a smaller y value and sits above that horizontal line.';math=`left landing y = ${num(left.y)}\nright landing y = ${num(b.y)}\npeak landing y = ${num(a.y)}\npeak − end = ${num(a.y-b.y)}`;evidence=w.n===0?'The peak rules out one straight line. It does not yet rule out a tent.':w.n===1?'Violet still hits all three marked points. We need a point between the peak and an end.':'Next compare Q′ with the straight right-hand segment at the same output x.';
- }else {title=w.n===2?'Join only the two endpoint landings.':'The actual point misses the straight segment.';body=w.n===2?'Violet connects A′ and B′. If every landing on this half lay on one straight line, the middle landing Q′ would have to sit on violet.':'Pink Q′ is the actual landing. Violet T is the point on the straight segment at exactly the same output x. Their different y values show that this half is not a straight segment.';math=`A′ = ${pp(a.x,a.y)}\nB′ = ${pp(b.x,b.y)}\nQ′ = ${pp(q.x,q.y)}\nT  = ${pp(q.x,ty)}\nvertical gap = T.y − Q′.y = ${num(gap,7)}`;evidence=l===0?'At length 0, the gap is 0: the original line stays straight.':w.n===2?'Next locate the point T on this segment at Q′’s output x.':`Same output x = ${num(q.x)}. Different output y: ${num(q.y)} and ${num(ty)}.`;}
+ }else {title=w.n===2?'Join only the two endpoint landings.':'The actual point misses the straight segment.';body=w.n===2?'Violet connects A′ and B′. If every landing on this half lay on one straight line, the middle landing Q′ would have to sit on violet.':'Pink Q′ is the actual landing. Violet T is the point on the straight segment at exactly the same output x. Their different y values show that this half is not a straight segment.';math=`A′ = ${pp(a.x,a.y)}\nB′ = ${pp(b.x,b.y)}\nQ′ = ${pp(q.x,q.y,12)}\nT  = ${pp(q.x,ty,12)}\nQ′.y ≈ ${precise(q.y)}\nT.y  ≈ ${precise(ty)}\nvertical gap = T.y − Q′.y = ${num(gap,7)}`;evidence=l===0?'At length 0, the gap is 0: the original line stays straight.':w.n===2?'Next locate the point T on this segment at Q′’s output x.':`Same output x = ${num(q.x)}. Actual Q′.y ≈ ${precise(q.y)}; straight-join T.y ≈ ${precise(ty)}.`;}
  }
  if((w.kind==='proof'||w.kind==='cell')&&w.n===3){
  title='Find T at the same output x as Q′.';
@@ -405,10 +488,10 @@ R = W − disp = ${pp(ru,rv,7)}`;
  s+=seg([452,gy],[452,gy2],blue,2)+point(452,gy,q.x,q.y,pink,'Q′ in gap zoom',outputSpace,'Same actual output point as on the main graph.')+point(452,gy2,q.x,ty,violet,'T in gap zoom',outputSpace,'Same point on the straight join as on the main graph.');
  s+=text(432,gy+5,'actual y = '+num(q.y),'vmeasure','end')+text(473,gy2+5,'join y = '+num(ty),'vmeasure');
  }
- if(w.kind==='proof'||w.kind==='cell'){detail=chain(q.u,.25,l)+'\n\n'+chain(.5,.25,l)+'\n\n'+chain(b.u,.25,l)+`\n\nStraight-segment comparison:\nFraction = horizontal distance A′ → Q′ / horizontal distance A′ → B′\n         = (${num(q.x)} − ${num(a.x)}) / (${num(b.x)} − ${num(a.x)})\n         ≈ ${num(fraction)}\nT.y = A′.y + fraction × (B′.y − A′.y)\n    = ${num(a.y)} + ${num(fraction)} × (${num(b.y)} − ${num(a.y)})\n    ≈ ${num(ty)}\nQ′.y ≈ ${num(q.y)}\nGap ≈ ${num(gap,7)}`;}
+ if(w.kind==='proof'||w.kind==='cell'){detail=chain(q.u,.25,l,'Q')+'\n\n'+chain(.5,.25,l,'A')+'\n\n'+chain(b.u,.25,l,'B')+`\n\nStraight-segment comparison:\nFraction = horizontal distance A′ → Q′ / horizontal distance A′ → B′\n         = (${num(q.x)} − ${num(a.x)}) / (${num(b.x)} − ${num(a.x)})\n         ≈ ${num(fraction)}\nT.y = A′.y + fraction × (B′.y − A′.y)\n    = ${num(a.y)} + ${num(fraction)} × (${num(b.y)} − ${num(a.y)})\n    ≈ ${num(ty)}\nQ′.y ≈ ${precise(q.y)}\nGap ≈ ${num(gap,7)}`;}
  caption=w.n<2&&w.kind==='proof'?'White inputs → equal green walks → output landings. Click each point.':'Coordinates on this graph are OUTPUT positions. y increases downward. Axes are enlarged independently to show the gap.';
 }else if(w.kind==='slope'){
- const sets=[[.5,.55],[.8,1]],rs=sets.map(([a,b])=>[out(a,.25,l),out(b,.25,l)]);['Near the peak','Farther right'].forEach((n,i)=>button(n,()=>w.choice=i,w.choice===i));const [a,b]=rs[w.choice],dx=b.x-a.x,dy=b.y-a.y;const P=graph(.48,1.12,Math.max(.02,.25-l-.02),.25);s=P.svg+curve(P,l,.5,1);s+=seg(P.at(a.x,a.y),P.at(b.x,a.y),cyan,4)+seg(P.at(b.x,a.y),P.at(b.x,b.y),violet,4)+seg(P.at(a.x,a.y),P.at(b.x,b.y),blue,2);s+=mark(P,a.x,a.y,lime,'A',outputSpace)+mark(P,b.x,b.y,pink,'B',outputSpace)+point(...P.at(b.x,a.y),b.x,a.y,cyan,'Triangle corner',outputSpace,'Combines B.x with A.y to measure the horizontal change.');title='Slope compares vertical change with horizontal change.';body='Cyan measures the change in output x. Violet measures the change in output y. Divide violet’s value by cyan’s value to compare the tilt of these two point-to-point segments.';math=`horizontal change = B.x − A.x\n                  = ${num(b.x)} − ${num(a.x)} = ${num(dx)}\nvertical change   = B.y − A.y\n                  = ${num(b.y)} − ${num(a.y)} = ${num(dy)}\nsegment slope = vertical / horizontal\n              = ${num(dy)} / ${num(dx)} ≈ ${num(dy/dx)}`;const slopes=rs.map(([a,b])=>(b.y-a.y)/(b.x-a.x));evidence=`Near the peak: ${num(slopes[0])}. Farther right: ${num(slopes[1])}. One straight line would have the same ratio.`;detail='These are slopes between two selected output points, not a claim that input-x steps have equal output widths. The actual line is drawn from many calculated landings. The exact tangent at the peak is horizontal; proving that limit formally requires derivatives, which are deferred.';
+ const sets=[[.5,.55],[.8,1]],rs=sets.map(([a,b])=>[out(a,.25,l),out(b,.25,l)]);['Near the peak','Farther right'].forEach((n,i)=>button(n,()=>w.choice=i,w.choice===i));const [a,b]=rs[w.choice],dx=b.x-a.x,dy=b.y-a.y;const P=graph(.48,1.12,Math.max(.02,.25-l-.02),.25);s=P.svg+curve(P,l,.5,1);s+=seg(P.at(a.x,a.y),P.at(b.x,a.y),cyan,4)+seg(P.at(b.x,a.y),P.at(b.x,b.y),violet,4)+seg(P.at(a.x,a.y),P.at(b.x,b.y),blue,2);s+=mark(P,a.x,a.y,lime,'A',outputSpace)+mark(P,b.x,b.y,pink,'B',outputSpace)+point(...P.at(b.x,a.y),b.x,a.y,cyan,'Triangle corner',outputSpace,'Combines B.x with A.y to measure the horizontal change.');title='Slope compares vertical change with horizontal change.';body='Cyan measures the change in output x. Violet measures the change in output y. Divide violet’s value by cyan’s value to compare the tilt of these two point-to-point segments.';math=`horizontal change = B.x − A.x\n                  = ${num(b.x)} − ${num(a.x)} = ${num(dx)}\nvertical change   = B.y − A.y\n                  = ${num(b.y)} − ${num(a.y)} = ${num(dy)}\nsegment slope = vertical / horizontal\n              = ${num(dy)} / ${num(dx)} ≈ ${num(dy/dx)}`;const slopes=rs.map(([a,b])=>(b.y-a.y)/(b.x-a.x));evidence=`Near the peak: ${num(slopes[0])}. Farther right: ${num(slopes[1])}. One straight line would have the same ratio.`;detail=`Choose two dots on the output picture. Cyan measures how far right the second dot is. Violet measures how far down it is.\n\nDivide the downward change by the rightward change. That lets you compare the tilt even when the pairs of dots have different horizontal gaps.\n\nNear the peak, this ratio is ${num(slopes[0])}. Farther right, it is ${num(slopes[1])}. A single straight line would give the same ratio for both pairs. Here the ratios differ. This is the reason for comparing them.`;
 }
 w.el.innerHTML=`<div class="visual-controls" aria-label="Diagram controls"></div><div class="visual-layout"><div class="visual-stage"><svg viewBox="${vb}" role="group" aria-label="${esc(title)}">${s}</svg><p class="visual-key">${esc(caption)}</p></div><div class="visual-copy"><h3>${esc(title)}</h3><p>${esc(body)}</p>${math?`<div class="visual-math">${esc(math)}</div>`:''}${evidence?`<div class="evidence">${esc(evidence)}</div>`:''}${detail?`<details><summary>Show the full calculation and its inputs</summary><div class="full-trace">${esc(detail)}</div></details>`:''}</div></div>`;
 const bar=w.el.querySelector('.visual-controls');controls.forEach(c=>{const b=document.createElement('button');b.textContent=c.name;b.setAttribute('aria-pressed',String(c.active));b.onclick=()=>{c.fn();render(w);const next=[...w.el.querySelectorAll('.visual-controls button')].find(n=>n.textContent===c.name);next?.focus({preventScroll:true});};bar.append(b);});if(!controls.length)bar.hidden=true;
