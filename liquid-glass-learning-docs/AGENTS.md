@@ -45,7 +45,7 @@ The rulebook for the interactive learning documents. Keep this file short. Merge
 ## Verification — non-negotiable, in this order
 
 20. Cold-read audit first: the first sentence, the first two sections, the first formula, and the longest stepper state, using only learner-confirmed prerequisites. Any hesitation means rewrite before technical QA. Working controls and correct arithmetic do not rescue a lesson a beginner cannot follow.
-21. Then: JavaScript syntax check, no Markdown backticks in visible HTML, browser QA at `1920×1080`: initial state, every stepper state, longest caption, sliders, toggles, prediction choices, challenge inputs, every exercise opened, popups at screen edges, and the picture-text match (rule 8).
+21. Then: JavaScript syntax check, no Markdown backticks in visible HTML, browser QA at `1920×1080`: initial state, every stepper state, longest caption, sliders, toggles, prediction choices, challenge inputs, every exercise opened, popups at screen edges, no horizontal page overflow (tables, code blocks, wide figures), and the picture-text match (rule 8).
 22. End every lesson-related response with `Course progress: X of 216 lessons completed.` (the learner-confirmed count from `CURRENT_STATE.md`), then a labelled estimate of remaining context.
 
 ## iOS patches, when a lesson ships Swift

@@ -1,6 +1,6 @@
 # iOS translation progress
 
-next_step: 6.8
+next_step: 7A
 
 completed:
   - A1
@@ -54,6 +54,11 @@ completed:
   - 6.5
   - 6.6
   - 6.7
+  - 6.8
+  - 6.9
+  - 6.10
+  - 6.11
+  - 6H
 
 session_order: A1 A2 A3 A4 B1 B2 B3 C1 C2 D1 D2 1A 1B 1C 1D 1E 1F 2A 2B 2C 2D 2E 2F 3A 3B 3C 3D 3E 3F 3G 3H 4A 4B 4C 4D 4E 4F 4G 5A 5B 5C 5D 5E 5F 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 6.9 6.10 6.11 6H 7A 7B 7C 7D 7E 7F 7G 7H 8A 8B 8C 8D 8E 8F 8H 9A 9B 9C 9D 9E 9F 9H F1 F2 F3 F4 F5
 
@@ -194,3 +199,30 @@ notes:
     ImageRenderer does not choose the rectangle. Do not use ultraThinMaterial
     as the glass path. Filename leftover is the Ch 6 hub href. iPhone 16 Pro
     sim build succeeded. Stay-complete remains 40/216, checkpoint 1.3.
+  - 6.8: 6.8 HTML to ImageRenderer snapshot freshness plus GeometryReader
+    crop frames. KeepSampleCurrentExplorer on Chapter06Screen. Four routes:
+    both current / freeze layer / freeze bounds / freeze both. Direct backdrop
+    stays live so a frozen snapshot can disagree. Do not use ultraThinMaterial
+    as the glass path. Filename leftover is the Ch 6 hub href. iPhone 16 Pro
+    sim build succeeded. Stay-complete remains 40/216, checkpoint 1.3.
+  - 6.9: 6.9 HTML to an ImageRenderer snapshot of BackdropArtwork only;
+    AvoidFeedbackLoopsExplorer on Chapter06Screen. GlassPanel is a later
+    sibling. One panelLeft places the panel and offsets the crop. No
+    safe/unsafe mode. Do not use ultraThinMaterial as the glass path.
+    Filename leftover is the Ch 6 hub href. iPhone 16 Pro sim build
+    succeeded. Stay-complete remains 40/216, checkpoint 1.3.
+  - 6.10: 6.10 HTML to drawingGroup(opaque: false) on the panel-sized replay;
+    OffscreenCostExplorer on Chapter06Screen. Panel estimate is pt × displayScale
+    at 4 bytes/pixel. Scene-sized drawingGroup is arithmetic only. ImageRenderer
+    source stays outside that estimate. Do not use ultraThinMaterial as the glass
+    path. Filename leftover is the Ch 6 hub href. iPhone 16 Pro sim build
+    succeeded. Stay-complete remains 40/216, checkpoint 1.3.
+  - 6.11: 6.11 HTML to one ImageRenderer snapshot of BackdropArtwork plus a
+    panel clip and offset. Tint, border, and ForegroundContent stay outside
+    that replay. TwoLayerSceneArchitectureExplorer on Chapter06Screen.
+    drawingGroup() stays off. Do not use ultraThinMaterial as the glass path.
+    Filename leftover is the Ch 6 hub href. iPhone 16 Pro sim build succeeded.
+    Stay-complete remains 40/216, checkpoint 1.3.
+  - 6H: Ch 6 hub to SwiftUI / iPhone 16 Pro; must-re-read, 40/216, checkpoint 1.3.
+    Chapter06Screen already hosts 6.1–6.11. Hub filename stays until F2.
+    iPhone 16 Pro sim build succeeded. Android/Kotlin/Compose/AGSL/Pixel 8 grep clean.

@@ -14,28 +14,28 @@
 </head>
 <body>
 <main class="page">
-<div class="topbar">
+<nav class="topbar">
 <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-how-android-draws-the-scene.html">Chapter 6</a> · Lesson 6.9</div>
-<div class="chips"><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span><span class="chip progress">60 of 216 complete</span><span class="chip progress">6.9 learner-confirmed complete</span></div>
-</div>
+<div class="chips"><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span><span class="chip pending">Must re-read</span><span class="chip progress">40 of 216 complete</span><span class="chip">iPhone 16 Pro</span></div>
+</nav>
 
 <header class="hero panel">
 <div>
-<div class="eyebrow">Chapter 6 · How Android draws the scene</div>
+<div class="eyebrow">Chapter 6 · How SwiftUI draws the scene</div>
 <h1>Avoid feedback loops</h1>
 <p class="lead">The panel needs backdrop pixels, but its own finished output must never become part of the source it samples. The fix is an ownership boundary, not another comparison mode.</p>
-<div class="success"><strong>One production rule:</strong> record only <code>BackdropHost</code>. Keep <code>GlassPanel</code> as a later sibling that consumes <code>backgroundLayer</code>.</div>
+<div class="success"><strong>One production rule:</strong> snapshot only <code>BackdropArtwork</code>. Keep <code>GlassPanel</code> as a later sibling that consumes <code>recordedBackdrop</code>.</div>
 </div>
 <aside class="card indigo">
 <h2>The entire route</h2>
 <div class="formula">BackdropArtwork
 → BackdropHost recording
-→ backgroundLayer
+→ recordedBackdrop
 → GlassPanel replay
 → panel tint and label
 → ParentScene output</div>
-<p><strong>There is no return arrow.</strong> <code>GlassPanel</code> output does not re-enter <code>backgroundLayer</code>.</p>
-<div class="warning"><strong>Compact warning only:</strong> recording the whole parent would make the source include the consumer. That creates a circular dependency and is deliberately not implemented as a second Android mode.</div>
+<p><strong>There is no return arrow.</strong> <code>GlassPanel</code> output does not re-enter <code>recordedBackdrop</code>.</p>
+<div class="warning"><strong>Compact warning only:</strong> snapshotting the whole parent would make the source include the consumer. That creates a circular dependency and is deliberately not implemented as a second mode.</div>
 </aside>
 </header>
 
@@ -43,7 +43,7 @@
 <div class="section-head"><div><div class="section-no">1 · PRACTICAL PROBLEM</div><h2>A sampled result must not become its own future input</h2></div><p>This lesson keeps the correct route central and uses one small counterexample only to name the danger.</p></div>
 <div class="two">
 <article class="card green"><h3>Safe, one-way dependency</h3><div class="formula">backdrop commands
-→ backgroundLayer
+→ recordedBackdrop
 → panel sample
 → final panel output</div><p>The data moves forward. The panel consumes an already defined source.</p></article>
 <article class="card red"><h3>Feedback cycle to avoid</h3><div class="formula">whole scene recording
@@ -52,7 +52,7 @@
 → whole scene recording
 → …</div><p>The source now depends on the result that depends on that source. The exact artifact can vary by architecture, but the dependency is already invalid for this lesson’s intended backdrop route.</p></article>
 </div>
-<div class="note"><strong>Definition:</strong> a feedback loop exists when an operation’s output is routed back into an input that helps produce the next output. Here, the forbidden return route would be <code>GlassPanel output → backgroundLayer input</code>.</div>
+<div class="note"><strong>Definition:</strong> a feedback loop exists when an operation’s output is routed back into an input that helps produce the next output. Here, the forbidden return route would be <code>GlassPanel output → recordedBackdrop input</code>.</div>
 </section>
 
 <section class="section panel">
@@ -60,32 +60,32 @@
 <div class="objects">
 <article class="card"><h3><code>ParentScene</code></h3><p>The common parent that places the backdrop and panel as siblings. It is not the recording owner.</p></article>
 <article class="card blue"><h3><code>BackdropHost</code></h3><p>The recorded producer. Its subtree contains only <code>BackdropArtwork</code>.</p></article>
-<article class="card indigo"><h3><code>backgroundLayer</code></h3><p>The replayable draw work recorded from <code>BackdropHost</code>.</p></article>
-<article class="card amber"><h3><code>GlassPanel</code></h3><p>A later sibling. It consumes the layer, then adds panel-owned material and content.</p></article>
+<article class="card indigo"><h3><code>recordedBackdrop</code></h3><p>The replayable <code>Image</code> produced by <code>ImageRenderer</code> from <code>BackdropArtwork</code>. Its coordinate system is <code>BackdropHost</code>-local.</p></article>
+<article class="card amber"><h3><code>GlassPanel</code></h3><p>A later sibling. It consumes <code>recordedBackdrop</code>, then adds panel-owned material and content.</p></article>
 <article class="card teal"><h3><code>PanelLocalTarget</code></h3><p>The panel-sized active draw target that receives the selected backdrop region before tint and label.</p></article>
 </div>
 <div class="route-strip" style="margin-top:18px">
 <div class="route-node"><strong>BackdropArtwork</strong><br><span>draw commands</span></div>
 <div class="route-node"><strong>BackdropHost</strong><br><span>record boundary</span></div>
-<div class="route-node"><strong>backgroundLayer</strong><br><span>recorded producer output</span></div>
+<div class="route-node"><strong>recordedBackdrop</strong><br><span>recorded producer output</span></div>
 <div class="route-node"><strong>GlassPanel</strong><br><span>consumer outside source subtree</span></div>
 <div class="route-node"><strong>ParentScene</strong><br><span>final composite</span></div>
 </div>
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">3 · SAFE ARCHITECTURE LAB</div><h2>Move the consumer without changing source membership</h2></div><p>The panel’s crop changes. The set of commands recorded into <code>backgroundLayer</code> does not.</p></div>
+<div class="section-head"><div><div class="section-no">3 · SAFE ARCHITECTURE LAB</div><h2>Move the consumer without changing source membership</h2></div><p>The panel’s crop changes. The set of commands recorded into <code>recordedBackdrop</code> does not.</p></div>
 <div class="lab-controls">
 <div class="control-card card">
-<div class="slider-row"><label for="panelLeft"><strong>Panel left position</strong><br><span class="mono">ParentScene-local dp</span></label><input id="panelLeft" type="range" min="24" max="120" step="8" value="72"><strong id="panelLeftValue">72 dp</strong></div>
+<div class="slider-row"><label for="panelLeft"><strong>Panel left position</strong><br><span class="mono">ParentScene-local pt</span></label><input id="panelLeft" type="range" min="24" max="120" step="8" value="72"><strong id="panelLeftValue">72 pt</strong></div>
 <div class="controls"><button class="btn" data-position="24">Left</button><button class="btn selected" data-position="72">Center</button><button class="btn" data-position="120">Right</button></div>
 <div class="success"><strong>Invariant:</strong> <code>recorded owners = { BackdropHost subtree }</code>. Moving <code>GlassPanel</code> never changes that set because the panel is not a descendant of <code>BackdropHost</code>.</div>
 </div>
-<aside class="card indigo"><h3>Why the values are simple</h3><p>The controlled scene is <code>340 × 240 dp</code>. The panel is <code>196 × 116 dp</code> and stays at <code>72 dp</code> from the top.</p><p>The horizontal presets <code>24</code>, <code>72</code>, and <code>120 dp</code> keep the complete panel inside the scene. They are named in the Kotlin source and commented where declared.</p></aside>
+<aside class="card indigo"><h3>Why the values are simple</h3><p>The controlled scene is <code>340 × 240 pt</code>. The panel is <code>196 × 116 pt</code> and stays at <code>72 pt</code> from the top.</p><p>The horizontal presets <code>24</code>, <code>72</code>, and <code>120 pt</code> keep the complete panel inside the scene. They are named in the Swift source and commented where declared.</p></aside>
 </div>
 <div class="scene-shell" style="margin-top:18px"><svg id="safeSceneSvg" viewBox="0 0 1100 370" role="img" aria-label="Safe backdrop recording and glass consumer diagram"></svg></div>
 <div class="metrics">
-<div class="metric"><strong>Panel origin</strong><span id="metricPanelOrigin">(72, 72) dp</span></div>
+<div class="metric"><strong>Panel origin</strong><span id="metricPanelOrigin">(72, 72) pt</span></div>
 <div class="metric"><strong>Record owner</strong><span>BackdropHost</span></div>
 <div class="metric"><strong>Recorded commands</strong><span>bands · line · circles</span></div>
 <div class="metric"><strong>Excluded owner</strong><span>GlassPanel</span></div>
@@ -94,7 +94,7 @@
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">4 · CAUSAL WALKTHROUGH</div><h2>Nine states, one production path</h2></div><p>No stale-layer modes, no duplicate resources, and no alternate Android branches are needed for this concept.</p></div>
+<div class="section-head"><div><div class="section-no">4 · CAUSAL WALKTHROUGH</div><h2>Nine states, one production path</h2></div><p>No stale-snapshot modes, no duplicate resources, and no alternate branches are needed for this concept.</p></div>
 <div class="lesson-grid">
 <div class="diagram-shell"><svg id="walkthroughSvg" viewBox="0 0 1100 370" role="img" aria-label="Feedback prevention walkthrough"></svg><div class="diagram-nav"><button class="btn" id="diagramPrev">Previous</button><strong id="diagramStep">Step 1 of 9</strong><button class="btn" id="diagramNext">Next</button></div></div>
 <aside class="stepper">
@@ -109,9 +109,9 @@
 <table class="ledger">
 <thead><tr><th>Name</th><th>Current value</th><th>Meaning and source</th></tr></thead>
 <tbody>
-<tr><td><code>candidateCommand</code></td><td><code>drawRoundRect(panelTint)</code></td><td>A draw command issued by <code>GlassPanel</code> after it replays the backdrop sample.</td></tr>
-<tr><td><code>candidateOwner</code></td><td><code>GlassPanel</code></td><td>The composable whose draw scope issues the tint command.</td></tr>
-<tr><td><code>recordedSubtree</code></td><td><code>BackdropHost + BackdropArtwork</code></td><td>The owner and descendants inside <code>backgroundLayer.record { drawContent() }</code>.</td></tr>
+<tr><td><code>candidateCommand</code></td><td><code>panel tint fill</code></td><td>A draw issued by <code>GlassPanel</code> after it replays the backdrop sample.</td></tr>
+<tr><td><code>candidateOwner</code></td><td><code>GlassPanel</code></td><td>The view that issues the tint after the snapshot replay.</td></tr>
+<tr><td><code>recordedSubtree</code></td><td><code>BackdropHost + BackdropArtwork</code></td><td>The view passed to <code>ImageRenderer</code>: <code>BackdropArtwork()</code> only.</td></tr>
 <tr><td><code>insideRecordedSubtree</code></td><td><code>false</code></td><td><code>GlassPanel</code> is a sibling of <code>BackdropHost</code>, not its child.</td></tr>
 </tbody>
 </table>
@@ -120,7 +120,7 @@
 <div><strong>2 · owner</strong><br><code>GlassPanel</code></div>
 <div><strong>3 · boundary check</strong><br>Is that owner inside <code>BackdropHost</code>?</div>
 <div><strong>4 · result</strong><br><code>false</code></div>
-<div><strong>5 · layer effect</strong><br>command does not enter <code>backgroundLayer</code></div>
+<div><strong>5 · snapshot effect</strong><br>command does not enter <code>recordedBackdrop</code></div>
 <div><strong>6 · next consumer</strong><br>tint contributes only to final panel output</div>
 </div>
 <div class="formula" style="margin-top:18px">Does recordedSubtree contain candidateOwner?
@@ -129,49 +129,45 @@
 
 Therefore:
 panel tint command → final panel output
-panel tint command ↛ backgroundLayer input</div>
+panel tint command ↛ recordedBackdrop input</div>
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">6 · ANDROID ROUTE</div><h2>Read the implementation as three short blocks</h2></div><p>Complete source: <code>AvoidFeedbackLoopsExplorer.kt</code>. The lesson HTML shows only the route-defining excerpts.</p></div>
+<div class="section-head"><div><div class="section-no">6 · iOS ROUTE</div><h2>Read the implementation as three short blocks</h2></div><p>Complete source: <code>AvoidFeedbackLoopsExplorer.swift</code>. The lesson HTML shows only the route-defining excerpts.</p></div>
 <div class="code-grid">
 <div>
 <h3>1 · Sibling ownership is visible in the layout</h3>
-<pre class="code-block"><code>Box {
-    BackdropHost(           // recorded producer
-        backgroundLayer,
-    )
-    GlassPanel(             // later consumer
-        backgroundLayer,
-    )
+<pre class="code-block"><code>ZStack(alignment: .topLeading) {
+    BackdropHost(recorded: recordedBackdrop)
+    GlassPanel(recorded: recordedBackdrop, panelLeft: panelLeft)
+        .offset(x: panelLeft, y: 72)
 }</code></pre>
-<p>The recording boundary is attached to the smaller producer owner, not to the common parent.</p>
-<h3>2 · Record and visibly replay only the backdrop</h3>
-<pre class="code-block"><code>backgroundLayer.record {
-    this@drawWithContent.drawContent()
-}
-drawLayer(backgroundLayer)</code></pre>
-<p><code>drawContent()</code> belongs to <code>BackdropHost</code> here, so it can traverse only that owner’s content subtree. Compose documents <code>drawWithContent</code> as the place where an owner can choose when its content is drawn, while a graphics layer isolates recorded drawing instructions for later replay.</p>
-<h3>3 · One position value drives placement and crop</h3>
-<pre class="code-block"><code>val cropLeftPx = panelLeftDp.dp.toPx()
-val cropTopPx = FeedbackPanelTopDp.dp.toPx()
-
-translate(
-    left = -cropLeftPx,
-    top = -cropTopPx,
+<p>The recording boundary is attached to the smaller producer, not to the common parent. <code>GlassPanel</code> is a later sibling.</p>
+<h3>2 · Snapshot and visibly replay only the backdrop</h3>
+<pre class="code-block"><code>recordedBackdrop = BackdropRecorder.snapshot(
+    size: CGSize(width: 340, height: 240),
+    scale: displayScale
 ) {
-    drawLayer(backgroundLayer)
+    BackdropArtwork()
 }
 
-drawRoundRect(panelTint)
-drawContent() // panel label and details</code></pre>
-<p>In this controlled scene, <code>ParentScene</code> and <code>BackdropHost</code> share origin (0, 0). The same <code>panelLeftDp</code> and fixed top value therefore drive both placement and source translation, without waiting for a separately stored post-layout crop update. Panel-owned commands still happen afterward and outside the source owner.</p>
+recordedBackdrop.image</code></pre>
+<p><code>BackdropRecorder</code> calls <code>ImageRenderer</code> on a dedicated <code>BackdropArtwork</code> view. That view is not <code>ParentScene</code>, and <code>GlassPanel</code> is not inside it. Drawing <code>recordedBackdrop.image</code> puts the snapshot back into the visible <code>BackdropHost</code>. The snapshot is an <code>Image</code>, not a CPU pixel walk.</p>
+<h3>3 · One position value drives placement and crop</h3>
+<pre class="code-block"><code>recordedBackdrop.image
+    .frame(width: 340, height: 240, alignment: .topLeading)
+    .offset(x: -panelLeft, y: -72)
+    .frame(width: 196, height: 116, alignment: .topLeading)
+    .clipped()
+
+// then GlassPanel draws its tint, border, and label</code></pre>
+<p>In this controlled scene, <code>ParentScene</code> and <code>BackdropHost</code> share origin (0, 0). The same <code>panelLeft</code> and fixed top value therefore drive both placement and the negative source offset, without a separately stored crop rectangle. <code>.offset</code> uses points. Snapshot pixels are <code>pt × displayScale</code> and are not passed to <code>.offset</code>. Panel-owned commands still happen afterward and outside the source owner.</p>
 </div>
 <aside>
-<div class="card green"><h3>Source constants are named</h3><p><code>FeedbackSceneWidthDp</code>, <code>FeedbackPanelWidthDp</code>, and every preset are declared once. Comments state why the scene fits Preview and why each allowed panel position remains in bounds.</p></div>
-<div class="card blue" style="margin-top:14px"><h3>Backdrop artwork math is local and explained</h3><p>The equal band width is calculated as <code>size.width / bandColors.size</code>, so the number of colors is the only band-count source. The guide line and marker centers use named scene-local dp coordinates instead of unexplained fractions. Comments distinguish geometry values from purely visual alpha choices.</p></div>
-<div class="card amber" style="margin-top:14px"><h3>No diagnostic branches or trailing crop state</h3><p>The file contains no “safe/unsafe” enum, no captured comparison layer, and no separately stored crop rectangle. One panel position value drives both placement and replay translation. The unsafe cycle exists only as the small conceptual warning in Section 1.</p></div>
-<div class="note"><strong>Official reference:</strong> <a href="https://developer.android.com/develop/ui/compose/graphics/draw/modifiers">Android Developers · Graphics modifiers</a>.</div>
+<div class="card green"><h3>Source constants are named</h3><p><code>feedbackSceneWidth</code>, <code>feedbackPanelWidth</code>, and every preset are declared once. Comments state why the scene fits the direct 412 × 915 preview and why each allowed panel position remains in bounds.</p></div>
+<div class="card blue" style="margin-top:14px"><h3>Backdrop artwork math is local and explained</h3><p>The equal band width is <code>size.width / 4</code>, and the four band fills are the band count. The guide line and marker centers use named scene-local point coordinates instead of unexplained fractions. Comments distinguish geometry values from purely visual alpha choices.</p></div>
+<div class="card amber" style="margin-top:14px"><h3>No diagnostic branches or trailing crop state</h3><p>The file contains no “safe/unsafe” enum, no captured comparison snapshot, and no separately stored crop rectangle. One panel position value drives both placement and replay offset. The unsafe cycle exists only as the small conceptual warning in Section 1.</p></div>
+<div class="note"><strong>Official reference:</strong> <a href="https://developer.apple.com/documentation/swiftui/imagerenderer">ImageRenderer</a> snapshots the dedicated backdrop view. <a href="https://developer.apple.com/documentation/swiftui/view/offset(x:y:)">offset(x:y:)</a> moves that image in points.</div>
 </aside>
 </div>
 </section>
@@ -182,7 +178,7 @@ drawContent() // panel label and details</code></pre>
 <div class="prediction">
 <button class="choice" data-prediction="backdrop">Attach recording to <code>BackdropHost</code>, whose subtree contains only <code>BackdropArtwork</code>.</button>
 <button class="choice" data-prediction="parent">Attach recording to <code>ParentScene</code>, which owns both the backdrop and the panel.</button>
-<button class="choice" data-prediction="panel">Attach recording to <code>GlassPanel</code>, then ask it to sample that same layer.</button>
+<button class="choice" data-prediction="panel">Attach recording to <code>GlassPanel</code>, then ask it to sample that same snapshot.</button>
 </div>
 <div class="result" id="predictionResult">Choose one owner. The result will name the commands admitted by that boundary.</div>
 </section>
@@ -191,39 +187,40 @@ drawContent() // panel label and details</code></pre>
 <div class="section-head"><div><div class="section-no">8 · CODING CHALLENGE</div><h2>Complete the one-way source route</h2></div><p>There are only three blanks. No alternate mode is required.</p></div>
 <div class="challenge">
 <div><div class="controls"><button class="btn" data-code="reset">Restore blanks</button><button class="btn" data-code="correct">Insert solution</button><button class="btn primary" id="checkChallenge">Check route</button></div><textarea class="editor" id="challengeEditor" spellcheck="false"></textarea><div class="result" id="challengeResult">Fill the record body, the visible replay, and the later sibling consumer.</div></div>
-<aside class="card indigo"><h3>Required behavior</h3><ol><li>Record <code>BackdropHost</code> content with <code>this@drawWithContent.drawContent()</code>.</li><li>Replay <code>backgroundLayer</code> so the backdrop remains visible.</li><li>Place <code>GlassPanel(backgroundLayer)</code> after <code>BackdropHost</code> as a sibling.</li></ol><p>Do not move the recording modifier to the common parent.</p></aside>
+<aside class="card indigo"><h3>Required behavior</h3><ol><li>Snapshot <code>BackdropArtwork()</code> with <code>BackdropRecorder.snapshot</code>.</li><li>Replay <code>recordedBackdrop.image</code> so the backdrop remains visible.</li><li>Place <code>GlassPanel(recorded: recordedBackdrop)</code> after <code>BackdropHost</code> as a sibling.</li></ol><p>Do not move the snapshot to the common parent. Do not use <code>ultraThinMaterial</code> or <code>glassEffect</code> as the glass path.</p></aside>
 </div>
 </section>
 
 <section class="section panel">
 <div class="section-head"><div><div class="section-no">9 · EXPLAIN IT BACK</div><h2>Five checks for ownership reasoning</h2></div></div>
-<details><summary>1 · Why is sibling order not enough by itself?</summary><p>Order tells us which sibling draws first. The recording boundary tells us which owner’s content enters <code>backgroundLayer</code>. The panel must be both later in draw order and outside the recorded owner’s subtree.</p></details>
-<details><summary>2 · Why can the panel replay <code>backgroundLayer</code> without joining it?</summary><p>Consuming a layer with <code>drawLayer</code> does not move the consumer into the producer’s ownership subtree. <code>GlassPanel</code> remains a separate sibling whose draw target receives replayed backdrop output.</p></details>
+<details><summary>1 · Why is sibling order not enough by itself?</summary><p>Order tells us which sibling draws first. The recording boundary tells us which owner’s content enters <code>recordedBackdrop</code>. The panel must be both later in draw order and outside the recorded owner’s subtree.</p></details>
+<details><summary>2 · Why can the panel replay <code>recordedBackdrop</code> without joining it?</summary><p>Drawing <code>recordedBackdrop.image</code> does not move the consumer into the producer’s ownership subtree. <code>GlassPanel</code> remains a separate sibling whose draw target receives the replayed backdrop image.</p></details>
 <details><summary>3 · Why is recording <code>ParentScene</code> too broad?</summary><p><code>ParentScene</code> owns both siblings. Recording its complete content would admit backdrop commands and panel commands into the same source boundary, so the intended one-way backdrop dependency would be lost.</p></details>
-<details><summary>4 · Does moving the panel alter which commands belong to <code>backgroundLayer</code>?</summary><p>No. Motion changes the crop rectangle consumed by the panel. Ownership remains unchanged: <code>BackdropHost</code> still owns the recorded commands and <code>GlassPanel</code> still remains outside that subtree.</p></details>
-<details><summary>5 · Why does this lesson not need a runnable unsafe mode?</summary><p>The main concept is the correct ownership boundary. A second Android route would add state, branches, and duplicate explanation without improving the production implementation. The static cycle diagram is enough to identify what must not be connected.</p></details>
+<details><summary>4 · Does moving the panel alter which commands belong to <code>recordedBackdrop</code>?</summary><p>No. Motion changes the crop rectangle consumed by the panel. Ownership remains unchanged: <code>BackdropArtwork</code> still supplies the recorded commands and <code>GlassPanel</code> still remains outside that subtree.</p></details>
+<details><summary>5 · Why does this lesson not need a runnable unsafe mode?</summary><p>The main concept is the correct ownership boundary. A second route would add state, branches, and duplicate explanation without improving the production implementation. The static cycle diagram is enough to identify what must not be connected.</p></details>
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">10 · PREVIEW / DEVICE CHECKPOINT</div><h2>Verify the simple route, not a matrix of defects</h2></div></div>
+<div class="section-head"><div><div class="section-no">10 · iPhone 16 Pro checkpoint</div><h2>Verify the simple route, not a matrix of defects</h2></div><p>Chapter 6 is a must-re-read on-ramp chapter. iOS-confirmed complete remains 40 of 216 through Lesson 9.6. This lesson does not raise that count. The live checkpoint remains Lesson 1.3.</p></div>
 <div class="checklist">
-<label class="check"><input type="checkbox"><span><strong>1.</strong> The complete chapter-screen Preview scrolls to the final boundary card.</span></label>
-<label class="check"><input type="checkbox"><span><strong>2.</strong> The direct explorer Preview also scrolls in both light and dark themes.</span></label>
-<label class="check"><input type="checkbox"><span><strong>3.</strong> The 340 dp scene is fully visible at the 412 dp Preview width.</span></label>
+<label class="check"><input type="checkbox"><span><strong>1.</strong> The complete <code>Chapter06Screen</code> preview scrolls to the final boundary card.</span></label>
+<label class="check"><input type="checkbox"><span><strong>2.</strong> The direct <code>AvoidFeedbackLoopsExplorer</code> preview scrolls in light and dark at 412 × 915.</span></label>
+<label class="check"><input type="checkbox"><span><strong>3.</strong> The 340 pt scene is fully visible in that direct preview.</span></label>
 <label class="check"><input type="checkbox"><span><strong>4.</strong> Left, Center, and Right keep the panel completely inside the scene.</span></label>
-<label class="check"><input type="checkbox"><span><strong>5.</strong> The sample changes and remains aligned as the panel moves; placement and crop use the same source value.</span></label>
+<label class="check"><input type="checkbox"><span><strong>5.</strong> The sample changes and remains aligned as the panel moves; placement and crop use the same <code>panelLeft</code>.</span></label>
 <label class="check"><input type="checkbox"><span><strong>6.</strong> The panel tint, border, and label remain crisp because blur is still deferred.</span></label>
 <label class="check"><input type="checkbox"><span><strong>7.</strong> The source recording contains backdrop bands, line, and circles only.</span></label>
-<label class="check"><input type="checkbox"><span><strong>8.</strong> No safe/unsafe enum or duplicate captured layer exists in the Kotlin file.</span></label>
+<label class="check"><input type="checkbox"><span><strong>8.</strong> No safe/unsafe enum or duplicate captured snapshot exists in the Swift file.</span></label>
 <label class="check"><input type="checkbox"><span><strong>9.</strong> Every non-obvious dimension, coordinate, interval, or alpha choice has a nearby reason comment.</span></label>
 <label class="check"><input type="checkbox"><span><strong>10.</strong> You can explain why <code>GlassPanel</code> is a consumer sibling rather than a child of the recording owner.</span></label>
 </div>
 <div class="controls" style="margin-top:16px"><button class="btn primary" id="buildRecord">Build local review record</button></div>
-<textarea class="record" id="record" spellcheck="false" placeholder="Your local review record will appear here. This does not change the authoritative count until you explicitly confirm completion."></textarea>
-<div class="warning"><strong>Evidence boundary:</strong> this lesson proves an acyclic ownership route with a sharp sample. It does not add blur or quantify render-target memory and GPU work. Lesson 6.10 handles offscreen cost.</div>
+<textarea class="record" id="record" spellcheck="false" placeholder="Your local review record will appear here. This Chapter 6 re-read does not raise the 40 of 216 count. The live checkpoint remains Lesson 1.3."></textarea>
+<div class="warning"><strong>Evidence boundary:</strong> this lesson proves an acyclic ownership route with a sharp sample. It does not add blur or quantify render-target memory and GPU work. Lesson 6.10 handles offscreen cost. The browser SVG is a teaching copy of the route. The iOS explorer executes a real <code>ImageRenderer</code> snapshot and an <code>Image</code> replay. It does not walk a CPU pixel array. Do not use <code>ultraThinMaterial</code> or <code>glassEffect</code> as the glass path.</div>
+<p><strong>iOS files:</strong><br><code>LiquidGlassLab-iOS/LiquidGlassLab/chapter06/Chapter06Screen.swift</code><br><code>LiquidGlassLab-iOS/LiquidGlassLab/chapter06/AvoidFeedbackLoopsExplorer.swift</code><br><code>LiquidGlassLab-iOS/LiquidGlassLab/chapter06/BackdropRecorder.swift</code></p>
 </section>
 
-<footer class="footer panel"><a href="lesson-06-08-keep-the-sample-current.html">← Lesson 6.8 · Keep the sample current</a><strong>Lesson 6.9 learner-confirmed complete</strong><a href="lesson-06-10-offscreen-cost.html">Lesson 6.10 · Offscreen cost →</a></footer>
+<nav class="footer panel"><a href="lesson-06-08-keep-the-sample-current.html">← Lesson 6.8</a><a href="lesson-how-android-draws-the-scene.html">Chapter 6 hub</a><a href="lesson-06-10-offscreen-cost.html">Lesson 6.10 →</a></nav>
 </main>
 <script>
 const $=id=>document.getElementById(id);
@@ -232,19 +229,19 @@ const state={panelLeft:72,step:0,prediction:null};
 const STEPS=[
 {title:'Start with the common parent',caption:'ParentScene places two sibling owners. It provides layout and final draw order, but it is intentionally not the source-recording boundary.',rule:'ParentScene\n├── BackdropHost\n└── GlassPanel',input:'Two sibling owners.',operation:'Place both under one parent.',output:'A scene with explicit sibling ownership.',focus:'parent',preset:72},
 {title:'Choose the narrow producer owner',caption:'BackdropHost owns only BackdropArtwork. This is the smallest owner that contains every command needed by the backdrop source and none of the panel commands.',rule:'record owner = BackdropHost',input:'Backdrop bands, line, and circles.',operation:'Attach the recording route to BackdropHost.',output:'A source boundary that excludes GlassPanel.',focus:'backdrop',preset:72},
-{title:'Record that owner’s content',caption:'backgroundLayer.record invokes BackdropHost drawContent. The recorded membership therefore follows the BackdropHost subtree.',rule:'BackdropHost drawContent\n→ backgroundLayer',input:'BackdropHost-owned draw commands.',operation:'Record the producer subtree.',output:'backgroundLayer with backdrop commands only.',focus:'layer',preset:72},
-{title:'Replay the producer into the visible scene',caption:'The same layer is drawn back into BackdropHost’s visible target. Recording does not make the backdrop disappear because drawLayer consumes the recording.',rule:'backgroundLayer\n→ drawLayer\n→ visible backdrop',input:'Recorded backdrop draw work.',operation:'Replay into the active BackdropHost target.',output:'Sharp visible backdrop.',focus:'visible',preset:72},
+{title:'Record that owner’s content',caption:'ImageRenderer snapshots BackdropArtwork. The recorded membership therefore follows the BackdropHost subtree and excludes GlassPanel.',rule:'BackdropArtwork()\n→ ImageRenderer\n→ recordedBackdrop',input:'BackdropHost-owned draw commands.',operation:'Snapshot the producer subtree.',output:'recordedBackdrop with backdrop commands only.',focus:'layer',preset:72},
+{title:'Replay the producer into the visible scene',caption:'The same Image is drawn back into BackdropHost’s visible target. Snapshotting does not make the backdrop disappear, because drawing recordedBackdrop.image consumes the snapshot.',rule:'recordedBackdrop.image\n→ visible backdrop',input:'Recorded backdrop image.',operation:'Replay into the visible BackdropHost target.',output:'Sharp visible backdrop.',focus:'visible',preset:72},
 {title:'Keep GlassPanel as a later sibling',caption:'GlassPanel is placed after BackdropHost. It can cover the backdrop visually while remaining outside the source owner’s subtree.',rule:'BackdropHost first\nGlassPanel second',input:'A recorded backdrop and a separate panel owner.',operation:'Use sibling draw order.',output:'Panel draws above backdrop without joining its source.',focus:'panel',preset:72},
-{title:'Map and replay the current region',caption:'The completed Lesson 6.7 route maps panel bounds into BackdropHost-local coordinates. Negative translation places the matching source origin at panel-local (0, 0).',rule:'crop bounds\n→ translate(-left, -top)\n→ drawLayer(backgroundLayer)',input:'Current crop and backgroundLayer.',operation:'Replay the matching sharp region into the panel target.',output:'Backdrop pixels aligned under the panel.',focus:'crop',preset:120},
-{title:'Add panel material after the sample',caption:'GlassPanel now draws its translucent tint, border, and label. These are panel-owned commands issued after the layer replay.',rule:'sample\n→ tint\n→ label and details',input:'Sharp panel-local backdrop sample.',operation:'Draw panel-owned material and content.',output:'Final visible GlassPanel output.',focus:'material',preset:24},
-{title:'Test one command against the boundary',caption:'The panel tint belongs to GlassPanel. GlassPanel is a sibling of BackdropHost, so it is not contained by the recorded subtree.',rule:'BackdropHost subtree contains GlassPanel?\nno',input:'drawRoundRect(panelTint).',operation:'Check owner membership.',output:'The tint does not enter backgroundLayer.',focus:'membership',preset:72},
-{title:'State the acyclic contract',caption:'BackdropHost produces backgroundLayer. GlassPanel consumes it. No route carries GlassPanel output back into BackdropHost recording.',rule:'BackdropHost → backgroundLayer → GlassPanel\nGlassPanel ↛ backgroundLayer',input:'One producer and one external consumer.',operation:'Keep the dependency one-way.',output:'A current sharp sample without recursive capture.',focus:'contract',preset:72}
+{title:'Map and replay the current region',caption:'ParentScene and BackdropHost share origin (0, 0), so the same panelLeft drives placement and a negative offset. That offset places the matching source origin at panel-local (0, 0).',rule:'panelLeft\n→ .offset(x: -panelLeft, y: -72)\n→ recordedBackdrop.image',input:'Current panelLeft and recordedBackdrop.',operation:'Replay the matching sharp region into the panel target.',output:'Backdrop pixels aligned under the panel.',focus:'crop',preset:120},
+{title:'Add panel material after the sample',caption:'GlassPanel now draws its translucent tint, border, and label. These are panel-owned commands issued after the image replay.',rule:'sample\n→ tint\n→ label and details',input:'Sharp panel-local backdrop sample.',operation:'Draw panel-owned material and content.',output:'Final visible GlassPanel output.',focus:'material',preset:24},
+{title:'Test one command against the boundary',caption:'The panel tint belongs to GlassPanel. GlassPanel is a sibling of BackdropHost, so it is not contained by the recorded subtree.',rule:'BackdropHost subtree contains GlassPanel?\nno',input:'Panel tint fill.',operation:'Check owner membership.',output:'The tint does not enter recordedBackdrop.',focus:'membership',preset:72},
+{title:'State the acyclic contract',caption:'BackdropHost produces recordedBackdrop. GlassPanel consumes it. No route carries GlassPanel output back into the BackdropArtwork snapshot.',rule:'BackdropHost → recordedBackdrop → GlassPanel\nGlassPanel ↛ recordedBackdrop',input:'One producer and one external consumer.',operation:'Keep the dependency one-way.',output:'A current sharp sample without recursive capture.',focus:'contract',preset:72}
 ];
 function backdropMarkup(x,y,w,h){const bw=w/4;return `<g><rect x="${x}" y="${y}" width="${bw}" height="${h}" fill="#0f766e"/><rect x="${x+bw}" y="${y}" width="${bw}" height="${h}" fill="#2563eb"/><rect x="${x+bw*2}" y="${y}" width="${bw}" height="${h}" fill="#7c3aed"/><rect x="${x+bw*3}" y="${y}" width="${bw}" height="${h}" fill="#db2777"/><rect x="${x}" y="${y+h*.58}" width="${w}" height="8" rx="4" fill="#ffc857"/><circle cx="${x+w*.27}" cy="${y+h*.34}" r="22" fill="#ff6b6b"/><circle cx="${x+w*.76}" cy="${y+h*.72}" r="17" fill="#6ee7b7"/></g>`}
 function renderDiagram(stepIndex){const step=stepIndex>=0?STEPS[stepIndex]:null,focus=step?.focus||'all',sceneX=28,sceneY=62,w=340,h=240,panelX=sceneX+state.panelLeft,panelY=sceneY+72,panelW=196,panelH=116;const hi=name=>focus==='all'||focus===name;const stroke=name=>hi(name)?'#4338ca':'#94a3b8';const sw=name=>hi(name)?4:2;const dash=focus==='contract'?'8 6':'0';return `
 <defs><filter id="shadow"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-opacity=".18"/></filter></defs>
 <rect x="12" y="20" width="380" height="320" rx="22" fill="var(--paper)" stroke="${stroke('parent')}" stroke-width="${sw('parent')}"/>
-<text x="28" y="47" fill="var(--ink)" font-size="16" font-weight="900">ParentScene · 340 × 240 controlled dp</text>
+<text x="28" y="47" fill="var(--ink)" font-size="16" font-weight="900">ParentScene · 340 × 240 controlled pt</text>
 <g opacity="${focus==='panel'||focus==='material'||focus==='membership'?0.72:1}">${backdropMarkup(sceneX,sceneY,w,h)}</g>
 <rect x="${sceneX}" y="${sceneY}" width="${w}" height="${h}" rx="16" fill="none" stroke="${stroke(focus==='visible'?'visible':'backdrop')}" stroke-width="${sw(focus==='visible'?'visible':'backdrop')}"/>
 <text x="${sceneX+10}" y="${sceneY+22}" fill="#fff" font-size="13" font-weight="900">BackdropHost · recorded producer</text>
@@ -254,50 +251,54 @@ ${focus==='crop'?`<rect x="${panelX}" y="${panelY}" width="${panelW}" height="${
 <rect x="445" y="28" width="285" height="80" rx="16" fill="var(--blue-soft)" stroke="${stroke('backdrop')}" stroke-width="${sw('backdrop')}"/><text x="462" y="55" fill="var(--ink)" font-size="17" font-weight="900">BackdropHost subtree</text><text x="462" y="81" fill="var(--muted)" font-size="14">bands · guide line · red circle · green circle</text>
 <path d="M 588 108 L 588 145" stroke="#4338ca" stroke-width="3" marker-end="url(#arrow)"/>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4338ca"/></marker></defs>
-<rect x="445" y="150" width="285" height="78" rx="16" fill="var(--indigo-soft)" stroke="${stroke('layer')}" stroke-width="${sw('layer')}"/><text x="462" y="179" fill="var(--ink)" font-size="17" font-weight="900">backgroundLayer</text><text x="462" y="204" fill="var(--muted)" font-size="14">recorded producer output</text>
+<rect x="445" y="150" width="285" height="78" rx="16" fill="var(--indigo-soft)" stroke="${stroke('layer')}" stroke-width="${sw('layer')}"/><text x="462" y="179" fill="var(--ink)" font-size="17" font-weight="900">recordedBackdrop</text><text x="462" y="204" fill="var(--muted)" font-size="14">recorded producer output</text>
 <path d="M 730 189 C 790 189 780 240 828 240" fill="none" stroke="#4338ca" stroke-width="3" marker-end="url(#arrow)"/>
-<rect x="828" y="174" width="242" height="132" rx="18" fill="var(--amber-soft)" stroke="${stroke(focus==='material'?'material':focus==='membership'?'membership':focus==='contract'?'contract':'panel')}" stroke-width="${sw(focus==='material'?'material':focus==='membership'?'membership':focus==='contract'?'contract':'panel')}"/><text x="846" y="204" fill="var(--ink)" font-size="17" font-weight="900">GlassPanel target</text><text x="846" y="232" fill="var(--muted)" font-size="14">1 · replay backgroundLayer</text><text x="846" y="255" fill="var(--muted)" font-size="14">2 · draw tint and border</text><text x="846" y="278" fill="var(--muted)" font-size="14">3 · draw label and details</text>
+<rect x="828" y="174" width="242" height="132" rx="18" fill="var(--amber-soft)" stroke="${stroke(focus==='material'?'material':focus==='membership'?'membership':focus==='contract'?'contract':'panel')}" stroke-width="${sw(focus==='material'?'material':focus==='membership'?'membership':focus==='contract'?'contract':'panel')}"/><text x="846" y="204" fill="var(--ink)" font-size="17" font-weight="900">GlassPanel target</text><text x="846" y="232" fill="var(--muted)" font-size="14">1 · replay the snapshot</text><text x="846" y="255" fill="var(--muted)" font-size="14">2 · draw tint and border</text><text x="846" y="278" fill="var(--muted)" font-size="14">3 · draw label and details</text>
 <path d="M 948 174 C 948 125 760 118 730 172" fill="none" stroke="${focus==='contract'?'#dc2626':'#cbd5e1'}" stroke-width="3" stroke-dasharray="${dash||'8 6'}" opacity="${focus==='contract'||focus==='membership'?1:.3}"/><line x1="820" y1="119" x2="838" y2="137" stroke="#dc2626" stroke-width="5"/><line x1="838" y1="119" x2="820" y2="137" stroke="#dc2626" stroke-width="5"/><text x="846" y="129" fill="#dc2626" font-size="14" font-weight="900">no return route</text>
-<rect x="445" y="266" width="285" height="58" rx="14" fill="var(--green-soft)" stroke="${stroke('contract')}" stroke-width="${sw('contract')}"/><text x="462" y="291" fill="var(--ink)" font-size="15" font-weight="900">recorded owners: BackdropHost subtree only</text><text x="462" y="313" fill="var(--muted)" font-size="13">GlassPanel remains excluded at x = ${state.panelLeft} dp</text>`}
+<rect x="445" y="266" width="285" height="58" rx="14" fill="var(--green-soft)" stroke="${stroke('contract')}" stroke-width="${sw('contract')}"/><text x="462" y="291" fill="var(--ink)" font-size="15" font-weight="900">recorded owners: BackdropHost subtree only</text><text x="462" y="313" fill="var(--muted)" font-size="13">GlassPanel remains excluded at x = ${state.panelLeft} pt</text>`}
 function renderAll(){
-$('panelLeft').value=state.panelLeft;$('panelLeftValue').textContent=`${state.panelLeft} dp`;$('metricPanelOrigin').textContent=`(${state.panelLeft}, 72) dp`;
+$('panelLeft').value=state.panelLeft;$('panelLeftValue').textContent=`${state.panelLeft} pt`;$('metricPanelOrigin').textContent=`(${state.panelLeft}, 72) pt`;
 document.querySelectorAll('[data-position]').forEach(b=>b.classList.toggle('selected',Number(b.dataset.position)===state.panelLeft));
 $('safeSceneSvg').innerHTML=renderDiagram(-1);renderStep();
 }
-function renderStep(){const step=STEPS[state.step];$('walkthroughSvg').innerHTML=renderDiagram(state.step);$('stepTitle').textContent=step.title;$('stepCaption').textContent=step.caption;$('stepRule').textContent=step.rule;$('stepInput').textContent=step.input;$('stepOperation').textContent=step.operation;$('stepOutput').textContent=step.output;const c=`Step ${state.step+1} of ${STEPS.length}`;$('diagramStep').textContent=c;$('stepCounter').textContent=c;['diagramPrev','stepPrev'].forEach(id=>$(id).disabled=state.step===0);['diagramNext','stepNext'].forEach(id=>$(id).disabled=state.step===STEPS.length-1);$('stepStateNote').textContent=`Canonical state: panel left ${state.panelLeft} dp · record owner BackdropHost · GlassPanel excluded from source.`}
+function renderStep(){const step=STEPS[state.step];$('walkthroughSvg').innerHTML=renderDiagram(state.step);$('stepTitle').textContent=step.title;$('stepCaption').textContent=step.caption;$('stepRule').textContent=step.rule;$('stepInput').textContent=step.input;$('stepOperation').textContent=step.operation;$('stepOutput').textContent=step.output;const c=`Step ${state.step+1} of ${STEPS.length}`;$('diagramStep').textContent=c;$('stepCounter').textContent=c;['diagramPrev','stepPrev'].forEach(id=>$(id).disabled=state.step===0);['diagramNext','stepNext'].forEach(id=>$(id).disabled=state.step===STEPS.length-1);$('stepStateNote').textContent=`Canonical state: panel left ${state.panelLeft} pt · record owner BackdropHost · GlassPanel excluded from source.`}
 function setStep(n){state.step=clamp(n,0,STEPS.length-1);state.panelLeft=STEPS[state.step].preset;renderAll()}
 $('panelLeft').addEventListener('input',e=>{state.panelLeft=Number(e.target.value);renderAll()});
 document.querySelectorAll('[data-position]').forEach(b=>b.addEventListener('click',()=>{state.panelLeft=Number(b.dataset.position);renderAll()}));
 [['diagramPrev',-1],['stepPrev',-1],['diagramNext',1],['stepNext',1]].forEach(([id,d])=>$(id).addEventListener('click',()=>setStep(state.step+d)));
-document.querySelectorAll('[data-prediction]').forEach(b=>b.addEventListener('click',()=>{state.prediction=b.dataset.prediction;document.querySelectorAll('[data-prediction]').forEach(x=>x.classList.toggle('selected',x===b));$('predictionResult').textContent=state.prediction==='backdrop'?'Correct. BackdropHost contains every backdrop command and excludes the sibling GlassPanel. backgroundLayer therefore has one producer and the panel remains an external consumer.':state.prediction==='parent'?'Too broad. ParentScene owns both siblings, so its content boundary would admit GlassPanel commands into the source that the panel consumes.':'This chooses the consumer as its own source owner. It does not provide the separate backdrop producer required by the route.';}));
-const blankCode=`Box {
-    BackdropHost(
-        modifier = Modifier.drawWithContent {
-            backgroundLayer.record {
-                __________
-            }
-            __________
-        },
-    )
+document.querySelectorAll('[data-prediction]').forEach(b=>b.addEventListener('click',()=>{state.prediction=b.dataset.prediction;document.querySelectorAll('[data-prediction]').forEach(x=>x.classList.toggle('selected',x===b));$('predictionResult').textContent=state.prediction==='backdrop'?'Correct. BackdropHost contains every backdrop command and excludes the sibling GlassPanel. recordedBackdrop therefore has one producer and the panel remains an external consumer.':state.prediction==='parent'?'Too broad. ParentScene owns both siblings, so its content boundary would admit GlassPanel commands into the source that the panel consumes.':'This chooses the consumer as its own source owner. It does not provide the separate backdrop producer required by the route.';}));
+const blankCode=`recordedBackdrop = BackdropRecorder.snapshot(
+    size: CGSize(width: 340, height: 240),
+    scale: displayScale
+) {
+    __________
+}
+
+ZStack(alignment: .topLeading) {
+    BackdropHost {
+        __________
+    }
 
     __________
 }`;
-const correctCode=`Box {
-    BackdropHost(
-        modifier = Modifier.drawWithContent {
-            backgroundLayer.record {
-                this@drawWithContent.drawContent()
-            }
-            drawLayer(backgroundLayer)
-        },
-    )
+const correctCode=`recordedBackdrop = BackdropRecorder.snapshot(
+    size: CGSize(width: 340, height: 240),
+    scale: displayScale
+) {
+    BackdropArtwork()
+}
 
-    GlassPanel(backgroundLayer)
+ZStack(alignment: .topLeading) {
+    BackdropHost {
+        recordedBackdrop.image
+    }
+
+    GlassPanel(recorded: recordedBackdrop)
 }`;
 $('challengeEditor').value=blankCode;
-document.querySelectorAll('[data-code]').forEach(b=>b.addEventListener('click',()=>{$('challengeEditor').value=b.dataset.code==='correct'?correctCode:blankCode;$('challengeResult').textContent=b.dataset.code==='correct'?'Solution inserted. Run the check to verify the three route-defining operations.':'Blanks restored. Keep the recording inside BackdropHost and place GlassPanel afterward as a sibling.';}));
-$('checkChallenge').addEventListener('click',()=>{const code=$('challengeEditor').value;const record=/backgroundLayer\.record\s*\{[\s\S]*this@drawWithContent\.drawContent\(\)/.test(code),visible=/drawLayer\s*\(\s*backgroundLayer\s*\)/.test(code),panel=/GlassPanel\s*\(\s*backgroundLayer\s*\)/.test(code),order=code.indexOf('BackdropHost')>=0&&code.indexOf('GlassPanel')>code.indexOf('BackdropHost');$('challengeResult').textContent=record&&visible&&panel&&order?'Correct. BackdropHost produces the layer, the layer is visibly replayed, and GlassPanel consumes it later from outside the recorded subtree.':`Still incomplete: ${[!record&&'BackdropHost drawContent recording',!visible&&'visible drawLayer(backgroundLayer)',!panel&&'GlassPanel(backgroundLayer)',!order&&'BackdropHost before GlassPanel'].filter(Boolean).join(', ')}.`});
-$('buildRecord').addEventListener('click',()=>{$('record').value=`Lesson 6.9 review record\n\nI verified the one-way ownership route:\nBackdropHost → backgroundLayer → GlassPanel.\n\nBackdropHost records only BackdropArtwork. GlassPanel is a later sibling, so its replay, tint, border, label, and details do not enter backgroundLayer. Moving the panel changes the crop but does not change source membership.\n\nBlur and offscreen-cost measurement remain deferred.\n\nThis local record does not change the authoritative course count until I explicitly confirm completion.`});
+document.querySelectorAll('[data-code]').forEach(b=>b.addEventListener('click',()=>{$('challengeEditor').value=b.dataset.code==='correct'?correctCode:blankCode;$('challengeResult').textContent=b.dataset.code==='correct'?'Solution inserted. Run the check to verify the three route-defining operations.':'Blanks restored. Keep the snapshot on BackdropArtwork and place GlassPanel afterward as a sibling.';}));
+$('checkChallenge').addEventListener('click',()=>{const code=$('challengeEditor').value;const record=/BackdropRecorder\.snapshot[\s\S]*BackdropArtwork\s*\(\s*\)/.test(code),visible=/recordedBackdrop\s*\.\s*image/.test(code),panel=/GlassPanel\s*\(\s*recorded:\s*recordedBackdrop\s*\)/.test(code),order=code.indexOf('BackdropHost')>=0&&code.indexOf('GlassPanel')>code.indexOf('BackdropHost');$('challengeResult').textContent=record&&visible&&panel&&order?'Correct. BackdropArtwork fills recordedBackdrop, the image is visibly replayed, and GlassPanel consumes it later from outside the recorded subtree.':`Still incomplete: ${[!record&&'BackdropArtwork() inside BackdropRecorder.snapshot',!visible&&'visible recordedBackdrop.image',!panel&&'GlassPanel(recorded: recordedBackdrop)',!order&&'BackdropHost before GlassPanel'].filter(Boolean).join(', ')}.`});
+$('buildRecord').addEventListener('click',()=>{$('record').value=`Lesson 6.9 review record\n\nI verified the one-way ownership route:\nBackdropHost → recordedBackdrop → GlassPanel.\n\nImageRenderer snapshots only BackdropArtwork. GlassPanel is a later sibling, so its replay, tint, border, label, and details do not enter recordedBackdrop. Moving the panel changes the crop but does not change source membership.\n\nBlur and offscreen-cost measurement remain deferred.\n\nThis Chapter 6 re-read does not raise the 40 of 216 count. The live checkpoint remains Lesson 1.3.`});
 const theme=matchMedia('(prefers-color-scheme:dark)');function updateTheme(){$('themeMode').textContent=theme.matches?'dark':'light';renderAll()}theme.addEventListener?.('change',updateTheme);updateTheme();
 </script>
 </body>
