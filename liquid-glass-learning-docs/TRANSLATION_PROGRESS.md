@@ -1,6 +1,6 @@
 # iOS translation progress
 
-next_step: 7A
+next_step: 7E
 
 completed:
   - A1
@@ -59,6 +59,10 @@ completed:
   - 6.10
   - 6.11
   - 6H
+  - 7A
+  - 7B
+  - 7C
+  - 7D
 
 session_order: A1 A2 A3 A4 B1 B2 B3 C1 C2 D1 D2 1A 1B 1C 1D 1E 1F 2A 2B 2C 2D 2E 2F 3A 3B 3C 3D 3E 3F 3G 3H 4A 4B 4C 4D 4E 4F 4G 5A 5B 5C 5D 5E 5F 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 6.9 6.10 6.11 6H 7A 7B 7C 7D 7E 7F 7G 7H 8A 8B 8C 8D 8E 8F 8H 9A 9B 9C 9D 9E 9F 9H F1 F2 F3 F4 F5
 
@@ -226,3 +230,11 @@ notes:
   - 6H: Ch 6 hub to SwiftUI / iPhone 16 Pro; must-re-read, 40/216, checkpoint 1.3.
     Chapter06Screen already hosts 6.1–6.11. Hub filename stays until F2.
     iPhone 16 Pro sim build succeeded. Android/Kotlin/Compose/AGSL/Pixel 8 grep clean.
+  - 7A: 7.1/7.2 HTML to SwiftUI .blur(radius:) in points; displayScale × pt is readout only.
+    Neighborhood + radius explorers on Chapter07Screen. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3. Grep clean.
+  - 7B: 7.3/7.4 HTML and the scaling companion to Core Image wraps and a smaller bitmap.
+    Edge and downsample explorers on Chapter07Screen. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3. Grep clean.
+  - 7C: 7.5/7.6 HTML to a tint rectangle after .blur(radius: 18) and setToSaturation on that group.
+    TintLayerExplorer and SaturationContrastExplorer on Chapter07Screen. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3. Grep clean.
+  - 7D: 7.7/7.8 HTML to an inset centered stroke and a band blur then clipShape.
+    StaticRimExplorer and InnerHighlightExplorer on Chapter07Screen. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3. Grep clean.
