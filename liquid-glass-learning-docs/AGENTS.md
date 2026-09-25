@@ -17,7 +17,7 @@ The rulebook for the interactive learning documents. Keep this file short. Merge
 2. Define every term at first use, in the same sentence. Add a small `ⓘ` tooltip for anything that may need a refresher: an older formula, an older lesson's object, a chosen constant. Tooltips carry reminders only; the page must be fully understandable without opening them.
 3. One object, one name. Never rename a thing mid-lesson. No metaphor names such as seat, stick, or landing: call the object by its plain name — pixel, arrow, output position.
 4. Never point back vaguely. Forbidden patterns: "between the two", "the former", "that value", "those moves". Repeat the object's name instead.
-5. Every purpose statement is followed by its reason in the same or the next sentence. "We multiply by falloff **because** …" Nothing is taken for granted.
+5. Every purpose statement is followed by its reason in the same or the next sentence. "We multiply by falloff **because** …" Nothing is taken for granted. When a lesson picks a specific tool where an obvious simpler one exists (smoothstep over a straight line), state why the simple one fails and show the comparison picture.
 
 ## Visuals first
 

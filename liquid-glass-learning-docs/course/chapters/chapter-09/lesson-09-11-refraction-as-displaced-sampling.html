@@ -215,23 +215,23 @@ in the picture. It only decides how long each pixel's push arrow is.</p>
 
 <h2 id="s2"><span class="tag">Section 2 · why the curve</span>Why smoothstep and not a straight line?</h2>
 
-<p>Section 1 picked the smoothstep curve without defending it. The simpler choice exists: connect
-the same three anchors with a straight line. Call the result the <b>linear falloff</b>:
-<code>falloff = 1 − lin(−band, band, sd)</code>, where
-<code>lin(a, b, x) = clamp((x − a) / (b − a), 0, 1)</code> is the lerp fraction from Chapter 5
-with no curve on top<button class="info" data-tip="lin">ⓘ</button>. The linear falloff hits the
-same three values as the smoothstep falloff: 1 at <code>sd = −0.10</code>, 0.5 at
-<code>sd = 0</code>, 0 at <code>sd = +0.10</code>. Same anchors. So is the curve just decoration?
-No. The two falloffs differ in the <b>slope</b> — how fast the falloff changes per step of
-sd<button class="info" data-tip="slope">ⓘ</button> — and the slope is what your eye reads in the
-bent picture.</p>
+<p>Section 1's falloff curve passes through three fixed values: 1 at <code>sd = −0.10</code>, 0.5
+at <code>sd = 0</code>, 0 at <code>sd = +0.10</code>. Call them the <b>anchors</b>. The simpler
+choice exists: connect the anchors with a straight line instead of the smoothstep curve. Call the
+result the <b>linear falloff</b>: <code>falloff = 1 − lin(−band, band, sd)</code>, where
+<code>lin(a, b, x)</code> is the plain fraction <code>(x − a) / (b − a)</code>, clamped to stay
+between 0 and 1 — the lerp fraction from Chapter 5 with no curve on
+top<button class="info" data-tip="lin">ⓘ</button>. The linear falloff passes through the same
+anchors. So is the curve just decoration? No. The two falloffs differ in the <b>slope</b> — how
+fast the falloff changes per step of sd<button class="info" data-tip="slope">ⓘ</button> — and
+the slope is what your eye reads in the bent picture.</p>
 
 <figure>
   <svg class="block" id="cmpSvg" width="760" height="600" viewBox="0 0 760 600" role="img"
        aria-label="Two panels sharing the sd axis: the falloff curves above, their slopes below"></svg>
   <figcaption><b>Top:</b> the falloff from <code>sd</code>, both choices, drawn from the real
-  formulas. They share the three anchors (−0.10, 1), (0, 0.5), (+0.10, 0), and their flat shelves
-  coincide. <b>Bottom:</b> the slope of each falloff. The linear falloff's slope is −5 everywhere
+  formulas. They share the three anchors (−0.10, 1), (0, 0.5), (+0.10, 0), and their flat parts
+  outside the band coincide (the green and gray zones). <b>Bottom:</b> the slope of each falloff. The linear falloff's slope is −5 everywhere
   inside the band and 0 outside, so it jumps once at each band edge (red dots). The smoothstep
   slope is 0 at both band edges and −7.5 at the steepest point; it never jumps. A jump in the
   slope of a curve is a corner in the curve: the two amber corners sit exactly above the two red
@@ -239,22 +239,24 @@ bent picture.</p>
 </figure>
 
 <div class="readout">slope of the linear falloff, inside the band:
-  Δfalloff / Δsd = −1 / (2·band) = −1 / 0.20 = −5
+  the falloff drops the full 1 across the band width 2·band = 0.20
+  slope = Δfalloff / Δsd = −1 / 0.20 = −5 — the same everywhere inside the band
   outside the band the falloff is flat: slope = 0
   → two jumps: 0 → −5 at sd = −0.10, and −5 → 0 at sd = +0.10
 
-slope of the smoothstep falloff, with t = (sd + band) / (2·band):
-  −6·t·(1 − t) / (2·band)
-  sd = −0.10 → t = 0   → −6·0·1     / 0.20 = 0      arrives flat
-  sd =  0    → t = 0.5 → −6·0.5·0.5 / 0.20 = −7.5   steepest mid-band
-  sd = +0.10 → t = 1   → −6·1·0     / 0.20 = 0      leaves flat</div>
+slope of the smoothstep falloff, measured between two points 0.002 apart (slope = Δfalloff / Δsd):
+  at sd = −0.10:  falloff 1.000000 → 0.999925   → slope ≈ −0.04   arrives flat
+  at sd =  0:     falloff 0.507500 → 0.492500   → slope ≈ −7.5    steepest mid-band
+  at sd = +0.10:  falloff 0.000075 → 0.000000   → slope ≈ −0.04   leaves flat
+  the exact formula is −6·t·(1 − t) / (2·band) with t = (sd + band) / (2·band): 0 at t = 0 and t = 1</div>
 
 <p><b>Why a slope jump becomes a corner on screen.</b> Falloff scales the push arrow:
 <code>|disp| = dispLen × falloff</code>. Walk down the lime line: the arrow length follows the
 falloff curve, shrinking as <code>sd</code> grows. Where the falloff's slope jumps, the arrows
 start shrinking at a new rate instantly, so the bent line changes direction in zero distance —
-a corner. The two jumps sit at <code>sd = ±band</code>, exactly on the two thin band rings
-(radius 0.15 and 0.35). With the linear falloff, every wallpaper line kinks where it crosses
+a corner. The two jumps sit at <code>sd = ±band</code>, and <code>sd = d − radius = ±band</code>
+means <code>d = radius ± band</code> = 0.15 and 0.35 — exactly the two thin band rings in the
+pictures. With the linear falloff, every wallpaper line kinks where it crosses
 those rings. With smoothstep the slope is 0 at the rings, so lines cross them tangentially:
 no corner, no seam.</p>
 
@@ -996,7 +998,10 @@ document.querySelectorAll('.info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.
     <line x1="70" y1="520" x2="70" y2="${SB(0)-26}" stroke="#6b7280" stroke-width="1.5" marker-end="url(#cax)"/>
     <line x1="${X(-0.10)}" y1="44" x2="${X(-0.10)}" y2="520" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4 4"/>
     <line x1="${X(0.10)}" y1="44" x2="${X(0.10)}" y2="520" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4 4"/>
-    <text x="78" y="62" font-size="14" font-weight="600" fill="#374151">falloff — how much of the full push</text>
+    <text x="52" y="30" font-size="14" fill="#374151">falloff</text>
+    <text x="${X(-0.15)}" y="240" font-size="14" fill="#059669" text-anchor="middle" font-weight="600">full push (1)</text>
+    <text x="${X(0)}" y="240" font-size="14" fill="#7c3aed" text-anchor="middle" font-weight="600">the band: shrinks</text>
+    <text x="${X(0.175)}" y="240" font-size="14" fill="#6b7280" text-anchor="middle" font-weight="600">no push (0)</text>
     <text x="78" y="316" font-size="14" font-weight="600" fill="#374151">slope of falloff — how fast it changes per step of sd</text>
     <path d="${foS}" fill="none" stroke="#4338ca" stroke-width="3.5"/>
     <path d="${slS}" fill="none" stroke="#4338ca" stroke-width="3.5"/>

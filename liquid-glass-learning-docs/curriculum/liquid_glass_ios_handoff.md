@@ -1,6 +1,6 @@
 # Liquid Glass iOS course — implementation handoff
 
-**Updated:** 2026-09-22
+**Updated:** 2026-09-25
 **Course version:** 9.11.0
 
 ## Read order
@@ -208,6 +208,8 @@ sd = length(p) − radius
 Teaching W = `(0.65, 0.30)`: `p = (0.15, −0.20)`, `d = 0.25`, `sd = 0`, falloff = 0.50, `disp = (0.03, −0.04)`, `readUv = (0.62, 0.34)`. Falloff is a length scale, not a color mix. Miss line x = 0.90 stays straight. iOS explorer: `RefractionSamplingExplorer.swift` + `RefractionSampling.metal`. Do not generate 9.12 unless asked.
 
 **2026-09-22 revamp.** The learner rejected the long accumulated guidelines. `AGENTS.md` is now a concise 25-rule rulebook with a self-improving loop; the course sections of `USER_PREFERENCES.md` point to it. Lesson 9.11 HTML was rewritten under it: plain short sentences, no metaphor names, every drawn element labelled, formulas fully expanded with `ⓘ` provenance and refreshers, no repeated sections, clickable points with UV tooltips. Future lessons must follow the new `AGENTS.md`, not the style of older files. No iOS source change; completion stays 40 of 216 with 9.10 and 9.11 unconfirmed. Follow-up: section 2's diagram had kept the old squeezed layout; it now gets a real 790px track, and rule 9 (diagram readable size) prevents recurrence.
+
+**2026-09-25: new Section 2 — why smoothstep and not a straight line.** The learner asked whether smoothstep is common practice or whether a linear interpolation would look the same. The lesson had presented `falloff = 1 − smoothstep(−band, band, sd)` as given, never defending the curve against the obvious simpler choice — the exact failed spot was Section 1's "Where does falloff come from?" paragraph. New dedicated Section 2 (sections renumbered; the lesson now runs §1 problem → §2 why the curve → §3 stepper + trace → §4 lab → §5 lengths → §6 Metal excerpt → §7 challenge → §8 exercises → §9 record): two-panel SVG (both falloff curves sharing the three anchors above; their slopes below — the linear falloff's slope jumps 0 → −5 at each band edge, smoothstep's is 0 at both edges and −7.5 mid-band, measured numerically, no calculus vocabulary); the implication (a slope jump in falloff is a corner in the bend, sitting exactly on the band rings d = radius ± band = 0.15 / 0.35); real side-by-side renders (the chain with `smoothstep` vs a one-line `lin` swap, strong push 0.20); a magnified pair at the upper bend endpoint (0.65, 0.1838) showing the tangential peel vs the ~19° corner (~10° at lesson push 0.10, both computed from the real chain). Chapter 5 easing analogy (linear vs ease-in-out, moved from time to space). `chain()` gained a `'linear'` falloff mode; everything else unchanged. QA: `verification/lesson-09-11-why-checks.json` + `lesson-09-11-why-full.png` + refreshed `lesson-09-11-1920x1080.png`. Failure → rule link: `AGENTS.md` rule 5 now requires stating why the obvious simpler tool fails when a lesson picks a specific one. No iOS source change; completion stays 40 of 216 with 9.10 and 9.11 unconfirmed.
 
 ## Future conversation
 
