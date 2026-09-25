@@ -15,8 +15,8 @@
 <body>
 <main class="page">
   <div class="topbar">
-    <div class="crumbs"><a href="lesson-build-convincing-frosted-glass-without-a-custom-lens.html">Chapter 7</a> · Lesson 7.10 · complete</div>
-    <div class="chips"><span class="chip progress">73 of 216 complete</span><span class="chip progress">Lesson 7.10 complete</span></div>
+    <div class="crumbs"><a href="lesson-build-convincing-frosted-glass-without-a-custom-lens.html">Chapter 7</a> · Lesson 7.10</div>
+    <div class="chips"><span class="chip pending">Must re-read</span><span class="chip progress">40 of 216 complete</span><span class="chip">iPhone 16 Pro</span></div>
   </div>
 
   <header class="hero panel">
@@ -25,7 +25,7 @@
       <h1>Fine noise or dither</h1>
       <p class="lead"><strong>Question:</strong> Lesson 7.6’s navy half looks like one navy. The orange half looks like one orange. After blur, only the place those two fields meet is a short mix of slightly different pixels. When each channel is stored as an integer <code>0..255</code>, that mix can turn into visible stripes. How do we break those stripes without covering the glass with colored specks?</p>
       <div class="plain-rule"><strong>Store</strong> means write each channel as an 8-bit integer <code>0..255</code> into the bitmap. The true <code>0..1</code> value is not what the screen keeps. <strong>Banding</strong> is a visible stripe of neighbors that all stored the same integer. <strong>Fine noise</strong> is a small signed offset added before that write. <strong>Dither</strong> is using that offset so neighbors can round to different integers and the eye averages the field.</div>
-      <div class="note"><strong>Lesson 7.10 is complete.</strong> This lesson does not rebuild blur, tint, rim, band, or shadow. Lesson 3.1 already taught <code>channel8 = round(normalized × 255)</code>. The new operation is the signed offset that runs <strong>before</strong> that store. This page’s card is a teaching ramp, not the 7.6 navy/orange glass. Why the remainder recipe visits every leftover once is in the companion.</div>
+      <div class="note"><strong>This lesson does not rebuild blur, tint, rim, band, or shadow.</strong> Lesson 3.1 already taught <code>channel8 = round(normalized × 255)</code>. The new operation is the signed offset that runs <strong>before</strong> that store. This page’s card is a teaching ramp, not the 7.6 navy/orange glass. Why the remainder recipe visits every leftover once is in the companion.</div>
     </div>
     <div class="hero-art" aria-label="7.6 flats versus the teaching ramp">
       <canvas id="heroFlat" width="640" height="150" style="width:100%;height:auto;border-radius:12px;border:1px solid var(--line);image-rendering:pixelated"></canvas>
@@ -84,7 +84,7 @@ stored8 = round(clamp(true channel + offset) × 255)</div>
         <p id="chromaMagCaption"></p>
       </article>
     </div>
-    <div class="note"><strong>Browser versus Android.</strong> This canvas uses CSS pixels and writes one 8-bit RGB per teaching pixel with the exact formula above. Android uses the same recipe on a bitmap whose size is the card in device pixels. Amount is a normalized channel number, not dp. The teaching ramp is a visible stand-in for the short mixed seam left by blur, not a redraw of the two 7.6 interiors. This lesson does not rebuild blur. Chapter 8 will write per-pixel GPU programs. This lesson does not use <code>RuntimeShader</code>.</div>
+    <div class="note"><strong>Browser versus iOS.</strong> This canvas uses CSS pixels and writes one 8-bit RGB per teaching pixel with the exact formula above. The iPhone 16 Pro explorer uses the same recipe on a bitmap whose size is the card in pixels (<code>pt × displayScale</code>). Amount is a normalized channel number, not points. The teaching ramp is a visible stand-in for the short mixed seam left by blur, not a redraw of the two 7.6 interiors. This lesson does not rebuild blur. Chapter 8 will write per-pixel GPU programs. This lesson does not use a <code>.metal</code> shader.</div>
   </section>
 
   <section class="section panel">
@@ -108,8 +108,8 @@ stored8 = round(clamp(true channel + offset) × 255)</div>
     <div class="two" style="margin-top:16px">
       <article class="card indigo">
         <h3>Inputs</h3>
-        <p><strong>Amount</strong> — the slider. Normalized channel units. Teaching default: <code>0.02</code>. Android default: the same <code>0.02</code>.</p>
-        <p><strong>Column and row</strong> — integer pixel coordinates in the bitmap. They are not dp.</p>
+        <p><strong>Amount</strong> — the slider. Normalized channel units. Teaching default: <code>0.02</code>. iOS default: the same <code>0.02</code>.</p>
+        <p><strong>Column and row</strong> — integer pixel coordinates in the bitmap. They are not points.</p>
         <p><strong>True channel</strong> — the teaching ramp at that column, still normalized <code>0..1</code>.</p>
       </article>
       <article class="card green">
@@ -165,30 +165,30 @@ stored8 = round(clamp(true channel + offset) × 255)</div>
   </section>
 
   <section class="section panel">
-    <div class="section-head"><div><div class="section-no">7 · ANDROID ROUTE</div><h2>Write the stored integers into a bitmap, then draw it</h2></div></div>
+    <div class="section-head"><div><div class="section-no">7 · iOS ROUTE</div><h2>Write the stored integers into a bitmap, then draw it</h2></div></div>
     <div class="code-grid">
-      <pre class="code-block"><code>val t = x / (width - 1).toFloat()
+      <pre class="code-block"><code>let t = Float(x) / Float(width - 1)
 var red = lerp(leftRed, rightRed, t)
 var green = lerp(leftGreen, rightGreen, t)
 var blue = lerp(leftBlue, rightBlue, t)
 
-val signed = unitNoise(x, y, salt = 0) * 2f - 1f
-val offset = signed * amount
+let signed = unitNoise(column: x, row: y, salt: 0) * 2 - 1
+let offset = signed * amount
 red += offset
 green += offset
 blue += offset
 
-pixels[y * width + x] = android.graphics.Color.rgb(
+pixels[y * width + x] = (
     store8(red),
     store8(green),
-    store8(blue),
+    store8(blue)
 )</code></pre>
       <div class="card">
         <h3>What each part changes</h3>
         <p><code>unitNoise</code> is the remainder recipe. Salt <code>0</code> is luminance noise. Chroma noise would pass a different salt per channel. Production does not.</p>
-        <p><code>store8</code> is Lesson 3.1 rounding. The bitmap then holds those integers. <code>Canvas.drawImage</code> shows the bitmap. Rim and label are later siblings, still sharp.</p>
-        <p>This explorer writes a bitmap the size of the card. That is the exact store formula. It is not a <code>RuntimeShader</code>. Chapter 8 will move per-pixel programs onto the GPU.</p>
-        <p><strong>Android files:</strong><br><code>chapter07/FineNoiseExplorer.kt</code><br><code>chapter07/Chapter07Screen.kt</code></p>
+        <p><code>store8</code> is Lesson 3.1 rounding. The bitmap then holds those integers. The canvas draws that image with interpolation off. Rim and label are later siblings, still sharp.</p>
+        <p>This explorer writes a bitmap the size of the card in pixels (<code>pt × displayScale</code>). That is the exact store formula. It is not a <code>.metal</code> shader. Chapter 8 will move per-pixel programs onto the GPU.</p>
+        <p><strong>Swift files:</strong><br><code>chapter07/FineNoiseExplorer.swift</code><br><code>chapter07/Chapter07Screen.swift</code></p>
       </div>
     </div>
   </section>
@@ -208,11 +208,11 @@ pixels[y * width + x] = android.graphics.Color.rgb(
     <div class="section-head"><div><div class="section-no">9 · CODING CHALLENGE</div><h2>One offset, then store</h2></div></div>
     <div class="challenge">
       <div>
-        <textarea class="editor" id="challengeEditor" spellcheck="false">val signed = unitNoise(column, row, salt = 0) * 2f - 1f
-val offset = signed * ___
-val r8 = store8(trueRed + offset)
-val g8 = store8(trueGreen + ___)
-val b8 = store8(trueBlue + offset)</textarea>
+        <textarea class="editor" id="challengeEditor" spellcheck="false">let signed = unitNoise(column: column, row: row, salt: 0) * 2 - 1
+let offset = signed * ___
+let r8 = store8(trueRed + offset)
+let g8 = store8(trueGreen + ___)
+let b8 = store8(trueBlue + offset)</textarea>
         <div class="controls" style="margin-top:10px">
           <button class="btn primary" id="checkChallenge">Check</button>
           <button class="btn" id="showSolution">Show solution</button>
@@ -239,6 +239,8 @@ offset</div>
 
   <section class="section panel">
     <div class="section-head"><div><div class="section-no">11 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div></div>
+    <p>Chapter 7 is a must-re-read on-ramp chapter. iOS-confirmed complete remains 40 of 216 through Lesson 9.6. This lesson does not raise that count. The live checkpoint remains Lesson 1.3. Use the Xcode previews, then the iPhone 16 Pro.</p>
+    <div class="note"><strong>Browser versus iOS:</strong> this page stores the 640-column teaching ramp. The iPhone 16 Pro explorer stores a bitmap whose width and height are the card in pixels. Amount <code>0.02</code> is the same normalized channel number on both. Column 200 in this page is scaled by bitmap width ÷ 640 in the explorer.</div>
     <div class="checklist">
       <label class="check"><input type="checkbox">Amount 0 shows visible stripes on the teaching ramp.</label>
       <label class="check"><input type="checkbox">Fine luminance noise breaks the stripes without colored specks.</label>
@@ -255,13 +257,14 @@ offset</div>
     <div class="section-head"><div><div class="section-no">12 · EVIDENCE BOUNDARY</div><h2>What this lesson establishes</h2></div></div>
     <div class="two">
       <div class="card green"><h3>Established</h3><p>A teaching ramp stored with Lesson 3.1 rounding can band. Adding one small signed offset, from a fixed column-and-row recipe, to all three channels before that store breaks the stripes without colored dirt. The 7.6 navy and orange interiors stay flat; the slow change is the blurred seam.</p></div>
-      <div class="card amber"><h3>Not claimed</h3><p>The remainder recipe is a frozen 16-by-16 tile, not a random roll, not a camera model, and not a GPU hash. It is not what draws the 8-bit stripes. This is not <code>RuntimeShader</code>, not film grain from a photo, and not Apple’s private noise. Lesson 7.11 orders the full material stack.</p></div>
+      <div class="card amber"><h3>Not claimed</h3><p>The remainder recipe is a frozen 16-by-16 tile, not a random roll, not a camera model, and not a GPU hash. It is not what draws the 8-bit stripes. This is not a <code>.metal</code> shader, not film grain from a photo, and not Apple’s private noise. Lesson 7.11 orders the full material stack.</p></div>
     </div>
     <button class="btn primary" id="buildRecord" style="margin-top:16px">Build local review record</button>
     <textarea class="record" id="record" readonly>No record generated yet.</textarea>
+    <div class="note">This Chapter 7 re-read does not raise the 40 of 216 count. The live checkpoint remains Lesson 1.3.</div>
   </section>
 
-  <footer class="footer panel"><span>73 of 216 complete · Lesson 7.10 complete</span><span>Previous: <a href="lesson-07-09-outer-shadow.html">7.9 — Outer shadow</a> · Next: <a href="lesson-07-11-compose-the-layers.html">7.11 — Compose the layers</a></span></footer>
+  <footer class="footer panel"><span>40 of 216 complete · checkpoint Lesson 1.3</span><span>Previous: <a href="lesson-07-09-outer-shadow.html">7.9 — Outer shadow</a> · Next: <a href="lesson-07-11-compose-the-layers.html">7.11 — Compose the layers</a></span></footer>
 </main>
 <script>
 const LEFT=[0.32,0.40,0.52];
@@ -458,16 +461,16 @@ document.querySelectorAll('.choice').forEach(btn=>btn.addEventListener('click',(
     ?'Correct. The recipe depends on column and row. Different offsets can push the two sums into different rounding bins.'
     :'Not this one. Matching true values are not enough after an offset that depends on coordinates. A lamp is not an input.';
 }));
-const starter=`val signed = unitNoise(column, row, salt = 0) * 2f - 1f
-val offset = signed * ___
-val r8 = store8(trueRed + offset)
-val g8 = store8(trueGreen + ___)
-val b8 = store8(trueBlue + offset)`;
-const solution=`val signed = unitNoise(column, row, salt = 0) * 2f - 1f
-val offset = signed * amount
-val r8 = store8(trueRed + offset)
-val g8 = store8(trueGreen + offset)
-val b8 = store8(trueBlue + offset)`;
+const starter=`let signed = unitNoise(column: column, row: row, salt: 0) * 2 - 1
+let offset = signed * ___
+let r8 = store8(trueRed + offset)
+let g8 = store8(trueGreen + ___)
+let b8 = store8(trueBlue + offset)`;
+const solution=`let signed = unitNoise(column: column, row: row, salt: 0) * 2 - 1
+let offset = signed * amount
+let r8 = store8(trueRed + offset)
+let g8 = store8(trueGreen + offset)
+let b8 = store8(trueBlue + offset)`;
 const editor=document.getElementById('challengeEditor');
 document.getElementById('checkChallenge').addEventListener('click',()=>{
   document.getElementById('challengeResult').textContent=editor.value.replace(/\s+/g,'')===solution.replace(/\s+/g,'')
@@ -478,12 +481,12 @@ document.getElementById('showSolution').addEventListener('click',()=>{editor.val
 document.getElementById('resetChallenge').addEventListener('click',()=>{editor.value=starter;document.getElementById('challengeResult').textContent='Fill the amount multiply and the green addend.';});
 document.getElementById('buildRecord').addEventListener('click',()=>{
   document.getElementById('record').value=`# Lesson 7.10 — Fine noise or dither
-Completed: yes
-Learner-confirmed complete; course total 73 of 216
+Completed: pending learner confirmation
 New mechanism: add one small signed offset, from a fixed column-and-row recipe, to all three channels before Lesson 3.1 8-bit rounding.
 The 7.6 navy and orange interiors stay flat; the teaching ramp stands in for the blurred seam.
 Chroma noise (a different offset per channel) looks dirty.
-Android: chapter07/FineNoiseExplorer.kt
+iOS: chapter07/FineNoiseExplorer.swift
+This Chapter 7 re-read does not raise the 40 of 216 count. The live checkpoint remains Lesson 1.3.
 `;
 });
 

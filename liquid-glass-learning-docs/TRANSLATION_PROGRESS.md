@@ -1,6 +1,6 @@
 # iOS translation progress
 
-next_step: 7E
+next_step: 7H
 
 completed:
   - A1
@@ -63,6 +63,9 @@ completed:
   - 7B
   - 7C
   - 7D
+  - 7E
+  - 7F
+  - 7G
 
 session_order: A1 A2 A3 A4 B1 B2 B3 C1 C2 D1 D2 1A 1B 1C 1D 1E 1F 2A 2B 2C 2D 2E 2F 3A 3B 3C 3D 3E 3F 3G 3H 4A 4B 4C 4D 4E 4F 4G 5A 5B 5C 5D 5E 5F 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 6.9 6.10 6.11 6H 7A 7B 7C 7D 7E 7F 7G 7H 8A 8B 8C 8D 8E 8F 8H 9A 9B 9C 9D 9E 9F 9H F1 F2 F3 F4 F5
 
@@ -238,3 +241,9 @@ notes:
     TintLayerExplorer and SaturationContrastExplorer on Chapter07Screen. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3. Grep clean.
   - 7D: 7.7/7.8 HTML to an inset centered stroke and a band blur then clipShape.
     StaticRimExplorer and InnerHighlightExplorer on Chapter07Screen. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3. Grep clean.
+  - 7E: 7.9/7.10 HTML to a padded .blur behind the clip, and one signed offset before the 8-bit store.
+    OuterShadowExplorer and FineNoiseExplorer on Chapter07Screen. Companion HTML left for 7F. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3. Footer still names lesson 7.11.
+  - 7F: 7.10 companion HTML names the iPhone 16 Pro CPU bitmap. Salt 0 is unitNoise
+    in FineNoiseExplorer.swift. Proof, teaching pixels, and the JS lab stay. 40/216, checkpoint 1.3. Grep clean.
+  - 7G: 7.11/7.12 HTML to clipShape slots and a destination-class contrast verdict.
+    CombineLayersExplorer and CompareBackgroundsExplorer on Chapter07Screen. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3. Filename leftover is lesson-07-11-compose-the-layers.html. Grep clean.

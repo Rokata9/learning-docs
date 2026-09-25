@@ -14,16 +14,16 @@ The rulebook for the interactive learning documents. Keep this file short. Merge
 ## Language — the top rule set
 
 1. Plain English for a non-native speaker. Short sentences. One idea per sentence. No idioms.
-2. Define every term at first use, in the same sentence. Add a small `ⓘ` tooltip for anything that may need a refresher: an older formula, an older lesson's object, a chosen constant. Tooltips carry reminders only; the page must be fully understandable without opening them.
+2. Define every term at first use, in the same sentence. Add a small `ⓘ` tooltip for anything that may need a refresher: an older formula, an older lesson's object, a chosen constant. Tooltips carry reminders only; the page must be fully understandable without opening them. A word that could describe a graph or the picture (linear, straight, smooth) must say which one it describes.
 3. One object, one name. Never rename a thing mid-lesson. No metaphor names such as seat, stick, or landing: call the object by its plain name — pixel, arrow, output position.
 4. Never point back vaguely. Forbidden patterns: "between the two", "the former", "that value", "those moves". Repeat the object's name instead.
-5. Every purpose statement is followed by its reason in the same or the next sentence. "We multiply by falloff **because** …" Nothing is taken for granted. When a lesson picks a specific tool where an obvious simpler one exists (smoothstep over a straight line), state why the simple one fails and show the comparison picture.
+5. Every purpose statement is followed by its reason in the same or the next sentence. "We multiply by falloff **because** …" Nothing is taken for granted. When a lesson picks a specific tool where an obvious simpler one exists (smoothstep over a straight line), state why the simple one fails and show the comparison picture: an in-place toggle on content that reveals the difference, with a magnifier when the difference is small. Say with a number how big the difference is and on which content it shows.
 
 ## Visuals first
 
-6. A picture carries the explanation; prose captions the picture. If a paragraph describes something a picture could show, draw the picture.
+6. A picture carries the explanation; prose captions the picture. If a paragraph describes something a picture could show, draw the picture. Prefer interactive pictures (toggle, drag, slider, stepper) over paragraphs.
 7. Label every drawn element inside the picture: rings, arrows, points, regions. If a label does not fit, put a numbered tag on the object and name the tag in the adjacent text on the same screen. The reader must never guess which drawn object a number or sentence refers to.
-8. Text must match the picture exactly. If the text says "three arrows", count the arrows in the picture before shipping.
+8. Text must match the picture exactly. If the text says "three arrows", count the arrows in the picture before shipping. Plot only real values: draw a jump as two separate pieces, never as a vertical connector, and put no mark on a connector.
 9. A sequence that builds up gets a stepper: one new object or operation per step, and the picture must visibly change at every step. A caption-only change is a failed step. The picture must also render at full readable size at `1920×1080` (SVG labels ≥ 14 px on screen); a layout that squeezes a wide diagram into a narrow column fails.
 10. Every plotted point is clickable: a tooltip shows its name, role, and coordinates in their named coordinate space. Clicking a point must not move or select anything else. Support Enter/Space, close button, outside click, Escape. Keep the popup inside the viewport.
 11. Construction strokes on the orange/navy checker need a dark halo plus a non-checker hue (cyan, lime, pink, violet, white). Solid strokes, not dashes.
@@ -33,7 +33,7 @@ The rulebook for the interactive learning documents. Keep this file short. Merge
 12. Every displayed calculation shows, in order: the named formula → the substitution with every input visible → every intermediate value → the result → what consumes the result. Never print only a result. The reader never does arithmetic in their head outside the exercises.
 13. Attach a `ⓘ` provenance icon to any value that comes from elsewhere: an earlier lesson, a slider, a fixed constant, a previous step. One line inside: origin, representation, consumer.
 14. When an older formula is reused (smoothstep, length, source-over), refresh its mechanics right where it is used: inline if short, in a `ⓘ` tooltip if long. State what goes in and what comes out.
-15. A claim of change or shape ("grows", "stays straight", "bends", "smooth") is immediately followed by the numbers or the picture that prove it.
+15. A claim of change or shape ("grows", "stays straight", "bends", "smooth") is immediately followed by the numbers or the picture that prove it. Show a rate ("slope", "how fast") as the drawn difference between neighbouring samples at a stated step, never as a bare rate such as −5, and show what the rate changes in the picture.
 
 ## Lesson shape
 

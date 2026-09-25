@@ -104,6 +104,17 @@
     font-size:13px;border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--soft)}
   .verdict{font-size:15px;margin-top:8px;font-weight:600}
   .verdict.ok{color:var(--green)} .verdict.no{color:var(--red)}
+  .ctlname{font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .btn svg.ic{vertical-align:-3px;margin-right:6px}
+  .btn:disabled{opacity:.45;cursor:default}
+  .loupe{position:absolute;border:2px solid #fff;box-shadow:0 0 0 2.5px rgba(17,24,39,.92);background:transparent;
+    padding:0;border-radius:2px;cursor:grab;z-index:6;touch-action:none}
+  .loupe:active{cursor:grabbing}
+  .loupe:focus-visible{outline:3px solid var(--indigo);outline-offset:3px}
+  .stepcap{min-height:118px;max-width:112ch;font-size:15px;background:var(--soft);
+    border:1px solid var(--line);border-radius:8px;padding:10px 14px}
+  .sqgrid{display:grid;grid-template-columns:560px minmax(0,1fr);gap:24px;align-items:start}
+  svg rect.pt{cursor:pointer}
 </style>
 </head>
 <body>
@@ -187,7 +198,8 @@ Look at what that does to the far line:</p>
 <b>falloff</b> is a number from 0 to 1 that says how much of the full push one pixel gets:
 1 means the full push, 0 means no push, 0.5 means half the push. We multiply by falloff
 <b>because</b> pixels far from the circle must not move at all, and pixels near the circle
-should move smoothly less and less — a hard on/off edge would draw a visible seam.</p>
+should move smoothly less and less — a hard on/off switch would break the picture at the circle edge
+(Section 2 shows it).</p>
 
 <p>Where does falloff come from? From the signed distance <code>sd</code>, through the smoothstep
 curve from Lesson 9.3<button class="info" data-tip="smoothstep">ⓘ</button>:</p>
@@ -203,8 +215,8 @@ sd = +0.10 (far enough outside)  → smoothstep = 1    → falloff = 0    no pus
        aria-label="Falloff curve: 1 inside the circle, half on the edge, zero outside the band"></svg>
   <figcaption>The falloff curve, drawn from the real smoothstep formula. The x-axis is
   <code>sd</code> (how far past the circle edge, signed). The y-axis is the falloff.
-  Inside the inner ring (<code>sd ≤ −0.10</code>) the push is full. On the circle edge
-  (<code>sd = 0</code>) the push is half. Outside the outer ring (<code>sd ≥ +0.10</code>) the push
+  Inside the inner band ring (<code>sd ≤ −0.10</code>) the push is full. On the circle edge
+  (<code>sd = 0</code>) the push is half. Outside the outer band ring (<code>sd ≥ +0.10</code>) the push
   is zero. Click the three dots for their exact values.</figcaption>
 </figure>
 
@@ -215,122 +227,151 @@ in the picture. It only decides how long each pixel's push arrow is.</p>
 
 <h2 id="s2"><span class="tag">Section 2 · why the curve</span>Why smoothstep and not a straight line?</h2>
 
-<p>Section 1's falloff curve passes through three fixed values: 1 at <code>sd = −0.10</code>, 0.5
-at <code>sd = 0</code>, 0 at <code>sd = +0.10</code>. Call them the <b>anchors</b>. The simpler
-choice exists: connect the anchors with a straight line instead of the smoothstep curve. Call the
-result the <b>linear falloff</b>: <code>falloff = 1 − lin(−band, band, sd)</code>, where
-<code>lin(a, b, x)</code> is the plain fraction <code>(x − a) / (b − a)</code>, clamped to stay
-between 0 and 1 — the lerp fraction from Chapter 5 with no curve on
-top<button class="info" data-tip="lin">ⓘ</button>. The linear falloff passes through the same
-anchors. So is the curve just decoration? No. The two falloffs differ in the <b>slope</b> — how
-fast the falloff changes per step of sd<button class="info" data-tip="slope">ⓘ</button> — and
-the slope is what your eye reads in the bent picture.</p>
+<p>The obvious simpler choice than smoothstep is a straight line. Call it the <b>linear falloff</b>:
+<code>falloff = 1 − lin(−band, band, sd)</code><button class="info" data-tip="band">ⓘ</button>, where <code>lin(a, b, x) = (x − a) / (b − a)</code>,
+clamped to stay between 0 and 1<button class="info" data-tip="lin">ⓘ</button>. At three key points
+it gives the same values as smoothstep: 1 at <code>sd = −0.10</code>, 0.5 at <code>sd = 0</code>,
+and 0 at <code>sd = +0.10</code>. The two circles where the band starts and ends are the
+<b>band rings</b>: the <b>inner band ring</b> (<code>sd = −0.10</code>, distance 0.15 from the circle
+center C = (0.50, 0.50)) and the <b>outer band ring</b> (<code>sd = +0.10</code>, distance 0.35 from
+C). The buttons below also offer the most basic choice, the <b>on/off falloff</b>: 1 inside the
+circle, 0 outside, nothing in between.</p>
 
-<figure>
-  <svg class="block" id="cmpSvg" width="760" height="600" viewBox="0 0 760 600" role="img"
-       aria-label="Two panels sharing the sd axis: the falloff curves above, their slopes below"></svg>
-  <figcaption><b>Top:</b> the falloff from <code>sd</code>, both choices, drawn from the real
-  formulas. They share the three anchors (−0.10, 1), (0, 0.5), (+0.10, 0), and their flat parts
-  outside the band coincide (the green and gray zones). <b>Bottom:</b> the slope of each falloff. The linear falloff's slope is −5 everywhere
-  inside the band and 0 outside, so it jumps once at each band edge (red dots). The smoothstep
-  slope is 0 at both band edges and −7.5 at the steepest point; it never jumps. A jump in the
-  slope of a curve is a corner in the curve: the two amber corners sit exactly above the two red
-  jumps. Click the four dots for their values.</figcaption>
-</figure>
+<h3>See it: one chain, three falloffs</h3>
 
-<div class="readout">slope of the linear falloff, inside the band:
-  the falloff drops the full 1 across the band width 2·band = 0.20
-  slope = Δfalloff / Δsd = −1 / 0.20 = −5 — the same everywhere inside the band
-  outside the band the falloff is flat: slope = 0
-  → two jumps: 0 → −5 at sd = −0.10, and −5 → 0 at sd = +0.10
-
-slope of the smoothstep falloff, measured between two points 0.002 apart (slope = Δfalloff / Δsd):
-  at sd = −0.10:  falloff 1.000000 → 0.999925   → slope ≈ −0.04   arrives flat
-  at sd =  0:     falloff 0.507500 → 0.492500   → slope ≈ −7.5    steepest mid-band
-  at sd = +0.10:  falloff 0.000075 → 0.000000   → slope ≈ −0.04   leaves flat
-  the exact formula is −6·t·(1 − t) / (2·band) with t = (sd + band) / (2·band): 0 at t = 0 and t = 1</div>
-
-<p><b>Why a slope jump becomes a corner on screen.</b> Falloff scales the push arrow:
-<code>|disp| = dispLen × falloff</code>. Walk down the lime line: the arrow length follows the
-falloff curve, shrinking as <code>sd</code> grows. Where the falloff's slope jumps, the arrows
-start shrinking at a new rate instantly, so the bent line changes direction in zero distance —
-a corner. The two jumps sit at <code>sd = ±band</code>, and <code>sd = d − radius = ±band</code>
-means <code>d = radius ± band</code> = 0.15 and 0.35 — exactly the two thin band rings in the
-pictures. With the linear falloff, every wallpaper line kinks where it crosses
-those rings. With smoothstep the slope is 0 at the rings, so lines cross them tangentially:
-no corner, no seam.</p>
-
-<p>This is the easing idea from Chapter 5, moved from time to space. A linear easing changes speed
-instantly at the start and at the end of a movement, and the movement looks mechanical. The linear
-falloff does the same to the bend: the shrink rate starts at the full −5 the moment a line touches
-the band ring. Smoothstep is the ease-in-out: the shrink rate rises to −7.5 and returns to 0,
-so the bend peels away gradually.</p>
-
-<p><b>The honest comparison, on the real pictures.</b> Both canvases below run the real chain,
-pixel by pixel; the only difference is one line — the falloff curve. To make the difference easy
-to see, both use the strong push <code>dispLen = 0.20</code> (the lab's <b>Strong push</b> preset;
-the rest of the lesson uses 0.10). At this size the two pictures look nearly the same: the broad
-bow is identical, because the three anchors are identical. The difference hides at the two bend
-endpoints of the lime line, <code>y = 0.1838</code> and <code>y = 0.8162</code> — both sit exactly
-on the outer band ring.</p>
-
-<figure>
+<figure id="flipFig">
+  <div class="ctl">
+    <span class="ctlname">Falloff</span>
+    <button class="btn ffo" data-fo="onoff" aria-pressed="false"><svg class="ic" width="34" height="16" viewBox="0 0 34 16" aria-hidden="true"><path d="M1,3 H17 V13 H33" fill="none" stroke="currentColor" stroke-width="2"/></svg>on/off</button>
+    <button class="btn ffo" data-fo="linear" aria-pressed="true"><svg class="ic" width="34" height="16" viewBox="0 0 34 16" aria-hidden="true"><path d="M1,3 H9 L25,13 H33" fill="none" stroke="currentColor" stroke-width="2"/></svg>linear</button>
+    <button class="btn ffo" data-fo="smooth" aria-pressed="false"><svg class="ic" width="34" height="16" viewBox="0 0 34 16" aria-hidden="true"><path d="M1,3 H9 C17,3 17,13 25,13 H33" fill="none" stroke="currentColor" stroke-width="2"/></svg>smoothstep</button>
+    <span class="ctlname">Wallpaper</span>
+    <button class="btn fwp" data-w="grid" aria-pressed="true">grid</button>
+    <button class="btn fwp" data-w="checker" aria-pressed="false">checker</button>
+    <button class="btn fwp" data-w="photo" aria-pressed="false">photo</button>
+  </div>
+  <div class="ctl">
+    <label>dispLen <input type="range" id="fLen" min="0.02" max="0.20" step="0.01" value="0.10">
+      <span class="val" id="fLenV">0.10</span></label><button class="info" data-tip="proplen">ⓘ</button>
+    <button class="btn" id="fRings" aria-pressed="false">Show the band rings</button>
+    <span class="ctlname">Magnifier</span>
+    <button class="btn fmg" data-m="ring" aria-pressed="true">at the outer band ring</button>
+    <button class="btn fmg" data-m="circle" aria-pressed="false">at the circle edge</button>
+  </div>
   <div class="pair">
-    <div class="stage">
-      <canvas id="cmpA" width="420" height="420"></canvas>
-      <figcaption><b>smoothstep falloff — the lesson's chain.</b> Thin white line: the straight
-      input line <code>x = 0.65</code>. Lime: the apparent line of <code>x = 0.65</code>. Rings:
-      the circle (thick) and the two band edges (thin). Strong push 0.20.</figcaption>
+    <div class="stage" id="flipFullStage">
+      <canvas id="flipFull" width="560" height="560"></canvas>
+      <figcaption><b>The whole output</b> — the real chain, pixel by pixel. Lime: the input line
+      <code>x = 0.65</code> as it shows up. Thin white line: where the input line <code>x = 0.65</code>
+      sits in the wallpaper. White square: the magnifier. Drag it, or focus it and use the arrow
+      keys.</figcaption>
     </div>
-    <div class="stage">
-      <canvas id="cmpB" width="420" height="420"></canvas>
-      <figcaption><b>linear falloff — one line changed.</b> Same chain, same push, same rings.
-      The bow matches the left picture at this size. Look instead at the bend endpoints, where the
-      lime curve rejoins the white line.</figcaption>
+    <div class="stage" id="flipZoomStage">
+      <canvas id="flipZoom" width="560" height="560"></canvas>
+      <figcaption><b>The magnifier, 8.3× closer.</b> The chain runs again for every magnifier
+      pixel; this is not an enlarged screenshot. Pink dot P = (0.65, 0.1838): here the input line
+      <code>x = 0.65</code> meets the outer band ring. Thin violet line: the lime curve that the other
+      smooth falloff would draw, for comparison (linear and smoothstep only).</figcaption>
     </div>
   </div>
+  <div class="readout" id="flipReadout"></div>
 </figure>
 
-<p>Zoom into the upper bend endpoint to see the join. Each window below shows UV x from 0.55 to
-0.75 and y from 0.08 to 0.28: a 0.20 UV square fills a 360 px frame, about 4.3 times the scale
-of the 420 px full pictures above.</p>
+<p><b>What to look for.</b> <b>linear:</b> the grid lines change direction sharply where they
+cross a band ring. At P the lime curve changes direction at once, by the angle in the readout. That
+is a <b>corner</b>. <b>smoothstep:</b> the same lines bend gradually, and at P the lime curve does not
+change direction. <b>on/off:</b> press <b>at the circle edge</b> — the lines break apart at the
+circle. Press <b>Show the band rings</b>: every corner sits exactly on a band ring. On the
+<b>photo</b> the corners are hard to see. The corners show on straight lines: text lines, list rows,
+icon edges. The grid wallpaper exists only on this page; on the iPhone the wallpaper is
+<code>checkerBackground</code>.</p>
+
+<p><b>"Linear" describes the falloff graph, not the picture.</b> With the linear falloff the lime
+line is still not straight. At <code>y = 0.40</code> the linear lime curve sits at <code>x = 0.7048</code><button class="info" data-tip="apparent">ⓘ</button>.
+The straight join from P to the peak of the linear lime curve, (0.7167, 0.50), passes
+<code>x = 0.65 + (0.40 − 0.1838) ÷ (0.50 − 0.1838) × 0.0667 = 0.6956</code> at that height. The reason is
+the one from Lesson 9.10: the distance <code>d</code> changes along the line like a square root, and
+the push direction turns. The linear and smoothstep lime curves stay within 0.005 of each other. The linear and
+smoothstep lime curves differ only in how they leave the band rings.</p>
+
+<h3>Why at the band rings? The reads along one ray</h3>
+
+<p>A <b>ray</b> is a straight path that starts at C and goes outward. Take the ray along the row
+<code>y = 0.50</code>, to the right of C. Press <b>Next</b>; the falloff buttons work at every
+step.</p>
 
 <figure>
-  <div class="pair">
-    <div class="stage" id="zoomAStage">
-      <canvas id="zoomA" width="360" height="360"></canvas>
-      <figcaption><b>smoothstep, magnified.</b> The lime curve hugs the white input line, then
-      peels away faster and faster — the join has no corner. The white arc is the outer band ring
-      (radius 0.35); the pink dot is the bend endpoint (0.65, 0.1838), which sits on it. Click the
-      dot.</figcaption>
-    </div>
-    <div class="stage" id="zoomBStage">
-      <canvas id="zoomB" width="360" height="360"></canvas>
-      <figcaption><b>linear falloff, magnified.</b> Same window. The lime curve leaves the white
-      line at a corner — about 19° with this push, about 10° with the lesson's 0.10. The corner
-      sits exactly on the band ring, because that is where the slope jumps.</figcaption>
-    </div>
+  <div class="ctl">
+    <span class="ctlname">Falloff</span>
+    <button class="btn rfo" data-fo="onoff" aria-pressed="false"><svg class="ic" width="34" height="16" viewBox="0 0 34 16" aria-hidden="true"><path d="M1,3 H17 V13 H33" fill="none" stroke="currentColor" stroke-width="2"/></svg>on/off</button>
+    <button class="btn rfo" data-fo="linear" aria-pressed="true"><svg class="ic" width="34" height="16" viewBox="0 0 34 16" aria-hidden="true"><path d="M1,3 H9 L25,13 H33" fill="none" stroke="currentColor" stroke-width="2"/></svg>linear</button>
+    <button class="btn rfo" data-fo="smooth" aria-pressed="false"><svg class="ic" width="34" height="16" viewBox="0 0 34 16" aria-hidden="true"><path d="M1,3 H9 C17,3 17,13 25,13 H33" fill="none" stroke="currentColor" stroke-width="2"/></svg>smoothstep</button>
   </div>
+  <svg class="block" id="raySvg" width="1150" height="690" viewBox="0 0 1150 690" role="img"
+       aria-label="Stepper: output pixels on the ray y = 0.50, their falloff, their read arrows, the spacing of the reads, and the squeeze"></svg>
+  <div class="stepnav">
+    <button class="btn" id="rayBack">Back</button>
+    <button class="btn" id="rayNext">Next</button>
+    <span class="dots" id="rayDots"></span>
+  </div>
+  <div class="stepcap" id="rayCap"></div>
+  <figcaption>Every dot and bar is clickable: it shows its name, its role, its coordinates, and the
+  full calculation.</figcaption>
 </figure>
 
-<p>The corner angle is the slope jump, drawn by the real shader. Real glass bends light with a
-smoothly curved surface, so its picture has no such corner; the linear falloff's corners read as
-cut facets, not glass. And the broad bow is the same either way — the curve choice is about the
-seams, not the shape.</p>
+<h3>Why a squeeze that switches on at once makes a corner</h3>
 
-<p><b>Why smoothstep is the standard.</b> "Turn a signed distance into a soft 0-to-1 value" is
-needed by every shader that draws a soft edge, a soft shadow, or a blend zone — so Metal, GLSL,
-and HLSL all ship <code>smoothstep</code> as a built-in function, a few cheap GPU instructions.
-The linear falloff would not be faster in any way that matters. (When even smoother joins are
-needed there is <code>smootherstep</code>, <code>6t⁵ − 15t⁴ + 10t³</code>, which also flattens
-the curvature at the ends. This lesson does not need it: at this scale the eye reads slope jumps,
-not curvature jumps.)</p>
+<p>On the outer band ring every pixel has falloff 0 and reads itself, so nothing is squeezed along
+the ring. So near P the squeeze from step 5 of the ray figure acts only along the ray. A line that crosses
+the ring at an angle moves partly along the ray and partly along the ring. Split one short step of the
+input line at P into a part along the ray and a part along the ring, squeeze only the ray part, and the
+step turns.</p>
 
-<div class="iosnote"><b>Browser vs iPhone.</b> The right-hand canvases run the lesson chain with
-exactly one line changed: <code>falloff = 1 − lin(−band, band, sd)</code>. On the iPhone that
-would mean replacing Metal's built-in <code>smoothstep</code> in
-<code>chapter09/RefractionSampling.metal</code> with a hand-written clamp and divide. Nothing is
-gained, and the bend grows corners on the two band rings.</div>
+<figure>
+  <div class="ctl">
+    <label>squeeze just inside P <input type="range" id="sqS" min="1" max="2" step="0.01" value="1.5">
+      <span class="val" id="sqV">×1.50</span></label>
+    <button class="btn sqp" data-s="1" aria-pressed="false">smoothstep: ×1.00</button>
+    <button class="btn sqp" data-s="1.5" aria-pressed="true">linear, dispLen 0.10: ×1.50</button>
+    <button class="btn sqp" data-s="2" aria-pressed="false">linear, dispLen 0.20: ×2.00</button>
+  </div>
+  <div class="sqgrid">
+    <div class="stage" id="sqStage">
+      <svg class="block" id="sqSvg" width="560" height="470" viewBox="0 0 560 470" role="img"
+           aria-label="One step of the input line at P, split into a part along the ray and a part along the ring; the ray part is squeezed"></svg>
+    </div>
+    <div class="readout" id="sqReadout"></div>
+  </div>
+  <figcaption>Dark arrow: one step of 0.020 down the input line from P, in the wallpaper. Cyan: the step's
+  part along the ray, toward C. Violet: the step's part along the ring. Lime: the same step as it shows up in the
+  output — the ray part squeezed, the ring part kept. The angle between the dark arrow and the lime
+  arrow is the corner; it equals the angle in the magnifier readout (10.1° at dispLen 0.10, 18.1° at
+  0.20). With smoothstep the squeeze right at P is ×1.00 (step 6 of the ray figure), so the lime arrow lies
+  on the dark arrow: no corner. The squeeze, and with it the turn, grows only gradually below P.</figcaption>
+</figure>
+
+<h3>Is smoothstep common practice?</h3>
+
+<p>Yes. Shaders turn a distance into a soft 0-to-1 value all the time — soft edges (Lesson 9.3),
+glows, shadows, and falloffs like this one — so Metal, GLSL (OpenGL), and HLSL (Direct3D) all ship
+<code>smoothstep</code> as a built-in function. What makes it special: <code>3t² − 2t³</code> is the
+simplest polynomial that goes from 0 to 1 and starts and ends flat, so its drop per step starts near 0
+and ends near 0. That is the ease-in-out from Chapter 5, applied to distance instead of
+time<button class="info" data-tip="easing">ⓘ</button>. It costs three more arithmetic operations per
+pixel than <code>lin</code> — count the three operations in <code>t × t × (3 − 2t)</code> — while the chain already
+runs a square root and a division per pixel. That cost is an estimate from counting, not a measurement
+on the iPhone.</p>
+
+<p><b>What this page cannot tell you.</b> Apple's own Liquid Glass shader is not public, so this
+lesson does not claim which curve Apple uses. Knowing it would need Apple's source code or
+documentation. The unknown does not change the choice for our chain: a curve that starts and ends flat
+avoids the corners either way.</p>
+
+<div class="iosnote"><b>Browser vs iPhone.</b> The iPhone chain in
+<code>chapter09/RefractionSampling.metal</code> keeps Metal's built-in <code>smoothstep</code>. The
+on/off and linear buttons exist only on this page. If the Metal file used <code>lin</code> instead,
+the iPhone picture would get the same corners on the band rings: the chain is identical, only the
+runner differs.</div>
 
 <h2 id="s3"><span class="tag">Section 3 · one fully traced value</span>One pixel, the whole walk</h2>
 
@@ -481,8 +522,8 @@ reflections — instead of the checker.</p>
     <div class="stage" id="labInStage">
       <canvas id="labIn" width="420" height="420"></canvas>
       <figcaption id="labInCap"><b>Input — the wallpaper.</b> Thick white ring: the circle (radius).
-      Thin white rings: the band edges, at <code>sd = −band</code> and
-      <code>sd = +band</code>. Between them the push shrinks from full to zero. Violet line:
+      Thin white rings: the inner band ring (<code>sd = −band</code>) and the outer band
+      ring (<code>sd = +band</code>). Between them the push shrinks from full to zero. Violet line:
       the checker edge <code>x = 0.75</code>, drawn over the border we track on the
       output.</figcaption>
     </div>
@@ -543,7 +584,7 @@ bend ends (y = 0.1838, y = 0.8162): |disp| = 0.10 × 0        = 0</div>
 <p><b>No — at the peak the arrow is 0.071083 long, not 0.10.</b> P1 sits at d = 0.221083 from
 the center, inside the band, so its falloff is 0.710831 and its arrow gets about 71% of the full
 length. The full 0.10 lives deeper inside the circle, where falloff = 1 (sd ≤ −0.10): inside the
-inner ring every arrow is exactly 0.10 long. The amber arrow shows one: the pixel (0.65, 0.50),
+inner band ring every arrow is exactly 0.10 long. The amber arrow shows one: the pixel (0.65, 0.50),
 sitting exactly on the input line at the center height, has sd = −0.10 and reads (0.55, 0.50).</p>
 
 <p>Watch where the arrows aim: left, and a little toward the center height — the read is pulled
@@ -711,7 +752,7 @@ const LES={len:0.10, rad:0.25, band:0.10};          // the lesson values
 const NAVY_CSS='#1a4066', ORANGE_CSS='#e07a2e';
 
 function sstep(e0,e1,x){ const t=Math.min(1,Math.max(0,(x-e0)/(e1-e0))); return t*t*(3-2*t); }
-function lstep(e0,e1,x){ return Math.min(1,Math.max(0,(x-e0)/(e1-e0))); }   // the straight-line choice (Section 2)
+function lstep(e0,e1,x){ return Math.min(1,Math.max(0,(x-e0)/(e1-e0))); }   // the straight-line choice (Section 2); 'onoff' in chain() is the crudest one
 function checker(u,v){
   const c=Math.floor(u*4), r=Math.floor(v*4);
   return ((c+r)%2===0)?ORANGE:NAVY;                 // even sum → orange, odd → navy (Lesson 9.7 rule)
@@ -721,7 +762,7 @@ function chain(u,v,P,useF){
   let sd=0, fo=1, dx=0, dy=0, dispX=0, dispY=0;
   if(d>0.0001){
     sd=d-P.rad;
-    fo = useF==='linear' ? (1-lstep(-P.band,P.band,sd)) : (useF ? (1-sstep(-P.band,P.band,sd)) : 1);
+    fo = useF==='linear' ? (1-lstep(-P.band,P.band,sd)) : useF==='onoff' ? (sd<0?1:0) : (useF ? (1-sstep(-P.band,P.band,sd)) : 1);
     dx=px/d; dy=py/d;
     dispX=dx*P.len*fo; dispY=dy*P.len*fo;
   }
@@ -865,8 +906,11 @@ const TIPS={
   proplen:'<b>dispLen = 0.10</b><br>Origin: Lesson 9.10, the read distance slider.<br>Meaning: the longest read move, in UV units (a UV of 1 = the whole picture width).<br>Consumer: disp.',
   smoothstep:'<b>smoothstep(a, b, x)</b> — refresher from Lesson 9.3.<br>In: a number x between edges a and b. Out: a smooth 0-to-1 value.<br>Mechanics: t = (x − a) / (b − a), clamped to [0, 1]; then 3t² − 2t³. The ends are flat because the curve arrives horizontally.',
   smoothstep2:'<b>smoothstep(a, b, x)</b> — refresher from Lesson 9.3.<br>t = (x − a) / (b − a) clamped to [0, 1]; then 3t² − 2t³.<br>Here a = −0.10, b = +0.10, x = sd.',
-  lin:'<b>lin(a, b, x)</b> — the straight-line choice, Section 2.<br>Mechanics: t = (x − a) / (b − a), clamped to [0, 1]; the result is t itself, with no curve on top. This is the lerp fraction from Chapter 5.<br>Here: falloff = 1 − lin(−0.10, 0.10, sd) hits the same three anchors as smoothstep.',
-  slope:'<b>Slope</b> — how fast a curve rises or falls per step of x.<br>Measure: pick two close points on the curve; slope = Δy / Δx between them. A corner is a place where the slope jumps in zero distance, and the eye reads such places as seams.',
+  lin:'<b>lin(a, b, x)</b> — the straight-line choice.<br>Mechanics: t = (x − a) / (b − a), clamped to [0, 1]; the result is t itself, with no curve on top. This is the lerp fraction from Chapter 5.<br>Here: falloff = 1 − lin(−0.10, 0.10, sd): 1 at sd = −0.10, 0.5 at sd = 0, 0 at sd = +0.10.',
+  easing:'<b>Ease-in-out</b> — refresher from Chapter 5.<br>A progress curve that starts slow, speeds up, and ends slow. Linear progress runs at full speed from the first frame to the last, so its start and its stop look abrupt.<br>smoothstep, 3t² − 2t³, is the classic ease-in-out curve.',
+  atan:'<b>atan</b> — turns a ratio into an angle.<br>atan(side part ÷ forward part) is the angle between the forward direction and the step. atan(0) = 0°; atan(1) = 45°.<br>JavaScript: Math.atan. Metal: atan.',
+  split:'<b>Why 0.9035 and 0.4286?</b><br>The unit direction from P toward C is (−0.4286, 0.9035). The step points straight down, (0, 1), so the part of the step that points toward C is the y part of that direction: 0.9035.<br>The rest lies along the ring: 0.4286 = 0.15 ÷ 0.35.<br>Check: 0.9035² + 0.4286² = 0.8163 + 0.1837 = 1.',
+  realpx:'<b>×1.01 — with real pixel spacing.</b><br>Origin: the whole output in Section 2 is 560 pixels across, so neighbors sit 1/560 = 0.0017857 apart.<br>Pixel 0.85 − 0.0017857 = 0.8482143: sd = +0.0982143, t = (0.0982143 + 0.10) ÷ 0.20 = 0.9910714, smoothstep = 3(0.9822226) − 2(0.9734527) = 2.9466677 − 1.9469054 = 0.9997623, falloff = 1 − 0.9997623 = 0.0002377, read = 0.8482143 − 0.10 × 0.0002377 = 0.8481905.<br>Spacing = 0.85 − 0.8481905 = 0.0018095; 0.0018095 ÷ 0.0017857 = ×1.013.<br>linear at the same spacing: ×1.50.',
   band:'<b>band = 0.10</b><br>Origin: chosen constant, first used in Lesson 9.3 as the soft-edge half-width.<br>Here: the half-width of the ring where the push shrinks from full to zero.<br>Consumer: falloff.',
   uv:'<b>UV position</b><br>Two numbers from 0 to 1. (0, 0) is the picture\'s top-left corner; (1, 1) is the bottom-right. x grows right, y grows down.',
   radius:'<b>radius = 0.25</b><br>Origin: chosen constant from Lesson 9.2 — the circle\'s radius in UV units.<br>Consumer: sd = d − radius.',
@@ -874,7 +918,7 @@ const TIPS={
   sd:'<b>sd — signed distance</b>, Lesson 9.2.<br>sd = d − radius. Negative inside the circle, 0 on the edge, positive outside.',
   guard:'<b>Why guard the divide?</b><br>dir = p / d divides by d. At the exact center d = 0, and p / 0 has no answer, so the shader skips the divide (Lesson 9.10).<br>Why the cutoff is 0.0001 and not exactly 0: the Metal source does not say.',
   checker:'<b>The wallpaper rule</b> (Lesson 9.7):<br>col = floor(x × 4), row = floor(y × 4).<br>col + row even → orange; odd → navy.',
-  apparent:'<b>Apparent middle — definition.</b><br>For one height y, scan the output row for the pixel whose read lands exactly on x = 0.65. Exactly one exists: near the peel the read moves slower than the pixel walks (largest falloff slope 1.5/(2·band) = 7.5, times dispLen 0.10 = 0.75, and 0.75 &lt; 1), so the read position only ever increases along the row and the search finds one pixel.'
+  apparent:'<b>Apparent line — definition.</b><br>For one height y: the output pixel on that row whose read lands exactly on x = 0.65 in the input.<br>The page finds it by halving a search range on the row 60 times (bisection) until the read x equals 0.65.'
 };
 document.querySelectorAll('.info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip]));
 
@@ -969,130 +1013,444 @@ document.querySelectorAll('.info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.
 
 <script>
 'use strict';
-/* ================= section 2: smoothstep vs the straight line ================= */
+/* ================= section 2: why smoothstep — three falloffs, one ray, one corner ================= */
 (function(){
-  const STRONG={len:0.20,rad:0.25,band:0.10};        // this section uses the strong push throughout
+  const B=0.10, RAD=0.25;                                            // band and radius stay at the lesson values here
+  const USE={onoff:'onoff', linear:'linear', smooth:true};           // the chain() mode behind each button
+  const NAME={onoff:'on/off', linear:'linear', smooth:'smoothstep'};
+  const COL={onoff:'#6b7280', linear:'#d97706', smooth:'#4338ca'};
+  const PY=0.5-Math.sqrt(0.1);                                       // P = (0.65, 0.183772): x = 0.65 meets the outer band ring, d = sqrt(0.15² + 0.1) = 0.35
+  function foVal(mode,sd){                                           // the three falloff choices
+    if(mode==='onoff') return sd<0?1:0;
+    if(mode==='linear') return 1-lstep(-B,B,sd);
+    return 1-sstep(-B,B,sd);
+  }
+  function readInto(u,v,L,mode,o){                                   // the chain without allocation: same math as chain()
+    const px=u-0.5, py=v-0.5, d=Math.sqrt(px*px+py*py);
+    if(d<=0.0001){ o[0]=u; o[1]=v; return; }
+    const k=L*foVal(mode,d-RAD)/d;                                   // disp = (p / d) × dispLen × falloff
+    o[0]=u-px*k; o[1]=v-py*k;                                        // readUv = uv − disp
+  }
+  function fmt(x,max){                                               // at most `max` decimals, at least 2, true minus sign
+    if(x<0) return '−'+fmt(-x,max);
+    let s=x.toFixed(max===undefined?4:max);
+    if(s.indexOf('.')>=0) s=s.replace(/0+$/,'');
+    return ((s.split('.')[1]||'').length<2) ? x.toFixed(2) : s;
+  }
+  function sgn(x,max){ return Math.abs(x)<1e-12 ? '0' : (x>0?'+':'')+fmt(x,max); }
+  function turnDeg(mode,L){                                          // how far the lime curve points away from the input line just below P
+    if(mode==='onoff') return 0;                                     // no band: nothing happens at the band ring
+    const e=1e-5, x=apparentX(PY+e,{len:L,rad:RAD,band:B},USE[mode],0.65);
+    return Math.atan2(x-0.65,e)*180/Math.PI;
+  }
+  function pressOnly(list,el){ list.forEach(b=>b.setAttribute('aria-pressed',String(b===el))); }
+  function wireInfo(root){ root.querySelectorAll('.info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip])); }
 
-  /* --- figure 1: falloff curves (top) and their slopes (bottom), one sd axis --- */
+  /* ---------- figure 1: one chain, three falloffs, and a magnifier ---------- */
   (function(){
-    const svg=document.getElementById('cmpSvg');
-    const X=sd=>70+(sd+0.20)/0.40*640;               // sd −0.20..0.20 → px 70..710
-    const YA=f=>254-f*180;                           // panel A: falloff 0..1 → px 254..74
-    const SB=s=>330-s*22;                            // panel B: slope 0..−8.6 → px 330..520
-    let foS='', slS='';
-    for(let k=0;k<=200;k++){ const sd=-0.20+0.40*k/200;
-      const t=Math.min(1,Math.max(0,(sd+0.10)/0.20));
-      foS+=(k?'L':'M')+X(sd).toFixed(1)+','+YA(1-sstep(-0.10,0.10,sd)).toFixed(1);
-      slS+=(k?'L':'M')+X(sd).toFixed(1)+','+SB(-6*t*(1-t)/0.20).toFixed(1); }
-    const foL=`M${X(-0.20)},${YA(1)} L${X(-0.10)},${YA(1)} L${X(0.10)},${YA(0)} L${X(0.20)},${YA(0)}`;
-    const slL=`M${X(-0.20)},${SB(0)} L${X(-0.10)},${SB(0)} L${X(-0.10)},${SB(-5)} L${X(0.10)},${SB(-5)} L${X(0.10)},${SB(0)} L${X(0.20)},${SB(0)}`;
-    svg.innerHTML=`
-    <defs><marker id="cax" markerUnits="strokeWidth" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-      <path d="M0,0 L8,4 L0,8 Z" fill="#6b7280"/></marker></defs>
-    <rect x="${X(-0.20)}" y="44" width="${X(-0.10)-X(-0.20)}" height="210" fill="#ecfdf5"/>
-    <rect x="${X(-0.10)}" y="44" width="${X(0.10)-X(-0.10)}" height="210" fill="#f5f3ff"/>
-    <rect x="${X(0.10)}" y="44" width="${X(0.20)-X(0.10)}" height="210" fill="#f3f4f6"/>
-    <line x1="70" y1="${YA(0)}" x2="710" y2="${YA(0)}" stroke="#6b7280" stroke-width="1.5" marker-end="url(#cax)"/>
-    <line x1="70" y1="${YA(0)}" x2="70" y2="40" stroke="#6b7280" stroke-width="1.5" marker-end="url(#cax)"/>
-    <line x1="70" y1="${SB(0)}" x2="710" y2="${SB(0)}" stroke="#6b7280" stroke-width="1.5" marker-end="url(#cax)"/>
-    <line x1="70" y1="520" x2="70" y2="${SB(0)-26}" stroke="#6b7280" stroke-width="1.5" marker-end="url(#cax)"/>
-    <line x1="${X(-0.10)}" y1="44" x2="${X(-0.10)}" y2="520" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4 4"/>
-    <line x1="${X(0.10)}" y1="44" x2="${X(0.10)}" y2="520" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4 4"/>
-    <text x="52" y="30" font-size="14" fill="#374151">falloff</text>
-    <text x="${X(-0.15)}" y="240" font-size="14" fill="#059669" text-anchor="middle" font-weight="600">full push (1)</text>
-    <text x="${X(0)}" y="240" font-size="14" fill="#7c3aed" text-anchor="middle" font-weight="600">the band: shrinks</text>
-    <text x="${X(0.175)}" y="240" font-size="14" fill="#6b7280" text-anchor="middle" font-weight="600">no push (0)</text>
-    <text x="78" y="316" font-size="14" font-weight="600" fill="#374151">slope of falloff — how fast it changes per step of sd</text>
-    <path d="${foS}" fill="none" stroke="#4338ca" stroke-width="3.5"/>
-    <path d="${slS}" fill="none" stroke="#4338ca" stroke-width="3.5"/>
-    <path d="${foL}" fill="none" stroke="#d97706" stroke-width="3.5"/>
-    <path d="${slL}" fill="none" stroke="#d97706" stroke-width="3.5"/>
-    <line x1="474" y1="56" x2="504" y2="56" stroke="#4338ca" stroke-width="3.5"/>
-    <text x="510" y="60" font-size="14" fill="#374151">smoothstep — the lesson</text>
-    <line x1="474" y1="78" x2="504" y2="78" stroke="#d97706" stroke-width="3.5"/>
-    <text x="510" y="82" font-size="14" fill="#374151">linear falloff — the straight line</text>
-    <text x="60" y="${YA(1)+5}" font-size="14" fill="#374151" text-anchor="end">1</text>
-    <text x="60" y="${YA(0.5)+5}" font-size="14" fill="#374151" text-anchor="end">0.5</text>
-    <text x="60" y="${SB(0)+5}" font-size="14" fill="#374151" text-anchor="end">0</text>
-    <text x="60" y="${SB(-5)+5}" font-size="14" fill="#374151" text-anchor="end">−5</text>
-    <text x="60" y="${SB(-7.5)+5}" font-size="14" fill="#374151" text-anchor="end">−7.5</text>
-    <text x="${X(-0.10)}" y="544" font-size="14" fill="#374151" text-anchor="middle">sd = −0.10</text>
-    <text x="${X(0)}" y="544" font-size="14" fill="#374151" text-anchor="middle">0</text>
-    <text x="${X(0.10)}" y="544" font-size="14" fill="#374151" text-anchor="middle">sd = +0.10</text>
-    <text x="714" y="${SB(0)+4}" font-size="14" fill="#374151">sd</text>
-    <text x="${X(-0.10)-12}" y="${YA(1)+26}" font-size="14" font-weight="600" fill="#b45309" text-anchor="end">corner</text>
-    <text x="${X(0.10)+10}" y="${YA(0)-12}" font-size="14" font-weight="600" fill="#b45309">corner</text>
-    <text x="${X(-0.10)+10}" y="${SB(-2.5)+4}" font-size="14" font-weight="600" fill="#dc2626">jump</text>
-    <text x="${X(0.10)+10}" y="${SB(-2.5)+4}" font-size="14" font-weight="600" fill="#dc2626">jump</text>
-    <circle class="pt" cx="${X(-0.10)}" cy="${YA(1)}" r="7" fill="#d97706" stroke="#111827" stroke-width="2" data-k="c1"/>
-    <circle class="pt" cx="${X(0.10)}" cy="${YA(0)}" r="7" fill="#d97706" stroke="#111827" stroke-width="2" data-k="c2"/>
-    <circle class="pt" cx="${X(-0.10)}" cy="${SB(-2.5)}" r="7" fill="#dc2626" stroke="#111827" stroke-width="2" data-k="j1"/>
-    <circle class="pt" cx="${X(0.10)}" cy="${SB(-2.5)}" r="7" fill="#dc2626" stroke="#111827" stroke-width="2" data-k="j2"/>`;
-    const TT={
-      c1:'<b>Corner of the linear falloff — (sd, falloff) = (−0.10, 1)</b><br>Role: the straight line reaches the full-push shelf here.<br>To the left the slope is 0; to the right it is −5. That jump makes this corner. The indigo smoothstep passes the same anchor flat.',
-      c2:'<b>Corner of the linear falloff — (sd, falloff) = (+0.10, 0)</b><br>Role: the straight line reaches the zero shelf here.<br>To the left the slope is −5; to the right it is 0. That jump makes this corner.',
-      j1:'<b>Slope jump at sd = −0.10</b><br>Role: the linear falloff\'s slope changes from 0 to −5 in zero distance.<br>Coordinates: (sd, slope) = (−0.10, 0 → −5). The indigo slope passes the same sd without jumping.',
-      j2:'<b>Slope jump at sd = +0.10</b><br>Role: the linear falloff\'s slope changes from −5 to 0 in zero distance.<br>Coordinates: (sd, slope) = (+0.10, −5 → 0).'
-    };
-    svg.querySelectorAll('.pt').forEach(c=>setTip(c,TT[c.dataset.k]));
-  })();
+    const full=document.getElementById('flipFull'), zoom=document.getElementById('flipZoom');
+    const N=full.width, M=zoom.width, WIN=0.12;                      // 0.12 UV wide window → 560 / (0.12 × 560) = 8.3× closer
+    const fullStage=document.getElementById('flipFullStage'), zoomStage=document.getElementById('flipZoomStage');
+    const out=document.getElementById('flipReadout');
+    const lenS=document.getElementById('fLen'), lenV=document.getElementById('fLenV'), ringsB=document.getElementById('fRings');
+    const foB=[...document.querySelectorAll('.ffo')], wpB=[...document.querySelectorAll('.fwp')], mgB=[...document.querySelectorAll('.fmg')];
+    const MAG={ring:[0.655,0.205], circle:[0.65,0.30]};              // magnifier centers, UV
+    const OTHER={linear:'smooth', smooth:'linear'};
+    let mode='linear', wp='grid', L=0.10, rings=false, cen=MAG.ring.slice(), fullImg=null, fullRuns=[], queued=0;
 
-  /* --- figure 2: the real pictures, side by side --- */
-  (function(){
-    const A=document.getElementById('cmpA'), B=document.getElementById('cmpB'), N=A.width;
-    for(const [cv,mode] of [[A,true],[B,'linear']]){
-      renderOutput(cv,STRONG,mode);
-      const ctx=cv.getContext('2d');
-      haloPath(ctx,[[0.65*N,0],[0.65*N,N]],'#ffffff',1.8);
-      drawApparent(ctx,N,STRONG,mode,0.65,'#a3e635',3);
-      haloRing(ctx,0.5*N,0.5*N,STRONG.rad*N,'#ffffff',2.5);
-      haloRing(ctx,0.5*N,0.5*N,(STRONG.rad-STRONG.band)*N,'#ffffff',1.5);
-      haloRing(ctx,0.5*N,0.5*N,(STRONG.rad+STRONG.band)*N,'#ffffff',1.5);
-      haloText(ctx,'input line x = 0.65',0.645*N,16,'#ffffff','right');
-      haloText(ctx,'apparent line',0.755*N,0.40*N,'#a3e635');
+    const loupe=document.createElement('button');
+    loupe.className='loupe'; loupe.setAttribute('aria-label','Magnifier window: drag it, or use the arrow keys');
+    loupe.style.width=loupe.style.height=(WIN*N)+'px';
+    fullStage.appendChild(loupe);
+    function mkDot(stage){ const b=document.createElement('button'); b.className='ptdot';
+      b.style.background='rgba(244,114,182,0.35)'; b.style.zIndex='7';
+      b.setAttribute('aria-label','Inspect point P'); stage.appendChild(b); return b; }
+    const pFull=mkDot(fullStage), pZoom=mkDot(zoomStage);
+
+    const GBG=[250,247,240], GLN=[26,64,102];
+    function wall(u,v,pix,col){                                      // the input picture at one read position
+      if(wp==='grid'){                                               // navy lines every 0.05, offset 0.025 so that C sits inside a cell
+        const au=u-0.025, av=v-0.025;
+        const du=Math.abs(au-Math.round(au/0.05)*0.05), dv=Math.abs(av-Math.round(av/0.05)*0.05);
+        const c=Math.min(1,Math.max(0,0.5+(0.0010-Math.min(du,dv))/pix));
+        col[0]=GBG[0]+(GLN[0]-GBG[0])*c; col[1]=GBG[1]+(GLN[1]-GBG[1])*c; col[2]=GBG[2]+(GLN[2]-GBG[2])*c;
+      } else if(wp==='checker'){ const c=checker(u,v); col[0]=c[0]; col[1]=c[1]; col[2]=c[2]; }
+      else {                                                         // the embedded photo, bilinear
+        const p=buildPhoto(840); if(!p){ col[0]=col[1]=col[2]=230; return; }
+        const S=840, x=Math.min(S-1.001,Math.max(0,u*S-0.5)), y=Math.min(S-1.001,Math.max(0,v*S-0.5));
+        const i=Math.floor(x), j=Math.floor(y), fx=x-i, fy=y-j, d=p.data, a=(j*S+i)*4, b=a+4, c=a+S*4, e=c+4;
+        for(let k=0;k<3;k++) col[k]=(d[a+k]*(1-fx)+d[b+k]*fx)*(1-fy)+(d[c+k]*(1-fx)+d[e+k]*fx)*fy;
+      }
     }
-  })();
-
-  /* --- figure 3: the upper bend endpoint, magnified --- */
-  (function(){
-    const U0=0.55, V0=0.08, W=0.20;                  // the uv window
-    const END=[0.65,0.183772];                       // the bend endpoint, on the outer band ring
-    function renderZoom(cv,mode){
-      const N=cv.width, ctx=cv.getContext('2d'), img=ctx.createImageData(N,N);
-      for(let j=0;j<N;j++){ const v=V0+(j+0.5)/N*W;
-        for(let i=0;i<N;i++){ const u=U0+(i+0.5)/N*W;
-          const c=chain(u,v,STRONG,mode).color, o=(j*N+i)*4;
-          img.data[o]=c[0]; img.data[o+1]=c[1]; img.data[o+2]=c[2]; img.data[o+3]=255;
+    function render(cv,u0,v0,W){                                     // the real chain for every pixel of one view
+      const n=cv.width, img=cv.getContext('2d').createImageData(n,n), D=img.data, pix=W/n, o=[0,0], col=[0,0,0];
+      for(let j=0;j<n;j++){ const v=v0+(j+0.5)*pix;
+        for(let i=0;i<n;i++){ const u=u0+(i+0.5)*pix;
+          readInto(u,v,L,mode,o); wall(o[0],o[1],pix,col);
+          const k=(j*n+i)*4; D[k]=col[0]; D[k+1]=col[1]; D[k+2]=col[2]; D[k+3]=255;
         }
       }
-      ctx.putImageData(img,0,0);
-      const X=u=>(u-U0)/W*N, Y=v=>(v-V0)/W*N;
-      haloPath(ctx,[[X(0.65),0],[X(0.65),N]],'#ffffff',2);        // the straight input line
-      const pts=[];                                                // the apparent line, row by row
-      for(let j=0;j<N;j++){ const v=V0+(j+0.5)/N*W; pts.push([X(apparentX(v,STRONG,mode,0.65)), j+0.5]); }
-      haloPath(ctx,pts,'#a3e635',3);
-      haloRing(ctx,X(0.5),Y(0.5),0.35/W*N,'#ffffff',1.8);          // outer band ring arc
-      haloDot(ctx,X(END[0]),Y(END[1]),5,'#f472b6');
-      haloText(ctx,'input line x = 0.65',X(0.65)+8,16,'#ffffff');
-      haloText(ctx,'bend endpoint',X(END[0])+12,Y(END[1])-16,'#f9a8d4');
-      haloText(ctx,'outer band ring, radius 0.35',10,N-18,'#ffffff');
-      haloText(ctx,'apparent line',X(0.70),N-18,'#a3e635');
+      return img;
     }
-    renderZoom(document.getElementById('zoomA'),true);
-    renderZoom(document.getElementById('zoomB'),'linear');
-    const N=document.getElementById('zoomA').width;
-    const X=u=>(u-U0)/W*N, Y=v=>(v-V0)/W*N;
-    const tips={
-      zoomAStage:'<b>Bend endpoint = (0.65, 0.1838), in UV.</b><br>Role: the apparent line rejoins the straight input line here. The line\'s distance to C at this height is radius + band = 0.35, so sd = +0.10 and falloff = 0.<br>With smoothstep the join is tangential — no corner.',
-      zoomBStage:'<b>Bend endpoint = (0.65, 0.1838), in UV.</b><br>Role: the apparent line rejoins the straight input line here (sd = +0.10, falloff = 0).<br>With the linear falloff the join is a corner: the falloff slope jumps 0 → −5 here, so the curve leaves the line at about 19° with the strong push 0.20.'
-    };
-    for(const id of ['zoomAStage','zoomBStage']){
-      const b=document.createElement('button'); b.className='ptdot';
-      b.style.background='rgba(244,114,182,0.35)';
-      b.style.left=X(END[0])+'px'; b.style.top=Y(END[1])+'px';
-      b.setAttribute('aria-label','Inspect the bend endpoint');
-      document.getElementById(id).appendChild(b); setTip(b,tips[id]);
+    function runs(m,u0,v0,W,n){                                      // the apparent line of x = 0.65, split where no pixel reads it
+      const P={len:L,rad:RAD,band:B}, res=[]; let cur=null;
+      for(let j=0;j<=n;j++){ const v=v0+j/n*W, x=apparentX(v,P,USE[m],0.65);
+        if(Math.abs(chain(x,v,P,USE[m]).rx-0.65)<1e-6){ if(!cur){ cur=[]; res.push(cur); } cur.push([(x-u0)/W*n,j]); }
+        else cur=null;
+      }
+      return res.filter(r=>r.length>1);
     }
+    function ringSet(ctx,cx,cy,sc,labels){                           // the two band rings and the circle
+      haloRing(ctx,cx,cy,0.15*sc,'#ffffff',1.6); haloRing(ctx,cx,cy,0.25*sc,'#ffffff',2.6); haloRing(ctx,cx,cy,0.35*sc,'#ffffff',1.6);
+      if(!labels) return;
+      haloText(ctx,'inner band ring, d = 0.15',cx,cy+0.15*sc+16,'#ffffff','center');
+      haloText(ctx,'circle, d = 0.25',cx,cy-0.25*sc-12,'#ffffff','center');
+      haloText(ctx,'outer band ring, d = 0.35',cx,cy-0.35*sc-12,'#ffffff','center');
+    }
+    function pTip(){
+      const t=turnDeg(mode,L);
+      const tail = mode==='linear' ? `linear: just below P the lime curve points ${t.toFixed(1)}° away from the input line — a corner.`
+                 : mode==='smooth' ? `smoothstep: just below P the lime curve points ${Math.abs(t).toFixed(1)}° away from the input line — no corner.`
+                 : 'on/off: no band, so nothing happens at P.';
+      return `<b>P = (0.65, 0.1838)</b>, in UV.<br>Role: the input line x = 0.65 meets the outer band ring here.<br>`+
+        `d = sqrt(0.15² + 0.3162²) = sqrt(0.0225 + 0.1000) = sqrt(0.1225) = 0.35; sd = 0.35 − 0.25 = +0.10 → falloff = 0 for all three falloffs, so P reads itself.<br>${tail}`;
+    }
+    function drawFull(){
+      const ctx=full.getContext('2d'); ctx.putImageData(fullImg,0,0);
+      haloPath(ctx,[[0.65*N,0],[0.65*N,N]],'#ffffff',1.4);          // where the input line sits in the wallpaper
+      for(const r of fullRuns) haloPath(ctx,r,'#a3e635',2.6);
+      if(rings) ringSet(ctx,0.5*N,0.5*N,N,true);
+      haloDot(ctx,0.65*N,PY*N,5,'#f472b6');
+      haloText(ctx,'P',0.65*N-12,PY*N-2,'#f9a8d4','right');
+      haloText(ctx,'input line x = 0.65',0.65*N+8,16,'#ffffff');
+      haloText(ctx,'lime: x = 0.65 as it shows up',0.65*N-8,N-16,'#a3e635','right');
+      const u0=cen[0]-WIN/2, v0=cen[1]-WIN/2;
+      if((u0+WIN)*N+92<N) haloText(ctx,'magnifier',(u0+WIN)*N+6,v0*N+10,'#ffffff');
+      else haloText(ctx,'magnifier',u0*N-6,v0*N+10,'#ffffff','right');
+      loupe.style.left=(u0*N)+'px'; loupe.style.top=(v0*N)+'px';
+      pFull.style.left=(0.65*N)+'px'; pFull.style.top=(PY*N)+'px'; setTip(pFull,pTip());
+    }
+    function drawZoom(){
+      const u0=cen[0]-WIN/2, v0=cen[1]-WIN/2, sc=M/WIN, X=u=>(u-u0)*sc, Y=v=>(v-v0)*sc;
+      const ctx=zoom.getContext('2d'); ctx.putImageData(render(zoom,u0,v0,WIN),0,0);
+      if(0.65>u0 && 0.65<u0+WIN) haloPath(ctx,[[X(0.65),0],[X(0.65),M]],'#ffffff',1.6);
+      if(OTHER[mode]) for(const r of runs(OTHER[mode],u0,v0,WIN,M)) haloPath(ctx,r,'#c4b5fd',1.6);
+      for(const r of runs(mode,u0,v0,WIN,M)) haloPath(ctx,r,'#a3e635',3);
+      if(rings){ ringSet(ctx,X(0.5),Y(0.5),sc,false); }
+      const inP = PY>v0+0.004 && PY<v0+WIN-0.004 && 0.65>u0+0.004 && 0.65<u0+WIN-0.004;
+      if(inP){
+        const px=X(0.65), py=Y(PY), t=turnDeg(mode,L);
+        if(mode==='linear' && t>0.05){                                // the corner angle, between the white line and the lime curve
+          const a0=Math.PI/2, a1=Math.PI/2-t*Math.PI/180, R=150;
+          for(const [w,c] of [[5.5,'rgba(17,24,39,0.92)'],[2.4,'#fde047']]){
+            ctx.beginPath(); ctx.arc(px,py,R,a1,a0,false); ctx.strokeStyle=c; ctx.lineWidth=w; ctx.stroke(); }
+          const am=(a0+a1)/2;
+          haloText(ctx,`corner: ${t.toFixed(1)}°`,px+Math.cos(am)*R+10,py+Math.sin(am)*R+2,'#fde047');
+        } else if(mode==='smooth'){
+          haloText(ctx,`no corner at P: ${Math.abs(t).toFixed(1)}°`,px+14,py+30,'#fde047');
+        } else {
+          haloText(ctx,'on/off: no band, no turn at P',px+14,py+30,'#fde047');
+        }
+        haloDot(ctx,px,py,6,'#f472b6');
+        haloText(ctx,'P',px-12,py-4,'#f9a8d4','right');
+        pZoom.style.display=''; pZoom.style.left=px+'px'; pZoom.style.top=py+'px'; setTip(pZoom,pTip());
+      } else pZoom.style.display='none';
+      haloText(ctx,'white: input line x = 0.65 (wallpaper)',10,18,'#ffffff');
+      haloText(ctx,`lime: where it shows up (${NAME[mode]})`,10,40,'#a3e635');
+      if(OTHER[mode]) haloText(ctx,`violet: the ${NAME[OTHER[mode]]} curve`,10,62,'#c4b5fd');
+      if(rings) haloText(ctx,'white arcs: the circle and the band rings',10,OTHER[mode]?84:62,'#ffffff');
+      haloText(ctx,`window: x ${u0.toFixed(3)} to ${(u0+WIN).toFixed(3)}, y ${v0.toFixed(3)} to ${(v0+WIN).toFixed(3)} (UV)`,10,M-14,'#ffffff');
+    }
+    function readout(){
+      const t=turnDeg(mode,L), l=[];
+      l.push(`falloff = ${NAME[mode]}    dispLen = ${fmt(L,2)}    band = 0.10    radius = 0.25`);
+      l.push(`P = (0.65, 0.1838): d = sqrt(0.15² + 0.3162²) = sqrt(0.0225 + 0.1000) = sqrt(0.1225) = 0.35`);
+      l.push(`  sd = 0.35 − 0.25 = +0.10 → falloff 0 → P reads itself, for all three falloffs`);
+      if(mode==='linear') l.push(`  just below P the lime curve points ${t.toFixed(1)}° away from the input line → it changes direction at once: a corner`);
+      if(mode==='linear') l.push(`  (measured on the real chain; the step-split figure below derives the same angle by hand)`);
+      else if(mode==='smooth') l.push(`  just below P the lime curve points ${Math.abs(t).toFixed(1)}° away from the input line → no corner; it bends later, a little at a time`);
+      else l.push(`  on/off has no band, so nothing happens at P: the lime curve goes straight through`);
+      if(mode==='onoff') l.push(`circle edge (0.65, 0.30): just inside, push = ${fmt(L,2)} × 1 = ${fmt(L,2)}; on the edge, push = ${fmt(L,2)} × 0 = 0 → the push jumps: the lines break`);
+      else l.push(`circle edge (0.65, 0.30): sd = 0 → falloff = 0.50 on both sides, push = ${fmt(L,2)} × 0.50 = ${fmt(L*0.5,3)} → no jump, no break`);
+      out.textContent=l.join('\n');
+    }
+    function drawAll(){ fullImg=render(full,0,0,1); fullRuns=runs(mode,0,0,1,N); drawFull(); drawZoom(); readout(); }
+    function later(fn){ if(queued) return; queued=requestAnimationFrame(()=>{ queued=0; fn(); }); }
+    foB.forEach(b=>b.addEventListener('click',()=>{ mode=b.dataset.fo; pressOnly(foB,b); drawAll(); }));
+    wpB.forEach(b=>b.addEventListener('click',()=>{ wp=b.dataset.w; pressOnly(wpB,b); drawAll(); }));
+    mgB.forEach(b=>b.addEventListener('click',()=>{ cen=MAG[b.dataset.m].slice(); pressOnly(mgB,b); drawFull(); drawZoom(); }));
+    lenS.addEventListener('input',()=>{ L=+lenS.value; lenV.textContent=fmt(L,2); later(drawAll); });
+    ringsB.addEventListener('click',()=>{ rings=!rings; ringsB.setAttribute('aria-pressed',String(rings));
+      ringsB.textContent=rings?'Hide the band rings':'Show the band rings'; drawFull(); drawZoom(); });
+    function setCen(u,v){
+      cen=[Math.min(1-WIN/2,Math.max(WIN/2,u)),Math.min(1-WIN/2,Math.max(WIN/2,v))];
+      mgB.forEach(b=>b.setAttribute('aria-pressed','false'));
+      later(()=>{ drawFull(); drawZoom(); });
+    }
+    let drag=null;
+    loupe.addEventListener('pointerdown',e=>{ const r=full.getBoundingClientRect();
+      drag={dx:(e.clientX-r.left)/r.width-cen[0], dy:(e.clientY-r.top)/r.height-cen[1]};
+      loupe.setPointerCapture(e.pointerId); e.preventDefault(); });
+    loupe.addEventListener('pointermove',e=>{ if(!drag) return; const r=full.getBoundingClientRect();
+      setCen((e.clientX-r.left)/r.width-drag.dx,(e.clientY-r.top)/r.height-drag.dy); });
+    loupe.addEventListener('pointerup',()=>{ drag=null; });
+    loupe.addEventListener('keydown',e=>{
+      const m={ArrowLeft:[-0.01,0],ArrowRight:[0.01,0],ArrowUp:[0,-0.01],ArrowDown:[0,0.01]}[e.key];
+      if(m){ e.preventDefault(); setCen(cen[0]+m[0],cen[1]+m[1]); }
+    });
+    document.addEventListener('photo:ready',()=>{ if(wp==='photo') drawAll(); });
+    drawAll();
+  })();
+
+  /* ---------- figure 2: the reads along one ray (stepper) ---------- */
+  (function(){
+    const svg=document.getElementById('raySvg'), cap=document.getElementById('rayCap'), dotsBox=document.getElementById('rayDots');
+    const foB=[...document.querySelectorAll('.rfo')];
+    const X=x=>250+(x-0.49)*2000, YF=f=>190-f*140;                  // ray x (UV) → px; falloff → px
+    const YP=300, YR=432, YS=482, YB=660, BAR=60, L=0.10;           // pixel row, wallpaper ruler, spacing row, bar baseline, px per ×1.00
+    const LBL='font-size="14" font-weight="600"', T14='font-size="14"';
+    const STEPS=6;
+    let mode='linear', step=0;
+    function samples(h){ const xs=[], n=Math.round(0.32/h), st=Math.round(h*100);
+      for(let k=0;k<=n;k++) xs.push((59+k*st)/100); return xs; }       // integer steps keep 0.75 and 0.85 exact
+    function foCalc(m,x){                                            // the full falloff calculation for pixel x on the ray
+      const sd=(x-0.5)-RAD, f=foVal(m,sd);
+      const head=`d = ${fmt(x,2)} − 0.50 = ${fmt(x-0.5,2)}; sd = d − 0.25 = ${sgn(sd,2)}`;
+      if(m==='onoff') return `${head}; ${sd<0?'below 0 → falloff = 1':'not below 0 → falloff = 0'}`;
+      const raw=(sd+B)/(2*B), t=Math.min(1,Math.max(0,raw));
+      const tS=`t = (${sgn(sd,2)} + 0.10) ÷ 0.20 = ${fmt(raw,3)}${raw<0?' → clamped to 0':raw>1?' → clamped to 1':''}`;
+      if(m==='linear') return `${head}; ${tS}; falloff = 1 − t = ${fmt(f,3)}`;
+      const s=t*t*(3-2*t);
+      return `${head}; ${tS}; smoothstep = 3t² − 2t³ = 3(${fmt(t*t,4)}) − 2(${fmt(t*t*t,6)}) = ${fmt(s,5)}; falloff = 1 − ${fmt(s,5)} = ${fmt(f,5)}`;
+    }
+    function build(){
+      const h=step===5?0.01:0.02, xs=samples(h), n=xs.length, dense=h<0.02;
+      const fo=xs.map(x=>foVal(mode,(x-0.5)-RAD)), rd=xs.map((x,k)=>x-L*fo[k]);
+      const idx=v=>xs.findIndex(x=>Math.abs(x-v)<1e-9);
+      const hi = mode==='onoff' ? idx(0.75)-1 : idx(0.85)-1;         // the highlighted pair: (hi, hi + 1)
+      const showLab=k=> !dense || k===hi || k===idx(0.65) || k===idx(0.74);
+      const TT={};
+      let s=`<defs><marker id="rayArr" markerUnits="strokeWidth" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#0891b2"/></marker></defs>`;
+      /* the band, the two band rings, the circle */
+      s+=`<rect x="${X(0.65)}" y="44" width="${X(0.85)-X(0.65)}" height="${YP+16-44}" fill="#f5f3ff"/>`;
+      for(const [x,a,b] of [[0.65,'inner band ring','x = 0.65 · sd = −0.10'],[0.75,'circle edge','x = 0.75 · sd = 0'],[0.85,'outer band ring','x = 0.85 · sd = +0.10']]){
+        s+=`<line x1="${X(x)}" y1="40" x2="${X(x)}" y2="${YB}" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4 4"/>`;
+        s+=`<text x="${X(x)}" y="16" ${LBL} fill="#374151" text-anchor="middle">${a}</text>`;
+        s+=`<text x="${X(x)}" y="34" ${T14} fill="#6b7280" text-anchor="middle">${b}</text>`;
+      }
+      s+=`<text x="${X(0.75)}" y="${YP-22}" ${LBL} fill="#7c3aed" text-anchor="middle">${mode==='onoff'?'the band (used by linear and smoothstep)':'the band'}</text>`;
+      /* graph: falloff above each output pixel */
+      s+=`<line x1="${X(0.57)}" y1="${YF(0)}" x2="${X(0.93)}" y2="${YF(0)}" stroke="#6b7280" stroke-width="1.2"/>`;
+      s+=`<line x1="${X(0.57)}" y1="${YF(0)}" x2="${X(0.57)}" y2="${YF(1)-8}" stroke="#6b7280" stroke-width="1.2"/>`;
+      for(const [f,t] of [[1,'1'],[0.5,'0.5'],[0,'0']]) s+=`<text x="${X(0.57)-8}" y="${YF(f)+5}" ${T14} fill="#374151" text-anchor="end">${t}</text>`;
+      s+=`<text x="20" y="112" ${LBL} fill="#1f2937">falloff</text><text x="20" y="132" ${T14} fill="#4b5563">above each pixel</text>`;
+      for(const m of ['onoff','linear','smooth']){
+        const sel=m===mode, st=`fill="none" stroke="${COL[m]}" stroke-width="${sel?3.5:1.6}" stroke-opacity="${sel?1:0.45}"`;
+        if(m==='onoff'){                                             // two flat pieces: no connector line at the jump
+          s+=`<path d="M${X(0.57)},${YF(1)} L${X(0.75)},${YF(1)}" ${st}/><path d="M${X(0.75)},${YF(0)} L${X(0.93)},${YF(0)}" ${st}/>`;
+          continue;
+        }
+        let d=''; for(let k=0;k<=360;k++){ const x=0.57+0.001*k; d+=(k?'L':'M')+X(x).toFixed(1)+','+YF(foVal(m,(x-0.5)-RAD)).toFixed(1); }
+        s+=`<path d="${d}" ${st}/>`;
+      }
+      s+=`<text x="${X(0.925)}" y="${YF(1)+(mode==='onoff'?28:5)}" ${T14} fill="#374151" text-anchor="end"><tspan fill="${COL[mode]}" font-weight="700">${NAME[mode]}</tspan> is bold; the other two are faint</text>`;
+      if(mode==='onoff'){                                            // the end of the "1" piece is not part of the curve
+        s+=`<circle class="pt" data-k="open" cx="${X(0.75)}" cy="${YF(1)}" r="5.5" fill="#ffffff" stroke="${COL.onoff}" stroke-width="2.5"/>`;
+        s+=`<text x="${X(0.75)+12}" y="${YF(1)+5}" ${T14} fill="#374151">open circle: not on the curve</text>`;
+        TT.open='<b>Open circle at (sd, falloff) = (0, 1)</b><br>Role: marks where the "1" piece of the on/off falloff ends.<br>It is not part of the curve: the falloff is 1 for every sd below 0, and 0 from sd = 0 on. At sd = 0 exactly the falloff is 0 (the filled dot below).';
+      }
+      /* stairs: the drop per step */
+      if(step>=1){
+        s+=`<text x="20" y="232" ${LBL} fill="#dc2626">drop per step</text>`;
+        for(let k=0;k<n-1;k++){
+          const x0=X(xs[k]), x1=X(xs[k+1]), y0=YF(fo[k]), y1=YF(fo[k+1]), dr=fo[k]-fo[k+1];
+          s+=`<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="#9ca3af" stroke-width="1.5"/>`;
+          if(dr>1e-9) s+=`<line x1="${x1}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="#dc2626" stroke-width="3.5"/>`;
+          if(showLab(k)) s+=`<text x="${x1}" y="232" ${T14} fill="${dr>1e-9?'#dc2626':'#9ca3af'}" text-anchor="middle">${dr>1e-9?fmt(dr,dense?5:3):'0'}</text>`;
+        }
+      }
+      /* sample dots on the bold curve */
+      xs.forEach((x,k)=>{
+        s+=`<circle class="pt" data-k="g${k}" cx="${X(x)}" cy="${YF(fo[k])}" r="${dense?4:5.5}" fill="${COL[mode]}" stroke="#111827" stroke-width="1.5"/>`;
+        TT['g'+k]=`<b>(sd, falloff) = (${sgn(x-0.75,2)}, ${fmt(fo[k],5)})</b> — the ${NAME[mode]} curve<br>Role: the falloff of the output pixel x = ${fmt(x,2)} on the ray.<br>${foCalc(mode,x)}`;
+      });
+      /* the output pixels on the ray */
+      s+=`<line x1="${X(0.50)}" y1="${YP}" x2="${X(0.93)}" y2="${YP}" stroke="#9ca3af" stroke-width="1.5"/>`;
+      s+=`<circle class="pt" data-k="c" cx="${X(0.50)}" cy="${YP}" r="6" fill="#4338ca" stroke="#111827" stroke-width="1.5"/>`;
+      s+=`<text x="${X(0.50)}" y="${YP-14}" ${LBL} fill="#4338ca" text-anchor="middle">C</text>`;
+      TT.c='<b>C = (0.50, 0.50)</b>, in UV<br>Role: the circle center. The ray starts here and goes right along y = 0.50.';
+      s+=`<text x="20" y="${YP-4}" ${LBL} fill="#92400e">output pixels</text><text x="20" y="${YP+16}" ${T14} fill="#4b5563">on the ray y = 0.50, ${fmt(h,2)} apart</text>`;
+      if(step>=3){                                                   // the highlighted pair
+        s+=`<rect x="${X(xs[hi])-12}" y="${YP-13}" width="${X(xs[hi+1])-X(xs[hi])+24}" height="26" rx="8" fill="#fde68a" fill-opacity="0.8"/>`;
+        s+=`<rect x="${X(rd[hi])-12}" y="${YR-13}" width="${X(rd[hi+1])-X(rd[hi])+24}" height="26" rx="8" fill="#fde68a" fill-opacity="0.8"/>`;
+      }
+      xs.forEach((x,k)=>{
+        s+=`<circle class="pt" data-k="p${k}" cx="${X(x)}" cy="${YP}" r="${dense?4.5:6}" fill="#fbbf24" stroke="#111827" stroke-width="1.5"/>`;
+        TT['p'+k]=`<b>Output pixel (${fmt(x,2)}, 0.50)</b>, in UV<br>Role: one of the output pixels on the ray, ${fmt(h,2)} apart.<br>${foCalc(mode,x)}<br>push arrow = dispLen × falloff = 0.10 × ${fmt(fo[k],5)} = ${fmt(L*fo[k],6)}<br>reads x = ${fmt(x,2)} − ${fmt(L*fo[k],6)} = ${fmt(rd[k],6)}`;
+      });
+      /* push arrows, the wallpaper ruler, the read positions */
+      if(step>=2){
+        s+=`<text x="20" y="360" ${LBL} fill="#0e7490">push arrows</text><text x="20" y="380" ${T14} fill="#4b5563">pixel → read, 0.10 × falloff</text>`;
+        xs.forEach((x,k)=>{ const w=(step>=3&&(k===hi||k===hi+1))?3.2:2;
+          s+=`<line x1="${X(x)}" y1="${YP+8}" x2="${X(rd[k])}" y2="${YR-8}" stroke="#0891b2" stroke-width="${w}" marker-end="url(#rayArr)"/>`; });
+        s+=`<line x1="${X(0.49)}" y1="${YR}" x2="${X(0.93)}" y2="${YR}" stroke="#1f2937" stroke-width="2"/>`;
+        for(let t=50;t<=90;t+=5){ const x=t/100;
+          s+=`<line x1="${X(x)}" y1="${YR-5}" x2="${X(x)}" y2="${YR+5}" stroke="#1f2937" stroke-width="1.5"/>`;
+          s+=`<text x="${X(x)}" y="${YR+22}" ${T14} fill="#6b7280" text-anchor="middle">${x.toFixed(2)}</text>`; }
+        if(mode==='onoff') s+=`<line x1="${X(0.65)}" y1="${YR}" x2="${X(0.75)}" y2="${YR}" stroke="#dc2626" stroke-width="6"/>`;
+        s+=`<text x="20" y="${YR-4}" ${LBL} fill="#065f46">wallpaper spots</text><text x="20" y="${YR+16}" ${T14} fill="#4b5563">the pixels read</text>`;
+        xs.forEach((x,k)=>{
+          s+=`<circle class="pt" data-k="r${k}" cx="${X(rd[k])}" cy="${YR}" r="${dense?4:5.5}" fill="#059669" stroke="#111827" stroke-width="1.5"/>`;
+          TT['r'+k]=`<b>Read position (${fmt(rd[k],6)}, 0.50)</b>, in the wallpaper's UV<br>Role: where the output pixel x = ${fmt(x,2)} reads.<br>readUv.x = x − 0.10 × falloff = ${fmt(x,2)} − 0.10 × ${fmt(fo[k],5)} = ${fmt(rd[k],6)}`;
+        });
+      }
+      /* spacing between neighboring reads */
+      if(step>=3){
+        s+=`<text x="20" y="${YS}" ${LBL} fill="#1e40af">spacing</text>`;
+        for(let k=0;k<n-1;k++) if(showLab(k)){
+          const sp=rd[k+1]-rd[k];
+          s+=`<text x="${(X(rd[k])+X(rd[k+1]))/2}" y="${YS}" ${T14} fill="#1e40af" font-weight="${k===hi?700:400}" text-anchor="middle">${fmt(sp,dense?6:4)}</text>`;
+        }
+        if(mode==='onoff') s+=`<text x="${X(0.70)}" y="684" ${LBL} fill="#dc2626" text-anchor="middle">red on the ruler: wallpaper 0.65 to 0.75 — no pixel reads it</text>`;
+      }
+      /* the squeeze */
+      if(step>=4){
+        s+=`<text x="20" y="${YB-122}" ${LBL} fill="#4338ca">squeeze</text><text x="20" y="${YB-102}" ${T14} fill="#4b5563">= spacing ÷ ${fmt(h,2)}</text>`;
+        s+=`<line x1="${X(0.49)}" y1="${YB-BAR}" x2="${X(0.93)}" y2="${YB-BAR}" stroke="#6b7280" stroke-width="1" stroke-dasharray="5 4"/>`;
+        s+=`<text x="20" y="${YB-BAR+5}" ${T14} fill="#6b7280">×1.00 = no squeeze</text>`;
+        s+=`<line x1="${X(0.49)}" y1="${YB}" x2="${X(0.93)}" y2="${YB}" stroke="#1f2937" stroke-width="1.2"/>`;
+        for(let k=0;k<n-1;k++){
+          const sp=rd[k+1]-rd[k], sq=sp/h, hgt=Math.min(sq,2.4)*BAR, x0=X(rd[k])+1, w=Math.max(1,X(rd[k+1])-X(rd[k])-2);
+          s+=`<rect class="pt" data-k="b${k}" x="${x0}" y="${YB-hgt}" width="${w}" height="${hgt}" fill="${k===hi?'#fcd34d':'#c7d2fe'}" stroke="${k===hi?'#b45309':'#4338ca'}" stroke-width="1.2"/>`;
+          if(sq>2.4) s+=`<path d="M${x0},${YB-hgt+10} l${w/4},-8 l${w/4},8 l${w/4},-8 l${w/4},8" fill="none" stroke="#ffffff" stroke-width="3"/>`;
+          if(showLab(k)) s+=`<text x="${x0+w/2}" y="${YB-hgt-6}" ${T14} fill="${k===hi?'#92400e':'#312e81'}" font-weight="${k===hi?700:400}" text-anchor="middle">×${sq.toFixed(2)}</text>`;
+          TT['b'+k]=`<b>Squeeze ×${sq.toFixed(3)}</b> — between the reads of the output pixels ${fmt(xs[k],2)} and ${fmt(xs[k+1],2)}<br>spacing = ${fmt(rd[k+1],6)} − ${fmt(rd[k],6)} = ${fmt(sp,6)}<br>squeeze = spacing ÷ pixel step = ${fmt(sp,6)} ÷ ${fmt(h,2)} = ${sq.toFixed(3)}<br>Meaning: one output step of ${fmt(h,2)} shows ${fmt(sp,6)} of wallpaper.${sq>2.4?'<br>The bar is cut at ×2.40 to fit.':''}`;
+        }
+      }
+      return {s,TT};
+    }
+    const CAP=[
+      m=>`<b>Step 1 of 6 — one ray.</b> The row <code>y = 0.50</code>, from inside the circle (left) to outside (right). One output pixel every 0.02: the yellow dots. The graph above the row shows each pixel's falloff on the bold <b>${NAME[m]}</b> curve, one dot per pixel. All three curves are 1 left of the inner band ring and 0 right of the outer band ring. On this ray <code>d = x − 0.50</code>, so <code>sd = d − 0.25 = x − 0.75</code>.`,
+      m=>`<b>Step 2 of 6 — the drop per step.</b> The red stairs show how much the falloff goes down from one pixel to the next. `+({
+        linear:'<b>linear:</b> 0.10 at every step inside the band. The first stair is as tall as the middle ones, and before the first stair the drop is 0. So the drop jumps from 0 to 0.10 at once, on both band rings. The ten stairs add up to 1.',
+        smooth:'<b>smoothstep:</b> 0.028, 0.076, 0.112, 0.136, 0.148, then the same numbers back down. The stairs start small, grow, and shrink again, so the drop never jumps from 0 to a big value. The smoothstep stairs also add up to 1.',
+        onoff:'<b>on/off:</b> one single stair of 1, between the pixels 0.73 and 0.75. Every other drop is 0.'})[m],
+      m=>`<b>Step 3 of 6 — the reads.</b> Each output pixel reads the wallpaper closer to C by its push arrow (cyan), which goes from the pixel to the spot it reads: length = dispLen × falloff = 0.10 × falloff<button class="info" data-tip="proplen">ⓘ</button>. Inside the inner band ring every arrow is 0.10 long, so the arrows are parallel. Outside the outer band ring every arrow is 0 long: every pixel there reads itself. The arrows are drawn slanted only to separate the pixel row from the wallpaper row; their left-right length is the read distance.`+(m==='onoff'?' <b>on/off:</b> the arrows are 0.10 long up to the pixel 0.73, then 0 from the pixel 0.75 on.':''),
+      m=>`<b>Step 4 of 6 — the spacing between reads.</b> Neighboring reads sit (0.02 + 0.10 × drop) apart: the outer pixel is 0.02 farther out, and its arrow is 0.10 × drop shorter. The highlighted pair: `+({
+        linear:'pixel 0.83 has sd = +0.08, falloff = 1 − (0.08 + 0.10) ÷ 0.20 = 1 − 0.90 = 0.10, arrow 0.10 × 0.10 = 0.010, read 0.83 − 0.010 = 0.820. Pixel 0.85 has sd = +0.10, falloff = 1 − (0.10 + 0.10) ÷ 0.20 = 1 − 1 = 0, and reads 0.850. Spacing = 0.850 − 0.820 = 0.030 = 0.02 + 0.010.',
+        smooth:'pixel 0.83 has t = (0.08 + 0.10) ÷ 0.20 = 0.90, smoothstep = 3(0.81) − 2(0.729) = 0.972, falloff = 1 − 0.972 = 0.028, arrow 0.10 × 0.028 = 0.0028, read 0.83 − 0.0028 = 0.8272. Pixel 0.85 has t = (0.10 + 0.10) ÷ 0.20 = 1, smoothstep = 3 − 2 = 1, falloff 0, and reads 0.850. Spacing = 0.850 − 0.8272 = 0.0228 = 0.02 + 0.0028.',
+        onoff:'pixel 0.73 has sd = −0.02, below 0, so falloff 1, arrow 0.10, read 0.63. Pixel 0.75 has sd = 0, not below 0, so falloff 0, and reads 0.75. Spacing = 0.75 − 0.63 = 0.12 = 0.02 + 0.10.'})[m],
+      m=>`<b>Step 5 of 6 — the squeeze.</b> Squeeze = spacing ÷ 0.02: how much wallpaper one output step shows, compared with no glass (×1.00). ×1.50 means one output step shows 1.5 steps of wallpaper, so the wallpaper looks pressed together. `+({
+        linear:'<b>linear:</b> ×1.00 outside, then ×1.50 right at the outer band ring (0.030 ÷ 0.02). The squeeze switches on at full strength: a hard edge, like the hard circle edge of Lesson 9.2. The inner band ring has the same hard edge.',
+        smooth:'<b>smoothstep:</b> ×1.14, ×1.38, ×1.56, ×1.68, ×1.74, then back down. The squeeze fades in and out: a soft edge on both band rings, like the soft mask of Lesson 9.3.',
+        onoff:'<b>on/off:</b> ×6.00 in one step (0.12 ÷ 0.02). The pixels between 0.73 and 0.75 read 0.63 to 0.65, and the pixel 0.75 reads 0.75, so no pixel reads the wallpaper from 0.65 to 0.75: the break.'})[m],
+      m=>`<b>Step 6 of 6 — halve the step.</b> One pixel every 0.01 now; labels show only the highlighted pair and two others. `+({
+        linear:'<b>linear:</b> pixels 0.84 and 0.85 read 0.835 and 0.850: spacing 0.015, and 0.015 ÷ 0.01 = ×1.50 again. The first squeeze stays ×1.50 however small the step: the hard edge is real.',
+        smooth:'<b>smoothstep:</b> pixel 0.84 has falloff 1 − 0.99275 = 0.00725 and reads 0.84 − 0.000725 = 0.839275. Spacing = 0.85 − 0.839275 = 0.010725, and 0.010725 ÷ 0.01 = ×1.07, down from ×1.14. For the real pixels of the whole output above, 1/560 apart, it is ×1.01<button class="info" data-tip="realpx">ⓘ</button>. The smaller the step, the closer to ×1.00: no hard edge.',
+        onoff:'<b>on/off:</b> pixels 0.74 and 0.75 read 0.64 and 0.75: one step now shows 0.11 of wallpaper, ×11.00. The break stays.'})[m]
+    ];
+    const dots=[];
+    for(let k=0;k<STEPS;k++){ const b=document.createElement('button'); b.className='dot';
+      b.setAttribute('aria-label','Go to step '+(k+1)); b.addEventListener('click',()=>{ step=k; draw(); });
+      dotsBox.appendChild(b); dots.push(b); }
+    function draw(){
+      const {s,TT}=build();
+      svg.innerHTML=s;
+      svg.querySelectorAll('.pt').forEach(el=>{ el.setAttribute('role','button'); el.setAttribute('aria-label','Inspect this point'); setTip(el,TT[el.dataset.k]); });
+      cap.innerHTML=CAP[step](mode); wireInfo(cap);
+      document.getElementById('rayBack').disabled=step===0;
+      document.getElementById('rayNext').disabled=step===STEPS-1;
+      dots.forEach((d,k)=>d.classList.toggle('on',k===step));
+    }
+    document.getElementById('rayBack').addEventListener('click',()=>{ if(step>0){ step--; draw(); } });
+    document.getElementById('rayNext').addEventListener('click',()=>{ if(step<STEPS-1){ step++; draw(); } });
+    foB.forEach(b=>b.addEventListener('click',()=>{ mode=b.dataset.fo; pressOnly(foB,b); draw(); }));
+    draw();
+  })();
+
+  /* ---------- figure 3: split one step at P, squeeze only the ray part ---------- */
+  (function(){
+    const svg=document.getElementById('sqSvg'), out=document.getElementById('sqReadout');
+    const sl=document.getElementById('sqS'), sv=document.getElementById('sqV'), pre=[...document.querySelectorAll('.sqp')];
+    const RAY=[-0.15/0.35, Math.sqrt(0.1)/0.35];                    // unit direction from P toward C: (−0.428571, 0.903508)
+    const RING=[RAY[1],-RAY[0]];                                    // unit direction along the ring, down and right: (0.903508, 0.428571)
+    const STEP=0.02, A=STEP*RAY[1], BR=STEP*RING[1];                 // the step (0, 0.020) split: ray part 0.018070, ring part 0.008571
+    const SC=13000, P0={x:262,y:78};                                 // UV → px around P
+    const S=(u,v)=>[P0.x+(u-0.65)*SC, P0.y+(v-PY)*SC];
+    const K=RING[1]/RING[0];                                         // the ring line's rise per px across
+    let sq=1.5;
+    function ln(p,q,c,w,halo){ let r='';
+      if(halo) r+=`<line x1="${p[0]}" y1="${p[1]}" x2="${q[0]}" y2="${q[1]}" stroke="rgba(17,24,39,0.92)" stroke-width="${w+3.4}" stroke-linecap="round"/>`;
+      return r+`<line x1="${p[0]}" y1="${p[1]}" x2="${q[0]}" y2="${q[1]}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`; }
+    function head(p,q,c,sz){                                         // a filled arrow head at q, pointing from p to q
+      const a=Math.atan2(q[1]-p[1],q[0]-p[0]), L1=[q[0]-sz*Math.cos(a-0.45),q[1]-sz*Math.sin(a-0.45)], L2=[q[0]-sz*Math.cos(a+0.45),q[1]-sz*Math.sin(a+0.45)];
+      return `<path d="M${q[0]},${q[1]} L${L1[0]},${L1[1]} L${L2[0]},${L2[1]} Z" fill="${c}"/>`; }
+    const LB='font-size="14" font-weight="600"';
+    function draw(){
+      const ra=A/sq;                                                 // the squeezed ray part
+      const pP=[0.65,PY], tIn=[0.65,PY+STEP], tRay=[0.65+A*RAY[0],PY+A*RAY[1]];
+      const tSq=[0.65+ra*RAY[0],PY+ra*RAY[1]], tOut=[tSq[0]+BR*RING[0],tSq[1]+BR*RING[1]];
+      const thIn=Math.atan(BR/A)*180/Math.PI, thOut=Math.atan(BR/ra)*180/Math.PI, turn=thOut-thIn;
+      const [Px,Py]=S(...pP), In=S(...tIn), Ry=S(...tRay), Sq=S(...tSq), Ot=S(...tOut);
+      let s='';
+      s+=`<polygon points="0,${Py-Px*K} 560,${Py+(560-Px)*K} 560,470 0,470" fill="#f5f3ff"/>`;           // inside the band: toward C
+      s+=`<line x1="0" y1="${Py-Px*K}" x2="560" y2="${Py+(560-Px)*K}" stroke="#7c3aed" stroke-width="2"/>`; // the outer band ring, up close
+      const ang=Math.atan(K)*180/Math.PI;
+      s+=`<text x="${Px+62}" y="${Py+62*K-8}" ${LB} fill="#6d28d9" transform="rotate(${ang.toFixed(2)} ${Px+62} ${Py+62*K-8})">outer band ring (seen up close)</text>`;
+      s+=`<text x="16" y="440" ${LB} fill="#6d28d9">inside the band, toward C</text>`;
+      s+=`<text x="340" y="40" ${LB} fill="#6b7280">outside the band: no push</text>`;
+      s+=ln([Px,0],[Px,470],'#9ca3af',1.2,false);                     // the input line x = 0.65
+      s+=`<text x="${Px+8}" y="18" font-size="14" fill="#4b5563">input line x = 0.65</text>`;
+      s+=ln(Ry,In,'#c4b5fd',2,false)+ln([Px,Py],Ry,'#67e8f9',2,false);   // the step's two parts, before the squeeze
+      s+=ln([Px,Py],In,'#1f2937',3.2,false)+head([Px,Py],In,'#1f2937',13);
+      s+=ln([Px,Py],Sq,'#0891b2',4,false)+head([Px,Py],Sq,'#0891b2',12);
+      s+=ln(Sq,Ot,'#7c3aed',4,false)+head(Sq,Ot,'#7c3aed',12);
+      s+=ln([Px,Py],Ot,'#a3e635',3.6,true)+head([Px,Py],Ot,'#65a30d',14);
+      if(turn>0.05){                                                  // the corner angle
+        const a0=Math.PI/2, a1=Math.PI/2-turn*Math.PI/180, R=112;
+        const p0=[Px+R*Math.cos(a1),Py+R*Math.sin(a1)], p1=[Px+R*Math.cos(a0),Py+R*Math.sin(a0)];
+        s+=`<path d="M${p0[0]},${p0[1]} A${R},${R} 0 0 1 ${p1[0]},${p1[1]}" fill="none" stroke="#b45309" stroke-width="2.5"/>`;
+      }
+      s+=`<text x="${Px+104*Math.tan(turn*Math.PI/180)+12}" y="${Py+104}" ${LB} fill="#b45309">corner ${turn.toFixed(1)}°</text>`;
+      s+=`<text x="${In[0]+10}" y="${In[1]+18}" ${LB} fill="#1f2937">one step: 0.020 (wallpaper)</text>`;
+      s+=`<text x="${Ot[0]+12}" y="${Ot[1]-14}" ${LB} fill="#4d7c0f">the same step in the output</text>`;
+      s+=`<text x="${Ry[0]-10}" y="${Ry[1]+4}" ${LB} fill="#0e7490" text-anchor="end">ray part 0.01807</text>`;
+      if(sq>1.001) s+=`<text x="${Sq[0]-10}" y="${Sq[1]+4}" ${LB} fill="#0e7490" text-anchor="end">÷ ${sq.toFixed(2)} = ${fmt(ra,5)}</text>`;
+      s+=`<text x="${(Ry[0]+In[0])/2-8}" y="${(Ry[1]+In[1])/2+22}" ${LB} fill="#6d28d9" text-anchor="end">ring part 0.00857</text>`;
+      s+=`<text x="${Px-12}" y="${Py-6}" ${LB} fill="#be185d" text-anchor="end">P</text>`;
+      const pts={P:pP,in:tIn,ray:tRay,sq:tSq,out:tOut}, scr={P:[Px,Py],in:In,ray:Ry,sq:Sq,out:Ot};
+      const fill={P:'#f472b6',in:'#1f2937',ray:'#67e8f9',sq:'#0891b2',out:'#a3e635'};
+      for(const k in pts) s+=`<circle class="pt" data-k="${k}" cx="${scr[k][0]}" cy="${scr[k][1]}" r="6" fill="${fill[k]}" stroke="#111827" stroke-width="1.5" role="button" aria-label="Inspect this point"/>`;
+      svg.innerHTML=s;
+      const U=p=>`(${p[0].toFixed(6)}, ${p[1].toFixed(6)})`;
+      const TT={
+        P:`<b>P = ${U(pP)}</b>, in UV<br>Role: the input line x = 0.65 meets the outer band ring here (d = 0.35, falloff 0).`,
+        in:`<b>End of the input step = ${U(tIn)}</b>, wallpaper UV<br>Role: one step of 0.020 straight down the input line from P.`,
+        ray:`<b>End of the ray part = ${U(tRay)}</b>, wallpaper UV<br>Role: P + 0.01807 × (−0.4286, 0.9035). From here the ring part, 0.00857 along (0.9035, 0.4286), reaches the end of the input step.`,
+        sq:`<b>End of the squeezed ray part = ${U(tSq)}</b>, output UV<br>Role: P + (0.01807 ÷ ${sq.toFixed(2)}) × (−0.4286, 0.9035) = P + ${fmt(ra,5)} × (−0.4286, 0.9035).`,
+        out:`<b>End of the output step = ${U(tOut)}</b>, output UV<br>Role: the output pixel that reads the end of the input step (first-order, near P). It is ${turn.toFixed(1)}° away from the input line, seen from P.`
+      };
+      svg.querySelectorAll('.pt').forEach(el=>setTip(el,TT[el.dataset.k]));
+      out.innerHTML=
+`P = (0.65, 0.1838), on the outer band ring: 0.35 from C
+toward C: (C − P) ÷ 0.35 = (−0.15, 0.3162) ÷ 0.35 = (−0.4286, 0.9035)
+one step down the input line: (0, 0.020), length 0.020
+  part along the ray  = 0.020 × 0.9035 = 0.01807<button class="info" data-tip="split">ⓘ</button>
+  part along the ring = 0.020 × 0.4286 = 0.00857
+squeeze just inside P: ×${sq.toFixed(2)}
+  output part along the ray  = 0.01807 ÷ ${sq.toFixed(2)} = ${fmt(ra,5)}
+  output part along the ring = 0.00857   (not squeezed)
+angle away from the ray = atan(ring part ÷ ray part)<button class="info" data-tip="atan">ⓘ</button>
+  input step:  atan(0.00857 ÷ 0.01807) = atan(${(BR/A).toFixed(4)}) = ${thIn.toFixed(1)}°
+  output step: atan(0.00857 ÷ ${fmt(ra,5)}) = atan(${(BR/ra).toFixed(4)}) = ${thOut.toFixed(1)}°
+corner = ${thOut.toFixed(1)}° − ${thIn.toFixed(1)}° = ${turn.toFixed(1)}°
+→ used by: the magnifier, where the lime curve leaves P at ${turn.toFixed(1)}°`;
+      wireInfo(out);
+      sv.textContent='×'+sq.toFixed(2);
+    }
+    sl.addEventListener('input',()=>{ sq=+sl.value; pre.forEach(b=>b.setAttribute('aria-pressed',String(Math.abs(+b.dataset.s-sq)<1e-9))); draw(); });
+    pre.forEach(b=>b.addEventListener('click',()=>{ sq=+b.dataset.s; sl.value=sq; pressOnly(pre,b); draw(); }));
+    draw();
   })();
 })();
 </script>
@@ -1166,7 +1524,7 @@ document.querySelectorAll('.info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.
   const STEPS=[
     {cap:'<b>Step 1 of 6 — meet W.</b> W is one output pixel: one dot we have to paint. Its position is (0.65, 0.30) in UV numbers (0 to 1 across, 0 to 1 down). The plain way to paint W would be to read the wallpaper straight at W. We will not do that. We will move the read a little, away from the circle center C.',
      vals:['uv = (0.65, 0.30)','C  = (0.50, 0.50)','radius = 0.25']},
-    {cap:'<b>Step 2 of 6 — how far past the edge?</b> From C to W: 0.15 right and 0.20 up, the two legs of a right triangle. d = sqrt(0.15² + 0.20²) = 0.25 — a 3-4-5 triangle scaled by 0.05. The radius is also 0.25, so sd = d − radius = 0: W sits exactly on the circle edge. The thin rings mark the band: lime is sd = −0.10, pink is sd = +0.10.',
+    {cap:'<b>Step 2 of 6 — how far past the edge?</b> From C to W: 0.15 right and 0.20 up, the two legs of a right triangle. d = sqrt(0.15² + 0.20²) = 0.25 — a 3-4-5 triangle scaled by 0.05. The radius is also 0.25, so sd = d − radius = 0: W sits exactly on the circle edge. The thin rings are the band rings: lime is the inner band ring (sd = −0.10), pink is the outer band ring (sd = +0.10).',
      vals:['p  = (0.15, −0.20)','d  = sqrt(0.15² + 0.20²)','   = 0.25','sd = 0.25 − 0.25 = 0']},
     {cap:'<b>Step 3 of 6 — how much push?</b> falloff = 1 − smoothstep(−0.10, 0.10, 0) = 1 − 0.50 = 0.50: W gets half the full push. The violet fill shows falloff around the whole circle: full inside the lime ring, zero on the pink ring, shrinking smoothly between them exactly on the smoothstep curve.',
      vals:['falloff','= 1 − smoothstep(−0.10, 0.10, 0)','= 1 − 0.50','= 0.50']},
@@ -1650,18 +2008,27 @@ Traced values:
 Key facts:
 - falloff is a LENGTH scale (how long the push is), not a color mix like Lesson 9.3's mask.
 - Why smoothstep and not a straight line (Section 2): the linear falloff 1 − lin(−band, band, sd)
-  hits the same three anchors (1 / 0.5 / 0), but its slope jumps 0 → −5 at each band edge
-  (−1/(2·band) = −5 inside, 0 outside). A slope jump in falloff is a corner in the bend, sitting
-  exactly on the band rings (radius 0.15 and 0.35). smoothstep's slope is 0 at both band edges,
-  steepest −7.5 mid-band, so lines peel tangentially. It is a Metal/GLSL/HLSL builtin; the
-  straight line is not cheaper.
+  gives the same 1 / 0.5 / 0 at sd = −0.10 / 0 / +0.10. On the ray y = 0.50 with one pixel every
+  0.02, its drop per step is 0 outside the band and 0.10 from the very first step inside. Read
+  spacing = 0.02 + 0.10 × drop, squeeze = spacing ÷ 0.02: linear jumps ×1.00 → ×1.50 at once on
+  both band rings (radius 0.15 and 0.35), for any step size. smoothstep's drops start small
+  (0.028, 0.076, …), its squeeze fades in (×1.14 … ×1.74), and it tends to ×1.00 at the rings as
+  the step shrinks (×1.07 at 0.01, ×1.01 at 1/560).
+- A squeeze that switches on at once turns a slanted line at once: split one step of the input line
+  at P = (0.65, 0.1838) into a ray part (0.9035) and a ring part (0.4286); only the ray part is
+  squeezed. linear: corner of 10.1° at dispLen 0.10 (18.1° at 0.20). smoothstep: 0° at P.
+  "Linear" describes the falloff graph; the lime curve is still curved either way (within 0.005).
+- The on/off falloff breaks the picture instead: on the row y = 0.50 no pixel reads the wallpaper
+  from 0.65 to 0.75. On a busy photo the linear corners are hard to see; on straight lines (text,
+  list rows, grids) they line up on the band rings. smoothstep is a Metal/GLSL/HLSL built-in; it
+  costs three more arithmetic operations per pixel (counted, not measured).
 - The line x = 0.90 never moves: smallest sd = 0.40 − 0.25 = 0.15 > band 0.10 → falloff = 0.
 - Delete × falloff → Lesson 9.10: everything moves by the full dispLen, far lines included.
 - Push-arrow length = |disp| = dispLen x falloff (dir has length 1, so it never changes the length).
   Along the apparent line of x = 0.65: 0.071083 at the peak P1 = (0.721083, 0.50),
   0.064278 at P2 = (0.707927, 0.40), 0.038201 at P3 = (0.675169, 0.30), 0 at the bend ends
   (y = 0.1838 and y = 0.8162). At the peak it is NOT the full 0.10: falloff there is 0.710831.
-  The full 0.10 lives inside the inner ring (sd <= -0.10): pixel (0.65, 0.50) reads (0.55, 0.50).
+  The full 0.10 lives inside the inner band ring (sd <= -0.10): pixel (0.65, 0.50) reads (0.55, 0.50).
 - The apparent line peels only near the circle: the bend runs y = 0.1838 → y = 0.8162.
   Why the peel is a curve and not straight pieces: proved in Lesson 9.10 for the same
   construction (the push follows sqrt distance + smoothstep, not linear on each half); reused here.
