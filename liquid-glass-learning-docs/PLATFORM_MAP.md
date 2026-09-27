@@ -91,7 +91,7 @@ ShaderRect(shader: ShaderLibrary.labOrange())
 1. One `.metal` file per explorer (or one chapter file). Functions are `[[ stitchable ]]`. SwiftUI requires `float2 position, half4 color` first. Old uniforms become extra parameters, passed from Swift as `.float` / `.float2`.
 2. `ShaderRect` is `Rectangle().fill(.white).colorEffect(shader)`. Do not add `MTKView` for Chapters 8–9.
 3. `position` is view **points**, origin top-left, y down. UV (`position / size`) is the same in points or pixels. Lesson 8.4’s `80.0` stays **80 pixels**: pass `displayScale` and use `position * scale`.
-4. A missing Shader argument is a Swift compile error, not a silent 0. To teach a zero slot, pass `0` on purpose.
+4. A missing Shader argument is not a silent 0. `ShaderLibrary` looks the function up by name, so the Swift file still compiles. SwiftUI refuses that draw. To teach a zero slot, pass `0` on purpose. Lesson 8.12 is the Xcode Metal compile error.
 5. `background.eval(coord)` becomes a Metal **function call** in the same `.metal` file, not `layer.sample`. Lesson 9.8: negative x is not clamped.
 6. Lesson 8.2 is “add a `.metal` file; Xcode compiles it.” Lesson 8.12 is an **Xcode** Metal compile error (`gl_FragCoord` in an otherwise legal 8.11 program). There is no runtime `try` constructor.
 
@@ -136,7 +136,7 @@ Android `MainActivity` only launches Chapters 8–9 at runtime; 1–7 exist for 
 - Same control flow and overlay marks.
 - SwiftUI structure mirrors the composable tree (`VStack`/`ZStack`/`Canvas` for `Column`/`Box`/`Canvas`).
 - Pixel **math** copied into `[[ stitchable ]]` functions. Add SwiftUI’s required `position` and `color` parameters. Uniforms become extra arguments. Do not rewrite the arithmetic.
-- Where iOS **behavior** has no twin (8.9 missing argument is a Swift compile error, not silent 0; 8.12 is an Xcode Metal log, not a runtime `Error`; 16.14 API 31 fallbacks become iOS 16 fallbacks), teach the iOS fact in that pedagogical slot. Do not fake Android diagnostics.
+- Where iOS **behavior** has no twin (8.9 missing argument is not a silent 0: the Swift file still compiles and SwiftUI refuses the draw; pass 0 to show the slot; 8.12 is an Xcode Metal log, not a runtime `Error`; 16.14 API 31 fallbacks become iOS 16 fallbacks), teach the iOS fact in that pedagogical slot. Do not fake Android diagnostics.
 
 ---
 

@@ -414,7 +414,7 @@ Chapters **1, 2, 6, 7, 8** and Lessons **9.7–9.9** must be re-read on iOS for 
 8.6  uv = fragCoord / resolution; last pixel is not exactly 1; not a texture sample
 8.7  scalar / vector / member; half 16-bit; float 32-bit; no GPU timing claim
 8.8  p = uv - 0.5 from the middle; × 2 puts edges near ±1; 1 = one half-width
-8.9  splitU and leftColor as Shader arguments; missing argument is a Swift compile error; pass 0 to show a zero slot
+8.9  splitU and leftColor as Shader arguments; a missing argument still compiles and SwiftUI refuses the draw; pass 0 to show a zero slot
 8.10 trips = elapsedSeconds / 4.0; fract(uv.x - time) as red; .metal file is not rebuilt
 8.11 clamp → mix(a,b,t)=a+(b−a)×t → smoothstep bends linearFraction
      mix(navy, orange, smoothstep(0.40, 0.60, uv.x))

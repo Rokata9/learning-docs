@@ -158,7 +158,7 @@ Android `MainActivity` only launches Chapters 8–9 at runtime; 1–7 exist for 
 - Same control flow and overlay marks.
 - SwiftUI structure mirrors the composable tree (`VStack`/`ZStack`/`Canvas` for `Column`/`Box`/`Canvas`).
 - Shader **bodies** copied, then only AGSL-host names that the helper already understands stay; do not rewrite the math.
-- Where iOS **behavior** has no twin (8.9 mismatch-is-zero is preserved by the helper; 8.12 exception type becomes Metal `Error`; 16.14 API 31 fallbacks become iOS 16 fallbacks), teach the iOS fact in that pedagogical slot. Do not fake Android diagnostics.
+- Where iOS **behavior** has no twin (8.9 missing argument is not a silent 0: the Swift file still compiles and SwiftUI refuses the draw; pass 0 to show the slot; 8.12 exception type becomes Metal `Error`; 16.14 API 31 fallbacks become iOS 16 fallbacks), teach the iOS fact in that pedagogical slot. Do not fake Android diagnostics.
 
 ---
 
@@ -528,7 +528,7 @@ Must re-read on iOS (lab path is new). Do not rebuild frost math.
 | **8B** | 8.2, 8.3 | `RuntimeShaderExplorer`, `FixedColorShaderExplorer` |
 | **8C** | 8.4, 8.5 | `FragCoordExplorer`, `ResolutionShaderExplorer` — 80 px; resolution in **pixels** |
 | **8D** | 8.6, 8.7, 8.8 | UV, scalars, `p = uv - 0.5` |
-| **8E** | 8.9, 8.10 | Shader arguments + time; missing argument is a compile error; pass 0 to show a zero slot |
+| **8E** | 8.9, 8.10 | Shader arguments + time; a missing argument still compiles and SwiftUI refuses the draw; pass 0 to show a zero slot |
 | **8F** | 8.11, 8.12 | mix/smoothstep numbers unchanged; `gl_FragCoord` is an Xcode Metal error |
 | **8H** | hub `lesson-your-first-agsl-shader.html` | `Chapter08Screen` |
 

@@ -12,17 +12,17 @@
 <body>
 <main class="page">
   <div class="topbar">
-    <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-your-first-agsl-shader.html">Chapter 8</a> · Lesson 8.5 · complete</div>
-    <div class="chips"><span class="chip progress">82 of 216 complete</span><span class="chip progress">Lesson 8.5 complete</span></div>
+    <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-your-first-agsl-shader.html">Chapter 8</a> · Lesson 8.5</div>
+    <div class="chips"><span class="chip pending">Must re-read</span><span class="chip progress">40 of 216 complete</span><span class="chip">iPhone 16 Pro</span></div>
   </div>
 
   <header class="hero panel">
     <div>
       <div class="eyebrow">Chapter 8 · Tell the shader the rectangle’s size</div>
       <h1>Resolution</h1>
-      <p class="lead"><strong>Question:</strong> Lesson 8.4 split the rectangle at 80 pixels from the left. That 80 is a pixel count written into the AGSL string. It does not move when the rectangle gets wider. How does the shader learn this rectangle’s width and height?</p>
-      <div class="plain-rule"><strong>Resolution</strong> in this lesson is the draw rectangle’s width and height, in pixels. Kotlin writes that pair into a named slot called a <strong>uniform</strong>. The GPU then reads the same pair on every call to <code>main</code>. <code>splitX</code> is half of that width, still a pixel count.</div>
-      <div class="note"><strong>Complete.</strong> This lesson’s uniform is only resolution. A color uniform, a time uniform, and other Kotlin values are Lesson 8.9. Dividing position by resolution to get a fraction near 0..1 is Lesson 8.6. This page is a JavaScript stand-in. The Android explorer runs the real <code>setFloatUniform</code>.</div>
+      <p class="lead"><strong>Question:</strong> Lesson 8.4 split the rectangle at 80 pixels from the left. That 80 is a pixel count written into the function. It does not move when the rectangle gets wider. How does the shader learn this rectangle’s width and height?</p>
+      <div class="plain-rule"><strong>Resolution</strong> in this lesson is the draw rectangle’s width and height, in pixels. Swift passes that pair as the extra argument <code>resolution</code>. The GPU reads the same pair on every call. <code>splitX</code> is half of that width, still a pixel count.</div>
+      <div class="note"><strong>Must re-read.</strong> Chapter 8 is an iOS on-ramp chapter. iOS-confirmed complete remains 40 of 216 through Lesson 9.6. This lesson does not raise that count. The live checkpoint remains Lesson 1.3. This lesson’s extra argument is only resolution. A color argument, a time argument, and other Swift values are Lesson 8.9. Dividing position by resolution to get a fraction near 0..1 is Lesson 8.6. This page is a JavaScript stand-in. The iPhone 16 Pro explorer passes <code>.float2</code> in pixels.</div>
     </div>
     <div class="hero-art" aria-label="Canvas size, uniform resolution, half-width split">
       <div class="hero-pipeline">
@@ -38,23 +38,28 @@
     <div class="section-head"><div><div class="section-no">1 · THE NEW OBJECTS</div><h2>Name resolution, the uniform slot, and splitX</h2></div></div>
     <div class="four">
       <article class="card blue"><h3>Two different objects</h3><p><code>fragCoord</code> is this pixel’s position. Resolution is the whole rectangle’s width and height. A pixel at <code>(40, 60)</code> on a 400-wide rectangle has <code>fragCoord = (40, 60)</code> and resolution width 400. Those numbers are not interchangeable. You cannot compute “left half” from <code>fragCoord</code> alone.</p></article>
-      <article class="card indigo"><h3>Resolution</h3><p>Resolution in this lesson is the pair <code>(width, height)</code> of the draw rectangle, in pixels. Kotlin reads it from the Canvas as <code>size.width</code> and <code>size.height</code>. Those values are pixels, not dp. Lesson 2.5 already separated those units. At density 1 they can match. On a Pixel 8 Pro they do not.</p></article>
-      <article class="card green"><h3>Uniform</h3><p>A uniform in this lesson is a named slot in the compiled program. Kotlin writes a value into that slot. The GPU reads the same value for every pixel of this draw. The AGSL string is not rewritten. Lesson 8.3 rebuilt <code>RuntimeShader</code> to change color. This slot is only resolution. Other slots are Lesson 8.9.</p></article>
+      <article class="card indigo"><h3>Resolution</h3><p>Resolution in this lesson is the pair <code>(width, height)</code> of the draw rectangle, in pixels. Swift reads the view size in points and multiplies by <code>displayScale</code>. Those values are pixels, not points. Lesson 2.5 already separated those units. At scale 1 they can match. On the iPhone 16 Pro, scale is usually 3, so they do not.</p></article>
+      <article class="card green"><h3>Uniform</h3><p>A uniform in this lesson is the extra argument <code>float2 resolution</code>, after <code>position</code>, <code>color</code>, and <code>scale</code>. Swift passes a value into that argument. The GPU reads the same value for every pixel of this draw. The <code>.metal</code> file is not rewritten. Lesson 8.3 selected a different stitchable function to change color. This argument is only resolution. Other arguments are Lesson 8.9.</p></article>
       <article class="card amber"><h3>splitX</h3><p><code>splitX</code> is a name for half the current width, in pixels. <code>splitX = resolution.x / 2.0</code>. For width 240, splitX is 120. For width 400, splitX is 200. It is still a pixel count compared with <code>fragCoord.x</code>. It is not a 0..1 fraction.</p></article>
     </div>
     <div class="formulas">
-      <div class="formula">Kotlin, once per draw of this rectangle:
-shader.setFloatUniform("resolution", size.width, size.height)
-  ← writes the pair into the compiled program
-  ← does not rebuild RuntimeShader</div>
-      <div class="formula">AGSL, once per output pixel:
+      <div class="formula">Swift, once per draw of this rectangle:
+pixelWidth = pointWidth * displayScale
+pixelHeight = pointHeight * displayScale
+ShaderLibrary.halfOfResolution(
+    .float(Float(displayScale)),
+    .float2(Float(pixelWidth), Float(pixelHeight)))
+  ← passes the pair into the compiled function
+  ← does not compile a new .metal function</div>
+      <div class="formula">MSL, once per output pixel:
+fragCoord = position * scale
 splitX = resolution.x / 2.0
 if (fragCoord.x &lt; splitX) return orange
 else return navy
   ← every pixel sees the same resolution pair
-  ← each pixel has its own fragCoord</div>
+  ← each pixel has its own position</div>
     </div>
-    <p>Kotlin writes resolution once for this draw, on the CPU, before <code>drawRect</code>. Then the GPU calls <code>main</code> many times. Each call sees the same resolution pair and a different <code>fragCoord</code>. <code>resolution.y</code> is the height. This split does not read it. The pair still needs two numbers because <code>float2</code> is two numbers.</p>
+    <p>Swift passes resolution once for this draw, on the CPU, before <code>colorEffect</code> fills the rectangle. Then the GPU calls <code>halfOfResolution</code> many times. Each call sees the same resolution pair and a different <code>position</code>. <code>fragCoord</code> is <code>position × scale</code>. <code>resolution.y</code> is the height in pixels. This split does not read it. The pair still needs two numbers because <code>float2</code> is two numbers.</p>
   </section>
 
   <section class="section panel" id="lab">
@@ -95,12 +100,12 @@ else return navy
         </div>
       </article>
       <article class="canvas-card">
-        <div class="canvas-title"><strong>Current AGSL</strong><span>8.5 does not rewrite this string when width changes</span></div>
+        <div class="canvas-title"><strong>Current function</strong><span>8.5 does not rewrite this function when width changes</span></div>
         <pre class="code-block" id="labCode"></pre>
         <p id="labCodeCaption" style="margin-top:10px"></p>
       </article>
     </div>
-    <div class="note"><strong>Browser versus Android.</strong> These widths are teaching pixel counts. Android uses <code>Modifier.width(240.dp)</code> for the narrow card. At Preview density 1, 240.dp is 240 pixels. On a Pixel 8 Pro, 240.dp is more than 240 pixels. The 8.4 line stays 80 pixels from the left. The 8.5 line stays at half of <code>size.width</code>.</div>
+    <div class="note"><strong>Browser versus iOS.</strong> These widths are teaching pixel counts, 240 px and 400 px, with height 160 px. The iPhone 16 Pro explorer lays out 240 pt or 360 pt cards, height 140 pt. Pixel size is points × <code>displayScale</code>. At scale 3, 240 pt is 720 px and 360 pt is 1080 px. The 8.4 line stays 80 pixels from the left. The 8.5 line stays at half of the pixel width, which is the visual center.</div>
   </section>
 
   <section class="section panel" id="trace">
@@ -109,9 +114,9 @@ else return navy
     <div class="two">
       <article class="card indigo">
         <h3>Width 240</h3>
-        <div class="formula">size.width = 240
-size.height = 160
-Kotlin writes resolution = (240, 160)
+        <div class="formula">teaching width = 240 px
+teaching height = 160 px
+passed resolution = (240, 160)
 splitX = 240 / 2.0 = 120
 pixel x=150:
 150 &lt; 120 → no → navy
@@ -120,8 +125,8 @@ pixel x=40:
       </article>
       <article class="card green">
         <h3>Width 400</h3>
-        <div class="formula">size.width = 400
-Kotlin writes resolution = (400, 160)
+        <div class="formula">teaching width = 400 px
+passed resolution = (400, 160)
 splitX = 400 / 2.0 = 200
 pixel x=150:
 150 &lt; 200 → yes → orange
@@ -159,61 +164,59 @@ That mismatch is the proof</div>
 
   <section class="section panel">
     <div class="section-head"><div><div class="section-no">5 · WHEN THE UNIFORM IS WRITTEN</div><h2>Once per draw, then many GPU calls</h2></div></div>
-    <svg class="compare-svg" viewBox="0 0 1180 300" role="img" aria-label="CPU writes resolution once, then GPU calls main per pixel">
-      <text x="40" y="36" fill="#172033" font-size="18" font-weight="800">CPU, once for this Canvas draw</text>
+    <svg class="compare-svg" viewBox="0 0 1180 300" role="img" aria-label="CPU passes resolution once, then the GPU calls the function per pixel">
+      <text x="40" y="36" fill="#172033" font-size="18" font-weight="800">CPU, once for this rectangle</text>
       <rect x="40" y="52" width="520" height="90" fill="#dbeafe" stroke="#1e40af"/>
-      <text x="300" y="88" text-anchor="middle" fill="#172033" font-size="16" font-weight="800">size.width, size.height</text>
-      <text x="300" y="114" text-anchor="middle" fill="#172033" font-size="15">setFloatUniform("resolution", …)</text>
+      <text x="300" y="88" text-anchor="middle" fill="#172033" font-size="16" font-weight="800">points × displayScale</text>
+      <text x="300" y="114" text-anchor="middle" fill="#172033" font-size="15">.float2(pixelWidth, pixelHeight)</text>
       <text x="620" y="36" fill="#172033" font-size="18" font-weight="800">GPU, once per output pixel</text>
       <rect x="620" y="52" width="520" height="90" fill="#ecfdf5" stroke="#059669"/>
-      <text x="880" y="88" text-anchor="middle" fill="#172033" font-size="16" font-weight="800">main(fragCoord) for pixel A, then B, …</text>
+      <text x="880" y="88" text-anchor="middle" fill="#172033" font-size="16" font-weight="800">halfOfResolution for pixel A, then B, …</text>
       <text x="880" y="114" text-anchor="middle" fill="#172033" font-size="15">each call reads the same resolution pair</text>
-      <text x="40" y="180" fill="#172033" font-size="16">The AGSL string is not rebuilt. Lesson 8.3 rebuilt RuntimeShader to change color. Width change here only writes the slot.</text>
-      <text x="40" y="208" fill="#172033" font-size="16">The Kotlin name string must equal the AGSL name. A mismatch is not a compile error. The slot then stays at its default, often 0. Lesson 8.12 debugs that class of fault.</text>
-      <text x="40" y="236" fill="#172033" font-size="16">resolution.y is written because float2 needs two numbers. This split does not read y. Lesson 8.6 will use both members to make a 0..1 pair.</text>
-      <text x="40" y="264" fill="#172033" font-size="16">Other uniforms — a color, a time, an amount — are Lesson 8.9. This slot is only the rectangle’s size.</text>
+      <text x="40" y="180" fill="#172033" font-size="16">The .metal file is not rewritten. Lesson 8.3 selected another function to change color. Width change here only passes a new float2.</text>
+      <text x="40" y="208" fill="#172033" font-size="16">Swift passes the pair by argument order. Omitting it still lets the Swift file compile. SwiftUI refuses that draw. Lesson 8.9 passes 0 to show a zero slot.</text>
+      <text x="40" y="236" fill="#172033" font-size="16">resolution.y is passed because float2 needs two numbers. This split does not read y. Lesson 8.6 will use both members to make a 0..1 pair.</text>
+      <text x="40" y="264" fill="#172033" font-size="16">Other arguments — a color, a time, an amount — are Lesson 8.9. This argument is only the rectangle’s size.</text>
     </svg>
   </section>
 
   <section class="section panel">
-    <div class="section-head"><div><div class="section-no">6 · ANDROID ROUTE</div><h2>Write resolution every draw</h2></div></div>
+    <div class="section-head"><div><div class="section-no">6 · iOS ROUTE</div><h2>Pass resolution every draw</h2></div></div>
     <div class="code-grid">
-      <pre class="code-block"><code>private const val HalfSplitAgsl = """
-uniform float2 resolution;
-
-half4 main(float2 fragCoord) {
+      <pre class="code-block"><code>// shader/Resolution.metal
+[[ stitchable ]] half4 halfOfResolution(
+    float2 position, half4 color, float scale, float2 resolution) {
+    float2 fragCoord = position * scale;
     float splitX = resolution.x / 2.0;
     if (fragCoord.x &lt; splitX) {
         return half4(0.88, 0.48, 0.18, 1.0);
     }
     return half4(0.10, 0.25, 0.40, 1.0);
 }
-"""
 
-val shader = remember { RuntimeShader(HalfSplitAgsl) }
-val brush = remember(shader) { ShaderBrush(shader) }
-
-Canvas(Modifier.width(if (wide) 360.dp else 240.dp).height(140.dp)) {
-    shader.setFloatUniform("resolution", size.width, size.height)
-    drawRect(brush = brush)
-}</code></pre>
+let pixelWidth = pointWidth * displayScale
+let pixelHeight = pointHeight * displayScale
+ShaderLibrary.halfOfResolution(
+    .float(Float(displayScale)),
+    .float2(Float(pixelWidth), Float(pixelHeight)))
+// 8.4 leftover stays ShaderLibrary.splitAtEighty(.float(Float(displayScale)))</code></pre>
       <div class="card">
         <h3>What each part changes</h3>
-        <p><code>remember { RuntimeShader(...) }</code> compiles once. Switching 240.dp and 360.dp does not construct a new <code>RuntimeShader</code>.</p>
-        <p><code>setFloatUniform("resolution", size.width, size.height)</code> runs on the CPU in the Canvas lambda, once per draw of this rectangle. <code>size.width</code> is pixels of this Canvas.</p>
-        <p><code>240.dp</code> is a teaching width so the 8.4 leftover of 80 pixels still sits inside the narrow card in Preview at density 1. It is not glass geometry. On a Pixel 8 Pro, 240.dp is more than 240 pixels, and the 8.5 split still sits at half of those pixels.</p>
-        <p><strong>Android files:</strong><br><code>chapter08/ResolutionShaderExplorer.kt</code><br><code>chapter08/Chapter08Screen.kt</code></p>
+        <p>Xcode compiles <code>halfOfResolution</code> when it builds the app. Switching 240 pt and 360 pt does not compile a new function. Swift passes a new <code>float2</code> into the same function.</p>
+        <p><code>.float2(pixelWidth, pixelHeight)</code> runs on the CPU once per draw of this rectangle. The view’s <code>width</code> and <code>height</code> are points. Multiply by <code>displayScale</code> before the call. The shader compares pixel <code>fragCoord</code> with half of that pixel width.</p>
+        <p>240 pt is a teaching width so the 8.4 leftover of 80 pixels still sits inside the narrow card. It is not glass geometry. On the iPhone 16 Pro, 240 pt is usually 720 pixels, and the 8.5 split still sits at half of those pixels.</p>
+        <p><strong>iOS files:</strong><br><code>shader/Resolution.metal</code><br><code>shader/FragCoord.metal</code><br><code>chapter08/ResolutionShaderExplorer.swift</code><br><code>chapter08/Chapter08Screen.swift</code><br>LabHost opens Chapter 8. The test device is iPhone 16 Pro.</p>
       </div>
     </div>
   </section>
 
   <section class="section panel">
     <div class="section-head"><div><div class="section-no">7 · PREDICTION</div><h2>Where is the 8.5 split after the width changes?</h2></div></div>
-    <p>The Canvas was 240 pixels wide. The 8.5 program splits at half of <code>resolution.x</code>. You switch the Canvas to 400 pixels wide. Kotlin writes the new pair. The AGSL string is not rewritten. Where is the 8.5 split now?</p>
+    <p>The teaching rectangle was 240 pixels wide. The 8.5 program splits at half of <code>resolution.x</code>. You switch that rectangle to 400 pixels wide. Swift passes the new pair. The <code>.metal</code> function is not rewritten. Where is the 8.5 split now?</p>
     <div class="prediction">
       <button class="choice" data-answer="wrong">Still 80. Resolution does not change a split.</button>
-      <button class="choice" data-answer="correct">200. Half of 400. Kotlin wrote the new width into the same compiled program.</button>
-      <button class="choice" data-answer="wrong">120. Half of the old 240, because uniforms freeze at compile.</button>
+      <button class="choice" data-answer="correct">200. Half of 400. Swift passed the new pixel width into the same compiled function.</button>
+      <button class="choice" data-answer="wrong">120. Half of the old 240, because arguments freeze at compile.</button>
     </div>
     <div class="result" id="predictionResult">Choose one answer.</div>
   </section>
@@ -222,24 +225,20 @@ Canvas(Modifier.width(if (wide) 360.dp else 240.dp).height(140.dp)) {
     <div class="section-head"><div><div class="section-no">8 · CODING CHALLENGE</div><h2>Declare the slot and write the pair</h2></div></div>
     <div class="challenge">
       <div>
-        <textarea class="editor" id="challengeEditor" spellcheck="false">uniform float2 ___;
-
-half4 main(float2 fragCoord) {
+        <textarea class="editor" id="challengeEditor" spellcheck="false">[[ stitchable ]] half4 halfOfResolution(float2 position, half4 color, float scale, float2 ___) {
+    float2 fragCoord = position * scale;
     float splitX = ___.x / 2.0;
     if (fragCoord.x &lt; splitX) {
         return half4(0.88, 0.48, 0.18, 1.0);
     }
     return half4(0.10, 0.25, 0.40, 1.0);
-}
-
-// Kotlin, inside Canvas:
-shader.setFloatUniform("___", size.width, size.height)</textarea>
+}</textarea>
         <div class="controls" style="margin-top:10px">
           <button class="btn primary" id="checkChallenge">Check</button>
           <button class="btn" id="showSolution">Show solution</button>
           <button class="btn" id="resetChallenge">Reset</button>
         </div>
-        <div class="result" id="challengeResult">The three blanks are the same name. It is this lesson’s size pair.</div>
+        <div class="result" id="challengeResult">Both blanks are the same name. It is this lesson’s size pair.</div>
       </div>
       <div class="card indigo">
         <h3>Available names</h3>
@@ -248,59 +247,59 @@ fragCoord
 80.0
 iColor
 size</div>
-        <p>The slot name in AGSL and the string passed to <code>setFloatUniform</code> must match. <code>fragCoord</code> is the current pixel, not the rectangle size. <code>80.0</code> is Lesson 8.4’s leftover. <code>iColor</code> would be a color uniform, which is Lesson 8.9. <code>size</code> is the Kotlin Canvas property, not the AGSL name in this lesson.</p>
+        <p>Both blanks are the parameter name <code>resolution</code>. Swift passes pixels with <code>.float2(pixelWidth, pixelHeight)</code>. There is no string name. <code>fragCoord</code> is the current pixel, not the rectangle size. <code>80.0</code> is Lesson 8.4’s leftover. <code>iColor</code> would be a color argument, which is Lesson 8.9. <code>size</code> is the point size, not this lesson’s pixel-pair name.</p>
       </div>
     </div>
   </section>
 
   <section class="section panel">
     <div class="section-head"><div><div class="section-no">9 · EXERCISES</div><h2>Answer before opening each hidden solution</h2></div></div>
-    <details><summary>What is resolution in this lesson?</summary><p>The draw rectangle’s width and height, in pixels. Kotlin writes that pair with <code>setFloatUniform("resolution", size.width, size.height)</code>.</p></details>
-    <details><summary>Diagnostic: can <code>main</code> compute “left half” from <code>fragCoord</code> alone?</summary><p>No. <code>fragCoord</code> is this pixel’s position. Half of the rectangle needs the rectangle’s width. That width is resolution.x, not fragCoord.x.</p></details>
-    <details><summary>You switch 240.dp to 360.dp. Does Kotlin construct a new <code>RuntimeShader</code>?</summary><p>No. The compiled program stays. Kotlin writes a new resolution pair into the existing uniform slot. Lesson 8.3 constructed a new <code>RuntimeShader</code> because it rewrote the string to change color.</p></details>
+    <details><summary>What is resolution in this lesson?</summary><p>The draw rectangle’s width and height, in pixels. Swift passes that pair with <code>.float2(pixelWidth, pixelHeight)</code> after multiplying the point size by <code>displayScale</code>.</p></details>
+    <details><summary>Diagnostic: can the function compute “left half” from <code>fragCoord</code> alone?</summary><p>No. <code>fragCoord</code> is this pixel’s position. Half of the rectangle needs the rectangle’s width. That width is resolution.x, not fragCoord.x.</p></details>
+    <details><summary>You switch 240 pt to 360 pt. Does Xcode compile a new stitchable function?</summary><p>No. <code>halfOfResolution</code> stays. Swift passes a new resolution pair into that argument. At scale 3 the pixel widths are 720 and 1080, so splitX is 360 and 540. Lesson 8.3 selected a different function because the return color changed.</p></details>
     <details><summary>A pixel has x=150 on a 400-wide rectangle. What does 8.4 store? What does 8.5 store?</summary><p>8.4 compares 150 &lt; 80, which is false, so navy. 8.5 compares 150 &lt; 200, which is true, so orange. That pair is the proof that the baked 80 does not follow size.</p></details>
   </section>
 
   <section class="section panel">
-    <div class="section-head"><div><div class="section-no">10 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div></div>
+    <div class="section-head"><div><div class="section-no">10 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div><p>Chapter 8 is a must-re-read on-ramp chapter. iOS-confirmed complete remains 40 of 216 through Lesson 9.6. This lesson does not raise that count. The live checkpoint remains Lesson 1.3. Use the Xcode previews, then the iPhone 16 Pro.</p></div>
     <div class="checklist">
-      <label class="check"><input type="checkbox">The 8.5 Canvas split sits at the visual center for both 240.dp and the wide width.</label>
-      <label class="check"><input type="checkbox">The 8.4 leftover Canvas split stays 80 pixels from the left when the width changes.</label>
-      <label class="check"><input type="checkbox">Live readouts show <code>size.width</code> and <code>splitX = size.width / 2</code>.</label>
-      <label class="check"><input type="checkbox">Switching width does not rewrite the 8.5 AGSL string.</label>
-      <label class="check"><input type="checkbox">On a Pixel 8 Pro, 240.dp is more than 240 pixels, and the 8.5 split still sits at half of those pixels.</label>
-      <label class="check"><input type="checkbox">This HTML page never claims to compile AGSL.</label>
-      <label class="check"><input type="checkbox">The direct explorer Preview scrolls in light and dark. Dark <code>@Preview</code> is first.</label>
-      <label class="check"><input type="checkbox">The Chapter 8 screen Preview scrolls in light and dark.</label>
+      <label class="check"><input type="checkbox">The 8.5 split sits at the visual center for both 240 pt and 360 pt.</label>
+      <label class="check"><input type="checkbox">The 8.4 leftover split stays 80 pixels from the left when the width changes.</label>
+      <label class="check"><input type="checkbox">Live readouts show the pixel width and <code>splitX = pixel width / 2</code>.</label>
+      <label class="check"><input type="checkbox">Switching width does not rewrite <code>halfOfResolution</code>.</label>
+      <label class="check"><input type="checkbox">On the iPhone 16 Pro, 240 pt is 240 × displayScale pixels, usually 720. The 8.5 split still sits at half of those pixels.</label>
+      <label class="check"><input type="checkbox">This HTML page never claims to compile Metal.</label>
+      <label class="check"><input type="checkbox">The direct explorer Preview scrolls in light and dark at 412 × 915 points.</label>
+      <label class="check"><input type="checkbox">The Chapter 8 screen Preview scrolls in light and dark. LabHost opens Chapter 8.</label>
     </div>
   </section>
 
   <section class="section panel">
     <div class="section-head"><div><div class="section-no">11 · EVIDENCE BOUNDARY</div><h2>What this lesson establishes</h2></div></div>
     <div class="two">
-      <div class="card green"><h3>Established</h3><p>The shader does not receive the rectangle’s width and height as part of <code>fragCoord</code>. Kotlin writes that pair into a uniform named <code>resolution</code>. <code>splitX = resolution.x / 2.0</code> is half the current width in pixels. Changing Canvas width updates the slot without rebuilding <code>RuntimeShader</code>. The 8.4 leftover of 80 pixels does not follow size.</p></div>
-      <div class="card amber"><h3>Not claimed</h3><p>This page’s fill is not a GPU compile. Dividing position by resolution to get a 0..1 pair is Lesson 8.6. Color, time, and other uniforms are Lesson 8.9. A mismatched uniform name is not measured here. <code>half</code> versus <code>float</code> is Lesson 8.7. Chapter 7 frost is unchanged.</p></div>
+      <div class="card green"><h3>Established</h3><p>The shader does not receive the rectangle’s width and height as part of <code>fragCoord</code>. Swift passes that pair as the argument <code>resolution</code>, in pixels. <code>splitX = resolution.x / 2.0</code> is half the current width in pixels. Changing the view width passes a new pair without compiling a new function. The 8.4 leftover of 80 pixels does not follow size.</p></div>
+      <div class="card amber"><h3>Not claimed</h3><p>This page’s fill is not a GPU compile. Dividing position by resolution to get a 0..1 pair is Lesson 8.6. Color, time, and other arguments are Lesson 8.9. A missing argument is not measured here. <code>half</code> versus <code>float</code> is Lesson 8.7. Chapter 7 frost is unchanged. This re-read does not raise the 40 of 216 count. The live checkpoint remains Lesson 1.3.</p></div>
     </div>
     <button class="btn primary" id="buildRecord" style="margin-top:16px">Build local review record</button>
     <textarea class="record" id="record" readonly>No record generated yet.</textarea>
   </section>
 
-  <footer class="footer panel"><span>82 of 216 complete · Lesson 8.5 complete</span><span>Previous complete: <a href="lesson-08-04-fragcoord.html">8.4 — fragCoord</a> · Next complete: <a href="lesson-08-06-uv-coordinates.html">8.6 — UV coordinates</a></span></footer>
+  <footer class="footer panel"><span>40 of 216 complete · checkpoint Lesson 1.3</span><span>Previous: <a href="lesson-08-04-fragcoord.html">8.4 — fragCoord</a> · Next: <a href="lesson-08-06-uv-coordinates.html">8.6 — UV coordinates</a></span></footer>
 </main>
 <script>
 const ORANGE='#e07a2e';
 const NAVY='#1a4066';
 const H=160;
 const FIXED=80;
-const AGSL_FIXED=`half4 main(float2 fragCoord) {
+const MSL_FIXED=`[[ stitchable ]] half4 splitAtEighty(float2 position, half4 color, float scale) {
+    float2 fragCoord = position * scale;
     if (fragCoord.x < 80.0) {
         return half4(0.88, 0.48, 0.18, 1.0);
     }
     return half4(0.10, 0.25, 0.40, 1.0);
 }`;
-const AGSL_HALF=`uniform float2 resolution;
-
-half4 main(float2 fragCoord) {
+const MSL_HALF=`[[ stitchable ]] half4 halfOfResolution(float2 position, half4 color, float scale, float2 resolution) {
+    float2 fragCoord = position * scale;
     float splitX = resolution.x / 2.0;
     if (fragCoord.x < splitX) {
         return half4(0.88, 0.48, 0.18, 1.0);
@@ -363,9 +362,9 @@ function updateLab(){
   document.getElementById('cmpMetric').textContent=`${fmt1(px)} < ${s} → ${less?'yes':'no'}`;
   document.getElementById('retMetric').innerHTML=`<span class="swatch" style="background:${c.css}"></span>${c.name}`;
   document.getElementById('labSizeLabel').textContent=`${width} × ${H} px`;
-  document.getElementById('labCode').textContent=prog==='half'?AGSL_HALF:AGSL_FIXED;
+  document.getElementById('labCode').textContent=prog==='half'?MSL_HALF:MSL_FIXED;
   document.getElementById('labCodeCaption').textContent=prog==='half'
-    ? `Kotlin would write resolution = (${width}, ${H}). The string is not rewritten. splitX = ${s}.`
+    ? `This teaching rectangle would pass resolution = (${width}, ${H}). The function is not rewritten. splitX = ${s}.`
     : `Lesson 8.4 leftover. Width is ${width}, but the if still uses 80.`;
   document.getElementById('labCaption').textContent=
     `Selected (${fmt1(px)}, ${fmt1(py)}) stores ${c.name} because ${fmt1(px)} < ${s} is ${less?'true':'false'}.`;
@@ -427,34 +426,34 @@ const STEPS=[
   },
   {
     title:'Resolution is the width and height pair',
-    caption:'Resolution in this lesson is (size.width, size.height) of the draw rectangle, in pixels. Kotlin already has those numbers in the Canvas lambda. The shader does not, until Kotlin writes them.',
+    caption:'Resolution in this lesson is the draw rectangle’s width and height, in pixels. Swift already has the point size. The shader does not, until Swift multiplies by displayScale and passes the pair.',
     rule:'resolution = (width px, height px)',
-    input:'DrawScope.size',
+    input:'point size × displayScale',
     operation:'name the pair',
     output:'a candidate input named resolution',
     w:400, program:'fixed', mark:null
   },
   {
-    title:'A uniform is a named slot Kotlin can write',
-    caption:'uniform float2 resolution declares the slot in AGSL. Kotlin writes it with setFloatUniform("resolution", size.width, size.height). The GPU then reads the same pair on every call to main. The string is not rewritten. This slot is only size. Color and time are Lesson 8.9.',
-    rule:'compile once · write the slot each draw',
-    input:'compiled RuntimeShader plus Canvas size',
-    operation:'setFloatUniform',
+    title:'A uniform is an extra argument Swift can pass',
+    caption:'float2 resolution is the extra argument in the stitchable function. Swift passes it with .float2(pixelWidth, pixelHeight). The GPU then reads the same pair on every call. The .metal file is not rewritten. This argument is only size. Color and time are Lesson 8.9.',
+    rule:'compile once · pass the argument each draw',
+    input:'compiled halfOfResolution plus pixel size',
+    operation:'.float2',
     output:'every pixel can read resolution',
     w:400, program:'half', mark:null
   },
   {
-    title:'Kotlin writes once, then the GPU calls main many times',
-    caption:'The Canvas lambda runs on the CPU. setFloatUniform runs there, once for this rectangle. drawRect then asks the GPU to fill. Each GPU call has its own fragCoord and the same resolution pair. Kotlin does not write the slot once per pixel.',
-    rule:'1 CPU write of the pair\nthen N GPU calls of main',
-    input:'one Canvas draw',
+    title:'Swift passes the pair once, then the GPU calls the function many times',
+    caption:'The view body runs on the CPU. .float2 runs there, once for this rectangle. colorEffect then asks the GPU to fill. Each GPU call has its own position and the same resolution pair. Swift does not pass the pair once per pixel.',
+    rule:'1 CPU pass of the pair\nthen N GPU calls of halfOfResolution',
+    input:'one rectangle draw',
     operation:'write, then fill',
     output:'shared resolution, per-pixel fragCoord',
     w:400, program:'half', mark:null
   },
   {
     title:'Trace width 240: splitX = 120',
-    caption:'resolution.x is 240. Divide by 2.0. splitX is 120. Pixel x=40 is orange. Pixel x=150 is navy, because 150 < 120 is false. splitX is still a pixel count, not a 0..1 fraction.',
+    caption:'resolution.x is 240. Divide by 2.0. splitX is 120. The pixel at x=40 is orange. The pixel at x=150 is navy, because 150 < 120 is false. splitX is still a pixel count, not a 0..1 fraction.',
     rule:'splitX = 240 / 2.0 = 120',
     input:'resolution (240, 160) and fragCoord.x',
     operation:'half, then compare',
@@ -463,7 +462,7 @@ const STEPS=[
   },
   {
     title:'Trace width 400: pixel 150 flips relative to 8.4',
-    caption:'resolution.x is 400. splitX is 200. Pixel x=150 is orange in 8.5 because 150 < 200. The same pixel is navy in 8.4 because 150 < 80 is false. That color change at one pixel is the proof.',
+    caption:'resolution.x is 400. splitX is 200. The pixel at x=150 is orange in 8.5 because 150 < 200. The same pixel is navy in 8.4 because 150 < 80 is false. That color change at one pixel is the proof.',
     rule:'8.5: 150 < 200 → orange\n8.4: 150 < 80 → navy',
     input:'one pixel x=150, two programs',
     operation:'compare the two splits',
@@ -472,7 +471,7 @@ const STEPS=[
   },
   {
     title:'y of resolution is unread. UV is next.',
-    caption:'resolution.y is written so the float2 is complete. This split does not read it. Lesson 8.6 will divide fragCoord by resolution to get a pair near 0..1. Other uniforms stay Lesson 8.9. Do not treat 200 as a 0..1 value.',
+    caption:'resolution.y is passed so the float2 is complete. This split does not read it. Lesson 8.6 will divide position by resolution to get a pair near 0..1. Other arguments stay Lesson 8.9. Do not treat 200 as a 0..1 value.',
     rule:'half-width in pixels established\nposition / size deferred to 8.6',
     input:'the proved splitX',
     operation:'name the next consumer',
@@ -538,13 +537,13 @@ document.querySelectorAll('.choice').forEach(btn=>{
     btn.classList.add('selected');
     const box=document.getElementById('predictionResult');
     if(btn.dataset.answer==='correct'){
-      box.textContent='Yes. Kotlin writes the new width into the existing slot. 400 / 2.0 = 200. The AGSL string is not rebuilt.';
+      box.textContent='Yes. Swift passes the new pixel width into the same function. 400 / 2.0 = 200. The .metal file is not rebuilt.';
       box.style.background='var(--green-soft)';
     } else if(btn.textContent.includes('Still 80')){
       box.textContent='80 is Lesson 8.4’s leftover constant. The 8.5 program uses resolution.x / 2.0, so a new width moves the split.';
       box.style.background='var(--amber-soft)';
     } else {
-      box.textContent='Uniforms are not frozen at compile. setFloatUniform runs each draw. The old 120 belonged to width 240.';
+      box.textContent='Arguments are not frozen at compile. Swift passes .float2 each draw. The old 120 belonged to width 240.';
       box.style.background='var(--amber-soft)';
     }
   });
@@ -553,39 +552,32 @@ document.querySelectorAll('.choice').forEach(btn=>{
 const starter=document.getElementById('challengeEditor').value;
 document.getElementById('checkChallenge').addEventListener('click',()=>{
   const text=document.getElementById('challengeEditor').value;
-  const names=[...text.matchAll(/uniform float2\s+(\w+)/g)].map(m=>m[1]);
-  const kotlin=[...text.matchAll(/setFloatUniform\("(\w+)"/g)].map(m=>m[1]);
+  const param=/float2\s+resolution\b/.test(text);
   const usesRes=/resolution\.x/.test(text);
   const has80=/80\.0/.test(text);
   const hasIColor=/iColor/.test(text);
   const box=document.getElementById('challengeResult');
-  const name=names[0];
-  const kName=kotlin[0];
-  if(name==='resolution' && kName==='resolution' && usesRes && !has80 && !hasIColor){
-    box.textContent='Correct. The AGSL slot and the Kotlin string are both resolution. splitX uses resolution.x / 2.0.';
+  if(param && usesRes && !has80 && !hasIColor){
+    box.textContent='Correct. The parameter is resolution. splitX uses resolution.x / 2.0. Swift passes that pair with .float2.';
     box.style.background='var(--green-soft)';
   } else {
-    box.textContent='Need the name resolution in the uniform, in resolution.x, and in setFloatUniform. 80.0 is the 8.4 leftover. iColor is Lesson 8.9.';
+    box.textContent='Need the name resolution on the float2 parameter and in resolution.x. 80.0 is the 8.4 leftover. iColor is Lesson 8.9.';
     box.style.background='var(--amber-soft)';
   }
 });
 document.getElementById('showSolution').addEventListener('click',()=>{
-  document.getElementById('challengeEditor').value=`uniform float2 resolution;
-
-half4 main(float2 fragCoord) {
+  document.getElementById('challengeEditor').value=`[[ stitchable ]] half4 halfOfResolution(float2 position, half4 color, float scale, float2 resolution) {
+    float2 fragCoord = position * scale;
     float splitX = resolution.x / 2.0;
     if (fragCoord.x < splitX) {
         return half4(0.88, 0.48, 0.18, 1.0);
     }
     return half4(0.10, 0.25, 0.40, 1.0);
-}
-
-// Kotlin, inside Canvas:
-shader.setFloatUniform("resolution", size.width, size.height)`;
+}`;
 });
 document.getElementById('resetChallenge').addEventListener('click',()=>{
   document.getElementById('challengeEditor').value=starter;
-  document.getElementById('challengeResult').textContent='The three blanks are the same name. It is this lesson’s size pair.';
+  document.getElementById('challengeResult').textContent='Both blanks are the same name. It is this lesson’s size pair.';
   document.getElementById('challengeResult').style.background='var(--soft)';
 });
 document.getElementById('buildRecord').addEventListener('click',()=>{
@@ -593,12 +585,12 @@ document.getElementById('buildRecord').addEventListener('click',()=>{
 
 - Date:
 - Resolution = (draw-rectangle width px, height px).
-- Uniform = named slot. Kotlin writes it. GPU reads the same pair every pixel.
-- setFloatUniform("resolution", size.width, size.height) once per draw, not per pixel.
+- Uniform = extra argument float2 resolution. Swift passes .float2 each draw.
+- Pixels = points × displayScale. The .metal file is not rewritten.
 - splitX = resolution.x / 2.0. Still a pixel count, not a 0..1 UV.
-- 8.4 leftover 80 does not follow size. Pixel x=150 at width 400: 8.4 navy, 8.5 orange.
-- Not claimed: UV, other uniforms, GPU compile on this page.
-- Learner-confirmed complete. Completion count 79 of 216.
+- 8.4 leftover 80 does not follow size. At teaching width 400, x=150 is navy in 8.4 and orange in 8.5.
+- Not claimed: UV, other arguments, a GPU compile on this page.
+- This Chapter 8 re-read does not raise the 40 of 216 count. The live checkpoint remains Lesson 1.3.
 `;
 });
 

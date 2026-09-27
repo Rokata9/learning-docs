@@ -59,7 +59,7 @@ Learner confirmed 9.2 and 9.3 were progressing well, then named reusable frictio
 8.6  uv = position / resolution; last pixel is not exactly 1
 8.7  scalar / vector / member; half 16-bit; float 32-bit
 8.8  p = uv - 0.5 from the middle; × 2 puts edges near ±1; 1 = one half-width
-8.9  splitU, leftColor as Shader arguments; missing argument is a Swift compile error; pass 0 to show a zero slot
+8.9  splitU, leftColor as Shader arguments; a missing argument still compiles and SwiftUI refuses the draw; pass 0 to show a zero slot
 8.10 trips = elapsedSeconds / 4.0; fract(uv.x - time) as red
 8.11 clamp; mix = 5.4; smoothstep bends 0..1; store red 0.221875 at uv.x=0.45
 8.12 Xcode Metal compile error; shrink to smallest failing program; gl_FragCoord

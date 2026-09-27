@@ -1,6 +1,6 @@
 # iOS translation progress
 
-next_step: 7H
+next_step: 9A
 
 completed:
   - A1
@@ -66,6 +66,14 @@ completed:
   - 7E
   - 7F
   - 7G
+  - 7H
+  - 8A
+  - 8B
+  - 8C
+  - 8D
+  - 8E
+  - 8F
+  - 8H
 
 session_order: A1 A2 A3 A4 B1 B2 B3 C1 C2 D1 D2 1A 1B 1C 1D 1E 1F 2A 2B 2C 2D 2E 2F 3A 3B 3C 3D 3E 3F 3G 3H 4A 4B 4C 4D 4E 4F 4G 5A 5B 5C 5D 5E 5F 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 6.9 6.10 6.11 6H 7A 7B 7C 7D 7E 7F 7G 7H 8A 8B 8C 8D 8E 8F 8H 9A 9B 9C 9D 9E 9F 9H F1 F2 F3 F4 F5
 
@@ -247,3 +255,20 @@ notes:
     in FineNoiseExplorer.swift. Proof, teaching pixels, and the JS lab stay. 40/216, checkpoint 1.3. Grep clean.
   - 7G: 7.11/7.12 HTML to clipShape slots and a destination-class contrast verdict.
     CombineLayersExplorer and CompareBackgroundsExplorer on Chapter07Screen. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3. Filename leftover is lesson-07-11-compose-the-layers.html. Grep clean.
+  - 7H: Ch 7 hub to SwiftUI / iPhone 16 Pro; must-re-read, 40/216, checkpoint 1.3.
+    Chapter07Screen already hosts 7.1–7.12. Pedagogical checkpoint is 7.12. iPhone 16 Pro sim build succeeded. Filename leftovers are the Chapter 6 hub href and lesson-07-11-compose-the-layers.html. Android/Kotlin/Compose/AGSL/Pixel 8 grep clean.
+  - 8A: 8.1 HTML to a Swift CPU colorAt loop; ShaderIdeaExplorer on Chapter08Screen;
+    LabHost opens Chapter 8. No .metal file. iPhone 16 Pro sim build succeeded.
+    40/216, checkpoint 1.3. Filename leftovers: Ch 8 hub href and the 8.2 filename.
+  - 8B: 8.2/8.3 HTML to a .metal file, ShaderLibrary, and ShaderRect colorEffect.
+    RuntimeShaderExplorer and FixedColorShaderExplorer on Chapter08Screen. labNavy is the second stitchable function. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3. Filename leftovers: Ch 8 hub href, the 8.2 filename, and RuntimeShaderExplorer.
+  - 8C: 8.4/8.5 HTML to pixel fragCoord and a resolution .float2.
+    FragCoordExplorer and ResolutionShaderExplorer on Chapter08Screen. 80 stays pixels via position × displayScale. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3. Filename leftovers: Ch 8 hub href, the 8.2 filename, and RuntimeShaderExplorer.
+  - 8D: 8.6/8.7/8.8 HTML to UV, scalar/vector types, and p = uv − (0.5, 0.5).
+    UvShaderExplorer, ScalarVectorExplorer, and VectorArithmeticExplorer on Chapter08Screen. uv divides pixel fragCoord by pixel resolution. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3. Filename leftovers: Ch 8 hub href, the 8.2 filename, and RuntimeShaderExplorer.
+  - 8E: 8.9/8.10 HTML to Shader arguments and a time trip count.
+    UniformsExplorer and TimeUniformExplorer on Chapter08Screen. A missing argument still compiles; SwiftUI refuses the draw; pass 0 hides the band. trips = elapsedSeconds / 4. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3. Filename leftovers: Ch 8 hub href, the 8.2 filename, and RuntimeShaderExplorer.
+  - 8F: 8.11/8.12 HTML to MSL mix/smoothstep and an Xcode Metal log.
+    ClampMixSmoothstepExplorer and ShaderErrorExplorer on Chapter08Screen. smoothBand stores mix of smoothstep. gl_FragCoord fails the build; a float return does not. A missing argument is still not a silent 0. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3. Filename leftover: Ch 8 hub href.
+  - 8H: Ch 8 hub to SwiftUI / iPhone 16 Pro; must-re-read, 40/216, checkpoint 1.3.
+    Chapter08Screen already hosts 8.1–8.12. Pedagogical checkpoint is 8.12. iPhone 16 Pro sim build succeeded. Filename leftovers: hub href, the 8.2 filename, and RuntimeShaderExplorer. Android/Kotlin/Compose/AGSL/Pixel 8 grep clean.
