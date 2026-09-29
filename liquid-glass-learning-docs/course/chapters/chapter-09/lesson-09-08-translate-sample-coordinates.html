@@ -12,18 +12,18 @@
 <body>
 <main class="page">
   <div class="topbar">
-    <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-distance-fields-image-sampling-and-refraction.html">Chapter 9</a> · Lesson 9.8 · complete</div>
-    <div class="chips"><span class="chip progress">95 of 216 complete</span><span class="chip progress">Lesson 9.8 complete</span></div>
+    <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-distance-fields-image-sampling-and-refraction.html">Chapter 9</a> · Lesson 9.8 · must re-read</div>
+    <div class="chips"><span class="chip pending">Must re-read</span><span class="chip progress">40 of 216 complete</span><span class="chip">iPhone 16 Pro</span></div>
   </div>
 
   <header class="hero panel">
     <div>
       <div class="eyebrow">Chapter 9 · Read a different pixel than you write</div>
       <h1>Translate sample coordinates</h1>
-      <p class="lead"><strong>Question:</strong> Lesson 9.7’s <code>eval(fragCoord)</code> copies the input color at this pixel. The write location and the read coordinate are the same pair, so the stripes sit still. How do you paint this pixel with the color from a neighbor, so the background appears to slide?</p>
-      <div class="plain-rule">Subtract a width-fraction offset from the read x before <code>eval</code>. The current pixel still stores the returned <code>half4</code>. Because the color came from the left, the stripes appear to have moved right. The picture shifts opposite the read offset.</div>
+      <p class="lead"><strong>Question:</strong> Lesson 9.7’s <code>background(fragCoord, resolution)</code> copies the input color at this pixel. The write location and the read coordinate are the same pair, so the stripes sit still. How do you paint this pixel with the color from a neighbor, so the background appears to slide?</p>
+      <div class="plain-rule">Subtract a width-fraction offset from the read x before the call. The current pixel still stores the returned <code>half4</code>. Because the color came from the left, the stripes appear to have moved right. The picture shifts opposite the read offset. The call does not wrap a negative read x.</div>
       <p style="margin-top:16px;font-weight:800">Canonical wording: <a href="../../glossary.html#eval">eval</a>, <a href="../../glossary.html#read-coordinate">read coordinate</a>, <a href="../../glossary.html#sampled-color">sampled color</a>.</p>
-      <div class="note"><strong>Complete.</strong> Default <code>offsetU = 0.10</code> is one stripe width as a fraction of the rectangle width. Teaching write <code>uv.x = 0.15</code> then reads <code>uv.x = 0.05</code> and stores orange. HTML is a JavaScript stand-in. Lesson 9.10 is the unresolved checkpoint.</div>
+      <div class="note"><strong>Must re-read.</strong> Lessons 9.7–9.9 are the sampling API on iOS. iOS-confirmed complete remains 40 of 216 through Lesson 9.6. This lesson does not raise that count. The live checkpoint remains Lesson 1.3. Default <code>offsetU = 0.10</code> is one stripe width as a fraction of the rectangle width. Teaching write <code>uv.x = 0.15</code> then reads <code>uv.x = 0.05</code> and stores orange. HTML is a JavaScript stand-in. The iPhone 16 Pro explorer calls <code>background(readCoord, resolution)</code>. That call does not clamp or wrap a negative read x. Lesson 9.10 stays unresolved.</div>
     </div>
     <div class="hero-art" aria-label="write pixel, read pixel to its left, and the shifted store">
       <svg viewBox="0 0 1180 420" role="img">
@@ -77,13 +77,13 @@
   <section class="section panel" id="question">
     <div class="section-head"><div><div class="section-no">1 · THE NEW QUESTION</div><h2>The write location stays put. The read coordinate moves.</h2></div></div>
     <div class="three">
-      <article class="card blue"><h3>9.7 leftover</h3><p><code>eval</code> still returns the sampled color: a copy of the input <code>half4</code> at the pair you pass. The stripe input is unchanged: <code>fract(uv.x × 5.0)</code>.</p></article>
+      <article class="card blue"><h3>9.7 leftover</h3><p><code>background(readCoord, resolution)</code> still returns the sampled color: a copy of the input <code>half4</code> at the pair you pass. The stripe input is unchanged: <code>fract(uv.x × 5.0)</code>.</p></article>
       <article class="card indigo"><h3>offsetU</h3><p><code>offsetU</code> is how far left to read, as a fraction of the rectangle width. It uses the same 0..1 family as UV. Default 0.10 is one stripe width. On 400 px that is 40 px.</p></article>
       <article class="card green"><h3>Read coordinate</h3><p>The read coordinate is <code>fragCoord − (offsetU × resolution.x, 0)</code>. Subtracting a positive x reads a pixel to the left. This pixel still stores the returned color, so the stripe that lived on the left is painted here.</p></article>
     </div>
     <div class="formulas">
       <div class="formula">readCoord = fragCoord − float2(offsetU × resolution.x, 0)
-sampled   = background.eval(readCoord)
+sampled   = background(readCoord, resolution)
 return sampled</div>
       <div class="formula">Teaching write W
 uv.x = 0.15 · x = 60 px
@@ -95,7 +95,7 @@ W stores orange. The input at 0.15 was navy.</div>
   </section>
 
   <section class="section panel" id="shift">
-    <div class="section-head"><div><div class="section-no">2 · THE PICTURE MOVES THE OTHER WAY</div><h2>Reading left paints that left color here, so the stripes appear to move right.</h2></div><p>The input shader does not move. Only the pair passed to <code>eval</code> changes. A viewer looking at this shader’s store sees the orange band that used to start at the left edge now starting farther right. That is the opposite of the pink subtract arrow.</p></div>
+    <div class="section-head"><div><div class="section-no">2 · THE PICTURE MOVES THE OTHER WAY</div><h2>Reading left paints that left color here, so the stripes appear to move right.</h2></div><p>The input color function does not move. Only the pair passed to <code>background</code> changes. A viewer looking at this function’s store sees the orange band that used to start at the left edge now starting farther right. That is the opposite of the pink subtract arrow.</p></div>
     <div class="three">
       <article class="card green">
         <h3>offsetU = 0.10 swaps every stripe</h3>
@@ -106,13 +106,14 @@ W stores orange. The input at 0.15 was navy.</div>
         <p>0.20 is one full orange-navy pair. Each pixel reads a neighbor of the same color. The store matches offset 0. The input still did not move. You read two stripes over.</p>
       </article>
       <article class="card amber">
-        <h3>eval does not wrap the pair</h3>
-        <p>A write pixel with x below 40 and offsetU = 0.10 asks eval at a negative x, for example 20 − 40 = −20. eval passes that pair as written. It does not map −20 to 380. The stripe input still returns a color because its own <code>fract(uv.x × 5.0)</code> is defined for every uv.x. At uv.x = −0.05, cell = fract(−0.25) = 0.75, navy. That leftover wrap is Lesson 8.10. Wrapping a bitmap pixel is Lesson 9.12.</p>
+        <h3>The call does not wrap the pair</h3>
+        <p>A write pixel with x below 40 and offsetU = 0.10 asks at a negative x, for example 20 − 40 = −20. <code>background(readCoord, resolution)</code> passes that pair as written. It does not clamp it to 0, and it does not map −20 to 380. A texture sample with clamp would return the edge color and hide this negative pair. The stripe input still returns a color because its own <code>fract(uv.x × 5.0)</code> is defined for every uv.x. At uv.x = −0.05, cell = fract(−0.25) = 0.75, navy. That leftover wrap is Lesson 8.10. Wrapping a bitmap pixel is Lesson 9.12.</p>
       </article>
     </div>
     <div class="formula" style="margin-top:16px">positive offsetU → read x is smaller → color comes from the left → picture appears shifted right
 negative offsetU → read x is larger → color comes from the right → picture appears shifted left
-write x = 20, offsetU = 0.10 → read x = 20 − 40 = −20 → eval(−20, y), not eval(380, y)</div>
+write x = 20, offsetU = 0.10 → read x = 20 − 40 = −20
+background(float2(−20, y), resolution) — not a wrapped x of 380</div>
   </section>
 
   <section class="section panel" id="stepper">
@@ -153,7 +154,7 @@ write x = 20, offsetU = 0.10 → read x = 20 − 40 = −20 → eval(−20, y), 
       <div class="metric"><strong>offsetU</strong><span class="origin">width fraction</span><span class="value" id="oMetric"></span></div>
       <div class="metric"><strong>read uv.x</strong><span class="origin">write − offsetU</span><span class="value" id="rMetric"></span></div>
       <div class="metric"><strong>cell at R</strong><span class="origin">fract(read × 5)</span><span class="value" id="cellMetric"></span></div>
-      <div class="metric"><strong>sampled</strong><span class="origin">eval(readCoord)</span><span class="value" id="sampMetric"></span></div>
+      <div class="metric"><strong>sampled</strong><span class="origin">background at readCoord</span><span class="value" id="sampMetric"></span></div>
       <div class="metric"><strong>Store</strong><span class="origin">this pixel half4</span><span class="value" id="retMetric"></span></div>
     </div>
     <div class="lab-grid" style="margin-top:16px">
@@ -166,36 +167,51 @@ write x = 20, offsetU = 0.10 → read x = 20 − 40 = −20 → eval(−20, y), 
         <pre class="code-block" id="labCode" style="margin-top:12px;max-height:260px"></pre>
       </div>
     </div>
+    <div class="note"><strong>Browser versus iOS.</strong> This page paints with a JavaScript copy of the subtract and the stripe <code>fract</code>. Xcode compiles <code>translateSample</code> in <code>InputColor.metal</code>. The slider passes <code>offsetU</code>. The <code>.metal</code> file is not rewritten. The call does not clamp or wrap a negative read x. Neither measures GPU frame time.</div>
   </section>
 
   <section class="section panel">
-    <div class="section-head"><div><div class="section-no">5 · ANDROID ROUTE</div><h2>One new uniform: offsetU. eval still receives pixels.</h2></div></div>
+    <div class="section-head"><div><div class="section-no">5 · iOS ROUTE</div><h2>One new argument: offsetU. The call still receives pixels.</h2></div></div>
     <div class="code-grid">
-      <pre class="code-block"><code>private const val DefaultOffsetU = 0.10f
-private const val TeachU = 0.15f
+      <pre class="code-block"><code>private let defaultOffsetU: Double = 0.10
+private let teachU: Double = 0.15
+private let panelSizePt: CGFloat = 360
 
-uniform shader background;
-uniform float2 resolution;
-uniform float offsetU;
-
-half4 main(float2 fragCoord) {
+[[ stitchable ]] half4 translateSample(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float offsetU
+) {
+    float2 fragCoord = position * scale;
     float2 readCoord = fragCoord - float2(offsetU * resolution.x, 0.0);
-    return background.eval(readCoord);
-}</code></pre>
+    return background(readCoord, resolution);
+}
+
+ShaderRect(
+    shader: ShaderLibrary.translateSample(
+        .float2(pixelWidth, pixelHeight),
+        .float(Float(displayScale)),
+        .float(Float(offsetU))
+    )
+)
+.frame(width: panelSizePt, height: panelSizePt)</code></pre>
       <div class="card">
         <h3>What each part changes</h3>
-        <p><code>offsetU</code> is a width fraction, not a pixel count, so a 360 dp panel and a 400 px HTML square shift by the same stripe amount.</p>
-        <p><code>offsetU * resolution.x</code> converts that fraction into pixels because <code>eval</code> still wants the Lesson 8.4 unit. A negative result stays negative. <code>eval</code> does not wrap it into the rectangle.</p>
-        <p>The slider writes <code>offsetU</code>. It does not rebuild the program. Default 0.10 so T’s store is orange on first draw.</p>
-        <p>The stripe input is the same 9.7 program. Geometry masks are unused. A y subtract would be the same idea on the second member; this lesson keeps y at 0.</p>
-        <p><strong>Android files:</strong><br><code>chapter09/TranslateSampleExplorer.kt</code><br><code>chapter09/Chapter09Screen.kt</code></p>
+        <p><code>offsetU</code> is a width fraction, not a pixel count, so a 360 pt panel and a 400 px HTML square shift by the same stripe amount.</p>
+        <p><code>offsetU * resolution.x</code> converts that fraction into pixels because the call still wants the Lesson 8.4 unit. A negative result stays negative. <code>background</code> does not clamp it and does not wrap it into the rectangle. A texture sample with clamp would hide that negative x.</p>
+        <p><code>position</code> is points, so <code>fragCoord = position * scale</code>. <code>scale</code> is <code>displayScale</code>. <code>pixelWidth</code> and <code>pixelHeight</code> are <code>360 × displayScale</code>. <code>resolution</code> is that pixel size.</p>
+        <p>The slider writes <code>offsetU</code> with <code>.float</code>. It does not rewrite the <code>.metal</code> file. Default 0.10 so W’s store is orange on first draw. Pass every argument. Leaving one out still compiles the Swift file, and SwiftUI refuses that draw.</p>
+        <p><code>background</code> is the same Lesson 9.7 color function, in this <code>.metal</code> file. Geometry masks are unused. A y subtract would be the same idea on the second member; this lesson keeps y at 0.</p>
+        <p><strong>iOS files:</strong><br><code>chapter09/TranslateSampleExplorer.swift</code><br><code>chapter09/InputColor.metal</code><br><code>chapter09/Chapter09Screen.swift</code></p>
       </div>
     </div>
   </section>
 
   <section class="section panel" id="predict">
     <div class="section-head"><div><div class="section-no">6 · PREDICTION</div><h2>W has uv.x = 0.15. offsetU = 0.10. Which color is stored at W?</h2></div></div>
-    <p>Production returns <code>background.eval(readCoord)</code> with no split.</p>
+    <p>Production returns <code>background(readCoord, resolution)</code> with no split.</p>
     <div class="prediction">
       <button class="choice" data-answer="wrong-navy">Navy, because W still sits in the navy stripe of the input picture.</button>
       <button class="choice" data-answer="wrong-left">Orange, and the stripes appear to have moved left, because we subtracted a positive x.</button>
@@ -205,31 +221,34 @@ half4 main(float2 fragCoord) {
   </section>
 
   <section class="section panel">
-    <div class="section-head"><div><div class="section-no">7 · CODING CHALLENGE</div><h2>Build the read coordinate, then eval</h2></div></div>
+    <div class="section-head"><div><div class="section-no">7 · CODING CHALLENGE</div><h2>Build the read coordinate, then call</h2></div></div>
     <div class="challenge">
       <div>
-        <textarea class="editor" id="challengeEditor" spellcheck="false">uniform shader background;
-uniform float2 resolution;
-uniform float offsetU;
-
-half4 main(float2 fragCoord) {
+        <textarea class="editor" id="challengeEditor" spellcheck="false">[[ stitchable ]] half4 translateSample(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float offsetU
+) {
+    float2 fragCoord = position * scale;
     float2 readCoord = fragCoord ___ float2(offsetU * resolution.x, 0.0);
-    return background.___(readCoord);
+    return background(readCoord, ___);
 }</textarea>
         <div class="controls" style="margin-top:10px">
           <button class="btn primary" id="checkChallenge">Check</button>
           <button class="btn" id="showSolution">Show solution</button>
           <button class="btn" id="resetChallenge">Reset</button>
         </div>
-        <div class="result" id="challengeResult">The blanks are the subtract and the ask name.</div>
+        <div class="result" id="challengeResult">The blanks are the subtract and the panel size. Do not clamp the read.</div>
       </div>
       <div class="card indigo">
         <h3>Available names</h3>
         <div class="formula">-
 +
-eval
-fragCoord</div>
-        <p>Subtract the offset from the write location. Adding would read to the right and shift the picture left. <code>eval</code> still does the ask.</p>
+resolution
+clamp</div>
+        <p>Subtract the offset from the write location. Adding would read to the right and shift the picture left. Pass <code>resolution</code> so the color function can divide. <code>clamp</code> would hide a negative read x.</p>
       </div>
     </div>
   </section>
@@ -237,33 +256,33 @@ fragCoord</div>
   <section class="section panel">
     <div class="section-head"><div><div class="section-no">8 · EXERCISES</div><h2>Answer before opening each hidden solution</h2></div></div>
     <details><summary>At offsetU = 0, what is readCoord, and what color does W store?</summary><p>readCoord = fragCoord. Identity, same as Lesson 9.7 without the split. W’s uv.x = 0.15 still samples navy.</p></details>
-    <details><summary>Diagnostic: someone writes <code>eval(fragCoord + float2(offsetU * resolution.x, 0))</code> with offsetU = 0.10. T still stores orange. What did they get wrong?</summary><p>Adding reads to the right. One stripe width still lands on the opposite color at T, so T’s store is orange either way. The field is the proof: colors from the right are painted here, so the stripes appear shifted left. Subtract reads left and the picture appears shifted right.</p></details>
-    <details><summary>At offsetU = 0.20, why does the store look like offset 0?</summary><p>0.20 is one full orange-navy pair. W reads uv.x = −0.05. eval still asks the input at that negative pair. The input’s repeating fract treats −0.05 as the same stripe color as 0.15: fract(−0.25) = 0.75, navy. Every pixel reads a neighbor two stripes over of the same color. The input did not move. eval did not wrap −20 to 380.</p></details>
-    <details><summary>Does this lesson move the Canvas or change p?</summary><p>No. The draw rectangle stays put. p is unused. Only the pair passed to eval changes. Lesson 9.9 will scale around the center using p.</p></details>
+    <details><summary>Diagnostic: someone writes <code>background(fragCoord + float2(offsetU * resolution.x, 0), resolution)</code> with offsetU = 0.10. W still stores orange. What did they get wrong?</summary><p>Adding reads to the right. One stripe width still lands on the opposite color at W, so W’s store is orange either way. The field is the proof: colors from the right are painted here, so the stripes appear shifted left. Subtract reads left and the picture appears shifted right.</p></details>
+    <details><summary>At offsetU = 0.20, why does the store look like offset 0?</summary><p>0.20 is one full orange-navy pair. W reads uv.x = −0.05. The call still asks the input at that negative pair. The input’s repeating fract treats −0.05 as the same stripe color as 0.15: fract(−0.25) = 0.75, navy. Every pixel reads a neighbor two stripes over of the same color. The input did not move. The call did not wrap −20 to 380, and it did not clamp −20 to 0.</p></details>
+    <details><summary>Does this lesson move the drawing rect or change p?</summary><p>No. The draw rectangle stays put. p is unused. Only the pair passed to background changes. Lesson 9.9 will scale around the center using p.</p></details>
   </section>
 
   <section class="section panel">
-    <div class="section-head"><div><div class="section-no">9 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div></div>
+    <div class="section-head"><div><div class="section-no">9 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div><p>Lessons 9.7–9.9 are a must-re-read sampling API. iOS-confirmed complete remains 40 of 216 through Lesson 9.6. This lesson does not raise that count. The live checkpoint remains Lesson 1.3. Use the Xcode previews, then the iPhone 16 Pro.</p></div>
     <div class="checklist">
       <label class="check"><input type="checkbox">At default offsetU 0.10, W prints read uv.x = 0.05 and store orange.</label>
       <label class="check"><input type="checkbox">At offsetU 0, W prints read uv.x = 0.15 and store navy.</label>
       <label class="check"><input type="checkbox">At offsetU 0.20 the field looks like offset 0 again.</label>
       <label class="check"><input type="checkbox">Raising offsetU shifts the visible stripes to the right.</label>
-      <label class="check"><input type="checkbox">The Android panel is square. offsetU is a uniform. Light <code>@Preview</code> is first, then dark. Both previews scroll.</label>
+      <label class="check"><input type="checkbox">The iPhone 16 Pro panel is square. offsetU is a shader argument. Light <code>#Preview</code> is first, then dark. Both previews scroll.</label>
     </div>
   </section>
 
   <section class="section panel">
     <div class="section-head"><div><div class="section-no">10 · EVIDENCE BOUNDARY</div><h2>What this lesson establishes</h2></div></div>
     <div class="two">
-      <div class="card green"><h3>Established</h3><p>The read coordinate can differ from the write location. <code>readCoord = fragCoord − (offsetU × width, 0)</code>. Default <code>offsetU = 0.10</code>. Teaching write <code>uv.x = 0.15</code> reads <code>0.05</code> and stores orange. The picture appears to shift opposite the read offset. Production returns the sampled color at every pixel. <code>eval</code> does not wrap a negative read x. The stripe input’s <code>fract</code> still returns a color.</p></div>
-      <div class="card indigo"><h3>What’s next</h3><p>Lesson 9.9 will scale around the center using <code>p</code>: magnification and minification of the same input. A later displacement field (9.10) will make the offset itself vary by pixel. Edge reads past the rectangle are Lesson 9.12. A bitmap input would not keep striping past the edge unless its tile mode wrapped.</p></div>
+      <div class="card green"><h3>Established</h3><p>The read coordinate can differ from the write location. <code>readCoord = fragCoord − (offsetU × width, 0)</code>. <code>sampled = background(readCoord, resolution)</code>. Default <code>offsetU = 0.10</code>. Teaching write <code>uv.x = 0.15</code> reads <code>0.05</code> and stores orange. The picture appears to shift opposite the read offset. Production returns the sampled color at every pixel. The call does not clamp or wrap a negative read x. The stripe input’s <code>fract</code> still returns a color.</p></div>
+      <div class="card indigo"><h3>What’s next</h3><p>Lesson 9.9 will scale around the center using <code>p</code>: magnification and minification of the same input. A later displacement field (9.10) will make the offset itself vary by pixel. Edge reads past the rectangle are Lesson 9.12. A texture sample would not keep striping past the edge unless its wrap mode did. This call does not. This re-read does not raise the 40 of 216 count. The live checkpoint remains Lesson 1.3. Lesson 9.10 stays unresolved.</p></div>
     </div>
     <button class="btn primary" id="buildRecord" style="margin-top:16px">Build local review record</button>
     <textarea class="record" id="record" readonly>No record generated yet.</textarea>
   </section>
 
-  <footer class="footer panel"><span>95 of 216 complete · Lesson 9.8 complete</span><span>Previous complete: <a href="lesson-09-07-sample-an-input-shader.html">9.7 — Sample an input shader</a> · Next complete: <a href="lesson-09-09-scale-around-the-center.html">9.9 — Scale around the center</a></span></footer>
+  <footer class="footer panel"><span>40 of 216 complete · checkpoint Lesson 1.3</span><span>Previous: <a href="lesson-09-07-sample-an-input-shader.html">9.7 — Sample an input shader</a> · Next: <a href="lesson-09-09-scale-around-the-center.html">9.9 — Scale around the center</a></span></footer>
 </main>
 <script>
 const W=400, H=400;
@@ -271,13 +290,16 @@ const STRIPES=5;
 const TEACH={x:0.15*400, y:200};
 const NAVY=[0.10,0.25,0.40,1];
 const ORANGE=[0.88,0.48,0.18,1];
-const PROD=`uniform shader background;
-uniform float2 resolution;
-uniform float offsetU;
-
-half4 main(float2 fragCoord) {
+const PROD=`[[ stitchable ]] half4 translateSample(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float offsetU
+) {
+    float2 fragCoord = position * scale;
     float2 readCoord = fragCoord - float2(offsetU * resolution.x, 0.0);
-    return background.eval(readCoord);
+    return background(readCoord, resolution);
 }`;
 let px=TEACH.x, py=TEACH.y;
 let offsetU=0.10;
@@ -370,10 +392,10 @@ document.getElementById('labCanvas').addEventListener('click',e=>{
 const STEPS=[
   {
     title:'Identity: read equals write',
-    caption:'offsetU = 0. eval(fragCoord) copies the input at W. W’s uv.x = 0.15 is navy. The store matches the input. No pink arrow yet because the subtract is 0.',
+    caption:'offsetU = 0. background(fragCoord, resolution) copies the input at W. W’s uv.x = 0.15 is navy. The store matches the input. No pink arrow yet because the subtract is 0.',
     rule:'readCoord = fragCoord',
     input:'offsetU = 0',
-    operation:'Lesson 9.7 identity eval',
+    operation:'Lesson 9.7 identity call',
     output:'W stores navy',
     ou:0
   },
@@ -387,11 +409,11 @@ const STEPS=[
     ou:0
   },
   {
-    title:'eval at R returns orange. W stores that orange.',
+    title:'The call at R returns orange. W stores that orange.',
     caption:'cell at uv.x = 0.05 is fract(0.25) = 0.25, orange. That copy is written at W. W used to show navy. It now shows orange. One pixel has flipped. The rest of the field still shows identity until the next step paints every pixel this way.',
     rule:'sampled at R = orange → store at W = orange',
     input:'R’s input color',
-    operation:'eval(readCoord)',
+    operation:'background(readCoord, resolution)',
     output:'W is orange',
     ou:0,
     paintW:true
@@ -479,7 +501,7 @@ document.querySelectorAll('.choice').forEach(btn=>{
       box.textContent='Yes. Read uv.x = 0.05 is orange. That orange is stored at W, so the stripes appear shifted right.';
       box.style.background='var(--green-soft)';
     } else if(btn.dataset.answer==='wrong-navy'){
-      box.textContent='The input at W is still navy. eval does not read W after the subtract. It reads R at 0.05, which is orange.';
+      box.textContent='The input at W is still navy. The call does not read W after the subtract. It reads R at 0.05, which is orange.';
       box.style.background='var(--amber-soft)';
     } else {
       box.textContent='The subtract reads left. The color from the left is painted here, so the picture appears to have moved right, opposite the arrow.';
@@ -493,28 +515,32 @@ document.getElementById('checkChallenge').addEventListener('click',()=>{
   const box=document.getElementById('challengeResult');
   const sub=/readCoord\s*=\s*fragCoord\s*-\s*float2/.test(text);
   const add=/readCoord\s*=\s*fragCoord\s*\+\s*float2/.test(text);
-  const ev=/background\s*\.\s*eval\s*\(\s*readCoord\s*\)/.test(text);
-  if(sub && ev && !add){
-    box.textContent='Correct. Subtract the offset, then eval(readCoord).';
+  const call=/background\s*\(\s*readCoord\s*,\s*resolution\s*\)/.test(text);
+  const bad=/clamp|sample\s*\(/.test(text);
+  if(sub && call && !add && !bad){
+    box.textContent='Correct. Subtract the offset, then background(readCoord, resolution).';
     box.style.background='var(--green-soft)';
   } else {
-    box.textContent='Need fragCoord minus the offset, then background.eval(readCoord).';
+    box.textContent='Need fragCoord minus the offset, then background(readCoord, resolution). Do not add, clamp, or sample.';
     box.style.background='var(--amber-soft)';
   }
 });
 document.getElementById('showSolution').addEventListener('click',()=>{
-  document.getElementById('challengeEditor').value=`uniform shader background;
-uniform float2 resolution;
-uniform float offsetU;
-
-half4 main(float2 fragCoord) {
+  document.getElementById('challengeEditor').value=`[[ stitchable ]] half4 translateSample(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float offsetU
+) {
+    float2 fragCoord = position * scale;
     float2 readCoord = fragCoord - float2(offsetU * resolution.x, 0.0);
-    return background.eval(readCoord);
+    return background(readCoord, resolution);
 }`;
 });
 document.getElementById('resetChallenge').addEventListener('click',()=>{
   document.getElementById('challengeEditor').value=starter;
-  document.getElementById('challengeResult').textContent='The blanks are the subtract and the ask name.';
+  document.getElementById('challengeResult').textContent='The blanks are the subtract and the panel size. Do not clamp the read.';
   document.getElementById('challengeResult').style.background='var(--soft)';
 });
 document.getElementById('buildRecord').addEventListener('click',()=>{
@@ -522,13 +548,13 @@ document.getElementById('buildRecord').addEventListener('click',()=>{
 
 - Date:
 - readCoord = fragCoord − float2(offsetU × resolution.x, 0).
-- sampled = background.eval(readCoord).
+- sampled = background(readCoord, resolution).
 - Default offsetU = 0.10 (one stripe width as a width fraction).
 - Teaching write uv.x = 0.15 reads 0.05 and stores orange.
 - The picture appears to shift opposite the read offset.
-- Production returns sampled at every pixel. Canvas does not move.
-- eval does not wrap a negative read x. The stripe input’s fract still returns a color.
-- Lesson 9.8 is complete. Completion count 95 of 216. Checkpoint is Lesson 9.10.
+- Production returns sampled at every pixel. The draw rectangle does not move.
+- The call does not clamp or wrap a negative read x. The stripe input’s fract still returns a color.
+- This re-read does not raise the 40 of 216 count. The live checkpoint remains Lesson 1.3. Lesson 9.10 stays unresolved.
 `;
 });
 const qa=new URLSearchParams(location.search).get('qa');

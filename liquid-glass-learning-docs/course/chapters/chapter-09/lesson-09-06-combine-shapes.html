@@ -13,7 +13,7 @@
 <main class="page">
   <div class="topbar">
     <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-distance-fields-image-sampling-and-refraction.html">Chapter 9</a> · Lesson 9.6 · complete</div>
-    <div class="chips"><span class="chip progress">94 of 216 complete</span><span class="chip progress">Lesson 9.6 complete</span></div>
+    <div class="chips"><span class="chip progress">40 of 216 complete</span><span class="chip progress">Lesson 9.6 complete</span><span class="chip pending">checkpoint Lesson 1.3</span></div>
   </div>
 
   <header class="hero panel">
@@ -23,7 +23,7 @@
       <p class="lead"><strong>Question:</strong> Lesson 9.2 gives one circle a signed distance: minus inside, zero on the boundary, plus outside. Production then stores orange when that one number is less than 0. How do you paint a blob made from two circles — the combined shape, only the overlap, or one circle with the other cut out — still using one <code>sd</code> and the same hard <code>if</code>?</p>
       <div class="plain-rule">Compute both signed distances at this pixel. <code>min</code> keeps the smaller number (more inside) and paints the combined blob. <code>max</code> keeps the larger number (more outside) and paints only the overlap. Negate one field, then <code>max</code>, to cut that circle out of the other.</div>
       <p style="margin-top:16px;font-weight:800">Canonical wording: <a href="../../glossary.html#agsl-min">min</a>, <a href="../../glossary.html#agsl-max">max</a>, <a href="../../glossary.html#shape-union">union</a>, <a href="../../glossary.html#shape-intersection">intersection</a>, <a href="../../glossary.html#shape-subtraction">subtraction</a>, <a href="../../glossary.html#signed-distance">signed distance</a>.</p>
-      <div class="note"><strong>Complete.</strong> Two Lesson 9.2 circles. <code>radiusA = radiusB = 0.25</code>. Circle B’s center is <code>B = (0.20, 0)</code>. Teaching left-only pixel <code>T</code> has <code>p = (−0.10, 0)</code>. Then <code>sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15</code> and <code>sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05</code>. Lesson 9.9 is the unresolved checkpoint.</div>
+      <div class="note"><strong>Complete.</strong> This page is a JavaScript stand-in. The iPhone 16 Pro explorer’s stitchable function computes both circle fields, picks with <code>min</code> or <code>max</code>, and tests the sign. <code>radiusA = radiusB = 0.25</code>. Circle B’s center is <code>B = (0.20, 0)</code>. Teaching left-only pixel <code>T</code> has <code>p = (−0.10, 0)</code>. Then <code>sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15</code> and <code>sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05</code>. Live checkpoint is Lesson 1.3.</div>
     </div>
     <div class="hero-art" aria-label="two overlapping circles and the teaching pixel that sits only in A">
       <svg viewBox="0 0 1180 500" role="img">
@@ -198,20 +198,20 @@ B minus A    −sdA = −(−0.15) = +0.15
         <pre class="code-block" id="labCode" style="margin-top:12px;max-height:260px"></pre>
       </div>
     </div>
+    <div class="note"><strong>Browser versus iOS.</strong> This page paints with a JavaScript copy of the two circle fields and the <code>min</code> / <code>max</code> pick. Xcode compiles those lines in the <code>.metal</code> file. The mode buttons pass <code>combineMode</code>. The <code>.metal</code> file is not rewritten. The page’s three buttons are the taught picks. The explorer’s fourth button, A minus B, is the final else: <code>sd = max(−sdB, sdA)</code>. Neither measures GPU frame time.</div>
   </section>
 
   <section class="section panel">
-    <div class="section-head"><div><div class="section-no">5 · ANDROID ROUTE</div><h2>Two leftover lengths, one mode uniform, one pick</h2></div></div>
+    <div class="section-head"><div><div class="section-no">5 · iOS ROUTE</div><h2>Two leftover lengths, one mode argument, one pick</h2></div></div>
     <div class="code-grid">
-      <pre class="code-block"><code>private const val Radius = 0.25f
-private const val OffsetX = 0.20f
-private const val TeachPx = -0.10f
-private const val TeachPy = 0.00f
-
-uniform float2 resolution;
-uniform float combineMode;
-
-half4 main(float2 fragCoord) {
+      <pre class="code-block"><code>[[ stitchable ]] half4 combineShapes(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float combineMode
+) {
+    float2 fragCoord = position * scale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float sdA = length(p) - 0.25;
@@ -222,18 +222,60 @@ half4 main(float2 fragCoord) {
         sd = min(sdA, sdB);
     } else if (combineMode &lt; 1.5) {
         sd = max(sdA, sdB);
-    } else {
+    } else if (combineMode &lt; 2.5) {
         sd = max(sdB, -sdA);
+    } else {
+        sd = max(-sdB, sdA);
     }
-    ...
-}</code></pre>
+    half4 navy = half4(0.10, 0.25, 0.40, 1.0);
+    half4 orange = half4(0.88, 0.48, 0.18, 1.0);
+    if (sd &lt; 0.0) {
+        return orange;
+    }
+    return navy;
+}
+
+private let panelSizePt: CGFloat = 360
+private let radius: Double = 0.25
+private let offsetX: Double = 0.20
+private let teachPx: Double = -0.10
+private let teachPy: Double = 0.00
+
+ShaderRect(
+    shader: ShaderLibrary.combineShapes(
+        .float2(pixelWidth, pixelHeight),
+        .float(Float(displayScale)),
+        .float(mode.slot)
+    )
+)
+.frame(width: panelSizePt, height: panelSizePt)
+// SwiftUI Canvas overlay: center cross, circle A, circle B, teaching mark
+
+ShaderRect(
+    shader: ShaderLibrary.combineRoundedRects(
+        .float2(pixelWidth, pixelHeight),
+        .float(Float(displayScale)),
+        .float(mode.slot),
+        .float(0.05),
+        .float(0.3),
+        .float(0.2),
+        .float(0.225),
+        .float(0.15)
+    )
+)
+.frame(width: panelSizePt, height: panelSizePt)
+// Dashed green Canvas strokes: origin (0.20, 0.30) size 0.60×0.40 corner 30 pt,
+// and origin (0.50, 0.50) size 0.45×0.30 corner 20 pt.</code></pre>
       <div class="card">
         <h3>What each part changes</h3>
-        <p><code>Radius</code> is Lesson 9.2’s default, used twice: <code>radiusA = radiusB = Radius = 0.25</code>. <code>OffsetX</code> is how far B sits to the right of C, so <code>B = (OffsetX, 0) = (0.20, 0)</code>.</p>
+        <p><code>radius</code> is Lesson 9.2’s default, used twice: <code>radiusA = radiusB = 0.25</code>. <code>offsetX</code> is how far B sits to the right of C, so <code>B = (offsetX, 0) = (0.20, 0)</code>.</p>
         <p><code>pB = p − B</code> asks “which way from B?” The visual center C stays the origin of <code>p</code>.</p>
-        <p><code>combineMode</code> is 0 for union, 1 for intersection, 2 for B minus A. The three buttons write that one float. They do not rebuild the program.</p>
-        <p><code>TeachPx = −0.10</code> so the printed teaching pixel is only in A: <code>p = (TeachPx, TeachPy) = (−0.10, 0)</code>, <code>sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15</code>, <code>sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05</code>.</p>
-        <p><strong>Android files:</strong><br><code>chapter09/CombineShapesExplorer.kt</code><br><code>chapter09/Chapter09Screen.kt</code></p>
+        <p><code>combineMode</code> is 0 for union, 1 for intersection, 2 for B minus A, and 3 for A minus B. The buttons write that one float. They do not rewrite the <code>.metal</code> file.</p>
+        <p><code>teachPx = −0.10</code> so the printed teaching pixel is only in A: <code>p = (teachPx, teachPy) = (−0.10, 0)</code>, <code>sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15</code>, <code>sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05</code>.</p>
+        <p>Xcode compiles <code>combineShapes</code> in the <code>.metal</code> file. <code>ShaderLibrary</code> looks it up. <code>position</code> is points, so <code>fragCoord = position * scale</code> and <code>resolution</code> are both in pixels. <code>scale</code> is <code>displayScale</code>. <code>pixelWidth</code> and <code>pixelHeight</code> are <code>360 × displayScale</code>. The radii and B’s offset are <code>p</code> units written in the function. There is no runtime string compiler. Changing the button passes a new <code>.float</code>. That is Lesson 8.9’s argument write. Pass every argument. Leaving one out still compiles the Swift file, and SwiftUI refuses that draw.</p>
+        <p>The orange overlay is a SwiftUI <code>Canvas</code> stroke of circle A. The green overlay is circle B. The amber dot is T.</p>
+        <p>The second panel calls <code>combineRoundedRects</code> with the same <code>combineMode</code>. Radius is 0.05. The first rounded rect is centered on C with half-size <code>(0.30, 0.20)</code>. The second is centered at uv <code>(0.725, 0.65)</code> with half-size <code>(0.225, 0.15)</code>. Each field is the Lesson 9.4 piecewise box, then <code>sd = sdBox − radius</code>, then the same four picks. Dashed green strokes are <code>Canvas</code> overlays.</p>
+        <p><strong>iOS files:</strong><br><code>chapter09/CombineShapesExplorer.swift</code><br><code>chapter09/CombineShapes.metal</code><br><code>chapter09/Chapter09Screen.swift</code></p>
       </div>
     </div>
   </section>
@@ -253,10 +295,14 @@ half4 main(float2 fragCoord) {
     <div class="section-head"><div><div class="section-no">7 · CODING CHALLENGE</div><h2>Build both fields, then pick</h2></div></div>
     <div class="challenge">
       <div>
-        <textarea class="editor" id="challengeEditor" spellcheck="false">uniform float2 resolution;
-uniform float combineMode;
-
-half4 main(float2 fragCoord) {
+        <textarea class="editor" id="challengeEditor" spellcheck="false">[[ stitchable ]] half4 combineShapes(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float combineMode
+) {
+    float2 fragCoord = position * scale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float sdA = ___(p) - 0.25;
@@ -267,8 +313,10 @@ half4 main(float2 fragCoord) {
         sd = ___(sdA, sdB);
     } else if (combineMode &lt; 1.5) {
         sd = ___(sdA, sdB);
-    } else {
+    } else if (combineMode &lt; 2.5) {
         sd = max(sdB, ___ sdA);
+    } else {
+        sd = max(-sdB, sdA);
     }
     half4 navy = half4(0.10, 0.25, 0.40, 1.0);
     half4 orange = half4(0.88, 0.48, 0.18, 1.0);
@@ -288,7 +336,7 @@ half4 main(float2 fragCoord) {
 min
 max
 -</div>
-        <p>Each circle still uses <code>sd = length − radius</code>. Union is <code>sd = min(sdA, sdB)</code>. Intersection is <code>sd = max(sdA, sdB)</code>. Cutting A out of B is <code>sd = max(sdB, −sdA)</code>.</p>
+        <p>Each circle still uses <code>sd = length − radius</code>. Union is <code>sd = min(sdA, sdB)</code>. Intersection is <code>sd = max(sdA, sdB)</code>. Cutting A out of B is <code>sd = max(sdB, −sdA)</code>. The final else is already filled. A minus B is <code>sd = max(−sdB, sdA)</code>.</p>
       </div>
     </div>
   </section>
@@ -308,7 +356,7 @@ max
       <label class="check"><input type="checkbox">At T, intersection prints sd = max(sdA, sdB) = max(−0.15, +0.05) = +0.05 and store navy.</label>
       <label class="check"><input type="checkbox">At T, B minus A prints sd = max(sdB, −sdA) = max(+0.05, +0.15) = +0.15 and store navy.</label>
       <label class="check"><input type="checkbox">The overlap mark is orange in both union and intersection, and navy in B minus A.</label>
-      <label class="check"><input type="checkbox">The Android panel is square. combineMode is a uniform. Light <code>@Preview</code> is first, then dark. Both previews scroll.</label>
+      <label class="check"><input type="checkbox">The iPhone 16 Pro panel is square. combineMode is a shader argument. Light <code>#Preview</code> is first, then dark. Both previews scroll.</label>
     </div>
   </section>
 
@@ -322,7 +370,7 @@ max
     <textarea class="record" id="record" readonly>No record generated yet.</textarea>
   </section>
 
-  <footer class="footer panel"><span>94 of 216 complete · Lesson 9.6 complete · checkpoint 9.9 unresolved</span><span>Previous complete: <a href="lesson-09-05-capsule-distance-field.html">9.5 — Capsule distance field</a> · Next complete: <a href="lesson-09-07-sample-an-input-shader.html">9.7 — Sample an input shader</a></span></footer>
+  <footer class="footer panel"><span>40 of 216 complete · checkpoint Lesson 1.3</span><span>Previous: <a href="lesson-09-05-capsule-distance-field.html">9.5 — Capsule distance field</a> · Next: <a href="lesson-09-07-sample-an-input-shader.html">9.7 — Sample an input shader</a></span></footer>
 </main>
 <script>
 const W=400, H=400;
@@ -333,10 +381,14 @@ const RIGHT={x:200+0.30*400, y:200};
 const CENTER={x:200,y:200};
 const NAVY=[0.10,0.25,0.40,1];
 const ORANGE=[0.88,0.48,0.18,1];
-const PROD=`uniform float2 resolution;
-uniform float combineMode;
-
-half4 main(float2 fragCoord) {
+const PROD=`[[ stitchable ]] half4 combineShapes(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float combineMode
+) {
+    float2 fragCoord = position * scale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float sdA = length(p) - 0.25;
@@ -347,8 +399,10 @@ half4 main(float2 fragCoord) {
         sd = min(sdA, sdB);
     } else if (combineMode < 1.5) {
         sd = max(sdA, sdB);
-    } else {
+    } else if (combineMode < 2.5) {
         sd = max(sdB, -sdA);
+    } else {
+        sd = max(-sdB, sdA);
     }
     half4 navy = half4(0.10, 0.25, 0.40, 1.0);
     half4 orange = half4(0.88, 0.48, 0.18, 1.0);
@@ -657,10 +711,14 @@ document.getElementById('checkChallenge').addEventListener('click',()=>{
   }
 });
 document.getElementById('showSolution').addEventListener('click',()=>{
-  document.getElementById('challengeEditor').value=`uniform float2 resolution;
-uniform float combineMode;
-
-half4 main(float2 fragCoord) {
+  document.getElementById('challengeEditor').value=`[[ stitchable ]] half4 combineShapes(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float combineMode
+) {
+    float2 fragCoord = position * scale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float sdA = length(p) - 0.25;
@@ -671,8 +729,10 @@ half4 main(float2 fragCoord) {
         sd = min(sdA, sdB);
     } else if (combineMode < 1.5) {
         sd = max(sdA, sdB);
-    } else {
+    } else if (combineMode < 2.5) {
         sd = max(sdB, -sdA);
+    } else {
+        sd = max(-sdB, sdA);
     }
     half4 navy = half4(0.10, 0.25, 0.40, 1.0);
     half4 orange = half4(0.88, 0.48, 0.18, 1.0);
@@ -697,7 +757,7 @@ document.getElementById('buildRecord').addEventListener('click',()=>{
 - sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05.
 - Union orange, intersection navy, B minus A navy at that pixel.
 - Production: if (sd < 0.0) orange else navy on the picked number.
-- Lesson 9.6 is complete. Completion count 94 of 216. Checkpoint is Lesson 9.9.
+- Lesson 9.6 stays complete as pixel math. Live checkpoint is Lesson 1.3. Completion count 40 of 216.
 `;
 });
 const qa=new URLSearchParams(location.search).get('qa');

@@ -25,8 +25,8 @@
 <body>
 <main class="page">
   <div class="topbar">
-    <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-distance-fields-image-sampling-and-refraction.html">Chapter 9</a> · Lesson 9.9 · complete</div>
-    <div class="chips"><span class="chip progress">95 of 216 complete</span><span class="chip progress">Lesson 9.9 complete</span></div>
+    <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-distance-fields-image-sampling-and-refraction.html">Chapter 9</a> · Lesson 9.9 · must re-read</div>
+    <div class="chips"><span class="chip pending">Must re-read</span><span class="chip progress">40 of 216 complete</span><span class="chip">iPhone 16 Pro</span></div>
   </div>
 
   <header class="hero panel">
@@ -36,7 +36,7 @@
       <p class="lead"><strong>Hard question:</strong> The yellow rectangle on the input is the middle 2 × 2. The store is that same rectangle, stretched. The shader never tests “am I in the inner half?” How does halving every walk from <code>C</code> pick exactly those sub-bounds, what color each halved walk lands on, and where the outer ring would be painted?</p>
       <div class="plain-rule">No if. Every write halves its walk from C. The store is four big squares: the inner 2 × 2, each cell copied onto many writes, not averaged. Outer input would be painted off-picture. On the diagonal (0,0) → (1,1), half the walk is the inner-rect corner (0.75, 0.75), still orange.</div>
       <p style="margin-top:16px;font-weight:800">Canonical wording: <a href="../../glossary.html#scale-around-center">scale around the center</a>, <a href="../../glossary.html#read-coordinate">read coordinate</a>, <a href="../../glossary.html#eval">eval</a>.</p>
-      <div class="note"><strong>Complete.</strong> The walk is leftover: W stays, scale 2 asks a neighbor half as far from <code>C</code>. The store is four big squares — the inner 2 × 2 copied, not averaged. HTML is a JavaScript stand-in. Lesson 9.10 is the unresolved checkpoint.</div>
+      <div class="note"><strong>Must re-read.</strong> Lessons 9.7–9.9 are the sampling API on iOS. iOS-confirmed complete remains 40 of 216 through Lesson 9.6. This lesson does not raise that count. The live checkpoint remains Lesson 1.3. Default <code>scale = 2.00</code> asks a neighbor half as far from <code>C</code>. Teaching write <code>uv (0.80, 0.50)</code> reads <code>(0.65, 0.50)</code> and stores orange. There is no inner-half if. HTML is a JavaScript stand-in. The iPhone 16 Pro explorer calls <code>background(readUv * resolution, resolution)</code>. Lesson 9.10 stays unresolved. Its contract stays W = <code>(0.65, 0.20)</code> and <code>dispLen = 0.10</code>.</div>
     </div>
     <div class="hero-art" aria-label="input with inner rectangle versus store filled by that rectangle">
       <div class="hero-pair">
@@ -58,7 +58,7 @@
     <div class="three">
       <article class="card indigo"><h3>4 × 4 cells</h3><p>Each cell is 0.25 of the square. That is why the inner-rect edge at 0.25 from <code>C</code> sits on a cell border, and why the inner rectangle is a clean middle 2 × 2.</p></article>
       <article class="card green"><h3>Inner rectangle</h3><p>From 0.25 to 0.75 on each axis. That is 0.25 from <code>C</code> left, right, up, and down. Yellow stroke. The outer ring is dimmed because no in-square write will ask it.</p></article>
-      <article class="card amber"><h3>No membership test</h3><p>The AGSL is <code>p / scale + 0.5</code> at every pixel. There is no <code>if</code> for the inner half. The inner rectangle is the image of the square under “halve the walk.”</p></article>
+      <article class="card amber"><h3>No membership test</h3><p>The Metal function is <code>p / scale + 0.5</code> at every pixel. There is no <code>if</code> for the inner half. The inner rectangle is the image of the square under “halve the walk.”</p></article>
     </div>
     <p style="margin-top:16px">Start at <code>C</code>. The ask is 0. Walk W toward an edge. The ask walks the same ray at half speed. When W hits the right edge, it is 0.50 from <code>C</code>, so the ask is 0.25 from <code>C</code> — the inner rectangle’s right side. Left, top, and bottom match. The four corners of the square map to the four corners of the inner rectangle. Every write closer than an edge asks closer than 0.25 on that axis, so it is still inside. That is the whole window. Your guess was right: we move from the center out, and “half” at the edge is exactly this teaching inner half.</p>
     <div class="formula">right-edge write: 0.50 from C → ask 0.25 from C  (inner-rect right side)
@@ -318,29 +318,47 @@ inverse, input 0.40 left of C:  painted at 0.80 left   · UV −0.30 · negative
         <pre class="code-block" id="labCode" style="margin-top:12px;max-height:280px"></pre>
       </div>
     </div>
+    <div class="note"><strong>Browser versus iOS.</strong> This page paints with a JavaScript copy of <code>p / scale + 0.5</code> and the 4 × 4 checker. Outside reads are painted gray here. Xcode compiles <code>scaleAroundCenter</code> in <code>ScaleAroundCenter.metal</code>. The slider passes <code>scale</code>. The <code>.metal</code> file is not rewritten. <code>background</code> does not clamp a read outside the picture. Neither measures GPU frame time.</div>
   </section>
 
   <section class="section panel">
-    <div class="section-head"><div><div class="section-no">6 · ANDROID ROUTE</div><h2>One new uniform: scale. No inner-half if.</h2></div></div>
+    <div class="section-head"><div><div class="section-no">6 · iOS ROUTE</div><h2>One new argument: scale. No inner-half if.</h2></div></div>
     <div class="code-grid">
-      <pre class="code-block"><code>private const val DefaultScale = 2.00f
+      <pre class="code-block"><code>private let defaultScale: Double = 2.00
+private let teachU: Double = 0.80
+private let teachV: Double = 0.50
+private let panelSizePt: CGFloat = 360
 
-uniform shader background;
-uniform float2 resolution;
-uniform float scale;
-
-half4 main(float2 fragCoord) {
+[[ stitchable ]] half4 scaleAroundCenter(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float displayScale,
+    float scale
+) {
+    float2 fragCoord = position * displayScale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float2 readUv = p / scale + 0.5;
-    return background.eval(readUv * resolution);
-}</code></pre>
+    return background(readUv * resolution, resolution);
+}
+
+ShaderRect(
+    shader: ShaderLibrary.scaleAroundCenter(
+        .float2(pixelWidth, pixelHeight),
+        .float(Float(displayScale)),
+        .float(Float(scale))
+    )
+)
+.frame(width: panelSizePt, height: panelSizePt)</code></pre>
       <div class="card">
         <h3>What each part does</h3>
-        <p><code>p</code> is this pixel measured from <code>C</code>. You already convert that pair for <code>eval</code>. The leftover <code>− 0.5</code> and <code>+ 0.5</code> are that convert, not the new idea.</p>
-        <p><code>p / scale</code> is the walk. Default 2 asks a neighbor half as far from <code>C</code>. The inner rectangle is that window: edge 0.50 / 2 = 0.25 from <code>C</code>. There is no <code>if</code>.</p>
-        <p>The checker is four cells across so each cell is 0.25, matching the inner-rect edge. Orange when column plus row is even.</p>
-        <p><strong>Android files:</strong><br><code>chapter09/ScaleAroundCenterExplorer.kt</code><br><code>chapter09/Chapter09Screen.kt</code></p>
+        <p><code>p</code> is this pixel measured from <code>C</code>. The leftover <code>− 0.5</code> and <code>+ 0.5</code> convert between UV and that walk. They are not the new idea.</p>
+        <p><code>p / scale</code> is the walk. <code>scale</code> is the magnification, not <code>displayScale</code>. Default 2 asks a neighbor half as far from <code>C</code>. The inner rectangle is that window: edge 0.50 / 2 = 0.25 from <code>C</code>. There is no <code>if</code>.</p>
+        <p>The checker is four cells across so each cell is 0.25, matching the inner-rect edge. Orange when column plus row is even. <code>background</code> is that checker in <code>ScaleAroundCenter.metal</code>. It is not the Lesson 9.7 stripe function, and it is not a texture sample.</p>
+        <p><code>position</code> is points, so <code>fragCoord = position * displayScale</code>. <code>pixelWidth</code> and <code>pixelHeight</code> are <code>360 × displayScale</code>. <code>resolution</code> is that pixel size. The slider writes <code>scale</code> with <code>.float</code>. It does not rewrite the <code>.metal</code> file. Pass every argument. Leaving one out still compiles the Swift file, and SwiftUI refuses that draw.</p>
+        <p>At scale 0.50 a read can leave the picture. The call does not clamp it. The HTML lab paints that outside read gray. The Metal function still calls <code>background</code>. Lesson 9.12 owns the edge.</p>
+        <p><strong>iOS files:</strong><br><code>chapter09/ScaleAroundCenterExplorer.swift</code><br><code>chapter09/ScaleAroundCenter.metal</code><br><code>chapter09/Chapter09Screen.swift</code></p>
       </div>
     </div>
   </section>
@@ -360,15 +378,18 @@ half4 main(float2 fragCoord) {
     <div class="section-head"><div><div class="section-no">8 · CODING CHALLENGE</div><h2>The blank is the walk. There is no inner-half if.</h2></div></div>
     <div class="challenge">
       <div>
-        <textarea class="editor" id="challengeEditor" spellcheck="false">uniform shader background;
-uniform float2 resolution;
-uniform float scale;
-
-half4 main(float2 fragCoord) {
+        <textarea class="editor" id="challengeEditor" spellcheck="false">[[ stitchable ]] half4 scaleAroundCenter(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float displayScale,
+    float scale
+) {
+    float2 fragCoord = position * displayScale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float2 readUv = p ___ scale + 0.5;
-    return background.eval(readUv * resolution);
+    return background(readUv * resolution, resolution);
 }</textarea>
         <div class="controls" style="margin-top:10px">
           <button class="btn primary" id="checkChallenge">Check</button>
@@ -408,13 +429,13 @@ nothing (leave p + 0.5)</div>
   </section>
 
   <section class="section panel">
-    <div class="section-head"><div><div class="section-no">10 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div></div>
+    <div class="section-head"><div><div class="section-no">10 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div><p>Lessons 9.7–9.9 are a must-re-read sampling API. iOS-confirmed complete remains 40 of 216 through Lesson 9.6. This lesson does not raise that count. The live checkpoint remains Lesson 1.3. Use the Xcode previews, then the iPhone 16 Pro.</p></div>
     <div class="checklist">
       <label class="check"><input type="checkbox">The yellow inner rectangle is visible on the input. The store is that 2 × 2 stretched. Outer ring is dimmed.</label>
       <label class="check"><input type="checkbox">The four store squares are top-left orange, top-right navy, bottom-left navy, bottom-right orange. Neighboring writes in one square copy the same inner cell.</label>
       <label class="check"><input type="checkbox">45° mark: half of C → (1,1) is the inner-rect corner. Diagonal stays orange.</label>
       <label class="check"><input type="checkbox">Inverse figure: outer input 0.40 from C lands at UV 1.30 or −0.30, off-picture.</label>
-      <label class="check"><input type="checkbox">At scale 0.50 a gray band appears. Yellow window and walks stay visible on orange and navy. Android panel is square. Light <code>@Preview</code> first, then dark. Both scroll.</label>
+      <label class="check"><input type="checkbox">At scale 0.50 the HTML lab shows a gray band. Yellow window and walks stay visible on orange and navy. The iPhone 16 Pro panel is square. Light <code>#Preview</code> is first, then dark. Both previews scroll.</label>
     </div>
   </section>
 
@@ -422,13 +443,13 @@ nothing (leave p + 0.5)</div>
     <div class="section-head"><div><div class="section-no">11 · EVIDENCE BOUNDARY</div><h2>What this lesson establishes</h2></div></div>
     <div class="two">
       <div class="card green"><h3>Established</h3><p>No inner-half <code>if</code>. The store is four big squares: the inner 2 × 2, each cell copied onto many writes (about 2 × 2 writes per input cell). That is repeat, not an average. Top-left orange, top-right navy, bottom-left navy, bottom-right orange. Half of <code>C → (1,1)</code> is <code>(0.75, 0.75)</code>, inner-rect corner, still orange on this diagonal. Outer input would be painted off-picture. W stays.</p></div>
-      <div class="card indigo"><h3>What’s next</h3><p>Lesson 9.10 builds a displacement: a two-number arrow at each pixel, not one shared <code>scale</code>. Edge reads past the rectangle are Lesson 9.12.</p></div>
+      <div class="card indigo"><h3>What’s next</h3><p>Lesson 9.10 builds a displacement: a two-number arrow at each pixel, not one shared <code>scale</code>. Edge reads past the rectangle are Lesson 9.12. This re-read does not raise the 40 of 216 count. The live checkpoint remains Lesson 1.3. Lesson 9.10 stays unresolved. Its contract stays W = <code>(0.65, 0.20)</code> and <code>dispLen = 0.10</code>.</p></div>
     </div>
     <button class="btn primary" id="buildRecord" style="margin-top:16px">Build local review record</button>
     <textarea class="record" id="record" readonly>No record generated yet.</textarea>
   </section>
 
-  <footer class="footer panel"><span>95 of 216 complete · Lesson 9.9 complete</span><span>Previous complete: <a href="lesson-09-08-translate-sample-coordinates.html">9.8 — Translate sample coordinates</a> · Next checkpoint: <a href="lesson-09-10-build-a-displacement-field.html">9.10 — Build a displacement field</a></span></footer>
+  <footer class="footer panel"><span>40 of 216 complete · checkpoint Lesson 1.3</span><span>Previous: <a href="lesson-09-08-translate-sample-coordinates.html">9.8 — Translate sample coordinates</a> · Next: <a href="lesson-09-10-build-a-displacement-field.html">9.10 — Build a displacement field</a></span></footer>
 </main>
 <script>
 const W=400, H=400;
@@ -456,15 +477,18 @@ const DISTANCES=[
 function askedWindow(s){
   return {lo:0.5-0.5/s, hi:0.5+0.5/s};
 }
-const PROD=`uniform shader background;
-uniform float2 resolution;
-uniform float scale;
-
-half4 main(float2 fragCoord) {
+const PROD=`[[ stitchable ]] half4 scaleAroundCenter(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float displayScale,
+    float scale
+) {
+    float2 fragCoord = position * displayScale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float2 readUv = p / scale + 0.5;
-    return background.eval(readUv * resolution);
+    return background(readUv * resolution, resolution);
 }`;
 let px=TEACH.x, py=TEACH.y;
 let scale=2.00;
@@ -852,7 +876,7 @@ document.querySelectorAll('.choice').forEach(btn=>{
       box.textContent='Yes. Halve every walk. The edge write asks 0.25 from C, so the window is the inner rectangle. Outer input would be painted off-picture. No if.';
       box.style.background='var(--green-soft)';
     } else if(btn.dataset.answer==='wrong-if'){
-      box.textContent='Open the AGSL. There is no if. The inner 2 × 2 is whatever the edge writes ask after the divide.';
+      box.textContent='Open the Metal function. There is no if. The inner 2 × 2 is whatever the edge writes ask after the divide.';
       box.style.background='var(--amber-soft)';
     } else {
       box.textContent='The shader runs at every write pixel, including the outer ring of the store. Those writes ask inside the inner rectangle.';
@@ -876,15 +900,18 @@ document.getElementById('checkChallenge').addEventListener('click',()=>{
   }
 });
 document.getElementById('showSolution').addEventListener('click',()=>{
-  document.getElementById('challengeEditor').value=`uniform shader background;
-uniform float2 resolution;
-uniform float scale;
-
-half4 main(float2 fragCoord) {
+  document.getElementById('challengeEditor').value=`[[ stitchable ]] half4 scaleAroundCenter(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float displayScale,
+    float scale
+) {
+    float2 fragCoord = position * displayScale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float2 readUv = p / scale + 0.5;
-    return background.eval(readUv * resolution);
+    return background(readUv * resolution, resolution);
 }`;
 });
 document.getElementById('resetChallenge').addEventListener('click',()=>{
@@ -901,7 +928,7 @@ document.getElementById('buildRecord').addEventListener('click',()=>{
 - Many writes share one input cell. Repeat, not average.
 - Half of C → (1,1) is (0.75, 0.75), inner-rect corner, still orange on this diagonal.
 - Outer input would be painted off-picture.
-- Lesson 9.9 is complete. Completion count 95 of 216. Checkpoint is Lesson 9.10.
+- Lesson 9.9 is a must re-read. Completion count stays 40 of 216. Live checkpoint is Lesson 1.3. Lesson 9.10 stays unresolved.
 `;
 });
 const qa=new URLSearchParams(location.search).get('qa');

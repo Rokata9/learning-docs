@@ -1,6 +1,6 @@
 # iOS translation progress
 
-next_step: 9A
+next_step: 9H
 
 completed:
   - A1
@@ -74,10 +74,22 @@ completed:
   - 8E
   - 8F
   - 8H
+  - 9A
+  - 9B
+  - 9C
+  - 9D
+  - 9E
+  - 9F
 
 session_order: A1 A2 A3 A4 B1 B2 B3 C1 C2 D1 D2 1A 1B 1C 1D 1E 1F 2A 2B 2C 2D 2E 2F 3A 3B 3C 3D 3E 3F 3G 3H 4A 4B 4C 4D 4E 4F 4G 5A 5B 5C 5D 5E 5F 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 6.9 6.10 6.11 6H 7A 7B 7C 7D 7E 7F 7G 7H 8A 8B 8C 8D 8E 8F 8H 9A 9B 9C 9D 9E 9F 9H F1 F2 F3 F4 F5
 
 notes:
+  - 9F: lesson 9.9 HTML to SwiftUI / iPhone 16 Pro. scaleAroundCenter in
+    chapter09/ScaleAroundCenter.metal is readUv = p / scale + 0.5, then background().
+    Default scale 2.00. Teaching uv (0.80, 0.50) reads (0.65, 0.50) and stores orange.
+    ScaleAroundCenterExplorer on Chapter09Screen. 9.10 contract unchanged:
+    W = (0.65, 0.20), dispLen 0.10. iPhone 16 Pro sim build succeeded.
+    Stay-complete remains 40/216. Checkpoint remains Lesson 1.3. 9.10 stays unresolved.
   - 9.10 (user-requested, out of order; not 9F): HTML platform nouns to iOS/MSL;
     DisplacementFieldExplorer.swift + DisplacementField.metal; Chapter09Screen
     wired in LabHost. 9.9 not done, so 9F is not complete. next_step stays 4B.
@@ -272,3 +284,13 @@ notes:
     ClampMixSmoothstepExplorer and ShaderErrorExplorer on Chapter08Screen. smoothBand stores mix of smoothstep. gl_FragCoord fails the build; a float return does not. A missing argument is still not a silent 0. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3. Filename leftover: Ch 8 hub href.
   - 8H: Ch 8 hub to SwiftUI / iPhone 16 Pro; must-re-read, 40/216, checkpoint 1.3.
     Chapter08Screen already hosts 8.1–8.12. Pedagogical checkpoint is 8.12. iPhone 16 Pro sim build succeeded. Filename leftovers: hub href, the 8.2 filename, and RuntimeShaderExplorer. Android/Kotlin/Compose/AGSL/Pixel 8 grep clean.
+  - 9A: 9.1 HTML to stitchable distanceGray. DistanceBetweenPointsExplorer on Chapter09Screen.
+    Teaching p (0.30, −0.40), d = 0.50, panel 360 pt. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3.
+  - 9B: 9.2/9.3 HTML to stitchable circleSignedDistance and softMask. CircleSdfExplorer and
+    SoftMaskExplorer on Chapter09Screen. Hard if on sd; mask = 1 − smoothstep(−band, band, sd). iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3.
+  - 9C: 9.4/9.5 HTML to stitchable roundedRectSignedDistance and capsuleSignedDistance.
+    RoundedRectSdfExplorer and CapsuleSdfExplorer on Chapter09Screen. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3. Glossary id agsl-abs stays.
+  - 9D: 9.6 HTML to stitchable combineShapes and combineRoundedRects. CombineShapesExplorer
+    on Chapter09Screen. Four picks; teaching T stays sdA −0.15, sdB +0.05. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3. Glossary ids agsl-min and agsl-max stay.
+  - 9E: 9.7/9.8 HTML to a Metal function call, not a texture sample. background in
+    InputColor.metal; SampleInputShaderExplorer and TranslateSampleExplorer on Chapter09Screen. Default offsetU 0.10; T uv.x 0.15 reads 0.05 and stores orange. Negative read x is not clamped. iPhone 16 Pro sim build succeeded. 40/216, checkpoint 1.3. 9.10 stays unresolved.

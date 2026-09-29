@@ -30,9 +30,9 @@ The rulebook for the interactive learning documents. Keep this file short. Merge
 
 ## Formulas — always fully expanded
 
-12. Every displayed calculation shows, in order: the named formula → the substitution with every input visible → every intermediate value → the result → what consumes the result. Never print only a result. The reader never does arithmetic in their head outside the exercises.
+12. Every displayed calculation shows, in order: the named formula → the substitution with every input visible → every intermediate value → the result → what consumes the result. Never print only a result. Each “=” does exactly one operation, and every line is rounded the same way (3 decimals by default; squares that feed a √ are exact), so a calculator reproduces every line — everywhere a number appears: text, generated readouts, tooltips, canvas labels, table cells. The reader never does arithmetic in their head outside the exercises.
 13. Attach a `ⓘ` provenance icon to any value that comes from elsewhere: an earlier lesson, a slider, a fixed constant, a previous step. One line inside: origin, representation, consumer.
-14. When an older formula is reused (smoothstep, length, source-over), refresh its mechanics right where it is used: inline if short, in a `ⓘ` tooltip if long. State what goes in and what comes out.
+14. When an older formula is reused (smoothstep, length, source-over), refresh its mechanics right where it is used: inline if short, in a `ⓘ` tooltip if long. State what goes in and what comes out. A pointer such as “card 8” or “Section 3” is not a refresher: the formula and the source of each of its numbers appear on the same screen.
 15. A claim of change or shape ("grows", "stays straight", "bends", "smooth") is immediately followed by the numbers or the picture that prove it. Show a rate ("slope", "how fast") as the drawn difference between neighbouring samples at a stated step, never as a bare rate such as −5, and show what the rate changes in the picture. Numbers that prove a shape are drawn too (the gap on the picture); an effect word (break, corner) is defined by pointing at it in a picture.
 
 ## Lesson shape
@@ -40,7 +40,7 @@ The rulebook for the interactive learning documents. Keep this file short. Merge
 16. One main graphics idea and at most one main mathematical idea per lesson.
 17. Short lessons. The idea must be complete after the first two sections. No warm-up sections: one preview sentence in the hero, then the point. Each later section must add a new object, a new operation, or a new consumer — never restate earlier content. A requested rewrite redesigns the lesson from this rulebook: do not keep the old section skeleton, the old steppers, or proofs already taught in an earlier lesson (point to that lesson in one sentence). Only the rendering engine and the verified numbers may carry over.
 18. Required scaffold, in order: visual hero → the idea in pictures → one fully traced value → interactive lab → short code excerpt → coding challenge → 2–4 exercises with hidden answers (each hidden answer draws the question and draws the reason) → copyable Markdown record. State when the browser model differs from iOS. Separate what we see from what the framework does internally; label estimates as estimates.
-19. Keep each walkthrough state self-contained: repeat the current values beside the formula that consumes them, so the reader never scrolls back to decode a substitution.
+19. Keep each walkthrough state self-contained: repeat the current values beside the formula that consumes them, so the reader never scrolls back to decode a substitution. When a derivation puts one formula into another, show the inserted formula on the same screen, color the inserted part like its source, do one move per line named in words, and check every line in a numbers column.
 
 ## Verification — non-negotiable, in this order
 
