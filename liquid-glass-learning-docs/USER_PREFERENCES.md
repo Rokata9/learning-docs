@@ -319,4 +319,6 @@ Established 2026-06-12 from the M3E wavy-progress math path (Ch 1–2 exercise r
 
 ## Liquid Glass course — rulebook lives in AGENTS.md
 
+**Standing preference (recorded 2026-09-30):** always do a pass on whether the content is comprehensible to a total math beginner, on every lesson and every revision. One concept per lesson — the course is long (216 lessons) precisely so each lesson can stay small; do not try to prove every side fact of the math, and keep lessons concise with no repetition. Do not spare on visuals: pictures matter most. The enforceable form lives in `AGENTS.md` rules 6, 17 and 20.
+
 All lesson-writing rules for the Liquid Glass course — language, visuals, formulas, lesson shape, verification, iOS preview conventions, state-file hygiene, and the self-improving loop — live in `AGENTS.md` of the `liquid-glass-learning-docs` repository. That file is the single source and is deliberately short. Do not duplicate its rules here. When lesson feedback produces a new general rule, merge it into that file and note the failure → rule link in `CURRENT_STATE.md` and the handoff. Standing delivery notes: no ZIP archives unless asked; edit `liquid-glass-learning-docs` and `LiquidGlassLab-iOS` in place; the test device is iPhone 16 Pro.

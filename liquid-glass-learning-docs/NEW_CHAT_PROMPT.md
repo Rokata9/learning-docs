@@ -158,29 +158,26 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-09-16 with `CURRENT_STATE.md` (course version 9.11.0).
+**Last aligned:** 2026-09-30 with `CURRENT_STATE.md` (course version 9.12.0).
 
 ```text
 platform: Swift / SwiftUI / Metal (lab pixel-function strings)
 test device: iPhone 16 Pro
 min OS: iOS 17
 
-completed: 40 of 216, through Lesson 9.6 — Combine shapes
-  (Chapters 3, 4, 5, and Lessons 9.1–9.6 only)
-  why 40 not 95: 40 is confirmed math. The other 55 are iOS project/API
+completed: 42 of 216
+  (Chapters 3, 4, 5, Lessons 9.1–9.6, and Lessons 9.10–9.11)
+  why 42 not 97: 42 is confirmed math. The other 55 are iOS project/API
   chapters, not a graphics restart.
 
-must re-read before the frontier (in order):
+must re-read (in order):
   Chapter 1, Chapter 2, Chapter 6, Chapter 7, Chapter 8, Lessons 9.7–9.9
 
 current unresolved checkpoint: Lesson 1.3 — Create LiquidGlassLab
   (first lesson of the iOS on-ramp)
 
-on-ramp then returns the checkpoint to: Lesson 9.10 — Build a displacement field
-generated frontier: Lesson 9.11 — Refraction as displaced sampling
-next planned lesson after the frontier: Lesson 9.12 — Edge safety
-Lesson 9.10 is generated and not complete
-Lesson 9.11 is generated ahead and not complete
+generated frontier: Lesson 9.12 — Edge safety (not complete)
+next planned lesson after the frontier: Lesson 9.13 — Gentle chromatic separation
 ```
 
 Do not restore 95 of 216. Do not mark 1.3 complete from the prior lab.

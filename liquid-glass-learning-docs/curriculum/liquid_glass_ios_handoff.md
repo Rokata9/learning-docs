@@ -1,7 +1,7 @@
 # Liquid Glass iOS course — implementation handoff
 
-**Updated:** 2026-09-25
-**Course version:** 9.11.0
+**Updated:** 2026-09-30
+**Course version:** 9.12.0
 
 ## Read order
 
@@ -19,18 +19,16 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 40
-completed_through: "Lesson 9.6 — Combine shapes"
+learner_confirmed_complete: 42
 completed_chapters: [3, 4, 5]
-chapter_9_complete: "6 of 14 (9.1–9.6 only)"
+chapter_9_complete: "8 of 14 (9.1–9.6, 9.10, 9.11)"
 must_reread: "Chapter 1, Chapter 2, Chapter 6, Chapter 7, Chapter 8, Lessons 9.7–9.9"
 next_unresolved_checkpoint: "Lesson 1.3 — Create LiquidGlassLab"
-on_ramp_returns_checkpoint_to: "Lesson 9.10 — Build a displacement field"
-generated_frontier: "Lesson 9.11 — Refraction as displaced sampling"
-next_planned_after_frontier: "Lesson 9.12 — Edge safety"
+generated_frontier: "Lesson 9.12 — Edge safety"
+next_planned_after_frontier: "Lesson 9.13 — Gentle chromatic separation"
 ```
 
-Chapters 3, 4, 5 and Lessons 9.1–9.6 stay learner-confirmed complete (graphics and math). HTML will still be updated so excerpts are Swift. Lessons 8.2–8.12 and 9.7–9.9 must be re-read on iOS. Lesson 9.10 is generated and is not complete. Lesson 9.11 is generated ahead and is not complete. Do not restore 95 of 216. Do not mark Lesson 1.3 complete just because the prior 1.3 was complete.
+Chapters 3, 4, 5, Lessons 9.1–9.6 and Lessons 9.10–9.11 are learner-confirmed complete (graphics and math). HTML will still be updated so excerpts are Swift. Lessons 8.2–8.12 and 9.7–9.9 must be re-read on iOS. Lesson 9.12 is generated and is not complete. Do not restore 95 of 216. Do not mark Lesson 1.3 complete just because the prior 1.3 was complete.
 
 Chapter 7 frost stays fixed: blur `18` pt / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
@@ -169,32 +167,18 @@ p = uv − 0.5
 
 No inner-half `if`. Store is four big squares: inner 2 × 2 copied onto many writes (repeat, not average). Top-left orange, top-right navy, bottom-left navy, bottom-right orange. Half of `C → (1,1)` is `(0.75, 0.75)`, still orange on that diagonal. Outer input would be painted off-picture.
 
-## Unresolved checkpoint after the on-ramp — Lesson 9.10
+## Completed Lesson 9.10
 
 ```text
 dir = p / length(p)
 → disp = dir × dispLen
 → readUv = uv − disp
-→ sampled = background.eval(readUv × resolution)
+→ sampled = checkerBackground(readUv × resolution, resolution)
 ```
 
-The revised explanation follows the learner's exact navy input cell: x `[0.50, 0.75)`, y `[0.25, 0.50)`. W = `(0.65, 0.20)` reads approximately `(0.60528, 0.28944)` at `dispLen = 0.10`, so it stores navy. The missing y coordinate was explicitly chosen as 0.20.
+W `(0.65, 0.20)` reads about `(0.60528, 0.28944)` at `dispLen = 0.10` and stores navy. `dispLen` is an absolute UV read distance, not a percentage enlargement. The guard skips `d <= 0.0001`; the Metal source gives no reason for that exact cutoff. iOS: `DisplacementFieldExplorer.swift` + `DisplacementField.metal`. Learner-confirmed 2026-09-30.
 
-**Visual-first teaching contract.** Keep the gentle opening and the six-operation read walkthrough. Show one whole input line, spokes from C, equal-length outward walks, and the resulting landings. The sideways and vertical changes are `(p.x / d) × dispLen` and `(p.y / d) × dispLen`. Label the switch from output-to-input readback to input-to-output construction. Keep hidden exercise answers visual.
-
-**Active feedback — Q&A corrections (2026-09-22):** questions hidden below answers, repeated Input Q labels for different points, rounded component results, repeated Q11/Q15 answers, and a scale explanation that missed the tile-size question. Both pages now preserve A/Q/B through the full trace and expand Q′.y; the companion shows all 19 original questions at the top. Q12 uses the drawn horizontal/vertical changes without tangent or derivative terminology. Q15 explains corner-height differences; Q11 retains the intermediate-point curvature test. Q18 traces input bounds into output bounds: 0.25 / 0.90 = 0.277777… per side, an 11.111…% increase. Pink denotes the old reference boundary; cyan denotes the new boundary. Rules: `AGENTS.md` → Question visibility, distinct answers, and numeric identity; question visibility also saved in `USER_PREFERENCES.md`. Focused checks: `verification/lesson-09-10-sep22-checks.json` (13 revised states, precise values, question visibility, matching inline modules, no JS errors) and Q15/Q18 screenshots. No iOS source or learner completion changes.
-
-**Prevention and preference.** Consult `AGENTS.md` → Picture-before-arithmetic and inspectable-point gate and `USER_PREFERENCES.md` → Interactive math diagrams. Every plotted point opens coordinates in its named space, including centers, unlabelled samples, vector components, comparison points, and zoomed points. Click inspection must not also move a selected point. Verify every redraw, overlap, popup edge, and keyboard dismissal.
-
-`dispLen` is an absolute distance in square-image UV units, not 10% enlargement. Straight corner joins are only approximations. The shader's guard covers `d <= 0.0001`.
-
-**2026-09-19 guard clarification:** Both pages compare the guarded and allowed branches at p `(0.000003, 0.000004)`, d `0.000005`: allowing it gives direction `(0.6, 0.8)`, displacement `(0.06, 0.08)`, and read `(0.440003, 0.420004)`. The latest correction separates necessity from an undocumented choice: skipping zero prevents undefined division; the inspected Metal source gives no reason for choosing 0.0001, and the lesson has not demonstrated a need for that wider cutoff. Earlier prose described the effect as though that answered why. Prevention: guard rule 6 now requires explicit evidence for the chosen cutoff or an explicit statement that the rationale is unknown. The latest change is wording only, with syntax checks only. No iOS source or completion change.
-
-Current verification: `verification/lesson-09-10-visual-audit.md` and `verification/lesson-09-10-visual-checks.json`. Check the same-cell readback, all steppers and tooltips, lengths 0/0.10/0.20, exact guard equality, same-output-x comparison, slope, and layouts at 1920×1080 and 5120×1440. Current `USER_PREFERENCES.md` requests light-only appearance; it stays light under either OS preference. The HTML shader excerpt was compared with the existing `DisplacementField.metal`. The iOS explorer is `DisplacementFieldExplorer.swift` + `DisplacementField.metal`.
-
-Lesson 9.10 remains unfinished. Live checkpoint is Lesson 1.3. Count is 40 of 216.
-
-## Generated ahead — Lesson 9.11
+## Completed Lesson 9.11
 
 ```text
 sd = length(p) − radius
@@ -205,11 +189,19 @@ sd = length(p) − radius
 → sampled = checkerBackground(readUv × resolution, resolution)
 ```
 
-Teaching W = `(0.65, 0.30)`: `p = (0.15, −0.20)`, `d = 0.25`, `sd = 0`, falloff = 0.50, `disp = (0.03, −0.04)`, `readUv = (0.62, 0.34)`. Falloff is a length scale, not a color mix. Miss line x = 0.90 stays straight. iOS explorer: `RefractionSamplingExplorer.swift` + `RefractionSampling.metal`. Do not generate 9.12 unless asked.
+Teaching W = `(0.65, 0.30)`: `p = (0.15, −0.20)`, `d = 0.25`, `sd = 0`, falloff = 0.50, `disp = (0.03, −0.04)`, `readUv = (0.62, 0.34)`. Falloff is a length scale, not a color mix. The line x = 0.90 stays straight. iOS: `RefractionSamplingExplorer.swift` + `RefractionSampling.metal`. Learner-confirmed 2026-09-30. The lesson and its Q&A page were rolled back to commit `d6ca607` at the learner's request (the later proof rounds went beyond the lesson's one concept).
 
-**2026-09-22 revamp.** The learner rejected the long accumulated guidelines. `AGENTS.md` is now a concise 25-rule rulebook with a self-improving loop; the course sections of `USER_PREFERENCES.md` point to it. Lesson 9.11 HTML was rewritten under it: plain short sentences, no metaphor names, every drawn element labelled, formulas fully expanded with `ⓘ` provenance and refreshers, no repeated sections, clickable points with UV tooltips. Future lessons must follow the new `AGENTS.md`, not the style of older files. No iOS source change; completion stays 40 of 216 with 9.10 and 9.11 unconfirmed. Follow-up: section 2's diagram had kept the old squeezed layout; it now gets a real 790px track, and rule 9 (diagram readable size) prevents recurrence.
+## Generated frontier — Lesson 9.12
 
-**2026-09-25: new Section 2 — why smoothstep and not a straight line.** The learner asked whether smoothstep is common practice or whether a linear interpolation would look the same. The lesson had presented `falloff = 1 − smoothstep(−band, band, sd)` as given, never defending the curve against the obvious simpler choice — the exact failed spot was Section 1's "Where does falloff come from?" paragraph. New dedicated Section 2 (sections renumbered; the lesson now runs §1 problem → §2 why the curve → §3 stepper + trace → §4 lab → §5 lengths → §6 Metal excerpt → §7 challenge → §8 exercises → §9 record): two-panel SVG (both falloff curves sharing the three anchors above; their slopes below — the linear falloff's slope jumps 0 → −5 at each band edge, smoothstep's is 0 at both edges and −7.5 mid-band, measured numerically, no calculus vocabulary); the implication (a slope jump in falloff is a corner in the bend, sitting exactly on the band rings d = radius ± band = 0.15 / 0.35); real side-by-side renders (the chain with `smoothstep` vs a one-line `lin` swap, strong push 0.20); a magnified pair at the upper bend endpoint (0.65, 0.1838) showing the tangential peel vs the ~19° corner (~10° at lesson push 0.10, both computed from the real chain). Chapter 5 easing analogy (linear vs ease-in-out, moved from time to space). `chain()` gained a `'linear'` falloff mode; everything else unchanged. QA: `verification/lesson-09-11-why-checks.json` + `lesson-09-11-why-full.png` + refreshed `lesson-09-11-1920x1080.png`. Failure → rule link: `AGENTS.md` rule 5 now requires stating why the obvious simpler tool fails when a lesson picks a specific one. No iOS source change; completion stays 40 of 216 with 9.10 and 9.11 unconfirmed.
+```text
+p = uv − center
+→ the Lesson 9.11 chain
+→ readUv = uv − disp
+→ readUv = clamp(readUv, 0.0, 1.0)      (new)
+→ sampled = checkerWithEdge(readUv)     (transparent outside 0 … 1)
+```
+
+Glass center C = `(0.50, 1.10)`. W = `(0.59, 0.98)` reads R = `(0.53, 1.06)` (outside), clamps to R′ = `(0.53, 1.00)`, stores navy. Pad (Lesson 7.3) is one note, not a section. iOS: `EdgeSafetyExplorer.swift` + `EdgeSafety.metal`. Not complete. Next: 9.13 chromatic separation — do not generate unless asked.
 
 ## Future conversation
 

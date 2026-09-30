@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 9.12 — Edge safety</title>
+<style>
+  :root{
+    --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --bg:#ffffff; --soft:#f6f7f9;
+    --green:#059669; --indigo:#4338ca; --amber:#d97706; --blue:#1e40af; --red:#dc2626;
+    --hatch:repeating-linear-gradient(-45deg,#94a3b8 0 2px,#f1f5f9 2px 8px);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 24px 90px}
+  header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;border-bottom:1px solid var(--line);padding:14px 0}
+  header.top a{color:var(--blue);text-decoration:none;font-size:14px}
+  header.top a:hover{text-decoration:underline}
+  header.top .crumb{color:var(--muted);font-size:14px}
+  h1{font-size:27px;margin:20px 0 2px}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 6px}
+  h2{font-size:21px;margin:46px 0 8px;border-top:2px solid var(--line);padding-top:22px}
+  h2 .tag{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+  h3{font-size:16.5px;margin:26px 0 6px}
+  p{font-size:15.5px;max-width:78ch;margin:8px 0}
+  p.lead{font-size:17px;max-width:80ch}
+  li{font-size:15.5px}
+  code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+  code{background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+  figure{margin:16px 0}
+  canvas{display:block;border:1px solid var(--line);border-radius:8px;background:#fff}
+  canvas.see{background:var(--hatch)}
+  svg.block{display:block;border:1px solid var(--line);border-radius:8px;background:#fff;touch-action:none}
+  figcaption{font-size:14px;color:#4b5563;max-width:100ch;margin-top:8px}
+  .pair{display:grid;grid-template-columns:auto auto;gap:28px;justify-content:start;align-items:start}
+  .stage{position:relative}
+  .gridS{display:grid;grid-template-columns:700px minmax(0,1fr);gap:24px;align-items:start}
+  .gridL{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start}
+  .gridC{display:grid;grid-template-columns:520px minmax(0,1fr);gap:24px;align-items:start}
+  .info{display:inline-block;width:17px;height:17px;line-height:15px;border-radius:50%;
+    border:1px solid var(--blue);color:var(--blue);background:#eef2ff;font-size:11px;
+    text-align:center;cursor:pointer;padding:0;vertical-align:2px;font-family:inherit;margin-left:3px}
+  .info:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+  #tip{position:fixed;z-index:50;max-width:360px;max-height:calc(100vh - 20px);overflow:auto;background:#111827;color:#f9fafb;
+    border-radius:8px;padding:10px 34px 10px 12px;font-size:13.5px;line-height:1.45;
+    box-shadow:0 8px 24px rgba(0,0,0,.28);display:none}
+  #tip.open{display:block}
+  #tip.wide{max-width:560px}
+  #tip .tclose{position:absolute;top:4px;right:6px;background:none;border:0;color:#9ca3af;font-size:15px;cursor:pointer;padding:2px 4px}
+  #tip .tclose:hover{color:#fff}
+  #tip b{color:#fde68a}
+  #tip code{background:#1f2937;border-color:#374151;color:#e5e7eb}
+  #tip pre{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre;margin:8px 0 0;
+    background:#1f2937;border:1px solid #374151;border-radius:6px;padding:8px 10px;color:#e5e7eb;overflow-x:auto}
+  .ptdot{position:absolute;width:18px;height:18px;border-radius:50%;transform:translate(-50%,-50%);
+    border:3px solid #111827;cursor:pointer;padding:0;z-index:5}
+  .ptdot.ring{background:transparent!important;border-width:4px}
+  .ptdot.hat{background:var(--hatch)!important}
+  .ptdot.drag{width:24px;height:24px;cursor:grab;touch-action:none}
+  .ptdot.drag:active{cursor:grabbing}
+  .ptdot:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
+  svg circle.pt{cursor:pointer}
+  svg circle.pt:focus-visible{outline:none;stroke:var(--indigo);stroke-width:4}
+  table.trace{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}
+  table.trace th,table.trace td{border:1px solid var(--line);padding:7px 10px;vertical-align:top;text-align:left}
+  table.trace th{background:var(--soft);font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+  table.trace td.f{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+  table.trace tr.new td{background:#f0fdf4}
+  .readout{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;
+    background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 14px;line-height:1.7;white-space:pre-wrap}
+  .readout .hl{background:#dcfce7;border-radius:3px}
+  .ctl{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:10px 0}
+  .ctl label{font-size:14px;display:flex;align-items:center;gap:8px}
+  .ctl input[type=range]{width:170px}
+  .ctlname{font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:92px}
+  .btn{font-size:14px;padding:6px 14px;border-radius:7px;border:1.5px solid var(--blue);background:#fff;color:var(--blue);cursor:pointer}
+  .btn:hover{background:#eef2ff}
+  .btn[aria-pressed="true"]{background:var(--blue);color:#fff;box-shadow:inset 0 2px 4px rgba(0,0,0,.25)}
+  .btn:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+  .btn:disabled{opacity:.45;cursor:default}
+  .note{border-left:4px solid var(--amber);background:#fffbeb;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:92ch;margin:12px 0}
+  .iosnote{border-left:4px solid var(--indigo);background:#eef2ff;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:92ch;margin:12px 0}
+  details{border:1px solid var(--line);border-radius:8px;margin:10px 0;background:#fff}
+  details>summary{cursor:pointer;padding:10px 14px;font-size:15px;font-weight:600}
+  details>summary:hover{background:var(--soft)}
+  details .body{padding:4px 14px 14px}
+  details details{margin:8px 0;background:var(--soft)}
+  .stepnav{display:flex;gap:10px;align-items:center;margin:10px 0}
+  .stepnav .dots{display:flex;gap:6px;margin-left:8px}
+  .stepnav .dot{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--muted);background:#fff;padding:0;cursor:pointer}
+  .stepnav .dot.on{background:var(--indigo);border-color:var(--indigo)}
+  .stepcap{min-height:150px;font-size:15.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+  .legend{list-style:none;padding:0;margin:8px 0}
+  .legend li{position:relative;padding-left:42px;margin:7px 0;font-size:15px;line-height:1.45}
+  .legend.two{columns:2;column-gap:36px;max-width:1150px}
+  .legend.two li{break-inside:avoid}
+  .legend li>span:first-child{position:absolute;left:4px;top:.2em}
+  .sw{display:block;width:28px;height:18px;border:1px solid #111827;border-radius:3px}
+  .sw.check{background:conic-gradient(#e07a2e 0 25%,#1a4066 0 50%,#e07a2e 0 75%,#1a4066 0) 0 0/18px 18px}
+  .sw.hatch{background:var(--hatch)}
+  .swl{display:block;width:28px;height:6px;border-radius:3px;border:1px solid #111827;margin-top:6px}
+  .swd{display:block;width:15px;height:15px;border-radius:50%;border:2.5px solid #111827;margin:1px 0 0 6px}
+  .swd.ring{background:transparent!important;border-width:3.5px}
+  .verdict{font-size:15px;margin-top:8px;font-weight:600}
+  .verdict.ok{color:var(--green)} .verdict.no{color:var(--red)}
+  pre.code{font:13.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#0f172a;color:#e2e8f0;
+    border-radius:8px;padding:14px 16px;overflow-x:auto;max-width:100%}
+  pre.code .nw{background:#14532d;color:#bbf7d0;border-radius:3px}
+  pre.code .cm{color:#94a3b8}
+  #chIn{font:14px ui-monospace,Menlo,monospace;padding:6px 8px;border:1.5px solid var(--line);border-radius:6px;width:420px}
+  #record{width:100%;min-height:250px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:13px;border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--soft)}
+  .navfoot{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:50px;padding-top:16px;font-size:14px}
+  .navfoot a{color:var(--blue);text-decoration:none}
+  .navfoot span{color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="crumb">Liquid Glass course</span>
+  <a href="../../../liquid-glass-course.html">Course home</a>
+  <a href="lesson-distance-fields-image-sampling-and-refraction.html">Chapter 9</a>
+  <a href="../../glossary.html">Glossary</a>
+  <a href="lesson-09-11-refraction-as-displaced-sampling.html">← Lesson 9.11</a>
+</header>
+<div class="wrap">
+
+<h1>Lesson 9.12 — Edge safety</h1>
+<p class="sub">What the glass shows when it reads past the edge of the wallpaper. Light theme · desktop · works from <code>file://</code>.</p>
+
+<p class="lead">In Lesson 9.11 every pixel took its color from a point of the wallpaper, its <b>read point</b>, and the
+glass sat in the middle of the screen. Now the glass moves to the bottom edge of the screen. Some read points then
+land <b>below the bottom edge of the wallpaper</b>, where there is no wallpaper. Those pixels become see-through.
+One line of code fixes this: <code>clamp</code>.</p>
+
+<figure>
+  <div class="pair">
+    <div class="stage"><canvas id="heroA" class="see" width="560" height="560"></canvas>
+      <figcaption><b>Without a fix.</b> The hatched strip at the bottom is see-through: the <b>seam</b>.</figcaption></div>
+    <div class="stage"><canvas id="heroB" class="see" width="560" height="560"></canvas>
+      <figcaption><b>With <code>clamp</code>.</b> Every pixel has a color again. The seam is gone.</figcaption></div>
+  </div>
+</figure>
+<ul class="legend two">
+  <li><span class="sw check"></span><b>The wallpaper</b>: the orange and navy checkerboard from Lesson 9.7. The shader reads its colors.</li>
+  <li><span class="sw hatch"></span><b>Hatch</b>: no color at all. The pixel is transparent (see-through).</li>
+  <li><span class="swl" style="background:#fff"></span><b>The white circle</b>: the glass from Lesson 9.11, radius 0.25. Its center <b>C = (0.50, 1.10)</b> is 0.10 below the screen.</li>
+  <li><span class="swl" style="background:#fde047"></span><b>The yellow line</b>: the bottom edge of the wallpaper, <code>y = 1.00</code>.</li>
+</ul>
+
+<!-- ============================ SECTION 1 ============================ -->
+<h2 id="s1"><span class="tag">Section 1 · the idea in pictures</span>Near the edge, a read point can leave the wallpaper</h2>
+
+<p>Press <b>Next</b>. Each step adds one thing to the picture. The picture shows only the bottom part of the
+screen, enlarged, and a strip below the screen.</p>
+
+<div class="gridS">
+  <div class="stage" id="stStage"><canvas id="stCv" width="700" height="700"></canvas></div>
+  <div>
+    <ul class="legend">
+      <li><span class="sw check"></span>the wallpaper (Lesson 9.7)</li>
+      <li><span class="sw hatch"></span>hatch: no color, transparent</li>
+      <li><span class="swl" style="background:#fde047"></span>the yellow line: the bottom edge, <code>y = 1.00</code></li>
+      <li><span class="swl" style="background:#fff"></span>the white circle: the glass, center C</li>
+      <li><span class="swd" style="background:#22d3ee"></span>W: one pixel of the screen</li>
+      <li><span class="swl" style="background:#ff4d8d"></span>the pink push arrow: from W to its read point R</li>
+      <li><span class="swd ring" style="border-color:#ff4d8d"></span>R: the read point, where W reads the wallpaper</li>
+    </ul>
+    <div class="stepnav">
+      <button class="btn" id="stPrev">← Back</button>
+      <button class="btn" id="stNext">Next →</button>
+      <div class="dots" id="stDots"></div>
+    </div>
+    <div class="stepcap" id="stCap" aria-live="polite"></div>
+    <p class="small" style="font-size:14px;color:#4b5563">Click any dot in the picture to see its name and coordinates.</p>
+  </div>
+</div>
+
+<!-- ============================ SECTION 2 ============================ -->
+<h2 id="s2"><span class="tag">Section 2 · the fix</span>Clamp the read point back onto the wallpaper</h2>
+
+<p>The fix is one new line, right after the line that computes the read point:</p>
+<div class="readout">readUv = uv − disp                    the read point R (Lesson 9.11)
+<span class="hl">readUv = clamp(readUv, 0.0, 1.0)</span>      new: move R back onto the wallpaper → R′</div>
+
+<p><code>clamp(x, lo, hi)</code> keeps one number inside the range from <code>lo</code> to <code>hi</code><button class="info" data-tip="clamp">ⓘ</button>.
+A number below <code>lo</code> becomes <code>lo</code>. A number above <code>hi</code> becomes <code>hi</code>. A number
+between them does not change. Drag the dot x along the line:</p>
+
+<figure>
+  <svg class="block" id="nlSvg" width="760" height="176" viewBox="0 0 760 176" role="img"
+       aria-label="A number line from −0.40 to 1.40 with the kept range 0 to 1"></svg>
+  <div class="ctl"><span class="ctlname">Try</span>
+    <button class="btn" data-nl="1.06">x = 1.06</button><button class="btn" data-nl="0.53">x = 0.53</button><button class="btn" data-nl="-0.04">x = −0.04</button></div>
+  <div class="readout" id="nlOut"></div>
+</figure>
+
+<p>A read point has two numbers, x and y. <code>clamp(readUv, 0.0, 1.0)</code> clamps each number
+separately: x into 0 … 1, and y into 0 … 1. So a read point outside the wallpaper jumps to the nearest point
+of the wallpaper's edge, and a read point inside does not move. We clamp <b>because</b> every point of the
+edge has a color: after the clamp, every pixel gets a color, and no pixel is see-through. Drag R:</p>
+
+<div class="gridC" style="grid-template-columns:600px minmax(0,1fr)">
+  <div class="stage" id="c2Stage"><canvas id="c2Cv" width="600" height="600"></canvas></div>
+  <div>
+    <ul class="legend">
+      <li><span class="sw check"></span>the wallpaper, from 0 to 1 in x and in y</li>
+      <li><span class="swl" style="background:#fde047"></span>the yellow line: the edge of the wallpaper, on all four sides</li>
+      <li><span class="swd ring" style="border-color:#ff4d8d"></span>R: a read point (drag it)</li>
+      <li><span class="swd" style="background:#a3e635"></span>R′: the clamped read point</li>
+      <li><span class="swl" style="background:#a3e635"></span>the lime clamp arrow: from R to R′</li>
+    </ul>
+    <div class="ctl"><span class="ctlname">Put R at</span>
+      <button class="btn" data-r="0.53,1.06">W's read point (0.53, 1.06)</button>
+      <button class="btn" data-r="1.12,0.40">right of the wallpaper</button>
+      <button class="btn" data-r="1.04,1.06">past a corner</button>
+      <button class="btn" data-r="0.30,0.60">inside</button></div>
+    <div class="readout" id="c2Out"></div>
+  </div>
+</div>
+
+<h3>The output, before and after</h3>
+<p>Switch between no fix and <code>clamp</code> on the same picture. The glass stays at C = (0.50, 1.10).</p>
+<div class="gridC">
+  <div class="stage"><canvas id="cmpCv" class="see" width="520" height="520"></canvas>
+    <figcaption>The magnifier: the part inside the violet box, 2× larger.</figcaption>
+    <canvas id="cmpMag" class="see" width="520" height="208" style="margin-top:6px"></canvas></div>
+  <div>
+    <ul class="legend">
+      <li><span class="swl" style="background:#fff"></span>the white circle: the glass, center C = (0.50, 1.10) below the screen</li>
+      <li><span class="sw hatch"></span>hatch: see-through pixels (the seam)</li>
+      <li><span class="swl" style="background:#fde047"></span>the yellow line: the bottom edge, <code>y = 1.00</code></li>
+    </ul>
+    <div class="ctl"><span class="ctlname">Edge rule</span>
+      <button class="btn" data-cmp-rule="none">no fix</button><button class="btn" data-cmp-rule="clamp">clamp</button></div>
+    <div class="ctl"><span class="ctlname">Wallpaper</span>
+      <button class="btn" data-cmp-wall="checker">checkerboard</button><button class="btn" data-cmp-wall="screen">screen</button></div>
+    <div class="readout" id="cmpOut"></div>
+    <p class="small" style="font-size:14.5px"><b>What clamp costs.</b> Clamp does not invent the missing wallpaper. The
+    pixels of the seam all read the bottom edge, so the bottom row of the wallpaper repeats downward. On the
+    checkerboard you cannot see this, because the bottom row of cells keeps the same color all the way down. On
+    the <b>screen</b> wallpaper you can. The screen is a settings list, drawn by this page; its last row, “Privacy
+    &amp; Security”, is cut in half by the bottom edge. With clamp, the letters of that row turn into short vertical
+    streaks inside the seam (see the magnifier). Streaks still give every pixel a real color; the seam gives no color at all.</p>
+  </div>
+</div>
+
+<div class="note"><b>Another fix: pad.</b> Lesson 7.3 fixed the same problem for blur in a different way: read a
+<i>bigger</i> rectangle of the real picture behind the glass, then keep only the middle. That fix is called <b>pad</b>. Pad needs
+real pixels beyond the edge. Below the bottom edge of the screen there are no pixels, so here clamp is the fix.</div>
+
+<!-- ============================ SECTION 3 ============================ -->
+<h2 id="s3"><span class="tag">Section 3 · one value, traced to the end</span>The pixel W, every number</h2>
+
+<p>The chain of Lesson 9.11<button class="info" data-tip="chain">ⓘ</button> with the glass at C = (0.50, 1.10),
+<code>radius = 0.25</code><button class="info" data-tip="radius">ⓘ</button>, <code>band = 0.10</code><button class="info" data-tip="band">ⓘ</button>,
+<code>dispLen = 0.10</code><button class="info" data-tip="displen">ⓘ</button>, for the pixel W = (0.59, 0.98). The green row is the new line.</p>
+
+<table class="trace">
+  <tr><th style="width:120px">Step</th><th style="width:230px">Formula</th><th>Numbers (one operation per “=”)</th><th style="width:150px">Result</th><th style="width:160px">Used by</th></tr>
+  <tr><td>1 · position</td><td class="f">p = uv − C</td><td class="f">p.x = 0.59 − 0.50 = 0.09<br>p.y = 0.98 − 1.10 = −0.12<br><span style="font-family:inherit;color:#4b5563">p.y is negative: W is above C (y grows downward).</span></td><td class="f">p = (0.09, −0.12)</td><td>steps 2 and 6</td></tr>
+  <tr><td>2 · distance</td><td class="f">d = length(p)<button class="info" data-tip="length">ⓘ</button></td><td class="f">p.x² = 0.09 × 0.09 = 0.0081<br>p.y² = (−0.12) × (−0.12) = 0.0144<br>sum = 0.0081 + 0.0144 = 0.0225<br>d = √0.0225 = 0.15</td><td class="f">d = 0.15</td><td>steps 3 and 6</td></tr>
+  <tr><td>3 · signed distance</td><td class="f">sd = d − radius<button class="info" data-tip="sd">ⓘ</button></td><td class="f">sd = 0.15 − 0.25 = −0.10</td><td class="f">sd = −0.10</td><td>step 4</td></tr>
+  <tr><td>4 · falloff</td><td class="f">falloff = 1 − smoothstep(−band, band, sd)<button class="info" data-tip="smoothstep">ⓘ</button></td><td class="f">sd − (−0.10) = −0.10 + 0.10 = 0<br>t = 0 ÷ 0.20 = 0<br>t² = 0 × 0 = 0<br>t³ = 0 × 0 = 0<br>3t² = 3 × 0 = 0<br>2t³ = 2 × 0 = 0<br>smoothstep = 0 − 0 = 0<br>falloff = 1 − 0 = 1</td><td class="f">falloff = 1<br><span style="font-family:inherit">W gets the full push</span></td><td>step 5</td></tr>
+  <tr><td>5 · push</td><td class="f">push = dispLen × falloff</td><td class="f">push = 0.10 × 1 = 0.10</td><td class="f">push = 0.10</td><td>step 7</td></tr>
+  <tr><td>6 · direction</td><td class="f">dir = p / d</td><td class="f">dir.x = 0.09 ÷ 0.15 = 0.60<br>dir.y = −0.12 ÷ 0.15 = −0.80</td><td class="f">dir = (0.60, −0.80)</td><td>step 7</td></tr>
+  <tr><td>7 · disp</td><td class="f">disp = dir × push</td><td class="f">disp.x = 0.60 × 0.10 = 0.06<br>disp.y = −0.80 × 0.10 = −0.08</td><td class="f">disp = (0.06, −0.08)</td><td>step 8</td></tr>
+  <tr><td>8 · read point</td><td class="f">readUv = uv − disp</td><td class="f">R.x = 0.59 − 0.06 = 0.53<br>R.y = 0.98 − (−0.08) = 1.06</td><td class="f">R = (0.53, 1.06)</td><td>step 9</td></tr>
+  <tr><td>9 · edge test</td><td class="f">0 ≤ x ≤ 1 and 0 ≤ y ≤ 1?</td><td class="f">x: 0 ≤ 0.53 ≤ 1 → yes<br>y: 1.06 ≤ 1 → no</td><td>R is outside: 0.06 below the bottom edge</td><td>without the fix: transparent (0, 0, 0, 0)<button class="info" data-tip="transparent">ⓘ</button></td></tr>
+  <tr class="new"><td>10 · clamp (new)</td><td class="f">readUv = clamp(readUv, 0.0, 1.0)</td><td class="f">x: max(0.53, 0) = 0.53<br>x: min(0.53, 1) = 0.53<br>y: max(1.06, 0) = 1.06<br>y: min(1.06, 1) = 1.00</td><td class="f">R′ = (0.53, 1.00)</td><td>step 11</td></tr>
+  <tr><td>11 · color</td><td class="f">the wallpaper rule<button class="info" data-tip="checker">ⓘ</button></td><td class="f">col: 0.53 × 4 = 2.12 → floor → 2<br>row: 1.00 × 4 = 4 → floor → 4<br>row 4 does not exist; the edge y = 1.00 belongs to the last row → row = 3<br>col + row = 2 + 3 = 5 → odd</td><td class="f">navy</td><td>stored at W</td></tr>
+</table>
+
+<!-- ============================ SECTION 4 ============================ -->
+<h2 id="s4"><span class="tag">Section 4 · lab</span>Lab: move the glass</h2>
+
+<p>Drag the dot C to move the glass, and the dot W to pick a pixel. The empty area around the
+screen is not part of the screen: nothing is drawn there. Try the corner: both x and y of a read point can be outside.</p>
+
+<div class="gridL">
+  <div class="stage" id="labStage"><canvas id="labCv" width="760" height="760"></canvas></div>
+  <div>
+    <div class="ctl"><span class="ctlname">Edge rule</span>
+      <button class="btn" data-lab-rule="none">no fix</button><button class="btn" data-lab-rule="clamp">clamp</button></div>
+    <div class="ctl"><span class="ctlname">Wallpaper</span>
+      <button class="btn" data-lab-wall="checker">checkerboard</button><button class="btn" data-lab-wall="screen">screen</button></div>
+    <div class="ctl"><span class="ctlname">Glass at</span>
+      <button class="btn" data-lab-c="0.50,1.10">bottom edge</button>
+      <button class="btn" data-lab-c="1.10,1.10">corner</button>
+      <button class="btn" data-lab-c="-0.12,0.40">left edge</button>
+      <button class="btn" data-lab-c="0.50,0.50">middle (Lesson 9.11)</button></div>
+    <div class="ctl"><label><span class="ctlname">dispLen</span>
+      <input type="range" id="labLen" min="0" max="0.20" step="0.01" value="0.10"><span class="mono" id="labLenV">0.10</span></label>
+      <button class="info" data-tip="displen">ⓘ</button></div>
+    <ul class="legend">
+      <li><span class="swd" style="background:#fff"></span>C: the center of the glass (drag it)</li>
+      <li><span class="swd" style="background:#22d3ee"></span>W: one pixel (drag it)</li>
+      <li><span class="swl" style="background:#ff4d8d"></span>the pink push arrow, to the read point R (ring)</li>
+      <li><span class="swl" style="background:#a3e635"></span>the lime clamp arrow, to R′ (with clamp only)</li>
+      <li><span class="swl" style="background:#fde047"></span>the yellow line: the edge of the wallpaper and of the screen</li>
+      <li><span class="sw hatch"></span>hatch: see-through · empty area: not the screen</li>
+    </ul>
+    <div class="stage" id="labZoomStage"><canvas id="labZoom" class="see" width="408" height="240"></canvas></div>
+    <figcaption style="margin-bottom:10px">The zoom: the part of the picture around W, 3× larger.</figcaption>
+    <div class="readout" id="labOut" style="font-size:12.5px;line-height:1.6"></div>
+  </div>
+</div>
+
+<!-- ============================ SECTION 5 ============================ -->
+<h2 id="s5"><span class="tag">Section 5 · short code excerpt</span>The iPhone shader</h2>
+
+<p>The real Metal function from the LiquidGlassLab app: <code>chapter09/EdgeSafety.metal</code> (explorer screen:
+<code>chapter09/EdgeSafetyExplorer.swift</code>). The parameter list is packed onto fewer lines here, and the
+comments on the right were added for the lesson. The two new lines are green.</p>
+
+<pre class="code">[[ stitchable ]] half4 edgeSafeRefract(
+    float2 position, half4 color, float2 resolution, float2 center,
+    float dispLen, float radius, float band, float useClamp, float scale
+) {
+    float2 fragCoord = position * scale;
+    float2 uv = fragCoord / resolution;
+<span class="nw">    float2 p = uv - center;                      </span><span class="cm">// new: the glass center is a parameter</span>
+    float d = length(p);
+    float2 disp = float2(0.0, 0.0);
+    if (d &gt; 0.0001) {
+        float sd = d - radius;
+        float falloff = 1.0 - smoothstep(-band, band, sd);
+        disp = (p / d) * dispLen * falloff;
+    }
+    float2 readUv = uv - disp;
+    if (useClamp &gt; 0.5) {                        <span class="cm">// the explorer's no fix / clamp switch</span>
+<span class="nw">        readUv = clamp(readUv, 0.0, 1.0);        </span><span class="cm">// new: the one line of this lesson</span>
+    }
+    return checkerWithEdge(readUv);              <span class="cm">// transparent outside 0 … 1</span>
+}</pre>
+
+<ul>
+  <li><code>p = uv − center</code> moves the glass. It is the same move as <code>pB = p − B</code> in Lesson 9.6<button class="info" data-tip="center">ⓘ</button>.</li>
+  <li><code>clamp(readUv, 0.0, 1.0)</code> gets a pair and two single numbers. Metal then clamps x and y separately, both into 0 … 1. The app build compiles this form.</li>
+  <li><code>checkerWithEdge</code> is the Lesson 9.10 checkerboard with an edge: it returns <code>half4(0.0, 0.0, 0.0, 0.0)</code>
+  when x or y is below 0 or above 1. It uses <code>min(floor(y × 4.0), 3.0)</code>, so the edge <code>y = 1.00</code> belongs to the last row.</li>
+</ul>
+
+<div class="iosnote"><b>Browser and iPhone.</b> On this page, JavaScript runs the same chain once for every pixel of
+the canvas. On iPhone, Metal runs <code>edgeSafeRefract</code> once for every pixel of the view. <b>One difference
+on purpose:</b> our wallpaper is a function (Lesson 9.7), and a function can give a color anywhere, even at
+<code>y = 1.06</code>. A real picture — a photo, or the screen behind the glass — stops at its edge. So in this
+lesson the function returns transparent outside 0 … 1, like a real picture.<br><br>
+<b>What SwiftUI does.</b> SwiftUI's own sampler for a view's pixels (<code>Layer.sample</code>, a later chapter)
+already clamps before it reads. Its header file in Xcode, <code>SwiftUI_Metal.h</code>, contains the line
+<code>p = metal::clamp(p, info[3], info[4]);</code>. The header does not say what <code>info[3]</code> and
+<code>info[4]</code> hold. Our estimate: the two corners of the view's pixel area. The line itself proves the
+clamp.</div>
+
+<!-- ============================ SECTION 6 ============================ -->
+<h2 id="s6"><span class="tag">Section 6 · coding challenge</span>Challenge: write the missing line</h2>
+
+<p>The shader below has one line missing. Write it. The page runs your line on the picture, with the glass at
+C = (0.50, 1.10), and checks two things: no pixel is see-through, and no pixel whose read point was already
+inside the wallpaper changes.</p>
+<pre class="code">    float2 readUv = uv - disp;
+    <span class="nw">???</span>
+    return checkerWithEdge(readUv);</pre>
+<div class="gridC">
+  <div class="stage"><canvas id="chCv" class="see" width="520" height="520"></canvas>
+    <figcaption>Hatch: see-through pixels. The white circle: the glass, center C = (0.50, 1.10).</figcaption></div>
+  <div>
+    <div class="ctl"><input id="chIn" type="text" spellcheck="false" autocomplete="off" placeholder="readUv = …;" aria-label="Your Metal line">
+      <button class="btn" id="chBtn">Run</button></div>
+    <div class="verdict" id="chVerdict"></div>
+    <details><summary>Hint</summary><div class="body"><p>Use <code>clamp</code>. The wallpaper goes from 0 to 1 in x and in y.</p></div></details>
+  </div>
+</div>
+
+<!-- ============================ SECTION 7 ============================ -->
+<h2 id="s7"><span class="tag">Section 7 · exercises</span>Exercises</h2>
+<p>Answer first in your head or on paper. Then open the hidden answer. Every answer draws the question and the reason.</p>
+
+<details class="ex"><summary>Exercise 1 — is R′ where the push arrow crosses the edge?</summary><div class="body">
+  <p>The pink push arrow goes from W = (0.59, 0.98) to R = (0.53, 1.06). It crosses the yellow line on its way.
+  Is R′ = clamp(R) the point where the arrow crosses the yellow line?</p>
+  <details><summary>Show the answer</summary><div class="body">
+    <div class="gridC"><div class="stage" id="ex1Stage"><canvas id="ex1Cv" width="520" height="520"></canvas></div>
+    <div><p><b>No.</b> The arrow crosses the yellow line at E; R′ is a different point.</p>
+    <div class="readout">The arrow drops from y = 0.98 to y = 1.06:
+drop = 1.06 − 0.98 = 0.08
+W is above the yellow line by:
+gap = 1.00 − 0.98 = 0.02
+share of the arrow before the line:
+share = 0.02 ÷ 0.08 = 0.25
+the arrow moves left by 0.06 in total:
+left = 0.25 × 0.06 = 0.015
+E.x = 0.59 − 0.015 = 0.575
+E = (0.575, 1.00)
+R′ = (0.53, 1.00)
+E.x − R′.x = 0.575 − 0.53 = 0.045</div>
+    <p><b>Why:</b> clamp does not know the arrow. Clamp sees only R. R.x = 0.53 is inside 0 … 1, so R.x stays
+    0.53. Only R.y changes. R′ is straight above R.</p></div></div>
+  </div></details>
+</div></details>
+
+<details class="ex"><summary>Exercise 2 — a read point past a corner</summary><div class="body">
+  <p>A read point is R = (1.04, 1.06): right of the wallpaper <i>and</i> below it. Where is R′?</p>
+  <details><summary>Show the answer</summary><div class="body">
+    <div class="gridC"><div class="stage" id="ex2Stage"><canvas id="ex2Cv" width="520" height="520"></canvas></div>
+    <div><div class="readout">x: max(1.04, 0) = 1.04
+x: min(1.04, 1) = 1.00
+y: max(1.06, 0) = 1.06
+y: min(1.06, 1) = 1.00
+R′ = (1.00, 1.00)</div>
+    <p><b>R′ is the bottom-right corner.</b> Both numbers are outside 0 … 1, so both change. The nearest point of
+    the wallpaper to R is its corner.</p></div></div>
+  </div></details>
+</div></details>
+
+<details class="ex"><summary>Exercise 3 — the glass back in the middle</summary><div class="body">
+  <p>Put the glass back where Lesson 9.11 had it: C = (0.50, 0.50). With the clamp line in the shader, does
+  any pixel change?</p>
+  <details><summary>Show the answer</summary><div class="body">
+    <div class="gridC"><div class="stage" id="ex3Stage"><canvas id="ex3Cv" class="see" width="520" height="520"></canvas></div>
+    <div><p><b>No pixel changes.</b> The picture shows 16 pixels and their pink push arrows. Every arrow points
+    toward C and ends inside the wallpaper.</p>
+    <div class="readout" id="ex3Out"></div>
+    <p><b>Why:</b> a push arrow is at most 0.10 long (dispLen). C is 0.50 away from every edge. An arrow ends
+    either between its pixel and C, or at most 0.10 past C. Both places are inside the wallpaper. Clamp only
+    moves read points that are outside, so here clamp changes nothing. That is why the clamp line can always
+    stay in the shader.</p></div></div>
+  </div></details>
+</div></details>
+
+<!-- ============================ SECTION 8 ============================ -->
+<h2 id="s8"><span class="tag">Section 8 · copyable record</span>Take it with you</h2>
+<p>Press <b>Copy</b> and paste the record into your notes.</p>
+<textarea id="record" readonly></textarea>
+<div class="ctl"><button class="btn" id="recBtn">Copy</button><span id="recMsg" class="sub"></span></div>
+
+<div class="navfoot">
+  <a href="lesson-09-11-refraction-as-displaced-sampling.html">← Lesson 9.11 — Refraction as displaced sampling</a>
+  <span>Next: Lesson 9.13 — Gentle chromatic separation (not created yet)</span>
+</div>
+</div>
+
+<div id="tip" role="dialog" aria-modal="false">
+  <button class="tclose" id="tipClose" aria-label="Close">✕</button>
+  <div id="tipBody"></div>
+</div>
+
+<script>
+'use strict';
+/* ================= shared math — the same chain as EdgeSafety.metal ================= */
+const NAVY=[26,64,102], ORANGE=[224,122,46];
+const RAD=0.25, BAND=0.10;
+const LES={cx:0.50, cy:1.10, len:0.10};
+const COL={edge:'#fde047', glass:'#ffffff', w:'#22d3ee', push:'#ff4d8d', clamp:'#a3e635', e:'#c084fc', halo:'rgba(17,24,39,0.92)'};
+
+function sstep(e0,e1,x){ const t=Math.min(1,Math.max(0,(x-e0)/(e1-e0))); return t*t*(3-2*t); }
+function inside(u,v){ return u>=0 && u<=1 && v>=0 && v<=1; }
+function checker(u,v){                              // Lesson 9.7 rule; the edge 1.00 belongs to the last row/column
+  const c=Math.min(Math.floor(u*4),3), r=Math.min(Math.floor(v*4),3);
+  return ((c+r)%2===0)?ORANGE:NAVY;
+}
+function chain(u,v,P){
+  const px=u-P.cx, py=v-P.cy, d=Math.hypot(px,py);
+  let fo=0, dispX=0, dispY=0;
+  if(d>0.0001){ fo=1-sstep(-BAND,BAND,d-RAD); dispX=px/d*P.len*fo; dispY=py/d*P.len*fo; }
+  return {px,py,d,fo,dispX,dispY,rx:u-dispX,ry:v-dispY};
+}
+const clamp=(x,lo,hi)=>Math.min(Math.max(x,lo),hi);
+
+/* ---------- the screen wallpaper: a settings-style list whose last row is cut by the bottom edge ---------- */
+const SCR={S:1000,data:null};
+function rr(c,x,y,w,h,r){ c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
+  c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
+function buildScreen(){
+  if(SCR.data) return SCR;
+  const S=SCR.S, cv=document.createElement('canvas'); cv.width=cv.height=S; const c=cv.getContext('2d');
+  const FONT='-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif';
+  c.fillStyle='#f2f2f7'; c.fillRect(0,0,S,S);
+  c.fillStyle='#111111'; c.textBaseline='middle'; c.font=`700 ${Math.round(0.05*S)}px ${FONT}`; c.fillText('Settings',0.06*S,0.05*S);
+  const rows=['Airplane Mode','Wi-Fi','Bluetooth','Mobile Data','Notifications','Sounds & Haptics','Focus','Screen Time','General','Display & Brightness','Privacy & Security'];
+  const cols=['#ff9500','#007aff','#007aff','#34c759','#ff3b30','#ff2d55','#5856d6','#5856d6','#8e8e93','#007aff','#007aff'];
+  const rh=0.085*S, y0=S-10.5*rh;                                 // the middle of the last row sits on the bottom edge
+  rr(c,0.04*S,y0,0.92*S,rh*rows.length,0.03*S); c.fillStyle='#ffffff'; c.fill();
+  c.font=`500 ${Math.round(0.042*S)}px ${FONT}`;
+  rows.forEach((t,k)=>{ const y=y0+k*rh;
+    rr(c,0.07*S,y+0.012*S,0.06*S,0.06*S,0.014*S); c.fillStyle=cols[k]; c.fill();
+    c.fillStyle='#111111'; c.fillText(t,0.16*S,y+rh/2);
+    if(k===0||k===3||k===10){ rr(c,0.78*S,y+0.02*S,0.12*S,0.045*S,0.0225*S); c.fillStyle=k===0?'#e5e5ea':'#34c759'; c.fill();
+      c.beginPath(); c.arc((k===0?0.8025:0.8775)*S,y+0.0425*S,0.019*S,0,Math.PI*2); c.fillStyle='#ffffff'; c.fill(); }
+    else { c.fillStyle='#a0a0a6'; c.fillText('›',0.90*S,y+rh/2); }
+    c.fillStyle='#c6c6c8'; c.fillRect(0.16*S,y+rh-1.5,0.80*S,3);
+  });
+  SCR.data=c.getImageData(0,0,S,S).data; return SCR;
+}
+function screenCol(u,v){                                            // bilinear read of the screen picture
+  const g=buildScreen(), S=g.S, D=g.data;
+  const x=Math.min(S-1.001,Math.max(0,u*S-0.5)), y=Math.min(S-1.001,Math.max(0,v*S-0.5));
+  const i=Math.floor(x), j=Math.floor(y), fx=x-i, fy=y-j, a=(j*S+i)*4, b=a+4, c=a+S*4, e=c+4, o=[0,0,0];
+  for(let k=0;k<3;k++) o[k]=(D[a+k]*(1-fx)+D[b+k]*fx)*(1-fy)+(D[c+k]*(1-fx)+D[e+k]*fx)*fy;
+  return o;
+}
+const wall=(u,v,mode)=>mode==='screen'?screenCol(u,v):checker(u,v);
+
+/* ---------- views: a window of UV space drawn on a canvas ---------- */
+function view(cv,x0,y0,x1){ const s=cv.width/(x1-x0); return {x0,y0,s, X:u=>(u-x0)*s, Y:v=>(v-y0)*s}; }
+let HATCH=null;
+function hatchFill(ctx){
+  if(!HATCH){ const t=document.createElement('canvas'); t.width=t.height=10; const c=t.getContext('2d');
+    c.fillStyle='#f1f5f9'; c.fillRect(0,0,10,10); c.strokeStyle='#94a3b8'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(-1,11); c.lineTo(11,-1); c.moveTo(-1,1); c.lineTo(1,-1); c.moveTo(9,11); c.lineTo(11,9); c.stroke();
+    HATCH=ctx.createPattern(t,'repeat'); }
+  return HATCH;
+}
+/* opts.kind: 'input' (the wallpaper, hatch outside) or 'output' (what the shader paints; white = not the screen)
+   opts.lo / opts.hi: clamp bounds (null = no fix) */
+function render(cv,V,opts){
+  const W=cv.width, H=cv.height, off=document.createElement('canvas'); off.width=W; off.height=H;
+  const oc=off.getContext('2d'), img=oc.createImageData(W,H), D=img.data;
+  let seam=0, moved=0, changed=0;
+  for(let j=0;j<H;j++){ const v=V.y0+(j+0.5)/V.s;
+    for(let i=0;i<W;i++){ const u=V.x0+(i+0.5)/V.s, o=(j*W+i)*4;
+      let c=null;
+      if(opts.kind==='input'){ if(inside(u,v)) c=wall(u,v,opts.wall); }
+      else if(!inside(u,v)){ c=[255,255,255]; }
+      else{
+        const r=chain(u,v,opts.P); let rx=r.rx, ry=r.ry;
+        if(r.d<RAD+BAND) moved++;
+        if(opts.lo){ const cx=clamp(rx,opts.lo[0],opts.hi[0]), cy=clamp(ry,opts.lo[1],opts.hi[1]);
+          if(inside(rx,ry) && (cx!==rx || cy!==ry)) changed++;
+          rx=cx; ry=cy; }
+        if(inside(rx,ry)) c=wall(rx,ry,opts.wall); else seam++;
+      }
+      if(c){ D[o]=c[0]; D[o+1]=c[1]; D[o+2]=c[2]; D[o+3]=255; }
+    }
+  }
+  oc.putImageData(img,0,0);
+  const ctx=cv.getContext('2d'); ctx.clearRect(0,0,W,H);
+  ctx.fillStyle=hatchFill(ctx); ctx.fillRect(0,0,W,H); ctx.drawImage(off,0,0);
+  return {seam,moved,changed};
+}
+
+/* ---------- overlay helpers (solid strokes, dark halo, non-checker hues) ---------- */
+function halo(ctx,draw,color,w){ for(const [lw,c] of [[w+3.5,COL.halo],[w,color]]){ ctx.lineWidth=lw; ctx.strokeStyle=c; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.beginPath(); draw(); ctx.stroke(); } }
+function line(ctx,x1,y1,x2,y2,color,w){ halo(ctx,()=>{ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);},color,w); }
+function ring(ctx,x,y,r,color,w){ halo(ctx,()=>ctx.arc(x,y,r,0,Math.PI*2),color,w); }
+function arrow(ctx,x1,y1,x2,y2,color,w){
+  const a=Math.atan2(y2-y1,x2-x1), L=Math.hypot(x2-x1,y2-y1); if(L<2) return;
+  const hl=Math.min(16,L*0.45), bx=x2-Math.cos(a)*hl*0.8, by=y2-Math.sin(a)*hl*0.8;
+  line(ctx,x1,y1,bx,by,color,w);
+  const head=(h,fill)=>{ ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-h*Math.cos(a-0.45),y2-h*Math.sin(a-0.45));
+    ctx.lineTo(x2-h*Math.cos(a+0.45),y2-h*Math.sin(a+0.45)); ctx.closePath(); ctx.fillStyle=fill; ctx.fill(); };
+  head(hl+4,COL.halo); head(hl,color);
+}
+function text(ctx,t,x,y,color,align,size){
+  ctx.font=`600 ${size||15}px -apple-system,"Segoe UI",Roboto,sans-serif`; ctx.textAlign=align||'left'; ctx.textBaseline='middle';
+  ctx.lineWidth=4.5; ctx.strokeStyle=COL.halo; ctx.strokeText(t,x,y); ctx.fillStyle=color; ctx.fillText(t,x,y);
+}
+function darkText(ctx,t,x,y,align,size){
+  ctx.font=`600 ${size||15}px -apple-system,"Segoe UI",Roboto,sans-serif`; ctx.textAlign=align||'left'; ctx.textBaseline='middle';
+  ctx.lineWidth=4; ctx.strokeStyle='rgba(255,255,255,0.95)'; ctx.strokeText(t,x,y); ctx.fillStyle='#111827'; ctx.fillText(t,x,y);
+}
+function seamLabel(ctx,V,tx,ty,sx,sy){ line(ctx,V.X(tx)+4,V.Y(ty)+12,V.X(sx),V.Y(sy),'#ffffff',2.5); text(ctx,'the seam (see-through)',V.X(tx),V.Y(ty),'#ffffff','center'); }
+function edgeBox(ctx,V,w){ halo(ctx,()=>ctx.rect(V.X(0),V.Y(0),V.X(1)-V.X(0),V.Y(1)-V.Y(0)),COL.edge,w||3); }
+
+/* ---------- number formatting: exact up to 4 decimals is kept, else 3 decimals ---------- */
+function f(x){
+  const r4=Math.round(x*1e4)/1e4; let s;
+  if(Math.abs(x-r4)<1e-9){ s=r4.toFixed(4).replace(/0+$/,''); if(s.endsWith('.')) s+='00'; else if(/\.\d$/.test(s)) s+='0'; }
+  else s=(Math.round(x*1e3)/1e3).toFixed(3);
+  if(/^-0\.0+$/.test(s)) s=s.slice(1);
+  return s.replace('-','−');
+}
+const V3=x=>Number(f(x).replace('−','-'));        // the value that is shown
+const par=x=>x<0?`(${f(x)})`:f(x);
+const pt=(u,v)=>`(${f(u)}, ${f(v)})`;
+const fz=x=>Number.isInteger(V3(x))?String(V3(x)):f(x);          // whole numbers without decimals (t, falloff, ×4)
+
+/* ================= tooltip system (click, Enter/Space, ✕, outside click, Escape, kept inside the window) ================= */
+const tipEl=document.getElementById('tip'), tipBody=document.getElementById('tipBody');
+const tipStore=new Map(); let suppressClick=false;
+function setTip(el,html){ el.classList.add('tk'); tipStore.set(el,html); if(!el.hasAttribute('tabindex')) el.setAttribute('tabindex','0'); }
+function showTip(el){
+  const html=typeof tipStore.get(el)==='function'?tipStore.get(el)():tipStore.get(el); if(!html) return;
+  tipBody.innerHTML=html; tipEl.classList.toggle('wide',!!tipBody.querySelector('pre')); tipEl.classList.add('open');
+  const r=el.getBoundingClientRect(); tipEl.style.left='0px'; tipEl.style.top='0px';
+  const tw=tipEl.offsetWidth, th=tipEl.offsetHeight;
+  let L=r.right+10, T=r.top-8;
+  if(L+tw>innerWidth-10) L=r.left-tw-10;
+  if(L<8) L=8;
+  if(T+th>innerHeight-10) T=innerHeight-th-10;
+  if(T<8) T=8;
+  tipEl.style.left=L+'px'; tipEl.style.top=T+'px';
+}
+function hideTip(){ tipEl.classList.remove('open'); }
+document.addEventListener('click',e=>{
+  if(suppressClick){ suppressClick=false; e.stopPropagation(); return; }
+  const t=e.target.closest('.tk');
+  if(t){ e.stopPropagation(); showTip(t); return; }
+  if(!e.target.closest('#tip')) hideTip();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ hideTip(); return; }
+  if((e.key==='Enter'||e.key===' ') && e.target.classList && e.target.classList.contains('tk')){ e.preventDefault(); showTip(e.target); }
+});
+document.getElementById('tipClose').addEventListener('click',e=>{ e.stopPropagation(); hideTip(); });
+
+/* clickable point on a canvas stage */
+function addPt(stage,x,y,color,html,label,cls){
+  const b=document.createElement('button'); b.className='ptdot'+(cls?' '+cls:'');
+  b.style.left=x+'px'; b.style.top=y+'px'; b.style.background=color; if(cls&&cls.includes('ring')) b.style.borderColor=color;
+  b.setAttribute('aria-label',label); stage.appendChild(b); setTip(b,html); return b;
+}
+const clearPts=stage=>stage.querySelectorAll('.ptdot').forEach(b=>b.remove());
+
+/* ================= ⓘ reminders and provenance ================= */
+const TIPS={
+  clamp:'<b>clamp(x, lo, hi)</b> — a reminder from Lesson 8.11 (Lesson 9.5 used it for the capsule).<br>In: one number x and a range lo … hi. Out: the number of the range nearest to x.<br>How it works: <code>min(max(x, lo), hi)</code>. First max lifts x up to lo if x is below lo. Then min lowers it to hi if it is above hi.',
+  chain:'<b>The Lesson 9.11 chain</b>, run once for every pixel:<pre>p       = uv − C\nd       = length(p)\nsd      = d − radius\nfalloff = 1 − smoothstep(−band, band, sd)\ndir     = p / d\ndisp    = dir × dispLen × falloff\nreadUv  = uv − disp</pre>disp points away from C, and readUv = uv − disp, so the read point moves <b>toward</b> C. Push = dispLen × falloff is the length of that move.',
+  radius:'<b>radius = 0.25</b><br>From: a chosen constant, Lesson 9.2. The radius of the glass circle in UV units.<br>Used by: sd = d − radius.',
+  band:'<b>band = 0.10</b><br>From: a chosen constant, Lesson 9.3. Falloff goes from 1 to 0 between sd = −0.10 and sd = +0.10.<br>Used by: falloff.',
+  displen:'<b>dispLen = 0.10</b><br>From: Lesson 9.10, the length of the full push in UV units (1 = the width of the screen).<br>Used by: push = dispLen × falloff.',
+  length:'<b>length(p) = √(p.x² + p.y²)</b> — a reminder from Lesson 9.1: the long side of a right triangle whose legs are p.x and p.y.<br>For W the legs are 0.09 and 0.12: the 3-4-5 triangle times 0.03.',
+  sd:'<b>sd — signed distance</b>, Lesson 9.2.<br>sd = d − radius: negative inside the circle, 0 on the circle, positive outside.',
+  smoothstep:'<b>smoothstep(a, b, x)</b> — a reminder from Lesson 9.3.<br>t = (x − a) ÷ (b − a), limited to 0 … 1; then 3t² − 2t³.<br>Here a = −0.10, b = +0.10, x = sd, so the bottom of t is 0.10 − (−0.10) = 0.20.',
+  transparent:'<b>Transparent (0, 0, 0, 0)</b><br>Red 0, green 0, blue 0, alpha 0. Alpha 0 means fully see-through (Lesson 3.2). The pixel adds no color; you see whatever is behind the screen content.',
+  checker:'<b>The wallpaper rule</b> (Lesson 9.7):<br>col = floor(x × 4), row = floor(y × 4); col + row even → orange, odd → navy.<br>New in this lesson: the edge x = 1.00 belongs to the last column and y = 1.00 to the last row (col and row are at most 3). Outside 0 … 1 there is no wallpaper.',
+  uv:'<b>UV position</b> (Lesson 8.6)<br>Two numbers from 0 to 1. (0, 0) is the top left of the screen; (1, 1) is the bottom right. x grows to the right, y grows downward.',
+  center:'<b>Moving a shape</b> — a reminder from Lesson 9.6.<br>To put circle B at another place, Lesson 9.6 measured from its center: <code>pB = p − B</code>. Here <code>p = uv − center</code> does the same for the glass.'
+};
+document.querySelectorAll('.info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip]));
+
+const TIP_C=(cx,cy)=>`<b>C = ${pt(cx,cy)}</b>, in UV<br>Role: the center of the glass circle (radius 0.25).`+(cy>1?`<br>C is ${f(V3(cy-1))} below the bottom edge of the screen.`:'');
+const TIP_W=(u,v)=>`<b>W = ${pt(u,v)}</b>, in UV<br>Role: one pixel of the screen. The shader computes a color for it.`;
+const TIP_R=(u,v)=>`<b>R = ${pt(u,v)}</b>, in UV<br>Role: the read point of W — where W reads the wallpaper.`+(inside(u,v)?' R is inside the wallpaper.':' R is outside the wallpaper: no color there.');
+const TIP_R2=(u,v)=>`<b>R′ = ${pt(u,v)}</b>, in UV<br>Role: the clamped read point. It is on the wallpaper, so it has a color.`;
+
+/* ================= hero ================= */
+(function(){
+  for(const [id,lo] of [['heroA',null],['heroB',[0,0]]]){
+    const cv=document.getElementById(id), V=view(cv,0,0,1);
+    render(cv,V,{kind:'output',P:LES,wall:'checker',lo,hi:lo?[1,1]:null});
+    const ctx=cv.getContext('2d');
+    ring(ctx,V.X(0.5),V.Y(1.1),0.25*V.s,COL.glass,2.5);
+    line(ctx,0,V.Y(1)-1.5,cv.width,V.Y(1)-1.5,COL.edge,3);
+    text(ctx,'glass',V.X(0.5),V.Y(0.80),COL.glass,'center');
+    text(ctx,'C is 0.10 below the screen ↓',V.X(0.5),V.Y(0.72),COL.glass,'center',14);
+    if(!lo) seamLabel(ctx,V,0.20,0.86,0.37,0.975);
+  }
+})();
+
+/* ================= section 1: the stepper ================= */
+(function(){
+  const cv=document.getElementById('stCv'), stage=document.getElementById('stStage');
+  const V=view(cv,0.15,0.50,0.85);
+  const W=[0.59,0.98], R=[0.53,1.06], C=[0.50,1.10];
+  const CAP=[
+    `<b>Step 1 · The wallpaper ends.</b> The wallpaper fills the screen exactly, so the edges of the wallpaper are the
+     edges of the screen. The yellow line is the bottom edge: <code>y = 1.00</code> (in UV<button class="info" data-tip="uv">ⓘ</button>,
+     y grows downward, so “below” means a bigger y). Below the yellow line there is no wallpaper. The hatch means: no color at all.`,
+    `<b>Step 2 · The glass moves down.</b> The white circle is the glass from Lesson 9.11, radius 0.25. Its center
+     is now <b>C = (0.50, 1.10)</b>. C is 0.10 below the yellow line, so part of the glass is off the screen.`,
+    `<b>Step 3 · One pixel and its read point.</b> <b>W = (0.59, 0.98)</b> is a pixel of the screen, 0.02 above the
+     yellow line. The Lesson 9.11 chain<button class="info" data-tip="chain">ⓘ</button> moves the read point of a pixel toward C.
+     That move is the <b>push</b>. W is 0.15 from C, deep inside the glass, so W gets the full push, 0.10 (Section 3
+     shows every number). The pink push arrow
+     ends at the read point <b>R = (0.53, 1.06)</b>.`,
+    `<b>Step 4 · R is outside the wallpaper.</b> R.y = 1.06, and 1.06 is more than 1.00. So R is
+     1.06 − 1.00 = 0.06 below the yellow line (the bracket). There is no wallpaper at R. The shader gets
+     transparent (0, 0, 0, 0)<button class="info" data-tip="transparent">ⓘ</button>, so W becomes see-through: W is now hatched.`,
+    `<b>Step 5 · Many pixels do this: the seam.</b> The picture is now the <b>output</b> of the shader. Every pixel
+     whose read point is below the yellow line is see-through. Together these pixels form the <b>seam</b>: a
+     see-through strip along the bottom edge. In the middle the seam reaches up to about y = 0.91, so it is about
+     0.09 tall. Toward its ends, near x = 0.2 and x = 0.8, it gets thinner than one pixel. The three ticks mark
+     these three places. Below the yellow line is not the screen, so this output leaves it empty.`
+  ];
+  let step=0;
+  const dots=document.getElementById('stDots');
+  CAP.forEach((_,k)=>{ const b=document.createElement('button'); b.className='dot'; b.setAttribute('aria-label','Step '+(k+1));
+    b.onclick=()=>{ step=k; draw(); }; dots.appendChild(b); });
+  function draw(){
+    clearPts(stage);
+    const ctx=cv.getContext('2d');
+    if(step<4) render(cv,V,{kind:'input',wall:'checker'});
+    else render(cv,V,{kind:'output',P:LES,wall:'checker',lo:null});
+    // the bottom edge
+    line(ctx,0,V.Y(1),cv.width,V.Y(1),COL.edge,3.5);
+    text(ctx,'bottom edge',10,V.Y(1)-16,COL.edge); text(ctx,'y = 1.00',10,V.Y(1)-38,COL.edge);
+    if(step===0) darkText(ctx,'below the edge: no wallpaper',12,V.Y(1)+26);
+    else darkText(ctx,step<4?'no wallpaper':'not the screen',cv.width-10,V.Y(1.17),'right',14);
+    if(step===0) text(ctx,'the wallpaper',V.X(0.5),V.Y(0.70),'#ffffff','center',16);
+    if(step>=1){
+      ring(ctx,V.X(C[0]),V.Y(C[1]),0.25*V.s,COL.glass,3);
+      text(ctx,'the glass, radius 0.25',V.X(0.5),V.Y(0.83),COL.glass,'center');
+      text(ctx,'C = (0.50, 1.10)',V.X(0.5)+16,V.Y(1.1)+24,'#ffffff','left');
+      addPt(stage,V.X(C[0]),V.Y(C[1]),'#ffffff',TIP_C(C[0],C[1]),'C, the center of the glass');
+    }
+    if(step>=2 && step<4){
+      arrow(ctx,V.X(W[0]),V.Y(W[1]),V.X(R[0]),V.Y(R[1]),COL.push,3.5);
+      text(ctx,'W',V.X(W[0])+16,V.Y(W[1])-8,COL.w);
+      text(ctx,'R',V.X(R[0])-16,V.Y(R[1])+2,COL.push,'right');
+      text(ctx,'push 0.10',V.X(0.585),V.Y(1.035),COL.push,'left',14);
+    }
+    if(step===3){
+      const x=V.X(R[0])-64;
+      line(ctx,x,V.Y(1),x,V.Y(R[1]),COL.e,2.5);
+      line(ctx,x-7,V.Y(1),x+7,V.Y(1),COL.e,2.5); line(ctx,x-7,V.Y(R[1]),x+7,V.Y(R[1]),COL.e,2.5);
+      darkText(ctx,'0.06',x-12,V.Y(1.03),'right');
+      text(ctx,'see-through',V.X(W[0])+16,V.Y(W[1])-30,'#ffffff','left',14);
+    }
+    if(step>=2){
+      addPt(stage,V.X(W[0]),V.Y(W[1]),COL.w,TIP_W(W[0],W[1]),'W, one pixel',step>=3?'hat':'');
+      if(step<4) addPt(stage,V.X(R[0]),V.Y(R[1]),COL.push,TIP_R(R[0],R[1]),'R, the read point of W','ring');
+    }
+    if(step===4){
+      text(ctx,'W',V.X(W[0])+16,V.Y(W[1])-8,COL.w);
+      seamLabel(ctx,V,0.30,0.86,0.42,0.975);
+      for(const [u,v,lab] of [[0.20,1.0,'x ≈ 0.2'],[0.80,1.0,'x ≈ 0.8'],[0.5,0.910,'y ≈ 0.91']]){
+        if(v<1){ line(ctx,V.X(u)-14,V.Y(v),V.X(u)+14,V.Y(v),COL.e,2.5); text(ctx,lab,V.X(u)+22,V.Y(v)-2,COL.e); }
+        else { line(ctx,V.X(u),V.Y(v)-12,V.X(u),V.Y(v)+12,COL.e,2.5); darkText(ctx,lab,V.X(u),V.Y(v)+48,'center'); }
+      }
+    }
+    document.getElementById('stCap').innerHTML=CAP[step]+`<div style="margin-top:8px;color:#6b7280;font-size:13.5px">Step ${step+1} of ${CAP.length}</div>`;
+    document.querySelectorAll('#stCap .info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip]));
+    [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===step));
+    document.getElementById('stPrev').disabled=step===0; document.getElementById('stNext').disabled=step===CAP.length-1;
+  }
+  document.getElementById('stPrev').onclick=()=>{ if(step>0){step--;draw();} };
+  document.getElementById('stNext').onclick=()=>{ if(step<CAP.length-1){step++;draw();} };
+  draw();
+})();
+
+/* ================= section 2a: clamp on one number ================= */
+(function(){
+  const svg=document.getElementById('nlSvg'), X=x=>40+(x+0.4)/1.8*680, IX=px=>(px-40)/680*1.8-0.4;
+  let x=1.06;
+  function draw(){
+    const c=clamp(x,0,1);
+    let ticks='';
+    for(let k=-2;k<=7;k++){ const t=k*0.2; ticks+=`<line x1="${X(t)}" y1="112" x2="${X(t)}" y2="120" stroke="#6b7280"/><text x="${X(t)}" y="138" font-size="14" text-anchor="middle" fill="#374151">${f(t)}</text>`; }
+    svg.innerHTML=`
+      <rect x="${X(0)}" y="96" width="${X(1)-X(0)}" height="32" fill="#dcfce7" stroke="#86efac"/>
+      <text x="${(X(0)+X(1))/2}" y="160" font-size="14" text-anchor="middle" fill="#166534" font-weight="600">the kept range: 0 … 1</text>
+      <text x="${X(0)}" y="160" font-size="14" text-anchor="middle" fill="#92400e">lo = 0</text>
+      <text x="${X(1)}" y="160" font-size="14" text-anchor="middle" fill="#92400e">hi = 1</text>
+      <line x1="${X(-0.4)}" y1="112" x2="${X(1.4)}" y2="112" stroke="#6b7280" stroke-width="1.5"/>${ticks}
+      <line x1="${X(0)}" y1="94" x2="${X(0)}" y2="130" stroke="#ca8a04" stroke-width="3"/>
+      <line x1="${X(1)}" y1="94" x2="${X(1)}" y2="130" stroke="#ca8a04" stroke-width="3"/>
+      ${Math.abs(c-x)>1e-9?`<line x1="${X(x)}" y1="44" x2="${X(c)+(x>c?10:-10)}" y2="44" stroke="#65a30d" stroke-width="3"/>
+        <path d="M${X(c)},44 l${x>c?12:-12},-7 l0,14 z" fill="#65a30d"/>`:''}
+      <circle class="pt" id="nlC" cx="${X(c)}" cy="44" r="8" fill="#a3e635" stroke="#111827" stroke-width="2.5"/>
+      <text x="${X(c)}" y="24" font-size="14" text-anchor="middle" fill="#3f6212" font-weight="600">clamp(x) = ${f(c)}</text>
+      <circle class="pt" id="nlX" cx="${X(x)}" cy="112" r="10" fill="#ff4d8d" stroke="#111827" stroke-width="2.5" style="cursor:grab"/>
+      <text x="${X(x)}" y="84" font-size="14" text-anchor="middle" fill="#9d174d" font-weight="600">x = ${f(x)}</text>`;
+    const xs=svg.querySelector('#nlX'), cs=svg.querySelector('#nlC');
+    xs.setAttribute('role','slider'); xs.setAttribute('aria-label','x, drag or use the arrow keys'); xs.setAttribute('aria-valuenow',f(x));
+    setTip(xs,`<b>x = ${f(x)}</b><br>Role: the number that goes into clamp. Drag it, or press ← → after clicking it.`);
+    cs.setAttribute('role','button'); cs.setAttribute('aria-label','the result of clamp');
+    setTip(cs,`<b>clamp(x, 0, 1) = ${f(c)}</b><br>Role: the result of clamp, on the same number line.`);
+    const mx=V3(Math.max(x,0)), mn=V3(Math.min(mx,1));
+    document.getElementById('nlOut').textContent=
+`clamp(x, lo, hi) = min(max(x, lo), hi)      with lo = 0, hi = 1
+max(${f(x)}, 0) = ${f(mx)}
+min(${f(mx)}, 1) = ${f(mn)}
+→ ${x>1?`x is above hi, so the result is hi = 1.00`:x<0?`x is below lo, so the result is lo = 0.00`:`x is between 0 and 1, so x does not change`}`;
+  }
+  let drag=false, moved=false;
+  svg.addEventListener('pointerdown',e=>{ if(e.target.id!=='nlX') return; drag=true; moved=false; svg.setPointerCapture(e.pointerId); });
+  svg.addEventListener('pointermove',e=>{ if(!drag) return; const r=svg.getBoundingClientRect();
+    const nx=Math.round(clamp(IX(e.clientX-r.left),-0.4,1.4)*100)/100; if(nx!==x){ x=nx; moved=true; draw(); } });
+  svg.addEventListener('pointerup',()=>{ if(drag&&moved) suppressClick=true; drag=false; });
+  svg.addEventListener('keydown',e=>{ if(e.target.id!=='nlX') return;
+    if(e.key==='ArrowLeft'||e.key==='ArrowRight'){ e.preventDefault(); x=Math.round(clamp(x+(e.key==='ArrowRight'?0.01:-0.01),-0.4,1.4)*100)/100; draw(); svg.querySelector('#nlX').focus(); } });
+  document.querySelectorAll('[data-nl]').forEach(b=>b.onclick=()=>{ x=Number(b.dataset.nl); draw(); });
+  draw();
+})();
+
+/* ================= section 2b: clamp on a point ================= */
+(function(){
+  const cv=document.getElementById('c2Cv'), stage=document.getElementById('c2Stage'), V=view(cv,-0.20,-0.20,1.20);
+  let R=[0.53,1.06];
+  function draw(){
+    clearPts(stage);
+    render(cv,V,{kind:'input',wall:'checker'});
+    const ctx=cv.getContext('2d'); edgeBox(ctx,V,3);
+    darkText(ctx,'no wallpaper here (hatch)',V.X(-0.18),V.Y(-0.13));
+    text(ctx,'the wallpaper',V.X(0.5),V.Y(0.12),'#ffffff','center');
+    const Rc=[clamp(R[0],0,1),clamp(R[1],0,1)];
+    const same=Rc[0]===R[0]&&Rc[1]===R[1];
+    if(!same) arrow(ctx,V.X(R[0]),V.Y(R[1]),V.X(Rc[0]),V.Y(Rc[1]),COL.clamp,3);
+    text(ctx,'R′',V.X(Rc[0])-14,V.Y(Rc[1])-16,COL.clamp,'right');
+    text(ctx,'R',V.X(R[0])+16,V.Y(R[1])+16,COL.push);
+    addPt(stage,V.X(Rc[0]),V.Y(Rc[1]),COL.clamp,TIP_R2(Rc[0],Rc[1]),'R prime, the clamped read point');
+    const h=addPt(stage,V.X(R[0]),V.Y(R[1]),COL.push,()=>`<b>R = ${pt(R[0],R[1])}</b>, in UV<br>Role: a read point. Drag it, or press the arrow keys after clicking it.`,'R, a read point, drag it','ring drag');
+    dragHandle(h,cv,V,(u,v)=>{ R=[u,v]; draw(); stage.querySelector('.drag').focus(); },[-0.18,1.18,-0.18,1.18],()=>R);
+    const mx1=V3(Math.max(R[0],0)), mn1=V3(Math.min(mx1,1)), my1=V3(Math.max(R[1],0)), mn2=V3(Math.min(my1,1));
+    document.getElementById('c2Out').textContent=
+`R  = ${pt(R[0],R[1])}
+R′.x = clamp(${f(R[0])}, 0, 1)
+  max(${f(R[0])}, 0) = ${f(mx1)}
+  min(${f(mx1)}, 1) = ${f(mn1)}
+R′.y = clamp(${f(R[1])}, 0, 1)
+  max(${f(R[1])}, 0) = ${f(my1)}
+  min(${f(my1)}, 1) = ${f(mn2)}
+R′ = ${pt(mn1,mn2)}
+${same?'R is inside the wallpaper: R′ = R, nothing moves.':(Rc[0]!==R[0]&&Rc[1]!==R[1])?'Both x and y were outside: R′ is a corner.':'Only one number was outside: R′ is straight across from R, on the edge.'}`;
+  }
+  document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{ R=b.dataset.r.split(',').map(Number); draw(); });
+  draw();
+})();
+
+/* drag a .ptdot handle over a canvas; snaps to 0.01; a click without a move still opens the tooltip */
+function dragHandle(h,cv,V,onMove,box,get){
+  let on=false, moved=false;
+  h.addEventListener('pointerdown',e=>{ on=true; moved=false; h.setPointerCapture(e.pointerId); e.preventDefault(); });
+  h.addEventListener('pointermove',e=>{ if(!on) return; const r=cv.getBoundingClientRect();
+    const u=Math.round(clamp(V.x0+(e.clientX-r.left)/V.s,box[0],box[1])*100)/100, v=Math.round(clamp(V.y0+(e.clientY-r.top)/V.s,box[2],box[3])*100)/100;
+    const [pu,pv]=get(); if(u!==pu||v!==pv){ moved=true; hideTip(); onMove(u,v); } });
+  h.addEventListener('pointerup',()=>{ if(on&&moved) suppressClick=true; on=false; });
+  h.addEventListener('keydown',e=>{ const k={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key]; if(!k) return;
+    e.preventDefault(); const [pu,pv]=get();
+    onMove(Math.round(clamp(pu+k[0]*0.01,box[0],box[1])*100)/100, Math.round(clamp(pv+k[1]*0.01,box[2],box[3])*100)/100); });
+}
+
+/* ================= section 2c: before / after ================= */
+(function(){
+  const cv=document.getElementById('cmpCv'), V=view(cv,0,0,1);
+  let rule='none', wl='checker';
+  function draw(){
+    const on=rule==='clamp';
+    const res=render(cv,V,{kind:'output',P:LES,wall:wl,lo:on?[0,0]:null,hi:on?[1,1]:null});
+    const ctx=cv.getContext('2d');
+    ring(ctx,V.X(0.5),V.Y(1.1),0.25*V.s,COL.glass,2.5);
+    line(ctx,0,cv.height-1.5,cv.width,cv.height-1.5,COL.edge,3);
+    if(!on) seamLabel(ctx,V,0.80,0.74,0.63,0.975);
+    // the magnifier: x 0.25 … 0.75, y 0.80 … 1.00, 2× larger than the picture
+    const box=[0.25,0.80,0.75,1.00];
+    halo(ctx,()=>ctx.rect(V.X(box[0]),V.Y(box[1]),V.X(box[2])-V.X(box[0]),V.Y(box[3])-V.Y(box[1])-2),COL.e,2.5);
+    const mg=document.getElementById('cmpMag'), MV=view(mg,box[0],box[1],box[2]);
+    render(mg,MV,{kind:'output',P:LES,wall:wl,lo:on?[0,0]:null,hi:on?[1,1]:null});
+    const mc=mg.getContext('2d'); ring(mc,MV.X(0.5),MV.Y(1.1),0.25*MV.s,COL.glass,2.5);
+    halo(mc,()=>mc.rect(1,1,mg.width-2,mg.height-2),COL.e,2.5);
+    const sh=V3(res.seam/res.moved), pc=V3(sh*100);
+    document.getElementById('cmpOut').textContent=
+`pixels of this picture that the glass moves: ${res.moved}
+  (closer than 0.35 to C, where the push is not 0)
+see-through pixels: ${res.seam}
+share = ${res.seam} ÷ ${res.moved} = ${f(sh)}
+in percent: ${f(sh)} × 100 = ${f(pc)} %`+(on?'\n→ clamp: no pixel is see-through.':'\n→ about a quarter of the moved pixels show no color.');
+    document.querySelectorAll('[data-cmp-rule]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.cmpRule===rule)));
+    document.querySelectorAll('[data-cmp-wall]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.cmpWall===wl)));
+  }
+  document.querySelectorAll('[data-cmp-rule]').forEach(b=>b.onclick=()=>{ rule=b.dataset.cmpRule; draw(); });
+  document.querySelectorAll('[data-cmp-wall]').forEach(b=>b.onclick=()=>{ wl=b.dataset.cmpWall; draw(); });
+  draw();
+})();
+
+/* ================= the chain for one pixel, one operation per line (shown values feed the next line) ================= */
+function traceLines(u,v,P,useClamp,wl){
+  const L=[];
+  const px=V3(u-P.cx), py=V3(v-P.cy);
+  L.push(`p.x = ${f(u)} − ${par(P.cx)} = ${f(px)}`, `p.y = ${f(v)} − ${par(P.cy)} = ${f(py)}`);
+  const sx=V3(px*px), sy=V3(py*py), sum=V3(sx+sy), d=V3(Math.sqrt(sum));
+  L.push(`p.x² = ${par(px)} × ${par(px)} = ${f(sx)}`, `p.y² = ${par(py)} × ${par(py)} = ${f(sy)}`,
+         `sum = ${f(sx)} + ${f(sy)} = ${f(sum)}`, `d = √${f(sum)} = ${f(d)}`);
+  let rx=u, ry=v;
+  if(d<=0.0001){ L.push('d ≤ 0.0001: the guard skips the push', 'R = W'); }
+  else{
+    const sd=V3(d-RAD); L.push(`sd = ${f(d)} − 0.25 = ${f(sd)}`);
+    const a=V3(sd+BAND); L.push(`sd − (−0.10) = ${f(sd)} + 0.10 = ${fz(a)}`);
+    let t=V3(a/0.2); L.push(`t = ${fz(a)} ÷ 0.20 = ${fz(t)}`);
+    if(t<0){ t=0; L.push('t is limited to 0 … 1 → t = 0'); } else if(t>1){ t=1; L.push('t is limited to 0 … 1 → t = 1'); }
+    const t2=V3(t*t), t3=V3(t2*t), a3=V3(3*t2), b2=V3(2*t3), s=V3(a3-b2), fo=V3(1-s);
+    L.push(`t² = ${fz(t)} × ${fz(t)} = ${fz(t2)}`, `t³ = ${fz(t2)} × ${fz(t)} = ${fz(t3)}`, `3t² = 3 × ${fz(t2)} = ${fz(a3)}`,
+           `2t³ = 2 × ${fz(t3)} = ${fz(b2)}`, `smoothstep = ${fz(a3)} − ${fz(b2)} = ${fz(s)}`, `falloff = 1 − ${fz(s)} = ${fz(fo)}`);
+    const push=V3(P.len*fo); L.push(`push = ${f(P.len)} × ${fz(fo)} = ${f(push)}`);
+    const dx=V3(px/d), dy=V3(py/d); L.push(`dir.x = ${f(px)} ÷ ${f(d)} = ${f(dx)}`, `dir.y = ${f(py)} ÷ ${f(d)} = ${f(dy)}`);
+    const ex=V3(dx*push), ey=V3(dy*push); L.push(`disp.x = ${f(dx)} × ${f(push)} = ${f(ex)}`, `disp.y = ${f(dy)} × ${f(push)} = ${f(ey)}`);
+    rx=V3(u-ex); ry=V3(v-ey); L.push(`R.x = ${f(u)} − ${par(ex)} = ${f(rx)}`, `R.y = ${f(v)} − ${par(ey)} = ${f(ry)}`);
+  }
+  const ins=inside(rx,ry);
+  L.push(`R = ${pt(rx,ry)}: ${ins?'inside the wallpaper':'outside the wallpaper'}`);
+  let fx=rx, fy=ry, name='R';
+  if(useClamp){
+    const m1=V3(Math.max(rx,0)), n1=V3(Math.min(m1,1)), m2=V3(Math.max(ry,0)), n2=V3(Math.min(m2,1));
+    L.push(`x: max(${f(rx)}, 0) = ${f(m1)}`, `x: min(${f(m1)}, 1) = ${f(n1)}`, `y: max(${f(ry)}, 0) = ${f(m2)}`, `y: min(${f(m2)}, 1) = ${f(n2)}`,
+           `R′ = ${pt(n1,n2)}`);
+    fx=n1; fy=n2; name='R′';
+  }
+  let store;
+  if(!inside(fx,fy)){ L.push('no wallpaper at R → transparent (0, 0, 0, 0)','W is see-through'); store='see-through'; }
+  else if(wl==='screen'){ L.push(`the screen picture's color at ${name} → stored at W`); store='the screen color at '+name; }
+  else{
+    const c4=V3(fx*4), r4=V3(fy*4), c=Math.floor(c4), r=Math.floor(r4), cc=Math.min(c,3), rr=Math.min(r,3);
+    L.push(`col: ${f(fx)} × 4 = ${fz(c4)} → floor → ${c}`+(c>3?' → last column → 3':''),
+           `row: ${f(fy)} × 4 = ${fz(r4)} → floor → ${r}`+(r>3?' → last row → 3':''),
+           `col + row = ${cc} + ${rr} = ${cc+rr} → ${(cc+rr)%2?'odd → navy':'even → orange'}`);
+    store=(cc+rr)%2?'navy':'orange';
+  }
+  return {lines:L, rx, ry, fx, fy, store};
+}
+
+/* ================= section 4: lab ================= */
+(function(){
+  const cv=document.getElementById('labCv'), stage=document.getElementById('labStage'), V=view(cv,-0.15,-0.15,1.25);
+  const S={cx:0.50, cy:1.10, len:0.10, u:0.59, v:0.98, rule:'none', wl:'checker'};
+  function draw(){
+    clearPts(stage);
+    const P={cx:S.cx, cy:S.cy, len:S.len}, on=S.rule==='clamp';
+    const res=render(cv,V,{kind:'output',P,wall:S.wl,lo:on?[0,0]:null,hi:on?[1,1]:null});
+    const ctx=cv.getContext('2d');
+    edgeBox(ctx,V,3);
+    darkText(ctx,'not the screen',V.X(-0.13),V.Y(-0.08));
+    ring(ctx,V.X(S.cx),V.Y(S.cy),0.25*V.s,COL.glass,2.5);
+    const r=chain(S.u,S.v,P), Rc=[clamp(r.rx,0,1),clamp(r.ry,0,1)];
+    arrow(ctx,V.X(S.u),V.Y(S.v),V.X(r.rx),V.Y(r.ry),COL.push,3);
+    const moved=on&&(Rc[0]!==r.rx||Rc[1]!==r.ry);
+    if(moved) arrow(ctx,V.X(r.rx),V.Y(r.ry),V.X(Rc[0]),V.Y(Rc[1]),COL.clamp,3);
+    text(ctx,'C',V.X(S.cx)+18,V.Y(S.cy)+4,'#ffffff'); text(ctx,'W',V.X(S.u)+18,V.Y(S.v)-10,COL.w);
+    if(moved) addPt(stage,V.X(Rc[0]),V.Y(Rc[1]),COL.clamp,TIP_R2(Rc[0],Rc[1]),'R prime');
+    addPt(stage,V.X(r.rx),V.Y(r.ry),COL.push,TIP_R(V3(r.rx),V3(r.ry)),'R, the read point of W','ring');
+    // the zoom around W, 3× the lab picture
+    const zc=document.getElementById('labZoom'), zs=document.getElementById('labZoomStage'), zsc=V.s*3;
+    const mx=(S.u+(moved?Rc[0]:r.rx))/2, my=(S.v+(moved?Rc[1]:r.ry))/2;
+    const Z=view(zc,mx-zc.width/2/zsc,my-zc.height/2/zsc,mx+zc.width/2/zsc);
+    clearPts(zs);
+    render(zc,Z,{kind:'output',P,wall:S.wl,lo:on?[0,0]:null,hi:on?[1,1]:null});
+    const zx=zc.getContext('2d');
+    edgeBox(zx,Z,3); ring(zx,Z.X(S.cx),Z.Y(S.cy),0.25*Z.s,COL.glass,2.5);
+    arrow(zx,Z.X(S.u),Z.Y(S.v),Z.X(r.rx),Z.Y(r.ry),COL.push,3.5);
+    if(moved) arrow(zx,Z.X(r.rx),Z.Y(r.ry),Z.X(Rc[0]),Z.Y(Rc[1]),COL.clamp,3.5);
+    text(zx,'W',Z.X(S.u)+16,Z.Y(S.v)-12,COL.w); text(zx,'R',Z.X(r.rx)-16,Z.Y(r.ry)+12,COL.push,'right');
+    if(moved) text(zx,'R′',Z.X(Rc[0])+14,Z.Y(Rc[1])-16,COL.clamp);
+    const inZ=(u,v)=>Z.X(u)>=0&&Z.X(u)<=zc.width&&Z.Y(v)>=0&&Z.Y(v)<=zc.height;
+    addPt(zs,Z.X(S.u),Z.Y(S.v),COL.w,TIP_W(S.u,S.v),'W in the zoom');
+    addPt(zs,Z.X(r.rx),Z.Y(r.ry),COL.push,TIP_R(V3(r.rx),V3(r.ry)),'R in the zoom','ring');
+    if(moved) addPt(zs,Z.X(Rc[0]),Z.Y(Rc[1]),COL.clamp,TIP_R2(Rc[0],Rc[1]),'R prime in the zoom');
+    if(inZ(S.cx,S.cy)){ text(zx,'C',Z.X(S.cx)+16,Z.Y(S.cy)+4,'#ffffff'); addPt(zs,Z.X(S.cx),Z.Y(S.cy),'#ffffff',TIP_C(S.cx,S.cy),'C in the zoom'); }
+    const hc=addPt(stage,V.X(S.cx),V.Y(S.cy),'#ffffff',()=>TIP_C(S.cx,S.cy)+'<br>Drag it, or press the arrow keys after clicking it.','C, drag to move the glass','drag');
+    const hw=addPt(stage,V.X(S.u),V.Y(S.v),COL.w,()=>TIP_W(S.u,S.v)+'<br>Drag it, or press the arrow keys after clicking it.','W, drag to pick a pixel','drag');
+    hc.dataset.h='c'; hw.dataset.h='w';
+    dragHandle(hc,cv,V,(u,v)=>{ S.cx=u; S.cy=v; draw(); stage.querySelector('[data-h=c]').focus(); },[-0.12,1.22,-0.12,1.22],()=>[S.cx,S.cy]);
+    dragHandle(hw,cv,V,(u,v)=>{ S.u=u; S.v=v; draw(); stage.querySelector('[data-h=w]').focus(); },[0.01,0.99,0.01,0.99],()=>[S.u,S.v]);
+    const tr=traceLines(S.u,S.v,P,on,S.wl);
+    const sh=res.moved?V3(res.seam/res.moved):0, pc=V3(sh*100);
+    document.getElementById('labOut').textContent=
+`C = ${pt(S.cx,S.cy)}   W = ${pt(S.u,S.v)}
+dispLen = ${f(S.len)}
+moved pixels on the screen: ${res.moved}
+  (closer than 0.35 to C, where the push is not 0)
+see-through pixels: ${res.seam}`+(res.moved?`\nshare = ${res.seam} ÷ ${res.moved} = ${f(sh)}\nin percent: ${f(sh)} × 100 = ${f(pc)} %`:'')+`
+
+The chain for W:
+`+tr.lines.join('\n')+`
+→ W stores: ${tr.store}`;
+    document.querySelectorAll('[data-lab-rule]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.labRule===S.rule)));
+    document.querySelectorAll('[data-lab-wall]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.labWall===S.wl)));
+    document.querySelectorAll('[data-lab-c]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.labC===`${S.cx.toFixed(2)},${S.cy.toFixed(2)}`)));
+  }
+  document.querySelectorAll('[data-lab-rule]').forEach(b=>b.onclick=()=>{ S.rule=b.dataset.labRule; draw(); });
+  document.querySelectorAll('[data-lab-wall]').forEach(b=>b.onclick=()=>{ S.wl=b.dataset.labWall; draw(); });
+  document.querySelectorAll('[data-lab-c]').forEach(b=>b.onclick=()=>{ [S.cx,S.cy]=b.dataset.labC.split(',').map(Number);
+    const near={ '0.50,1.10':[0.59,0.98], '1.10,1.10':[0.97,0.97], '-0.12,0.40':[0.05,0.40], '0.50,0.50':[0.59,0.38] }[b.dataset.labC];
+    if(near){ S.u=near[0]; S.v=near[1]; } draw(); });
+  const sl=document.getElementById('labLen');
+  sl.oninput=()=>{ S.len=Number(sl.value); document.getElementById('labLenV').textContent=f(S.len); draw(); };
+  draw();
+})();
+
+/* ================= section 6: challenge ================= */
+(function(){
+  const cv=document.getElementById('chCv'), V=view(cv,0,0,1), inp=document.getElementById('chIn'), out=document.getElementById('chVerdict');
+  function arg(s){
+    let m=s.match(/^float2\((-?[\d.]+)(?:,(-?[\d.]+))?\)$/); if(m) return [Number(m[1]),Number(m[2]??m[1])];
+    m=s.match(/^(-?[\d.]+)f?$/); if(m) return [Number(m[1]),Number(m[1])];
+    return null;
+  }
+  function parse(txt){
+    const s=txt.replace(/\s+/g,'').replace(/;+$/,'');
+    if(/^(readUv=)?saturate\(readUv\)$/.test(s)) return {lo:[0,0],hi:[1,1]};
+    const m=s.match(/^readUv=clamp\(readUv,(.+)\)$/); if(!m) return null;
+    let depth=0, cut=-1; for(let i=0;i<m[1].length;i++){ const ch=m[1][i]; if(ch==='(') depth++; else if(ch===')') depth--; else if(ch===','&&depth===0){ cut=i; break; } }
+    if(cut<0) return null;
+    const lo=arg(m[1].slice(0,cut)), hi=arg(m[1].slice(cut+1));
+    if(!lo||!hi||lo.some(isNaN)||hi.some(isNaN)) return null;
+    return {lo,hi};
+  }
+  function run(){
+    const p=parse(inp.value);
+    if(!p){ render(cv,V,{kind:'output',P:LES,wall:'checker',lo:null});
+      out.className='verdict no'; out.textContent=inp.value.trim()?'The page could not read this line. Write it in the form: readUv = clamp(readUv, lo, hi);':'No line yet: the picture shows the shader without the missing line.'; return; }
+    const res=render(cv,V,{kind:'output',P:LES,wall:'checker',lo:p.lo,hi:p.hi});
+    ring(cv.getContext('2d'),V.X(0.5),V.Y(1.1),0.25*V.s,COL.glass,2.5);
+    if(res.seam>0){ out.className='verdict no'; out.textContent=`Not yet: ${res.seam} pixels are still see-through, because some read points are still outside 0 … 1.`; }
+    else if(res.changed>0){ out.className='verdict no'; out.textContent=`No see-through pixels, but ${res.changed} pixels changed that did not need to: their read points were inside the wallpaper, and your range moved them. Use exactly the range of the wallpaper.`; }
+    else { out.className='verdict ok'; out.textContent='Correct: 0 see-through pixels, and no pixel whose read point was inside the wallpaper changed.'; }
+  }
+  document.getElementById('chBtn').onclick=run;
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter') run(); });
+  run();
+})();
+
+/* ================= section 7: exercise pictures ================= */
+(function(){
+  { // exercise 1: E versus R′
+    const cv=document.getElementById('ex1Cv'), stage=document.getElementById('ex1Stage'), V=view(cv,0.40,0.84,0.66);
+    render(cv,V,{kind:'input',wall:'checker'}); const ctx=cv.getContext('2d');
+    line(ctx,0,V.Y(1),cv.width,V.Y(1),COL.edge,3.5); text(ctx,'bottom edge  y = 1.00',10,V.Y(1)-16,COL.edge);
+    arrow(ctx,V.X(0.59),V.Y(0.98),V.X(0.53),V.Y(1.06),COL.push,3.5);
+    arrow(ctx,V.X(0.53),V.Y(1.06),V.X(0.53),V.Y(1.0),COL.clamp,3.5);
+    text(ctx,'W',V.X(0.59)+16,V.Y(0.98)-10,COL.w); text(ctx,'R',V.X(0.53)-16,V.Y(1.06)+6,COL.push,'right');
+    text(ctx,'R′',V.X(0.53)-16,V.Y(1.0)-18,COL.clamp,'right'); text(ctx,'E',V.X(0.575)+18,V.Y(1.0)+20,COL.e);
+    addPt(stage,V.X(0.59),V.Y(0.98),COL.w,TIP_W(0.59,0.98),'W');
+    addPt(stage,V.X(0.53),V.Y(1.06),COL.push,TIP_R(0.53,1.06),'R','ring');
+    addPt(stage,V.X(0.53),V.Y(1.0),COL.clamp,TIP_R2(0.53,1.0),'R prime');
+    addPt(stage,V.X(0.575),V.Y(1.0),COL.e,'<b>E = (0.575, 1.00)</b>, in UV<br>Role: where the pink push arrow crosses the bottom edge. Not the clamped read point.','E');
+  }
+  { // exercise 2: a corner
+    const cv=document.getElementById('ex2Cv'), stage=document.getElementById('ex2Stage'), V=view(cv,0.80,0.80,1.14);
+    render(cv,V,{kind:'input',wall:'checker'}); const ctx=cv.getContext('2d'); edgeBox(ctx,V,3.5);
+    darkText(ctx,'no wallpaper (hatch)',V.X(1.01),V.Y(0.83));
+    arrow(ctx,V.X(1.04),V.Y(1.06),V.X(1.0),V.Y(1.0),COL.clamp,3.5);
+    text(ctx,'R',V.X(1.04)+16,V.Y(1.06)+4,COL.push); text(ctx,'R′ = corner',V.X(1.0)-16,V.Y(1.0)-18,COL.clamp,'right');
+    addPt(stage,V.X(1.04),V.Y(1.06),COL.push,TIP_R(1.04,1.06),'R','ring');
+    addPt(stage,V.X(1.0),V.Y(1.0),COL.clamp,TIP_R2(1.0,1.0),'R prime');
+  }
+  { // exercise 3: glass in the middle
+    const cv=document.getElementById('ex3Cv'), stage=document.getElementById('ex3Stage'), V=view(cv,0,0,1), P={cx:0.5,cy:0.5,len:0.10};
+    const res=render(cv,V,{kind:'output',P,wall:'checker',lo:[0,0],hi:[1,1]}); const ctx=cv.getContext('2d');
+    ring(ctx,V.X(0.5),V.Y(0.5),0.25*V.s,COL.glass,2.5);
+    const pts=[]; for(const a of [0,1,2,3,4,5,6,7]) for(const rr of [0.06,0.22]){ const ang=a*Math.PI/4+(rr>0.1?Math.PI/8:0); pts.push([V3(0.5+rr*Math.cos(ang)),V3(0.5+rr*Math.sin(ang))]); }
+    let outside=0;
+    for(const [u,v] of pts){ const r=chain(u,v,P); if(!inside(r.rx,r.ry)) outside++;
+      arrow(ctx,V.X(u),V.Y(v),V.X(r.rx),V.Y(r.ry),COL.push,2.5);
+      addPt(stage,V.X(u),V.Y(v),COL.w,TIP_W(u,v)+`<br>Its read point is ${pt(V3(r.rx),V3(r.ry))}: inside the wallpaper.`,'a pixel'); }
+    const plain=render(document.createElement('canvas'),V,{kind:'output',P,wall:'checker',lo:null});
+    addPt(stage,V.X(0.5),V.Y(0.5),'#ffffff',TIP_C(0.5,0.5),'C');
+    document.getElementById('ex3Out').textContent=
+`read points outside, of these 16: ${outside}
+see-through pixels without clamp: ${plain.seam}
+pixels that clamp changes: ${res.changed}`;
+  }
+})();
+
+/* ================= section 8: record ================= */
+(function(){
+  const rec=document.getElementById('record');
+  rec.value=`# Lesson 9.12 — Edge safety
+
+completed_by_learner: false
+date: ${new Date().toISOString().slice(0,10)}
+
+- A picture has an edge. Outside the edge there is no color: transparent (0, 0, 0, 0).
+- Near the edge, the Lesson 9.11 push can move a read point outside the wallpaper.
+  That pixel becomes see-through. Many such pixels form a seam.
+- Fix: readUv = clamp(readUv, 0.0, 1.0), right after readUv = uv − disp.
+  clamp works on x and on y separately: a point outside jumps to the nearest edge point; a point inside stays.
+- Teaching pixel: C = (0.50, 1.10), W = (0.59, 0.98): d = 0.15, falloff = 1, push = 0.10,
+  R = (0.53, 1.06) is outside, R′ = (0.53, 1.00), W stores navy.
+- R′ is not where the push arrow crosses the edge (E = (0.575, 1.00)): clamp sees only R.
+- Clamp repeats the edge row: invisible on the checkerboard, short vertical streaks on a real screen (text cut by the edge).
+- Pad (Lesson 7.3) needs real pixels beyond the edge; at the screen edge there are none.
+- With the glass in the middle (Lesson 9.11), clamp changes no pixel, so the line can always stay.
+- iOS: chapter09/EdgeSafety.metal (edgeSafeRefract), explorer chapter09/EdgeSafetyExplorer.swift.
+- Next: Lesson 9.13 — Gentle chromatic separation.`;
+  document.getElementById('recBtn').onclick=async()=>{
+    let ok=false; try{ if(navigator.clipboard){ await navigator.clipboard.writeText(rec.value); ok=true; } }catch(e){}
+    if(!ok){ rec.select(); try{ ok=document.execCommand('copy'); }catch(e){} }
+    document.getElementById('recMsg').textContent=ok?'Copied.':'Select the text and copy it by hand.';
+  };
+})();
+</script>
+</body>
+</html>

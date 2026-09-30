@@ -1,7 +1,7 @@
 # Liquid Glass on iOS — Beginner-to-Expert Curriculum
 
-**Version:** 9.11.0  
-**Updated:** 2026-09-16  
+**Version:** 9.12.0  
+**Updated:** 2026-09-30  
 **Primary platform:** Swift + SwiftUI  
 **Minimum learning target:** iOS 17  
 **Physical test device:** iPhone 16 Pro  
@@ -11,13 +11,11 @@ Live progress, current files, and the checkpoint/frontier contracts live in `CUR
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **40 of 216**, through **Lesson 9.6** (Chapters 3, 4, 5, and Lessons 9.1–9.6 only).
-- Must re-read before the frontier (platform chapters, in order): **Chapter 1**, **Chapter 2**, **Chapter 6**, **Chapter 7**, **Chapter 8**, **Lessons 9.7–9.9**.
+- Learner-confirmed complete: **42 of 216** (Chapters 3, 4, 5, Lessons 9.1–9.6, and Lessons 9.10–9.11).
+- Must re-read (platform chapters, in order): **Chapter 1**, **Chapter 2**, **Chapter 6**, **Chapter 7**, **Chapter 8**, **Lessons 9.7–9.9**.
 - Unresolved checkpoint: **Lesson 1.3 — Create `LiquidGlassLab`** (first lesson of the iOS on-ramp).
-- On-ramp then returns the checkpoint to: **Lesson 9.10 — Build a displacement field**.
-- Generated frontier: **Lesson 9.11 — Refraction as displaced sampling**.
-- Next planned after the frontier: **Lesson 9.12 — Edge safety**.
-- Lesson 9.10 is generated and is not complete. Lesson 9.11 is generated ahead and is not complete.
+- Generated frontier: **Lesson 9.12 — Edge safety** (not complete).
+- Next planned after the frontier: **Lesson 9.13 — Gentle chromatic separation**.
 - Do not restore **95 of 216**. Do not mark Lesson 1.3 complete just because the prior 1.3 was complete.
 
 ## 2. How this file relates to the rule sources
@@ -194,14 +192,14 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 2. **9.2 — Circle signed distance field.** Make the sign tell whether a point is inside or outside. **Complete.**
 3. **9.3 — Turn distance into a soft mask.** Use `smoothstep` around the boundary. **Complete.**
 4. **9.4 — Rounded rectangle distance field.** Build it from local coordinates and corner radius. **Complete.**
-5. **9.5 — Capsule distance field.** Build a common control shape.
-6. **9.6 — Combine shapes.** Learn union, intersection, and subtraction through `min` and `max`.
+5. **9.5 — Capsule distance field.** Build a common control shape. **Complete.**
+6. **9.6 — Combine shapes.** Learn union, intersection, and subtraction through `min` and `max`. **Complete.**
 7. **9.7 — Sample an input shader.** Ask for the background color at a coordinate.
 8. **9.8 — Translate sample coordinates.** Shift where the background is read.
 9. **9.9 — Scale around the center.** Create simple magnification and minification.
-10. **9.10 — Build a displacement field.** Produce a vector that says where to sample instead.
-11. **9.11 — Refraction as displaced sampling.** Bend straight background lines near the glass boundary. **Generated ahead. Not complete.**
-12. **9.12 — Edge safety.** Clamp, pad, or extend samples to prevent transparent seams.
+10. **9.10 — Build a displacement field.** Produce a vector that says where to sample instead. **Complete.**
+11. **9.11 — Refraction as displaced sampling.** Bend straight background lines near the glass boundary. **Complete.**
+12. **9.12 — Edge safety.** Clamp, pad, or extend samples to prevent transparent seams. **Generated. Not complete.**
 13. **9.13 — Gentle chromatic separation.** Sample red, green, and blue at slightly different positions.
 14. **9.14 — Lens checkpoint.** Build a rounded lens over a moving test pattern.
 

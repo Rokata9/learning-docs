@@ -84,6 +84,9 @@ completed:
 session_order: A1 A2 A3 A4 B1 B2 B3 C1 C2 D1 D2 1A 1B 1C 1D 1E 1F 2A 2B 2C 2D 2E 2F 3A 3B 3C 3D 3E 3F 3G 3H 4A 4B 4C 4D 4E 4F 4G 5A 5B 5C 5D 5E 5F 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 6.9 6.10 6.11 6H 7A 7B 7C 7D 7E 7F 7G 7H 8A 8B 8C 8D 8E 8F 8H 9A 9B 9C 9D 9E 9F 9H F1 F2 F3 F4 F5
 
 notes:
+  - 2026-09-30 (not a translation step): Lessons 9.10 and 9.11 learner-confirmed complete (42/216).
+    Lesson 9.12 generated natively for iOS: chapter09/EdgeSafety.metal (edgeSafeRefract) +
+    EdgeSafetyExplorer.swift on Chapter09Screen. iPhone 16 Pro sim build succeeded. next_step unchanged.
   - 9F: lesson 9.9 HTML to SwiftUI / iPhone 16 Pro. scaleAroundCenter in
     chapter09/ScaleAroundCenter.metal is readUv = p / scale + 0.5, then background().
     Default scale 2.00. Teaching uv (0.80, 0.50) reads (0.65, 0.50) and stores orange.
