@@ -58,6 +58,10 @@
   .ptdot.ring{background:transparent!important;border-width:4px}
   .ptdot.hat{background:var(--hatch)!important}
   .ptdot.drag{width:24px;height:24px;cursor:grab;touch-action:none}
+  .ptdot.sm{width:14px;height:14px;border-width:2.5px}
+  .ptdot.badge,.badge{width:24px;height:24px;border:2px solid #111827;background:#fff!important;color:#111827;
+    font:700 13px/20px -apple-system,"Segoe UI",Roboto,sans-serif;text-align:center}
+  span.badge{display:inline-block;border-radius:50%;vertical-align:-5px}
   .ptdot.drag:active{cursor:grabbing}
   .ptdot:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
   svg circle.pt{cursor:pointer}
@@ -302,10 +306,62 @@ screen is not part of the screen: nothing is drawn there. Try the corner: both x
       <li><span class="sw hatch"></span>hatch: see-through · empty area: not the screen</li>
     </ul>
     <div class="stage" id="labZoomStage"><canvas id="labZoom" class="see" width="408" height="240"></canvas></div>
-    <figcaption style="margin-bottom:10px">The zoom: the part of the picture around W, 3× larger.</figcaption>
+    <figcaption style="margin-bottom:10px" id="labZoomCap">The zoom: the part of the picture around W and R, 3× larger.</figcaption>
     <div class="readout" id="labOut" style="font-size:12.5px;line-height:1.6"></div>
   </div>
 </div>
+
+<h3 id="s4mid">What the middle shows at dispLen = 0.20</h3>
+<p>In the lab, press <b>middle (Lesson 9.11)</b> and <b>screen</b>, and move dispLen to 0.20 (or press the button
+below). The middle of the glass then shows words that are turned around, and gray loops. The two pictures below give seven pieces a number. The left
+picture is the output: what the lab shows. The right picture is the wallpaper without the glass, at the same size and
+place. On the right, the pink push arrow of each numbered pixel ends at its read point: the place
+where the piece really is on the wallpaper.</p>
+<div class="ctl"><button class="btn" id="midSet">Set the lab to this</button>
+  <span style="font-size:14px;color:var(--muted)">C = (0.50, 0.50), screen, dispLen = 0.20, W = pixel 2</span></div>
+<div class="pair">
+  <div><div class="stage" id="midOutStage"><canvas id="midOut" width="560" height="498"></canvas></div>
+    <figcaption>Left · the output: what the lab shows.</figcaption></div>
+  <div><div class="stage" id="midWallStage"><canvas id="midWall" width="560" height="498"></canvas></div>
+    <figcaption>Right · the wallpaper without the glass: the screen picture.</figcaption></div>
+</div>
+<ul class="legend two">
+  <li><span class="swd" style="background:#fff"></span>C = (0.50, 0.50): the center of the glass</li>
+  <li><span class="badge">1</span>pixel 1 … 7. Left: the short dark arrow points at the pixel. Right: the number sits at the read point.</li>
+  <li><span class="swd" style="background:#22d3ee"></span>right: the numbered pixel, at the same place as on the left</li>
+  <li><span class="swl" style="background:#ff4d8d"></span>the pink push arrow, from the pixel to its read point (ring)</li>
+  <li><span class="swl" style="background:#fb923c"></span>the orange circle: 0.20 from C (dispLen)<button class="info" data-tip="displen20">ⓘ</button></li>
+  <li><span class="swl" style="background:#fff"></span>the white circle: the glass edge, 0.25 from C<button class="info" data-tip="radius">ⓘ</button></li>
+</ul>
+<table class="trace" style="max-width:1150px;font-size:14px">
+  <tr><th>pixel</th><th>left: the output shows</th><th>right: the read point is on</th></tr>
+  <tr><td><span class="badge">1</span></td><td>“Haptics”, turned around</td><td>the word “Haptics” in the row “Sounds &amp; Haptics”</td></tr>
+  <tr><td><span class="badge">2</span></td><td>“tions”, turned around</td><td>the end of “Notifications”</td></tr>
+  <tr><td><span class="badge">3</span></td><td>the big gray loop above C</td><td>the gray line below “Notifications”</td></tr>
+  <tr><td><span class="badge">4</span></td><td>the big gray loop below C</td><td>the gray line below “Mobile Data”</td></tr>
+  <tr><td><span class="badge">5</span></td><td>the small gray loop above C</td><td>the gray line below “Sounds &amp; Haptics”</td></tr>
+  <tr><td><span class="badge">6</span></td><td>the small gray loop below C</td><td>the gray line below “Bluetooth”</td></tr>
+  <tr><td><span class="badge">7</span></td><td>“Haptics” again, not turned around, bent along the glass edge</td><td>the same word “Haptics”</td></tr>
+</table>
+<p><b>Why pixels 1 to 6 are turned around.</b> Pixels 1 to 6 are closer than 0.25 − 0.10 = 0.15 to C. There
+sd = d − 0.25 is below −0.10, so smoothstep = 0 and falloff = 1 − 0 = 1 (the chain<button class="info" data-tip="chain">ⓘ</button>).
+So each of them gets the full push: push = 0.20 × 1 = 0.20. Each is also closer than 0.20 to C. So its pink arrow
+passes C and ends on the other side of C (Lesson 9.11). Pixel 2 as an example:
+pixel 2 = (0.56, 0.50) is 0.56 − 0.50 = 0.06 to the right of C. The push moves the read point 0.20 to the left:
+0.56 − 0.20 = 0.36. The read point (0.36, 0.50) is 0.50 − 0.36 = 0.14 to the left of C, on the “n” of “Notifications”.</p>
+<p><b>Why a gray line becomes a loop.</b> A pixel closer than 0.15 to C, at the distance d, reads 0.20 − d from C,
+on the other side. So a pixel very close to C reads almost 0.20 from C: on the orange circle. So both places where a gray line crosses the
+orange circle show up right next to C. The part of the gray line between these two places comes out as a loop that
+starts and ends at C. Four gray lines cross the orange circle, so the middle shows four loops (pixels 3 to 6). A gray
+line close to C gives a big loop: the gray line below “Notifications” is 0.5325 − 0.50 = 0.0325 from C and gives the
+big gray loop above C (pixel 3). The gray line below “Bluetooth” is 0.50 − 0.3625 = 0.1375 from C and gives the small
+gray loop below C (pixel 6).</p>
+<p><b>Why pixel 7 is not turned around.</b> Pixel 7 is near the glass edge, farther than 0.15 from C, so its falloff
+is below 1 and its push is shorter than 0.20. Its pink arrow is shorter than its distance to C, so the arrow stops
+before C. Pixel 7 reads on its own side of C, so this copy of “Haptics” is not turned around. The places inside the
+orange circle show up twice: once turned around near C, and once not turned around near the glass edge. “Haptics”
+lies inside the orange circle, so it shows up twice (pixels 1 and 7). Right next to C, a few more letters come out very small: “ata” (the end of
+“Mobile Data”) and “&amp;” (from “Sounds &amp; Haptics”). They lie just inside the orange circle, so they land right next to C.</p>
 
 <!-- ============================ SECTION 5 ============================ -->
 <h2 id="s5"><span class="tag">Section 5 · short code excerpt</span>The iPhone shader</h2>
@@ -437,7 +493,7 @@ R′ = (1.00, 1.00)</div>
 
 <div class="navfoot">
   <a href="lesson-09-11-refraction-as-displaced-sampling.html">← Lesson 9.11 — Refraction as displaced sampling</a>
-  <span>Next: Lesson 9.13 — Gentle chromatic separation (not created yet)</span>
+  <a href="lesson-09-13-gentle-chromatic-separation.html">Lesson 9.13 — Gentle chromatic separation →</a>
 </div>
 </div>
 
@@ -452,7 +508,7 @@ R′ = (1.00, 1.00)</div>
 const NAVY=[26,64,102], ORANGE=[224,122,46];
 const RAD=0.25, BAND=0.10;
 const LES={cx:0.50, cy:1.10, len:0.10};
-const COL={edge:'#fde047', glass:'#ffffff', w:'#22d3ee', push:'#ff4d8d', clamp:'#a3e635', e:'#c084fc', halo:'rgba(17,24,39,0.92)'};
+const COL={edge:'#fde047', glass:'#ffffff', w:'#22d3ee', push:'#ff4d8d', clamp:'#a3e635', e:'#c084fc', orange:'#fb923c', halo:'rgba(17,24,39,0.92)'};
 
 function sstep(e0,e1,x){ const t=Math.min(1,Math.max(0,(x-e0)/(e1-e0))); return t*t*(3-2*t); }
 function inside(u,v){ return u>=0 && u<=1 && v>=0 && v<=1; }
@@ -560,6 +616,12 @@ function darkText(ctx,t,x,y,align,size){
   ctx.font=`600 ${size||15}px -apple-system,"Segoe UI",Roboto,sans-serif`; ctx.textAlign=align||'left'; ctx.textBaseline='middle';
   ctx.lineWidth=4; ctx.strokeStyle='rgba(255,255,255,0.95)'; ctx.strokeText(t,x,y); ctx.fillStyle='#111827'; ctx.fillText(t,x,y);
 }
+// the label C takes its ink from the pixels under it (a white C with a dark halo on a light picture reads as ©)
+function labelC(ctx,x,y,align){
+  const w=12, d=ctx.getImageData(Math.max(0,Math.round(align==='center'?x-6:x)),Math.max(0,Math.round(y-6)),w,w).data; let L=0;
+  for(let i=0;i<d.length;i+=4) L+=0.3*d[i]+0.59*d[i+1]+0.11*d[i+2];
+  if(L/(d.length/4)>150) darkText(ctx,'C',x,y,align,16); else text(ctx,'C',x,y,'#ffffff',align);
+}
 function seamLabel(ctx,V,tx,ty,sx,sy){ line(ctx,V.X(tx)+4,V.Y(ty)+12,V.X(sx),V.Y(sy),'#ffffff',2.5); text(ctx,'the seam (see-through)',V.X(tx),V.Y(ty),'#ffffff','center'); }
 function edgeBox(ctx,V,w){ halo(ctx,()=>ctx.rect(V.X(0),V.Y(0),V.X(1)-V.X(0),V.Y(1)-V.Y(0)),COL.edge,w||3); }
 
@@ -620,6 +682,7 @@ const TIPS={
   radius:'<b>radius = 0.25</b><br>From: a chosen constant, Lesson 9.2. The radius of the glass circle in UV units.<br>Used by: sd = d − radius.',
   band:'<b>band = 0.10</b><br>From: a chosen constant, Lesson 9.3. Falloff goes from 1 to 0 between sd = −0.10 and sd = +0.10.<br>Used by: falloff.',
   displen:'<b>dispLen = 0.10</b><br>From: Lesson 9.10, the length of the full push in UV units (1 = the width of the screen).<br>Used by: push = dispLen × falloff.',
+  displen20:'<b>dispLen = 0.20</b><br>From: the lab slider, moved to its end. The length of the full push in UV units.<br>Used by: push = dispLen × falloff = 0.20 × 1 = 0.20 for pixels closer than 0.15 to C.',
   length:'<b>length(p) = √(p.x² + p.y²)</b> — a reminder from Lesson 9.1: the long side of a right triangle whose legs are p.x and p.y.<br>For W the legs are 0.09 and 0.12: the 3-4-5 triangle times 0.03.',
   sd:'<b>sd — signed distance</b>, Lesson 9.2.<br>sd = d − radius: negative inside the circle, 0 on the circle, positive outside.',
   smoothstep:'<b>smoothstep(a, b, x)</b> — a reminder from Lesson 9.3.<br>t = (x − a) ÷ (b − a), limited to 0 … 1; then 3t² − 2t³.<br>Here a = −0.10, b = +0.10, x = sd, so the bottom of t is 0.10 − (−0.10) = 0.20.',
@@ -902,7 +965,8 @@ function traceLines(u,v,P,useClamp,wl){
 
 /* ================= section 4: lab ================= */
 (function(){
-  const cv=document.getElementById('labCv'), stage=document.getElementById('labStage'), V=view(cv,-0.15,-0.15,1.25);
+  // the window starts at −0.22: with dispLen 0.20 a read point can reach 0.01 − 0.20 = −0.19, and its dot must stay inside
+  const cv=document.getElementById('labCv'), stage=document.getElementById('labStage'), V=view(cv,-0.22,-0.22,1.25);
   const S={cx:0.50, cy:1.10, len:0.10, u:0.59, v:0.98, rule:'none', wl:'checker'};
   function draw(){
     clearPts(stage);
@@ -916,12 +980,15 @@ function traceLines(u,v,P,useClamp,wl){
     arrow(ctx,V.X(S.u),V.Y(S.v),V.X(r.rx),V.Y(r.ry),COL.push,3);
     const moved=on&&(Rc[0]!==r.rx||Rc[1]!==r.ry);
     if(moved) arrow(ctx,V.X(r.rx),V.Y(r.ry),V.X(Rc[0]),V.Y(Rc[1]),COL.clamp,3);
-    text(ctx,'C',V.X(S.cx)+18,V.Y(S.cy)+4,'#ffffff'); text(ctx,'W',V.X(S.u)+18,V.Y(S.v)-10,COL.w);
+    labelC(ctx,V.X(S.cx)+18,V.Y(S.cy)+4); text(ctx,'W',V.X(S.u)+18,V.Y(S.v)-10,COL.w);
     if(moved) addPt(stage,V.X(Rc[0]),V.Y(Rc[1]),COL.clamp,TIP_R2(Rc[0],Rc[1]),'R prime');
     addPt(stage,V.X(r.rx),V.Y(r.ry),COL.push,TIP_R(V3(r.rx),V3(r.ry)),'R, the read point of W','ring');
-    // the zoom around W, 3× the lab picture
-    const zc=document.getElementById('labZoom'), zs=document.getElementById('labZoomStage'), zsc=V.s*3;
-    const mx=(S.u+(moved?Rc[0]:r.rx))/2, my=(S.v+(moved?Rc[1]:r.ry))/2;
+    // the zoom around W and R: 3× the lab picture, less when W and R do not fit (R′ lies between W and R)
+    const zc=document.getElementById('labZoom'), zs=document.getElementById('labZoomStage'), M=24;
+    const fit=Math.min((zc.width-2*M)/Math.max(Math.abs(S.u-r.rx)*V.s,1e-6),(zc.height-2*M)/Math.max(Math.abs(S.v-r.ry)*V.s,1e-6));
+    const zk=Math.min(3,Math.floor(fit*10)/10), zsc=V.s*zk;
+    document.getElementById('labZoomCap').textContent=`The zoom: the part of the picture around W and R, ${zk}× larger.`;
+    const mx=(S.u+r.rx)/2, my=(S.v+r.ry)/2;
     const Z=view(zc,mx-zc.width/2/zsc,my-zc.height/2/zsc,mx+zc.width/2/zsc);
     clearPts(zs);
     render(zc,Z,{kind:'output',P,wall:S.wl,lo:on?[0,0]:null,hi:on?[1,1]:null});
@@ -931,11 +998,11 @@ function traceLines(u,v,P,useClamp,wl){
     if(moved) arrow(zx,Z.X(r.rx),Z.Y(r.ry),Z.X(Rc[0]),Z.Y(Rc[1]),COL.clamp,3.5);
     text(zx,'W',Z.X(S.u)+16,Z.Y(S.v)-12,COL.w); text(zx,'R',Z.X(r.rx)-16,Z.Y(r.ry)+12,COL.push,'right');
     if(moved) text(zx,'R′',Z.X(Rc[0])+14,Z.Y(Rc[1])-16,COL.clamp);
-    const inZ=(u,v)=>Z.X(u)>=0&&Z.X(u)<=zc.width&&Z.Y(v)>=0&&Z.Y(v)<=zc.height;
+    const inZ=(u,v)=>Z.X(u)>=12&&Z.X(u)<=zc.width-12&&Z.Y(v)>=12&&Z.Y(v)<=zc.height-12;
     addPt(zs,Z.X(S.u),Z.Y(S.v),COL.w,TIP_W(S.u,S.v),'W in the zoom');
     addPt(zs,Z.X(r.rx),Z.Y(r.ry),COL.push,TIP_R(V3(r.rx),V3(r.ry)),'R in the zoom','ring');
     if(moved) addPt(zs,Z.X(Rc[0]),Z.Y(Rc[1]),COL.clamp,TIP_R2(Rc[0],Rc[1]),'R prime in the zoom');
-    if(inZ(S.cx,S.cy)){ text(zx,'C',Z.X(S.cx)+16,Z.Y(S.cy)+4,'#ffffff'); addPt(zs,Z.X(S.cx),Z.Y(S.cy),'#ffffff',TIP_C(S.cx,S.cy),'C in the zoom'); }
+    if(inZ(S.cx,S.cy)){ labelC(zx,Z.X(S.cx)+16,Z.Y(S.cy)+4); addPt(zs,Z.X(S.cx),Z.Y(S.cy),'#ffffff',TIP_C(S.cx,S.cy),'C in the zoom'); }
     const hc=addPt(stage,V.X(S.cx),V.Y(S.cy),'#ffffff',()=>TIP_C(S.cx,S.cy)+'<br>Drag it, or press the arrow keys after clicking it.','C, drag to move the glass','drag');
     const hw=addPt(stage,V.X(S.u),V.Y(S.v),COL.w,()=>TIP_W(S.u,S.v)+'<br>Drag it, or press the arrow keys after clicking it.','W, drag to pick a pixel','drag');
     hc.dataset.h='c'; hw.dataset.h='w';
@@ -964,7 +1031,71 @@ The chain for W:
     if(near){ S.u=near[0]; S.v=near[1]; } draw(); });
   const sl=document.getElementById('labLen');
   sl.oninput=()=>{ S.len=Number(sl.value); document.getElementById('labLenV').textContent=f(S.len); draw(); };
+  document.getElementById('midSet').onclick=()=>{                  // the state of the pictures "What the middle shows"
+    Object.assign(S,{cx:0.50, cy:0.50, u:0.56, v:0.50, wl:'screen', len:0.20});
+    sl.value='0.20'; document.getElementById('labLenV').textContent=f(S.len); draw();
+    document.getElementById('s4').scrollIntoView({behavior:'smooth'}); };
   draw();
+})();
+
+/* ================= section 4: what the middle shows at dispLen = 0.20 ================= */
+(function(){
+  const P={cx:0.50, cy:0.50, len:0.20};
+  const oc=document.getElementById('midOut'), wc=document.getElementById('midWall');
+  const os=document.getElementById('midOutStage'), ws=document.getElementById('midWallStage');
+  const V=view(oc,0.15,0.22,0.78);                                   // the same window for both pictures: x 0.15 … 0.78, y 0.22 … 0.78
+  // g(d): where a pixel d from C reads, measured along its own direction from C (below 0: past C)
+  const g=d=>d-P.len*(1-sstep(-BAND,BAND,d-RAD));
+  const ginv=t=>{ let a=0,b=0.6; for(let i=0;i<60;i++){ const m=(a+b)/2; if(g(m)<t) a=m; else b=m; } return (a+b)/2; };
+  // a pixel in the direction deg (y down) whose read point is on the gray line at height y
+  const onLine=(y,deg)=>{ const a=deg*Math.PI/180, d=ginv((y-P.cy)/Math.sin(a)); return [P.cx+d*Math.cos(a), P.cy+d*Math.sin(a)]; };
+  // the pixel on C's own side that reads the wallpaper point q
+  const sameSide=q=>{ const dx=q[0]-P.cx, dy=q[1]-P.cy, r=Math.hypot(dx,dy), d=ginv(r); return [P.cx+dx/r*d, P.cy+dy/r*d]; };
+  // px: the pixel · lt: where the number sits on the left, in canvas pixels from the pixel
+  // rt: where the number sits on the right, from the read point (default: 21 px further along the pink arrow)
+  const PIECES=[
+    {px:[0.56,0.455],             lt:[38,-30], out:'“Haptics”, turned around', src:'the word “Haptics” in the row “Sounds &amp; Haptics”'},
+    {px:[0.56,0.50],              lt:[44,26],  out:'“tions”, turned around', src:'the “n” of “Notifications”'},
+    {px:onLine(0.5325,-150),      lt:[-30,-26],out:'the big gray loop above C', src:'the gray line below “Notifications”'},
+    {px:onLine(0.4475,120),       lt:[-30,26], out:'the big gray loop below C', src:'the gray line below “Mobile Data”'},
+    {px:onLine(0.6175,-90),       lt:[26,-26], out:'the small gray loop above C', src:'the gray line below “Sounds &amp; Haptics”'},
+    {px:onLine(0.3625,60),        lt:[30,30],  out:'the small gray loop below C', src:'the gray line below “Bluetooth”'},
+    {px:sameSide([0.478,0.575]),  lt:[-30,26], rt:[22,4], out:'“Haptics” again, not turned around', src:'the “s” of “Haptics”'}
+  ];
+  PIECES.forEach(q=>{ const r=chain(q.px[0],q.px[1],P); q.rd=[r.rx,r.ry];
+    if(!q.rt){ const L=Math.hypot(r.rx-q.px[0],r.ry-q.px[1]); q.rt=[(r.rx-q.px[0])/L*21,(r.ry-q.px[1])/L*21]; } });
+  const TIP_PX=(k,q)=>`<b>Pixel ${k+1} = ${pt(q.px[0],q.px[1])}</b>, in UV<br>Role: one pixel of the output. It shows ${q.out}.<br>Its read point: ${pt(q.rd[0],q.rd[1])}, on ${q.src} (the right picture).`;
+  const TIP_RD=(k,q)=>`<b>The read point of pixel ${k+1} = ${pt(q.rd[0],q.rd[1])}</b>, in UV<br>Role: where pixel ${k+1} ${pt(q.px[0],q.px[1])} reads the wallpaper: on ${q.src}.`;
+  function pointer(ctx,x1,y1,x2,y2){                                  // a short dark arrow from a number to its pixel
+    const a=Math.atan2(y2-y1,x2-x1), L=Math.hypot(x2-x1,y2-y1), sx=x1+Math.cos(a)*13, sy=y1+Math.sin(a)*13;
+    for(const [lw,c] of [[5.5,'rgba(255,255,255,0.95)'],[2,'#111827']]){ ctx.lineWidth=lw; ctx.strokeStyle=c; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(x2-Math.cos(a)*6,y2-Math.sin(a)*6); ctx.stroke(); }
+    ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-9*Math.cos(a-0.5),y2-9*Math.sin(a-0.5)); ctx.lineTo(x2-9*Math.cos(a+0.5),y2-9*Math.sin(a+0.5));
+    ctx.closePath(); ctx.fillStyle='#111827'; ctx.fill(); ctx.lineWidth=1.5; ctx.strokeStyle='rgba(255,255,255,0.95)'; ctx.stroke();
+  }
+  function badge(stage,k,x,y,html,label){ const b=addPt(stage,x,y,'#ffffff',html,label,'badge'); b.textContent=String(k+1); return b; }
+
+  // left: the output
+  render(oc,V,{kind:'output',P,wall:'screen',lo:null,hi:null});
+  const o=oc.getContext('2d');
+  ring(o,V.X(P.cx),V.Y(P.cy),RAD*V.s,COL.glass,2.5);
+  labelC(o,V.X(P.cx)-17,V.Y(P.cy)+15,'center');
+  PIECES.forEach((q,k)=>{ const x=V.X(q.px[0]), y=V.Y(q.px[1]); pointer(o,x+q.lt[0],y+q.lt[1],x,y);
+    badge(os,k,x+q.lt[0],y+q.lt[1],TIP_PX(k,q),'pixel '+(k+1)); });
+  addPt(os,V.X(P.cx),V.Y(P.cy),'#ffffff',TIP_C(P.cx,P.cy),'C');
+
+  // right: the wallpaper, with the push arrows of the numbered pixels
+  render(wc,V,{kind:'input',wall:'screen'});
+  const w=wc.getContext('2d');
+  ring(w,V.X(P.cx),V.Y(P.cy),P.len*V.s,COL.orange,2.5);
+  darkText(w,'0.20 from C',V.X(0.5+0.2*Math.cos(-1.1))+10,V.Y(0.5+0.2*Math.sin(-1.1))-12,'left',14);
+  PIECES.forEach(q=>arrow(w,V.X(q.px[0]),V.Y(q.px[1]),V.X(q.rd[0]),V.Y(q.rd[1]),COL.push,3));
+  labelC(w,V.X(P.cx)-34,V.Y(P.cy)+11,'center');                 // in the gap between the arrows of pixels 1 and 2
+  PIECES.forEach((q,k)=>{ const x=V.X(q.rd[0]), y=V.Y(q.rd[1]);
+    addPt(ws,V.X(q.px[0]),V.Y(q.px[1]),COL.w,TIP_PX(k,q),'pixel '+(k+1),'sm');
+    addPt(ws,x,y,COL.push,TIP_RD(k,q),'the read point of pixel '+(k+1),'ring sm');
+    badge(ws,k,x+q.rt[0],y+q.rt[1],TIP_RD(k,q),'the read point of pixel '+(k+1)); });
+  addPt(ws,V.X(P.cx),V.Y(P.cy),'#ffffff',TIP_C(P.cx,P.cy),'C');
 })();
 
 /* ================= section 6: challenge ================= */

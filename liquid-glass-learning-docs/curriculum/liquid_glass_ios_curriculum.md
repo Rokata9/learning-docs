@@ -1,6 +1,6 @@
 # Liquid Glass on iOS — Beginner-to-Expert Curriculum
 
-**Version:** 9.12.0  
+**Version:** 9.14.0  
 **Updated:** 2026-09-30  
 **Primary platform:** Swift + SwiftUI  
 **Minimum learning target:** iOS 17  
@@ -14,8 +14,8 @@ Live progress, current files, and the checkpoint/frontier contracts live in `CUR
 - Learner-confirmed complete: **42 of 216** (Chapters 3, 4, 5, Lessons 9.1–9.6, and Lessons 9.10–9.11).
 - Must re-read (platform chapters, in order): **Chapter 1**, **Chapter 2**, **Chapter 6**, **Chapter 7**, **Chapter 8**, **Lessons 9.7–9.9**.
 - Unresolved checkpoint: **Lesson 1.3 — Create `LiquidGlassLab`** (first lesson of the iOS on-ramp).
-- Generated frontier: **Lesson 9.12 — Edge safety** (not complete).
-- Next planned after the frontier: **Lesson 9.13 — Gentle chromatic separation**.
+- Generated frontier: **Lesson 9.14 — Lens checkpoint** (not complete). Lessons 9.12 — Edge safety and 9.13 — Gentle chromatic separation are also generated and not complete.
+- Next planned after the frontier: **Lesson 10.1 — Height-map idea**.
 - Do not restore **95 of 216**. Do not mark Lesson 1.3 complete just because the prior 1.3 was complete.
 
 ## 2. How this file relates to the rule sources
@@ -200,8 +200,8 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 10. **9.10 — Build a displacement field.** Produce a vector that says where to sample instead. **Complete.**
 11. **9.11 — Refraction as displaced sampling.** Bend straight background lines near the glass boundary. **Complete.**
 12. **9.12 — Edge safety.** Clamp, pad, or extend samples to prevent transparent seams. **Generated. Not complete.**
-13. **9.13 — Gentle chromatic separation.** Sample red, green, and blue at slightly different positions.
-14. **9.14 — Lens checkpoint.** Build a rounded lens over a moving test pattern.
+13. **9.13 — Gentle chromatic separation.** Sample red, green, and blue at slightly different positions. **Generated. Not complete.**
+14. **9.14 — Lens checkpoint.** Build a rounded lens over a moving test pattern. **Generated. Not complete.**
 
 **Checkpoint:** Explain why the geometry mask and the background sample coordinates are separate problems.
 

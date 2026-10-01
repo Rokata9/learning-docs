@@ -1,7 +1,7 @@
 # Liquid Glass iOS course — implementation handoff
 
 **Updated:** 2026-09-30
-**Course version:** 9.12.0
+**Course version:** 9.14.0
 
 ## Read order
 
@@ -24,11 +24,12 @@ completed_chapters: [3, 4, 5]
 chapter_9_complete: "8 of 14 (9.1–9.6, 9.10, 9.11)"
 must_reread: "Chapter 1, Chapter 2, Chapter 6, Chapter 7, Chapter 8, Lessons 9.7–9.9"
 next_unresolved_checkpoint: "Lesson 1.3 — Create LiquidGlassLab"
-generated_frontier: "Lesson 9.12 — Edge safety"
-next_planned_after_frontier: "Lesson 9.13 — Gentle chromatic separation"
+generated_frontier: "Lesson 9.14 — Lens checkpoint"
+also_generated_not_complete: "Lesson 9.12 — Edge safety; Lesson 9.13 — Gentle chromatic separation"
+next_planned_after_frontier: "Lesson 10.1 — Height-map idea"
 ```
 
-Chapters 3, 4, 5, Lessons 9.1–9.6 and Lessons 9.10–9.11 are learner-confirmed complete (graphics and math). HTML will still be updated so excerpts are Swift. Lessons 8.2–8.12 and 9.7–9.9 must be re-read on iOS. Lesson 9.12 is generated and is not complete. Do not restore 95 of 216. Do not mark Lesson 1.3 complete just because the prior 1.3 was complete.
+Chapters 3, 4, 5, Lessons 9.1–9.6 and Lessons 9.10–9.11 are learner-confirmed complete (graphics and math). HTML will still be updated so excerpts are Swift. Lessons 8.2–8.12 and 9.7–9.9 must be re-read on iOS. Lessons 9.12, 9.13 and 9.14 are generated and are not complete. Do not restore 95 of 216. Do not mark Lesson 1.3 complete just because the prior 1.3 was complete.
 
 Chapter 7 frost stays fixed: blur `18` pt / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
@@ -191,7 +192,7 @@ sd = length(p) − radius
 
 Teaching W = `(0.65, 0.30)`: `p = (0.15, −0.20)`, `d = 0.25`, `sd = 0`, falloff = 0.50, `disp = (0.03, −0.04)`, `readUv = (0.62, 0.34)`. Falloff is a length scale, not a color mix. The line x = 0.90 stays straight. iOS: `RefractionSamplingExplorer.swift` + `RefractionSampling.metal`. Learner-confirmed 2026-09-30. The lesson and its Q&A page were rolled back to commit `d6ca607` at the learner's request (the later proof rounds went beyond the lesson's one concept).
 
-## Generated frontier — Lesson 9.12
+## Generated — Lesson 9.12
 
 ```text
 p = uv − center
@@ -201,7 +202,31 @@ p = uv − center
 → sampled = checkerWithEdge(readUv)     (transparent outside 0 … 1)
 ```
 
-Glass center C = `(0.50, 1.10)`. W = `(0.59, 0.98)` reads R = `(0.53, 1.06)` (outside), clamps to R′ = `(0.53, 1.00)`, stores navy. Pad (Lesson 7.3) is one note, not a section. iOS: `EdgeSafetyExplorer.swift` + `EdgeSafety.metal`. Not complete. Next: 9.13 chromatic separation — do not generate unless asked.
+Glass center C = `(0.50, 1.10)`. W = `(0.59, 0.98)` reads R = `(0.53, 1.06)` (outside), clamps to R′ = `(0.53, 1.00)`, stores navy. Pad (Lesson 7.3) is one note, not a section. Section 4 adds the figure “What the middle shows at dispLen = 0.20”: pixel 2 = `(0.56, 0.50)` reads `(0.36, 0.50)` past C; turned-around “Haptics” / “tions” and four gray loops through C are named (2026-09-30 learner report → rules 7 and 10; the lab zoom now fits W and R). iOS: `EdgeSafetyExplorer.swift` + `EdgeSafety.metal` (unchanged by this revision). Not complete.
+
+## Generated — Lesson 9.13
+
+```text
+readRed   = clamp(uv − disp × (1 − spread), 0, 1)     (new: shorter push)
+readGreen = clamp(uv − disp, 0, 1)                    (the 9.12 read point)
+readBlue  = clamp(uv − disp × (1 + spread), 0, 1)     (new: longer push)
+color     = half4(colRed.r, colGreen.g, colBlue.b, 1.0)
+```
+
+Black-and-white checker so any color comes from the read points. C = `(0.40, 0.54)`, spread 0.10. W = `(0.40, 0.405)` stores `(1, 0, 0)`. Fringe needs a push and an edge; it ends 0.35 from C. iOS files planned, not yet written: `ChromaticSeparationExplorer.swift` + `ChromaticSeparation.metal` (`chromaticRefract`). Not complete.
+
+## Generated frontier — Lesson 9.14
+
+```text
+sd    = length(uv − center) − radius              (both answers start here)
+bent  = the Lesson 9.13 color from three read points   (answer 2: where does the pixel read?)
+mask  = 1 − smoothstep(−maskBand, maskBand, sd)   (new, answer 1: is the pixel glass? maskBand = 0.002)
+plain = wall(uv, time)                            (new: the wallpaper at the pixel itself)
+color = mix(plain, bent, mask)                    (new)
+wall(x, y, time) = checker(x + speed × time, y)   (moving test pattern, speed = 0.10, moves left)
+```
+
+Answers the Chapter 9 checkpoint. C = `(0.40, 0.54)`. W = `(0.40, 0.24)` at time = 2 s: sd = 0.05 → mask 0; read points y = 0.2544 / 0.256 / 0.2576 → bent black; plain white → stores white. Falloff as the mask gives a 0.20-wide ghost ring; a hard if gives stair steps. iOS files planned, not yet written: `LensCheckpointExplorer.swift` + `LensCheckpoint.metal` (`glassLens`, `movingChecker`). Not complete. Next: Chapter 10, Lesson 10.1 — height-map idea — do not generate unless asked.
 
 ## Future conversation
 

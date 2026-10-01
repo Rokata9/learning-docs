@@ -15,7 +15,7 @@ If this same first message already names the job, start that work after the read
 
 If the first message is only this prompt, restate course state from `CURRENT_STATE.md` and wait.
 
-Do not generate a later lesson than the one I named. Do not mark any lesson complete unless I explicitly confirm it. Do not generate Lesson 9.12 unless asked.
+Do not generate a later lesson than the one I named. Do not mark any lesson complete unless I explicitly confirm it. Do not generate Lesson 10.1 unless asked.
 
 ## 1. Where the files live
 
@@ -158,7 +158,7 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-09-30 with `CURRENT_STATE.md` (course version 9.12.0).
+**Last aligned:** 2026-09-30 with `CURRENT_STATE.md` (course version 9.14.0).
 
 ```text
 platform: Swift / SwiftUI / Metal (lab pixel-function strings)
@@ -176,8 +176,9 @@ must re-read (in order):
 current unresolved checkpoint: Lesson 1.3 — Create LiquidGlassLab
   (first lesson of the iOS on-ramp)
 
-generated frontier: Lesson 9.12 — Edge safety (not complete)
-next planned lesson after the frontier: Lesson 9.13 — Gentle chromatic separation
+generated frontier: Lesson 9.14 — Lens checkpoint (not complete)
+  (Lessons 9.12 — Edge safety and 9.13 — Gentle chromatic separation are also generated and not complete)
+next planned lesson after the frontier: Lesson 10.1 — Height-map idea
 ```
 
 Do not restore 95 of 216. Do not mark 1.3 complete from the prior lab.
@@ -273,6 +274,38 @@ sd = length(p) − radius
 
 Teaching W = `(0.65, 0.30)`, `p = (0.15, −0.20)`, `sd = 0`, falloff = 0.50, `disp = (0.03, −0.04)`, `readUv = (0.62, 0.34)`. Falloff is a length scale, not a color mix. Miss line x = 0.90 stays straight.
 
+**9.12 generated contract** (not complete):
+
+```text
+p = uv − center → the Lesson 9.11 chain → readUv = uv − disp
+→ readUv = clamp(readUv, 0.0, 1.0) → sampled = checkerWithEdge(readUv)
+```
+
+C = `(0.50, 1.10)`. W = `(0.59, 0.98)` reads R = `(0.53, 1.06)` (outside), clamps to R′ = `(0.53, 1.00)`, stores navy.
+
+**9.13 generated contract** (not complete):
+
+```text
+readRed   = clamp(uv − disp × (1 − spread), 0, 1)
+readGreen = clamp(uv − disp, 0, 1)
+readBlue  = clamp(uv − disp × (1 + spread), 0, 1)
+color     = half4(colRed.r, colGreen.g, colBlue.b, 1.0)
+```
+
+Black-and-white checker. C = `(0.40, 0.54)`, spread 0.10. W = `(0.40, 0.405)`: push 0.10 straight down; read y 0.495 / 0.505 / 0.515 → white / black / black → stores `(1, 0, 0)`. Strips yellow 0.39–0.40 and red 0.40–0.41 on x = 0.40; none outside 0.35 from C. iOS explorer files are planned, not yet written (see `CURRENT_STATE.md`).
+
+**9.14 generated contract** (not complete):
+
+```text
+answer 2, where to read?  bent  = the Lesson 9.13 color from three read points
+answer 1, is it glass?    mask  = 1 − smoothstep(−maskBand, maskBand, sd)   maskBand = 0.002
+                          plain = wall(uv, time)
+                          color = mix(plain, bent, mask)
+moving test pattern:      wall(x, y, time) = checker(x + 0.10 × time, y)
+```
+
+C = `(0.40, 0.54)`. W = `(0.40, 0.24)` at time = 2 s: sd = 0.05 → mask 0, bent black, plain white → stores white. Answers the Chapter 9 checkpoint (two answers, two widths from one sd, neither uses the other or the time). iOS explorer files are planned, not yet written (see `CURRENT_STATE.md`).
+
 Current files:
 
 ```text
@@ -296,6 +329,9 @@ course/chapters/chapter-09/lesson-09-08-translate-sample-coordinates.html
 course/chapters/chapter-09/lesson-09-09-scale-around-the-center.html
 course/chapters/chapter-09/lesson-09-10-build-a-displacement-field.html
 course/chapters/chapter-09/lesson-09-11-refraction-as-displaced-sampling.html
+course/chapters/chapter-09/lesson-09-12-edge-safety.html
+course/chapters/chapter-09/lesson-09-13-gentle-chromatic-separation.html
+course/chapters/chapter-09/lesson-09-14-lens-checkpoint.html
 course/chapters/chapter-09/lesson-distance-fields-image-sampling-and-refraction.html
 ```
 
@@ -306,5 +342,9 @@ DisplacementFieldExplorer.swift
 DisplacementField.metal
 RefractionSamplingExplorer.swift
 RefractionSampling.metal
+EdgeSafetyExplorer.swift
+EdgeSafety.metal
 Chapter09Screen.swift
+(planned for 9.13: ChromaticSeparationExplorer.swift, ChromaticSeparation.metal)
+(planned for 9.14: LensCheckpointExplorer.swift, LensCheckpoint.metal)
 ```

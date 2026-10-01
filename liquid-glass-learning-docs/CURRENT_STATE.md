@@ -1,7 +1,7 @@
 # Liquid Glass iOS course — current state
 
 **Updated:** 2026-09-30  
-**Course version:** 9.12.0  
+**Course version:** 9.14.0  
 **Platform:** Swift / SwiftUI / Metal (`.metal` + `ShaderLibrary`)  
 **Test device:** iPhone 16 Pro  
 **Min OS:** iOS 17  
@@ -23,8 +23,9 @@ must re-read (platform chapters, in order):
 current unresolved checkpoint: Lesson 1.3 — Create LiquidGlassLab
   (first lesson of the iOS on-ramp)
 
-generated frontier: Lesson 9.12 — Edge safety (not complete)
-next planned after the frontier: Lesson 9.13 — Gentle chromatic separation
+generated frontier: Lesson 9.14 — Lens checkpoint (not complete)
+  (Lessons 9.12 — Edge safety and 9.13 — Gentle chromatic separation are also generated and not complete)
+next planned after the frontier: Lesson 10.1 — Height-map idea
 ```
 
 **Why 42, not 97:** 42 counts only math/graphics confirmed on this iOS fork (Chapters 3, 4, 5, Lessons 9.1–9.6, 9.10–9.11). The other 55 lessons of the old count are platform chapters: project, coordinates APIs, SwiftUI drawing, frost lab path, Metal host, and 9.7–9.9 sampling API. Those formulas stay known. The re-read is the new lab path, not a math restart. Generating a later lesson does not add those 55 back.
@@ -35,7 +36,7 @@ Do not mark Lesson 1.3 complete just because the prior 1.3 was complete.
 
 Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
-Do not generate Lesson 9.13 unless asked. Lesson 9.12 is generated and is not complete.
+Do not generate Lesson 10.1 unless asked. Lessons 9.12, 9.13 and 9.14 are generated and are not complete.
 
 Reusable new-chat starter: `NEW_CHAT_PROMPT.md`. Paste it, then name generate or questions in the same message. Progress in this file wins. When the checkpoint or frontier moves, refresh section 12 of that prompt.
 
@@ -76,7 +77,7 @@ blur **18 pt**, tint **0.25**, saturation **0.40**, rim **3 pt**, inner band **1
 
 ## Current lesson files
 
-Live checkpoint is Lesson 1.3. Frontier HTML is Lesson 9.12. Shader host is `LabOrange.metal` + `ShaderRect` (`colorEffect`). Lesson 9.10 explorer: `chapter09/DisplacementFieldExplorer.swift` + `chapter09/DisplacementField.metal`. Lesson 9.11 explorer: `chapter09/RefractionSamplingExplorer.swift` + `chapter09/RefractionSampling.metal`. Lesson 9.12 explorer: `chapter09/EdgeSafetyExplorer.swift` + `chapter09/EdgeSafety.metal`.
+Live checkpoint is Lesson 1.3. Frontier HTML is Lesson 9.14. Shader host is `LabOrange.metal` + `ShaderRect` (`colorEffect`). Lesson 9.10 explorer: `chapter09/DisplacementFieldExplorer.swift` + `chapter09/DisplacementField.metal`. Lesson 9.11 explorer: `chapter09/RefractionSamplingExplorer.swift` + `chapter09/RefractionSampling.metal`. Lesson 9.12 explorer: `chapter09/EdgeSafetyExplorer.swift` + `chapter09/EdgeSafety.metal`. Lesson 9.13 explorer (planned, not yet written): `chapter09/ChromaticSeparationExplorer.swift` + `chapter09/ChromaticSeparation.metal`. Lesson 9.14 explorer (planned, not yet written): `chapter09/LensCheckpointExplorer.swift` + `chapter09/LensCheckpoint.metal`.
 
 ```text
 course/chapters/chapter-01/lesson-01-01-visible-ingredients.html
@@ -102,6 +103,8 @@ course/chapters/chapter-09/lesson-09-10-qa.html
 course/chapters/chapter-09/lesson-09-11-refraction-as-displaced-sampling.html
 course/chapters/chapter-09/lesson-09-11-qa.html
 course/chapters/chapter-09/lesson-09-12-edge-safety.html
+course/chapters/chapter-09/lesson-09-13-gentle-chromatic-separation.html
+course/chapters/chapter-09/lesson-09-14-lens-checkpoint.html
 course/chapters/chapter-09/lesson-distance-fields-image-sampling-and-refraction.html
 ```
 
@@ -206,7 +209,7 @@ Default radius 0.25, band 0.10, dispLen 0.10. Teaching W = `(0.65, 0.30)`: `p = 
 
 **Rollback (2026-09-30).** At the learner's request, `lesson-09-11-qa.html` and `lesson-09-11-refraction-as-displaced-sampling.html` were restored to their state in commit `d6ca607` (2026-09-27). This removed the card 9 rebuild (2026-09-28), Q&A round 2 with cards 11–25 and the summary card (2026-09-29), and the lesson's `#upd-derive` box. The learner's reason: those rounds tried to prove every side fact of the math, which is not the goal. The rules added on 2026-09-29 (rules 12, 14, 19) stay. Only the 9.11 footer link to Lesson 9.12 was edited afterwards.
 
-## Generated frontier — Lesson 9.12
+## Generated — Lesson 9.12
 
 Not complete.
 
@@ -220,9 +223,52 @@ p = uv − center                         (the glass center is a parameter; Less
 → sampled = checkerWithEdge(readUv)     (transparent outside 0 … 1)
 ```
 
-One graphics idea: a read point outside the wallpaper has no color, so the pixel is see-through (the seam). One math idea: clamp a point = clamp x and y separately (Lesson 8.11 / 9.5 clamp). Glass center C = `(0.50, 1.10)`, 0.10 below the screen. Teaching W = `(0.59, 0.98)`: `p = (0.09, −0.12)`, `d = 0.15`, `sd = −0.10`, falloff 1, push 0.10, `dir = (0.60, −0.80)`, `disp = (0.06, −0.08)`, R = `(0.53, 1.06)` is outside, R′ = `(0.53, 1.00)`, stores navy (the edge y = 1.00 belongs to the last row). The seam is an arch along the bottom edge, up to y ≈ 0.91, thinner than one pixel near x ≈ 0.2 and x ≈ 0.8; about a quarter of the moved pixels. Clamp is invisible on the checkerboard and shows vertical streaks on the drawn settings-list screen (last row cut by the edge). R′ is not where the push arrow crosses the edge (E = `(0.575, 1.00)`). Pad (Lesson 7.3) needs real pixels past the edge. With the glass in the middle, clamp changes no pixel. SwiftUI's `Layer.sample` already clamps (`SwiftUI_Metal.h`: `p = metal::clamp(p, info[3], info[4]);`; what `info[3]`/`info[4]` hold is an estimate). The browser wallpaper is a function that returns transparent outside 0 … 1 on purpose. iOS: `chapter09/EdgeSafety.metal` (`edgeSafeRefract`, `checkerWithEdge`), `chapter09/EdgeSafetyExplorer.swift`, wired in `Chapter09Screen`; the iPhone 16 Pro simulator build succeeded. The photo of Lesson 9.11 is not used: its bottom row is flat water and did not show the clamp streaks.
+One graphics idea: a read point outside the wallpaper has no color, so the pixel is see-through (the seam). One math idea: clamp a point = clamp x and y separately (Lesson 8.11 / 9.5 clamp). Glass center C = `(0.50, 1.10)`, 0.10 below the screen. Teaching W = `(0.59, 0.98)`: `p = (0.09, −0.12)`, `d = 0.15`, `sd = −0.10`, falloff 1, push 0.10, `dir = (0.60, −0.80)`, `disp = (0.06, −0.08)`, R = `(0.53, 1.06)` is outside, R′ = `(0.53, 1.00)`, stores navy (the edge y = 1.00 belongs to the last row). The seam is an arch along the bottom edge, up to y ≈ 0.91, thinner than one pixel near x ≈ 0.2 and x ≈ 0.8; about a quarter of the moved pixels. Clamp is invisible on the checkerboard and shows vertical streaks on the drawn settings-list screen (last row cut by the edge). R′ is not where the push arrow crosses the edge (E = `(0.575, 1.00)`). Pad (Lesson 7.3) needs real pixels past the edge. With the glass in the middle, clamp changes no pixel. SwiftUI's `Layer.sample` already clamps (`SwiftUI_Metal.h`: `p = metal::clamp(p, info[3], info[4]);`; what `info[3]`/`info[4]` hold is an estimate). The browser wallpaper is a function that returns transparent outside 0 … 1 on purpose. iOS: `chapter09/EdgeSafety.metal` (`edgeSafeRefract`, `checkerWithEdge`), `chapter09/EdgeSafetyExplorer.swift`, wired in `Chapter09Screen`; the iPhone 16 Pro simulator build succeeded. The photo of Lesson 9.11 is not used: its bottom row is flat water and did not show the clamp streaks. Section 4 also has the figure “What the middle shows at dispLen = 0.20” (C = `(0.50, 0.50)`, screen wallpaper): pixels 1–6 are closer than 0.15 to C, get push 0.20 and read past C: “Haptics” and “tions” turned around, and four gray loops through C (the gray lines below Bluetooth, Mobile Data, Notifications, Sounds & Haptics cross the circle 0.20 from C). Pixel 7 is 0.221 from C, gets push 0.142 and shows “Haptics” not turned around, bent along the glass edge. Worked example: pixel 2 = `(0.56, 0.50)` reads `(0.36, 0.50)`, the “n” of “Notifications”.
+
+## Generated — Lesson 9.13
+
+Not complete.
+
+**9.13 teaching contract:**
+
+```text
+the Lesson 9.11 chain → disp = dir × push          (push = dispLen × falloff)
+→ readRed   = clamp(uv − disp × (1 − spread), 0, 1)     (new: shorter push)
+→ readGreen = clamp(uv − disp, 0, 1)                    (the Lesson 9.12 read point)
+→ readBlue  = clamp(uv − disp × (1 + spread), 0, 1)     (new: longer push)
+→ color = half4(colRed.r, colGreen.g, colBlue.b, 1.0)   (new: one channel from each)
+```
+
+One graphics idea: three read points per pixel, one per channel, give thin color strips (the fringe) on edges the glass bends. One math idea: build a color from one member of each of three colors (`.r .g .b` = Lesson 8.7 members). Wallpaper: the Lesson 9.7 checker in black and white, so every channel is the same picture and any color comes from the read points. Glass C = `(0.40, 0.54)` (edge y = 0.50 runs close to C), radius 0.25, band 0.10, dispLen 0.10, spread 0.10 (chosen constant). Teaching W = `(0.40, 0.405)`: `p = (0, −0.135)`, `d = 0.135`, `sd = −0.115`, falloff 1, push 0.10, `dir = (0, −1)`, `disp = (0, −0.10)`; readRed `(0.40, 0.495)` white, readGreen `(0.40, 0.505)` black, readBlue `(0.40, 0.515)` black → W stores `(1, 0, 0)`, pure red. On the line x = 0.40: yellow strip 0.39–0.40, red strip 0.40–0.41, each 0.01 = spread × push; the read points cross the edge in order, blue first. Black-into-white edges give blue (next to black) and cyan. No fringe without an edge between the read points (Exercise 1: W₁ = (0.27, 0.54)). No fringe outside the ring 0.35 from C (push 0); strips thin toward it. Blue gets the longest push because real glass bends blue most (prism, dispersion, chromatic aberration). Gentle: widest strip 0.01 UV = 5.2 px on the 520-px picture, 4.02 pt on a 402-pt-wide view; 0.40 shows three copies of every edge. Clear on black and white and on text, weaker on orange and navy (green and blue change only 0.23 and 0.22). Apple does not document whether its Liquid Glass separates colors. Cost: three wallpaper asks per pixel. Swapping red and blue gives cyan and blue strips (Exercise 2); a fixed side step instead of `disp × spread` puts fringes on the whole screen (Exercise 3).
+
+**iOS files not yet written.** The lesson's Metal excerpt (`chromaticRefract`, `blackWhiteChecker`) is not compiled. On 2026-09-30 the lesson was generated on a machine without the iOS lab (`/Users/rosen/Code/LiquidGlassLab-iOS` absent) and without Xcode. Next session with the lab: create `chapter09/ChromaticSeparation.metal` + `chapter09/ChromaticSeparationExplorer.swift`, wire them in `Chapter09Screen`, build for iPhone 16 Pro, and remove this note.
+
+## Generated frontier — Lesson 9.14
+
+Not complete. The last lesson of Chapter 9; it answers the chapter checkpoint.
+
+**9.14 teaching contract:**
+
+```text
+p = uv − center, d = length(p), sd = d − radius        (both answers start here; sd moved out of the push if)
+answer 2, where does the pixel read?  the Lesson 9.13 chain → bent = half4(colRed.r, colGreen.g, colBlue.b, 1)
+answer 1, is the pixel glass?         mask  = 1 − smoothstep(−maskBand, maskBand, sd)   (new, maskBand = 0.002)
+plain = wall(uv, time)                                   (new: the wallpaper at the pixel itself)
+color = mix(plain, bent, mask)                           (new: the one line that combines the answers)
+wall(x, y, time) = checker(x + speed × time, y)          (moving test pattern, speed = 0.10 UV/s, moves left)
+```
+
+One graphics idea: a lens needs two separate answers per pixel, and the mask gives the glass its own outline (Lessons 9.11–9.13 had no outline; the bend leaked outside the circle up to the orange ring 0.35 from C). No new math: the mask is Lesson 9.3's soft mask with a thin band, the mix is Lessons 8.11 / 9.3, the moving pattern is Lesson 9.8's shift growing with time (Lessons 5.2 / 8.10). Black-and-white checker, glass C = `(0.40, 0.54)` as in 9.13, radius 0.25, band 0.10, dispLen 0.10, spread 0.10. maskBand 0.002 is a chosen constant: about one pixel of a 520-px picture (520 × 0.002 = 1.04); the soft band is 0.004 wide = 2.08 px. Teaching W = `(0.40, 0.24)` at time = 2 s: `p = (0, −0.30)`, `d = 0.30`, `sd = 0.05`, mask = 0 (t = 13 → 1), falloff 0.1565 (t³ shown as 0.422, 3-decimal rounding; Lesson 9.3 kept 0.15625), push 0.016, `dir = (0, −1)`, read points y = 0.2544 / 0.256 / 0.2576 (past the edge y = 0.25), shift 0.20, x + shift = 0.60 → col 2, bent = black, plain = white → W stores white; Lesson 9.13 would store black. At time 0 the colors swap (bent white, plain black, W black). Section 2 defends the thin mask: mixing by falloff gives a 0.20-wide ghost ring (104 px), a hard if gives one-pixel stair steps (4× pixel magnifier on the bottom-left arc, crop 130 × 65 px at (65, 354)). The stepper has 7 steps: pattern, glass + W, read points, the 9.13 output, the mask map, the mix, time = 2 s. Checkpoint box (end of Section 2): different questions (how much glass vs where to read), different widths from one sd (0.004 vs 0.20), neither uses the other, the wallpaper, or the time. Exercises: dispLen = 0 → the glass is invisible (bent = plain; I = (0.40, 0.44)); capsule mask with the circle's read points → outline only in the middle (T = (0.02, 0.54) glass but push 0; M = (0.40, 0.33) push 0.078 but mask 0), a capsule lens needs both answers changed (push direction for any shape: Lesson 10.3); glass at the bottom edge without clamps → a black strip (not see-through, because the 9.13 line sets alpha 1.0); the clamp fixes it, the mask cannot (W₃ = (0.59, 0.98) mask 1, stores navy with clamp). Cost: four wallpaper asks per pixel; bent is unused where mask = 0 (a production shader returns plain early, or runs only on the glass rectangle). iOS plan: maskBand = 1 / resolution.x, time from `TimelineView(.animation)` passed modulo 5 s (0.50 ÷ speed).
+
+**iOS files not yet written.** The lesson's Metal excerpt (`glassLens`, `movingChecker`) is not compiled. On 2026-09-30 the lesson was generated on the same machine without the iOS lab and without Xcode. Next session with the lab: create `chapter09/LensCheckpoint.metal` (with `movingChecker` declared before `glassLens`) + `chapter09/LensCheckpointExplorer.swift`, wire them in `Chapter09Screen`, build for iPhone 16 Pro, confirm `mix(half4, half4, half)` compiles, and remove this note.
 
 ## Learner feedback log (latest first)
+
+**2026-09-30 — Lesson 9.12 Section 4 lab, learner report.** At dispLen 0.20 with the glass in the middle and the screen wallpaper, the learner saw two gray circles and a bent “Haptics” and asked which words these are. It also reported that the zoom's W and R dots overflowed the zoom border. Failed pictures: (1) the lab produced turned-around words and gray loops that no picture named → rule 7 (a control that can produce unnamed shapes gets a picture that names them and draws their source); fix: the new figure “What the middle shows at dispLen = 0.20” under the lab (output and wallpaper side by side, pixels 1–7, pink push arrows crossing C, the orange circle 0.20 from C, a table naming each piece, and a “Set the lab to this” button). (2) the zoom kept 3× while the push arrow was longer than the zoom, and the lab window started at −0.15 while a read point can reach 0.01 − 0.20 = −0.19 → rule 10 (every point stays inside its picture; a following zoom lowers and prints its factor); fix: the zoom fits W and R (for example 2.3×), and the lab window starts at −0.22. (3) the label C was white with a dark halo on the light screen picture and read as “©”, which the learner took for another letter. No new rule: rule 11 already says labels take ink from the pixels under them. Fix: the C label in the lab, the zoom and the new figure picks its ink from the pixels under it. No iOS code changed.
+
+**2026-09-30 — Lesson 9.14 generated (no learner feedback yet).** The learner asked for 9.14 "similar to 9.12 / 9.13" and said not to mark any lesson complete. The 9.12 / 9.13 shape is kept. Self-caught during generation and merged into `AGENTS.md`: the stepper's magnifier showed the output picture while its caption put the read points on the wallpaper, so the read-point step was split in two → rule 8 (read points are drawn on the wallpaper picture, never on an output that differs from it); canvas labels crossing black and white cells were hard to read → rule 11 (such labels sit on a light plate). Also caught: drawn read points used exact values while the table used rounded ones (fixed by rule 12, no new rule).
+
+**2026-09-30 — Lesson 9.13 generated (no learner feedback yet).** The learner asked for 9.13 "in a similar way to 9.12" with no corrections to 9.12, so the 9.12 shape (one-line change, stepper, traced table, lab, challenge, three drawn exercises) is kept. Self-caught during generation and merged into `AGENTS.md`: a stepper caption said "move up" while its crossing order only holds moving down → rule 8 (motion names its direction); white labels with dark halos looked heavy on a black-and-white picture, and cyan/white became picture colors → rule 11 (hue not in the picture, labels take ink from the pixels under them); the teaching pixel was chosen on the axis through C so that the new line changes its stored color → rule 18.
 
 **2026-09-30 — scope and comprehension.** The learner reported that Lessons 9.10 and 9.11 and their Q&A rounds got carried away: they tried to prove everything related to the math. The course is 216 lessons long so that each lesson introduces one concept. Failure → rule links: proving side facts in lessons and Q&A → `AGENTS.md` rule 17 (teach the one concept and stop; a side fact gets one sentence or a pointer; no proof rounds); beginner comprehension → rule 20 (cold-read as a total math beginner, every time); visuals → rule 6 (unchanged, confirmed important). Recorded in `USER_PREFERENCES.md` and the auto-memory. Also: QA screenshots and scripts no longer live in the repository → rule 21.
 
