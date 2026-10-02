@@ -11,12 +11,11 @@ Live progress, current files, and the checkpoint/frontier contracts live in `CUR
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **42 of 216** (Chapters 3, 4, 5, Lessons 9.1–9.6, and Lessons 9.10–9.11).
-- Must re-read (platform chapters, in order): **Chapter 1**, **Chapter 2**, **Chapter 6**, **Chapter 7**, **Chapter 8**, **Lessons 9.7–9.9**.
-- Unresolved checkpoint: **Lesson 1.3 — Create `LiquidGlassLab`** (first lesson of the iOS on-ramp).
-- Generated frontier: **Lesson 9.14 — Lens checkpoint** (not complete). Lessons 9.12 — Edge safety and 9.13 — Gentle chromatic separation are also generated and not complete.
+- Learner-confirmed complete: **97 of 216** (Chapters 1–8 and Lessons 9.1–9.11).
+- Unresolved checkpoint: **Lesson 9.12 — Edge safety** (generated, not complete).
+- Generated frontier: **Lesson 9.14 — Lens checkpoint** (not complete). Lesson 9.13 — Gentle chromatic separation is also generated and not complete.
 - Next planned after the frontier: **Lesson 10.1 — Height-map idea**.
-- Do not restore **95 of 216**. Do not mark Lesson 1.3 complete just because the prior 1.3 was complete.
+- Do not mark Lessons 9.12, 9.13, or 9.14 complete unless the learner confirms them.
 
 ## 2. How this file relates to the rule sources
 
@@ -388,9 +387,7 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 
 ## 4. Frozen locks (do not rebuild)
 
-Chapters **3–5** and Lessons **9.1–9.6** stay learner-complete (graphics and math). Do not reopen blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula unless a later lesson explicitly redefines them.
-
-Chapters **1, 2, 6, 7, 8** and Lessons **9.7–9.9** must be re-read on iOS for project and API differences. Frost *formulas* stay frozen.
+Chapters **1–8** and Lessons **9.1–9.11** are learner-complete. Do not reopen blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula unless a later lesson explicitly redefines them. Frost formulas stay frozen.
 
 **Chapter 7 frost constants**
 
@@ -399,7 +396,7 @@ Chapters **1, 2, 6, 7, 8** and Lessons **9.7–9.9** must be re-read on iOS for 
 - Saturation `0.40`.
 - 7.10 store: one signed remainder offset added to RGB, then `round(clamp(sum) × 255)`. Default amount `0.02`.
 
-**Chapter 8 teaching chain (8.1–8.12) — re-read on iOS**
+**Chapter 8 teaching chain (8.1–8.12)**
 
 ```text
 8.1  colorAt(column, row) once per pixel; CPU loop is not a .metal file
@@ -437,7 +434,7 @@ Chapters **1, 2, 6, 7, 8** and Lessons **9.7–9.9** must be re-read on iOS for 
      teaching left-only p = (−0.10, 0); sdA = −0.15; sdB = +0.05
 ```
 
-**Lessons 9.7–9.9 teaching contracts — re-read on iOS (sampling API)**
+**Lessons 9.7–9.9 teaching contracts**
 
 ```text
 9.7  uniform shader background; sampled = background.eval(fragCoord)
@@ -447,7 +444,7 @@ Chapters **1, 2, 6, 7, 8** and Lessons **9.7–9.9** must be re-read on iOS for 
      eval does not wrap a negative read x; stripe fract still returns a color
 ```
 
-**9.9 teaching contract — re-read on iOS**
+**9.9 teaching contract**
 
 ```text
 9.9  no if; store is four big squares (inner 2×2 copied, not averaged)
@@ -455,7 +452,7 @@ Chapters **1, 2, 6, 7, 8** and Lessons **9.7–9.9** must be re-read on iOS for 
      many writes share one input cell; half of C→(1,1) is (0.75, 0.75)
 ```
 
-**Unresolved checkpoint after the on-ramp, generated, not complete**
+**Lesson 9.10 — completed**
 
 ```text
 9.10 vertical side tilts: H (0.75, 0.50) walks to (0.85, 0.50); Q (0.75, 0.25) splits the same walk
@@ -463,7 +460,7 @@ Chapters **1, 2, 6, 7, 8** and Lessons **9.7–9.9** must be re-read on iOS for 
      default dispLen = 0.10
 ```
 
-**Generated ahead, not complete**
+**Lesson 9.11 — completed**
 
 ```text
 9.11 sd = length(p) − radius; falloff = 1 − smoothstep(−band, band, sd)
@@ -474,6 +471,6 @@ Chapters **1, 2, 6, 7, 8** and Lessons **9.7–9.9** must be re-read on iOS for 
 
 **Policy**
 
-- Count only explicit learner confirmation. Generating 9.11 did not complete 9.10. Do not restore 95 of 216.
+- Count only explicit learner confirmation. Lessons 9.12, 9.13, and 9.14 are generated and are not complete.
 - Current HTML/Swift paths live in `CURRENT_STATE.md`. Explorer names for older lessons live in those lesson files and the chapter screen in `LiquidGlassLab-iOS`.
 - 5.8/5.9 stay consolidated: 5.8 is the teaching page; 5.9 is the archive redirect.

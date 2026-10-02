@@ -1,6 +1,6 @@
 ## 7.9 - outer shadow
 
-**Offset down** — fixed. Teaching: `8` CSS px. Android: `4.dp`. This is a convention that more of the halo sits below the card. It is not a simulated sun.
+**Offset down** — fixed. Teaching: `8` CSS px. iOS: `4` pt. This is a convention that more of the halo sits below the card. It is not a simulated sun.
 
 Stage pad = 32 px, which is ≥ maximum blur 24 + offset 8.
 
@@ -10,19 +10,16 @@ Why the corner squares are not covered by shadow?
 
 ![alt text](image.png "Title")
 
-```kotlin
-drawRoundRect(
-                            color = ShadowColor,
-                            topLeft = Offset(stagePadPx, stagePadPx + offsetYPx),
-                            size = Size(
-                                width = size.width - 2f * stagePadPx,
-                                height = size.height - 2f * stagePadPx,
-                            ),
-                            cornerRadius = CornerRadius(cornerPx),
-                        )
+```swift
+let rect = CGRect(
+    x: stagePad,
+    y: stagePad + shadowOffsetY,
+    width: size.width - 2 * stagePad,
+    height: size.height - 2 * stagePad
+)
 ```
 
-Why start `y` at `stagePadPx + offsetYPx` and end height at `size.height - 2f * stagePadPx` ?
+Why start `y` at `stagePad + shadowOffsetY` and keep height at `size.height - 2 * stagePad`?
 
 ## 7.10 - Fine noise or dither
 

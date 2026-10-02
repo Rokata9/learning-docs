@@ -19,21 +19,20 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 42
-completed_chapters: [3, 4, 5]
-chapter_9_complete: "8 of 14 (9.1–9.6, 9.10, 9.11)"
-must_reread: "Chapter 1, Chapter 2, Chapter 6, Chapter 7, Chapter 8, Lessons 9.7–9.9"
-next_unresolved_checkpoint: "Lesson 1.3 — Create LiquidGlassLab"
+learner_confirmed_complete: 97
+completed_chapters: [1, 2, 3, 4, 5, 6, 7, 8]
+chapter_9_complete: "11 of 14 (9.1–9.11)"
+next_unresolved_checkpoint: "Lesson 9.12 — Edge safety"
 generated_frontier: "Lesson 9.14 — Lens checkpoint"
-also_generated_not_complete: "Lesson 9.12 — Edge safety; Lesson 9.13 — Gentle chromatic separation"
+also_generated_not_complete: "Lesson 9.13 — Gentle chromatic separation"
 next_planned_after_frontier: "Lesson 10.1 — Height-map idea"
 ```
 
-Chapters 3, 4, 5, Lessons 9.1–9.6 and Lessons 9.10–9.11 are learner-confirmed complete (graphics and math). HTML will still be updated so excerpts are Swift. Lessons 8.2–8.12 and 9.7–9.9 must be re-read on iOS. Lessons 9.12, 9.13 and 9.14 are generated and are not complete. Do not restore 95 of 216. Do not mark Lesson 1.3 complete just because the prior 1.3 was complete.
+Chapters 1–8 and Lessons 9.1–9.11 are learner-confirmed complete. Lessons 9.12, 9.13, and 9.14 are generated and are not complete. Do not mark them complete unless the learner confirms them.
 
 Chapter 7 frost stays fixed: blur `18` pt / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
-Do not edit CircleSdfExplorer, SoftMaskExplorer, or RoundedRectSdfExplorer math. Those explorer math contracts were confirmed excellent. Keep the same pixel arithmetic when the Swift explorers are written.
+Do not edit CircleSdfExplorer, SoftMaskExplorer, or RoundedRectSdfExplorer math. Those explorer math contracts were confirmed excellent.
 
 ## Load-bearing section budget (2026-08-31)
 
@@ -47,7 +46,7 @@ Learner confirmed 9.2 and 9.3 were progressing well, then named reusable frictio
 - Cut negate-references, meta-lab sentences, 8.9 slot-write recaps, and vague “same arithmetic as the HTML table” lines.
 - Beginner traces stay. If a cut would make the causal chain uncertain, keep the sentence.
 
-## Chapter 8 teaching chain (8.2–8.12) — re-read on iOS
+## Chapter 8 teaching chain (8.2–8.12)
 
 ```text
 8.2  .metal file → ShaderLibrary → ShaderRect (colorEffect)
@@ -138,7 +137,7 @@ Two Lesson 9.2 circles. Teaching left-only `p = (−0.10, 0)` has `sdA = length(
 
 Named-formula-before-substitution (2026-09-08, recorded in `AGENTS.md`): every teaching calculation keeps the named operations visible. Write `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15`, never `sdA = 0.10 − 0.25` or `sdA = −0.15` as the formula. Live readouts recompute that chain.
 
-## Lesson 9.7 teaching contract — re-read on iOS
+## Lesson 9.7 teaching contract
 
 ```text
 uniform shader background
@@ -148,7 +147,7 @@ uniform shader background
 
 The sampled color is the half4 that `eval` returns: a copy of the input shader’s color at the read coordinate. Stripe input: `fract(uv.x * 5.0)`, `cell < 0.5` orange else navy. Teaching `uv.x = 0.15` is navy. Swift `setInputShader("background", stripeShader)`. Offset is Lesson 9.8. Geometry mask unused.
 
-## Lesson 9.8 teaching contract — re-read on iOS
+## Lesson 9.8 teaching contract
 
 ```text
 readCoord = fragCoord − float2(offsetU * resolution.x, 0)
@@ -158,7 +157,7 @@ readCoord = fragCoord − float2(offsetU * resolution.x, 0)
 
 Default `offsetU = 0.10` is one stripe width as a fraction of the rectangle width. Teaching write `uv.x = 0.15` reads `0.05` and stores orange. The picture shifts opposite the read offset. `eval` does not wrap a negative read x. The stripe input’s `fract` still returns a color. Scale around the center is Lesson 9.9. A displacement field is Lesson 9.10. Edge safety is Lesson 9.12.
 
-## Lesson 9.9 teaching contract — re-read on iOS
+## Lesson 9.9 teaching contract
 
 ```text
 p = uv − 0.5
@@ -239,4 +238,4 @@ Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions.
 
 Standing delivery: no ZIP archives; new `#Preview` stacks light then dark. Details in `USER_PREFERENCES.md`.
 
-Course progress: 40 of 216 lessons completed.
+Course progress: 97 of 216 lessons completed.

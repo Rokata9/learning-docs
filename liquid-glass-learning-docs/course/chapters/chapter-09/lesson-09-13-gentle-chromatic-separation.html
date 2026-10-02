@@ -120,6 +120,11 @@
   .small{font-size:14px;color:#4b5563}
   .wrap ul:not(.legend){max-width:110ch}
   .pl{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#4b5563}
+  .gridA{display:grid;grid-template-columns:1054px minmax(0,1fr);gap:24px;align-items:start}
+  .cp4{display:grid;grid-template-columns:520px 520px;gap:10px 14px}
+  .gridT{display:grid;grid-template-columns:400px 400px minmax(0,1fr);gap:22px;align-items:start}
+  .tag3{display:inline-block;min-width:22px;padding:0 5px;border-radius:11px;background:#a3e635;border:1.5px solid #111827;
+    font-size:13px;font-weight:700;text-align:center;line-height:18px;color:#111827}
 </style>
 </head>
 <body>
@@ -255,15 +260,58 @@ readGreen = clamp(uv − disp, 0, 1)                    the Lesson 9.12 read poi
     <div class="readout" id="cmpOut"></div>
     <p><b>What gentle means.</b> A strip is widest where the push is full, dispLen = 0.10. There its width is
     spread × dispLen. With spread 0.10 that is 0.01: a thin hint of color on each edge, and the edge itself stays sharp.
-    With spread 0.40 each strip is 0.04 wide, and every edge shows three copies of itself. That looks like a broken
-    picture, not like glass.</p>
-    <p><b>On which content it shows.</b> On black and white, and on dark text on a light screen (press <b>screen</b>),
-    the strips are clear: across those edges every channel jumps by about 1. On orange and navy they are weaker.
-    Orange is (0.88, 0.48, 0.18) and navy is (0.10, 0.25, 0.40), so across that edge green changes only by
-    0.48 − 0.25 = 0.23 and blue by 0.40 − 0.18 = 0.22. The strips become two soft pinks, such as (0.88, 0.25, 0.40).
-    The screen is a settings list drawn by this page.</p>
+    With spread 0.40 a strip is up to 0.04 wide, and one edge of the wallpaper shows up as three edges. That looks like
+    a broken picture, not like glass. The next picture shows where the three edges come from.</p>
+    <p class="small">The screen is a settings list drawn by this page.</p>
   </div>
 </div>
+
+<h3 id="copies">Three copies of one edge: one picture per channel</h3>
+<p>The shader paints three pictures, not one. The <b>red picture</b> is the red channel of every pixel, read at the
+readRed points, shown as red light (red, 0, 0). The <b>green picture</b> is read at the readGreen points, and the
+<b>blue picture</b> at the readBlue points. The three pictures use three push lengths, so each one bends the wallpaper
+by a different amount. The output adds the three pictures: (red, 0, 0) + (0, green, 0) + (0, 0, blue) =
+(red, green, blue). Below: the same part of the output, as each picture alone, and then added.</p>
+<div class="ctl"><span class="ctlname">spread</span>
+  <button class="btn" data-cp-s="0">0</button><button class="btn" data-cp-s="0.1">0.10 · gentle</button><button class="btn" data-cp-s="0.4">0.40 · too strong</button>
+  <span class="ctlname" style="margin-left:18px">Wallpaper</span>
+  <button class="btn" data-cp-wall="bw">black &amp; white</button><button class="btn" data-cp-wall="screen">screen</button></div>
+<div class="gridA">
+  <div class="cp4" id="cpGrid">
+    <div><div class="ptitle">Red picture: only the red channel, read at readRed</div><div class="stage" id="cp0S"><canvas id="cp0" width="520" height="300"></canvas></div></div>
+    <div><div class="ptitle">Green picture: only the green channel, read at readGreen</div><div class="stage" id="cp1S"><canvas id="cp1" width="520" height="300"></canvas></div></div>
+    <div><div class="ptitle">Blue picture: only the blue channel, read at readBlue</div><div class="stage" id="cp2S"><canvas id="cp2" width="520" height="300"></canvas></div></div>
+    <div><div class="ptitle">Output: the three pictures added</div><div class="stage" id="cp3S"><canvas id="cp3" width="520" height="300"></canvas></div></div>
+  </div>
+  <div>
+    <ul class="legend">
+      <li><span class="swd" style="background:#a3e635"></span><b>① red copy</b>: where the edge (or the letter) shows up in
+        the red picture. <b>② green copy</b> and <b>③ blue copy</b>: the same in the green and the blue picture. Click a
+        lime dot for its coordinates.</li>
+      <li><span class="sw" style="background:linear-gradient(90deg,#fff 0 50%,#000 50%)"></span><span id="cpPart"></span></li>
+    </ul>
+    <p id="cpText"></p>
+    <div class="readout" id="cpOut"></div>
+  </div>
+</div>
+
+<h3 id="bars">Which color a strip gets, and how strong it looks</h3>
+<p>A channel is a number from 0 (none of that light) to 1 (all of it). A bar below shows one channel: an empty bar is
+0, a full bar is 1. Each row follows the line x = 0.40 down through the edge y = 0.50, as in the picture above
+(spread 0.40, so that the strips are wide enough to see; at 0.10 the strips have the same colors and are 0.01 wide).</p>
+<svg id="barsSvg" class="block" width="1552" height="690" viewBox="0 0 1552 690" role="img" aria-label="Channel bars of the two wallpaper colors and the two strips, for black and white and for orange and navy"></svg>
+<ul>
+  <li><b>What “a jump of 1” means.</b> From white to black every bar goes from full to empty: each channel changes by
+    1 − 0 = 1, the whole bar. Dark text on a white row (bottom row) is almost the same: 1 − 0.067 = 0.933 in every channel.</li>
+  <li><b>Which color a strip gets.</b> Strip 1 lies between ③ and ②: only readBlue has crossed the edge, so strip 1 is
+    the upper color with the blue channel of the lower color. Strip 2 lies between ② and ①: only readRed has not crossed,
+    so strip 2 is the lower color with the red channel of the upper color. Each strip differs from its neighbor in
+    <b>one</b> channel (the framed bar).</li>
+  <li><b>How strong it looks</b> is the size of that one change. Black and white: 1 and 1, two full bars, so pure yellow
+    and pure red. Orange and navy: strip 1 changes blue by only 0.22, a quarter of a bar, so it is an orange that is
+    slightly pinker and hard to see. Strip 2 changes red by 0.78, almost a full bar, so it is a strong raspberry red.
+    On orange and navy one strip almost vanishes and the other stays clear.</li>
+</ul>
 
 <!-- ============================ SECTION 3 ============================ -->
 <h2 id="s3"><span class="tag">Section 3 · one value, traced to the end</span>The pixel W, every number</h2>
@@ -328,6 +376,46 @@ is drawn there.</p>
     <div class="readout cols" id="labOut" style="margin-top:10px"></div>
   </div>
 </div>
+
+<h3 id="letters">Why the words under the glass stay words</h3>
+<p>With <b>screen</b> in the lab, the words under the glass are wider, thinner, or mirrored, but each word stays in one
+piece. The pictures below show why. They use one read point per pixel (spread 0), so only the bend is visible. Nine
+pixels, 0.02 apart, sit around the pixel G. Their read points are drawn on the wallpaper.</p>
+<div class="ctl" id="ltPick"><span class="ctlname">Place of G</span></div>
+<div class="gridT">
+  <div><div class="ptitle">Output: the 9 pixels, 0.04 from first to last</div><div class="stage" id="ltOS"><canvas id="ltO" width="400" height="400"></canvas></div></div>
+  <div><div class="ptitle">Wallpaper: where the 9 pixels read</div><div class="stage" id="ltWS"><canvas id="ltW" width="400" height="400"></canvas></div></div>
+  <div>
+    <ul class="legend">
+      <li><span class="swl" style="background:#a3e635"></span>the lime grid: the 9 pixels (left) and their 9 read points (right),
+        joined in the same order. T, B, L and R are the top, bottom, left and right pixel and their read points.</li>
+      <li><span class="sw" style="background:transparent;border:3px solid #c084fc"></span>the violet square (right): the place
+        of the 9 pixels, drawn on the wallpaper</li>
+      <li><span class="swl" style="background:#ff4d8d"></span>the pink push arrow: from G's place to G's read point</li>
+      <li><span class="swd" style="background:#c084fc"></span>C and the violet circle: the glass, as in the lab (“this lesson”)</li>
+    </ul>
+    <div class="stage" id="ltGS"><svg id="ltGraph" class="block" width="560" height="250" role="img" aria-label="The push as a function of the distance from C, with the four places of G"></svg></div>
+    <div class="readout" id="ltOut" style="margin-top:10px"></div>
+  </div>
+</div>
+<ul>
+  <li><b>Neighbors stay neighbors.</b> The push changes smoothly from place to place (the graph has no jump). So two
+    neighboring pixels have neighboring read points, in the same order: at all four places, the lime lines on the
+    wallpaper never cross. A letter is a group of neighboring dark pixels. So each letter is read in one piece, and it
+    never mixes with another letter.</li>
+  <li><b>What sets the size: the push curve</b> (the graph). The push depends only on the distance from C. At these four
+    places the push points up or down (on the glass edge, almost), so L to R runs across the push and T to B along it.
+    Across: the read points sit closer to C than the pixels, so they are closer together, and the letters look wider.
+    Along: where T and B get the same push (inside), the gap stays 0.04. On the glass edge, T is closer to C and gets the
+    longer push, so the gap grows, and the letters look thinner. Outside the orange ring the push is 0, and nothing
+    changes.</li>
+  <li><b>Middle: closer to C than 0.10,</b> the push (0.10) is longer than the distance to C, so the read points pass C. L and R
+    swap sides, so the letters are mirrored. Exactly 0.10 from C, every pixel reads C itself, so close to that ring the
+    letters do come apart: the petal shapes in the middle of the lab picture.</li>
+  <li><b>Where the curve comes from.</b> It is the rule chosen in Lesson 9.11: full push near C, smoothstep across the
+    band, no push outside. It is not computed from the shape of a real piece of glass. Chapter 10 describes the glass by
+    its height, and Lesson 10.11 lets the thickness change the bend.</li>
+</ul>
 
 <!-- ============================ SECTION 5 ============================ -->
 <h2 id="s5"><span class="tag">Section 5 · short code excerpt</span>The iPhone shader</h2>
@@ -524,6 +612,7 @@ function buildScreen(){
   const rh=0.085*S, y0=S-10.5*rh;
   rr(c,0.04*S,y0,0.92*S,rh*rows.length,0.03*S); c.fillStyle='#ffffff'; c.fill();
   c.font=`500 ${Math.round(0.042*S)}px ${FONT}`;
+  SCR.dX=(0.16*S+c.measureText('Mobile ').width)/S;                 // where the D of "Data" starts (Section 2 copies)
   rows.forEach((t,k)=>{ const y=y0+k*rh;
     rr(c,0.07*S,y+0.012*S,0.06*S,0.06*S,0.014*S); c.fillStyle=cols[k]; c.fill();
     c.fillStyle='#111111'; c.fillText(t,0.16*S,y+rh/2);
@@ -568,6 +657,7 @@ function render(cv,V,opts){
           cs=[wall(clamp(gx+opt.fixed,0,1),gy,wl), wall(gx,gy,wl), wall(clamp(gx-opt.fixed,0,1),gy,wl)]; }
         else cs=[wall(clamp(u-dX*k[0],0,1),clamp(v-dY*k[0],0,1),wl), wall(clamp(u-dX*k[1],0,1),clamp(v-dY*k[1],0,1),wl), wall(clamp(u-dX*k[2],0,1),clamp(v-dY*k[2],0,1),wl)];
         c=[0,1,2].map(ch=>map[ch][1]===3?1:cs[map[ch][0]][map[ch][1]]);
+        if(opts.only!=null) c=c.map((x,ch)=>ch===opts.only?x:0);     // one channel alone: the other two are 0
       }
       D[o]=Math.round(c[0]*255); D[o+1]=Math.round(c[1]*255); D[o+2]=Math.round(c[2]*255); D[o+3]=255;
     }
@@ -1022,13 +1112,153 @@ widest strip = spread × dispLen
              = ${f(sp)} × 0.10 = ${f(w)}      (in UV, where the push is full)
 on this picture:          ${f(w)} × 520 = ${f(px)} pixels
 on a view as wide as the
-iPhone 16 Pro (402 pt):   ${f(w)} × 402 = ${f(pts)} points`+(sp===0?'\n→ no strips: the three read points are one point.':sp<0.2?'\n→ gentle: a thin hint of color; the edges stay sharp.':'\n→ too strong: three copies of every edge.');
+iPhone 16 Pro (402 pt):   ${f(w)} × 402 = ${f(pts)} points`+(sp===0?'\n→ no strips: the three read points are one point.':sp<0.2?'\n→ gentle: a thin hint of color; the edges stay sharp.':'\n→ too strong: one edge shows up as three edges (next picture).');
     document.querySelectorAll('[data-cmp-s]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.cmpS)===sp)));
     document.querySelectorAll('[data-cmp-wall]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.cmpWall===wl)));
   }
   document.querySelectorAll('[data-cmp-s]').forEach(b=>b.onclick=()=>{ sp=Number(b.dataset.cmpS); draw(); });
   document.querySelectorAll('[data-cmp-wall]').forEach(b=>b.onclick=()=>{ wl=b.dataset.cmpWall; draw(); });
   draw();
+})();
+
+/* the output pixel whose read point, with the push times m, is the wallpaper point F: it lies on the ray from C through F */
+function outOf(F,m,P){
+  const fx=F[0]-P.cx, fy=F[1]-P.cy, r=Math.hypot(fx,fy), ux=fx/r, uy=fy/r;
+  let lo=r, hi=r+0.2;
+  for(let i=0;i<50;i++){ const mid=(lo+hi)/2, pu=P.len*(1-sstep(-BAND,BAND,mid-RAD))*m; if(mid-pu<r) lo=mid; else hi=mid; }
+  const d=(lo+hi)/2; return [P.cx+ux*d, P.cy+uy*d];
+}
+/* names stacked to the right of their points, at least 22 px apart, each joined to its point by a lime line */
+function tagStack(ctx,items,dx){
+  const s=items.map(o=>({...o,ly:o.y})).sort((a,b)=>a.y-b.y);
+  for(let i=1;i<s.length;i++) if(s[i].ly-s[i-1].ly<22) s[i].ly=s[i-1].ly+22;
+  const mid=s.reduce((a,o)=>a+o.y,0)/s.length, mly=s.reduce((a,o)=>a+o.ly,0)/s.length; s.forEach(o=>o.ly+=mid-mly);
+  const left=s[0].x>ctx.canvas.width*0.62, sg=left?-1:1;            // near the right border: names on the left
+  s.forEach(o=>{ line(ctx,o.x+6*sg,o.y,o.x+(dx-4)*sg,o.ly,COL.mag,1.5); lbl(ctx,o.t,o.x+dx*sg,o.ly,INK,left?'right':'left',15); });
+}
+
+/* ================= section 2: three copies, one picture per channel ================= */
+(function(){
+  const CPW={bw:[0.25,0.31,0.51], screen:[0.22,0.31,0.48]};         // the shown part: x 0.25 … 0.51 or 0.22 … 0.48, y 0.31 … 0.46
+  const M=s=>[1-s,1,1+s], TAG=['①','②','③'];
+  let sp=0.4, wl='bw';
+  function copies(){                                                  // the three copies of one wallpaper point
+    const F=wl==='bw'?[0.40,0.50]:[buildScreen().dX+0.005,0.405];
+    return M(sp).map(m=>outOf(F,m,{...LES,spread:sp}));
+  }
+  function draw(){
+    const P={...LES,spread:sp}, cp=copies();
+    const what=wl==='bw'?['the edge y = 0.50','the edge']:['the letter D of “Data”','the D'];
+    for(let k=0;k<4;k++){
+      const cv=document.getElementById('cp'+k), st=document.getElementById('cp'+k+'S'), V=view(cv,...CPW[wl]);
+      clearPts(st);
+      render(cv,V,{kind:'output',P,wall:wl,only:k<3?k:null});
+      const ctx=cv.getContext('2d'), ks=k<3?[k]:[0,1,2];
+      tagStack(ctx,ks.map(j=>({x:V.X(cp[j][0]),y:V.Y(cp[j][1]),t:`${TAG[j]} ${CH[j]} copy`})),60);
+      ks.forEach(j=>{
+        const exact=wl==='bw'&&(j<2||sp<0.2), nm=`${TAG[j]} ${exact?'=':'≈'} ${pt(cp[j][0],cp[j][1])}`;
+        addPt(st,V.X(cp[j][0]),V.Y(cp[j][1]),COL.mag,
+          `<b>${nm}</b>, in UV${exact?'':' (an estimate, read from the picture)'}<br>Role: ${what[0]}, as it shows up in the ${CH[j]} picture. `+
+          `The ${CH[j]} picture uses the push × ${f(M(sp)[j])}.`,`${TAG[j]} in the ${k<3?CH[k]+' picture':'output'}`,'mini');
+      });
+    }
+    const m=M(sp), lines=[`spread = ${f(sp)}`,`1 − spread = 1 − ${f(sp)} = ${f(m[0])}`,`1 + spread = 1 + ${f(sp)} = ${f(m[2])}`,
+      'where the push is full (0.10):',`  red push   = 0.10 × ${f(m[0])} = ${f(V3(0.10*m[0]))}`,'  green push = 0.10',
+      `  blue push  = 0.10 × ${f(m[2])} = ${f(V3(0.10*m[2]))}`];
+    let txt;
+    if(wl==='bw'){
+      if(sp===0){
+        lines.push('','①, ② and ③ are one point: (0.40, 0.40)','  0.54 − 0.40 = 0.14 from C → full push','  readRed.y = readGreen.y = readBlue.y = 0.40 + 0.10 = 0.50');
+        txt='With spread 0 the three pushes are the same. So the three pictures show the edge at the same place: ①, ② and ③ are one point, and the output is only black and white.';
+      } else {
+        const add=(j,nm)=>{ const y=V3(cp[j][1]), d=V3(0.54-y), pj=V3(0.10*m[j]);
+          lines.push('',`${TAG[j]} the pixel (0.40, ${f(y)}):`,`  0.54 − ${f(y)} = ${f(d)} from C → full push`,`  ${nm}.y = ${f(y)} + ${f(pj)} = ${f(V3(y+pj))} → exactly on the edge`); };
+        add(0,'readRed'); add(1,'readGreen');
+        const yR=V3(cp[0][1]), yG=V3(cp[1][1]);
+        lines.push('',`red strip, from ② down to ①: ${f(yR)} − ${f(yG)} = ${f(V3(yR-yG))}`,`  spread × dispLen = ${f(sp)} × 0.10 = ${f(V3(sp*0.10))}`);
+        if(sp<0.2){ add(2,'readBlue'); const yB=V3(cp[2][1]);
+          lines.push('',`yellow strip, from ③ down to ②: ${f(yG)} − ${f(yB)} = ${f(V3(yG-yB))}`); }
+        else { const yB=V3(cp[2][1]), dB=V3(0.54-yB);
+          lines.push('',`③ is near (0.40, ${f(yB)}) — an estimate from the picture`,`  0.54 − ${f(yB)} = ${f(dB)} from C: farther than 0.15,`,'  where the push is already shorter than 0.10',
+            `yellow strip, from ③ down to ②: about ${f(yG)} − ${f(yB)} = ${f(V3(yG-yB))}`); }
+        txt=`Each one-channel picture shows the edge y = 0.50 once, as one bent edge: ① in the red picture, ② in the green
+          picture, ③ in the blue picture. Blue has the longest push, so the blue picture is bent the most, and ③ is the
+          farthest from C (C is below this part). The output adds the three pictures, so it shows all three edges. Above ③
+          all three pictures are bright: white. Between ③ and ②, only the blue picture is dark: (1, 1, 0), yellow. Between
+          ② and ①, the green and the blue picture are dark: (1, 0, 0), red. Below ①, all three are dark: black.`+
+          (sp<0.2?' Here the three edges are only 0.01 apart, so they look like one edge with a thin colored hem.':'');
+      }
+    } else {
+      txt=sp===0?'With spread 0 the three pictures are the same picture, and every word shows up once, in black.':
+        `On the screen every letter shows up once in each picture, at three places: ①, ② and ③ mark the letter D of “Data”
+        in the red, green and blue picture. Blue bends the most, so ③ is the farthest from C. Where only one picture has a
+        dark letter, the output misses only that one channel: the red picture's letter looks cyan (red missing), the green
+        picture's letter looks magenta (green missing, a purple pink), and the blue picture's letter looks yellow (blue missing).
+        Where the letters overlap, the output is dark. So every word shows up three times, in three colors.`;
+      lines.push('','①, ② and ③: the D of “Data” in each picture.','The D is in the band (0.15 to 0.35 from C),','where the push is shorter than 0.10.');
+    }
+    document.getElementById('cpText').textContent=txt.replace(/\s+/g,' ');
+    document.getElementById('cpPart').textContent=`the shown part of the screen: x from ${f(CPW[wl][0])} to ${f(CPW[wl][2])}, y from 0.31 to 0.46, above C (y grows downward)`;
+    document.getElementById('cpOut').textContent=lines.join('\n');
+    document.querySelectorAll('[data-cp-s]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.cpS)===sp)));
+    document.querySelectorAll('[data-cp-wall]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.cpWall===wl)));
+  }
+  document.querySelectorAll('[data-cp-s]').forEach(b=>b.onclick=()=>{ sp=Number(b.dataset.cpS); draw(); });
+  document.querySelectorAll('[data-cp-wall]').forEach(b=>b.onclick=()=>{ wl=b.dataset.cpWall; draw(); });
+  draw();
+})();
+
+/* ================= section 2: channel bars across the edge ================= */
+(function(){
+  const svg=document.getElementById('barsSvg'), TEXT=[0.067,0.067,0.067];
+  const sliceURL=(wl)=>{ const cv=document.createElement('canvas'); cv.width=44; cv.height=150;
+    const s=150/0.115; render(cv,view(cv,0.40-22/s,0.35,0.40+22/s),{kind:'output',P:{...LES,spread:0.4},wall:wl}); return cv.toDataURL(); };
+  const yS=y=>(y-0.35)*150/0.115;                                     // UV y → px inside a slice
+  const cpy=[0.6,1,1.4].map(m=>outOf([0.40,0.50],m,{...LES,spread:0.4})[1]);
+  function bars(x,y,col,src,frame){                                   // one swatch column: three bars with values and sources
+    let h='';
+    for(let c=0;c<3;c++){ const bx=x+c*54, v=col[c];
+      h+=`<text x="${bx+20}" y="${y+12}" font-size="14" text-anchor="middle" fill="${CHD[c]}" font-weight="600">${CH[c]}</text>`+
+        `<rect x="${bx}" y="${y+20}" width="40" height="100" fill="#f3f4f6" stroke="#9ca3af"/>`+
+        `<rect x="${bx}" y="${y+20+100*(1-v)}" width="40" height="${100*v}" fill="${CHC[c]}"/>`+
+        `<text x="${bx+20}" y="${y+75}" font-size="14" text-anchor="middle" font-weight="700" fill="#111827" stroke="#fff" stroke-width="3" paint-order="stroke">${fz(v)}</text>`;
+      if(src) h+=`<text x="${bx+20}" y="${y+138}" font-size="14" text-anchor="middle" fill="#374151" font-weight="${frame===c?700:400}">${src[c]}</text>`;
+      if(frame===c) h+=`<rect x="${bx-3}" y="${y+17}" width="46" height="106" fill="none" stroke="#111827" stroke-width="3"/>`;
+    }
+    return h;
+  }
+  function row(y0,title,wl,A,B,nA,nB,notes){
+    const s1=[A[0],A[1],B[2]], s2=[A[0],B[1],B[2]];
+    let h=`<text x="10" y="${y0+18}" font-size="16" font-weight="700" fill="#111827">${title}</text>`;
+    h+=`<image href="${sliceURL(wl)}" x="10" y="${y0+44}" width="44" height="150"/><rect x="10" y="${y0+44}" width="44" height="150" fill="none" stroke="#111827"/>`;
+    const tY=[2,1,0].map(j=>y0+44+yS(cpy[j]));
+    [['③',tY[0]],['②',tY[1]],['①',tY[2]]].forEach(([t,yy])=>{ h+=`<line x1="54" y1="${yy}" x2="66" y2="${yy}" stroke="#111827" stroke-width="2"/><text x="70" y="${yy+5}" font-size="15" font-weight="700" fill="#111827">${t}</text>`; });
+    const mids=[(y0+44+tY[0])/2,(tY[0]+tY[1])/2,(tY[1]+tY[2])/2,(tY[2]+y0+194)/2];
+    [nA,'strip 1','strip 2',nB].forEach((t,i)=>{ h+=`<text x="96" y="${mids[i]+5}" font-size="14" fill="#374151">${t}</text>`; });
+    const cols=[[nA+' (above)',A,[nA,nA,nA],null],['strip 1',s1,[nA,nA,nB],2],['strip 2',s2,[nA,nB,nB],0],[nB+' (below)',B,[nB,nB,nB],null]];
+    cols.forEach(([nm,col,src,fr],i)=>{ const x=200+i*205;
+      h+=`<text x="${x}" y="${y0+18}" font-size="15" font-weight="700" fill="#111827">${nm}</text>`+
+        `<text x="${x}" y="${y0+37}" font-size="14" fill="#374151">${cz(col)}</text>`+
+        `<rect x="${x}" y="${y0+44}" width="148" height="20" rx="3" fill="${rgb(col)}" stroke="#111827" stroke-width="1.5"/>`+bars(x,y0+70,col,src,fr); });
+    notes.forEach((t,i)=>{ h+=`<text x="1040" y="${y0+60+i*24}" font-size="15" fill="#111827"${/^→/.test(t)?' font-weight="700"':''}>${t}</text>`; });
+    return h;
+  }
+  let h=row(0,'Black and white','bw',WHITE,BLACK,'white','black',
+    ['strip 1 = white, with the blue of black:','  blue 1 → 0: a change of 1 − 0 = 1, a full bar','→ pure yellow: strong','',
+     'strip 2 = black, with the red of white:','  red 0 → 1: a change of 1 − 0 = 1, a full bar','→ pure red: strong']);
+  h+=row(228,'Orange and navy','checker',ORANGE,NAVY,'orange','navy',
+    ['strip 1 = orange, with the blue of navy:','  blue 0.18 → 0.40: a change of 0.40 − 0.18 = 0.22','→ a slightly pinker orange: weak','',
+     'strip 2 = navy, with the red of orange:','  red 0.10 → 0.88: a change of 0.88 − 0.10 = 0.78','→ a raspberry red: strong']);
+  const y3=456;
+  h+=`<text x="10" y="${y3+18}" font-size="16" font-weight="700" fill="#111827">Dark text on a white row (the screen)</text>`;
+  [['white row',WHITE],['dark text',TEXT]].forEach(([nm,col],i)=>{ const x=200+i*205;
+    h+=`<text x="${x}" y="${y3+44}" font-size="15" font-weight="700" fill="#111827">${nm}</text>`+
+      `<text x="${x}" y="${y3+63}" font-size="14" fill="#374151">${cz(col)}</text>`+
+      `<rect x="${x}" y="${y3+70}" width="148" height="20" rx="3" fill="${rgb(col)}" stroke="#111827" stroke-width="1.5"/>`+bars(x,y3+96,col,null,null); });
+  ['every channel: 1 → 0.067','  a change of 1 − 0.067 = 0.933: almost a full bar','→ nearly as strong as black and white'].forEach((t,i)=>{
+    h+=`<text x="1040" y="${y3+80+i*24}" font-size="15" fill="#111827"${/^→/.test(t)?' font-weight="700"':''}>${t}</text>`; });
+  h+=`<line x1="0" y1="221" x2="1552" y2="221" stroke="#e5e7eb"/><line x1="0" y1="449" x2="1552" y2="449" stroke="#e5e7eb"/>`;
+  svg.innerHTML=h;
 })();
 
 /* ================= the chain for one pixel, one operation per line (shown values feed the next line) ================= */
@@ -1177,6 +1407,112 @@ dispLen = ${f(S.len)}   spread = ${f(S.spread)}
   draw();
 })();
 
+/* ================= section 4: why the words stay words (one read point, spread 0) ================= */
+/* the Lesson 9.11 chain for one read point, one operation per line, with the shown values feeding the next line */
+function chain1(u,v,P){
+  const L=[], px=V3(u-P.cx), py=V3(v-P.cy);
+  L.push(`p.x = ${f(u)} − ${par(P.cx)} = ${fz(px)}`, `p.y = ${f(v)} − ${par(P.cy)} = ${fz(py)}`);
+  const sx=V6(px*px), sy=V6(py*py), sum=V6(sx+sy), d=V3(Math.sqrt(sum));
+  L.push(`p.x² = ${par(px)} × ${par(px)} = ${f6(sx)}`, `p.y² = ${par(py)} × ${par(py)} = ${f6(sy)}`, `sum = ${f6(sx)} + ${f6(sy)} = ${f6(sum)}`, `d = √${f6(sum)} = ${f(d)}`);
+  const sd=V3(d-RAD), a=V3(sd+BAND); let t=V3(a/0.2);
+  L.push(`sd = ${f(d)} − 0.25 = ${fz(sd)}`, `sd − (−0.10) = ${fz(sd)} + 0.10 = ${fz(a)}`, `t = ${fz(a)} ÷ 0.20 = ${fz(t)}`);
+  if(t<0){ t=0; L.push('t is limited to 0 … 1 → t = 0'); } else if(t>1){ t=1; L.push('t is limited to 0 … 1 → t = 1'); }
+  const t2=V3(t*t), t3=V3(t2*t), a3=V3(3*t2), b2=V3(2*t3), s=V3(a3-b2), fo=V3(1-s), push=V3(P.len*fo);
+  L.push(`t² = ${fz(t)} × ${fz(t)} = ${fz(t2)}`, `t³ = ${fz(t2)} × ${fz(t)} = ${fz(t3)}`, `3t² = 3 × ${fz(t2)} = ${fz(a3)}`, `2t³ = 2 × ${fz(t3)} = ${fz(b2)}`,
+    `smoothstep = ${fz(a3)} − ${fz(b2)} = ${fz(s)}`, `falloff = 1 − ${fz(s)} = ${fz(fo)}`, `push = ${f(P.len)} × ${fz(fo)} = ${fz(push)}`);
+  const dx=V3(px/d), dy=V3(py/d), ex=V3(dx*push), ey=V3(dy*push), rx=V3(u-ex), ry=V3(v-ey);
+  L.push(`dir.x = ${fz(px)} ÷ ${f(d)} = ${fz(dx)}`, `dir.y = ${fz(py)} ÷ ${f(d)} = ${fz(dy)}`, `disp.x = ${fz(dx)} × ${fz(push)} = ${fz(ex)}`, `disp.y = ${fz(dy)} × ${fz(push)} = ${fz(ey)}`,
+    `read.x = ${f(u)} − ${par(ex)} = ${f(rx)}`, `read.y = ${f(v)} − ${par(ey)} = ${f(ry)}`);
+  return {lines:L, d, push, r:[rx,ry]};
+}
+(function(){
+  const P={...LES,spread:0}, C=[P.cx,P.cy], SP=0.02, WIN=0.18;
+  const PL=[{n:'inside',b:'inside · 0.13 below C',g:[0.40,0.67]},{n:'edge',b:'edge · on the glass edge, 0.252 from C',g:[0.37,0.79]},
+            {n:'outside',b:'outside · past the orange ring, 0.38 below C',g:[0.40,0.92]},{n:'middle',b:'middle · 0.05 above C',g:[0.40,0.49]}];
+  let cur=1;
+  const oc=document.getElementById('ltO'), os=document.getElementById('ltOS'), wc=document.getElementById('ltW'), ws=document.getElementById('ltWS');
+  const gs=document.getElementById('ltGS'), gsv=document.getElementById('ltGraph');
+  const NM={'0,-1':'T','0,1':'B','-1,0':'L','1,0':'R','0,0':'G'};
+  const ROLE={T:'the top pixel, 0.02 above G',B:'the bottom pixel, 0.02 below G',L:'the left pixel, 0.02 left of G',R:'the right pixel, 0.02 right of G',G:'the middle pixel'};
+  const win=(cx,cy)=>{ const x0=clamp(cx-WIN/2,0,1-WIN), y0=clamp(cy-WIN/2,0,1-WIN); return [x0,y0,x0+WIN]; };
+  /* the push graph: real values of push = 0.10 × falloff, for distances 0.0025 … 0.45 from C */
+  const GX=d=>52+d/0.45*490, GY=p=>196-p/0.10*160;
+  function graph(){
+    let h=`<rect x="${GX(0)}" y="${GY(0.10)-8}" width="${GX(0.10)-GX(0)}" height="${GY(0)-GY(0.10)+8}" fill="#f3e8ff"/>`+
+      `<text x="${GX(0)+6}" y="${GY(0.04)}" font-size="14" fill="#6b21a8">read points</text><text x="${GX(0)+6}" y="${GY(0.04)+18}" font-size="14" fill="#6b21a8">pass C</text>`;
+    h+=`<line x1="${GX(0)}" y1="${GY(0)}" x2="${GX(0.45)}" y2="${GY(0)}" stroke="#111827"/><line x1="${GX(0)}" y1="${GY(0)}" x2="${GX(0)}" y2="${GY(0.10)-10}" stroke="#111827"/>`;
+    [0,0.10,0.15,0.25,0.35,0.45].forEach(d=>{ h+=`<line x1="${GX(d)}" y1="${GY(0)}" x2="${GX(d)}" y2="${GY(0)+5}" stroke="#111827"/><text x="${GX(d)}" y="${GY(0)+20}" font-size="14" text-anchor="middle" fill="#374151">${fz(d)}</text>`; });
+    [0,0.05,0.10].forEach(p=>{ h+=`<text x="${GX(0)-6}" y="${GY(p)+5}" font-size="14" text-anchor="end" fill="#374151">${fz(p)}</text>`; });
+    h+=`<text x="${GX(0.45)}" y="${GY(0)+38}" font-size="14" text-anchor="end" fill="#111827">distance from C (UV)</text><text x="${GX(0)+4}" y="16" font-size="14" fill="#111827">push (UV)</text>`;
+    h+=`<line x1="${GX(0.25)}" y1="${GY(0)}" x2="${GX(0.25)}" y2="${GY(0.10)}" stroke="#c084fc" stroke-width="2"/><text x="${GX(0.25)+5}" y="${GY(0.10)-6}" font-size="14" fill="#7e22ce">glass edge</text>`;
+    h+=`<line x1="${GX(0.35)}" y1="${GY(0)}" x2="${GX(0.35)}" y2="${GY(0.10)}" stroke="#fb923c" stroke-width="2"/><text x="${GX(0.35)+5}" y="${GY(0.10)-6}" font-size="14" fill="#c2410c">orange ring</text>`;
+    let pts=''; for(let d=0.0025; d<=0.4501; d+=0.0025) pts+=`${GX(d).toFixed(1)},${GY(P.len*(1-sstep(-BAND,BAND,d-RAD))).toFixed(1)} `;
+    h+=`<polyline points="${pts}" fill="none" stroke="#111827" stroke-width="2.5"/>`;
+    gsv.innerHTML=h;
+    clearPts(gs);
+    const OFF={inside:[10,22,'start'],edge:[-10,22,'end'],outside:[10,-12,'start'],middle:[-20,40,'start']};
+    PL.forEach((q,i)=>{ const c=chain1(q.g[0],q.g[1],P), x=GX(c.d), y=GY(c.push), [ox,oy,an]=OFF[q.n];
+      const t=document.createElementNS('http://www.w3.org/2000/svg','text'); t.setAttribute('x',x+ox); t.setAttribute('y',y+oy);
+      t.setAttribute('font-size','14'); t.setAttribute('font-weight',i===cur?'700':'400'); t.setAttribute('text-anchor',an); t.setAttribute('fill','#111827');
+      t.textContent=`G ${q.n}`; gsv.appendChild(t);
+      addPt(gs,x,y,i===cur?COL.mag:'#ffffff',`<b>G (${q.n}) = ${pt(q.g[0],q.g[1])}</b>, in UV<br>Role: a place of the pixel G. Its distance from C is ${f(c.d)}, and its push is ${fz(c.push)}.`,`G ${q.n} on the push graph`,'mini'); });
+  }
+  function draw(){
+    const q=PL[cur], g=q.g, px={};
+    for(let a=-1;a<=1;a++) for(let b=-1;b<=1;b++){ const u=V3(g[0]+a*SP), v=V3(g[1]+b*SP); px[a+','+b]={u,v,c:chain1(u,v,P)}; }
+    const G=px['0,0'], T=px['0,-1'], B=px['0,1'], Lp=px['-1,0'], R=px['1,0'];
+    const OV=view(oc,...win(g[0],g[1])), mid=[(g[0]+G.c.r[0])/2,(g[1]+G.c.r[1])/2], WV=view(wc,...win(mid[0],mid[1]));
+    clearPts(os); clearPts(ws);
+    render(oc,OV,{kind:'output',P,wall:'screen'}); render(wc,WV,{kind:'input',wall:'screen'});
+    const o=oc.getContext('2d'), w=wc.getContext('2d');
+    for(const [ctx,V] of [[o,OV],[w,WV]]){ ring(ctx,V.X(C[0]),V.Y(C[1]),RAD*V.s,COL.glass,2.5); ring(ctx,V.X(C[0]),V.Y(C[1]),0.35*V.s,COL.ring,2); }
+    /* left: the 9 pixels */
+    const grid=(ctx,pos)=>{ for(let a=-1;a<=1;a++) for(let b=-1;b<=1;b++){ const p=pos(a,b);
+      if(a<1) line(ctx,p[0],p[1],...pos(a+1,b),COL.mag,2); if(b<1) line(ctx,p[0],p[1],...pos(a,b+1),COL.mag,2); } };
+    grid(o,(a,b)=>[OV.X(px[a+','+b].u),OV.Y(px[a+','+b].v)]);
+    /* right: the place of the 9 pixels, G's push, the 9 read points */
+    if(G.c.push>0) lbl(w,`push ${fz(G.c.push)}`,WV.X(g[0])+(g[1]<C[1]?-60:60),WV.Y((g[1]+G.c.r[1])/2),PSH,g[1]<C[1]?'right':'left',14);
+    grid(w,(a,b)=>[WV.X(px[a+','+b].c.r[0]),WV.Y(px[a+','+b].c.r[1])]);
+    if(G.c.push>0) arrow(w,WV.X(g[0]),WV.Y(g[1]),WV.X(G.c.r[0]),WV.Y(G.c.r[1]),COL.push,2.5);   // on top of the lime lines
+    halo(w,()=>w.rect(WV.X(g[0]-SP),WV.Y(g[1]-SP),2*SP*WV.s,2*SP*WV.s),COL.glass,2);           // the place of the 9 pixels, on top
+    const rc=[G.c.r[0],G.c.r[1]];
+    for(const k in px){ const p=px[k], n=NM[k]||'', [a,b]=k.split(',').map(Number);
+      const role=n?ROLE[n]:'a corner pixel of the grid';
+      addPt(os,OV.X(p.u),OV.Y(p.v),COL.mag,`<b>${n||'pixel'} = ${pt(p.u,p.v)}</b>, in UV<br>Role: ${role}. Its distance from C is ${f(p.c.d)}, its push ${fz(p.c.push)}.`,(n||'corner pixel')+' in the output','mini');
+      addPt(ws,WV.X(p.c.r[0]),WV.Y(p.c.r[1]),COL.mag,`<b>${n?n+"'s read point":'a read point'} = ${pt(p.c.r[0],p.c.r[1])}</b>, in UV<br>Role: where ${n||'this pixel'} = ${pt(p.u,p.v)} reads the wallpaper.<pre>${p.c.lines.join('\n')}</pre>`,(n||'corner')+' read point','mini');
+      if(n){ /* left: the name beside its pixel, away from the grid. Right: the name away from G's read point */
+        lbl(o,n,OV.X(p.u)+(n==='G'?16:a*22),OV.Y(p.v)+(n==='G'?-15:b*22),INK,'center',15);
+        const vx=(p.c.r[0]-rc[0])*WV.s, vy=(p.c.r[1]-rc[1])*WV.s, vl=Math.hypot(vx,vy);
+        let ox=n==='G'?16:vl>8?vx/vl*22:a*22, oy=n==='G'?-15:vl>8?vy/vl*22:b*22;
+        if(Math.hypot(WV.X(p.c.r[0])+ox-WV.X(C[0]),WV.Y(p.c.r[1])+oy-WV.Y(C[1]))<20){ ox=22; oy=0; }   // keep the name off the C dot
+        lbl(w,n,WV.X(p.c.r[0])+ox,WV.Y(p.c.r[1])+oy,INK,'center',15); }
+    }
+    if(C[1]>OV.y0&&C[1]<OV.y0+WIN){ addPt(os,OV.X(C[0]),OV.Y(C[1]),COL.glass,TIP_C(C[0],C[1]),'C in the output'); lbl(o,'C',OV.X(C[0])-16,OV.Y(C[1]),GLS,'right'); }
+    if(C[1]>WV.y0&&C[1]<WV.y0+WIN){ addPt(ws,WV.X(C[0]),WV.Y(C[1]),COL.glass,TIP_C(C[0],C[1]),'C on the wallpaper'); lbl(w,'C',WV.X(C[0])-16,WV.Y(C[1]),GLS,'right'); }
+    /* the numbers */
+    const hgt=V3(B.c.r[1]-T.c.r[1]), wid=V3(R.c.r[0]-Lp.c.r[0]);
+    const ratio=(x)=>V3(0.04/Math.abs(x));
+    const rows=[`G = ${pt(g[0],g[1])}: d = ${f(G.c.d)} from C, push ${fz(G.c.push)}`,'',
+      'up and down: T and B',
+      `T = ${pt(T.u,T.v)}   B = ${pt(B.u,B.v)}`, `  ${f(B.v)} − ${f(T.v)} = 0.04 apart`,
+      `T reads ${pt(...T.c.r)}   push ${fz(T.c.push)}`, `B reads ${pt(...B.c.r)}   push ${fz(B.c.push)}`,
+      `  ${f(B.c.r[1])} − ${f(T.c.r[1])} = ${f(hgt)} apart`,
+      `  0.04 ÷ ${f(Math.abs(hgt))} = ${f(ratio(hgt))}`+(ratio(hgt)===1?' → the same height':ratio(hgt)<1?' → the letters look thinner':' → the letters look taller'),'',
+      'left and right: L and R',
+      `L = ${pt(Lp.u,Lp.v)}   R = ${pt(R.u,R.v)}`, `  ${f(R.u)} − ${f(Lp.u)} = 0.04 apart`,
+      `L reads ${pt(...Lp.c.r)}   push ${fz(Lp.c.push)}`, `R reads ${pt(...R.c.r)}   push ${fz(R.c.push)}`,
+      `  ${f(R.c.r[0])} − ${f(Lp.c.r[0])} = ${f(wid)}`+(wid<0?': below 0, R reads left of L → mirrored':' apart'),
+      `  0.04 ÷ ${f(Math.abs(wid))} = ${f(ratio(wid))}`+(ratio(wid)===1?' → the same width':ratio(wid)>1?' → the letters look wider':' → the letters look narrower'),'',
+      'click a dot for its coordinates; click a read point for its chain'];
+    document.getElementById('ltOut').textContent=rows.join('\n');
+    graph();
+    document.querySelectorAll('#ltPick .btn').forEach((b,i)=>b.setAttribute('aria-pressed',String(i===cur)));
+  }
+  const pk=document.getElementById('ltPick');
+  PL.forEach((q,i)=>{ const b=document.createElement('button'); b.className='btn'; b.textContent=q.b; b.onclick=()=>{ cur=i; draw(); }; pk.appendChild(b); });
+  draw();
+})();
+
 /* ================= section 6: challenge ================= */
 (function(){
   const cv=document.getElementById('chCv'), V=view(cv,0,0,1), inp=document.getElementById('chIn'), out=document.getElementById('chVerdict');
@@ -1284,8 +1620,17 @@ date: ${new Date().toISOString().slice(0,10)}
   Above a white-to-black edge: a yellow strip (1, 1, 0), then a red strip (1, 0, 0). Each strip is spread × push wide.
 - No fringe without an edge between the read points (full push alone is not enough).
 - No fringe outside the ring 0.35 from C: push = 0 there, so disp × spread = 0.
-- Gentle: spread 0.10 gives strips of at most 0.01 (about 4 points on a 402-point-wide view). 0.40 shows three copies of every edge.
-- Clear on black and white and on text; faint on orange and navy.
+- The output is three pictures added: the red picture (push × (1 − spread)), the green picture (push × 1), the blue
+  picture (push × (1 + spread)). Each picture has its own copy of every edge, so one edge shows up three times.
+- Gentle: spread 0.10 puts the copies 0.01 apart (about 4 points on a 402-point-wide view): one edge with a thin hem.
+  0.40 puts them up to 0.04 apart: three edges where the wallpaper has one. On text, every word shows up three times.
+- A channel is a number from 0 to 1. A strip is a neighbor color with one channel taken from the other side:
+  strip 1 = the upper color with the blue of the lower color; strip 2 = the lower color with the red of the upper color.
+- How strong a strip looks = the change of that one channel. Black and white: 1 and 1 (pure yellow, pure red).
+  Dark text on white: 0.933. Orange and navy: blue 0.22 (weak, a pinker orange) and red 0.78 (strong, raspberry red).
+- Words stay words: neighboring pixels read neighboring points, in the same order. The push curve sets the size:
+  0.13 from C the letters look 4.167 times as wide; on the glass edge 1.212 times as wide and 0.588 times as tall;
+  outside the orange ring unchanged; closer than 0.10 to C the read points pass C and the letters are mirrored.
 - Cost: three wallpaper asks per pixel instead of one.
 - iOS: chapter09/ChromaticSeparation.metal (chromaticRefract), explorer chapter09/ChromaticSeparationExplorer.swift.
 - Next: Lesson 9.14 — Lens checkpoint.`;

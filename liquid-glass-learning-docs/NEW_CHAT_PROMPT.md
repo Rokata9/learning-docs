@@ -44,11 +44,11 @@ Do not generate `.zip` files unless I ask for one.
 
 Keep these three fields separate. Read them from `CURRENT_STATE.md`. Do not invent a fourth merged status.
 
-- **Learner-confirmed complete** — count and last completed lesson. Increases only after my explicit confirmation. iOS-confirmed complete is **40 of 216** (Chapters 3, 4, 5, and Lessons 9.1–9.6) until a must-re-read chapter is confirmed on iOS. Those 40 are the math. The other 55 of the old 95 are platform-API lessons, not new graphics formulas.
-- **Unresolved checkpoint** — the unfinished lesson I am still on. Generating or revising it does not complete it. Live checkpoint is the iOS on-ramp starting at **Lesson 1.3**, not 9.10, until the must-re-read list is done.
+- **Learner-confirmed complete** — count and last completed lesson. Increases only after my explicit confirmation. Read the live count from section 12 and from `CURRENT_STATE.md`. It is **97 of 216** (Chapters 1–8 and Lessons 9.1–9.11).
+- **Unresolved checkpoint** — the unfinished lesson I am still on. Generating or revising it does not complete it. Live checkpoint is **Lesson 9.12**.
 - **Generated frontier** — the latest lesson that exists as files. It may sit on the checkpoint, or ahead of it.
 
-Total course size is **216** lessons. Do not increase the completed count because a lesson was generated, revised, or reviewed. Never restore **95 of 216** from the prior lab.
+Total course size is **216** lessons. Do not increase the completed count because a lesson was generated, revised, or reviewed.
 
 ## 4. Files for this turn
 
@@ -136,7 +136,6 @@ completed: {N} of 216, through {last confirmed lesson}
 current unresolved checkpoint: {checkpoint}
 generated frontier: {frontier}
 next planned lesson after the frontier: {next}
-must re-read before the frontier: {on-ramp list}
 {any generated-ahead lesson} is generated ahead and not complete
 ```
 
@@ -158,32 +157,27 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-09-30 with `CURRENT_STATE.md` (course version 9.14.0).
+**Last aligned:** 2026-10-02 with `CURRENT_STATE.md` (course version 9.14.0).
 
 ```text
-platform: Swift / SwiftUI / Metal (lab pixel-function strings)
+platform: Swift / SwiftUI / Metal (.metal + ShaderLibrary)
 test device: iPhone 16 Pro
 min OS: iOS 17
 
-completed: 42 of 216
-  (Chapters 3, 4, 5, Lessons 9.1–9.6, and Lessons 9.10–9.11)
-  why 42 not 97: 42 is confirmed math. The other 55 are iOS project/API
-  chapters, not a graphics restart.
+completed: 97 of 216
+  (Chapters 1–8 and Lessons 9.1–9.11)
 
-must re-read (in order):
-  Chapter 1, Chapter 2, Chapter 6, Chapter 7, Chapter 8, Lessons 9.7–9.9
-
-current unresolved checkpoint: Lesson 1.3 — Create LiquidGlassLab
-  (first lesson of the iOS on-ramp)
+current unresolved checkpoint: Lesson 9.12 — Edge safety
+  (generated, not complete)
 
 generated frontier: Lesson 9.14 — Lens checkpoint (not complete)
-  (Lessons 9.12 — Edge safety and 9.13 — Gentle chromatic separation are also generated and not complete)
+  (Lesson 9.13 — Gentle chromatic separation is also generated and not complete)
 next planned lesson after the frontier: Lesson 10.1 — Height-map idea
 ```
 
-Do not restore 95 of 216. Do not mark 1.3 complete from the prior lab.
+Do not mark Lessons 9.12, 9.13, or 9.14 complete unless I confirm them.
 
-Chapter 7 frost *formulas* stay known; re-read the chapter for the iOS lab path. Constants stay fixed: blur `18` pt / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
+Chapter 7 frost constants stay fixed: blur `18` pt / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
 **9.1 completed contract:**
 
@@ -252,27 +246,29 @@ sdA = length(p) − radiusA
 
 Two Lesson 9.2 circles. Teaching left-only `p = (−0.10, 0)` has `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15` and `sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05`. Named formula stays visible before substitution.
 
-**9.10 checkpoint contract** (destination after the on-ramp; not the live checkpoint):
+**9.10 completed contract** (learner-confirmed 2026-09-30):
 
 ```text
 dir = p / length(p)
 → disp = dir × dispLen
 → readUv = uv − disp
-→ sampled = background.eval(readUv × resolution)
+→ sampled = checkerBackground(readUv × resolution, resolution)
 ```
 
-Follow the navy input cell x `[0.50, 0.75)`, y `[0.25, 0.50)`. W `(0.65, 0.20)` reads approximately `(0.60528, 0.28944)` at `dispLen = 0.10` and stores navy. `dispLen` is the UV read distance, not a percentage enlargement. Use the six-operation read walkthrough, the added-region mask, and the spoke construction of the curve: same extra length on different rays from C; neighboring cells share the curve because they share the grid line; the curve continues outside the painted square and flattens far from C. `p.x` is the sideways part of the extra walk; `p.y` is the up/down part. Straight corner joins are only approximations. The shader skips division within its `0.0001` guard. Lesson 9.10 is not complete.
+Navy input cell x `[0.50, 0.75)`, y `[0.25, 0.50)`. W `(0.65, 0.20)` reads about `(0.60528, 0.28944)` at `dispLen = 0.10` and stores navy. `dispLen` is the UV read distance, not a percentage enlargement. The shader skips the division at `d <= 0.0001`; the Metal source gives no reason for that exact cutoff. Q&A companion: `lesson-09-10-qa.html`.
 
-**9.11 generated-ahead contract** (not complete; 9.10 stays unresolved):
+**9.11 completed contract** (learner-confirmed 2026-09-30):
 
 ```text
 sd = length(p) − radius
 → falloff = 1.0 − smoothstep(−band, band, sd)
+→ dir = p / length(p)
 → disp = dir × dispLen × falloff
 → readUv = uv − disp
+→ sampled = checkerBackground(readUv × resolution, resolution)
 ```
 
-Teaching W = `(0.65, 0.30)`, `p = (0.15, −0.20)`, `sd = 0`, falloff = 0.50, `disp = (0.03, −0.04)`, `readUv = (0.62, 0.34)`. Falloff is a length scale, not a color mix. Miss line x = 0.90 stays straight.
+Default radius 0.25, band 0.10, dispLen 0.10. Teaching W = `(0.65, 0.30)`: `p = (0.15, −0.20)`, `d = 0.25`, `sd = 0`, falloff 0.50, `dir = (0.60, −0.80)`, `disp = (0.03, −0.04)`, `readUv = (0.62, 0.34)`, stores navy. Falloff is a length scale, not a color mix. The line x = 0.90 never moves. Q&A companion: `lesson-09-11-qa.html`.
 
 **9.12 generated contract** (not complete):
 
@@ -311,11 +307,11 @@ Current files:
 ```text
 course/chapters/chapter-01/lesson-01-01-visible-ingredients.html
 course/chapters/chapter-01/lesson-01-02-observe-the-transition.html
-course/chapters/chapter-01/lesson-01-03-create-the-android-project.html
+course/chapters/chapter-01/lesson-01-03-create-liquidglasslab.html
 course/chapters/chapter-01/lesson-01-04-build-a-study-background.html
 course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html
 course/chapters/chapter-01/lesson-01-06-alpha-mixture.html
-course/chapters/chapter-01/lesson-01-07-pixel-8-pro-experiment.html
+course/chapters/chapter-01/lesson-01-07-iphone-16-pro-experiment.html
 course/chapters/chapter-01/lesson-01-08-diagnosis-and-checkpoint.html
 course/chapters/chapter-01/lesson-a-transparent-panel-is-not-yet-liquid-glass.html
 course/chapters/chapter-09/lesson-09-01-distance-between-two-points.html
@@ -328,7 +324,9 @@ course/chapters/chapter-09/lesson-09-07-sample-an-input-shader.html
 course/chapters/chapter-09/lesson-09-08-translate-sample-coordinates.html
 course/chapters/chapter-09/lesson-09-09-scale-around-the-center.html
 course/chapters/chapter-09/lesson-09-10-build-a-displacement-field.html
+course/chapters/chapter-09/lesson-09-10-qa.html
 course/chapters/chapter-09/lesson-09-11-refraction-as-displaced-sampling.html
+course/chapters/chapter-09/lesson-09-11-qa.html
 course/chapters/chapter-09/lesson-09-12-edge-safety.html
 course/chapters/chapter-09/lesson-09-13-gentle-chromatic-separation.html
 course/chapters/chapter-09/lesson-09-14-lens-checkpoint.html

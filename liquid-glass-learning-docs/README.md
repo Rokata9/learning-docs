@@ -8,12 +8,6 @@ Open `liquid-glass-course.html` in a browser.
 
 Live progress, current files, and the checkpoint/frontier live in `CURRENT_STATE.md`. That file wins when this README disagrees.
 
-To continue the iOS translation in a new chat, paste:
-
-```text
-Read liquid-glass-learning-docs/IOS_TRANSLATION_PROMPT.md and execute the next step of the plan.
-```
-
 To continue as a learner, paste `NEW_CHAT_PROMPT.md` and name generate or questions in the same message.
 
 ## Repos
@@ -24,8 +18,6 @@ To continue as a learner, paste `NEW_CHAT_PROMPT.md` and name generate or questi
 
 ## Rule sources
 
-- `IOS_TRANSLATION_PROMPT.md` — one-step translation resume.
-- `PLATFORM_MAP.md` — Swift / SwiftUI / Metal noun and API map.
 - `AGENTS.md` — lesson quality, verification, Xcode `#Preview` rules.
 - `USER_PREFERENCES.md` — explanation calibration, visualization target, delivery preferences.
 - `curriculum/liquid_glass_ios_curriculum.md` — the 216-lesson plan and frozen locks.

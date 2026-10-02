@@ -1,6 +1,6 @@
 # Liquid Glass iOS course — current state
 
-**Updated:** 2026-09-30  
+**Updated:** 2026-10-02  
 **Course version:** 9.14.0  
 **Platform:** Swift / SwiftUI / Metal (`.metal` + `ShaderLibrary`)  
 **Test device:** iPhone 16 Pro  
@@ -14,25 +14,18 @@ platform: Swift / SwiftUI / Metal (.metal + ShaderLibrary)
 test device: iPhone 16 Pro
 min OS: iOS 17
 
-learner-confirmed complete: 42 of 216
-  (Chapters 3, 4, 5, Lessons 9.1–9.6, and Lessons 9.10–9.11)
+learner-confirmed complete: 97 of 216
+  (Chapters 1–8 and Lessons 9.1–9.11)
 
-must re-read (platform chapters, in order):
-  Chapter 1, Chapter 2, Chapter 6, Chapter 7, Chapter 8, Lessons 9.7–9.9
-
-current unresolved checkpoint: Lesson 1.3 — Create LiquidGlassLab
-  (first lesson of the iOS on-ramp)
+current unresolved checkpoint: Lesson 9.12 — Edge safety
+  (generated, not complete)
 
 generated frontier: Lesson 9.14 — Lens checkpoint (not complete)
-  (Lessons 9.12 — Edge safety and 9.13 — Gentle chromatic separation are also generated and not complete)
+  (Lesson 9.13 — Gentle chromatic separation is also generated and not complete)
 next planned after the frontier: Lesson 10.1 — Height-map idea
 ```
 
-**Why 42, not 97:** 42 counts only math/graphics confirmed on this iOS fork (Chapters 3, 4, 5, Lessons 9.1–9.6, 9.10–9.11). The other 55 lessons of the old count are platform chapters: project, coordinates APIs, SwiftUI drawing, frost lab path, Metal host, and 9.7–9.9 sampling API. Those formulas stay known. The re-read is the new lab path, not a math restart. Generating a later lesson does not add those 55 back.
-
-Do not restore **95 of 216**. That count was the prior lab. It is not the iOS state.
-
-Do not mark Lesson 1.3 complete just because the prior 1.3 was complete.
+Chapters 1–8 and Lessons 9.1–9.11 count as complete. The graphics and math are the same; only the API names differ between the earlier platform and iOS.
 
 Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
@@ -40,36 +33,22 @@ Do not generate Lesson 10.1 unless asked. Lessons 9.12, 9.13 and 9.14 are genera
 
 Reusable new-chat starter: `NEW_CHAT_PROMPT.md`. Paste it, then name generate or questions in the same message. Progress in this file wins. When the checkpoint or frontier moves, refresh section 12 of that prompt.
 
-## Stay complete — graphics and math
+## Complete through Lesson 9.11
 
-These lessons stay learner-confirmed complete. HTML will still be updated so excerpts are Swift, but the learner does not need to sit through them again before the on-ramp.
+| Chapter / lessons | Count |
+|-------------------|------:|
+| Chapter 1 | 8 |
+| Chapter 2 | 9 |
+| Chapter 3 | 11 |
+| Chapter 4 | 11 |
+| Chapter 5 | 12 |
+| Chapter 6 | 11 |
+| Chapter 7 | 12 |
+| Chapter 8 | 12 |
+| Lessons 9.1–9.11 | 11 |
+| **Total** | **97** |
 
-| Chapter / lessons | Count | Why they stay complete |
-|-------------------|------:|------------------------|
-| Chapter 3 | 11 | Color, alpha, over, luminance, tint, saturation as math |
-| Chapter 4 | 11 | Shapes, corners, paths, masks as geometry |
-| Chapter 5 | 12 | Time, progress, lerp, easing, springs as math. Skim 5.2 / 5.11 / 5.12 later only if an iOS clock API is needed. |
-| Lessons 9.1–9.6 | 6 | Distance, SDF, min/max. Pixel arithmetic is unchanged. |
-| Lessons 9.10–9.11 | 2 | Displacement field and refraction as displaced sampling. Learner-confirmed 2026-09-30. |
-
-**iOS-confirmed complete: 42 of 216** (11+11+12+6+2).
-
-Also still known, but not counted as extra complete lessons: 1.1 / 1.2 / 1.6 / 1.8 vocabulary, Chapter 7 frost *formulas* (18 pt / 0.25 / 0.40), Chapter 8 mix/smoothstep *math*. Those live inside chapters that must be re-read for the iOS project and APIs.
-
-## Must re-read — platform chapters (the iOS on-ramp)
-
-Read each of these, in order, on the translated HTML + new lab.
-
-| Order | What to read | Why it is iOS, not math |
-|-------|----------------|-------------------------|
-| 1 | **Chapter 1 entire** (1.1–1.8) | Creates the SwiftUI project, study background, translucent panel, iPhone 16 Pro experiment. 1.3 and 1.7 are the load-bearing ones; the rest of the chapter is the iOS baseline around them. |
-| 2 | **Chapter 2 entire** (2.1–2.9) | Points vs pixels vs `displayScale`, SwiftUI local/parent/screen coordinates. 2.5 is the unit rewrite; the inspector in 2.9 is the iOS API. |
-| 3 | **Chapter 6 entire** (6.1–6.11) | **How SwiftUI draws the scene.** Owned `.blur()` vs captured backdrop. This chapter is new on iOS. |
-| 4 | **Chapter 7 entire** (7.1–7.12) | Frost *recipes* are known; the **lab path** is new (owned blur, snapshot crop, saturation matrix on a SwiftUI layer). Re-run the explorers. Do not rebuild the frozen constants. |
-| 5 | **Chapter 8 entire** (8.1–8.12) | **Your first Metal shader.** `.metal` + `ShaderLibrary`, `position`, uniforms as Shader arguments, Xcode compile errors. 8.3–8.8 / 8.11 math is familiar; the host is new. Re-read the chapter as iOS. |
-| 6 | **Lessons 9.7–9.9** | Input color is a Metal function call, not a texture sample. 9.1–9.6 stay complete; these three are the sampling API. |
-
-As the learner finishes a must-re-read chapter, increase the count by that chapter’s lesson total and move the checkpoint forward along the on-ramp table. After 9.9 is confirmed on iOS, count is 42+8+9+11+12+12+3 = **97**, and the checkpoint is the frontier lesson.
+Lessons 9.12, 9.13, and 9.14 are generated and are not part of the 97. The checkpoint is Lesson 9.12. Skim Lessons 5.2, 5.11, and 5.12 later only if an iOS clock API is needed. Chapter 7 frost constants stay frozen.
 
 ## Frozen frost stack (do not rebuild)
 
@@ -77,16 +56,16 @@ blur **18 pt**, tint **0.25**, saturation **0.40**, rim **3 pt**, inner band **1
 
 ## Current lesson files
 
-Live checkpoint is Lesson 1.3. Frontier HTML is Lesson 9.14. Shader host is `LabOrange.metal` + `ShaderRect` (`colorEffect`). Lesson 9.10 explorer: `chapter09/DisplacementFieldExplorer.swift` + `chapter09/DisplacementField.metal`. Lesson 9.11 explorer: `chapter09/RefractionSamplingExplorer.swift` + `chapter09/RefractionSampling.metal`. Lesson 9.12 explorer: `chapter09/EdgeSafetyExplorer.swift` + `chapter09/EdgeSafety.metal`. Lesson 9.13 explorer (planned, not yet written): `chapter09/ChromaticSeparationExplorer.swift` + `chapter09/ChromaticSeparation.metal`. Lesson 9.14 explorer (planned, not yet written): `chapter09/LensCheckpointExplorer.swift` + `chapter09/LensCheckpoint.metal`.
+Live checkpoint is Lesson 9.12. Frontier HTML is Lesson 9.14. Shader host is `LabOrange.metal` + `ShaderRect` (`colorEffect`). Lesson 9.10 explorer: `chapter09/DisplacementFieldExplorer.swift` + `chapter09/DisplacementField.metal`. Lesson 9.11 explorer: `chapter09/RefractionSamplingExplorer.swift` + `chapter09/RefractionSampling.metal`. Lesson 9.12 explorer: `chapter09/EdgeSafetyExplorer.swift` + `chapter09/EdgeSafety.metal`. Lesson 9.13 explorer (planned, not yet written): `chapter09/ChromaticSeparationExplorer.swift` + `chapter09/ChromaticSeparation.metal`. Lesson 9.14 explorer (planned, not yet written): `chapter09/LensCheckpointExplorer.swift` + `chapter09/LensCheckpoint.metal`.
 
 ```text
 course/chapters/chapter-01/lesson-01-01-visible-ingredients.html
 course/chapters/chapter-01/lesson-01-02-observe-the-transition.html
-course/chapters/chapter-01/lesson-01-03-create-the-android-project.html
+course/chapters/chapter-01/lesson-01-03-create-liquidglasslab.html
 course/chapters/chapter-01/lesson-01-04-build-a-study-background.html
 course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html
 course/chapters/chapter-01/lesson-01-06-alpha-mixture.html
-course/chapters/chapter-01/lesson-01-07-pixel-8-pro-experiment.html
+course/chapters/chapter-01/lesson-01-07-iphone-16-pro-experiment.html
 course/chapters/chapter-01/lesson-01-08-diagnosis-and-checkpoint.html
 course/chapters/chapter-01/lesson-a-transparent-panel-is-not-yet-liquid-glass.html
 course/chapters/chapter-09/lesson-09-01-distance-between-two-points.html
@@ -108,9 +87,7 @@ course/chapters/chapter-09/lesson-09-14-lens-checkpoint.html
 course/chapters/chapter-09/lesson-distance-fields-image-sampling-and-refraction.html
 ```
 
-Filenames stay until a dedicated sweep. Content and titles become iOS in each lesson’s own translation step.
-
-## Stay-complete contracts — Lessons 9.1–9.6
+## Completed contracts — Lessons 9.1–9.6
 
 **9.1 completed contract:**
 
@@ -239,7 +216,7 @@ the Lesson 9.11 chain → disp = dir × push          (push = dispLen × falloff
 → color = half4(colRed.r, colGreen.g, colBlue.b, 1.0)   (new: one channel from each)
 ```
 
-One graphics idea: three read points per pixel, one per channel, give thin color strips (the fringe) on edges the glass bends. One math idea: build a color from one member of each of three colors (`.r .g .b` = Lesson 8.7 members). Wallpaper: the Lesson 9.7 checker in black and white, so every channel is the same picture and any color comes from the read points. Glass C = `(0.40, 0.54)` (edge y = 0.50 runs close to C), radius 0.25, band 0.10, dispLen 0.10, spread 0.10 (chosen constant). Teaching W = `(0.40, 0.405)`: `p = (0, −0.135)`, `d = 0.135`, `sd = −0.115`, falloff 1, push 0.10, `dir = (0, −1)`, `disp = (0, −0.10)`; readRed `(0.40, 0.495)` white, readGreen `(0.40, 0.505)` black, readBlue `(0.40, 0.515)` black → W stores `(1, 0, 0)`, pure red. On the line x = 0.40: yellow strip 0.39–0.40, red strip 0.40–0.41, each 0.01 = spread × push; the read points cross the edge in order, blue first (stepper step 5: P₁ (0.40, 0.395) yellow, W red, P₂ (0.40, 0.415) black, chosen one at a time, with channel arrows). Black-into-white edges give blue (next to black) and cyan (step 6: Q₁…Q₄ = (0.40, 0.585 … 0.615) just below C; push 0.10 passes C; white / cyan / blue / black). No fringe without an edge between the read points (Exercise 1: W₁ = (0.27, 0.54)). No fringe outside the ring 0.35 from C (push 0); strips thin toward it. Blue gets the longest push because real glass bends blue most (prism, dispersion, chromatic aberration). Gentle: widest strip 0.01 UV = 5.2 px on the 520-px picture, 4.02 pt on a 402-pt-wide view; 0.40 shows three copies of every edge. Clear on black and white and on text, weaker on orange and navy (green and blue change only 0.23 and 0.22). Apple does not document whether its Liquid Glass separates colors. Cost: three wallpaper asks per pixel. Swapping red and blue gives cyan and blue strips (Exercise 2); a fixed side step instead of `disp × spread` puts fringes on the whole screen (Exercise 3).
+One graphics idea: three read points per pixel, one per channel, give thin color strips (the fringe) on edges the glass bends. One math idea: build a color from one member of each of three colors (`.r .g .b` = Lesson 8.7 members). Wallpaper: the Lesson 9.7 checker in black and white, so every channel is the same picture and any color comes from the read points. Glass C = `(0.40, 0.54)` (edge y = 0.50 runs close to C), radius 0.25, band 0.10, dispLen 0.10, spread 0.10 (chosen constant). Teaching W = `(0.40, 0.405)`: `p = (0, −0.135)`, `d = 0.135`, `sd = −0.115`, falloff 1, push 0.10, `dir = (0, −1)`, `disp = (0, −0.10)`; readRed `(0.40, 0.495)` white, readGreen `(0.40, 0.505)` black, readBlue `(0.40, 0.515)` black → W stores `(1, 0, 0)`, pure red. On the line x = 0.40: yellow strip 0.39–0.40, red strip 0.40–0.41, each 0.01 = spread × push; the read points cross the edge in order, blue first (stepper step 5: P₁ (0.40, 0.395) yellow, W red, P₂ (0.40, 0.415) black, chosen one at a time, with channel arrows). Black-into-white edges give blue (next to black) and cyan (step 6: Q₁…Q₄ = (0.40, 0.585 … 0.615) just below C; push 0.10 passes C; white / cyan / blue / black). No fringe without an edge between the read points (Exercise 1: W₁ = (0.27, 0.54)). No fringe outside the ring 0.35 from C (push 0); strips thin toward it. Blue gets the longest push because real glass bends blue most (prism, dispersion, chromatic aberration). Gentle: widest strip 0.01 UV = 5.2 px on the 520-px picture, 4.02 pt on a 402-pt-wide view; at 0.40 one edge shows up as three edges. Section 2 “Three copies of one edge” shows the red, green and blue picture alone and the output (the output adds (red, 0, 0) + (0, green, 0) + (0, 0, blue)); copies of the edge y = 0.50 on x = 0.40: ① red (0.40, 0.44), ② green (0.40, 0.40), ③ blue ≈ (0.40, 0.366) at spread 0.40 (③ is past the full-push distance 0.15, an estimate); 0.41 / 0.40 / 0.39 at 0.10; on the screen the copies of the D of “Data” (cyan, magenta, yellow letters). Section 2 “Which color a strip gets” (channel bars, spread 0.40 slices): strip 1 = upper color with the blue of the lower color, strip 2 = lower color with the red of the upper color; strength = the change of that one channel: black/white 1 and 1, dark text (0.067) on white 0.933, orange/navy blue 0.22 (weak, (0.88, 0.48, 0.40)) and red 0.78 (strong raspberry, (0.88, 0.25, 0.40)). Section 4 “Why the words under the glass stay words” (screen, spread 0, 9 pixels 0.02 apart around G, read grid on the wallpaper, push graph): inside G = (0.40, 0.67) height ×1, width 0.04 ÷ 0.0096 = 4.167; edge G = (0.37, 0.79), d = 0.252: 0.04 ÷ 0.068 = 0.588 tall, 0.04 ÷ 0.033 = 1.212 wide; outside G = (0.40, 0.92) unchanged; middle G = (0.40, 0.49): read points pass C, L and R swap (mirrored), 1.176 wide. The push curve is the Lesson 9.11 chosen rule, not a glass model (Chapter 10, Lesson 10.11). Apple does not document whether its Liquid Glass separates colors. Cost: three wallpaper asks per pixel. Swapping red and blue gives cyan and blue strips (Exercise 2); a fixed side step instead of `disp × spread` puts fringes on the whole screen (Exercise 3).
 
 **iOS files not yet written.** The lesson's Metal excerpt (`chromaticRefract`, `blackWhiteChecker`) is not compiled. On 2026-09-30 the lesson was generated on a machine without the iOS lab (`/Users/rosen/Code/LiquidGlassLab-iOS` absent) and without Xcode. Next session with the lab: create `chapter09/ChromaticSeparation.metal` + `chapter09/ChromaticSeparationExplorer.swift`, wire them in `Chapter09Screen`, build for iPhone 16 Pro, and remove this note.
 
@@ -264,6 +241,8 @@ One graphics idea: a lens needs two separate answers per pixel, and the mask giv
 
 ## Learner feedback log (latest first)
 
+**2026-10-02 — Lesson 9.13 Sections 2 and 4, learner questions.** (1) Why do the read points still form the letters, why this distortion, and what sets how much a word is magnified? Failed picture: with **screen** the lab showed wider, thinner and mirrored words, and no picture named those shapes. Rule 7 already requires that picture, so no new rule. Fix: the figure “Why the words under the glass stay words” under the lab (9-pixel grid and its read grid, four places, push graph, measured widths). (2) “every edge shows three copies of itself” was unclear without a picture. Failed sentence: the “What gentle means” paragraph used an effect word that no picture pointed at. Rule 15 already covers this; “copies” was added to its examples. Fix: the figure “Three copies of one edge: one picture per channel”. (3) “every channel jumps by about 1” — “1 is what?” Failed: a number without its quantity or scale → rule 12 (every number says what it measures and on which scale). (4) The orange and navy sentence was prose only, and it was wrong: it gave only green 0.23 and blue 0.22 and called both strips soft, but strip 2 changes red by 0.78 and is a strong raspberry strip, visible in the lesson's own magnifier. → rule 15 (a claim that a color change is strong or weak draws channel bars and prints every channel's change). Fix: the figure “Which color a strip gets, and how strong it looks”; the record and the compare readout were updated. No iOS code changed.
+
 **2026-10-01 — Lesson 9.13 Section 4 lab, learner request.** The learner asked to pick W by clicking any pixel and to see readRed, readGreen and readBlue inside the lab picture itself, not only in the zoom. Done: a click on the lab picture moves W (0.005 steps, kept inside the screen); the three read points are small red, green and blue dots on the pink arrow, each clickable, with names placed clear of the handles (lime lines join close dots to their names). Also fixed: dragging C or W stopped after one step, because each redraw replaced the handle and lost the pointer; the handles are now made once and moved. Note on rule 8: these dots sit on the output picture by the learner's explicit request; the legend says W reads the wallpaper there and points to the zoom. Rule 8 is unchanged.
 
 **2026-10-01 — Lesson 9.13 Section 1, learner report.** Step 5 did not say which push the strips came from: with output steps of 0.01 it was unclear how far each read point reaches. Steps 5 and 6 needed arrows showing what reads what and where each color comes from; "things start to mix up badly". Failed pictures: step 5 switched both pictures to the output, so the read points vanished while the caption still said they "cross the edge"; step 6 labelled the cyan and blue strips without any pixel or read point. Failure → rule link: rule 8 (draw the whole chain for a pixel whose color is explained by its read points: output pixel, spot and push with its length on the wallpaper, read points, one arrow per channel back to the pixel; one pixel at a time with a chooser; print the push next to the 0.01 spacing). Fix: steps 5 and 6 now show the output (left) and the wallpaper of the same part (right) with y rulers, a minimap, a pixel chooser, the pink push arrow labelled 0.10, read-point labels such as "readRed 0.485 white → red 1", red/green/blue channel arrows drawn across both pictures into the pixel, a numbers readout, and the channel bars of the chosen pixel. Step 5 pixels P₁ (0.40, 0.395) yellow, W (0.40, 0.405) red, P₂ (0.40, 0.415) black. Step 6 moves to the pixels just below C, Q₁…Q₄ at y 0.585 / 0.595 / 0.605 / 0.615 (white / cyan / blue / black): their push 0.10 passes C and the read points cross the edge y = 0.50 from black into white. Step 7 (whole output, orange ring, taper magnifier) now names a far pixel F = (0.10, 0.30) with push 0. Also, per rule 10, the lab zoom now fits W and its three read points and prints its factor (for example 3.9×). No iOS code changed.
@@ -278,8 +257,8 @@ One graphics idea: a lens needs two separate answers per pixel, and the mask giv
 
 Earlier 9.10 / 9.11 feedback rounds (2026-09-19 to 2026-09-29) are in git history before this date; their lasting rules are already in `AGENTS.md`.
 
-## Unresolved checkpoint — Lesson 1.3
+## Unresolved checkpoint — Lesson 9.12
 
-Do not mark 1.3 complete until the learner confirms on iOS.
+Lesson 9.12 is generated and is not complete. Do not mark it complete until the learner confirms it.
 
-Course progress: 42 of 216 lessons completed.
+Course progress: 97 of 216 lessons completed.
