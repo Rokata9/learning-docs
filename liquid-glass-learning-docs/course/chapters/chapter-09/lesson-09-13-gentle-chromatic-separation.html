@@ -120,9 +120,22 @@
   .small{font-size:14px;color:#4b5563}
   .wrap ul:not(.legend){max-width:110ch}
   .pl{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#4b5563}
-  .gridA{display:grid;grid-template-columns:1054px minmax(0,1fr);gap:24px;align-items:start}
-  .cp4{display:grid;grid-template-columns:520px 520px;gap:10px 14px}
-  .gridT{display:grid;grid-template-columns:400px 400px minmax(0,1fr);gap:22px;align-items:start}
+  .gridW{display:grid;grid-template-columns:600px 600px minmax(0,1fr);gap:20px;align-items:start}
+  .gridW.ex{grid-template-columns:520px 520px minmax(0,1fr)}
+  .gridW{position:relative}
+  #twOcol{grid-column:1;grid-row:1} #twWcol{grid-column:2;grid-row:1} #twPanel{grid-column:3;grid-row:1} #twCombBox{grid-column:1 / span 2;grid-row:1}
+  #twOut details{margin-top:4px}
+  #twStep .twcap{margin-top:4px}
+  #twOut table.trace{margin:8px 0 14px}
+  .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:4px 0 14px}
+  .card{display:grid;grid-template-columns:140px minmax(0,1fr);gap:12px;align-items:center;text-align:left;font:inherit;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:6px;cursor:pointer;color:var(--ink)}
+  .card:hover{border-color:var(--blue)}
+  .card[aria-pressed="true"]{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue)}
+  .card canvas{width:140px;height:140px;border-radius:5px}
+  .card b{display:block;font-size:15px}
+  .card span{display:block;font-size:13.5px;color:#4b5563}
+  .twcap{font-size:15.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:0;max-width:none}
+  .sw.ramp{background:linear-gradient(90deg,#facc15,#4ade80,#60a5fa)}
   .tag3{display:inline-block;min-width:22px;padding:0 5px;border-radius:11px;background:#a3e635;border:1.5px solid #111827;
     font-size:13px;font-weight:700;text-align:center;line-height:18px;color:#111827}
 </style>
@@ -261,57 +274,10 @@ readGreen = clamp(uv − disp, 0, 1)                    the Lesson 9.12 read poi
     <p><b>What gentle means.</b> A strip is widest where the push is full, dispLen = 0.10. There its width is
     spread × dispLen. With spread 0.10 that is 0.01: a thin hint of color on each edge, and the edge itself stays sharp.
     With spread 0.40 a strip is up to 0.04 wide, and one edge of the wallpaper shows up as three edges. That looks like
-    a broken picture, not like glass. The next picture shows where the three edges come from.</p>
+    a broken picture, not like glass.</p>
     <p class="small">The screen is a settings list drawn by this page.</p>
   </div>
 </div>
-
-<h3 id="copies">Three copies of one edge: one picture per channel</h3>
-<p>The shader paints three pictures, not one. The <b>red picture</b> is the red channel of every pixel, read at the
-readRed points, shown as red light (red, 0, 0). The <b>green picture</b> is read at the readGreen points, and the
-<b>blue picture</b> at the readBlue points. The three pictures use three push lengths, so each one bends the wallpaper
-by a different amount. The output adds the three pictures: (red, 0, 0) + (0, green, 0) + (0, 0, blue) =
-(red, green, blue). Below: the same part of the output, as each picture alone, and then added.</p>
-<div class="ctl"><span class="ctlname">spread</span>
-  <button class="btn" data-cp-s="0">0</button><button class="btn" data-cp-s="0.1">0.10 · gentle</button><button class="btn" data-cp-s="0.4">0.40 · too strong</button>
-  <span class="ctlname" style="margin-left:18px">Wallpaper</span>
-  <button class="btn" data-cp-wall="bw">black &amp; white</button><button class="btn" data-cp-wall="screen">screen</button></div>
-<div class="gridA">
-  <div class="cp4" id="cpGrid">
-    <div><div class="ptitle">Red picture: only the red channel, read at readRed</div><div class="stage" id="cp0S"><canvas id="cp0" width="520" height="300"></canvas></div></div>
-    <div><div class="ptitle">Green picture: only the green channel, read at readGreen</div><div class="stage" id="cp1S"><canvas id="cp1" width="520" height="300"></canvas></div></div>
-    <div><div class="ptitle">Blue picture: only the blue channel, read at readBlue</div><div class="stage" id="cp2S"><canvas id="cp2" width="520" height="300"></canvas></div></div>
-    <div><div class="ptitle">Output: the three pictures added</div><div class="stage" id="cp3S"><canvas id="cp3" width="520" height="300"></canvas></div></div>
-  </div>
-  <div>
-    <ul class="legend">
-      <li><span class="swd" style="background:#a3e635"></span><b>① red copy</b>: where the edge (or the letter) shows up in
-        the red picture. <b>② green copy</b> and <b>③ blue copy</b>: the same in the green and the blue picture. Click a
-        lime dot for its coordinates.</li>
-      <li><span class="sw" style="background:linear-gradient(90deg,#fff 0 50%,#000 50%)"></span><span id="cpPart"></span></li>
-    </ul>
-    <p id="cpText"></p>
-    <div class="readout" id="cpOut"></div>
-  </div>
-</div>
-
-<h3 id="bars">Which color a strip gets, and how strong it looks</h3>
-<p>A channel is a number from 0 (none of that light) to 1 (all of it). A bar below shows one channel: an empty bar is
-0, a full bar is 1. Each row follows the line x = 0.40 down through the edge y = 0.50, as in the picture above
-(spread 0.40, so that the strips are wide enough to see; at 0.10 the strips have the same colors and are 0.01 wide).</p>
-<svg id="barsSvg" class="block" width="1552" height="690" viewBox="0 0 1552 690" role="img" aria-label="Channel bars of the two wallpaper colors and the two strips, for black and white and for orange and navy"></svg>
-<ul>
-  <li><b>What “a jump of 1” means.</b> From white to black every bar goes from full to empty: each channel changes by
-    1 − 0 = 1, the whole bar. Dark text on a white row (bottom row) is almost the same: 1 − 0.067 = 0.933 in every channel.</li>
-  <li><b>Which color a strip gets.</b> Strip 1 lies between ③ and ②: only readBlue has crossed the edge, so strip 1 is
-    the upper color with the blue channel of the lower color. Strip 2 lies between ② and ①: only readRed has not crossed,
-    so strip 2 is the lower color with the red channel of the upper color. Each strip differs from its neighbor in
-    <b>one</b> channel (the framed bar).</li>
-  <li><b>How strong it looks</b> is the size of that one change. Black and white: 1 and 1, two full bars, so pure yellow
-    and pure red. Orange and navy: strip 1 changes blue by only 0.22, a quarter of a bar, so it is an orange that is
-    slightly pinker and hard to see. Strip 2 changes red by 0.78, almost a full bar, so it is a strong raspberry red.
-    On orange and navy one strip almost vanishes and the other stays clear.</li>
-</ul>
 
 <!-- ============================ SECTION 3 ============================ -->
 <h2 id="s3"><span class="tag">Section 3 · one value, traced to the end</span>The pixel W, every number</h2>
@@ -377,45 +343,50 @@ is drawn there.</p>
   </div>
 </div>
 
-<h3 id="letters">Why the words under the glass stay words</h3>
-<p>With <b>screen</b> in the lab, the words under the glass are wider, thinner, or mirrored, but each word stays in one
-piece. The pictures below show why. They use one read point per pixel (spread 0), so only the bend is visible. Nine
-pixels, 0.02 apart, sit around the pixel G. Their read points are drawn on the wallpaper.</p>
-<div class="ctl" id="ltPick"><span class="ctlname">Place of G</span></div>
-<div class="gridT">
-  <div><div class="ptitle">Output: the 9 pixels, 0.04 from first to last</div><div class="stage" id="ltOS"><canvas id="ltO" width="400" height="400"></canvas></div></div>
-  <div><div class="ptitle">Wallpaper: where the 9 pixels read</div><div class="stage" id="ltWS"><canvas id="ltW" width="400" height="400"></canvas></div></div>
-  <div>
-    <ul class="legend">
-      <li><span class="swl" style="background:#a3e635"></span>the lime grid: the 9 pixels (left) and their 9 read points (right),
-        joined in the same order. T, B, L and R are the top, bottom, left and right pixel and their read points.</li>
-      <li><span class="sw" style="background:transparent;border:3px solid #c084fc"></span>the violet square (right): the place
-        of the 9 pixels, drawn on the wallpaper</li>
-      <li><span class="swl" style="background:#ff4d8d"></span>the pink push arrow: from G's place to G's read point</li>
-      <li><span class="swd" style="background:#c084fc"></span>C and the violet circle: the glass, as in the lab (“this lesson”)</li>
-    </ul>
-    <div class="stage" id="ltGS"><svg id="ltGraph" class="block" width="560" height="250" role="img" aria-label="The push as a function of the distance from C, with the four places of G"></svg></div>
-    <div class="readout" id="ltOut" style="margin-top:10px"></div>
-  </div>
+<h3 id="letters">Track a word through the glass</h3>
+<p>Pick a word, then move the glass: drag C, or pick a shape. On the wallpaper, each letter of the word has its own
+tint (a light color laid over it), from yellow (the first letter) to blue (the last letter). In the output, a pixel gets the tint of the letter
+that its read point lands in. So you can follow every letter through the glass. One read point per pixel (spread 0),
+so only the bend shows.</p>
+<div class="ctl" id="twWords"><span class="ctlname">Word</span></div>
+<div class="cards" id="twCards"></div>
+<div class="gridW">
+  <svg class="links" id="twLinks" width="0" height="0"></svg>
+  <div id="twCombBox" style="display:none"><div class="ptitle" id="twCombT"></div><div class="stage" id="twCombS"><canvas id="twComb" width="1060" height="560"></canvas></div></div>
+  <div id="twOcol"><div class="ptitle" id="twOT">Output: what the glass shows</div><div class="stage" id="twOS"><canvas id="twO" width="600" height="600"></canvas></div></div>
+  <div id="twWcol"><div class="ptitle" id="twWT">Wallpaper: where the pixels read</div><div class="stage" id="twWS"><canvas id="twW" width="600" height="600"></canvas></div></div>
+  <div id="twPanel"><div class="ptitle" id="twPT">What you see</div><div class="twcap" id="twCap"></div>
+    <div id="twStep" hidden>
+      <div class="stepnav"><button class="btn" id="twBack" type="button">← Back</button><button class="btn" id="twNext" type="button">Next →</button><div class="dots" id="twDots"></div><button class="btn" id="twClean" type="button" style="margin-left:auto">Hide drawings</button></div>
+      <div class="ctl" id="twLet" hidden></div>
+      <div class="twcap" id="twStepCap"></div>
+      <svg id="twMap" class="block" width="460" height="262" role="img" aria-label="The distance map: each pixel distance and the wallpaper distance it reads" style="margin-top:10px"></svg>
+    </div></div>
 </div>
-<ul>
-  <li><b>Neighbors stay neighbors.</b> The push changes smoothly from place to place (the graph has no jump). So two
-    neighboring pixels have neighboring read points, in the same order: at all four places, the lime lines on the
-    wallpaper never cross. A letter is a group of neighboring dark pixels. So each letter is read in one piece, and it
-    never mixes with another letter.</li>
-  <li><b>What sets the size: the push curve</b> (the graph). The push depends only on the distance from C. At these four
-    places the push points up or down (on the glass edge, almost), so L to R runs across the push and T to B along it.
-    Across: the read points sit closer to C than the pixels, so they are closer together, and the letters look wider.
-    Along: where T and B get the same push (inside), the gap stays 0.04. On the glass edge, T is closer to C and gets the
-    longer push, so the gap grows, and the letters look thinner. Outside the orange ring the push is 0, and nothing
-    changes.</li>
-  <li><b>Middle: closer to C than 0.10,</b> the push (0.10) is longer than the distance to C, so the read points pass C. L and R
-    swap sides, so the letters are mirrored. Exactly 0.10 from C, every pixel reads C itself, so close to that ring the
-    letters do come apart: the petal shapes in the middle of the lab picture.</li>
-  <li><b>Where the curve comes from.</b> It is the rule chosen in Lesson 9.11: full push near C, smoothstep across the
-    band, no push outside. It is not computed from the shape of a real piece of glass. Chapter 10 describes the glass by
-    its height, and Lesson 10.11 lets the thickness change the bend.</li>
+<ul class="legend two" id="twLeg">
+  <li><span class="sw ramp"></span><b>The tracked word</b>: one tint per letter, yellow (first letter) to blue (last letter).
+    Click any word in either picture to track it. Both pictures show the same part of the screen: 0.80 wide, with the
+    middle of the word, M, in the center.</li>
+  <li><span class="swd" style="background:#c084fc"></span><b>C</b> and <span style="color:#7e22ce">the violet circle</span>: the glass, radius 0.25. Drag C in the output.
+    <span style="color:#c2410c">The orange ring</span>: 0.35 from C; outside it the push is 0.</li>
+  <li><span class="swd" style="background:#22d3ee"></span><b>M</b>: the middle of the word. <span style="color:#0e7490">M's ring</span> (cyan): every wallpaper point as far from C as M.</li>
+  <li><span class="swd" style="background:#a3e635"></span><b>P</b>: the pixel that reads M. <span style="color:#4d7c0f">P's ring</span> (lime): the pixels that read M's ring.
+    <b>Q</b> and Q's ring: a second copy, only when M is closer than 0.10 to C.</li>
+  <li><span class="swl" style="background:#ff4d8d"></span><b>The pink push arrows</b>, on the wallpaper: from the place of P (and of Q) to its read point, M.</li>
 </ul>
+<ul class="legend two" id="twLegX" hidden>
+  <li><span class="sw ramp"></span><b>The tracked word</b>: one tint per letter, yellow (first letter) to blue (last letter). The cyan rectangle on the wallpaper is the <b>word box</b>: the rectangle around the word.</li>
+  <li><span class="swd" style="background:#c084fc"></span><b>C</b> and <span style="color:#7e22ce">the violet circle</span>: the glass, radius 0.25. <span style="color:#c2410c">The orange ring</span>: 0.35 from C; outside it the push is 0.</li>
+  <li><span class="swd" style="background:#22d3ee"></span><b>W₁ … W₅</b>: five points on the middle line of the word (W₃ = M, its middle). <b>X</b>: your own point (click the word). <b>TL, T, TR, BL, B, BR</b> (steps 5 and 8): points of the word box; T and B are the middles of its side nearer to C and its side farther from C.</li>
+  <li><span class="swl" style="background:#22d3ee"></span><b>The cyan lines</b> (step 2): from C to each point, with its distance ρ from C printed on it.</li>
+  <li><span class="swl" style="background:#ff4d8d"></span><b>The pink arrows</b> (step 3), on the wallpaper: the push of a pixel, from the pixel's place to the point it shows. Its length is printed beside it.</li>
+  <li><span class="swd" style="background:#a3e635"></span><b>P₁ … P₅</b>: the pixels that show W₁ … W₅ (in the output; on the wallpaper, their places). <b>P(T)</b>, <b>P(TL)</b>, <b>P(X)</b> and so on: the pixels that show T, TL, X and so on. <b>L</b> and <b>R</b> (step 6): the left and right edge of the chosen letter at mid-height; <b>P(L)</b>, <b>P(R)</b>: where they slide to.</li>
+  <li><span class="swl" style="background:#fff;border-color:#111827"></span><b>The white lines</b> (step 4, output): from C toward each pixel, up to the edge of the word. <b>The white drop</b> (step 4): from the line P₁–P₅ to P₃; it measures the bend.</li>
+  <li><span class="swl" style="background:#a3e635"></span><b>The lime arrows</b> (step 5, wallpaper): the slide of a point of the word box, from where it is to where it appears in the output. <b>The lime outline</b> (steps 5–6): the word box (or each letter's box) after the slide.</li>
+  <li><span class="sw" style="background:repeating-linear-gradient(90deg,#fff 0 8px,#9ca3af 8px 9px)"></span><b>Steps 7–9, zoomed in</b>: one square = one pixel, 0.004 wide. <b>Steps 7–8</b>: the outlined squares are output pixels; each lime arrow goes from one pixel to the point of the wallpaper it reads (lime dot). ×2: a wallpaper square read by two pixels. ✕: a row of the word that no pixel reads. <b>Step 9</b>: green squares read inside the letter's box; the lime dots on the wallpaper are their read points; the four long arrows show where the corner squares read.</li>
+  <li><span class="swl" style="background:#9ca3af"></span><b>Hide drawings</b> shows the word alone, without any of these marks.</li>
+</ul>
+<div class="readout cols" id="twOut"></div>
 
 <!-- ============================ SECTION 5 ============================ -->
 <h2 id="s5"><span class="tag">Section 5 · short code excerpt</span>The iPhone shader</h2>
@@ -613,6 +584,13 @@ function buildScreen(){
   rr(c,0.04*S,y0,0.92*S,rh*rows.length,0.03*S); c.fillStyle='#ffffff'; c.fill();
   c.font=`500 ${Math.round(0.042*S)}px ${FONT}`;
   SCR.dX=(0.16*S+c.measureText('Mobile ').width)/S;                 // where the D of "Data" starts (Section 2 copies)
+  /* one box per letter of every word, in UV (Section 4 "Track a word") */
+  const mH=c.measureText('Hg'), asc=mH.actualBoundingBoxAscent/S+0.003, desc=mH.actualBoundingBoxDescent/S+0.003;
+  SCR.words=[];
+  rows.forEach((t,k)=>{ const yc=(y0+k*rh+rh/2)/S; let pos=0;
+    t.split(' ').forEach(w=>{ const st=t.indexOf(w,pos); pos=st+w.length; if(!/[A-Za-z]/.test(w)) return;
+      const xs=[]; for(let i=0;i<=w.length;i++) xs.push((0.16*S+c.measureText(t.slice(0,st+i)).width)/S);
+      SCR.words.push({text:w, xs, top:yc-asc, bot:yc+desc, mid:[(xs[0]+xs[w.length])/2, yc]}); }); });
   rows.forEach((t,k)=>{ const y=y0+k*rh;
     rr(c,0.07*S,y+0.012*S,0.06*S,0.06*S,0.014*S); c.fillStyle=cols[k]; c.fill();
     c.fillStyle='#111111'; c.fillText(t,0.16*S,y+rh/2);
@@ -657,7 +635,6 @@ function render(cv,V,opts){
           cs=[wall(clamp(gx+opt.fixed,0,1),gy,wl), wall(gx,gy,wl), wall(clamp(gx-opt.fixed,0,1),gy,wl)]; }
         else cs=[wall(clamp(u-dX*k[0],0,1),clamp(v-dY*k[0],0,1),wl), wall(clamp(u-dX*k[1],0,1),clamp(v-dY*k[1],0,1),wl), wall(clamp(u-dX*k[2],0,1),clamp(v-dY*k[2],0,1),wl)];
         c=[0,1,2].map(ch=>map[ch][1]===3?1:cs[map[ch][0]][map[ch][1]]);
-        if(opts.only!=null) c=c.map((x,ch)=>ch===opts.only?x:0);     // one channel alone: the other two are 0
       }
       D[o]=Math.round(c[0]*255); D[o+1]=Math.round(c[1]*255); D[o+2]=Math.round(c[2]*255); D[o+3]=255;
     }
@@ -1112,153 +1089,13 @@ widest strip = spread × dispLen
              = ${f(sp)} × 0.10 = ${f(w)}      (in UV, where the push is full)
 on this picture:          ${f(w)} × 520 = ${f(px)} pixels
 on a view as wide as the
-iPhone 16 Pro (402 pt):   ${f(w)} × 402 = ${f(pts)} points`+(sp===0?'\n→ no strips: the three read points are one point.':sp<0.2?'\n→ gentle: a thin hint of color; the edges stay sharp.':'\n→ too strong: one edge shows up as three edges (next picture).');
+iPhone 16 Pro (402 pt):   ${f(w)} × 402 = ${f(pts)} points`+(sp===0?'\n→ no strips: the three read points are one point.':sp<0.2?'\n→ gentle: a thin hint of color; the edges stay sharp.':'\n→ too strong: one edge shows up as three edges.');
     document.querySelectorAll('[data-cmp-s]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.cmpS)===sp)));
     document.querySelectorAll('[data-cmp-wall]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.cmpWall===wl)));
   }
   document.querySelectorAll('[data-cmp-s]').forEach(b=>b.onclick=()=>{ sp=Number(b.dataset.cmpS); draw(); });
   document.querySelectorAll('[data-cmp-wall]').forEach(b=>b.onclick=()=>{ wl=b.dataset.cmpWall; draw(); });
   draw();
-})();
-
-/* the output pixel whose read point, with the push times m, is the wallpaper point F: it lies on the ray from C through F */
-function outOf(F,m,P){
-  const fx=F[0]-P.cx, fy=F[1]-P.cy, r=Math.hypot(fx,fy), ux=fx/r, uy=fy/r;
-  let lo=r, hi=r+0.2;
-  for(let i=0;i<50;i++){ const mid=(lo+hi)/2, pu=P.len*(1-sstep(-BAND,BAND,mid-RAD))*m; if(mid-pu<r) lo=mid; else hi=mid; }
-  const d=(lo+hi)/2; return [P.cx+ux*d, P.cy+uy*d];
-}
-/* names stacked to the right of their points, at least 22 px apart, each joined to its point by a lime line */
-function tagStack(ctx,items,dx){
-  const s=items.map(o=>({...o,ly:o.y})).sort((a,b)=>a.y-b.y);
-  for(let i=1;i<s.length;i++) if(s[i].ly-s[i-1].ly<22) s[i].ly=s[i-1].ly+22;
-  const mid=s.reduce((a,o)=>a+o.y,0)/s.length, mly=s.reduce((a,o)=>a+o.ly,0)/s.length; s.forEach(o=>o.ly+=mid-mly);
-  const left=s[0].x>ctx.canvas.width*0.62, sg=left?-1:1;            // near the right border: names on the left
-  s.forEach(o=>{ line(ctx,o.x+6*sg,o.y,o.x+(dx-4)*sg,o.ly,COL.mag,1.5); lbl(ctx,o.t,o.x+dx*sg,o.ly,INK,left?'right':'left',15); });
-}
-
-/* ================= section 2: three copies, one picture per channel ================= */
-(function(){
-  const CPW={bw:[0.25,0.31,0.51], screen:[0.22,0.31,0.48]};         // the shown part: x 0.25 … 0.51 or 0.22 … 0.48, y 0.31 … 0.46
-  const M=s=>[1-s,1,1+s], TAG=['①','②','③'];
-  let sp=0.4, wl='bw';
-  function copies(){                                                  // the three copies of one wallpaper point
-    const F=wl==='bw'?[0.40,0.50]:[buildScreen().dX+0.005,0.405];
-    return M(sp).map(m=>outOf(F,m,{...LES,spread:sp}));
-  }
-  function draw(){
-    const P={...LES,spread:sp}, cp=copies();
-    const what=wl==='bw'?['the edge y = 0.50','the edge']:['the letter D of “Data”','the D'];
-    for(let k=0;k<4;k++){
-      const cv=document.getElementById('cp'+k), st=document.getElementById('cp'+k+'S'), V=view(cv,...CPW[wl]);
-      clearPts(st);
-      render(cv,V,{kind:'output',P,wall:wl,only:k<3?k:null});
-      const ctx=cv.getContext('2d'), ks=k<3?[k]:[0,1,2];
-      tagStack(ctx,ks.map(j=>({x:V.X(cp[j][0]),y:V.Y(cp[j][1]),t:`${TAG[j]} ${CH[j]} copy`})),60);
-      ks.forEach(j=>{
-        const exact=wl==='bw'&&(j<2||sp<0.2), nm=`${TAG[j]} ${exact?'=':'≈'} ${pt(cp[j][0],cp[j][1])}`;
-        addPt(st,V.X(cp[j][0]),V.Y(cp[j][1]),COL.mag,
-          `<b>${nm}</b>, in UV${exact?'':' (an estimate, read from the picture)'}<br>Role: ${what[0]}, as it shows up in the ${CH[j]} picture. `+
-          `The ${CH[j]} picture uses the push × ${f(M(sp)[j])}.`,`${TAG[j]} in the ${k<3?CH[k]+' picture':'output'}`,'mini');
-      });
-    }
-    const m=M(sp), lines=[`spread = ${f(sp)}`,`1 − spread = 1 − ${f(sp)} = ${f(m[0])}`,`1 + spread = 1 + ${f(sp)} = ${f(m[2])}`,
-      'where the push is full (0.10):',`  red push   = 0.10 × ${f(m[0])} = ${f(V3(0.10*m[0]))}`,'  green push = 0.10',
-      `  blue push  = 0.10 × ${f(m[2])} = ${f(V3(0.10*m[2]))}`];
-    let txt;
-    if(wl==='bw'){
-      if(sp===0){
-        lines.push('','①, ② and ③ are one point: (0.40, 0.40)','  0.54 − 0.40 = 0.14 from C → full push','  readRed.y = readGreen.y = readBlue.y = 0.40 + 0.10 = 0.50');
-        txt='With spread 0 the three pushes are the same. So the three pictures show the edge at the same place: ①, ② and ③ are one point, and the output is only black and white.';
-      } else {
-        const add=(j,nm)=>{ const y=V3(cp[j][1]), d=V3(0.54-y), pj=V3(0.10*m[j]);
-          lines.push('',`${TAG[j]} the pixel (0.40, ${f(y)}):`,`  0.54 − ${f(y)} = ${f(d)} from C → full push`,`  ${nm}.y = ${f(y)} + ${f(pj)} = ${f(V3(y+pj))} → exactly on the edge`); };
-        add(0,'readRed'); add(1,'readGreen');
-        const yR=V3(cp[0][1]), yG=V3(cp[1][1]);
-        lines.push('',`red strip, from ② down to ①: ${f(yR)} − ${f(yG)} = ${f(V3(yR-yG))}`,`  spread × dispLen = ${f(sp)} × 0.10 = ${f(V3(sp*0.10))}`);
-        if(sp<0.2){ add(2,'readBlue'); const yB=V3(cp[2][1]);
-          lines.push('',`yellow strip, from ③ down to ②: ${f(yG)} − ${f(yB)} = ${f(V3(yG-yB))}`); }
-        else { const yB=V3(cp[2][1]), dB=V3(0.54-yB);
-          lines.push('',`③ is near (0.40, ${f(yB)}) — an estimate from the picture`,`  0.54 − ${f(yB)} = ${f(dB)} from C: farther than 0.15,`,'  where the push is already shorter than 0.10',
-            `yellow strip, from ③ down to ②: about ${f(yG)} − ${f(yB)} = ${f(V3(yG-yB))}`); }
-        txt=`Each one-channel picture shows the edge y = 0.50 once, as one bent edge: ① in the red picture, ② in the green
-          picture, ③ in the blue picture. Blue has the longest push, so the blue picture is bent the most, and ③ is the
-          farthest from C (C is below this part). The output adds the three pictures, so it shows all three edges. Above ③
-          all three pictures are bright: white. Between ③ and ②, only the blue picture is dark: (1, 1, 0), yellow. Between
-          ② and ①, the green and the blue picture are dark: (1, 0, 0), red. Below ①, all three are dark: black.`+
-          (sp<0.2?' Here the three edges are only 0.01 apart, so they look like one edge with a thin colored hem.':'');
-      }
-    } else {
-      txt=sp===0?'With spread 0 the three pictures are the same picture, and every word shows up once, in black.':
-        `On the screen every letter shows up once in each picture, at three places: ①, ② and ③ mark the letter D of “Data”
-        in the red, green and blue picture. Blue bends the most, so ③ is the farthest from C. Where only one picture has a
-        dark letter, the output misses only that one channel: the red picture's letter looks cyan (red missing), the green
-        picture's letter looks magenta (green missing, a purple pink), and the blue picture's letter looks yellow (blue missing).
-        Where the letters overlap, the output is dark. So every word shows up three times, in three colors.`;
-      lines.push('','①, ② and ③: the D of “Data” in each picture.','The D is in the band (0.15 to 0.35 from C),','where the push is shorter than 0.10.');
-    }
-    document.getElementById('cpText').textContent=txt.replace(/\s+/g,' ');
-    document.getElementById('cpPart').textContent=`the shown part of the screen: x from ${f(CPW[wl][0])} to ${f(CPW[wl][2])}, y from 0.31 to 0.46, above C (y grows downward)`;
-    document.getElementById('cpOut').textContent=lines.join('\n');
-    document.querySelectorAll('[data-cp-s]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.cpS)===sp)));
-    document.querySelectorAll('[data-cp-wall]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.cpWall===wl)));
-  }
-  document.querySelectorAll('[data-cp-s]').forEach(b=>b.onclick=()=>{ sp=Number(b.dataset.cpS); draw(); });
-  document.querySelectorAll('[data-cp-wall]').forEach(b=>b.onclick=()=>{ wl=b.dataset.cpWall; draw(); });
-  draw();
-})();
-
-/* ================= section 2: channel bars across the edge ================= */
-(function(){
-  const svg=document.getElementById('barsSvg'), TEXT=[0.067,0.067,0.067];
-  const sliceURL=(wl)=>{ const cv=document.createElement('canvas'); cv.width=44; cv.height=150;
-    const s=150/0.115; render(cv,view(cv,0.40-22/s,0.35,0.40+22/s),{kind:'output',P:{...LES,spread:0.4},wall:wl}); return cv.toDataURL(); };
-  const yS=y=>(y-0.35)*150/0.115;                                     // UV y → px inside a slice
-  const cpy=[0.6,1,1.4].map(m=>outOf([0.40,0.50],m,{...LES,spread:0.4})[1]);
-  function bars(x,y,col,src,frame){                                   // one swatch column: three bars with values and sources
-    let h='';
-    for(let c=0;c<3;c++){ const bx=x+c*54, v=col[c];
-      h+=`<text x="${bx+20}" y="${y+12}" font-size="14" text-anchor="middle" fill="${CHD[c]}" font-weight="600">${CH[c]}</text>`+
-        `<rect x="${bx}" y="${y+20}" width="40" height="100" fill="#f3f4f6" stroke="#9ca3af"/>`+
-        `<rect x="${bx}" y="${y+20+100*(1-v)}" width="40" height="${100*v}" fill="${CHC[c]}"/>`+
-        `<text x="${bx+20}" y="${y+75}" font-size="14" text-anchor="middle" font-weight="700" fill="#111827" stroke="#fff" stroke-width="3" paint-order="stroke">${fz(v)}</text>`;
-      if(src) h+=`<text x="${bx+20}" y="${y+138}" font-size="14" text-anchor="middle" fill="#374151" font-weight="${frame===c?700:400}">${src[c]}</text>`;
-      if(frame===c) h+=`<rect x="${bx-3}" y="${y+17}" width="46" height="106" fill="none" stroke="#111827" stroke-width="3"/>`;
-    }
-    return h;
-  }
-  function row(y0,title,wl,A,B,nA,nB,notes){
-    const s1=[A[0],A[1],B[2]], s2=[A[0],B[1],B[2]];
-    let h=`<text x="10" y="${y0+18}" font-size="16" font-weight="700" fill="#111827">${title}</text>`;
-    h+=`<image href="${sliceURL(wl)}" x="10" y="${y0+44}" width="44" height="150"/><rect x="10" y="${y0+44}" width="44" height="150" fill="none" stroke="#111827"/>`;
-    const tY=[2,1,0].map(j=>y0+44+yS(cpy[j]));
-    [['③',tY[0]],['②',tY[1]],['①',tY[2]]].forEach(([t,yy])=>{ h+=`<line x1="54" y1="${yy}" x2="66" y2="${yy}" stroke="#111827" stroke-width="2"/><text x="70" y="${yy+5}" font-size="15" font-weight="700" fill="#111827">${t}</text>`; });
-    const mids=[(y0+44+tY[0])/2,(tY[0]+tY[1])/2,(tY[1]+tY[2])/2,(tY[2]+y0+194)/2];
-    [nA,'strip 1','strip 2',nB].forEach((t,i)=>{ h+=`<text x="96" y="${mids[i]+5}" font-size="14" fill="#374151">${t}</text>`; });
-    const cols=[[nA+' (above)',A,[nA,nA,nA],null],['strip 1',s1,[nA,nA,nB],2],['strip 2',s2,[nA,nB,nB],0],[nB+' (below)',B,[nB,nB,nB],null]];
-    cols.forEach(([nm,col,src,fr],i)=>{ const x=200+i*205;
-      h+=`<text x="${x}" y="${y0+18}" font-size="15" font-weight="700" fill="#111827">${nm}</text>`+
-        `<text x="${x}" y="${y0+37}" font-size="14" fill="#374151">${cz(col)}</text>`+
-        `<rect x="${x}" y="${y0+44}" width="148" height="20" rx="3" fill="${rgb(col)}" stroke="#111827" stroke-width="1.5"/>`+bars(x,y0+70,col,src,fr); });
-    notes.forEach((t,i)=>{ h+=`<text x="1040" y="${y0+60+i*24}" font-size="15" fill="#111827"${/^→/.test(t)?' font-weight="700"':''}>${t}</text>`; });
-    return h;
-  }
-  let h=row(0,'Black and white','bw',WHITE,BLACK,'white','black',
-    ['strip 1 = white, with the blue of black:','  blue 1 → 0: a change of 1 − 0 = 1, a full bar','→ pure yellow: strong','',
-     'strip 2 = black, with the red of white:','  red 0 → 1: a change of 1 − 0 = 1, a full bar','→ pure red: strong']);
-  h+=row(228,'Orange and navy','checker',ORANGE,NAVY,'orange','navy',
-    ['strip 1 = orange, with the blue of navy:','  blue 0.18 → 0.40: a change of 0.40 − 0.18 = 0.22','→ a slightly pinker orange: weak','',
-     'strip 2 = navy, with the red of orange:','  red 0.10 → 0.88: a change of 0.88 − 0.10 = 0.78','→ a raspberry red: strong']);
-  const y3=456;
-  h+=`<text x="10" y="${y3+18}" font-size="16" font-weight="700" fill="#111827">Dark text on a white row (the screen)</text>`;
-  [['white row',WHITE],['dark text',TEXT]].forEach(([nm,col],i)=>{ const x=200+i*205;
-    h+=`<text x="${x}" y="${y3+44}" font-size="15" font-weight="700" fill="#111827">${nm}</text>`+
-      `<text x="${x}" y="${y3+63}" font-size="14" fill="#374151">${cz(col)}</text>`+
-      `<rect x="${x}" y="${y3+70}" width="148" height="20" rx="3" fill="${rgb(col)}" stroke="#111827" stroke-width="1.5"/>`+bars(x,y3+96,col,null,null); });
-  ['every channel: 1 → 0.067','  a change of 1 − 0.067 = 0.933: almost a full bar','→ nearly as strong as black and white'].forEach((t,i)=>{
-    h+=`<text x="1040" y="${y3+80+i*24}" font-size="15" fill="#111827"${/^→/.test(t)?' font-weight="700"':''}>${t}</text>`; });
-  h+=`<line x1="0" y1="221" x2="1552" y2="221" stroke="#e5e7eb"/><line x1="0" y1="449" x2="1552" y2="449" stroke="#e5e7eb"/>`;
-  svg.innerHTML=h;
 })();
 
 /* ================= the chain for one pixel, one operation per line (shown values feed the next line) ================= */
@@ -1407,110 +1244,644 @@ dispLen = ${f(S.len)}   spread = ${f(S.spread)}
   draw();
 })();
 
-/* ================= section 4: why the words stay words (one read point, spread 0) ================= */
-/* the Lesson 9.11 chain for one read point, one operation per line, with the shown values feeding the next line */
-function chain1(u,v,P){
-  const L=[], px=V3(u-P.cx), py=V3(v-P.cy);
-  L.push(`p.x = ${f(u)} − ${par(P.cx)} = ${fz(px)}`, `p.y = ${f(v)} − ${par(P.cy)} = ${fz(py)}`);
-  const sx=V6(px*px), sy=V6(py*py), sum=V6(sx+sy), d=V3(Math.sqrt(sum));
-  L.push(`p.x² = ${par(px)} × ${par(px)} = ${f6(sx)}`, `p.y² = ${par(py)} × ${par(py)} = ${f6(sy)}`, `sum = ${f6(sx)} + ${f6(sy)} = ${f6(sum)}`, `d = √${f6(sum)} = ${f(d)}`);
-  const sd=V3(d-RAD), a=V3(sd+BAND); let t=V3(a/0.2);
-  L.push(`sd = ${f(d)} − 0.25 = ${fz(sd)}`, `sd − (−0.10) = ${fz(sd)} + 0.10 = ${fz(a)}`, `t = ${fz(a)} ÷ 0.20 = ${fz(t)}`);
-  if(t<0){ t=0; L.push('t is limited to 0 … 1 → t = 0'); } else if(t>1){ t=1; L.push('t is limited to 0 … 1 → t = 1'); }
-  const t2=V3(t*t), t3=V3(t2*t), a3=V3(3*t2), b2=V3(2*t3), s=V3(a3-b2), fo=V3(1-s), push=V3(P.len*fo);
-  L.push(`t² = ${fz(t)} × ${fz(t)} = ${fz(t2)}`, `t³ = ${fz(t2)} × ${fz(t)} = ${fz(t3)}`, `3t² = 3 × ${fz(t2)} = ${fz(a3)}`, `2t³ = 2 × ${fz(t3)} = ${fz(b2)}`,
-    `smoothstep = ${fz(a3)} − ${fz(b2)} = ${fz(s)}`, `falloff = 1 − ${fz(s)} = ${fz(fo)}`, `push = ${f(P.len)} × ${fz(fo)} = ${fz(push)}`);
-  const dx=V3(px/d), dy=V3(py/d), ex=V3(dx*push), ey=V3(dy*push), rx=V3(u-ex), ry=V3(v-ey);
-  L.push(`dir.x = ${fz(px)} ÷ ${f(d)} = ${fz(dx)}`, `dir.y = ${fz(py)} ÷ ${f(d)} = ${fz(dy)}`, `disp.x = ${fz(dx)} × ${fz(push)} = ${fz(ex)}`, `disp.y = ${fz(dy)} × ${fz(push)} = ${fz(ey)}`,
-    `read.x = ${f(u)} − ${par(ex)} = ${f(rx)}`, `read.y = ${f(v)} − ${par(ey)} = ${f(ry)}`);
-  return {lines:L, d, push, r:[rx,ry]};
-}
+/* ================= section 4: track a word through the glass (one read point, spread 0) ================= */
 (function(){
-  const P={...LES,spread:0}, C=[P.cx,P.cy], SP=0.02, WIN=0.18;
-  const PL=[{n:'inside',b:'inside · 0.13 below C',g:[0.40,0.67]},{n:'edge',b:'edge · on the glass edge, 0.252 from C',g:[0.37,0.79]},
-            {n:'outside',b:'outside · past the orange ring, 0.38 below C',g:[0.40,0.92]},{n:'middle',b:'middle · 0.05 above C',g:[0.40,0.49]}];
-  let cur=1;
-  const oc=document.getElementById('ltO'), os=document.getElementById('ltOS'), wc=document.getElementById('ltW'), ws=document.getElementById('ltWS');
-  const gs=document.getElementById('ltGS'), gsv=document.getElementById('ltGraph');
-  const NM={'0,-1':'T','0,1':'B','-1,0':'L','1,0':'R','0,0':'G'};
-  const ROLE={T:'the top pixel, 0.02 above G',B:'the bottom pixel, 0.02 below G',L:'the left pixel, 0.02 left of G',R:'the right pixel, 0.02 right of G',G:'the middle pixel'};
-  const win=(cx,cy)=>{ const x0=clamp(cx-WIN/2,0,1-WIN), y0=clamp(cy-WIN/2,0,1-WIN); return [x0,y0,x0+WIN]; };
-  /* the push graph: real values of push = 0.10 × falloff, for distances 0.0025 … 0.45 from C */
-  const GX=d=>52+d/0.45*490, GY=p=>196-p/0.10*160;
-  function graph(){
-    let h=`<rect x="${GX(0)}" y="${GY(0.10)-8}" width="${GX(0.10)-GX(0)}" height="${GY(0)-GY(0.10)+8}" fill="#f3e8ff"/>`+
-      `<text x="${GX(0)+6}" y="${GY(0.04)}" font-size="14" fill="#6b21a8">read points</text><text x="${GX(0)+6}" y="${GY(0.04)+18}" font-size="14" fill="#6b21a8">pass C</text>`;
-    h+=`<line x1="${GX(0)}" y1="${GY(0)}" x2="${GX(0.45)}" y2="${GY(0)}" stroke="#111827"/><line x1="${GX(0)}" y1="${GY(0)}" x2="${GX(0)}" y2="${GY(0.10)-10}" stroke="#111827"/>`;
-    [0,0.10,0.15,0.25,0.35,0.45].forEach(d=>{ h+=`<line x1="${GX(d)}" y1="${GY(0)}" x2="${GX(d)}" y2="${GY(0)+5}" stroke="#111827"/><text x="${GX(d)}" y="${GY(0)+20}" font-size="14" text-anchor="middle" fill="#374151">${fz(d)}</text>`; });
-    [0,0.05,0.10].forEach(p=>{ h+=`<text x="${GX(0)-6}" y="${GY(p)+5}" font-size="14" text-anchor="end" fill="#374151">${fz(p)}</text>`; });
-    h+=`<text x="${GX(0.45)}" y="${GY(0)+38}" font-size="14" text-anchor="end" fill="#111827">distance from C (UV)</text><text x="${GX(0)+4}" y="16" font-size="14" fill="#111827">push (UV)</text>`;
-    h+=`<line x1="${GX(0.25)}" y1="${GY(0)}" x2="${GX(0.25)}" y2="${GY(0.10)}" stroke="#c084fc" stroke-width="2"/><text x="${GX(0.25)+5}" y="${GY(0.10)-6}" font-size="14" fill="#7e22ce">glass edge</text>`;
-    h+=`<line x1="${GX(0.35)}" y1="${GY(0)}" x2="${GX(0.35)}" y2="${GY(0.10)}" stroke="#fb923c" stroke-width="2"/><text x="${GX(0.35)+5}" y="${GY(0.10)-6}" font-size="14" fill="#c2410c">orange ring</text>`;
-    let pts=''; for(let d=0.0025; d<=0.4501; d+=0.0025) pts+=`${GX(d).toFixed(1)},${GY(P.len*(1-sstep(-BAND,BAND,d-RAD))).toFixed(1)} `;
-    h+=`<polyline points="${pts}" fill="none" stroke="#111827" stroke-width="2.5"/>`;
-    gsv.innerHTML=h;
-    clearPts(gs);
-    const OFF={inside:[10,22,'start'],edge:[-10,22,'end'],outside:[10,-12,'start'],middle:[-20,40,'start']};
-    PL.forEach((q,i)=>{ const c=chain1(q.g[0],q.g[1],P), x=GX(c.d), y=GY(c.push), [ox,oy,an]=OFF[q.n];
-      const t=document.createElementNS('http://www.w3.org/2000/svg','text'); t.setAttribute('x',x+ox); t.setAttribute('y',y+oy);
-      t.setAttribute('font-size','14'); t.setAttribute('font-weight',i===cur?'700':'400'); t.setAttribute('text-anchor',an); t.setAttribute('fill','#111827');
-      t.textContent=`G ${q.n}`; gsv.appendChild(t);
-      addPt(gs,x,y,i===cur?COL.mag:'#ffffff',`<b>G (${q.n}) = ${pt(q.g[0],q.g[1])}</b>, in UV<br>Role: a place of the pixel G. Its distance from C is ${f(c.d)}, and its push is ${fz(c.push)}.`,`G ${q.n} on the push graph`,'mini'); });
+  const WORDS=buildScreen().words, CYAN='#22d3ee', CYN=['#0e7490','#22d3ee'], LIM=['#4d7c0f','#a3e635'];
+  const RAMP=[[250,204,21],[74,222,128],[96,165,250]], TA=0.55;     // letter tints: yellow → green → blue
+  const tint=(k,n)=>{ const t=n>1?k/(n-1):0, h=t<0.5?0:1, s=t<0.5?t*2:t*2-1; return RAMP[h].map((x,i)=>x+(RAMP[h+1][i]-x)*s); };
+  const pushX=e=>LES.len*(1-sstep(-BAND,BAND,e-RAD));
+  const readOf=(u,v,C)=>{ const px=u-C[0], py=v-C[1], d=Math.hypot(px,py); if(d<0.0001) return [u,v];
+    const s=pushX(d)/d; return [clamp(u-px*s,0,1), clamp(v-py*s,0,1)]; };
+  const letterAt=(w,u,v)=>{ if(v<w.top||v>w.bot||u<w.xs[0]||u>w.xs[w.xs.length-1]) return -1;
+    for(let i=0;i<w.text.length;i++) if(u<=w.xs[i+1]) return i; return -1; };
+  const wordAt=(u,v)=>WORDS.find(w=>u>=w.xs[0]-0.004&&u<=w.xs[w.xs.length-1]+0.004&&v>=w.top-0.004&&v<=w.bot+0.004);
+  /* the output (kind 'output') or the wallpaper (kind 'input'), with the letters of word w tinted */
+  function paint(cv,V,kind,C,w){
+    const W=cv.width, H=cv.height, ctx=cv.getContext('2d'), img=ctx.createImageData(W,H), D=img.data, n=w.text.length;
+    const T=[]; for(let k=0;k<n;k++) T.push(tint(k,n));
+    for(let j=0;j<H;j++){ const v=V.y0+(j+0.5)/V.s;
+      for(let i=0;i<W;i++){ const u=V.x0+(i+0.5)/V.s, o=(j*W+i)*4; let c=[255,255,255];
+        if(inside(u,v)){ const r=kind==='output'?readOf(u,v,C):[u,v], k=letterAt(w,r[0],r[1]);
+          c=screenCol(r[0],r[1]).map(x=>x*255); if(k>=0) c=c.map((x,i)=>x*(1-TA)+T[k][i]*TA); }
+        D[o]=c[0]; D[o+1]=c[1]; D[o+2]=c[2]; D[o+3]=255; } }
+    ctx.putImageData(img,0,0);
+  }
+  /* the Lesson 9.11 chain from a shown distance e, one operation per line */
+  function pushLines(e){
+    const L=[`d = ${f(e)}`], sd=V3(e-RAD), a=V3(sd+BAND); let t=V3(a/0.2);
+    L.push(`sd = ${f(e)} − 0.25 = ${fz(sd)}`, `sd − (−0.10) = ${fz(sd)} + 0.10 = ${fz(a)}`, `t = ${fz(a)} ÷ 0.20 = ${fz(t)}`);
+    if(t<0){ t=0; L.push('t is limited to 0 … 1 → t = 0'); } else if(t>1){ t=1; L.push('t is limited to 0 … 1 → t = 1'); }
+    const t2=V3(t*t), t3=V3(t2*t), a3=V3(3*t2), b2=V3(2*t3), s=V3(a3-b2), fo=V3(1-s), push=V3(LES.len*fo);
+    L.push(`t² = ${fz(t)} × ${fz(t)} = ${fz(t2)}`, `t³ = ${fz(t2)} × ${fz(t)} = ${fz(t3)}`, `3t² = 3 × ${fz(t2)} = ${fz(a3)}`,
+      `2t³ = 2 × ${fz(t3)} = ${fz(b2)}`, `smoothstep = ${fz(a3)} − ${fz(b2)} = ${fz(s)}`, `falloff = 1 − ${fz(s)} = ${fz(fo)}`,
+      `push = 0.10 × ${fz(fo)} = ${fz(push)}`);
+    return {L,push};
+  }
+  function pushShown(e){                                             // the same rounding as pushLines, numbers only
+    const a=V3(V3(e-RAD)+BAND), t=clamp(V3(a/0.2),0,1), t2=V3(t*t), t3=V3(t2*t);
+    return V3(LES.len*V3(1-V3(V3(3*t2)-V3(2*t3))));
+  }
+  /* copy 1: the shown distance e (0.10 or more, steps of 0.0001) whose shown read distance e − push is closest to rho */
+  function pixelFor(rho){
+    if(rho>=0.35) return {e:rho, r:rho, gap:0};
+    let best=null;
+    for(let k=1000;k<=3500;k++){ const e=k/10000, r=V3(e-pushShown(e)), gap=Math.abs(r-rho);
+      if(!best||gap<best.gap-1e-12||(Math.abs(gap-best.gap)<1e-12&&String(e).length<String(best.e).length)) best={e,r,gap}; }
+    return best;
+  }
+  const TIP_LEN='<b>The distance from C</b> — Lesson 9.1.<br>Take the steps from C to the point, x and y. The distance is √(x² + y²): the long side of a right triangle with legs x and y.';
+  const TIP_RING='<b>The length of a ring</b><br>A ring at distance d around C is 2 × π × d long (π = 3.1416). So a ring twice as far from C is twice as long, and P\'s ring ÷ M\'s ring = (2 × π × P\'s distance) ÷ (2 × π × M\'s distance) = P\'s distance ÷ M\'s distance: the 2 × π cancels.';
+  const pushTip=(e,pl)=>`<b>push at ${f(e)} from C</b> — the Lesson 9.11 chain, started from the distance d:<pre>${pl.L.join('\n')}</pre>Used by: the read distance, d − push.`;
+
+  const oc=document.getElementById('twO'), os=document.getElementById('twOS'), wc=document.getElementById('twW'), ws=document.getElementById('twWS');
+  const HALF=0.40, V={}, VW={}, BX=[0,1,0,1];                       // both pictures: 0.80 wide, M in the center
+  const SHAPES=[{n:'unchanged',d:0.38},{n:'flattened',d:0.12},{n:'stretched + mirror copy',d:0.03},{n:'smeared',d:0}];
+  const midOf=w=>[V3(w.mid[0]),V3(w.mid[1])];
+  const cardC=(w,d)=>{ const M=midOf(w); return M[1]-d>=0.03?[M[0],V3(M[1]-d)]:[M[0],V3(M[1]+d)]; };
+  const S={word:WORDS.find(w=>w.text==='Haptics'), C:null, card:2, step:1, X:null, clean:false, letter:-1};
+  function frame(){                                                  // the window around M, and where C may go
+    const M=midOf(S.word), ex=S.card===1, hf=ex?0.22:HALF, size=ex?520:600;      // “flattened” step by step: a closer view
+    if(oc.width!==size){ oc.width=oc.height=wc.width=wc.height=size; }
+    document.querySelector('.gridW').classList.toggle('ex',ex);
+    Object.assign(V,view(oc,M[0]-hf,M[1]-hf,M[0]+hf)); Object.assign(VW,view(wc,M[0]-hf,M[1]-hf,M[0]+hf));
+    BX.splice(0,4,Math.max(0.02,M[0]-hf+0.02),Math.min(0.98,M[0]+hf-0.02),Math.max(0.02,M[1]-hf+0.02),Math.min(0.98,M[1]+hf-0.02));
+    S.C=S.card>=0?cardC(S.word,SHAPES[S.card].d):[V3(clamp(S.C[0],BX[0],BX[1])),V3(clamp(S.C[1],BX[2],BX[3]))];
+  }
+  const clearDyn=st=>st.querySelectorAll('.ptdot:not(.drag)').forEach(b=>b.remove());
+  const hC=addPt(os,0,0,COL.glass,()=>TIP_C(...S.C)+'<br>Drag it, or press the arrow keys after clicking it.','C, drag to move the glass','drag');
+  dragHandle(hC,oc,V,(u,v)=>{ S.C=[u,v]; S.card=-1; later(); },BX,()=>S.C,0.005);
+  let queued=false; const later=()=>{ if(queued) return; queued=true; requestAnimationFrame(()=>{ queued=false; draw(); }); };
+
+  /* ---------- “flattened”, step by step (card 1) ---------- */
+  const SUB='₁₂₃₄₅', NSTEP=9, PX=0.004;                              // steps 6–7: big pixels, 0.004 wide (UV), 21 × 21 of them
+  const eExact=rho=>{ if(rho>=0.35) return rho; let lo=0.10, hi=0.35;            // the exact output distance, for outlines
+    for(let i=0;i<40;i++){ const m=(lo+hi)/2; if(m-pushX(m)<rho) lo=m; else hi=m; } return (lo+hi)/2; };
+  const V8=x=>Math.round(x*1e8)/1e8, f8=x=>{ const t=V8(x).toFixed(8).replace(/0+$/,'').replace(/\.$/,''); return t.replace('-','−'); };
+  const f5=x=>(Math.round(x*1e5)/1e5).toFixed(5);
+  function chainOf(n,Wp,C){                                          // one point of the wallpaper → the pixel that shows it (shown numbers)
+    const dx=V3(Wp[0]-C[0]), dy=V3(Wp[1]-C[1]), sx=V8(dx*dx), sy=V8(dy*dy), sum=V8(sx+sy), rho=V3(Math.sqrt(sum));
+    const pf=pixelFor(rho), e=pf.e, ux=V3(dx/rho), uy=V3(dy/rho), ex=V3(e*ux), ey=V3(e*uy);
+    return {n, W:Wp, dx, dy, sx, sy, sum, rho, e, push:pushShown(e), pl:pushLines(e), r:pf.r, gap:pf.gap, mv:V3(e-rho), ux, uy, ex, ey, P:[V3(C[0]+ex),V3(C[1]+ey)]};
+  }
+  const pn=c=>c.n[0]==='W'?'P'+c.n.slice(1):`P(${c.n})`;               // the pixel's name
+  const PUSH_RULE='<b>The push rule</b> — Lesson 9.11.<br>push(e) = 0.10 × (1 − smoothstep(−0.10, 0.10, e − 0.25)): the full 0.10 up to 0.15 from C, smaller between 0.15 and 0.35, and 0 from 0.35 on.<br>push(e) depends on e itself, through smoothstep (3t² − 2t³). So there is no short formula that gives e from ρ: the chart reads e off, and the table checks it.';
+  const BIGPX='<b>Big pixels</b> — a choice of this picture.<br>A pixel here is 0.004 wide (UV), so 250 of them fill the screen width. A real iPhone 16 Pro pixel is 1 ÷ 1206 = 0.00083 wide. Smaller pixels give the same counts per pixel, only harder to see.';
+  /* a zoomed picture with the big-pixel grid on top */
+  function paintPix(cv,VV,kind,C,w,ctr){
+    paint(cv,VV,kind,C,w); const ctx=cv.getContext('2d');
+    ctx.strokeStyle='rgba(17,24,39,0.28)'; ctx.lineWidth=1; ctx.beginPath();
+    for(let i=-11;i<=12;i++){ const xx=VV.X(ctr[0]+(i-0.5)*PX), yy=VV.Y(ctr[1]+(i-0.5)*PX); ctx.moveTo(xx,0); ctx.lineTo(xx,cv.height); ctx.moveTo(0,yy); ctx.lineTo(cv.width,yy); }
+    ctx.stroke();
+  }
+  /* a box (or any closed list of wallpaper points) moved by the glass: every point goes out along its line from C */
+  const moved=(C,ps)=>ps.map(q=>{ const dx=q[0]-C[0], dy=q[1]-C[1], d=Math.hypot(dx,dy), e=eExact(d); return [C[0]+dx/d*e, C[1]+dy/d*e]; });
+  const perim=(x0,x1,y0,y1,nx)=>{ const p=[]; for(let i=0;i<=nx;i++) p.push([x0+(x1-x0)*i/nx,y0]); for(let i=0;i<=10;i++) p.push([x1,y0+(y1-y0)*i/10]);
+    for(let i=nx;i>=0;i--) p.push([x0+(x1-x0)*i/nx,y1]); for(let i=10;i>=0;i--) p.push([x0,y0+(y1-y0)*i/10]); return p; };
+  const pathOn=(ctx,VV,ps,color,w)=>halo(ctx,()=>{ ps.forEach((q,i)=>i?ctx.lineTo(VV.X(q[0]),VV.Y(q[1])):ctx.moveTo(VV.X(q[0]),VV.Y(q[1]))); ctx.closePath(); },color,w);
+  /* names in one row above (or below) a ruler, never overlapping, each joined to its point by a thin line */
+  const MEAS=document.createElement('canvas').getContext('2d');
+  function labelRow(items,yText,yPt,color,minX,maxX){
+    MEAS.font='700 14px -apple-system,"Segoe UI",Roboto,sans-serif';
+    const it=items.map(o=>({...o,w:MEAS.measureText(o.t).width})).sort((a,b)=>a.x-b.x);
+    it.forEach((o,i)=>{ o.p=Math.max(o.x,minX+o.w/2); if(i) o.p=Math.max(o.p,it[i-1].p+(it[i-1].w+o.w)/2+10); });
+    for(let i=it.length-1;i>=0;i--){ const lim=i===it.length-1?maxX-it[i].w/2:it[i+1].p-(it[i].w+it[i+1].w)/2-10; it[i].p=Math.min(it[i].p,lim); }
+    const up=yText<yPt; let h='';
+    it.forEach(o=>{ h+=`<line x1="${o.p}" y1="${up?yText+5:yText-15}" x2="${o.x}" y2="${up?yPt-7:yPt+7}" stroke="${color}" stroke-width="1.2"/>`+
+      `<text x="${o.p}" y="${yText}" font-size="14" font-weight="700" text-anchor="middle" fill="${color}">${o.t}</text>`; });
+    return h;
+  }
+  const r5=x=>Math.round(x*1e5)/1e5;
+  /* one point of the wallpaper → the pixel that shows it: the steps 2–4, as a tooltip */
+  const chainTip=(c,C)=>`<b>${c.n} → ${pn(c)}</b>, with the steps 2–4:<pre>Δx = ${f(c.W[0])} − ${f(C[0])} = ${fz(c.dx)}
+Δy = ${f(c.W[1])} − ${f(C[1])} = ${fz(c.dy)}
+Δx² = ${par(c.dx)} × ${par(c.dx)} = ${f8(c.sx)}
+Δy² = ${par(c.dy)} × ${par(c.dy)} = ${f8(c.sy)}
+sum = ${f8(c.sx)} + ${f8(c.sy)} = ${f8(c.sum)}
+ρ = √${f8(c.sum)} = ${fz(c.rho)}
+e (read off the chart) = ${f(c.e)}
+push(e) = ${fz(c.push)}
+check: ${f(c.e)} − ${fz(c.push)} = ${fz(c.r)}${c.gap>1e-9?` ≈ ${fz(c.rho)} (rounding)`:''}
+dir.x = ${fz(c.dx)} ÷ ${fz(c.rho)} = ${fz(c.ux)}
+dir.y = ${fz(c.dy)} ÷ ${fz(c.rho)} = ${fz(c.uy)}
+e × dir.x = ${f(c.e)} × ${par(c.ux)} = ${fz(c.ex)}
+e × dir.y = ${f(c.e)} × ${par(c.uy)} = ${fz(c.ey)}
+P.x = ${f(C[0])} + ${par(c.ex)} = ${f(c.P[0])}
+P.y = ${f(C[1])} + ${par(c.ey)} = ${f(c.P[1])}</pre>`;
+  /* an output pixel → its read point, with 5 decimals (neighbouring read points are only about 0.002 apart) */
+  function readChain(q,C){
+    const dx=r5(q[0]-C[0]), dy=r5(q[1]-C[1]), e=r5(Math.hypot(dx,dy)), push=r5(pushX(e)), rr=r5(e-push), ux=r5(dx/e), uy=r5(dy/e), rx=r5(C[0]+rr*ux), ry=r5(C[1]+rr*uy);
+    return {e,push,rr,ux,uy,rx,ry, tip:`<b>Read point of this pixel</b>, the Lesson 9.11 chain with 5 decimals:<pre>pixel center = (${f5(q[0])}, ${f5(q[1])})
+Δx = ${f5(q[0])} − ${f(C[0])} = ${f5(dx)}
+Δy = ${f5(q[1])} − ${f(C[1])} = ${f5(dy)}
+e = √(Δx² + Δy²) = ${f5(e)}
+push(e) = ${f5(push)}   (the push rule)
+read distance = ${f5(e)} − ${f5(push)} = ${f5(rr)}
+dir = (${f5(dx)} ÷ ${f5(e)}, ${f5(dy)} ÷ ${f5(e)}) = (${f5(ux)}, ${f5(uy)})
+read.x = ${f(C[0])} + ${f5(rr)} × ${f5(ux)} = ${f5(rx)}
+read.y = ${f(C[1])} + ${f5(rr)} × ${f5(uy)} = ${f5(ry)}</pre>`};
+  }
+  /* a wallpaper point → the pixel that shows it, with 5 decimals (letter edges are close together) */
+  function fwd(n,Wp,C){
+    const dx=r5(Wp[0]-C[0]), dy=r5(Wp[1]-C[1]), rho=r5(Math.hypot(dx,dy)), e=r5(eExact(rho)), push=r5(pushX(e)), ux=r5(dx/rho), uy=r5(dy/rho), ex=r5(e*ux), ey=r5(e*uy), P=[r5(C[0]+ex),r5(C[1]+ey)];
+    return {n,W:Wp,P,rho,e,tip:`<b>${n}</b> → the pixel that shows it, with 5 decimals:<pre>Δx = ${f5(Wp[0])} − ${f(C[0])} = ${f5(dx)}
+Δy = ${f5(Wp[1])} − ${f(C[1])} = ${f5(dy)}
+ρ = √(Δx² + Δy²) = ${f5(rho)}
+e (where e − push(e) = ρ, read off the chart) = ${f5(e)}
+push(e) = ${f5(push)};  check: ${f5(e)} − ${f5(push)} = ${f5(r5(e-push))}
+dir = (${f5(dx)} ÷ ${f5(rho)}, ${f5(dy)} ÷ ${f5(rho)}) = (${f5(ux)}, ${f5(uy)})
+e × dir = (${f5(ex)}, ${f5(ey)})
+P = (${f(C[0])} + ${f5(ex)}, ${f(C[1])} + ${f5(ey)}) = (${f5(P[0])}, ${f5(P[1])})</pre>`};
+  }
+  const r10=x=>Math.round(x*1e10)/1e10, f10=x=>{ const t=r10(x).toFixed(10).replace(/0+$/,'').replace(/\.$/,''); return t.replace('-','−'); };
+  const seg5=(a,b)=>{ const dx=r5(b[0]-a[0]), dy=r5(b[1]-a[1]), sx=r10(dx*dx), sy=r10(dy*dy), sum=r10(sx+sy); return {dx,dy,sx,sy,sum,len:r5(Math.sqrt(sum))}; };
+  const p5=q=>`(${f5(q[0])}, ${f5(q[1])})`;
+  function explain(w,C,o,x){
+    const st=S.step, M=midOf(w), n=w.text.length, above=C[1]<M[1], sg=above?1:-1, tips=[], I=h=>{ tips.push(h); return `<button class="info" data-tw="${tips.length-1}">ⓘ</button>`; };
+    /* ---------- the points ---------- */
+    const xa=V3(w.xs[0]), xb=V3(w.xs[n]), wid=V3(xb-xa), gp=V3(wid/4), x2=V3(M[0]-gp), x4=V3(M[0]+gp);
+    const xsW=[V3(x2-gp), x2, M[0], x4, V3(x4+gp)];
+    const Wc=xsW.map((xx,i)=>chainOf('W'+SUB[i],[xx,M[1]],C));
+    const top=V3(w.top), bot=V3(w.bot), hgt=V3(bot-top), nearY=above?top:bot, farY=above?bot:top;
+    const cT=chainOf('T',[M[0],nearY],C), cB=chainOf('B',[M[0],farY],C);
+    const cX=S.X?chainOf('X',S.X,C):null, pts=cX?Wc.concat([cX]):Wc;
+    const letterOf=Wp=>{ const k=letterAt(w,Wp[0],Wp[1]); return k>=0?`in the letter “${w.text[k]}”`:'between letters'; };
+    const r1=Wc[0], r3=Wc[2], P1=r1.P, P3=r3.P, P5=Wc[4].P, str=V3(r3.e/r3.rho);
+    const KP=[chainOf('TL',[xa,nearY],C),cT,chainOf('TR',[xb,nearY],C),chainOf('BL',[xa,farY],C),cB,chainOf('BR',[xb,farY],C)];
+    const LB=[]; for(let k=0;k<=n;k++) LB.push(fwd(k<n?`the left edge of “${w.text[k]}”`:`the right edge of “${w.text[n-1]}”`,[r5(w.xs[k]),M[1]],C));
+    const LW=[]; for(let k=0;k<n;k++){ const ww=r5(LB[k+1].W[0]-LB[k].W[0]), g=seg5(LB[k].P,LB[k+1].P); LW.push({ww,g,ratio:V3(g.len/ww)}); }
+    const kc=letterAt(w,r3.W[0],r3.W[1]); if(!(S.letter>=0&&S.letter<n)) S.letter=kc;
+    const kMin=LW.reduce((a,b,i)=>b.ratio<LW[a].ratio?i:a,0);
+    /* the big-pixel grids: square centers at W₃ + k × 0.004 (wallpaper) and P₃ + k × 0.004 (output) */
+    const Wz=r3.W, Pz=P3, glW=r5(Wz[0]-10.5*PX), gtW=r5(Wz[1]-10.5*PX);
+    /* step 8 numbers: one pixel farther out */
+    const e8=V3(r3.e+PX), p8=pushShown(e8), rho8=V3(e8-p8), sp=V3(rho8-r3.r), spx=V3(sp/PX), acr=V3(PX/sp), area=V3(str*acr);
+    const dmv=V3(cT.mv-cB.mv), oth=V3(cB.e-cT.e), th=V3(cB.rho-cT.rho), fl=V3(oth/th);
+    const zoom=st>=7, Lsel=S.letter, combo=st===7||st===8;
+    document.getElementById('twOcol').style.display=combo?'none':''; document.getElementById('twWcol').style.display=combo?'none':'';
+    document.getElementById('twCombBox').style.display=combo?'':'none';
+    document.getElementById('twCombT').textContent=st===7?'Step 7 · each output pixel (top) reads one point of the wallpaper (bottom)':'Step 8 · each output pixel (left) reads one point of the wallpaper (right)';
+    const links=document.getElementById('twLinks'); links.innerHTML=''; let zc7={sq:0,two:0};
+    document.getElementById('twOT').textContent=st===9?`Output, zoomed in on the letter “${w.text[Lsel]}” (×5.24): one square = one big pixel`:zoom?'Output, zoomed in on P₃ (×5.24): one square = one big pixel':'Output: what the glass shows';
+    document.getElementById('twWT').textContent=st===9?`Wallpaper, zoomed in on the letter “${w.text[Lsel]}” (×5.24)`:zoom?'Wallpaper, zoomed in on W₃ (×5.24): one square = one big pixel':'Wallpaper: where the pixels read';
+    const lb=document.getElementById('twLet'); lb.hidden=false; lb.style.display=(st===6||st===9)?'':'none';
+    if(st===6||st===9){ lb.innerHTML='<span class="ctlname">Letter</span>'; for(let k=0;k<n;k++){ const b=document.createElement('button'); b.className='btn'; b.textContent=`${k+1} · ${w.text[k]}`;
+      b.setAttribute('aria-pressed',String(k===Lsel)); b.onclick=()=>{ S.letter=k; draw(); }; lb.appendChild(b); } }
+    /* labels never overlap: each picture remembers its labels */
+    const placed=new Map([[o,[]],[x,[]]]);
+    const bx=(ctx,t,X,Y,al)=>{ ctx.font='600 14px -apple-system,"Segoe UI",Roboto,sans-serif'; const tw=ctx.measureText(t).width; return [(al==='right'?X-tw:al==='center'?X-tw/2:X)-4,Y-11,tw+8,22]; };
+    const hit=(ctx,b)=>placed.get(ctx).some(q=>b[0]<q[0]+q[2]&&q[0]<b[0]+b[2]&&b[1]<q[1]+q[3]&&q[1]<b[1]+b[3]);
+    const putN=(ctx,t,X,Y,pair,al='center')=>{ for(const [ox,oy] of [[0,0],[0,-20],[0,20],[0,-40],[0,40],[26,0],[-26,0]]){
+        const b=bx(ctx,t,X+ox,Y+oy,al); if(!hit(ctx,b)){ placed.get(ctx).push(b); lbl(ctx,t,X+ox,Y+oy,pair,al,14); return; } } lbl(ctx,t,X,Y,pair,al,14); };
+    const edges=c=>{ const u=[c.dx/c.rho,c.dy/c.rho]; if(Math.abs(u[1])<1e-6) return [c.e,c.e]; return [eExact((nearY-C[1])/u[1]), eExact((farY-C[1])/u[1])]; };
+    const ed=new Map(pts.map(c=>[c,edges(c)]));
+    document.getElementById('twClean').textContent=S.clean?'Show drawings':'Hide drawings';
+    const mp=moved(C,perim(w.xs[0],w.xs[n],w.top,w.bot,80));
+    /* ================= steps 1–6: the whole word ================= */
+    if(!zoom){
+      putN(o,'C',V.X(C[0])+16,V.Y(C[1]),GLS,'left'); addPt(os,V.X(C[0]),V.Y(C[1]),COL.glass,TIP_C(...C),'C','mini');
+      putN(x,'C',VW.X(C[0])+16,VW.Y(C[1]),GLS,'left'); addPt(ws,VW.X(C[0]),VW.Y(C[1]),COL.glass,TIP_C(...C),'C on the wallpaper','mini');
+    }
+    if(!zoom&&!S.clean){
+      box(x,VW.X(w.xs[0]),VW.Y(w.top),(w.xs[n]-w.xs[0])*VW.s,(w.bot-w.top)*VW.s,CYAN,2);
+      putN(x,'word box',VW.X(w.xs[n])+8,VW.Y(nearY)-sg*12,CYN,'left');
+      if(st<=4){
+        if(st>=2) pts.forEach(c=>line(x,VW.X(C[0]),VW.Y(C[1]),VW.X(c.W[0]),VW.Y(c.W[1]),CYAN,2));
+        if(st>=3) pts.forEach(c=>arrow(x,VW.X(c.P[0]),VW.Y(c.P[1]),VW.X(c.W[0]),VW.Y(c.W[1]),COL.push,2.5));
+        pts.forEach(c=>putN(x,c.n,VW.X(c.W[0]),c.n==='X'?VW.Y(c.W[1])-sg*16:VW.Y(farY)+sg*14,CYN));
+        if(st===2) pts.forEach((c,i)=>{ const fr=i%2?0.55:0.78; putN(x,fz(c.rho),VW.X(C[0]+(c.W[0]-C[0])*fr),VW.Y(C[1]+(c.W[1]-C[1])*fr),CYN); });
+        if(st>=3) pts.forEach(c=>{ putN(x,pn(c),VW.X(c.P[0])+c.ux*18,VW.Y(c.P[1])+c.uy*18,LIM);
+          putN(x,fz(c.push),VW.X(c.W[0]+(c.P[0]-c.W[0])*0.72)+8,VW.Y(c.W[1]+(c.P[1]-c.W[1])*0.72),PSH,'left'); });
+        if(st===4){
+          pts.forEach(c=>{ const en=ed.get(c)[0]; line(o,V.X(C[0]),V.Y(C[1]),V.X(C[0]+c.dx/c.rho*en),V.Y(C[1]+c.dy/c.rho*en),'#ffffff',1.5); });
+          pts.forEach(c=>{ const ef=ed.get(c)[1]; putN(o,pn(c),V.X(C[0]+c.dx/c.rho*ef)+c.ux*16,V.Y(C[1]+c.dy/c.rho*ef)+c.uy*16,LIM); });
+          line(o,V.X(P1[0]),V.Y(P1[1]),V.X(P5[0]),V.Y(P5[1]),'#ffffff',1.5); line(o,V.X(P3[0]),V.Y(P1[1]),V.X(P3[0]),V.Y(P3[1]),'#ffffff',2);
+          putN(o,`bend ${f(V3(Math.abs(P3[1]-P1[1])))}`,V.X(P3[0])+8,V.Y(P1[1])-sg*16,INK,'left');
+          pts.forEach(c=>addPt(os,V.X(c.P[0]),V.Y(c.P[1]),COL.mag,`<b>${pn(c)} = ${pt(...c.P)}</b>, in UV<br>Role: the pixel that shows ${c.n}. It is ${f(c.e)} from C, on the line from C through ${c.n}.`,pn(c),'mini')); }
+        pts.forEach(c=>addPt(ws,VW.X(c.W[0]),VW.Y(c.W[1]),CYAN,`<b>${c.n} = ${pt(...c.W)}</b>, in UV<br>Role: ${c.n==='X'?'your point':'a point on the middle line'} of “${w.text}”, ${letterOf(c.W)}.`+(st>=2?` It is ${fz(c.rho)} from C.`:''),c.n,'mini'));
+        if(st>=3) pts.forEach(c=>addPt(ws,VW.X(c.P[0]),VW.Y(c.P[1]),COL.mag,`<b>${pn(c)}'s place = ${pt(...c.P)}</b>, in UV, drawn on the wallpaper<br>Role: where the pixel ${pn(c)} sits. Its push, ${fz(c.push)}, moves its read spot toward C, onto ${c.n}.`,pn(c)+"'s place",'mini'));
+      }
+      if(st===5){
+        pathOn(x,VW,mp,COL.mag,2); pathOn(o,V,mp,COL.mag,2);
+        const samp=[]; for(let i=0;i<=8;i++){ const xx=w.xs[0]+(w.xs[n]-w.xs[0])*i/8; samp.push([xx,w.top],[xx,w.bot]); } samp.push([w.xs[0],(w.top+w.bot)/2],[w.xs[n],(w.top+w.bot)/2]);
+        samp.forEach(q=>{ const m=moved(C,[q])[0]; arrow(x,VW.X(q[0]),VW.Y(q[1]),VW.X(m[0]),VW.Y(m[1]),COL.mag,2); });
+        putN(x,'the word in the output (drawn here)',VW.X(mp[132][0]),VW.Y(mp[132][1])+sg*20,LIM,'center');
+        putN(o,'outline',V.X(mp[0][0])-8,V.Y(mp[0][1])-sg*12,LIM,'right');
+        KP.forEach(c=>{ const lft=c.n.endsWith('L'), rgt=c.n.endsWith('R');
+          putN(x,c.n,VW.X(c.W[0])+(lft?-16:rgt?16:0),VW.Y(c.W[1])-(c.n[0]==='T'||c.n==='T'?sg*14:-sg*14),CYN,lft?'right':rgt?'left':'center');
+          putN(o,pn(c),V.X(c.P[0])+(lft?-14:rgt?14:0),V.Y(c.P[1])+(c.n[0]==='T'?-sg*14:sg*16),LIM,lft?'right':rgt?'left':'center');
+          addPt(ws,VW.X(c.W[0]),VW.Y(c.W[1]),CYAN,`<b>${c.n} = ${pt(...c.W)}</b>, in UV<br>Role: a point of the word box.`,c.n,'mini');
+          addPt(os,V.X(c.P[0]),V.Y(c.P[1]),COL.mag,chainTip(c,C),pn(c),'mini'); });
+      }
+      if(st===6){
+        const cL=LB[Lsel], cR=LB[Lsel+1];
+        for(let k=0;k<n;k++){ const ps=perim(w.xs[k],w.xs[k+1],w.top,w.bot,12); pathOn(x,VW,ps,CYAN,k===Lsel?2.5:1); pathOn(o,V,moved(C,ps),COL.mag,k===Lsel?2.5:1); }
+        for(const c of [cL,cR]){ line(x,VW.X(C[0]),VW.Y(C[1]),VW.X(c.P[0]),VW.Y(c.P[1]),'#ffffff',1.5); arrow(x,VW.X(c.W[0]),VW.Y(c.W[1]),VW.X(c.P[0]),VW.Y(c.P[1]),COL.mag,2.5);
+          line(o,V.X(C[0]),V.Y(C[1]),V.X(c.P[0]),V.Y(c.P[1]),'#ffffff',1.5); }
+        putN(x,'L',VW.X(cL.W[0])-8,VW.Y(cL.W[1]),CYN,'right'); putN(x,'R',VW.X(cR.W[0])+8,VW.Y(cR.W[1]),CYN,'left');
+        putN(x,'P(L)',VW.X(cL.P[0])-10,VW.Y(cL.P[1])-sg*12,LIM,'right'); putN(x,'P(R)',VW.X(cR.P[0])+10,VW.Y(cR.P[1])-sg*12,LIM,'left');
+        putN(o,'P(L)',V.X(cL.P[0])-10,V.Y(cL.P[1])+sg*10,LIM,'right'); putN(o,'P(R)',V.X(cR.P[0])+10,V.Y(cR.P[1])+sg*10,LIM,'left');
+        putN(x,`${f5(cL.rho)} from C`,VW.X(cL.W[0])-8,VW.Y(cL.W[1])-sg*22,CYN,'right'); putN(x,`${f5(cR.rho)} from C`,VW.X(cR.W[0])+8,VW.Y(cR.W[1])-sg*22,CYN,'left');
+        putN(x,`${f5(cL.e)} from C`,VW.X(cL.P[0])-10,VW.Y(cL.P[1])+sg*6,LIM,'right'); putN(x,`${f5(cR.e)} from C`,VW.X(cR.P[0])+10,VW.Y(cR.P[1])+sg*6,LIM,'left');
+        putN(x,`width ${f5(LW[Lsel].ww)}`,VW.X((cL.W[0]+cR.W[0])/2),VW.Y(farY)+sg*16,CYN);
+        putN(o,`${f5(cL.e)} from C`,V.X(cL.P[0])-10,V.Y(cL.P[1])-sg*8,LIM,'right'); putN(o,`${f5(cR.e)} from C`,V.X(cR.P[0])+10,V.Y(cR.P[1])-sg*8,LIM,'left');
+        putN(o,`width ${f5(LW[Lsel].g.len)}`,V.X((cL.P[0]+cR.P[0])/2),V.Y((cL.P[1]+cR.P[1])/2)+sg*38,LIM);
+        for(const [c,nm] of [[cL,'L'],[cR,'R']]){ addPt(ws,VW.X(c.W[0]),VW.Y(c.W[1]),CYAN,`<b>${nm} = ${p5(c.W)}</b>, in UV<br>Role: ${c.n}, at mid-height of the word. It is ${f5(c.rho)} from C.`,nm,'mini');
+          addPt(ws,VW.X(c.P[0]),VW.Y(c.P[1]),COL.mag,`<b>P(${nm}) = ${p5(c.P)}</b>, in UV, drawn on the wallpaper<br>Role: the place where ${nm} slides to, ${f5(c.e)} from C.`,'P('+nm+') on the wallpaper','mini');
+          addPt(os,V.X(c.P[0]),V.Y(c.P[1]),COL.mag,c.tip.replace(`<b>${c.n}</b>`,`<b>${nm} (${c.n})</b>`),'P('+nm+')','mini'); }
+      }
+    }
+    /* ================= steps 7–9: big pixels ================= */
+    let RW=[], groups=new Map(), inLetter=[], CL=[], insideCL=[], boxRows=[], hitRows=[], zeroRows=[], NW=Array(n).fill(0), NO=Array(n).fill(0), NF=Array(n).fill(0), AW=[], cntW=0, cntO=0;
+    const FP=0.001, top5=r5(w.top), bot5=r5(w.bot), h5=r5(bot5-top5);
+    if(zoom){
+      let cW=Wz, cO=Pz;
+      const L=Lsel, lx0=V3(w.xs[L]), lx1=V3(w.xs[L+1]);
+      if(st===9){ const lc=[(lx0+lx1)/2,(top+bot)/2], Fc=moved(C,[lc])[0];
+        cW=[Wz[0]+Math.round((lc[0]-Wz[0])/PX)*PX, Wz[1]+Math.round((lc[1]-Wz[1])/PX)*PX]; cO=[Pz[0]+Math.round((Fc[0]-Pz[0])/PX)*PX, Pz[1]+Math.round((Fc[1]-Pz[1])/PX)*PX]; }
+      const Vz=view(oc,cO[0]-10.5*PX,cO[1]-10.5*PX,cO[0]+10.5*PX), Wv=view(wc,cW[0]-10.5*PX,cW[1]-10.5*PX,cW[0]+10.5*PX), cs=Vz.s*PX;
+      paintPix(oc,Vz,'output',C,w,cO); paintPix(wc,Wv,'input',C,w,cW);
+      const fillCell=(ctx,VV,q,col)=>{ ctx.fillStyle=col; ctx.fillRect(VV.X(q[0]-PX/2),VV.Y(q[1]-PX/2),cs,cs); };
+      const readCol=r=>{ const kk=letterAt(w,r[0],r[1]); let col=screenCol(r[0],r[1]).map(v=>v*255); if(kk>=0){ const t=tint(kk,n); col=col.map((v,ii)=>v*(1-TA)+t[ii]*TA); } return `rgb(${col.map(Math.round).join(',')})`; };
+      if(st===7){
+        for(let i=-10;i<=10;i++){ const q=[Pz[0]+i*PX,Pz[1]], rc=readChain(q,C), dxg=r5(rc.rx-glW), dyg=r5(rc.ry-gtW), qx=V3(dxg/PX), qy=V3(dyg/PX);
+          RW.push({k:i+11,q,rc,dxg,dyg,qx,qy,col:Math.floor(qx)+1,row:Math.floor(qy)+1}); }
+        RW.forEach(d=>{ const key=d.col+','+d.row; if(!groups.has(key)) groups.set(key,[]); groups.get(key).push(d.k); });
+        inLetter=RW.filter(d=>letterAt(w,d.rc.rx,d.rc.ry)===kc).map(d=>d.k);
+      }
+      if(st===8){
+        for(let k=1;k<=13;k++){ const off=V3((k-7)*PX), e=V3(r3.e+off), pu=pushShown(e), rr=V3(e-pu), ry=V3(C[1]+sg*rr), dyg=r5(ry-gtW), qy=V3(dyg/PX);
+          CL.push({k,off,e,pu,pl:pushLines(e),rr,ry,dyg,qy,row:Math.floor(qy)+1,inside:ry>=top&&ry<=bot,q:[Pz[0],C[1]+sg*e]}); }
+        for(let r=1;r<=21;r++){ const cy=gtW+(r-0.5)*PX; if(cy>=top&&cy<=bot) boxRows.push(r); }
+        hitRows=[...new Set(CL.map(d=>d.row))]; zeroRows=boxRows.filter(r=>!hitRows.includes(r)); insideCL.push(...CL.filter(d=>d.inside).map(d=>d.k));
+      }
+      const greens=[];
+      if(st===9){
+        /* every letter: squares of the wallpaper whose center lies in its box; squares of the output whose read point lands in its box */
+        for(let i=Math.floor((w.xs[0]-Wz[0])/PX)-1;i<=Math.ceil((w.xs[n]-Wz[0])/PX)+1;i++) for(let j=Math.floor((w.top-Wz[1])/PX)-1;j<=Math.ceil((w.bot-Wz[1])/PX)+1;j++){
+          const q=[Wz[0]+i*PX,Wz[1]+j*PX], kk=letterAt(w,q[0],q[1]); if(kk>=0) NW[kk]++; }
+        const bxs=mp.map(q=>q[0]), bys=mp.map(q=>q[1]);
+        for(let i=Math.floor((Math.min(...bxs)-Pz[0])/PX)-1;i<=Math.ceil((Math.max(...bxs)-Pz[0])/PX)+1;i++) for(let j=Math.floor((Math.min(...bys)-Pz[1])/PX)-1;j<=Math.ceil((Math.max(...bys)-Pz[1])/PX)+1;j++){
+          const q=[Pz[0]+i*PX,Pz[1]+j*PX]; if(!inside(q[0],q[1])) continue; const r=readOf(q[0],q[1],C), kk=letterAt(w,r[0],r[1]); if(kk>=0) NO[kk]++; }
+        cntW=NW[L]; cntO=NO[L];
+        /* the exact box areas, and the output areas counted with small squares (0.001 wide, anchored at P₃) */
+        for(let k=0;k<n;k++){ const bw=r5(r5(w.xs[k+1])-r5(w.xs[k])), a1=r5(bw/FP), a2=r5(h5/FP); AW.push({bw,a1,a2,area:r5(a1*a2)}); }
+        for(let i=Math.floor((Math.min(...bxs)-Pz[0])/FP)-2;i<=Math.ceil((Math.max(...bxs)-Pz[0])/FP)+2;i++) for(let j=Math.floor((Math.min(...bys)-Pz[1])/FP)-2;j<=Math.ceil((Math.max(...bys)-Pz[1])/FP)+2;j++){
+          const q=[Pz[0]+i*FP,Pz[1]+j*FP]; if(!inside(q[0],q[1])) continue; const r=readOf(q[0],q[1],C), kk=letterAt(w,r[0],r[1]); if(kk>=0) NF[kk]++; }
+      }
+      /* ---- steps 7 and 8: one picture, output pixels and wallpaper squares, one arrow per pixel to the point it reads ---- */
+      if(st===7||st===8){
+        const cb=document.getElementById('twComb'), cx=cb.getContext('2d'), cst=document.getElementById('twCombS'); clearDyn(cst);
+        cx.fillStyle='#fff'; cx.fillRect(0,0,cb.width,cb.height);
+        /* a sharp piece of the output or the wallpaper, cols × rows big pixels around ctr, drawn at (x0, y0), with its grid */
+        const strip=(kind,ctr,cols,rows,x0,y0,cs1)=>{ const off=document.createElement('canvas'); off.width=cols*cs1; off.height=rows*cs1;
+          const lx=ctr[0]-cols/2*PX, ty=ctr[1]-rows/2*PX; paint(off,view(off,lx,ty,lx+cols*PX),kind,C,w); cx.drawImage(off,x0,y0);
+          cx.strokeStyle='rgba(17,24,39,0.28)'; cx.lineWidth=1; cx.beginPath();
+          for(let i=0;i<=cols;i++){ cx.moveTo(x0+i*cs1,y0); cx.lineTo(x0+i*cs1,y0+rows*cs1); } for(let j=0;j<=rows;j++){ cx.moveTo(x0,y0+j*cs1); cx.lineTo(x0+cols*cs1,y0+j*cs1); } cx.stroke();
+          cx.strokeStyle='#111827'; cx.lineWidth=1.5; cx.strokeRect(x0,y0,cols*cs1,rows*cs1);
+          return {X:u=>x0+(u-lx)/PX*cs1, Y:v=>y0+(v-ty)/PX*cs1}; };
+        const head=(t,X,Y,al)=>{ cx.font='700 15px -apple-system,"Segoe UI",Roboto,sans-serif'; cx.textAlign=al||'left'; cx.textBaseline='middle'; cx.fillStyle='#111827'; cx.fillText(t,X,Y); };
+        const bracketH=(x1,x2,y,up,t,color,pair)=>{ const d=up?-8:8; line(cx,x1,y+d,x1,y,color,2); line(cx,x1,y,x2,y,color,2); line(cx,x2,y,x2,y+d,color,2); lbl(cx,t,(x1+x2)/2,y-(up?0:0)+(up?-14:16),pair,'center',15); };
+        const bracketV=(y1,y2,x,left,t,color,pair)=>{ const d=left?8:-8; line(cx,x+d,y1,x,y1,color,2); line(cx,x,y1,x,y2,color,2); line(cx,x,y2,x+d,y2,color,2); lbl(cx,t,x+(left?-10:10),(y1+y2)/2,pair,left?'right':'left',15); };
+        if(st===7){
+          const c7=44, mL=(cb.width-21*c7)/2, yO=74, yW=340;
+          head('OUTPUT: the 21 pixels of the row through P₃ (one square = one pixel)',mL,yO-50);
+          head('WALLPAPER: each arrow ends at the point its pixel reads',mL,yW+3*c7+56);
+          const MO=strip('output',Pz,21,3,mL,yO,c7), MW=strip('input',Wz,21,3,mL,yW,c7);
+          /* the row: each pixel is one flat color */
+          RW.forEach(d=>{ cx.fillStyle=readCol([d.rc.rx,d.rc.ry]); cx.fillRect(MO.X(d.q[0]-PX/2),MO.Y(d.q[1]-PX/2),c7,c7); });
+          RW.forEach(d=>{ box(cx,MO.X(d.q[0]-PX/2)+2,MO.Y(d.q[1]-PX/2)+2,c7-4,c7-4,COL.mag,1.5); });
+          /* the letter's box on the wallpaper strip, and which output pixels show it */
+          const xL=MW.X(w.xs[kc]), xR=MW.X(w.xs[kc+1]); box(cx,xL,yW,xR-xL,3*c7,CYAN,2.5);
+          bracketH(xL,xR,yW+3*c7+18,false,`“${w.text[kc]}” on the wallpaper: about ${Math.round(V3(LW[kc].ww/PX))} squares wide`,CYAN,CYN);
+          if(inLetter.length){ const a=RW.find(d=>d.k===inLetter[0]), b=RW.find(d=>d.k===inLetter[inLetter.length-1]);
+            bracketH(MO.X(a.q[0]-PX/2),MO.X(b.q[0]+PX/2),yO-16,true,`“${w.text[kc]}” in the output: ${inLetter.length} pixels wide`,COL.mag,LIM); }
+          /* squares read twice */
+          groups.forEach((ks,key)=>{ if(ks.length<2) return; const [c,r]=key.split(',').map(Number), X0=MW.X(glW+(c-1)*PX), Y0=MW.Y(gtW+(r-1)*PX);
+            box(cx,X0+2,Y0+2,c7-4,c7-4,'#ffffff',3); lbl(cx,'×2',X0+c7/2,Y0+c7-11,INK,'center',14); });
+          /* one arrow per pixel */
+          if(!S.clean) RW.forEach(d=>arrow(cx,MO.X(d.q[0]),MO.Y(d.q[1])+c7/2,MW.X(d.rc.rx),MW.Y(d.rc.ry),COL.mag,2));
+          RW.forEach(d=>{ const X0=MW.X(d.rc.rx), Y0=MW.Y(d.rc.ry); halo(cx,()=>cx.arc(X0,Y0,4,0,Math.PI*2),COL.mag,3);
+            addPt(cst,X0,Y0,COL.mag,`<b>Read point of output pixel ${d.k}</b> = (${f5(d.rc.rx)}, ${f5(d.rc.ry)}), in UV<br>Output pixel ${d.k} takes its color from here.`,'read point of pixel '+d.k,'mini');
+            addPt(cst,MO.X(d.q[0]),MO.Y(d.q[1]),readCol([d.rc.rx,d.rc.ry]),`<b>Output pixel ${d.k}</b>, center (${f5(d.q[0])}, ${f5(d.q[1])}), in UV<br>It reads the wallpaper at (${f5(d.rc.rx)}, ${f5(d.rc.ry)}).`,'output pixel '+d.k,'mini'); });
+          lbl(cx,'P₃',MO.X(Pz[0]),yO+3*c7+16,LIM,'center',15); lbl(cx,'W₃',MW.X(Wz[0])+14,MW.Y(Wz[1])-14,CYN,'left',15);
+          zc7={sq:groups.size, two:[...groups.values()].filter(v=>v.length>=2).length};
+        }
+        if(st===8){
+          const c8=26, oX=330, wX=700, oY=(cb.height-13*c8)/2, wY=(cb.height-21*c8)/2;
+          const MO=strip('output',Pz,3,13,oX,oY,c8), MW=strip('input',Wz,3,21,wX,wY,c8);
+          head('OUTPUT:',20,cb.height/2-30); head('a column of 13 pixels',20,cb.height/2-10); head('through P₃',20,cb.height/2+10);
+          head('WALLPAPER:',wX+3*c8+110,40); head('where each',wX+3*c8+110,60); head('pixel reads',wX+3*c8+110,80);
+          CL.forEach(d=>{ cx.fillStyle=readCol([Pz[0],d.ry]); cx.fillRect(MO.X(d.q[0]-PX/2),MO.Y(d.q[1]-PX/2),c8,c8); });
+          CL.forEach(d=>{ box(cx,MO.X(d.q[0]-PX/2)+2,MO.Y(d.q[1]-PX/2)+2,c8-4,c8-4,COL.mag,1.5); });
+          /* the word: its top and bottom on the wallpaper, and in the output */
+          for(const yb of [w.top,w.bot]) line(cx,wX-6,MW.Y(yb),wX+3*c8+6,MW.Y(yb),CYAN,2.5);
+          bracketV(MW.Y(w.top),MW.Y(w.bot),wX+3*c8+60,false,`the word: ${boxRows.length} rows`,CYAN,CYN);
+          for(const c of [cT,cB]) line(cx,oX-6,MO.Y(c.P[1]),oX+3*c8+6,MO.Y(c.P[1]),COL.mag,2.5);
+          bracketV(MO.Y(cT.P[1]),MO.Y(cB.P[1]),oX-24,true,`the word: ${insideCL.length} pixels`,COL.mag,LIM);
+          /* rows of the word that no pixel reads */
+          zeroRows.forEach(r=>{ const Y0=MW.Y(gtW+(r-0.5)*PX); lbl(cx,'✕',wX+3*c8+18,Y0,PSH,'center',16); });
+          if(zeroRows.length) lbl(cx,'✕ = row never read',wX+3*c8+130,cb.height-40,PSH,'left',15);
+          if(!S.clean) CL.forEach(d=>arrow(cx,oX+3*c8,MO.Y(d.q[1]),MW.X(Pz[0]),MW.Y(d.ry),COL.mag,2));
+          CL.forEach(d=>{ const X0=MW.X(Pz[0]), Y0=MW.Y(d.ry); halo(cx,()=>cx.arc(X0,Y0,4,0,Math.PI*2),COL.mag,3);
+            addPt(cst,X0,Y0,COL.mag,`<b>Read point of output pixel ${d.k}</b> = (${f(Pz[0])}, ${f(d.ry)}), in UV<br>Output pixel ${d.k} takes its color from here.`,'read point of pixel '+d.k,'mini'); });
+          lbl(cx,'P₃',oX+3*c8+14,MO.Y(Pz[1])-12,LIM,'left',15);
+        }
+      }
+      if(!S.clean){
+        if(st===9){
+          for(let i=-10;i<=10;i++) for(let j=-10;j<=10;j++){
+            const q=[cW[0]+i*PX,cW[1]+j*PX]; if(letterAt(w,q[0],q[1])===L){ fillCell(x,Wv,q,'rgba(34,211,238,0.45)'); box(x,Wv.X(q[0]-PX/2)+1,Wv.Y(q[1]-PX/2)+1,cs-2,cs-2,CYAN,1); }
+            const p=[cO[0]+i*PX,cO[1]+j*PX]; if(!inside(p[0],p[1])) continue; const r=readOf(p[0],p[1],C);
+            if(letterAt(w,r[0],r[1])===L){ fillCell(o,Vz,p,'rgba(163,230,53,0.5)'); box(o,Vz.X(p[0]-PX/2)+1,Vz.Y(p[1]-PX/2)+1,cs-2,cs-2,COL.mag,1); greens.push({i,j,p,r}); } }
+          greens.forEach(g=>halo(x,()=>x.arc(Wv.X(g.r[0]),Wv.Y(g.r[1]),3,0,Math.PI*2),COL.mag,2.5));
+          if(greens.length){ const jMin=Math.min(...greens.map(g=>g.j)), jMax=Math.max(...greens.map(g=>g.j)), rowA=greens.filter(g=>g.j===jMin), rowB=greens.filter(g=>g.j===jMax);
+            const pick=[rowA.reduce((a,b)=>b.i<a.i?b:a),rowA.reduce((a,b)=>b.i>a.i?b:a),rowB.reduce((a,b)=>b.i<a.i?b:a),rowB.reduce((a,b)=>b.i>a.i?b:a)];
+            const gW=document.querySelector('.gridW').getBoundingClientRect(), oR=oc.getBoundingClientRect(), wR=wc.getBoundingClientRect();
+            const toG=(R,cv,X,Y)=>[R.left-gW.left+X*R.width/cv.width, R.top-gW.top+Y*R.height/cv.height];
+            let h=''; pick.forEach(g=>{ const a=toG(oR,oc,Vz.X(g.p[0]),Vz.Y(g.p[1])), b=toG(wR,wc,Wv.X(g.r[0]),Wv.Y(g.r[1])), an=Math.atan2(b[1]-a[1],b[0]-a[0]);
+              const hx=[b[0]-12*Math.cos(an-0.4),b[1]-12*Math.sin(an-0.4)], hy=[b[0]-12*Math.cos(an+0.4),b[1]-12*Math.sin(an+0.4)];
+              h+=`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="rgba(17,24,39,0.9)" stroke-width="5.5" stroke-linecap="round"/><line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="#a3e635" stroke-width="2.5" stroke-linecap="round"/>`+
+                 `<polygon points="${b[0]},${b[1]} ${hx[0]},${hx[1]} ${hy[0]},${hy[1]}" fill="#a3e635" stroke="rgba(17,24,39,0.9)" stroke-width="1.5"/>`; });
+            links.setAttribute('width',gW.width); links.setAttribute('height',gW.height); links.innerHTML=h; }
+          const ps=perim(w.xs[L],w.xs[L+1],w.top,w.bot,12); pathOn(x,Wv,ps,CYAN,2.5); pathOn(o,Vz,moved(C,ps),COL.mag,2.5);
+          lbl(x,`left edge x = ${f5(r5(w.xs[L]))}`,Wv.X(w.xs[L])-6,Wv.Y((w.top+w.bot)/2),CYN,'right',14);
+          lbl(x,`right edge x = ${f5(r5(w.xs[L+1]))}`,Wv.X(w.xs[L+1])+6,Wv.Y((w.top+w.bot)/2),CYN,'left',14);
+          lbl(x,`top edge y = ${f5(r5(w.top))}`,Wv.X((w.xs[L]+w.xs[L+1])/2),Wv.Y(w.top)-14,CYN,'center',14);
+          lbl(x,`bottom edge y = ${f5(r5(w.bot))}`,Wv.X((w.xs[L]+w.xs[L+1])/2),Wv.Y(w.bot)+16,CYN,'center',14);
+          lbl(x,`box of “${w.text[L]}”: ${cntW} squares with their center inside`,wc.width/2,22,CYN,'center',15);
+          lbl(o,`${cntO} squares whose read point lands inside it`,oc.width/2,22,LIM,'center',15);
+        }
+      }
+    }
+    /* ================= the caption ================= */
+    const sym=r1.rho===Wc[4].rho, ends=sym?'W₁ and W₅':'W₁', bend=V3(Math.abs(P3[1]-P1[1]));
+    const chk=c=>`${f(c.e)} − ${fz(c.push)} = ${fz(c.r)}`+(c.gap>1e-9?` ≈ ${fz(c.rho)}`:'');
+    const [kTL,,kTR]=KP, lwk=LW[kc], wk=V3(lwk.ww/PX), ok=V3(lwk.g.len/PX), lft=LW[kMin];
+    const twoRead=[...groups.values()].filter(v=>v.length>=2).length, oneRead=[...groups.values()].filter(v=>v.length===1).length;
+    const CAP=[
+      `<b>Step 1 · Five points on the word.</b> We follow five points on the middle line of “${w.text}” (cyan dots). W₃ is M, the middle of the word; W₁ and W₅ sit at its two ends. Neighbouring points are ${f(gp)} apart (UV). The glass center C is ${fz(V3(Math.abs(M[1]-C[1])))} ${above?'above':'below'} M.<br><br>For each point we will find the pixel that shows it in the output. Click any spot of the word, in either picture, to add your own point X.`,
+      `<b>Step 2 · How far is each point from C?</b> The cyan lines join C to each point. Their lengths are the distances from C on the wallpaper. We call such a distance ρ (“rho”). The table below computes each one with Lesson 9.1 ${I(TIP_LEN)}.<br><br>W₃ is the closest to C: ρ = ${fz(r3.rho)}. ${ends} ${sym?'are':'is'} the farthest: ρ = ${fz(r1.rho)}. This difference makes the shape.`,
+      `<b>Step 3 · Which pixel shows each point?</b> A pixel at distance e from C reads the wallpaper on the same line from C, but nearer to C: at distance e − push(e) ${I(PUSH_RULE)}. So the pixel that shows a point sits on the line from C through the point, farther out, at the distance e where<br><b>e − push(e) = ρ</b>.<br><br>The chart solves this. Each gray line joins a pixel (bottom ruler) to the spot it reads (top ruler). Each ruler is zoomed to its own points, so read the numbers on the rulers. The pink lines are our points. W₃ (ρ = ${fz(r3.rho)}) is shown by the pixel ${f(r3.e)} from C: ${chk(r3)}. The pink arrows on the wallpaper are the same pushes.`,
+      `<b>Step 4 · Place the pixels: the middle line bends.</b> Each pixel lies on the line from C through its point (white lines), at distance e:<br><b>P = C + e × dir</b>, with dir = (Δx ÷ ρ, Δy ÷ ρ), the step of length 1 from C toward the point.<br><br>P₃ is ${f(r3.mv)} farther from C than W₃, but P₁ only ${f(r1.mv)} farther than W₁: nearer to C the push is longer. So the middle of the word moves ${above?'down':'up'} more than its ends: P₃ is ${f(bend)} ${above?'lower':'higher'} than P₁ (the white drop). The straight row W₁ … W₅ becomes an arc around C: P₁ … P₅.`,
+      `<b>Step 5 · How the whole word gets its curved shape.</b> Now the edges of the word box: 9 points on its ${above?'top':'bottom'} edge, 9 on its ${above?'bottom':'top'} edge, and the middle of each side. Every point slides straight away from C, by e − ρ, with the rule of steps 2–4 (lime arrows). The lime outline joins the slid points: it is the shape of “${w.text}” in the output (drawn on both pictures). The table follows six points: the corners TL, TR, BL, BR, and T and B in the middle (T is the side nearer to C).<br><br>Three things follow (table below):<br>• <b>Wider.</b> Every point slides along its own line from C, and these lines spread apart. TL slides ${f(V3(Math.abs(KP[0].P[0]-KP[0].W[0])))} to the left, TR ${f(V3(Math.abs(KP[2].P[0]-KP[2].W[0])))} to the right.<br>• <b>Thinner.</b> T is nearer to C than B, so it slides farther: ${f(cT.mv)} against ${f(cB.mv)}. The ${above?'top':'bottom'} comes closer to the ${above?'bottom':'top'}.<br>• <b>Curved.</b> On the near edge, T is nearer to C than TL and TR, so it slides farther: ${f(cT.mv)} against ${f(kTL.mv)}. The edge sags in the middle; the far edge sags too, a little less (${f(cB.mv)} against ${f(KP[3].mv)}).`,
+      (()=>{ const cL=LB[Lsel], cR=LB[Lsel+1], d=LW[Lsel], lt=w.text[Lsel];
+        return `<b>Step 6 · How much wider each letter gets.</b> Pick a letter with the buttons above, or click its bar in the side chart. For “${lt}” we use two points (cyan dots on the wallpaper): <b>L</b>, its left edge, and <b>R</b>, its right edge, both at mid-height of the word. They slide to <b>P(L)</b> and <b>P(R)</b> (lime dots). The width of the letter is the distance from L to R before the slide, and from P(L) to P(R) after it:`+
+        `<div class="readout" style="margin:8px 0;font-size:12.5px">L = ${p5(cL.W)}     R = ${p5(cR.W)}
+width on the wallpaper (L and R have the same y):
+  R.x − L.x = ${f5(cR.W[0])} − ${f5(cL.W[0])} = ${f5(d.ww)}
+
+P(L) = ${p5(cL.P)} ${I(cL.tip.replace(`<b>${cL.n}</b>`,'<b>L</b>'))}
+P(R) = ${p5(cR.P)} ${I(cR.tip.replace(`<b>${cR.n}</b>`,'<b>R</b>'))}
+   (each slides with the steps 2–4; ⓘ shows every step)
+width in the output (Lesson 9.1):
+  Δx = ${f5(cR.P[0])} − ${f5(cL.P[0])} = ${f5(d.g.dx)}
+  Δy = ${f5(cR.P[1])} − ${f5(cL.P[1])} = ${f5(d.g.dy)}
+  Δx² = ${f5(d.g.dx)} × ${f5(d.g.dx)} = ${f10(d.g.sx)}
+  Δy² = ${f5(d.g.dy)} × ${f5(d.g.dy)} = ${f10(d.g.sy)}
+  sum = ${f10(d.g.sx)} + ${f10(d.g.sy)} = ${f10(d.g.sum)}
+  width = √${f10(d.g.sum)} = ${f5(d.g.len)}
+
+output width ÷ wallpaper width:
+  ${f5(d.g.len)} ÷ ${f5(d.ww)} = ${f(d.ratio)}</div>`+
+        `So in the output “${lt}” is <b>${f(d.ratio)}</b> times as wide as on the wallpaper. Why wider: L and R slide away from C along two lines from C (white), and these lines spread apart. L and R start ${f5(cL.rho)} and ${f5(cR.rho)} from C and end ${f5(cL.e)} and ${f5(cR.e)} from C, where the two lines are farther apart.<br><br>The side chart gives this number for every letter: each letter has its own. The smallest is “${w.text[kMin]}” (${f(LW[kMin].ratio)}): its edges start farther from C and slide less far out, so its two lines spread apart less. Pick it to compare.`; })(),
+      `<b>Step 7 · Why a letter covers more pixels.</b> Each output pixel takes its color from one point of the wallpaper (one arrow each). The arrows bunch together: ${RW.length} pixels read only ${zc7.sq} squares, so ${zc7.two} squares are read twice (×2). So “${w.text[kc]}” fills ${inLetter.length} pixels in the output, but only about ${Math.round(V3(lwk.ww/PX))} squares on the wallpaper: it looks wider.`,
+      `<b>Step 8 · Why a letter gets flatter.</b> Now a column of pixels. Again one arrow per pixel. Here the arrows spread apart: only ${insideCL.length} pixels read the ${boxRows.length} rows of the word, and ${zeroRows.length} rows are never read (✕). So the word is ${insideCL.length} pixels tall in the output instead of ${boxRows.length}: it looks flatter.`,
+      `<b>Step 9 · Is the area bigger?</b> Every green square in the output reads one point inside the box of “${w.text[Lsel]}” (the lime dots on the wallpaper; the four arrows show where the corner squares read). Green squares: ${cntO}. Squares in the box: ${cntW}. About the same: “${w.text[Lsel]}” got wider (step 7) but flatter (step 8). The side chart compares every letter.`];
+    const cp=document.getElementById('twStepCap'); cp.innerHTML=CAP[st-1];
+    /* ================= the numbers of this step ================= */
+    const T=(head,rows,sel)=>`<table class="trace"><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr>${rows.map((r,ri)=>`<tr${ri===sel?' class="new"':''}>${r.map((c,i)=>i?`<td class="f">${c}</td>`:`<td><b>${c}</b></td>`).join('')}</tr>`).join('')}</table>`;
+    const pushCell=c=>`${fz(c.push)} ${I(`<b>push at ${f(c.e)} from C</b> — the Lesson 9.11 chain, started from the distance d:<pre>${c.pl.L.join('\n')}</pre>`)}`;
+    const rowE=c=>[c.n,fz(c.rho),f(c.e),pushCell(c),`${f(c.e)} − ${fz(c.push)} = ${fz(c.r)}`,c.gap>1e-9?`≈ ${fz(c.rho)} (the ${f(c.gap)} is rounding)`:`= ${fz(c.rho)} ✓`];
+    let H='';
+    if(st===1) H=`<div class="readout">The word box runs from x = ${f(xa)} to x = ${f(xb)}; M = ${pt(...M)}, C = ${pt(...C)}.\n${f(xb)} − ${f(xa)} = ${f(wid)}   (the width of the word)\n${f(wid)} ÷ 4 = ${f(gp)}   (the gap between neighbouring points)\nW₂.x = ${f(M[0])} − ${f(gp)} = ${f(x2)}      W₁.x = ${f(x2)} − ${f(gp)} = ${f(xsW[0])}\nW₄.x = ${f(M[0])} + ${f(gp)} = ${f(x4)}      W₅.x = ${f(x4)} + ${f(gp)} = ${f(xsW[4])}</div>`+
+      T(['point','x','y','where'],pts.map(c=>[c.n,f(c.W[0]),f(c.W[1]),letterOf(c.W)]));
+    if(st===2) H=T(['point','Δx = point.x − C.x','Δy = point.y − C.y','Δx²','Δy²','Δx² + Δy²',`ρ = √(Δx² + Δy²) ${I(TIP_LEN)}`],
+      pts.map(c=>[c.n,`${f(c.W[0])} − ${f(C[0])} = ${fz(c.dx)}`,`${f(c.W[1])} − ${f(C[1])} = ${fz(c.dy)}`,`${par(c.dx)} × ${par(c.dx)} = ${f8(c.sx)}`,`${par(c.dy)} × ${par(c.dy)} = ${f8(c.sy)}`,`${f8(c.sx)} + ${f8(c.sy)} = ${f8(c.sum)}`,`√${f8(c.sum)} = ${fz(c.rho)}`]));
+    if(st===3) H=T(['point','ρ (step 2)','e: the pixel distance (chart)',`push(e) ${I(PUSH_RULE)}`,'e − push(e): where it reads','check'],pts.map(rowE));
+    if(st===4) H=T(['point','dir.x = Δx ÷ ρ','dir.y = Δy ÷ ρ','e (step 3)','e × dir.x','e × dir.y','P.x = C.x + e × dir.x','P.y = C.y + e × dir.y','moved out = e − ρ'],
+      pts.map(c=>[c.n+' → '+pn(c),`${fz(c.dx)} ÷ ${fz(c.rho)} = ${fz(c.ux)}`,`${fz(c.dy)} ÷ ${fz(c.rho)} = ${fz(c.uy)}`,f(c.e),`${f(c.e)} × ${par(c.ux)} = ${fz(c.ex)}`,`${f(c.e)} × ${par(c.uy)} = ${fz(c.ey)}`,`${f(C[0])} + ${par(c.ex)} = ${f(c.P[0])}`,`${f(C[1])} + ${par(c.ey)} = ${f(c.P[1])}`,`${f(c.e)} − ${fz(c.rho)} = ${f(c.mv)}`]))+
+      `<div class="readout">the bend: P₃.y − P₁.y = ${f(P3[1])} − ${f(P1[1])} = ${f(V3(P3[1]-P1[1]))}${above?'':'   (minus: P₃ is higher)'}</div>`;
+    if(st===5) H=T(['point','where on the box','on the wallpaper (x, y)','ρ: distance from C','e: pixel distance (chart)','slide away from C = e − ρ',`in the output (x, y)`,'x change = out.x − wall.x','y change = out.y − wall.y'],
+      KP.map(c=>[c.n,{TL:'near-left corner',T:'middle of the near edge',TR:'near-right corner',BL:'far-left corner',B:'middle of the far edge',BR:'far-right corner'}[c.n],pt(...c.W),fz(c.rho),f(c.e),`${f(c.e)} − ${fz(c.rho)} = ${f(c.mv)}`,`${pt(...c.P)} ${I(chainTip(c,C))}`,`${f(c.P[0])} − ${f(c.W[0])} = ${fz(V3(c.P[0]-c.W[0]))}`,`${f(c.P[1])} − ${f(c.W[1])} = ${fz(V3(c.P[1]-c.W[1]))}`]));
+    if(st===6) H=`<div class="readout">5 decimals in this table: the letter edges are close together, and 3 decimals would move them by up to 0.0005.</div>`+
+      T(['letter','left → right edge on the wallpaper (x)','wallpaper width = right − left','left edge in the output','right edge in the output','output width = √(Δx² + Δy²)','output width ÷ wallpaper width'],
+      LW.map((d,k)=>[`${k+1} · “${w.text[k]}”`,`${f5(LB[k].W[0])} → ${f5(LB[k+1].W[0])}`,`${f5(LB[k+1].W[0])} − ${f5(LB[k].W[0])} = ${f5(d.ww)}`,`${p5(LB[k].P)} ${I(LB[k].tip)}`,`${p5(LB[k+1].P)} ${I(LB[k+1].tip)}`,
+        `${f5(d.g.len)} ${I(`<b>Width of “${w.text[k]}” in the output</b> (Lesson 9.1):<pre>Δx = ${f5(LB[k+1].P[0])} − ${f5(LB[k].P[0])} = ${f5(d.g.dx)}\nΔy = ${f5(LB[k+1].P[1])} − ${f5(LB[k].P[1])} = ${f5(d.g.dy)}\nΔx² = ${f5(d.g.dx)} × ${f5(d.g.dx)} = ${f10(d.g.sx)}\nΔy² = ${f5(d.g.dy)} × ${f5(d.g.dy)} = ${f10(d.g.sy)}\nsum = ${f10(d.g.sx)} + ${f10(d.g.sy)} = ${f10(d.g.sum)}\nwidth = √${f10(d.g.sum)} = ${f5(d.g.len)}</pre>`)}`,`${f5(d.g.len)} ÷ ${f5(d.ww)} = ${f(d.ratio)}`]),Lsel);
+    if(st===7) H=`<div class="readout">The wallpaper squares: column 1 starts at the grid's left side, x = ${f(Wz[0])} − 10.5 × ${f(PX)} = ${f5(glW)}; row 1 starts at the grid's top side, y = ${f(Wz[1])} − 10.5 × ${f(PX)} = ${f5(gtW)} (both printed at the bottom of the wallpaper picture). W₃ sits in the middle square, column 11, row 11.
+A read point lies in column  (read.x − ${f5(glW)}) ÷ ${f(PX)}, whole part, + 1   and in row  (read.y − ${f5(gtW)}) ÷ ${f(PX)}, whole part, + 1.</div>`+
+      '<b>Table 1 · every output pixel of the row, its read point, and its wallpaper square</b>'+
+      T(['output pixel','read point (x, y) ⓘ = the Lesson 9.11 chain','read.x − grid\'s left side','÷ 0.004','column','read.y − grid\'s top side','÷ 0.004','row','in the letter'],
+        RW.map(d=>[String(d.k)+(d.k===11?' (P₃)':''),`(${f5(d.rc.rx)}, ${f5(d.rc.ry)}) ${I(d.rc.tip)}`,`${f5(d.rc.rx)} − ${f5(glW)} = ${f5(d.dxg)}`,`${f5(d.dxg)} ÷ ${f(PX)} = ${f(d.qx)}`,String(d.col),`${f5(d.rc.ry)} − ${f5(gtW)} = ${f5(d.dyg)}`,`${f5(d.dyg)} ÷ ${f(PX)} = ${f(d.qy)}`,String(d.row),(()=>{ const k=letterAt(w,d.rc.rx,d.rc.ry); return k>=0?`“${w.text[k]}”`:'—'; })()]))+
+      '<b>Table 2 · the same read points, grouped by wallpaper square</b>'+
+      T(['wallpaper square (column, row)','output pixels whose read point lands in it','how many'],[...groups.entries()].map(([key,ks])=>[`(${key.replace(',',', ')})`,ks.join(', '),String(ks.length)+(ks.length>=2?' → shown twice':'')]));
+    if(st===8) H=`<div class="readout">The wallpaper rows: row 1 starts at y = ${f5(gtW)} (as in step 7). A read point lies in row (read.y − ${f5(gtW)}) ÷ ${f(PX)}, whole part, + 1.
+The word box runs from y = ${f(top)} to y = ${f(bot)}: rows ${boxRows[0]} to ${boxRows[boxRows.length-1]} have their center inside it.</div>`+
+      '<b>Table 1 · every output pixel of the column, its read point, and its wallpaper row</b>'+
+      T(['output pixel','offset = (k − 7) × 0.004','e = '+f(r3.e)+' + offset',`push(e) ${I(PUSH_RULE)}`,'read distance = e − push(e)',`read.y = C.y ${above?'+':'−'} read distance`,'read.y − grid\'s top side','÷ 0.004','row','inside the word box?'],
+        CL.map(d=>[String(d.k)+(d.k===7?' (P₃)':''),`(${d.k} − 7) × ${f(PX)} = ${fz(d.off)}`,`${f(r3.e)} + ${par(d.off)} = ${f(d.e)}`,`${fz(d.pu)} ${I(`<b>push at ${f(d.e)} from C</b>:<pre>${d.pl.L.join('\n')}</pre>`)}`,`${f(d.e)} − ${fz(d.pu)} = ${f(d.rr)}`,`${f(C[1])} ${above?'+':'−'} ${f(d.rr)} = ${f(d.ry)}`,`${f(d.ry)} − ${f5(gtW)} = ${f5(d.dyg)}`,`${f5(d.dyg)} ÷ ${f(PX)} = ${f(d.qy)}`,String(d.row),d.inside?'yes':'no']))+
+      `<div class="readout">rows of the word box:                  ${boxRows.join(', ')}
+rows that receive a read point (table 1):  ${hitRows.filter(r=>boxRows.includes(r)).join(', ')}
+rows that receive none (pink 0s):         ${zeroRows.join(', ')||'—'}   → ${zeroRows.length} of ${boxRows.length} rows of the word are not shown
+spacing of read points 7 → 8:              ${f(rho8)} − ${fz(r3.r)} = ${f(sp)};   ${f(sp)} ÷ ${f(PX)} = ${f(spx)} squares
+output pixels per wallpaper square:        ${f(PX)} ÷ ${f(sp)} = ${f(acr)}
+
+the whole word, T to B (step 5)
+thickness on the wallpaper:   ${fz(cB.rho)} − ${fz(cT.rho)} = ${f(th)}
+T slides farther by:          ${f(cT.mv)} − ${f(cB.mv)} = ${f(dmv)}
+thickness in the output:      ${f(th)} − ${f(dmv)} = ${f(oth)}   (= ${f(cB.e)} − ${f(cT.e)}, P(T) to P(B))
+height kept:                  ${f(oth)} ÷ ${f(th)} = ${f(fl)}</div>`;
+    if(st===9){ const sumW=r5(AW.reduce((a,b)=>a+b.area,0)), sumF=NF.reduce((a,b)=>a+b,0);
+      H=`<div class="readout">small square = 0.001 × 0.001 (UV).  wallpaper area of a box = (width ÷ 0.001) × (height ÷ 0.001) small squares;  height of every box = bottom edge − top edge = ${f5(bot5)} − ${f5(top5)} = ${f5(h5)}, so height ÷ 0.001 = ${f(r5(h5/FP))}.
+output area of a box = the number of small output squares whose read point lands inside the box (counted by the page, square by square).</div>`+
+      T(['letter','box width (UV)','width ÷ 0.001','wallpaper area in small squares = (width ÷ 0.001) × (height ÷ 0.001)','output area in small squares (counted)','output area ÷ wallpaper area','the big squares in the zoom (wallpaper → output)'],
+        AW.map((d,k)=>[`${k+1} · “${w.text[k]}”`,`${f5(r5(w.xs[k+1]))} − ${f5(r5(w.xs[k]))} = ${f5(d.bw)}`,`${f5(d.bw)} ÷ 0.001 = ${f(d.a1)}`,`${f(d.a1)} × ${f(d.a2)} = ${f(d.area)}`,String(NF[k]),`${NF[k]} ÷ ${f(d.area)} = ${f(V3(NF[k]/d.area))}`,`${NW[k]} → ${NO[k]}`])
+        .concat([['the whole word','','',`${f(sumW)}`,String(sumF),`${sumF} ÷ ${f(sumW)} = ${f(V3(sumF/sumW))}`,`${NW.reduce((a,b)=>a+b,0)} → ${NO.reduce((a,b)=>a+b,0)}`]]),Lsel); }
+    if(st>=7) H=`<details><summary>All numbers of this step, for checking</summary><div class="body">${H}</div></details>`;
+    const out=document.getElementById('twOut'); out.className=''; out.innerHTML=H;
+    /* ================= the side chart ================= */
+    const svg=document.getElementById('twMap'), showMap=st===3||st===4||st===6||st===9; svg.style.display=showMap?'':'none';
+    if(st===3||st===4){
+      const all=Wc.concat(cX?[cX]:[]), Wd=460, yT=78, yB=188;
+      const scale=vals=>{ const a=Math.min(...vals), b=Math.max(...vals), pad=Math.max(0.004,(b-a)*0.35);
+        const stp=[0.001,0.002,0.005,0.01,0.02,0.05].find(t=>(b-a+2*pad)/t<=4.5)||0.1, lo=Math.floor((a-pad)/stp)*stp, hi=Math.ceil((b+pad)/stp)*stp;
+        return {lo,hi,stp,X:d=>40+(d-lo)/(hi-lo)*(Wd-80)}; };
+      const sT=scale(all.map(c=>c.rho)), sB=scale(all.map(c=>c.e));
+      let h=`<text x="10" y="18" font-size="14" font-weight="700" fill="#0e7490">top ruler: spots on the wallpaper, distance ρ from C</text>`+
+        `<text x="10" y="256" font-size="14" font-weight="700" fill="#4d7c0f">bottom ruler: pixels, distance e from C</text>`;
+      for(let k=0;k<=40;k++){ const e=sB.lo+(sB.hi-sB.lo)*k/40, r=e-pushX(e); if(r<sT.lo||r>sT.hi) continue;
+        h+=`<line x1="${sB.X(e)}" y1="${yB}" x2="${sT.X(r)}" y2="${yT}" stroke="#e2e8f0" stroke-width="1.2"/>`; }
+      for(const [y,sc] of [[yT,sT],[yB,sB]]){ h+=`<line x1="40" y1="${y}" x2="${Wd-40}" y2="${y}" stroke="#111827" stroke-width="1.5"/>`;
+        for(let k=Math.round(sc.lo/sc.stp); k*sc.stp<=sc.hi+1e-9; k++){ const d=k*sc.stp, t=fz(V3(d)), up=y===yB;
+          h+=`<line x1="${sc.X(d)}" y1="${up?y-6:y}" x2="${sc.X(d)}" y2="${up?y:y+6}" stroke="#111827"/><text x="${sc.X(d)}" y="${up?y-10:y+20}" font-size="13" text-anchor="middle" fill="#374151" stroke="#fff" stroke-width="3" paint-order="stroke">${t}</text>`; } }
+      const gr=[]; all.forEach(c=>{ const g=gr.find(q=>q.rho===c.rho&&q.e===c.e); if(g) g.cs.push(c); else gr.push({rho:c.rho,e:c.e,cs:[c]}); });
+      const dots=[];
+      gr.forEach(g=>{ h+=`<line x1="${sB.X(g.e)}" y1="${yB}" x2="${sT.X(g.rho)}" y2="${yT}" stroke="#111827" stroke-width="3.5"/><line x1="${sB.X(g.e)}" y1="${yB}" x2="${sT.X(g.rho)}" y2="${yT}" stroke="#ff4d8d" stroke-width="1.8"/>`; });
+      h+=labelRow(gr.map(g=>({x:sT.X(g.rho),t:g.cs.map(c=>c.n).join(', ')})),44,yT,'#0e7490',12,Wd-12);
+      h+=labelRow(gr.map(g=>({x:sB.X(g.e),t:g.cs.map(pn).join(', ')})),234,yB,'#4d7c0f',12,Wd-12);
+      gr.forEach(g=>{ dots.push([sT.X(g.rho),yT,'#22d3ee',`<b>${g.cs.map(c=>c.n).join(', ')}</b>: ${fz(g.rho)} from C, on the wallpaper (top ruler).`]);
+        dots.push([sB.X(g.e),yB,'#a3e635',`<b>${g.cs.map(pn).join(', ')}</b>: the pixel${g.cs.length>1?'s':''} ${f(g.e)} from C (bottom ruler). ${f(g.e)} − ${fz(g.cs[0].push)} = ${fz(g.cs[0].r)}: ${g.cs.length>1?'they read':'it reads'} ${g.cs.map(c=>c.n).join(', ')}.`]); });
+      if(st===3){ const xm=(sT.X(r3.rho)+sB.X(r3.e))/2; h+=`<text x="${xm+12}" y="${(yT+yB)/2+5}" font-size="14" font-weight="700" fill="#be185d" stroke="#fff" stroke-width="3" paint-order="stroke">push ${fz(r3.push)} (W₃)</text>`; }
+      dots.forEach((d,i)=>{ h+=`<circle data-dt="${i}" cx="${d[0]}" cy="${d[1]}" r="5" fill="${d[2]}" stroke="#111827" stroke-width="1.8" style="cursor:pointer"/>`; });
+      svg.innerHTML=h; svg.querySelectorAll('[data-dt]').forEach(el=>setTip(el,dots[el.dataset.dt][3]));
+    }
+    if(st===6||st===9){
+      const Wd=460, y0=206, gw=(Wd-56)/n, its=[];
+      let h='';
+      if(st===6){ const mx=Math.max(1.8,...LW.map(d=>d.ratio)), Y=v=>y0-v/mx*150, bw=Math.min(26,gw-8);
+        h+=`<text x="10" y="18" font-size="14" font-weight="700" fill="#111827">output width ÷ wallpaper width, per letter</text>`;
+        h+=`<line x1="44" y1="${Y(1)}" x2="${Wd-8}" y2="${Y(1)}" stroke="#9ca3af"/><text x="40" y="${Y(1)+5}" font-size="13" text-anchor="end" fill="#374151">1</text>`;
+        LW.forEach((d,k)=>{ const gx=48+k*gw+gw/2;
+          if(k===Lsel) h+=`<rect x="${gx-gw/2+1}" y="28" width="${gw-2}" height="${y0-28}" fill="#eef2ff"/>`;
+          h+=`<rect data-bt="${its.length}" x="${gx-bw/2}" y="${Y(d.ratio)}" width="${bw}" height="${y0-Y(d.ratio)}" fill="#a3e635" stroke="#111827" style="cursor:pointer"/>`;
+          its.push([k,`<b>“${w.text[k]}”</b>: ${f5(d.g.len)} ÷ ${f5(d.ww)} = ${f(d.ratio)} — in the output it is ${f(d.ratio)} times as wide as on the wallpaper (table row ${k+1}).`]);
+          h+=`<text x="${gx}" y="${Y(d.ratio)-6}" font-size="14" font-weight="700" text-anchor="middle" fill="#111827">${f(d.ratio)}</text><text x="${gx}" y="${y0+20}" font-size="14" font-weight="700" text-anchor="middle" fill="#111827">${w.text[k]}</text>`; });
+        h+=`<line x1="44" y1="${y0}" x2="${Wd-8}" y2="${y0}" stroke="#111827" stroke-width="1.5"/><text x="10" y="252" font-size="14" fill="#374151">1 = the same width · click a bar to pick its letter</text>`; }
+      else{ const R=AW.map((d,k)=>V3(NF[k]/d.area)), mx=Math.max(1.4,...R), Y=v=>y0-v/mx*150, bw=Math.min(26,gw-8);
+        h+=`<text x="10" y="18" font-size="14" font-weight="700" fill="#111827">output area ÷ wallpaper area, per letter</text>`;
+        h+=`<line x1="44" y1="${Y(1)}" x2="${Wd-8}" y2="${Y(1)}" stroke="#9ca3af"/><text x="40" y="${Y(1)+5}" font-size="13" text-anchor="end" fill="#374151">1</text>`;
+        R.forEach((v,k)=>{ const gx=48+k*gw+gw/2;
+          if(k===Lsel) h+=`<rect x="${gx-gw/2+1}" y="28" width="${gw-2}" height="${y0-28}" fill="#eef2ff"/>`;
+          h+=`<rect data-bt="${its.length}" x="${gx-bw/2}" y="${Y(v)}" width="${bw}" height="${y0-Y(v)}" fill="#a3e635" stroke="#111827" style="cursor:pointer"/>`;
+          its.push([k,`<b>“${w.text[k]}”</b>: ${NF[k]} ÷ ${f(AW[k].area)} = ${f(v)} — in the output it covers ${f(v)} times as much screen as on the wallpaper (table row ${k+1}).`]);
+          h+=`<text x="${gx}" y="${Y(v)-6}" font-size="14" font-weight="700" text-anchor="middle" fill="#111827">${f(v)}</text><text x="${gx}" y="${y0+20}" font-size="14" font-weight="700" text-anchor="middle" fill="#111827">${w.text[k]}</text>`; });
+        h+=`<line x1="44" y1="${y0}" x2="${Wd-8}" y2="${y0}" stroke="#111827" stroke-width="1.5"/><text x="10" y="252" font-size="14" fill="#374151">1 = the same area · click a bar to pick its letter</text>`; }
+      svg.innerHTML=h;
+      svg.querySelectorAll('[data-bt]').forEach(el=>{ const it=its[el.dataset.bt]; setTip(el,it[1]); el.addEventListener('click',()=>{ if(S.letter!==it[0]){ S.letter=it[0]; setTimeout(draw,0); } }); });
+    }
+    for(const el of [cp,out]) el.querySelectorAll('[data-tw]').forEach(b=>setTip(b,tips[b.dataset.tw]));
+    const dts=document.getElementById('twDots'); dts.innerHTML='';
+    for(let k=1;k<=NSTEP;k++){ const d=document.createElement('button'); d.className='dot'+(k===st?' on':''); d.setAttribute('aria-label','Step '+k); d.onclick=()=>{ S.step=k; draw(); }; dts.appendChild(d); }
+    document.getElementById('twBack').disabled=st===1; document.getElementById('twNext').disabled=st===NSTEP;
+  }
+  /* the straight distance between two pixels, one operation per value */
+  function segLen(a,b){ const dx=V3(b[0]-a[0]), dy=V3(b[1]-a[1]), sx=V8(dx*dx), sy=V8(dy*dy), sum=V8(sx+sy); return {dx,dy,sx,sy,sum,len:V3(Math.sqrt(sum))}; }
+
+  function sync(){
+    document.querySelectorAll('#twWords .btn').forEach(b=>b.setAttribute('aria-pressed',String(b.textContent===S.word.text)));
+    document.querySelectorAll('#twCards .card').forEach((b,i)=>b.setAttribute('aria-pressed',String(i===S.card)));
   }
   function draw(){
-    const q=PL[cur], g=q.g, px={};
-    for(let a=-1;a<=1;a++) for(let b=-1;b<=1;b++){ const u=V3(g[0]+a*SP), v=V3(g[1]+b*SP); px[a+','+b]={u,v,c:chain1(u,v,P)}; }
-    const G=px['0,0'], T=px['0,-1'], B=px['0,1'], Lp=px['-1,0'], R=px['1,0'];
-    const OV=view(oc,...win(g[0],g[1])), mid=[(g[0]+G.c.r[0])/2,(g[1]+G.c.r[1])/2], WV=view(wc,...win(mid[0],mid[1]));
-    clearPts(os); clearPts(ws);
-    render(oc,OV,{kind:'output',P,wall:'screen'}); render(wc,WV,{kind:'input',wall:'screen'});
-    const o=oc.getContext('2d'), w=wc.getContext('2d');
-    for(const [ctx,V] of [[o,OV],[w,WV]]){ ring(ctx,V.X(C[0]),V.Y(C[1]),RAD*V.s,COL.glass,2.5); ring(ctx,V.X(C[0]),V.Y(C[1]),0.35*V.s,COL.ring,2); }
-    /* left: the 9 pixels */
-    const grid=(ctx,pos)=>{ for(let a=-1;a<=1;a++) for(let b=-1;b<=1;b++){ const p=pos(a,b);
-      if(a<1) line(ctx,p[0],p[1],...pos(a+1,b),COL.mag,2); if(b<1) line(ctx,p[0],p[1],...pos(a,b+1),COL.mag,2); } };
-    grid(o,(a,b)=>[OV.X(px[a+','+b].u),OV.Y(px[a+','+b].v)]);
-    /* right: the place of the 9 pixels, G's push, the 9 read points */
-    if(G.c.push>0) lbl(w,`push ${fz(G.c.push)}`,WV.X(g[0])+(g[1]<C[1]?-60:60),WV.Y((g[1]+G.c.r[1])/2),PSH,g[1]<C[1]?'right':'left',14);
-    grid(w,(a,b)=>[WV.X(px[a+','+b].c.r[0]),WV.Y(px[a+','+b].c.r[1])]);
-    if(G.c.push>0) arrow(w,WV.X(g[0]),WV.Y(g[1]),WV.X(G.c.r[0]),WV.Y(G.c.r[1]),COL.push,2.5);   // on top of the lime lines
-    halo(w,()=>w.rect(WV.X(g[0]-SP),WV.Y(g[1]-SP),2*SP*WV.s,2*SP*WV.s),COL.glass,2);           // the place of the 9 pixels, on top
-    const rc=[G.c.r[0],G.c.r[1]];
-    for(const k in px){ const p=px[k], n=NM[k]||'', [a,b]=k.split(',').map(Number);
-      const role=n?ROLE[n]:'a corner pixel of the grid';
-      addPt(os,OV.X(p.u),OV.Y(p.v),COL.mag,`<b>${n||'pixel'} = ${pt(p.u,p.v)}</b>, in UV<br>Role: ${role}. Its distance from C is ${f(p.c.d)}, its push ${fz(p.c.push)}.`,(n||'corner pixel')+' in the output','mini');
-      addPt(ws,WV.X(p.c.r[0]),WV.Y(p.c.r[1]),COL.mag,`<b>${n?n+"'s read point":'a read point'} = ${pt(p.c.r[0],p.c.r[1])}</b>, in UV<br>Role: where ${n||'this pixel'} = ${pt(p.u,p.v)} reads the wallpaper.<pre>${p.c.lines.join('\n')}</pre>`,(n||'corner')+' read point','mini');
-      if(n){ /* left: the name beside its pixel, away from the grid. Right: the name away from G's read point */
-        lbl(o,n,OV.X(p.u)+(n==='G'?16:a*22),OV.Y(p.v)+(n==='G'?-15:b*22),INK,'center',15);
-        const vx=(p.c.r[0]-rc[0])*WV.s, vy=(p.c.r[1]-rc[1])*WV.s, vl=Math.hypot(vx,vy);
-        let ox=n==='G'?16:vl>8?vx/vl*22:a*22, oy=n==='G'?-15:vl>8?vy/vl*22:b*22;
-        if(Math.hypot(WV.X(p.c.r[0])+ox-WV.X(C[0]),WV.Y(p.c.r[1])+oy-WV.Y(C[1]))<20){ ox=22; oy=0; }   // keep the name off the C dot
-        lbl(w,n,WV.X(p.c.r[0])+ox,WV.Y(p.c.r[1])+oy,INK,'center',15); }
-    }
-    if(C[1]>OV.y0&&C[1]<OV.y0+WIN){ addPt(os,OV.X(C[0]),OV.Y(C[1]),COL.glass,TIP_C(C[0],C[1]),'C in the output'); lbl(o,'C',OV.X(C[0])-16,OV.Y(C[1]),GLS,'right'); }
-    if(C[1]>WV.y0&&C[1]<WV.y0+WIN){ addPt(ws,WV.X(C[0]),WV.Y(C[1]),COL.glass,TIP_C(C[0],C[1]),'C on the wallpaper'); lbl(w,'C',WV.X(C[0])-16,WV.Y(C[1]),GLS,'right'); }
-    /* the numbers */
-    const hgt=V3(B.c.r[1]-T.c.r[1]), wid=V3(R.c.r[0]-Lp.c.r[0]);
-    const ratio=(x)=>V3(0.04/Math.abs(x));
-    const rows=[`G = ${pt(g[0],g[1])}: d = ${f(G.c.d)} from C, push ${fz(G.c.push)}`,'',
-      'up and down: T and B',
-      `T = ${pt(T.u,T.v)}   B = ${pt(B.u,B.v)}`, `  ${f(B.v)} − ${f(T.v)} = 0.04 apart`,
-      `T reads ${pt(...T.c.r)}   push ${fz(T.c.push)}`, `B reads ${pt(...B.c.r)}   push ${fz(B.c.push)}`,
-      `  ${f(B.c.r[1])} − ${f(T.c.r[1])} = ${f(hgt)} apart`,
-      `  0.04 ÷ ${f(Math.abs(hgt))} = ${f(ratio(hgt))}`+(ratio(hgt)===1?' → the same height':ratio(hgt)<1?' → the letters look thinner':' → the letters look taller'),'',
-      'left and right: L and R',
-      `L = ${pt(Lp.u,Lp.v)}   R = ${pt(R.u,R.v)}`, `  ${f(R.u)} − ${f(Lp.u)} = 0.04 apart`,
-      `L reads ${pt(...Lp.c.r)}   push ${fz(Lp.c.push)}`, `R reads ${pt(...R.c.r)}   push ${fz(R.c.push)}`,
-      `  ${f(R.c.r[0])} − ${f(Lp.c.r[0])} = ${f(wid)}`+(wid<0?': below 0, R reads left of L → mirrored':' apart'),
-      `  0.04 ÷ ${f(Math.abs(wid))} = ${f(ratio(wid))}`+(ratio(wid)===1?' → the same width':ratio(wid)>1?' → the letters look wider':' → the letters look narrower'),'',
-      'click a dot for its coordinates; click a read point for its chain'];
-    document.getElementById('ltOut').textContent=rows.join('\n');
-    graph();
-    document.querySelectorAll('#ltPick .btn').forEach((b,i)=>b.setAttribute('aria-pressed',String(i===cur)));
+    const w=S.word, C=S.C, M=midOf(w), o=oc.getContext('2d'), x=wc.getContext('2d'), ex=S.card===1;
+    paint(oc,V,'output',C,w); paint(wc,VW,'input',C,w);
+    clearDyn(os); clearDyn(ws); hC.style.display=ex?'none':''; movePt(hC,V.X(C[0]),V.Y(C[1]),COL.glass);
+    for(const [ctx,VV] of [[o,V],[x,VW]]){ ring(ctx,VV.X(C[0]),VV.Y(C[1]),RAD*VV.s,COL.glass,2); ring(ctx,VV.X(C[0]),VV.Y(C[1]),0.35*VV.s,COL.ring,2); }
+    document.getElementById('twCap').hidden=ex; document.getElementById('twStep').hidden=!ex;
+    document.getElementById('twLeg').hidden=ex; document.getElementById('twLegX').hidden=!ex;
+    document.getElementById('twPT').textContent=ex?`Flattened, step by step (step ${S.step} of ${NSTEP})`:'What you see';
+    document.getElementById('twOT').textContent='Output: what the glass shows'; document.getElementById('twWT').textContent='Wallpaper: where the pixels read';
+    document.getElementById('twOcol').style.display=''; document.getElementById('twWcol').style.display=''; document.getElementById('twCombBox').style.display='none'; document.getElementById('twLinks').innerHTML='';
+    if(ex){ explain(w,C,o,x); sync(); return; }
+    /* the numbers: M's distance from C, then copy 1 (P) and copy 2 (Q) */
+    const dx=V3(M[0]-C[0]), dy=V3(M[1]-C[1]), sx=V6(dx*dx), sy=V6(dy*dy), sum=V6(sx+sy), rho=V3(Math.sqrt(sum));
+    const dl=Math.hypot(dx,dy), U=dl>0?[dx/dl,dy/dl]:[0,1], N=[-U[1],U[0]], at=(e,s)=>[C[0]+U[0]*e*s, C[1]+U[1]*e*s];
+    const p1=rho>0?pixelFor(rho):{e:0.10,r:0,gap:0}, e1=p1.e, P=at(e1,1), pl1=pushLines(e1);
+    const two=rho>0&&rho<0.10, e2=two?V3(0.10-rho):0, Q=at(e2,-1), pl2=two?pushLines(e2):null;
+    const onScr=p=>p[0]>=0&&p[0]<=1&&p[1]>=0&&p[1]<=1, ratio=rho>0?V3(e1/rho):null, ratio2=two?V3(e2/rho):null;
+    const tips=[], I=h=>{ tips.push(h); return `<button class="info" data-tw="${tips.length-1}">ⓘ</button>`; };
+    /* output: P's ring, Q's ring, P, Q */
+    /* the word's angles around C: rings leave a gap there, so they never hide the tracked letters */
+    const a0=Math.atan2(U[1],U[0]), span=(()=>{ if(rho===0||(C[0]>=w.xs[0]-0.01&&C[0]<=w.xs[w.xs.length-1]+0.01&&C[1]>=w.top-0.01&&C[1]<=w.bot+0.01)) return null;
+      let lo=0, hi=0; [[w.xs[0],w.top],[w.xs[w.xs.length-1],w.top],[w.xs[0],w.bot],[w.xs[w.xs.length-1],w.bot]].forEach(q=>{
+        let d=Math.atan2(q[1]-C[1],q[0]-C[0])-a0; d=((d+3*Math.PI)%(2*Math.PI))-Math.PI; lo=Math.min(lo,d); hi=Math.max(hi,d); });
+      return [lo-0.05,hi+0.05]; })();
+    const inGap=(a,flip)=>{ if(!span) return false; let d=a-a0-(flip?Math.PI:0); d=((d+3*Math.PI)%(2*Math.PI))-Math.PI; return d>=span[0]&&d<=span[1]; };
+    const gapRing=(ctx,VV,r,color,flip)=>{ const x0=VV.X(C[0]), y0=VV.Y(C[1]), R=r*VV.s, sh=flip?Math.PI:0;
+      if(!span||span[1]-span[0]>5.9){ ring(ctx,x0,y0,R,color,2.5); return; }
+      halo(ctx,()=>ctx.arc(x0,y0,R,a0+sh+span[1],a0+sh+span[0]+2*Math.PI),color,2.5); };
+    /* labels never overlap: every placed label is remembered per picture */
+    const placed=new Map([[o,[]],[x,[]]]);
+    const box_=(ctx,t,X,Y,align,size)=>{ ctx.font=`600 ${size}px -apple-system,"Segoe UI",Roboto,sans-serif`; const w=ctx.measureText(t).width;
+      return [(align==='right'?X-w:align==='center'?X-w/2:X)-5, Y-size/2-4, w+10, size+8]; };
+    const hits=(ctx,b)=>placed.get(ctx).some(q=>b[0]<q[0]+q[2]&&q[0]<b[0]+b[2]&&b[1]<q[1]+q[3]&&q[1]<b[1]+b[3]);
+    const put=(ctx,t,X,Y,pair,align,size)=>{ placed.get(ctx).push(box_(ctx,t,X,Y,align,size)); lbl(ctx,t,X,Y,pair,align,size); };
+    /* a ring's name: on the ring (off 0) or just outside it, at the first angle a0 + k·π that is clear of the word, of other labels, and inside the picture */
+    const ringLbl=(ctx,VV,r,flip,t,pair,ks,off)=>{ const W=ctx.canvas.width, H=ctx.canvas.height;
+      for(const k of ks.concat([0.75,-0.75,0.5,-0.5,0.875,-0.875,0.625,-0.625,0.25,-0.25,1,0])){ const a=a0+k*Math.PI;
+        if(inGap(a,flip)) continue;
+        const X=VV.X(C[0])+Math.cos(a)*(r*VV.s+off), Y=VV.Y(C[1])+Math.sin(a)*(r*VV.s+off);
+        if(!(X>45&&X<W-45&&Y>14&&Y<H-14)||hits(ctx,box_(ctx,t,X,Y,'center',14))) continue;
+        put(ctx,t,X,Y,pair,'center',14); return; } };
+    gapRing(o,V,e1,COL.mag,false); if(two) gapRing(o,V,e2,COL.mag,true); if(rho>0) gapRing(x,VW,rho,CYAN,false);
+    if(onScr(P)){ put(o,'P',V.X(P[0])+U[0]*18,V.Y(P[1])+U[1]*18,LIM,'center',15);
+      addPt(os,V.X(P[0]),V.Y(P[1]),COL.mag,`<b>P = ${pt(...P)}</b>, in UV<br>Role: ${rho>0?'the pixel of copy 1 that reads M':'one of the pixels 0.10 from C; each of them reads C, that is M'}. It is ${f(e1)} from C.`,'P, a pixel','mini'); }
+    if(two&&onScr(Q)){ put(o,'Q',V.X(Q[0])-U[0]*18,V.Y(Q[1])-U[1]*18,LIM,'center',15);
+      addPt(os,V.X(Q[0]),V.Y(Q[1]),COL.mag,`<b>Q = ${pt(...Q)}</b>, in UV<br>Role: the pixel of copy 2 that reads M, across C. It is ${f(e2)} from C.`,'Q, a pixel','mini'); }
+    put(o,'C',V.X(C[0])-N[0]*20,V.Y(C[1])-N[1]*20,GLS,'center',15);
+    /* wallpaper: M's ring, M, the places of P and Q with their push arrows */
+    if(e1>rho&&onScr(P)){ arrow(x,VW.X(P[0]),VW.Y(P[1]),VW.X(M[0]),VW.Y(M[1]),COL.push,2.5);
+      const m=at((e1+rho)/2,1); put(x,`push ${fz(pl1.push)}`,VW.X(m[0])-N[0]*16,VW.Y(m[1])-N[1]*16,PSH,N[0]>0?'right':'left',14);
+      put(x,"P's place",VW.X(P[0])+U[0]*20,VW.Y(P[1])+U[1]*20,LIM,'center',14);
+      addPt(ws,VW.X(P[0]),VW.Y(P[1]),COL.mag,`<b>P's place = ${pt(...P)}</b>, in UV, drawn on the wallpaper<br>Role: where the pixel P sits. Its push, ${fz(pl1.push)}, moves its read point toward C, to M.`,"P's place",'mini'); }
+    if(two&&onScr(Q)){ arrow(x,VW.X(Q[0]),VW.Y(Q[1]),VW.X(M[0]),VW.Y(M[1]),COL.push,2.5);
+      put(x,"Q's place",VW.X(Q[0])-U[0]*22,VW.Y(Q[1])-U[1]*22,LIM,'center',14);
+      const mq=at(e2*0.6,-1); put(x,`push ${fz(pl2.push)}`,VW.X(mq[0])-N[0]*16,VW.Y(mq[1])-N[1]*16,PSH,N[0]>0?'right':'left',14);
+      addPt(ws,VW.X(Q[0]),VW.Y(Q[1]),COL.mag,`<b>Q's place = ${pt(...Q)}</b>, in UV, drawn on the wallpaper<br>Role: where the pixel Q sits. Its push, 0.10, is longer than ${f(e2)}, so its read point passes C and lands on M.`,"Q's place",'mini'); }
+    if(rho>0){ put(x,'C',VW.X(C[0])-N[0]*20,VW.Y(C[1])-N[1]*20,GLS,'center',15); addPt(ws,VW.X(C[0]),VW.Y(C[1]),COL.glass,TIP_C(...C),'C on the wallpaper','mini'); }
+    put(x,'M',VW.X(M[0])+U[0]*18+N[0]*12,VW.Y(M[1])+U[1]*18+N[1]*12,CYN,'center',15);
+    addPt(ws,VW.X(M[0]),VW.Y(M[1]),CYAN,`<b>M = ${pt(...M)}</b>, in UV<br>Role: the middle of “${w.text}” on the wallpaper, ${fz(rho)} from C${rho>0?'':' (M is C itself)'}.`,'M, the middle of the word','mini');
+    ringLbl(o,V,e1,false,"P's ring",LIM,[1],0); if(two) ringLbl(o,V,e2,true,"Q's ring",LIM,[0],0);
+    if(rho>0) ringLbl(x,VW,rho,false,"M's ring",CYN,[0.75,-0.75],20);
+    for(const [ctx,VV] of [[o,V],[x,VW]]){ ringLbl(ctx,VV,RAD,false,'glass edge',GLS,[-0.75,0.75],0); ringLbl(ctx,VV,0.35,false,'orange ring',RNG,[0.75,-0.75],0); }
+    /* the readout */
+    const L=[`<b>M, the middle of “${w.text}”</b>`, `M = ${pt(...M)}    C = ${pt(...C)}`,
+      `M.x − C.x = ${f(M[0])} − ${f(C[0])} = ${fz(dx)}`, `M.y − C.y = ${f(M[1])} − ${f(C[1])} = ${fz(dy)}`,
+      `${par(dx)} × ${par(dx)} = ${f6(sx)}`, `${par(dy)} × ${par(dy)} = ${f6(sy)}`, `${f6(sx)} + ${f6(sy)} = ${f6(sum)}`,
+      `√${f6(sum)} = ${fz(rho)} ${I(TIP_LEN)}`, `→ M's ring: ${fz(rho)} from C (UV: 1 = the screen width)`, ''];
+    if(rho===0) L.push('<b>Every pixel 0.10 from C</b>', `push at 0.10 = ${fz(pl1.push)} ${I(pushTip(0.10,pl1))}`,
+      `0.10 − ${fz(pl1.push)} = 0 → it reads C, that is M`, '→ M\'s color fills the whole ring: smeared');
+    else if(rho>=0.35) L.push('<b>Copy 1: the pixel P</b>', `push at ${fz(rho)} = ${fz(pl1.push)} ${I(pushTip(e1,pl1))}`,
+      `${fz(rho)} − 0 = ${fz(rho)} → P is M itself`, `${fz(rho)} ÷ ${fz(rho)} = 1 → unchanged`);
+    else { L.push('<b>Copy 1: the pixel P</b>', `P: on the line from C through M, ${f(e1)} from C`,
+      `push at ${f(e1)} = ${fz(pl1.push)} ${I(pushTip(e1,pl1))}`,
+      `${f(e1)} − ${fz(pl1.push)} = ${fz(p1.r)}`+(p1.gap>1e-9?` ≈ ${fz(rho)}: P reads M (the ${f(p1.gap)} is rounding)`:' → P reads M ✓'),
+      `P's ring ÷ M's ring ${I(TIP_RING)}`, `  ${f(e1)} ÷ ${fz(rho)} = ${f(ratio)}`, `→ along the ring: ${f(ratio)} times as long`);
+      if(!onScr(P)) L.push('(P lies outside the screen: copy 1 is not shown)');
+      if(two) L.push('', '<b>Copy 2: the pixel Q</b>, across C', 'Q\'s push 0.10 = Q to C + C to M', `Q to C = 0.10 − ${fz(rho)} = ${f(e2)}`,
+        `push at ${f(e2)} = ${fz(pl2.push)} ${I(pushTip(e2,pl2))}`, `${f(e2)} − ${fz(pl2.push)} = ${fz(V3(e2-pl2.push))}`,
+        '  minus: the read point is past C → M ✓', `Q's ring ÷ M's ring ${I(TIP_RING)}`, `  ${f(e2)} ÷ ${fz(rho)} = ${f(ratio2)}`,
+        `→ a mirror image, ${f(ratio2)} times as long`); }
+    const out=document.getElementById('twOut'); out.className='readout cols'; out.innerHTML=L.join('\n');
+    out.querySelectorAll('[data-tw]').forEach(b=>setTip(b,tips[b.dataset.tw]));
+    /* the caption */
+    let cap;
+    if(rho===0) cap=`C is on M, the middle of the word. Every pixel 0.10 from C (<b>P's ring</b>, lime) reads C itself. So M's color fills the whole of P's ring: “${w.text}” is <b>smeared</b> around P's ring.`;
+    else if(rho>=0.35) cap=`M, the middle of “${w.text}”, is ${fz(rho)} from C, past the orange ring. There the push is 0, so every pixel reads its own place: the pixel P is M itself. The word is <b>unchanged</b>.`;
+    else { const t=clamp((e1-0.15)/0.2,0,1);
+      cap=`<b>P</b> (lime dot, output) is the pixel that reads <b>M</b>, the middle of the word (cyan dot, wallpaper). <b>P's ring</b>: all pixels as far from C as P. <b>M's ring</b>: all wallpaper points as far from C as M.<br><br>`+
+        `Every pixel on P's ring reads a point on M's ring, in the same order around C. So the letters keep their order (yellow to blue), and each letter stays in one piece.<br><br>`+
+        `P's ring is ${f(e1)} from C, M's ring ${fz(rho)} from C. So P's ring is ${f(ratio)} times as long ${I(TIP_RING)}, and along it the word is <b>stretched ${f(ratio)} times</b>.`;
+      if(3*t*(1-t)>0.111) cap+=` Across the rings the letters are <b>flattened</b>: compare the height of the tinted letters in the two pictures.`;
+      if(two) cap+=`<br><br><b>Q</b> is a pixel ${f(e2)} from C, on the other side. Its push, 0.10, is longer than ${f(e2)}, so its read point passes C and lands on M too. So <b>Q's ring</b> shows a <b>second copy</b> of the word, ${f(ratio2)} times as long. It is a mirror image: flipped across the line of the pink arrows.`; }
+    const cp=document.getElementById('twCap'); cp.innerHTML=cap; cp.querySelectorAll('[data-tw]').forEach(b=>setTip(b,tips[b.dataset.tw]));
+    sync();
   }
-  const pk=document.getElementById('ltPick');
-  PL.forEach((q,i)=>{ const b=document.createElement('button'); b.className='btn'; b.textContent=q.b; b.onclick=()=>{ cur=i; draw(); }; pk.appendChild(b); });
-  draw();
+  /* the shape cards: the same word, with C placed above (or below) M */
+  function cards(){
+    const box=document.getElementById('twCards'); box.innerHTML='';
+    SHAPES.forEach((sh,i)=>{ const b=document.createElement('button'); b.className='card'; b.type='button';
+      const cv=document.createElement('canvas'); cv.width=cv.height=140; b.appendChild(cv);
+      const C=cardC(S.word,sh.d), M=midOf(S.word), where=sh.d===0?'C on M':`C ${fz(sh.d)} ${C[1]<M[1]?'above':'below'} M`;
+      b.insertAdjacentHTML('beforeend',`<div><b>${sh.n}</b><span>${where}</span></div>`);
+      const Vt=view(cv,M[0]-0.17,M[1]-0.17,M[0]+0.17);
+      paint(cv,Vt,'output',C,S.word); const c=cv.getContext('2d');
+      ring(c,Vt.X(C[0]),Vt.Y(C[1]),RAD*Vt.s,COL.glass,2); ring(c,Vt.X(C[0]),Vt.Y(C[1]),0.35*Vt.s,COL.ring,2);
+      b.setAttribute('aria-label',`${sh.n}: ${where}`);
+      b.onclick=()=>{ if(S.card!==i){ S.card=i; S.X=null; S.step=1; } frame(); draw(); };
+      box.appendChild(b); });
+  }
+  function pick(w){ if(!w||w===S.word) return; S.word=w; S.X=null; S.letter=-1; frame(); cards(); draw(); }
+  const inWord=(w,q)=>q[0]>=w.xs[0]&&q[0]<=w.xs[w.xs.length-1]&&q[1]>=w.top&&q[1]<=w.bot;
+  const clickAt=q=>{ if(S.card===1&&inWord(S.word,q)){ S.X=[V3(q[0]),V3(q[1])]; draw(); } else pick(wordAt(q[0],q[1])); };
+  document.getElementById('twBack').onclick=()=>{ if(S.step>1){ S.step--; draw(); } };
+  document.getElementById('twNext').onclick=()=>{ if(S.step<NSTEP){ S.step++; draw(); } };
+  document.getElementById('twClean').onclick=()=>{ S.clean=!S.clean; draw(); };
+  const uvOf=(cv,VV,e)=>{ const r=cv.getBoundingClientRect(); return [VV.x0+(e.clientX-r.left)/r.width*cv.width/VV.s, VV.y0+(e.clientY-r.top)/r.height*cv.height/VV.s]; };
+  oc.addEventListener('click',e=>{ const [u,v]=uvOf(oc,V,e); clickAt(readOf(u,v,S.C)); });
+  wc.addEventListener('click',e=>{ clickAt(uvOf(wc,VW,e)); });
+  const wb=document.getElementById('twWords');
+  ['Notifications','Sounds','Haptics','Focus','Data'].forEach(t=>{ const b=document.createElement('button'); b.className='btn'; b.textContent=t;
+    b.onclick=()=>pick(WORDS.find(w=>w.text===t)); wb.appendChild(b); });
+  frame(); cards(); draw();
 })();
 
 /* ================= section 6: challenge ================= */
@@ -1628,9 +1999,23 @@ date: ${new Date().toISOString().slice(0,10)}
   strip 1 = the upper color with the blue of the lower color; strip 2 = the lower color with the red of the upper color.
 - How strong a strip looks = the change of that one channel. Black and white: 1 and 1 (pure yellow, pure red).
   Dark text on white: 0.933. Orange and navy: blue 0.22 (weak, a pinker orange) and red 0.78 (strong, raspberry red).
-- Words stay words: neighboring pixels read neighboring points, in the same order. The push curve sets the size:
-  0.13 from C the letters look 4.167 times as wide; on the glass edge 1.212 times as wide and 0.588 times as tall;
-  outside the orange ring unchanged; closer than 0.10 to C the read points pass C and the letters are mirrored.
+- Track a word: the pixel P that reads M (the middle of the word) sits on P's ring; M sits on M's ring. Every pixel of
+  P's ring reads M's ring in the same order around C, so the letters keep their order and stay in one piece.
+  Along the ring the word is stretched (P's distance from C) ÷ (M's distance from C) times:
+  M 0.03 from C → 0.13 ÷ 0.03 = 4.333; M 0.12 from C → 0.2029 ÷ 0.12 = 1.691.
+- Where a point W of the word appears: on the line from C through W, at the distance e with e − push(e) = ρ (ρ = W's distance
+  from C; no short formula for e, read it off the distance chart): P = C + e × dir. “Notifications”, C 0.12 above M:
+  the middle moves out 0.0829, the ends 0.0636 → the word bends (P₃ 0.0379 lower than P₁); gaps 0.0585 → 0.0929 (1.588);
+  top of the word box moves out 0.0893, bottom 0.0734 → 0.043 thick becomes 0.0271 (0.63): flattened.
+- The shape: every point of the word box slides straight away from C by e − ρ. Lines from C spread apart (wider);
+  the side nearer to C slides farther (thinner); the middle of each edge slides farther than its ends (curved).
+  “Haptics”, C 0.12 above M: T slides 0.0893, B 0.0734, the corners TL/TR 0.0817.
+- Letter widths (edges slid one by one): from 1.431 (“s”, at the end) to 1.678 (“p”, at M); right at M e ÷ ρ = 1.691.
+- Pixel by pixel: each output pixel reads the wallpaper once. Along the word, neighbouring pixels read points
+  0.004 ÷ 1.691 = 0.00237 apart: a row of 21 pixels lands in 15 wallpaper squares, 6 of them read twice (table).
+  Across, one pixel outward reads 0.0065 farther (1.625 squares): rows 7, 10, 12, 15, 17 of the word are never read.
+- Area of a letter's box: wallpaper = width × height; output = small squares (0.001) whose read point lands in the box.
+  “p”: 1093 ÷ 1039.1514 = 1.052; whole word 1.008 — wider × thinner = 1.691 × 0.615 = 1.04 near M.
 - Cost: three wallpaper asks per pixel instead of one.
 - iOS: chapter09/ChromaticSeparation.metal (chromaticRefract), explorer chapter09/ChromaticSeparationExplorer.swift.
 - Next: Lesson 9.14 — Lens checkpoint.`;
