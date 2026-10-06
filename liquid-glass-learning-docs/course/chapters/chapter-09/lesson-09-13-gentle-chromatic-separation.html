@@ -127,6 +127,7 @@
   #twOut details{margin-top:4px}
   #twStep .twcap{margin-top:4px}
   #twOut table.trace{margin:8px 0 14px}
+  #twX .ctl{margin:6px 0} #twX input[type=range]{width:150px} #twComb:focus-visible{outline:2px solid var(--indigo)}
   .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:4px 0 14px}
   .card{display:grid;grid-template-columns:140px minmax(0,1fr);gap:12px;align-items:center;text-align:left;font:inherit;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:6px;cursor:pointer;color:var(--ink)}
   .card:hover{border-color:var(--blue)}
@@ -352,13 +353,14 @@ so only the bend shows.</p>
 <div class="cards" id="twCards"></div>
 <div class="gridW">
   <svg class="links" id="twLinks" width="0" height="0"></svg>
-  <div id="twCombBox" style="display:none"><div class="ptitle" id="twCombT"></div><div class="stage" id="twCombS"><canvas id="twComb" width="1060" height="560"></canvas></div></div>
+  <div id="twCombBox" style="display:none"><div class="ptitle" id="twCombT"></div><div class="stage" id="twCombS"><canvas id="twComb" width="1060" height="570"></canvas></div></div>
   <div id="twOcol"><div class="ptitle" id="twOT">Output: what the glass shows</div><div class="stage" id="twOS"><canvas id="twO" width="600" height="600"></canvas></div></div>
   <div id="twWcol"><div class="ptitle" id="twWT">Wallpaper: where the pixels read</div><div class="stage" id="twWS"><canvas id="twW" width="600" height="600"></canvas></div></div>
   <div id="twPanel"><div class="ptitle" id="twPT">What you see</div><div class="twcap" id="twCap"></div>
     <div id="twStep" hidden>
       <div class="stepnav"><button class="btn" id="twBack" type="button">← Back</button><button class="btn" id="twNext" type="button">Next →</button><div class="dots" id="twDots"></div><button class="btn" id="twClean" type="button" style="margin-left:auto">Hide drawings</button></div>
       <div class="ctl" id="twLet" hidden></div>
+      <div id="twX" hidden></div>
       <div class="twcap" id="twStepCap"></div>
       <svg id="twMap" class="block" width="460" height="262" role="img" aria-label="The distance map: each pixel distance and the wallpaper distance it reads" style="margin-top:10px"></svg>
     </div></div>
@@ -383,7 +385,24 @@ so only the bend shows.</p>
   <li><span class="swd" style="background:#a3e635"></span><b>P₁ … P₅</b>: the pixels that show W₁ … W₅ (in the output; on the wallpaper, their places). <b>P(T)</b>, <b>P(TL)</b>, <b>P(X)</b> and so on: the pixels that show T, TL, X and so on. <b>L</b> and <b>R</b> (step 6): the left and right edge of the chosen letter at mid-height; <b>P(L)</b>, <b>P(R)</b>: where they slide to.</li>
   <li><span class="swl" style="background:#fff;border-color:#111827"></span><b>The white lines</b> (step 4, output): from C toward each pixel, up to the edge of the word. <b>The white drop</b> (step 4): from the line P₁–P₅ to P₃; it measures the bend.</li>
   <li><span class="swl" style="background:#a3e635"></span><b>The lime arrows</b> (step 5, wallpaper): the slide of a point of the word box, from where it is to where it appears in the output. <b>The lime outline</b> (steps 5–6): the word box (or each letter's box) after the slide.</li>
-  <li><span class="sw" style="background:repeating-linear-gradient(90deg,#fff 0 8px,#9ca3af 8px 9px)"></span><b>Steps 7–9, zoomed in</b>: one square = one pixel, 0.004 wide. <b>Steps 7–8</b>: the outlined squares are output pixels; each lime arrow goes from one pixel to the point of the wallpaper it reads (lime dot). ×2: a wallpaper square read by two pixels. ✕: a row of the word that no pixel reads. <b>Step 9</b>: green squares read inside the letter's box; the lime dots on the wallpaper are their read points; the four long arrows show where the corner squares read.</li>
+  <li><span class="sw" style="background:repeating-linear-gradient(90deg,#fff 0 8px,#9ca3af 8px 9px)"></span><b>Steps 7–8, pixel by pixel</b>: one square = one pixel (size chosen in the panel). Each output pixel (left) copies the wallpaper pixel (right) that holds its read point. Pale: outside the chosen letter. Blank squares: pixels not built yet.</li>
+  <li><span class="swl" style="background:#a3e635"></span><b>The lime net</b> (wallpaper): the read points of neighbouring output pixels, joined; the newest row is white. <b>×n counts</b>: lime = a wallpaper pixel copied by 2 or more output pixels, pink = never read (✕).</li>
+  <li><span class="swl" style="background:#fff;border-color:#111827"></span><b>White outlines</b>: the letter's left and right edge on the wallpaper and the output pixels that copy them; the pixel you click and every pixel linked to it, one arrow each.</li>
+  <li><span class="sw" style="background:conic-gradient(#fff 0 25%,#9ca3af 0 50%,#fff 0 75%,#9ca3af 0) 0 0/14px 14px"></span><b>Step 9, the area</b>: the letter cut into small boxes (checkerboard, cyan lines) and the same boxes through the glass (lime lines). Click a box for its numbers.</li>
+  <li><span class="swl" style="background:#9ca3af"></span><b>Hide drawings</b> shows the word alone, without any of these marks.</li>
+</ul>
+<ul class="legend two" id="twLegM" hidden>
+  <li><span class="sw ramp"></span><b>The tracked word</b>: one tint per letter, yellow (first letter) to blue (last letter). The cyan rectangle on the wallpaper is the <b>word box</b>: the rectangle around the word.</li>
+  <li><span class="swd" style="background:#c084fc"></span><b>C</b> and <span style="color:#7e22ce">the violet circle</span>: the glass, radius 0.25. <span style="color:#c2410c">The orange ring</span>: 0.35 from C; outside it the push is 0.</li>
+  <li><span class="swl" style="background:#fff;border-color:#111827"></span><b>The 0.10 ring</b>: 0.10 from C, the length of the full push. A pixel inside it reads across C.</li>
+  <li><span class="swd" style="background:#22d3ee"></span><b>M</b>: the middle of the word. <b>W₁ … W₅</b>: five points on its middle line. <b>1 … n</b> (step 4): the middle of each letter. <b>The cyan lines</b> (step 2): from C through each point.</li>
+  <li><span class="swd" style="background:#a3e635"></span><b>P</b>, <b>P₁ … P₅</b>: pixels of <b>copy 1</b>, on M's side of C. <b>Q</b>, <b>Q₁ … Q₅</b>: pixels of <b>copy 2</b>, across C. On the wallpaper: the places where these pixels sit.</li>
+  <li><span class="swl" style="background:#ff4d8d"></span><b>The pink arrows</b>, on the wallpaper: the push of a pixel, from its place to the point it shows.</li>
+  <li><span class="swl" style="background:#a3e635"></span><b>The lime outlines</b> (step 4): the word box in copy 1 and in copy 2. <b>The mirror line</b> (step 4): through C and M.</li>
+  <li><span class="sw" style="background:repeating-linear-gradient(90deg,#fff 0 8px,#9ca3af 8px 9px)"></span><b>Steps 5–6, pixel by pixel</b>: one square = one pixel (size chosen in the panel). Each output pixel (left) copies the wallpaper pixel (right) that holds its read point. Pale: outside the chosen letter. Blank squares: pixels not built yet.</li>
+  <li><span class="swl" style="background:#a3e635"></span><b>The lime net</b> (wallpaper): the read points of neighbouring output pixels, joined; the newest row is white. <b>×n counts</b>: lime = a wallpaper pixel copied by 2 or more output pixels, pink = never read (✕).</li>
+  <li><span class="swl" style="background:#fff;border-color:#111827"></span><b>White outlines</b>: the letter's left and right edge on the wallpaper and the output pixels that copy them; the pixel you click and every pixel linked to it, one arrow each.</li>
+  <li><span class="sw" style="background:conic-gradient(#fff 0 25%,#9ca3af 0 50%,#fff 0 75%,#9ca3af 0) 0 0/14px 14px"></span><b>Step 7, the area</b>: the letter cut into small boxes (checkerboard, cyan lines) and the same boxes through the glass (lime lines). Pink boxes: partly 0.10 or more from C, so copy 2 does not show them whole. Click a box for its numbers.</li>
   <li><span class="swl" style="background:#9ca3af"></span><b>Hide drawings</b> shows the word alone, without any of these marks.</li>
 </ul>
 <div class="readout cols" id="twOut"></div>
@@ -696,7 +715,7 @@ const V3=x=>Number(f(x).replace('−','-'));        // the value that is shown
 const V6=x=>Math.round(x*1e6)/1e6;
 const par=x=>x<0?`(${fz(x)})`:fz(x);
 const pt=(u,v)=>`(${f(u)}, ${f(v)})`;
-const fz=x=>{ const t=V3(x); return Number.isInteger(t)?String(t):f(x); };   // whole numbers without decimals
+const fz=x=>{ const t=V3(x); return Number.isInteger(t)?String(t).replace('-','−'):f(x); };   // whole numbers without decimals
 const cz=c=>`(${fz(c[0])}, ${fz(c[1])}, ${fz(c[2])})`;
 
 /* ================= tooltip system (click, Enter/Space, ✕, outside click, Escape, kept inside the window) ================= */
@@ -1300,11 +1319,12 @@ dispLen = ${f(S.len)}   spread = ${f(S.spread)}
   const cardC=(w,d)=>{ const M=midOf(w); return M[1]-d>=0.03?[M[0],V3(M[1]-d)]:[M[0],V3(M[1]+d)]; };
   const S={word:WORDS.find(w=>w.text==='Haptics'), C:null, card:2, step:1, X:null, clean:false, letter:-1};
   function frame(){                                                  // the window around M, and where C may go
-    const M=midOf(S.word), ex=S.card===1, hf=ex?0.22:HALF, size=ex?520:600;      // “flattened” step by step: a closer view
+    const M=midOf(S.word), ex=S.card===1||S.card===2, size=ex?520:600;               // the two steppers: a closer view
+    const [mx,my,hf]=S.card===2?mirrorView(S.word,cardC(S.word,SHAPES[2].d)):[M[0],M[1],S.card===1?0.22:HALF];
     if(oc.width!==size){ oc.width=oc.height=wc.width=wc.height=size; }
     document.querySelector('.gridW').classList.toggle('ex',ex);
-    Object.assign(V,view(oc,M[0]-hf,M[1]-hf,M[0]+hf)); Object.assign(VW,view(wc,M[0]-hf,M[1]-hf,M[0]+hf));
-    BX.splice(0,4,Math.max(0.02,M[0]-hf+0.02),Math.min(0.98,M[0]+hf-0.02),Math.max(0.02,M[1]-hf+0.02),Math.min(0.98,M[1]+hf-0.02));
+    Object.assign(V,view(oc,mx-hf,my-hf,mx+hf)); Object.assign(VW,view(wc,mx-hf,my-hf,mx+hf));
+    BX.splice(0,4,Math.max(0.02,mx-hf+0.02),Math.min(0.98,mx+hf-0.02),Math.max(0.02,my-hf+0.02),Math.min(0.98,my+hf-0.02));
     S.C=S.card>=0?cardC(S.word,SHAPES[S.card].d):[V3(clamp(S.C[0],BX[0],BX[1])),V3(clamp(S.C[1],BX[2],BX[3]))];
   }
   const clearDyn=st=>st.querySelectorAll('.ptdot:not(.drag)').forEach(b=>b.remove());
@@ -1313,11 +1333,11 @@ dispLen = ${f(S.len)}   spread = ${f(S.spread)}
   let queued=false; const later=()=>{ if(queued) return; queued=true; requestAnimationFrame(()=>{ queued=false; draw(); }); };
 
   /* ---------- “flattened”, step by step (card 1) ---------- */
-  const SUB='₁₂₃₄₅', NSTEP=9, PX=0.004;                              // steps 6–7: big pixels, 0.004 wide (UV), 21 × 21 of them
+  const SUB='₁₂₃₄₅', NSTEP=9;
   const eExact=rho=>{ if(rho>=0.35) return rho; let lo=0.10, hi=0.35;            // the exact output distance, for outlines
     for(let i=0;i<40;i++){ const m=(lo+hi)/2; if(m-pushX(m)<rho) lo=m; else hi=m; } return (lo+hi)/2; };
   const V8=x=>Math.round(x*1e8)/1e8, f8=x=>{ const t=V8(x).toFixed(8).replace(/0+$/,'').replace(/\.$/,''); return t.replace('-','−'); };
-  const f5=x=>(Math.round(x*1e5)/1e5).toFixed(5);
+  const f5=x=>(Math.round(x*1e5)/1e5).toFixed(5).replace('-','−');
   function chainOf(n,Wp,C){                                          // one point of the wallpaper → the pixel that shows it (shown numbers)
     const dx=V3(Wp[0]-C[0]), dy=V3(Wp[1]-C[1]), sx=V8(dx*dx), sy=V8(dy*dy), sum=V8(sx+sy), rho=V3(Math.sqrt(sum));
     const pf=pixelFor(rho), e=pf.e, ux=V3(dx/rho), uy=V3(dy/rho), ex=V3(e*ux), ey=V3(e*uy);
@@ -1325,14 +1345,6 @@ dispLen = ${f(S.len)}   spread = ${f(S.spread)}
   }
   const pn=c=>c.n[0]==='W'?'P'+c.n.slice(1):`P(${c.n})`;               // the pixel's name
   const PUSH_RULE='<b>The push rule</b> — Lesson 9.11.<br>push(e) = 0.10 × (1 − smoothstep(−0.10, 0.10, e − 0.25)): the full 0.10 up to 0.15 from C, smaller between 0.15 and 0.35, and 0 from 0.35 on.<br>push(e) depends on e itself, through smoothstep (3t² − 2t³). So there is no short formula that gives e from ρ: the chart reads e off, and the table checks it.';
-  const BIGPX='<b>Big pixels</b> — a choice of this picture.<br>A pixel here is 0.004 wide (UV), so 250 of them fill the screen width. A real iPhone 16 Pro pixel is 1 ÷ 1206 = 0.00083 wide. Smaller pixels give the same counts per pixel, only harder to see.';
-  /* a zoomed picture with the big-pixel grid on top */
-  function paintPix(cv,VV,kind,C,w,ctr){
-    paint(cv,VV,kind,C,w); const ctx=cv.getContext('2d');
-    ctx.strokeStyle='rgba(17,24,39,0.28)'; ctx.lineWidth=1; ctx.beginPath();
-    for(let i=-11;i<=12;i++){ const xx=VV.X(ctr[0]+(i-0.5)*PX), yy=VV.Y(ctr[1]+(i-0.5)*PX); ctx.moveTo(xx,0); ctx.lineTo(xx,cv.height); ctx.moveTo(0,yy); ctx.lineTo(cv.width,yy); }
-    ctx.stroke();
-  }
   /* a box (or any closed list of wallpaper points) moved by the glass: every point goes out along its line from C */
   const moved=(C,ps)=>ps.map(q=>{ const dx=q[0]-C[0], dy=q[1]-C[1], d=Math.hypot(dx,dy), e=eExact(d); return [C[0]+dx/d*e, C[1]+dy/d*e]; });
   const perim=(x0,x1,y0,y1,nx)=>{ const p=[]; for(let i=0;i<=nx;i++) p.push([x0+(x1-x0)*i/nx,y0]); for(let i=0;i<=10;i++) p.push([x1,y0+(y1-y0)*i/10]);
@@ -1367,19 +1379,6 @@ e × dir.x = ${f(c.e)} × ${par(c.ux)} = ${fz(c.ex)}
 e × dir.y = ${f(c.e)} × ${par(c.uy)} = ${fz(c.ey)}
 P.x = ${f(C[0])} + ${par(c.ex)} = ${f(c.P[0])}
 P.y = ${f(C[1])} + ${par(c.ey)} = ${f(c.P[1])}</pre>`;
-  /* an output pixel → its read point, with 5 decimals (neighbouring read points are only about 0.002 apart) */
-  function readChain(q,C){
-    const dx=r5(q[0]-C[0]), dy=r5(q[1]-C[1]), e=r5(Math.hypot(dx,dy)), push=r5(pushX(e)), rr=r5(e-push), ux=r5(dx/e), uy=r5(dy/e), rx=r5(C[0]+rr*ux), ry=r5(C[1]+rr*uy);
-    return {e,push,rr,ux,uy,rx,ry, tip:`<b>Read point of this pixel</b>, the Lesson 9.11 chain with 5 decimals:<pre>pixel center = (${f5(q[0])}, ${f5(q[1])})
-Δx = ${f5(q[0])} − ${f(C[0])} = ${f5(dx)}
-Δy = ${f5(q[1])} − ${f(C[1])} = ${f5(dy)}
-e = √(Δx² + Δy²) = ${f5(e)}
-push(e) = ${f5(push)}   (the push rule)
-read distance = ${f5(e)} − ${f5(push)} = ${f5(rr)}
-dir = (${f5(dx)} ÷ ${f5(e)}, ${f5(dy)} ÷ ${f5(e)}) = (${f5(ux)}, ${f5(uy)})
-read.x = ${f(C[0])} + ${f5(rr)} × ${f5(ux)} = ${f5(rx)}
-read.y = ${f(C[1])} + ${f5(rr)} × ${f5(uy)} = ${f5(ry)}</pre>`};
-  }
   /* a wallpaper point → the pixel that shows it, with 5 decimals (letter edges are close together) */
   function fwd(n,Wp,C){
     const dx=r5(Wp[0]-C[0]), dy=r5(Wp[1]-C[1]), rho=r5(Math.hypot(dx,dy)), e=r5(eExact(rho)), push=r5(pushX(e)), ux=r5(dx/rho), uy=r5(dy/rho), ex=r5(e*ux), ey=r5(e*uy), P=[r5(C[0]+ex),r5(C[1]+ey)];
@@ -1405,26 +1404,16 @@ P = (${f(C[0])} + ${f5(ex)}, ${f(C[1])} + ${f5(ey)}) = (${f5(P[0])}, ${f5(P[1])}
     const cT=chainOf('T',[M[0],nearY],C), cB=chainOf('B',[M[0],farY],C);
     const cX=S.X?chainOf('X',S.X,C):null, pts=cX?Wc.concat([cX]):Wc;
     const letterOf=Wp=>{ const k=letterAt(w,Wp[0],Wp[1]); return k>=0?`in the letter “${w.text[k]}”`:'between letters'; };
-    const r1=Wc[0], r3=Wc[2], P1=r1.P, P3=r3.P, P5=Wc[4].P, str=V3(r3.e/r3.rho);
+    const r1=Wc[0], r3=Wc[2], P1=r1.P, P3=r3.P, P5=Wc[4].P;
     const KP=[chainOf('TL',[xa,nearY],C),cT,chainOf('TR',[xb,nearY],C),chainOf('BL',[xa,farY],C),cB,chainOf('BR',[xb,farY],C)];
     const LB=[]; for(let k=0;k<=n;k++) LB.push(fwd(k<n?`the left edge of “${w.text[k]}”`:`the right edge of “${w.text[n-1]}”`,[r5(w.xs[k]),M[1]],C));
     const LW=[]; for(let k=0;k<n;k++){ const ww=r5(LB[k+1].W[0]-LB[k].W[0]), g=seg5(LB[k].P,LB[k+1].P); LW.push({ww,g,ratio:V3(g.len/ww)}); }
     const kc=letterAt(w,r3.W[0],r3.W[1]); if(!(S.letter>=0&&S.letter<n)) S.letter=kc;
     const kMin=LW.reduce((a,b,i)=>b.ratio<LW[a].ratio?i:a,0);
-    /* the big-pixel grids: square centers at W₃ + k × 0.004 (wallpaper) and P₃ + k × 0.004 (output) */
-    const Wz=r3.W, Pz=P3, glW=r5(Wz[0]-10.5*PX), gtW=r5(Wz[1]-10.5*PX);
-    /* step 8 numbers: one pixel farther out */
-    const e8=V3(r3.e+PX), p8=pushShown(e8), rho8=V3(e8-p8), sp=V3(rho8-r3.r), spx=V3(sp/PX), acr=V3(PX/sp), area=V3(str*acr);
-    const dmv=V3(cT.mv-cB.mv), oth=V3(cB.e-cT.e), th=V3(cB.rho-cT.rho), fl=V3(oth/th);
-    const zoom=st>=7, Lsel=S.letter, combo=st===7||st===8;
-    document.getElementById('twOcol').style.display=combo?'none':''; document.getElementById('twWcol').style.display=combo?'none':'';
-    document.getElementById('twCombBox').style.display=combo?'':'none';
-    document.getElementById('twCombT').textContent=st===7?'Step 7 · each output pixel (top) reads one point of the wallpaper (bottom)':'Step 8 · each output pixel (left) reads one point of the wallpaper (right)';
-    const links=document.getElementById('twLinks'); links.innerHTML=''; let zc7={sq:0,two:0};
-    document.getElementById('twOT').textContent=st===9?`Output, zoomed in on the letter “${w.text[Lsel]}” (×5.24): one square = one big pixel`:zoom?'Output, zoomed in on P₃ (×5.24): one square = one big pixel':'Output: what the glass shows';
-    document.getElementById('twWT').textContent=st===9?`Wallpaper, zoomed in on the letter “${w.text[Lsel]}” (×5.24)`:zoom?'Wallpaper, zoomed in on W₃ (×5.24): one square = one big pixel':'Wallpaper: where the pixels read';
-    const lb=document.getElementById('twLet'); lb.hidden=false; lb.style.display=(st===6||st===9)?'':'none';
-    if(st===6||st===9){ lb.innerHTML='<span class="ctlname">Letter</span>'; for(let k=0;k<n;k++){ const b=document.createElement('button'); b.className='btn'; b.textContent=`${k+1} · ${w.text[k]}`;
+    if(st>=7){ explorer(st-6,w,C,false); return; }
+    const Lsel=S.letter;
+    const lb=document.getElementById('twLet'); lb.hidden=false; lb.style.display=st===6?'':'none';
+    if(st===6){ lb.innerHTML='<span class="ctlname">Letter</span>'; for(let k=0;k<n;k++){ const b=document.createElement('button'); b.className='btn'; b.textContent=`${k+1} · ${w.text[k]}`;
       b.setAttribute('aria-pressed',String(k===Lsel)); b.onclick=()=>{ S.letter=k; draw(); }; lb.appendChild(b); } }
     /* labels never overlap: each picture remembers its labels */
     const placed=new Map([[o,[]],[x,[]]]);
@@ -1437,11 +1426,11 @@ P = (${f(C[0])} + ${f5(ex)}, ${f(C[1])} + ${f5(ey)}) = (${f5(P[0])}, ${f5(P[1])}
     document.getElementById('twClean').textContent=S.clean?'Show drawings':'Hide drawings';
     const mp=moved(C,perim(w.xs[0],w.xs[n],w.top,w.bot,80));
     /* ================= steps 1–6: the whole word ================= */
-    if(!zoom){
+    {
       putN(o,'C',V.X(C[0])+16,V.Y(C[1]),GLS,'left'); addPt(os,V.X(C[0]),V.Y(C[1]),COL.glass,TIP_C(...C),'C','mini');
       putN(x,'C',VW.X(C[0])+16,VW.Y(C[1]),GLS,'left'); addPt(ws,VW.X(C[0]),VW.Y(C[1]),COL.glass,TIP_C(...C),'C on the wallpaper','mini');
     }
-    if(!zoom&&!S.clean){
+    if(!S.clean){
       box(x,VW.X(w.xs[0]),VW.Y(w.top),(w.xs[n]-w.xs[0])*VW.s,(w.bot-w.top)*VW.s,CYAN,2);
       putN(x,'word box',VW.X(w.xs[n])+8,VW.Y(nearY)-sg*12,CYN,'left');
       if(st<=4){
@@ -1490,134 +1479,10 @@ P = (${f(C[0])} + ${f5(ex)}, ${f(C[1])} + ${f5(ey)}) = (${f5(P[0])}, ${f5(P[1])}
           addPt(os,V.X(c.P[0]),V.Y(c.P[1]),COL.mag,c.tip.replace(`<b>${c.n}</b>`,`<b>${nm} (${c.n})</b>`),'P('+nm+')','mini'); }
       }
     }
-    /* ================= steps 7–9: big pixels ================= */
-    let RW=[], groups=new Map(), inLetter=[], CL=[], insideCL=[], boxRows=[], hitRows=[], zeroRows=[], NW=Array(n).fill(0), NO=Array(n).fill(0), NF=Array(n).fill(0), AW=[], cntW=0, cntO=0;
-    const FP=0.001, top5=r5(w.top), bot5=r5(w.bot), h5=r5(bot5-top5);
-    if(zoom){
-      let cW=Wz, cO=Pz;
-      const L=Lsel, lx0=V3(w.xs[L]), lx1=V3(w.xs[L+1]);
-      if(st===9){ const lc=[(lx0+lx1)/2,(top+bot)/2], Fc=moved(C,[lc])[0];
-        cW=[Wz[0]+Math.round((lc[0]-Wz[0])/PX)*PX, Wz[1]+Math.round((lc[1]-Wz[1])/PX)*PX]; cO=[Pz[0]+Math.round((Fc[0]-Pz[0])/PX)*PX, Pz[1]+Math.round((Fc[1]-Pz[1])/PX)*PX]; }
-      const Vz=view(oc,cO[0]-10.5*PX,cO[1]-10.5*PX,cO[0]+10.5*PX), Wv=view(wc,cW[0]-10.5*PX,cW[1]-10.5*PX,cW[0]+10.5*PX), cs=Vz.s*PX;
-      paintPix(oc,Vz,'output',C,w,cO); paintPix(wc,Wv,'input',C,w,cW);
-      const fillCell=(ctx,VV,q,col)=>{ ctx.fillStyle=col; ctx.fillRect(VV.X(q[0]-PX/2),VV.Y(q[1]-PX/2),cs,cs); };
-      const readCol=r=>{ const kk=letterAt(w,r[0],r[1]); let col=screenCol(r[0],r[1]).map(v=>v*255); if(kk>=0){ const t=tint(kk,n); col=col.map((v,ii)=>v*(1-TA)+t[ii]*TA); } return `rgb(${col.map(Math.round).join(',')})`; };
-      if(st===7){
-        for(let i=-10;i<=10;i++){ const q=[Pz[0]+i*PX,Pz[1]], rc=readChain(q,C), dxg=r5(rc.rx-glW), dyg=r5(rc.ry-gtW), qx=V3(dxg/PX), qy=V3(dyg/PX);
-          RW.push({k:i+11,q,rc,dxg,dyg,qx,qy,col:Math.floor(qx)+1,row:Math.floor(qy)+1}); }
-        RW.forEach(d=>{ const key=d.col+','+d.row; if(!groups.has(key)) groups.set(key,[]); groups.get(key).push(d.k); });
-        inLetter=RW.filter(d=>letterAt(w,d.rc.rx,d.rc.ry)===kc).map(d=>d.k);
-      }
-      if(st===8){
-        for(let k=1;k<=13;k++){ const off=V3((k-7)*PX), e=V3(r3.e+off), pu=pushShown(e), rr=V3(e-pu), ry=V3(C[1]+sg*rr), dyg=r5(ry-gtW), qy=V3(dyg/PX);
-          CL.push({k,off,e,pu,pl:pushLines(e),rr,ry,dyg,qy,row:Math.floor(qy)+1,inside:ry>=top&&ry<=bot,q:[Pz[0],C[1]+sg*e]}); }
-        for(let r=1;r<=21;r++){ const cy=gtW+(r-0.5)*PX; if(cy>=top&&cy<=bot) boxRows.push(r); }
-        hitRows=[...new Set(CL.map(d=>d.row))]; zeroRows=boxRows.filter(r=>!hitRows.includes(r)); insideCL.push(...CL.filter(d=>d.inside).map(d=>d.k));
-      }
-      const greens=[];
-      if(st===9){
-        /* every letter: squares of the wallpaper whose center lies in its box; squares of the output whose read point lands in its box */
-        for(let i=Math.floor((w.xs[0]-Wz[0])/PX)-1;i<=Math.ceil((w.xs[n]-Wz[0])/PX)+1;i++) for(let j=Math.floor((w.top-Wz[1])/PX)-1;j<=Math.ceil((w.bot-Wz[1])/PX)+1;j++){
-          const q=[Wz[0]+i*PX,Wz[1]+j*PX], kk=letterAt(w,q[0],q[1]); if(kk>=0) NW[kk]++; }
-        const bxs=mp.map(q=>q[0]), bys=mp.map(q=>q[1]);
-        for(let i=Math.floor((Math.min(...bxs)-Pz[0])/PX)-1;i<=Math.ceil((Math.max(...bxs)-Pz[0])/PX)+1;i++) for(let j=Math.floor((Math.min(...bys)-Pz[1])/PX)-1;j<=Math.ceil((Math.max(...bys)-Pz[1])/PX)+1;j++){
-          const q=[Pz[0]+i*PX,Pz[1]+j*PX]; if(!inside(q[0],q[1])) continue; const r=readOf(q[0],q[1],C), kk=letterAt(w,r[0],r[1]); if(kk>=0) NO[kk]++; }
-        cntW=NW[L]; cntO=NO[L];
-        /* the exact box areas, and the output areas counted with small squares (0.001 wide, anchored at P₃) */
-        for(let k=0;k<n;k++){ const bw=r5(r5(w.xs[k+1])-r5(w.xs[k])), a1=r5(bw/FP), a2=r5(h5/FP); AW.push({bw,a1,a2,area:r5(a1*a2)}); }
-        for(let i=Math.floor((Math.min(...bxs)-Pz[0])/FP)-2;i<=Math.ceil((Math.max(...bxs)-Pz[0])/FP)+2;i++) for(let j=Math.floor((Math.min(...bys)-Pz[1])/FP)-2;j<=Math.ceil((Math.max(...bys)-Pz[1])/FP)+2;j++){
-          const q=[Pz[0]+i*FP,Pz[1]+j*FP]; if(!inside(q[0],q[1])) continue; const r=readOf(q[0],q[1],C), kk=letterAt(w,r[0],r[1]); if(kk>=0) NF[kk]++; }
-      }
-      /* ---- steps 7 and 8: one picture, output pixels and wallpaper squares, one arrow per pixel to the point it reads ---- */
-      if(st===7||st===8){
-        const cb=document.getElementById('twComb'), cx=cb.getContext('2d'), cst=document.getElementById('twCombS'); clearDyn(cst);
-        cx.fillStyle='#fff'; cx.fillRect(0,0,cb.width,cb.height);
-        /* a sharp piece of the output or the wallpaper, cols × rows big pixels around ctr, drawn at (x0, y0), with its grid */
-        const strip=(kind,ctr,cols,rows,x0,y0,cs1)=>{ const off=document.createElement('canvas'); off.width=cols*cs1; off.height=rows*cs1;
-          const lx=ctr[0]-cols/2*PX, ty=ctr[1]-rows/2*PX; paint(off,view(off,lx,ty,lx+cols*PX),kind,C,w); cx.drawImage(off,x0,y0);
-          cx.strokeStyle='rgba(17,24,39,0.28)'; cx.lineWidth=1; cx.beginPath();
-          for(let i=0;i<=cols;i++){ cx.moveTo(x0+i*cs1,y0); cx.lineTo(x0+i*cs1,y0+rows*cs1); } for(let j=0;j<=rows;j++){ cx.moveTo(x0,y0+j*cs1); cx.lineTo(x0+cols*cs1,y0+j*cs1); } cx.stroke();
-          cx.strokeStyle='#111827'; cx.lineWidth=1.5; cx.strokeRect(x0,y0,cols*cs1,rows*cs1);
-          return {X:u=>x0+(u-lx)/PX*cs1, Y:v=>y0+(v-ty)/PX*cs1}; };
-        const head=(t,X,Y,al)=>{ cx.font='700 15px -apple-system,"Segoe UI",Roboto,sans-serif'; cx.textAlign=al||'left'; cx.textBaseline='middle'; cx.fillStyle='#111827'; cx.fillText(t,X,Y); };
-        const bracketH=(x1,x2,y,up,t,color,pair)=>{ const d=up?-8:8; line(cx,x1,y+d,x1,y,color,2); line(cx,x1,y,x2,y,color,2); line(cx,x2,y,x2,y+d,color,2); lbl(cx,t,(x1+x2)/2,y-(up?0:0)+(up?-14:16),pair,'center',15); };
-        const bracketV=(y1,y2,x,left,t,color,pair)=>{ const d=left?8:-8; line(cx,x+d,y1,x,y1,color,2); line(cx,x,y1,x,y2,color,2); line(cx,x,y2,x+d,y2,color,2); lbl(cx,t,x+(left?-10:10),(y1+y2)/2,pair,left?'right':'left',15); };
-        if(st===7){
-          const c7=44, mL=(cb.width-21*c7)/2, yO=74, yW=340;
-          head('OUTPUT: the 21 pixels of the row through P₃ (one square = one pixel)',mL,yO-50);
-          head('WALLPAPER: each arrow ends at the point its pixel reads',mL,yW+3*c7+56);
-          const MO=strip('output',Pz,21,3,mL,yO,c7), MW=strip('input',Wz,21,3,mL,yW,c7);
-          /* the row: each pixel is one flat color */
-          RW.forEach(d=>{ cx.fillStyle=readCol([d.rc.rx,d.rc.ry]); cx.fillRect(MO.X(d.q[0]-PX/2),MO.Y(d.q[1]-PX/2),c7,c7); });
-          RW.forEach(d=>{ box(cx,MO.X(d.q[0]-PX/2)+2,MO.Y(d.q[1]-PX/2)+2,c7-4,c7-4,COL.mag,1.5); });
-          /* the letter's box on the wallpaper strip, and which output pixels show it */
-          const xL=MW.X(w.xs[kc]), xR=MW.X(w.xs[kc+1]); box(cx,xL,yW,xR-xL,3*c7,CYAN,2.5);
-          bracketH(xL,xR,yW+3*c7+18,false,`“${w.text[kc]}” on the wallpaper: about ${Math.round(V3(LW[kc].ww/PX))} squares wide`,CYAN,CYN);
-          if(inLetter.length){ const a=RW.find(d=>d.k===inLetter[0]), b=RW.find(d=>d.k===inLetter[inLetter.length-1]);
-            bracketH(MO.X(a.q[0]-PX/2),MO.X(b.q[0]+PX/2),yO-16,true,`“${w.text[kc]}” in the output: ${inLetter.length} pixels wide`,COL.mag,LIM); }
-          /* squares read twice */
-          groups.forEach((ks,key)=>{ if(ks.length<2) return; const [c,r]=key.split(',').map(Number), X0=MW.X(glW+(c-1)*PX), Y0=MW.Y(gtW+(r-1)*PX);
-            box(cx,X0+2,Y0+2,c7-4,c7-4,'#ffffff',3); lbl(cx,'×2',X0+c7/2,Y0+c7-11,INK,'center',14); });
-          /* one arrow per pixel */
-          if(!S.clean) RW.forEach(d=>arrow(cx,MO.X(d.q[0]),MO.Y(d.q[1])+c7/2,MW.X(d.rc.rx),MW.Y(d.rc.ry),COL.mag,2));
-          RW.forEach(d=>{ const X0=MW.X(d.rc.rx), Y0=MW.Y(d.rc.ry); halo(cx,()=>cx.arc(X0,Y0,4,0,Math.PI*2),COL.mag,3);
-            addPt(cst,X0,Y0,COL.mag,`<b>Read point of output pixel ${d.k}</b> = (${f5(d.rc.rx)}, ${f5(d.rc.ry)}), in UV<br>Output pixel ${d.k} takes its color from here.`,'read point of pixel '+d.k,'mini');
-            addPt(cst,MO.X(d.q[0]),MO.Y(d.q[1]),readCol([d.rc.rx,d.rc.ry]),`<b>Output pixel ${d.k}</b>, center (${f5(d.q[0])}, ${f5(d.q[1])}), in UV<br>It reads the wallpaper at (${f5(d.rc.rx)}, ${f5(d.rc.ry)}).`,'output pixel '+d.k,'mini'); });
-          lbl(cx,'P₃',MO.X(Pz[0]),yO+3*c7+16,LIM,'center',15); lbl(cx,'W₃',MW.X(Wz[0])+14,MW.Y(Wz[1])-14,CYN,'left',15);
-          zc7={sq:groups.size, two:[...groups.values()].filter(v=>v.length>=2).length};
-        }
-        if(st===8){
-          const c8=26, oX=330, wX=700, oY=(cb.height-13*c8)/2, wY=(cb.height-21*c8)/2;
-          const MO=strip('output',Pz,3,13,oX,oY,c8), MW=strip('input',Wz,3,21,wX,wY,c8);
-          head('OUTPUT:',20,cb.height/2-30); head('a column of 13 pixels',20,cb.height/2-10); head('through P₃',20,cb.height/2+10);
-          head('WALLPAPER:',wX+3*c8+110,40); head('where each',wX+3*c8+110,60); head('pixel reads',wX+3*c8+110,80);
-          CL.forEach(d=>{ cx.fillStyle=readCol([Pz[0],d.ry]); cx.fillRect(MO.X(d.q[0]-PX/2),MO.Y(d.q[1]-PX/2),c8,c8); });
-          CL.forEach(d=>{ box(cx,MO.X(d.q[0]-PX/2)+2,MO.Y(d.q[1]-PX/2)+2,c8-4,c8-4,COL.mag,1.5); });
-          /* the word: its top and bottom on the wallpaper, and in the output */
-          for(const yb of [w.top,w.bot]) line(cx,wX-6,MW.Y(yb),wX+3*c8+6,MW.Y(yb),CYAN,2.5);
-          bracketV(MW.Y(w.top),MW.Y(w.bot),wX+3*c8+60,false,`the word: ${boxRows.length} rows`,CYAN,CYN);
-          for(const c of [cT,cB]) line(cx,oX-6,MO.Y(c.P[1]),oX+3*c8+6,MO.Y(c.P[1]),COL.mag,2.5);
-          bracketV(MO.Y(cT.P[1]),MO.Y(cB.P[1]),oX-24,true,`the word: ${insideCL.length} pixels`,COL.mag,LIM);
-          /* rows of the word that no pixel reads */
-          zeroRows.forEach(r=>{ const Y0=MW.Y(gtW+(r-0.5)*PX); lbl(cx,'✕',wX+3*c8+18,Y0,PSH,'center',16); });
-          if(zeroRows.length) lbl(cx,'✕ = row never read',wX+3*c8+130,cb.height-40,PSH,'left',15);
-          if(!S.clean) CL.forEach(d=>arrow(cx,oX+3*c8,MO.Y(d.q[1]),MW.X(Pz[0]),MW.Y(d.ry),COL.mag,2));
-          CL.forEach(d=>{ const X0=MW.X(Pz[0]), Y0=MW.Y(d.ry); halo(cx,()=>cx.arc(X0,Y0,4,0,Math.PI*2),COL.mag,3);
-            addPt(cst,X0,Y0,COL.mag,`<b>Read point of output pixel ${d.k}</b> = (${f(Pz[0])}, ${f(d.ry)}), in UV<br>Output pixel ${d.k} takes its color from here.`,'read point of pixel '+d.k,'mini'); });
-          lbl(cx,'P₃',oX+3*c8+14,MO.Y(Pz[1])-12,LIM,'left',15);
-        }
-      }
-      if(!S.clean){
-        if(st===9){
-          for(let i=-10;i<=10;i++) for(let j=-10;j<=10;j++){
-            const q=[cW[0]+i*PX,cW[1]+j*PX]; if(letterAt(w,q[0],q[1])===L){ fillCell(x,Wv,q,'rgba(34,211,238,0.45)'); box(x,Wv.X(q[0]-PX/2)+1,Wv.Y(q[1]-PX/2)+1,cs-2,cs-2,CYAN,1); }
-            const p=[cO[0]+i*PX,cO[1]+j*PX]; if(!inside(p[0],p[1])) continue; const r=readOf(p[0],p[1],C);
-            if(letterAt(w,r[0],r[1])===L){ fillCell(o,Vz,p,'rgba(163,230,53,0.5)'); box(o,Vz.X(p[0]-PX/2)+1,Vz.Y(p[1]-PX/2)+1,cs-2,cs-2,COL.mag,1); greens.push({i,j,p,r}); } }
-          greens.forEach(g=>halo(x,()=>x.arc(Wv.X(g.r[0]),Wv.Y(g.r[1]),3,0,Math.PI*2),COL.mag,2.5));
-          if(greens.length){ const jMin=Math.min(...greens.map(g=>g.j)), jMax=Math.max(...greens.map(g=>g.j)), rowA=greens.filter(g=>g.j===jMin), rowB=greens.filter(g=>g.j===jMax);
-            const pick=[rowA.reduce((a,b)=>b.i<a.i?b:a),rowA.reduce((a,b)=>b.i>a.i?b:a),rowB.reduce((a,b)=>b.i<a.i?b:a),rowB.reduce((a,b)=>b.i>a.i?b:a)];
-            const gW=document.querySelector('.gridW').getBoundingClientRect(), oR=oc.getBoundingClientRect(), wR=wc.getBoundingClientRect();
-            const toG=(R,cv,X,Y)=>[R.left-gW.left+X*R.width/cv.width, R.top-gW.top+Y*R.height/cv.height];
-            let h=''; pick.forEach(g=>{ const a=toG(oR,oc,Vz.X(g.p[0]),Vz.Y(g.p[1])), b=toG(wR,wc,Wv.X(g.r[0]),Wv.Y(g.r[1])), an=Math.atan2(b[1]-a[1],b[0]-a[0]);
-              const hx=[b[0]-12*Math.cos(an-0.4),b[1]-12*Math.sin(an-0.4)], hy=[b[0]-12*Math.cos(an+0.4),b[1]-12*Math.sin(an+0.4)];
-              h+=`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="rgba(17,24,39,0.9)" stroke-width="5.5" stroke-linecap="round"/><line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="#a3e635" stroke-width="2.5" stroke-linecap="round"/>`+
-                 `<polygon points="${b[0]},${b[1]} ${hx[0]},${hx[1]} ${hy[0]},${hy[1]}" fill="#a3e635" stroke="rgba(17,24,39,0.9)" stroke-width="1.5"/>`; });
-            links.setAttribute('width',gW.width); links.setAttribute('height',gW.height); links.innerHTML=h; }
-          const ps=perim(w.xs[L],w.xs[L+1],w.top,w.bot,12); pathOn(x,Wv,ps,CYAN,2.5); pathOn(o,Vz,moved(C,ps),COL.mag,2.5);
-          lbl(x,`left edge x = ${f5(r5(w.xs[L]))}`,Wv.X(w.xs[L])-6,Wv.Y((w.top+w.bot)/2),CYN,'right',14);
-          lbl(x,`right edge x = ${f5(r5(w.xs[L+1]))}`,Wv.X(w.xs[L+1])+6,Wv.Y((w.top+w.bot)/2),CYN,'left',14);
-          lbl(x,`top edge y = ${f5(r5(w.top))}`,Wv.X((w.xs[L]+w.xs[L+1])/2),Wv.Y(w.top)-14,CYN,'center',14);
-          lbl(x,`bottom edge y = ${f5(r5(w.bot))}`,Wv.X((w.xs[L]+w.xs[L+1])/2),Wv.Y(w.bot)+16,CYN,'center',14);
-          lbl(x,`box of “${w.text[L]}”: ${cntW} squares with their center inside`,wc.width/2,22,CYN,'center',15);
-          lbl(o,`${cntO} squares whose read point lands inside it`,oc.width/2,22,LIM,'center',15);
-        }
-      }
-    }
     /* ================= the caption ================= */
     const sym=r1.rho===Wc[4].rho, ends=sym?'W₁ and W₅':'W₁', bend=V3(Math.abs(P3[1]-P1[1]));
     const chk=c=>`${f(c.e)} − ${fz(c.push)} = ${fz(c.r)}`+(c.gap>1e-9?` ≈ ${fz(c.rho)}`:'');
-    const [kTL,,kTR]=KP, lwk=LW[kc], wk=V3(lwk.ww/PX), ok=V3(lwk.g.len/PX), lft=LW[kMin];
-    const twoRead=[...groups.values()].filter(v=>v.length>=2).length, oneRead=[...groups.values()].filter(v=>v.length===1).length;
+    const [kTL]=KP;
     const CAP=[
       `<b>Step 1 · Five points on the word.</b> We follow five points on the middle line of “${w.text}” (cyan dots). W₃ is M, the middle of the word; W₁ and W₅ sit at its two ends. Neighbouring points are ${f(gp)} apart (UV). The glass center C is ${fz(V3(Math.abs(M[1]-C[1])))} ${above?'above':'below'} M.<br><br>For each point we will find the pixel that shows it in the output. Click any spot of the word, in either picture, to add your own point X.`,
       `<b>Step 2 · How far is each point from C?</b> The cyan lines join C to each point. Their lengths are the distances from C on the wallpaper. We call such a distance ρ (“rho”). The table below computes each one with Lesson 9.1 ${I(TIP_LEN)}.<br><br>W₃ is the closest to C: ρ = ${fz(r3.rho)}. ${ends} ${sym?'are':'is'} the farthest: ρ = ${fz(r1.rho)}. This difference makes the shape.`,
@@ -1644,9 +1509,7 @@ width in the output (Lesson 9.1):
 output width ÷ wallpaper width:
   ${f5(d.g.len)} ÷ ${f5(d.ww)} = ${f(d.ratio)}</div>`+
         `So in the output “${lt}” is <b>${f(d.ratio)}</b> times as wide as on the wallpaper. Why wider: L and R slide away from C along two lines from C (white), and these lines spread apart. L and R start ${f5(cL.rho)} and ${f5(cR.rho)} from C and end ${f5(cL.e)} and ${f5(cR.e)} from C, where the two lines are farther apart.<br><br>The side chart gives this number for every letter: each letter has its own. The smallest is “${w.text[kMin]}” (${f(LW[kMin].ratio)}): its edges start farther from C and slide less far out, so its two lines spread apart less. Pick it to compare.`; })(),
-      `<b>Step 7 · Why a letter covers more pixels.</b> Each output pixel takes its color from one point of the wallpaper (one arrow each). The arrows bunch together: ${RW.length} pixels read only ${zc7.sq} squares, so ${zc7.two} squares are read twice (×2). So “${w.text[kc]}” fills ${inLetter.length} pixels in the output, but only about ${Math.round(V3(lwk.ww/PX))} squares on the wallpaper: it looks wider.`,
-      `<b>Step 8 · Why a letter gets flatter.</b> Now a column of pixels. Again one arrow per pixel. Here the arrows spread apart: only ${insideCL.length} pixels read the ${boxRows.length} rows of the word, and ${zeroRows.length} rows are never read (✕). So the word is ${insideCL.length} pixels tall in the output instead of ${boxRows.length}: it looks flatter.`,
-      `<b>Step 9 · Is the area bigger?</b> Every green square in the output reads one point inside the box of “${w.text[Lsel]}” (the lime dots on the wallpaper; the four arrows show where the corner squares read). Green squares: ${cntO}. Squares in the box: ${cntW}. About the same: “${w.text[Lsel]}” got wider (step 7) but flatter (step 8). The side chart compares every letter.`];
+    ];
     const cp=document.getElementById('twStepCap'); cp.innerHTML=CAP[st-1];
     /* ================= the numbers of this step ================= */
     const T=(head,rows,sel)=>`<table class="trace"><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr>${rows.map((r,ri)=>`<tr${ri===sel?' class="new"':''}>${r.map((c,i)=>i?`<td class="f">${c}</td>`:`<td><b>${c}</b></td>`).join('')}</tr>`).join('')}</table>`;
@@ -1667,39 +1530,9 @@ output width ÷ wallpaper width:
       T(['letter','left → right edge on the wallpaper (x)','wallpaper width = right − left','left edge in the output','right edge in the output','output width = √(Δx² + Δy²)','output width ÷ wallpaper width'],
       LW.map((d,k)=>[`${k+1} · “${w.text[k]}”`,`${f5(LB[k].W[0])} → ${f5(LB[k+1].W[0])}`,`${f5(LB[k+1].W[0])} − ${f5(LB[k].W[0])} = ${f5(d.ww)}`,`${p5(LB[k].P)} ${I(LB[k].tip)}`,`${p5(LB[k+1].P)} ${I(LB[k+1].tip)}`,
         `${f5(d.g.len)} ${I(`<b>Width of “${w.text[k]}” in the output</b> (Lesson 9.1):<pre>Δx = ${f5(LB[k+1].P[0])} − ${f5(LB[k].P[0])} = ${f5(d.g.dx)}\nΔy = ${f5(LB[k+1].P[1])} − ${f5(LB[k].P[1])} = ${f5(d.g.dy)}\nΔx² = ${f5(d.g.dx)} × ${f5(d.g.dx)} = ${f10(d.g.sx)}\nΔy² = ${f5(d.g.dy)} × ${f5(d.g.dy)} = ${f10(d.g.sy)}\nsum = ${f10(d.g.sx)} + ${f10(d.g.sy)} = ${f10(d.g.sum)}\nwidth = √${f10(d.g.sum)} = ${f5(d.g.len)}</pre>`)}`,`${f5(d.g.len)} ÷ ${f5(d.ww)} = ${f(d.ratio)}`]),Lsel);
-    if(st===7) H=`<div class="readout">The wallpaper squares: column 1 starts at the grid's left side, x = ${f(Wz[0])} − 10.5 × ${f(PX)} = ${f5(glW)}; row 1 starts at the grid's top side, y = ${f(Wz[1])} − 10.5 × ${f(PX)} = ${f5(gtW)} (both printed at the bottom of the wallpaper picture). W₃ sits in the middle square, column 11, row 11.
-A read point lies in column  (read.x − ${f5(glW)}) ÷ ${f(PX)}, whole part, + 1   and in row  (read.y − ${f5(gtW)}) ÷ ${f(PX)}, whole part, + 1.</div>`+
-      '<b>Table 1 · every output pixel of the row, its read point, and its wallpaper square</b>'+
-      T(['output pixel','read point (x, y) ⓘ = the Lesson 9.11 chain','read.x − grid\'s left side','÷ 0.004','column','read.y − grid\'s top side','÷ 0.004','row','in the letter'],
-        RW.map(d=>[String(d.k)+(d.k===11?' (P₃)':''),`(${f5(d.rc.rx)}, ${f5(d.rc.ry)}) ${I(d.rc.tip)}`,`${f5(d.rc.rx)} − ${f5(glW)} = ${f5(d.dxg)}`,`${f5(d.dxg)} ÷ ${f(PX)} = ${f(d.qx)}`,String(d.col),`${f5(d.rc.ry)} − ${f5(gtW)} = ${f5(d.dyg)}`,`${f5(d.dyg)} ÷ ${f(PX)} = ${f(d.qy)}`,String(d.row),(()=>{ const k=letterAt(w,d.rc.rx,d.rc.ry); return k>=0?`“${w.text[k]}”`:'—'; })()]))+
-      '<b>Table 2 · the same read points, grouped by wallpaper square</b>'+
-      T(['wallpaper square (column, row)','output pixels whose read point lands in it','how many'],[...groups.entries()].map(([key,ks])=>[`(${key.replace(',',', ')})`,ks.join(', '),String(ks.length)+(ks.length>=2?' → shown twice':'')]));
-    if(st===8) H=`<div class="readout">The wallpaper rows: row 1 starts at y = ${f5(gtW)} (as in step 7). A read point lies in row (read.y − ${f5(gtW)}) ÷ ${f(PX)}, whole part, + 1.
-The word box runs from y = ${f(top)} to y = ${f(bot)}: rows ${boxRows[0]} to ${boxRows[boxRows.length-1]} have their center inside it.</div>`+
-      '<b>Table 1 · every output pixel of the column, its read point, and its wallpaper row</b>'+
-      T(['output pixel','offset = (k − 7) × 0.004','e = '+f(r3.e)+' + offset',`push(e) ${I(PUSH_RULE)}`,'read distance = e − push(e)',`read.y = C.y ${above?'+':'−'} read distance`,'read.y − grid\'s top side','÷ 0.004','row','inside the word box?'],
-        CL.map(d=>[String(d.k)+(d.k===7?' (P₃)':''),`(${d.k} − 7) × ${f(PX)} = ${fz(d.off)}`,`${f(r3.e)} + ${par(d.off)} = ${f(d.e)}`,`${fz(d.pu)} ${I(`<b>push at ${f(d.e)} from C</b>:<pre>${d.pl.L.join('\n')}</pre>`)}`,`${f(d.e)} − ${fz(d.pu)} = ${f(d.rr)}`,`${f(C[1])} ${above?'+':'−'} ${f(d.rr)} = ${f(d.ry)}`,`${f(d.ry)} − ${f5(gtW)} = ${f5(d.dyg)}`,`${f5(d.dyg)} ÷ ${f(PX)} = ${f(d.qy)}`,String(d.row),d.inside?'yes':'no']))+
-      `<div class="readout">rows of the word box:                  ${boxRows.join(', ')}
-rows that receive a read point (table 1):  ${hitRows.filter(r=>boxRows.includes(r)).join(', ')}
-rows that receive none (pink 0s):         ${zeroRows.join(', ')||'—'}   → ${zeroRows.length} of ${boxRows.length} rows of the word are not shown
-spacing of read points 7 → 8:              ${f(rho8)} − ${fz(r3.r)} = ${f(sp)};   ${f(sp)} ÷ ${f(PX)} = ${f(spx)} squares
-output pixels per wallpaper square:        ${f(PX)} ÷ ${f(sp)} = ${f(acr)}
-
-the whole word, T to B (step 5)
-thickness on the wallpaper:   ${fz(cB.rho)} − ${fz(cT.rho)} = ${f(th)}
-T slides farther by:          ${f(cT.mv)} − ${f(cB.mv)} = ${f(dmv)}
-thickness in the output:      ${f(th)} − ${f(dmv)} = ${f(oth)}   (= ${f(cB.e)} − ${f(cT.e)}, P(T) to P(B))
-height kept:                  ${f(oth)} ÷ ${f(th)} = ${f(fl)}</div>`;
-    if(st===9){ const sumW=r5(AW.reduce((a,b)=>a+b.area,0)), sumF=NF.reduce((a,b)=>a+b,0);
-      H=`<div class="readout">small square = 0.001 × 0.001 (UV).  wallpaper area of a box = (width ÷ 0.001) × (height ÷ 0.001) small squares;  height of every box = bottom edge − top edge = ${f5(bot5)} − ${f5(top5)} = ${f5(h5)}, so height ÷ 0.001 = ${f(r5(h5/FP))}.
-output area of a box = the number of small output squares whose read point lands inside the box (counted by the page, square by square).</div>`+
-      T(['letter','box width (UV)','width ÷ 0.001','wallpaper area in small squares = (width ÷ 0.001) × (height ÷ 0.001)','output area in small squares (counted)','output area ÷ wallpaper area','the big squares in the zoom (wallpaper → output)'],
-        AW.map((d,k)=>[`${k+1} · “${w.text[k]}”`,`${f5(r5(w.xs[k+1]))} − ${f5(r5(w.xs[k]))} = ${f5(d.bw)}`,`${f5(d.bw)} ÷ 0.001 = ${f(d.a1)}`,`${f(d.a1)} × ${f(d.a2)} = ${f(d.area)}`,String(NF[k]),`${NF[k]} ÷ ${f(d.area)} = ${f(V3(NF[k]/d.area))}`,`${NW[k]} → ${NO[k]}`])
-        .concat([['the whole word','','',`${f(sumW)}`,String(sumF),`${sumF} ÷ ${f(sumW)} = ${f(V3(sumF/sumW))}`,`${NW.reduce((a,b)=>a+b,0)} → ${NO.reduce((a,b)=>a+b,0)}`]]),Lsel); }
-    if(st>=7) H=`<details><summary>All numbers of this step, for checking</summary><div class="body">${H}</div></details>`;
     const out=document.getElementById('twOut'); out.className=''; out.innerHTML=H;
     /* ================= the side chart ================= */
-    const svg=document.getElementById('twMap'), showMap=st===3||st===4||st===6||st===9; svg.style.display=showMap?'':'none';
+    const svg=document.getElementById('twMap'), showMap=st===3||st===4||st===6; svg.style.display=showMap?'':'none';
     if(st===3||st===4){
       const all=Wc.concat(cX?[cX]:[]), Wd=460, yT=78, yB=188;
       const scale=vals=>{ const a=Math.min(...vals), b=Math.max(...vals), pad=Math.max(0.004,(b-a)*0.35);
@@ -1724,7 +1557,7 @@ output area of a box = the number of small output squares whose read point lands
       dots.forEach((d,i)=>{ h+=`<circle data-dt="${i}" cx="${d[0]}" cy="${d[1]}" r="5" fill="${d[2]}" stroke="#111827" stroke-width="1.8" style="cursor:pointer"/>`; });
       svg.innerHTML=h; svg.querySelectorAll('[data-dt]').forEach(el=>setTip(el,dots[el.dataset.dt][3]));
     }
-    if(st===6||st===9){
+    if(st===6){
       const Wd=460, y0=206, gw=(Wd-56)/n, its=[];
       let h='';
       if(st===6){ const mx=Math.max(1.8,...LW.map(d=>d.ratio)), Y=v=>y0-v/mx*150, bw=Math.min(26,gw-8);
@@ -1736,15 +1569,6 @@ output area of a box = the number of small output squares whose read point lands
           its.push([k,`<b>“${w.text[k]}”</b>: ${f5(d.g.len)} ÷ ${f5(d.ww)} = ${f(d.ratio)} — in the output it is ${f(d.ratio)} times as wide as on the wallpaper (table row ${k+1}).`]);
           h+=`<text x="${gx}" y="${Y(d.ratio)-6}" font-size="14" font-weight="700" text-anchor="middle" fill="#111827">${f(d.ratio)}</text><text x="${gx}" y="${y0+20}" font-size="14" font-weight="700" text-anchor="middle" fill="#111827">${w.text[k]}</text>`; });
         h+=`<line x1="44" y1="${y0}" x2="${Wd-8}" y2="${y0}" stroke="#111827" stroke-width="1.5"/><text x="10" y="252" font-size="14" fill="#374151">1 = the same width · click a bar to pick its letter</text>`; }
-      else{ const R=AW.map((d,k)=>V3(NF[k]/d.area)), mx=Math.max(1.4,...R), Y=v=>y0-v/mx*150, bw=Math.min(26,gw-8);
-        h+=`<text x="10" y="18" font-size="14" font-weight="700" fill="#111827">output area ÷ wallpaper area, per letter</text>`;
-        h+=`<line x1="44" y1="${Y(1)}" x2="${Wd-8}" y2="${Y(1)}" stroke="#9ca3af"/><text x="40" y="${Y(1)+5}" font-size="13" text-anchor="end" fill="#374151">1</text>`;
-        R.forEach((v,k)=>{ const gx=48+k*gw+gw/2;
-          if(k===Lsel) h+=`<rect x="${gx-gw/2+1}" y="28" width="${gw-2}" height="${y0-28}" fill="#eef2ff"/>`;
-          h+=`<rect data-bt="${its.length}" x="${gx-bw/2}" y="${Y(v)}" width="${bw}" height="${y0-Y(v)}" fill="#a3e635" stroke="#111827" style="cursor:pointer"/>`;
-          its.push([k,`<b>“${w.text[k]}”</b>: ${NF[k]} ÷ ${f(AW[k].area)} = ${f(v)} — in the output it covers ${f(v)} times as much screen as on the wallpaper (table row ${k+1}).`]);
-          h+=`<text x="${gx}" y="${Y(v)-6}" font-size="14" font-weight="700" text-anchor="middle" fill="#111827">${f(v)}</text><text x="${gx}" y="${y0+20}" font-size="14" font-weight="700" text-anchor="middle" fill="#111827">${w.text[k]}</text>`; });
-        h+=`<line x1="44" y1="${y0}" x2="${Wd-8}" y2="${y0}" stroke="#111827" stroke-width="1.5"/><text x="10" y="252" font-size="14" fill="#374151">1 = the same area · click a bar to pick its letter</text>`; }
       svg.innerHTML=h;
       svg.querySelectorAll('[data-bt]').forEach(el=>{ const it=its[el.dataset.bt]; setTip(el,it[1]); el.addEventListener('click',()=>{ if(S.letter!==it[0]){ S.letter=it[0]; setTimeout(draw,0); } }); });
     }
@@ -1752,6 +1576,632 @@ output area of a box = the number of small output squares whose read point lands
     const dts=document.getElementById('twDots'); dts.innerHTML='';
     for(let k=1;k<=NSTEP;k++){ const d=document.createElement('button'); d.className='dot'+(k===st?' on':''); d.setAttribute('aria-label','Step '+k); d.onclick=()=>{ S.step=k; draw(); }; dts.appendChild(d); }
     document.getElementById('twBack').disabled=st===1; document.getElementById('twNext').disabled=st===NSTEP;
+  }
+  /* ---------- “stretched + mirror copy”, step by step (card 2) ---------- */
+  const NM=7, R10=0.10, GQ=0.015;                                              // R10: the full push; closer than this to C, a pixel reads across C
+  const qn=c=>c.n[0]==='W'?'Q'+c.n.slice(1):`Q(${c.n})`;              // the copy-2 pixel's name
+  /* a wallpaper point → the pixel of copy 2 that shows it, across C (shown numbers); none when ρ is 0.10 or more */
+  function chain2(n,Wp,C){
+    const c=chainOf(n,Wp,C); if(c.rho>=R10||c.rho===0) return {...c,has2:false};
+    const e2=V3(R10-c.rho), ex2=V3(e2*c.ux), ey2=V3(e2*c.uy);
+    return {...c,has2:true,e2,push2:pushShown(e2),pl2:pushLines(e2),ex2,ey2,Q:[V3(C[0]-ex2),V3(C[1]-ey2)]};
+  }
+  const rhoLines=(c,C)=>`Δx = ${f(c.W[0])} − ${f(C[0])} = ${fz(c.dx)}
+Δy = ${f(c.W[1])} − ${f(C[1])} = ${fz(c.dy)}
+Δx² = ${par(c.dx)} × ${par(c.dx)} = ${f8(c.sx)}
+Δy² = ${par(c.dy)} × ${par(c.dy)} = ${f8(c.sy)}
+sum = ${f8(c.sx)} + ${f8(c.sy)} = ${f8(c.sum)}
+ρ = √${f8(c.sum)} = ${fz(c.rho)}`;
+  const chain2Tip=(c,C)=>`<b>${c.n} → ${qn(c)}</b>, the pixel of copy 2, across C:<pre>${rhoLines(c,C)}
+e₂ = 0.10 − ${fz(c.rho)} = ${f(c.e2)}
+push(e₂) = ${fz(c.push2)}
+check: ${f(c.e2)} − ${fz(c.push2)} = ${fz(V3(c.e2-c.push2))}
+  (minus: the read point is past C, ${fz(c.rho)} on the other side: ${c.n} ✓)
+dir.x = ${fz(c.dx)} ÷ ${fz(c.rho)} = ${fz(c.ux)}
+dir.y = ${fz(c.dy)} ÷ ${fz(c.rho)} = ${fz(c.uy)}
+e₂ × dir.x = ${f(c.e2)} × ${par(c.ux)} = ${fz(c.ex2)}
+e₂ × dir.y = ${f(c.e2)} × ${par(c.uy)} = ${fz(c.ey2)}
+Q.x = ${f(C[0])} − ${par(c.ex2)} = ${f(c.Q[0])}
+Q.y = ${f(C[1])} − ${par(c.ey2)} = ${f(c.Q[1])}</pre>`;
+  /* copy 2 of a closed list of wallpaper points: the pieces that are closer than 0.10 to C, moved across C */
+  function moved2(C,ps){
+    const out=[]; let cur=null;
+    ps.forEach(q=>{ const dx=q[0]-C[0], dy=q[1]-C[1], d=Math.hypot(dx,dy);
+      if(d>=R10||d<1e-6){ cur=null; return; } if(!cur){ cur=[]; out.push(cur); } cur.push([C[0]-dx/d*(R10-d), C[1]-dy/d*(R10-d)]); });
+    if(out.length>1&&cur===out[out.length-1]&&Math.hypot(ps[0][0]-C[0],ps[0][1]-C[1])<R10) out[0]=out.pop().concat(out[0]);
+    return out;
+  }
+  /* an output pixel → its read point, 5 decimals, one operation per line (neighbouring read points are about 0.001 apart) */
+  const f5m=x=>f5(x).replace('-','−'), p5m=x=>x<0?`(${f5m(x)})`:f5m(x);
+  const f5t=x=>f5m(x).replace(/0+$/,'').replace(/\.$/,'');
+  function readChain2(q,C){
+    const dx=r5(q[0]-C[0]), dy=r5(q[1]-C[1]), sx=r10(dx*dx), sy=r10(dy*dy), sum=r10(sx+sy), e=r5(Math.sqrt(sum)), push=r5(pushX(e)), rr=r5(e-push);
+    const ux=r5(dx/e), uy=r5(dy/e), mx=r5(rr*ux), my=r5(rr*uy), rx=r5(C[0]+mx), ry=r5(C[1]+my);
+    return {e,push,rr,ux,uy,rx,ry, tip:`<b>Read point of this pixel</b>, the Lesson 9.11 chain with 5 decimals:<pre>pixel center = (${f5m(q[0])}, ${f5m(q[1])})
+Δx = ${f5m(q[0])} − ${f(C[0])} = ${f5m(dx)}
+Δy = ${f5m(q[1])} − ${f(C[1])} = ${f5m(dy)}
+Δx² = ${p5m(dx)} × ${p5m(dx)} = ${f10(sx)}
+Δy² = ${p5m(dy)} × ${p5m(dy)} = ${f10(sy)}
+sum = ${f10(sx)} + ${f10(sy)} = ${f10(sum)}
+e = √${f10(sum)} = ${f5m(e)}
+push(e) = ${f5m(push)}   (the push rule)
+read distance = ${f5m(e)} − ${f5m(push)} = ${f5m(rr)}${rr<0?'   (minus: past C)':''}
+dir.x = ${f5m(dx)} ÷ ${f5m(e)} = ${f5m(ux)}
+dir.y = ${f5m(dy)} ÷ ${f5m(e)} = ${f5m(uy)}
+move.x = ${p5m(rr)} × ${p5m(ux)} = ${f5m(mx)}
+move.y = ${p5m(rr)} × ${p5m(uy)} = ${f5m(my)}
+read.x = ${f(C[0])} + ${p5m(mx)} = ${f5m(rx)}
+read.y = ${f(C[1])} + ${p5m(my)} = ${f5m(ry)}</pre>`};
+  }
+  const polyOn=(ctx,VV,ps,color,lw)=>halo(ctx,()=>ps.forEach((q,i)=>i?ctx.lineTo(VV.X(q[0]),VV.Y(q[1])):ctx.moveTo(VV.X(q[0]),VV.Y(q[1]))),color,lw);
+  /* the window of the two pictures: both copies of the word, and C */
+  function mirrorView(w,C){
+    const n=w.text.length, ps=perim(w.xs[0],w.xs[n],w.top,w.bot,40), a=moved(C,ps).concat(...moved2(C,ps),[C]);
+    const xs=a.map(q=>q[0]), ys=a.map(q=>q[1]), x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
+    return [(x0+x1)/2,(y0+y1)/2,Math.max(x1-x0,y1-y0)/2+0.035];
+  }
+  function explainMirror(w,C,o,x){
+    if(S.step>=5){ explorer(S.step-4,w,C,true); return; }
+    const st=S.step, n=w.text.length, M=midOf(w), sg=C[1]<M[1]?1:-1, cl=S.clean, tips=[], I=h=>{ tips.push(h); return `<button class="info" data-tw="${tips.length-1}">ⓘ</button>`; };
+    const side1=sg>0?'below':'above', side2=sg>0?'above':'below', combo=st>=5;
+    document.getElementById('twLet').hidden=true;
+    document.getElementById('twClean').textContent=cl?'Show drawings':'Hide drawings';
+    document.getElementById('twOcol').style.display=combo?'none':''; document.getElementById('twWcol').style.display=combo?'none':'';
+    document.getElementById('twCombBox').style.display=combo?'':'none';
+    document.getElementById('twCombT').textContent=`Step ${st} · each pixel of copy ${st===5?1:2} (top) reads one point of the wallpaper (bottom)`;
+    /* labels never overlap: each picture remembers its labels */
+    const placed=new Map([[o,[]],[x,[]]]);
+    const bx=(ctx,t,X,Y,al)=>{ ctx.font='600 14px -apple-system,"Segoe UI",Roboto,sans-serif'; const tw=ctx.measureText(t).width; return [(al==='right'?X-tw:al==='center'?X-tw/2:X)-4,Y-11,tw+8,22]; };
+    const hit=(ctx,b)=>placed.get(ctx).some(q=>b[0]<q[0]+q[2]&&q[0]<b[0]+b[2]&&b[1]<q[1]+q[3]&&q[1]<b[1]+b[3]);
+    const putN=(ctx,t,X,Y,pair,al='center')=>{ for(const [ox,oy] of [[0,0],[0,-20],[0,20],[0,-40],[0,40],[26,0],[-26,0]]){
+        const b=bx(ctx,t,X+ox,Y+oy,al); if(!hit(ctx,b)){ placed.get(ctx).push(b); lbl(ctx,t,X+ox,Y+oy,pair,al,14); return; } } lbl(ctx,t,X,Y,pair,al,14); };
+    const keep=(ctx,X,Y,r)=>placed.get(ctx).push([X-r,Y-r,2*r,2*r]);          // keep labels off a dot
+    /* ---------- the points ---------- */
+    const cM=chain2('M',M,C), P=cM.P, Q=cM.Q;
+    const xa=V3(w.xs[0]), xb=V3(w.xs[n]), x2=V3(M[0]-GQ), x4=V3(M[0]+GQ);
+    const Wc=[V3(x2-GQ),x2,M[0],x4,V3(x4+GQ)].map((xx,i)=>chain2('W'+SUB[i],[xx,M[1]],C)), W2=Wc.filter(c=>c.has2), wid=V3(Wc[4].W[0]-Wc[0].W[0]);
+    const LC=[]; for(let k=0;k<n;k++) LC.push(chain2(`“${w.text[k]}”`,[V3((w.xs[k]+w.xs[k+1])/2),M[1]],C));
+    const ps=perim(w.xs[0],w.xs[n],w.top,w.bot,80), out1=moved(C,ps), out2=moved2(C,ps);
+    const wid1=V3(Wc[4].P[0]-Wc[0].P[0]), Wq=W2.length?[W2[0],W2[W2.length-1]]:null;
+    /* ---------- the pictures ---------- */
+    const ringR=(ctx,VV)=>ring(ctx,VV.X(C[0]),VV.Y(C[1]),R10*VV.s,'#ffffff',1.5);
+    if(!combo){
+      putN(o,'C',V.X(C[0])+14,V.Y(C[1])-sg*4,GLS,'left'); keep(o,V.X(C[0]),V.Y(C[1]),8); addPt(os,V.X(C[0]),V.Y(C[1]),COL.glass,TIP_C(...C),'C','mini');
+      putN(x,'C',VW.X(C[0])+14,VW.Y(C[1])-sg*4,GLS,'left'); keep(x,VW.X(C[0]),VW.Y(C[1]),8); addPt(ws,VW.X(C[0]),VW.Y(C[1]),COL.glass,TIP_C(...C),'C on the wallpaper','mini');
+    }
+    if(!combo&&!cl){
+      box(x,VW.X(w.xs[0]),VW.Y(w.top),(w.xs[n]-w.xs[0])*VW.s,(w.bot-w.top)*VW.s,CYAN,2);
+      for(const [ctx,VV] of [[o,V],[x,VW]]){ ringR(ctx,VV); putN(ctx,'0.10 ring',VV.X(C[0])-R10*VV.s,VV.Y(C[1]),INK,'center'); }
+    }
+    const tipP=(c,nm,role)=>`<b>${nm} = ${pt(...c)}</b>, in UV<br>Role: ${role}`;
+    if(st===1&&!cl){
+      const X0=VW.X(M[0]);
+      arrow(x,X0,VW.Y(P[1]),X0,VW.Y(M[1]),COL.push,2.5); arrow(x,X0,VW.Y(Q[1]),X0,VW.Y(M[1]),COL.push,2.5);
+      /* brackets on the left: Q to C, C to M */
+      const brk=(y1,y2,t)=>{ const bxX=X0-12; line(x,bxX,VW.Y(y1),bxX,VW.Y(y2),'#ffffff',1.5); line(x,bxX-5,VW.Y(y1),bxX+5,VW.Y(y1),'#ffffff',1.5); line(x,bxX-5,VW.Y(y2),bxX+5,VW.Y(y2),'#ffffff',1.5);
+        putN(x,t,bxX-10,VW.Y((y1+y2)/2),INK,'right'); };
+      brk(Q[1],C[1],`Q to C: ${f(cM.e2)}`); brk(C[1],M[1],`C to M: ${fz(cM.rho)}`);
+      putN(x,`push ${fz(cM.push)}`,X0+12,VW.Y(P[1]+(M[1]-P[1])*0.45),PSH,'left'); putN(x,`push ${fz(cM.push2)}`,X0+12,VW.Y(Q[1]+(M[1]-Q[1])*0.3),PSH,'left');
+      putN(x,'M',X0+12,VW.Y(M[1])+sg*2,CYN,'left');
+      putN(x,"P's place",X0,VW.Y(P[1])+sg*18,LIM); putN(x,"Q's place",X0,VW.Y(Q[1])-sg*18,LIM);
+      addPt(ws,X0,VW.Y(M[1]),CYAN,tipP(M,'M',`the middle of “${w.text}”, ${fz(cM.rho)} from C.`),'M','mini');
+      addPt(ws,X0,VW.Y(P[1]),COL.mag,tipP(P,"P's place",`where the pixel P sits, drawn on the wallpaper. Its push, ${fz(cM.push)}, moves its read point toward C, onto M.`),"P's place",'mini');
+      addPt(ws,X0,VW.Y(Q[1]),COL.mag,tipP(Q,"Q's place",`where the pixel Q sits, drawn on the wallpaper. Its push, ${fz(cM.push2)}, is longer than its way to C, ${f(cM.e2)}: the read point passes C and lands on M.`),"Q's place",'mini');
+      putN(o,'P',V.X(P[0])+14,V.Y(P[1]),LIM,'left'); putN(o,'Q',V.X(Q[0])+14,V.Y(Q[1]),LIM,'left');
+      addPt(os,V.X(P[0]),V.Y(P[1]),COL.mag,tipP(P,'P',`a pixel of copy 1, ${f(cM.e)} from C. It shows M.`),'P','mini');
+      addPt(os,V.X(Q[0]),V.Y(Q[1]),COL.mag,tipP(Q,'Q',`a pixel of copy 2, ${f(cM.e2)} from C, across C from M. It shows M too.`),'Q','mini');
+    }
+    if((st===2||st===3)&&!cl){
+      const two=st===3, set=two?W2:Wc, Pof=c=>two?c.Q:c.P, nm=c=>two?qn(c):pn(c);
+      if(!two) set.forEach(c=>line(x,VW.X(C[0]),VW.Y(C[1]),VW.X(c.P[0]),VW.Y(c.P[1]),CYAN,1.5));
+      set.forEach(c=>arrow(x,VW.X(Pof(c)[0]),VW.Y(Pof(c)[1]),VW.X(c.W[0]),VW.Y(c.W[1]),COL.push,2.5));
+      Wc.forEach((c,i)=>{ const X0=VW.X(c.W[0]), Y0=VW.Y(sg>0?w.bot:w.top)+sg*(i%2?36:15); lbl(x,c.n,X0,Y0,CYN,'center',14); placed.get(x).push(bx(x,c.n,X0,Y0,'center')); });
+      set.forEach(c=>{ const q=Pof(c), s=two?-1:1; putN(x,nm(c),VW.X(q[0])+s*c.ux*18,VW.Y(q[1])+s*c.uy*18,LIM);
+        putN(o,nm(c),V.X(q[0])+s*c.ux*18,V.Y(q[1])+s*c.uy*18,LIM);
+        addPt(ws,VW.X(q[0]),VW.Y(q[1]),COL.mag,tipP(q,nm(c)+"'s place",`where the pixel ${nm(c)} sits, drawn on the wallpaper. Its push moves its read point onto ${c.n}.`),nm(c)+"'s place",'mini');
+        addPt(os,V.X(q[0]),V.Y(q[1]),COL.mag,two?chain2Tip(c,C):chainTip(c,C),nm(c),'mini'); });
+      Wc.forEach(c=>addPt(ws,VW.X(c.W[0]),VW.Y(c.W[1]),CYAN,tipP(c.W,c.n,`a point on the middle line of “${w.text}”, ${fz(c.rho)} from C.`),c.n,'mini'));
+    }
+    /* order along a copy, from its left end to its right end: the angle around C, measured from the copy's middle direction v */
+    const along=(q,v)=>{ const d=[q[0]-C[0],q[1]-C[1]], a=Math.atan2(v[0]*d[1]-v[1]*d[0],v[0]*d[0]+v[1]*d[1]); return -v[1]>=0?a:-a; };
+    const u=[cM.ux,cM.uy], nu=[-u[0],-u[1]];
+    const ghost=b=>{ b.style.background='transparent'; b.style.borderColor='transparent'; return b; };
+    const ord2=LC.map((c,k)=>k).filter(k=>LC[k].has2).sort((a2,b2)=>along(LC[a2].Q,nu)-along(LC[b2].Q,nu)).map(k=>k+1); let skip2=0;
+    if(st===4&&!cl){
+      pathOn(o,V,out1,COL.mag,2); out2.forEach(pc=>pc.length>1&&(pc.length>=ps.length-1?pathOn(o,V,pc,COL.mag,2):polyOn(o,V,pc,COL.mag,2)));
+      const far1=[C[0]+u[0]*(R10+0.075),C[1]+u[1]*(R10+0.075)];
+      line(o,V.X(C[0]-u[0]*2),V.Y(C[1]-u[1]*2),V.X(C[0]+u[0]*2),V.Y(C[1]+u[1]*2),'#ffffff',1.5);
+      putN(o,'mirror line',V.X(C[0])+8,sg>0?22:oc.height-22,INK,'left');
+      putN(o,'copy 1',V.X(far1[0]),V.Y(far1[1]),LIM,'center');
+      if(out2.length){ const ys=out2.flat().map(q=>q[1]), y2=sg>0?Math.min(...ys):Math.max(...ys); putN(o,'copy 2',V.X(C[0])-12,V.Y(y2)-sg*16,LIM,'right'); }
+      const tag=(ctx,X,Y,t,fill)=>{ ctx.font='700 14px -apple-system,"Segoe UI",Roboto,sans-serif'; const r=Math.max(10,ctx.measureText(t).width/2+5);
+        ctx.beginPath(); ctx.arc(X,Y,r+1.5,0,Math.PI*2); ctx.fillStyle=COL.halo; ctx.fill(); ctx.beginPath(); ctx.arc(X,Y,r,0,Math.PI*2); ctx.fillStyle=fill; ctx.fill();
+        ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillStyle='#111827'; ctx.fillText(t,X,Y+0.5); placed.get(ctx).push([X-r,Y-r,2*r,2*r]); };
+      /* the wallpaper: one tag per letter in a row beside the word box, joined to the letter's middle (thin letters are too narrow for a tag) */
+      const xsT=LC.map(c=>VW.X(c.W[0])), gapT=n>=10?24:26, yTag=VW.Y(sg>0?w.bot:w.top)+sg*26;
+      const it=xsT.map((X,i)=>({X,i})).sort((p1,p2)=>p1.X-p2.X); it.forEach((q,j)=>{ q.p=j?Math.max(q.X,it[j-1].p+gapT):q.X; });
+      const sh=(it[it.length-1].p+it[0].p)/2-(it[it.length-1].X+it[0].X)/2; it.forEach(q=>q.p-=sh);
+      it.forEach(q=>{ const c=LC[q.i]; line(x,q.p,yTag-sg*10,VW.X(c.W[0]),VW.Y(c.W[1]),CYAN,1.2); });
+      LC.forEach(c=>halo(x,()=>x.arc(VW.X(c.W[0]),VW.Y(c.W[1]),2.5,0,Math.PI*2),CYAN,2.5));
+      it.forEach(q=>{ const c=LC[q.i], t=String(q.i+1); tag(x,q.p,yTag,t,CYAN);
+        ghost(addPt(ws,q.p,yTag,CYAN,tipP(c.W,`Letter ${t}, “${w.text[q.i]}”`,`the middle of the letter on the wallpaper (the end of its thin line), ${fz(c.rho)} from C.`),'letter '+t,'mini')); });
+      LC.forEach((c,k)=>{ const t=String(k+1); tag(o,V.X(c.P[0]),V.Y(c.P[1]),t,COL.mag); ghost(addPt(os,V.X(c.P[0]),V.Y(c.P[1]),COL.mag,chainTip(c,C),'letter '+t+', copy 1','mini')); });
+      /* copy 2 is small near C: the middle letters first, and a circle that would cover another one is left out */
+      const done=[], rT=k=>k>=9?13:10; LC.map((c,k)=>k).filter(k=>LC[k].has2).sort((a2,b2)=>LC[a2].rho-LC[b2].rho).forEach(k=>{ const c=LC[k], X0=V.X(c.Q[0]), Y0=V.Y(c.Q[1]);
+        if(done.some(q=>Math.hypot(q[0]-X0,q[1]-Y0)<q[2]+rT(k)+1)||Math.hypot(X0-V.X(C[0]),Y0-V.Y(C[1]))<rT(k)+5){ skip2++; return; }
+        done.push([X0,Y0,rT(k)]); tag(o,X0,Y0,String(k+1),COL.mag); ghost(addPt(os,X0,Y0,COL.mag,chain2Tip(c,C),'letter '+(k+1)+', copy 2','mini')); });
+    }
+    /* ---------- the caption ---------- */
+    const e1=f(cM.e), e2=f(cM.e2), rM=fz(cM.rho), lo=W2[0], hi=W2[W2.length-1];
+    const CAP=[
+      `<b>Step 1 · One point, two pixels.</b> Up to 0.15 from C, every pixel's push is ${fz(cM.push)} toward C ${I(PUSH_RULE)} (chart). <b>P</b> is ${e1} from C: its arrow stops ${rM} before C, on M. <b>Q</b> is ${e2} from C, inside the 0.10 ring: its arrow passes C and goes on ${rM}, to M too. So the word shows up twice.`,
+      `<b>Step 2 · Copy 1 is stretched.</b> Five points around M, W₁ … W₅. Each pixel P sits on the line from C through its point, one push farther out (pink arrows). The lines fan out, so the pixels spread apart: W₁ to W₅ is ${f(wid)} wide, P₁ to P₅ is ${f(wid1)} wide (chart).`,
+      W2.length?`<b>Step 3 · Copy 2 is a mirror image.</b> The points are inside the 0.10 ring, so a pixel across C shows each of them too: its arrow passes C. All the arrows cross at C, so left and right swap: ${lo.n}, the ${lo===hi?'point':'left one'}, is shown by ${qn(lo)}${lo===hi?'':', on the right'} (chart).`:`<b>Step 3 · Copy 2.</b> No point is inside the 0.10 ring, so no pixel across C shows the word.`,
+      `<b>Step 4 · The whole word.</b> Copy 1 (${side1} C) shows the letters 1 → ${n}, like the wallpaper. `+(ord2.length?`Copy 2 (${side2} C) shows them ${ord2[0]} → ${ord2[ord2.length-1]}: left and right swap around the mirror line through C and M. Copy 2 is also bent around C.`:`No letter is inside the 0.10 ring, so there is no copy 2.`)+
+        (ord2.length&&ord2.length<n?` Letters outside the 0.10 ring have no copy 2.`:'')+(skip2?` (Near C there is no room for ${skip2===1?'one numbered circle':skip2+' numbered circles'} of copy 2: the chart lists every letter.)`:''),
+    ];
+    const cp=document.getElementById('twStepCap'); cp.innerHTML=CAP[st-1];
+    /* ---------- the numbers of this step, for checking ---------- */
+    const T=(head,rows)=>`<table class="trace"><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map((c,i)=>i?`<td class="f">${c}</td>`:`<td><b>${c}</b></td>`).join('')}</tr>`).join('')}</table>`;
+    const pushI=(e,pl)=>`${I(`<b>push at ${f(e)} from C</b> — the Lesson 9.11 chain, started from the distance d:<pre>${pl.L.join('\n')}</pre>`)}`;
+    let H='';
+    if(st===1) H=`<div class="readout">M = ${pt(...M)}    C = ${pt(...C)}
+the distance from C to M ${I(TIP_LEN)}:
+${rhoLines(cM,C)}
+P.y = C.y ${sg>0?'+':'−'} ${e1} = ${f(C[1])} ${sg>0?'+':'−'} ${e1} = ${f(P[1])}      Q.y = C.y ${sg>0?'−':'+'} ${e2} = ${f(C[1])} ${sg>0?'−':'+'} ${e2} = ${f(Q[1])}</div>`+
+      T(['pixel','distance from C (e)','push(e)','read distance = e − push(e)','where it reads'],
+        [['P',e1,`${fz(cM.push)} ${pushI(cM.e,cM.pl)}`,`${e1} − ${fz(cM.push)} = ${fz(cM.r)}`,`${fz(cM.r)} from C, on P's side: M ✓`],
+         ['Q',e2,`${fz(cM.push2)} ${pushI(cM.e2,cM.pl2)}`,`${e2} − ${fz(cM.push2)} = ${fz(V3(cM.e2-cM.push2))}`,`minus: past C, ${rM} on the other side: M ✓`]]);
+    if(st===2) H=T(['point','(x, y)',`ρ: distance from C ${I(TIP_LEN)}`,'e: the pixel distance (e − push(e) = ρ)','push(e)','check: e − push(e)','pixel (x, y)'],
+        Wc.map(c=>[c.n+' → '+pn(c),pt(...c.W),`${fz(c.rho)} ${I(`<pre>${rhoLines(c,C)}</pre>`)}`,f(c.e),`${fz(c.push)} ${pushI(c.e,c.pl)}`,`${f(c.e)} − ${fz(c.push)} = ${fz(c.r)}`+(c.gap>1e-9?` ≈ ${fz(c.rho)} (rounding)`:' ✓'),`${pt(...c.P)} ${I(chainTip(c,C))}`]))+
+      `<div class="readout">width on the wallpaper:  W₅.x − W₁.x = ${f(Wc[4].W[0])} − ${f(Wc[0].W[0])} = ${f(wid)}
+width in the output:     P₅.x − P₁.x = ${f(Wc[4].P[0])} − ${f(Wc[0].P[0])} = ${f(wid1)}</div>`;
+    if(st===3) H=T(['point',`ρ: distance from C ${I(TIP_LEN)}`,'e₂ = 0.10 − ρ: the pixel across C','push(e₂)','check: e₂ − push(e₂)','dir = (Δx ÷ ρ, Δy ÷ ρ)','pixel Q = C − e₂ × dir'],
+        Wc.map(c=>c.has2?[c.n+' → '+qn(c),`${fz(c.rho)} ${I(`<pre>${rhoLines(c,C)}</pre>`)}`,`0.10 − ${fz(c.rho)} = ${f(c.e2)}`,`${fz(c.push2)} ${pushI(c.e2,c.pl2)}`,`${f(c.e2)} − ${fz(c.push2)} = ${fz(V3(c.e2-c.push2))} → past C ✓`,`(${fz(c.ux)}, ${fz(c.uy)})`,`${pt(...c.Q)} ${I(chain2Tip(c,C))}`]
+          :[c.n,fz(c.rho),'ρ is 0.10 or more: no pixel across C','—','—','—','—']));
+    if(st===4) H=T(['letter','its middle on the wallpaper (x, y)',`ρ: distance from C ${I(TIP_LEN)}`,'copy 1: pixel (x, y)','copy 2: pixel (x, y)'],
+        LC.map((c,k)=>[`${k+1} · “${w.text[k]}”`,pt(...c.W),fz(c.rho),`${pt(...c.P)} ${I(chainTip(c,C))}`,c.has2?`${pt(...c.Q)} ${I(chain2Tip(c,C))}`:'— (ρ is 0.10 or more)']))+
+      `<div class="readout">Along copy 1, from its left end to its right end: ${LC.map((c,k)=>[along(c.P,u),k+1]).sort((a,b)=>a[0]-b[0]).map(a=>a[1]).join(' ')}
+Along copy 2, from its left end to its right end: ${LC.filter(c=>c.has2).map(c=>[along(c.Q,nu),LC.indexOf(c)+1]).sort((a,b)=>a[0]-b[0]).map(a=>a[1]).join(' ')||'—'}
+(copy 2 bends around C, so its ends come back down toward C: the page orders the letters by their direction from C, not by x)</div>`;
+    H=`<details><summary>All numbers of this step, for checking</summary><div class="body">${H}</div></details>`;
+    const out=document.getElementById('twOut'); out.className=''; out.innerHTML=H;
+    /* ---------- the side chart ---------- */
+    const svg=document.getElementById('twMap'); svg.style.display=combo?'none':'';
+    let h=''; const dots=[];
+    if(st===1){
+      const X=e=>52+e/0.35*388, Y=v=>212-v/0.18*172;
+      h+=`<text x="10" y="18" font-size="14" font-weight="700" fill="#111827">length, by the distance e of a pixel from C</text>`;
+      h+=`<rect x="${X(0)}" y="${Y(0.18)}" width="${X(R10)-X(0)}" height="${Y(0)-Y(0.18)}" fill="#fdf2f8"/><text x="${X(0)+6}" y="${Y(0.18)+15}" font-size="13" fill="#be185d">inside the 0.10 ring:</text><text x="${X(0)+6}" y="${Y(0.18)+31}" font-size="13" fill="#be185d">push &gt; the way to C</text>`;
+      for(const v of [0,0.05,0.10]) h+=`<line x1="${X(0)-5}" y1="${Y(v)}" x2="${X(0)}" y2="${Y(v)}" stroke="#111827"/><text x="${X(0)-8}" y="${Y(v)+5}" font-size="13" text-anchor="end" fill="#374151">${fz(v)}</text>`;
+      for(const e of [0,0.10,0.20,0.30]) h+=`<line x1="${X(e)}" y1="${Y(0)}" x2="${X(e)}" y2="${Y(0)+5}" stroke="#111827"/><text x="${X(e)}" y="${Y(0)+19}" font-size="13" text-anchor="middle" fill="#374151">${fz(e)}</text>`;
+      h+=`<line x1="${X(0)}" y1="${Y(0)}" x2="${X(0.35)}" y2="${Y(0)}" stroke="#111827" stroke-width="1.5"/><line x1="${X(0)}" y1="${Y(0)}" x2="${X(0)}" y2="${Y(0.18)}" stroke="#111827" stroke-width="1.5"/>`;
+      h+=`<line x1="${X(0)}" y1="${Y(0)}" x2="${X(0.15)}" y2="${Y(0.15)}" stroke="#6b7280" stroke-width="2"/><text x="${X(0.155)}" y="${Y(0.15)+4}" font-size="13" fill="#374151">the way to C (= e)</text>`;
+      let pp=''; for(let k=0;k<=70;k++){ const e=0.35*k/70; pp+=`${k?'L':'M'}${X(e)},${Y(pushX(e))} `; }
+      h+=`<path d="${pp}" fill="none" stroke="#111827" stroke-width="4"/><path d="${pp}" fill="none" stroke="#ff4d8d" stroke-width="2.2"/><text x="${X(0.27)}" y="${Y(0.075)}" font-size="13" font-weight="700" fill="#be185d">push(e)</text>`;
+      for(const [e,nm] of [[cM.e2,'Q'],[cM.e,'P']]){ const q=nm==='Q';
+        h+=`<line x1="${X(e)}" y1="${Y(e)}" x2="${X(e)}" y2="${Y(R10)}" stroke="#111827" stroke-width="3.5"/><line x1="${X(e)}" y1="${Y(e)}" x2="${X(e)}" y2="${Y(R10)}" stroke="#a3e635" stroke-width="2"/>`;
+        h+=`<text x="${X(e)+(q?-7:7)}" y="${(Y(e)+Y(R10))/2+5}" font-size="13" text-anchor="${q?'end':'start'}" fill="#4d7c0f" font-weight="700" stroke="#fff" stroke-width="3" paint-order="stroke">${rM}</text>`;
+        h+=`<text x="${X(e)}" y="${q?Y(R10)-12:Y(R10)+24}" font-size="14" font-weight="700" text-anchor="middle" fill="#4d7c0f" stroke="#fff" stroke-width="3" paint-order="stroke">${nm} (e = ${f(e)})</text>`;
+        dots.push([X(e),Y(R10),'#a3e635',`<b>${nm}</b>: a pixel ${f(e)} from C. Its push is ${fz(nm==='P'?cM.push:cM.push2)}; its way to C is ${f(e)}.`]); }
+      h+=`<text x="${X(0.175)}" y="252" font-size="13" text-anchor="middle" fill="#374151">e: the distance of a pixel from C</text>`;
+    }
+    if(st===2||st===3){
+      const two=st===3, set=two?W2:Wc, Pof=c=>two?c.Q:c.P, nm=c=>two?qn(c):pn(c), Wd=460, yT=78, yB=188;
+      if(set.length){
+        const vals=set.flatMap(c=>[c.W[0],Pof(c)[0]]).concat([C[0]]), a=Math.min(...vals), b=Math.max(...vals), pad=(b-a)*0.12;
+        const stp=[0.01,0.02,0.05,0.1].find(t=>(b-a+2*pad)/t<=6)||0.1, lo=Math.floor((a-pad)/stp)*stp, hi=Math.ceil((b+pad)/stp)*stp, X=u=>36+(u-lo)/(hi-lo)*(Wd-72);
+        h+=`<text x="10" y="18" font-size="14" font-weight="700" fill="#0e7490">top ruler: x of the points on the wallpaper</text><text x="10" y="256" font-size="14" font-weight="700" fill="#4d7c0f">bottom ruler: x of their pixels, copy ${two?2:1}</text>`;
+        for(let k=0;k<=40;k++){ const u=xa+(xb-xa)*k/40, d=Math.hypot(u-C[0],M[1]-C[1]); let v;
+          if(two){ if(d>=R10||d<1e-6) continue; v=C[0]-(u-C[0])/d*(R10-d); } else v=moved(C,[[u,M[1]]])[0][0];
+          if(v<lo||v>hi||u<lo||u>hi) continue; h+=`<line x1="${X(v)}" y1="${yB}" x2="${X(u)}" y2="${yT}" stroke="#e2e8f0" stroke-width="1.2"/>`; }
+        for(const y of [yT,yB]){ h+=`<line x1="36" y1="${y}" x2="${Wd-36}" y2="${y}" stroke="#111827" stroke-width="1.5"/>`;
+          for(let k=Math.round(lo/stp);k*stp<=hi+1e-9;k++){ const u=k*stp, up=y===yB; h+=`<line x1="${X(u)}" y1="${up?y-6:y}" x2="${X(u)}" y2="${up?y:y+6}" stroke="#111827"/><text x="${X(u)}" y="${up?y-10:y+20}" font-size="13" text-anchor="middle" fill="#374151" stroke="#fff" stroke-width="3" paint-order="stroke">${fz(V3(u))}</text>`; }
+          h+=`<line x1="${X(C[0])}" y1="${y-9}" x2="${X(C[0])}" y2="${y+9}" stroke="#7e22ce" stroke-width="3"/>`; }
+        h+=`<text x="${X(C[0])+6}" y="${yB-26}" font-size="14" font-weight="700" fill="#7e22ce" stroke="#fff" stroke-width="3" paint-order="stroke">C.x</text>`;
+        set.forEach(c=>{ h+=`<line x1="${X(Pof(c)[0])}" y1="${yB}" x2="${X(c.W[0])}" y2="${yT}" stroke="#111827" stroke-width="3.5"/><line x1="${X(Pof(c)[0])}" y1="${yB}" x2="${X(c.W[0])}" y2="${yT}" stroke="#a3e635" stroke-width="2"/>`; });
+        h+=labelRow(set.map(c=>({x:X(c.W[0]),t:c.n})),44,yT,'#0e7490',12,Wd-12)+labelRow(set.map(c=>({x:X(Pof(c)[0]),t:nm(c)})),234,yB,'#4d7c0f',12,Wd-12);
+        set.forEach(c=>{ dots.push([X(c.W[0]),yT,'#22d3ee',`<b>${c.n}</b>: x = ${f(c.W[0])} on the wallpaper (top ruler).`]); dots.push([X(Pof(c)[0]),yB,'#a3e635',`<b>${nm(c)}</b>: x = ${f(Pof(c)[0])} in the output (bottom ruler). It shows ${c.n}.`]); });
+      }
+    }
+    if(st===4){
+      const rows=[['wallpaper',LC.map((c,k)=>[c.W[0],k])],['copy 1',LC.map((c,k)=>[along(c.P,u),k])],['copy 2',LC.map((c,k)=>c.has2?[along(c.Q,nu),k]:null).filter(Boolean)]];
+      const tw=Math.min(40,(460-110)/n);
+      h+=`<text x="10" y="18" font-size="14" font-weight="700" fill="#111827">the letters, from the left end to the right end</text>`;
+      rows.forEach(([name,ls],ri)=>{ const y=40+ri*72; h+=`<text x="10" y="${y+24}" font-size="14" font-weight="700" fill="#111827">${name}</text>`;
+        if(!ls.length) h+=`<text x="104" y="${y+24}" font-size="14" fill="#374151">—</text>`;
+        ls.sort((a,b)=>a[0]-b[0]).forEach(([,k],i)=>{ const t=tint(k,n), X0=104+i*tw;
+          h+=`<rect x="${X0}" y="${y}" width="${tw-3}" height="38" rx="4" fill="rgb(${t.map(Math.round).join(',')})" stroke="#111827"/><text x="${X0+(tw-3)/2}" y="${y+25}" font-size="15" font-weight="700" text-anchor="middle" fill="#111827">${w.text[k]}</text><text x="${X0+(tw-3)/2}" y="${y+56}" font-size="14" text-anchor="middle" fill="#374151">${k+1}</text>`; }); });
+    }
+    dots.forEach((d,i)=>{ h+=`<circle data-dt="${i}" cx="${d[0]}" cy="${d[1]}" r="5" fill="${d[2]}" stroke="#111827" stroke-width="1.8" style="cursor:pointer"/>`; });
+    svg.innerHTML=h; svg.querySelectorAll('[data-dt]').forEach(el=>setTip(el,dots[el.dataset.dt][3]));
+    for(const el of [cp,out]) el.querySelectorAll('[data-tw]').forEach(b=>setTip(b,tips[b.dataset.tw]));
+    const dts=document.getElementById('twDots'); dts.innerHTML='';
+    for(let k=1;k<=NM;k++){ const d=document.createElement('button'); d.className='dot'+(k===st?' on':''); d.setAttribute('aria-label','Step '+k); d.onclick=()=>{ S.step=k; draw(); }; dts.appendChild(d); }
+    document.getElementById('twBack').disabled=st===1; document.getElementById('twNext').disabled=st===NM;
+  }
+  /* ================= the pixel explorer: “flattened” steps 7–9 and “stretched + mirror copy” steps 5–7 =================
+     kind 1: one letter, pixel by pixel (the net of read points, built row by row)
+     kind 2: all letters, built one after another into the final result
+     kind 3: the area, as a sum of small boxes                                                                     */
+  const XP={s:0.002, h:0.004, letter:-1, word:false, copy:1, net:true, counts:false, build:1e9, sel:null, timer:null, asel:null};
+  let XC=null, XD=null, XDW=null, XB=null, XA=null;                 // context, letter data, word data, base pictures, area data
+  const XW=520, XG=20, XT=40, XSZ=[0.008,0.004,0.002,0.001], XCOL=new Map();
+  const xStop=()=>{ if(XP.timer){ clearInterval(XP.timer); XP.timer=null; } };
+  const xBox=(w,L)=>L<0?[w.xs[0],w.xs[w.text.length],w.top,w.bot]:[w.xs[L],w.xs[L+1],w.top,w.bot];
+  const xIn=(B,q)=>q[0]>=B[0]&&q[0]<=B[1]&&q[1]>=B[2]&&q[1]<=B[3];
+  const fwd2=(C,q)=>{ const dx=q[0]-C[0], dy=q[1]-C[1], d=Math.hypot(dx,dy); return d<R10&&d>1e-6?[C[0]-dx/d*(R10-d),C[1]-dy/d*(R10-d)]:null; };
+  /* the read point with the shown 5-decimal numbers of readChain2 (so the picture and the popup always agree) */
+  function read5(q,C){ const dx=r5(q[0]-C[0]), dy=r5(q[1]-C[1]), sum=r10(r10(dx*dx)+r10(dy*dy)), e=r5(Math.sqrt(sum)); if(e===0) return [q[0],q[1]];
+    const rr=r5(e-r5(pushX(e))); return [r5(C[0]+r5(rr*r5(dx/e))), r5(C[1]+r5(rr*r5(dy/e)))]; }
+  const pIdx=(x,s)=>Math.floor(r5(x/s));                              // the pixel column (or row) that holds x
+  /* a wallpaper pixel of size s: the color at its center, its letter tinted */
+  function xPixCol(w,s,i,j){ const key=w.text+'|'+s+'|'+i+'|'+j; let c=XCOL.get(key); if(c) return c;
+    const u=(i+0.5)*s, v=(j+0.5)*s; let col=inside(u,v)?screenCol(u,v).map(x=>x*255):[255,255,255]; const k=letterAt(w,u,v);
+    if(k>=0){ const t=tint(k,w.text.length); col=col.map((x,ii)=>x*(1-TA)+t[ii]*TA); }
+    c=`rgb(${col.map(Math.round).join(',')})`; XCOL.set(key,c); return c; }
+  const xCopies=()=>XC.two?(XP.copy===3?[1,2]:[XP.copy]):[1];
+  /* every output pixel (of the chosen copies) that copies a wallpaper pixel of the box B, or of the ring of pixels around it */
+  function xCells(w,C,B,s,copies){
+    const per=perim(B[0],B[1],B[2],B[3],30); let img=[];
+    copies.forEach(cp=>{ img=img.concat(cp===1?moved(C,per):[].concat(...moved2(C,per))); });
+    const src=new Map(), si0=Math.floor(B[0]/s), si1=Math.floor(B[1]/s), sj0=Math.floor(B[2]/s), sj1=Math.floor(B[3]/s);
+    for(let i=si0;i<=si1;i++) for(let j=sj0;j<=sj1;j++){ const c=[(i+0.5)*s,(j+0.5)*s]; if(xIn(B,c)) src.set(i+','+j,{i,j,c,k:letterAt(w,c[0],c[1]),by:[]}); }
+    const out=[], near=new Map();
+    if(img.length){ const bb=bbox(img);
+      for(let i=Math.floor((bb[0]-3*s)/s);i<=Math.floor((bb[1]+3*s)/s);i++) for(let j=Math.floor((bb[2]-3*s)/s);j<=Math.floor((bb[3]+3*s)/s);j++){
+        const q=[r5((i+0.5)*s),r5((j+0.5)*s)]; if(!inside(q[0],q[1])) continue; const e=Math.hypot(q[0]-C[0],q[1]-C[1]); if(e<1e-4) continue;
+        const cp=e>=R10?1:2; if(!copies.includes(cp)) continue;
+        const r=read5(q,C), si=pIdx(r[0],s), sj=pIdx(r[1],s); if(si<si0-1||si>si1+1||sj<sj0-1||sj>sj1+1) continue;
+        const skey=si+','+sj, o={i,j,q,r,si,sj,skey,cp,inB:src.has(skey)}; out.push(o); near.set(i+','+j,o); if(o.inB) src.get(skey).by.push(o); } }
+    return {B,s,copies,img,src,out,near,rows:[...new Set(out.map(o=>o.j))].sort((a,b)=>a-b)};
+  }
+  function xData(){
+    const {w,C}=XC, key=[w.text,C[0],C[1],XP.word?'w':XP.letter,xCopies().join(''),XP.s].join('|');
+    if(!XD||XD.key!==key){ XD=xCells(w,C,xBox(w,XP.word?-1:XP.letter),XP.s,xCopies()); XD.key=key; }
+    const kw=[w.text,C[0],C[1],'w',xCopies().join(''),XP.s].join('|');
+    if(!XDW||XDW.key!==kw){ XDW=XP.word?XD:xCells(w,C,xBox(w,-1),XP.s,xCopies()); XDW.key=kw; }
+    return XD;
+  }
+  /* both pictures share one scale, so a pixel is the same size on both sides */
+  const bbox=a=>a.reduce((b,q)=>[Math.min(b[0],q[0]),Math.max(b[1],q[0]),Math.min(b[2],q[1]),Math.max(b[3],q[1])],[1e9,-1e9,1e9,-1e9]);
+  function xView(sb,img,pad){
+    const bb=bbox(img), ob=img.length?[bb[0]-pad,bb[1]+pad,bb[2]-pad,bb[3]+pad]:sb;
+    const span=Math.max(sb[1]-sb[0],sb[3]-sb[2],ob[1]-ob[0],ob[3]-ob[2])*1.1, k=XW/span;
+    const mk=(b,ox)=>{ const x0=(b[0]+b[1])/2-span/2, y0=(b[2]+b[3])/2-span/2; return {x0,y0,k,ox,X:u=>ox+(u-x0)*k,Y:v=>XT+(v-y0)*k,U:X=>x0+(X-ox)/k,V:Y=>y0+(Y-XT)/k}; };
+    return {O:mk(ob,0),S:mk(sb,XW+XG),span,k};
+  }
+  /* the two pictures as pixels: the output (each pixel = the wallpaper pixel under its read point) and the wallpaper */
+  function xBase(key,VV,s){
+    if(XB&&XB.key===key) return XB;
+    const {w,C}=XC, k=VV.k, cs=k*s;
+    const mk=(V,out)=>{ const cv=document.createElement('canvas'); cv.width=cv.height=XW; const c=cv.getContext('2d'); c.fillStyle='#fff'; c.fillRect(0,0,XW,XW);
+      const i0=Math.floor(V.x0/s), i1=Math.floor((V.x0+XW/k)/s), j0=Math.floor(V.y0/s), j1=Math.floor((V.y0+XW/k)/s);
+      for(let i=i0;i<=i1;i++) for(let j=j0;j<=j1;j++){ const u=r5((i+0.5)*s), v=r5((j+0.5)*s); if(!inside(u,v)) continue;
+        let col; if(out){ const r=read5([u,v],C); col=xPixCol(w,s,pIdx(r[0],s),pIdx(r[1],s)); } else col=xPixCol(w,s,i,j);
+        c.fillStyle=col; c.fillRect(Math.floor((i*s-V.x0)*k),Math.floor((j*s-V.y0)*k),Math.ceil(cs)+1,Math.ceil(cs)+1); }
+      if(cs>=7){ c.strokeStyle='rgba(17,24,39,0.22)'; c.lineWidth=1; c.beginPath();
+        for(let i=i0;i<=i1+1;i++){ const X=Math.round((i*s-V.x0)*k)+0.5; c.moveTo(X,0); c.lineTo(X,XW); } for(let j=j0;j<=j1+1;j++){ const Y=Math.round((j*s-V.y0)*k)+0.5; c.moveTo(0,Y); c.lineTo(XW,Y); } c.stroke(); }
+      return cv; };
+    XB={key,O:mk(VV.O,true),S:mk(VV.S,false)}; return XB;
+  }
+  function xSmooth(key,VV){                                          // the area step: the smooth pictures
+    if(XB&&XB.key===key) return XB;
+    const {w,C}=XC, mk=(V,kind)=>{ const cv=document.createElement('canvas'); cv.width=cv.height=XW; paint(cv,view(cv,V.x0,V.y0,V.x0+XW/V.k),kind,C,w); return cv; };
+    XB={key,O:mk(VV.O,'output'),S:mk(VV.S,'input')}; return XB;
+  }
+  const xHead=(cx,t,X,Y)=>{ cx.font='700 15px -apple-system,"Segoe UI",Roboto,sans-serif'; cx.textAlign='left'; cx.textBaseline='middle'; cx.fillStyle='#111827'; cx.fillText(t,X,Y); };
+  const xClip=(cx,ox,fn)=>{ cx.save(); cx.beginPath(); cx.rect(ox,XT,XW,XW); cx.clip(); fn(); cx.restore(); };
+  const xFrame=cx=>{ for(const ox of [0,XW+XG]){ cx.strokeStyle='#d1d5db'; cx.lineWidth=1; cx.strokeRect(ox+0.5,XT+0.5,XW-1,XW-1); } };
+  const xActive=()=>XC&&((S.card===1&&S.step>=7)||(S.card===2&&S.step>=5));
+  const xName=()=>XP.word?`“${XC.w.text}”`:`“${XC.w.text[XP.letter]}”`;
+  const INTEG='<b>∫∫ … dx dy</b> means: split the shape into tiny boxes, multiply each box\'s area (dx × dy) by the value in front, and add everything up — with the boxes made smaller and smaller, until the total stops changing. The chart does exactly this with boxes 0.008, 0.004, 0.002 and 0.001 wide.<br><b>de ÷ dρ</b> is the slope of the chart “pixel distance e against wallpaper distance ρ” (Lesson 5.6): Δe ÷ Δρ for a very small Δρ.';
+  const ERHO='<b>ρ and e</b> — from the first steps.<br>ρ: the distance from C to a point of the wallpaper. e: the distance from C to the pixel that shows that point (e − push(e) = ρ; in copy 2, e = 0.10 − ρ).<br><b>Along the ring</b>: two lines from C spread apart, so a length along the ring grows like the distance from C: e ÷ ρ. <b>Across</b>: when ρ grows by Δρ, e grows by Δe.';
+  const NEAREST='<b>Nearest pixel</b> — a choice of these pictures.<br>Here each output pixel copies the one wallpaper pixel under its read point, so you can count who copies whom. A real GPU sampler usually blends the 4 nearest wallpaper pixels (linear filtering), which softens the steps; the shape is the same.';
+
+  function explorer(kind,w,C,two){
+    const n=w.text.length, M=midOf(w), fresh=!XC||XC.w!==w||XC.two!==two||XC.C[0]!==C[0]||XC.C[1]!==C[1]||XC.kind!==kind;
+    if(fresh){ xStop(); XP.sel=null; XP.asel=null; XP.build=1e9; XP.word=kind===2;
+      if(!(XP.letter>=0&&XP.letter<n)) XP.letter=Math.max(0,letterAt(w,M[0],M[1]));
+      XP.copy=two?(kind===2?3:XP.copy===3?1:XP.copy):1; }
+    XC={w,C,two,kind};
+    document.getElementById('twOcol').style.display='none'; document.getElementById('twWcol').style.display='none';
+    document.getElementById('twCombBox').style.display=''; document.getElementById('twLet').hidden=true;
+    document.getElementById('twClean').textContent=S.clean?'Show drawings':'Hide drawings';
+    const N=two?NM:NSTEP, st=S.step, dts=document.getElementById('twDots'); dts.innerHTML='';
+    for(let k=1;k<=N;k++){ const d=document.createElement('button'); d.className='dot'+(k===st?' on':''); d.setAttribute('aria-label','Step '+k); d.onclick=()=>{ S.step=k; draw(); }; dts.appendChild(d); }
+    document.getElementById('twBack').disabled=st===1; document.getElementById('twNext').disabled=st===N;
+    xControls(); xRender();
+  }
+  function xReset(){ xStop(); hideTip(); XP.sel=null; XP.asel=null; XP.build=1e9; xControls(); xRender(); }
+  function xControls(){
+    const {w,two,kind}=XC, n=w.text.length, box=document.getElementById('twX'); box.hidden=false; box.innerHTML='';
+    const row=name=>{ const d=document.createElement('div'); d.className='ctl'; d.innerHTML=`<span class="ctlname">${name}</span>`; box.appendChild(d); return d; };
+    const btn=(d,t,on,fn)=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=t; b.setAttribute('aria-pressed',String(on)); b.onclick=fn; d.appendChild(b); return b; };
+    const r1=row('Letter'); for(let k=0;k<n;k++) btn(r1,w.text[k],!XP.word&&XP.letter===k,()=>{ XP.word=false; XP.letter=k; S.letter=k; xReset(); });
+    btn(r1,'whole word',XP.word,()=>{ XP.word=true; xReset(); });
+    const r2=row(kind===3?'Box size':'Pixel size'); XSZ.forEach(v=>btn(r2,f(v),(kind===3?XP.h:XP.s)===v,()=>{ if(kind===3) XP.h=v; else XP.s=v; xReset(); }));
+    if(kind!==3) r2.insertAdjacentHTML('beforeend',`<button class="info" data-xt="near">ⓘ</button>`);
+    if(two){ const r3=row('Copy'); [[1,'copy 1'],[2,'copy 2']].concat(kind===3?[]:[[3,'both']]).forEach(([v,t])=>btn(r3,t,XP.copy===v,()=>{ XP.copy=v; xReset(); })); }
+    if(kind!==3){
+      const r4=row('Build'); btn(r4,'▶ Play','false',xPlay).id='xbPlay';
+      r4.insertAdjacentHTML('beforeend','<input type="range" id="xbRange" min="0" max="1" step="1" value="1" aria-label="How much is built"><span class="mono" id="xbLbl"></span>');
+      document.getElementById('xbRange').oninput=e=>{ xStop(); XP.build=Number(e.target.value); xRender(); };
+      const r5=row('Show'); if(!XP.word) btn(r5,'net',XP.net,()=>{ XP.net=!XP.net; xControls(); xRender(); }); btn(r5,'×n counts',XP.counts,()=>{ XP.counts=!XP.counts; xControls(); xRender(); });
+    }
+    box.querySelectorAll('[data-xt]').forEach(b=>setTip(b,NEAREST));
+  }
+  const xMax=()=>XP.word?XC.w.text.length:XD.rows.length;
+  function xPlay(){
+    if(XP.timer){ xStop(); xRender(); return; }
+    if(XP.build>=xMax()) XP.build=0;
+    XP.timer=setInterval(()=>{ if(!xActive()){ xStop(); return; } XP.build++; if(XP.build>=xMax()){ XP.build=xMax(); xStop(); } xRender(); },XP.word?750:260);
+    xRender();
+  }
+
+  /* ---------- kinds 1 and 2: the pixel pictures ---------- */
+  function xRender(){
+    if(!XC) return;
+    const {w,C,two,kind}=XC, n=w.text.length, cb=document.getElementById('twComb'), cx=cb.getContext('2d'), stg=document.getElementById('twCombS');
+    clearDyn(stg); cx.fillStyle='#fff'; cx.fillRect(0,0,cb.width,cb.height);
+    const st=S.step, tips=[], I=h=>{ tips.push(h); return `<button class="info" data-tw="${tips.length-1}">ⓘ</button>`; };
+    document.getElementById('twCombT').textContent=kind===3?`Step ${st} · the area: small boxes on the wallpaper (right) and the same boxes through the glass (left)`:
+      `Step ${st} · each output pixel (left) copies the wallpaper pixel under its read point (right)`;
+    if(kind===3){ xArea(cx,stg,tips,I); return; }
+    const D=xData(), s=D.s, VV=xView([D.B[0]-2*s,D.B[1]+2*s,D.B[2]-2*s,D.B[3]+2*s],D.img,2*s), O=VV.O, Sv=VV.S, cs=VV.k*s;
+    const BI=xBase(D.key+'|px',VV,s), cl=S.clean; XP.view=VV;
+    cx.drawImage(BI.O,O.ox,XT); cx.drawImage(BI.S,Sv.ox,XT);
+    /* what is built so far */
+    const word=XP.word, rows=D.rows, rowIdx=new Map(rows.map((j,i)=>[j,i])), max=xMax(); if(XP.build>max) XP.build=max;
+    const nb=XP.build, done=nb>=max, letterOfCell=o=>o.inB?D.src.get(o.skey).k:-1;
+    const rev=o=>word?(o.inB?letterOfCell(o)<nb:done):rowIdx.get(o.j)<nb;
+    const newest=o=>word?(o.inB&&letterOfCell(o)===nb-1):rowIdx.get(o.j)===nb-1;
+    const cellRect=(V,i,j)=>[Math.floor(V.X(i*s)),Math.floor(V.Y(j*s)),Math.ceil(cs)+1,Math.ceil(cs)+1];
+    /* pale veil outside the chosen letter; letter pixels not built yet are blank */
+    const lit=D.out.filter(o=>o.inB&&rev(o)), wait=D.out.filter(o=>o.inB&&!rev(o));
+    xClip(cx,O.ox,()=>{ cx.fillStyle='rgba(255,255,255,0.66)'; cx.fillRect(O.ox,XT,XW,XW);
+      lit.forEach(o=>{ const [X0,Y0,W0]=cellRect(O,o.i,o.j); cx.drawImage(BI.O,X0-O.ox,Y0-XT,W0,W0,X0,Y0,W0,W0); });
+      wait.forEach(o=>{ const [X0,Y0,W0]=cellRect(O,o.i,o.j); cx.fillStyle='#ffffff'; cx.fillRect(X0,Y0,W0,W0); if(cs>=5){ cx.strokeStyle='#cbd5e1'; cx.strokeRect(X0+0.5,Y0+0.5,W0-2,W0-2); } }); });
+    xClip(cx,Sv.ox,()=>{ cx.fillStyle='rgba(255,255,255,0.66)'; cx.fillRect(Sv.ox,XT,XW,XW);
+      D.src.forEach(p=>{ const [X0,Y0,W0]=cellRect(Sv,p.i,p.j); cx.drawImage(BI.S,X0-Sv.ox,Y0-XT,W0,W0,X0,Y0,W0,W0); });
+      box(cx,Sv.X(D.B[0]),Sv.Y(D.B[2]),(D.B[1]-D.B[0])*VV.k,(D.B[3]-D.B[2])*VV.k,CYAN,1.5);
+      if(word&&!done&&nb>0){ const b=xBox(w,nb-1); box(cx,Sv.X(b[0]),Sv.Y(b[2]),(b[1]-b[0])*VV.k,(b[3]-b[2])*VV.k,'#ffffff',2.5); } });
+    /* how many output pixels copy each wallpaper pixel */
+    if(XP.counts&&!cl) xClip(cx,Sv.ox,()=>{ D.src.forEach(p=>{ const c=p.by.filter(rev).length, fin=word?p.k<nb:done, [X0,Y0,W0]=cellRect(Sv,p.i,p.j);
+      if(c===0&&fin){ cx.fillStyle='rgba(255,77,141,0.45)'; cx.fillRect(X0,Y0,W0,W0); if(cs>=24) lbl(cx,'✕',X0+W0/2,Y0+W0/2,PSH,'center',15); }
+      else if(c>=2){ cx.fillStyle=`rgba(163,230,53,${Math.min(0.85,0.2+0.18*c)})`; cx.fillRect(X0,Y0,W0,W0); if(cs>=24) lbl(cx,'×'+c,X0+W0/2,Y0+W0/2,INK,'center',14); } }); });
+    /* the net: the read points of neighbouring output pixels, joined; where it is denser than 6 screen pixels, every m-th line */
+    const nodes=word?[]:D.out.filter(rev), med=a=>{ const b=a.slice().sort((x,y)=>x-y); return b.length?b[b.length>>1]:0; };
+    const gap=(di,dj)=>med(nodes.map(o=>{ const p=D.near.get((o.i+di)+','+(o.j+dj)); return p&&p.cp===o.cp?Math.hypot(p.r[0]-o.r[0],p.r[1]-o.r[1])*VV.k:null; }).filter(v=>v!=null));
+    const gx=gap(1,0), gy=gap(0,1), mi=gx>0&&gx<6?Math.ceil(6/gx):1, mj=gy>0&&gy<6?Math.ceil(6/gy):1;
+    const pick=o=>((o.i%mi)+mi)%mi===0&&((o.j%mj)+mj)%mj===0, segs=[];
+    nodes.forEach(o=>{ for(const [di,dj] of [[mi,0],[0,mj]]){ if(!pick(o)) continue; const p=D.near.get((o.i+di)+','+(o.j+dj)); if(p&&p.cp===o.cp&&rev(p)) segs.push([o,p]); } });
+    const netOK=true, showNet=XP.net&&!cl&&!word&&segs.length;
+    if(showNet) xClip(cx,Sv.ox,()=>{
+      for(const [lw,col] of [[2.6,'rgba(17,24,39,0.55)'],[1.1,COL.mag]]){ cx.lineWidth=lw; cx.strokeStyle=col; cx.lineCap='round'; cx.beginPath(); segs.forEach(([p,q])=>{ cx.moveTo(Sv.X(p.r[0]),Sv.Y(p.r[1])); cx.lineTo(Sv.X(q.r[0]),Sv.Y(q.r[1])); }); cx.stroke(); }
+      if(Math.min(gx*mi,gy*mj)>=9) nodes.filter(pick).forEach(o=>{ cx.beginPath(); cx.arc(Sv.X(o.r[0]),Sv.Y(o.r[1]),2,0,Math.PI*2); cx.fillStyle=COL.mag; cx.fill(); cx.lineWidth=1; cx.strokeStyle=COL.halo; cx.stroke(); });
+      if(!done&&nb>0){ const nw=nodes.filter(newest); for(const [lw,col] of [[5,COL.halo],[2.4,'#ffffff']]){ cx.lineWidth=lw; cx.strokeStyle=col; cx.beginPath(); nw.sort((a,b)=>a.i-b.i).forEach((o,i)=>{ const X0=Sv.X(o.r[0]), Y0=Sv.Y(o.r[1]); if(i) cx.lineTo(X0,Y0); else cx.moveTo(X0,Y0); }); cx.stroke(); } } });
+    const ord=m=>m+(m===2?'nd':m===3?'rd':'th');
+    if(showNet&&(mi>1||mj>1)) lbl(cx,`net: every ${[mi>1?ord(mi)+' column':'',mj>1?ord(mj)+' row':''].filter(Boolean).join(' and ')} (the full net is too dense to see)`,XW+XG+XW/2,XT+XW-14,INK,'center',13);
+    /* the letter's left and right edge (its first and last column of wallpaper pixels), and every output pixel that copies them:
+       copy 1 keeps them on the same side, copy 2 swaps them */
+    if(!word&&!cl&&done&&D.copies.length===1&&D.src.size){ const ps=[...D.src.values()], iL=Math.min(...ps.map(p=>p.i)), iR=Math.max(...ps.map(p=>p.i));
+      for(const [ci,nmE] of [[iL,'left edge'],[iR,'right edge']]){ const col=ps.filter(p=>p.i===ci), j0=Math.min(...col.map(p=>p.j)), j1=Math.max(...col.map(p=>p.j));
+        xClip(cx,Sv.ox,()=>box(cx,Sv.X(ci*s)+1,Sv.Y(j0*s)+1,cs-2,(j1-j0+1)*cs-2,'#ffffff',2.5));
+        lbl(cx,nmE,Sv.X((ci+0.5)*s)+(ci===iL?-6:6),Sv.Y(j1*s)+cs+14,INK,ci===iL?'right':'left',14);
+        const outs=D.out.filter(o=>o.inB&&o.si===ci); if(!outs.length) continue;
+        xClip(cx,O.ox,()=>outs.forEach(o=>{ if(cs>=6) box(cx,O.X(o.i*s)+1,O.Y(o.j*s)+1,cs-2,cs-2,'#ffffff',2); else { cx.beginPath(); cx.arc(O.X((o.i+0.5)*s),O.Y((o.j+0.5)*s),2.5,0,Math.PI*2); cx.fillStyle='#fff'; cx.fill(); cx.strokeStyle=COL.halo; cx.stroke(); } }));
+        const lo=outs.reduce((a,o)=>o.j>a.j?o:a,outs[0]); lbl(cx,nmE,O.X((lo.i+0.5)*s),O.Y((lo.j+1)*s)+14,INK,'center',14); } }
+    /* the word: the letter just built is outlined in the output */
+    if(word&&!cl&&!done&&nb>0) xClip(cx,O.ox,()=>{ const b=xBox(w,nb-1), per=perim(b[0],b[1],b[2],b[3],24);
+      D.copies.forEach(cp=>{ (cp===1?[moved(C,per)]:moved2(C,per)).forEach(ps=>{ if(ps.length>1) halo(cx,()=>{ ps.forEach((q,i)=>i?cx.lineTo(O.X(q[0]),O.Y(q[1])):cx.moveTo(O.X(q[0]),O.Y(q[1]))); if(cp===1||ps.length>=per.length-1) cx.closePath(); },'#ffffff',2.5); }); }); });
+    if(!cl&&!done&&nb>0&&!word&&cs>=8) xClip(cx,O.ox,()=>{ D.out.filter(o=>o.inB&&newest(o)).forEach(o=>{ const [X0,Y0,W0]=cellRect(O,o.i,o.j); box(cx,X0+1,Y0+1,W0-3,W0-3,'#ffffff',cs>=8?2:1); }); });
+    /* C, when it is in a picture */
+    for(const V of [O,Sv]){ const X0=V.X(C[0]), Y0=V.Y(C[1]); if(X0>V.ox+8&&X0<V.ox+XW-8&&Y0>XT+8&&Y0<XT+XW-8){ halo(cx,()=>cx.arc(X0,Y0,4,0,Math.PI*2),COL.glass,3); lbl(cx,'C',X0+10,Y0-10,GLS,'left',14); } }
+    if(two&&!cl) for(const cp of D.copies){ const lc=D.out.filter(o=>o.inB&&o.cp===cp); if(!lc.length) continue; const ys=lc.map(o=>o.q[1]), sgn=(C[1]<midOf(w)[1]?1:-1)*(cp===1?1:-1);
+      const yL=sgn>0?O.Y(Math.max(...ys))+cs+14:O.Y(Math.min(...ys))-14;              /* the side of the copy away from C */
+      if(yL>XT+10&&yL<XT+XW-10) lbl(cx,`copy ${cp}`,O.X(lc.reduce((a,o)=>a+o.q[0],0)/lc.length),yL,LIM,'center',14); }
+    /* the chosen pixel: who copies whom */
+    const sel=XP.sel; let selInfo=null;
+    if(sel&&!cl){
+      let srcKey, outs;
+      if(sel.side==='o'){ const q=[r5((sel.i+0.5)*s),r5((sel.j+0.5)*s)], r=read5(q,C); srcKey=pIdx(r[0],s)+','+pIdx(r[1],s); selInfo={side:'o',q,r,srcKey}; }
+      else { srcKey=sel.i+','+sel.j; selInfo={side:'s',srcKey}; }
+      outs=D.out.filter(o=>o.skey===srcKey);
+      if(sel.side==='o'&&!outs.some(o=>o.i===sel.i&&o.j===sel.j)) outs.push({i:sel.i,j:sel.j,q:selInfo.q,r:selInfo.r});
+      selInfo.outs=outs;
+      const [si,sj]=srcKey.split(',').map(Number), [X0,Y0,W0]=cellRect(Sv,si,sj);
+      xClip(cx,Sv.ox,()=>box(cx,X0+1,Y0+1,W0-3,W0-3,'#ffffff',2.5));
+      xClip(cx,O.ox,()=>outs.forEach(o=>{ const [a,b,c]=cellRect(O,o.i,o.j); box(cx,a+1,b+1,c-3,c-3,(sel.side==='o'&&o.i===sel.i&&o.j===sel.j)?'#ffffff':COL.mag,2.5); }));
+      outs.forEach(o=>{ const me=sel.side==='o'&&o.i===sel.i&&o.j===sel.j; arrow(cx,O.X(o.q[0]),O.Y(o.q[1]),Sv.X(o.r[0]),Sv.Y(o.r[1]),me?'#ffffff':COL.mag,me?2.2:1.6); });
+    }
+    xFrame(cx);
+    xHead(cx,`OUTPUT${two?' · '+(XP.copy===3?'both copies':'copy '+XP.copy):''} · one square = one pixel, ${f(s)} wide`,4,20);
+    xHead(cx,`WALLPAPER · the same pixel size · ${word?'the word':`the letter ${xName()}`} in the cyan box`,XW+XG+4,20);
+    if(!D.img.length) lbl(cx,`${xName()} is not inside the 0.10 ring: copy 2 does not show it`,XW/2,XT+XW/2,INK,'center',15);
+    /* the build controls */
+    const rg=document.getElementById('xbRange'); if(rg){ rg.max=String(max); rg.value=String(nb); }
+    const pl=document.getElementById('xbPlay'); if(pl){ pl.textContent=XP.timer?'❚❚ Pause':'▶ Play'; pl.setAttribute('aria-pressed',String(!!XP.timer)); }
+    const lb=document.getElementById('xbLbl'); if(lb) lb.textContent=word?`letters built: ${nb} of ${max}`:`rows built: ${nb} of ${max}`;
+    xCaption(D,tips,I,netOK); xCounts(tips,I); xLinks(tips);
+    XP.lastSel=selInfo;
+  }
+  /* the caption of kinds 1 and 2 */
+  function xCaption(D,tips,I,netOK){
+    const {w,two,kind}=XC, st=S.step, nm=xName(), cnt=[...D.src.values()], zero=cnt.filter(p=>p.by.length===0).length, many=cnt.filter(p=>p.by.length>=2).length;
+    let cap;
+    if(kind===1&&!two) cap=`<b>Step 7 · One letter, pixel by pixel.</b> Press <b>Play</b>: row after row, the read points (the lime net) sweep over ${nm} in order ${I(NEAREST)}. The net has no holes and never crosses itself, so the copied pixels join into one whole letter, its left and right edge on the same sides (white). Along a row the net is denser than the pixels (${many} copied twice or more); down a column it is sparser (${zero} never read) — switch on <b>×n counts</b>. Click any pixel.`;
+    else if(kind===2&&!two) cap=`<b>Step 8 · All letters: the final result.</b> Press <b>Play</b>: the word is built letter by letter (white outline). Every letter passes through the same net, so each comes out whole, in order, and touching its neighbours. A row the net skips (✕) can only remove a stroke thinner than the skip: with big pixels (0.004) a thin stroke can lose a row; with 0.002, and on a real screen (0.00083), every stroke is wider than the skip and stays.`;
+    else if(kind===1) cap=`<b>Step 5 · One letter, pixel by pixel.</b> Each output pixel copies the wallpaper pixel under its read point ${I(NEAREST)}. Press <b>Play</b> and watch the lime net sweep over ${nm}. <b>Copy 1</b>: the net is much denser than the pixels, so each pixel is copied several times (×n) — stretched, nothing lost. <b>Copy 2</b>: the net is flipped — the letter's left edge comes out on the right (white outlines). Click any pixel to check.`;
+    else cap=`<b>Step 6 · All letters: the final result.</b> Press <b>Play</b>: each letter is built in both copies at once (white outline). Every letter passes through the same nets, so it comes out whole: in order in copy 1, mirrored in copy 2.`;
+    document.getElementById('twStepCap').innerHTML=cap;
+  }
+  /* the side chart: for every letter, how many of its wallpaper pixels are copied 0, 1, 2, 3 or more times; and the numbers box */
+  function xCounts(tips,I){
+    const {w}=XC, n=w.text.length, D=XDW, s=D.s, svg=document.getElementById('twMap'); svg.style.display='';
+    const L=[]; for(let k=0;k<n;k++){ const ps=[...D.src.values()].filter(p=>p.k===k); const c=[0,0,0,0]; let outs=0; ps.forEach(p=>{ c[Math.min(3,p.by.length)]++; outs+=p.by.length; }); L.push({k,ps:ps.length,c,outs}); }
+    const mx=Math.max(...L.map(d=>d.ps)), rh=Math.min(17,200/n-2), X=v=>44+v/mx*300, cols=['rgba(255,77,141,0.75)','#f3f4f6','rgba(163,230,53,0.45)','rgba(163,230,53,0.9)'], names=['✕ never','×1','×2','×3+'];
+    let h=`<text x="10" y="16" font-size="14" font-weight="700" fill="#111827">each letter's wallpaper pixels, by copies</text>`;
+    names.forEach((t,i)=>{ h+=`<rect x="${10+i*84}" y="26" width="14" height="14" fill="${cols[i]}" stroke="#111827"/><text x="${28+i*84}" y="38" font-size="13" fill="#374151">${t}</text>`; });
+    h+=`<text x="${X(mx)+8}" y="38" font-size="13" fill="#374151">out ÷ in</text>`;
+    const its=[];
+    L.forEach((d,r)=>{ const y=50+r*(rh+2); let x0=X(0); const on=!XP.word&&XP.letter===d.k;
+      if(on) h+=`<rect x="4" y="${y-1}" width="452" height="${rh+2}" fill="#eef2ff"/>`;
+      h+=`<text x="34" y="${y+rh-3}" font-size="${Math.min(14,rh)}" font-weight="700" text-anchor="end" fill="#111827">${w.text[d.k]}</text>`;
+      d.c.forEach((v,i)=>{ if(!v) return; const x1=x0+v/mx*300; h+=`<rect data-xb="${its.length}" x="${x0}" y="${y}" width="${x1-x0}" height="${rh}" fill="${cols[i]}" stroke="#111827" stroke-width="0.8" style="cursor:pointer"/>`; x0=x1; });
+      its.push([d.k,`<b>“${w.text[d.k]}”</b>: ${d.ps} wallpaper pixels (center in its box). Never read: ${d.c[0]}. Copied once: ${d.c[1]}. Twice: ${d.c[2]}. Three times or more: ${d.c[3]}.<br>Output pixels that copy one of them: ${d.outs} (counted). ${d.outs} ÷ ${d.ps} = ${f(V3(d.outs/d.ps))} output pixels per wallpaper pixel. Click to pick this letter.`]);
+      h+=`<text x="${X(mx)+8}" y="${y+rh-3}" font-size="${Math.min(13,rh)}" fill="#111827">${f(V3(d.outs/d.ps))}</text>`; });
+    svg.innerHTML=h;
+    svg.querySelectorAll('[data-xb]').forEach(el=>{ const it=its[el.dataset.xb]; setTip(el,it[1]); el.addEventListener('click',()=>{ XP.word=false; XP.letter=it[0]; S.letter=it[0]; setTimeout(xReset,0); }); });
+    /* numbers, for checking */
+    const T=(head,rows)=>`<table class="trace"><tr>${head.map(x=>`<th>${x}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map((c,i)=>i?`<td class="f">${c}</td>`:`<td><b>${c}</b></td>`).join('')}</tr>`).join('')}</table>`;
+    const tot=L.reduce((a,d)=>[a[0]+d.ps,a[1]+d.outs],[0,0]);
+    document.getElementById('twOut').className=''; document.getElementById('twOut').innerHTML=`<details><summary>All numbers of this step, for checking</summary><div class="body"><div class="readout">pixel size ${f(s)} (UV). A wallpaper pixel belongs to a letter when its center lies in the letter's box. An output pixel copies the wallpaper pixel that holds its read point: column = whole part of (read.x ÷ ${f(s)}), row = whole part of (read.y ÷ ${f(s)}). Click a pixel in the picture for its whole chain.</div>`+
+      T(['letter','wallpaper pixels','never read (✕)','copied once','copied twice','3 times or more','output pixels that copy them (counted)','output ÷ wallpaper'],
+        L.map(d=>[`${d.k+1} · “${w.text[d.k]}”`,String(d.ps),String(d.c[0]),String(d.c[1]),String(d.c[2]),String(d.c[3]),String(d.outs),`${d.outs} ÷ ${d.ps} = ${f(V3(d.outs/d.ps))}`]).concat([['the whole word',String(tot[0]),'','','','',String(tot[1]),`${tot[1]} ÷ ${tot[0]} = ${f(V3(tot[1]/tot[0]))}`]]))+'</div></details>';
+  }
+  function xLinks(tips){
+    for(const el of [document.getElementById('twStepCap'),document.getElementById('twOut')]) el.querySelectorAll('[data-tw]').forEach(b=>setTip(b,tips[b.dataset.tw]));
+  }
+  /* the popup of a chosen pixel */
+  function xPopup(X,Y){
+    const sl=XP.lastSel; if(!sl) return; const {w,C}=XC, s=XD.s, [si,sj]=sl.srcKey.split(',').map(Number), sc=[r5((si+0.5)*s),r5((sj+0.5)*s)], k=letterAt(w,sc[0],sc[1]);
+    const inL=k>=0?` (in the letter “${w.text[k]}”)`:'', list=sl.outs.map(o=>`(${o.i}, ${o.j})`).join(', ');
+    let h;
+    if(sl.side==='o'){ const rc=readChain2(sl.q,C), qx=r5(rc.rx/s), qy=r5(rc.ry/s), i=XP.sel.i, j=XP.sel.j;
+      h=`<b>Output pixel (${i}, ${j})</b>: column ${i}, row ${j} of pixels ${f(s)} wide; center (${f5m(sl.q[0])}, ${f5m(sl.q[1])}), in UV.${rc.tip.replace('<b>Read point of this pixel</b>, the Lesson 9.11 chain with 5 decimals:','<br>Its read point, the Lesson 9.11 chain:').replace('</pre>',`
+column = whole part of ${f5m(rc.rx)} ÷ ${f(s)} = ${f5t(qx)} → ${Math.floor(qx)}
+row    = whole part of ${f5m(rc.ry)} ÷ ${f(s)} = ${f5t(qy)} → ${Math.floor(qy)}</pre>`)}It copies wallpaper pixel (${si}, ${sj})${inL}. That pixel is copied by ${sl.outs.length} output pixel${sl.outs.length>1?'s':''}: ${list} (outlined, one arrow each).`; }
+    else h=`<b>Wallpaper pixel (${si}, ${sj})</b>: column ${si}, row ${sj}; center (${f5m(sc[0])}, ${f5m(sc[1])}), in UV${inL}.<br>`+(sl.outs.length?`Copied by ${sl.outs.length} output pixel${sl.outs.length>1?'s':''}: ${list} (outlined, one arrow each).`:`<b>Never read (✕)</b>: no output pixel has its read point in it. The read points of two neighbouring output rows land on both sides of it, so the net jumps over it.`);
+    const stg=document.getElementById('twCombS'), cb=document.getElementById('twComb'), r=cb.getBoundingClientRect(), sc2=r.width/cb.width;
+    const b=addPt(stg,X*sc2,Y*sc2,'transparent',h,'chosen pixel','mini'); b.style.borderColor='transparent'; showTip(b);
+  }
+  /* clicks and arrow keys on the explorer picture */
+  (function(){
+    const cb=document.getElementById('twComb'); cb.tabIndex=0;
+    const pos=e=>{ const r=cb.getBoundingClientRect(); return [(e.clientX-r.left)*cb.width/r.width,(e.clientY-r.top)*cb.height/r.height]; };
+    cb.addEventListener('click',e=>{ if(!xActive()) return; const [X,Y]=pos(e); if(Y<XT||Y>XT+XW) return; e.stopPropagation(); hideTip();
+      if(XC.kind===3){ xAreaPick(X,Y); return; }
+      const s=XD.s, VV=XP.view; if(!VV) return; let V, side;
+      if(X<XW){ V=VV.O; side='o'; } else if(X>=XW+XG){ V=VV.S; side='s'; } else return;
+      XP.sel={side,i:Math.floor(V.U(X)/s),j:Math.floor(V.V(Y)/s)}; xRender(); xPopup(X,Y); });
+    cb.addEventListener('keydown',e=>{ if(!xActive()||XC.kind===3||!XP.sel) return; const d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key]; if(!d) return;
+      e.preventDefault(); XP.sel.i+=d[0]; XP.sel.j+=d[1]; xRender(); const V=XP.sel.side==='o'?XP.view.O:XP.view.S, s=XD.s; hideTip(); xPopup(V.X((XP.sel.i+0.5)*s),V.Y((XP.sel.j+0.5)*s)); });
+  })();
+
+  /* ---------- kind 3: the area as a sum of small boxes ---------- */
+  function xAreaData(){
+    const {w,C,two}=XC, L=XP.word?-1:XP.letter, B=xBox(w,L), cp=two?(XP.copy===2?2:1):1, h=XP.h, key=[w.text,C[0],C[1],L,cp,h].join('|');
+    if(XA&&XA.key===key) return XA;
+    const eOf=rho=>cp===1?eExact(rho):R10-rho, F=q=>cp===1?moved(C,[q])[0]:fwd2(C,q);
+    const B5=B.map(r5), Wsq=V3(r5(B5[1]-B5[0])/0.001), Hsq=V3(r5(B5[3]-B5[2])/0.001);
+    const nx=Math.max(1,Math.round((B[1]-B[0])/h)), ny=Math.max(1,Math.round((B[3]-B[2])/h)), pw=(B[1]-B[0])/nx, ph=(B[3]-B[2])/ny, wsq=V3(Wsq/nx), hsq=V3(Hsq/ny), ain=V3(wsq*hsq);
+    const pcs=[]; let run=0, runIn=0;
+    for(let b=0;b<ny;b++) for(let a=0;a<nx;a++){
+      const x0=B[0]+a*pw, y0=B[2]+b*ph, c=[r5(x0+pw/2),r5(y0+ph/2)];
+      const ring=[[x0,y0],[x0+pw/2,y0],[x0+pw,y0],[x0+pw,y0+ph/2],[x0+pw,y0+ph],[x0+pw/2,y0+ph],[x0,y0+ph],[x0,y0+ph/2]];
+      const dx=r5(c[0]-C[0]), dy=r5(c[1]-C[1]), sx=r10(dx*dx), sy=r10(dy*dy), sum=r10(sx+sy), rho=r5(Math.sqrt(sum));
+      if(cp===2&&rho>=R10){ pcs.push({a,b,ring,c,skip:true}); continue; }
+      const out=ring.map(F); if(out.some(q=>!q)){ pcs.push({a,b,ring,c,skip:true}); continue; }
+      const e=r5(eOf(rho)), along=V3(e/rho), rp=r5(rho+0.0005), rm=r5(rho-0.0005), ep=V6(eOf(rp)), em=V6(eOf(rm)), de=V6(ep-em), across=V3(de/0.001), fac=V3(along*Math.abs(across)), aout=V3(ain*fac);
+      const prev=run; run=V3(run+aout); runIn=V3(runIn+ain);
+      pcs.push({a,b,ring,out,c,dx,dy,sx,sy,sum,rho,e,along,rp,rm,ep,em,de,across,fac,aout,prev,run}); }
+    /* the limit: the same sum with boxes 0.00025 wide (letters) or 0.0005 wide (the word), unrounded */
+    const hl=L<0?0.0005:0.00025, mx=Math.max(1,Math.round((B[1]-B[0])/hl)), my=Math.max(1,Math.round((B[3]-B[2])/hl)), qw=(B[1]-B[0])/mx, qh=(B[3]-B[2])/my; let lim=0;
+    for(let b=0;b<my;b++) for(let a=0;a<mx;a++){ const c=[B[0]+(a+0.5)*qw,B[2]+(b+0.5)*qh], rho=Math.hypot(c[0]-C[0],c[1]-C[1]); if(cp===2&&rho>=R10) continue;
+      const fac=cp===1?eOf(rho)/rho*(eOf(rho+1e-5)-eOf(rho-1e-5))/2e-5:(R10-rho)/rho; lim+=fac*qw*qh; }
+    lim=lim/1e-6;
+    /* counting output pixels whose read point lies in the box, for every pixel size */
+    const per=perim(B[0],B[1],B[2],B[3],30), img=cp===1?moved(C,per):[].concat(...moved2(C,per));
+    const bbI=bbox(img), pix=XSZ.map(s=>{ const side=V3(r5(s/0.001)), ps=V3(side*side); if(!img.length) return {s,count:0,side,per:ps,est:0}; let count=0;
+      for(let i=Math.floor((bbI[0]-2*s)/s);i<=Math.floor((bbI[1]+2*s)/s);i++) for(let j=Math.floor((bbI[2]-2*s)/s);j<=Math.floor((bbI[3]+2*s)/s);j++){
+        const q=[r5((i+0.5)*s),r5((j+0.5)*s)], e=Math.hypot(q[0]-C[0],q[1]-C[1]); if(e<1e-4||(cp===1)!==(e>=R10)) continue; if(xIn(B,read5(q,C))) count++; }
+      return {s,count,side,per:ps,est:V3(count*ps)}; });
+    /* the sum for every box size (for the chart) */
+    const sums=XSZ.map(hh=>{ if(hh===h) return run; const nx2=Math.max(1,Math.round((B[1]-B[0])/hh)), ny2=Math.max(1,Math.round((B[3]-B[2])/hh)), w2=(B[1]-B[0])/nx2, h2=(B[3]-B[2])/ny2; let t=0;
+      for(let b=0;b<ny2;b++) for(let a=0;a<nx2;a++){ const c=[r5(B[0]+(a+0.5)*w2),r5(B[2]+(b+0.5)*h2)], rho=r5(Math.hypot(r5(c[0]-C[0]),r5(c[1]-C[1]))); if(cp===2&&rho>=R10) continue;
+        if(cp===2){ const x0=B[0]+a*w2, y0=B[2]+b*h2; if([[x0,y0],[x0+w2/2,y0],[x0+w2,y0],[x0+w2,y0+h2/2],[x0+w2,y0+h2],[x0+w2/2,y0+h2],[x0,y0+h2],[x0,y0+h2/2]].some(q=>!fwd2(C,q))) continue; }
+        const e=r5(eOf(rho)), along=V3(e/rho), de=V6(V6(eOf(r5(rho+0.0005)))-V6(eOf(r5(rho-0.0005)))), fac=V3(along*Math.abs(V3(de/0.001))); t=V3(t+V3(V3(V3(Wsq/nx2)*V3(Hsq/ny2))*fac)); }
+      return t; });
+    XA={key,B,cp,h,nx,ny,wsq,hsq,ain,Wsq,Hsq,pcs,run,runIn,lim,pix,sums,img,eOf}; return XA;
+  }
+  function xArea(cx,stg,tips,I){
+    const {w,C,two}=XC, A=xAreaData(), B=A.B, cl=S.clean, nm=xName(), st=S.step;
+    const imgs=[]; A.pcs.forEach(p=>{ if(!p.skip) imgs.push(...p.out); });
+    const VV=xView([B[0]-0.004,B[1]+0.004,B[2]-0.004,B[3]+0.004],imgs,0.004), O=VV.O, Sv=VV.S; XP.view=VV;
+    const BI=xSmooth(['area',w.text,C[0],C[1],XP.word?'w':XP.letter,A.cp,VV.span].join('|'),VV);
+    cx.drawImage(BI.O,O.ox,XT); cx.drawImage(BI.S,Sv.ox,XT);
+    const poly=(V,pts)=>{ pts.forEach((q,i)=>i?cx.lineTo(V.X(q[0]),V.Y(q[1])):cx.moveTo(V.X(q[0]),V.Y(q[1]))); cx.closePath(); };
+    const fills=['rgba(255,255,255,0.5)','rgba(17,24,39,0.24)'];
+    if(!cl){
+      xClip(cx,Sv.ox,()=>A.pcs.forEach(p=>{ cx.beginPath(); poly(Sv,p.ring); cx.fillStyle=p.skip?'rgba(255,77,141,0.35)':fills[(p.a+p.b)%2]; cx.fill(); }));
+      xClip(cx,O.ox,()=>A.pcs.forEach(p=>{ if(p.skip) return; cx.beginPath(); poly(O,p.out); cx.fillStyle=fills[(p.a+p.b)%2]; cx.fill(); }));
+      const thin=VV.k*A.h<10?0.6:1;
+      xClip(cx,Sv.ox,()=>{ cx.beginPath(); A.pcs.forEach(p=>poly(Sv,p.ring)); cx.strokeStyle='#0e7490'; cx.lineWidth=thin; cx.stroke(); box(cx,Sv.X(B[0]),Sv.Y(B[2]),(B[1]-B[0])*VV.k,(B[3]-B[2])*VV.k,CYAN,1.5); });
+      xClip(cx,O.ox,()=>{ cx.beginPath(); A.pcs.forEach(p=>{ if(!p.skip) poly(O,p.out); }); cx.strokeStyle='#4d7c0f'; cx.lineWidth=thin; cx.stroke(); });
+      const sp=XP.asel!=null?A.pcs[XP.asel]:null;
+      if(sp&&!sp.skip){ xClip(cx,Sv.ox,()=>halo(cx,()=>poly(Sv,sp.ring),'#ffffff',2.5)); xClip(cx,O.ox,()=>halo(cx,()=>poly(O,sp.out),'#ffffff',2.5)); }
+    }
+    for(const V of [O,Sv]){ const X0=V.X(C[0]), Y0=V.Y(C[1]); if(X0>V.ox+8&&X0<V.ox+XW-8&&Y0>XT+8&&Y0<XT+XW-8){ halo(cx,()=>cx.arc(X0,Y0,4,0,Math.PI*2),COL.glass,3); lbl(cx,'C',X0+10,Y0-10,GLS,'left',14); } }
+    xFrame(cx);
+    xHead(cx,`OUTPUT${two?' · copy '+A.cp:''} · the same boxes through the glass`,4,20);
+    xHead(cx,`WALLPAPER · ${nm} cut into ${A.nx} × ${A.ny} boxes`,XW+XG+4,20);
+    if(!imgs.length) lbl(cx,`${nm} is not inside the 0.10 ring: copy 2 does not show it`,XW/2,XT+XW/2,INK,'center',15);
+    /* caption */
+    const c2=A.cp===2;
+    document.getElementById('twStepCap').innerHTML=`<b>Step ${st} · The area: a formula.</b> Cut ${nm} into small boxes (the checkerboard; click one). Through the glass a box gets e ÷ ρ ${I(ERHO)} times as long along the ring and Δe ÷ Δρ times as long across it, so its area is multiplied by <b>(e ÷ ρ) × (Δe ÷ Δρ)</b>. Add up all the boxes: with smaller boxes the total settles on one number, the same one that counting pixels settles on (chart). That limit is the integral <b>area = ∫∫ (e ÷ ρ) × (de ÷ dρ) dx dy</b> ${I(INTEG)}.`+
+      (c2?` In copy 2, Δe ÷ Δρ = −1: across the ring nothing is stretched, and the minus sign is the mirror.`:'');
+    /* side chart: the total for every box size, the pixel counts, and the limit */
+    const svg=document.getElementById('twMap'); svg.style.display='';
+    const vals=A.sums.concat(A.pix.map(p=>p.est)).concat([A.lim]).filter(v=>v>0), lo=Math.min(...vals), hi=Math.max(...vals), pad=Math.max(1,(hi-lo)*0.15), y0=lo-pad, y1=hi+pad;
+    const X=i=>100+i*110, Y=v=>222-(v-y0)/(y1-y0)*170; const dots=[];
+    let h=`<text x="10" y="16" font-size="14" font-weight="700" fill="#111827">${nm}${two?' · copy '+A.cp:''}: area in the output (small squares 0.001 × 0.001)</text>`;
+    h+=`<line x1="60" y1="${Y(A.lim)}" x2="452" y2="${Y(A.lim)}" stroke="#6b7280" stroke-width="1.5"/><text x="64" y="${Y(A.lim)-6}" font-size="13" fill="#374151" stroke="#fff" stroke-width="3" paint-order="stroke">limit ≈ ${f(V3(A.lim))}</text>`;
+    for(const [arr,col,nmS] of [[A.sums,'#a3e635','boxes'],[A.pix.map(p=>p.est),'#22d3ee','pixels']]){
+      h+=`<polyline points="${arr.map((v,i)=>`${X(i)},${Y(v)}`).join(' ')}" fill="none" stroke="#111827" stroke-width="3.5"/><polyline points="${arr.map((v,i)=>`${X(i)},${Y(v)}`).join(' ')}" fill="none" stroke="${col}" stroke-width="2"/>`;
+      arr.forEach((v,i)=>dots.push([X(i),Y(v),col,nmS==='boxes'?`<b>Boxes ${f(XSZ[i])} wide</b>: the total of (box area × factor) over all boxes = ${f(v)} small squares.`:
+        `<b>Pixels ${f(XSZ[i])} wide</b>: ${A.pix[i].count} output pixels have their read point in the box. Each pixel is ${f(A.pix[i].side)} × ${f(A.pix[i].side)} = ${f(A.pix[i].per)} small squares. ${A.pix[i].count} × ${f(A.pix[i].per)} = ${f(A.pix[i].est)} small squares.`])); }
+    XSZ.forEach((v,i)=>{ h+=`<text x="${X(i)}" y="242" font-size="13" text-anchor="middle" fill="#374151">${f(v)}</text>`; });
+    h+=`<text x="10" y="242" font-size="13" fill="#374151">size →</text><text x="10" y="258" font-size="13" font-weight="700"><tspan fill="#4d7c0f">lime: the total of boxes × factor</tspan>   <tspan fill="#0e7490">cyan: pixels counted</tspan></text>`;
+    dots.forEach((d,i)=>{ h+=`<circle data-dt="${i}" cx="${d[0]}" cy="${d[1]}" r="5" fill="${d[2]}" stroke="#111827" stroke-width="1.8" style="cursor:pointer"/>`; });
+    svg.innerHTML=h; svg.querySelectorAll('[data-dt]').forEach(el=>setTip(el,dots[el.dataset.dt][3]));
+    /* numbers, for checking */
+    const T=(head,rows)=>`<table class="trace"><tr>${head.map(x=>`<th>${x}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map((c,i)=>i?`<td class="f">${c}</td>`:`<td><b>${c}</b></td>`).join('')}</tr>`).join('')}</table>`;
+    const live=A.pcs.filter(p=>!p.skip), shown=live.length<=48?live:(XP.asel!=null&&!A.pcs[XP.asel].skip?[A.pcs[XP.asel]]:[]);
+    const row=p=>[`(${p.a+1}, ${p.b+1})`,`(${f5m(p.c[0])}, ${f5m(p.c[1])})`,f5m(p.rho),f5m(p.e),`${f5m(p.e)} ÷ ${f5m(p.rho)} = ${f(p.along)}`,`${f6(p.ep)} − ${f6(p.em)} = ${f6(p.de)}`,`${f6(p.de)} ÷ 0.001 = ${fz(p.across)}`,
+      `${f(p.along)} × ${fz(Math.abs(p.across))} = ${f(p.fac)}`,`${f(A.ain)} × ${f(p.fac)} = ${f(p.aout)}`,`${f(p.prev)} + ${f(p.aout)} = ${f(p.run)}`];
+    document.getElementById('twOut').className=''; document.getElementById('twOut').innerHTML=`<details><summary>All numbers of this step, for checking</summary><div class="body"><div class="readout">the box of ${nm}: width ${f5m(r5(B[1])-r5(B[0]))} = ${f(A.Wsq)} small squares, height ${f5m(r5(B[3])-r5(B[2]))} = ${f(A.Hsq)} small squares
+one box: ${f(A.Wsq)} ÷ ${A.nx} = ${f(A.wsq)} wide,  ${f(A.Hsq)} ÷ ${A.ny} = ${f(A.hsq)} tall,  area ${f(A.wsq)} × ${f(A.hsq)} = ${f(A.ain)} small squares
+${c2?'copy 2: e = 0.10 − ρ for every box (e₊ and e₋ the same way)':'e: the pixel distance that shows ρ, so e − push(e) = ρ (read off the chart of step 3, 5 decimals); e₊ and e₋ the same at ρ + 0.0005 and ρ − 0.0005'}
+${A.pcs.some(p=>p.skip)?'pink boxes: partly 0.10 or more from C, so copy 2 does not show them whole; they are left out\n':''}total over all ${live.length} boxes: ${f(A.run)} small squares   (on the wallpaper: ${f(A.runIn)})
+the limit, with boxes ${XP.word?'0.0005':'0.00025'} wide: ${f(V3(A.lim))}</div>`+
+      (shown.length?T(['box (column, row)','center (x, y)','ρ','e','along = e ÷ ρ','Δe = e₊ − e₋ (at ρ ± 0.0005)','across = Δe ÷ 0.001','factor = along × |across|','output area = box area × factor','running total'],shown.map(row)):'')+
+      (live.length>48?`<p class="small">${live.length} boxes: click one in the picture to see its row here.</p>`:'')+
+      T(['pixel size','output pixels whose read point is in the box (counted)','one pixel in small squares','area by counting'],A.pix.map(p=>[f(p.s),String(p.count),`${f(p.side)} × ${f(p.side)} = ${f(p.per)}`,`${p.count} × ${f(p.per)} = ${f(p.est)}`]))+'</div></details>';
+    xLinks(tips);
+  }
+  function xAreaPick(X,Y){
+    const A=XA, VV=XP.view; if(!A||!VV) return; const side=X<XW?'o':X>=XW+XG?'s':null; if(!side) return;
+    const V=side==='o'?VV.O:VV.S, cx=document.getElementById('twComb').getContext('2d');
+    const k=A.pcs.findIndex(p=>{ if(p.skip) return false; const pts=side==='o'?p.out:p.ring; cx.beginPath(); pts.forEach((q,i)=>i?cx.lineTo(V.X(q[0]),V.Y(q[1])):cx.moveTo(V.X(q[0]),V.Y(q[1]))); cx.closePath(); return cx.isPointInPath(X,Y); });
+    if(k<0) return; XP.asel=k; xRender(); const p=A.pcs[k], c2=A.cp===2;
+    const h=`<b>Box (${p.a+1}, ${p.b+1}) of ${xName()}</b>${XC.two?', copy '+A.cp:''}: center (${f5m(p.c[0])}, ${f5m(p.c[1])}), in UV.<pre>Δx = ${f5m(p.c[0])} − ${f(XC.C[0])} = ${f5m(p.dx)}
+Δy = ${f5m(p.c[1])} − ${f(XC.C[1])} = ${f5m(p.dy)}
+Δx² = ${p5m(p.dx)} × ${p5m(p.dx)} = ${f10(p.sx)}
+Δy² = ${p5m(p.dy)} × ${p5m(p.dy)} = ${f10(p.sy)}
+sum = ${f10(p.sx)} + ${f10(p.sy)} = ${f10(p.sum)}
+ρ = √${f10(p.sum)} = ${f5m(p.rho)}
+${c2?`e = 0.10 − ${f5m(p.rho)} = ${f5m(p.e)}`:`e (where e − push(e) = ρ) = ${f5m(p.e)}`}
+along  = e ÷ ρ = ${f5m(p.e)} ÷ ${f5m(p.rho)} = ${f(p.along)}
+ρ + 0.0005 = ${f5m(p.rp)}     e there = ${f6(p.ep)}
+ρ − 0.0005 = ${f5m(p.rm)}     e there = ${f6(p.em)}
+Δe     = ${f6(p.ep)} − ${f6(p.em)} = ${f6(p.de)}
+across = Δe ÷ 0.001 = ${f6(p.de)} ÷ 0.001 = ${fz(p.across)}${c2?'   (minus: inside out, the mirror)':''}
+factor = ${f(p.along)} × ${fz(Math.abs(p.across))} = ${f(p.fac)}
+box area = ${f(A.ain)} small squares
+in the output = ${f(A.ain)} × ${f(p.fac)} = ${f(p.aout)} small squares</pre>`;
+    const stg=document.getElementById('twCombS'), cb=document.getElementById('twComb'), r=cb.getBoundingClientRect(), sc=r.width/cb.width;
+    const b=addPt(stg,X*sc,Y*sc,'transparent',h,'chosen box','mini'); b.style.borderColor='transparent'; showTip(b);
   }
   /* the straight distance between two pixels, one operation per value */
   function segLen(a,b){ const dx=V3(b[0]-a[0]), dy=V3(b[1]-a[1]), sx=V8(dx*dx), sy=V8(dy*dy), sum=V8(sx+sy); return {dx,dy,sx,sy,sum,len:V3(Math.sqrt(sum))}; }
@@ -1761,16 +2211,18 @@ output area of a box = the number of small output squares whose read point lands
     document.querySelectorAll('#twCards .card').forEach((b,i)=>b.setAttribute('aria-pressed',String(i===S.card)));
   }
   function draw(){
-    const w=S.word, C=S.C, M=midOf(w), o=oc.getContext('2d'), x=wc.getContext('2d'), ex=S.card===1;
+    const w=S.word, C=S.C, M=midOf(w), o=oc.getContext('2d'), x=wc.getContext('2d'), ex=S.card===1, mx=S.card===2;
+    xStop(); document.getElementById('twX').hidden=true;
     paint(oc,V,'output',C,w); paint(wc,VW,'input',C,w);
-    clearDyn(os); clearDyn(ws); hC.style.display=ex?'none':''; movePt(hC,V.X(C[0]),V.Y(C[1]),COL.glass);
+    clearDyn(os); clearDyn(ws); hC.style.display=ex||mx?'none':''; movePt(hC,V.X(C[0]),V.Y(C[1]),COL.glass);
     for(const [ctx,VV] of [[o,V],[x,VW]]){ ring(ctx,VV.X(C[0]),VV.Y(C[1]),RAD*VV.s,COL.glass,2); ring(ctx,VV.X(C[0]),VV.Y(C[1]),0.35*VV.s,COL.ring,2); }
-    document.getElementById('twCap').hidden=ex; document.getElementById('twStep').hidden=!ex;
-    document.getElementById('twLeg').hidden=ex; document.getElementById('twLegX').hidden=!ex;
-    document.getElementById('twPT').textContent=ex?`Flattened, step by step (step ${S.step} of ${NSTEP})`:'What you see';
+    document.getElementById('twCap').hidden=ex||mx; document.getElementById('twStep').hidden=!(ex||mx);
+    document.getElementById('twLeg').hidden=ex||mx; document.getElementById('twLegX').hidden=!ex; document.getElementById('twLegM').hidden=!mx;
+    document.getElementById('twPT').textContent=ex?`Flattened, step by step (step ${S.step} of ${NSTEP})`:mx?`Stretched + mirror copy, step by step (step ${S.step} of ${NM})`:'What you see';
     document.getElementById('twOT').textContent='Output: what the glass shows'; document.getElementById('twWT').textContent='Wallpaper: where the pixels read';
     document.getElementById('twOcol').style.display=''; document.getElementById('twWcol').style.display=''; document.getElementById('twCombBox').style.display='none'; document.getElementById('twLinks').innerHTML='';
     if(ex){ explain(w,C,o,x); sync(); return; }
+    if(mx){ explainMirror(w,C,o,x); sync(); return; }
     /* the numbers: M's distance from C, then copy 1 (P) and copy 2 (Q) */
     const dx=V3(M[0]-C[0]), dy=V3(M[1]-C[1]), sx=V6(dx*dx), sy=V6(dy*dy), sum=V6(sx+sy), rho=V3(Math.sqrt(sum));
     const dl=Math.hypot(dx,dy), U=dl>0?[dx/dl,dy/dl]:[0,1], N=[-U[1],U[0]], at=(e,s)=>[C[0]+U[0]*e*s, C[1]+U[1]*e*s];
@@ -1873,7 +2325,7 @@ output area of a box = the number of small output squares whose read point lands
   const inWord=(w,q)=>q[0]>=w.xs[0]&&q[0]<=w.xs[w.xs.length-1]&&q[1]>=w.top&&q[1]<=w.bot;
   const clickAt=q=>{ if(S.card===1&&inWord(S.word,q)){ S.X=[V3(q[0]),V3(q[1])]; draw(); } else pick(wordAt(q[0],q[1])); };
   document.getElementById('twBack').onclick=()=>{ if(S.step>1){ S.step--; draw(); } };
-  document.getElementById('twNext').onclick=()=>{ if(S.step<NSTEP){ S.step++; draw(); } };
+  document.getElementById('twNext').onclick=()=>{ if(S.step<(S.card===2?NM:NSTEP)){ S.step++; draw(); } };
   document.getElementById('twClean').onclick=()=>{ S.clean=!S.clean; draw(); };
   const uvOf=(cv,VV,e)=>{ const r=cv.getBoundingClientRect(); return [VV.x0+(e.clientX-r.left)/r.width*cv.width/VV.s, VV.y0+(e.clientY-r.top)/r.height*cv.height/VV.s]; };
   oc.addEventListener('click',e=>{ const [u,v]=uvOf(oc,V,e); clickAt(readOf(u,v,S.C)); });
