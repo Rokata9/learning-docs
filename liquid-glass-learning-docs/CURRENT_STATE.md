@@ -1,6 +1,6 @@
 # Liquid Glass iOS course — current state
 
-**Updated:** 2026-10-05  
+**Updated:** 2026-10-12  
 **Course version:** 9.14.0  
 **Platform:** Swift / SwiftUI / Metal (`.metal` + `ShaderLibrary`)  
 **Test device:** iPhone 16 Pro  
@@ -14,26 +14,25 @@ platform: Swift / SwiftUI / Metal (.metal + ShaderLibrary)
 test device: iPhone 16 Pro
 min OS: iOS 17
 
-learner-confirmed complete: 97 of 216
-  (Chapters 1–8 and Lessons 9.1–9.11)
+learner-confirmed complete: 98 of 216
+  (Chapters 1–8 and Lessons 9.1–9.12)
 
-current unresolved checkpoint: Lesson 9.12 — Edge safety
+current unresolved checkpoint: Lesson 9.13 — Gentle chromatic separation
   (generated, not complete)
 
 generated frontier: Lesson 9.14 — Lens checkpoint (not complete)
-  (Lesson 9.13 — Gentle chromatic separation is also generated and not complete)
 next planned after the frontier: Lesson 10.1 — Height-map idea
 ```
 
-Chapters 1–8 and Lessons 9.1–9.11 count as complete. The graphics and math are the same; only the API names differ between the earlier platform and iOS.
+Chapters 1–8 and Lessons 9.1–9.12 count as complete. The graphics and math are the same; only the API names differ between the earlier platform and iOS.
 
 Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
-Do not generate Lesson 10.1 unless asked. Lessons 9.12, 9.13 and 9.14 are generated and are not complete.
+Do not generate Lesson 10.1 unless asked. Lessons 9.13 and 9.14 are generated and are not complete.
 
 Reusable new-chat starter: `NEW_CHAT_PROMPT.md`. Paste it, then name generate or questions in the same message. Progress in this file wins. When the checkpoint or frontier moves, refresh section 12 of that prompt.
 
-## Complete through Lesson 9.11
+## Complete through Lesson 9.12
 
 | Chapter / lessons | Count |
 |-------------------|------:|
@@ -45,10 +44,10 @@ Reusable new-chat starter: `NEW_CHAT_PROMPT.md`. Paste it, then name generate or
 | Chapter 6 | 11 |
 | Chapter 7 | 12 |
 | Chapter 8 | 12 |
-| Lessons 9.1–9.11 | 11 |
-| **Total** | **97** |
+| Lessons 9.1–9.12 | 12 |
+| **Total** | **98** |
 
-Lessons 9.12, 9.13, and 9.14 are generated and are not part of the 97. The checkpoint is Lesson 9.12. Skim Lessons 5.2, 5.11, and 5.12 later only if an iOS clock API is needed. Chapter 7 frost constants stay frozen.
+Lessons 9.13 and 9.14 are generated and are not part of the 98. The checkpoint is Lesson 9.13. Skim Lessons 5.2, 5.11, and 5.12 later only if an iOS clock API is needed. Chapter 7 frost constants stay frozen.
 
 ## Frozen frost stack (do not rebuild)
 
@@ -56,7 +55,7 @@ blur **18 pt**, tint **0.25**, saturation **0.40**, rim **3 pt**, inner band **1
 
 ## Current lesson files
 
-Live checkpoint is Lesson 9.12. Frontier HTML is Lesson 9.14. Shader host is `LabOrange.metal` + `ShaderRect` (`colorEffect`). Lesson 9.10 explorer: `chapter09/DisplacementFieldExplorer.swift` + `chapter09/DisplacementField.metal`. Lesson 9.11 explorer: `chapter09/RefractionSamplingExplorer.swift` + `chapter09/RefractionSampling.metal`. Lesson 9.12 explorer: `chapter09/EdgeSafetyExplorer.swift` + `chapter09/EdgeSafety.metal`. Lesson 9.13 explorer (planned, not yet written): `chapter09/ChromaticSeparationExplorer.swift` + `chapter09/ChromaticSeparation.metal`. Lesson 9.14 explorer (planned, not yet written): `chapter09/LensCheckpointExplorer.swift` + `chapter09/LensCheckpoint.metal`.
+Live checkpoint is Lesson 9.13. Frontier HTML is Lesson 9.14. Shader host is `LabOrange.metal` + `ShaderRect` (`colorEffect`). Lesson 9.10 explorer: `chapter09/DisplacementFieldExplorer.swift` + `chapter09/DisplacementField.metal`. Lesson 9.11 explorer: `chapter09/RefractionSamplingExplorer.swift` + `chapter09/RefractionSampling.metal`. Lesson 9.12 explorer: `chapter09/EdgeSafetyExplorer.swift` + `chapter09/EdgeSafety.metal`. Lesson 9.13 explorer: `chapter09/ChromaticSeparationExplorer.swift` + `chapter09/ChromaticSeparation.metal`. Lesson 9.14 explorer: `chapter09/LensCheckpointExplorer.swift` + `chapter09/LensCheckpoint.metal`. Both trace cards share `chapter09/TraceLines.swift` (one operation per line, rule 12).
 
 ```text
 course/chapters/chapter-01/lesson-01-01-visible-ingredients.html
@@ -186,9 +185,9 @@ Default radius 0.25, band 0.10, dispLen 0.10. Teaching W = `(0.65, 0.30)`: `p = 
 
 **Rollback (2026-09-30).** At the learner's request, `lesson-09-11-qa.html` and `lesson-09-11-refraction-as-displaced-sampling.html` were restored to their state in commit `d6ca607` (2026-09-27). This removed the card 9 rebuild (2026-09-28), Q&A round 2 with cards 11–25 and the summary card (2026-09-29), and the lesson's `#upd-derive` box. The learner's reason: those rounds tried to prove every side fact of the math, which is not the goal. The rules added on 2026-09-29 (rules 12, 14, 19) stay. Only the 9.11 footer link to Lesson 9.12 was edited afterwards.
 
-## Generated — Lesson 9.12
+## Completed — Lesson 9.12
 
-Not complete.
+Learner-confirmed complete on 2026-10-12.
 
 **9.12 teaching contract:**
 
@@ -220,7 +219,7 @@ One graphics idea: three read points per pixel, one per channel, give thin color
 
 Pixel explorer (2026-10-06 (2); since 2026-10-09 the whole word in one step: flattened steps 7 (pixels) and 8 (area), mirror steps 5 and 6; no Letter row and no letter-by-letter step; read points are orange dots, no grid lines; a white path joins the read points of the row being placed and a read-step box gives Δx, Δy for one output pixel to the right; a “Why the stretched word has no holes” box contrasts reading backwards with moving forwards (6 → 10 pixels)), shared by “flattened” steps 7–9 and “stretched + mirror copy” steps 5–7 (old numbering):** one canvas, the output pixels on top and the wallpaper pixels below it (stacked since 2026-10-08 (2); each picture 1060 × 430, one scale; area part 3: each picture 520 wide with its magnifier to the right), zoomed to a whole letter or the whole word; each output pixel copies the wallpaper pixel that holds its read point (nearest pixel, ⓘ says a GPU blends 4). Controls: letter or whole word, pixel size 0.008 / 0.004 / 0.002 (default) / 0.001, copy 1 / 2 / both (mirror), Play, Place next, Start over and a slider; Advance by 1 / 2 / 5 / 10 pixels or 1 row (one letter: pixels in row order; the word: letter by letter), grid of read points (called “net” before 2026-10-08), ×n counts (lime = copied 2+, pink ✕ = never read), Hide drawings. The grid of read points: one lime dot per placed output pixel at its read point, joined to the dots of its right and lower neighbours in the output (every m-th line when denser than 6 screen pixels, with a note), labelled in the picture. The last press's pixels: white outline, white arrow to the read point, white outline on the copied wallpaper pixel, “copied ×n”; earlier pixels that copy the same wallpaper pixel get a thin lime arrow. White outlines: the letter's left and right edge column on the wallpaper and every output pixel that copies them (copy 2 swaps the sides: the mirror). Click any pixel (either side, arrow keys move it): outlines + one arrow per linked pixel + popup with the full 5-decimal chain and the column/row rule. Side chart: per letter, wallpaper pixels read 0/1/2/3+ times and output ÷ wallpaper, with a sentence under it saying what the bars show; a bar click keeps its popup open and picks the letter (step 7) or outlines it in both pictures (step 8). Area part 3 is zoomed out so C, ρ, e, p_x, p_y are drawn whole, with a magnifier strip under each picture (the same factor, ×9 for “p”) showing box (a, b), m₁ and m₂ (middles of its left and right side) on the violet lines and the violet bar: 0.00802 → 0.0131 (1.6334 ≈ e ÷ ρ = 1.6368; not equal because c is not straight below C); the side chart is an example wedge with distance ruler and gap arrows (0.30 ÷ 0.10 = 3, 0.12 ÷ 0.04 = 3). Part 4 is zoomed in on the box: ρ₋, ρ₊, e₋, e₊ printed at their ticks, Δρ and Δe bars, “toward C” at the edge. Parts 1, 2, 5, 6, 7 print A, ΔA, a/b numbers, ΔA_out, J × ΔA per output box and the totals. Step 1 kind = one letter, kind 2 = word build letter by letter (white outline on the newest letter), kind 3 = area: the letter (or word) cut into boxes 0.008 … 0.001 (checkerboard) and the same boxes through the glass; factor per box = (e ÷ ρ) × |Δe ÷ Δρ| with Δρ = 0.001 (copy 2: Δe ÷ Δρ = −1, the minus is the mirror); total = Σ box area × factor (running total in the table), chart: box totals and pixel counts (read point in the box × (s ÷ 0.001)²) converging on the limit (boxes 0.00025 / 0.0005, unrounded); caption names the integral ∫∫ (e ÷ ρ)(de ÷ dρ) dx dy. Haptics flattened “p”: limit ≈ 1098 small squares on a 1039 box; mirror copy 1 “p” ≈ 4562, copy 2 ≈ 2497. The “flattened” card (C 0.12 above M) opens a 9-step explanation, steps 1–6 as below, 7–9 the explorer (rebuilt 2026-10-04 (3): 5 the shape — slide arrows from the word-box edges, TL/T/TR/BL/B/BR table; 6 letter widths from slid edges, 5 decimals; 7 a row of 21 pixels with a per-pixel table (read point → wallpaper column/row) and a per-square grouping; 8 a column of 13 pixels with push/read table, box rows never read; 9 letter-box area: wallpaper width × height against output small squares (0.001) whose read point lands in the box, big squares shaded in the zoom, a letter chooser, ratio bars). Before that it was an 8-step explanation (steps 6–8 added 2026-10-04: big pixels 0.004 wide around P₃/W₃ — a row of 21 pixels reads points 0.591 px apart, 6 wallpaper pixels read twice, letter “c” 5.50 px → 10 px, stretch e ÷ ρ = 1.691 along the ring; a column of 13 pixels reads 1.625 px apart, 5 word-box pixels never read, 0.615 across, T/B 0.63; step 8 area 1.691 × 0.615 = 1.04 near M, per-letter pixel counts, whole word 0.95; the distance chart gives each ruler its own scale and puts names in one row with leader lines). Before that it was a 6-step explanation (closer view, 0.44 wide): W₁ … W₅ on the word's middle line (gap = width ÷ 4), their distances ρ from C, the rule e − push(e) = ρ solved on a two-ruler distance chart, P = C + e × dir with the moved word-box outline, gaps (neighbours stay neighbours), and T/B (top/bottom of the word box: flattened). Click the word to add a point X; “Hide drawings” shows the word alone. “Notifications”: ρ 0.168 / 0.1335 / 0.12, e 0.2316 / 0.2111 / 0.2029, bend 0.0379, gaps 0.0585 → 0.073 / 0.0929, T 0.101 → moves 0.0893, B 0.144 → 0.0734, thickness 0.043 → 0.0271 (0.63). The “stretched + mirror copy” card (C 0.03 above M) opens a 6-step explanation (2026-10-06, short captions, all tables closed): 1 one point, two pixels — P 0.13 from C (push 0.10 stops 0.03 before C, on M) and Q 0.07 from C (push passes C, lands on M), a push-vs-distance chart and the white “0.10 ring”; 2 copy 1 stretched — W₁ … W₅ 0.015 apart around M, P on the line from C one push farther out, x-ruler chart (0.06 → 0.202 wide); 3 copy 2 mirrored — Q = C − (0.10 − ρ) × dir, all arrows cross at C, x-ruler chart shows the crossing (points kept within 0.03 of M, where copy 2's x order is a clean reverse); 4 the whole word — lime outlines of both copies, numbered letter circles, the mirror line, letter tiles ordered along each copy by direction from C (copy 2 bends around C, so x order would mislead): Haptics 1 → 7 and 7 → 1, Notifications copy 2 is 12 → 2 (letters 1 and 13 outside the 0.10 ring; circles with no room near C are left out and the caption says so); 5–7: the pixel explorer (below). Other cards keep the one-caption view. Apple does not document whether its Liquid Glass separates colors. Cost: three wallpaper asks per pixel. Swapping red and blue gives cyan and blue strips (Exercise 2); a fixed side step instead of `disp × spread` puts fringes on the whole screen (Exercise 3).
 
-**iOS files not yet written.** The lesson's Metal excerpt (`chromaticRefract`, `blackWhiteChecker`) is not compiled. On 2026-09-30 the lesson was generated on a machine without the iOS lab (`/Users/rosen/Code/LiquidGlassLab-iOS` absent) and without Xcode. Next session with the lab: create `chapter09/ChromaticSeparation.metal` + `chapter09/ChromaticSeparationExplorer.swift`, wire them in `Chapter09Screen`, build for iPhone 16 Pro, and remove this note.
+**iOS files (2026-10-12).** `chapter09/ChromaticSeparation.metal` (`chromaticRefract` as in Section 5; `static blackWhiteChecker`) + `chapter09/ChromaticSeparationExplorer.swift`, wired in `Chapter09Screen`. Explorer: spread and dispLen sliders, the shader picture (C, W, glass circle, lime magnifier box), a wallpaper magnifier with W, the pink push arrow and the three read points, and the Section 3 trace one operation per line. Default trace equals Section 3 (0.495 / 0.505 / 0.515 → `(1, 0, 0)`).
 
 ## Generated frontier — Lesson 9.14
 
@@ -239,9 +238,13 @@ wall(x, y, time) = checker(x + speed × time, y)          (moving test pattern, 
 
 One graphics idea: a lens needs two separate answers per pixel, and the mask gives the glass its own outline (Lessons 9.11–9.13 had no outline; the bend leaked outside the circle up to the orange ring 0.35 from C). No new math: the mask is Lesson 9.3's soft mask with a thin band, the mix is Lessons 8.11 / 9.3, the moving pattern is Lesson 9.8's shift growing with time (Lessons 5.2 / 8.10). Black-and-white checker, glass C = `(0.40, 0.54)` as in 9.13, radius 0.25, band 0.10, dispLen 0.10, spread 0.10. maskBand 0.002 is a chosen constant: about one pixel of a 520-px picture (520 × 0.002 = 1.04); the soft band is 0.004 wide = 2.08 px. Teaching W = `(0.40, 0.24)` at time = 2 s: `p = (0, −0.30)`, `d = 0.30`, `sd = 0.05`, mask = 0 (t = 13 → 1), falloff 0.1565 (t³ shown as 0.422, 3-decimal rounding; Lesson 9.3 kept 0.15625), push 0.016, `dir = (0, −1)`, read points y = 0.2544 / 0.256 / 0.2576 (past the edge y = 0.25), shift 0.20, x + shift = 0.60 → col 2, bent = black, plain = white → W stores white; Lesson 9.13 would store black. At time 0 the colors swap (bent white, plain black, W black). Section 2 defends the thin mask: mixing by falloff gives a 0.20-wide ghost ring (104 px), a hard if gives one-pixel stair steps (4× pixel magnifier on the bottom-left arc, crop 130 × 65 px at (65, 354)). The stepper has 7 steps: pattern, glass + W, read points, the 9.13 output, the mask map, the mix, time = 2 s. Checkpoint box (end of Section 2): different questions (how much glass vs where to read), different widths from one sd (0.004 vs 0.20), neither uses the other, the wallpaper, or the time. Exercises: dispLen = 0 → the glass is invisible (bent = plain; I = (0.40, 0.44)); capsule mask with the circle's read points → outline only in the middle (T = (0.02, 0.54) glass but push 0; M = (0.40, 0.33) push 0.078 but mask 0), a capsule lens needs both answers changed (push direction for any shape: Lesson 10.3); glass at the bottom edge without clamps → a black strip (not see-through, because the 9.13 line sets alpha 1.0); the clamp fixes it, the mask cannot (W₃ = (0.59, 0.98) mask 1, stores navy with clamp). Cost: four wallpaper asks per pixel; bent is unused where mask = 0 (a production shader returns plain early, or runs only on the glass rectangle). iOS plan: maskBand = 1 / resolution.x, time from `TimelineView(.animation)` passed modulo 5 s (0.50 ÷ speed).
 
-**iOS files not yet written.** The lesson's Metal excerpt (`glassLens`, `movingChecker`) is not compiled. On 2026-09-30 the lesson was generated on the same machine without the iOS lab and without Xcode. Next session with the lab: create `chapter09/LensCheckpoint.metal` (with `movingChecker` declared before `glassLens`) + `chapter09/LensCheckpointExplorer.swift`, wire them in `Chapter09Screen`, build for iPhone 16 Pro, confirm `mix(half4, half4, half)` compiles, and remove this note.
+**iOS files (2026-10-12).** `chapter09/LensCheckpoint.metal` (`movingChecker` before `glassLens`, both as in Section 5; `mix(half4, half4, half)` compiles) + `chapter09/LensCheckpointExplorer.swift`, wired in `Chapter09Screen`. Explorer: Play/Pause (`TimelineView(.animation)`, time modulo 5 s, default 2.000 s), time, dispLen and spread sliders, the shader picture (no circle), the mask map and the read-point map (both still while time runs), and the Section 3 trace one operation per line with maskBand = 1 ÷ resolution.x (1 ÷ 1080 = 0.000926 on a 3× screen). Default trace equals Section 3 apart from maskBand (mask 0 either way).
 
 ## Learner feedback log (latest first)
+
+**2026-10-12 (5) — progress.** The learner confirmed Lesson 9.12 complete (lesson #98 of the plan; 9.13 is #99, 9.14 is #100). Learner-confirmed complete is now **98 of 216** (Chapters 1–8 and Lessons 9.1–9.12); the live checkpoint moves to Lesson 9.13; the generated frontier stays 9.14. Updated: this file, `NEW_CHAT_PROMPT.md` section 12, both curriculum files, the course home (count, meter 98 ÷ 216 = 45.370370%, checkpoint), the Chapter 9 hub (lesson map, record, iOS section), the progress stamp on every lesson page, the formula cheat sheet, and the iOS chapter screens (`Chapter08Screen`, `Chapter09Screen`, `EdgeSafetyExplorer` status line).
+
+**2026-10-12 (4) — Lessons 9.13 and 9.14, learner report.** “No Metal files for 9.13 and 9.14 in Chapter09Screen, is that a miss? There is code in the HTML lessons.” Failed: both lessons were generated on 2026-09-30 on a machine without the iOS lab and Xcode, so Section 5 showed Metal that was never compiled and `Chapter09Screen` carried a placeholder; the generate contract (HTML + iOS explorer + progress files) was only two-thirds met. → AGENTS.md scope rule (a lesson that shows Metal or Swift ships those files, built, in the same session). Fix: `ChromaticSeparation.metal` + `ChromaticSeparationExplorer.swift`, `LensCheckpoint.metal` + `LensCheckpointExplorer.swift`, shared `TraceLines.swift`, wired in `Chapter09Screen`; Section 5 of both lessons now says “the real Metal function(s) from the LiquidGlassLab app”. Built for the iOS Simulator (Xcode 26.6, iPhone 17 Pro, the same 402-pt width as the iPhone 16 Pro) and checked on screen; 45,354 generated trace lines over 1,077 slider/time states calculator-exact (Python Decimal). Lesson status unchanged: 9.12–9.14 generated, not complete.
 
 **2026-10-12 (3) — Lesson 9.13 Section 4, step 7 “numbers as pictures”, learner report (very angry).** “Parts 4 and 5 explained as if you're talking to yourself; 5's diagram is very poor, no context; 4 randomly calculates 1.679 and doesn't say why it differs from 1.59; 0.00003 with no explanation; no explanation whether left/right/above/below are read points or output pixels; part 4 just two lines forming an isosceles triangle, nothing tells where the lines come from; more and more text, cheap on visuals.” Failed: pictures without context (schematic two-line wedge, two bare rulers), captions of 3–5 sentences of mechanism, an unexplained derived number (e ÷ ρ = 1.679 next to the up–down 1.59), and the neighbours never shown as output pixels. → rule 6 (each picture shows where every point comes from: the output pixels and the line from each to its read point; a real, to-scale scene with many lines beats a symmetric schematic; at most two sentences beside it; no derived number without its direction). Fix: 5 parts. 1 and 2: OUTPUT (the test pixel and the 4 pixels touching it, 3 × 3) and WALLPAPER (7 × 7 enlarged), a gray line from each output pixel to its read point; part 1's table explains the 0.000025 gap as half the difference of two steps (0.00317 − 0.00312); part 2: “1 pixel” bars in the output against 0.62 and 1.59 on the wallpaper. 3: the test pixel's row to scale, every 10th pixel, a violet line from C through each and a pink push to its read point (pixels 10 apart → read points 6.02 apart; ρ ÷ e = 0.595). 4: the test pixel's column to scale, every 6th pixel, the pushes side by side getting shorter (0.09402 … 0.06668), read points 9.18 pixels apart for 6. 5: the chart, two sentences. Legends under the to-scale pictures; tables of numbers only. 105 states, no errors, 4190 lines calculator-exact. No iOS code changed.
 
@@ -305,8 +308,8 @@ One graphics idea: a lens needs two separate answers per pixel, and the mask giv
 
 Earlier 9.10 / 9.11 feedback rounds (2026-09-19 to 2026-09-29) are in git history before this date; their lasting rules are already in `AGENTS.md`.
 
-## Unresolved checkpoint — Lesson 9.12
+## Unresolved checkpoint — Lesson 9.13
 
-Lesson 9.12 is generated and is not complete. Do not mark it complete until the learner confirms it.
+Lesson 9.13 is generated and is not complete. Do not mark it complete until the learner confirms it.
 
-Course progress: 97 of 216 lessons completed.
+Course progress: 98 of 216 lessons completed.

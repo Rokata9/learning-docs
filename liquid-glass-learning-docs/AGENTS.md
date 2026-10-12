@@ -6,7 +6,7 @@ The rulebook for the interactive learning documents. Keep this file short. Merge
 
 - Course home: `liquid-glass-course.html`. Chapter hub: `lesson-[chapter-name].html`. Sub-lesson: `lesson-[chapter-number]-[lesson-number]-[lesson-name].html`.
 - Every lesson is one standalone HTML file that works from `file://`: inline CSS, JavaScript, SVG. No external libraries or CDNs.
-- iOS source lives in the sibling repo `/Users/rosen/Code/LiquidGlassLab-iOS`. Never create `ios/` or `android/` here. When a revision changes iOS code, state the exact Swift target path; when it changes none, say so.
+- iOS source lives in the sibling repo `/Users/rosen/Code/LiquidGlassLab-iOS`. Never create `ios/` or `android/` here. When a revision changes iOS code, state the exact Swift target path; when it changes none, say so. A lesson whose excerpt shows Metal or Swift ships those files, wired into the chapter screen and built, in the same session; without the lab or Xcode, tell the learner before generating instead of shipping an uncompiled excerpt.
 - No ZIP archives unless the learner asks. Edit the two repos in place.
 - Desktop only: verify at `1920×1080` or larger. Light theme only for lessons.
 - Lesson status changes only on explicit learner confirmation. `CURRENT_STATE.md` is the authoritative progress source.

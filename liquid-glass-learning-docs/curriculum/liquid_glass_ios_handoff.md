@@ -19,16 +19,15 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 97
+learner_confirmed_complete: 98
 completed_chapters: [1, 2, 3, 4, 5, 6, 7, 8]
-chapter_9_complete: "11 of 14 (9.1–9.11)"
-next_unresolved_checkpoint: "Lesson 9.12 — Edge safety"
+chapter_9_complete: "12 of 14 (9.1–9.12)"
+next_unresolved_checkpoint: "Lesson 9.13 — Gentle chromatic separation"
 generated_frontier: "Lesson 9.14 — Lens checkpoint"
-also_generated_not_complete: "Lesson 9.13 — Gentle chromatic separation"
 next_planned_after_frontier: "Lesson 10.1 — Height-map idea"
 ```
 
-Chapters 1–8 and Lessons 9.1–9.11 are learner-confirmed complete. Lessons 9.12, 9.13, and 9.14 are generated and are not complete. Do not mark them complete unless the learner confirms them.
+Chapters 1–8 and Lessons 9.1–9.12 are learner-confirmed complete. Lessons 9.13 and 9.14 are generated and are not complete. Do not mark them complete unless the learner confirms them.
 
 Chapter 7 frost stays fixed: blur `18` pt / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
@@ -191,7 +190,7 @@ sd = length(p) − radius
 
 Teaching W = `(0.65, 0.30)`: `p = (0.15, −0.20)`, `d = 0.25`, `sd = 0`, falloff = 0.50, `disp = (0.03, −0.04)`, `readUv = (0.62, 0.34)`. Falloff is a length scale, not a color mix. The line x = 0.90 stays straight. iOS: `RefractionSamplingExplorer.swift` + `RefractionSampling.metal`. Learner-confirmed 2026-09-30. The lesson and its Q&A page were rolled back to commit `d6ca607` at the learner's request (the later proof rounds went beyond the lesson's one concept).
 
-## Generated — Lesson 9.12
+## Completed — Lesson 9.12 (learner-confirmed 2026-10-12)
 
 ```text
 p = uv − center
@@ -212,7 +211,7 @@ readBlue  = clamp(uv − disp × (1 + spread), 0, 1)     (new: longer push)
 color     = half4(colRed.r, colGreen.g, colBlue.b, 1.0)
 ```
 
-Black-and-white checker so any color comes from the read points. C = `(0.40, 0.54)`, spread 0.10. W = `(0.40, 0.405)` stores `(1, 0, 0)`. Fringe needs a push and an edge; it ends 0.35 from C. iOS files planned, not yet written: `ChromaticSeparationExplorer.swift` + `ChromaticSeparation.metal` (`chromaticRefract`). Not complete.
+Black-and-white checker so any color comes from the read points. C = `(0.40, 0.54)`, spread 0.10. W = `(0.40, 0.405)` stores `(1, 0, 0)`. Fringe needs a push and an edge; it ends 0.35 from C. iOS files: `ChromaticSeparationExplorer.swift` + `ChromaticSeparation.metal` (`chromaticRefract`), built 2026-10-12. Not complete.
 
 
 **2026-10-01 revision (learner report on Section 1 steps 5–6):** steps 5 and 6 now pair the output (left) with the wallpaper of the same part (right), one chosen pixel at a time, with the push 0.10 printed, read-point labels, and red/green/blue channel arrows from each read point back to the pixel. Step 6 uses Q₁…Q₄ just below C (push passes C). Rule 8 extended. The lab zoom fits all its points (rule 10).
@@ -230,7 +229,7 @@ color = mix(plain, bent, mask)                    (new)
 wall(x, y, time) = checker(x + speed × time, y)   (moving test pattern, speed = 0.10, moves left)
 ```
 
-Answers the Chapter 9 checkpoint. C = `(0.40, 0.54)`. W = `(0.40, 0.24)` at time = 2 s: sd = 0.05 → mask 0; read points y = 0.2544 / 0.256 / 0.2576 → bent black; plain white → stores white. Falloff as the mask gives a 0.20-wide ghost ring; a hard if gives stair steps. iOS files planned, not yet written: `LensCheckpointExplorer.swift` + `LensCheckpoint.metal` (`glassLens`, `movingChecker`). Not complete. Next: Chapter 10, Lesson 10.1 — height-map idea — do not generate unless asked.
+Answers the Chapter 9 checkpoint. C = `(0.40, 0.54)`. W = `(0.40, 0.24)` at time = 2 s: sd = 0.05 → mask 0; read points y = 0.2544 / 0.256 / 0.2576 → bent black; plain white → stores white. Falloff as the mask gives a 0.20-wide ghost ring; a hard if gives stair steps. iOS files: `LensCheckpointExplorer.swift` + `LensCheckpoint.metal` (`glassLens`, `movingChecker`), built 2026-10-12. Not complete. Next: Chapter 10, Lesson 10.1 — height-map idea — do not generate unless asked.
 
 ## Future conversation
 
@@ -238,4 +237,4 @@ Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions.
 
 Standing delivery: no ZIP archives; new `#Preview` stacks light then dark. Details in `USER_PREFERENCES.md`.
 
-Course progress: 97 of 216 lessons completed.
+Course progress: 98 of 216 lessons completed.

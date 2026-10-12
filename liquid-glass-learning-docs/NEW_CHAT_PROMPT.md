@@ -44,8 +44,8 @@ Do not generate `.zip` files unless I ask for one.
 
 Keep these three fields separate. Read them from `CURRENT_STATE.md`. Do not invent a fourth merged status.
 
-- **Learner-confirmed complete** — count and last completed lesson. Increases only after my explicit confirmation. Read the live count from section 12 and from `CURRENT_STATE.md`. It is **97 of 216** (Chapters 1–8 and Lessons 9.1–9.11).
-- **Unresolved checkpoint** — the unfinished lesson I am still on. Generating or revising it does not complete it. Live checkpoint is **Lesson 9.12**.
+- **Learner-confirmed complete** — count and last completed lesson. Increases only after my explicit confirmation. Read the live count from section 12 and from `CURRENT_STATE.md`. It is **98 of 216** (Chapters 1–8 and Lessons 9.1–9.12).
+- **Unresolved checkpoint** — the unfinished lesson I am still on. Generating or revising it does not complete it. Live checkpoint is **Lesson 9.13**.
 - **Generated frontier** — the latest lesson that exists as files. It may sit on the checkpoint, or ahead of it.
 
 Total course size is **216** lessons. Do not increase the completed count because a lesson was generated, revised, or reviewed.
@@ -157,25 +157,24 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-10-02 with `CURRENT_STATE.md` (course version 9.14.0).
+**Last aligned:** 2026-10-12 with `CURRENT_STATE.md` (course version 9.14.0).
 
 ```text
 platform: Swift / SwiftUI / Metal (.metal + ShaderLibrary)
 test device: iPhone 16 Pro
 min OS: iOS 17
 
-completed: 97 of 216
-  (Chapters 1–8 and Lessons 9.1–9.11)
+completed: 98 of 216
+  (Chapters 1–8 and Lessons 9.1–9.12)
 
-current unresolved checkpoint: Lesson 9.12 — Edge safety
+current unresolved checkpoint: Lesson 9.13 — Gentle chromatic separation
   (generated, not complete)
 
 generated frontier: Lesson 9.14 — Lens checkpoint (not complete)
-  (Lesson 9.13 — Gentle chromatic separation is also generated and not complete)
 next planned lesson after the frontier: Lesson 10.1 — Height-map idea
 ```
 
-Do not mark Lessons 9.12, 9.13, or 9.14 complete unless I confirm them.
+Do not mark Lessons 9.13 or 9.14 complete unless I confirm them.
 
 Chapter 7 frost constants stay fixed: blur `18` pt / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
@@ -270,7 +269,7 @@ sd = length(p) − radius
 
 Default radius 0.25, band 0.10, dispLen 0.10. Teaching W = `(0.65, 0.30)`: `p = (0.15, −0.20)`, `d = 0.25`, `sd = 0`, falloff 0.50, `dir = (0.60, −0.80)`, `disp = (0.03, −0.04)`, `readUv = (0.62, 0.34)`, stores navy. Falloff is a length scale, not a color mix. The line x = 0.90 never moves. Q&A companion: `lesson-09-11-qa.html`.
 
-**9.12 generated contract** (not complete):
+**9.12 completed contract:**
 
 ```text
 p = uv − center → the Lesson 9.11 chain → readUv = uv − disp
@@ -288,7 +287,7 @@ readBlue  = clamp(uv − disp × (1 + spread), 0, 1)
 color     = half4(colRed.r, colGreen.g, colBlue.b, 1.0)
 ```
 
-Black-and-white checker. C = `(0.40, 0.54)`, spread 0.10. W = `(0.40, 0.405)`: push 0.10 straight down; read y 0.495 / 0.505 / 0.515 → white / black / black → stores `(1, 0, 0)`. Strips yellow 0.39–0.40 and red 0.40–0.41 on x = 0.40; none outside 0.35 from C. iOS explorer files are planned, not yet written (see `CURRENT_STATE.md`).
+Black-and-white checker. C = `(0.40, 0.54)`, spread 0.10. W = `(0.40, 0.405)`: push 0.10 straight down; read y 0.495 / 0.505 / 0.515 → white / black / black → stores `(1, 0, 0)`. Strips yellow 0.39–0.40 and red 0.40–0.41 on x = 0.40; none outside 0.35 from C. iOS: `chapter09/ChromaticSeparation.metal` (`chromaticRefract`) + `chapter09/ChromaticSeparationExplorer.swift`.
 
 **9.14 generated contract** (not complete):
 
@@ -300,7 +299,7 @@ answer 1, is it glass?    mask  = 1 − smoothstep(−maskBand, maskBand, sd)   
 moving test pattern:      wall(x, y, time) = checker(x + 0.10 × time, y)
 ```
 
-C = `(0.40, 0.54)`. W = `(0.40, 0.24)` at time = 2 s: sd = 0.05 → mask 0, bent black, plain white → stores white. Answers the Chapter 9 checkpoint (two answers, two widths from one sd, neither uses the other or the time). iOS explorer files are planned, not yet written (see `CURRENT_STATE.md`).
+C = `(0.40, 0.54)`. W = `(0.40, 0.24)` at time = 2 s: sd = 0.05 → mask 0, bent black, plain white → stores white. Answers the Chapter 9 checkpoint (two answers, two widths from one sd, neither uses the other or the time). iOS: `chapter09/LensCheckpoint.metal` (`movingChecker`, `glassLens`) + `chapter09/LensCheckpointExplorer.swift`.
 
 Current files:
 
@@ -342,7 +341,10 @@ RefractionSamplingExplorer.swift
 RefractionSampling.metal
 EdgeSafetyExplorer.swift
 EdgeSafety.metal
+ChromaticSeparationExplorer.swift
+ChromaticSeparation.metal
+LensCheckpointExplorer.swift
+LensCheckpoint.metal
+TraceLines.swift          (9.13 and 9.14 trace cards: one operation per line)
 Chapter09Screen.swift
-(planned for 9.13: ChromaticSeparationExplorer.swift, ChromaticSeparation.metal)
-(planned for 9.14: LensCheckpointExplorer.swift, LensCheckpoint.metal)
 ```
