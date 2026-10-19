@@ -19,15 +19,15 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 98
-completed_chapters: [1, 2, 3, 4, 5, 6, 7, 8]
-chapter_9_complete: "12 of 14 (9.1–9.12)"
-next_unresolved_checkpoint: "Lesson 9.13 — Gentle chromatic separation"
-generated_frontier: "Lesson 9.14 — Lens checkpoint"
-next_planned_after_frontier: "Lesson 10.1 — Height-map idea"
+learner_confirmed_complete: 100
+completed_chapters: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+chapter_10_complete: "0 of 13"
+next_unresolved_checkpoint: "Lesson 10.1 — Height-map idea"
+generated_frontier: "Lesson 10.1 — Height-map idea"
+next_planned_after_frontier: "Lesson 10.2 — Slope"
 ```
 
-Chapters 1–8 and Lessons 9.1–9.12 are learner-confirmed complete. Lessons 9.13 and 9.14 are generated and are not complete. Do not mark them complete unless the learner confirms them.
+Chapters 1–9 are learner-confirmed complete. Lesson 10.1 is generated and is not complete. Do not mark it complete unless the learner confirms it.
 
 Chapter 7 frost stays fixed: blur `18` pt / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
@@ -229,7 +229,18 @@ color = mix(plain, bent, mask)                    (new)
 wall(x, y, time) = checker(x + speed × time, y)   (moving test pattern, speed = 0.10, moves left)
 ```
 
-Answers the Chapter 9 checkpoint. C = `(0.40, 0.54)`. W = `(0.40, 0.24)` at time = 2 s: sd = 0.05 → mask 0; read points y = 0.2544 / 0.256 / 0.2576 → bent black; plain white → stores white. Falloff as the mask gives a 0.20-wide ghost ring; a hard if gives stair steps. iOS files: `LensCheckpointExplorer.swift` + `LensCheckpoint.metal` (`glassLens`, `movingChecker`), built 2026-10-12. Exercises (rebuilt 2026-10-19 → AGENTS.md rule 18): each opens with its picture, one question and choice buttons; answers: 1 no push → the checkerboard as with no glass, 2 capsule mask → neither T = (0.78, 0.54) nor M = (0.40, 0.33) differs from the wallpaper, 3 black strip → the read-point lines (clamps). Not complete. Next: Chapter 10, Lesson 10.1 — height-map idea — do not generate unless asked.
+Answers the Chapter 9 checkpoint. C = `(0.40, 0.54)`. W = `(0.40, 0.24)` at time = 2 s: sd = 0.05 → mask 0; read points y = 0.2544 / 0.256 / 0.2576 → bent black; plain white → stores white. Falloff as the mask gives a 0.20-wide ghost ring; a hard if gives stair steps. iOS files: `LensCheckpointExplorer.swift` + `LensCheckpoint.metal` (`glassLens`, `movingChecker`), built 2026-10-12. Exercises (rebuilt 2026-10-19 → AGENTS.md rule 18): each opens with its picture, one question and choice buttons; answers: 1 no push → the checkerboard as with no glass, 2 capsule mask → neither T = (0.78, 0.54) nor M = (0.40, 0.33) differs from the wallpaper, 3 black strip → the read-point lines (clamps). Exercise 2 states what it checks and what to do (2026-10-19 → rules 17, 18). Learner-confirmed complete on 2026-10-19.
+
+### Lesson 10.1 — Height-map idea (generated, not complete)
+
+```text
+inside = clamp(−sd, 0, bevel)
+leg    = bevel − inside
+h      = √(bevel² − leg²)        (the rim is a quarter circle: center K, bevel inside the outline, radius bevel)
+gray   = h ÷ bevel
+```
+
+C = `(0.50, 0.50)`, radius 0.25, bevel 0.10. W = `(0.71, 0.50)`: sd = −0.04, inside 0.04, leg 0.06, h = 0.08, gray 0.80. The height uses only sd (any shape). iOS files: `chapter10/HeightMap.metal` + `HeightMapExplorer.swift`; Metal exercise (new in AGENTS.md rule 18, 2026-10-19): `chapter10/HeightExercise.metal` (learner writes `roundedRectSd` and `surfaceHeight`), `HeightExerciseKey.metal`, `ExerciseCheck.metal` (`markDifference`, reusable), `HeightExerciseView.swift`, on `Chapter10Screen`. Built 2026-10-19. Next: Lesson 10.2 — Slope — do not generate unless asked.
 
 ## Future conversation
 
@@ -237,4 +248,4 @@ Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions.
 
 Standing delivery: no ZIP archives; new `#Preview` stacks light then dark. Details in `USER_PREFERENCES.md`.
 
-Course progress: 98 of 216 lessons completed.
+Course progress: 100 of 216 lessons completed.

@@ -8,14 +8,14 @@ This is a durable starter. Progress numbers, file lists, and the live checkpoint
 
 Every new chat is one of two jobs:
 
-1. **Generate** a named lesson (HTML + iOS explorer + progress files). If I say “the next lesson,” that means the next planned lesson after the generated frontier in `CURRENT_STATE.md`.
+1. **Generate** a named lesson (HTML + iOS explorer + the lesson's Metal exercise with its prepared calling code + progress files). If I say “the next lesson,” that means the next planned lesson after the generated frontier in `CURRENT_STATE.md`.
 2. **Questions** about a named unfinished lesson — usually the current unresolved checkpoint, sometimes a generated-ahead lesson that is not learner-confirmed complete.
 
 If this same first message already names the job, start that work after the read. Do not stop and wait.
 
 If the first message is only this prompt, restate course state from `CURRENT_STATE.md` and wait.
 
-Do not generate a later lesson than the one I named. Do not mark any lesson complete unless I explicitly confirm it. Do not generate Lesson 10.1 unless asked.
+Do not generate a later lesson than the one I named. Do not mark any lesson complete unless I explicitly confirm it. Do not generate Lesson 10.2 unless asked.
 
 ## 1. Where the files live
 
@@ -44,8 +44,8 @@ Do not generate `.zip` files unless I ask for one.
 
 Keep these three fields separate. Read them from `CURRENT_STATE.md`. Do not invent a fourth merged status.
 
-- **Learner-confirmed complete** — count and last completed lesson. Increases only after my explicit confirmation. Read the live count from section 12 and from `CURRENT_STATE.md`. It is **98 of 216** (Chapters 1–8 and Lessons 9.1–9.12).
-- **Unresolved checkpoint** — the unfinished lesson I am still on. Generating or revising it does not complete it. Live checkpoint is **Lesson 9.13**.
+- **Learner-confirmed complete** — count and last completed lesson. Increases only after my explicit confirmation. Read the live count from section 12 and from `CURRENT_STATE.md`. It is **100 of 216** (Chapters 1–9).
+- **Unresolved checkpoint** — the unfinished lesson I am still on. Generating or revising it does not complete it. Live checkpoint is **Lesson 10.1**.
 - **Generated frontier** — the latest lesson that exists as files. It may sit on the checkpoint, or ahead of it.
 
 Total course size is **216** lessons. Do not increase the completed count because a lesson was generated, revised, or reviewed.
@@ -157,24 +157,24 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-10-12 with `CURRENT_STATE.md` (course version 9.14.0).
+**Last aligned:** 2026-10-19 with `CURRENT_STATE.md` (course version 10.1.0).
 
 ```text
 platform: Swift / SwiftUI / Metal (.metal + ShaderLibrary)
 test device: iPhone 16 Pro
 min OS: iOS 17
 
-completed: 98 of 216
-  (Chapters 1–8 and Lessons 9.1–9.12)
+completed: 100 of 216
+  (Chapters 1–9)
 
-current unresolved checkpoint: Lesson 9.13 — Gentle chromatic separation
-  (generated, not complete)
+current unresolved checkpoint: Lesson 10.1 — Height-map idea
+  (generated, not complete; also the generated frontier)
 
-generated frontier: Lesson 9.14 — Lens checkpoint (not complete)
-next planned lesson after the frontier: Lesson 10.1 — Height-map idea
+generated frontier: Lesson 10.1 — Height-map idea (not complete)
+next planned lesson after the frontier: Lesson 10.2 — Slope
 ```
 
-Do not mark Lessons 9.13 or 9.14 complete unless I confirm them.
+Do not mark Lesson 10.1 complete unless I confirm it.
 
 Chapter 7 frost constants stay fixed: blur `18` pt / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 

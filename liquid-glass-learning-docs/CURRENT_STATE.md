@@ -1,7 +1,7 @@
 # Liquid Glass iOS course — current state
 
-**Updated:** 2026-10-12  
-**Course version:** 9.14.0  
+**Updated:** 2026-10-19  
+**Course version:** 10.1.0  
 **Platform:** Swift / SwiftUI / Metal (`.metal` + `ShaderLibrary`)  
 **Test device:** iPhone 16 Pro  
 **Min OS:** iOS 17  
@@ -14,25 +14,25 @@ platform: Swift / SwiftUI / Metal (.metal + ShaderLibrary)
 test device: iPhone 16 Pro
 min OS: iOS 17
 
-learner-confirmed complete: 98 of 216
-  (Chapters 1–8 and Lessons 9.1–9.12)
+learner-confirmed complete: 100 of 216
+  (Chapters 1–9)
 
-current unresolved checkpoint: Lesson 9.13 — Gentle chromatic separation
-  (generated, not complete)
+current unresolved checkpoint: Lesson 10.1 — Height-map idea
+  (generated, not complete; also the generated frontier)
 
-generated frontier: Lesson 9.14 — Lens checkpoint (not complete)
-next planned after the frontier: Lesson 10.1 — Height-map idea
+generated frontier: Lesson 10.1 — Height-map idea (not complete)
+next planned after the frontier: Lesson 10.2 — Slope
 ```
 
-Chapters 1–8 and Lessons 9.1–9.12 count as complete. The graphics and math are the same; only the API names differ between the earlier platform and iOS.
+Chapters 1–9 count as complete. The graphics and math are the same; only the API names differ between the earlier platform and iOS.
 
 Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
-Do not generate Lesson 10.1 unless asked. Lessons 9.13 and 9.14 are generated and are not complete.
+Do not generate Lesson 10.2 unless asked. Lesson 10.1 is generated and is not complete.
 
 Reusable new-chat starter: `NEW_CHAT_PROMPT.md`. Paste it, then name generate or questions in the same message. Progress in this file wins. When the checkpoint or frontier moves, refresh section 12 of that prompt.
 
-## Complete through Lesson 9.12
+## Complete through Lesson 9.14
 
 | Chapter / lessons | Count |
 |-------------------|------:|
@@ -44,10 +44,10 @@ Reusable new-chat starter: `NEW_CHAT_PROMPT.md`. Paste it, then name generate or
 | Chapter 6 | 11 |
 | Chapter 7 | 12 |
 | Chapter 8 | 12 |
-| Lessons 9.1–9.12 | 12 |
-| **Total** | **98** |
+| Chapter 9 | 14 |
+| **Total** | **100** |
 
-Lessons 9.13 and 9.14 are generated and are not part of the 98. The checkpoint is Lesson 9.13. Skim Lessons 5.2, 5.11, and 5.12 later only if an iOS clock API is needed. Chapter 7 frost constants stay frozen.
+Lesson 10.1 is generated and is not part of the 100. The checkpoint is Lesson 10.1. Skim Lessons 5.2, 5.11, and 5.12 later only if an iOS clock API is needed. Chapter 7 frost constants stay frozen.
 
 ## Frozen frost stack (do not rebuild)
 
@@ -55,7 +55,7 @@ blur **18 pt**, tint **0.25**, saturation **0.40**, rim **3 pt**, inner band **1
 
 ## Current lesson files
 
-Live checkpoint is Lesson 9.13. Frontier HTML is Lesson 9.14. Shader host is `LabOrange.metal` + `ShaderRect` (`colorEffect`). Lesson 9.10 explorer: `chapter09/DisplacementFieldExplorer.swift` + `chapter09/DisplacementField.metal`. Lesson 9.11 explorer: `chapter09/RefractionSamplingExplorer.swift` + `chapter09/RefractionSampling.metal`. Lesson 9.12 explorer: `chapter09/EdgeSafetyExplorer.swift` + `chapter09/EdgeSafety.metal`. Lesson 9.13 explorer: `chapter09/ChromaticSeparationExplorer.swift` + `chapter09/ChromaticSeparation.metal`. Lesson 9.14 explorer: `chapter09/LensCheckpointExplorer.swift` + `chapter09/LensCheckpoint.metal`. Both trace cards share `chapter09/TraceLines.swift` (one operation per line, rule 12).
+Live checkpoint and frontier HTML: Lesson 10.1. Shader host is `LabOrange.metal` + `ShaderRect` (`colorEffect`). Lesson 9.10 explorer: `chapter09/DisplacementFieldExplorer.swift` + `chapter09/DisplacementField.metal`. Lesson 9.11 explorer: `chapter09/RefractionSamplingExplorer.swift` + `chapter09/RefractionSampling.metal`. Lesson 9.12 explorer: `chapter09/EdgeSafetyExplorer.swift` + `chapter09/EdgeSafety.metal`. Lesson 9.13 explorer: `chapter09/ChromaticSeparationExplorer.swift` + `chapter09/ChromaticSeparation.metal`. Lesson 9.14 explorer: `chapter09/LensCheckpointExplorer.swift` + `chapter09/LensCheckpoint.metal`. Both trace cards share `chapter09/TraceLines.swift` (one operation per line, rule 12). Lesson 10.1 explorer: `chapter10/HeightMapExplorer.swift` + `chapter10/HeightMap.metal` (also uses `TraceLines`). Lesson 10.1 Metal exercise: `chapter10/HeightExercise.metal` (the learner's file: `roundedRectSd` and `surfaceHeight` stubs + the prepared `buttonHeightExercise`), `chapter10/HeightExerciseKey.metal` (answer key `buttonHeightKey`, `static` helpers), `chapter10/ExerciseCheck.metal` (`markDifference`, reusable by later exercises), `chapter10/HeightExerciseView.swift`. Screen: `chapter10/Chapter10Screen.swift`, Chapter 10 chip in `LabHost`.
 
 ```text
 course/chapters/chapter-01/lesson-01-01-visible-ingredients.html
@@ -84,6 +84,8 @@ course/chapters/chapter-09/lesson-09-12-edge-safety.html
 course/chapters/chapter-09/lesson-09-13-gentle-chromatic-separation.html
 course/chapters/chapter-09/lesson-09-14-lens-checkpoint.html
 course/chapters/chapter-09/lesson-distance-fields-image-sampling-and-refraction.html
+course/chapters/chapter-10/lesson-10-01-height-map-idea.html
+course/chapters/chapter-10/lesson-light-surface-direction-and-material-thickness.html
 ```
 
 ## Completed contracts — Lessons 9.1–9.6
@@ -201,9 +203,9 @@ p = uv − center                         (the glass center is a parameter; Less
 
 One graphics idea: a read point outside the wallpaper has no color, so the pixel is see-through (the seam). One math idea: clamp a point = clamp x and y separately (Lesson 8.11 / 9.5 clamp). Glass center C = `(0.50, 1.10)`, 0.10 below the screen. Teaching W = `(0.59, 0.98)`: `p = (0.09, −0.12)`, `d = 0.15`, `sd = −0.10`, falloff 1, push 0.10, `dir = (0.60, −0.80)`, `disp = (0.06, −0.08)`, R = `(0.53, 1.06)` is outside, R′ = `(0.53, 1.00)`, stores navy (the edge y = 1.00 belongs to the last row). The seam is an arch along the bottom edge, up to y ≈ 0.91, thinner than one pixel near x ≈ 0.2 and x ≈ 0.8; about a quarter of the moved pixels. Clamp is invisible on the checkerboard and shows vertical streaks on the drawn settings-list screen (last row cut by the edge). R′ is not where the push arrow crosses the edge (E = `(0.575, 1.00)`). Pad (Lesson 7.3) needs real pixels past the edge. With the glass in the middle, clamp changes no pixel. SwiftUI's `Layer.sample` already clamps (`SwiftUI_Metal.h`: `p = metal::clamp(p, info[3], info[4]);`; what `info[3]`/`info[4]` hold is an estimate). The browser wallpaper is a function that returns transparent outside 0 … 1 on purpose. iOS: `chapter09/EdgeSafety.metal` (`edgeSafeRefract`, `checkerWithEdge`), `chapter09/EdgeSafetyExplorer.swift`, wired in `Chapter09Screen`; the iPhone 16 Pro simulator build succeeded. The photo of Lesson 9.11 is not used: its bottom row is flat water and did not show the clamp streaks. Section 4 also has the figure “What the middle shows at dispLen = 0.20” (C = `(0.50, 0.50)`, screen wallpaper): pixels 1–6 are closer than 0.15 to C, get push 0.20 and read past C: “Haptics” and “tions” turned around, and four gray loops through C (the gray lines below Bluetooth, Mobile Data, Notifications, Sounds & Haptics cross the circle 0.20 from C). Pixel 7 is 0.221 from C, gets push 0.142 and shows “Haptics” not turned around, bent along the glass edge. Worked example: pixel 2 = `(0.56, 0.50)` reads `(0.36, 0.50)`, the “n” of “Notifications”.
 
-## Generated — Lesson 9.13
+## Completed — Lesson 9.13
 
-Not complete.
+Learner-confirmed complete on 2026-10-19.
 
 **9.13 teaching contract:**
 
@@ -221,9 +223,9 @@ Pixel explorer (2026-10-06 (2); since 2026-10-09 the whole word in one step: fla
 
 **iOS files (2026-10-12).** `chapter09/ChromaticSeparation.metal` (`chromaticRefract` as in Section 5; `static blackWhiteChecker`) + `chapter09/ChromaticSeparationExplorer.swift`, wired in `Chapter09Screen`. Explorer: spread and dispLen sliders, the shader picture (C, W, glass circle, lime magnifier box), a wallpaper magnifier with W, the pink push arrow and the three read points, and the Section 3 trace one operation per line. Default trace equals Section 3 (0.495 / 0.505 / 0.515 → `(1, 0, 0)`).
 
-## Generated frontier — Lesson 9.14
+## Completed — Lesson 9.14
 
-Not complete. The last lesson of Chapter 9; it answers the chapter checkpoint.
+Learner-confirmed complete on 2026-10-19. The last lesson of Chapter 9; it answers the chapter checkpoint.
 
 **9.14 teaching contract:**
 
@@ -240,7 +242,31 @@ One graphics idea: a lens needs two separate answers per pixel, and the mask giv
 
 **iOS files (2026-10-12).** `chapter09/LensCheckpoint.metal` (`movingChecker` before `glassLens`, both as in Section 5; `mix(half4, half4, half)` compiles) + `chapter09/LensCheckpointExplorer.swift`, wired in `Chapter09Screen`. Explorer: Play/Pause (`TimelineView(.animation)`, time modulo 5 s, default 2.000 s), time, dispLen and spread sliders, the shader picture (no circle), the mask map and the read-point map (both still while time runs), and the Section 3 trace one operation per line with maskBand = 1 ÷ resolution.x (1 ÷ 1080 = 0.000926 on a 3× screen). Default trace equals Section 3 apart from maskBand (mask 0 either way).
 
+## Generated frontier — Lesson 10.1
+
+Not complete. The first lesson of Chapter 10 (Light, surface direction, and material thickness).
+
+**10.1 teaching contract:**
+
+```text
+sd     = length(p) − radius                (Lesson 9.2; any shape's sd works)
+inside = clamp(−sd, 0, bevel)              (new: how far the pixel is inside the outline, 0 … bevel)
+leg    = bevel − inside                    (new: the distance from K, the rim circle's center)
+h      = √(bevel² − leg²)                  (new: the surface height, the missing leg of the triangle K–W–H, Lesson 9.1)
+gray   = h ÷ bevel                         (new: the height map, black 0 … white 1; only for seeing)
+```
+
+One graphics idea: every pixel gets a surface height h (in UV, the same unit as positions; not the Lesson 2.4 box height; the screen stays flat). One math idea, reused: the right triangle of Lesson 9.1 solved for a leg. Shape: a flat top and a rounded rim; the rim is a quarter of the rim circle (center K, bevel inside the outline, radius bevel), so the flat top is bevel high. C = `(0.50, 0.50)`, radius 0.25, bevel 0.10 (chosen constant: less than the radius so a flat top of radius 0.15 remains; 36 pt on a 360-pt panel). Teaching W = `(0.71, 0.50)` (on the axis through C): p = (0.21, 0), d = 0.21, sd = −0.04, inside 0.04, leg 0.06, bevel² 0.01, leg² 0.0036, h² 0.0064, h = 0.08, gray 0.80 (the 9.14 mask gives W the same 1 as C). Named points on the lime cut line y = 0.50: L (0.25) and O (0.75) on the outline, K = (0.65, 0), F = (0.65, height 0.10) where the flat top starts, H = the surface above W; Q = (0.78, 0.50) outside (h = 0). Hero: the height map and a view at an angle (rows lifted by h, view-angle slider 0–75°, fit-to-canvas scale printed). Stepper 7 steps: side view, height, rim circle, inside and leg, triangle, clamp (flat top / outside), height map. Section 2 compares flat slab (the mask again: a 0.10 wall at O), straight ramp (h = inside: corners at F and O, 0.04 at W), quarter circle (this lesson). Lab: drag W (side view along the line from C through W, zooms out to fit, prints its scale), bevel slider 0.02–0.25 (0.25 = dome), view angle. Challenge: write the h line (parsed safely; diagnoses plus, ramp, leg, inside-for-leg, no root, a fixed 0.01). Exercises: 1 radius 0.35 → the rim stays 0.10 wide, only the flat top grows; 2 A = (0.73, 0.50) → gray 0.60 (leg 0.08, h 0.06; not 0.20); 3 capsule E = (0.86, 0.50) and M = (0.50, 0.34) → the same height 0.08 (the height uses only sd). Metal exercise (new part of rule 18): write `roundedRectSd` (Lesson 9.4) and `surfaceHeight` for a button 0.60 × 0.40, corner radius 0.10, bevel 0.10; test pixels T1 (0.50, 0.50) sd −0.20 h 0.10 · T2 (0.76, 0.50) −0.04 / 0.08 · T3 (0.50, 0.33) −0.03 / 0.071 · T4 (0.73, 0.64) −0.05 / 0.087 · T5 (0.85, 0.50) 0.05 / 0. The check (yours over the key with `.blendMode(.difference)`, `markDifference` red above 2/255) was verified on the iPhone 16 Pro simulator: red over the whole button with the stubs, 0 red pixels with a solution written with the nested ifs of Lesson 9.4.
+
+**iOS files (2026-10-19).** As listed under “Current lesson files”. Built for the iPhone 16 Pro simulator (Xcode 26.6): succeeded; the explorer and the exercise were checked on screen.
+
 ## Learner feedback log (latest first)
+
+**2026-10-19 (6) — learner request: a Metal exercise in every lesson.** “Also in the end add a coding exercise for the material that needs me to write at least one meaningful function in Metal (not just a few lines), the calling code should be prepared — make this as a rule for each lesson from now on.” → AGENTS.md rule 18 (the scaffold gains a Metal exercise before the record: at least one meaningful Metal function in a lab file whose stubs compile; a prepared caller, an answer key with `static` helpers, a check view with `.blendMode(.difference)` + `markDifference`; the page shows the goal picture, the signatures, test pixels with targets, the prepared code and a hidden answer); `NEW_CHAT_PROMPT.md` section 1 names it as part of “generate”; recorded in the auto-memory. Applied first in Lesson 10.1 (Section 8; the record became Section 9).
+
+**2026-10-19 (5) — progress and Lesson 10.1 generated.** The learner confirmed Lessons 9.13 and 9.14 complete (#99 and #100) and asked for the next lesson. Learner-confirmed complete is now **100 of 216** (Chapters 1–9); the checkpoint and the frontier move to Lesson 10.1. Updated: this file, `NEW_CHAT_PROMPT.md` (sections 3 and 12), both curriculum files, the course home (count, meter 100 ÷ 216 = 46.296296%, checkpoint, a Chapter 10 card), the Chapter 9 hub (all fourteen complete, record, footer to Chapter 10), the progress stamps on every lesson page (98 → 100, checkpoint Lesson 10.1), the 9.12–9.14 records (`completed_by_learner: true`), the 9.14 footer link to 10.1, the formula cheat sheet (new category 12 “Light and surface”, footer), the glossary (Surface height, Bevel and rim circle, Height map), and the iOS screens (`Chapter08Screen`, `Chapter09Screen`, the 9.13 and 9.14 explorer status lines, `LabHost` with Chapter 10). New: `course/chapters/chapter-10/` (Lesson 10.1 and the Chapter 10 hub) and `chapter10/` in the lab. QA at 1920×1080: no script errors or horizontal overflow on the new and changed pages; JS syntax OK; no backticks in visible HTML; every stepper state, the three rim shapes, the lab, the challenge (14 inputs: the right answer, plus, ramp, leg, inside-for-leg, no root, √(bevel − leg), a fixed 0.01, a negative root, parse errors), all exercises and the Metal exercise opened; 28,794 calculation lines calculator-exact (Python Decimal; the generated lab traces over 21 × 21 W positions × 5 bevels and every static readout); 51 clickable points; every ⓘ has its text.
+
+**2026-10-19 (4) — Lesson 9.14 Exercise 2, learner question.** “It seems only points inside both the capsule and the ring will be taken into account, but what's the idea behind this question? What does it teach? There's a mention of Lesson 10.3, but I'm 3 lessons away from it. What am I supposed to do here?” The learner had the right answer but not its purpose. Failed: the legend already gave T's and M's facts (inside the capsule or not, inside the orange ring or not), and the stem never said what to do with them (put them into `mix(plain, bent, mask)`) or which idea of the lesson the exercise checks (two separate answers per pixel, so a new shape changes both lines); the purpose appeared only in the answer's last sentence, next to “Chapter 10 builds a push direction for any shape (Lesson 10.3, the surface normal)”, which read as a missing prerequisite. → AGENTS.md rule 18 (each exercise says which idea it checks and why, and what the learner does to answer) and rule 17 (a pointer to a later lesson says that this lesson does not need it). Fix: the stem gained “What this checks.” (the mask line: is the pixel glass; the read-point lines: does it have a push; a new shape is a change to these lines) and “What you do.” (two facts per pixel off the picture, then `mix`, with plain and bent defined and the mix ⓘ). The answer's right picture gained the plate “here: glass and a push” inside both outlines; the left plate and caption now say the checkerboard bends only in the middle of the capsule (was “outline only in the middle”). The answer ends with “What to remember:” change both the mask and the push; this lesson does not build a capsule push and this exercise does not need one; Lesson 10.3 builds a push for any shape. No new numbers. No iOS change (the explorer has no exercises). Lesson status unchanged.
 
 **2026-10-19 (3) — formula cheat sheet, learner request.** “Add the distance field explorer diagram for the Capsule case: the 4 cases where you'd use a different way to calculate sd (those were 4 ifs in Metal).” The four ifs are in `RoundedRectSdf.metal` (Lesson 9.4: corner, side, top / bottom, inside the inner box); `CapsuleSdf.metal` has no if, its one `clamp` makes three cases (left end, middle, right end). Added to the cheat sheet's “Diagram · distance field explorer” a fourth view, “Which formula: the cases”, shown only for the rounded rectangle and the capsule (hidden for the circle and the 9.6 combinations; switching to them returns to Hard if). It tints every pixel by its case (stronger inside the shape, paler outside), puts numbered tags on the regions, draws the inner box or inner segment in white, N (the nearest point of the inner box or segment) and the white line from N to W, and shows the Metal lines with each case tinted like its region and W's branch marked “← W” (for the capsule, the clamp written out as three ifs). The readout gains a “case” row (q.x and q.y compared with 0, or p.x with ±innerHalfW). Also: the 9.14 card “What each lens answer cannot do” now uses T = (0.78, 0.54). QA at 1920×1080: 41 W positions over 7 radii, all cases and borders (q = 0 goes to case 4, as in Metal), no script errors, no horizontal overflow. No iOS change.
 
@@ -320,8 +346,8 @@ One graphics idea: a lens needs two separate answers per pixel, and the mask giv
 
 Earlier 9.10 / 9.11 feedback rounds (2026-09-19 to 2026-09-29) are in git history before this date; their lasting rules are already in `AGENTS.md`.
 
-## Unresolved checkpoint — Lesson 9.13
+## Unresolved checkpoint — Lesson 10.1
 
-Lesson 9.13 is generated and is not complete. Do not mark it complete until the learner confirms it.
+Lesson 10.1 is generated and is not complete. Do not mark it complete until the learner confirms it.
 
-Course progress: 98 of 216 lessons completed.
+Course progress: 100 of 216 lessons completed.

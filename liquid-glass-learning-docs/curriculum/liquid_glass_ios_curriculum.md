@@ -1,7 +1,7 @@
 # Liquid Glass on iOS — Beginner-to-Expert Curriculum
 
-**Version:** 9.14.0  
-**Updated:** 2026-09-30  
+**Version:** 10.1.0  
+**Updated:** 2026-10-19  
 **Primary platform:** Swift + SwiftUI  
 **Minimum learning target:** iOS 17  
 **Physical test device:** iPhone 16 Pro  
@@ -11,11 +11,10 @@ Live progress, current files, and the checkpoint/frontier contracts live in `CUR
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **98 of 216** (Chapters 1–8 and Lessons 9.1–9.12).
-- Unresolved checkpoint: **Lesson 9.13 — Gentle chromatic separation** (generated, not complete).
-- Generated frontier: **Lesson 9.14 — Lens checkpoint** (not complete).
-- Next planned after the frontier: **Lesson 10.1 — Height-map idea**.
-- Do not mark Lessons 9.13 or 9.14 complete unless the learner confirms them.
+- Learner-confirmed complete: **100 of 216** (Chapters 1–9).
+- Unresolved checkpoint: **Lesson 10.1 — Height-map idea** (generated, not complete; also the generated frontier).
+- Next planned after the frontier: **Lesson 10.2 — Slope**.
+- Do not mark Lesson 10.1 complete unless the learner confirms it.
 
 ## 2. How this file relates to the rule sources
 
@@ -199,8 +198,8 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 10. **9.10 — Build a displacement field.** Produce a vector that says where to sample instead. **Complete.**
 11. **9.11 — Refraction as displaced sampling.** Bend straight background lines near the glass boundary. **Complete.**
 12. **9.12 — Edge safety.** Clamp, pad, or extend samples to prevent transparent seams. **Complete.**
-13. **9.13 — Gentle chromatic separation.** Sample red, green, and blue at slightly different positions. **Generated. Not complete.**
-14. **9.14 — Lens checkpoint.** Build a rounded lens over a moving test pattern. **Generated. Not complete.**
+13. **9.13 — Gentle chromatic separation.** Sample red, green, and blue at slightly different positions. **Complete.**
+14. **9.14 — Lens checkpoint.** Build a rounded lens over a moving test pattern. **Complete.**
 
 **Checkpoint:** Explain why the geometry mask and the background sample coordinates are separate problems.
 
@@ -210,7 +209,7 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 
 **Purpose:** Make the edge respond like a shaped surface rather than a flat white border.
 
-1. **10.1 — Height-map idea.** Treat the glass as if its center and edge have different heights.
+1. **10.1 — Height-map idea.** Treat the glass as if its center and edge have different heights. **Generated. Not complete.**
 2. **10.2 — Slope.** Measure how that height changes from one pixel to the next.
 3. **10.3 — Surface normal.** Convert slope into a direction that points away from the surface.
 4. **10.4 — Dot product.** Measure how similarly two directions point, using a simple geometric explanation.
