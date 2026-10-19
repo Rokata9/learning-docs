@@ -395,8 +395,34 @@ half4 movingChecker(float2 uv, float time, float speed) {
   <code>d</code>. The mask needs <code>sd</code> for every pixel, also the pixel at C, where the push is skipped.</li>
   <li><code>half(mask)</code> turns the float into a half, the same number type as the colors (Lesson 8.7), so
   <code>mix</code> gets three values of one kind.</li>
-  <li><code>col</code> has no <code>min(…, 3.0)</code>: the checkerboard goes on to the right forever and moves in from
-  there. <code>fmod(col + row, 2.0)</code> is the remainder after dividing by 2: 0 for even, 1 for odd.</li>
+  <li>Both lines use <code>floor</code>, which rounds down. Row 0 is y from 0 to 0.25: y × 4 runs from 0 to just under
+  1, and <code>floor</code> makes that 0. So the rows are numbered 0, 1, 2, 3, not 1 to 4. Only <code>row</code> has
+  <code>min(…, 3.0)</code> (the smaller of the two numbers), because y stops at the bottom edge, y = 1.00, and that
+  edge gives row 4, a row that does not exist. The edge is read often: the clamp puts every read point below the
+  screen exactly on y = 1.00 (Lesson 9.12, and Exercise 3 below). Example: the read point (0.40, 1.00) at
+  time = 2 s, with speed = 0.10<button class="info" data-tip="speed">ⓘ</button>.
+  <div class="readout">shift = speed × time = 0.10 × 2 = 0.20
+x + shift = 0.40 + 0.20 = 0.60
+col: 0.60 × 4 = 2.40 → floor → 2
+row: 1.00 × 4 = 4.00 → floor → 4
+without min: col + row = 2 + 4 = 6 → even → white (wrong)
+with min:    min(4, 3) = 3 → col + row = 2 + 3 = 5 → odd → black, the color of row 3 in column 2</div>
+  Row 4 is one more than row 3, so col + row is one more too: even becomes odd, and odd becomes even. So without
+  <code>min</code>, every read point on the edge would get the opposite color of the bottom row.</li>
+  <li><code>col</code> has no <code>min(…, 3.0)</code>, because <code>col</code> uses x + shift, and the shift grows
+  with time. So x + shift goes past 1.00, and <code>col</code> goes past 3. Example: the pixel (0.90, 0.10) at
+  time = 2 s.
+  <div class="readout">shift = speed × time = 0.10 × 2 = 0.20
+x + shift = 0.90 + 0.20 = 1.10
+col: 1.10 × 4 = 4.40 → floor → 4
+row: 0.10 × 4 = 0.40 → floor → 0
+col + row = 4 + 0 = 4 → even → white
+with min on col: min(4, 3) = 3 → col + row = 3 + 0 = 3 → odd → black (wrong)</div>
+  Column 4 is real: it is the next column of the checkerboard, sliding in from the right. At time = 2 s it covers x
+  from 0.80 to 1.00: it starts where <span style="white-space:nowrap">(x + shift) × 4 = 4</span>, that is x + shift = 1.00, so x = 1.00 − 0.20 = 0.80. With
+  <code>min</code> on
+  <code>col</code>, every pixel to the right of column 3 would copy column 3, so no new square would come in.</li>
+  <li><code>fmod(col + row, 2.0)</code> is the remainder after dividing by 2: 0 for even, 1 for odd.</li>
   <li>In a Metal file a function must be declared before a function that calls it. In the real file,
   <code>movingChecker</code> comes first.</li>
 </ul>
