@@ -1046,7 +1046,7 @@ red:     <span class="eq">0.10 × 0.40 = 0.04</span>     <span class="eq">0.528 
   <div class="ctrls" id="sdViews"></div>
   <div class="ctrls"><label>radius <input type="range" id="sdR" min="0.05" max="0.35" step="0.01" value="0.25"><output id="sdRO"></output></label><label>band <input type="range" id="sdB" min="0.01" max="0.2" step="0.01" value="0.10"><output id="sdBO"></output></label></div>
   <div class="row"><canvas id="sdCv" width="380" height="380"></canvas>
-  <div class="col" style="flex:1;min-width:440px"><div class="leg" id="sdLeg"></div><div class="readout" id="sdOut"></div></div></div>
+  <div class="col" style="flex:1;min-width:440px"><div class="leg" id="sdLeg"></div><div class="f" id="sdCode" hidden></div><div class="readout" id="sdOut"></div></div></div>
   </div>
 </article>
 
@@ -1294,11 +1294,11 @@ red:     <span class="eq">0.10 × 0.40 = 0.04</span>     <span class="eq">0.528 
 <span class="eq">0.10 − 0.25 = −0.15</span>     <span class="eq">−0.15 + 0.002 = −0.148</span>     <span class="eq">−0.148 ÷ 0.004 = −37</span> → limited to 0 → <span class="eq">mask 1 − 0 = 1</span>
 <span class="eq">push: 0 × falloff = 0</span> → every read point is I itself → <span class="eq">bent = plain</span>
 → I is glass, but the lens is <span class="r">invisible</span></td></tr>
-  <tr><th>capsule mask</th><td><span class="eq">T = (0.02, 0.54): 0.02 − 0.40 = −0.38</span>     <span class="eq">0.54 − 0.54 = 0</span>
-<span class="eq">capsule: clamp(−0.38, −0.20, 0.20) = −0.20</span>     <span class="eq">−0.38 − (−0.20) = −0.18</span>     <span class="eq">0 − 0 = 0</span>
-<span class="eq">(−0.18) × (−0.18) = 0.0324</span>     <span class="eq">0 × 0 = 0</span>     <span class="eq">0.0324 + 0 = 0.0324</span>     <span class="eq">√0.0324 = 0.18</span>
+  <tr><th>capsule mask</th><td><span class="eq">T = (0.78, 0.54): 0.78 − 0.40 = 0.38</span>     <span class="eq">0.54 − 0.54 = 0</span>
+<span class="eq">capsule: clamp(0.38, −0.20, 0.20) = 0.20</span>     <span class="eq">0.38 − 0.20 = 0.18</span>     <span class="eq">0 − 0 = 0</span>
+<span class="eq">0.18 × 0.18 = 0.0324</span>     <span class="eq">0 × 0 = 0</span>     <span class="eq">0.0324 + 0 = 0.0324</span>     <span class="eq">√0.0324 = 0.18</span>
 <span class="eq">0.18 − 0.20 = −0.02</span>     <span class="eq">−0.02 + 0.002 = −0.018</span>     <span class="eq">−0.018 ÷ 0.004 = −4.5</span> → 0 → <span class="eq">mask 1 − 0 = 1</span>
-<span class="eq">circle push: (−0.38) × (−0.38) = 0.1444</span>     <span class="eq">0.1444 + 0 = 0.1444</span>     <span class="eq">√0.1444 = 0.38</span>     <span class="eq">0.38 − 0.25 = 0.13</span>
+<span class="eq">circle push: 0.38 × 0.38 = 0.1444</span>     <span class="eq">0.1444 + 0 = 0.1444</span>     <span class="eq">√0.1444 = 0.38</span>     <span class="eq">0.38 − 0.25 = 0.13</span>
 <span class="eq">0.13 + 0.10 = 0.23</span>     <span class="eq">0.23 ÷ 0.20 = 1.15</span> → limited to 1
 <span class="eq">1 × 1 = 1 (t²)</span>     <span class="eq">1 × 1 = 1 (t³)</span>     <span class="eq">3 × 1 = 3</span>     <span class="eq">2 × 1 = 2</span>     <span class="eq">3 − 2 = 1</span>     <span class="eq">falloff 1 − 1 = 0</span>     <span class="eq">push 0.10 × 0 = 0</span>
 → glass that does not bend. A new shape needs both answers changed.</td></tr>
@@ -2117,15 +2117,59 @@ function chainRows(W, o){
 (function sdf(){
   const cv = $('sdCv'), view = View(cv, -0.5, -0.5, 0.5, 0.5);
   const shapes = {circle: 'Circle (9.2)', rrect: 'Rounded rectangle (9.4)', capsule: 'Capsule (9.5)', union: 'Union (9.6)', inter: 'Intersection (9.6)', minus: 'B minus A (9.6)'};
-  const views = {hard: 'Hard if (9.2)', soft: 'Soft mask (9.3)', dist: 'Distance values'};
+  const views = {hard: 'Hard if (9.2)', soft: 'Soft mask (9.3)', dist: 'Distance values', cases: 'Which formula: the cases'};
   const teach = {circle: [0.30, -0.40], rrect: [0.26, -0.18], capsule: [0.32, -0.16], union: [-0.10, 0], inter: [-0.10, 0], minus: [-0.10, 0]};
   const rDef = {circle: 0.25, rrect: 0.10, capsule: 0.20, union: 0.25, inter: 0.25, minus: 0.25};
   const rMax = {circle: 0.35, rrect: 0.20, capsule: 0.25, union: 0.35, inter: 0.35, minus: 0.35};
   const rLab = {circle: 'radius', rrect: 'corner radius', capsule: 'radius (half height)', union: 'radius of A and B', inter: 'radius of A and B', minus: 'radius of A and B'};
   let shape = 'circle', mode = 'hard', W = [0.30, -0.40];
   const mkBtns = (box, obj, get, set) => Object.keys(obj).forEach(k => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = obj[k]; b.dataset.k = k; b.onclick = () => { set(k); draw(); }; $(box).appendChild(b); });
-  mkBtns('sdShapes', shapes, () => shape, k => { shape = k; $('sdR').max = rMax[k]; $('sdR').value = rDef[k]; W = teach[k].slice(); });
+  mkBtns('sdShapes', shapes, () => shape, k => { shape = k; $('sdR').max = rMax[k]; $('sdR').value = rDef[k]; W = teach[k].slice(); if(mode === 'cases' && !CASES[k]) mode = 'hard'; });
   mkBtns('sdViews', views, () => mode, k => { mode = k; if(k === 'soft' && shape === 'circle') W = [0.18, -0.24]; });
+  /* the cases view: which formula sd uses at each pixel. Rounded rectangle: the four ifs of RoundedRectSdf.metal.
+     Capsule: no if, one clamp with three outcomes (CapsuleSdf.metal). Region colors: stronger inside the shape, paler outside. */
+  const CASES = {
+    rrect: {1: ['corner', [0.80, 0.74, 0.99], 'q.x &gt; 0 and q.y &gt; 0 → sdBox = length(q)'],
+            2: ['side', [0.60, 0.84, 0.98], 'only q.x &gt; 0 → sdBox = q.x'],
+            3: ['top / bottom', [0.99, 0.84, 0.42], 'only q.y &gt; 0 → sdBox = q.y'],
+            4: ['inside the inner box', [0.80, 0.84, 0.89], 'q.x ≤ 0 and q.y ≤ 0 → sdBox = max(q.x, q.y)']},
+    capsule: {1: ['left end', [0.80, 0.74, 0.99], 'p.x &lt; −innerHalfW → nearestX = −innerHalfW'],
+              2: ['middle, above and below the segment', [0.99, 0.84, 0.42], 'otherwise → nearestX = p.x, so the length is |p.y|'],
+              3: ['right end', [0.60, 0.84, 0.98], 'p.x &gt; innerHalfW → nearestX = innerHalfW']}
+  };
+  const css = c => rgbCss(c);
+  /* the case number of a pixel, and N: the point of the inner box (or inner segment) nearest to it */
+  function caseOf(px, py, r){
+    if(shape === 'rrect'){
+      const ihx = sub(0.30, r), ihy = sub(0.20, r), qx = sub(Math.abs(px), ihx), qy = sub(Math.abs(py), ihy);
+      const sx = px < 0 ? -1 : 1, sy = py < 0 ? -1 : 1;
+      const k = qx > 0 ? (qy > 0 ? 1 : 2) : (qy > 0 ? 3 : 4);
+      const N = k === 1 ? [sx * ihx, sy * ihy] : k === 2 ? [sx * ihx, py] : k === 3 ? [px, sy * ihy] : (qx >= qy ? [sx * ihx, py] : [px, sy * ihy]);
+      return {k, N};
+    }
+    const ih = sub(0.40, r), k = px < -ih ? 1 : px > ih ? 3 : 2;
+    return {k, N: [Math.min(ih, Math.max(-ih, px)), 0]};
+  }
+  /* the Metal lines of the cases, each tinted like its region; W's line is marked */
+  function caseCode(k){
+    const ln = (n, t) => n ? `<div style="background:${css(CASES[shape][n][1])};border-radius:4px;${n === k ? 'font-weight:700' : ''}">${t}${n === k ? '   <b>← W</b>' : ''}</div>` : `<div>${t}</div>`;
+    if(shape === 'rrect') return '<div class="c">RoundedRectSdf.metal (Lesson 9.4): four ifs, one per case</div>' +
+      ln(0, 'float2 q = abs(p) - float2(halfWidth - cornerRadius, halfHeight - cornerRadius);') + ln(0, 'float sdBox;') +
+      ln(0, 'if (q.x &gt; 0.0) {') + ln(0, '    if (q.y &gt; 0.0) {') + ln(1, '        sdBox = length(q);              // 1 corner') +
+      ln(0, '    } else {') + ln(2, '        sdBox = q.x;                    // 2 side') + ln(0, '    }') + ln(0, '} else {') +
+      ln(0, '    if (q.y &gt; 0.0) {') + ln(3, '        sdBox = q.y;                    // 3 top / bottom') + ln(0, '    } else {') +
+      ln(4, '        sdBox = q.x &gt; q.y ? q.x : q.y;  // 4 inside the inner box') + ln(0, '    }') + ln(0, '}') +
+      ln(0, 'float sd = sdBox - cornerRadius;');
+    return '<div class="c">CapsuleSdf.metal (Lesson 9.5) has no if: clamp makes the three cases</div>' +
+      ln(0, 'float nearestX = clamp(p.x, -innerHalfW, innerHalfW);') + ln(0, '<span class="c">// the same clamp, written as ifs:</span>') +
+      ln(1, 'if (p.x &lt; -innerHalfW)      nearestX = -innerHalfW;   // 1 left end') +
+      ln(3, 'else if (p.x &gt; innerHalfW)  nearestX = innerHalfW;    // 3 right end') +
+      ln(2, 'else                        nearestX = p.x;           // 2 middle') +
+      ln(0, 'float sd = length(p - float2(nearestX, 0.0)) - radius;');
+  }
+  /* a numbered tag on a region */
+  function tag(ctx, x, y, n){ ctx.save(); ctx.beginPath(); ctx.arc(x, y, 11, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = '#0f172a'; ctx.stroke();
+    ctx.font = '800 13px Inter,system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#0f172a'; ctx.fillText(String(n), x, y + 0.5); ctx.restore(); }
   function sdOf(px, py, r){
     if(shape === 'circle') return Math.hypot(px, py) - r;
     if(shape === 'rrect'){ const qx = Math.abs(px) - (0.30 - r), qy = Math.abs(py) - (0.20 - r); const box = (qx > 0 && qy > 0) ? Math.hypot(qx, qy) : qx > 0 ? qx : qy > 0 ? qy : Math.max(qx, qy); return box - r; }
@@ -2135,13 +2179,14 @@ function chainRows(W, o){
   }
   function draw(){
     document.querySelectorAll('#sdShapes .btn').forEach(b => b.classList.toggle('on', b.dataset.k === shape));
-    document.querySelectorAll('#sdViews .btn').forEach(b => b.classList.toggle('on', b.dataset.k === mode));
+    document.querySelectorAll('#sdViews .btn').forEach(b => { b.classList.toggle('on', b.dataset.k === mode); b.hidden = b.dataset.k === 'cases' && !CASES[shape]; });
     const r = R(+$('sdR').value), band = R(+$('sdB').value);
     $('sdRO').textContent = F(r); $('sdBO').textContent = F(band); $('sdR').parentNode.firstChild.textContent = rLab[shape] + ' ';
     paint(view, (px, py) => {
       const sd = sdOf(px, py, r);
       if(Math.abs(sd) < 0.0028) return [0.13, 0.77, 0.37, 1];
       if(mode === 'hard') return sd < 0 ? ORANGE : NAVY;
+      if(mode === 'cases'){ const c = CASES[shape][caseOf(px, py, r).k][1]; return sd < 0 ? c.concat(1) : c.map(v => lerp(v, 1, 0.55)).concat(1); }
       if(mode === 'soft'){ const m = 1 - smoothF(-band, band, sd); return [0, 1, 2].map(i => lerp(NAVY[i], ORANGE[i], m)).concat(1); }
       const g = clamp01(0.5 + sd * 1.6), m5 = Math.abs(sd / 0.05 - Math.round(sd / 0.05));
       const k = m5 < 0.07 ? 0.25 : 0; return [g - k, g - k, g - k + (sd < 0 ? 0.08 : 0), 1];
@@ -2149,9 +2194,54 @@ function chainRows(W, o){
     const ctx = view.ctx; cv._pts = [];
     const [cx, cy] = view.px(0, 0); cDot(ctx, cx, cy, '#facc15', 5); cLabel(ctx, cx + 8, cy - 4, 'C'); cv._pts.push({x: cx, y: cy, name: 'C', role: 'visual center, p = (0, 0)', coords: 'p = (0, 0)'});
     if(['union', 'inter', 'minus'].includes(shape)){ const [bx, by] = view.px(0.20, 0); cDot(ctx, bx, by, '#22d3ee', 5); cLabel(ctx, bx + 8, by + 18, 'B'); cv._pts.push({x: bx, y: by, name: 'B', role: 'center of circle B', coords: 'p = (0.20, 0)'}); }
+    let cs = null;
+    if(mode === 'cases'){
+      cs = caseOf(W[0], W[1], r);
+      if(shape === 'rrect'){
+        const ihx = sub(0.30, r), ihy = sub(0.20, r), [ax, ay] = view.px(-ihx, -ihy), [bx, by] = view.px(ihx, ihy);
+        cStroke(ctx, () => { ctx.beginPath(); ctx.rect(ax, ay, bx - ax, by - ay); }, '#ffffff', 2.5);
+        const tx = (ihx + 0.5) / 2, ty = (ihy + 0.5) / 2;
+        for(const sx of [-1, 1]) for(const sy of [-1, 1]) tag(ctx, ...view.px(sx * tx, sy * ty), 1);
+        if(2 * ihy >= 0.06) for(const sx of [-1, 1]) tag(ctx, ...view.px(sx * tx, 0), 2);
+        for(const sy of [-1, 1]) tag(ctx, ...view.px(0, sy * ty), 3);
+        if(2 * ihy >= 0.06) tag(ctx, ...view.px(-ihx / 2, 0), 4);
+        cv._pts.push({x: bx, y: ay, name: 'inner box corner', role: 'a corner of the white inner box: (innerHalf.x, innerHalf.y) with a sign', coords: 'p = ' + fu(ihx, -ihy)});
+      } else {
+        const ih = sub(0.40, r), [ax, ay] = view.px(-ih, 0), [bx, by] = view.px(ih, 0);
+        cStroke(ctx, () => { ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); }, '#ffffff', 3);
+        cDot(ctx, ax, ay, '#ffffff', 4.5); cDot(ctx, bx, by, '#ffffff', 4.5);
+        cv._pts.push({x: ax, y: ay, name: 'left end', role: 'the left end of the inner segment', coords: 'p = ' + fu(-ih, 0)}, {x: bx, y: by, name: 'right end', role: 'the right end of the inner segment', coords: 'p = ' + fu(ih, 0)});
+        const tx = (ih + 0.5) / 2;
+        tag(ctx, ...view.px(-tx, 0), 1); tag(ctx, ...view.px(tx, 0), 3);
+        tag(ctx, ...view.px(0, -0.36), 2); tag(ctx, ...view.px(0, 0.36), 2);
+      }
+      const [nx, ny] = view.px(cs.N[0], cs.N[1]), [wx0, wy0] = view.px(W[0], W[1]);
+      if(Math.hypot(nx - wx0, ny - wy0) > 2) cStroke(ctx, () => { ctx.beginPath(); ctx.moveTo(nx, ny); ctx.lineTo(wx0, wy0); }, '#ffffff', 2.5);
+      cDot(ctx, nx, ny, '#ffffff', 5); cLabel(ctx, nx - 8, ny + 22, 'N', {anchor: 'end'});
+      cv._pts.push({x: nx, y: ny, name: 'N', role: shape === 'rrect' ? 'the point of the inner box nearest to W' : 'the point of the inner segment nearest to W: (nearestX, 0)', coords: 'p = ' + fu(cs.N[0], cs.N[1])});
+    }
     const [wx, wy] = view.px(W[0], W[1]); cDot(ctx, wx, wy, '#ec4899', 6); cLabel(ctx, wx + 9, wy - 6, 'W ' + fu(W[0], W[1]));
     cv._pts.push({x: wx, y: wy, name: 'W', role: 'the traced pixel', coords: 'p = ' + fu(W[0], W[1])});
     $('sdLeg').innerHTML = `<span><i style="background:#22c55e"></i>green line: sd = 0, the boundary</span>` + (mode === 'dist' ? '<span><i class="box" style="background:linear-gradient(90deg,#444,#ddd)"></i>gray: darker = more inside; dark rings every 0.05</span>' : '<span><i class="box" style="background:#e07a2e"></i>orange inside · <i class="box" style="background:#1a4066"></i> navy outside</span>') + '<span><i class="dot" style="background:#ec4899"></i>W: the traced pixel (click to move)</span><span><i class="dot" style="background:#facc15"></i>C: p = (0, 0)</span>';
+    $('sdCode').hidden = mode !== 'cases';
+    if(mode === 'cases'){
+      const C = CASES[shape], len = Math.hypot(W[0] - cs.N[0], W[1] - cs.N[1]);
+      const ihx = sub(0.30, r), ihy = sub(0.20, r), ih = sub(0.40, r);
+      let L = `<span><i style="background:#22c55e"></i>green line: sd = 0, the boundary</span>`;
+      for(const n of Object.keys(C)){
+        let note = '';
+        if(shape === 'rrect' && (n === '2' || n === '4')) note = ihy <= 0 ? ' (no pixels at this radius)' : 2 * ihy < 0.06 ? ' (no tag: the strip is thinner than a tag)' : '';
+        L += `<span><i class="box" style="background:${css(C[n][1])}"></i>${n} ${C[n][0]}: ${C[n][2]}${note}</span>`;
+      }
+      L += `<span><i class="box" style="background:linear-gradient(90deg,${css(C[1][1])} 50%,${css(C[1][1].map(v => lerp(v, 1, 0.55)))} 50%)"></i>stronger tint: inside the shape (sd &lt; 0) · paler: outside</span>`;
+      L += shape === 'rrect' ? `<span><i style="background:#fff;outline:1.5px solid #0f172a"></i>white box: the inner box, half size (${F(ihx)}, ${F(ihy)}); its edges split the cases</span>`
+                             : `<span><i style="background:#fff;outline:1.5px solid #0f172a"></i>white line: the inner segment, from left end (${F(-ih)}, 0) to right end (${F(ih)}, 0)</span>`;
+      const what = shape === 'rrect' ? (R(len) === 0 ? ': sdBox = 0 (W is on the inner box)' : cs.k === 4 ? `: sdBox = −${F(len)} (W is inside the inner box)` : `: sdBox = ${F(len)}`) : ': the length before − radius';
+      L += `<span><i class="dot" style="background:#fff"></i>N = ${fu(cs.N[0], cs.N[1])}: the point of the ${shape === 'rrect' ? 'inner box' : 'inner segment'} nearest to W; the white line from N to W is ${F(len)} long${what}</span>`;
+      L += `<span><i class="dot" style="background:#ec4899"></i>W: the traced pixel (click to move), in case ${cs.k}</span><span><i class="dot" style="background:#facc15"></i>C: p = (0, 0)</span>`;
+      $('sdLeg').innerHTML = L;
+      $('sdCode').innerHTML = caseCode(cs.k);
+    }
     $('sdOut').innerHTML = steps(trace(W[0], W[1], r, band), shapes[shape] + ' · ' + views[mode]);
   }
   function circleRows(label, px, py, r, rows){
@@ -2167,6 +2257,8 @@ function chainRows(W, o){
       rows.push(['innerHalf', `${line(0.30, '−', r, ihx)}     ${line(0.20, '−', r, ihy)}`]);
       const ax = Math.abs(px), ay = Math.abs(py), qx = sub(ax, ihx), qy = sub(ay, ihy);
       rows.push(['q', `abs(p) = ${fu(ax, ay)}     ${line(ax, '−', ihx, qx)}     ${line(ay, '−', ihy, qy)}`]);
+      if(mode === 'cases'){ const gx = qx > 0 ? `${F(qx)} &gt; 0` : `${F(qx)} ≤ 0`, gy = qy > 0 ? `${F(qy)} &gt; 0` : `${F(qy)} ≤ 0`, k = qx > 0 ? (qy > 0 ? 1 : 2) : (qy > 0 ? 3 : 4);
+        rows.push(['case', `q.x: ${gx}     q.y: ${gy} → <span class="r">case ${k}, ${CASES.rrect[k][0]}</span>`]); }
       let box;
       if(qx > 0 && qy > 0){ const sx = qx * qx, sy = qy * qy, ss = sx + sy; box = R(Math.sqrt(ss)); rows.push(['sdBox (corner)', `both &gt; 0 → ${PX(qx)} × ${PX(qx)} = ${FX(sx)}     ${PX(qy)} × ${PX(qy)} = ${FX(sy)}     ${FX(sx)} + ${FX(sy)} = ${FX(ss)}     √${FX(ss)} = ${F(box)}`]); }
       else if(qx > 0){ box = qx; rows.push(['sdBox (side)', `only q.x &gt; 0 → sdBox = ${F(qx)}`]); }
@@ -2177,6 +2269,8 @@ function chainRows(W, o){
     else if(shape === 'capsule'){
       const ih = sub(0.40, r); rows.push(['innerHalfW', line(0.40, '−', r, ih)]);
       const nx = Math.min(ih, Math.max(-ih, px)); rows.push(['nearestX', `clamp(${F(px)}, ${F(-ih)}, ${F(ih)}) = ${F(nx)}`]);
+      if(mode === 'cases'){ const k = px < -ih ? 1 : px > ih ? 3 : 2;
+        rows.push(['case', (k === 1 ? `${F(px)} &lt; ${F(-ih)}` : k === 3 ? `${F(px)} &gt; ${F(ih)}` : `${F(-ih)} ≤ ${F(px)} ≤ ${F(ih)}`) + ` → <span class="r">case ${k}, ${CASES.capsule[k][0]}</span>`]); }
       const qx = sub(px, nx); rows.push(['p − (nearestX, 0)', `${line(px, '−', nx, qx)}     ${line(py, '−', 0, py)}`]);
       sd = circleRows('sd', qx, py, r, rows);
     }
@@ -2189,7 +2283,7 @@ function chainRows(W, o){
       else { const na = R(-a); sd = Math.max(b, na); rows.push(['B minus A', `−(${F(a)}) = ${F(na)}     max(${F(b)}, ${F(na)}) = ${F(sd)}`]); }
     }
     if(mode === 'hard') rows.push(['color', `${F(sd)} ${sd < 0 ? '&lt; 0 → <span class="r">orange</span> (inside)' : '≥ 0 → <span class="r">navy</span> (outside)'}`]);
-    else if(mode === 'dist') rows.push(['meaning', sd < 0 ? `inside, ${F(-sd)} from the boundary` : sd > 0 ? `outside, ${F(sd)} from the boundary` : 'on the boundary']);
+    else if(mode === 'dist' || mode === 'cases') rows.push(['meaning', sd < 0 ? `inside, ${F(-sd)} from the boundary` : sd > 0 ? `outside, ${F(sd)} from the boundary` : 'on the boundary']);
     else {
       const tn = sub(sd, -band), td = sub(band, -band), t0 = div(tn, td), t = Math.min(1, Math.max(0, t0));
       const tt = mul(t, t), t2 = mul(2, t), k3 = sub(3, t2), s = mul(tt, k3), m = sub(1, s);
