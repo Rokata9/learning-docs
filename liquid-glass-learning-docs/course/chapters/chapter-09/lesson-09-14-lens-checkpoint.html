@@ -115,6 +115,9 @@
   .sws{display:block;width:18px;height:18px;border:3px solid #a3e635;outline:1.5px solid #111827;margin:0 0 0 4px}
   .verdict{font-size:15px;margin-top:8px;font-weight:600}
   .verdict.ok{color:var(--green)} .verdict.no{color:var(--red)}
+  .exq{display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px;align-items:start;margin:6px 0 10px}
+  .choices{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:8px 0}
+  .choices .btn{text-align:left}
   pre.code{font:13.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#0f172a;color:#e2e8f0;
     border-radius:8px;padding:14px 16px;overflow-x:auto;max-width:100%}
   pre.code .nw{background:#14532d;color:#bbf7d0;border-radius:3px}
@@ -461,102 +464,212 @@ C = (0.40, 0.54) and <code>time = 0</code>, and checks which color each pixel ta
 
 <!-- ============================ SECTION 7 ============================ -->
 <h2 id="s7"><span class="tag">Section 7 · exercises</span>Exercises</h2>
-<p>Answer first in your head or on paper. Then open the hidden answer. Every answer draws the question and the reason.</p>
+<p>Each exercise starts with a picture. Read the question, pick one choice, then open the answer. Every answer draws
+the reason.</p>
 
-<details class="ex"><summary>Exercise 1 — the mask, but no push</summary><div class="body">
-  <p>Set <code>dispLen = 0</code> and keep the mask. The pixel I = (0.40, 0.44) is inside the circle, so its mask is 1.
-  At time = 0, what does I store? What does the whole lens look like?</p>
+<details class="ex"><summary>Exercise 1 — no push: what does the glass show?</summary><div class="body">
+  <div class="exq">
+    <div class="stage" id="ex1qStage"><canvas id="ex1q" width="440" height="440"></canvas>
+      <figcaption><b>Before the change:</b> the lens of the lab, with dispLen = 0.10, at time = 0.</figcaption></div>
+    <div>
+      <ul class="legend">
+        <li><span class="sw check"></span>the black-and-white checkerboard, bent inside the glass</li>
+        <li><span class="swl" style="background:#c084fc"></span>the violet circle: the outline of the glass, 0.25 from C.
+        Inside it the mask is 1, so a pixel there shows <code>bent</code>.</li>
+        <li><span class="swd" style="background:#c084fc"></span>C = (0.40, 0.54): the center of the glass</li>
+        <li><span class="swd" style="background:#fff"></span>I = (0.40, 0.44): one pixel inside the violet circle</li>
+      </ul>
+      <p><b>The change.</b> We set <code>dispLen = 0</code><button class="info" data-tip="displen">ⓘ</button>
+      (it was 0.10). Then push = dispLen × falloff = 0 × falloff = 0 for every pixel, so no read point moves. The mask
+      line stays the same.</p>
+      <p><b>Question:</b> what does the screen show inside the violet circle now?</p>
+      <div class="choices">
+        <button class="btn" aria-pressed="false" data-ok="0" data-why="Not this one. The bend comes from the push, and the push is now 0 for every pixel.">The checkerboard, bent as before.</button>
+        <button class="btn" aria-pressed="false" data-ok="1" data-why="Right. With no push, every read point is the pixel itself, so bent and plain are the same color.">The checkerboard, exactly as with no glass.</button>
+        <button class="btn" aria-pressed="false" data-ok="0" data-why="Not this one. mask = 1 only picks bent. Now bent is read at the pixel itself, so it still shows the squares.">One flat color, because the mask is 1 there.</button>
+      </div>
+      <div class="verdict" aria-live="polite"></div>
+    </div>
+  </div>
   <details><summary>Show the answer</summary><div class="body">
     <div class="pair"><div class="stage" id="ex1aStage"><canvas id="ex1a" width="440" height="440"></canvas>
-      <figcaption><b>The output.</b> Only the checkerboard. The glass cannot be seen.</figcaption></div>
+      <figcaption><b>After the change, the output.</b> Only the checkerboard. The glass cannot be seen.</figcaption></div>
       <div class="stage" id="ex1bStage"><canvas id="ex1b" width="440" height="440"></canvas>
-      <figcaption><b>The mask map.</b> The glass is still there: violet = 1.</figcaption></div></div>
-    <div class="readout">dispLen = 0 → push = 0 × falloff = 0 → disp = (0, 0)
-readRed = readGreen = readBlue = I − (0, 0) = (0.40, 0.44)
-mask at I: p = (0.40 − 0.40, 0.44 − 0.54) = (0, −0.10), d = 0.10, sd = 0.10 − 0.25 = −0.15
-           t = (−0.15 + 0.002) ÷ 0.004 = −37 → limited to 0 → smoothstep = 0 → mask = 1 − 0 = 1
-col: 0.40 × 4 = 1.60 → floor → 1    row: 0.44 × 4 = 1.76 → floor → 1
-col + row = 1 + 1 = 2 → even → white
-bent  = white (1, 1, 1)     plain = white (1, 1, 1)
-for each channel: bent − plain = 1 − 1 = 0;  0 × 1 = 0;  1 + 0 = 1
-I stores (1, 1, 1): the same as with no glass at all</div>
-    <p><b>Why:</b> the mask decides <i>where</i> the glass is. With no push, every read point is the pixel itself, so
-    <code>bent</code> and <code>plain</code> are the same color, and the mix of two equal colors is that color. The
-    outline becomes visible only where the read points differ from the pixel. A flat, clear window is invisible for the
-    same reason. (Chapter 10 adds light at the edge, which shows the glass even where nothing bends.)</p>
+      <figcaption><b>After the change, the mask map.</b> The glass is still there: violet = 1, light gray = 0.</figcaption></div></div>
+    <div class="readout">push = dispLen × falloff = 0 × falloff = 0
+disp = dir × push = dir × 0 = (0, 0)
+readRed = readGreen = readBlue = I − (0, 0) = (0.40, 0.44): the pixel I itself
+the wallpaper at (0.40, 0.44), time = 0:
+  col: 0.40 × 4 = 1.60 → floor → 1
+  row: 0.44 × 4 = 1.76 → floor → 1
+  col + row = 1 + 1 = 2 → even → white (1, 1, 1)
+bent  = (1, 1, 1): all three read points are I
+plain = (1, 1, 1): the wallpaper at I
+mix(plain, bent, mask) = plain + (bent − plain) × mask, for each channel:
+  bent − plain = 1 − 1 = 0
+  0 × mask = 0 × 1 = 0
+  plain + 0 = 1 + 0 = 1
+→ I stores (1, 1, 1): white, the same as with no glass</div>
+    <p><b>Why:</b> the mask says <i>where</i> the glass is. The read points say <i>what</i> the glass shows. With no
+    push, the glass shows exactly the wallpaper under it, so it cannot be seen, like a flat, clean window. (Chapter 10
+    adds light at the edge, which shows the glass even where nothing bends.)</p>
   </div></details>
 </div></details>
 
-<details class="ex"><summary>Exercise 2 — a capsule mask, the old read points</summary><div class="body">
-  <p>A classmate wants a capsule lens. They replace only the mask: it now uses the capsule of Lesson 9.5 (outer half
-  size (0.40, 0.20), radius 0.20), centered at C. The read-point lines are unchanged. What do you see at the two ends
-  of the capsule, and above and below the capsule?</p>
+<details class="ex"><summary>Exercise 2 — a capsule mask with the circle's push: which pixel differs from the wallpaper?</summary><div class="body">
+  <div class="exq">
+    <div class="stage" id="ex2qStage"><canvas id="ex2q" width="440" height="440"></canvas>
+      <figcaption><b>The wallpaper</b> at time = 0, with no glass, and the two outlines that the shader uses.</figcaption></div>
+    <div>
+      <ul class="legend">
+        <li><span class="sw check"></span>the black-and-white checkerboard at time = 0, with no glass</li>
+        <li><span class="swl" style="background:#c084fc"></span>the violet capsule: the outline of the new mask, a
+        rectangle with round ends, 0.80 wide and 0.40 tall, centered on C. Inside it the mask is 1.</li>
+        <li><span class="swl" style="background:#fb923c"></span>the orange ring: 0.35 from C. Outside it the push is 0.</li>
+        <li><span class="swd" style="background:#c084fc"></span>C = (0.40, 0.54): the center of the glass</li>
+        <li><span class="swd" style="background:#fff"></span>T = (0.78, 0.54): inside the capsule, outside the orange ring</li>
+        <li><span class="swd" style="background:#fff"></span>M = (0.40, 0.33): inside the orange ring, just outside the capsule</li>
+      </ul>
+      <p><b>The change.</b> A classmate wants glass shaped like a capsule. They change only the mask line: it now uses
+      the capsule's sd<button class="info" data-tip="capsule">ⓘ</button> instead of the circle's. They do not change the
+      lines that compute the read points, so the push still comes from the circle around C. That push is 0 outside the
+      orange ring<button class="info" data-tip="band">ⓘ</button>.</p>
+      <p><b>Question:</b> which of the two pixels shows a color different from the wallpaper under it?</p>
+      <div class="choices">
+        <button class="btn" aria-pressed="false" data-ok="0" data-why="Not this one. T is glass (mask = 1), but its push is 0, so it reads at T itself and shows the wallpaper under it.">Only T.</button>
+        <button class="btn" aria-pressed="false" data-ok="0" data-why="Not this one. M has a push, but its mask is 0, so mix shows plain: the wallpaper under it.">Only M.</button>
+        <button class="btn" aria-pressed="false" data-ok="0" data-why="Not this one. T has no push, and M is not glass.">Both.</button>
+        <button class="btn" aria-pressed="false" data-ok="1" data-why="Right. T is glass with no push. M has a push but is not glass. A pixel can differ from the wallpaper under it only when it has both.">Neither of them.</button>
+      </div>
+      <div class="verdict" aria-live="polite"></div>
+    </div>
+  </div>
   <details><summary>Show the answer</summary><div class="body">
     <div class="pair"><div class="stage" id="ex2aStage"><canvas id="ex2a" width="440" height="440"></canvas>
       <figcaption><b>The output.</b> The outline shows only in the middle of the capsule.</figcaption></div>
       <div class="stage" id="ex2bStage"><canvas id="ex2b" width="440" height="440"></canvas>
-      <figcaption><b>The same output with the construction lines.</b></figcaption></div></div>
+      <figcaption><b>The same output with the two outlines.</b></figcaption></div></div>
     <ul class="legend two">
       <li><span class="swl" style="background:#c084fc"></span>the violet capsule: the new mask, mask = 1 inside</li>
-      <li><span class="swl" style="background:#fb923c"></span>the orange ring: 0.35 from C, where the round push ends</li>
+      <li><span class="swl" style="background:#fb923c"></span>the orange ring: 0.35 from C, where the circle's push ends</li>
     </ul>
-    <div class="readout">tip pixel T = (0.02, 0.54):
-  mask (capsule):  p = (0.02 − 0.40, 0.54 − 0.54) = (−0.38, 0)
-                   nearestX = clamp(−0.38, −0.20, 0.20) = −0.20
-                   q = (−0.38 − (−0.20), 0) = (−0.18, 0),  length(q) = 0.18
-                   sd = 0.18 − 0.20 = −0.02,  t = (−0.02 + 0.002) ÷ 0.004 = −4.5 → 0 → mask = 1
-  push (circle):   d = length(p) = 0.38,  sd = 0.38 − 0.25 = 0.13
-                   0.13 ≥ band 0.10 → falloff = 0 → push = 0.10 × 0 = 0
-  → T is glass, but it reads at T itself: bent = plain. The glass cannot be seen there.
-top pixel M = (0.40, 0.33):
-  mask (capsule):  p = (0.40 − 0.40, 0.33 − 0.54) = (0, −0.21)
-                   nearestX = clamp(0, −0.20, 0.20) = 0,  q = (0, −0.21),  length(q) = 0.21
-                   sd = 0.21 − 0.20 = 0.01,  t = (0.01 + 0.002) ÷ 0.004 = 3 → 1 → mask = 1 − 1 = 0
-  push (circle):   d = 0.21,  sd = 0.21 − 0.25 = −0.04
-                   t = (−0.04 + 0.10) ÷ 0.20 = 0.06 ÷ 0.20 = 0.30
-                   t² = 0.09,  t³ = 0.027,  3t² = 0.27,  2t³ = 0.054
-                   smoothstep = 0.27 − 0.054 = 0.216,  falloff = 1 − 0.216 = 0.784
-                   push = 0.10 × 0.784 = 0.078
-  → M has a long push, but it is not glass: it shows plain. The mask cuts the round bend.</div>
-    <p><b>Why:</b> the mask changed the outline; the read points still follow the circle. At the ends of the capsule
-    the circle gives no push, so the capsule is invisible there (as in Exercise 1). Above and below, the mask throws the
-    circle's bend away. A capsule lens needs both answers changed: the capsule mask <i>and</i> a push that follows the
-    capsule. Chapter 10 builds a push direction for any shape (Lesson 10.3, the surface normal).</p>
+    <p>Two rules decide the answer. The mask: sd ≤ −0.002 gives mask = 1, and sd ≥ 0.002 gives mask = 0
+    (maskBand = 0.002<button class="info" data-tip="maskband">ⓘ</button>). The push: sd ≥ 0.10 gives falloff = 0,
+    so push = 0 (band = 0.10<button class="info" data-tip="band">ⓘ</button>). The circle's radius is
+    0.25<button class="info" data-tip="radius">ⓘ</button>.</p>
+    <div class="readout">T = (0.78, 0.54)
+  p = T − C = (0.78 − 0.40, 0.54 − 0.54) = (0.38, 0)
+  mask, capsule sd:  nearestX = clamp(0.38, −0.20, 0.20) = 0.20
+                     p − (nearestX, 0) = (0.38 − 0.20, 0 − 0) = (0.18, 0)
+                     its length = 0.18   (its y is 0)
+                     sd = length − 0.20 = 0.18 − 0.20 = −0.02   (0.20: the radius of the round ends)
+                     −0.02 ≤ −0.002 → mask = 1: T is glass
+  push, circle sd:   d = length(p) = 0.38   (p.y is 0)
+                     sd = d − radius = 0.38 − 0.25 = 0.13
+                     0.13 ≥ 0.10 → falloff = 0
+                     push = 0.10 × 0 = 0: the read points are T itself, so bent = plain
+  → T stores plain: the wallpaper under it
+M = (0.40, 0.33)
+  p = M − C = (0.40 − 0.40, 0.33 − 0.54) = (0, −0.21)
+  mask, capsule sd:  nearestX = clamp(0, −0.20, 0.20) = 0
+                     p − (nearestX, 0) = (0 − 0, −0.21 − 0) = (0, −0.21)
+                     its length = 0.21   (its x is 0)
+                     sd = length − 0.20 = 0.21 − 0.20 = 0.01
+                     0.01 ≥ 0.002 → mask = 0: M is not glass
+  push, circle sd:   d = length(p) = 0.21   (p.x is 0)
+                     sd = d − radius = 0.21 − 0.25 = −0.04
+                     smoothstep(−0.10, 0.10, −0.04):
+                       −0.04 − (−0.10) = 0.06   how far sd is past −0.10, where the band starts
+                       t = 0.06 ÷ 0.20 = 0.30   0.20: the band's width, from −0.10 to +0.10
+                       t² = 0.30 × 0.30 = 0.09
+                       t³ = 0.09 × 0.30 = 0.027
+                       3t² = 3 × 0.09 = 0.27
+                       2t³ = 2 × 0.027 = 0.054
+                       smoothstep = 0.27 − 0.054 = 0.216
+                     falloff = 1 − 0.216 = 0.784
+                     push = 0.10 × 0.784 = 0.0784: M's read points move
+  → mask = 0 → M stores plain: the push is thrown away</div>
+    <p><b>Why:</b> a pixel can show something other than the wallpaper under it only when it is glass <i>and</i> has a
+    push. The new mask changed the outline, but the read points still follow the circle. At the ends of the capsule the
+    circle gives no push, so the glass cannot be seen there (as in Exercise 1). Above and below the capsule, the mask
+    throws the circle's push away. A capsule lens needs both answers changed: the capsule mask <i>and</i> a push that
+    follows the capsule. Chapter 10 builds a push direction for any shape (Lesson 10.3, the surface normal).</p>
   </div></details>
 </div></details>
 
-<details class="ex"><summary>Exercise 3 — which line fixes the black strip?</summary><div class="body">
-  <p>Put the glass at the bottom edge, C = (0.50, 1.10), as in Lesson 9.12, on the orange-and-navy wallpaper. A classmate
-  deletes the three clamps. A black strip appears at the bottom of the glass. The pixel W₃ = (0.59, 0.98) is in the
-  strip. Can a change to the mask fix it?</p>
+<details class="ex"><summary>Exercise 3 — a black strip at the bottom of the glass: which line fixes it?</summary><div class="body">
+  <div class="exq">
+    <div class="stage" id="ex3qStage"><canvas id="ex3q" class="see" width="520" height="440"></canvas>
+      <figcaption><b>After the change:</b> the output without the three clamps, at time = 0.</figcaption></div>
+    <div>
+      <ul class="legend">
+        <li><span class="sw" style="background:conic-gradient(#e07a2e 0 25%,#1a4066 0 50%,#e07a2e 0 75%,#1a4066 0) 0 0/18px 18px"></span>the orange-and-navy checkerboard</li>
+        <li><span class="sw" style="background:#000"></span>the black strip at the bottom of the glass</li>
+        <li><span class="swl" style="background:#c084fc"></span>the violet circle: the outline of the glass, 0.25 from C</li>
+        <li><span class="swl" style="background:#ffffff"></span>the white line: the bottom edge of the screen, y = 1.00</li>
+        <li><span class="sw hatch"></span>hatch: below the screen, no wallpaper</li>
+        <li><span class="swd" style="background:#c084fc"></span>C = (0.50, 1.10): the center of the glass, below the screen</li>
+        <li><span class="swd" style="background:#000"></span>W₃ = (0.59, 0.98): one pixel in the strip</li>
+      </ul>
+      <p><b>The setup.</b> The glass center is C = (0.50, 1.10). y grows downward and the screen ends at y = 1.00, so
+      C is below the screen and only the top of the glass is on it (as in Lesson 9.12).</p>
+      <p><b>The change.</b> A classmate deletes the three clamps<button class="info" data-tip="clamp">ⓘ</button>: the
+      lines that keep each read point inside the screen. Now a black strip appears at the bottom of the glass.</p>
+      <p><b>Question:</b> which line should the classmate change to remove the strip?</p>
+      <div class="choices">
+        <button class="btn" aria-pressed="false" data-ok="0" data-why="Not this one. W₃ is inside the glass, so it must show bent. A mask of 0 there would cut a piece out of the glass, and the bent color would still be wrong.">The mask line: make the mask 0 in the strip.</button>
+        <button class="btn" aria-pressed="false" data-ok="1" data-why="Right. The strip is black because the read points of its pixels land below the screen, where there is no wallpaper. That is a read-point problem.">The read-point lines: put the three clamps back.</button>
+      </div>
+      <div class="verdict" aria-live="polite"></div>
+    </div>
+  </div>
   <details><summary>Show the answer</summary><div class="body">
     <div class="pair"><div class="stage" id="ex3aStage"><canvas id="ex3a" class="see" width="440" height="440"></canvas>
-      <figcaption><b>No clamp.</b> The read points of W₃ land below the wallpaper.</figcaption></div>
+      <figcaption><b>No clamp.</b> The read points of W₃ land below the screen.</figcaption></div>
       <div class="stage" id="ex3bStage"><canvas id="ex3b" class="see" width="440" height="440"></canvas>
       <figcaption><b>With the three clamps.</b> No black strip. The glass pixels here read the bottom row, so they show the wallpaper's own colors.</figcaption></div></div>
     <ul class="legend two">
-      <li><span class="swl" style="background:#ffffff"></span>the white line: the bottom edge of the wallpaper, y = 1.00</li>
+      <li><span class="swl" style="background:#ffffff"></span>the white line: the bottom edge of the screen, y = 1.00</li>
       <li><span class="sw hatch"></span>hatch: below the screen, no wallpaper</li>
+      <li><span class="swl" style="background:#ff4d8d"></span>the pink arrow: from W₃ to readBlue, the farthest read point</li>
+      <li><span class="swd" style="background:#22c55e"></span>the red, green and blue dots: readRed, readGreen, readBlue</li>
+      <li><span class="swl" style="background:#c084fc"></span>the violet circle: the outline of the glass, 0.25 from C</li>
+      <li><span class="swd" style="background:#c084fc"></span>C = (0.50, 1.10): the center of the glass</li>
     </ul>
-    <div class="readout">W₃ = (0.59, 0.98), C = (0.50, 1.10): p = (0.09, −0.12), d = 0.15   (the Lesson 9.12 numbers)
-mask:  sd = 0.15 − 0.25 = −0.10,  t = (−0.10 + 0.002) ÷ 0.004 = −24.5 → 0 → mask = 1     W₃ is glass
-reads: sd = −0.10 → falloff = 1 → push = 0.10 × 1 = 0.10
-       dir = (0.09 ÷ 0.15, −0.12 ÷ 0.15) = (0.60, −0.80),  disp = dir × 0.10 = (0.06, −0.08)
-       disp × 0.90 = (0.054, −0.072)      disp × 1.10 = (0.066, −0.088)
-       readRed   = (0.59 − 0.054, 0.98 − (−0.072)) = (0.536, 1.052)
-       readGreen = (0.59 − 0.06,  0.98 − (−0.08))  = (0.53, 1.06)
-       readBlue  = (0.59 − 0.066, 0.98 − (−0.088)) = (0.524, 1.068)
-       all three y &gt; 1.00 → no wallpaper → each channel = 0 → bent = (0, 0, 0)
-mix:   mask = 1 → W₃ stores bent: black
-with clamp: y = min(1.052, 1) = 1.00 (and the same for 1.06, 1.068)
-       col: 0.536 × 4 = 2.144, 0.53 × 4 = 2.12, 0.524 × 4 = 2.096 → floor → 2 (all three)
-       row: 1.00 × 4 = 4 → the edge y = 1.00 belongs to the last row → 3
-       2 + 3 = 5 → odd → navy (all three) → W₃ stores navy</div>
-    <p><b>No.</b> The mask can only choose between <code>plain</code> and <code>bent</code>. W₃ is well inside the
-    outline, so it must show <code>bent</code>. Its read points are wrong: that is a read-point problem, so the fix is
-    a read-point line, the clamp of Lesson 9.12. Setting the mask to 0 there would cut a piece out of the glass and
-    change its outline. The strip is black, not see-through as in Lesson 9.12, <b>because</b> the Lesson 9.13 line sets
-    alpha to 1.0: every channel read outside the wallpaper is 0.</p>
+    <p>The constants: radius = 0.25<button class="info" data-tip="radius">ⓘ</button>, maskBand =
+    0.002<button class="info" data-tip="maskband">ⓘ</button>, dispLen = 0.10<button class="info" data-tip="displen">ⓘ</button>,
+    spread = 0.10<button class="info" data-tip="spread">ⓘ</button>.</p>
+    <div class="readout">W₃ = (0.59, 0.98), C = (0.50, 1.10)
+p = W₃ − C = (0.59 − 0.50, 0.98 − 1.10) = (0.09, −0.12)
+p.x² = 0.09 × 0.09 = 0.0081
+p.y² = 0.12 × 0.12 = 0.0144
+p.x² + p.y² = 0.0081 + 0.0144 = 0.0225
+d = √0.0225 = 0.15
+mask:  sd = d − radius = 0.15 − 0.25 = −0.10
+       −0.10 ≤ −0.002 → mask = 1: W₃ is glass
+push:  falloff = 1 − smoothstep(−0.10, 0.10, −0.10) = 1 − 0 = 1   (sd = −0.10 is where the band starts)
+       push = 0.10 × 1 = 0.10
+dir  = p ÷ d:       0.09 ÷ 0.15 = 0.60,   −0.12 ÷ 0.15 = −0.80
+disp = dir × push:  0.60 × 0.10 = 0.06,   −0.80 × 0.10 = −0.08
+readRed:   1 − spread = 1 − 0.10 = 0.90   (red moves 0.90 of the push)
+           disp × 0.90 = (0.06 × 0.90, −0.08 × 0.90) = (0.054, −0.072)
+           W₃ − disp × 0.90 = (0.59 − 0.054, 0.98 − (−0.072)) = (0.536, 1.052)
+readGreen: W₃ − disp = (0.59 − 0.06, 0.98 − (−0.08)) = (0.53, 1.06)
+readBlue:  1 + spread = 1 + 0.10 = 1.10   (blue moves 1.10 of the push)
+           disp × 1.10 = (0.06 × 1.10, −0.08 × 1.10) = (0.066, −0.088)
+           W₃ − disp × 1.10 = (0.59 − 0.066, 0.98 − (−0.088)) = (0.524, 1.068)
+no clamp:  all three y are more than 1.00: below the screen, no wallpaper
+           → every channel = 0 → bent = (0, 0, 0)
+           mask = 1 → W₃ stores bent: black
+clamp:     y = min(1.052, 1.00) = 1.00 (the same for 1.06 and 1.068); every x is already inside 0 … 1
+           col: 0.536 × 4 = 2.144,  0.53 × 4 = 2.12,  0.524 × 4 = 2.096 → floor → 2 (all three)
+           row: 1.00 × 4 = 4.00 → floor → 4 → min(4, 3) = 3 (the edge belongs to the last row)
+           col + row = 2 + 3 = 5 → odd → navy (all three) → W₃ stores navy</div>
+    <p><b>Why:</b> the mask can only choose between <code>plain</code> and <code>bent</code>. W₃ is well inside the
+    outline, so it must show <code>bent</code>. Its <code>bent</code> is black because its read points are below the
+    screen: that is a read-point problem, so the fix is a read-point line, the clamp of Lesson 9.12. A mask of 0 in the
+    strip would cut a piece out of the glass. The strip is black, not see-through as in Lesson 9.12, <b>because</b>
+    the Lesson 9.13 line sets alpha to 1.0, and every channel read outside the wallpaper is 0.</p>
   </div></details>
 </div></details>
 
@@ -801,6 +914,7 @@ const TIPS={
   sd:'<b>sd — signed distance</b>, Lesson 9.2.<br>sd = d − radius: negative inside the circle, 0 on the circle, positive outside.',
   smoothstep:'<b>smoothstep(a, b, x)</b> — a reminder from Lesson 9.3.<br>t = (x − a) ÷ (b − a), limited to 0 … 1; then 3t² − 2t³. It is 0 at x = a and below, 1 at x = b and above.',
   center:'<b>The glass center C = (0.40, 0.54)</b> — a parameter since Lesson 9.12 (<code>p = uv − center</code>), the same place as in Lesson 9.13.',
+  capsule:'<b>The capsule sd</b> — a reminder from Lesson 9.5.<pre>inner segment: x from −0.20 to +0.20, y = 0\nnearestX = clamp(p.x, −0.20, 0.20)\nsd = length(p − (nearestX, 0)) − 0.20</pre>nearestX is the x of the point of the inner segment closest to p. 0.20 is the radius of the round ends: half of the height 0.40. sd is negative inside the capsule, 0 on its outline, positive outside.',
   uv:'<b>UV position</b> (Lesson 8.6)<br>Two numbers from 0 to 1. (0, 0) is the top left of the screen; (1, 1) is the bottom right. x grows to the right, y grows downward.'
 };
 document.querySelectorAll('.info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip]));
@@ -1238,6 +1352,17 @@ spread = ${f(S.spread)}   maskBand = 0.002
 (function(){
   { // exercise 1: no push; the glass cannot be seen
     const I=[0.40,0.44], P={...LES,len:0};
+    // the question: the lens before the change (dispLen = 0.10), with its outline
+    const q=document.getElementById('ex1q'), sq=document.getElementById('ex1qStage'), VQ=view(q,0.03,0.17,0.77);
+    render(q,VQ,LES,LENS,0,'bw'); const cq=q.getContext('2d');
+    ring(cq,VQ.X(LES.cx),VQ.Y(LES.cy),RAD*VQ.s,COL.glass,2.5);
+    plate(cq,'violet: the outline of the glass',VQ.X(0.05),VQ.Y(0.22));
+    lbl(cq,'C',VQ.X(LES.cx)+12,VQ.Y(LES.cy)-10,GLS);
+    lbl(cq,'I',VQ.X(I[0])+14,VQ.Y(I[1])-4,INK);
+    const iq=pixelOf(I[0],I[1],LES,0,'bw',LENS).out;
+    addPt(sq,VQ.X(I[0]),VQ.Y(I[1]),rgb(iq),TIP_W(I[0],I[1],'I')+`<br>Inside the violet circle, so its mask is 1. Before the change it stores ${cz(iq)}.`,'I','sm');
+    addPt(sq,VQ.X(LES.cx),VQ.Y(LES.cy),COL.glass,TIP_C(LES.cx,LES.cy),'C','sm');
+    // the answer: the output and the mask map after the change (dispLen = 0)
     const a=document.getElementById('ex1a'), sa=document.getElementById('ex1aStage'), VA=view(a,0.03,0.17,0.77);
     render(a,VA,P,LENS,0,'bw'); const ca=a.getContext('2d');
     plate(ca,'no outline anywhere',VA.X(0.05),VA.Y(0.20));
@@ -1250,43 +1375,87 @@ spread = ${f(S.spread)}   maskBand = 0.002
     lbl(cb,'mask = 1: the glass',VB.X(0.40),VB.Y(0.62),GLS,'center');
     lbl(cb,'mask = 0',VB.X(0.06),VB.Y(0.88),INK,'left');
     lbl(cb,'I',VB.X(I[0])+14,VB.Y(I[1])-4,INK);
-    addPt(sb,VB.X(I[0]),VB.Y(I[1]),'#fff',TIP_W(I[0],I[1],'I')+'<br>sd = −0.15, so mask = 1: I is glass.','I','sm');
+    addPt(sb,VB.X(I[0]),VB.Y(I[1]),'#fff',TIP_W(I[0],I[1],'I')+'<br>Inside the violet circle, so mask = 1: I is glass.','I','sm');
   }
   { // exercise 2: capsule mask, circle push
-    const spec={a:'plain',b:'bent',m:'capsule'}, T=[0.02,0.54], M=[0.40,0.33];
+    const spec={a:'plain',b:'bent',m:'capsule'}, T=[0.78,0.54], M=[0.40,0.33];
+    const outlines=(ctx,V)=>{
+      halo(ctx,()=>rrPath(ctx,V.X(LES.cx-0.40),V.Y(LES.cy-0.20),0.80*V.s,0.40*V.s,0.20*V.s),COL.glass,2.5);
+      ring(ctx,V.X(LES.cx),V.Y(LES.cy),0.35*V.s,COL.ring,2.5);
+    };
+    // the question: the wallpaper with no glass, the two outlines, C, T and M
+    const q=document.getElementById('ex2q'), sq=document.getElementById('ex2qStage'), VQ=view(q,0,0,1);
+    render(q,VQ,LES,INPUT,0,'bw'); const cq=q.getContext('2d');
+    outlines(cq,VQ);
+    plate(cq,'orange: the ring 0.35 from C',VQ.X(0.03),VQ.Y(0.07));
+    plate(cq,'violet: the capsule',VQ.X(0.44),VQ.Y(0.80));
+    lbl(cq,'C',VQ.X(LES.cx)+12,VQ.Y(LES.cy)-10,GLS);
+    lbl(cq,'T',VQ.X(T[0])+24,VQ.Y(T[1])+2,INK); lbl(cq,'M',VQ.X(M[0])+12,VQ.Y(M[1])-10,INK);
+    addPt(sq,VQ.X(T[0]),VQ.Y(T[1]),'#fff',TIP_W(T[0],T[1],'T')+'<br>Inside the violet capsule, outside the orange ring.','T','sm');
+    addPt(sq,VQ.X(M[0]),VQ.Y(M[1]),'#fff',TIP_W(M[0],M[1],'M')+'<br>Inside the orange ring, just outside the violet capsule.','M','sm');
+    addPt(sq,VQ.X(LES.cx),VQ.Y(LES.cy),COL.glass,TIP_C(LES.cx,LES.cy),'C','sm');
+    // the answer: the output, and the output with the two outlines
     for(const [id,cons] of [['ex2a',false],['ex2b',true]]){
       const cv=document.getElementById(id), stage=document.getElementById(id+'Stage'), V=view(cv,0,0,1);
       render(cv,V,LES,spec,0,'bw'); const ctx=cv.getContext('2d');
       if(cons){
-        halo(ctx,()=>rrPath(ctx,V.X(LES.cx-0.40),V.Y(LES.cy-0.20),0.80*V.s,0.40*V.s,0.20*V.s),COL.glass,2.5);
-        ring(ctx,V.X(LES.cx),V.Y(LES.cy),0.35*V.s,COL.ring,2.5);
-        plate(ctx,'T: glass, but no push',V.X(0.03),V.Y(0.80));
+        outlines(ctx,V);
+        plate(ctx,'T: glass, but no push',V.X(0.60),V.Y(0.93));
         plate(ctx,'M: a push, but not glass',V.X(0.45),V.Y(0.26));
-        lbl(ctx,'T',V.X(T[0])+12,V.Y(T[1])-14,INK); lbl(ctx,'M',V.X(M[0])+12,V.Y(M[1])-10,INK);
+        lbl(ctx,'T',V.X(T[0])+24,V.Y(T[1])+2,INK); lbl(ctx,'M',V.X(M[0])+12,V.Y(M[1])-10,INK);
         addPt(stage,V.X(T[0]),V.Y(T[1]),'#fff',TIP_W(T[0],T[1],'T')+'<br>Capsule mask 1, push 0: it stores the wallpaper at T.','T','sm');
-        addPt(stage,V.X(M[0]),V.Y(M[1]),'#fff',TIP_W(M[0],M[1],'M')+'<br>Capsule mask 0, push 0.078: it stores plain.','M','sm');
+        addPt(stage,V.X(M[0]),V.Y(M[1]),'#fff',TIP_W(M[0],M[1],'M')+'<br>Capsule mask 0, push 0.0784: it stores plain.','M','sm');
       } else plate(ctx,'outline only in the middle of the capsule',V.X(0.03),V.Y(0.20));
       addPt(stage,V.X(LES.cx),V.Y(LES.cy),COL.glass,TIP_C(LES.cx,LES.cy),'C','sm');
     }
   }
   { // exercise 3: the glass at the bottom edge, without and with the clamps
     const P0={cx:0.50, cy:1.10, len:0.10, spread:0.10}, W3=[0.59,0.98];
+    const edge=(ctx,V,cv)=>{
+      ring(ctx,V.X(P0.cx),V.Y(P0.cy),RAD*V.s,COL.glass,2.5);
+      line(ctx,0,V.Y(1),cv.width,V.Y(1),'#ffffff',2.5);
+    };
+    const tipW3=(px,clamped)=>TIP_W(W3[0],W3[1],'W₃')+`<br>mask = 1. ${clamped?'With':'Without'} the clamps it stores ${cz(px.out)}.`;
+    // the question: the output without the clamps, with C below the screen
+    const q=document.getElementById('ex3q'), sq=document.getElementById('ex3qStage'), VQ=view(q,0.22,0.78,0.78);
+    const PQ={...P0,noClamp:true};
+    render(q,VQ,PQ,LENS,0,'checker',{transparentOff:true}); const cq=q.getContext('2d');
+    edge(cq,VQ,q);
+    plate(cq,'the black strip, just above the white line',VQ.X(0.235),VQ.Y(0.81));
+    lbl(cq,'y = 1.00: the bottom edge',VQ.X(0.77),VQ.Y(1.025),INK,'right',14);
+    lbl(cq,'below the screen: no wallpaper',VQ.X(0.235),VQ.Y(1.235),INK,'left',14);
+    lbl(cq,'C',VQ.X(P0.cx)+12,VQ.Y(P0.cy)-10,GLS);
+    lbl(cq,'W₃',VQ.X(W3[0])+14,VQ.Y(W3[1])-12,INK);
+    const pq=pixelOf(W3[0],W3[1],PQ,0,'checker',LENS);
+    addPt(sq,VQ.X(W3[0]),VQ.Y(W3[1]),rgb(pq.out),tipW3(pq,false),'W3','sm');
+    addPt(sq,VQ.X(P0.cx),VQ.Y(P0.cy),COL.glass,TIP_C(P0.cx,P0.cy).replace('glass circle','glass circle, below the screen'),'C','sm');
+    // the answer: without and with the clamps, with the read points of W₃
     for(const [id,noClamp] of [['ex3a',true],['ex3b',false]]){
-      const cv=document.getElementById(id), stage=document.getElementById(id+'Stage'), V=view(cv,0.45,0.85,0.69);
+      const cv=document.getElementById(id), stage=document.getElementById(id+'Stage'), V=view(cv,0.40,0.84,0.68);
       const P={...P0,noClamp};
       render(cv,V,P,LENS,0,'checker',{transparentOff:true}); const ctx=cv.getContext('2d');
-      line(ctx,0,V.Y(1),cv.width,V.Y(1),'#ffffff',2.5);
-      lbl(ctx,'y = 1.00: the bottom edge',V.X(0.685),V.Y(0.99),INK,'right',14);
-      lbl(ctx,'below the screen: no wallpaper',V.X(0.56),V.Y(1.08),INK,'left',14);
+      edge(ctx,V,cv);
+      plate(ctx,'y = 1.00: the bottom edge',V.X(0.41),V.Y(0.975));
+      lbl(ctx,'below the screen: no wallpaper',V.X(0.675),V.Y(1.105),INK,'right',14);
       const r=chain(W3[0],W3[1],P), rd=readsOf(W3[0],W3[1],P,r), px=pixelOf(W3[0],W3[1],P,0,'checker',LENS);
       arrow(ctx,V.X(W3[0]),V.Y(W3[1]),V.X(rd[2][0]),V.Y(rd[2][1]),COL.push,3);
       lbl(ctx,'W₃',V.X(W3[0])+14,V.Y(W3[1])-12,INK);
-      addPt(stage,V.X(W3[0]),V.Y(W3[1]),rgb(px.out),TIP_W(W3[0],W3[1],'W₃')+`<br>mask = 1. It stores ${cz(px.out)}.`,'W3','sm');
+      lbl(ctx,'C',V.X(P0.cx)+12,V.Y(P0.cy)-10,GLS);
+      addPt(stage,V.X(W3[0]),V.Y(W3[1]),rgb(px.out),tipW3(px,!noClamp),'W3','sm');
+      addPt(stage,V.X(P0.cx),V.Y(P0.cy),COL.glass,TIP_C(P0.cx,P0.cy).replace('glass circle','glass circle, below the screen'),'C','sm');
       rd.forEach(([u,v],k)=>addPt(stage,V.X(u),V.Y(v),CHC[k],TIP_READ(k,V3(u),V3(v),wall(u,v,0,'checker'),'W₃')+(wall(u,v,0,'checker')?'':'<br>Below the wallpaper: no color, so this channel is 0.'),RNAME[k],'xs'));
       if(noClamp) plate(ctx,'black strip: read points below the edge',V.X(0.46),V.Y(0.87));
       else plate(ctx,'clamp: read points moved up onto y = 1.00',V.X(0.46),V.Y(0.87));
     }
   }
+  // the choices: a click marks one choice and prints why it is right or not
+  document.querySelectorAll('.choices').forEach(g=>{
+    const out=g.nextElementSibling;
+    g.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+      g.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+      out.className='verdict '+(b.dataset.ok==='1'?'ok':'no'); out.textContent=b.dataset.why;
+    }));
+  });
 })();
 
 /* ================= section 8: record ================= */
