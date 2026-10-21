@@ -1,6 +1,6 @@
 # Liquid Glass iOS course — current state
 
-**Updated:** 2026-10-19  
+**Updated:** 2026-10-22  
 **Course version:** 10.1.0  
 **Platform:** Swift / SwiftUI / Metal (`.metal` + `ShaderLibrary`)  
 **Test device:** iPhone 16 Pro  
@@ -86,6 +86,7 @@ course/chapters/chapter-09/lesson-09-14-lens-checkpoint.html
 course/chapters/chapter-09/lesson-distance-fields-image-sampling-and-refraction.html
 course/chapters/chapter-10/lesson-10-01-height-map-idea.html
 course/chapters/chapter-10/lesson-light-surface-direction-and-material-thickness.html
+course/shortcut/lesson-shortcut-safari-menu.html        (side lesson, not counted)
 ```
 
 ## Completed contracts — Lessons 9.1–9.6
@@ -259,6 +260,25 @@ gray   = h ÷ bevel                         (new: the height map, black 0 … wh
 One graphics idea: every pixel gets a surface height h (in UV, the same unit as positions; not the Lesson 2.4 box height; the screen stays flat). One math idea, reused: the right triangle of Lesson 9.1 solved for a leg. Shape: a flat top and a rounded rim; the rim is a quarter of the rim circle (center K, bevel inside the outline, radius bevel), so the flat top is bevel high. C = `(0.50, 0.50)`, radius 0.25, bevel 0.10 (chosen constant: less than the radius so a flat top of radius 0.15 remains; 36 pt on a 360-pt panel). Teaching W = `(0.71, 0.50)` (on the axis through C): p = (0.21, 0), d = 0.21, sd = −0.04, inside 0.04, leg 0.06, bevel² 0.01, leg² 0.0036, h² 0.0064, h = 0.08, gray 0.80 (the 9.14 mask gives W the same 1 as C). Named points on the lime cut line y = 0.50: L (0.25) and O (0.75) on the outline, K = (0.65, 0), F = (0.65, height 0.10) where the flat top starts, H = the surface above W; Q = (0.78, 0.50) outside (h = 0). Hero: the height map and a view at an angle (rows lifted by h, view-angle slider 0–75°, fit-to-canvas scale printed). Stepper 7 steps: side view, height, rim circle, inside and leg, triangle, clamp (flat top / outside), height map. Section 2 compares flat slab (the mask again: a 0.10 wall at O), straight ramp (h = inside: corners at F and O, 0.04 at W), quarter circle (this lesson). Lab: drag W (side view along the line from C through W, zooms out to fit, prints its scale), bevel slider 0.02–0.25 (0.25 = dome), view angle. Challenge: write the h line (parsed safely; diagnoses plus, ramp, leg, inside-for-leg, no root, a fixed 0.01). Exercises: 1 radius 0.35 → the rim stays 0.10 wide, only the flat top grows; 2 A = (0.73, 0.50) → gray 0.60 (leg 0.08, h 0.06; not 0.20); 3 capsule E = (0.86, 0.50) and M = (0.50, 0.34) → the same height 0.08 (the height uses only sd). Metal exercise (new part of rule 18): write `roundedRectSd` (Lesson 9.4) and `surfaceHeight` for a button 0.60 × 0.40, corner radius 0.10, bevel 0.10; test pixels T1 (0.50, 0.50) sd −0.20 h 0.10 · T2 (0.76, 0.50) −0.04 / 0.08 · T3 (0.50, 0.33) −0.03 / 0.071 · T4 (0.73, 0.64) −0.05 / 0.087 · T5 (0.85, 0.50) 0.05 / 0. The check (yours over the key with `.blendMode(.difference)`, `markDifference` red above 2/255) was verified on the iPhone 16 Pro simulator: red over the whole button with the stubs, 0 red pixels with a solution written with the nested ifs of Lesson 9.4.
 
 **iOS files (2026-10-19).** As listed under “Current lesson files”. Built for the iPhone 16 Pro simulator (Xcode 26.6): succeeded; the explorer and the exercise were checked on screen.
+
+## Side lesson — Shortcut: Safari's “…” menu (not counted)
+
+Generated 2026-10-22, not confirmed by the learner. It sits beside the 216-lesson plan and changes no count: progress stays 100 of 216, and the checkpoint stays Lesson 10.1. File: `course/shortcut/lesson-shortcut-safari-menu.html` (linked from the course home under “Side lesson”).
+
+```text
+push      = edgePush × (1 − h ÷ bevel)        (new; h from Lesson 10.1)
+readPoint = position − outward × push       (Chapter 9; outward from central differences of sd, ±0.5 pt)
+gap       = |lead − travel|                 (two Chapter 5 springs: travel 441/35.7, lead 600/34.3 opening; 144/16.8 and 2304/144 closing)
+unsettled = min(1, gap ÷ fullGap)           (fullGap 0.18 opening, 0.40 closing)
+```
+
+One graphics idea: the rim folds the picture (near the outline h grows faster than 1 pt per pt, so the push shrinks faster than the pixel moves in: a mirrored band). One math idea: unsettled drives the lift (36 pt × unsettled), the roundness, round corners and the rim (rimAmount = smoothstep(0, 0.5, unsettled): bevel/edgePush 14/6 → 28/24). Teaching moment t = 0.213 s (1.253 s in `316cfc2b…mp4`, finger down at 1.04 s), column x = 257 pt (moved from 254: in the browser's SF Pro the column at 254 crosses the hollow of the b; 257 meets its right stroke). E, P, Q at inside 0 / 5.6 / 11.2 read 24 / 15.2 / 16; fold 6.7 pt shows 15.1–24, 0–15.1 never shown; rest band 1.1 pt (4.8–6). Printed chain (3 decimals, each line from the rounded line above): travel 0.756, lead 0.928, gap 0.172, unsettled 0.956, top of the outline 641.2699, P = (257, 646.8699), P′ = (257, 656.4699), P′ in the menu text (123.446, 35.4979) on the letter b; without the rim 25.8979, above the letters. The full-precision app values differ by < 0.1 pt (unsettled 0.954, bevel 27.998 from the closing factor's 15 ms tail); the page says so. Closing: J at t = 0.047 s, unsettled 0.995, center 27.512 pt above the menu's middle (Safari's glass top rises about 22 pt in `1cbadc43…`).
+
+**Browser model.** The motion code is a line-by-line JS copy of `SafariMenuMotion.swift` (checked to 9 decimals for 436 moments, opening and closing). The glass is a WebGL copy of `SafariMenuGlass.metal` with a CPU fallback (same pictures within 1/255). Own box blur (3 passes); menu-text blur σ = 0.5 × SwiftUI's radius (an estimate, matched by eye to the recording). Text drawn letter by letter at fixed kerned positions so every browser places the letters alike. Recording frames: 10 JPEGs (643 × 394, y 624–870 pt) base64 in a separate script at the end; the history row's title painted over (the brief's mask, plus: masked pixels whose surrounding row background did not change are painted too, because compression noise left a legible trace in the 1.331 s frame).
+
+**iOS files.** `LiquidGlassLab-iOS/LiquidGlassLab/shortcut/` (SafariMenuGlass.metal, SafariMenuMotion.swift, SafariMenuScene.swift, SafariMenuShortcutScreen.swift, MenuFoldExercise.metal, MenuFoldExerciseKey.metal, MenuFoldExerciseView.swift) and the chip 100 in `LabHost.swift`. Built and checked in the earlier session; not changed by the lesson; not committed yet.
+
+**QA (2026-10-22).** Headless Chrome 1920×1080 with WebGL (SwiftShader): every stepper state, lab states, challenge inputs, exercises, Metal exercise; no script errors, no horizontal overflow; Decimal audit of every “a op b = c” in text, tables, readouts and tooltips: 897 lines, 0 problems, no line with two operations.
 
 ## Learner feedback log (latest first)
 
