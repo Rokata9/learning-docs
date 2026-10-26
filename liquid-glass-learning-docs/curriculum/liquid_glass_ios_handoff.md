@@ -242,6 +242,21 @@ gray   = h ÷ bevel
 
 C = `(0.50, 0.50)`, radius 0.25, bevel 0.10. W = `(0.71, 0.50)`: sd = −0.04, inside 0.04, leg 0.06, h = 0.08, gray 0.80. The height uses only sd (any shape). iOS files: `chapter10/HeightMap.metal` + `HeightMapExplorer.swift`; Metal exercise (new in AGENTS.md rule 18, 2026-10-19): `chapter10/HeightExercise.metal` (learner writes `roundedRectSd` and `surfaceHeight`), `HeightExerciseKey.metal`, `ExerciseCheck.metal` (`markDifference`, reusable), `HeightExerciseView.swift`, on `Chapter10Screen`. Built 2026-10-19. Next: Lesson 10.2 — Slope — do not generate unless asked.
 
+## Side lesson — Safari shortcut, Section 4 revised 2026-10-26
+
+The learner found the push ratio, the constant 24 and the exact-fold modal hard to follow. Section 4 now uses one 15-step visual workspace with new wording and original SVG/canvas figures. The rendering formulas are unchanged:
+
+```text
+push = edgePush × (1 − h ÷ bevel)
+read = inside + push
+fold inside = bevel − bevel² ÷ √(bevel² + edgePush²)
+optional check = read(inside + 0.001) − read(inside)
+```
+
+`bevel = 28` is the rim width, rim-circle radius and flat-top height. `edgePush = 24` is a recording-matched dial, not a material constant. Two matched 28-part rulers show why a 1 pt height increment removes `24 ÷ 28 = 0.857143` pt of push. The balance climb is computed from the original integers as `28 ÷ 24 = 1.166667`. After the learner preferred the exact form, Step 7 derives `fold inside = bevel − bevel² ÷ √(bevel² + edgePush²)` from `leg ÷ h = bevel ÷ edgePush` and `leg² + h² = bevel²`. The radius/tangent picture explains the ratio. Substitution gives `28 − 784 ÷ √1360 = 6.740815`, reading `15.121822`. The two direction checks at `6.740` and `6.741` confirm the answer rather than replacing the derivation. The second read of 24 is also exact: `2 × 28 × 24² ÷ 1360 = 23.717647`. After the Step 11 feedback, Section 4 uses original picture, upside-down copy, original-order copy, pixel row, top of the glass and output height instead of the previous shorthand. Step 11 now proves the bend with two consecutive moves: original-order down 1.653262 then 1.499593 gives `right ÷ down = 0.302432` then `0.333424`; upside-down up 0.500320 then 0.346653 gives `right ÷ up = 0.999360` then `1.442365`. The original line’s constant `0.5 ÷ 1 = 0.5` keeps it straight. Other steps preserve unequal copy heights, letter rows, ramp comparison, other edgePush values, rounded corners and the recording.
+
+Failure → prevention: `CURRENT_STATE.md` learner feedback log, 2026-10-26 → `AGENTS.md` rules 3 (visible-role names), 12 (matched scales and calculator-exact inputs) and 15 (exact forms first; consecutive moves and ratios as bend proof). QA: 729 states, 4,038 calculations, 0 arithmetic problems; all controls and marked points checked at desktop sizes. No iOS files changed. Side lesson remains unconfirmed and does not affect the 100/216 count or Lesson 10.1 checkpoint.
+
 ## Future conversation
 
 Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions. When the checkpoint or frontier moves, refresh section 12 of that prompt after `CURRENT_STATE.md`.
