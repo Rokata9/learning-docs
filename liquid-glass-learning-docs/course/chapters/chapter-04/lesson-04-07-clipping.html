@@ -17,7 +17,7 @@
 <main class="page">
 <nav class="topbar">
   <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-shapes-corners-paths-and-masks.html">Chapter 4</a> · Lesson 4.7</div>
-  <div class="chips"><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span><span class="chip progress">Lesson 4.7 · completed</span><span class="chip progress">35 of 216 complete</span></div>
+  <div class="chips"><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span><span class="chip progress">Lesson 4.7 · completed</span><span class="chip progress">100 of 216 completed</span><span class="chip">iPhone 16 Pro</span></div>
 </nav>
 <header class="hero panel">
   <div>
@@ -26,19 +26,19 @@
     <p class="lead"><strong>Lesson 4.5 gave you one closed badge <code>Path</code>.</strong> This lesson uses that same boundary as a yes-or-no drawing permission. The selected draw calls may change positions inside the badge. The same draw calls may not change positions outside it.</p>
     <div class="goal"><strong>Practical problem</strong><p>A color pattern is intentionally larger than the badge. How can the program keep the pattern visible inside the badge without resizing, trimming, or rebuilding the pattern itself?</p></div>
   </div>
-  <aside class="card amber"><h2>One new idea</h2><p><strong>Clipping</strong> limits where later drawing commands may write.</p><p>The path stays the same. The oversized pattern stays the same. Only the allowed output region changes.</p><p>Lesson 4.8 will introduce masks. Lesson 4.9 will explain the soft transition at a rendered edge.</p></aside>
+  <aside class="card amber"><h2>One new idea</h2><p><strong>Clipping</strong> limits where later drawing commands may write.</p><p>The path stays the same. The oversized pattern stays the same. Only the allowed output region changes.</p><p>Lesson 4.8 will introduce masks. Lesson 4.9 will explain the soft transition at a rendered edge.</p><p><strong>iOS files:</strong><br><code>chapter04/Chapter04Screen.swift</code><br><code>chapter04/ClippingExplorer.swift</code></p><p>Lesson 4.7 stays complete as Chapter 4 geometry. </p></aside>
 </header>
 
 <section class="section panel" id="fit">
   <div class="section-head"><div><div class="section-no">1 · WHERE THIS LESSON FITS</div><h2>Reuse a completed closed Path</h2></div><p>No new curve formula is needed.</p></div>
   <div class="two">
-    <article class="card green"><h3>Completed object</h3><p>The badge boundary uses the Lesson 4.5 command sequence:</p><div class="formula">moveTo(A)
-lineTo(B)
-lineTo(C)
-lineTo(D)
-lineTo(E)
-close()</div><p>The final <code>close()</code> stores the segment from E back to A, so the path encloses one region.</p></article>
-    <article class="card indigo"><h3>New use of that object</h3><p>The closed path is supplied to <code>clipPath</code>. Draw calls inside the <code>clipPath { ... }</code> block are restricted to the region enclosed by the path.</p><p>The lesson does not change the path commands or the content commands.</p></article>
+    <article class="card green"><h3>Completed object</h3><p>The badge boundary uses the Lesson 4.5 command sequence:</p><div class="formula">move(to: A)
+addLine(to: B)
+addLine(to: C)
+addLine(to: D)
+addLine(to: E)
+closeSubpath()</div><p>The final <code>closeSubpath()</code> stores the segment from E back to A, so the path encloses one region.</p></article>
+    <article class="card indigo"><h3>New use of that object</h3><p>The closed path is supplied to <code>clip(to:)</code> on a <code>GraphicsContext</code> copy. Draw calls on that copy are restricted to the region enclosed by the path.</p><p>The lesson does not change the path commands or the content commands.</p></article>
   </div>
 </section>
 
@@ -47,7 +47,7 @@ close()</div><p>The final <code>close()</code> stores the segment from E back to
   <div class="three">
     <article class="card red"><h3>Clipping off</h3><p>The four opaque color bands cover their complete oversized drawing area. They remain visible beyond the badge outline.</p></article>
     <article class="card green"><h3>Clipping on</h3><p>The same four band draw calls run. Only the portions inside the badge remain visible.</p></article>
-    <article class="card blue"><h3>After the clip block</h3><p>A separate ring drawn after <code>clipPath { ... }</code> is visible outside the badge. This proves that the clip has ended for later draw calls.</p></article>
+    <article class="card blue"><h3>After the clipped copy</h3><p>A separate ring drawn on the original <code>GraphicsContext</code> is visible outside the badge. This proves that <code>clip(to:)</code> affected only the copy.</p></article>
   </div>
 </section>
 
@@ -57,7 +57,7 @@ close()</div><p>The final <code>close()</code> stores the segment from E back to
     <article class="card"><h3>Clip region</h3><p>The area in which the current clipped drawing commands are allowed to change the output.</p></article>
     <article class="card"><h3>Candidate drawing</h3><p>The color or shape a draw call would write at a position before the clip decision is applied.</p></article>
     <article class="card"><h3>Discarded draw</h3><p>A current draw command that is prevented from replacing the existing destination at an outside position. Existing content is not erased.</p></article>
-    <article class="card"><h3>Scope</h3><p>The exact block of code affected by one operation. Here, the clip affects only draw calls inside the <code>clipPath</code> block.</p></article>
+    <article class="card"><h3>Scope</h3><p>The exact block of code affected by one operation. Here, the clip affects only draw calls on the <code>GraphicsContext</code> copy that received <code>clip(to:)</code>.</p></article>
   </div>
 </section>
 
@@ -123,70 +123,62 @@ clip decision = reject this candidate draw</div></article>
   <div class="success"><strong>Inside point I follows the other branch:</strong> I = (300, 230) lies inside the rectangular core from X 120 through 520 and Y 90 through 340. The clip allows the opaque amber candidate, so the final output at I is the amber band color.</div>
 </section>
 
-<section class="section panel" id="android">
-  <div class="section-head"><div><div class="section-no">7 · ANDROID CONNECTION</div><h2>Apply the Path to a DrawScope block</h2></div><p>Complete source stays in Android Studio and the Android ZIP.</p></div>
-  <p>Target file:</p><div class="formula">LiquidGlassLab/app/src/main/java/com/example/liquidglasslab/chapter04/ClippingExplorer.kt</div>
+<section class="section panel" id="ios-connection">
+  <div class="section-head"><div><div class="section-no">7 · iOS CONNECTION</div><h2>Apply the Path to a GraphicsContext copy</h2></div><p>Complete source remains in Xcode and <code>LiquidGlassLab-iOS</code>.</p></div>
+  <p>Target file:</p><div class="formula">LiquidGlassLab-iOS/LiquidGlassLab/chapter04/ClippingExplorer.swift</div>
   <div class="two">
-    <article class="card indigo"><h3>Short attributed excerpt</h3><pre class="code">// ClippingExplorer.kt — ClippingCanvas
+    <article class="card indigo"><h3>Short attributed excerpt</h3><pre class="code">// ClippingExplorer.swift — Canvas drawing
 
-drawRect(TeachingBackground)
+context.fill(Path(bounds), with: .color(teachingBackground))
 
-clipPath(badgePath) {
-    drawOversizedPattern(patternShiftPx)
-}
+var clipped = context
+clipped.clip(to: badgePath)
+drawOversizedPattern(in: &clipped, patternShift: patternShift)
 
-drawPath(
-    path = badgePath,
-    color = ClipOutlineColor,
-    style = Stroke(width = 3.dp.toPx()),
-)
-
-drawCircle(
-    color = PostClipMarkerColor,
-    center = outsidePoint,
-    radius = 8.dp.toPx(),
-)</pre></article>
-    <article class="card"><h3>Exact value path</h3><div class="formula">five badge points in dp
-↓ convert to Canvas-local px
+context.stroke(badgePath, with: .color(clipOutlineColor), lineWidth: 3)
+context.stroke(qRing, with: .color(postClipMarkerColor), lineWidth: 3)</pre></article>
+    <article class="card"><h3>Exact value path</h3><div class="formula">five badge points in points
+↓ SwiftUI Canvas is already in points
 closed Path
-↓ clipPath(badgePath)
-temporary allowed region
-↓ four band drawRect calls + decorations
+↓ var clipped = context; clipped.clip(to: badgePath)
+temporary allowed region on the copy
+↓ four band fills + decorations
 visible pattern only inside badge
-↓ leave clipPath block
-clip is restored
-↓ outline and Q ring draw normally</div><p>The Compose <code>clipPath</code> contract restricts the draw calls inside its callback to the path region. When the callback ends, that clip is no longer applied.</p></article>
+↓ discard the clipped copy
+original context is unclipped
+↓ outline and Q ring draw normally</div><p><code>GraphicsContext</code> is a value type. <code>clip(to:)</code> restricts draw calls on that copy to the path region. The original context keeps its previous clip.</p></article>
   </div>
   <div class="pipeline" style="margin-top:18px">
     <article class="card"><strong>1 · Background</strong><p>An opaque background is drawn before any clip exists.</p></article>
-    <article class="card"><strong>2 · Path</strong><p>Five dp points are converted to px and stored in one closed <code>Path</code>.</p></article>
-    <article class="card"><strong>3 · Enter clip</strong><p><code>clipPath(badgePath)</code> temporarily reduces the allowed drawing region.</p></article>
+    <article class="card"><strong>2 · Path</strong><p>Five point coordinates are stored in one closed <code>Path</code>. There is no density conversion.</p></article>
+    <article class="card"><strong>3 · Clip a copy</strong><p><code>clip(to: badgePath)</code> on a <code>GraphicsContext</code> copy temporarily reduces that copy's allowed drawing region.</p></article>
     <article class="card"><strong>4 · Draw pattern</strong><p>The oversized bands and decorations use their original coordinates.</p></article>
-    <article class="card"><strong>5 · Leave clip</strong><p>The previous Canvas clip state is restored automatically.</p></article>
-    <article class="card"><strong>6 · Draw evidence</strong><p>The path outline and outside Q ring are drawn after the clip block.</p></article>
+    <article class="card"><strong>5 · Discard the copy</strong><p>The original Canvas clip state was never changed.</p></article>
+    <article class="card"><strong>6 · Draw evidence</strong><p>The path outline and outside Q ring are drawn on the original context.</p></article>
   </div>
-  <div class="note"><strong>Suggested commits:</strong><div class="formula">course: add clipping lesson
-course: add clipping explorer</div></div>
+  <p><strong>iOS files:</strong><br><code>LiquidGlassLab-iOS/LiquidGlassLab/chapter04/Chapter04Screen.swift</code><br><code>LiquidGlassLab-iOS/LiquidGlassLab/chapter04/ClippingExplorer.swift</code></p>
+  <p><a href="https://developer.apple.com/documentation/swiftui/graphicscontext/clip(to:style:)">GraphicsContext.clip(to:)</a> · <a href="https://developer.apple.com/documentation/swiftui/canvas">SwiftUI Canvas</a> · <a href="https://developer.apple.com/documentation/swiftui/path">SwiftUI Path</a></p>
 </section>
 
 <section class="section panel" id="predict">
   <div class="section-head"><div><div class="section-no">8 · PREDICT</div><h2>What happens after the block ends?</h2></div></div>
-  <p>The program draws a pink ring at outside point O <strong>after</strong> the <code>clipPath { ... }</code> block. Choose the expected result before checking.</p>
+  <p>The program draws a pink ring at outside point O on the <strong>original</strong> <code>GraphicsContext</code>, after the clipped copy is discarded. Choose the expected result before checking.</p>
   <div class="controls"><button class="preset" data-prediction="hidden">The ring is hidden</button><button class="preset" data-prediction="visible">The ring is visible</button></div>
   <button class="primary" id="checkPrediction" style="margin-top:12px">Check prediction</button>
   <div class="result" id="predictionResult">Choose one result, then check it.</div>
 </section>
 
-<section class="section panel" id="pixel">
-  <div class="section-head"><div><div class="section-no">9 · RUN ON THE PIXEL 8 PRO</div><h2>Inspect the exact scope change</h2></div><p>The browser model does not verify Android renderer output.</p></div>
+<section class="section panel" id="iphone">
+  <div class="section-head"><div><div class="section-no">9 · RUN ON THE IPHONE 16 PRO</div><h2>Inspect the exact scope change</h2></div><p>The browser model does not verify iOS renderer output.</p></div>
   <ol>
-    <li>Apply the Lesson 4.7 Android ZIP over the completed Lesson 4.6 project.</li>
-    <li>Build and open Lesson 4.7 on the Pixel 8 Pro.</li>
+    <li>Open <code>LiquidGlassLab-iOS</code> after the Lesson 4.5 PathsExplorer.</li>
+    <li>Build and run the app on the iPhone 16 Pro.</li>
     <li>Press <strong>Clipping off</strong>. Confirm that the bands cover the complete Canvas area.</li>
     <li>Press <strong>Clipping on</strong>. Confirm that the same bands remain visible only inside the badge.</li>
     <li>Move <strong>Decorative pattern shift</strong>. Confirm that the decorations move while the badge boundary remains fixed.</li>
     <li>Select <strong>O · outside point</strong>. Confirm that the trace says the clipped output remains the background.</li>
-    <li>Confirm that the pink Q ring remains visible outside the badge because it is drawn after the clip block.</li>
+    <li>Confirm that the pink Q ring remains visible outside the badge because it is drawn on the original, unclipped context.</li>
+    <li>Open the Xcode #Preview canvases: Chapter 4 light, Chapter 4 dark, ClippingExplorer light, and ClippingExplorer dark, each at 412 × 915 points.</li>
   </ol>
 </section>
 
@@ -196,22 +188,23 @@ course: add clipping explorer</div></div>
     <article class="card green"><h3>What changes</h3><p>The set of drawing positions where commands inside the clip block may replace the destination.</p></article>
     <article class="card"><h3>What does not change</h3><p>The badge Path, the band rectangles, their colors, and their original coordinates.</p></article>
     <article class="card amber"><h3>What outside means</h3><p>The current clipped draw is rejected at that position. Previously drawn background remains.</p></article>
-    <article class="card blue"><h3>Why Q is visible</h3><p>The clip scope ends before Q is drawn, so the restored Canvas state permits the outside ring.</p></article>
+    <article class="card blue"><h3>Why Q is visible</h3><p>Q is drawn on the original <code>GraphicsContext</code>. <code>clip(to:)</code> affected only the copy, so the outside ring is permitted.</p></article>
   </div>
   <div class="warning"><strong>Deliberate boundary:</strong> this lesson treats positions as clearly inside or clearly outside. The renderer's multi-pixel transition at the path edge is antialiasing, taught in Lesson 4.9. A mask that supplies gradual visibility values is a different object, taught in Lesson 4.8.</div>
 </section>
 
 <section class="section panel" id="challenge">
-  <div class="section-head"><div><div class="section-no">11 · CODING CHALLENGE</div><h2>Move the pattern draw into the clip scope</h2></div><p>The starting code creates a clip block but draws the pattern before entering it.</p></div>
+  <div class="section-head"><div><div class="section-no">11 · CODING CHALLENGE</div><h2>Move the pattern draw onto the clipped copy</h2></div><p>The starting code creates a clipped copy but draws the pattern on the original context first.</p></div>
   <div class="challenge">
-    <div><textarea class="editor" id="challengeEditor" spellcheck="false">fun DrawScope.drawBadgePattern(
-    badgePath: Path,
+    <div><textarea class="editor" id="challengeEditor" spellcheck="false">func drawBadgePattern(
+    context: inout GraphicsContext,
+    badgePath: Path
 ) {
-    drawOversizedPattern()
+    drawOversizedPattern(in: &context)
 
-    clipPath(badgePath) {
-        // The pattern must be drawn here.
-    }
+    var clipped = context
+    clipped.clip(to: badgePath)
+    // The pattern must be drawn here.
 }</textarea><div class="controls" style="margin-top:12px"><button class="preset" data-challenge="outside">Draw before clip</button><button class="preset" data-challenge="inside">Draw inside clip</button><button class="primary" id="checkChallenge">Check repair</button></div><div class="result" id="challengeResult">Move the draw call or use a preset, then check the repair.</div></div>
     <aside class="challenge-preview"><h3>Code-driven preview</h3><svg id="challengeSvg" viewBox="0 0 560 300" role="img" aria-label="Challenge preview showing clipped or unclipped bands"></svg><div class="formula" id="challengeFormula"></div></aside>
   </div>
@@ -222,19 +215,19 @@ course: add clipping explorer</div></div>
   <details><summary>Exercise 1 · Inside point I</summary><p>Clipping is on. Point I = (300, 230) is inside the badge. The candidate band is opaque amber. What final color reaches I?</p><details><summary>Show answer</summary><p>The opaque amber candidate reaches I because the clip allows the draw there. The final output is straight sRGB RGBA(0.8510, 0.4667, 0.0235, 1.0000).</p></details></details>
   <details><summary>Exercise 2 · Outside point O</summary><p>Clipping is on. Point O = (720, 230) is outside the badge. Does O become transparent, or does the earlier background remain?</p><details><summary>Show answer</summary><p>The earlier background remains. Clipping rejects the current band draw at O. It does not erase the destination or replace it with transparent black.</p></details></details>
   <details><summary>Exercise 3 · Diagnostic: clip or mask?</summary><p>A designer wants visibility values such as 0.00, 0.25, 0.70, and 1.00 across a soft field. Is the yes-or-no clip model from this lesson sufficient?</p><details><summary>Show answer</summary><p>No. This lesson's clip region answers whether the current draw may proceed at clearly inside or outside positions. A separate field containing gradual visibility values is a mask, introduced in Lesson 4.8.</p></details></details>
-  <details><summary>Exercise 4 · Scope</summary><p>A blue circle is drawn outside the badge after the <code>clipPath</code> block. Is it still clipped by the badge?</p><details><summary>Show answer</summary><p>No. The <code>clipPath</code> helper restores the previous clip after its block completes. A later circle is not restricted by that finished clip.</p></details></details>
+  <details><summary>Exercise 4 · Scope</summary><p>A blue circle is drawn outside the badge on the original <code>GraphicsContext</code> after the clipped copy is discarded. Is it still clipped by the badge?</p><details><summary>Show answer</summary><p>No. <code>clip(to:)</code> affected only the copy. A later circle drawn on the original context is not restricted by that finished clip.</p></details></details>
 </section>
 
 <section class="section panel" id="completion">
   <div class="section-head"><div><div class="section-no">13 · COMPLETION RECORD</div><h2>Record the learner checkpoint</h2></div><p>Lesson 4.7 remains incomplete until you explicitly confirm it.</p></div>
   <div class="checklist" id="checklist">
-    <label class="check"><input data-check="build" type="checkbox">The Android patch builds and opens Lesson 4.7.</label>
-    <label class="check"><input data-check="previews" type="checkbox">Complete-screen and direct-child previews render in light and dark modes.</label>
+    <label class="check"><input data-check="build" type="checkbox">LiquidGlassLab-iOS builds and opens Lesson 4.7 on the iPhone 16 Pro.</label>
+    <label class="check"><input data-check="previews" type="checkbox">Chapter 4 and ClippingExplorer #Preview canvases render in light and dark at 412 × 915 points.</label>
     <label class="check"><input data-check="path" type="checkbox">I can identify the closed badge Path used as the clip region.</label>
     <label class="check"><input data-check="toggle" type="checkbox">Clipping off and clipping on use the same oversized pattern commands.</label>
     <label class="check"><input data-check="inside" type="checkbox">I can trace inside point I to the amber output.</label>
     <label class="check"><input data-check="outside" type="checkbox">I can trace outside point O to the unchanged background.</label>
-    <label class="check"><input data-check="scope" type="checkbox">I can explain why Q is visible after the clip block ends.</label>
+    <label class="check"><input data-check="scope" type="checkbox">I can explain why Q is visible on the original, unclipped GraphicsContext.</label>
     <label class="check"><input data-check="noterase" type="checkbox">I can explain why clipping does not erase previously drawn content.</label>
     <label class="check"><input data-check="boundary" type="checkbox">I can separate clipping from masks and antialiasing.</label>
     <label class="check"><input data-check="prediction" type="checkbox">The prediction is complete.</label>
@@ -247,13 +240,13 @@ course: add clipping explorer</div></div>
 </section>
 
 <section class="section panel" id="sources">
-  <div class="section-head"><div><div class="section-no">14 · SOURCES AND EVIDENCE</div><h2>What the Android contract supports</h2></div></div>
+  <div class="section-head"><div><div class="section-no">14 · SOURCES AND EVIDENCE</div><h2>What the iOS contract supports</h2></div></div>
   <ul>
-    <li><a href="https://android.googlesource.com/platform/frameworks/support/+/androidx-main/compose/ui/ui-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/drawscope/DrawScope.kt">AndroidX DrawScope source</a> — documents that <code>clipPath</code> reduces the current clip to the path region for draw calls inside its callback, then removes that temporary clip afterward.</li>
-    <li><a href="https://developer.android.com/develop/ui/compose/graphics/draw/modifiers">Android Developers · Graphics modifiers</a> — contains an official <code>clipPath(path) { drawContent() }</code> example.</li>
-    <li><a href="https://developer.android.com/develop/ui/compose/graphics/draw/overview">Android Developers · Graphics in Compose</a> — documents Compose <code>Canvas</code>, <code>DrawScope</code>, coordinates, and Path drawing.</li>
+    <li><a href="https://developer.apple.com/documentation/swiftui/graphicscontext/clip(to:style:)">SwiftUI GraphicsContext.clip(to:)</a> — adds a clipping path to that context. Subsequent drawing on that context is clipped to the intersection of the current clip and the given path.</li>
+    <li><a href="https://developer.apple.com/documentation/swiftui/graphicscontext">SwiftUI GraphicsContext</a> — a value type. Copying it and clipping the copy leaves the original context's clip unchanged.</li>
+    <li><a href="https://developer.apple.com/documentation/swiftui/canvas">SwiftUI Canvas</a> — drawing is in points, origin top-left, y down.</li>
   </ul>
-  <div class="warning"><strong>Evidence boundary:</strong> the browser uses SVG clipping as a teaching model. The Android experiment executes Compose <code>clipPath</code>. Neither experiment reads physical display pixels back from the renderer. Lesson 4.9 will study the rendered transition around a mathematical boundary.</div>
+  <div class="warning"><strong>Evidence boundary:</strong> the browser uses SVG clipping as a teaching model. The iOS experiment executes SwiftUI <code>GraphicsContext.clip(to:)</code>. Neither experiment reads physical display pixels back from the renderer. Lesson 4.9 will study the rendered transition around a mathematical boundary.</div>
 </section>
 
 <nav class="footer-nav panel"><a href="lesson-04-06-cubic-bezier-curves.html">← Lesson 4.6 · completed</a><a href="lesson-shapes-corners-paths-and-masks.html">Chapter 4 hub</a><a href="lesson-04-08-masks.html">Lesson 4.8 · Masks →</a></nav>
@@ -270,28 +263,28 @@ function patternMarkup(clip,shift=0,clipId='badgeClipMain'){const clipAttr=clip?
 function baseDefs(clipId,gridId){return `<defs><clipPath id="${clipId}"><path d="${pathD}"/></clipPath><pattern id="${gridId}" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="var(--line)" stroke-width="1" opacity=".7"/></pattern></defs>`;}
 function pointMarker(p,selected=true){return `<circle cx="${p.x}" cy="${p.y}" r="${selected?15:11}" fill="var(--paper)" stroke="var(--red)" stroke-width="4"/><text x="${p.x}" y="${p.y+5}" text-anchor="middle" font-size="15" font-weight="950" fill="var(--red)">${p.label}</text>`;}
 function postMarker(){return `<circle cx="720" cy="72" r="16" fill="var(--paper)" stroke="var(--pink)" stroke-width="5"/><text x="720" y="77" text-anchor="middle" font-size="15" font-weight="950" fill="var(--pink)">Q</text>`;}
-function renderMain(){const p=POINTS[state.point];$('mainSvg').innerHTML=`${baseDefs('badgeClipMain','gridMain')}<rect width="820" height="430" rx="16" fill="${BG}"/><rect width="820" height="430" rx="16" fill="url(#gridMain)"/>${patternMarkup(state.clip,state.shift,'badgeClipMain')}${state.bounds?'<rect x="24" y="50" width="772" height="330" fill="none" stroke="var(--blue)" stroke-width="3" stroke-dasharray="10 8"/>':''}${state.outline?`<path d="${pathD}" fill="none" stroke="var(--indigo)" stroke-width="7" stroke-linejoin="round"/>`:''}${pointMarker(p)}${state.post?postMarker():''}<text x="34" y="32" font-size="16" font-weight="900" fill="currentColor">${state.clip?'clipPath active for the bands':'bands drawn without a clip'}</text>`;document.querySelectorAll('[data-clip]').forEach(b=>b.classList.toggle('selected',(b.dataset.clip==='on')===state.clip));document.querySelectorAll('[data-point]').forEach(b=>b.classList.toggle('selected',b.dataset.point===state.point));$('toggleOutline').classList.toggle('selected',state.outline);$('toggleOutline').textContent=`Clip outline · ${state.outline?'shown':'hidden'}`;$('toggleBounds').classList.toggle('selected',state.bounds);$('toggleBounds').textContent=`Content bounds · ${state.bounds?'shown':'hidden'}`;$('togglePost').classList.toggle('selected',state.post);$('togglePost').textContent=`Post-clip ring Q · ${state.post?'shown':'hidden'}`;$('patternShift').value=state.shift;$('patternShiftOut').textContent=state.shift>0?`+${state.shift}`:String(state.shift);$('selectedPosition').textContent=`${p.inside?'Inside point I':'Outside point O'} = (${p.x}, ${p.y})`;$('pathTest').textContent=p.inside?'inside the closed badge Path':'outside the closed badge Path';const bg='straight sRGB RGBA(0.9451, 0.9608, 0.9765, 1.0000)',amber='straight sRGB RGBA(0.8510, 0.4667, 0.0235, 1.0000)';$('finalOutput').textContent=!state.clip||p.inside?amber:bg;}
+function renderMain(){const p=POINTS[state.point];$('mainSvg').innerHTML=`${baseDefs('badgeClipMain','gridMain')}<rect width="820" height="430" rx="16" fill="${BG}"/><rect width="820" height="430" rx="16" fill="url(#gridMain)"/>${patternMarkup(state.clip,state.shift,'badgeClipMain')}${state.bounds?'<rect x="24" y="50" width="772" height="330" fill="none" stroke="var(--blue)" stroke-width="3" stroke-dasharray="10 8"/>':''}${state.outline?`<path d="${pathD}" fill="none" stroke="var(--indigo)" stroke-width="7" stroke-linejoin="round"/>`:''}${pointMarker(p)}${state.post?postMarker():''}<text x="34" y="32" font-size="16" font-weight="900" fill="currentColor">${state.clip?'clip(to:) active for the bands':'bands drawn without a clip'}</text>`;document.querySelectorAll('[data-clip]').forEach(b=>b.classList.toggle('selected',(b.dataset.clip==='on')===state.clip));document.querySelectorAll('[data-point]').forEach(b=>b.classList.toggle('selected',b.dataset.point===state.point));$('toggleOutline').classList.toggle('selected',state.outline);$('toggleOutline').textContent=`Clip outline · ${state.outline?'shown':'hidden'}`;$('toggleBounds').classList.toggle('selected',state.bounds);$('toggleBounds').textContent=`Content bounds · ${state.bounds?'shown':'hidden'}`;$('togglePost').classList.toggle('selected',state.post);$('togglePost').textContent=`Post-clip ring Q · ${state.post?'shown':'hidden'}`;$('patternShift').value=state.shift;$('patternShiftOut').textContent=state.shift>0?`+${state.shift}`:String(state.shift);$('selectedPosition').textContent=`${p.inside?'Inside point I':'Outside point O'} = (${p.x}, ${p.y})`;$('pathTest').textContent=p.inside?'inside the closed badge Path':'outside the closed badge Path';const bg='straight sRGB RGBA(0.9451, 0.9608, 0.9765, 1.0000)',amber='straight sRGB RGBA(0.8510, 0.4667, 0.0235, 1.0000)';$('finalOutput').textContent=!state.clip||p.inside?amber:bg;}
 document.querySelectorAll('[data-clip]').forEach(b=>b.addEventListener('click',()=>{state.clip=b.dataset.clip==='on';renderMain();}));document.querySelectorAll('[data-point]').forEach(b=>b.addEventListener('click',()=>{state.point=b.dataset.point;renderMain();}));$('toggleOutline').addEventListener('click',()=>{state.outline=!state.outline;renderMain();});$('toggleBounds').addEventListener('click',()=>{state.bounds=!state.bounds;renderMain();});$('togglePost').addEventListener('click',()=>{state.post=!state.post;renderMain();});$('patternShift').addEventListener('input',e=>{state.shift=Number(e.target.value);renderMain();});
 
 const STEPS=[
 {title:'1 · Draw the existing background',caption:'The background is written before clipping begins. It fills every Canvas position and becomes the destination for later opaque band draws.',formula:'input: empty teaching Canvas\noperation: draw opaque background\noutput: background at every position',stage:1},
-{title:'2 · Build the closed badge Path',caption:'The same five points and close command from Lesson 4.5 define one enclosed region. The outline is shown for inspection, but the outline itself is not yet a clip.',formula:'A → B → C → D → E → close()\noutput: one closed Path',stage:2},
+{title:'2 · Build the closed badge Path',caption:'The same five points and closeSubpath() from Lesson 4.5 define one enclosed region. The outline is shown for inspection, but the outline itself is not yet a clip.',formula:'A → B → C → D → E → closeSubpath()\noutput: one closed Path',stage:2},
 {title:'3 · Observe the unbounded candidate pattern',caption:'Without clipping, the four band rectangles and decorations write throughout their complete drawing area, including positions outside the badge.',formula:'candidate content bounds: X 24..796, Y 50..380\nclip: not active\noutput: bands visible inside and outside badge',stage:3},
-{title:'4 · Enter clipPath(badgePath)',caption:'The current allowed region becomes the part of the Canvas that is also inside the badge Path. The content commands have not run yet.',formula:'current Canvas clip + badge Path\n→ temporary allowed region = badge interior',stage:4},
-{title:'5 · Draw the same pattern inside the block',caption:'The band and decoration commands keep their original coordinates. At outside point O, the candidate draw is rejected and the background remains.',formula:'O = (720, 230)\ncandidate = amber\npath test = outside\noutput at O = existing background',stage:5},
-{title:'6 · Leave the block and draw Q',caption:'The temporary badge clip is removed when the block ends. The outline and pink Q ring are drawn afterward, so Q remains visible outside the badge.',formula:'clipPath block ends\nprevious clip state restored\npost-clip ring Q at (720, 72) = visible',stage:6}
+{title:'4 · Clip a GraphicsContext copy',caption:'GraphicsContext is a value type. clip(to:) on a copy reduces that copy\'s allowed region to the badge interior. The original context is unchanged. The content commands have not run yet.',formula:'var clipped = context\nclipped.clip(to: badgePath)\n→ temporary allowed region = badge interior',stage:4},
+{title:'5 · Draw the same pattern on the clipped copy',caption:'The band and decoration commands keep their original coordinates. At outside point O, the candidate draw is rejected and the background remains.',formula:'O = (720, 230)\ncandidate = amber\npath test = outside\noutput at O = existing background',stage:5},
+{title:'6 · Draw Q on the original context',caption:'The outline and pink Q ring are drawn on the original, unclipped context, so Q remains visible outside the badge.',formula:'clipped copy is discarded\noriginal context is unclipped\npost-clip ring Q at (720, 72) = visible',stage:6}
 ];
 let stepIndex=0;
 function renderStep(){const s=STEPS[stepIndex];$('stepTitle').textContent=s.title;$('stepCaption').textContent=s.caption;$('stepFormula').textContent=s.formula;$('stepBack').disabled=stepIndex===0;$('stepNext').disabled=stepIndex===STEPS.length-1;document.querySelectorAll('[data-step]').forEach(b=>b.classList.toggle('selected',Number(b.dataset.step)===stepIndex));let content='';if(s.stage>=1)content+=`<rect width="820" height="430" rx="16" fill="${BG}"/><rect width="820" height="430" rx="16" fill="url(#gridStep)"/>`;if(s.stage===3)content+=patternMarkup(false,0,'badgeClipStep');if(s.stage>=4){content+=`<path d="${pathD}" fill="var(--indigo-soft)" opacity=".32" stroke="none"/>`;if(s.stage>=5)content+=patternMarkup(true,0,'badgeClipStep');}if(s.stage>=2)content+=`<path d="${pathD}" fill="none" stroke="var(--indigo)" stroke-width="7" stroke-linejoin="round"/>`;if(s.stage>=5)content+=pointMarker(POINTS.outside);if(s.stage>=6)content+=postMarker();$('stepSvg').innerHTML=`${baseDefs('badgeClipStep','gridStep')}${content}<text x="34" y="32" font-size="16" font-weight="900" fill="currentColor">${esc(s.title)}</text>`;}
 STEPS.forEach((_,i)=>{const b=document.createElement('button');b.className='step-dot';b.dataset.step=String(i);b.textContent=String(i+1);b.addEventListener('click',()=>{stepIndex=i;renderStep();});$('stepNav').appendChild(b);});$('stepBack').addEventListener('click',()=>{if(stepIndex>0){stepIndex--;renderStep();}});$('stepNext').addEventListener('click',()=>{if(stepIndex<STEPS.length-1){stepIndex++;renderStep();}});
 
-document.querySelectorAll('[data-prediction]').forEach(b=>b.addEventListener('click',()=>{state.prediction=b.dataset.prediction;document.querySelectorAll('[data-prediction]').forEach(x=>x.classList.toggle('selected',x===b));}));$('checkPrediction').addEventListener('click',()=>{const r=$('predictionResult');if(!state.prediction){r.textContent='Choose one result first.';r.style.background='var(--soft)';return;}const ok=state.prediction==='visible';r.textContent=ok?'Correct. The clip ends with its block, so the later outside ring is visible.':'Not correct. The badge clip is temporary. It does not affect draw calls issued after the block returns.';r.style.background=ok?'var(--green-soft)':'var(--red-soft)';});
+document.querySelectorAll('[data-prediction]').forEach(b=>b.addEventListener('click',()=>{state.prediction=b.dataset.prediction;document.querySelectorAll('[data-prediction]').forEach(x=>x.classList.toggle('selected',x===b));}));$('checkPrediction').addEventListener('click',()=>{const r=$('predictionResult');if(!state.prediction){r.textContent='Choose one result first.';r.style.background='var(--soft)';return;}const ok=state.prediction==='visible';r.textContent=ok?'Correct. clip(to:) affected only the copy, so the later outside ring on the original context is visible.':'Not correct. The badge clip is temporary on the GraphicsContext copy. It does not affect draw calls on the original context.';r.style.background=ok?'var(--green-soft)':'var(--red-soft)';});
 
-function challengeIsInside(){const code=$('challengeEditor').value;const match=code.match(/clipPath\s*\(\s*badgePath\s*\)\s*\{([\s\S]*?)\}/);return !!match&&/drawOversizedPattern\s*\(\s*\)/.test(match[1])&&!/drawOversizedPattern\s*\(\s*\)\s*[\s\S]*clipPath/.test(code);}
-function renderChallenge(){const good=challengeIsInside();$('challengeSvg').innerHTML=`<defs><clipPath id="challengeClip"><path d="M70 55 L350 55 L475 150 L350 245 L70 245 Z"/></clipPath></defs><rect width="560" height="300" rx="14" fill="${BG}"/><g${good?' clip-path="url(#challengeClip)"':''}><rect x="20" y="35" width="520" height="57.5" fill="${BAND_COLORS[0]}"/><rect x="20" y="92.5" width="520" height="57.5" fill="${BAND_COLORS[1]}"/><rect x="20" y="150" width="520" height="57.5" fill="${BAND_COLORS[2]}"/><rect x="20" y="207.5" width="520" height="57.5" fill="${BAND_COLORS[3]}"/></g><path d="M70 55 L350 55 L475 150 L350 245 L70 245 Z" fill="none" stroke="var(--indigo)" stroke-width="6" stroke-linejoin="round"/>`;$('challengeFormula').textContent=good?'drawOversizedPattern() is inside clipPath\n→ output restricted to badge region':'drawOversizedPattern() runs before clipPath\n→ bands remain visible outside badge';if(state.challengeCorrect){state.challengeCorrect=false;$('challengeResult').textContent='The code changed after the successful check. Check it again.';$('challengeResult').style.background='var(--soft)';}}
-$('challengeEditor').addEventListener('input',renderChallenge);document.querySelectorAll('[data-challenge]').forEach(b=>b.addEventListener('click',()=>{$('challengeEditor').value=b.dataset.challenge==='inside'?`fun DrawScope.drawBadgePattern(\n    badgePath: Path,\n) {\n    clipPath(badgePath) {\n        drawOversizedPattern()\n    }\n}`:`fun DrawScope.drawBadgePattern(\n    badgePath: Path,\n) {\n    drawOversizedPattern()\n\n    clipPath(badgePath) {\n        // The pattern must be drawn here.\n    }\n}`;renderChallenge();}));$('checkChallenge').addEventListener('click',()=>{const ok=challengeIsInside();state.challengeCorrect=ok;$('challengeResult').textContent=ok?'Correct. The pattern draw now executes while the badge clip is active.':'Not repaired yet. The drawOversizedPattern() call must be inside the clipPath(badgePath) block and must not run before it.';$('challengeResult').style.background=ok?'var(--green-soft)':'var(--red-soft)';});
+function challengeIsInside(){const code=$('challengeEditor').value;return /\.clip\s*\(\s*to:\s*badgePath/.test(code)&&/drawOversizedPattern\s*\(\s*in:\s*&clipped/.test(code)&&!/drawOversizedPattern[\s\S]*var clipped/.test(code);}
+function renderChallenge(){const good=challengeIsInside();$('challengeSvg').innerHTML=`<defs><clipPath id="challengeClip"><path d="M70 55 L350 55 L475 150 L350 245 L70 245 Z"/></clipPath></defs><rect width="560" height="300" rx="14" fill="${BG}"/><g${good?' clip-path="url(#challengeClip)"':''}><rect x="20" y="35" width="520" height="57.5" fill="${BAND_COLORS[0]}"/><rect x="20" y="92.5" width="520" height="57.5" fill="${BAND_COLORS[1]}"/><rect x="20" y="150" width="520" height="57.5" fill="${BAND_COLORS[2]}"/><rect x="20" y="207.5" width="520" height="57.5" fill="${BAND_COLORS[3]}"/></g><path d="M70 55 L350 55 L475 150 L350 245 L70 245 Z" fill="none" stroke="var(--indigo)" stroke-width="6" stroke-linejoin="round"/>`;$('challengeFormula').textContent=good?'drawOversizedPattern(in: &clipped) runs after clip(to:)\n→ output restricted to badge region':'drawOversizedPattern(in: &context) runs before clip(to:)\n→ bands remain visible outside badge';if(state.challengeCorrect){state.challengeCorrect=false;$('challengeResult').textContent='The code changed after the successful check. Check it again.';$('challengeResult').style.background='var(--soft)';}}
+$('challengeEditor').addEventListener('input',renderChallenge);document.querySelectorAll('[data-challenge]').forEach(b=>b.addEventListener('click',()=>{$('challengeEditor').value=b.dataset.challenge==='inside'?`func drawBadgePattern(\n    context: inout GraphicsContext,\n    badgePath: Path\n) {\n    var clipped = context\n    clipped.clip(to: badgePath)\n    drawOversizedPattern(in: &clipped)\n}`:`func drawBadgePattern(\n    context: inout GraphicsContext,\n    badgePath: Path\n) {\n    drawOversizedPattern(in: &context)\n\n    var clipped = context\n    clipped.clip(to: badgePath)\n    // The pattern must be drawn here.\n}`;renderChallenge();}));$('checkChallenge').addEventListener('click',()=>{const ok=challengeIsInside();state.challengeCorrect=ok;$('challengeResult').textContent=ok?'Correct. The pattern draw now executes on the clipped GraphicsContext copy.':'Not repaired yet. The drawOversizedPattern(in: &clipped) call must run after clip(to: badgePath) and must not run on the original context first.';$('challengeResult').style.background=ok?'var(--green-soft)':'var(--red-soft)';});
 
-function buildRecord(){const checks=[...document.querySelectorAll('[data-check]')],done=checks.filter(c=>c.checked).length;$('completionRecord').value=`# Lesson 4.7 completion record\n\n- Lesson: Clipping\n- Status: ${done===checks.length?'checkpoint complete':'checkpoint incomplete'}\n- Checkpoint items: ${done} of ${checks.length}\n- Android device: Pixel 8 Pro\n- Clip Path: A(120,90) → B(520,90) → C(650,215) → D(520,340) → E(120,340) → close\n- Inside trace point I: (300, 230)\n- Outside trace point O: (720, 230)\n- Candidate band at both trace points: straight sRGB RGBA(0.8510, 0.4667, 0.0235, 1.0000)\n- Outside clipped output: existing teaching background remains\n- I can explain clip region, candidate drawing, discarded draw, and scope: [yes / not yet]\n- I can explain why Q remains visible after the clip block: [yes / not yet]\n- I can separate clipping from masks and antialiasing: [yes / not yet]\n- Remaining questions or observations:\n`;}
+function buildRecord(){const checks=[...document.querySelectorAll('[data-check]')],done=checks.filter(c=>c.checked).length;$('completionRecord').value=`# Lesson 4.7 completion record\n\n- Lesson: Clipping\n- Status: ${done===checks.length?'checkpoint complete':'checkpoint incomplete'}\n- Checkpoint items: ${done} of ${checks.length}\n- iOS device: iPhone 16 Pro\n- Browser clip Path: A(120,90) → B(520,90) → C(650,215) → D(520,340) → E(120,340) → closeSubpath()\n- iOS explorer Path: A(47 pt, 35 pt) → B(203 pt, 35 pt) → C(254 pt, 84 pt) → D(203 pt, 133 pt) → E(47 pt, 133 pt) → closeSubpath()\n- Inside trace point I (browser): (300, 230)\n- Outside trace point O (browser): (720, 230)\n- Candidate band at both trace points: straight sRGB RGBA(0.8510, 0.4667, 0.0235, 1.0000)\n- Outside clipped output: existing teaching background remains\n- I can explain clip region, candidate drawing, discarded draw, and scope: [yes / not yet]\n- I can explain why Q remains visible on the original GraphicsContext: [yes / not yet]\n- I can separate clipping from masks and antialiasing: [yes / not yet]\n- Remaining questions or observations:\n`;}
 $('buildRecord').addEventListener('click',buildRecord);$('copyRecord').addEventListener('click',async()=>{let copied=false;try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText($('completionRecord').value);copied=true;}}catch(e){}if(!copied){$('completionRecord').focus();$('completionRecord').select();copied=document.execCommand('copy');}$('copyRecord').textContent=copied?'Copied':'Select and copy';setTimeout(()=>$('copyRecord').textContent='Copy record',1300);});
 const mq=matchMedia('(prefers-color-scheme: dark)');function theme(){document.getElementById('themeMode').textContent=mq.matches?'Dark':'Light';}theme();mq.addEventListener?.('change',theme);
 renderMain();renderStep();renderChallenge();

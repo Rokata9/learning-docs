@@ -27,7 +27,7 @@ body{background:linear-gradient(180deg,var(--body-start),var(--body-end))}a{colo
 <main class="page">
 <nav class="topbar"><div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-color-opacity-and-compositing.html">Chapter 3</a> · <a href="../../glossary.html">Glossary</a></div><div class="header-chips"><span class="lesson-chip">Lesson 3.3</span><span class="theme-chip">OS theme · <strong id="themeMode">detecting…</strong></span></div></nav>
 
-<header class="hero panel"><div><div class="eyebrow">Chapter 3 · Color, opacity, and compositing</div><h1>The “over” operation</h1><p class="lead">The source is the color being drawn now. The destination is the color already present at the same image position. The source-over operation combines both into one output RGBA value.</p><div class="note"><strong>This lesson calculates one image position.</strong> No neighboring position is sampled. Blur and refraction still do not occur.</div></div><aside class="goal-box"><h2>Lesson goal</h2><p>By the end, you should be able to:</p><ul><li>name the source, destination, and output in one draw operation;</li><li>calculate the destination contribution weight <code>destination alpha × (1 − source alpha)</code>;</li><li>calculate output alpha and all three output color channels;</li><li>explain why an output with alpha below 1 can still be an intermediate layer.</li></ul><div class="progress-line">Course state before completion: 19 of 216 lessons complete</div><div class="theme-rule"><strong>Theme behavior:</strong> interface chrome follows the OS setting. The source, destination, checkerboard, and calculated output remain exact teaching data in both modes.</div></aside></header>
+<header class="hero panel"><div><div class="eyebrow">Chapter 3 · Color, opacity, and compositing</div><h1>The “over” operation</h1><p class="lead">The source is the color being drawn now. The destination is the color already present at the same image position. The source-over operation combines both into one output RGBA value.</p><div class="note"><strong>This lesson calculates one image position.</strong> No neighboring position is sampled. Blur and refraction still do not occur.</div></div><aside class="goal-box"><h2>Lesson goal</h2><p>By the end, you should be able to:</p><ul><li>name the source, destination, and output in one draw operation;</li><li>calculate the destination contribution weight <code>destination alpha × (1 − source alpha)</code>;</li><li>calculate output alpha and all three output color channels;</li><li>explain why an output with alpha below 1 can still be an intermediate layer.</li></ul><div class="theme-rule"><strong>Theme behavior:</strong> interface chrome follows the OS setting. The source, destination, checkerboard, and calculated output remain exact teaching data in both modes.</div></aside></header>
 
 <section class="section panel"><div class="section-intro"><div><div class="section-number">1 · Vocabulary</div><h2>Three roles in one drawing operation</h2></div><p>The role names are relative to this specific operation.</p></div><div class="three-column"><article class="card pink" style="border-top:5px solid var(--pink)"><h3>Source</h3><p>The source is the color being drawn now. In the course example it is <code>RGBA(0.90, 0.10, 0.80, 0.50)</code>.</p></article><article class="card green" style="border-top:5px solid var(--green)"><h3>Destination</h3><p>The destination is the color already present at the same image position. It is <code>RGBA(0.10, 0.90, 0.40, 0.60)</code>.</p></article><article class="card indigo" style="border-top:5px solid var(--indigo)"><h3>Output</h3><p>The output is the new RGBA value produced by combining source over destination. For the course example it becomes <code>RGBA(0.60, 0.40, 0.65, 0.80)</code>.</p></article></div><div class="formula">source over destination → output</div><div class="warning"><strong>Role, not identity:</strong> an object is not permanently “the destination.” It is the destination only while another source is being drawn into the image that already contains it.</div></section>
 
@@ -39,8 +39,8 @@ body{background:linear-gradient(180deg,var(--body-start),var(--body-end))}a{colo
 
 <section class="section panel"><div class="section-intro"><div><div class="section-number">5 · Special cases</div><h2>Pressure-test the formula at the boundaries</h2></div><p>A useful formula should produce sensible results at alpha 0 and alpha 1.</p></div><div class="four-column"><article class="card blue"><h3>Source alpha 0</h3><p>The source weight is 0. The destination survives unchanged. Output equals destination.</p></article><article class="card pink"><h3>Source alpha 1</h3><p>No opening remains behind the source. Destination weight is 0. Output equals source and is opaque.</p></article><article class="card green"><h3>Destination alpha 1</h3><p>The destination weight becomes <code>1 − source alpha</code>. This is the simpler formula used with an opaque background.</p></article><article class="card red"><h3>Both alphas 0</h3><p>Output alpha is 0. Division by output alpha is not allowed. The implementation returns transparent black as a safe result value.</p></article></div><div class="warning"><strong>Testing trap:</strong> if you test only with an opaque destination, the defective destination weight <code>1 − source alpha</code> appears correct. A translucent destination is required to expose the missing destination-alpha multiplication.</div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">6 · Android value trace</div><h2>Follow the default inputs through the real code</h2></div><p>Each box names one exact input, operation, or output. The last two boxes compare the renderer stack with the manually calculated color.</p></div><div class="trace-grid"><article class="trace-box"><strong>1 · State inputs</strong><p>Two sliders store the changing alpha values.</p><code class="trace-code">sourceAlpha = 0.50f
-destinationAlpha = 0.60f</code></article><article class="trace-box"><strong>2 · RGBA objects</strong><p>Fixed straight RGB values and changing alphas become two <code>StraightRgba</code> values.</p><code class="trace-code">source = RGBA(
+<section class="section panel"><div class="section-intro"><div><div class="section-number">6 · iOS value trace</div><h2>Follow the default inputs through the real code</h2></div><p>Each box names one exact input, operation, or output. The last two boxes compare the renderer stack with the manually calculated color.</p></div><div class="trace-grid"><article class="trace-box"><strong>1 · State inputs</strong><p>Two sliders store the changing alpha values.</p><code class="trace-code">sourceAlpha = 0.50
+destinationAlpha = 0.60</code></article><article class="trace-box"><strong>2 · RGBA objects</strong><p>Fixed straight RGB values and changing alphas become two <code>StraightRgba</code> values.</p><code class="trace-code">source = RGBA(
   .90, .10, .80, .50
 )
 destination = RGBA(
@@ -49,7 +49,7 @@ destination = RGBA(
   source.alpha
 // 0.50</code></article><article class="trace-box"><strong>4 · Destination weight</strong><p>The destination survives only through the source opening and by its own alpha.</p><code class="trace-code">destinationWeight =
   destination.alpha *
-  (1f - source.alpha)
+  (1 - source.alpha)
 // 0.30</code></article><article class="trace-box"><strong>5 · Output alpha</strong><p>Add the two surviving coverage contributions.</p><code class="trace-code">outputAlpha =
   sourceWeight +
   destinationWeight
@@ -60,739 +60,629 @@ destination = RGBA(
 // 0.60
 output = RGBA(
   .60, .40, .65, .80
-)</code></article><article class="trace-box"><strong>8 · Two drawings</strong><p>The first Canvas draws destination then source with <code>SrcOver</code>. The second draws the one calculated output color.</p><code class="trace-code">drawRect(destination)
-drawRect(
-  source,
-  blendMode = SrcOver,
-)
+)</code></article><article class="trace-box"><strong>8 · Two drawings</strong><p>The first Canvas draws destination then source with <code>BlendMode.normal</code>. The second draws the one calculated output color.</p><code class="trace-code">context.fill(rect, with: .color(destinationColor))
+var sourceContext = context
+sourceContext.blendMode = .normal
+sourceContext.fill(rect, with: .color(sourceColor))
 
 versus
 
-drawRect(output)</code></article></div><div class="note"><strong>Default operation:</strong> Compose documents <code>BlendMode.SrcOver</code> as source over destination and identifies it as the default drawing algorithm. The lesson specifies it explicitly in the comparison Canvas so the operation is visible in the code.</div></section>
+context.fill(rect, with: .color(outputColor))</code></article></div><div class="note"><strong>Default operation:</strong> SwiftUI documents <code>BlendMode.normal</code> as source over destination and identifies it as the default drawing algorithm. The lesson specifies it explicitly in the comparison Canvas so the operation is visible in the code.</div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">7 · Android source</div><h2>The Lesson 3.3 explorer with corrected representation names</h2></div><p><code>Chapter03Screen.kt</code> preserves the original Lesson 3.3 screen state. <code>OverOperationExplorer.kt</code> includes the Lesson 3.5 terminology correction.</p></div><div class="source-tabs"><button class="mode-button selected" data-source="screen" type="button">Chapter03Screen.kt</button><button class="mode-button" data-source="over" type="button">OverOperationExplorer.kt</button></div><div class="source-pane active" id="source-screen"><pre class="source-code">package com.example.liquidglasslab.chapter03
+<section class="section panel"><div class="section-intro"><div><div class="section-number">7 · iOS connection</div><h2>Read the exact iOS files</h2></div><p>The displayed code matches the Lesson 3.3 files in <code>LiquidGlassLab-iOS</code>. <code>Chapter03Screen</code> keeps the Lesson 3.1 and 3.2 explorers and adds <code>OverOperationExplorer</code>. <code>OverOperationExplorer</code> includes the Lesson 3.5 terminology correction.</p></div><div class="source-tabs"><button class="mode-button selected" data-source="screen" type="button">Chapter03Screen.swift</button><button class="mode-button" data-source="over" type="button">OverOperationExplorer.swift</button></div><div class="source-pane active" id="source-screen"><pre class="source-code">import SwiftUI
 
-import android.content.res.Configuration
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.example.liquidglasslab.ui.theme.LiquidGlassLabTheme
+struct Chapter03Screen: View {
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 28) {
+                Text(&quot;COLOR, OPACITY, AND COMPOSITING&quot;)
+                    .font(.system(size: 14, weight: .black))
+                    .foregroundStyle(Color(hex: 0x059669))
 
-@Composable
-fun Chapter03Screen(modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background,
-        contentColor = MaterialTheme.colorScheme.onBackground,
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .safeDrawingPadding()
-                .padding(horizontal = 24.dp, vertical = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            Text(
-                text = &quot;COLOR, OPACITY, AND COMPOSITING&quot;,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = &quot;Lesson 3.3 · The over operation&quot;,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = &quot;Draw one translucent source over one translucent destination. &quot; +
-                    &quot;Calculate the resulting RGBA color one contribution at a time.&quot;,
-                style = MaterialTheme.typography.bodyLarge,
-            )
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.1 · Red, green, and blue channels&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Change one channel at a time. The final swatch is one opaque RGB color &quot; +
+                        &quot;built from three independent numbers.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    RgbChannelsExplorer()
+                }
 
-            OverOperationExplorer()
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.2 · Alpha&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Keep red, green, and blue fixed. Change only alpha, then inspect &quot; +
+                        &quot;how much of each background remains visible.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    AlphaExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.3 · The over operation&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Draw one translucent source over one translucent destination. &quot; +
+                        &quot;Calculate the resulting RGBA color one contribution at a time.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    OverOperationExplorer()
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 20)
+            .frame(maxWidth: .infinity)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(hex: 0xF8FAFC))
+        .safeAreaPadding()
     }
 }
 
-@Preview(
-    name = &quot;Lesson 3.3 over operation — light&quot;,
-    showBackground = true,
-    widthDp = 412,
-    heightDp = 915,
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-)
-@Preview(
-    name = &quot;Lesson 3.3 over operation — dark&quot;,
-    showBackground = true,
-    widthDp = 412,
-    heightDp = 915,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
-@Composable
-private fun Chapter03ScreenPreview() {
-    LiquidGlassLabTheme {
+private extension Color {
+    init(hex: UInt32) {
+        self.init(
+            red: Double((hex &gt;&gt; 16) &amp; 0xFF) / 255,
+            green: Double((hex &gt;&gt; 8) &amp; 0xFF) / 255,
+            blue: Double(hex &amp; 0xFF) / 255
+        )
+    }
+}
+
+#Preview(&quot;Chapter 3 explorers · light&quot;) {
+    LabTheme {
         Chapter03Screen()
     }
+    .labPreviewCanvas()
 }
-</pre></div><div class="source-pane" id="source-over"><pre class="source-code">package com.example.liquidglasslab.chapter03
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import java.util.Locale
-import kotlin.math.ceil
-
-private const val SourceRed = 0.90f
-private const val SourceGreen = 0.10f
-private const val SourceBlue = 0.80f
-private const val InitialSourceAlpha = 0.50f
-
-private const val DestinationRed = 0.10f
-private const val DestinationGreen = 0.90f
-private const val DestinationBlue = 0.40f
-private const val InitialDestinationAlpha = 0.60f
-
-private val ExplorerShape = RoundedCornerShape(22.dp)
-private val CardShape = RoundedCornerShape(15.dp)
-private val SwatchShape = RoundedCornerShape(16.dp)
-
-private val CheckerLight = Color(0xFFF8FAFC)
-private val CheckerDark = Color(0xFFCBD5E1)
-
-@Composable
-internal fun OverOperationExplorer(
-    modifier: Modifier = Modifier,
-) {
-    var sourceAlpha by rememberSaveable {
-        mutableFloatStateOf(InitialSourceAlpha)
+#Preview(&quot;Chapter 3 explorers · dark&quot;) {
+    LabTheme {
+        Chapter03Screen()
     }
-    var destinationAlpha by rememberSaveable {
-        mutableFloatStateOf(InitialDestinationAlpha)
-    }
+    .preferredColorScheme(.dark)
+    .labPreviewCanvas()
+}
+</pre></div><div class="source-pane" id="source-over"><pre class="source-code">import SwiftUI
 
-    val source = remember(sourceAlpha) {
+private let sourceRed: CGFloat = 0.90
+private let sourceGreen: CGFloat = 0.10
+private let sourceBlue: CGFloat = 0.80
+private let initialSourceAlpha: CGFloat = 0.50
+
+private let destinationRed: CGFloat = 0.10
+private let destinationGreen: CGFloat = 0.90
+private let destinationBlue: CGFloat = 0.40
+private let initialDestinationAlpha: CGFloat = 0.60
+
+private let checkerLight = Color(hex: 0xF8FAFC)
+private let checkerDark = Color(hex: 0xCBD5E1)
+private let sourceAccent = Color(hex: 0xBE185D)
+private let destinationAccent = Color(hex: 0x059669)
+
+struct OverOperationExplorer: View {
+    @State private var sourceAlpha = initialSourceAlpha
+    @State private var destinationAlpha = initialDestinationAlpha
+
+    private var source: OverStraightRgba {
         OverStraightRgba(
-            red = SourceRed,
-            green = SourceGreen,
-            blue = SourceBlue,
-            alpha = sourceAlpha,
+            red: sourceRed,
+            green: sourceGreen,
+            blue: sourceBlue,
+            alpha: sourceAlpha
         )
     }
-    val destination = remember(destinationAlpha) {
+
+    private var destination: OverStraightRgba {
         OverStraightRgba(
-            red = DestinationRed,
-            green = DestinationGreen,
-            blue = DestinationBlue,
-            alpha = destinationAlpha,
+            red: destinationRed,
+            green: destinationGreen,
+            blue: destinationBlue,
+            alpha: destinationAlpha
         )
     }
-    val calculation = remember(source, destination) {
-        calculateSourceOver(
-            source = source,
-            destination = destination,
-        )
+
+    private var calculation: OverSourceOverCalculation {
+        calculateSourceOver(source: source, destination: destination)
     }
-    val colorScheme = MaterialTheme.colorScheme
 
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = ExplorerShape,
-        color = colorScheme.surface,
-        contentColor = colorScheme.onSurface,
-        border = BorderStroke(
-            width = 1.dp,
-            color = colorScheme.outlineVariant,
-        ),
-    ) {
-        Column(
-            modifier = Modifier.padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(&quot;Source over destination&quot;)
+                .font(.system(size: 22, weight: .black))
             Text(
-                text = "Source over destination",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Black,
+                &quot;The destination already exists at the image position. &quot; +
+                &quot;The source is drawn now, on top of that destination.&quot;
             )
-            Text(
-                text = "The destination already exists at the image position. " +
-                    "The source is drawn now, on top of that destination.",
-                style = MaterialTheme.typography.bodyMedium,
-            )
+            .font(.system(size: 15))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
+            HStack(spacing: 10) {
                 InputColorCard(
-                    label = "Source · drawn second",
-                    color = source,
-                    accent = Color(0xFFBE185D),
-                    modifier = Modifier.weight(1f),
+                    label: &quot;Source · drawn second&quot;,
+                    color: source,
+                    accent: sourceAccent
                 )
                 InputColorCard(
-                    label = "Destination · drawn first",
-                    color = destination,
-                    accent = Color(0xFF059669),
-                    modifier = Modifier.weight(1f),
+                    label: &quot;Destination · drawn first&quot;,
+                    color: destination,
+                    accent: destinationAccent
                 )
             }
 
             LayerStackComparison(
-                source = source,
-                destination = destination,
-                output = calculation.outputStraight,
+                source: source,
+                destination: destination,
+                output: calculation.outputStraight
             )
 
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = colorScheme.surfaceVariant,
-                contentColor = colorScheme.onSurfaceVariant,
-                shape = CardShape,
-            ) {
-                Column(
-                    modifier = Modifier.padding(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
-                ) {
-                    Text(
-                        text = "Contribution summary",
-                        fontWeight = FontWeight.Black,
-                    )
-                    Text(
-                        text = "Source contribution weight = " +
-                            calculation.sourceContributionAlpha.twoDecimals(),
-                    )
-                    Text(
-                        text = "Destination contribution weight = " +
-                            "${destination.alpha.twoDecimals()} × " +
-                            "(1 − ${source.alpha.twoDecimals()}) = " +
-                            calculation.destinationContributionAlpha.twoDecimals(),
-                    )
-                    Text(
-                        text = "Output alpha = " +
-                            "${calculation.sourceContributionAlpha.twoDecimals()} + " +
-                            "${calculation.destinationContributionAlpha.twoDecimals()} = " +
-                            calculation.outputStraight.alpha.twoDecimals(),
-                    )
-                    Text(
-                        text = "Output RGBA = ${calculation.outputStraight.asTuple()}",
-                        fontWeight = FontWeight.Black,
-                    )
+            VStack(alignment: .leading, spacing: 5) {
+                Text(&quot;Contribution summary&quot;)
+                    .fontWeight(.black)
+                Text(
+                    &quot;Source contribution weight = &quot; +
+                    twoDecimals(calculation.sourceContributionAlpha)
+                )
+                Text(
+                    &quot;Destination contribution weight = &quot; +
+                    &quot;\(twoDecimals(destination.alpha)) × &quot; +
+                    &quot;(1 − \(twoDecimals(source.alpha))) = &quot; +
+                    twoDecimals(calculation.destinationContributionAlpha)
+                )
+                Text(
+                    &quot;Output alpha = &quot; +
+                    &quot;\(twoDecimals(calculation.sourceContributionAlpha)) + &quot; +
+                    &quot;\(twoDecimals(calculation.destinationContributionAlpha)) = &quot; +
+                    twoDecimals(calculation.outputStraight.alpha)
+                )
+                Text(&quot;Output RGBA = \(calculation.outputStraight.asTuple())&quot;)
+                    .fontWeight(.black)
+            }
+            .font(.system(size: 15))
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 15, style: .continuous)
+                    .fill(Color(uiColor: .secondarySystemFill))
+            )
+
+            AlphaControl(
+                label: &quot;Source alpha&quot;,
+                value: $sourceAlpha,
+                accent: sourceAccent
+            )
+            AlphaControl(
+                label: &quot;Destination alpha&quot;,
+                value: $destinationAlpha,
+                accent: destinationAccent
+            )
+
+            Text(&quot;Exact experiments&quot;)
+                .font(LabType.titleMedium)
+                .fontWeight(.black)
+            HStack(spacing: 8) {
+                PresetButton(title: &quot;Course example&quot;) {
+                    sourceAlpha = 0.50
+                    destinationAlpha = 0.60
+                }
+                PresetButton(title: &quot;Opaque destination&quot;) {
+                    sourceAlpha = 0.50
+                    destinationAlpha = 1
                 }
             }
-
-            AlphaControl(
-                label = "Source alpha",
-                value = sourceAlpha,
-                onValueChange = { sourceAlpha = it },
-                accent = Color(0xFFBE185D),
-            )
-            AlphaControl(
-                label = "Destination alpha",
-                value = destinationAlpha,
-                onValueChange = { destinationAlpha = it },
-                accent = Color(0xFF059669),
-            )
-
-            Text(
-                text = "Exact experiments",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Black,
-            )
-            PresetRow(
-                onCourseExample = {
-                    sourceAlpha = 0.50f
-                    destinationAlpha = 0.60f
-                },
-                onOpaqueDestination = {
-                    sourceAlpha = 0.50f
-                    destinationAlpha = 1f
-                },
-            )
-            PresetRowTwo(
-                onTransparentSource = {
-                    sourceAlpha = 0f
-                    destinationAlpha = 0.60f
-                },
-                onOpaqueSource = {
-                    sourceAlpha = 1f
-                    destinationAlpha = 0.60f
-                },
-                onBothTransparent = {
-                    sourceAlpha = 0f
-                    destinationAlpha = 0f
-                },
-            )
-
-            Text(
-                text = "Channel calculations",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Black,
-            )
-            ChannelCalculationCard(
-                channelName = "Red",
-                sourceChannel = source.red,
-                destinationChannel = destination.red,
-                calculation = calculation,
-                outputPremultiplied = calculation.outputPremultipliedRed,
-                outputStraight = calculation.outputStraight.red,
-            )
-            ChannelCalculationCard(
-                channelName = "Green",
-                sourceChannel = source.green,
-                destinationChannel = destination.green,
-                calculation = calculation,
-                outputPremultiplied = calculation.outputPremultipliedGreen,
-                outputStraight = calculation.outputStraight.green,
-            )
-            ChannelCalculationCard(
-                channelName = "Blue",
-                sourceChannel = source.blue,
-                destinationChannel = destination.blue,
-                calculation = calculation,
-                outputPremultiplied = calculation.outputPremultipliedBlue,
-                outputStraight = calculation.outputStraight.blue,
-            )
-
-            Text(
-                text = "The output premultiplied RGB values are the alpha-weighted contribution totals produced by source-over. " +
-                    "When output alpha is greater than zero, dividing each output premultiplied " +
-                    "channel by output alpha gives the output straight RGB values shown in " +
-                    "the output tuple.",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        }
-    }
-}
-
-@Composable
-private fun InputColorCard(
-    label: String,
-    color: OverStraightRgba,
-    accent: Color,
-    modifier: Modifier = Modifier,
-) {
-    val colorScheme = MaterialTheme.colorScheme
-
-    Surface(
-        modifier = modifier,
-        shape = CardShape,
-        color = colorScheme.surfaceVariant,
-        contentColor = colorScheme.onSurfaceVariant,
-        border = BorderStroke(1.dp, colorScheme.outlineVariant),
-    ) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Canvas(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(54.dp)
-                    .clip(RoundedCornerShape(11.dp))
-                    .border(
-                        width = 3.dp,
-                        color = accent,
-                        shape = RoundedCornerShape(11.dp),
-                    ),
-            ) {
-                drawCheckerboard()
-                drawRect(color = color.toColor())
+            HStack(spacing: 8) {
+                PresetButton(title: &quot;Source alpha 0&quot;) {
+                    sourceAlpha = 0
+                    destinationAlpha = 0.60
+                }
+                PresetButton(title: &quot;Source alpha 1&quot;) {
+                    sourceAlpha = 1
+                    destinationAlpha = 0.60
+                }
             }
-            Text(
-                text = label,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = color.asTuple(),
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-    }
-}
+            PresetButton(title: &quot;Both alphas 0&quot;) {
+                sourceAlpha = 0
+                destinationAlpha = 0
+            }
 
-@Composable
-private fun LayerStackComparison(
-    source: OverStraightRgba,
-    destination: OverStraightRgba,
-    output: OverStraightRgba,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        CompositePreviewCard(
-            label = "Rendered stack",
-            explanation = "checkerboard → destination → source",
-            modifier = Modifier.weight(1f),
-        ) {
-            drawCheckerboard()
-            drawRect(color = destination.toColor())
-            drawRect(
-                color = source.toColor(),
-                blendMode = BlendMode.SrcOver,
+            Text(&quot;Channel calculations&quot;)
+                .font(LabType.titleMedium)
+                .fontWeight(.black)
+            ChannelCalculationCard(
+                channelName: &quot;Red&quot;,
+                sourceChannel: source.red,
+                destinationChannel: destination.red,
+                calculation: calculation,
+                outputPremultiplied: calculation.outputPremultipliedRed,
+                outputStraight: calculation.outputStraight.red
             )
-        }
-        CompositePreviewCard(
-            label = "Calculated output",
-            explanation = output.asTuple(),
-            modifier = Modifier.weight(1f),
-        ) {
-            drawCheckerboard()
-            drawRect(color = output.toColor())
-        }
-    }
-}
+            ChannelCalculationCard(
+                channelName: &quot;Green&quot;,
+                sourceChannel: source.green,
+                destinationChannel: destination.green,
+                calculation: calculation,
+                outputPremultiplied: calculation.outputPremultipliedGreen,
+                outputStraight: calculation.outputStraight.green
+            )
+            ChannelCalculationCard(
+                channelName: &quot;Blue&quot;,
+                sourceChannel: source.blue,
+                destinationChannel: destination.blue,
+                calculation: calculation,
+                outputPremultiplied: calculation.outputPremultipliedBlue,
+                outputStraight: calculation.outputStraight.blue
+            )
 
-@Composable
-private fun CompositePreviewCard(
-    label: String,
-    explanation: String,
-    modifier: Modifier = Modifier,
-    drawContent: DrawScope.() -&gt; Unit,
-) {
-    val colorScheme = MaterialTheme.colorScheme
-
-    Surface(
-        modifier = modifier,
-        shape = CardShape,
-        color = colorScheme.surfaceVariant,
-        contentColor = colorScheme.onSurfaceVariant,
-        border = BorderStroke(1.dp, colorScheme.outlineVariant),
-    ) {
-        Column(
-            modifier = Modifier.padding(10.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Canvas(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp)
-                    .clip(SwatchShape),
-                onDraw = drawContent,
-            )
             Text(
-                text = label,
-                fontWeight = FontWeight.Black,
+                &quot;The output premultiplied RGB values are the alpha-weighted contribution totals produced by source-over. &quot; +
+                &quot;When output alpha is greater than zero, dividing each output premultiplied &quot; +
+                &quot;channel by output alpha gives the output straight RGB values shown in &quot; +
+                &quot;the output tuple.&quot;
             )
-            Text(
-                text = explanation,
-                style = MaterialTheme.typography.bodySmall,
-            )
+            .font(.system(size: 15))
         }
-    }
-}
-
-@Composable
-private fun AlphaControl(
-    label: String,
-    value: Float,
-    onValueChange: (Float) -&gt; Unit,
-    accent: Color,
-) {
-    val colorScheme = MaterialTheme.colorScheme
-
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = label,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = value.twoDecimals(),
-                fontWeight = FontWeight.Black,
-            )
-        }
-        Slider(
-            value = value,
-            onValueChange = { onValueChange(it.coerceIn(0f, 1f)) },
-            valueRange = 0f..1f,
-            modifier = Modifier.semantics {
-                contentDescription = "$label ${value.twoDecimals()}"
-            },
-            colors = SliderDefaults.colors(
-                thumbColor = accent,
-                activeTrackColor = accent,
-                inactiveTrackColor = colorScheme.surfaceVariant,
-            ),
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(Color(uiColor: .systemBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
         )
     }
 }
 
-@Composable
-private fun PresetRow(
-    onCourseExample: () -&gt; Unit,
-    onOpaqueDestination: () -&gt; Unit,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        OutlinedButton(
-            onClick = onCourseExample,
-            modifier = Modifier.weight(1f),
-        ) {
-            Text("Course example")
-        }
-        OutlinedButton(
-            onClick = onOpaqueDestination,
-            modifier = Modifier.weight(1f),
-        ) {
-            Text("Opaque destination")
-        }
-    }
-}
+private struct InputColorCard: View {
+    let label: String
+    let color: OverStraightRgba
+    let accent: Color
 
-@Composable
-private fun PresetRowTwo(
-    onTransparentSource: () -&gt; Unit,
-    onOpaqueSource: () -&gt; Unit,
-    onBothTransparent: () -&gt; Unit,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            OutlinedButton(
-                onClick = onTransparentSource,
-                modifier = Modifier.weight(1f),
-            ) {
-                Text("Source alpha 0")
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Canvas { context, size in
+                drawCheckerboard(context: context, size: size, cellSize: 22)
+                context.fill(
+                    Path(CGRect(origin: .zero, size: size)),
+                    with: .color(color.toColor())
+                )
             }
-            OutlinedButton(
-                onClick = onOpaqueSource,
-                modifier = Modifier.weight(1f),
-            ) {
-                Text("Source alpha 1")
+            .frame(height: 54)
+            .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 11, style: .continuous)
+                    .strokeBorder(accent, lineWidth: 3)
+            )
+            Text(label)
+                .fontWeight(.black)
+            Text(color.asTuple())
+                .font(.system(size: 13))
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(Color(uiColor: .secondarySystemFill))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
+    }
+}
+
+private struct LayerStackComparison: View {
+    let source: OverStraightRgba
+    let destination: OverStraightRgba
+    let output: OverStraightRgba
+
+    var body: some View {
+        HStack(spacing: 10) {
+            CompositePreviewCard(
+                label: &quot;Rendered stack&quot;,
+                explanation: &quot;checkerboard → destination → source&quot;
+            ) { context, size in
+                let rect = Path(CGRect(origin: .zero, size: size))
+                drawCheckerboard(context: context, size: size, cellSize: 22)
+                context.fill(rect, with: .color(destination.toColor()))
+                var sourceContext = context
+                sourceContext.blendMode = .normal
+                sourceContext.fill(rect, with: .color(source.toColor()))
+            }
+            CompositePreviewCard(
+                label: &quot;Calculated output&quot;,
+                explanation: output.asTuple()
+            ) { context, size in
+                let rect = Path(CGRect(origin: .zero, size: size))
+                drawCheckerboard(context: context, size: size, cellSize: 22)
+                context.fill(rect, with: .color(output.toColor()))
             }
         }
-        OutlinedButton(
-            onClick = onBothTransparent,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text("Both alphas 0")
-        }
     }
 }
 
-@Composable
-private fun ChannelCalculationCard(
-    channelName: String,
-    sourceChannel: Float,
-    destinationChannel: Float,
-    calculation: OverSourceOverCalculation,
-    outputPremultiplied: Float,
-    outputStraight: Float,
-) {
-    val colorScheme = MaterialTheme.colorScheme
-    val sourceContribution = sourceChannel * calculation.sourceContributionAlpha
-    val destinationContribution = destinationChannel * calculation.destinationContributionAlpha
+private struct CompositePreviewCard: View {
+    let label: String
+    let explanation: String
+    let drawContent: (GraphicsContext, CGSize) -&gt; Void
 
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = CardShape,
-        color = colorScheme.surfaceVariant,
-        contentColor = colorScheme.onSurfaceVariant,
+    init(
+        label: String,
+        explanation: String,
+        drawContent: @escaping (GraphicsContext, CGSize) -&gt; Void
     ) {
-        Column(
-            modifier = Modifier.padding(13.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Text(
-                text = channelName,
-                fontWeight = FontWeight.Black,
+        self.label = label
+        self.explanation = explanation
+        self.drawContent = drawContent
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Canvas { context, size in
+                drawContent(context, size)
+            }
+            .frame(height: 150)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            Text(label)
+                .fontWeight(.black)
+            Text(explanation)
+                .font(.system(size: 13))
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(Color(uiColor: .secondarySystemFill))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
+    }
+}
+
+private struct AlphaControl: View {
+    let label: String
+    @Binding var value: CGFloat
+    let accent: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(label)
+                    .fontWeight(.black)
+                Spacer()
+                Text(twoDecimals(value))
+                    .fontWeight(.black)
+            }
+            Slider(
+                value: Binding(
+                    get: { value },
+                    set: { value = min(max($0, 0), 1) }
+                ),
+                in: 0...1
             )
-            Text(
-                text = "Source: ${sourceChannel.twoDecimals()} × " +
-                    "${calculation.sourceContributionAlpha.twoDecimals()} = " +
-                    sourceContribution.twoDecimals(),
-            )
-            Text(
-                text = "Destination: ${destinationChannel.twoDecimals()} × " +
-                    "${calculation.destinationContributionAlpha.twoDecimals()} = " +
-                    destinationContribution.twoDecimals(),
-            )
-            Text(
-                text = "Output premultiplied RGB: ${sourceContribution.twoDecimals()} + " +
-                    "${destinationContribution.twoDecimals()} = " +
-                    outputPremultiplied.twoDecimals(),
-            )
-            Text(
-                text = if (calculation.outputStraight.alpha &gt; 0f) {
-                    "Output straight RGB: ${outputPremultiplied.twoDecimals()} ÷ " +
-                        "${calculation.outputStraight.alpha.twoDecimals()} = " +
-                        outputStraight.twoDecimals()
-                } else {
-                    "Output straight RGB: undefined at alpha 0.00; using transparent black"
-                },
-                fontWeight = FontWeight.Black,
-            )
+            .tint(accent)
+            .accessibilityLabel(&quot;\(label) \(twoDecimals(value))&quot;)
         }
     }
 }
 
-private fun DrawScope.drawCheckerboard() {
-    val cellSize = 22.dp.toPx()
-    val columns = ceil(size.width / cellSize).toInt()
-    val rows = ceil(size.height / cellSize).toInt()
+private struct PresetButton: View {
+    let title: String
+    let action: () -&gt; Void
 
-    for (row in 0 until rows) {
-        for (column in 0 until columns) {
-            drawRect(
-                color = if ((row + column) % 2 == 0) {
-                    CheckerLight
-                } else {
-                    CheckerDark
-                },
-                topLeft = Offset(
-                    x = column * cellSize,
-                    y = row * cellSize,
-                ),
-                size = androidx.compose.ui.geometry.Size(
-                    width = cellSize,
-                    height = cellSize,
-                ),
-            )
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .frame(maxWidth: .infinity)
         }
+        .buttonStyle(.bordered)
     }
 }
 
-private data class OverStraightRgba(
-    val red: Float,
-    val green: Float,
-    val blue: Float,
-    val alpha: Float,
-) {
-    fun toColor(): Color = Color(
-        red = red,
-        green = green,
-        blue = blue,
-        alpha = alpha,
-    )
+private struct ChannelCalculationCard: View {
+    let channelName: String
+    let sourceChannel: CGFloat
+    let destinationChannel: CGFloat
+    let calculation: OverSourceOverCalculation
+    let outputPremultiplied: CGFloat
+    let outputStraight: CGFloat
 
-    fun asTuple(): String =
-        "RGBA(${red.twoDecimals()}, ${green.twoDecimals()}, " +
-            "${blue.twoDecimals()}, ${alpha.twoDecimals()})"
+    private var sourceContribution: CGFloat {
+        sourceChannel * calculation.sourceContributionAlpha
+    }
+
+    private var destinationContribution: CGFloat {
+        destinationChannel * calculation.destinationContributionAlpha
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(channelName)
+                .fontWeight(.black)
+            Text(
+                &quot;Source: \(twoDecimals(sourceChannel)) × &quot; +
+                &quot;\(twoDecimals(calculation.sourceContributionAlpha)) = &quot; +
+                twoDecimals(sourceContribution)
+            )
+            Text(
+                &quot;Destination: \(twoDecimals(destinationChannel)) × &quot; +
+                &quot;\(twoDecimals(calculation.destinationContributionAlpha)) = &quot; +
+                twoDecimals(destinationContribution)
+            )
+            Text(
+                &quot;Output premultiplied RGB: \(twoDecimals(sourceContribution)) + &quot; +
+                &quot;\(twoDecimals(destinationContribution)) = &quot; +
+                twoDecimals(outputPremultiplied)
+            )
+            Text(
+                calculation.outputStraight.alpha &gt; 0
+                    ? &quot;Output straight RGB: \(twoDecimals(outputPremultiplied)) ÷ &quot; +
+                    &quot;\(twoDecimals(calculation.outputStraight.alpha)) = &quot; +
+                    twoDecimals(outputStraight)
+                    : &quot;Output straight RGB: undefined at alpha 0.00; using transparent black&quot;
+            )
+            .fontWeight(.black)
+        }
+        .font(.system(size: 15))
+        .padding(13)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(Color(uiColor: .secondarySystemFill))
+        )
+    }
 }
 
-private data class OverSourceOverCalculation(
-    val sourceContributionAlpha: Float,
-    val destinationContributionAlpha: Float,
-    val outputPremultipliedRed: Float,
-    val outputPremultipliedGreen: Float,
-    val outputPremultipliedBlue: Float,
-    val outputStraight: OverStraightRgba,
-)
+private struct OverStraightRgba {
+    let red: CGFloat
+    let green: CGFloat
+    let blue: CGFloat
+    let alpha: CGFloat
 
-private fun calculateSourceOver(
+    func toColor() -&gt; Color {
+        Color(red: red, green: green, blue: blue, opacity: alpha)
+    }
+
+    func asTuple() -&gt; String {
+        &quot;RGBA(\(twoDecimals(red)), \(twoDecimals(green)), &quot; +
+            &quot;\(twoDecimals(blue)), \(twoDecimals(alpha)))&quot;
+    }
+}
+
+private struct OverSourceOverCalculation {
+    let sourceContributionAlpha: CGFloat
+    let destinationContributionAlpha: CGFloat
+    let outputPremultipliedRed: CGFloat
+    let outputPremultipliedGreen: CGFloat
+    let outputPremultipliedBlue: CGFloat
+    let outputStraight: OverStraightRgba
+}
+
+private func calculateSourceOver(
     source: OverStraightRgba,
-    destination: OverStraightRgba,
-): OverSourceOverCalculation {
-    val sourceContributionAlpha = source.alpha
-    val destinationContributionAlpha = destination.alpha * (1f - source.alpha)
-    val outputAlpha = sourceContributionAlpha + destinationContributionAlpha
+    destination: OverStraightRgba
+) -&gt; OverSourceOverCalculation {
+    let sourceContributionAlpha = source.alpha
+    let destinationContributionAlpha = destination.alpha * (1 - source.alpha)
+    let outputAlpha = sourceContributionAlpha + destinationContributionAlpha
 
-    val outputPremultipliedRed =
+    let outputPremultipliedRed =
         source.red * sourceContributionAlpha +
-            destination.red * destinationContributionAlpha
-    val outputPremultipliedGreen =
+        destination.red * destinationContributionAlpha
+    let outputPremultipliedGreen =
         source.green * sourceContributionAlpha +
-            destination.green * destinationContributionAlpha
-    val outputPremultipliedBlue =
+        destination.green * destinationContributionAlpha
+    let outputPremultipliedBlue =
         source.blue * sourceContributionAlpha +
-            destination.blue * destinationContributionAlpha
+        destination.blue * destinationContributionAlpha
 
-    val outputStraight = if (outputAlpha &lt;= 0f) {
-        OverStraightRgba(
-            red = 0f,
-            green = 0f,
-            blue = 0f,
-            alpha = 0f,
+    let outputStraight: OverStraightRgba
+    if outputAlpha &lt;= 0 {
+        outputStraight = OverStraightRgba(
+            red: 0,
+            green: 0,
+            blue: 0,
+            alpha: 0
         )
     } else {
-        OverStraightRgba(
-            red = outputPremultipliedRed / outputAlpha,
-            green = outputPremultipliedGreen / outputAlpha,
-            blue = outputPremultipliedBlue / outputAlpha,
-            alpha = outputAlpha,
+        outputStraight = OverStraightRgba(
+            red: outputPremultipliedRed / outputAlpha,
+            green: outputPremultipliedGreen / outputAlpha,
+            blue: outputPremultipliedBlue / outputAlpha,
+            alpha: outputAlpha
         )
     }
 
     return OverSourceOverCalculation(
-        sourceContributionAlpha = sourceContributionAlpha,
-        destinationContributionAlpha = destinationContributionAlpha,
-        outputPremultipliedRed = outputPremultipliedRed,
-        outputPremultipliedGreen = outputPremultipliedGreen,
-        outputPremultipliedBlue = outputPremultipliedBlue,
-        outputStraight = outputStraight,
+        sourceContributionAlpha: sourceContributionAlpha,
+        destinationContributionAlpha: destinationContributionAlpha,
+        outputPremultipliedRed: outputPremultipliedRed,
+        outputPremultipliedGreen: outputPremultipliedGreen,
+        outputPremultipliedBlue: outputPremultipliedBlue,
+        outputStraight: outputStraight
     )
 }
 
-private fun Float.twoDecimals(): String =
-    String.format(Locale.US, "%.2f", this)
+private func drawCheckerboard(
+    context: GraphicsContext,
+    size: CGSize,
+    cellSize: CGFloat
+) {
+    let columnCount = Int(ceil(size.width / cellSize))
+    let rowCount = Int(ceil(size.height / cellSize))
+    for row in 0..&lt;rowCount {
+        for column in 0..&lt;columnCount {
+            let cellColor = (row + column).isMultiple(of: 2) ? checkerLight : checkerDark
+            let rect = CGRect(
+                x: CGFloat(column) * cellSize,
+                y: CGFloat(row) * cellSize,
+                width: cellSize,
+                height: cellSize
+            )
+            context.fill(Path(rect), with: .color(cellColor))
+        }
+    }
+}
+
+private func twoDecimals(_ value: CGFloat) -&gt; String {
+    String(format: &quot;%.2f&quot;, Double(value))
+}
+
+private extension Color {
+    init(hex: UInt32) {
+        self.init(
+            red: Double((hex &gt;&gt; 16) &amp; 0xFF) / 255,
+            green: Double((hex &gt;&gt; 8) &amp; 0xFF) / 255,
+            blue: Double(hex &amp; 0xFF) / 255
+        )
+    }
+}
+
+#Preview(&quot;OverOperationExplorer · light&quot;) {
+    LabTheme {
+        ScrollView {
+            OverOperationExplorer()
+                .padding(16)
+        }
+    }
+    .labPreviewCanvas()
+}
+
+#Preview(&quot;OverOperationExplorer · dark&quot;) {
+    LabTheme {
+        ScrollView {
+            OverOperationExplorer()
+                .padding(16)
+        }
+    }
+    .preferredColorScheme(.dark)
+    .labPreviewCanvas()
+}
 </pre></div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">8 · Coding challenge</div><h2>Repair a destination that contributes too much</h2></div><p>The defective code uses the source opening but ignores destination alpha. The opaque-destination test hides the defect. The translucent course example reveals it.</p></div><div class="challenge-grid"><article class="editor-card"><div class="card-header"><strong>Kotlin teaching fragment</strong><button class="secondary-button" id="resetChallenge" type="button">Reset defect</button></div><div class="editor-wrap"><textarea class="code-editor" id="codeEditor" spellcheck="false">val sourceAlpha = 0.50f
-val destinationAlpha = 0.60f
+<section class="section panel"><div class="section-intro"><div><div class="section-number">8 · Coding challenge</div><h2>Repair a destination that contributes too much</h2></div><p>The defective code uses the source opening but ignores destination alpha. The opaque-destination test hides the defect. The translucent course example reveals it.</p></div><div class="challenge-grid"><article class="editor-card"><div class="card-header"><strong>Swift teaching fragment</strong><button class="secondary-button" id="resetChallenge" type="button">Reset defect</button></div><div class="editor-wrap"><textarea class="code-editor" id="codeEditor" spellcheck="false">let sourceAlpha: CGFloat = 0.50
+let destinationAlpha: CGFloat = 0.60
 
-val sourceWeight = sourceAlpha
-val destinationWeight = 1f - sourceAlpha
-val outputAlpha = sourceWeight + destinationWeight</textarea><div class="controls" style="margin-top:12px"><button class="mode-button selected" data-expression="opening" type="button">Use 1 − source alpha</button><button class="mode-button" data-expression="full" type="button">Multiply by destination alpha</button><button class="mode-button selected" data-case="translucent" type="button">Test translucent destination</button><button class="mode-button" data-case="opaque" type="button">Test opaque destination</button></div><button class="primary-button" id="checkChallenge" type="button" style="margin-top:12px">Check repair</button><div class="challenge-result" id="challengeResult">The destination currently contributes as though its alpha were 1.00.</div></div></article><article class="challenge-preview"><div class="card-header"><strong>Code-driven teaching preview</strong><span class="mono" id="challengeStatus"></span></div><div class="challenge-body"><div class="challenge-swatch checkerboard"><div class="layer" id="challengeLayer"></div><div class="swatch-label" id="challengeTuple"></div></div><div class="mapping-grid"><div class="mapping-card"><strong>Destination weight</strong><div class="mono" id="challengeDestinationWeight"></div></div><div class="mapping-card"><strong>Output alpha</strong><div class="mono" id="challengeOutputAlpha"></div></div><div class="mapping-card"><strong>Output RGB</strong><div class="mono" id="challengeOutputRgb"></div></div></div><div class="io-row" style="margin-top:14px"><div class="io-box"><strong>Input</strong><span id="challengeInput"></span></div><div class="io-box"><strong>Operation</strong><span id="challengeOperation"></span></div><div class="io-box"><strong>Output</strong><span id="challengeOutput"></span></div></div></div></article></div></section>
+let sourceWeight = sourceAlpha
+let destinationWeight = 1 - sourceAlpha
+let outputAlpha = sourceWeight + destinationWeight</textarea><div class="controls" style="margin-top:12px"><button class="mode-button selected" data-expression="opening" type="button">Use 1 − source alpha</button><button class="mode-button" data-expression="full" type="button">Multiply by destination alpha</button><button class="mode-button selected" data-case="translucent" type="button">Test translucent destination</button><button class="mode-button" data-case="opaque" type="button">Test opaque destination</button></div><button class="primary-button" id="checkChallenge" type="button" style="margin-top:12px">Check repair</button><div class="challenge-result" id="challengeResult">The destination currently contributes as though its alpha were 1.00.</div></div></article><article class="challenge-preview"><div class="card-header"><strong>Code-driven teaching preview</strong><span class="mono" id="challengeStatus"></span></div><div class="challenge-body"><div class="challenge-swatch checkerboard"><div class="layer" id="challengeLayer"></div><div class="swatch-label" id="challengeTuple"></div></div><div class="mapping-grid"><div class="mapping-card"><strong>Destination weight</strong><div class="mono" id="challengeDestinationWeight"></div></div><div class="mapping-card"><strong>Output alpha</strong><div class="mono" id="challengeOutputAlpha"></div></div><div class="mapping-card"><strong>Output RGB</strong><div class="mono" id="challengeOutputRgb"></div></div></div><div class="io-row" style="margin-top:14px"><div class="io-box"><strong>Input</strong><span id="challengeInput"></span></div><div class="io-box"><strong>Operation</strong><span id="challengeOperation"></span></div><div class="io-box"><strong>Output</strong><span id="challengeOutput"></span></div></div></div></article></div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">9 · Pixel 8 Pro checkpoint</div><h2>Verify calculation and drawing together</h2></div><p>Use the exact default values before exploring the boundary presets.</p></div><div class="checklist"><label class="check-row"><input type="checkbox" data-check="files"><span>The Lesson 3.3 learning-docs and Android incremental archives were applied after Lesson 3.2.</span></label><label class="check-row"><input type="checkbox" data-check="build"><span>The Android project builds and opens <strong>Lesson 3.3 · The over operation</strong>.</span></label><label class="check-row"><input type="checkbox" data-check="default"><span>The course example reports destination weight <code>0.30</code>, output alpha <code>0.80</code>, and output <code>RGBA(0.60, 0.40, 0.65, 0.80)</code>.</span></label><label class="check-row"><input type="checkbox" data-check="match"><span>The rendered stack and calculated-output cards look the same at the default values, allowing for display rounding.</span></label><label class="check-row"><input type="checkbox" data-check="boundaries"><span>The source-alpha-0, source-alpha-1, opaque-destination, and both-transparent presets produce the explained boundary behavior.</span></label><label class="check-row"><input type="checkbox" data-check="roles"><span>I can identify the source, destination, and output for the shown drawing call.</span></label><label class="check-row"><input type="checkbox" data-check="destination-weight"><span>I can explain why destination weight is <code>destination alpha × (1 − source alpha)</code>.</span></label><label class="check-row"><input type="checkbox" data-check="intermediate"><span>I can explain why output alpha <code>0.80</code> means another background may still affect the eventual screen color.</span></label><label class="check-row"><input type="checkbox" data-check="browser-theme"><span>The HTML chrome follows both OS themes while all instructional colors and numeric values remain unchanged.</span></label><label class="check-row"><input type="checkbox" data-check="android-theme"><span>The Pixel UI chrome follows both OS themes while the source, destination, checkerboard, and output colors remain unchanged.</span></label><label class="check-row"><input type="checkbox" data-check="challenge"><span>The coding challenge and four exercises are complete.</span></label></div></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">9 · iPhone 16 Pro checkpoint</div><h2>Verify calculation and drawing together</h2></div><p>Use the exact default values before exploring the boundary presets.</p></div><div class="checklist"><label class="check-row"><input type="checkbox" data-check="files"><span>The Lesson 3.3 learning-docs and iOS files were applied after Lesson 3.2.</span></label><label class="check-row"><input type="checkbox" data-check="build"><span>The iOS project builds and opens <strong>Lesson 3.3 · The over operation</strong>.</span></label><label class="check-row"><input type="checkbox" data-check="default"><span>The course example reports destination weight <code>0.30</code>, output alpha <code>0.80</code>, and output <code>RGBA(0.60, 0.40, 0.65, 0.80)</code>.</span></label><label class="check-row"><input type="checkbox" data-check="match"><span>The rendered stack and calculated-output cards look the same at the default values, allowing for display rounding.</span></label><label class="check-row"><input type="checkbox" data-check="boundaries"><span>The source-alpha-0, source-alpha-1, opaque-destination, and both-transparent presets produce the explained boundary behavior.</span></label><label class="check-row"><input type="checkbox" data-check="roles"><span>I can identify the source, destination, and output for the shown drawing call.</span></label><label class="check-row"><input type="checkbox" data-check="destination-weight"><span>I can explain why destination weight is <code>destination alpha × (1 − source alpha)</code>.</span></label><label class="check-row"><input type="checkbox" data-check="intermediate"><span>I can explain why output alpha <code>0.80</code> means another background may still affect the eventual screen color.</span></label><label class="check-row"><input type="checkbox" data-check="browser-theme"><span>The HTML chrome follows both OS themes while all instructional colors and numeric values remain unchanged.</span></label><label class="check-row"><input type="checkbox" data-check="ios-theme"><span>The iPhone 16 Pro UI chrome follows both OS themes while the source, destination, checkerboard, and output colors remain unchanged.</span></label><label class="check-row"><input type="checkbox" data-check="challenge"><span>The coding challenge and four exercises are complete.</span></label></div></section>
 
 <section class="section panel"><div class="section-intro"><div><div class="section-number">10 · Exercises</div><h2>Answer before opening the details</h2></div><p>The second question targets the most likely source-over mistake.</p></div><details><summary>Exercise 1 — Course-example output alpha</summary><p>Source alpha is <code>0.50</code>. Destination alpha is <code>0.60</code>. What are the destination contribution weight and output alpha?</p><p><strong>Answer:</strong> Destination weight is <code>0.60 × (1 − 0.50) = 0.30</code>. Output alpha is <code>0.50 + 0.30 = 0.80</code>.</p></details><details><summary>Exercise 2 — Diagnostic: why is 1 − source alpha incomplete?</summary><p>Why is <code>1 − source alpha</code> alone not the destination contribution weight when the destination is translucent?</p><p><strong>Answer:</strong> It measures only the opening left by the source. The destination itself occupies only its alpha share of that opening. The complete weight is <code>destination alpha × (1 − source alpha)</code>.</p></details><details><summary>Exercise 3 — Opaque destination</summary><p>Source alpha is <code>0.25</code> and destination alpha is <code>1.00</code>. What is output alpha?</p><p><strong>Answer:</strong> Destination weight is <code>1.00 × (1 − 0.25) = 0.75</code>. Output alpha is <code>0.25 + 0.75 = 1.00</code>.</p></details><details><summary>Exercise 4 — Both inputs fully transparent</summary><p>Why must the code check output alpha before dividing premultiplied RGB by it?</p><p><strong>Answer:</strong> When both alphas are zero, output alpha is zero. Division by zero is undefined. The lesson implementation returns a fully transparent result instead.</p></details></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">11 · Evidence and deferrals</div><h2>What this lesson supports</h2></div><p>Separate the source-over structure from renderer details that are not measured here.</p></div><div class="two-column"><article class="card green"><h3>Supported by the code and experiment</h3><p>The lesson shows the exact normalized inputs used by the Kotlin function, every intermediate contribution, the calculated output, and an explicit <code>BlendMode.SrcOver</code> drawing of the same two layers.</p></article><article class="card amber"><h3>Deferred details</h3><p>Lesson 3.4 reverses drawing order. Lesson 3.5 names straight RGBA, premultiplied RGBA, output premultiplied RGB, and output straight RGB. The transparent-edge artifact is deferred until the course teaches the image-sampling operation that creates new edge values. Color-space transfer functions and device precision are also outside this calculation.</p></article></div><div class="warning"><strong>Evidence limit:</strong> visual agreement between the two cards is not a byte-for-byte GPU-memory test. Exact device values can be affected by color-space conversion, quantization, and later display processing. Those details do not change which source and destination contribution factors belong in source-over.</div><p class="small">Official Android references: <a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode">Compose BlendMode</a> and <a href="https://developer.android.com/reference/android/graphics/BlendMode#SRC_OVER">Android BlendMode.SRC_OVER formula</a>.</p></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">11 · Evidence and deferrals</div><h2>What this lesson supports</h2></div><p>Separate the source-over structure from renderer details that are not measured here.</p></div><div class="two-column"><article class="card green"><h3>Supported by the code and experiment</h3><p>The lesson shows the exact normalized inputs used by the Swift function, every intermediate contribution, the calculated output, and an explicit <code>BlendMode.normal</code> drawing of the same two layers.</p></article><article class="card amber"><h3>Deferred details</h3><p>Lesson 3.4 reverses drawing order. Lesson 3.5 names straight RGBA, premultiplied RGBA, output premultiplied RGB, and output straight RGB. The transparent-edge artifact is deferred until the course teaches the image-sampling operation that creates new edge values. Color-space transfer functions and device precision are also outside this calculation.</p></article></div><div class="warning"><strong>Evidence limit:</strong> visual agreement between the two cards is not a byte-for-byte GPU-memory test. Exact device values can be affected by color-space conversion, quantization, and later display processing. Those details do not change which source and destination contribution factors belong in source-over.</div><p class="small">Official Apple references: <a href="https://developer.apple.com/documentation/swiftui/blendmode">SwiftUI BlendMode</a>, <a href="https://developer.apple.com/documentation/swiftui/graphicscontext">GraphicsContext</a>, and <a href="https://developer.apple.com/documentation/swiftui/color">Color</a>.</p></section>
 
 <section class="section panel"><div class="section-intro"><div><div class="section-number">12 · Completion record</div><h2>Copy this into the next conversation</h2></div><button class="primary-button" id="copyRecord" type="button">Copy record</button></div><textarea class="record-area" id="completionRecord" readonly></textarea><p class="small" id="copyStatus"></p></section>
 
@@ -865,9 +755,9 @@ updateLab();
 
 const steps=[
  {title:'1 · Name the two inputs',caption:'The destination already exists. The source is drawn now. Both are straight RGBA tuples.',code:'source      = RGBA(0.90, 0.10, 0.80, 0.50)\ndestination = RGBA(0.10, 0.90, 0.40, 0.60)',input:'Two translucent RGBA values.',operation:'Assign source and destination roles.',output:'No output calculated yet.',stage:1},
- {title:'2 · Find the source opening',caption:'Source alpha 0.50 covers half of the position. The remaining half is open to content behind it.',code:'val sourceOpening = 1f - source.alpha\n// 1.00 - 0.50 = 0.50',input:'Source alpha 0.50.',operation:'Subtract source alpha from 1.',output:'Source opening 0.50.',stage:2},
- {title:'3 · Find the destination contribution weight',caption:'The destination occupies 0.60 of the source opening. Multiply both factors.',code:'val destinationWeight =\n    destination.alpha * (1f - source.alpha)\n// 0.60 * 0.50 = 0.30',input:'Destination alpha 0.60 and source opening 0.50.',operation:'Multiply 0.60 by 0.50.',output:'Destination weight 0.30.',stage:3},
- {title:'4 · Calculate output alpha',caption:'The output coverage is the source contribution plus the surviving destination contribution.',code:'val outputAlpha =\n    source.alpha + destinationWeight\n// 0.50 + 0.30 = 0.80',input:'Source weight 0.50 and destination weight 0.30.',operation:'Add the two weights.',output:'Output alpha 0.80.',stage:4},
+ {title:'2 · Find the source opening',caption:'Source alpha 0.50 covers half of the position. The remaining half is open to content behind it.',code:'let sourceOpening = 1 - source.alpha\n// 1.00 - 0.50 = 0.50',input:'Source alpha 0.50.',operation:'Subtract source alpha from 1.',output:'Source opening 0.50.',stage:2},
+ {title:'3 · Find the destination contribution weight',caption:'The destination occupies 0.60 of the source opening. Multiply both factors.',code:'let destinationWeight =\n    destination.alpha * (1 - source.alpha)\n// 0.60 * 0.50 = 0.30',input:'Destination alpha 0.60 and source opening 0.50.',operation:'Multiply 0.60 by 0.50.',output:'Destination weight 0.30.',stage:3},
+ {title:'4 · Calculate output alpha',caption:'The output coverage is the source contribution plus the surviving destination contribution.',code:'let outputAlpha =\n    source.alpha + destinationWeight\n// 0.50 + 0.30 = 0.80',input:'Source weight 0.50 and destination weight 0.30.',operation:'Add the two weights.',output:'Output alpha 0.80.',stage:4},
  {title:'5 · Weight the source RGB channels',caption:'Multiply each source channel by the source weight. These are source contribution values, not the final straight RGB.',code:'source premultiplied RGB = (\n  0.90 * 0.50,\n  0.10 * 0.50,\n  0.80 * 0.50,\n) = (0.45, 0.05, 0.40)',input:'Source RGB and source weight 0.50.',operation:'Multiply each channel by 0.50.',output:'Source contribution RGB (0.45, 0.05, 0.40).',stage:5},
  {title:'6 · Weight the destination RGB channels',caption:'Multiply each destination channel by the complete destination weight 0.30.',code:'destination premultiplied RGB = (\n  0.10 * 0.30,\n  0.90 * 0.30,\n  0.40 * 0.30,\n) = (0.03, 0.27, 0.12)',input:'Destination RGB and destination weight 0.30.',operation:'Multiply each channel by 0.30.',output:'Destination contribution RGB (0.03, 0.27, 0.12).',stage:6},
  {title:'7 · Add matching premultiplied channels',caption:'Red adds only to red. Green adds only to green. Blue adds only to blue.',code:'output premultiplied RGB = (\n  0.45 + 0.03,\n  0.05 + 0.27,\n  0.40 + 0.12,\n) = (0.48, 0.32, 0.52)',input:'Two premultiplied RGB contribution triplets.',operation:'Add matching channel positions.',output:'Output premultiplied RGB (0.48, 0.32, 0.52).',stage:7},
@@ -891,22 +781,22 @@ steps.forEach((_,i)=>{const b=document.createElement('button');b.type='button';b
 
 document.querySelectorAll('[data-source]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-source]').forEach(b=>b.classList.toggle('selected',b===button));document.querySelectorAll('.source-pane').forEach(p=>p.classList.remove('active'));$(`source-${button.dataset.source}`).classList.add('active');}));
 
-const defectiveCode=`val sourceAlpha = 0.50f
-val destinationAlpha = 0.60f
+const defectiveCode=`let sourceAlpha: CGFloat = 0.50
+let destinationAlpha: CGFloat = 0.60
 
-val sourceWeight = sourceAlpha
-val destinationWeight = 1f - sourceAlpha
-val outputAlpha = sourceWeight + destinationWeight`;
+let sourceWeight = sourceAlpha
+let destinationWeight = 1 - sourceAlpha
+let outputAlpha = sourceWeight + destinationWeight`;
 let challengeWasCorrect=false;
 function stripComments(text){return text.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/.*$/gm,'');}
-function parseChallenge(){const code=stripComments($('codeEditor').value);const sm=code.match(/val\s+sourceAlpha\s*=\s*([0-9]*\.?[0-9]+)f?/);const dm=code.match(/val\s+destinationAlpha\s*=\s*([0-9]*\.?[0-9]+)f?/);const sa=sm?clamp(Number(sm[1])):.5,da=dm?clamp(Number(dm[1])):.6;let mode='unknown';if(/destinationWeight\s*=\s*destinationAlpha\s*\*\s*\(\s*1f?\s*-\s*sourceAlpha\s*\)/.test(code))mode='full';else if(/destinationWeight\s*=\s*1f?\s*-\s*sourceAlpha/.test(code))mode='opening';return{sa,da,mode};}
-function replaceExpression(mode){let code=$('codeEditor').value;code=code.replace(/val\s+destinationWeight\s*=\s*(?:destinationAlpha\s*\*\s*\(\s*1f?\s*-\s*sourceAlpha\s*\)|1f?\s*-\s*sourceAlpha)/,mode==='full'?'val destinationWeight = destinationAlpha * (1f - sourceAlpha)':'val destinationWeight = 1f - sourceAlpha');$('codeEditor').value=code;challengeWasCorrect=false;updateChallenge();}
-function replaceCase(kind){let code=$('codeEditor').value;const da=kind==='opaque'?'1.00':'0.60';code=code.replace(/val\s+destinationAlpha\s*=\s*[0-9]*\.?[0-9]+f?/,`val destinationAlpha = ${da}f`);$('codeEditor').value=code;challengeWasCorrect=false;updateChallenge();}
+function parseChallenge(){const code=stripComments($('codeEditor').value);const sm=code.match(/let\s+sourceAlpha(?:\s*:\s*CGFloat)?\s*=\s*([0-9]*\.?[0-9]+)/);const dm=code.match(/let\s+destinationAlpha(?:\s*:\s*CGFloat)?\s*=\s*([0-9]*\.?[0-9]+)/);const sa=sm?clamp(Number(sm[1])):.5,da=dm?clamp(Number(dm[1])):.6;let mode='unknown';if(/destinationWeight\s*=\s*destinationAlpha\s*\*\s*\(\s*1(?:\.0+)?\s*-\s*sourceAlpha\s*\)/.test(code))mode='full';else if(/destinationWeight\s*=\s*1(?:\.0+)?\s*-\s*sourceAlpha/.test(code))mode='opening';return{sa,da,mode};}
+function replaceExpression(mode){let code=$('codeEditor').value;code=code.replace(/let\s+destinationWeight\s*=\s*(?:destinationAlpha\s*\*\s*\(\s*1(?:\.0+)?\s*-\s*sourceAlpha\s*\)|1(?:\.0+)?\s*-\s*sourceAlpha)/,mode==='full'?'let destinationWeight = destinationAlpha * (1 - sourceAlpha)':'let destinationWeight = 1 - sourceAlpha');$('codeEditor').value=code;challengeWasCorrect=false;updateChallenge();}
+function replaceCase(kind){let code=$('codeEditor').value;const da=kind==='opaque'?'1.00':'0.60';code=code.replace(/let\s+destinationAlpha(?:\s*:\s*CGFloat)?\s*=\s*[0-9]*\.?[0-9]+/,`let destinationAlpha: CGFloat = ${da}`);$('codeEditor').value=code;challengeWasCorrect=false;updateChallenge();}
 function updateChallenge(){const s=parseChallenge(),calc=calculateSourceOver(s.sa,s.da,s.mode==='full'?'full':'opening');setLayer($('challengeLayer'),calc.output,calc.output.a);$('challengeTuple').textContent=tuple(calc.output);$('challengeDestinationWeight').textContent=two(calc.destinationWeight);$('challengeOutputAlpha').textContent=two(calc.outputAlpha);$('challengeOutputRgb').textContent=`(${two(calc.output.r)}, ${two(calc.output.g)}, ${two(calc.output.b)})`;$('challengeStatus').textContent=s.mode==='full'?'destination alpha included':s.mode==='opening'?'destination alpha missing':'expression not parsed';$('challengeInput').textContent=`Aₛ = ${two(s.sa)}, Aᵈ = ${two(s.da)}`;$('challengeOperation').textContent=s.mode==='full'?`${two(s.da)} × (1 − ${two(s.sa)})`:`1 − ${two(s.sa)}`;$('challengeOutput').textContent=`destination weight ${two(calc.destinationWeight)}; output alpha ${two(calc.outputAlpha)}`;document.querySelectorAll('[data-expression]').forEach(b=>b.classList.toggle('selected',b.dataset.expression===s.mode));document.querySelectorAll('[data-case]').forEach(b=>b.classList.toggle('selected',(b.dataset.case==='opaque'&&s.da===1)||(b.dataset.case==='translucent'&&s.da===.6)));if(!challengeWasCorrect){if(s.mode==='full')$('challengeResult').textContent=s.da===.6?'The formula is repaired. Press Check repair.':'The formula is repaired, but return to the translucent test case before checking.';else if(s.mode==='opening')$('challengeResult').textContent=s.da===1?'The opaque test hides the defect. Switch back to the translucent destination.':'The destination still contributes as though its alpha were 1.00.';else $('challengeResult').textContent='The preview cannot find a supported destination-weight expression.';}}
 $('codeEditor').addEventListener('input',()=>{challengeWasCorrect=false;updateChallenge();});document.querySelectorAll('[data-expression]').forEach(b=>b.addEventListener('click',()=>replaceExpression(b.dataset.expression)));document.querySelectorAll('[data-case]').forEach(b=>b.addEventListener('click',()=>replaceCase(b.dataset.case)));$('resetChallenge').addEventListener('click',()=>{$('codeEditor').value=defectiveCode;challengeWasCorrect=false;updateChallenge();});$('checkChallenge').addEventListener('click',()=>{const s=parseChallenge();const ok=s.mode==='full'&&Math.abs(s.sa-.5)<.001&&Math.abs(s.da-.6)<.001;challengeWasCorrect=ok;$('challengeResult').textContent=ok?'Correct. The translucent destination contributes 0.60 × 0.50 = 0.30, so output alpha is 0.80.':'Not complete. Include destination alpha and test with source alpha 0.50 and destination alpha 0.60.';});updateChallenge();
 
 const checkboxes=[...document.querySelectorAll('[data-check]')];
-function updateRecord(){const done=checkboxes.filter(box=>box.checked).map(box=>box.dataset.check),all=done.length===checkboxes.length;$('completionRecord').value=`lesson_id: 03-03\nlesson_title: The over operation\nstatus: ${all?'completed':'in_progress'}\ncourse_lessons_completed_before_this_lesson: 19\ncourse_lessons_completed_after_completion: ${all?20:19}\ncourse_lessons_total: 216\nchapter_01_completed_by_learner: true\nchapter_02_completed_by_learner: true\nchapter_03_completed_by_learner: false\nandroid_files_applied:\n  - app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt\n  - app/src/main/java/com/example/liquidglasslab/chapter03/OverOperationExplorer.kt\npixel_8_pro_tested: ${done.includes('build')&&done.includes('default')&&done.includes('boundaries')}\nbrowser_os_theme_verified: ${done.includes('browser-theme')}\nandroid_os_theme_verified: ${done.includes('android-theme')}\ncheckpoint_items_complete: ${done.length}/${checkboxes.length}\ncan_calculate_source_over: ${done.includes('default')&&done.includes('destination-weight')}\ncan_explain_translucent_output_is_intermediate: ${done.includes('intermediate')}\nnext_lesson_after_completion: 3.4 — Draw order matters\nremaining_questions:\n  - none`;}
+function updateRecord(){const done=checkboxes.filter(box=>box.checked).map(box=>box.dataset.check),all=done.length===checkboxes.length;$('completionRecord').value=`lesson_id: 03-03\nlesson_title: The over operation\nstatus: ${all?'completed':'in_progress'}\ncourse_progress: 100 of 216\ncompleted_through: Lesson 9.11\nthis_lesson_stays_complete: true\ncourse_lessons_total: 216\nios_files_applied:\n  - LiquidGlassLab/chapter03/Chapter03Screen.swift\n  - LiquidGlassLab/chapter03/OverOperationExplorer.swift\niphone_16_pro_tested: ${done.includes('build')&&done.includes('default')&&done.includes('boundaries')}\nbrowser_os_theme_verified: ${done.includes('browser-theme')}\nios_os_theme_verified: ${done.includes('ios-theme')}\ncheckpoint_items_complete: ${done.length}/${checkboxes.length}\ncan_calculate_source_over: ${done.includes('default')&&done.includes('destination-weight')}\ncan_explain_translucent_output_is_intermediate: ${done.includes('intermediate')}\nnext_lesson_after_completion: 3.4 — Draw order matters\nremaining_questions:\n  - none`;}
 checkboxes.forEach(box=>box.addEventListener('change',updateRecord));updateRecord();$('copyRecord').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('completionRecord').value);$('copyStatus').textContent='Copied.';}catch{$('completionRecord').select();document.execCommand('copy');$('copyStatus').textContent='Copied using the browser fallback.';}});
 </script>
 </body>

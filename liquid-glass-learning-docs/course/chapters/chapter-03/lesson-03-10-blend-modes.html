@@ -150,7 +150,8 @@ summary{cursor:pointer;font-weight:900}
 <div class="chips">
 <span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span>
 <span class="chip progress">Lessons 3.9–3.10 · completed</span>
-<span class="chip progress">27 of 216 complete</span>
+<span class="chip progress">100 of 216 completed</span>
+<span class="chip">iPhone 16 Pro</span>
 </div>
 </nav>
 <header class="hero panel">
@@ -160,12 +161,13 @@ summary{cursor:pointer;font-weight:900}
 <p class="lead"><strong>You already know one source color drawn second over one destination color from Lessons 3.3 and 3.4.</strong> This lesson keeps those two objects, their opaque alpha values, their shape, and their draw order fixed. It changes only the arithmetic used where the source circle covers the destination.</p>
 <div class="goal">
 <strong>Practical question</strong>
-<p>What visible output does Android produce when the same opaque source and destination use <strong>Normal</strong>, <strong>Multiply</strong>, <strong>Screen</strong>, or <strong>Plus</strong>?</p>
+<p>What visible output does iOS produce when the same opaque source and destination use <strong>Normal</strong>, <strong>Multiply</strong>, <strong>Screen</strong>, or <strong>Plus</strong>?</p>
 </div>
 </div>
 <aside class="card amber">
 <h2>Completion state</h2>
-<p>Lessons 3.9 and 3.10 are now learner-confirmed complete. The completed total is 27 of 216.</p>
+<p>Lessons 3.9 and 3.10 stay complete as Chapter 3 math. </p>
+<p><strong>iOS files:</strong><br><code>chapter03/Chapter03Screen.swift</code><br><code>chapter03/BlendModesExplorer.swift</code></p>
 <p>Lesson 3.11 uses the saturation, blend-mode, source-over, draw-order, luminance, and contrast concepts together in one ordered laboratory.</p>
 </aside>
 </header>
@@ -190,7 +192,7 @@ summary{cursor:pointer;font-weight:900}
 <div class="lab">
 <div class="stage">
 <div class="controls" id="modeButtons">
-<button class="mode-button selected" data-mode="normal">Normal / SrcOver</button>
+<button class="mode-button selected" data-mode="normal">Normal / BlendMode.normal</button>
 <button class="mode-button" data-mode="multiply">Multiply</button>
 <button class="mode-button" data-mode="screen">Screen</button>
 <button class="mode-button" data-mode="plus">Plus</button>
@@ -233,10 +235,10 @@ summary{cursor:pointer;font-weight:900}
 </section>
 <section class="section panel">
 <div class="section-head">
-<div><div class="section-no">2 · NORMAL / SRCOVER</div><h2>With an opaque source, Normal outputs the source</h2></div>
+<div><div class="section-no">2 · NORMAL / BLENDMODE.NORMAL</div><h2>With an opaque source, Normal outputs the source</h2></div>
 <p>Start with the operation already known from Lesson 3.3.</p>
 </div>
-<p><strong>Normal</strong> is the common name used by many graphics tools for ordinary source-over compositing. Compose names the mode <code>BlendMode.SrcOver</code>. The source is drawn over the destination.</p>
+<p><strong>Normal</strong> is the common name used by many graphics tools for ordinary source-over compositing. SwiftUI names the mode <code>BlendMode.normal</code>. The source is drawn over the destination.</p>
 <p>At the solid interior of the circle, source alpha is <code>1.00</code>. The source covers the destination completely. The output channel is therefore the source channel.</p>
 <div class="formula">output channel = source channel
 
@@ -301,7 +303,7 @@ output red
 = 0.8752</div>
 </article>
 </div>
-<p>The same rule can be rearranged into the shorter formula used by Android documentation:</p>
+<p>The same rule can be rearranged into the shorter formula used by this lesson and by SwiftUI blend documentation:</p>
 <div class="formula">output
 = 1 − (1 − source) × (1 − destination)
 
@@ -345,7 +347,7 @@ output red
 <table class="rule-table">
 <thead><tr><th>Mode</th><th>Neutral opaque source</th><th>Proof for one channel</th></tr></thead>
 <tbody>
-<tr><td>Normal / SrcOver</td><td>None</td><td>An opaque source replaces the destination.</td></tr>
+<tr><td>Normal / BlendMode.normal</td><td>None</td><td>An opaque source replaces the destination.</td></tr>
 <tr><td>Multiply</td><td>White channel <code>1</code></td><td><code>1 × destination = destination</code></td></tr>
 <tr><td>Screen</td><td>Black channel <code>0</code></td><td><code>0 + destination − 0 × destination = destination</code></td></tr>
 <tr><td>Plus</td><td>Black channel <code>0</code></td><td><code>clamp(0 + destination) = destination</code></td></tr>
@@ -379,7 +381,7 @@ output red
 </article>
 <article class="card amber">
 <h3>Why the general formulas become shorter</h3>
-<p>For example, Android’s general Multiply equation contains three contribution terms:</p>
+<p>For example, the general Multiply equation contains three contribution terms:</p>
 <div class="formula">output contribution
 = source × (1 − destination alpha)
 + destination × (1 − source alpha)
@@ -421,20 +423,1213 @@ output red
 </section>
 <section class="section panel">
 <div class="section-head">
-<div><div class="section-no">12 · ANDROID VALUE PATH</div><h2>Connect the teaching formula to the Compose drawing calls</h2></div>
+<div><div class="section-no">12 · iOS VALUE PATH</div><h2>Connect the teaching formula to the SwiftUI drawing calls</h2></div>
 <p>The displayed formula and the Canvas operation have related but separate evidence.</p>
-<p>The complete Kotlin files remain in the Android ZIP and Android Studio. The lesson keeps only the excerpts required to explain this value path.</p></div>
+<p>The complete Swift files live in <code>LiquidGlassLab-iOS</code>. The lesson keeps the excerpts required to explain this value path, then embeds the changed files.</p></div>
 <div class="pipeline">
-<div class="card"><strong>1 · Kotlin state</strong><p>Six straight sRGB channel values and one selected mode.</p></div>
+<div class="card"><strong>1 · Swift state</strong><p>Six straight sRGB channel values and one selected mode.</p></div>
 <div class="card"><strong>2 · Color objects</strong><p>Opaque source and opaque destination <code>Color</code> objects are created.</p></div>
-<div class="card"><strong>3 · Destination draw</strong><p><code>drawRoundRect(destination)</code> fills the Canvas first.</p></div>
-<div class="card"><strong>4 · Source draw</strong><p><code>drawCircle(source, blendMode)</code> draws the opaque circle second.</p></div>
+<div class="card"><strong>3 · Destination draw</strong><p><code>context.fill(Path(roundedRect:), with: .color(destination))</code> fills the Canvas first.</p></div>
+<div class="card"><strong>4 · Source draw</strong><p><code>context.blendMode</code> then <code>context.fill(Path(ellipseIn:), with: .color(source))</code> draws the opaque circle second.</p></div>
 <div class="card"><strong>5 · Teaching calculation</strong><p><code>blendOpaqueColors()</code> calculates the expected solid-interior RGB.</p></div>
 <div class="card"><strong>6 · Measurements</strong><p>The calculated output supplies luminance and foreground contrast.</p></div>
 </div>
-<div class="warning"><strong>Evidence boundary:</strong> the teaching function proves its own arithmetic. The Canvas executes the Compose mode. This lesson does not perform pixel readback, meaning it does not copy final rendered pixel values from the Graphics Processing Unit (GPU) back into program memory. It therefore does not claim byte-for-byte renderer output, internal color-space conversion, or boundary-coverage behavior.</div>
+<div class="warning"><strong>Evidence boundary:</strong> the teaching function proves its own arithmetic. The Canvas executes the SwiftUI BlendMode. This lesson does not perform pixel readback, meaning it does not copy final rendered pixel values from the Graphics Processing Unit (GPU) back into program memory. It therefore does not claim byte-for-byte renderer output, internal color-space conversion, or boundary-coverage behavior.</div>
 </section>
 
+<section class="section panel" id="sources-code">
+<div class="section-head">
+<div><div class="section-no">13 · COMPLETE CHANGED iOS FILES</div><h2>The embedded source exactly matches the iOS files</h2></div>
+<p>The displayed code matches the Lesson 3.10 files in <code>LiquidGlassLab-iOS</code>. <code>Chapter03Screen</code> keeps the Lesson 3.1–3.9 explorers and adds <code>BlendModesExplorer</code>.</p>
+</div>
+<div class="source-tabs">
+<button class="tab selected" data-source="chapter">Chapter03Screen.swift</button>
+<button class="tab" data-source="explorer">BlendModesExplorer.swift</button>
+</div>
+<div class="source-pane active" id="source-chapter"><pre class="code source-code">import SwiftUI
+
+struct Chapter03Screen: View {
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 28) {
+                Text(&quot;COLOR, OPACITY, AND COMPOSITING&quot;)
+                    .font(.system(size: 14, weight: .black))
+                    .foregroundStyle(Color(hex: 0x059669))
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.1 · Red, green, and blue channels&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Change one channel at a time. The final swatch is one opaque RGB color &quot; +
+                        &quot;built from three independent numbers.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    RgbChannelsExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.2 · Alpha&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Keep red, green, and blue fixed. Change only alpha, then inspect &quot; +
+                        &quot;how much of each background remains visible.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    AlphaExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.3 · The over operation&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Draw one translucent source over one translucent destination. &quot; +
+                        &quot;Calculate the resulting RGBA color one contribution at a time.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    OverOperationExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.4 · Draw order matters&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Draw the same two translucent layers in opposite orders. &quot; +
+                        &quot;Inspect why the shared area changes even though neither RGBA &quot; +
+                        &quot;input changes.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    DrawOrderExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.5 · Straight and premultiplied RGBA&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Lesson 3.3 already combined a translucent source over a &quot; +
+                        &quot;translucent destination. This lesson gives precise names to &quot; +
+                        &quot;the two RGB forms that appeared in that calculation. It &quot; +
+                        &quot;shows when SwiftUI Color expects straight RGBA, when &quot; +
+                        &quot;premultiplied RGBA is useful, and how both forms produce &quot; +
+                        &quot;the same output.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    PremultipliedRgbaExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.6 · From a visible color to relative luminance&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Start with the same opaque Color object used in earlier lessons. &quot; +
+                        &quot;The lesson defines sRGB, which means standard Red Green Blue. &quot; +
+                        &quot;First choose one channel number and see why light-based arithmetic &quot; +
+                        &quot;needs a converted value. Then repeat the understood operation for &quot; +
+                        &quot;all three channels and calculate one relative-luminance number.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    BrightnessLuminanceExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.7 · Foreground contrast&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Start with the final opaque background color from Lesson 3.6. &quot; +
+                        &quot;Calculate one contrast ratio for a black foreground and one for a &quot; +
+                        &quot;white foreground. The larger ratio identifies the candidate with &quot; +
+                        &quot;stronger numeric separation from that background.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    ForegroundContrastExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.8 · Tint&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Start with the final opaque background color from Lesson 3.7. &quot; +
+                        &quot;Draw one translucent color layer over it. The layer shifts the &quot; +
+                        &quot;visible red, green, and blue channels toward the chosen tint color &quot; +
+                        &quot;without making the final result translucent.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    TintExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.9 · Saturation&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Start with the final opaque background color from Lesson 3.8. &quot; +
+                        &quot;Transform this one existing color by moving its red, green, and &quot; +
+                        &quot;blue channels closer to or farther from a calculated gray &quot; +
+                        &quot;reference. The lab copies a 4×5 saturation matrix with weights &quot; +
+                        &quot;0.213, 0.715, and 0.072.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    SaturationExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.10 · Blend modes&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Keep the source, destination, and draw order fixed. Change only &quot; +
+                        &quot;the blend mode used where an opaque circle covers an opaque &quot; +
+                        &quot;destination. Normal, Multiply, Screen, and Plus each apply a &quot; +
+                        &quot;different channel rule.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    BlendModesExplorer()
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 20)
+            .frame(maxWidth: .infinity)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(hex: 0xF8FAFC))
+        .safeAreaPadding()
+    }
+}
+
+private extension Color {
+    init(hex: UInt32) {
+        self.init(
+            red: Double((hex &gt;&gt; 16) &amp; 0xFF) / 255,
+            green: Double((hex &gt;&gt; 8) &amp; 0xFF) / 255,
+            blue: Double(hex &amp; 0xFF) / 255
+        )
+    }
+}
+
+#Preview(&quot;Chapter 3 explorers · light&quot;) {
+    LabTheme {
+        Chapter03Screen()
+    }
+    .labPreviewCanvas()
+}
+
+#Preview(&quot;Chapter 3 explorers · dark&quot;) {
+    LabTheme {
+        Chapter03Screen()
+    }
+    .preferredColorScheme(.dark)
+    .labPreviewCanvas()
+}
+</pre></div>
+<div class="source-pane" id="source-explorer"><pre class="code source-code">import SwiftUI
+import UIKit
+
+private let initialSourceRed: CGFloat = 0.84
+private let initialSourceGreen: CGFloat = 0.36
+private let initialSourceBlue: CGFloat = 0.18
+
+private let initialDestinationRed: CGFloat = 0.22
+private let initialDestinationGreen: CGFloat = 0.58
+private let initialDestinationBlue: CGFloat = 0.76
+
+private let contrastOffset: CGFloat = 0.05
+
+private enum LessonBlendMode: Int, CaseIterable, Identifiable {
+    case normal
+    case multiply
+    case screen
+    case plus
+
+    var id: Int { rawValue }
+
+    var label: String {
+        switch self {
+        case .normal: return &quot;Normal / BlendMode.normal&quot;
+        case .multiply: return &quot;Multiply&quot;
+        case .screen: return &quot;Screen&quot;
+        case .plus: return &quot;Plus&quot;
+        }
+    }
+
+    var canvasBlendMode: GraphicsContext.BlendMode {
+        switch self {
+        case .normal: return .normal
+        case .multiply: return .multiply
+        case .screen: return .screen
+        case .plus: return .plusLighter
+        }
+    }
+}
+
+private struct ChannelBlend {
+    let unclamped: CGFloat
+    let output: CGFloat
+}
+
+private struct OpaqueBlendResult {
+    let red: ChannelBlend
+    let green: ChannelBlend
+    let blue: ChannelBlend
+    let outputColor: Color
+
+    var anyChannelWasClamped: Bool {
+        red.unclamped != red.output
+            || green.unclamped != green.output
+            || blue.unclamped != blue.output
+    }
+}
+
+struct BlendModesExplorer: View {
+    @State private var sourceRed = initialSourceRed
+    @State private var sourceGreen = initialSourceGreen
+    @State private var sourceBlue = initialSourceBlue
+    @State private var destinationRed = initialDestinationRed
+    @State private var destinationGreen = initialDestinationGreen
+    @State private var destinationBlue = initialDestinationBlue
+    @State private var selectedModeIndex = LessonBlendMode.normal.rawValue
+
+    private var selectedMode: LessonBlendMode {
+        LessonBlendMode(rawValue: selectedModeIndex) ?? .normal
+    }
+
+    private var sourceColor: Color {
+        Color(red: sourceRed, green: sourceGreen, blue: sourceBlue, opacity: 1)
+    }
+
+    private var destinationColor: Color {
+        Color(red: destinationRed, green: destinationGreen, blue: destinationBlue, opacity: 1)
+    }
+
+    private var selectedResult: OpaqueBlendResult {
+        blendOpaqueColors(
+            source: sourceColor,
+            destination: destinationColor,
+            mode: selectedMode
+        )
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            sectionTitle(&quot;1&quot;, &quot;Keep the source, destination, and draw order fixed&quot;)
+            Text(
+                &quot;The destination is an opaque color that fills the complete &quot; +
+                &quot;drawing area. The source is an opaque circle drawn second. The &quot; +
+                &quot;source alpha and destination alpha both remain 1.00. Only the &quot; +
+                &quot;blend mode changes.&quot;
+            )
+            .font(.system(size: 15))
+            ColorSetupCard(source: sourceColor, destination: destinationColor)
+
+            sectionTitle(&quot;2&quot;, &quot;Choose the channel-combination rule&quot;)
+            Text(
+                &quot;A blend mode is the rule used to calculate the output color &quot; +
+                &quot;where a newly drawn source covers a destination that already &quot; +
+                &quot;exists. Normal uses source-over. Multiply, Screen, and Plus use &quot; +
+                &quot;different channel arithmetic.&quot;
+            )
+            .font(.system(size: 15))
+            ModeButtons(
+                selectedMode: selectedMode,
+                onSelected: { selectedModeIndex = $0.rawValue }
+            )
+            BlendScene(
+                source: sourceColor,
+                destination: destinationColor,
+                result: selectedResult.outputColor,
+                mode: selectedMode
+            )
+
+            sectionTitle(&quot;3&quot;, &quot;Change the two opaque colors&quot;)
+            Text(
+                &quot;Every red, green, and blue value stays in the normalized range &quot; +
+                &quot;0 through 1. The alpha values stay locked at 1 so this lesson can &quot; +
+                &quot;isolate the four RGB combination rules.&quot;
+            )
+            .font(.system(size: 15))
+            PresetButtons(
+                onCourseValues: {
+                    sourceRed = 0.84
+                    sourceGreen = 0.36
+                    sourceBlue = 0.18
+                    destinationRed = 0.22
+                    destinationGreen = 0.58
+                    destinationBlue = 0.76
+                },
+                onNoClamp: {
+                    sourceRed = 0.27
+                    sourceGreen = 0.19
+                    sourceBlue = 0.31
+                    destinationRed = 0.41
+                    destinationGreen = 0.52
+                    destinationBlue = 0.28
+                },
+                onBlackSource: {
+                    sourceRed = 0
+                    sourceGreen = 0
+                    sourceBlue = 0
+                },
+                onWhiteSource: {
+                    sourceRed = 1
+                    sourceGreen = 1
+                    sourceBlue = 1
+                },
+                onSwap: {
+                    let oldSourceRed = sourceRed
+                    let oldSourceGreen = sourceGreen
+                    let oldSourceBlue = sourceBlue
+                    sourceRed = destinationRed
+                    sourceGreen = destinationGreen
+                    sourceBlue = destinationBlue
+                    destinationRed = oldSourceRed
+                    destinationGreen = oldSourceGreen
+                    destinationBlue = oldSourceBlue
+                }
+            )
+            ColorChannelControls(
+                label: &quot;Source circle · straight sRGB · alpha 1.00&quot;,
+                red: $sourceRed,
+                green: $sourceGreen,
+                blue: $sourceBlue
+            )
+            ColorChannelControls(
+                label: &quot;Destination area · straight sRGB · alpha 1.00&quot;,
+                red: $destinationRed,
+                green: $destinationGreen,
+                blue: $destinationBlue
+            )
+
+            sectionTitle(&quot;4&quot;, &quot;Trace every channel for the selected mode&quot;)
+            Text(
+                &quot;Each red output is calculated only from source red and &quot; +
+                &quot;destination red. Green uses only green. Blue uses only blue. &quot; +
+                &quot;The formulas below describe the solid interior of the source &quot; +
+                &quot;circle, where the source fully covers the drawing position.&quot;
+            )
+            .font(.system(size: 15))
+            ChannelCalculationCard(
+                channelName: &quot;Red&quot;,
+                source: sourceRed,
+                destination: destinationRed,
+                calculation: selectedResult.red,
+                mode: selectedMode
+            )
+            ChannelCalculationCard(
+                channelName: &quot;Green&quot;,
+                source: sourceGreen,
+                destination: destinationGreen,
+                calculation: selectedResult.green,
+                mode: selectedMode
+            )
+            ChannelCalculationCard(
+                channelName: &quot;Blue&quot;,
+                source: sourceBlue,
+                destination: destinationBlue,
+                calculation: selectedResult.blue,
+                mode: selectedMode
+            )
+
+            sectionTitle(&quot;5&quot;, &quot;Compare all four outputs without changing the inputs&quot;)
+            AllModesCard(source: sourceColor, destination: destinationColor)
+
+            sectionTitle(&quot;6&quot;, &quot;Check the neutral boundary colors&quot;)
+            Text(
+                &quot;A neutral source is a source value that leaves the destination &quot; +
+                &quot;channel unchanged for one specific blend mode. The neutral value &quot; +
+                &quot;depends on the mode.&quot;
+            )
+            .font(.system(size: 15))
+            NeutralValuesCard(destination: destinationColor)
+
+            sectionTitle(&quot;7&quot;, &quot;Keep Plus clamping separate from color saturation&quot;)
+            Text(
+                &quot;Plus adds matching source and destination components. If the &quot; +
+                &quot;unclamped sum exceeds 1, the displayed channel is clamped to 1. Some API &quot; +
+                &quot;documentation calls this saturating addition. It is unrelated to &quot; +
+                &quot;the Lesson 3.9 saturation factor, gray reference, and color matrix.&quot;
+            )
+            .font(.system(size: 15))
+            PlusClampingCard(source: sourceColor, destination: destinationColor)
+
+            sectionTitle(&quot;8&quot;, &quot;Recalculate measurements from the selected output&quot;)
+            Text(
+                &quot;The selected blend mode creates a new output RGB triplet. &quot; +
+                &quot;Relative luminance and foreground contrast must be calculated from &quot; +
+                &quot;that output. The measurements belonging to the source or &quot; +
+                &quot;destination cannot be attached to a different output color.&quot;
+            )
+            .font(.system(size: 15))
+            MeasurementCard(
+                source: sourceColor,
+                destination: destinationColor,
+                output: selectedResult.outputColor
+            )
+
+            sectionTitle(&quot;9&quot;, &quot;Keep the alpha limit explicit&quot;)
+            AlphaLimitCard()
+
+            sectionTitle(&quot;10&quot;, &quot;Follow the actual SwiftUI drawing calls&quot;)
+            IOSPathCard(mode: selectedMode)
+
+            sectionTitle(&quot;11&quot;, &quot;Keep the evidence boundary explicit&quot;)
+            EvidenceCard()
+        }
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(Color(uiColor: .systemBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
+    }
+
+    private func sectionTitle(_ number: String, _ title: String) -&gt; some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(&quot;\(number) · \(title)&quot;)
+                .font(.system(size: 14, weight: .black))
+                .foregroundStyle(Color.accentColor)
+            Text(title)
+                .font(.system(size: 22, weight: .black))
+        }
+    }
+}
+
+private struct ColorSetupCard: View {
+    let source: Color
+    let destination: Color
+
+    var body: some View {
+        HStack(spacing: 12) {
+            ColorValueCard(label: &quot;Source · drawn second&quot;, color: source)
+            ColorValueCard(label: &quot;Destination · drawn first&quot;, color: destination)
+        }
+    }
+}
+
+private struct ModeButtons: View {
+    let selectedMode: LessonBlendMode
+    let onSelected: (LessonBlendMode) -&gt; Void
+
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 8) {
+                modeButton(.normal)
+                modeButton(.multiply)
+            }
+            HStack(spacing: 8) {
+                modeButton(.screen)
+                modeButton(.plus)
+            }
+        }
+    }
+
+    private func modeButton(_ mode: LessonBlendMode) -&gt; some View {
+        Button {
+            onSelected(mode)
+        } label: {
+            Text(mode == selectedMode ? &quot;✓ \(mode.label)&quot; : mode.label)
+                .fontWeight(.bold)
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.bordered)
+    }
+}
+
+private struct BlendScene: View {
+    let source: Color
+    let destination: Color
+    let result: Color
+    let mode: LessonBlendMode
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            Canvas { context, size in
+                let rect = CGRect(origin: .zero, size: size)
+                context.fill(
+                    Path(roundedRect: rect, cornerRadius: 18),
+                    with: .color(destination)
+                )
+
+                let radius = min(size.width, size.height) * 0.31
+                let center = CGPoint(x: size.width * 0.60, y: size.height * 0.54)
+                var circleContext = context
+                circleContext.blendMode = mode.canvasBlendMode
+                circleContext.fill(
+                    Path(
+                        ellipseIn: CGRect(
+                            x: center.x - radius,
+                            y: center.y - radius,
+                            width: radius * 2,
+                            height: radius * 2
+                        )
+                    ),
+                    with: .color(source)
+                )
+
+                context.stroke(
+                    Path(roundedRect: rect, cornerRadius: 18),
+                    with: .color(Color(uiColor: .separator)),
+                    lineWidth: 1
+                )
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(&quot;Destination fills the drawing area&quot;)
+                    .font(.system(size: 14, weight: .black))
+                    .foregroundStyle(readableTextColor(destination))
+                Text(formatStraightRgba(destination))
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundStyle(readableTextColor(destination))
+            }
+            .padding(14)
+
+            VStack(spacing: 2) {
+                Text(mode.label)
+                    .fontWeight(.black)
+                Text(&quot;solid circle interior&quot;)
+                    .font(.system(size: 12))
+            }
+            .foregroundStyle(readableTextColor(result))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 9)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(result)
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            .padding(.leading, 86)
+            .padding(.top, 22)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 300)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
+    }
+}
+
+private struct PresetButtons: View {
+    let onCourseValues: () -&gt; Void
+    let onNoClamp: () -&gt; Void
+    let onBlackSource: () -&gt; Void
+    let onWhiteSource: () -&gt; Void
+    let onSwap: () -&gt; Void
+
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 8) {
+                preset(&quot;Course values&quot;, onCourseValues)
+                preset(&quot;Plus without clamp&quot;, onNoClamp)
+            }
+            HStack(spacing: 8) {
+                preset(&quot;Black source&quot;, onBlackSource)
+                preset(&quot;White source&quot;, onWhiteSource)
+                preset(&quot;Swap source / destination&quot;, onSwap)
+            }
+        }
+    }
+
+    private func preset(_ title: String, _ action: @escaping () -&gt; Void) -&gt; some View {
+        Button(action: action) {
+            Text(title)
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.bordered)
+    }
+}
+
+private struct ColorChannelControls: View {
+    let label: String
+    @Binding var red: CGFloat
+    @Binding var green: CGFloat
+    @Binding var blue: CGFloat
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(label)
+                .fontWeight(.black)
+            ChannelSlider(label: &quot;Red&quot;, value: $red)
+            ChannelSlider(label: &quot;Green&quot;, value: $green)
+            ChannelSlider(label: &quot;Blue&quot;, value: $blue)
+        }
+        .cardChrome()
+    }
+}
+
+private struct ChannelSlider: View {
+    let label: String
+    @Binding var value: CGFloat
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack {
+                Text(label)
+                Spacer()
+                Text(format4(value))
+                    .font(.system(size: 15, design: .monospaced))
+                    .fontWeight(.bold)
+            }
+            Slider(
+                value: Binding(
+                    get: { value },
+                    set: { value = min(max($0, 0), 1) }
+                ),
+                in: 0...1
+            )
+            .accessibilityLabel(&quot;\(label) \(format4(value))&quot;)
+        }
+    }
+}
+
+private struct ChannelCalculationCard: View {
+    let channelName: String
+    let source: CGFloat
+    let destination: CGFloat
+    let calculation: ChannelBlend
+    let mode: LessonBlendMode
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Text(channelName)
+                .fontWeight(.black)
+            Text(
+                channelFormula(
+                    mode: mode,
+                    source: source,
+                    destination: destination,
+                    calculation: calculation
+                )
+            )
+            .font(.system(size: 13, design: .monospaced))
+            if mode == .plus &amp;&amp; calculation.unclamped != calculation.output {
+                Text(
+                    &quot;The unclamped sum is above 1. The displayed channel is &quot; +
+                    &quot;clamped to 1.&quot;
+                )
+                .foregroundStyle(Color(hex: 0xDC2626))
+                .font(.system(size: 13))
+                .fontWeight(.bold)
+            }
+        }
+        .cardChrome()
+    }
+}
+
+private struct AllModesCard: View {
+    let source: Color
+    let destination: Color
+
+    var body: some View {
+        VStack(spacing: 10) {
+            ForEach(LessonBlendMode.allCases) { mode in
+                let result = blendOpaqueColors(
+                    source: source,
+                    destination: destination,
+                    mode: mode
+                )
+                HStack(spacing: 12) {
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(result.outputColor)
+                        .frame(height: 74)
+                        .frame(maxWidth: .infinity)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(mode.label)
+                            .fontWeight(.black)
+                        Text(formatStraightRgba(result.outputColor))
+                            .font(.system(size: 12, design: .monospaced))
+                        Text(
+                            &quot;relative luminance = &quot; +
+                            format6(result.outputColor.luminance())
+                        )
+                        .font(.system(size: 13))
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color(uiColor: .secondarySystemFill))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+                )
+            }
+        }
+    }
+}
+
+private struct NeutralValuesCard: View {
+    let destination: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            Text(&quot;For the current destination \(formatStraightRgb(destination))&quot;)
+                .fontWeight(.black)
+            NeutralRow(
+                mode: &quot;Multiply&quot;,
+                source: &quot;white channel 1&quot;,
+                proof: &quot;1 × destination = destination&quot;
+            )
+            NeutralRow(
+                mode: &quot;Screen&quot;,
+                source: &quot;black channel 0&quot;,
+                proof: &quot;0 + destination − 0 × destination = destination&quot;
+            )
+            NeutralRow(
+                mode: &quot;Plus&quot;,
+                source: &quot;black channel 0&quot;,
+                proof: &quot;clamp(0 + destination) = destination&quot;
+            )
+            NeutralRow(
+                mode: &quot;Normal / BlendMode.normal&quot;,
+                source: &quot;none for an opaque source&quot;,
+                proof: &quot;opaque source replaces the destination where it is drawn&quot;
+            )
+        }
+        .cardChrome()
+    }
+}
+
+private struct NeutralRow: View {
+    let mode: String
+    let source: String
+    let proof: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(&quot;\(mode) · neutral source: \(source)&quot;)
+                .fontWeight(.bold)
+            Text(proof)
+                .font(.system(size: 13, design: .monospaced))
+        }
+    }
+}
+
+private struct PlusClampingCard: View {
+    let source: Color
+    let destination: Color
+
+    private var result: OpaqueBlendResult {
+        blendOpaqueColors(source: source, destination: destination, mode: .plus)
+    }
+
+    private var sourceRgba: StraightRgba { source.toStraightRgba() }
+    private var destinationRgba: StraightRgba { destination.toStraightRgba() }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            PlusRow(label: &quot;Red&quot;, source: sourceRgba.red, destination: destinationRgba.red, channel: result.red)
+            PlusRow(label: &quot;Green&quot;, source: sourceRgba.green, destination: destinationRgba.green, channel: result.green)
+            PlusRow(label: &quot;Blue&quot;, source: sourceRgba.blue, destination: destinationRgba.blue, channel: result.blue)
+            Text(
+                result.anyChannelWasClamped
+                    ? &quot;At least one unclamped sum exceeded 1 and was clamped.&quot;
+                    : &quot;No unclamped sum exceeded 1 for the current inputs.&quot;
+            )
+            .fontWeight(.black)
+        }
+        .cardChrome()
+    }
+}
+
+private struct PlusRow: View {
+    let label: String
+    let source: CGFloat
+    let destination: CGFloat
+    let channel: ChannelBlend
+
+    var body: some View {
+        Text(
+            &quot;\(label): \(format4(source)) + \(format4(destination)) = &quot; +
+            &quot;\(format4(channel.unclamped)) → displayed \(format4(channel.output))&quot;
+        )
+        .font(.system(size: 13, design: .monospaced))
+    }
+}
+
+private struct MeasurementCard: View {
+    let source: Color
+    let destination: Color
+    let output: Color
+
+    private var sourceLuminance: CGFloat { source.luminance() }
+    private var destinationLuminance: CGFloat { destination.luminance() }
+    private var outputLuminance: CGFloat { output.luminance() }
+    private var blackContrast: CGFloat {
+        contrastRatio(firstLuminance: 0, secondLuminance: outputLuminance)
+    }
+    private var whiteContrast: CGFloat {
+        contrastRatio(firstLuminance: 1, secondLuminance: outputLuminance)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Text(&quot;Source luminance: \(format6(sourceLuminance))&quot;)
+                .font(.system(size: 13, design: .monospaced))
+            Text(&quot;Destination luminance: \(format6(destinationLuminance))&quot;)
+                .font(.system(size: 13, design: .monospaced))
+            Text(&quot;Selected output luminance: \(format6(outputLuminance))&quot;)
+                .font(.system(size: 13, design: .monospaced))
+                .fontWeight(.black)
+            Text(&quot;Black foreground contrast: \(format4(blackContrast)):1&quot;)
+                .font(.system(size: 13, design: .monospaced))
+            Text(&quot;White foreground contrast: \(format4(whiteContrast)):1&quot;)
+                .font(.system(size: 13, design: .monospaced))
+        }
+        .cardChrome()
+    }
+}
+
+private struct AlphaLimitCard: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(&quot;This lesson deliberately locks both alpha values at 1.00.&quot;)
+                .fontWeight(.black)
+            Text(
+                &quot;The four short RGB formulas are therefore opaque-input &quot; +
+                &quot;formulas. Do not copy them unchanged into a translucent-source &quot; +
+                &quot;calculation. With alpha below 1, the renderer must also account &quot; +
+                &quot;for how much of the position the source covers, how much of the &quot; +
+                &quot;destination survives, and the blend mode's output-alpha rule. That &quot; +
+                &quot;larger calculation is deferred so the current lesson teaches &quot; +
+                &quot;only one new idea.&quot;
+            )
+            .font(.system(size: 15))
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(hex: 0xD97706).opacity(0.14))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color(hex: 0xD97706), lineWidth: 1)
+        )
+    }
+}
+
+private struct IOSPathCard: View {
+    let mode: LessonBlendMode
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            Text(&quot;1 · fill rounded rect with destinationColor&quot;)
+                .font(.system(size: 13, design: .monospaced))
+                .fontWeight(.black)
+            Text(&quot;The destination is opaque and fills the complete Canvas.&quot;)
+                .font(.system(size: 15))
+            Text(&quot;2 · fill circle with sourceColor, blendMode = BlendMode.\(modeName)&quot;)
+                .font(.system(size: 13, design: .monospaced))
+                .fontWeight(.black)
+            Text(
+                &quot;The source circle is drawn second. The selected BlendMode &quot; +
+                &quot;changes how its solid interior combines with the destination.&quot;
+            )
+            .font(.system(size: 15))
+            Text(&quot;3 · blendOpaqueColors(...)&quot;)
+                .font(.system(size: 13, design: .monospaced))
+                .fontWeight(.black)
+            Text(
+                &quot;The teaching function calculates the expected center color &quot; +
+                &quot;with the same opaque-input channel formulas. The lesson does not &quot; +
+                &quot;read a pixel back from the GPU.&quot;
+            )
+            .font(.system(size: 15))
+        }
+        .cardChrome()
+    }
+
+    private var modeName: String {
+        switch mode {
+        case .normal: return &quot;normal&quot;
+        case .multiply: return &quot;multiply&quot;
+        case .screen: return &quot;screen&quot;
+        case .plus: return &quot;plusLighter&quot;
+        }
+    }
+}
+
+private struct EvidenceCard: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(&quot;What this iOS experiment proves&quot;)
+                .fontWeight(.black)
+            Text(
+                &quot;It proves the exact formulas used by the Swift teaching &quot; +
+                &quot;function for two opaque normalized colors. It also executes the &quot; +
+                &quot;corresponding SwiftUI BlendMode in Canvas.&quot;
+            )
+            .font(.system(size: 15))
+            Text(&quot;What it does not prove&quot;)
+                .fontWeight(.black)
+            Text(
+                &quot;It does not perform pixel readback. Pixel readback means copying &quot; +
+                &quot;final rendered pixel values from the Graphics Processing Unit &quot; +
+                &quot;(GPU) back into program memory. It does not teach translucent &quot; +
+                &quot;blend-mode equations, color-space conversion inside the &quot; +
+                &quot;renderer, boundary coverage, or every blend mode supported by &quot; +
+                &quot;iOS.&quot;
+            )
+            .font(.system(size: 15))
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(hex: 0x4338CA).opacity(0.12))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color(hex: 0x4338CA), lineWidth: 1)
+        )
+    }
+}
+
+private struct ColorValueCard: View {
+    let label: String
+    let color: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(label)
+                .fontWeight(.black)
+            Text(formatStraightRgba(color))
+                .font(.system(size: 12, design: .monospaced))
+        }
+        .foregroundStyle(readableTextColor(color))
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(color)
+        )
+    }
+}
+
+private struct StraightRgba {
+    let red: CGFloat
+    let green: CGFloat
+    let blue: CGFloat
+    let alpha: CGFloat
+}
+
+private func blendOpaqueColors(
+    source: Color,
+    destination: Color,
+    mode: LessonBlendMode
+) -&gt; OpaqueBlendResult {
+    let sourceRgba = source.toStraightRgba()
+    let destinationRgba = destination.toStraightRgba()
+    let red = blendOpaqueChannel(source: sourceRgba.red, destination: destinationRgba.red, mode: mode)
+    let green = blendOpaqueChannel(source: sourceRgba.green, destination: destinationRgba.green, mode: mode)
+    let blue = blendOpaqueChannel(source: sourceRgba.blue, destination: destinationRgba.blue, mode: mode)
+    return OpaqueBlendResult(
+        red: red,
+        green: green,
+        blue: blue,
+        outputColor: Color(
+            red: red.output,
+            green: green.output,
+            blue: blue.output,
+            opacity: 1
+        )
+    )
+}
+
+private func blendOpaqueChannel(
+    source: CGFloat,
+    destination: CGFloat,
+    mode: LessonBlendMode
+) -&gt; ChannelBlend {
+    let unclamped: CGFloat
+    switch mode {
+    case .normal:
+        unclamped = source
+    case .multiply:
+        unclamped = source * destination
+    case .screen:
+        unclamped = source + destination - source * destination
+    case .plus:
+        unclamped = source + destination
+    }
+    return ChannelBlend(
+        unclamped: unclamped,
+        output: min(max(unclamped, 0), 1)
+    )
+}
+
+private func channelFormula(
+    mode: LessonBlendMode,
+    source: CGFloat,
+    destination: CGFloat,
+    calculation: ChannelBlend
+) -&gt; String {
+    switch mode {
+    case .normal:
+        return &quot;source alpha = 1.0000\n&quot; +
+            &quot;output = source\n&quot; +
+            &quot;       = \(format4(source))&quot;
+    case .multiply:
+        return &quot;output = source × destination\n&quot; +
+            &quot;       = \(format4(source)) × \(format4(destination))\n&quot; +
+            &quot;       = \(format4(calculation.output))&quot;
+    case .screen:
+        let product = source * destination
+        return &quot;product = source × destination\n&quot; +
+            &quot;        = \(format4(source)) × \(format4(destination))\n&quot; +
+            &quot;        = \(format4(product))\n&quot; +
+            &quot;output = source + destination − product\n&quot; +
+            &quot;       = \(format4(source)) + \(format4(destination)) &quot; +
+            &quot;− \(format4(product))\n&quot; +
+            &quot;       = \(format4(calculation.output))&quot;
+    case .plus:
+        return &quot;unclamped sum = source + destination\n&quot; +
+            &quot;        = \(format4(source)) + \(format4(destination))\n&quot; +
+            &quot;        = \(format4(calculation.unclamped))\n&quot; +
+            &quot;displayed = clamp(unclamped sum, 0, 1)\n&quot; +
+            &quot;       = \(format4(calculation.output))&quot;
+    }
+}
+
+private func contrastRatio(
+    firstLuminance: CGFloat,
+    secondLuminance: CGFloat
+) -&gt; CGFloat {
+    let lighter = max(firstLuminance, secondLuminance)
+    let darker = min(firstLuminance, secondLuminance)
+    return (lighter + contrastOffset) / (darker + contrastOffset)
+}
+
+private func readableTextColor(_ background: Color) -&gt; Color {
+    background.luminance() &gt;= 0.42 ? Color.black : Color.white
+}
+
+private func formatStraightRgba(_ color: Color) -&gt; String {
+    let rgba = color.toStraightRgba()
+    return &quot;straight sRGB RGBA(&quot; +
+        &quot;\(format4(rgba.red)), &quot; +
+        &quot;\(format4(rgba.green)), &quot; +
+        &quot;\(format4(rgba.blue)), &quot; +
+        &quot;\(format4(rgba.alpha)))&quot;
+}
+
+private func formatStraightRgb(_ color: Color) -&gt; String {
+    let rgba = color.toStraightRgba()
+    return &quot;straight sRGB RGB(&quot; +
+        &quot;\(format4(rgba.red)), &quot; +
+        &quot;\(format4(rgba.green)), &quot; +
+        &quot;\(format4(rgba.blue)))&quot;
+}
+
+private func format4(_ value: CGFloat) -&gt; String {
+    String(format: &quot;%.4f&quot;, Double(value))
+}
+
+private func format6(_ value: CGFloat) -&gt; String {
+    String(format: &quot;%.6f&quot;, Double(value))
+}
+
+private func decodeSrgbChannel(_ encoded: CGFloat) -&gt; CGFloat {
+    let safeEncoded = min(max(encoded, 0), 1)
+    if safeEncoded &lt;= 0.04045 {
+        return safeEncoded / 12.92
+    }
+    return CGFloat(pow(Double((safeEncoded + 0.055) / 1.055), 2.4))
+}
+
+private func calculateRelativeLuminance(red: CGFloat, green: CGFloat, blue: CGFloat) -&gt; CGFloat {
+    0.2126 * decodeSrgbChannel(red)
+        + 0.7152 * decodeSrgbChannel(green)
+        + 0.0722 * decodeSrgbChannel(blue)
+}
+
+private extension View {
+    func cardChrome() -&gt; some View {
+        self
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color(uiColor: .secondarySystemFill))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+            )
+    }
+}
+
+private extension Color {
+    init(hex: UInt32) {
+        self.init(
+            red: Double((hex &gt;&gt; 16) &amp; 0xFF) / 255,
+            green: Double((hex &gt;&gt; 8) &amp; 0xFF) / 255,
+            blue: Double(hex &amp; 0xFF) / 255
+        )
+    }
+
+    func toStraightRgba() -&gt; StraightRgba {
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        guard UIColor(self).getRed(&amp;red, green: &amp;green, blue: &amp;blue, alpha: &amp;alpha) else {
+            return StraightRgba(red: 0, green: 0, blue: 0, alpha: 0)
+        }
+        return StraightRgba(red: red, green: green, blue: blue, alpha: alpha)
+    }
+
+    func luminance() -&gt; CGFloat {
+        let rgba = toStraightRgba()
+        return calculateRelativeLuminance(red: rgba.red, green: rgba.green, blue: rgba.blue)
+    }
+}
+
+#Preview(&quot;BlendModesExplorer · light&quot;) {
+    LabTheme {
+        ScrollView {
+            BlendModesExplorer()
+                .padding(16)
+        }
+    }
+    .labPreviewCanvas()
+}
+
+#Preview(&quot;BlendModesExplorer · dark&quot;) {
+    LabTheme {
+        ScrollView {
+            BlendModesExplorer()
+                .padding(16)
+        }
+    }
+    .preferredColorScheme(.dark)
+    .labPreviewCanvas()
+}
+</pre></div>
+</section>
 <section class="section panel">
 <div class="section-head">
 <div><div class="section-no">14 · CODING CHALLENGE</div><h2>Repair the Screen formula</h2></div>
@@ -442,10 +1637,10 @@ output red
 </div>
 <div class="challenge">
 <div>
-<textarea class="editor" id="challengeEditor" spellcheck="false">fun screenChannel(
-    source: Float,
-    destination: Float,
-): Float {
+<textarea class="editor" id="challengeEditor" spellcheck="false">func screenChannel(
+    source: CGFloat,
+    destination: CGFloat
+) -&gt; CGFloat {
     return source +
         destination +
         source * destination
@@ -480,11 +1675,11 @@ output = 1 − 0.1248 = 0.8752</div></details></details>
 </section>
 <section class="section panel">
 <div class="section-head">
-<div><div class="section-no">16 · PIXEL 8 PRO CHECKPOINT</div><h2>Verify the Android experiment</h2></div>
+<div><div class="section-no">16 · IPHONE 16 PRO CHECKPOINT</div><h2>Verify the iOS experiment</h2></div>
 <p>These checks document the completed Lesson 3.10 state.</p>
 </div>
 <div class="checklist" id="checklist">
-<label class="check"><input data-check="build" type="checkbox"/>The project builds after applying the code ZIP.</label>
+<label class="check"><input data-check="build" type="checkbox"/>The iOS app builds and opens Lesson 3.10.</label>
 <label class="check"><input data-check="normal" type="checkbox"/>Normal shows the opaque source color inside the circle.</label>
 <label class="check"><input data-check="multiply" type="checkbox"/>Multiply reports RGB approximately (0.1848, 0.2088, 0.1368).</label>
 <label class="check"><input data-check="screen" type="checkbox"/>Screen reports RGB approximately (0.8752, 0.7312, 0.8032).</label>
@@ -493,7 +1688,7 @@ output = 1 − 0.1248 = 0.8752</div></details></details>
 <label class="check"><input data-check="luminance" type="checkbox"/>Changing the mode recalculates output luminance and contrast.</label>
 <label class="check"><input data-check="alpha" type="checkbox"/>I can explain why the short formulas are limited to alpha 1.</label>
 <label class="check"><input data-check="challenge" type="checkbox"/>The Screen coding challenge is repaired.</label>
-<label class="check"><input data-check="theme" type="checkbox"/>Chapter and child previews work in light and dark modes.</label>
+<label class="check"><input data-check="theme" type="checkbox"/>The light and dark Xcode #Preview canvases work at 412 × 915 points.</label>
 </div>
 <button class="primary" id="buildRecord" style="margin-top:16px">Build completion record</button>
 <textarea class="record" id="completionRecord" readonly="">Complete the checkpoint, then build the record.</textarea>
@@ -503,11 +1698,11 @@ output = 1 − 0.1248 = 0.8752</div></details></details>
 <div><div class="section-no">17 · SOURCES AND EVIDENCE</div><h2>What the API documentation supports</h2></div>
 </div>
 <ul>
-<li>AndroidX Compose <code>BlendMode</code> documentation defines <code>SrcOver</code> as drawing the source over the destination and identifies it as the default blend behavior.</li>
-<li>Android platform <code>BlendMode</code> documentation supplies the Multiply, Screen, and Plus component formulas and describes Plus as saturating addition.</li>
-<li>The Kotlin teaching function implements only the opaque-input channel cases taught here. It does not replace renderer tracing or pixel readback.</li>
+<li><a href="https://developer.apple.com/documentation/swiftui/blendmode">Apple Developer · SwiftUI <code>BlendMode</code></a> defines <code>BlendMode.normal</code> as drawing the source over the destination. <code>multiply</code>, <code>screen</code>, and <code>plusLighter</code> are the lab mappings for Multiply, Screen, and Plus.</li>
+<li>The Swift teaching function implements only the opaque-input channel cases taught here. Plus clamping is saturating addition: add matching channels, then clamp to 1. It is unrelated to Lesson 3.9 color saturation.</li>
+<li>The Canvas executes the selected SwiftUI <code>BlendMode</code>. The lesson does not replace renderer tracing or pixel readback.</li>
 </ul>
-<p><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode">AndroidX Compose BlendMode reference</a> · <a href="https://developer.android.com/reference/android/graphics/BlendMode">Android platform BlendMode reference</a></p>
+<p><a href="https://developer.apple.com/documentation/swiftui/blendmode">SwiftUI BlendMode reference</a> · <a href="https://developer.apple.com/documentation/swiftui/graphicscontext">SwiftUI GraphicsContext</a></p>
 </section>
 <nav class="footer-nav panel">
 <a href="lesson-03-09-saturation.html">← Lesson 3.9</a>
@@ -518,7 +1713,7 @@ output = 1 − 0.1248 = 0.8752</div></details></details>
 <script>
 const MODES = {
   normal: {
-    label: 'Normal / SrcOver',
+    label: 'Normal / BlendMode.normal',
     canvas: 'source-over',
     formula: (s,d) => s,
     describe: (s,d) => `output = source = ${f4(s)}`
@@ -727,7 +1922,7 @@ function drawStepSvg(step){
 const STEPS=[
   {title:'1 · Destination exists first',caption:'The destination color fills the complete drawing area. It is opaque, so every position already has a final destination RGB value.',mode:'normal',formula:()=>`destination = ${rgbaTuple(state.destination)}`},
   {title:'2 · Source is drawn second',caption:'The source is the opaque circle. At a solid interior position, it fully covers the destination position.',mode:'normal',formula:()=>`source = ${rgbaTuple(state.source)}`},
-  {title:'3 · Normal / SrcOver',caption:'With source alpha 1, Normal returns the source channel. The destination does not survive at the covered position.',mode:'normal',formula:()=>MODES.normal.describe(state.source[0],state.destination[0])},
+  {title:'3 · Normal / BlendMode.normal',caption:'With source alpha 1, Normal returns the source channel. The destination does not survive at the covered position.',mode:'normal',formula:()=>MODES.normal.describe(state.source[0],state.destination[0])},
   {title:'4 · Multiply',caption:'Multiply keeps the product of matching channels. The red output is one fraction multiplied by another fraction.',mode:'multiply',formula:()=>MODES.multiply.describe(state.source[0],state.destination[0])},
   {title:'5 · Screen',caption:'Screen multiplies the two distances that remain before white, then subtracts that shared remaining distance from 1.',mode:'screen',formula:()=>MODES.screen.describe(state.source[0],state.destination[0])},
   {title:'6 · Plus',caption:'Plus adds matching channels. A pre-clamp sum above 1 is clamped to 1 before it becomes the displayed normalized channel.',mode:'plus',formula:()=>MODES.plus.describe(state.source[0],state.destination[0])},
@@ -778,18 +1973,18 @@ document.querySelectorAll('[data-source]').forEach(b=>b.addEventListener('click'
 }));
 document.querySelectorAll('[data-challenge]').forEach(b=>b.addEventListener('click',()=>{
   $('challengeEditor').value=b.dataset.challenge==='correct'
-    ?`fun screenChannel(
-    source: Float,
-    destination: Float,
-): Float {
+    ?`func screenChannel(
+    source: CGFloat,
+    destination: CGFloat
+) -> CGFloat {
     return source +
         destination -
         source * destination
 }`
-    :`fun screenChannel(
-    source: Float,
-    destination: Float,
-): Float {
+    :`func screenChannel(
+    source: CGFloat,
+    destination: CGFloat
+) -> CGFloat {
     return source +
         destination +
         source * destination

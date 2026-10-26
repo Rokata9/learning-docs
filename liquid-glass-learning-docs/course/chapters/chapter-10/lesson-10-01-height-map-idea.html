@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 10.1 — Height-map idea</title>
+<style>
+  :root{
+    --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --bg:#ffffff; --soft:#f6f7f9;
+    --green:#059669; --indigo:#4338ca; --amber:#d97706; --blue:#1e40af; --red:#dc2626;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1600px;margin:0 auto;padding:0 24px 90px}
+  header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;border-bottom:1px solid var(--line);padding:14px 0}
+  header.top a{color:var(--blue);text-decoration:none;font-size:14px}
+  header.top a:hover{text-decoration:underline}
+  header.top .crumb{color:var(--muted);font-size:14px}
+  h1{font-size:27px;margin:20px 0 2px}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 6px}
+  h2{font-size:21px;margin:46px 0 8px;border-top:2px solid var(--line);padding-top:22px}
+  h2 .tag{display:block;font-size:13px;letter-spacing:.03em;color:var(--muted);margin-bottom:2px;font-weight:600}
+  h3{font-size:16.5px;margin:26px 0 6px}
+  p{font-size:15.5px;max-width:80ch;margin:8px 0}
+  p.lead{font-size:17px;max-width:88ch}
+  li{font-size:15.5px}
+  code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+  code{background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+  figure{margin:16px 0}
+  canvas{display:block;border:1px solid var(--line);border-radius:8px;background:#fff}
+  figcaption{font-size:14px;color:#4b5563;max-width:100ch;margin-top:8px}
+  .stage{position:relative}
+  .heroGrid{display:grid;grid-template-columns:520px 760px;gap:28px;align-items:start}
+  .s1grid{display:grid;grid-template-columns:1084px minmax(0,1fr);gap:24px;align-items:start}
+  .s1pics{display:grid;grid-template-columns:300px 760px;gap:24px;align-items:start}
+  .s1pics .span{grid-column:1 / -1}
+  .cmpGrid{display:grid;grid-template-columns:760px 300px minmax(0,1fr);gap:24px;align-items:start}
+  .labGrid{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start}
+  .labRow{display:grid;grid-template-columns:368px 368px;gap:24px;margin-top:12px}
+  .chGrid{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start}
+  .info{display:inline-block;width:17px;height:17px;line-height:15px;border-radius:50%;
+    border:1px solid var(--blue);color:var(--blue);background:#eef2ff;font-size:11px;
+    text-align:center;cursor:pointer;padding:0;vertical-align:2px;font-family:inherit;margin-left:3px}
+  .info:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+  #tip{position:fixed;z-index:50;max-width:380px;max-height:calc(100vh - 20px);overflow:auto;background:#111827;color:#f9fafb;
+    border-radius:8px;padding:10px 34px 10px 12px;font-size:13.5px;line-height:1.45;
+    box-shadow:0 8px 24px rgba(0,0,0,.28);display:none}
+  #tip.open{display:block}
+  #tip.wide{max-width:560px}
+  #tip .tclose{position:absolute;top:4px;right:6px;background:none;border:0;color:#9ca3af;font-size:15px;cursor:pointer;padding:2px 4px}
+  #tip .tclose:hover{color:#fff}
+  #tip b{color:#fde68a}
+  #tip code{background:#1f2937;border-color:#374151;color:#e5e7eb}
+  #tip pre{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre;margin:8px 0 0;
+    background:#1f2937;border:1px solid #374151;border-radius:6px;padding:8px 10px;color:#e5e7eb;overflow-x:auto}
+  .ptdot{position:absolute;width:18px;height:18px;border-radius:50%;transform:translate(-50%,-50%);
+    border:3px solid #111827;cursor:pointer;padding:0;z-index:5}
+  .ptdot.sm{width:14px;height:14px;border-width:2.5px}
+  .ptdot.xs{width:11px;height:11px;border-width:2px}
+  .ptdot.drag{width:22px;height:22px;cursor:grab;touch-action:none}
+  .ptdot.drag:active{cursor:grabbing}
+  .ptdot:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
+  table.trace{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}
+  table.trace th,table.trace td{border:1px solid var(--line);padding:7px 10px;vertical-align:top;text-align:left}
+  table.trace th{background:var(--soft);font-size:13.5px}
+  table.trace td.f{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+  table.trace tr.new td{background:#f0fdf4}
+  table.trace tr.grp td{background:#eef2ff;font-weight:700;font-size:13.5px}
+  .readout{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;
+    background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 14px;line-height:1.7;white-space:pre-wrap}
+  .readout .hl{background:#dcfce7;border-radius:3px}
+  .readout.cols{columns:2;column-gap:28px;font-size:13px;line-height:1.6}
+  .ctl{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:10px 0}
+  .ctl label{font-size:14px;display:flex;align-items:center;gap:8px}
+  .ctl input[type=range]{width:200px}
+  .ctlname{font-size:13.5px;font-weight:700;color:var(--muted);min-width:92px}
+  .btn{font-size:14px;padding:6px 14px;border-radius:7px;border:1.5px solid var(--blue);background:#fff;color:var(--blue);cursor:pointer}
+  .btn:hover{background:#eef2ff}
+  .btn[aria-pressed="true"]{background:var(--blue);color:#fff;box-shadow:inset 0 2px 4px rgba(0,0,0,.25)}
+  .btn:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+  .btn:disabled{opacity:.45;cursor:default}
+  .note{border-left:4px solid var(--amber);background:#fffbeb;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:96ch;margin:12px 0}
+  .iosnote{border-left:4px solid var(--indigo);background:#eef2ff;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:96ch;margin:12px 0}
+  details{border:1px solid var(--line);border-radius:8px;margin:10px 0;background:#fff}
+  details>summary{cursor:pointer;padding:10px 14px;font-size:15px;font-weight:600}
+  details>summary:hover{background:var(--soft)}
+  details .body{padding:4px 14px 14px}
+  details details{margin:8px 0;background:var(--soft)}
+  .stepnav{display:flex;gap:10px;align-items:center;margin:0 0 10px}
+  .stepnav .dots{display:flex;gap:6px;margin-left:8px}
+  .stepnav .dot{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--muted);background:#fff;padding:0;cursor:pointer}
+  .stepnav .dot.on{background:var(--indigo);border-color:var(--indigo)}
+  .stepcap{min-height:250px;font-size:15.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+  .legend{list-style:none;padding:0;margin:8px 0}
+  .legend li{position:relative;padding-left:42px;margin:7px 0;font-size:15px;line-height:1.45}
+  .legend.two{display:grid;grid-template-columns:1fr 1fr;column-gap:36px;max-width:1300px}
+  .legend li>span:first-child{position:absolute;left:4px;top:.2em}
+  .sw{display:block;width:28px;height:18px;border:1px solid #111827;border-radius:3px}
+  .sw.gray{background:linear-gradient(90deg,#000,#fff)}
+  .sw.mask{background:linear-gradient(90deg,#e9d5ff 0 50%,#f1f5f9 50%)}
+  .swl{display:block;width:28px;height:6px;border-radius:3px;border:1px solid #111827;margin-top:6px}
+  .swd{display:block;width:15px;height:15px;border-radius:50%;border:2.5px solid #111827;margin:1px 0 0 6px}
+  .swt{display:block;width:22px;height:22px;border-radius:50%;border:2px solid #111827;background:#fff;font:700 12px/18px -apple-system,sans-serif;text-align:center;margin-left:3px}
+  .verdict{font-size:15px;margin-top:8px;font-weight:600}
+  .verdict.ok{color:var(--green)} .verdict.no{color:var(--red)}
+  .exq{display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px;align-items:start;margin:6px 0 10px}
+  .choices{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:8px 0}
+  .choices .btn{text-align:left}
+  .pair{display:grid;grid-template-columns:auto auto;gap:28px;justify-content:start;align-items:start}
+  pre.code{font:13.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#0f172a;color:#e2e8f0;
+    border-radius:8px;padding:14px 16px;overflow-x:auto;max-width:100%}
+  pre.code .nw{background:#14532d;color:#bbf7d0;border-radius:3px}
+  pre.code .cm{color:#94a3b8}
+  #chIn{font:14px ui-monospace,Menlo,monospace;padding:6px 8px;border:1.5px solid var(--line);border-radius:6px;width:440px}
+  #record{width:100%;min-height:300px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:13px;border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--soft)}
+  .navfoot{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:50px;padding-top:16px;font-size:14px}
+  .navfoot a{color:var(--blue);text-decoration:none}
+  .navfoot span{color:var(--muted)}
+  .small{font-size:14px;color:#4b5563}
+  .wrap ul:not(.legend){max-width:110ch}
+  .pl{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#4b5563}
+  .scale{font-size:13.5px;color:#4b5563;margin-top:6px}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="crumb">Liquid Glass course</span>
+  <a href="../../../liquid-glass-course.html">Course home</a>
+  <a href="lesson-light-surface-direction-and-material-thickness.html">Chapter 10</a>
+  <a href="../../glossary.html">Glossary</a>
+  <a href="../chapter-09/lesson-09-14-lens-checkpoint.html">← Lesson 9.14</a>
+</header>
+<div class="wrap">
+
+<h1>Lesson 10.1 — Height-map idea</h1>
+<p class="sub">Give every pixel of the glass a height: 0 at the outline, 0.10 on the flat top. The first lesson of Chapter 10. Light theme · desktop · works from <code>file://</code>.</p>
+
+<p class="lead">In Chapter 9 the glass was flat. A pixel was glass or not: the mask of Lesson 9.14<button class="info" data-tip="mask">ⓘ</button>.
+Real glass, like a wide drop of water on a table, is a raised shape: it is thin at its edge and thicker inside. This
+lesson gives every pixel a <b>surface height</b> <code>h</code>: how high the glass stands above that pixel. We need
+it <b>because</b> the next lessons measure how the surface tilts (Lessons 10.2 and 10.3), and light reacts to the tilt
+(Lesson 10.5).</p>
+
+<figure>
+  <div class="heroGrid">
+    <div class="stage" id="heroTStage"><canvas id="heroT" width="520" height="520"></canvas>
+      <figcaption><b>From above: the height map.</b> Each pixel is gray by its height: black = 0, white = the flat top.</figcaption></div>
+    <div><div class="stage" id="heroOStage"><canvas id="heroO" width="760" height="520"></canvas></div>
+      <figcaption><b>At an angle: the same heights, raised.</b> Each line is one row of pixels, lifted by the height of each pixel.</figcaption>
+      <div class="ctl"><label><span class="ctlname">View angle</span>
+        <input type="range" id="heroTilt" min="0" max="75" step="1" value="60"><span class="mono" id="heroTiltV">60°</span></label></div>
+    </div>
+  </div>
+</figure>
+<ul class="legend two">
+  <li><span class="swl" style="background:#a855f7"></span><b>The violet circle</b> (left): the outline of the glass. Center <b>C = (0.50, 0.50)</b>, radius 0.25. In the right picture, the rows are violet where they cross the glass.</li>
+  <li><span class="sw gray"></span><b>Gray</b> (left): the surface height h of each pixel, from 0 (black) to the flat top, 0.10 (white).</li>
+  <li><span class="swd" style="background:#fff"></span><b>W = (0.71, 0.50)</b>: one pixel of the screen, near the outline. The page traces it to the end.</li>
+  <li><span class="swd" style="background:#ec4899"></span><b>H</b> (right): the surface straight above W, height 0.08. The angle 0° looks straight down: then the glass looks flat, as in Chapter 9.</li>
+</ul>
+
+<!-- ============================ SECTION 1 ============================ -->
+<h2 id="s1"><span class="tag">Section 1 · the idea in pictures</span>A height for every pixel</h2>
+
+<p>Press <b>Next</b>. Each step adds one thing. The left picture is the screen from above. The right picture is the
+<b>side view</b>: the lime line y = 0.50, seen from the side of the screen. Both pictures show x from 0.20 to 0.80.</p>
+
+<div class="s1grid">
+  <div class="s1pics">
+    <div class="stage" id="s1TStage"><canvas id="s1T" width="300" height="300"></canvas></div>
+    <div class="stage" id="s1SStage"><canvas id="s1S" width="760" height="330"></canvas></div>
+    <div class="span"><table class="trace" id="s1Tab"></table></div>
+    <div class="span"><ul class="legend two" id="s1Leg"></ul></div>
+  </div>
+  <div>
+    <div class="stepnav">
+      <button class="btn" id="stPrev">← Back</button>
+      <button class="btn" id="stNext">Next →</button>
+      <div class="dots" id="stDots"></div>
+    </div>
+    <div class="stepcap" id="stCap" aria-live="polite"></div>
+    <p class="small">Click any dot in the pictures to see its name and coordinates. In the side view a point has two
+    numbers: its x on the lime line, and its height.</p>
+  </div>
+</div>
+
+<!-- ============================ SECTION 2 ============================ -->
+<h2 id="s2"><span class="tag">Section 2 · the new lines</span>The height in the code</h2>
+
+<p>The shader of Lesson 9.2 already computes <code>sd</code>. Four new lines turn it into a height, and the shader
+stores the height as a gray so we can see it:</p>
+<div class="readout">p      = uv − C
+d      = length(p)
+sd     = d − radius               Lesson 9.2: minus inside the glass, plus outside
+<span class="hl">inside = clamp(−sd, 0, bevel)</span>     new: how far the pixel is inside the outline, limited to 0 … bevel
+<span class="hl">leg    = bevel − inside</span>           new: how far the pixel is from K, the center of the rim circle
+<span class="hl">h      = √(bevel² − leg²)</span>         new: the surface height, the missing leg of the right triangle
+<span class="hl">gray   = h ÷ bevel</span>                new: the height as a part of the top height, 0 … 1, stored as a gray</div>
+<ul>
+  <li><code>bevel = 0.10</code><button class="info" data-tip="bevel">ⓘ</button> is the width of the rounded rim. The rim
+  is a quarter of the <b>rim circle</b>, whose radius is also bevel, so the flat top is bevel high.</li>
+  <li><code>−sd</code> is plus inside the glass <b>because</b> sd is minus there (Lesson 9.2<button class="info" data-tip="sd">ⓘ</button>).
+  <code>clamp</code><button class="info" data-tip="clamp">ⓘ</button> limits it to 0 … bevel. So outside the glass
+  inside = 0, and on the flat top inside = bevel.</li>
+  <li><code>h = √(bevel² − leg²)</code> is the right triangle of Lesson 9.1<button class="info" data-tip="pyth">ⓘ</button>:
+  the long side is bevel, one leg is leg, and h is the other leg.</li>
+  <li><code>gray</code> is only for seeing the heights. The height map is a number per pixel. Later lessons use
+  <code>h</code>, not the gray.</li>
+  <li>Heights are in UV<button class="info" data-tip="unit">ⓘ</button>, the same unit as positions. So the side view
+  draws x and height at one scale.</li>
+</ul>
+
+<h3>Why a round rim?</h3>
+<p>A round rim is not the simplest choice. Two simpler shapes exist. Switch between them: the side view and the
+height map change in place.</p>
+<div class="cmpGrid">
+  <div class="stage" id="cmpSStage"><canvas id="cmpS" width="760" height="330"></canvas>
+    <figcaption><b>The side view</b> along the lime line y = 0.50, x from 0.20 to 0.80.</figcaption></div>
+  <div class="stage" id="cmpTStage"><canvas id="cmpT" width="300" height="300"></canvas>
+    <figcaption><b>The height map</b>: x and y from 0.20 to 0.80.</figcaption></div>
+  <div>
+    <div class="ctl"><span class="ctlname">Rim shape</span></div>
+    <div class="ctl"><button class="btn" data-cmp="slab">flat slab</button><button class="btn" data-cmp="ramp">straight ramp</button><button class="btn" data-cmp="circle">quarter circle · this lesson</button></div>
+    <div class="readout" id="cmpOut"></div>
+    <ul class="legend" id="cmpLeg"></ul>
+  </div>
+</div>
+<p><b>Why the quarter circle.</b> The glass copies a drop of liquid, and a drop has a round rim and a flat top. The
+shape matters later: Lesson 10.5 lights the surface. There a corner shows as a sharp line of light (at F for the
+ramp), and a wall shows as a line one pixel wide (at O for the slab). This lesson does not need the light. It only
+picks the shape.</p>
+
+<!-- ============================ SECTION 3 ============================ -->
+<h2 id="s3"><span class="tag">Section 3 · one value, traced to the end</span>The pixel W, every number</h2>
+
+<p>The whole chain for the pixel W = (0.71, 0.50), with the glass at C = (0.50, 0.50)<button class="info" data-tip="center">ⓘ</button>,
+<code>radius = 0.25</code><button class="info" data-tip="radius">ⓘ</button> and <code>bevel = 0.10</code><button class="info" data-tip="bevel">ⓘ</button>.
+W is on the line through C, so only x changes. The green rows are new. The mask of Lesson 9.14 gives W the same 1 as C.
+The height gives W 0.80 and C 1.</p>
+
+<table class="trace">
+  <tr><th style="width:150px">Step</th><th style="width:260px">Formula</th><th>Numbers (one operation per “=”)</th><th style="width:220px">Result</th><th style="width:110px">Used by</th></tr>
+  <tr><td>1 · position</td><td class="f">p = uv − C</td><td class="f">p.x = 0.71 − 0.50 = 0.21<br>p.y = 0.50 − 0.50 = 0</td><td class="f">p = (0.21, 0)</td><td>step 2</td></tr>
+  <tr><td>2 · distance</td><td class="f">d = length(p)<button class="info" data-tip="length">ⓘ</button></td><td class="f">p.x² = 0.21 × 0.21 = 0.0441<br>p.y² = 0 × 0 = 0<br>sum = 0.0441 + 0 = 0.0441<br>d = √0.0441 = 0.21</td><td class="f">d = 0.21</td><td>step 3</td></tr>
+  <tr><td>3 · signed distance</td><td class="f">sd = d − radius<button class="info" data-tip="sd">ⓘ</button></td><td class="f">sd = 0.21 − 0.25 = −0.04</td><td class="f">sd = −0.04<br><span class="pl">minus: W is inside the glass</span></td><td>step 4</td></tr>
+  <tr class="new"><td>4 · inside (new)</td><td class="f">inside = clamp(−sd, 0, bevel)<button class="info" data-tip="clamp">ⓘ</button></td><td class="f">−sd = −(−0.04) = 0.04<br>0 ≤ 0.04 ≤ 0.10 → it stays</td><td class="f">inside = 0.04<br><span class="pl">W is 0.04 inside the outline</span></td><td>step 5</td></tr>
+  <tr class="new"><td>5 · leg (new)</td><td class="f">leg = bevel − inside</td><td class="f">leg = 0.10 − 0.04 = 0.06</td><td class="f">leg = 0.06<br><span class="pl">from K to W</span></td><td>step 6</td></tr>
+  <tr class="new"><td>6 · height (new)</td><td class="f">h = √(bevel² − leg²)<button class="info" data-tip="pyth">ⓘ</button></td><td class="f">bevel² = 0.10 × 0.10 = 0.01<br>leg² = 0.06 × 0.06 = 0.0036<br>h² = 0.01 − 0.0036 = 0.0064<br>h = √0.0064 = 0.08</td><td class="f">h = 0.08<br><span class="pl">the surface above W is 0.08 high</span></td><td>step 7</td></tr>
+  <tr class="new"><td>7 · gray (new)</td><td class="f">gray = h ÷ bevel</td><td class="f">gray = 0.08 ÷ 0.10 = 0.80</td><td class="f">(0.80, 0.80, 0.80)<br><span class="pl">light gray</span></td><td>stored at W</td></tr>
+</table>
+
+<!-- ============================ SECTION 4 ============================ -->
+<h2 id="s4"><span class="tag">Section 4 · lab</span>Lab: move W, change the bevel</h2>
+
+<p>Drag the dot W in the height map. The lime line always goes from C through W, and the side view shows the heights
+along it. Drag the <b>bevel</b> slider to change the width of the rim, and the <b>view angle</b> slider to look at
+the glass from lower down.</p>
+
+<div class="labGrid">
+  <div>
+    <div class="stage" id="labSStage"><canvas id="labS" width="760" height="330"></canvas></div>
+    <div class="scale" id="labScale"></div>
+    <div class="labRow">
+      <div class="stage" id="labTStage"><canvas id="labT" width="368" height="368"></canvas>
+        <figcaption><b>The height map</b>, the whole screen. Drag W.</figcaption></div>
+      <div class="stage" id="labOStage"><canvas id="labO" width="368" height="368"></canvas>
+        <figcaption><b>At an angle</b>: each row lifted by its height.</figcaption></div>
+    </div>
+  </div>
+  <div>
+    <div class="ctl"><label><span class="ctlname">bevel</span>
+      <input type="range" id="labB" min="0.02" max="0.25" step="0.01" value="0.10"><span class="mono" id="labBV">0.10</span></label>
+      <button class="info" data-tip="bevel">ⓘ</button></div>
+    <p class="small" id="labBNote"></p>
+    <div class="ctl"><label><span class="ctlname">View angle</span>
+      <input type="range" id="labA" min="0" max="75" step="1" value="60"><span class="mono" id="labAV">60°</span></label></div>
+    <div class="ctl"><span class="ctlname">W at</span><button class="btn" id="labReset">(0.71, 0.50) · this lesson</button></div>
+    <ul class="legend" id="labLeg"></ul>
+    <div class="readout cols" id="labOut"></div>
+  </div>
+</div>
+
+<!-- ============================ SECTION 5 ============================ -->
+<h2 id="s5"><span class="tag">Section 5 · short code excerpt</span>The iPhone shader</h2>
+
+<p>The real Metal function from the LiquidGlassLab app: <code>chapter10/HeightMap.metal</code> (explorer screen:
+<code>chapter10/HeightMapExplorer.swift</code>). The parameter list is packed onto fewer lines here, and the comments
+on the right were added for the lesson. The new lines are green.</p>
+
+<pre class="code">[[ stitchable ]] half4 heightMap(
+    float2 position, half4 color, float2 resolution,
+    float2 center, float radius, float bevel, float scale
+) {
+    float2 fragCoord = position * scale;
+    float2 uv = fragCoord / resolution;
+    float2 p = uv - center;
+    float sd = length(p) - radius;                     <span class="cm">// Lesson 9.2</span>
+<span class="nw">    float inside = clamp(-sd, 0.0, bevel);</span>             <span class="cm">// new: 0 outside, bevel on the flat top</span>
+<span class="nw">    float leg = bevel - inside;</span>                        <span class="cm">// new: from K, the rim circle's center</span>
+<span class="nw">    float h = sqrt(bevel * bevel - leg * leg);</span>         <span class="cm">// new: the surface height</span>
+<span class="nw">    float gray = h / bevel;</span>                            <span class="cm">// new: 0 at the outline, 1 on the flat top</span>
+    return half4(gray, gray, gray, 1.0);
+}</pre>
+
+<ul>
+  <li><code>clamp</code> keeps <code>leg</code> between 0 and bevel. So <code>bevel * bevel - leg * leg</code> is never
+  below 0, <b>because</b> leg² is at most bevel². Without the clamp, a pixel outside the glass would get a leg longer
+  than bevel, and <code>sqrt</code> of a number below 0 has no answer.</li>
+  <li><code>half4(gray, gray, gray, 1.0)</code>: the same number in red, green and blue is a gray (Lesson 3.1).</li>
+  <li><code>color</code> is not used. A <code>colorEffect</code> function must still take it (Lesson 8.3).</li>
+</ul>
+
+<div class="iosnote"><b>Browser and iPhone.</b> On this page, JavaScript runs the same lines for every pixel of a
+canvas. On iPhone, the explorer passes <code>center = (0.50, 0.50)</code>, <code>radius = 0.25</code> and the
+<code>bevel</code> slider to the shader, and Metal runs <code>heightMap</code> for every pixel of a 360-pt square.
+There the default rim is 0.10 × 360 = 36 pt wide. The screen stays flat in both: <code>h</code> is a number, and the
+pictures at an angle are drawn by this page only.</div>
+
+<!-- ============================ SECTION 6 ============================ -->
+<h2 id="s6"><span class="tag">Section 6 · coding challenge</span>Challenge: write the height line</h2>
+
+<p>The height line is missing. Write its right side. The page runs your line for every pixel and compares the result
+with the quarter circle.</p>
+<pre class="code">    float inside = clamp(-sd, 0.0, bevel);
+    float leg    = bevel - inside;
+    float h      = <span class="nw">???</span>;
+    float gray   = h / bevel;</pre>
+<div class="chGrid">
+  <div class="stage" id="chSStage"><canvas id="chS" width="760" height="330"></canvas>
+    <figcaption>The side view along y = 0.50 with your line (violet). The thin cyan curve is the quarter circle.</figcaption></div>
+  <div>
+    <div class="ctl"><span class="mono">float h =</span><input id="chIn" type="text" spellcheck="false" autocomplete="off" placeholder="sqrt(…)" aria-label="The right side of the height line">
+      <button class="btn" id="chBtn">Run</button></div>
+    <div class="verdict" id="chVerdict"></div>
+    <details><summary>Hint</summary><div class="body"><p>In the triangle K–W–H the long side is <code>bevel</code>
+    and one leg is <code>leg</code>. Lesson 9.1: leg² + h² = long side². Metal writes the square root as
+    <code>sqrt(…)</code> and a square as <code>x * x</code>.</p></div></details>
+  </div>
+</div>
+
+<!-- ============================ SECTION 7 ============================ -->
+<h2 id="s7"><span class="tag">Section 7 · exercises</span>Exercises</h2>
+<p>Each exercise starts with a picture. Read the question, pick one choice, then open the answer. Every answer draws
+the reason.</p>
+
+<details class="ex"><summary>Exercise 1 — radius 0.35: how wide is the rounded rim?</summary><div class="body">
+  <div class="exq">
+    <div class="stage" id="ex1qStage"><canvas id="ex1q" width="640" height="240"></canvas>
+      <figcaption><b>Before the change:</b> the side view along y = 0.50, x from 0.10 to 0.90, radius 0.25.</figcaption></div>
+    <div>
+      <ul class="legend">
+        <li><span class="swl" style="background:#a855f7"></span>the violet surface: the glass, seen from the side</li>
+        <li><span class="swl" style="background:#334155"></span>the screen line, height 0</li>
+        <li><span class="swl" style="background:#334155"></span>the black brackets: the rim, from K to O (0.10 wide), and the flat top (0.30 wide)</li>
+        <li><span class="swd" style="background:#fff"></span>K = (x 0.65, height 0): the center of the rim circle · O = (x 0.75, height 0) and L = (x 0.25, height 0): the outline</li>
+      </ul>
+      <p><b>The change.</b> We set <code>radius = 0.35</code><button class="info" data-tip="radius">ⓘ</button> (it
+      was 0.25). Only the line <code>sd = length(p) − radius</code> uses it. <code>bevel</code> stays 0.10.</p>
+      <p><b>Question:</b> radius 0.35: how wide is the rounded rim?</p>
+      <div class="choices">
+        <button class="btn" aria-pressed="false" data-ok="0" data-why="Not this one. The rim is bevel wide, and bevel did not change. inside is measured from the outline, whatever the radius is.">0.14: it grows with the radius.</button>
+        <button class="btn" aria-pressed="false" data-ok="1" data-why="Right. K is always bevel = 0.10 inside the outline, so the rim circle keeps its size. The extra 0.10 of radius goes to the flat top.">0.10, the same; only the flat top gets wider.</button>
+        <button class="btn" aria-pressed="false" data-ok="0" data-why="Not this one. The rim is 0.10 wide, but the glass is not higher. On the flat top leg = 0, so h² = bevel² and h = bevel = 0.10. The radius is not in those lines.">0.10, the same, and the glass gets higher.</button>
+      </div>
+      <div class="verdict" aria-live="polite"></div>
+    </div>
+  </div>
+  <details><summary>Show the answer</summary><div class="body">
+    <div class="stage" id="ex1aStage"><canvas id="ex1a" width="640" height="240"></canvas>
+      <figcaption><b>After the change:</b> the same side view at the same scale, radius 0.35.</figcaption></div>
+    <div class="readout">O.x = C.x + radius = 0.50 + 0.35 = 0.85        the outline on the right
+K.x = O.x − bevel  = 0.85 − 0.10 = 0.75        the rim circle's center, still 0.10 inside the outline
+rim:      from K to O = 0.85 − 0.75 = 0.10      the same as before
+flat top: from 0.25 to 0.75 = 0.75 − 0.25 = 0.50   (before: from 0.35 to 0.65 = 0.30)
+on the flat top: leg = 0,  h² = 0.01 − 0 = 0.01,  h = √0.01 = 0.10   the same height as before
+a pixel 0.04 inside the outline, x = 0.81:
+  d = 0.81 − 0.50 = 0.31
+  sd = 0.31 − 0.35 = −0.04,  so inside = 0.04
+  leg = 0.10 − 0.04 = 0.06
+  h² = 0.01 − 0.0036 = 0.0064,  h = √0.0064 = 0.08   the same as W</div>
+    <p><b>Why:</b> <code>inside</code> is measured from the outline, so the rim circle is always bevel inside the
+    outline, with radius bevel. A larger radius moves the outline out, and the rim moves with it. Only the flat top in
+    the middle grows.</p>
+  </div></details>
+</div></details>
+
+<details class="ex"><summary>Exercise 2 — the pixel A, 0.02 inside the outline: what gray does it store?</summary><div class="body">
+  <div class="exq">
+    <div class="stage" id="ex2qStage"><canvas id="ex2q" width="640" height="330"></canvas>
+      <figcaption><b>The side view</b> along y = 0.50, enlarged: x from 0.45 to 0.80.</figcaption></div>
+    <div>
+      <ul class="legend">
+        <li><span class="swl" style="background:#a855f7"></span>the violet surface: the glass, seen from the side</li>
+        <li><span class="swl" style="background:#06b6d4"></span>the cyan rim circle: center K, radius bevel = 0.10</li>
+        <li><span class="swd" style="background:#fff"></span>K = (x 0.65, height 0) · O = (x 0.75, height 0), the outline</li>
+        <li><span class="swd" style="background:#fff"></span>A = (0.73, 0.50): a pixel 0.02 inside the outline</li>
+      </ul>
+      <p><b>The change.</b> No line of the shader changes. The page picks a new pixel, A, between W and O.</p>
+      <p><b>Question:</b> the pixel A, 0.02 inside the outline: what gray does it store?</p>
+      <div class="choices">
+        <button class="btn" aria-pressed="false" data-ok="0" data-why="Not this one. 0.02 ÷ 0.10 = 0.20 is the straight ramp of Section 2. The rim is a quarter circle: the height comes from the triangle.">0.20</button>
+        <button class="btn" aria-pressed="false" data-ok="1" data-why="Right. leg = 0.10 − 0.02 = 0.08, so h² = 0.01 − 0.0064 = 0.0036, h = √0.0036 = 0.06, and gray = 0.06 ÷ 0.10 = 0.60.">0.60</button>
+        <button class="btn" aria-pressed="false" data-ok="0" data-why="Not this one. 0.98 belongs to the pixel 0.02 from K, where leg = 0.02. A is 0.02 from the outline, so its leg is 0.08.">0.98</button>
+      </div>
+      <div class="verdict" aria-live="polite"></div>
+    </div>
+  </div>
+  <details><summary>Show the answer</summary><div class="body">
+    <div class="pair"><div class="stage" id="ex2aStage"><canvas id="ex2a" width="640" height="330"></canvas>
+      <figcaption><b>The triangle K–A–P</b>: P is the surface straight above A. The legs are KA = 0.08 and AP = 0.06; the long side KP = 0.10.</figcaption></div>
+      <div class="readout">d = 0.73 − 0.50 = 0.23        A is on the line through C
+sd = 0.23 − 0.25 = −0.02
+inside = −sd = 0.02
+leg = 0.10 − 0.02 = 0.08
+bevel² = 0.10 × 0.10 = 0.01
+leg² = 0.08 × 0.08 = 0.0064
+h² = 0.01 − 0.0064 = 0.0036
+h = √0.0036 = 0.06
+gray = 0.06 ÷ 0.10 = 0.60   → A stores (0.60, 0.60, 0.60)</div></div>
+    <p><b>Why:</b> A is close to the outline, so it is far from K: its leg is long, 0.08. The rim circle is steep
+    there, so a small step in from the outline already gives a large height: 0.06 after only 0.02. A straight ramp
+    would give 0.02.</p>
+  </div></details>
+</div></details>
+
+<details class="ex"><summary>Exercise 3 — a capsule: which pixel is higher, E or M?</summary><div class="body">
+  <div class="exq">
+    <div class="stage" id="ex3qStage"><canvas id="ex3q" width="440" height="440"></canvas>
+      <figcaption><b>The capsule from above</b>, the whole screen. Violet = glass (the mask).</figcaption></div>
+    <div>
+      <ul class="legend">
+        <li><span class="sw mask"></span>the mask: violet = glass, light gray = not glass</li>
+        <li><span class="swl" style="background:#a855f7"></span>the violet capsule: center C = (0.50, 0.50), 0.80 wide and 0.40 tall</li>
+        <li><span class="swd" style="background:#fff"></span>E = (0.86, 0.50): in the round end, 0.04 inside the outline</li>
+        <li><span class="swd" style="background:#fff"></span>M = (0.50, 0.34): in the straight middle part, 0.04 inside the outline</li>
+      </ul>
+      <p><b>The change.</b> The <code>sd</code> line now uses the capsule's sd of Lesson 9.5<button class="info" data-tip="capsule">ⓘ</button>.
+      The four height lines (<code>inside</code>, <code>leg</code>, <code>h</code>, <code>gray</code>) stay the same.</p>
+      <p><b>Question:</b> a capsule: which pixel is higher, E or M?</p>
+      <div class="choices">
+        <button class="btn" aria-pressed="false" data-ok="0" data-why="Not this one. The height lines never ask where the pixel is. They use only sd, and E has sd = −0.04, like M.">E, in the round end.</button>
+        <button class="btn" aria-pressed="false" data-ok="0" data-why="Not this one. The middle part is straight from above, but its rim is the same quarter circle: the height uses only sd, and M has sd = −0.04, like E.">M, in the straight middle part.</button>
+        <button class="btn" aria-pressed="false" data-ok="1" data-why="Right. Both have sd = −0.04, so both have inside = 0.04, leg = 0.06 and h = 0.08. The height follows any shape that has an sd.">The same height.</button>
+      </div>
+      <div class="verdict" aria-live="polite"></div>
+    </div>
+  </div>
+  <details><summary>Show the answer</summary><div class="body">
+    <div class="pair">
+      <div class="stage" id="ex3aStage"><canvas id="ex3a" width="440" height="440"></canvas>
+        <figcaption><b>The capsule's height map.</b> E and M store the same gray, 0.80.</figcaption></div>
+      <div>
+        <div class="stage" id="ex3bStage"><canvas id="ex3b" width="520" height="260"></canvas>
+          <figcaption><b>Side view along y = 0.50</b>, x from 0.60 to 0.94: the rim at E.</figcaption></div>
+        <div class="stage" id="ex3cStage" style="margin-top:12px"><canvas id="ex3c" width="520" height="260"></canvas>
+          <figcaption><b>Side view along x = 0.50</b>, y from 0.26 to 0.60 (y grows to the right): the rim at M.</figcaption></div>
+      </div>
+    </div>
+    <div class="readout cols">E = (0.86, 0.50)
+  p = (0.86 − 0.50, 0.50 − 0.50) = (0.36, 0)
+  nearestX = clamp(0.36, −0.20, 0.20) = 0.20
+  p − (nearestX, 0) = (0.36 − 0.20, 0 − 0) = (0.16, 0)
+  its length = 0.16   (its y is 0)
+  sd = 0.16 − 0.20 = −0.04,  so inside = 0.04
+  leg = 0.10 − 0.04 = 0.06
+  leg² = 0.06 × 0.06 = 0.0036
+  h² = 0.01 − 0.0036 = 0.0064
+  h = √0.0064 = 0.08
+M = (0.50, 0.34)
+  p = (0.50 − 0.50, 0.34 − 0.50) = (0, −0.16)
+  nearestX = clamp(0, −0.20, 0.20) = 0
+  p − (nearestX, 0) = (0 − 0, −0.16 − 0) = (0, −0.16)
+  its length = 0.16   (its x is 0)
+  sd = 0.16 − 0.20 = −0.04,  so inside = 0.04
+  leg = 0.10 − 0.04 = 0.06
+  leg² = 0.06 × 0.06 = 0.0036
+  h² = 0.01 − 0.0036 = 0.0064
+  h = √0.0064 = 0.08</div>
+    <p><b>Why:</b> the height lines use only <code>sd</code>. Every pixel 0.04 inside the outline has sd = −0.04,
+    in the round end and in the middle part alike, so it gets the same triangle and the same height. A new shape needs
+    only a new sd. (In Exercise 2 of Lesson 9.14, the push did not follow the capsule. The height does.)</p>
+  </div></details>
+</div></details>
+
+<!-- ============================ SECTION 8 ============================ -->
+<h2 id="s8"><span class="tag">Section 8 · Metal exercise</span>Metal exercise: the height of a glass button</h2>
+
+<p>Liquid Glass buttons are rounded rectangles. Write the two Metal functions that give a rounded-rectangle glass its
+height: its <code>sd</code> (Lesson 9.4) and the height from that <code>sd</code> (this lesson). We split them in two
+<b>because</b> the height uses only <code>sd</code> (Exercise 3): <code>surfaceHeight</code> will work for every shape
+of the next lessons. Everything else is ready in the LiquidGlassLab app.</p>
+<div class="exq">
+  <div class="stage" id="mxStage"><canvas id="mx" width="440" height="440"></canvas>
+    <figcaption><b>The goal</b>: the height map your functions must give, the whole screen.</figcaption></div>
+  <div>
+    <ul class="legend">
+      <li><span class="sw gray"></span>gray = h ÷ bevel: black 0 (outside), white 1 (the flat top, 0.10 high)</li>
+      <li><span class="swl" style="background:#a855f7"></span>the violet outline: the button, center C = (0.50, 0.50), 0.60 wide and 0.40 tall, corner radius 0.10</li>
+      <li><span class="swd" style="background:#fff"></span>T1 … T5: the test pixels of the table below, one for each case of Lesson 9.4 and one outside</li>
+    </ul>
+    <table class="trace" id="mxTab">
+      <tr><th>Test pixel</th><th>p = uv − C</th><th>Lesson 9.4 case</th><th>sd</th><th>h</th><th>gray</th></tr>
+      <tr><td>T1 = (0.50, 0.50)</td><td class="f">(0, 0)</td><td>inside the inner box</td><td class="f">−0.20</td><td class="f">0.10</td><td class="f">1</td></tr>
+      <tr><td>T2 = (0.76, 0.50)</td><td class="f">(0.26, 0)</td><td>a side (left or right)</td><td class="f">−0.04</td><td class="f">0.08</td><td class="f">0.80</td></tr>
+      <tr><td>T3 = (0.50, 0.33)</td><td class="f">(0, −0.17)</td><td>the top or the bottom</td><td class="f">−0.03</td><td class="f">0.071</td><td class="f">0.71</td></tr>
+      <tr><td>T4 = (0.73, 0.64)</td><td class="f">(0.23, 0.14)</td><td>a corner</td><td class="f">−0.05</td><td class="f">0.087</td><td class="f">0.87</td></tr>
+      <tr><td>T5 = (0.85, 0.50)</td><td class="f">(0.35, 0)</td><td>a side, outside the glass</td><td class="f">0.05</td><td class="f">0</td><td class="f">0</td></tr>
+    </table>
+    <p class="small">The values are the targets. Work out at least T3 and T4 by hand before you run: the hidden answer
+    below has every number.</p>
+  </div>
+</div>
+
+<h3>Your file: <code>chapter10/HeightExercise.metal</code></h3>
+<p>Fill in the two function bodies. Keep the names and the parameters: the prepared code calls them.</p>
+<pre class="code"><span class="cm">/// Part 1. The signed distance of a rounded rectangle whose center is p = (0, 0) (Lesson 9.4).
+/// p: the pixel minus the center of the glass, in UV.
+/// outerHalf: half the width and half the height of the glass. cornerRadius: the radius of the corners.
+/// Return: minus inside, 0 on the outline, plus outside.</span>
+float roundedRectSd(float2 p, float2 outerHalf, float cornerRadius) {
+<span class="nw">    // your code: innerHalf, q, sdBox (four cases), sd</span>
+    return 1.0;                                           <span class="cm">// placeholder: every pixel outside</span>
+}
+
+<span class="cm">/// Part 2. The surface height of this lesson for one signed distance.
+/// bevel: the width of the rounded rim, and the height of the flat top.
+/// Return: h in UV, from 0 (outside) to bevel (the flat top).</span>
+float surfaceHeight(float sd, float bevel) {
+<span class="nw">    // your code: inside, leg, h</span>
+    return 0.0;                                           <span class="cm">// placeholder: no height</span>
+}</pre>
+<details><summary>Hint: the Lesson 9.4 cases</summary><div class="body">
+<pre class="code">innerHalf = outerHalf − cornerRadius          <span class="cm">// the sharp inner box</span>
+q = abs(p) − innerHalf                         <span class="cm">// how far past the inner box, along x and along y</span>
+q.x &gt; 0 and q.y &gt; 0   → a corner:            sdBox = length(q)
+q.x &gt; 0 only          → a side:              sdBox = q.x
+q.y &gt; 0 only          → the top or bottom:   sdBox = q.y
+neither               → inside the inner box: sdBox = the larger of q.x and q.y
+sd = sdBox − cornerRadius</pre>
+<p>For <code>surfaceHeight</code>, use the four new lines of Section 2 without <code>gray</code>.</p></div></details>
+
+<h3>The prepared calling code (do not change it)</h3>
+<p>Below your functions, the same file has the shader that calls them for every pixel. The Chapter 10 screen of the
+app runs it.</p>
+<pre class="code">[[ stitchable ]] half4 buttonHeightExercise(
+    float2 position, half4 color, float2 resolution, float2 center,
+    float2 outerHalf, float cornerRadius, float bevel, float scale
+) {
+    float2 uv = position * scale / resolution;
+    float2 p = uv - center;
+    float sd = roundedRectSd(p, outerHalf, cornerRadius);     <span class="cm">// your part 1</span>
+    float h = surfaceHeight(sd, bevel);                       <span class="cm">// your part 2</span>
+    float gray = clamp(h / bevel, 0.0, 1.0);
+    return half4(gray, gray, gray, 1.0);
+}</pre>
+<ul>
+  <li><code>chapter10/HeightExerciseView.swift</code> passes <code>center = (0.50, 0.50)</code>,
+  <code>outerHalf = (0.30, 0.20)</code>, <code>cornerRadius = 0.10</code> and <code>bevel = 0.10</code>, the numbers of
+  the table.</li>
+  <li><code>chapter10/HeightExerciseKey.metal</code> is the answer key: the same two functions, already written, in a
+  shader named <code>buttonHeightKey</code>. Open it only after you try.</li>
+  <li><b>The check.</b> The screen draws three squares: your picture, the answer key's picture, and the check. The check
+  puts your picture over the key's with <code>.blendMode(.difference)</code>, which stores |yours − key| for each
+  channel. Then <code>markDifference</code> (<code>chapter10/ExerciseCheck.metal</code>) paints a pixel red when that
+  difference is more than 2/255, and dark gray when it is not. <b>A check with no red pixel means your functions give the
+  key's picture.</b> Before you start, the check is red wherever the key has a height.</li>
+</ul>
+<details><summary>Show the answer</summary><div class="body">
+<pre class="code">float roundedRectSd(float2 p, float2 outerHalf, float cornerRadius) {
+    float2 innerHalf = outerHalf - cornerRadius;
+    float2 q = abs(p) - innerHalf;
+    float sdBox;
+    if (q.x &gt; 0.0 &amp;&amp; q.y &gt; 0.0) {
+        sdBox = length(q);                 <span class="cm">// a corner</span>
+    } else if (q.x &gt; 0.0) {
+        sdBox = q.x;                       <span class="cm">// a side</span>
+    } else if (q.y &gt; 0.0) {
+        sdBox = q.y;                       <span class="cm">// the top or the bottom</span>
+    } else {
+        sdBox = max(q.x, q.y);             <span class="cm">// inside the inner box</span>
+    }
+    return sdBox - cornerRadius;
+}
+
+float surfaceHeight(float sd, float bevel) {
+    float inside = clamp(-sd, 0.0, bevel);
+    float leg = bevel - inside;
+    return sqrt(bevel * bevel - leg * leg);
+}</pre>
+<div class="readout cols">innerHalf = (0.30 − 0.10, 0.20 − 0.10) = (0.20, 0.10)
+T1 = (0.50, 0.50): p = (0, 0)
+  q.x = 0 − 0.20 = −0.20,  q.y = 0 − 0.10 = −0.10
+  both ≤ 0 → sdBox = max(−0.20, −0.10) = −0.10
+  sd = −0.10 − 0.10 = −0.20
+  −sd = 0.20 > 0.10 → inside = 0.10,  leg = 0.10 − 0.10 = 0
+  h² = 0.01 − 0 = 0.01,  h = √0.01 = 0.10,  gray 1
+T2 = (0.76, 0.50): p = (0.26, 0)
+  q.x = 0.26 − 0.20 = 0.06,  q.y = 0 − 0.10 = −0.10
+  only q.x > 0 → sdBox = 0.06
+  sd = 0.06 − 0.10 = −0.04 → inside = 0.04
+  leg = 0.10 − 0.04 = 0.06,  leg² = 0.06 × 0.06 = 0.0036
+  h² = 0.01 − 0.0036 = 0.0064,  h = √0.0064 = 0.08
+  gray = 0.08 ÷ 0.10 = 0.80
+T3 = (0.50, 0.33): p = (0, −0.17), abs(p) = (0, 0.17)
+  q.x = 0 − 0.20 = −0.20,  q.y = 0.17 − 0.10 = 0.07
+  only q.y > 0 → sdBox = 0.07
+  sd = 0.07 − 0.10 = −0.03 → inside = 0.03
+  leg = 0.10 − 0.03 = 0.07,  leg² = 0.07 × 0.07 = 0.0049
+  h² = 0.01 − 0.0049 = 0.0051,  h = √0.0051 = 0.071
+  gray = 0.071 ÷ 0.10 = 0.71
+T4 = (0.73, 0.64): p = (0.23, 0.14)
+  q.x = 0.23 − 0.20 = 0.03,  q.y = 0.14 − 0.10 = 0.04
+  both > 0 → a corner
+  q.x² = 0.03 × 0.03 = 0.0009,  q.y² = 0.04 × 0.04 = 0.0016
+  sum = 0.0009 + 0.0016 = 0.0025,  sdBox = √0.0025 = 0.05
+  sd = 0.05 − 0.10 = −0.05 → inside = 0.05
+  leg = 0.10 − 0.05 = 0.05,  leg² = 0.05 × 0.05 = 0.0025
+  h² = 0.01 − 0.0025 = 0.0075,  h = √0.0075 = 0.087
+  gray = 0.087 ÷ 0.10 = 0.87
+T5 = (0.85, 0.50): p = (0.35, 0)
+  q.x = 0.35 − 0.20 = 0.15,  q.y = 0 − 0.10 = −0.10
+  only q.x > 0 → sdBox = 0.15
+  sd = 0.15 − 0.10 = 0.05 → −sd = −0.05 < 0 → inside = 0
+  leg = 0.10 − 0 = 0.10,  h² = 0.01 − 0.01 = 0,  h = 0</div>
+<p><b>Why it works:</b> <code>roundedRectSd</code> is Lesson 9.4 moved into its own function, with the center taken
+out of it: the caller passes <code>p</code>. <code>surfaceHeight</code> is Section 2 without <code>gray</code>. The
+caller joins them, so a new shape needs only a new sd function, and the rim stays a quarter circle everywhere: on the
+sides, at the top and bottom, and around the corners.</p>
+</div></details>
+
+<!-- ============================ SECTION 9 ============================ -->
+<h2 id="s9"><span class="tag">Section 9 · copyable record</span>Take it with you</h2>
+<p>Press <b>Copy</b> and paste the record into your notes.</p>
+<textarea id="record" readonly></textarea>
+<div class="ctl"><button class="btn" id="recBtn">Copy</button><span id="recMsg" class="sub"></span></div>
+
+<div class="navfoot">
+  <a href="../chapter-09/lesson-09-14-lens-checkpoint.html">← Lesson 9.14 — Lens checkpoint</a>
+  <span>Next: Lesson 10.2 — Slope (not created yet)</span>
+</div>
+</div>
+
+<div id="tip" role="dialog" aria-modal="false">
+  <button class="tclose" id="tipClose" aria-label="Close">✕</button>
+  <div id="tipBody"></div>
+</div>
+
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+/* ================= shared math — the same lines as HeightMap.metal ================= */
+const RAD=0.25, BEV=0.10, WP=[0.71,0.50];
+const LES={cx:0.50, cy:0.50, r:RAD, bev:BEV, shape:'circle', prof:'circle'};
+const COL={glass:'#a855f7', fill:'#f3e8ff', cut:'#a3e635', rim:'#06b6d4', leg:'#f59e0b', hh:'#ec4899', ins:'#2563eb', screen:'#334155', row:'#94a3b8', halo:'rgba(17,24,39,0.92)'};
+const MASK0=[0.945,0.961,0.976], MASK1=[0.914,0.835,1.0];        // the mask map: 0 = light gray, 1 = violet
+const clamp=(x,lo,hi)=>Math.min(Math.max(x,lo),hi);
+function sdOf(u,v,P){
+  const px=u-P.cx, py=v-P.cy;
+  if(P.shape==='capsule'){ const nx=clamp(px,-0.20,0.20); return Math.hypot(px-nx,py)-0.20; }   // Lesson 9.5
+  return Math.hypot(px,py)-P.r;
+}
+/* the height for one sd: 'circle' (this lesson), 'ramp' (straight in the side view), 'slab' (the hard if of Lesson 9.2) */
+function heightOf(sd,P){
+  const inside=clamp(-sd,0,P.bev);
+  if(P.prof==='ramp') return inside;
+  if(P.prof==='slab') return sd<0?P.bev:0;
+  const leg=P.bev-inside; return Math.sqrt(Math.max(0,P.bev*P.bev-leg*leg));
+}
+const hAt=(u,v,P)=>heightOf(sdOf(u,v,P),P);
+
+/* ---------- top views: a window of UV space drawn on a canvas ---------- */
+function view(cv,x0,y0,x1){ const s=cv.width/(x1-x0); return {x0,y0,s, X:u=>(u-x0)*s, Y:v=>(v-y0)*s}; }
+function paintPixels(cv,V,colorAt){
+  const W=cv.width, H=cv.height, ctx=cv.getContext('2d'), img=ctx.createImageData(W,H), D=img.data;
+  for(let j=0;j<H;j++){ const v=V.y0+(j+0.5)/V.s;
+    for(let i=0;i<W;i++){ const u=V.x0+(i+0.5)/V.s, o=(j*W+i)*4, c=colorAt(u,v);
+      D[o]=Math.round(c[0]*255); D[o+1]=Math.round(c[1]*255); D[o+2]=Math.round(c[2]*255); D[o+3]=255; } }
+  ctx.putImageData(img,0,0);
+}
+/* the height map: gray = h ÷ bevel; hf (optional) replaces the height line */
+function renderHeight(cv,V,P,hf){
+  paintPixels(cv,V,(u,v)=>{ const sd=sdOf(u,v,P); let g=(hf?hf(sd):heightOf(sd,P))/P.bev;
+    if(!isFinite(g)) return [0.86,0.15,0.47]; g=clamp(g,0,1); return [g,g,g]; });
+}
+/* the lens mask of Lesson 9.14: violet = 1 (glass), light gray = 0 */
+function renderMask(cv,V,P){
+  paintPixels(cv,V,(u,v)=>{ const sd=sdOf(u,v,P), t=clamp((sd+0.002)/0.004,0,1), m=1-t*t*(3-2*t);
+    return [0,1,2].map(k=>MASK0[k]+(MASK1[k]-MASK0[k])*m); });
+}
+/* ---------- side views: the heights along a line on the screen ----------
+   a point of the line is o + t × dir; the picture draws t to the right and the height up, at one scale */
+function cutView(cv,o,dir,t0,t1,hMin,s){
+  s=s||cv.width/(t1-t0); const hMax=hMin+cv.height/s;
+  return {o,dir,t0,t1,s,hMin,hMax, X:t=>(t-t0)*s, Y:h=>(hMax-h)*s, at:t=>[o[0]+dir[0]*t,o[1]+dir[1]*t]};
+}
+/* draw the glass surface along the line; hf (optional) replaces the height line */
+function drawCut(cv,CV,P,opt){
+  opt=opt||{}; const ctx=cv.getContext('2d'), N=cv.width;
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,N,cv.height);
+  const y0=CV.Y(0), pts=[];
+  for(let i=0;i<=N;i++){ const t=CV.t0+i/CV.s, [u,v]=CV.at(t), sd=sdOf(u,v,P);
+    let h=opt.hf?opt.hf(sd):heightOf(sd,P); if(!isFinite(h)) h=NaN; pts.push([i,h,sd]); }
+  if(!opt.flat){
+    ctx.beginPath(); ctx.moveTo(0,y0);
+    for(const [i,h] of pts) ctx.lineTo(i,isNaN(h)?y0:CV.Y(Math.max(h,0)));
+    ctx.lineTo(N,y0); ctx.closePath(); ctx.fillStyle=COL.fill; ctx.fill();
+  }
+  // the height ruler on the left
+  ctx.font='600 13px -apple-system,"Segoe UI",Roboto,sans-serif'; ctx.textBaseline='middle'; ctx.textAlign='left';
+  const label=(t,y)=>{ const w=ctx.measureText(t).width; ctx.fillStyle='rgba(255,255,255,0.92)'; ctx.fillRect(9,y-8,w+4,16); ctx.fillStyle='#4b5563'; ctx.fillText(t,11,y); };
+  for(let h=0.05;CV.Y(h)>30;h=Math.round((h+0.05)*100)/100){ const y=CV.Y(h);
+    ctx.strokeStyle='#9ca3af'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(8,y); ctx.stroke(); }
+  const rulerLabels=()=>{ for(let h=0.05;CV.Y(h)>30;h=Math.round((h+0.05)*100)/100) label(fz(h),CV.Y(h)); label('height',12); };
+  // the screen line
+  ctx.strokeStyle=COL.screen; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(0,y0); ctx.lineTo(N,y0); ctx.stroke();
+  if(opt.flat){ rulerLabels(); return pts; }
+  // the glass surface: the top of the shape, where the pixel is glass or has a height
+  ctx.strokeStyle=COL.glass; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.beginPath(); let on=false;
+  for(const [i,h,sd] of pts){ const g=(sd<=0.0005||h>0)&&!isNaN(h);
+    if(g){ const y=CV.Y(Math.max(h,0)); if(!on){ ctx.moveTo(i,y); on=true; } else ctx.lineTo(i,y); } else on=false; }
+  ctx.stroke();
+  rulerLabels();
+  return pts;
+}
+/* ---------- a view at an angle: every row of the screen lifted by its heights ---------- */
+function drawTilt(cv,P,deg,mark){
+  const ctx=cv.getContext('2d'), Wd=cv.width, Ht=cv.height; ctx.fillStyle='#fff'; ctx.fillRect(0,0,Wd,Ht);
+  const a=deg*Math.PI/180, ca=Math.cos(a), sa=Math.sin(a), m=22, hTop=Math.max(P.bev,0.10), S=Math.min(Wd-2*m,(Ht-2*m)/(ca+hTop*sa));
+  const ox=(Wd-S)/2, top=-0.5*ca-hTop*sa, bot=0.5*ca, oy=(Ht-(bot-top)*S)/2-top*S;
+  const PX=x=>ox+x*S, PY=(y,h)=>oy+((y-0.5)*ca-h*sa)*S;
+  const NR=25, NX=240;
+  for(let j=0;j<=NR;j++){ const y=j/NR, row=[];
+    for(let i=0;i<=NX;i++){ const x=i/NX, sd=sdOf(x,y,P); row.push([x,heightOf(sd,P),sd]); }
+    ctx.beginPath(); ctx.moveTo(PX(0),PY(y,0)); for(const [x,h] of row) ctx.lineTo(PX(x),PY(y,h)); ctx.lineTo(PX(1),PY(y,0)); ctx.closePath();
+    ctx.fillStyle='#fff'; ctx.fill();
+    for(let i=0;i<NX;i++){ const [x1,h1,s1]=row[i], [x2,h2,s2]=row[i+1], g=s1<0||s2<0;
+      ctx.strokeStyle=g?COL.glass:COL.row; ctx.lineWidth=g?1.8:1.1; ctx.beginPath(); ctx.moveTo(PX(x1),PY(y,h1)); ctx.lineTo(PX(x2),PY(y,h2)); ctx.stroke(); }
+  }
+  ctx.strokeStyle=COL.screen; ctx.lineWidth=1.6; ctx.beginPath(); ctx.moveTo(PX(0),PY(0,0)); ctx.lineTo(PX(0),PY(1,0)); ctx.moveTo(PX(1),PY(0,0)); ctx.lineTo(PX(1),PY(1,0)); ctx.stroke();
+  const res={PX,PY,S};
+  if(mark){ const h=hAt(mark[0],mark[1],P); res.H=[PX(mark[0]),PY(mark[1],h)]; res.h=h; }
+  return res;
+}
+
+/* ---------- overlay helpers (solid strokes, dark halo, hues that are not in the picture) ---------- */
+function halo(ctx,draw,color,w){ for(const [lw,c] of [[w+3.5,COL.halo],[w,color]]){ ctx.lineWidth=lw; ctx.strokeStyle=c; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.beginPath(); draw(); ctx.stroke(); } }
+function line(ctx,x1,y1,x2,y2,color,w){ halo(ctx,()=>{ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);},color,w); }
+function ring(ctx,x,y,r,color,w){ halo(ctx,()=>ctx.arc(x,y,r,0,Math.PI*2),color,w); }
+function rrPath(ctx,x,y,w,h,r){ ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+/* a measuring bracket between two x positions (or two y positions when vertical) */
+function bracket(ctx,x1,x2,y,color,w){ halo(ctx,()=>{ ctx.moveTo(x1,y); ctx.lineTo(x2,y); ctx.moveTo(x1,y-7); ctx.lineTo(x1,y+7); ctx.moveTo(x2,y-7); ctx.lineTo(x2,y+7); },color,w||2.5); }
+function tick(ctx,x,y,color){ halo(ctx,()=>{ ctx.moveTo(x,y-9); ctx.lineTo(x,y+9); },color,3); }
+function tag(ctx,n,x,y){ ctx.beginPath(); ctx.arc(x,y,11,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#111827'; ctx.stroke();
+  ctx.font='700 13px -apple-system,"Segoe UI",Roboto,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillStyle='#111827'; ctx.fillText(n,x,y+0.5); }
+/* a label whose ink follows its background: dark ink on light pixels, bright ink with a dark halo on dark pixels */
+const INK=['#111827','#ffffff'], GLS=['#7e22ce','#d8b4fe'], RIM=['#0e7490','#67e8f9'], LEG=['#b45309','#fcd34d'], HH=['#be185d','#f9a8d4'], INS=['#1d4ed8','#93c5fd'], CUT=['#4d7c0f','#bef264'];
+function lbl(ctx,t,x,y,pair,align,size){
+  ctx.font=`600 ${size||15}px -apple-system,"Segoe UI",Roboto,sans-serif`; const w=ctx.measureText(t).width, h=(size||15);
+  const x0=align==='right'?x-w:align==='center'?x-w/2:x;
+  const sx=Math.max(0,Math.floor(x0)), sy=Math.max(0,Math.floor(y-h/2)), sw=Math.max(1,Math.min(ctx.canvas.width-sx,Math.ceil(w))), sh=Math.max(1,Math.min(ctx.canvas.height-sy,h));
+  const d=ctx.getImageData(sx,sy,sw,sh).data; let L=0,n=0;
+  for(let i=0;i<d.length;i+=16){ L+=0.2126*d[i]+0.7152*d[i+1]+0.0722*d[i+2]; n++; }
+  const light=n?L/n/255>0.5:true;
+  ctx.textAlign=align||'left'; ctx.textBaseline='middle';
+  ctx.lineWidth=4.5; ctx.strokeStyle=light?'rgba(255,255,255,0.95)':COL.halo; ctx.strokeText(t,x,y);
+  ctx.fillStyle=light?pair[0]:pair[1]; ctx.fillText(t,x,y);
+}
+/* a label on a light plate, for places where the label crosses light and dark pixels or lines */
+function plate(ctx,t,x,y,size,align){
+  ctx.font=`600 ${size||14}px -apple-system,"Segoe UI",Roboto,sans-serif`; const w=ctx.measureText(t).width, h=(size||14)+8;
+  const x0=align==='right'?x-w:align==='center'?x-w/2:x;
+  ctx.fillStyle='rgba(255,255,255,0.94)'; ctx.strokeStyle='#111827'; ctx.lineWidth=1.2;
+  ctx.beginPath(); rrPath(ctx,x0-6,y-h/2,w+12,h,5); ctx.fill(); ctx.stroke();
+  ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillStyle='#111827'; ctx.fillText(t,x0,y);
+}
+const rgb=c=>`rgb(${Math.round(c[0]*255)},${Math.round(c[1]*255)},${Math.round(c[2]*255)})`;
+const grayCss=g=>rgb([g,g,g]);
+
+/* ---------- number formatting: exact up to 4 decimals is kept, else 3 decimals ---------- */
+function f(x){
+  const r4=Math.round(x*1e4)/1e4; let s;
+  if(Math.abs(x-r4)<1e-9){ s=r4.toFixed(4).replace(/0+$/,''); if(s.endsWith('.')) s+='00'; else if(/\.\d$/.test(s)) s+='0'; }
+  else s=(Math.round(x*1e3)/1e3).toFixed(3);
+  if(/^-0\.0+$/.test(s)) s=s.slice(1);
+  return s.replace('-','−');
+}
+const V3=x=>Number(f(x).replace('−','-'));
+const fz=x=>{ const t=V3(x); return Number.isInteger(t)?String(t).replace('-','−'):f(x); };   // whole numbers without decimals
+const pt=(u,v)=>`(${f(u)}, ${f(v)})`;
+
+/* ---------- a trace: one operation per line, every line rounded the same way (as TraceLines.swift) ----------
+   a result that is exact with at most 4 decimals stays exact; a square that feeds a √ stays exact;
+   a nonzero result below 0.01 keeps 3 significant digits; anything else is rounded half up to 3 decimals.
+   The next line uses the shown value. */
+const R12=x=>Math.round(x*1e12)/1e12;
+function Trace(){ this.lines=[]; this.dec=new Map(); }
+Trace.prototype.shown=function(v){
+  v=R12(v); if(v===0) return 0;
+  if(R12(Math.round(v*1e4)/1e4)===v) return v;
+  const a=Math.abs(v); let dec=3;
+  if(a<0.01){ let q=a, z=0; while(q<0.1){ q*=10; z++; } dec=z+3; }
+  const k=10**dec, r=R12(Math.sign(v)*Math.round(a*k+1e-9)/k); this.dec.set(r,dec); return r;
+};
+Trace.prototype.t=function(v){
+  v=R12(v); if(v===0) return '0';
+  const neg=v<0, a=Math.abs(v); let s;
+  if(this.dec.has(v)) s=a.toFixed(this.dec.get(v));
+  else { s=String(R12(a)); if(s.includes('e')) s=a.toFixed(8).replace(/0+$/,''); if(/\.\d$/.test(s)) s+='0'; }
+  return (neg?'−':'')+s;
+};
+Trace.prototype.o=function(v){ return R12(v)<0?`(${this.t(v)})`:this.t(v); };
+Trace.prototype.add=function(n,a,b,exact){ const r=exact?R12(a+b):this.shown(a+b); this.lines.push(`${n} = ${this.t(a)} + ${this.o(b)} = ${this.t(r)}`); return r; };
+Trace.prototype.sub=function(n,a,b){ const r=this.shown(a-b); this.lines.push(`${n} = ${this.t(a)} − ${this.o(b)} = ${this.t(r)}`); return r; };
+Trace.prototype.subx=function(n,a,b){ const r=R12(a-b); this.lines.push(`${n} = ${this.t(a)} − ${this.o(b)} = ${this.t(r)}`); return r; };
+Trace.prototype.mul=function(n,a,b){ const r=this.shown(a*b); this.lines.push(`${n} = ${this.o(a)} × ${this.o(b)} = ${this.t(r)}`); return r; };
+Trace.prototype.div=function(n,a,b){ const r=this.shown(a/b); this.lines.push(`${n} = ${this.t(a)} ÷ ${this.o(b)} = ${this.t(r)}`); return r; };
+Trace.prototype.sq=function(n,a){ const r=R12(a*a); this.lines.push(`${n} = ${this.o(a)} × ${this.o(a)} = ${this.t(r)}`); return r; };
+Trace.prototype.root=function(n,a){ const raw=Math.sqrt(a), c=Math.round(raw*1e6)/1e6; const r=R12(c*c)===R12(a)?R12(c):this.shown(raw);
+  this.lines.push(`${n} = √${this.t(a)} = ${this.t(r)}`); return r; };
+Trace.prototype.note=function(s){ this.lines.push(s); };
+
+/* the chain for one pixel of the circle, as the shader runs it */
+function traceCircle(u,v,P,name){
+  const T=new Trace(); name=name||'W';
+  T.note(`${name} = (${f(u)}, ${f(v)}), C = (${f(P.cx)}, ${f(P.cy)})`); T.note(`radius = ${f(P.r)}, bevel = ${f(P.bev)}`);
+  const px=T.sub('p.x',u,P.cx), py=T.sub('p.y',v,P.cy);
+  const px2=T.sq('p.x²',px), py2=T.sq('p.y²',py), sum=T.add('sum',px2,py2,true), d=T.root('d',sum);
+  const sd=T.sub('sd',d,P.r);
+  const neg=R12(-sd); T.note(`−sd = −${T.o(sd)} = ${T.t(neg)}`);
+  let inside;
+  if(neg<0){ inside=0; T.note(`clamp: ${T.t(neg)} < 0 → inside = 0`); }
+  else if(neg>P.bev){ inside=P.bev; T.note(`clamp: ${T.t(neg)} > ${T.t(P.bev)} → inside = ${T.t(P.bev)}`); }
+  else { inside=neg; T.note(`clamp: 0 ≤ ${T.t(neg)} ≤ ${T.t(P.bev)} → inside = ${T.t(neg)}`); }
+  const leg=T.subx('leg',P.bev,inside);
+  const b2=T.sq('bevel²',P.bev), l2=T.sq('leg²',leg), h2=T.subx('h²',b2,l2), h=T.root('h',h2);
+  const g=T.div('gray',h,P.bev);
+  T.note(`→ ${name} stores (${T.t(g)}, ${T.t(g)}, ${T.t(g)})`);
+  return {lines:T.lines, sd, inside, leg, h, g};
+}
+
+/* ================= tooltip system (click, Enter/Space, ✕, outside click, Escape, kept inside the window) ================= */
+const tipEl=$('tip'), tipBody=$('tipBody');
+const tipStore=new Map(); let suppressClick=false;
+function setTip(el,html){ el.classList.add('tk'); tipStore.set(el,html); if(!el.hasAttribute('tabindex')) el.setAttribute('tabindex','0'); }
+function showTip(el){
+  const html=typeof tipStore.get(el)==='function'?tipStore.get(el)():tipStore.get(el); if(!html) return;
+  tipBody.innerHTML=html; tipEl.classList.toggle('wide',!!tipBody.querySelector('pre')); tipEl.classList.add('open');
+  const r=el.getBoundingClientRect(); tipEl.style.left='0px'; tipEl.style.top='0px';
+  const tw=tipEl.offsetWidth, th=tipEl.offsetHeight;
+  let L=r.right+10, T=r.top-8;
+  if(L+tw>innerWidth-10) L=r.left-tw-10;
+  if(L<8) L=8;
+  if(T+th>innerHeight-10) T=innerHeight-th-10;
+  if(T<8) T=8;
+  tipEl.style.left=L+'px'; tipEl.style.top=T+'px';
+}
+function hideTip(){ tipEl.classList.remove('open'); }
+document.addEventListener('click',e=>{
+  if(suppressClick){ suppressClick=false; e.stopPropagation(); return; }
+  const t=e.target.closest('.tk');
+  if(t){ e.stopPropagation(); showTip(t); return; }
+  if(!e.target.closest('#tip')) hideTip();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ hideTip(); return; }
+  if((e.key==='Enter'||e.key===' ') && e.target.classList && e.target.classList.contains('tk')){ e.preventDefault(); showTip(e.target); }
+});
+$('tipClose').addEventListener('click',e=>{ e.stopPropagation(); hideTip(); });
+
+/* a clickable point on a canvas stage */
+function addPt(stage,x,y,color,html,label,cls){
+  const b=document.createElement('button'); b.className='ptdot'+(cls?' '+cls:'');
+  b.style.left=x+'px'; b.style.top=y+'px'; b.style.background=color;
+  if(/^(#000|#000000|rgb\(0,\s*0,\s*0\))$/.test(color)) b.style.borderColor='#ffffff';
+  b.setAttribute('aria-label',label); stage.appendChild(b); setTip(b,html); return b;
+}
+const clearPts=stage=>stage.querySelectorAll('.ptdot').forEach(b=>b.remove());
+
+/* ================= ⓘ reminders and provenance ================= */
+const TIPS={
+  mask:'<b>The lens mask</b> — a reminder from Lesson 9.14.<br><code>mask = 1 − smoothstep(−maskBand, maskBand, sd)</code> is 1 inside the outline and 0 outside. It says only <i>whether</i> a pixel is glass: every glass pixel gets the same 1, at the outline and at the center alike.',
+  bevel:'<b>bevel = 0.10</b><br>From: a chosen constant of this lesson, in UV. It is the width of the rounded rim and the radius of the rim circle, so it is also the height of the flat top.<br>Why 0.10: it is less than the radius 0.25, so a flat top of radius 0.25 − 0.10 = 0.15 remains, and on a 360-pt iPhone panel the rim is 0.10 × 360 = 36 pt wide, easy to see.<br>Used by: inside, leg, h, gray.',
+  sd:'<b>sd — signed distance</b>, Lesson 9.2.<br>sd = d − radius: minus inside the circle, 0 on the outline, plus outside. For a pixel inside, −sd is how far it is inside the outline.',
+  clamp:'<b>clamp(x, lo, hi)</b> — a reminder from Lessons 8.11 and 9.12.<br>It gives x itself when x is between lo and hi, lo when x is smaller, and hi when x is larger.',
+  pyth:'<b>The right triangle of Lesson 9.1</b><br>leg² + leg² = long side². Here the long side (bevel = 0.10) and one leg (leg = 0.06) are known, so the other leg² = long side² − known leg²:<pre>h² = 0.10 × 0.10 − 0.06 × 0.06\n   = 0.01 − 0.0036\n   = 0.0064\nh  = √0.0064 = 0.08\ncheck: 0.0036 + 0.0064 = 0.01 = 0.10 × 0.10</pre>',
+  length:'<b>length(p) = √(p.x² + p.y²)</b> — a reminder from Lesson 9.1: the long side of a right triangle whose legs are p.x and p.y.',
+  radius:'<b>radius = 0.25</b><br>From: a chosen constant, Lesson 9.2. The radius of the glass circle, in UV.<br>Used by: sd = d − radius.',
+  center:'<b>The glass center C = (0.50, 0.50)</b>, in UV, the middle of the screen, as in Lesson 9.11.',
+  unit:'<b>Heights in UV</b><br>A height of 0.10 is as long as 0.10 of the screen width. One unit for positions and heights lets the side view draw both at one scale, and lets Lesson 10.2 compare a change of height with a step across the screen.<br><b>Not the height of a box:</b> in Lesson 2.4, height = bottom − top is the size of a rectangle on the screen. The surface height h is how high the glass stands above one pixel, out of the screen.',
+  capsule:'<b>The capsule sd</b> — a reminder from Lesson 9.5.<pre>inner segment: x from −0.20 to +0.20, y = 0 (around C)\nnearestX = clamp(p.x, −0.20, 0.20)\nsd = length(p − (nearestX, 0)) − 0.20</pre>nearestX is the x of the point of the inner segment closest to p. 0.20 is the radius of the round ends: half of the height 0.40.'
+};
+document.querySelectorAll('.info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip]));
+
+const TIP_T=(name,u,v,role)=>`<b>${name} = ${pt(u,v)}</b>, in UV, on the screen<br>Role: ${role}`;
+const TIP_S=(name,x,h,role,along)=>`<b>${name}: ${along||'x'} = ${f(x)}, height = ${fz(h)}</b>, in UV<br>Side view along ${along==='y'?'the line x = 0.50':'the line y = 0.50'}.<br>Role: ${role}`;
+const TIP_C=`<b>C = (0.50, 0.50)</b>, in UV, on the screen<br>Role: the center of the glass (radius 0.25).`;
+
+/* ================= hero ================= */
+(function(){
+  const cT=$('heroT'), sT=$('heroTStage'), VT=view(cT,0,0,1);
+  renderHeight(cT,VT,LES); const ct=cT.getContext('2d');
+  ring(ct,VT.X(0.5),VT.Y(0.5),RAD*VT.s,COL.glass,2.5);
+  lbl(ct,'C',VT.X(0.5)+12,VT.Y(0.5)-12,INK); lbl(ct,'W',VT.X(WP[0])+2,VT.Y(WP[1])-18,INK,'center');
+  plate(ct,'outside the glass: height 0, black',VT.X(0.03),VT.Y(0.06));
+  plate(ct,'the flat top: height 0.10, white',VT.X(0.27),VT.Y(0.94));
+  addPt(sT,VT.X(0.5),VT.Y(0.5),COL.glass,TIP_C,'C, the center of the glass','sm');
+  addPt(sT,VT.X(WP[0]),VT.Y(WP[1]),grayCss(0.8),TIP_T('W',WP[0],WP[1],'one pixel, 0.04 inside the outline. Its height is 0.08, so it stores gray 0.80.'),'W, one pixel','sm');
+  const cO=$('heroO'), sO=$('heroOStage'), sl=$('heroTilt'), out=$('heroTiltV');
+  function draw(){
+    const deg=Number(sl.value); out.textContent=deg+'°';
+    const r=drawTilt(cO,LES,deg,WP); const co=cO.getContext('2d');
+    clearPts(sO);
+    lbl(co,'H',r.H[0]+12,r.H[1]-12,HH);
+    plate(co,deg===0?'0°: straight down, the glass looks flat':`${deg}°: the rows rise where the glass is`,14,26);
+    lbl(co,`1 UV = ${Math.round(r.S)} px across; the picture is scaled to fit`,cO.width-12,cO.height-14,INK,'right',13);
+    addPt(sO,r.H[0],r.H[1],COL.hh,`<b>H</b>: the surface straight above W = (0.71, 0.50)<br>Its height: 0.08, in UV.<br>Drawn at the view angle ${deg}°: the page lifts it by 0.08 × sin(${deg}°) of the picture size.`,'H, the surface above W','xs');
+  }
+  sl.addEventListener('input',draw); draw();
+})();
+
+/* ================= section 1: the stepper ================= */
+(function(){
+  const cT=$('s1T'), sT=$('s1TStage'), cS=$('s1S'), sS=$('s1SStage');
+  const VT=view(cT,0.20,0.20,0.80);
+  const CV=cutView(cS,[0,0.50],[1,0],0.20,0.80,-0.085);
+  const L=0.25, O=0.75, K=0.65, Kl=0.35, W=0.71, HW=0.08, Q=0.78;
+  const CAP=[
+    `<b>Step 1 · Look at the screen from its side.</b> The left picture is the screen from above, with the glass of
+     Chapter 9: violet means glass (the mask<button class="info" data-tip="mask">ⓘ</button>). The right picture is the
+     lime line y = 0.50, seen from the side: the screen is a flat line, height 0. L and O are where the lime line
+     crosses the outline.`,
+    `<b>Step 2 · Give the glass a height.</b> Pretend the glass is a raised piece, like a wide drop of water on a
+     table: a flat top and a rounded rim. The <b>surface height</b> h of a pixel is how high the glass is above it, in
+     UV<button class="info" data-tip="unit">ⓘ</button>. The flat top is 0.10 high. At the outline h = 0.`,
+    `<b>Step 3 · The rim is a quarter circle.</b> The rounded rim is a quarter of the cyan <b>rim circle</b>: center
+     K, radius <code>bevel = 0.10</code><button class="info" data-tip="bevel">ⓘ</button>. K is 0.10 inside the
+     outline. Past K, toward C, the top is flat: it starts at F.`,
+    `<b>Step 4 · How far W is inside the outline.</b> <b>inside</b> is the distance from W to the outline. It is
+     −sd<button class="info" data-tip="sd">ⓘ</button>, so inside = 0.04. <b>leg</b> is the distance from K to W:
+     bevel − inside = 0.06.`,
+    `<b>Step 5 · The height above W.</b> H is the surface straight above W. K, W and H make a right triangle
+     (Lesson 9.1<button class="info" data-tip="pyth">ⓘ</button>): the legs are 0.06 and h, and the long side is 0.10, a
+     radius of the rim circle. So h² = 0.10² − 0.06², and <b>h = 0.08</b>.`,
+    `<b>Step 6 · On the flat top, and outside the glass.</b> inside is limited to 0 … bevel
+     (clamp<button class="info" data-tip="clamp">ⓘ</button>). On the flat top, as above C, inside = 0.10, so leg = 0
+     and h = 0.10. Outside, as at Q, inside = 0, so leg = 0.10 and h = 0.`,
+    `<b>Step 7 · Every pixel: the height map.</b> The shader stores gray = h ÷ bevel: black for height 0, white for
+     the flat top. This gray picture is the <b>height map</b>. W stores 0.08 ÷ 0.10 = 0.80. The screen stays flat:
+     h is only a number that the next lessons use.`
+  ];
+  const head='<tr><th style="width:190px">Name</th><th>Numbers (one operation per “=”)</th><th style="width:330px">What it is</th></tr>';
+  const TAB=[
+    [['C','C = (0.50, 0.50), radius = 0.25','the center of the glass'],['L','L.x = 0.50 − 0.25 = 0.25','the outline, left of C'],['O','O.x = 0.50 + 0.25 = 0.75','the outline, right of C'],['W','W = (0.71, 0.50)','one pixel, on the lime line']],
+    [['h on the flat top','h = 0.10','the most: the top of the glass'],['h at O','h = 0','the outline: the glass ends'],['unit','UV: 0.10 is 0.10 of the screen width','the same unit as x']],
+    [['bevel','bevel = 0.10','the width of the rim, and the radius of the rim circle'],['K','K.x = O.x − bevel = 0.75 − 0.10 = 0.65','the center of the rim circle, on the screen line'],['F','F = (x 0.65, height 0.10)','straight above K: the flat top starts']],
+    [['d','d = W.x − C.x = 0.71 − 0.50 = 0.21','W is on the line through C'],['sd','sd = d − radius = 0.21 − 0.25 = −0.04','minus: W is inside the glass'],['inside','inside = −sd = −(−0.04) = 0.04','from W to O'],['leg','leg = bevel − inside = 0.10 − 0.04 = 0.06','from K to W']],
+    [['bevel²','bevel² = 0.10 × 0.10 = 0.01','the long side KH, squared'],['leg²','leg² = 0.06 × 0.06 = 0.0036','the leg KW, squared'],['h²','h² = 0.01 − 0.0036 = 0.0064','the leg WH, squared'],['h','h = √0.0064 = 0.08','the surface height above W']],
+    [['above C','d = 0 (the center)<br>sd = 0 − 0.25 = −0.25<br>−sd = 0.25: more than 0.10 → clamp → inside = 0.10<br>leg = 0.10 − 0.10 = 0<br>h² = 0.01 − 0 = 0.01<br>h = √0.01 = 0.10','the flat top: every pixel at least 0.10 inside the outline'],['Q = (0.78, 0.50)','d = 0.78 − 0.50 = 0.28<br>sd = 0.28 − 0.25 = 0.03<br>−sd = −0.03: less than 0 → clamp → inside = 0<br>leg = 0.10 − 0 = 0.10<br>h² = 0.01 − 0.01 = 0<br>h = √0 = 0','outside the glass: every pixel past the outline']],
+    [['W','gray = 0.08 ÷ 0.10 = 0.80','light gray'],['C','gray = 0.10 ÷ 0.10 = 1','white: the flat top'],['Q','gray = 0 ÷ 0.10 = 0','black: outside the glass']]
+  ];
+  const LEG=[
+    ['mask','the mask (left): violet = glass, light gray = not glass'],
+    ['outline','the violet circle (left): the outline, radius 0.25'],
+    ['cut','the lime line (left): y = 0.50, the line the side view shows'],
+    ['screen','the dark line (right): the screen, height 0'],
+    ['surface','the violet surface (right): the glass seen from the side'],
+    ['rim','the cyan rim circle: center K, radius bevel = 0.10'],
+    ['bev','the black bracket: the bevel, from K to O'],
+    ['ins','the blue bracket: inside, from W to O'],
+    ['legb','the amber bracket: leg, from K to W'],
+    ['tri','the triangle K–W–H: amber leg KW, pink leg WH = h, cyan long side KH'],
+    ['gray','the height map (left) and the gray strip (right): gray = h ÷ bevel, black 0 … white 1']
+  ];
+  const SW={mask:'<span class="sw mask"></span>',outline:'<span class="swl" style="background:#a855f7"></span>',cut:'<span class="swl" style="background:#a3e635"></span>',
+    screen:'<span class="swl" style="background:#334155"></span>',surface:'<span class="swl" style="background:#a855f7"></span>',rim:'<span class="swl" style="background:#06b6d4"></span>',
+    bev:'<span class="swl" style="background:#334155"></span>',ins:'<span class="swl" style="background:#2563eb"></span>',legb:'<span class="swl" style="background:#f59e0b"></span>',
+    tri:'<span class="swl" style="background:linear-gradient(90deg,#f59e0b 0 33%,#ec4899 33% 66%,#06b6d4 66%)"></span>',gray:'<span class="sw gray"></span>'};
+  const ON=[
+    ['mask','outline','cut','screen'],
+    ['mask','outline','cut','screen','surface'],
+    ['mask','outline','cut','screen','surface','rim','bev'],
+    ['mask','outline','cut','screen','surface','rim','ins','legb'],
+    ['mask','outline','cut','screen','surface','rim','ins','legb','tri'],
+    ['mask','outline','cut','screen','surface','rim','tri'],
+    ['gray','outline','cut','screen','surface','tri']
+  ];
+  let step=0;
+  const dots=$('stDots');
+  CAP.forEach((_,k)=>{ const b=document.createElement('button'); b.className='dot'; b.setAttribute('aria-label','Step '+(k+1));
+    b.onclick=()=>{ step=k; draw(); }; dots.appendChild(b); });
+  function draw(){
+    clearPts(sT); clearPts(sS);
+    /* ---- top view ---- */
+    if(step===6) renderHeight(cT,VT,LES); else renderMask(cT,VT,LES);
+    const ct=cT.getContext('2d');
+    line(ct,0,VT.Y(0.5),cT.width,VT.Y(0.5),COL.cut,2.5);
+    ring(ct,VT.X(0.5),VT.Y(0.5),RAD*VT.s,COL.glass,2.5);
+    lbl(ct,'C',VT.X(0.5)-10,VT.Y(0.5)-14,INK,'right'); lbl(ct,'W',VT.X(W),VT.Y(0.5)-18,INK,'center');
+    if(step<=1) lbl(ct,'O',VT.X(O)+2,VT.Y(0.5)+20,INK,'center');
+    if(step===5||step===6) lbl(ct,'Q',VT.X(Q)-2,VT.Y(0.5)+20,INK,'center');
+    lbl(ct,'y = 0.50',VT.X(0.29),VT.Y(0.5)+16,CUT,'left',14);
+    addPt(sT,VT.X(0.5),VT.Y(0.5),COL.glass,TIP_C,'C','sm');
+    const wFill=step===6?grayCss(0.8):'#fff';
+    addPt(sT,VT.X(W),VT.Y(0.5),wFill,TIP_T('W',W,0.5,'one pixel of the screen, on the lime line.'+(step===6?' It stores gray 0.80.':'')),'W','sm');
+    if(step<=1) addPt(sT,VT.X(O),VT.Y(0.5),'#fff',TIP_T('O',O,0.5,'the point where the lime line crosses the outline, right of C.'),'O','xs');
+    if(step===5||step===6) addPt(sT,VT.X(Q),VT.Y(0.5),step===6?'#000':'#fff',TIP_T('Q',Q,0.5,'a pixel outside the glass, 0.03 past the outline.'+(step===6?' It stores gray 0.':'')),'Q','xs');
+    /* ---- side view ---- */
+    drawCut(cS,CV,LES,{flat:step===0});
+    const cx=cS.getContext('2d'), y0=CV.Y(0);
+    lbl(cx,'the screen, height 0',CV.X(0.30),y0+18,INK,'left',14);
+    tick(cx,CV.X(L),y0,COL.glass); tick(cx,CV.X(O),y0,COL.glass);
+    lbl(cx,'L',CV.X(L),y0+20,GLS,'center'); lbl(cx,'O',CV.X(O)+16,y0+18,GLS,'center');
+    if(step===0) lbl(cx,'the glass of Chapter 9: no height',CV.X(0.50),y0-44,GLS,'center',14);
+    if(step>=1) lbl(cx,'the flat top, height 0.10',CV.X(0.50),CV.Y(0.10)-16,GLS,'center',14);
+    if(step===1) lbl(cx,'the rounded rim →',CV.X(0.70),CV.Y(0.075),GLS,'right',14);
+    if(step>=2){
+      halo(cx,()=>cx.arc(CV.X(K),y0,BEV*CV.s,Math.PI,0),COL.rim,2.5);
+      lbl(cx,'rim circle',CV.X(0.585),CV.Y(0.058),RIM,'right',14);
+      lbl(cx,'K',CV.X(K)-12,y0-14,RIM,'right');
+      lbl(cx,'F',CV.X(K)-14,CV.Y(0.10)-14,GLS,'right');
+    }
+    if(step===2){ bracket(cx,CV.X(K),CV.X(O),CV.Y(0.145),COL.screen,2.5); lbl(cx,'bevel = 0.10',CV.X(0.70),CV.Y(0.145)-16,INK,'center',14);
+      lbl(cx,'the flat top starts',CV.X(K)+10,CV.Y(0.10)-16,GLS,'left',14); }
+    if(step===3||step===4){
+      bracket(cx,CV.X(K),CV.X(W),y0+38,COL.leg); lbl(cx,'leg = 0.06',CV.X(0.68),y0+56,LEG,'center',14);
+      bracket(cx,CV.X(W),CV.X(O),y0+74,COL.ins); lbl(cx,'inside = 0.04',CV.X(0.73),y0+92,INS,'center',14);
+    }
+    if(step>=4){
+      line(cx,CV.X(K),y0,CV.X(W),CV.Y(HW),COL.rim,3);
+      line(cx,CV.X(W),y0,CV.X(W),CV.Y(HW),COL.hh,3);
+      line(cx,CV.X(K),y0,CV.X(W),y0,COL.leg,3);
+      cx.strokeStyle='#111827'; cx.lineWidth=1.5; cx.strokeRect(CV.X(W)-10,y0-10,10,10);
+      plate(cx,'h = 0.08',CV.X(W)+8,CV.Y(0.045),14,'left');
+      lbl(cx,'0.10',CV.X(0.672),CV.Y(0.052),RIM,'right',14);
+      lbl(cx,'H',CV.X(W)+12,CV.Y(HW)-12,HH,'left');
+    }
+    if(step===5){ lbl(cx,'above C: h = 0.10',CV.X(0.50),CV.Y(0.10)+18,INK,'center',14);
+      lbl(cx,'Q: h = 0',cS.width-6,y0+40,INK,'right',14); }
+    if(step===6){
+      for(let i=0;i<cS.width;i++){ const t=CV.t0+i/CV.s, g=hAt(t,0.5,LES)/BEV; cx.fillStyle=grayCss(g); cx.fillRect(i,y0+30,1,22); }
+      cx.strokeStyle='#111827'; cx.lineWidth=1.2; cx.strokeRect(0.5,y0+30,cS.width-1,22);
+      lbl(cx,'the pixels of the lime line, stored as gray',CV.X(0.21),y0+66,INK,'left',14);
+    }
+    /* side-view points */
+    addPt(sS,CV.X(0.5),y0,COL.glass,TIP_S('C',0.5,0,'the center of the glass, on the screen.'),'C','sm');
+    addPt(sS,CV.X(W),y0,step===6?grayCss(0.8):'#fff',TIP_S('W',W,0,'the pixel W, on the screen.'+(step>=3?' 0.04 inside the outline.':'')),'W','sm');
+    addPt(sS,CV.X(L),y0,'#fff',TIP_S('L',L,0,'the outline, left of C.'),'L','xs');
+    addPt(sS,CV.X(O),y0,'#fff',TIP_S('O',O,0,'the outline, right of C: inside = 0 and h = 0 here.'),'O','xs');
+    if(step>=2){ addPt(sS,CV.X(K),y0,COL.rim,TIP_S('K',K,0,'the center of the rim circle, bevel = 0.10 inside the outline.'),'K','xs');
+      addPt(sS,CV.X(K),CV.Y(0.10),COL.glass,TIP_S('F',K,0.10,'straight above K: the point where the flat top starts.'),'F','xs'); }
+    if(step>=4) addPt(sS,CV.X(W),CV.Y(HW),COL.hh,TIP_S('H',W,HW,'the surface straight above W. KH = 0.10, a radius of the rim circle.'),'H','xs');
+    if(step===5){ addPt(sS,CV.X(0.5),CV.Y(0.10),COL.glass,TIP_S('the top above C',0.5,0.10,'the flat top: inside = 0.10, leg = 0, h = 0.10.'),'the top above C','xs');
+      addPt(sS,CV.X(Q),y0,'#fff',TIP_S('Q',Q,0,'a pixel outside the glass: inside = 0, leg = 0.10, h = 0.'),'Q','xs'); }
+    lbl(cx,'C',CV.X(0.5)+12,y0-14,INK,'left'); lbl(cx,'W',CV.X(W)-12,y0+18,INK,'right');
+    /* the table, the legend, the caption */
+    $('s1Tab').innerHTML=head+TAB[step].map(r=>`<tr><td><b>${r[0]}</b></td><td class="f">${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+    $('s1Leg').innerHTML=ON[step].map(k=>{ const e=LEG.find(x=>x[0]===k); return `<li>${SW[k]}${e[1]}</li>`; }).join('');
+    $('stCap').innerHTML=CAP[step]+`<div style="margin-top:8px;color:#6b7280;font-size:13.5px">Step ${step+1} of ${CAP.length}</div>`;
+    document.querySelectorAll('#stCap .info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip]));
+    [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===step));
+    $('stPrev').disabled=step===0; $('stNext').disabled=step===CAP.length-1;
+  }
+  $('stPrev').onclick=()=>{ if(step>0){step--;draw();} };
+  $('stNext').onclick=()=>{ if(step<CAP.length-1){step++;draw();} };
+  draw();
+})();
+
+/* ================= section 2: why a round rim ================= */
+(function(){
+  const cS=$('cmpS'), sS=$('cmpSStage'), cT=$('cmpT'), sT=$('cmpTStage');
+  const CV=cutView(cS,[0,0.50],[1,0],0.20,0.80,-0.085), VT=view(cT,0.20,0.20,0.80);
+  const K=0.65, O=0.75, W=0.71;
+  let prof='circle';
+  const TXT={
+    slab:`flat slab: h = sd < 0 ? bevel : 0
+  (the hard if of Lesson 9.2)
+at W: sd = −0.04 < 0 → h = 0.10
+At O the height jumps from 0 to 0.10
+between two neighbouring pixels:
+a wall 0.10 tall and 0 wide (tag ①).
+The height map is the mask again:
+one white disc.`,
+    ramp:`straight ramp: h = inside
+  (straight in the side view)
+at W: h = 0.04
+quarter circle at W: h = 0.08
+gap at W = 0.08 − 0.04 = 0.04 (the bracket)
+The ramp meets the flat top in a corner
+at F (tag ②), and the screen in a corner
+at O (tag ③).`,
+    circle:`quarter circle: h = √(bevel² − leg²)
+at W: h = 0.08
+At F the rim joins the flat top with
+no corner: F is the top point of the
+rim circle, where the circle is level.
+At O the rim meets the screen
+standing straight up.`
+  };
+  const LEGS={
+    slab:[['<span class="swl" style="background:#a855f7"></span>','the violet surface: the flat slab'],['<span class="swt">1</span>','tag ①: the wall at O, 0.10 tall']],
+    ramp:[['<span class="swl" style="background:#a855f7"></span>','the violet surface: the straight ramp'],['<span class="swl" style="background:#06b6d4"></span>','the cyan curve: the quarter circle, for comparison'],['<span class="swl" style="background:#ec4899"></span>','the pink bracket: the gap at W, 0.04'],['<span class="swt">2</span>','tags ② and ③: the corners at F and at O']],
+    circle:[['<span class="swl" style="background:#a855f7"></span>','the violet surface: the quarter circle, this lesson'],['<span class="swl" style="background:#06b6d4"></span>','the cyan rim circle: center K, radius 0.10']]
+  };
+  function draw(){
+    clearPts(sS); clearPts(sT);
+    const P={...LES,prof};
+    drawCut(cS,CV,P); const cx=cS.getContext('2d'), y0=CV.Y(0);
+    lbl(cx,'the screen, height 0',CV.X(0.30),y0+18,INK,'left',14);
+    tick(cx,CV.X(0.25),y0,COL.glass); tick(cx,CV.X(O),y0,COL.glass);
+    lbl(cx,'L',CV.X(0.25),y0+20,GLS,'center'); lbl(cx,'O',CV.X(O)+16,y0+18,GLS,'center');
+    if(prof==='slab'){ tag(cx,'1',CV.X(O)+24,CV.Y(0.06)); lbl(cx,'wall',CV.X(O)+24,CV.Y(0.06)+22,INK,'center',14); }
+    if(prof==='ramp'){
+      cx.save(); cx.lineWidth=2; cx.strokeStyle=COL.rim; cx.beginPath(); cx.arc(CV.X(K),y0,BEV*CV.s,-Math.PI/2,0); cx.stroke(); cx.restore();
+      tag(cx,'2',CV.X(K)-2,CV.Y(0.10)-26); tag(cx,'3',CV.X(O)+26,y0-18);
+      halo(cx,()=>{ cx.moveTo(CV.X(W)+12,CV.Y(0.04)); cx.lineTo(CV.X(W)+12,CV.Y(0.08)); cx.moveTo(CV.X(W)+6,CV.Y(0.04)); cx.lineTo(CV.X(W)+18,CV.Y(0.04)); cx.moveTo(CV.X(W)+6,CV.Y(0.08)); cx.lineTo(CV.X(W)+18,CV.Y(0.08)); },COL.hh,2.5);
+      plate(cx,'0.04',CV.X(W)+24,CV.Y(0.06),14,'left');
+      lbl(cx,'F',CV.X(K)-16,CV.Y(0.10)-6,GLS,'right');
+    }
+    if(prof==='circle'){ halo(cx,()=>cx.arc(CV.X(K),y0,BEV*CV.s,Math.PI,0),COL.rim,2.5); lbl(cx,'K',CV.X(K)-12,y0-14,RIM,'right'); lbl(cx,'F',CV.X(K)-14,CV.Y(0.10)-14,GLS,'right'); }
+    const hw=heightOf(sdOf(W,0.5,P),P);
+    addPt(sS,CV.X(W),y0,'#fff',TIP_S('W',W,0,'the pixel W, 0.04 inside the outline.'),'W','sm');
+    addPt(sS,CV.X(W),CV.Y(hw),COL.hh,TIP_S('H',W,hw,`the surface above W with this rim shape: height ${fz(hw)}.`),'H','xs');
+    addPt(sS,CV.X(O),y0,'#fff',TIP_S('O',O,0,'the outline, right of C.'),'O','xs');
+    lbl(cx,'W',CV.X(W)-12,y0+18,INK,'right'); lbl(cx,'H',CV.X(W)-10,CV.Y(hw)-14,HH,'right');
+    if(prof!=='slab'){ addPt(sS,CV.X(K),CV.Y(0.10),COL.glass,TIP_S('F',K,0.10,'the point where the flat top starts, 0.10 inside the outline.'),'F','xs'); }
+    renderHeight(cT,VT,P); const ct=cT.getContext('2d');
+    line(ct,0,VT.Y(0.5),cT.width,VT.Y(0.5),COL.cut,2);
+    addPt(sT,VT.X(W),VT.Y(0.5),grayCss(hw/BEV),TIP_T('W',W,0.5,`it stores gray ${fz(hw)} ÷ 0.10 = ${fz(hw/BEV)}.`),'W','sm');
+    lbl(ct,'W',VT.X(W),VT.Y(0.5)-18,INK,'center');
+    $('cmpOut').textContent=TXT[prof];
+    $('cmpLeg').innerHTML=LEGS[prof].map(([s,t])=>`<li>${s}${t}</li>`).join('')+'<li><span class="swl" style="background:#a3e635"></span>the lime line (height map): y = 0.50, the line of the side view</li>';
+    document.querySelectorAll('[data-cmp]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.cmp===prof)));
+  }
+  document.querySelectorAll('[data-cmp]').forEach(b=>b.addEventListener('click',()=>{ prof=b.dataset.cmp; draw(); }));
+  draw();
+})();
+
+/* ================= section 4: the lab ================= */
+(function(){
+  const cS=$('labS'), sS=$('labSStage'), cT=$('labT'), sT=$('labTStage'), cO=$('labO'), sO=$('labOStage');
+  const VT=view(cT,0,0,1);
+  const S={w:[...WP], bev:BEV, deg:60};
+  let hT=null;
+  function P(){ return {...LES,bev:S.bev}; }
+  function dirOf(){ const dx=S.w[0]-0.5, dy=S.w[1]-0.5, d=Math.hypot(dx,dy); return d<1e-9?{d:0,dir:[1,0]}:{d,dir:[dx/d,dy/d]}; }
+  function draw(){
+    const p=P(), {d,dir}=dirOf();
+    /* side view: from C along the lime line; it zooms out so W and the top of the glass fit */
+    const half=Math.max(0.30,d+0.04), s=Math.min(cS.width/(2*half),(cS.height-100)/(S.bev+0.035));
+    const CV=cutView(cS,[0.5,0.5],dir,-cS.width/(2*s),cS.width/(2*s),-75/s,s);
+    clearPts(sS);
+    drawCut(cS,CV,p); const cx=cS.getContext('2d'), y0=CV.Y(0);
+    tick(cx,CV.X(-RAD),y0,COL.glass); tick(cx,CV.X(RAD),y0,COL.glass);
+    lbl(cx,'outline',CV.X(RAD)+8,y0+18,GLS,'left',14); lbl(cx,'outline',CV.X(-RAD)-8,y0+18,GLS,'right',14);
+    lbl(cx,'C',CV.X(0)+12,y0-14,INK,'left');
+    const tr=traceCircle(S.w[0],S.w[1],p), h=heightOf(sdOf(S.w[0],S.w[1],p),p);
+    const inBevel=tr.sd<0 && -tr.sd<S.bev && d>1e-9;
+    if(inBevel){ const tk=RAD-S.bev;
+      halo(cx,()=>cx.arc(CV.X(tk),y0,S.bev*CV.s,Math.PI,0),COL.rim,2);
+      line(cx,CV.X(tk),y0,CV.X(d),CV.Y(h),COL.rim,2.5); line(cx,CV.X(d),y0,CV.X(d),CV.Y(h),COL.hh,2.5); line(cx,CV.X(tk),y0,CV.X(d),y0,COL.leg,2.5);
+      lbl(cx,'K',CV.X(tk)-10,y0-14,RIM,'right');
+      addPt(sS,CV.X(tk),y0,COL.rim,`<b>K: ${f(tk)} from C along the lime line, height 0</b>, in UV<br>Role: the center of the rim circle, bevel = ${f(S.bev)} inside the outline.`,'K','xs');
+    }
+    addPt(sS,CV.X(0),y0,COL.glass,`<b>C: 0 from C, height 0</b><br>Role: the center of the glass.`,'C','sm');
+    addPt(sS,CV.X(d),y0,grayCss(clamp(h/S.bev,0,1)),`<b>W: ${f(d)} from C along the lime line, height 0</b>, in UV<br>W = ${pt(S.w[0],S.w[1])} on the screen.`,'W','sm');
+    addPt(sS,CV.X(d),CV.Y(h),COL.hh,`<b>H: ${f(d)} from C, height ${f(tr.h)}</b>, in UV<br>Role: the surface straight above W.`,'H','xs');
+    lbl(cx,'W',CV.X(d)-12,y0+18,INK,'right'); lbl(cx,'H',CV.X(d)+10,CV.Y(h)-14,HH,'left');
+    if(tr.h>0) plate(cx,`h = ${f(tr.h)}`,CV.X(d)+(d>0.27?-10:10),CV.Y(h/2),14,d>0.27?'right':'left');
+    $('labScale').textContent=`Side view: distance from C along the lime line (toward W to the right) and height, at one scale: 1 UV = ${Math.round(s)} pixels of this picture.`+(s<1266?' It zooms out so W and the top of the glass fit.':'');
+    /* the height map with W */
+    clearPts(sT);
+    renderHeight(cT,VT,p); const ct=cT.getContext('2d');
+    const far=0.75; line(ct,VT.X(0.5-dir[0]*far),VT.Y(0.5-dir[1]*far),VT.X(0.5+dir[0]*far),VT.Y(0.5+dir[1]*far),COL.cut,2.2);
+    ring(ct,VT.X(0.5),VT.Y(0.5),RAD*VT.s,COL.glass,2);
+    lbl(ct,'C',VT.X(0.5)-10,VT.Y(0.5)-14,INK,'right');
+    addPt(sT,VT.X(0.5),VT.Y(0.5),COL.glass,TIP_C,'C','sm');
+    const hw=addPt(sT,VT.X(S.w[0]),VT.Y(S.w[1]),grayCss(clamp(h/S.bev,0,1)),()=>TIP_T('W',S.w[0],S.w[1],`one pixel (drag it). Height ${f(tr.h)}, gray ${f(tr.g)}.`),'W, drag it','drag');
+    dragW(hw);
+    /* the view at an angle */
+    clearPts(sO);
+    const r=drawTilt(cO,p,S.deg,S.w), co=cO.getContext('2d');
+    lbl(co,'H',r.H[0]+10,r.H[1]-12,HH);
+    addPt(sO,r.H[0],r.H[1],COL.hh,`<b>H</b>: the surface straight above W = ${pt(S.w[0],S.w[1])}<br>Its height: ${f(tr.h)}, in UV.`,'H','xs');
+    $('labBV').textContent=f(S.bev); $('labAV').textContent=S.deg+'°';
+    $('labBNote').textContent=S.bev>=0.25?'bevel = 0.25, the radius: the rim circle is centered at C, so there is no flat top: the glass is a dome, half a ball.':
+      S.bev<=0.03?`bevel = ${f(S.bev)}: a thin rim and a wide flat top. The top is only ${f(S.bev)} high.`:`bevel = ${f(S.bev)}: the rim is ${f(S.bev)} wide, and the flat top is ${f(S.bev)} high, with radius 0.25 − ${f(S.bev)} = ${f(RAD-S.bev)}.`;
+    $('labLeg').innerHTML=[
+      ['<span class="sw gray"></span>','the height map: gray = h ÷ bevel'],
+      ['<span class="swl" style="background:#a855f7"></span>','the violet circle and surface: the glass'],
+      ['<span class="swl" style="background:#a3e635"></span>','the lime line: from C through W; the side view shows it'],
+      inBevel?['<span class="swl" style="background:linear-gradient(90deg,#f59e0b 0 33%,#ec4899 33% 66%,#06b6d4 66%)"></span>','the triangle K–W–H and the cyan rim circle (when W is on the rim)']:null,
+      ['<span class="swd" style="background:#ec4899"></span>','H: the surface above W']
+    ].filter(Boolean).map(([a,b])=>`<li>${a}${b}</li>`).join('');
+    $('labOut').textContent=tr.lines.join('\n');
+  }
+  function dragW(hdl){
+    let on=false, moved=false;
+    hdl.addEventListener('pointerdown',e=>{ on=true; moved=false; hdl.setPointerCapture(e.pointerId); e.preventDefault(); });
+    hdl.addEventListener('pointermove',e=>{ if(!on) return; const r=cT.getBoundingClientRect();
+      const u=Math.round(clamp((e.clientX-r.left)/VT.s,0,1)*100)/100, v=Math.round(clamp((e.clientY-r.top)/VT.s,0,1)*100)/100;
+      if(u!==S.w[0]||v!==S.w[1]){ moved=true; hideTip(); S.w=[u,v]; schedule(); } });
+    hdl.addEventListener('pointerup',()=>{ if(on&&moved) suppressClick=true; on=false; });
+    hdl.addEventListener('keydown',e=>{ const k={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key]; if(!k) return;
+      e.preventDefault(); S.w=[Math.round(clamp(S.w[0]+k[0]*0.01,0,1)*100)/100, Math.round(clamp(S.w[1]+k[1]*0.01,0,1)*100)/100]; draw(); $('labTStage').querySelector('.drag').focus(); });
+  }
+  let pending=false;
+  function schedule(){ if(pending) return; pending=true; requestAnimationFrame(()=>{ pending=false; const keep=$('labTStage').querySelector('.drag'); draw(); }); }
+  $('labB').addEventListener('input',e=>{ S.bev=Math.round(Number(e.target.value)*100)/100; draw(); });
+  $('labA').addEventListener('input',e=>{ S.deg=Number(e.target.value); draw(); });
+  $('labReset').onclick=()=>{ S.w=[...WP]; draw(); };
+  draw();
+})();
+
+/* ================= section 6: challenge ================= */
+(function(){
+  const cS=$('chS'), sS=$('chSStage'), inp=$('chIn'), out=$('chVerdict');
+  const CV=cutView(cS,[0,0.50],[1,0],0.20,0.80,-0.085);
+  /* a small parser: numbers, bevel, leg, inside, sd, + − × ÷, brackets, sqrt, abs, min, max, pow, clamp */
+  function parse(src){
+    const s=src.replace(/^\s*(float\s+)?h\s*=\s*/,'').replace(/;\s*$/,'').trim();
+    if(!s) return {err:'empty'};
+    const toks=s.match(/\d*\.\d+[fh]?|\d+\.?[fh]?|[A-Za-z_]\w*|[-+*\/(),]|\S/g)||[];
+    let i=0; const peek=()=>toks[i], next=()=>toks[i++];
+    const VARS=['bevel','leg','inside','sd'], FN={sqrt:1,abs:1,min:2,max:2,pow:2,clamp:3};
+    function expr(){ let a=term(); while(peek()==='+'||peek()==='-'){ const o=next(), b=term(), A=a; a=o==='+'?(e=>A(e)+b(e)):(e=>A(e)-b(e)); } return a; }
+    function term(){ let a=unary(); while(peek()==='*'||peek()==='/'){ const o=next(), b=unary(), A=a; a=o==='*'?(e=>A(e)*b(e)):(e=>A(e)/b(e)); } return a; }
+    function unary(){ if(peek()==='-'){ next(); const a=unary(); return e=>-a(e); } if(peek()==='+'){ next(); return unary(); } return prim(); }
+    function prim(){ const t=next(); if(t===undefined) throw new Error('end');
+      if(/^\d/.test(t)||/^\.\d/.test(t)){ const v=Number(t.replace(/[fh]$/,'')); return ()=>v; }
+      if(t==='('){ const a=expr(); if(next()!==')') throw new Error('bracket'); return a; }
+      if(VARS.includes(t)) return e=>e[t];
+      if(FN[t]){ if(next()!=='(') throw new Error('call'); const args=[expr()]; while(peek()===','){ next(); args.push(expr()); }
+        if(next()!==')') throw new Error('bracket'); if(args.length!==FN[t]) throw new Error('args:'+t);
+        const F={sqrt:a=>Math.sqrt(a[0]),abs:a=>Math.abs(a[0]),min:a=>Math.min(a[0],a[1]),max:a=>Math.max(a[0],a[1]),pow:a=>Math.pow(a[0],a[1]),clamp:a=>Math.min(Math.max(a[0],a[1]),a[2])}[t];
+        return e=>F(args.map(g=>g(e))); }
+      throw new Error('name:'+t); }
+    try{ const g=expr(); if(i<toks.length) return {err:'extra'}; return {g}; }catch(e){ return {err:e.message}; }
+  }
+  const envOf=(sd,b)=>{ const inside=clamp(-sd,0,b); return {sd,bevel:b,inside,leg:b-inside}; };
+  const SAMPLES=[]; for(let k=-30;k<=12;k++) SAMPLES.push(k/100);
+  const truth=(e)=>Math.sqrt(Math.max(0,e.bevel*e.bevel-e.leg*e.leg));
+  const CAND={
+    plus:e=>Math.sqrt(e.bevel*e.bevel+e.leg*e.leg), ramp:e=>e.inside, leg:e=>e.leg, flip:e=>Math.sqrt(e.bevel*e.bevel-e.inside*e.inside),
+    noroot:e=>e.bevel*e.bevel-e.leg*e.leg, rootdiff:e=>Math.sqrt(e.bevel-e.leg)
+  };
+  const same=(g,ref,b,list)=>(list||SAMPLES).every(sd=>{ const e=envOf(sd,b), x=g(e), y=ref(e); return isFinite(x)&&Math.abs(x-y)<1e-6; });
+  const INNER=SAMPLES.filter(sd=>sd<-0.004);
+  function draw(g){
+    clearPts(sS);
+    drawCut(cS,CV,LES,{hf:g?(sd=>g(envOf(sd,BEV))):null});
+    const cx=cS.getContext('2d'), y0=CV.Y(0);
+    cx.save(); cx.lineWidth=1.5; cx.strokeStyle=COL.rim; cx.beginPath();
+    for(let i=0;i<=cS.width;i++){ const t=CV.t0+i/CV.s, h=hAt(t,0.5,LES); if(i===0) cx.moveTo(i,CV.Y(h)); else cx.lineTo(i,CV.Y(h)); } cx.stroke(); cx.restore();
+    lbl(cx,'the screen, height 0',CV.X(0.30),y0+18,INK,'left',14);
+    const hw=g?g(envOf(sdOf(0.71,0.5,LES),BEV)):NaN;
+    addPt(sS,CV.X(0.71),y0,'#fff',TIP_S('W',0.71,0,'the pixel W, 0.04 inside the outline.'),'W','sm');
+    lbl(cx,'W',CV.X(0.71)-12,y0+18,INK,'right');
+    if(isFinite(hw)&&hw>=-0.07&&hw<=CV.hMax){ lbl(cx,'H',CV.X(0.71)+10,CV.Y(hw)-14,HH,'left'); addPt(sS,CV.X(0.71),CV.Y(hw),COL.hh,TIP_S('H',0.71,hw,`the surface above W with your line: height ${f(hw)} (the quarter circle gives 0.08).`),'H','xs'); }
+  }
+  function run(){
+    const p=parse(inp.value);
+    if(p.err){ draw(null); out.className='verdict no';
+      out.textContent=p.err==='empty'?'No line yet: the side view shows only the quarter circle (cyan).':
+        p.err.startsWith('name:')?`The page does not know “${p.err.slice(5)}”. Use bevel, leg, inside, sd, numbers, + − * /, brackets and sqrt(…).`:
+        'The page could not read this line. Write only the right side, for example sqrt(…), with * for “times”.'; return; }
+    const g=p.g; draw(g);
+    const nan=SAMPLES.some(sd=>!isFinite(g(envOf(sd,BEV))));
+    if(same(g,truth,BEV)&&same(g,truth,0.15)){ out.className='verdict ok'; out.textContent='Correct. h = √(bevel² − leg²). At W: h² = 0.01 − 0.0036 = 0.0064 and h = √0.0064 = 0.08. At the outline leg = bevel, so h = 0; on the flat top leg = 0, so h = bevel.'; return; }
+    out.className='verdict no';
+    if(same(g,truth,BEV,INNER)&&!same(g,truth,0.15,INNER)) out.textContent='Right for bevel = 0.10 only: the line uses a fixed number. With another bevel it gives the wrong height. Write bevel * bevel instead of 0.01.';
+    else if(nan) out.textContent='For some pixels the square root gets a number below 0, which has no answer (the pink pixels would have no height). Check what is squared and what is subtracted.';
+    else if(same(g,CAND.plus,BEV)) out.textContent='Plus gives the long side, not the missing leg. At the outline leg = 0.10: 0.01 + 0.01 = 0.02 and √0.02 = 0.141, higher than the flat top. Subtract the known leg² from bevel².';
+    else if(same(g,CAND.ramp,BEV)) out.textContent='This is the straight ramp of Section 2: at W it gives 0.04, not 0.08, and it has corners at F and at O.';
+    else if(same(g,CAND.leg,BEV)) out.textContent='leg is the distance from K to W, not the height: it is largest at the outline (0.10) and 0 on the flat top. The height is the other leg of the triangle.';
+    else if(same(g,CAND.flip,BEV)) out.textContent='This uses inside instead of leg: the circle is then centered at the outline, so the glass is highest at the outline and 0 at K. The rim circle is centered at K: use leg.';
+    else if(same(g,CAND.noroot,BEV)) out.textContent='This is h², not h: at W it gives 0.0064. Take the square root with sqrt(…).';
+    else if(same(g,CAND.rootdiff,BEV)) out.textContent='Square both lengths first: bevel * bevel and leg * leg. √(bevel − leg) mixes a length with a length squared.';
+    else { const hw=g(envOf(-0.04,BEV)); out.textContent=`Not yet. At W your line gives ${isFinite(hw)?f(hw):'no number'}; the quarter circle gives 0.08. Use the triangle K–W–H: the long side is bevel, one leg is leg.`; }
+  }
+  $('chBtn').onclick=run;
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter') run(); });
+  run();
+})();
+
+/* ================= section 7: exercise pictures ================= */
+(function(){
+  { // exercise 1: radius 0.35 — the rim stays bevel wide
+    const draw1=(id,r)=>{
+      const cv=$(id), st=$(id+'Stage'), P={...LES,r}, CV=cutView(cv,[0,0.5],[1,0],0.10,0.90,-0.07);
+      drawCut(cv,CV,P); const cx=cv.getContext('2d'), y0=CV.Y(0), O=0.5+r, K=O-BEV, Lx=0.5-r;
+      tick(cx,CV.X(Lx),y0,COL.glass); tick(cx,CV.X(O),y0,COL.glass); lbl(cx,'L',CV.X(Lx)-14,y0-14,GLS,'right');
+      bracket(cx,CV.X(K),CV.X(O),y0+30,COL.screen); lbl(cx,`rim = ${f(O-K)}`,CV.X((K+O)/2),y0+48,INK,'center',14);
+      bracket(cx,CV.X(1-K),CV.X(K),CV.Y(BEV)-24,COL.screen); lbl(cx,`flat top = ${f(K-(1-K))}`,CV.X(0.5),CV.Y(BEV)-40,INK,'center',14);
+      lbl(cx,'K',CV.X(K)-10,y0-14,INK,'right'); lbl(cx,'O',CV.X(O)+14,y0-14,GLS,'left');
+      addPt(st,CV.X(K),y0,'#fff',TIP_S('K',K,0,`the center of the rim circle: O.x − bevel = ${f(O)} − 0.10 = ${f(K)}.`),'K','xs');
+      addPt(st,CV.X(O),y0,'#fff',TIP_S('O',O,0,`the outline: C.x + radius = 0.50 + ${f(r)} = ${f(O)}.`),'O','xs');
+      plate(cx,`radius = ${f(r)}`,cv.width-14,CV.Y(0.165),14,'right');
+    };
+    draw1('ex1q',0.25); draw1('ex1a',0.35);
+  }
+  { // exercise 2: the pixel A, 0.02 inside the outline
+    const A=0.73, K=0.65, O=0.75;
+    const draw2=(id,ans)=>{
+      const cv=$(id), st=$(id+'Stage'), CV=cutView(cv,[0,0.5],[1,0],0.45,0.80,-0.035);
+      drawCut(cv,CV,LES); const cx=cv.getContext('2d'), y0=CV.Y(0);
+      halo(cx,()=>cx.arc(CV.X(K),y0,BEV*CV.s,Math.PI,0),COL.rim,2.5);
+      tick(cx,CV.X(O),y0,COL.glass);
+      lbl(cx,'K',CV.X(K)-12,y0+18,RIM,'right'); lbl(cx,'O',CV.X(O)+14,y0+18,GLS,'left'); lbl(cx,'A',CV.X(A)-12,y0+18,INK,'right');
+      lbl(cx,'rim circle, radius 0.10',CV.X(0.555),CV.Y(0.125),RIM,'right',14);
+      addPt(st,CV.X(K),y0,COL.rim,TIP_S('K',K,0,'the center of the rim circle.'),'K','xs');
+      addPt(st,CV.X(O),y0,'#fff',TIP_S('O',O,0,'the outline.'),'O','xs');
+      addPt(st,CV.X(A),y0,ans?grayCss(0.6):'#fff',TIP_S('A',A,0,'a pixel 0.02 inside the outline.'+(ans?' It stores gray 0.60.':'')),'A','sm');
+      if(ans){ const HA=0.06;
+        line(cx,CV.X(K),y0,CV.X(A),CV.Y(HA),COL.rim,3); line(cx,CV.X(A),y0,CV.X(A),CV.Y(HA),COL.hh,3); line(cx,CV.X(K),y0,CV.X(A),y0,COL.leg,3);
+        cx.strokeStyle='#111827'; cx.lineWidth=1.5; cx.strokeRect(CV.X(A)-10,y0-10,10,10);
+        lbl(cx,'leg = 0.08',CV.X(0.69),y0+40,LEG,'center',14);
+        plate(cx,'h = 0.06',CV.X(A)+8,CV.Y(0.03),14,'left');
+        lbl(cx,'0.10',CV.X(0.688),CV.Y(0.042),RIM,'right',14);
+        lbl(cx,'P',CV.X(A)+10,CV.Y(HA)-14,HH,'left');
+        addPt(st,CV.X(A),CV.Y(HA),COL.hh,TIP_S('P',A,HA,'the surface straight above A. KP = 0.10, a radius of the rim circle.'),'P','xs');
+      }
+    };
+    draw2('ex2q',false); draw2('ex2a',true);
+  }
+  { // exercise 3: the capsule — the height uses only sd
+    const P={...LES,shape:'capsule'}, E=[0.86,0.50], M=[0.50,0.34];
+    const capOutline=(ctx,V)=>halo(ctx,()=>rrPath(ctx,V.X(0.10),V.Y(0.30),0.80*V.s,0.40*V.s,0.20*V.s),COL.glass,2.5);
+    const q=$('ex3q'), sq=$('ex3qStage'), VQ=view(q,0,0,1);
+    renderMask(q,VQ,P); const cq=q.getContext('2d'); capOutline(cq,VQ);
+    lbl(cq,'E',VQ.X(E[0])-12,VQ.Y(E[1])-14,INK,'right'); lbl(cq,'M',VQ.X(M[0])+12,VQ.Y(M[1])+14,INK,'left'); lbl(cq,'C',VQ.X(0.5)+12,VQ.Y(0.5)-12,INK,'left');
+    addPt(sq,VQ.X(E[0]),VQ.Y(E[1]),'#fff',TIP_T('E',E[0],E[1],'a pixel in the round end, 0.04 inside the outline.'),'E','sm');
+    addPt(sq,VQ.X(M[0]),VQ.Y(M[1]),'#fff',TIP_T('M',M[0],M[1],'a pixel in the straight middle part, 0.04 inside the outline.'),'M','sm');
+    addPt(sq,VQ.X(0.5),VQ.Y(0.5),COL.glass,TIP_C.replace('radius 0.25','the capsule'),'C','sm');
+    const a=$('ex3a'), sa=$('ex3aStage'), VA=view(a,0,0,1);
+    renderHeight(a,VA,P); const ca=a.getContext('2d'); capOutline(ca,VA);
+    lbl(ca,'E',VA.X(E[0])-12,VA.Y(E[1])-14,INK,'right'); lbl(ca,'M',VA.X(M[0])+12,VA.Y(M[1])+14,INK,'left');
+    addPt(sa,VA.X(E[0]),VA.Y(E[1]),grayCss(0.8),TIP_T('E',E[0],E[1],'sd = −0.04, h = 0.08: it stores gray 0.80.'),'E','sm');
+    addPt(sa,VA.X(M[0]),VA.Y(M[1]),grayCss(0.8),TIP_T('M',M[0],M[1],'sd = −0.04, h = 0.08: it stores gray 0.80.'),'M','sm');
+    const rimView=(id,o,dir,t0,t1,tPix,tK,tO,name,along)=>{
+      const cv=$(id), st=$(id+'Stage'), CV=cutView(cv,o,dir,t0,t1,-0.045);
+      drawCut(cv,CV,P); const cx=cv.getContext('2d'), y0=CV.Y(0);
+      halo(cx,()=>cx.arc(CV.X(tK),y0,BEV*CV.s,Math.PI,0),COL.rim,2);
+      line(cx,CV.X(tK),y0,CV.X(tPix),CV.Y(0.08),COL.rim,2.5); line(cx,CV.X(tPix),y0,CV.X(tPix),CV.Y(0.08),COL.hh,2.5); line(cx,CV.X(tK),y0,CV.X(tPix),y0,COL.leg,2.5);
+      lbl(cx,name,CV.X(tPix)+(tO>tK?-10:10),y0+16,INK,tO>tK?'right':'left'); lbl(cx,'K',CV.X(tK)+(tO>tK?-10:10),y0+16,RIM,tO>tK?'right':'left');
+      plate(cx,'h = 0.08',CV.X(tPix)+(tO>tK?8:-8),CV.Y(0.04),13,tO>tK?'left':'right');
+      lbl(cx,'leg 0.06',CV.X((tK+tPix)/2),y0+34,LEG,'center',13);
+      tick(cx,CV.X(tO),y0,COL.glass);
+      addPt(st,CV.X(tPix),y0,grayCss(0.8),TIP_S(name,tPix,0,'0.04 inside the outline: h = 0.08.',along),name,'xs');
+      addPt(st,CV.X(tK),y0,COL.rim,TIP_S('K',tK,0,'the center of the rim circle here, 0.10 inside the outline.',along),'K','xs');
+    };
+    rimView('ex3b',[0,0.5],[1,0],0.60,0.94,0.86,0.80,0.90,'E','x');
+    rimView('ex3c',[0.5,0],[0,1],0.26,0.60,0.34,0.40,0.30,'M','y');
+  }
+  // the choices: a click marks one choice and prints why it is right or not
+  document.querySelectorAll('.choices').forEach(g=>{
+    const out=g.nextElementSibling;
+    g.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+      g.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+      out.className='verdict '+(b.dataset.ok==='1'?'ok':'no'); out.textContent=b.dataset.why;
+    }));
+  });
+})();
+
+/* ================= section 8: Metal exercise — the goal picture ================= */
+(function(){
+  const cv=$('mx'), st=$('mxStage'), V=view(cv,0,0,1);
+  const OH=[0.30,0.20], CR=0.10;
+  function rrSd(u,v){ const px=Math.abs(u-0.5)-(OH[0]-CR), py=Math.abs(v-0.5)-(OH[1]-CR);
+    const box=px>0&&py>0?Math.hypot(px,py):px>0?px:py>0?py:Math.max(px,py); return box-CR; }
+  paintPixels(cv,V,(u,v)=>{ const g=heightOf(rrSd(u,v),LES)/BEV; return [g,g,g]; });
+  const ctx=cv.getContext('2d');
+  halo(ctx,()=>rrPath(ctx,V.X(0.20),V.Y(0.30),0.60*V.s,0.40*V.s,0.10*V.s),COL.glass,2.5);
+  const T=[['T1',0.50,0.50,'inside the inner box: sd = −0.20, h = 0.10, gray 1'],['T2',0.76,0.50,'a side: sd = −0.04, h = 0.08, gray 0.80'],
+    ['T3',0.50,0.33,'the top: sd = −0.03, h = 0.071, gray 0.71'],['T4',0.73,0.64,'a corner: sd = −0.05, h = 0.087, gray 0.87'],['T5',0.85,0.50,'outside: sd = 0.05, h = 0, gray 0']];
+  const off={T1:[12,-14,'left'],T2:[-12,-14,'right'],T3:[12,14,'left'],T4:[-12,-12,'right'],T5:[12,-14,'left']};
+  for(const [n,u,v,role] of T){ const g=heightOf(rrSd(u,v),LES)/BEV, o=off[n];
+    lbl(ctx,n,V.X(u)+o[0],V.Y(v)+o[1],INK,o[2],14);
+    addPt(st,V.X(u),V.Y(v),grayCss(g),TIP_T(n,u,v,role),n,'sm'); }
+  plate(ctx,'outside: black, height 0',V.X(0.03),V.Y(0.06));
+})();
+
+/* ================= section 9: record ================= */
+(function(){
+  const rec=$('record');
+  rec.value=`# Lesson 10.1 — Height-map idea
+
+completed_by_learner: false
+date: ${new Date().toISOString().slice(0,10)}
+
+- The surface height h of a pixel: how high the glass stands above it, in UV (the same unit as positions).
+  Not the height of a box (Lesson 2.4). The screen stays flat: h is a number per pixel.
+- The glass shape: a flat top and a rounded rim. The rim is a quarter of the rim circle: center K, bevel inside the
+  outline, radius bevel. So the flat top is bevel high.
+- The new lines, after sd = length(p) − radius:
+    inside = clamp(−sd, 0, bevel)    how far the pixel is inside the outline, 0 … bevel
+    leg    = bevel − inside          the distance from K
+    h      = √(bevel² − leg²)        the missing leg of the right triangle K–W–H (Lesson 9.1)
+    gray   = h ÷ bevel               the height map, stored as gray: black 0, white the flat top
+- Teaching pixel: C = (0.50, 0.50), radius 0.25, bevel 0.10, W = (0.71, 0.50):
+  d = 0.21, sd = −0.04, inside = 0.04, leg = 0.06, h² = 0.01 − 0.0036 = 0.0064, h = 0.08, gray = 0.80.
+- Why a quarter circle: a flat slab is the mask again (a wall at the outline); a straight ramp has corners (at F and
+  at O) and gives 0.04 at W. A drop of liquid has a round rim and a flat top.
+- The rim is bevel wide whatever the radius; bevel = radius gives a dome (no flat top).
+- The height uses only sd: any shape with an sd (the capsule of Lesson 9.5) gets the same rim.
+- Metal exercise: write roundedRectSd (Lesson 9.4) and surfaceHeight (this lesson) in chapter10/HeightExercise.metal;
+  the check on the Chapter 10 screen is dark when they match chapter10/HeightExerciseKey.metal.
+- iOS: chapter10/HeightMap.metal (heightMap), explorer chapter10/HeightMapExplorer.swift on Chapter10Screen.
+- Next: Lesson 10.2 — Slope: how the height changes from one pixel to the next.`;
+  $('recBtn').onclick=async()=>{
+    let ok=false; try{ if(navigator.clipboard){ await navigator.clipboard.writeText(rec.value); ok=true; } }catch(e){}
+    if(!ok){ rec.select(); try{ ok=document.execCommand('copy'); }catch(e){} }
+    $('recMsg').textContent=ok?'Copied.':'Select the text and copy it by hand.';
+  };
+})();
+</script>
+</body>
+</html>

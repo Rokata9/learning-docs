@@ -16,7 +16,7 @@
 <div class="page">
 <div class="topbar">
 <div class="crumbs"><a href="lesson-build-convincing-frosted-glass-without-a-custom-lens.html">Chapter 7</a> · Lesson 7.1</div>
-<div class="chips"><span class="chip progress">64 of 216 complete</span><span class="chip progress">7.1 learner-confirmed complete</span><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span></div>
+<div class="chips"><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span><span class="chip progress">100 of 216 complete</span><span class="chip">iPhone 16 Pro</span></div>
 </div>
 
 <header class="hero panel">
@@ -32,7 +32,7 @@
 ← several nearby source positions
 ← one contribution from each
 → one mixed output color</div>
-<p>The 3 × 3 arithmetic below is a deliberately transparent model. Android's real <code>BlurEffect</code> uses renderer-owned details that its public API does not expose.</p>
+<p>The 3 × 3 arithmetic below is a deliberately transparent model. SwiftUI's real <code>.blur()</code> uses renderer-owned details that its public API does not expose.</p>
 </div>
 </header>
 
@@ -102,51 +102,50 @@
 <div class="success" id="traceConclusion"></div>
 </div>
 </div>
-<div class="warning"><strong>Evidence boundary:</strong> this arithmetic averages displayed RGB numbers directly and assigns equal weight to nine positions. It explains the causal idea. It does not claim Android uses this exact kernel, these exact weights, this exact color space, or integer rounding.</div>
+<div class="warning"><strong>Evidence boundary:</strong> this arithmetic averages displayed RGB numbers directly and assigns equal weight to nine positions. It explains the causal idea. It does not claim SwiftUI uses this exact kernel, these exact weights, this exact color space, or integer rounding.</div>
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">5 · Android route</div><h2>Attach one fixed real blur to one test image</h2></div><p>Radius comparison waits for Lesson 7.2. Edge treatment waits for Lesson 7.3.</p></div>
+<div class="section-head"><div><div class="section-no">5 · iOS route</div><h2>Attach one fixed real blur to one test image</h2></div><p>Radius comparison waits for Lesson 7.2. Edge treatment waits for Lesson 7.3.</p></div>
 <div class="code-grid">
-<div class="code-block"><code>// BlurNeighborhoodAveragingExplorer.kt
-val blurRadiusPx = with(LocalDensity.current) {
-    12.dp.toPx()
-}
+<div class="code-block"><code>// BlurNeighborhoodAveragingExplorer.swift
+let blurRadiusPt: CGFloat = 12
+let blurRadiusPx = blurRadiusPt * displayScale
 
-val blurEffect = remember(blurRadiusPx) {
-    BlurEffect(
-        renderEffect = null,
-        radiusX = blurRadiusPx,
-        radiusY = blurRadiusPx,
-        edgeTreatment = TileMode.Clamp,
-    )
+Canvas { context, size in
+    drawHardEdgeArtwork(context: &amp;context, size: size)
 }
+.lessonBlur(radiusPt: blurRadiusPt, enabled: true)
 
-Canvas(
-    modifier = Modifier.graphicsLayer {
-        renderEffect = blurEffect
-    },
-) {
-    drawHardEdgeArtwork()
+private extension View {
+    @ViewBuilder
+    func lessonBlur(radiusPt: CGFloat, enabled: Bool) -&gt; some View {
+        if enabled &amp;&amp; radiusPt &gt; 0 {
+            self.blur(radius: radiusPt, opaque: false)
+        } else {
+            self
+        }
+    }
 }</code></div>
 <div class="card">
 <h3>Read the route literally</h3>
-<p><code>drawHardEdgeArtwork()</code> supplies the input drawing commands.</p>
-<p><code>graphicsLayer</code> owns those commands for this test image.</p>
-<p><code>renderEffect = blurEffect</code> asks the renderer to produce the softened result before the layer is composited.</p>
-<p><code>radiusX</code> and <code>radiusY</code> are raw-pixel distances. The code converts the fixed teaching radius from dp to px at runtime.</p>
-<div class="note"><strong>Chapter 6 bridge:</strong> the production panel adds the same kind of effect with <code>panelSampleLayer.renderEffect = blurEffect</code>. The sharp foreground remains outside that layer. No capture architecture is repeated here.</div>
+<p><code>drawHardEdgeArtwork</code> supplies the input drawing commands for this test image.</p>
+<p>The <code>Canvas</code> view owns those commands.</p>
+<p><code>.blur(radius:opaque:)</code> asks SwiftUI to soften that view before it is composited. <code>lessonBlur</code> skips the modifier when the radius is 0.</p>
+<p><code>.blur(radius:)</code> takes one radius in <strong>points</strong>. SwiftUI blur is symmetric: there is no separate horizontal and vertical radius. <code>blurRadiusPx</code> is <code>12 × displayScale</code>, a device-pixel readout. It is not the <code>.blur()</code> argument. On iPhone 16 Pro, <code>displayScale</code> is typically 3, so 12 pt covers 36 device pixels of screen size.</p>
+<div class="note"><strong>Chapter 6 bridge:</strong> the production panel adds the same kind of effect with <code>.blur(radius:opaque:)</code> on the panel-sized replay of the recorded backdrop. The sharp foreground remains outside that view. No capture architecture is repeated here. Do not use <code>ultraThinMaterial</code> or <code>glassEffect</code> as this blur.</div>
+<div class="note"><strong>Fixed edge input:</strong> <code>opaque: false</code> lets the blur mix with transparent pixels at the view edge. SwiftUI <code>.blur()</code> does not expose a separate edge-treatment mode. Lesson 7.3 studies that question. This lesson keeps one 12 pt radius.</div>
 </div>
 </div>
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">6 · Production meaning versus teaching model</div><h2>Do not confuse the 3 × 3 box average with Android's private kernel</h2></div><p>The public API exposes a blur effect, horizontal and vertical radii, and an edge-treatment rule—not a nine-cell formula.</p></div>
+<div class="section-head"><div><div class="section-no">6 · Production meaning versus teaching model</div><h2>Do not confuse the 3 × 3 box average with SwiftUI's private blur kernel</h2></div><p>The public API exposes <code>.blur(radius:opaque:)</code> — one point radius and an opaque flag — not a nine-cell formula.</p></div>
 <div class="two">
 <div class="card green"><h3>What the model proves</h3><p>A blurred output position can depend on colors at neighboring source positions. A hard color edge therefore creates mixed output colors around that edge.</p></div>
-<div class="card amber"><h3>What the model does not prove</h3><p>It does not expose Android's exact number of samples, sample coordinates, weights, passes, internal precision, color space, or GPU implementation.</p></div>
+<div class="card amber"><h3>What the model does not prove</h3><p>It does not expose SwiftUI's exact number of samples, sample coordinates, weights, passes, internal precision, color space, or GPU implementation. It also does not claim the same weights as any other blur implementation.</p></div>
 </div>
-<p>Official references: <a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlurEffect">Compose <code>BlurEffect</code></a> and <a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/layer/GraphicsLayer">Compose <code>GraphicsLayer</code></a>.</p>
+<p>Official reference: <a href="https://developer.apple.com/documentation/swiftui/view/blur(radius:opaque:)">View.blur(radius:opaque:)</a>. This lesson does not use system materials as the glass path.</p>
 </section>
 
 <section class="section panel">
@@ -160,15 +159,15 @@ Canvas(
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">8 · Coding challenge</div><h2>Complete one equal-weight channel average</h2></div><p>This pure Kotlin function is the transparent teaching operation—not Android's private blur implementation.</p></div>
+<div class="section-head"><div><div class="section-no">8 · Coding challenge</div><h2>Complete one equal-weight channel average</h2></div><p>This pure Swift function is the transparent teaching operation—not SwiftUI's private blur implementation.</p></div>
 <div class="challenge">
 <div>
-<textarea class="editor" id="challengeEditor" spellcheck="false">private fun averageChannel(values: List&lt;Int&gt;): Int {
-    require(values.isNotEmpty())
+<textarea class="editor" id="challengeEditor" spellcheck="false">private func averageChannel(_ values: [Int]) -&gt; Int {
+    precondition(!values.isEmpty)
 
-    val total = __________
-    val mean = total.toFloat() / __________
-    return mean.__________
+    let total = __________
+    let mean = Double(total) / __________
+    return Int(__________)
 }</textarea>
 <div class="controls" style="margin-top:10px"><button class="btn primary" id="checkChallenge">Check</button><button class="btn" data-code="solution">Insert solution</button><button class="btn" data-code="reset">Reset blanks</button></div>
 <div class="result" id="challengeResult">Fill the three blanks, then run the check.</div>
@@ -177,7 +176,7 @@ Canvas(
 <h3>Required route</h3>
 <div class="formula">values
 → add every value
-→ divide by values.size
+→ divide by values.count
 → round to nearest Int
 → one channel output</div>
 <p>For the red channel in the edge preset:</p>
@@ -195,36 +194,37 @@ output = 133</div>
 <details><summary>Why is the edge-preset output not equal to its amber center source cell?</summary><p>The center source cell contributes only one of nine equal shares. Four blue cells and four additional amber cells also contribute. The final output is therefore RGB(133, 109, 65), not the center's RGB(225, 153, 45).</p></details>
 <details><summary>Why does a completely flat source region remain the same color in the teaching model?</summary><p>Every source cell contains the same RGB value. Adding nine identical values and dividing by nine returns that same value for red, green, and blue.</p></details>
 <details><summary>What is lost when a small bright speck is averaged with eight dark neighbors?</summary><p>The speck's color contributes only one share. The eight dark contributions pull the output toward the dark color, so the speck becomes dimmer and less locally distinct.</p></details>
-<details><summary>Why can we not claim Android literally executes the displayed nine-value arithmetic?</summary><p>The public API does not specify Android's sample count, sample coordinates, weights, internal color representation, or rounding. The 3 × 3 average is a causal bridge, not a reverse-engineered implementation claim.</p></details>
+<details><summary>Why can we not claim SwiftUI literally executes the displayed nine-value arithmetic?</summary><p>The public API does not specify SwiftUI's sample count, sample coordinates, weights, internal color representation, or rounding. The 3 × 3 average is a causal bridge, not a reverse-engineered implementation claim.</p></details>
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">10 · Preview and device checkpoint</div><h2>Verify the new mechanism</h2></div><p>Use Android Studio Preview and the Pixel 8 Pro.</p></div>
+<div class="section-head"><div><div class="section-no">10 · Preview and device checkpoint</div><h2>Verify the new mechanism</h2></div><p>Use the Xcode previews, then the iPhone 16 Pro.</p></div>
+<div class="note"><strong>Browser versus iOS:</strong> the diagrams on this page illustrate the equal-weight model. The iPhone 16 Pro explorer runs SwiftUI <code>.blur()</code>. Those are not the same kernel.</div>
 <div class="checklist">
-<label class="check"><input type="checkbox">The Android screen opens Chapter 7 and identifies Lesson 7.1.</label>
+<label class="check"><input type="checkbox">The iOS screen opens Chapter 7 and identifies Lesson 7.1.</label>
 <label class="check"><input type="checkbox">The 3 × 3 grid shows four RGB(18, 54, 90) cells and five RGB(225, 153, 45) cells.</label>
 <label class="check"><input type="checkbox">The computed output is RGB(133, 109, 65).</label>
 <label class="check"><input type="checkbox">The center source cell is visibly marked but is not mistaken for the only input.</label>
 <label class="check"><input type="checkbox">The sharp comparison card has a hard blue/amber boundary.</label>
-<label class="check"><input type="checkbox">The BlurEffect card visibly softens the boundary, white line, and green circle.</label>
-<label class="check"><input type="checkbox">The runtime readout converts the fixed 12 dp radius into px.</label>
-<label class="check"><input type="checkbox">The source grid and real BlurEffect are explicitly distinguished.</label>
-<label class="check"><input type="checkbox">Both complete-screen Preview variants scroll through all content.</label>
-<label class="check"><input type="checkbox">Both direct explorer Preview variants scroll through all content.</label>
+<label class="check"><input type="checkbox">The .blur() card visibly softens the boundary, white line, and green circle.</label>
+<label class="check"><input type="checkbox">The runtime readout keeps the .blur() argument at 12 pt and shows pt × displayScale as device pixels.</label>
+<label class="check"><input type="checkbox">The source grid and real .blur() are explicitly distinguished.</label>
+<label class="check"><input type="checkbox">Both complete-screen Preview variants scroll through all content at 412 × 915, light then dark.</label>
+<label class="check"><input type="checkbox">Both direct explorer Preview variants scroll through all content at 412 × 915, light then dark.</label>
 </div>
 <div class="controls" style="margin-top:16px"><button class="btn" id="buildRecord">Build local review record</button></div>
 <textarea class="record" id="record" readonly>Run the checkpoint, then build the local review record.</textarea>
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">11 · Evidence boundary</div><h2>One new mechanism is complete</h2></div><p>Lesson 7.1 is learner-confirmed complete.</p></div>
+<div class="section-head"><div><div class="section-no">11 · Evidence boundary</div><h2>One new mechanism is on the page</h2></div></div>
 <div class="two">
-<div class="card green"><h3>Established here</h3><p>One blur output can receive color from neighboring source positions. The equal-weight 3 × 3 example traces one full RGB result. Android's real <code>BlurEffect</code> visibly softens the test image.</p></div>
+<div class="card green"><h3>Established here</h3><p>One blur output can receive color from neighboring source positions. The equal-weight 3 × 3 example traces one full RGB result. SwiftUI's real <code>.blur()</code> visibly softens the test image.</p></div>
 <div class="card amber"><h3>Still deferred</h3><p>Lesson 7.2 compares blur radii. Lesson 7.3 studies pixels requested outside the source bounds. Lesson 7.4 introduces controlled downsampling.</p></div>
 </div>
 </section>
 
-<div class="footer panel"><a href="../chapter-06/lesson-06-11-two-layer-scene-architecture.html">← Lesson 6.11 — Two-layer architecture</a><strong>64 of 216 complete · Lesson 7.1 complete</strong><a href="lesson-07-02-blur-radius.html">Lesson 7.2 — Blur radius →</a></div>
+<div class="footer panel"><a href="../chapter-06/lesson-06-11-two-layer-scene-architecture.html">← Lesson 6.11 — Two-layer architecture</a><strong>100 of 216 complete · checkpoint Lesson 10.1</strong><a href="lesson-07-02-blur-radius.html">Lesson 7.2 — Blur radius →</a></div>
 </div>
 <div class="tip" id="tip" role="dialog" aria-live="polite"></div>
 <script>
@@ -270,10 +270,10 @@ function setStep(next){state.step=clamp(next,0,STEPS.length-1);renderAll()}
 document.querySelectorAll('[data-preset]').forEach(button=>button.addEventListener('click',()=>{state.preset=button.dataset.preset;renderAll()}));
 [['diagramPrev',-1],['stepPrev',-1],['diagramNext',1],['stepNext',1]].forEach(([id,delta])=>$(id).addEventListener('click',()=>setStep(state.step+delta)));
 document.querySelectorAll('[data-prediction]').forEach(button=>button.addEventListener('click',()=>{state.prediction=button.dataset.prediction;document.querySelectorAll('[data-prediction]').forEach(choice=>choice.classList.toggle('selected',choice===button));$('predictionResult').textContent=state.prediction==='mix'?'Correct. The center amber cell supplies one contribution, while the other eight cells also contribute. The output is RGB(133, 109, 65).':state.prediction==='copy'?'That would be a sharp same-position copy. The teaching blur reads all nine neighborhood colors, so the center does not determine the result alone.':'Multiple colors do not imply transparency. The operation combines RGB contributions and produces an opaque mixed color in this model.'}));
-const blankCode=$('challengeEditor').value;const solutionCode=`private fun averageChannel(values: List<Int>): Int {\n    require(values.isNotEmpty())\n\n    val total = values.sum()\n    val mean = total.toFloat() / values.size\n    return mean.roundToInt()\n}`;
+const blankCode=$('challengeEditor').value;const solutionCode=`private func averageChannel(_ values: [Int]) -> Int {\n    precondition(!values.isEmpty)\n\n    let total = values.reduce(0, +)\n    let mean = Double(total) / Double(values.count)\n    return Int(mean.rounded())\n}`;
 document.querySelectorAll('[data-code]').forEach(button=>button.addEventListener('click',()=>{$('challengeEditor').value=button.dataset.code==='solution'?solutionCode:blankCode;$('challengeResult').textContent=button.dataset.code==='solution'?'Solution inserted. Run the check to verify the complete route.':'Blanks restored.'}));
-$('checkChallenge').addEventListener('click',()=>{const code=$('challengeEditor').value,hasSum=/values\.sum\s*\(\s*\)/.test(code),hasSize=/\/\s*values\.size/.test(code),hasRound=/mean\.roundToInt\s*\(\s*\)/.test(code);$('challengeResult').textContent=hasSum&&hasSize&&hasRound?'Correct. The function adds every input, divides by the sample count, and rounds one channel result.':`Still incomplete: ${[!hasSum&&'use values.sum()',!hasSize&&'divide by values.size',!hasRound&&'return mean.roundToInt()'].filter(Boolean).join(', ')}.`});
-$('buildRecord').addEventListener('click',()=>{const out=average(currentSamples());$('record').value=`Lesson 7.1 local review record\n\nNew mechanism:\n- one output position receives colors from several nearby source positions\n- the teaching neighborhood is 3 × 3 = 9 source positions\n- each teaching contribution is 1/9\n\nCurrent preset: ${PRESETS[state.preset].name}\nCurrent result: ${rgbText(out)}\n\nI traced red, green, and blue independently.\nI distinguished the equal-weight teaching model from Android's renderer-owned BlurEffect kernel.\nI verified the sharp and blurred Android test images.\n\nLesson 7.1 is learner-confirmed complete. This local record remains a personal review note.`});
+$('checkChallenge').addEventListener('click',()=>{const code=$('challengeEditor').value,hasSum=/values\.reduce\(\s*0\s*,\s*\+\s*\)/.test(code),hasCount=/Double\(values\.count\)/.test(code),hasRound=/mean\.rounded\(\)/.test(code);$('challengeResult').textContent=hasSum&&hasCount&&hasRound?'Correct. The function adds every input, divides by the sample count, and rounds one channel result.':`Still incomplete: ${[!hasSum&&'use values.reduce(0, +)',!hasCount&&'divide by Double(values.count)',!hasRound&&'return Int(mean.rounded())'].filter(Boolean).join(', ')}.`});
+$('buildRecord').addEventListener('click',()=>{const out=average(currentSamples());$('record').value=`Lesson 7.1 local review record\n\nNew mechanism:\n- one output position receives colors from several nearby source positions\n- the teaching neighborhood is 3 × 3 = 9 source positions\n- each teaching contribution is 1/9\n\nCurrent preset: ${PRESETS[state.preset].name}\nCurrent result: ${rgbText(out)}\n\nI traced red, green, and blue independently.\nI distinguished the equal-weight teaching model from SwiftUI's renderer-owned .blur() kernel.\nI verified the sharp and blurred iOS test images.\n\nThis local record remains a personal review note.`});
 const tip=$('tip');function closeTip(){tip.classList.remove('open')}document.querySelectorAll('.prov').forEach(button=>button.addEventListener('click',event=>{event.stopPropagation();tip.textContent=button.dataset.tip;tip.classList.add('open');const rect=button.getBoundingClientRect(),gap=10,maxLeft=window.innerWidth-tip.offsetWidth-16;let left=rect.right+gap;if(left>maxLeft)left=rect.left-tip.offsetWidth-gap;left=clamp(left,16,maxLeft);let top=rect.top;if(top+tip.offsetHeight>window.innerHeight-16)top=window.innerHeight-tip.offsetHeight-16;tip.style.left=`${left}px`;tip.style.top=`${Math.max(16,top)}px`;}));document.addEventListener('click',closeTip);window.addEventListener('resize',closeTip);window.addEventListener('scroll',closeTip,true);
 const theme=matchMedia('(prefers-color-scheme:dark)');function updateTheme(){$('themeMode').textContent=theme.matches?'dark':'light';renderAll()}theme.addEventListener?.('change',updateTheme);updateTheme();
 </script>

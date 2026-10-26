@@ -1,0 +1,1773 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One Formula, in 3D</title>
+<style>
+:root{
+  --bg:#f4f3ee; --card:#ffffff; --ink:#1f2328; --muted:#555d6b; --line:#e2dfd6;
+  --eye:#111827; --axis:#6b7280; --screen:#1e40af; --p:#4338ca; --pp:#d97706; --sight:#be185d;
+  --cube:#059669; --bad:#dc2626; --vx:#7c3aed; --vz:#0891b2;
+  --math:"STIX Two Math","Cambria Math","Latin Modern Math","Times New Roman",serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:3300px;margin:0 auto;padding:26px 32px 90px}
+h1{font-size:34px;line-height:1.2;margin:0 0 6px}
+h2{font-size:27px;line-height:1.25;margin:0 0 6px}
+h3{font-size:20px;line-height:1.3;margin:0 0 8px}
+p{margin:6px 0 10px}
+a{color:#1d4ed8}
+code{font:0.92em var(--mono);background:#f1f0ea;border:1px solid #e4e1d7;border-radius:5px;padding:0 4px}
+.sub{color:var(--muted);margin:0 0 16px;font-size:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 28px 26px;margin:22px 0}
+.lead{font-size:18px;max-width:1250px}
+.small{font-size:15px;color:var(--muted)}
+.m{font-family:var(--math);font-size:1.1em;white-space:nowrap}
+.m i{font-style:italic}
+.g3{display:grid;grid-template-columns:minmax(560px,1fr) 420px 480px;gap:20px;align-items:start}
+.g2{display:grid;grid-template-columns:minmax(560px,1fr) 500px;gap:20px;align-items:start}
+.gmap{display:grid;grid-template-columns:640px minmax(460px,1fr);gap:24px;align-items:start}
+.view3d{position:relative;height:max(600px,min(66vh,880px));border:1px solid var(--line);border-radius:12px;background:#fbfbf8;overflow:hidden}
+.view3d.short{height:max(540px,min(58vh,800px))}
+.view3d.mini{height:330px}
+.view3d canvas{position:absolute;inset:0;width:100%;height:100%;cursor:grab;touch-action:none;outline:none}
+.view3d canvas.grabbing{cursor:grabbing}
+.view3d canvas:focus-visible{box-shadow:inset 0 0 0 3px #93c5fd}
+.viewbar{position:absolute;top:10px;left:10px;display:flex;gap:6px;flex-wrap:wrap;max-width:calc(100% - 20px)}
+.viewbar button{font:14px/1 system-ui,sans-serif;padding:7px 10px;border:1px solid #d4d0c4;background:rgba(255,255,255,.94);border-radius:8px;cursor:pointer;color:#1f2328}
+.viewbar button:hover{background:#fff;border-color:#a8a395}
+.hint{position:absolute;right:10px;bottom:10px;font-size:14px;color:#4b5563;background:rgba(255,255,255,.92);padding:4px 9px;border-radius:8px;pointer-events:none}
+.flat{position:relative;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+.flat canvas{position:absolute;inset:0;width:100%;height:100%}
+.flat.sq{height:470px}
+.flat.out{height:450px}
+.flat.map{height:640px}
+.flat.inset{height:300px}
+.flattitle{font-weight:650;margin:0 0 6px;font-size:16px}
+.panel{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:#fcfcfa}
+.panel h3{margin-top:4px}
+.caption{min-height:150px}
+.btn{font:15px/1 system-ui,sans-serif;padding:9px 14px;border:1px solid #cfcabd;background:#fff;border-radius:9px;cursor:pointer;color:#1f2328}
+.btn:hover{border-color:#8f8a7c}
+.btn.primary{background:#1f2328;color:#fff;border-color:#1f2328}
+.btn:disabled{opacity:.4;cursor:default}
+.stepnav{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.dots{display:flex;gap:6px;flex:1;justify-content:center;flex-wrap:wrap}
+.dots button{width:14px;height:14px;border-radius:50%;border:2px solid #9ca3af;background:#fff;padding:0;cursor:pointer}
+.dots button.on{background:#1f2328;border-color:#1f2328}
+.stepno{font-size:15px;color:var(--muted)}
+.nums{font-size:16px;margin-top:6px}
+.eq{font-family:var(--math);font-size:19px;line-height:1.7;white-space:nowrap}
+.eq .lhs{display:inline-block;min-width:0}
+.eq b{font-weight:700}
+.eqnote{font-size:15px;color:var(--muted);margin:0 0 6px}
+table.t{border-collapse:collapse;font-size:15.5px;margin:6px 0 10px;width:100%}
+table.t th,table.t td{border:1px solid #e3e0d6;padding:5px 8px;text-align:left;vertical-align:top}
+table.t th{background:#f5f4ef;font-weight:650}
+table.t td.n{font-family:var(--math);font-size:17px;white-space:nowrap}
+table.t tr.sel td{background:#fff7e6}
+table.t.tight td,table.t.tight th{padding:4px 6px}
+table.t.tight td.n{font-size:16px}
+table.t tr.click{cursor:pointer}
+table.t tr.click:hover td{background:#faf8f2}
+table.t tr.bad td{color:#b91c1c}
+.note{border-left:4px solid var(--pp);background:#fff8eb;padding:7px 10px;border-radius:0 8px 8px 0;margin:8px 0;font-size:15.5px}
+.note.bad{border-color:var(--bad);background:#fef2f2}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:15px;line-height:1.35}
+.lg{display:flex;align-items:center;gap:8px;text-align:left;font:inherit;color:inherit;background:none;border:1px solid transparent;border-radius:8px;padding:3px 6px}
+.lg.chip{cursor:pointer;border-color:#e5e2d8;background:#fff}
+.lg.chip:hover{border-color:#a8a395}
+.sw{flex:none;display:inline-block;width:24px;height:14px;position:relative}
+.sw-dot::after{content:"";position:absolute;left:6px;top:1px;width:12px;height:12px;border-radius:50%;background:var(--c)}
+.sw-ring::after{content:"";position:absolute;left:6px;top:1px;width:12px;height:12px;border-radius:50%;background:#fff;border:2.5px solid var(--c);box-sizing:border-box}
+.sw-line::after{content:"";position:absolute;left:0;right:0;top:5.5px;height:3px;background:var(--c);border-radius:2px}
+.sw-dash::after{content:"";position:absolute;left:0;right:0;top:5.5px;border-top:3px dashed var(--c)}
+.sw-fill::after{content:"";position:absolute;inset:0;background:color-mix(in srgb,var(--c) 22%,transparent);border:2px solid var(--c);border-radius:3px}
+.sl{display:grid;grid-template-columns:120px 1fr 64px;align-items:center;gap:10px;margin:6px 0;font-size:16px}
+.sl input{width:100%}
+.sl output{font-family:var(--math);font-size:18px;text-align:right}
+.ctl{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:8px 0}
+.ctl label{display:flex;gap:7px;align-items:center;font-size:16px;cursor:pointer}
+.pick{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.pick button{font:15px/1 system-ui,sans-serif;width:34px;height:32px;border:1px solid #cfcabd;background:#fff;border-radius:8px;cursor:pointer}
+.pick button.on{background:var(--cube);border-color:var(--cube);color:#fff}
+pre.code{background:#f7f7f4;border:1px solid #e3e0d6;border-radius:10px;padding:12px 14px;font:14.5px/1.55 var(--mono);overflow:auto;margin:8px 0;white-space:pre}
+pre.code .hl{background:#fde68a;border-radius:3px;box-shadow:0 0 0 2px #fde68a}
+pre.code .cm{color:#6b7280}
+.bigf{font-size:34px;line-height:1.45;padding:10px 16px;border:2px solid #e9d5a7;background:#fffaf0;border-radius:12px;margin-bottom:12px;text-align:center}
+.howto{font-size:15.5px;color:#374151;background:#f7f6f1;border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:14px 0 6px}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.toc a{font-size:15.5px;text-decoration:none;border:1px solid #d9d5c9;border-radius:999px;padding:5px 12px;background:#fff;color:#1f2328}
+.toc a:hover{border-color:#8f8a7c}
+.flow{display:flex;align-items:stretch;gap:6px;margin:16px 0 6px;overflow-x:auto}
+.fs{flex:1;min-width:190px;border:1px solid #e0ddd3;border-radius:10px;padding:8px 10px;background:#fff}
+.fs-h{font-weight:650;font-size:15.5px}
+.fs-v{font-family:var(--math);font-size:17px;white-space:nowrap}
+.fs-d{font-size:14px;color:var(--muted)}
+.fa{align-self:center;font-size:22px;color:#9ca3af}
+.pipe{max-height:690px;overflow:auto;padding-right:4px}
+.pipe h4{margin:12px 0 2px;font-size:16px}
+.pipe h4:first-child{margin-top:0}
+.ex{display:grid;grid-template-columns:minmax(420px,620px) 1fr;gap:20px;border-top:1px solid var(--line);padding-top:18px;margin-top:18px}
+.ex:first-of-type{border-top:0;margin-top:6px;padding-top:6px}
+.choices{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.choices button{font:16px/1.35 system-ui,sans-serif;text-align:left;padding:9px 12px;border:1.5px solid #d4d0c4;background:#fff;border-radius:9px;cursor:pointer;color:#1f2328}
+.choices button.ok{border-color:#059669;background:#ecfdf5}
+.choices button.no{border-color:#dc2626;background:#fef2f2}
+.fb{font-size:15.5px;margin:4px 0}
+.answer{border:1px solid #cde9dc;background:#f3fbf7;border-radius:10px;padding:10px 14px;margin-top:10px}
+#pop{position:fixed;z-index:50;min-width:250px;max-width:420px;background:#fff;border:1px solid #cfccc2;border-radius:12px;box-shadow:0 10px 32px rgba(0,0,0,.16);padding:12px 14px 12px;font-size:15px}
+#pop .pop-x{position:absolute;top:6px;right:8px;border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:#4b5563;padding:4px}
+#pop .pt{font-weight:700;font-size:16px;padding-right:22px}
+#pop .role{color:#374151;margin:3px 0 6px}
+#pop table{border-collapse:collapse;margin:4px 0}
+#pop th{text-align:left;padding:2px 12px 2px 0;font-family:var(--math);font-style:italic;font-weight:400;font-size:17px;white-space:nowrap}
+#pop td{font-family:var(--math);font-size:17px;padding:2px 0;white-space:nowrap}
+#pop .space{font-size:14px;color:var(--muted);margin-top:6px;border-top:1px solid #eee;padding-top:6px}
+footer{font-size:15px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="pop" hidden role="dialog" aria-label="Point details"><button class="pop-x" type="button" aria-label="Close">×</button><div class="pop-body"></div></div>
+
+<div class="wrap">
+
+<header class="card" id="top">
+  <h1>Why <span class="m"><i>x</i> ÷ <i>z</i></span> and <span class="m"><i>y</i> ÷ <i>z</i></span> turn a 3D point into a point on a flat screen</h1>
+  <p class="sub">A companion to tsoding's video <a href="https://www.youtube.com/watch?v=qjWkNZ0SXfo">“One Formula That Demystifies 3D Graphics”</a> and its code, <a href="https://github.com/tsoding/formula">github.com/tsoding/formula</a>. Every picture on this page is live: you can turn it and click its dots.</p>
+  <div class="g3">
+    <div>
+      <div class="view3d short" id="heroView"></div>
+      <div class="legend" id="heroLegend"></div>
+    </div>
+    <div>
+      <div class="flattitle">What the code draws</div>
+      <div class="flat out" id="heroOut"></div>
+      <p class="small">The code's canvas: 800 × 800 pixels, counted from its top-left corner. In this top picture the cube is pushed 1.5 units forward (the code uses 1), so the cube and its drawing on the screen do not overlap.</p>
+    </div>
+    <div class="panel">
+      <div class="bigf m"><div><i>x</i>′ = <i>x</i> ÷ <i>z</i></div><div><i>y</i>′ = <i>y</i> ÷ <i>z</i></div></div>
+      <p>A 3D point is three numbers <span class="m">(<i>x</i>, <i>y</i>, <i>z</i>)</span>: how far the point is to the right of your eye, above your eye, and in front of your eye. To draw the point, the code divides the first two numbers by the third. The result <span class="m">(<i>x</i>′, <i>y</i>′)</span> (read “x prime, y prime”) is where the point appears on the screen.</p>
+      <p>Left picture: a cube in front of the eye E. Each pink line runs from a cube corner to E. Where a pink line crosses the blue screen, the code draws that corner. Right picture: the same drawing on the code's canvas.</p>
+      <button id="heroPlay" class="btn" type="button">Pause</button>
+    </div>
+  </div>
+  <p class="howto"><b>How to use the 3D pictures:</b> drag to turn the picture · Shift + drag (or right-button drag) to move it · Ctrl + scroll, or pinch on a trackpad, to zoom · double-click to reset · click any dot to see its coordinates. The buttons in each picture's top-left corner jump to a fixed view.</p>
+  <nav class="toc" aria-label="Sections">
+    <a href="#s1">1 · One point and one division</a>
+    <a href="#s2">2 · From the screen to canvas pixels</a>
+    <a href="#s3">3 · A cube: corners, edges, translate_z</a>
+    <a href="#s4">4 · Spinning: rotate_xz</a>
+    <a href="#s5">5 · One frame of the code</a>
+    <a href="#s6">6 · Check yourself</a>
+  </nav>
+</header>
+
+<section class="card" id="s1">
+  <h2>1 · One point: where does it land on the screen?</h2>
+  <p class="lead">Follow one point P from the 3D world to the screen. Each step adds one thing to the picture. Use <b>Next</b>, and turn the picture at any step.</p>
+  <div class="g3">
+    <div>
+      <div class="view3d" id="s1View"></div>
+      <div class="legend" id="s1Legend"></div>
+    </div>
+    <div>
+      <div class="flattitle">The screen, as the eye E sees it</div>
+      <div class="flat sq" id="s1Flat"></div>
+      <p class="small" id="s1FlatNote">Same square as the blue screen on the left, seen straight on from E. The white square is the screen; the gray band around it is outside the screen.</p>
+    </div>
+    <div class="panel">
+      <div class="stepnav"><button class="btn" id="s1Prev" type="button">← Back</button><div class="dots" id="s1Dots"></div><button class="btn primary" id="s1Next" type="button">Next →</button></div>
+      <div class="stepno" id="s1No"></div>
+      <h3 id="s1Title"></h3>
+      <div class="caption" id="s1Cap"></div>
+      <div class="nums" id="s1Nums"></div>
+      <div id="s1Sl"></div>
+    </div>
+  </div>
+</section>
+
+<section class="card" id="s2">
+  <h2>2 · From the screen to canvas pixels: <code>screen()</code></h2>
+  <p class="lead"><code>project()</code> gives <span class="m"><i>x</i>′</span> and <span class="m"><i>y</i>′</span> between −1 and 1 (the picture starts with P′ = (0.500, 0.300) from Section 1). The canvas needs pixels: 0 to 800, counted from its top-left corner. The function <code>screen()</code> converts one into the other. In every step the point stays where it is; only the ruler we measure it with changes. Drag the amber point P′.</p>
+  <div class="gmap">
+    <div class="flat map" id="s2Flat"></div>
+    <div class="panel">
+      <div class="stepnav"><button class="btn" id="s2Prev" type="button">← Back</button><div class="dots" id="s2Dots"></div><button class="btn primary" id="s2Next" type="button">Next →</button></div>
+      <div class="stepno" id="s2No"></div>
+      <h3 id="s2Title"></h3>
+      <div class="caption" id="s2Cap" style="min-height:96px"></div>
+      <div id="s2Nums"></div>
+      <pre class="code" id="s2Code"></pre>
+      <div id="s2Sl"></div>
+    </div>
+  </div>
+</section>
+
+<section class="card" id="s3">
+  <h2>3 · A cube: 8 corners, 12 edges, and <code>translate_z</code></h2>
+  <p class="lead">A cube is 8 corner points (the list <code>vs</code> in <code>cube.js</code>) joined by 12 edges (the list <code>fs</code>). The code projects only the corners. Then it draws a straight line between the two projected corners of every edge. Before projecting, <code>translate_z</code> pushes the cube forward by <span class="m"><i>dz</i></span>.</p>
+  <div class="g3">
+    <div>
+      <div class="view3d" id="s3View"></div>
+      <div class="legend" id="s3Legend"></div>
+    </div>
+    <div>
+      <div class="flattitle">What the code draws</div>
+      <div class="flat out" id="s3Out"></div>
+      <p class="small">The code's 800 × 800 canvas. Lines that leave the canvas are cut off at its edge.</p>
+    </div>
+    <div class="panel">
+      <div id="s3Sl"></div>
+      <div class="ctl"><label><input type="checkbox" id="s3Sight" checked> Show the sight lines</label><label><input type="checkbox" id="s3Fan"> Show why an edge stays straight</label></div>
+      <div id="s3Msg"></div>
+      <div id="s3Tbl"></div>
+      <div id="s3Trace"></div>
+    </div>
+  </div>
+</section>
+
+<section class="card" id="s4">
+  <h2>4 · Spinning the cube: <code>rotate_xz</code></h2>
+  <p class="lead"><code>rotate_xz(p, θ)</code> turns a point around the vertical <span class="m"><i>y</i></span> axis by the angle <span class="m"><i>θ</i></span> (the Greek letter theta). The point keeps its height <span class="m"><i>y</i></span>; only <span class="m"><i>x</i></span> and <span class="m"><i>z</i></span> change. The code turns the corners <b>before</b> <code>translate_z</code>, while the cube's center is still at (0, 0, 0), so the cube spins around its own center. The picture shows the corners after <code>translate_z</code> too (with <span class="m"><i>dz</i></span> = 1), so the cube sits in front of E.</p>
+  <div class="g3">
+    <div>
+      <div class="view3d" id="s4View"></div>
+      <div class="legend" id="s4Legend"></div>
+    </div>
+    <div>
+      <div class="flattitle">From above: the two direction arrows, turned by <span class="m"><i>θ</i></span></div>
+      <div class="flat inset" id="s4Inset"></div>
+      <p class="small">Seen from above: <span class="m"><i>x</i></span> to the right, <span class="m"><i>z</i></span> up the picture. Gray: the <span class="m"><i>x</i></span> direction (1, 0) and the <span class="m"><i>z</i></span> direction (0, 1). Violet: the <span class="m"><i>x</i></span> direction turned by <span class="m"><i>θ</i></span>; its tip is at (cos <span class="m"><i>θ</i></span>, sin <span class="m"><i>θ</i></span>) — that is what cos and sin mean. Teal: the <span class="m"><i>z</i></span> direction turned by <span class="m"><i>θ</i></span>, with its tip at (−sin <span class="m"><i>θ</i></span>, cos <span class="m"><i>θ</i></span>).</p>
+      <div class="ctl"><span>Corner to follow:</span><div class="pick" id="s4Pick"></div></div>
+    </div>
+    <div class="panel">
+      <div id="s4Sl"></div>
+      <div class="ctl"><button class="btn" id="s4Play" type="button">Play</button><label><input type="checkbox" id="s4Arrows" checked> Show the two arrows</label><label><input type="checkbox" id="s4Wrong"> Swap the order (wrong)</label></div>
+      <div id="s4Nums"></div>
+    </div>
+  </div>
+</section>
+
+<section class="card" id="s5">
+  <h2>5 · Everything together: one frame of the code</h2>
+  <p class="lead">Every frame, <code>frame()</code> grows the angle, clears the canvas, and sends both corners of every edge through four functions. Then it draws a line between the two results. Read the nested call from the inside out: <code>rotate_xz</code> runs first and <code>screen</code> runs last. Pick a corner to follow its numbers through all four functions.</p>
+  <div class="g3">
+    <div>
+      <div class="view3d" id="s5View"></div>
+      <div class="legend" id="s5Legend"></div>
+    </div>
+    <div>
+      <div class="flattitle">What the code draws</div>
+      <div class="flat out" id="s5Out"></div>
+      <div class="ctl"><span>Corner to follow:</span><div class="pick" id="s5Pick"></div></div>
+      <div id="s5Sl"></div>
+      <div class="ctl"><button class="btn" id="s5Play" type="button">Play</button><label><input type="checkbox" id="s5Fast"> Code speed (180° per second)</label><label><input type="checkbox" id="s5Ghost"> Show the whole cube at ① and ②</label></div>
+    </div>
+    <div class="panel pipe" id="s5Pipe"></div>
+  </div>
+  <div class="flow" id="s5Flow"></div>
+  <div class="g2" style="margin-top:12px">
+    <div>
+      <div class="flattitle">index.js — <code>frame()</code> (from the repository)</div>
+      <pre class="code" id="s5Code"></pre>
+    </div>
+    <div>
+      <div class="flattitle">The four functions it calls</div>
+      <pre class="code" id="s5Fns"></pre>
+    </div>
+  </div>
+</section>
+
+<section class="card" id="s6">
+  <h2>6 · Check yourself</h2>
+  <p class="lead">Each question has a picture. Pick an answer; the picture then draws the reason.</p>
+  <div id="exList"></div>
+</section>
+
+<footer class="card">
+  <h3>How this page draws its 3D pictures</h3>
+  <p>There is no 3D library on this page. For every dot and line, the page measures how far the point is to the right of its own camera, above it, and in front of it, then divides the first two numbers by the third — the same <span class="m"><i>x</i> ÷ <i>z</i></span>, <span class="m"><i>y</i> ÷ <i>z</i></span> as above. Dragging a picture only moves that camera.</p>
+  <p>Source: <a href="https://github.com/tsoding/formula">tsoding/formula</a> (MIT license); the code excerpts above are copied from its <code>index.js</code> and <code>cube.js</code>. Video: <a href="https://www.youtube.com/watch?v=qjWkNZ0SXfo">youtube.com/watch?v=qjWkNZ0SXfo</a>.</p>
+</footer>
+
+</div>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const DEG = Math.PI / 180;
+const SUB = ['₀', '₁', '₂', '₃', '₄'];
+
+const COL = {
+  eye: '#111827', axis: '#6b7280', screen: '#1e40af', p: '#4338ca', pp: '#d97706', sight: '#be185d',
+  cube: '#059669', bad: '#dc2626', vx: '#7c3aed', vz: '#0891b2', grid: '#dedbd1', edge: '#9ca3af', gray: '#9ca3af',
+};
+const TXT = {
+  [COL.eye]: '#111827', [COL.axis]: '#4b5563', [COL.screen]: '#1e3a8a', [COL.p]: '#3730a3', [COL.pp]: '#b45309',
+  [COL.sight]: '#9d174d', [COL.cube]: '#047857', [COL.bad]: '#b91c1c', [COL.vx]: '#6d28d9', [COL.vz]: '#0e7490', [COL.gray]: '#4b5563',
+};
+const textCol = c => TXT[c] || c;
+
+/* ---------- vectors ---------- */
+const V = {
+  add: (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]],
+  sub: (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]],
+  mul: (a, s) => [a[0] * s, a[1] * s, a[2] * s],
+  dot: (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2],
+  cross: (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]],
+  norm: a => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; },
+  lerp: (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t],
+};
+
+/* ---------- the code from tsoding/formula (index.js, cube.js), on [x, y, z] arrays ---------- */
+const Code = {
+  project: p => [p[0] / p[2], p[1] / p[2]],
+  screen: p => [(p[0] + 1) / 2 * 800, (1 - (p[1] + 1) / 2) * 800],
+  translate_z: (p, dz) => [p[0], p[1], p[2] + dz],
+  rotate_xz: (p, a) => { const c = Math.cos(a), s = Math.sin(a); return [p[0] * c - p[2] * s, p[1], p[0] * s + p[2] * c]; },
+};
+const CUBE_VS = [
+  [0.25, 0.25, 0.25], [-0.25, 0.25, 0.25], [-0.25, -0.25, 0.25], [0.25, -0.25, 0.25],
+  [0.25, 0.25, -0.25], [-0.25, 0.25, -0.25], [-0.25, -0.25, -0.25], [0.25, -0.25, -0.25],
+];
+const CUBE_FS = [[0, 1, 2, 3], [4, 5, 6, 7], [0, 4], [1, 5], [2, 6], [3, 7]];
+const CUBE_EDGES = (() => {
+  const m = new Map();
+  for (const f of CUBE_FS) for (let i = 0; i < f.length; i++) {
+    const a = f[i], b = f[(i + 1) % f.length], k = Math.min(a, b) + '-' + Math.max(a, b);
+    if (!m.has(k)) m.set(k, [a, b]);
+  }
+  return [...m.values()];
+})();
+
+/* ---------- 3-decimal arithmetic: every displayed line is calculator-exact ----------
+   Values are integers counting thousandths. Rounding is half away from zero. */
+const Dm = {
+  q(v) { const a = Math.floor(Math.abs(v) * 1000 + 0.5 + 1e-7); return v < 0 && a !== 0 ? -a : a; },
+  rd(n, d) {
+    if (d === 0n) return NaN;
+    const neg = (n < 0n) !== (d < 0n), an = n < 0n ? -n : n, ad = d < 0n ? -d : d;
+    const r = Number((2n * an + ad) / (2n * ad));
+    return neg && r !== 0 ? -r : r;
+  },
+  mul(a, b) { return this.rd(BigInt(a) * BigInt(b), 1000n); },
+  div(a, b) { return b === 0 || !Number.isFinite(a) || !Number.isFinite(b) ? NaN : this.rd(BigInt(a) * 1000n, BigInt(b)); },
+  divInt(a, k) { return Number.isFinite(a) ? this.rd(BigInt(a), BigInt(k)) : NaN; },
+  f(m) {
+    if (!Number.isFinite(m)) return 'no answer';
+    const a = Math.abs(m);
+    return (m < 0 ? '−' : '') + Math.floor(a / 1000) + '.' + String(a % 1000).padStart(3, '0');
+  },
+};
+const f3 = v => Dm.f(Dm.q(v));
+const fpar = m => (Number.isFinite(m) && m < 0) ? '(' + Dm.f(m) + ')' : Dm.f(m);
+const MX = '<i>x</i>', MY = '<i>y</i>', MZ = '<i>z</i>', MXP = '<i>x</i>′', MYP = '<i>y</i>′', MTH = '<i>θ</i>';
+const eq = (lhs, ...parts) => '<div class="eq">' + (lhs ? '<span class="lhs">' + lhs + '</span> = ' : '') + parts.join(' = ') + '</div>';
+const B = s => '<b>' + s + '</b>';
+
+/* ---------- popup with a point's coordinates ---------- */
+const SPACE_W = 'World coordinates: the eye E is at (0, 0, 0); x grows to the right, y grows up, z grows forward (in front of E).';
+const SPACE_S = 'Screen coordinates: measured from the screen center C; the screen square runs from −1 to 1 in both directions.';
+const SPACE_PX = 'Canvas pixels: measured from the canvas\'s top-left corner; x to the right, y downward; the canvas is 800 × 800.';
+function renderInfo(i) {
+  let s = '<div class="pt">' + i.title + '</div>';
+  if (i.role) s += '<div class="role">' + i.role + '</div>';
+  if (i.rows) s += '<table>' + i.rows.map(([k, v]) => '<tr><th>' + k + '</th><td>' + v + '</td></tr>').join('') + '</table>';
+  if (i.space) s += '<div class="space">' + i.space + '</div>';
+  return s;
+}
+const infoW = (title, role, p) => () => ({ title, role, rows: [['x', f3(p[0])], ['y', f3(p[1])], ['z', f3(p[2])]], space: SPACE_W });
+function infoProj(title, role, p) {
+  return () => {
+    const x = Dm.q(p[0]), y = Dm.q(p[1]), z = Dm.q(p[2]);
+    return {
+      title, role, space: SPACE_W + ' On the screen, x′ and y′ are also its screen coordinates.',
+      rows: [['x′', 'x ÷ z = ' + Dm.f(x) + ' ÷ ' + fpar(z) + ' = ' + Dm.f(Dm.div(x, z))], ['y′', 'y ÷ z = ' + Dm.f(y) + ' ÷ ' + fpar(z) + ' = ' + Dm.f(Dm.div(y, z))], ['z', '1 (every point of the screen)']],
+    };
+  };
+}
+
+const Pop = {
+  init() {
+    this.el = $('#pop'); this.body = this.el.querySelector('.pop-body');
+    this.el.querySelector('.pop-x').addEventListener('click', () => this.close());
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && this.src) this.close(); });
+    document.addEventListener('pointerdown', e => {
+      if (!this.src) return;
+      if (this.el.contains(e.target) || e.target.tagName === 'CANVAS' || e.target.closest('.chip')) return;
+      this.close();
+    }, true);
+    addEventListener('scroll', () => this.place(), { passive: true });
+    addEventListener('resize', () => this.place());
+  },
+  open(src, id, anchor) {
+    if (this.src && this.src !== src) this.src.dirty = true;
+    this.src = src; this.id = id; this.anchor = anchor || null; this.last = ''; this.has = false;
+    src.dirty = true; this.el.hidden = false;
+    const h = src.hitById(id);
+    if (h) this.fill(h);
+    else { this.body.innerHTML = '<div class="pt">Not in view</div><div class="role">This point is outside the current view of the picture. Press “Angled” or zoom out.</div>'; this.last = this.body.innerHTML; }
+    this.place();
+    if (anchor) this.el.querySelector('.pop-x').focus({ preventScroll: true });
+  },
+  fill(h) {
+    this.hx = h.x; this.hy = h.y; this.has = true;
+    const html = renderInfo(h.info());
+    if (html !== this.last) { this.body.innerHTML = html; this.last = html; }
+  },
+  refresh(src) {
+    if (this.src !== src) return;
+    const h = src.hitById(this.id);
+    if (h) this.fill(h); else this.has = false;
+    this.place();
+  },
+  close() { if (this.src) this.src.dirty = true; this.src = null; this.el.hidden = true; },
+  place() {
+    if (!this.src) return;
+    let ax, ay;
+    if (this.has) { const r = this.src.canvas.getBoundingClientRect(); ax = r.left + this.hx; ay = r.top + this.hy; }
+    else if (this.anchor) { const r = this.anchor.getBoundingClientRect(); ax = r.left; ay = r.bottom; }
+    else return;
+    const pw = this.el.offsetWidth, ph = this.el.offsetHeight;
+    let x = ax + 16, y = ay + 16;
+    if (x + pw > innerWidth - 8) x = ax - 16 - pw;
+    if (y + ph > innerHeight - 8) y = ay - 16 - ph;
+    this.el.style.left = clamp(x, 8, Math.max(8, innerWidth - pw - 8)) + 'px';
+    this.el.style.top = clamp(y, 8, Math.max(8, innerHeight - ph - 8)) + 'px';
+  },
+};
+
+function placeLabels(ctx, list, hits, W, H, halo) {
+  const placed = [];
+  const obst = hits.map(h => ({ x: h.x - h.r - 1, y: h.y - h.r - 1, w: 2 * h.r + 2, h: 2 * h.r + 2 }));
+  const ov = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+  for (const L of list) {
+    ctx.font = L.weight + ' ' + L.size + 'px ' + FONT;
+    const tw = ctx.measureText(L.text).width, th = L.size + 2, g = L.r + 5, [ax, ay] = L.at;
+    const C = {
+      ru: [ax + g, ay - g - th / 2 + 3], rd: [ax + g, ay + g + th / 2 - 3],
+      lu: [ax - g - tw, ay - g - th / 2 + 3], ld: [ax - g - tw, ay + g + th / 2 - 3],
+      u: [ax - tw / 2, ay - g - th / 2], d: [ax - tw / 2, ay + g + th / 2],
+      r: [ax + g + 2, ay], l: [ax - g - 2 - tw, ay],
+    };
+    const pref = { left: ['l', 'lu', 'ld'], right: ['r', 'ru', 'rd'], above: ['u', 'ru', 'lu'], below: ['d', 'rd', 'ld'] }[L.side] || [];
+    const order = pref.concat(['ru', 'rd', 'lu', 'ld', 'u', 'd', 'r', 'l']);
+    let pick = null, first = null;
+    for (const k of order) {
+      const [lx, cy] = C[k], box = { x: lx - 3, y: cy - th / 2 - 1, w: tw + 6, h: th + 2 };
+      const inside = box.x >= 1 && box.y >= 1 && box.x + box.w <= W - 1 && box.y + box.h <= H - 1;
+      if (inside && !first) first = box;
+      if (inside && !placed.some(q => ov(q, box)) && !obst.some(q => ov(q, box))) { pick = box; break; }
+    }
+    const box = pick || first || { x: C[order[0]][0] - 3, y: C[order[0]][1] - th / 2 - 1, w: tw + 6, h: th + 2 };
+    placed.push(box);
+    drawLabel(ctx, L.text, box.x + 3, box.y + box.h / 2, L.color, L.size, L.weight, halo);
+  }
+}
+
+/* ---------- a tiny 3D renderer: every point is measured from the camera, then x ÷ z, y ÷ z ---------- */
+const NEAR = 0.05;
+function clipPoly(vs) {
+  const out = [];
+  for (let i = 0; i < vs.length; i++) {
+    const a = vs[i], b = vs[(i + 1) % vs.length], ain = a[2] >= NEAR, bin = b[2] >= NEAR;
+    if (ain) out.push(a);
+    if (ain !== bin) out.push(V.lerp(a, b, (NEAR - a[2]) / (b[2] - a[2])));
+  }
+  return out;
+}
+function drawLabel(ctx, text, x, y, color, size, weight, halo) {
+  ctx.font = weight + ' ' + size + 'px ' + FONT;
+  ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = halo || 'rgba(251,251,248,.95)';
+  ctx.strokeText(text, x, y); ctx.fillStyle = color; ctx.fillText(text, x, y);
+}
+
+class View3D {
+  constructor(host, o) {
+    this.host = host;
+    this.canvas = document.createElement('canvas');
+    this.canvas.tabIndex = 0;
+    this.canvas.setAttribute('aria-label', o.aria || '3D picture. Drag or use the arrow keys to turn it.');
+    host.prepend(this.canvas);
+    this.ctx = this.canvas.getContext('2d');
+    this.home = { yaw: o.yaw ?? 0.75, pitch: o.pitch ?? 0.33, dist: o.dist ?? 8, target: (o.target ?? [0.2, 0, 1.6]).slice() };
+    this.yaw = this.home.yaw; this.pitch = this.home.pitch; this.dist = this.home.dist; this.target = this.home.target.slice();
+    this.fov = (o.fov ?? 36) * DEG;
+    this.drawFn = o.draw;
+    this.prims = []; this.hits = []; this.dirty = true; this.tween = null; this.userMoved = false;
+    this.w = 300; this.h = 150; this.dpr = 1;
+    this.bindInput();
+    new ResizeObserver(() => this.resize()).observe(host);
+    this.resize();
+  }
+  resize() {
+    const r = this.host.getBoundingClientRect();
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.w = Math.max(50, r.width); this.h = Math.max(50, r.height);
+    this.canvas.width = Math.round(this.w * this.dpr); this.canvas.height = Math.round(this.h * this.dpr);
+    this.dirty = true;
+  }
+  presets() {
+    const h = this.home;
+    return {
+      angled: h,
+      top: { yaw: 0, pitch: 1.565, dist: h.dist, target: h.target },
+      side: { yaw: Math.PI / 2, pitch: 0, dist: h.dist, target: h.target },
+      behind: { yaw: 0, pitch: 0.12, dist: h.dist, target: h.target },
+    };
+  }
+  setView(v, ms = 750) {
+    const to = { yaw: v.yaw ?? this.yaw, pitch: v.pitch ?? this.pitch, dist: v.dist ?? this.dist, target: (v.target ?? this.target).slice() };
+    this.userMoved = false;
+    if (ms <= 0 || reduceMotion) { this.yaw = to.yaw; this.pitch = to.pitch; this.dist = to.dist; this.target = to.target; this.tween = null; this.dirty = true; return; }
+    this.tween = { from: { yaw: this.yaw, pitch: this.pitch, dist: this.dist, target: this.target.slice() }, to, t0: performance.now(), ms };
+    this.dirty = true;
+  }
+  stepTween(now) {
+    const tw = this.tween; if (!tw) return;
+    const k = clamp((now - tw.t0) / tw.ms, 0, 1), e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+    let dy = tw.to.yaw - tw.from.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
+    this.yaw = tw.from.yaw + dy * e;
+    this.pitch = tw.from.pitch + (tw.to.pitch - tw.from.pitch) * e;
+    this.dist = tw.from.dist + (tw.to.dist - tw.from.dist) * e;
+    this.target = V.lerp(tw.from.target, tw.to.target, e);
+    this.dirty = true;
+    if (k >= 1) this.tween = null;
+  }
+  fitDist(halfV, halfH) { const t = Math.tan(this.fov / 2); return Math.max(halfV / t, halfH / (t * (this.w / this.h)), 2.2); }
+  cam() {
+    const cp = Math.cos(this.pitch), sp = Math.sin(this.pitch);
+    const pos = V.add(this.target, V.mul([cp * Math.sin(this.yaw), sp, -cp * Math.cos(this.yaw)], this.dist));
+    const f = V.norm(V.sub(this.target, pos)), r = V.norm(V.cross([0, 1, 0], f)), u = V.cross(f, r);
+    return { pos, f, r, u };
+  }
+  zoom(k) { this.dist = clamp(this.dist * k, 1.2, 40); this.userMoved = true; this.tween = null; this.dirty = true; }
+  bindInput() {
+    const cv = this.canvas;
+    cv.addEventListener('contextmenu', e => e.preventDefault());
+    cv.addEventListener('pointerdown', e => {
+      try { cv.setPointerCapture(e.pointerId); } catch (_) { /* pointer already released */ }
+      this.drag = { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, pan: e.shiftKey || e.button === 2, moved: false };
+    });
+    cv.addEventListener('pointermove', e => {
+      const d = this.drag; if (!d) return;
+      if (!d.moved && Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 4) return;
+      const dx = e.clientX - d.x, dy = e.clientY - d.y; d.x = e.clientX; d.y = e.clientY;
+      if (!d.moved) { d.moved = true; cv.classList.add('grabbing'); }
+      this.tween = null; this.userMoved = true;
+      if (d.pan) { const c = this.cam(), k = this.dist * 0.0017; this.target = V.add(this.target, V.add(V.mul(c.r, -dx * k), V.mul(c.u, dy * k))); }
+      else { this.yaw -= dx * 0.008; this.pitch = clamp(this.pitch + dy * 0.008, -1.565, 1.565); }
+      this.dirty = true;
+    });
+    const end = e => {
+      const d = this.drag; this.drag = null; cv.classList.remove('grabbing');
+      if (d && !d.moved && e.type === 'pointerup') this.pick(e);
+    };
+    cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+    cv.addEventListener('wheel', e => {
+      if (!(e.ctrlKey || e.metaKey || e.altKey)) return;
+      e.preventDefault(); this.zoom(Math.exp(clamp(e.deltaY, -60, 60) * 0.006));
+    }, { passive: false });
+    cv.addEventListener('dblclick', () => this.setView(this.home));
+    cv.addEventListener('keydown', e => {
+      const k = e.key; let used = true;
+      if (k === 'ArrowLeft') this.yaw += 0.08; else if (k === 'ArrowRight') this.yaw -= 0.08;
+      else if (k === 'ArrowUp') this.pitch = clamp(this.pitch + 0.08, -1.565, 1.565);
+      else if (k === 'ArrowDown') this.pitch = clamp(this.pitch - 0.08, -1.565, 1.565);
+      else if (k === '+' || k === '=') this.zoom(1 / 1.15); else if (k === '-') this.zoom(1.15);
+      else used = false;
+      if (used) { e.preventDefault(); this.tween = null; this.userMoved = true; this.dirty = true; }
+    });
+  }
+  pick(e) {
+    const r = this.canvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    let best = null, bd = 1e9;
+    for (const h of this.hits) { const d = Math.hypot(h.x - x, h.y - y); if (d <= h.r + 7 && d < bd) { bd = d; best = h; } }
+    if (best) Pop.open(this, best.id); else Pop.close();
+  }
+  hitById(id) { return this.hits.find(h => h.id === id); }
+  line(a, b, s = {}) { this.prims.push(Object.assign({ t: 'line', a, b }, s)); }
+  arrow(a, b, s = {}) { this.prims.push(Object.assign({ t: 'line', a, b, head: true }, s)); }
+  poly(pts, s = {}) { this.prims.push(Object.assign({ t: 'poly', pts }, s)); }
+  point(p, s = {}) { this.prims.push(Object.assign({ t: 'point', p }, s)); }
+  label(p, text, s = {}) { this.prims.push(Object.assign({ t: 'label', p, text }, s)); }
+  frame(now) {
+    this.stepTween(now);
+    if (!this.dirty) return;
+    this.dirty = false; this.prims = [];
+    this.drawFn(this, now);
+    this.render();
+    Pop.refresh(this);
+  }
+  render() {
+    const ctx = this.ctx, W = this.w, H = this.h;
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    ctx.fillStyle = '#fbfbf8'; ctx.fillRect(0, 0, W, H);
+    const c = this.cam(), F = (H / 2) / Math.tan(this.fov / 2);
+    const P = q => { const d = V.sub(q, c.pos); return [V.dot(d, c.r), V.dot(d, c.u), V.dot(d, c.f)]; };
+    const S = v => [W / 2 + v[0] / v[2] * F, H / 2 - v[1] / v[2] * F];
+    const items = [], labels = [], ptLabels = [];
+    for (const p of this.prims) {
+      if (p.t === 'line') {
+        let a = P(p.a), b = P(p.b);
+        if (a[2] < NEAR && b[2] < NEAR) continue;
+        let cutB = false;
+        if (a[2] < NEAR) a = V.lerp(a, b, (NEAR - a[2]) / (b[2] - a[2]));
+        if (b[2] < NEAR) { b = V.lerp(b, a, (NEAR - b[2]) / (a[2] - b[2])); cutB = true; }
+        items.push({ p, layer: p.layer ?? 1, depth: (a[2] + b[2]) / 2, A: S(a), B: S(b), cutB });
+        if (p.label) labels.push({ text: p.label, at: S(V.lerp(a, b, p.labelAt ?? 0.5)), r: 3, color: textCol(p.labelColor || p.color), size: p.labelSize || 15, weight: 650, side: p.labelSide });
+      } else if (p.t === 'poly') {
+        const pv = clipPoly(p.pts.map(P));
+        if (pv.length < 3) continue;
+        items.push({ p, layer: p.layer ?? 1, depth: pv.reduce((s, v) => s + v[2], 0) / pv.length, pts: pv.map(S) });
+      } else if (p.t === 'point') {
+        const v = P(p.p); if (v[2] < NEAR) continue;
+        items.push({ p, layer: p.layer ?? 2, depth: v[2], at: S(v) });
+      } else if (p.t === 'label') {
+        const v = P(p.p); if (v[2] < NEAR) continue;
+        labels.push({ text: p.text, at: S(v), r: p.r ?? 3, color: textCol(p.color || '#374151'), size: p.size || 15, weight: p.weight || 650, side: p.side });
+      }
+    }
+    items.sort((x, y) => (x.layer - y.layer) || (y.depth - x.depth));
+    this.hits = [];
+    for (const it of items) {
+      const p = it.p;
+      ctx.save(); ctx.globalAlpha = p.alpha ?? 1;
+      if (p.t === 'line') {
+        let [ax, ay] = it.A, [bx, by] = it.B;
+        const dx = bx - ax, dy = by - ay, L = Math.hypot(dx, dy);
+        const hl = p.headLen || 12, hw = p.headW || 5.5, head = p.head && !it.cutB && L > hl * 1.2;
+        let ex = bx, ey = by;
+        if (head) { ex = bx - dx / L * hl * 0.8; ey = by - dy / L * hl * 0.8; }
+        ctx.lineCap = 'round'; ctx.setLineDash(p.dash || []);
+        if (p.halo) { ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = (p.width || 1.5) + 4; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ex, ey); ctx.stroke(); }
+        ctx.strokeStyle = p.color || '#333'; ctx.lineWidth = p.width || 1.5;
+        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ex, ey); ctx.stroke();
+        if (head) {
+          const ux = dx / L, uy = dy / L; ctx.setLineDash([]); ctx.fillStyle = p.color || '#333';
+          ctx.beginPath(); ctx.moveTo(bx, by);
+          ctx.lineTo(bx - ux * hl - uy * hw, by - uy * hl + ux * hw); ctx.lineTo(bx - ux * hl + uy * hw, by - uy * hl - ux * hw);
+          ctx.closePath(); ctx.fill();
+        }
+      } else if (p.t === 'poly') {
+        ctx.beginPath(); it.pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath();
+        if (p.fill) { ctx.globalAlpha = (p.alpha ?? 1) * (p.fillAlpha ?? 0.15); ctx.fillStyle = p.fill; ctx.fill(); ctx.globalAlpha = p.alpha ?? 1; }
+        if (p.stroke) { ctx.setLineDash(p.dash || []); ctx.strokeStyle = p.stroke; ctx.lineWidth = p.strokeWidth || 1.5; ctx.lineJoin = 'round'; ctx.stroke(); }
+      } else {
+        const [x, y] = it.at, r = p.r || 5;
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+        if (p.hollow) { ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = p.color; ctx.stroke(); }
+        else { ctx.fillStyle = p.color; ctx.fill(); ctx.lineWidth = 1.6; ctx.strokeStyle = '#fff'; ctx.stroke(); }
+        if (p.id) this.hits.push({ id: p.id, x, y, r, info: p.info || (() => ({ title: p.label || p.id })) });
+        if (p.label) ptLabels.push({ text: p.label, at: [x, y], r: r + 1, color: textCol(p.labelColor || p.color), size: p.labelSize || 15, weight: 700, side: p.labelSide });
+      }
+      ctx.restore();
+    }
+    if (Pop.src === this) {
+      const h = this.hits.find(q => q.id === Pop.id);
+      if (h) { ctx.beginPath(); ctx.arc(h.x, h.y, h.r + 5, 0, Math.PI * 2); ctx.strokeStyle = '#111827'; ctx.lineWidth = 2; ctx.setLineDash([]); ctx.stroke(); }
+    }
+    this.placeLabels(ptLabels.concat(labels));
+  }
+  placeLabels(list) { placeLabels(this.ctx, list, this.hits, this.w, this.h); }
+}
+
+function addViewBar(view, extraHint) {
+  const bar = document.createElement('div'); bar.className = 'viewbar';
+  const P = view.presets();
+  const mk = (txt, fn, title) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = txt; b.title = title || txt; b.addEventListener('click', fn); bar.append(b); };
+  mk('Angled', () => view.setView(view.home), 'The starting view');
+  mk('From above', () => view.setView(P.top), 'Look straight down: y is hidden');
+  mk('From the side', () => view.setView(P.side), 'Look from the right side: x is hidden');
+  mk('From behind E', () => view.setView(P.behind), 'Stand behind the eye and look forward, like the code');
+  mk('+', () => view.zoom(1 / 1.2), 'Zoom in'); mk('−', () => view.zoom(1.2), 'Zoom out');
+  view.host.append(bar);
+  const hint = document.createElement('div'); hint.className = 'hint';
+  hint.textContent = extraHint || 'Drag to turn · Ctrl + scroll to zoom · click a dot';
+  view.host.append(hint);
+}
+
+/* ---------- flat (2D) canvases ---------- */
+class Flat {
+  constructor(host, draw, o = {}) {
+    this.host = host; this.drawFn = draw; this.o = o; this.hits = []; this.dirty = true;
+    this.canvas = document.createElement('canvas'); host.prepend(this.canvas);
+    this.ctx = this.canvas.getContext('2d');
+    const cv = this.canvas;
+    cv.addEventListener('pointerdown', e => {
+      const [x, y] = this.xy(e);
+      this.down = { x, y, moved: false, drag: !!(o.onDown && o.onDown(x, y)) };
+      try { cv.setPointerCapture(e.pointerId); } catch (_) { /* pointer already released */ }
+    });
+    cv.addEventListener('pointermove', e => {
+      const [x, y] = this.xy(e);
+      if (o.cursor) cv.style.cursor = o.cursor(x, y) || 'default';
+      const d = this.down; if (!d) return;
+      if (Math.hypot(x - d.x, y - d.y) > 3) d.moved = true;
+      if (d.drag && d.moved && o.onMove) o.onMove(x, y);
+    });
+    cv.addEventListener('pointerup', e => { const d = this.down; this.down = null; if (d && !d.moved) this.pick(...this.xy(e)); });
+    cv.addEventListener('pointercancel', () => { this.down = null; });
+    new ResizeObserver(() => this.resize()).observe(host);
+    this.resize();
+  }
+  xy(e) { const r = this.canvas.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+  resize() {
+    const r = this.host.getBoundingClientRect();
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.w = Math.max(50, r.width); this.h = Math.max(50, r.height);
+    this.canvas.width = Math.round(this.w * this.dpr); this.canvas.height = Math.round(this.h * this.dpr);
+    this.dirty = true;
+  }
+  hit(id, x, y, r, info) { this.hits.push({ id, x, y, r, info }); }
+  hitById(id) { return this.hits.find(h => h.id === id); }
+  pick(x, y) {
+    let best = null, bd = 1e9;
+    for (const h of this.hits) { const d = Math.hypot(h.x - x, h.y - y); if (d <= h.r + 7 && d < bd) { bd = d; best = h; } }
+    if (best) Pop.open(this, best.id); else Pop.close();
+  }
+  frame() {
+    if (!this.dirty) return;
+    this.dirty = false; this.hits = [];
+    const ctx = this.ctx;
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    ctx.clearRect(0, 0, this.w, this.h);
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, this.w, this.h);
+    this.drawFn(ctx, this.w, this.h, this);
+    if (Pop.src === this) {
+      const h = this.hitById(Pop.id);
+      if (h) { ctx.beginPath(); ctx.arc(h.x, h.y, h.r + 5, 0, Math.PI * 2); ctx.strokeStyle = this.o.ringColor || '#111827'; ctx.lineWidth = 2; ctx.setLineDash([]); ctx.stroke(); }
+    }
+    Pop.refresh(this);
+  }
+}
+function dot2(ctx, x, y, r, color, hollow) {
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+  if (hollow) { ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = color; ctx.stroke(); }
+  else { ctx.fillStyle = color; ctx.fill(); ctx.lineWidth = 1.6; ctx.strokeStyle = '#fff'; ctx.stroke(); }
+}
+function text2(ctx, s, x, y, o = {}) {
+  ctx.textAlign = o.align || 'left'; ctx.textBaseline = o.base || 'middle';
+  drawLabel(ctx, s, x, y, o.color || '#374151', o.size || 15, o.weight || 600, o.halo || 'rgba(255,255,255,.95)');
+}
+function line2(ctx, x1, y1, x2, y2, color, width, dash) {
+  ctx.setLineDash(dash || []); ctx.strokeStyle = color; ctx.lineWidth = width || 1.5; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+}
+function arrow2(ctx, x1, y1, x2, y2, color, width) {
+  const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy); if (L < 2) return;
+  const ux = dx / L, uy = dy / L, hl = 11, hw = 5;
+  line2(ctx, x1, y1, x2 - ux * hl * 0.8, y2 - uy * hl * 0.8, color, width);
+  ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw); ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw); ctx.closePath(); ctx.fill();
+}
+
+/* ---------- shared UI pieces ---------- */
+function slider(container, o) {
+  const row = document.createElement('label'); row.className = 'sl';
+  row.innerHTML = '<span class="sl-name">' + o.label + '</span><input type="range" min="' + o.min + '" max="' + o.max + '" step="' + o.step + '" value="' + o.value + '"><output></output>';
+  const inp = row.querySelector('input'), out = row.querySelector('output');
+  const show = () => { out.textContent = o.fmt(+inp.value); };
+  inp.addEventListener('input', () => { show(); o.oninput(+inp.value); });
+  if (o.onchange) inp.addEventListener('change', () => o.onchange(+inp.value));
+  show(); container.append(row);
+  return { row, inp, set(v) { inp.value = v; show(); } };
+}
+function legend(el, items, src) {
+  el.innerHTML = '';
+  for (const it of items) {
+    const b = document.createElement(it.id ? 'button' : 'div');
+    b.className = 'lg' + (it.id ? ' chip' : '');
+    if (it.id) { b.type = 'button'; b.title = 'Show the coordinates of ' + it.name; }
+    b.innerHTML = '<span class="sw sw-' + it.sw + '" style="--c:' + it.c + '"></span><span><b>' + it.name + '</b> — ' + it.text + '</span>';
+    if (it.id) b.addEventListener('click', () => Pop.open(src, it.id, b));
+    el.append(b);
+  }
+}
+const LG = (sw, c, name, text, id) => ({ sw, c, name, text, id });
+function stepper(prefix, n, onGo) {
+  const dots = $('#' + prefix + 'Dots');
+  const st = { i: 0 };
+  for (let k = 0; k < n; k++) {
+    const b = document.createElement('button'); b.type = 'button'; b.title = 'Step ' + (k + 1);
+    b.setAttribute('aria-label', 'Step ' + (k + 1)); b.addEventListener('click', () => go(k)); dots.append(b);
+  }
+  function go(k) {
+    st.i = clamp(k, 0, n - 1);
+    [...dots.children].forEach((b, j) => b.classList.toggle('on', j === st.i));
+    $('#' + prefix + 'Prev').disabled = st.i === 0; $('#' + prefix + 'Next').disabled = st.i === n - 1;
+    $('#' + prefix + 'No').textContent = 'Step ' + (st.i + 1) + ' of ' + n;
+    onGo(st.i);
+  }
+  $('#' + prefix + 'Prev').addEventListener('click', () => go(st.i - 1));
+  $('#' + prefix + 'Next').addEventListener('click', () => go(st.i + 1));
+  st.go = go;
+  return st;
+}
+function cornerPicker(el, get, set) {
+  const bs = [];
+  for (let i = 0; i < 8; i++) {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = i; b.title = 'Follow corner ' + i;
+    b.addEventListener('click', () => { set(i); sync(); }); el.append(b); bs.push(b);
+  }
+  function sync() { bs.forEach((b, i) => b.classList.toggle('on', i === get())); }
+  sync(); return sync;
+}
+
+/* ---------- scene pieces shared by the 3D pictures ---------- */
+function drawFloor(v, o = {}) {
+  const y = -1.25, x0 = o.x0 ?? -2, x1 = o.x1 ?? 2, z0 = o.z0 ?? -0.5, z1 = o.z1 ?? 4.5, st = { color: COL.grid, width: 1, layer: 0 };
+  for (let x = x0; x <= x1 + 1e-9; x += 0.5) v.line([x, y, z0], [x, y, z1], st);
+  for (let z = z0; z <= z1 + 1e-9; z += 0.5) v.line([x0, y, z], [x1, y, z], st);
+}
+function drawAxes(v, o = {}) {
+  const X = o.x ?? 1.6, Y = o.y ?? 1.4, Z = o.z ?? 4.4, zn = o.zNeg ?? 0.5;
+  const st = { color: COL.axis, width: 1.7 }, faint = { color: COL.axis, width: 1, alpha: 0.45 };
+  v.line([-X, 0, 0], [0, 0, 0], faint); v.arrow([0, 0, 0], [X, 0, 0], st);
+  v.line([0, -Y, 0], [0, 0, 0], faint); v.arrow([0, 0, 0], [0, Y, 0], st);
+  v.line([0, 0, -zn], [0, 0, 0], faint); v.arrow([0, 0, 0], [0, 0, Z], st);
+  v.label([X, 0, 0], o.toward === 'x' ? '+x right (toward you)' : '+x right', { color: COL.axis, r: 6 });
+  v.label([0, Y, 0], o.toward === 'y' ? '+y up (toward you)' : '+y up', { color: COL.axis, r: 6 });
+  v.label([0, 0, Z], '+z forward', { color: COL.axis, r: 6 });
+  for (const t of (o.ticks || [])) {
+    v.line([-0.06, 0, t], [0.06, 0, t], { color: COL.axis, width: 1.6 });
+    v.label([0, 0, t], 'z = ' + t, { color: COL.axis, size: 14, weight: 500, r: 4, side: 'below' });
+  }
+}
+function drawEye(v) {
+  v.point([0, 0, 0], { id: 'E', r: 6.5, color: COL.eye, label: 'E (eye)', info: infoW('E — the eye', 'The point we look from. The code has no camera object: the eye is simply the point (0, 0, 0), looking toward +z.', [0, 0, 0]) });
+}
+function drawScreen(v, o = {}) {
+  const cs = [[-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]];
+  v.poly(cs, { fill: COL.screen, fillAlpha: 0.07, stroke: COL.screen, strokeWidth: 2, layer: 0 });
+  if (o.grid !== false) for (const t of [-0.5, 0, 0.5]) {
+    const a = t === 0 ? 0.35 : 0.16;
+    v.line([t, -1, 1], [t, 1, 1], { color: COL.screen, alpha: a, width: 1, layer: 0 });
+    v.line([-1, t, 1], [1, t, 1], { color: COL.screen, alpha: a, width: 1, layer: 0 });
+  }
+  v.label([-1, 1, 1], 'screen (z = 1)', { color: COL.screen, r: 2 });
+  if (o.center !== false) v.point([0, 0, 1], { id: 'C', r: 4.5, color: COL.screen, label: 'C', info: infoW('C — the center of the screen', 'The screen is the square at z = 1, from −1 to 1 in x and in y. C is its middle.', [0, 0, 1]) });
+}
+function drawViewEdges(v, len = 3) {
+  for (const [x, y] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) v.line([0, 0, 0], [x * len, y * len, len], { color: COL.edge, width: 1, alpha: 0.7 });
+}
+function rightAngle(v, corner, d1, d2, s, color) {
+  const a = V.add(corner, V.mul(d1, s)), b = V.add(a, V.mul(d2, s)), c = V.add(corner, V.mul(d2, s));
+  v.line(a, b, { color, width: 1.5 }); v.line(b, c, { color, width: 1.5 });
+}
+const onScreen = c => [c[0] / c[2], c[1] / c[2], 1];
+
+/* one corner through the whole pipeline, rounded to 3 decimals on every line */
+function pipeline(i, deg, dz, wrong) {
+  const r = {};
+  r.x0 = Dm.q(CUBE_VS[i][0]); r.y0 = Dm.q(CUBE_VS[i][1]); r.z0 = Dm.q(CUBE_VS[i][2]);
+  r.c = Dm.q(Math.cos(deg * DEG)); r.s = Dm.q(Math.sin(deg * DEG)); r.dz = Dm.q(dz);
+  if (!wrong) {
+    r.xc = Dm.mul(r.x0, r.c); r.zs = Dm.mul(r.z0, r.s); r.x1 = r.xc - r.zs;
+    r.xs = Dm.mul(r.x0, r.s); r.zc = Dm.mul(r.z0, r.c); r.z1 = r.xs + r.zc; r.y1 = r.y0;
+    r.z2 = r.z1 + r.dz; r.x2 = r.x1;
+  } else {
+    r.zt = r.z0 + r.dz;
+    r.xc = Dm.mul(r.x0, r.c); r.zs = Dm.mul(r.zt, r.s); r.x1 = r.xc - r.zs;
+    r.xs = Dm.mul(r.x0, r.s); r.zc = Dm.mul(r.zt, r.c); r.z1 = r.xs + r.zc; r.y1 = r.y0;
+    r.x2 = r.x1; r.z2 = r.z1;
+  }
+  r.xp = Dm.div(r.x2, r.z2); r.yp = Dm.div(r.y1, r.z2);
+  r.sx1 = r.xp + 1000; r.sx2 = Dm.divInt(r.sx1, 2); r.sx3 = r.sx2 * 800;
+  r.sy1 = r.yp + 1000; r.sy2 = Dm.divInt(r.sy1, 2); r.sy3 = 1000 - r.sy2; r.sy4 = r.sy3 * 800;
+  return r;
+}
+
+function drawCubeScene(v, cs, o = {}) {
+  for (const [a, b] of CUBE_EDGES) v.line(cs[a], cs[b], { color: COL.cube, width: 2.4 });
+  cs.forEach((c, i) => {
+    const bad = c[2] <= 0, sel = o.sel === i;
+    v.point(c, {
+      id: 'c' + i, r: sel ? 6.5 : 4.5, color: bad ? COL.bad : COL.cube, label: o.labels ? String(i) : null, labelSize: 14,
+      info: infoW('Corner ' + i + ' of the cube', o.role || 'After rotate_xz and translate_z: the position the code projects.', c),
+    });
+    if (c[2] > 0) {
+      const pp = onScreen(c);
+      if (o.sight !== false) v.line([0, 0, 0], c[2] >= 1 ? c : pp, { color: COL.sight, width: sel ? 2.4 : 1.1, alpha: sel ? 0.95 : 0.5 });
+      v.point(pp, { id: 'p' + i, r: sel ? 5 : 3.3, color: COL.pp, label: sel ? i + '′' : null, info: infoProj(i + '′ — where corner ' + i + ' appears on the screen', 'The sight line from corner ' + i + ' to E crosses the screen here.', c) });
+    }
+  });
+  for (const [a, b] of CUBE_EDGES) {
+    const A = cs[a], Bc = cs[b];
+    if (A[2] > 0 && Bc[2] > 0) v.line(onScreen(A), onScreen(Bc), { color: '#047857', width: 1.7, layer: 0.5 });
+  }
+}
+
+/* the code's 800 × 800 canvas, drawn exactly like index.js does */
+function drawCodeCanvas(ctx, w, h, fl, cs, sel, chain) {
+  const ox = 72, oy = 52, s = Math.min(w - ox - 14, h - oy - 14), k = s / 800;
+  ctx.fillStyle = '#101010'; ctx.fillRect(ox, oy, s, s);
+  ctx.fillStyle = '#4b5563'; ctx.font = '14px ' + FONT;
+  for (const t of [0, 200, 400, 600, 800]) {
+    const X = ox + t * k, Y = oy + t * k;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(String(t), X, oy - 7);
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillText(String(t), ox - 8, Y);
+    line2(ctx, X, oy - 5, X, oy, '#9ca3af', 1); line2(ctx, ox - 5, Y, ox, Y, '#9ca3af', 1);
+  }
+  ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillStyle = '#4b5563';
+  ctx.fillText('pixel x →', ox, 18);
+  ctx.save(); ctx.translate(16, oy); ctx.rotate(Math.PI / 2); ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText('pixel y →', 0, 0); ctx.restore();
+  ctx.save(); ctx.beginPath(); ctx.rect(ox, oy, s, s); ctx.clip();
+  ctx.strokeStyle = '#50FF50'; ctx.lineWidth = Math.max(1.5, 3 * k); ctx.lineCap = 'butt';
+  for (const f of CUBE_FS) for (let i = 0; i < f.length; i++) {
+    const a = Code.screen(Code.project(cs[f[i]])), b = Code.screen(Code.project(cs[f[(i + 1) % f.length]]));
+    ctx.beginPath(); ctx.moveTo(ox + a[0] * k, oy + a[1] * k); ctx.lineTo(ox + b[0] * k, oy + b[1] * k); ctx.stroke();
+  }
+  ctx.restore();
+  cs.forEach((c, i) => {
+    const p = Code.screen(Code.project(c)), X = ox + p[0] * k, Y = oy + p[1] * k;
+    if (!Number.isFinite(X) || !Number.isFinite(Y) || X < ox - 1 || X > ox + s + 1 || Y < oy - 1 || Y > oy + s + 1) return;
+    fl.hit('px' + i, X, Y, 6, () => {
+      const r = chain(i);
+      return { title: 'Corner ' + i + ' on the canvas', role: 'The pixel where the code puts corner ' + i + '. Each line of the chain is rounded to 3 decimals, so the last digit can differ slightly from the exact value.', rows: [['x', Dm.f(r.sx3) + ' px'], ['y', Dm.f(r.sy4) + ' px']], space: SPACE_PX };
+    });
+    if (i === sel) {
+      ctx.beginPath(); ctx.arc(X, Y, 8, 0, Math.PI * 2); ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 2.5; ctx.stroke();
+      const r = chain(i), txt = 'corner ' + i + ': (' + Dm.f(r.sx3) + ', ' + Dm.f(r.sy4) + ') px';
+      ctx.font = '600 14px ' + FONT; const tw = ctx.measureText(txt).width;
+      let tx = X + 12, ty = Y - 16; if (tx + tw > ox + s - 4) tx = X - 12 - tw; tx = clamp(tx, ox + 4, ox + s - tw - 4); if (ty < oy + 12) ty = Y + 18; ty = clamp(ty, oy + 12, oy + s - 12);
+      ctx.fillStyle = 'rgba(16,16,16,.8)'; ctx.fillRect(tx - 4, ty - 10, tw + 8, 20);
+      ctx.fillStyle = '#fde68a'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(txt, tx, ty);
+    }
+  });
+}
+
+/* ---------- animation loop: only visible pictures redraw ---------- */
+const WIDGETS = [], rootMap = new Map();
+const io = new IntersectionObserver(es => { for (const e of es) { const w = rootMap.get(e.target); if (w) w.visible = e.isIntersecting; } }, { rootMargin: '300px' });
+function widget(root, tick) { const w = { root, tick, visible: true }; WIDGETS.push(w); rootMap.set(root, w); io.observe(root); return w; }
+let lastT = 0;
+function loop(now) {
+  const dt = lastT ? Math.min(0.05, (now - lastT) / 1000) : 0; lastT = now;
+  for (const w of WIDGETS) if (w.visible) w.tick(now, dt);
+  requestAnimationFrame(loop);
+}
+
+/* =====================================================================
+   HERO
+   ===================================================================== */
+const HERO = { acc: 30, play: !reduceMotion };
+const heroDeg = () => Math.round(HERO.acc) % 360;
+const HERO_DZ = 1.5;
+const heroCorners = () => CUBE_VS.map(p => Code.translate_z(Code.rotate_xz(p, heroDeg() * DEG), HERO_DZ));
+const heroView = new View3D($('#heroView'), {
+  yaw: 0.62, pitch: 0.3, dist: 5.4, target: [0.15, 0, 1.2],
+  draw(v) {
+    drawFloor(v, { z1: 3 }); drawAxes(v, { z: 2.9, y: 1.15 }); drawEye(v); drawScreen(v, { grid: false, center: false });
+    drawCubeScene(v, heroCorners(), { role: 'After rotate_xz (the cube is turning) and translate_z (dz = 1.5 here).' });
+  },
+});
+addViewBar(heroView);
+const heroOut = new Flat($('#heroOut'), (ctx, w, h, fl) => drawCodeCanvas(ctx, w, h, fl, heroCorners(), -1, i => pipeline(i, heroDeg(), HERO_DZ)));
+legend($('#heroLegend'), [
+  LG('dot', COL.eye, 'E', 'the eye, at (0, 0, 0)', 'E'),
+  LG('fill', COL.screen, 'screen', 'the flat square at z = 1'),
+  LG('dot', COL.cube, 'cube corners', 'the 8 corners, in the 3D world'),
+  LG('line', COL.sight, 'sight lines', 'from each corner to E'),
+  LG('dot', COL.pp, 'amber dots', 'where each sight line crosses the screen'),
+  LG('line', '#047857', 'dark-green lines on the screen', 'the cube as the code draws it'),
+  LG('line', COL.axis, 'axes', 'x to the right, y up, z forward'),
+  LG('line', '#cfcabd', 'floor grid', 'only to show depth; the code has no floor'),
+], heroView);
+$('#heroPlay').textContent = HERO.play ? 'Pause' : 'Play';
+$('#heroPlay').addEventListener('click', () => { HERO.play = !HERO.play; $('#heroPlay').textContent = HERO.play ? 'Pause' : 'Play'; });
+widget($('#top'), (now, dt) => {
+  if (HERO.play) { HERO.acc = (HERO.acc + 50 * dt) % 360; heroView.dirty = true; heroOut.dirty = true; }
+  heroView.frame(now); heroOut.frame(now);
+});
+
+/* =====================================================================
+   SECTION 1 — one point
+   ===================================================================== */
+const s1 = { P: [1.0, 0.6, 2.0], step: 0 };
+const S1_STEPS = [
+  {
+    t: 'The world: the eye and three directions',
+    cap: () => '<p>The eye <b>E</b> sits at (0, 0, 0). Every point in the world is three numbers (<span class="m"><i>x</i>, <i>y</i>, <i>z</i></span>): <span class="m"><i>x</i></span> grows to the right, <span class="m"><i>y</i></span> grows up, and <span class="m"><i>z</i></span> grows forward. So <span class="m"><i>z</i></span> is how far a point is in front of the eye.</p>',
+  },
+  {
+    t: 'The screen: a flat square at z = 1',
+    cap: () => '<p>The screen is a flat square 1 unit in front of E, so every point on it has <span class="m"><i>z</i> = 1</span>. It runs from −1 to 1 in <span class="m"><i>x</i></span> and in <span class="m"><i>y</i></span>; its center <b>C</b> is (0, 0, 1). The gray lines from E through the screen\'s corners mark what the eye can see through the screen.</p>',
+  },
+  {
+    t: 'A point P',
+    cap: () => '<p><b>P</b> = (<span class="m"><i>x</i>, <i>y</i>, <i>z</i></span>) is the point we want to draw. To reach P from E: walk <span class="m"><i>z</i></span> forward along the <span class="m"><i>z</i></span> axis to <b>A</b>, then <span class="m"><i>x</i></span> to the right to <b>Q</b>, then <span class="m"><i>y</i></span> up to P. Move P with the sliders below.</p>',
+  },
+  {
+    t: 'The sight line from P to the eye',
+    cap: () => '<p>Light from P travels in a straight line into the eye. The pink line from E to P is that path. We call it the <b>sight line</b>.</p>',
+  },
+  {
+    t: 'P′: where the sight line crosses the screen',
+    cap: () => '<p>The sight line passes through the screen at one point, <b>P′</b> (read “P prime”). That is where you see P on the screen. P′ is on the screen, so its <span class="m"><i>z</i></span> is 1. Its other two numbers, <span class="m"><i>x</i>′</span> and <span class="m"><i>y</i>′</span>, are what the formula computes.</p>',
+  },
+  {
+    t: 'From above: two triangles',
+    cap: () => '<p>Seen from straight above, heights are hidden, so only <span class="m"><i>x</i></span> and <span class="m"><i>z</i></span> are left. <b>Q</b> is P moved straight down to the eye\'s height; <b>Q′</b> is P′ moved the same way. The indigo triangle E–A–Q has a forward side <span class="m"><i>z</i></span> and a sideways side <span class="m"><i>x</i></span>. The amber triangle E–C–Q′ has a forward side 1 and a sideways side <span class="m"><i>x</i>′</span>.</p>',
+  },
+  {
+    t: 'Same shape, so divide by z',
+    cap: () => '<p>Both triangles start at E, follow the same sight line, and have a 90° corner on the <span class="m"><i>z</i></span> axis. So the amber triangle is the indigo triangle shrunk toward E: watch the dashed copy shrink onto it. Its forward side went from <span class="m"><i>z</i></span> to 1, which is a division by <span class="m"><i>z</i></span>. Shrinking divides every side by the same number, so <span class="m"><i>x</i>′ = <i>x</i> ÷ <i>z</i></span>.</p>',
+  },
+  {
+    t: 'From the side: the same for y',
+    cap: () => '<p>Seen from the side, <span class="m"><i>x</i></span> is hidden. <b>R</b> is P moved sideways onto the line above A (where <span class="m"><i>x</i></span> = 0); <b>R′</b> is P′ moved the same way. The same two triangles appear, now with the heights <span class="m"><i>y</i></span> and <span class="m"><i>y</i>′</span>. Same shape again, so <span class="m"><i>y</i>′ = <i>y</i> ÷ <i>z</i></span>.</p>',
+  },
+  {
+    t: 'Farther away means closer to the center',
+    cap: () => '<p>These four copies of P have the same <span class="m"><i>x</i></span> and <span class="m"><i>y</i></span> as P, and <span class="m"><i>z</i></span> = 1, 2, 3 and 4. A bigger <span class="m"><i>z</i></span> is a bigger divisor, so <span class="m"><i>x</i>′</span> and <span class="m"><i>y</i>′</span> get smaller and P′ moves toward the screen center C. That is why far things look small.</p>',
+  },
+];
+
+function ghostScale(now, z) {
+  if (reduceMotion) return 1 / z;
+  const T = 3800, ph = (now % T) / T;
+  let e = 0;
+  if (ph >= 0.15 && ph < 0.7) { const k = (ph - 0.15) / 0.55; e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; }
+  else if (ph >= 0.7) e = 1;
+  return 1 + (1 / z - 1) * e;
+}
+
+function s1Draw(v, now) {
+  const st = s1.step, [x, y, z] = s1.P, xp = x / z, yp = y / z;
+  const E = [0, 0, 0], A = [0, 0, z], Q = [x, 0, z], P = [x, y, z], C = [0, 0, 1], Pp = [xp, yp, 1], Qp = [xp, 0, 1], R = [0, y, z], Rp = [0, yp, 1];
+  const fq = n => Dm.f(Dm.q(n));
+  drawFloor(v, { z0: -0.5, z1: 4.5 });
+  drawAxes(v, { z: 3.3, ticks: st === 0 ? [1, 2, 3] : st === 1 ? [2, 3] : [], toward: st === 5 || st === 6 ? 'y' : st === 7 ? 'x' : '' });
+  drawEye(v);
+  if (st >= 1) { drawScreen(v); drawViewEdges(v, 2.4); }
+  if (st === 8) {
+    [1, 2, 3, 4].forEach(zz => {
+      const Pk = [x, y, zz], Ppk = [x / zz, y / zz, 1];
+      v.line(E, Pk, { color: COL.sight, width: 1.8, alpha: 0.8 });
+      v.point(Pk, { id: 'P' + zz, r: 6, color: COL.p, label: 'P' + SUB[zz] + ' (z = ' + zz + ')', info: infoW('P' + SUB[zz] + ' — a copy of P with z = ' + zz, 'Same x and y as P; only the distance in front of E changes.', Pk) });
+      v.point(Ppk, { id: 'Pp' + zz, r: 5, color: COL.pp, label: 'P′' + SUB[zz], labelSize: 14, info: infoProj('P′' + SUB[zz] + ' — where P' + SUB[zz] + ' appears on the screen', 'The sight line from P' + SUB[zz] + ' crosses the screen here.', Pk) });
+    });
+    return;
+  }
+  if (st < 2) return;
+  if (st <= 4) {
+    v.line(E, A, { color: COL.p, width: 5, alpha: 0.3, label: 'z = ' + fq(z), labelColor: COL.p, labelAt: 0.62 });
+    v.line(A, Q, { color: COL.p, width: 2, dash: [7, 5], label: 'x = ' + fq(x), labelColor: COL.p });
+    v.line(Q, P, { color: COL.p, width: 2, dash: [7, 5], label: 'y = ' + fq(y), labelColor: COL.p });
+    v.point(A, { id: 'A', r: 4.5, color: COL.p, hollow: true, label: 'A', info: infoW('A — on the z axis, as far forward as P', 'A = (0, 0, z): the first stop of the walk from E to P.', A) });
+    v.point(Q, { id: 'Q', r: 4.5, color: COL.p, hollow: true, label: 'Q', info: infoW('Q — P moved straight down to the eye\'s height', 'Q = (x, 0, z): the second stop of the walk from E to P.', Q) });
+  }
+  if (st >= 3) v.line(E, z >= 1 ? P : Pp, { color: COL.sight, width: 2.8, halo: true });
+  const left = x >= 0 ? 'left' : 'right';
+  if (st === 5 || st === 6) {
+    v.poly([E, A, Q], { fill: COL.p, fillAlpha: 0.13, stroke: COL.p, strokeWidth: 2 });
+    v.poly([E, C, Qp], { fill: COL.pp, fillAlpha: 0.3, stroke: COL.pp, strokeWidth: 2.5 });
+    v.label(V.lerp(E, A, 0.72), 'z = ' + fq(z), { color: COL.p, side: left });
+    v.label(V.lerp(A, Q, 0.5), 'x = ' + fq(x), { color: COL.p, side: 'above' });
+    v.label(V.lerp(E, C, 0.5), '1', { color: COL.pp, side: left, size: 16 });
+    v.label(V.lerp(C, Qp, 0.5), st === 6 ? 'x′ = ' + Dm.f(Dm.div(Dm.q(x), Dm.q(z))) : 'x′ = ?', { color: COL.pp, side: 'below', size: 16 });
+    if (x !== 0) {
+      const sx = Math.sign(x);
+      rightAngle(v, A, [0, 0, -1], [sx, 0, 0], 0.12, COL.p);
+      rightAngle(v, C, [0, 0, -1], [sx, 0, 0], 0.07, COL.pp);
+    }
+    v.line(Q, P, { color: COL.p, width: 1.5, dash: [5, 5], alpha: 0.6 });
+    v.line(Qp, Pp, { color: COL.pp, width: 1.5, dash: [5, 5], alpha: 0.8 });
+    v.point(A, { id: 'A', r: 4.5, color: COL.p, hollow: true, label: 'A', info: infoW('A — on the z axis, as far forward as P', 'A = (0, 0, z). The indigo triangle turns 90° here.', A) });
+    v.point(Q, { id: 'Q', r: 4.5, color: COL.p, hollow: true, label: 'Q', info: infoW('Q — P moved straight down to the eye\'s height', 'Q = (x, 0, z). Seen from above, Q and P are at the same place.', Q) });
+    v.point(Qp, { id: 'Qp', r: 4.5, color: COL.pp, hollow: true, label: 'Q′', info: infoProj('Q′ — P′ moved straight down to the eye\'s height', 'Q′ = (x′, 0, 1). The amber triangle\'s sideways side ends here.', Q) });
+    if (st === 6) {
+      const s = ghostScale(now, z);
+      v.poly([E, V.mul(A, s), V.mul(Q, s)], { stroke: '#111827', strokeWidth: 2, dash: [6, 4] });
+    }
+  }
+  if (st === 7) {
+    const below = y >= 0 ? 'below' : 'above';
+    v.poly([E, A, R], { fill: COL.p, fillAlpha: 0.13, stroke: COL.p, strokeWidth: 2 });
+    v.poly([E, C, Rp], { fill: COL.pp, fillAlpha: 0.3, stroke: COL.pp, strokeWidth: 2.5 });
+    v.label(V.lerp(E, A, 0.72), 'z = ' + fq(z), { color: COL.p, side: below });
+    v.label(V.lerp(A, R, 0.5), 'y = ' + fq(y), { color: COL.p, side: 'right' });
+    v.label(V.lerp(E, C, 0.5), '1', { color: COL.pp, side: below, size: 16 });
+    v.label(V.lerp(C, Rp, 0.5), 'y′ = ' + Dm.f(Dm.div(Dm.q(y), Dm.q(z))), { color: COL.pp, side: 'left', size: 16 });
+    if (y !== 0) {
+      const sy = Math.sign(y);
+      rightAngle(v, A, [0, 0, -1], [0, sy, 0], 0.12, COL.p);
+      rightAngle(v, C, [0, 0, -1], [0, sy, 0], 0.07, COL.pp);
+    }
+    v.line(P, R, { color: COL.p, width: 1.5, dash: [5, 5], alpha: 0.6 });
+    v.line(Pp, Rp, { color: COL.pp, width: 1.5, dash: [5, 5], alpha: 0.8 });
+    v.point(A, { id: 'A', r: 4.5, color: COL.p, hollow: true, label: 'A', info: infoW('A — on the z axis, as far forward as P', 'A = (0, 0, z). The indigo triangle turns 90° here.', A) });
+    v.point(R, { id: 'R', r: 4.5, color: COL.p, hollow: true, label: 'R', info: infoW('R — P moved sideways to x = 0', 'R = (0, y, z). Seen from the side, R and P are at the same place.', R) });
+    v.point(Rp, { id: 'Rp', r: 4.5, color: COL.pp, hollow: true, label: 'R′', info: infoProj('R′ — P′ moved sideways to x = 0', 'R′ = (0, y′, 1). The amber triangle\'s height ends here.', R) });
+    const s = ghostScale(now, z);
+    v.poly([E, V.mul(A, s), V.mul(R, s)], { stroke: '#111827', strokeWidth: 2, dash: [6, 4] });
+  }
+  v.point(P, { id: 'P', r: 7, color: COL.p, label: 'P', info: infoW('P — the point we want to draw', 'Move it with the x, y and z sliders.', P) });
+  if (st >= 4) v.point(Pp, { id: 'Pp', r: 6.5, color: COL.pp, label: 'P′', info: infoProj('P′ — where P appears on the screen', 'The sight line from P to E crosses the screen here.', P) });
+}
+
+function screenGeom(w, h, R) {
+  const size = Math.min(w - 40, h - 64), ox = (w - size) / 2 + 12, oy = 12;
+  return { R, size, ox, oy, u: x => ox + (x + R) / (2 * R) * size, v: y => oy + (R - y) / (2 * R) * size };
+}
+function drawScreen2D(ctx, g) {
+  const { ox, oy, size, u, v } = g;
+  ctx.fillStyle = '#efede6'; ctx.fillRect(ox, oy, size, size);
+  ctx.fillStyle = '#fff'; ctx.fillRect(u(-1), v(1), u(1) - u(-1), v(-1) - v(1));
+  for (const t of [-0.5, 0.5]) { line2(ctx, u(t), v(1), u(t), v(-1), '#dbe3f7', 1); line2(ctx, u(-1), v(t), u(1), v(t), '#dbe3f7', 1); }
+  line2(ctx, u(-1), v(0), u(1), v(0), '#a9b8e6', 1.2); line2(ctx, u(0), v(1), u(0), v(-1), '#a9b8e6', 1.2);
+  ctx.strokeStyle = COL.screen; ctx.lineWidth = 2; ctx.setLineDash([]); ctx.strokeRect(u(-1), v(1), u(1) - u(-1), v(-1) - v(1));
+  ctx.font = '14px ' + FONT; ctx.fillStyle = '#4b5563';
+  for (const t of [-1, -0.5, 0, 0.5, 1]) {
+    const s = t === 0 ? '0' : (t < 0 ? '−' : '') + Math.abs(t);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(s, u(t), oy + size + 6);
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillText(s, ox - 6, v(t));
+  }
+  text2(ctx, 'x′ →', ox + size, oy + size + 30, { align: 'right', color: '#4b5563', size: 14 });
+  text2(ctx, 'y′ ↑', ox - 4, oy + size + 30, { align: 'right', color: '#4b5563', size: 14 });
+  text2(ctx, 'outside the screen', ox + 6, oy + 12, { color: '#6b7280', size: 14, weight: 500, halo: '#efede6' });
+}
+function s1FlatDraw(ctx, w, h, fl) {
+  const st = s1.step, g = screenGeom(w, h, 1.6);
+  if (st < 1) {
+    ctx.fillStyle = '#6b7280'; ctx.font = '16px ' + FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('The screen is added in step 2.', w / 2, h / 2); return;
+  }
+  drawScreen2D(ctx, g);
+  const clampR = t => clamp(t, -1.56, 1.56), labs = [];
+  const pt = (id, x, y, r, color, label, info) => {
+    const X = g.u(clampR(x)), Y = g.v(clampR(y)), off = Math.abs(x) > 1.56 || Math.abs(y) > 1.56;
+    dot2(ctx, X, Y, r, color, off); fl.hit(id, X, Y, r, info);
+    if (label) labs.unshift({ text: label + (off ? ' (farther out)' : ''), at: [X, Y], r: r + 1, color: textCol(color), size: 15, weight: 700 });
+  };
+  const done = () => placeLabels(ctx, labs, fl.hits, w, h, 'rgba(255,255,255,.95)');
+  const [x, y, z] = s1.P;
+  if (st === 8) {
+    [4, 3, 2, 1].forEach(zz => {
+      const xq = Dm.div(Dm.q(x), zz * 1000), yq = Dm.div(Dm.q(y), zz * 1000);
+      pt('Pp' + zz, x / zz, y / zz, 5, COL.pp, 'P′' + SUB[zz] + ' (z = ' + zz + ')', () => ({ title: 'P′' + SUB[zz] + ' — P' + SUB[zz] + ' on the screen', rows: [['x′', Dm.f(Dm.q(x)) + ' ÷ ' + zz + '.000 = ' + Dm.f(xq)], ['y′', Dm.f(Dm.q(y)) + ' ÷ ' + zz + '.000 = ' + Dm.f(yq)]], space: SPACE_S }));
+    });
+  }
+  if (st < 4 || st === 8) {
+    pt('C', 0, 0, 4.5, COL.screen, 'C', () => ({ title: 'C — the center of the screen', rows: [['x′', '0.000'], ['y′', '0.000']], space: SPACE_S }));
+    labs.push(labs.shift()); done(); return;
+  }
+  const xp = x / z, yp = y / z, X = g.u(clampR(xp)), Y = g.v(clampR(yp)), X0 = g.u(0), Y0 = g.v(0);
+  const xq = Dm.div(Dm.q(x), Dm.q(z)), yq = Dm.div(Dm.q(y), Dm.q(z));
+  const hx = st === 5 || st === 6, hy = st === 7;
+  line2(ctx, X, Y, X, Y0, COL.pp, 1.3, [4, 4]); line2(ctx, X, Y, X0, Y, COL.pp, 1.3, [4, 4]);
+  line2(ctx, X0, Y0, X, Y0, COL.pp, hx ? 5 : 2.5); line2(ctx, X0, Y0, X0, Y, COL.pp, hy ? 5 : 2.5);
+  const xl = 'x′ = ' + (st >= 6 ? Dm.f(xq) : '?'), yl = 'y′ = ' + (st >= 7 ? Dm.f(yq) : '?');
+  pt('Pp', xp, yp, 6.5, COL.pp, 'P′', () => ({ title: 'P′ — where P appears on the screen', rows: [['x′', 'x ÷ z = ' + Dm.f(Dm.q(x)) + ' ÷ ' + Dm.f(Dm.q(z)) + ' = ' + Dm.f(xq)], ['y′', 'y ÷ z = ' + Dm.f(Dm.q(y)) + ' ÷ ' + Dm.f(Dm.q(z)) + ' = ' + Dm.f(yq)]], space: SPACE_S }));
+  labs.push({ text: xl, at: [(X0 + X) / 2, Y0], r: 2, color: textCol(COL.pp), size: hx ? 17 : 15, weight: 700, side: yp >= 0 ? 'below' : 'above' });
+  labs.push({ text: yl, at: [X0, (Y0 + Y) / 2], r: 2, color: textCol(COL.pp), size: hy ? 17 : 15, weight: 700, side: xp >= 0 ? 'left' : 'right' });
+  pt('C', 0, 0, 4.5, COL.screen, 'C', () => ({ title: 'C — the center of the screen', rows: [['x′', '0.000'], ['y′', '0.000']], space: SPACE_S }));
+  labs.push(labs.shift());
+  done();
+}
+
+function s1Nums() {
+  const st = s1.step, x = Dm.q(s1.P[0]), y = Dm.q(s1.P[1]), z = Dm.q(s1.P[2]), f = Dm.f;
+  const xp = Dm.div(x, z), yp = Dm.div(y, z);
+  let h = '';
+  if (st === 0) {
+    h = eq('E', '(0, 0, 0)') + '<table class="t"><tr><th>number</th><th>positive means</th><th>negative means</th></tr>' +
+      '<tr><td class="n"><i>x</i></td><td>right of E</td><td>left of E</td></tr><tr><td class="n"><i>y</i></td><td>above E</td><td>below E</td></tr><tr><td class="n"><i>z</i></td><td>in front of E</td><td>behind E</td></tr></table>';
+  } else if (st === 1) {
+    h = eq('C', '(0, 0, 1)') + '<p class="eqnote">Screen: <span class="m"><i>z</i> = 1</span>; <span class="m"><i>x</i></span> from −1 to 1; <span class="m"><i>y</i></span> from −1 to 1.</p>';
+  } else if (st === 2 || st === 3) {
+    h = eq('P', '(' + MX + ', ' + MY + ', ' + MZ + ')', '(' + f(x) + ', ' + f(y) + ', ' + f(z) + ')') +
+      '<table class="t"><tr><th>walk</th><th>from → to</th><th>length</th></tr>' +
+      '<tr><td>forward, along the <i>z</i> axis</td><td>E → A</td><td class="n"><i>z</i> = ' + f(z) + '</td></tr>' +
+      '<tr><td>to the right</td><td>A → Q</td><td class="n"><i>x</i> = ' + f(x) + '</td></tr>' +
+      '<tr><td>up</td><td>Q → P</td><td class="n"><i>y</i> = ' + f(y) + '</td></tr></table>';
+    if (st === 3) h += '<p class="eqnote">Sight line: from E = (0, 0, 0) to P = (' + f(x) + ', ' + f(y) + ', ' + f(z) + ').</p>';
+  } else if (st === 4) {
+    h = eq('P', '(' + f(x) + ', ' + f(y) + ', ' + f(z) + ')') + eq('P′', '(' + MXP + ', ' + MYP + ', 1)', '(?, ?, 1)') +
+      '<p class="eqnote">The next three steps find <span class="m"><i>x</i>′</span> and <span class="m"><i>y</i>′</span>.</p>';
+  } else if (st === 5) {
+    h = '<table class="t"><tr><th>triangle</th><th>forward side</th><th>sideways side</th></tr>' +
+      '<tr><td>indigo E–A–Q</td><td class="n">E→A: <i>z</i> = ' + f(z) + '</td><td class="n">A→Q: <i>x</i> = ' + f(x) + '</td></tr>' +
+      '<tr><td>amber E–C–Q′</td><td class="n">E→C: 1</td><td class="n">C→Q′: <i>x</i>′ = ?</td></tr></table>';
+  } else if (st === 6) {
+    h = '<p class="eqnote">Forward side: from <span class="m"><i>z</i></span> = ' + f(z) + ' down to 1. That is a division by <span class="m"><i>z</i></span>:</p>' +
+      eq('', f(z) + ' ÷ ' + f(z), B(f(Dm.div(z, z)))) +
+      '<p class="eqnote">Sideways side: divided by the same <span class="m"><i>z</i></span>:</p>' +
+      eq(MXP, MX + ' ÷ ' + MZ, f(x) + ' ÷ ' + f(z), B(f(xp)));
+  } else if (st === 7) {
+    h = '<table class="t"><tr><th>triangle</th><th>forward side</th><th>height</th></tr>' +
+      '<tr><td>indigo E–A–R</td><td class="n">E→A: <i>z</i> = ' + f(z) + '</td><td class="n">A→R: <i>y</i> = ' + f(y) + '</td></tr>' +
+      '<tr><td>amber E–C–R′</td><td class="n">E→C: 1</td><td class="n">C→R′: <i>y</i>′</td></tr></table>' +
+      eq(MYP, MY + ' ÷ ' + MZ, f(y) + ' ÷ ' + f(z), B(f(yp))) +
+      '<p class="eqnote">Together with step 7:</p>' + eq(MXP, MX + ' ÷ ' + MZ, f(x) + ' ÷ ' + f(z), B(f(xp))) +
+      eq('P′', '(' + MXP + ', ' + MYP + ', 1)', '(' + f(xp) + ', ' + f(yp) + ', 1)');
+  } else if (st === 8) {
+    h = '<table class="t"><tr><th>copy</th><th><i>z</i></th><th><i>x</i>′ = <i>x</i> ÷ <i>z</i></th><th><i>y</i>′ = <i>y</i> ÷ <i>z</i></th></tr>' +
+      [1, 2, 3, 4].map(k => { const zq = k * 1000; return '<tr><td>P' + SUB[k] + '</td><td class="n">' + f(zq) + '</td><td class="n">' + f(x) + ' ÷ ' + f(zq) + ' = <b>' + f(Dm.div(x, zq)) + '</b></td><td class="n">' + f(y) + ' ÷ ' + f(zq) + ' = <b>' + f(Dm.div(y, zq)) + '</b></td></tr>'; }).join('') +
+      '</table><p class="eqnote">P₁ has <span class="m"><i>z</i> = 1</span>: it is on the screen itself, so P′₁ is the same point as P₁.</p>';
+  }
+  if (st >= 4 && st <= 7) {
+    if (z < 1000) h += '<div class="note">P is closer than the screen (<span class="m"><i>z</i></span> is less than 1). The sight line from E reaches P first and the screen after P. The formula does not change.</div>';
+    if (Math.abs(xp) > 1000 || Math.abs(yp) > 1000) h += '<div class="note">P′ is outside the screen square (<span class="m"><i>x</i>′</span> or <span class="m"><i>y</i>′</span> is beyond −1 to 1), so the code\'s canvas does not show P.</div>';
+    if (x < 0 && (st === 5 || st === 6)) h += '<div class="note">Here <span class="m"><i>x</i></span> is negative (P is left of E), so <span class="m"><i>x</i>′</span> is negative too: P′ is left of C.</div>';
+  }
+  return h;
+}
+
+function s1LegendItems() {
+  const st = s1.step, L = [LG('dot', COL.eye, 'E', 'the eye, at (0, 0, 0)', 'E'), LG('line', COL.axis, 'axes', 'x to the right, y up, z forward'), LG('line', '#cfcabd', 'floor grid', 'only to show depth; the code has no floor')];
+  if (st >= 1) L.push(LG('fill', COL.screen, 'screen', 'the flat square at z = 1'), LG('dot', COL.screen, 'C', 'the screen center (0, 0, 1)', 'C'), LG('line', COL.edge, 'gray lines', 'from E through the screen corners: the edges of what E sees'));
+  if (st === 8) {
+    L.push(LG('dot', COL.p, 'P₁ … P₄', 'copies of P with z = 1, 2, 3, 4', 'P2'), LG('line', COL.sight, 'sight lines', 'from each copy to E'), LG('dot', COL.pp, 'P′₁ … P′₄', 'where each copy appears on the screen', 'Pp2'));
+    return L;
+  }
+  if (st >= 2) L.push(LG('dot', COL.p, 'P', 'the point we draw', 'P'));
+  if (st >= 2 && st <= 4) L.push(LG('ring', COL.p, 'A', '(0, 0, z), on the z axis', 'A'), LG('ring', COL.p, 'Q', '(x, 0, z), P moved down to E\'s height', 'Q'), LG('dash', COL.p, 'indigo walk', 'E → A → Q → P: z forward, x right, y up'));
+  if (st >= 3) L.push(LG('line', COL.sight, 'sight line', 'the straight path from P to E'));
+  if (st >= 4) L.push(LG('dot', COL.pp, 'P′', 'where the sight line crosses the screen', 'Pp'));
+  if (st === 5 || st === 6) L.push(LG('fill', COL.p, 'indigo triangle', 'E–A–Q: sides z and x'), LG('fill', COL.pp, 'amber triangle', 'E–C–Q′: sides 1 and x′'), LG('ring', COL.p, 'A', '(0, 0, z)', 'A'), LG('ring', COL.p, 'Q', '(x, 0, z), P moved down', 'Q'), LG('ring', COL.pp, 'Q′', '(x′, 0, 1), P′ moved down', 'Qp'), LG('line', COL.p, 'small corner squares', 'the 90° corners at A and C'));
+  if (st === 6) L.push(LG('dash', '#111827', 'dashed triangle', 'a copy of the indigo triangle, shrinking toward E until its forward side is 1'));
+  if (st === 7) L.push(LG('fill', COL.p, 'indigo triangle', 'E–A–R: sides z and y'), LG('fill', COL.pp, 'amber triangle', 'E–C–R′: sides 1 and y′'), LG('ring', COL.p, 'A', '(0, 0, z)', 'A'), LG('ring', COL.p, 'R', '(0, y, z), P moved sideways', 'R'), LG('ring', COL.pp, 'R′', '(0, y′, 1), P′ moved sideways', 'Rp'), LG('dash', '#111827', 'dashed triangle', 'the indigo triangle, shrinking toward E'));
+  return L;
+}
+
+const s1View = new View3D($('#s1View'), { draw: s1Draw, yaw: 0.5, pitch: 0.3, dist: 5.6, target: [0.4, 0.15, 1.3] });
+addViewBar(s1View);
+const s1Flat = new Flat($('#s1Flat'), s1FlatDraw);
+function s1Refresh() {
+  $('#s1Nums').innerHTML = s1Nums();
+  s1View.dirty = true; s1Flat.dirty = true;
+}
+function s1ApplyView(force) {
+  const st = s1.step, v = s1View, [x, y, z] = s1.P, zm = Math.max(z, 1);
+  if (st === 5 || st === 6) v.setView({ yaw: 0, pitch: 1.565, target: [0, 0, zm / 2], dist: v.fitDist(zm / 2 + 0.55, Math.max(1, Math.abs(x)) + 0.45) });
+  else if (st === 7) v.setView({ yaw: Math.PI / 2, pitch: 0, target: [0, 0, zm / 2], dist: v.fitDist(Math.max(1, Math.abs(y)) + 0.45, zm / 2 + 0.55) });
+  else if (force) v.setView(v.home);
+}
+let s1Prev = 0;
+const s1Step = stepper('s1', S1_STEPS.length, i => {
+  s1.step = i;
+  $('#s1Title').textContent = S1_STEPS[i].t;
+  $('#s1Cap').innerHTML = S1_STEPS[i].cap();
+  $('#s1Sl').style.display = i >= 2 ? '' : 'none';
+  legend($('#s1Legend'), s1LegendItems(), s1View);
+  const wasSpecial = s1Prev >= 5 && s1Prev <= 7;
+  s1ApplyView(wasSpecial && !(i >= 5 && i <= 7));
+  s1Prev = i;
+  Pop.close();
+  s1Refresh();
+});
+const s1Sl = $('#s1Sl');
+const fmtS = v => f3(v);
+['x (right)', 'y (up)', 'z (forward)'].forEach((name, k) => {
+  slider(s1Sl, {
+    label: '<span class="m"><i>' + name[0] + '</i></span>' + name.slice(1), min: k === 2 ? 0.25 : -1.5, max: k === 2 ? 4 : 1.5, step: 0.05, value: s1.P[k], fmt: fmtS,
+    oninput: val => { s1.P[k] = val; s1Refresh(); },
+    onchange: () => { if (!s1View.userMoved && s1.step >= 5 && s1.step <= 7) s1ApplyView(); },
+  });
+});
+widget($('#s1'), now => {
+  if (s1.step === 6 || s1.step === 7) s1View.dirty = true;
+  s1View.frame(now); s1Flat.frame(now);
+});
+
+/* =====================================================================
+   SECTION 2 — screen()
+   ===================================================================== */
+const s2 = { pt: [0.5, 0.3], step: 0 };
+const S2_STEPS = [
+  { t: 'Screen units: measured from the center C', cap: '<p><code>project()</code> gives <span class="m"><i>x</i>′</span> and <span class="m"><i>y</i>′</span> measured from the screen center C: right and up are positive. Both run from −1 at one edge to 1 at the other.</p>' },
+  { t: '+ 1: measure from the left and bottom edges', cap: '<p>The left edge is 1 unit left of C, so measuring from the left edge adds 1 to every <span class="m"><i>x</i></span> reading. The bottom edge is 1 unit below C, so <span class="m"><i>y</i></span> also gets + 1. Now both readings run from 0 to 2.</p>' },
+  { t: '÷ 2: measure in parts of the whole side', cap: '<p>The side is 2 units long now. Dividing by 2 makes the whole side read 1. So 0.700 means 70% of the way from the left edge to the right edge.</p>' },
+  { t: '1 − y: measure y from the top edge', cap: '<p>A canvas counts its rows from the top edge downward. The distance from the top edge is the whole height (1) minus the distance from the bottom edge.</p>' },
+  { t: '× 800: pixels', cap: '<p>The canvas is 800 pixels wide and 800 pixels tall (<code>game.width</code> and <code>game.height</code>). Multiplying the parts by 800 gives the pixel, counted from the top-left corner.</p>' },
+];
+function s2Chain() {
+  const x = Dm.q(s2.pt[0]), y = Dm.q(s2.pt[1]);
+  const x1 = x + 1000, y1 = y + 1000, x2 = Dm.divInt(x1, 2), y2 = Dm.divInt(y1, 2), y3 = 1000 - y2;
+  return { x, y, x1, y1, x2, y2, y3, x4: x2 * 800, y4: y3 * 800 };
+}
+function s2Geom(w, h) {
+  const S = Math.min(w - 190, h - 170), ox = 130, oy = 64;
+  return { S, ox, oy, X: x => ox + (x + 1) / 2 * S, Y: y => oy + (1 - (y + 1) / 2) * S };
+}
+function s2Draw(ctx, w, h, fl) {
+  const st = s2.step, g = s2Geom(w, h), { S, ox, oy } = g, c = s2Chain(), f = Dm.f;
+  const px = g.X(s2.pt[0]), py = g.Y(s2.pt[1]);
+  const canvas = st === 4;
+  ctx.fillStyle = canvas ? '#101010' : '#fff'; ctx.fillRect(ox, oy, S, S);
+  for (const t of [0.25, 0.5, 0.75]) { const col = canvas ? '#2a2a2a' : '#e3e8f6'; line2(ctx, ox + t * S, oy, ox + t * S, oy + S, col, 1); line2(ctx, ox, oy + t * S, ox + S, oy + t * S, col, 1); }
+  ctx.strokeStyle = canvas ? '#111' : COL.screen; ctx.lineWidth = 2; ctx.strokeRect(ox, oy, S, S);
+  text2(ctx, canvas ? 'the 800 × 800 canvas' : 'the screen', ox, oy - 40, { color: canvas ? '#111827' : textCol(COL.screen), size: 16, weight: 700 });
+  if (canvas) { text2(ctx, '(0, 0) px', ox + 6, oy + 14, { color: '#e5e7eb', size: 14, halo: '#101010' }); text2(ctx, '(800, 800) px', ox + S - 6, oy + S - 14, { align: 'right', color: '#e5e7eb', size: 14, halo: '#101010' }); }
+  else { dot2(ctx, g.X(0), g.Y(0), 4.5, COL.screen); fl.hit('C', g.X(0), g.Y(0), 4.5, () => ({ title: 'C — the screen center', rows: [['x′', '0.000'], ['y′', '0.000']], space: SPACE_S })); text2(ctx, 'C', g.X(0) - 8, g.Y(0) + 14, { align: 'right', color: textCol(COL.screen), size: 15, weight: 700 }); }
+  // rulers
+  const ry = oy + S + 30, rx = ox - 34;
+  const xt = [['−1', '−0.5', '0', '0.5', '1'], ['0', '0.5', '1', '1.5', '2'], ['0', '0.25', '0.5', '0.75', '1'], ['0', '0.25', '0.5', '0.75', '1'], ['0', '200', '400', '600', '800']][st];
+  const down = st >= 3;
+  line2(ctx, ox, ry, ox + S, ry, '#6b7280', 1.5); line2(ctx, rx, oy, rx, oy + S, '#6b7280', 1.5);
+  xt.forEach((s, k) => {
+    const X = ox + k / 4 * S; line2(ctx, X, ry - 5, X, ry + 5, '#6b7280', 1.5);
+    text2(ctx, s, X, ry + 17, { align: 'center', color: '#374151', size: 14, weight: 500 });
+    const Y = down ? oy + k / 4 * S : oy + S - k / 4 * S; line2(ctx, rx - 5, Y, rx + 5, Y, '#6b7280', 1.5);
+    text2(ctx, s, rx - 9, Y, { align: 'right', color: '#374151', size: 14, weight: 500 });
+  });
+  text2(ctx, 'x grows →', ox + S, ry + 38, { align: 'right', color: '#374151', size: 14 });
+  text2(ctx, down ? 'y grows ↓' : 'y grows ↑', rx, down ? oy + S + 64 : oy - 16, { align: 'center', color: '#374151', size: 14 });
+  // zero of the rulers
+  const x0 = st === 0 ? g.X(0) : ox, y0 = st === 0 ? g.Y(0) : (down ? oy : oy + S);
+  // the measuring bars
+  line2(ctx, px, py, px, ry, COL.pp, 1.2, [4, 4]); line2(ctx, px, py, rx, py, COL.pp, 1.2, [4, 4]);
+  line2(ctx, x0, ry, px, ry, COL.pp, 5); line2(ctx, rx, y0, rx, py, COL.pp, 5);
+  if (st === 3) { line2(ctx, rx + 12, oy + S, rx + 12, py, '#c9c3b3', 4); text2(ctx, f(c.y2) + ' from the bottom (gray)', ox + 8, (oy + S + py) / 2, { color: '#6b7280', size: 14 }); }
+  if (st === 1) {
+    line2(ctx, ox, ry + 36, g.X(0), ry + 36, '#374151', 1.5); line2(ctx, ox, ry + 31, ox, ry + 41, '#374151', 1.5); line2(ctx, g.X(0), ry + 31, g.X(0), ry + 41, '#374151', 1.5);
+    text2(ctx, '1 unit: left edge → C', (ox + g.X(0)) / 2, ry + 52, { align: 'center', color: '#374151', size: 14 });
+  }
+  const unit = st === 4 ? ' px' : '';
+  const xr = [c.x, c.x1, c.x2, c.x2, c.x4][st], yr = [c.y, c.y1, c.y2, c.y3, c.y4][st];
+  const nameX = ['x′', 'x′ + 1', '(x′ + 1) ÷ 2', '(x′ + 1) ÷ 2', '(x′ + 1) ÷ 2 × 800'][st];
+  const nameY = ['y′', 'y′ + 1', '(y′ + 1) ÷ 2', '1 − (y′ + 1) ÷ 2', '(1 − (y′ + 1) ÷ 2) × 800'][st];
+  text2(ctx, nameX + ' = ' + f(xr) + unit, (x0 + px) / 2, ry - 16, { align: 'center', color: textCol(COL.pp), size: 15, weight: 700 });
+  ctx.save(); ctx.translate(rx - 50, (y0 + py) / 2); ctx.rotate(-Math.PI / 2);
+  text2(ctx, nameY + ' = ' + f(yr) + unit, 0, 0, { align: 'center', color: textCol(COL.pp), size: 15, weight: 700 }); ctx.restore();
+  dot2(ctx, px, py, 8, COL.pp);
+  text2(ctx, 'P′ (drag me)', px + 12, py - 14, { color: canvas ? '#fde68a' : textCol(COL.pp), size: 15, weight: 700, halo: canvas ? '#101010' : undefined });
+  fl.hit('Pp', px, py, 8, () => ({ title: 'P′ — the point on the screen', role: 'The same point in every step; only the ruler changes.', rows: [['x′', f(c.x)], ['y′', f(c.y)], ['pixel x', f(c.x4) + ' px'], ['pixel y', f(c.y4) + ' px']], space: SPACE_S + ' Pixels: ' + SPACE_PX }));
+}
+function s2Nums() {
+  const st = s2.step, c = s2Chain(), f = Dm.f;
+  const rows = [
+    ['from <code>project()</code>', eq(MXP, B(f(c.x))), eq(MYP, B(f(c.y)))],
+    ['+ 1', eq('', MXP + ' + 1', f(c.x) + ' + 1', B(f(c.x1))), eq('', MYP + ' + 1', fpar(c.y) + ' + 1', B(f(c.y1)))],
+    ['÷ 2', eq('', f(c.x1) + ' ÷ 2', B(f(c.x2))), eq('', f(c.y1) + ' ÷ 2', B(f(c.y2)))],
+    ['1 − …', '<div class="eq">' + f(c.x2) + ' (no change)</div>', eq('', '1 − ' + f(c.y2), B(f(c.y3)))],
+    ['× 800', eq('', f(c.x2) + ' × 800', B(f(c.x4) + ' px')), eq('', f(c.y3) + ' × 800', B(f(c.y4) + ' px'))],
+  ];
+  return '<table class="t"><tr><th>move</th><th><i>x</i></th><th><i>y</i></th></tr>' +
+    rows.slice(0, st + 1).map((r, i) => '<tr' + (i === st ? ' class="sel"' : '') + '><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td></tr>').join('') + '</table>';
+}
+function s2Code() {
+  const st = s2.step, H = (s, on) => on ? '<span class="hl">' + s + '</span>' : s;
+  return 'function screen(p) {\n    <span class="cm">// -1..1 => 0..2 => 0..1 => 0..w</span>\n    return {\n' +
+    '        x: (p.x ' + H('+ 1', st === 1) + ')' + H('/2', st === 2) + H('*game.width', st === 4) + ',\n' +
+    '        y: (' + H('1 - ', st === 3) + '(p.y ' + H('+ 1', st === 1) + ')' + H('/2', st === 2) + ')' + H('*game.height', st === 4) + ',\n    }\n}';
+}
+const s2Flat = new Flat($('#s2Flat'), s2Draw, {
+  onDown(x, y) { const g = s2Geom(s2Flat.w, s2Flat.h); return Math.hypot(x - g.X(s2.pt[0]), y - g.Y(s2.pt[1])) < 18; },
+  onMove(x, y) {
+    const g = s2Geom(s2Flat.w, s2Flat.h);
+    const nx = clamp(Math.round(((x - g.ox) / g.S * 2 - 1) * 100) / 100, -1, 1), ny = clamp(Math.round(((1 - (y - g.oy) / g.S) * 2 - 1) * 100) / 100, -1, 1);
+    s2.pt = [nx, ny]; s2Sx.set(nx); s2Sy.set(ny); s2Refresh();
+  },
+  cursor(x, y) { const g = s2Geom(s2Flat.w, s2Flat.h); return Math.hypot(x - g.X(s2.pt[0]), y - g.Y(s2.pt[1])) < 18 ? 'grab' : null; },
+});
+function s2Refresh() { $('#s2Nums').innerHTML = s2Nums(); s2Flat.dirty = true; }
+const s2Step = stepper('s2', S2_STEPS.length, i => {
+  s2.step = i; $('#s2Title').textContent = S2_STEPS[i].t; $('#s2Cap').innerHTML = S2_STEPS[i].cap; $('#s2Code').innerHTML = s2Code(); s2Refresh();
+});
+const s2Sx = slider($('#s2Sl'), { label: '<span class="m"><i>x</i>′</span> of P′', min: -1, max: 1, step: 0.01, value: s2.pt[0], fmt: fmtS, oninput: v => { s2.pt[0] = v; s2Refresh(); } });
+const s2Sy = slider($('#s2Sl'), { label: '<span class="m"><i>y</i>′</span> of P′', min: -1, max: 1, step: 0.01, value: s2.pt[1], fmt: fmtS, oninput: v => { s2.pt[1] = v; s2Refresh(); } });
+widget($('#s2'), now => s2Flat.frame(now));
+
+/* =====================================================================
+   SECTION 3 — the cube and translate_z
+   ===================================================================== */
+const s3 = { dz: 1, sight: true, fan: false, sel: 0 };
+const s3Corners = () => CUBE_VS.map(p => Code.translate_z(p, s3.dz));
+function s3Draw(v) {
+  const cs = s3Corners();
+  drawFloor(v, { z0: -1.5, z1: 4 }); drawAxes(v, { zNeg: 1.4, z: 3.8 }); drawEye(v); drawScreen(v); drawViewEdges(v, 2.4);
+  drawCubeScene(v, cs, { sel: s3.sel, sight: s3.sight, labels: true, role: 'After translate_z: the corner from cube.js with dz added to its z.' });
+  cs.forEach((c, i) => {
+    if (c[2] < 0) {
+      const w = onScreen(c);
+      v.line(c, w, { color: COL.bad, width: 1.5, dash: [5, 4], alpha: 0.85 });
+      v.point(w, { id: 'w' + i, r: 4, color: COL.bad, label: i + '′', labelSize: 14, info: infoProj(i + '′ — where the formula puts corner ' + i, 'Corner ' + i + ' is behind E. x ÷ z with a negative z lands on the opposite side: on the line from the corner through E, continued to the screen.', c) });
+    }
+  });
+  if (s3.fan) {
+    const a = cs[0], b = cs[1];
+    if (a[2] > 0 && b[2] > 0) {
+      v.poly([[0, 0, 0], a, b], { fill: COL.sight, fillAlpha: 0.18, stroke: COL.sight, strokeWidth: 1.2 });
+      v.line(onScreen(a), onScreen(b), { color: COL.pp, width: 4.5, layer: 0.6 });
+      v.label(V.lerp(a, b, 0.5), 'flat triangle E–0–1', { color: COL.sight, side: 'above' });
+    }
+  }
+}
+function s3Rows() {
+  const dz = Dm.q(s3.dz), f = Dm.f;
+  return CUBE_VS.map((p, i) => {
+    const x = Dm.q(p[0]), y = Dm.q(p[1]), z = Dm.q(p[2]), z2 = z + dz;
+    return { i, x, y, z, z2, xp: Dm.div(x, z2), yp: Dm.div(y, z2) };
+  });
+}
+function s3Panel() {
+  const rows = s3Rows(), f = Dm.f, dz = Dm.q(s3.dz);
+  const behind = rows.filter(r => r.z2 < 0), zero = rows.filter(r => r.z2 === 0), near = rows.filter(r => r.z2 > 0 && r.z2 < 1000);
+  let m = '';
+  if (zero.length) m += '<div class="note bad">Corners ' + zero.map(r => r.i).join(', ') + ' have <span class="m"><i>z</i></span> = 0: <span class="m"><i>x</i> ÷ 0</span> has no answer, so the code cannot place them. Their lines vanish from the canvas.</div>';
+  if (behind.length) m += '<div class="note bad">Corners ' + behind.map(r => r.i).join(', ') + ' are behind E (negative <span class="m"><i>z</i></span>). Dividing by a negative <span class="m"><i>z</i></span> flips the sign, so a corner on the right is drawn on the left (red dashed lines in the picture). The drawing breaks.</div>';
+  if (!zero.length && !behind.length) m += '<div class="note">All 8 corners are in front of E (every <span class="m"><i>z</i></span> is positive), so every division works.' + (near.length ? ' Corners ' + near.map(r => r.i).join(', ') + ' are between E and the screen; their sight lines reach the corner first and the screen after it. The screen is not a wall.' : '') + '</div>';
+  if (s3.fan) m += '<div class="note">The pink triangle holds the sight lines from E to every point of edge 0–1. It is flat, and a flat triangle meets the flat screen along a straight line (thick amber). So projecting only corners 0 and 1 and joining them with a straight line gives the picture of the whole edge.</div>';
+  $('#s3Msg').innerHTML = m;
+  $('#s3Tbl').innerHTML = '<p class="eqnote"><code>translate_z(p, dz)</code> returns (<span class="m"><i>x</i>, <i>y</i>, <i>z</i> + <i>dz</i></span>). Click a row to follow that corner.</p>' +
+    '<p class="eqnote">The last two columns divide by the <span class="m"><i>z</i> + <i>dz</i></span> column: <span class="m"><i>x</i>′ = <i>x</i> ÷ (<i>z</i> + <i>dz</i>)</span>, <span class="m"><i>y</i>′ = <i>y</i> ÷ (<i>z</i> + <i>dz</i>)</span>.</p>' +
+    '<table class="t tight"><tr><th>corner</th><th><i>x</i></th><th><i>y</i></th><th><i>z</i></th><th><i>z</i> + <i>dz</i></th><th><i>x</i>′</th><th><i>y</i>′</th></tr>' +
+    rows.map(r => '<tr class="click' + (r.i === s3.sel ? ' sel' : '') + (r.z2 <= 0 ? ' bad' : '') + '" data-i="' + r.i + '"><td>' + r.i + '</td><td class="n">' + f(r.x) + '</td><td class="n">' + f(r.y) + '</td><td class="n">' + f(r.z) + '</td><td class="n">' + f(r.z2) + '</td><td class="n">' + f(r.xp) + '</td><td class="n">' + f(r.yp) + '</td></tr>').join('') + '</table>';
+  const r = rows[s3.sel];
+  $('#s3Trace').innerHTML = '<h3>Corner ' + r.i + ', every step</h3>' +
+    eq('<i>z</i> after', MZ + ' + <i>dz</i>', fpar(r.z) + ' + ' + fpar(dz), B(f(r.z2))) +
+    eq(MXP, MX + ' ÷ ' + MZ, f(r.x) + ' ÷ ' + fpar(r.z2), B(f(r.xp))) +
+    eq(MYP, MY + ' ÷ ' + MZ, f(r.y) + ' ÷ ' + fpar(r.z2), B(f(r.yp)));
+  $('#s3Tbl').querySelectorAll('tr.click').forEach(tr => tr.addEventListener('click', () => { s3.sel = +tr.dataset.i; s3Refresh(); }));
+}
+const s3View = new View3D($('#s3View'), { draw: s3Draw, yaw: 0.55, pitch: 0.3, dist: 4.4, target: [0.15, 0.05, 0.85] });
+addViewBar(s3View);
+const s3Out = new Flat($('#s3Out'), (ctx, w, h, fl) => drawCodeCanvas(ctx, w, h, fl, s3Corners(), s3.sel, i => pipeline(i, 0, s3.dz)));
+function s3Refresh() {
+  s3Panel(); s3View.dirty = true; s3Out.dirty = true;
+  const L = [LG('dot', COL.eye, 'E', 'the eye', 'E'), LG('fill', COL.screen, 'screen', 'the square at z = 1'), LG('line', COL.cube, 'cube', 'corners 0–7 and the 12 edges, after translate_z', 'c' + s3.sel)];
+  if (s3.sight) L.push(LG('line', COL.sight, 'sight lines', 'from each corner in front of E to E'));
+  L.push(LG('dot', COL.pp, 'amber dots', 'where each corner appears on the screen', 'p' + s3.sel), LG('line', '#047857', 'dark-green lines on the screen', 'the projected edges'));
+  if (s3Corners().some(c => c[2] < 0)) L.push(LG('dash', COL.bad, 'red dashed lines', 'from a corner behind E, through E, to where the formula puts it'));
+  if (s3.fan) L.push(LG('fill', COL.sight, 'pink triangle', 'all sight lines from edge 0–1 to E'), LG('line', COL.pp, 'thick amber line', 'where that triangle meets the screen'));
+  L.push(LG('line', COL.edge, 'gray lines', 'the edges of what E sees'), LG('line', COL.axis, 'axes', 'x right, y up, z forward'));
+  legend($('#s3Legend'), L, s3View);
+}
+slider($('#s3Sl'), { label: '<span class="m"><i>dz</i></span> (push forward)', min: -0.5, max: 3, step: 0.05, value: s3.dz, fmt: fmtS, oninput: v => { s3.dz = v; s3Refresh(); } });
+$('#s3Sl .sl').style.gridTemplateColumns = '170px 1fr 64px';
+$('#s3Sight').addEventListener('change', e => { s3.sight = e.target.checked; s3Refresh(); });
+$('#s3Fan').addEventListener('change', e => { s3.fan = e.target.checked; s3Refresh(); });
+widget($('#s3'), now => { s3View.frame(now); s3Out.frame(now); });
+
+/* =====================================================================
+   SECTION 4 — rotate_xz
+   ===================================================================== */
+const s4 = { deg: 30, acc: 30, play: false, sel: 0, arrows: true, wrong: false, dz: 1 };
+const s4Pos = (p, th) => s4.wrong ? Code.rotate_xz(Code.translate_z(p, s4.dz), th) : Code.translate_z(Code.rotate_xz(p, th), s4.dz);
+function s4Draw(v) {
+  const th = s4.deg * DEG, cs = CUBE_VS.map(p => s4Pos(p, th)), c0 = CUBE_VS.map(p => s4Pos(p, 0));
+  drawFloor(v, { z0: -2, z1: 2.5, x0: -2, x1: 2 }); drawAxes(v, { zNeg: 1.8, z: 2.6, ticks: [] }); drawEye(v);
+  for (const [a, b] of CUBE_EDGES) v.line(c0[a], c0[b], { color: COL.gray, width: 1.2, dash: [5, 4] });
+  const ax = s4.wrong ? [0, 0, 0] : [0, 0, s4.dz];
+  v.line([ax[0], -0.8, ax[2]], [ax[0], 0.8, ax[2]], { color: '#374151', width: 1.8, dash: [9, 5], label: 'spin axis', labelColor: '#374151', labelAt: 0.97 });
+  for (const [a, b] of CUBE_EDGES) v.line(cs[a], cs[b], { color: COL.cube, width: 2.5 });
+  const i = s4.sel, s0 = c0[i], s1p = cs[i], ctr = [ax[0], s0[1], ax[2]];
+  const rad = Math.hypot(s0[0] - ctr[0], s0[2] - ctr[2]), a0 = Math.atan2(s0[2] - ctr[2], s0[0] - ctr[0]);
+  for (let k = 0; k < 72; k++) {
+    const t1 = k / 72 * 2 * Math.PI, t2 = (k + 1) / 72 * 2 * Math.PI;
+    v.line([ctr[0] + rad * Math.cos(t1), ctr[1], ctr[2] + rad * Math.sin(t1)], [ctr[0] + rad * Math.cos(t2), ctr[1], ctr[2] + rad * Math.sin(t2)], { color: COL.cube, width: 1.3, alpha: 0.45 });
+  }
+  const ar = rad * 0.42, steps = Math.max(2, Math.ceil(s4.deg / 5));
+  for (let k = 0; k < steps; k++) {
+    const t1 = a0 + th * k / steps, t2 = a0 + th * (k + 1) / steps;
+    v.line([ctr[0] + ar * Math.cos(t1), ctr[1], ctr[2] + ar * Math.sin(t1)], [ctr[0] + ar * Math.cos(t2), ctr[1], ctr[2] + ar * Math.sin(t2)], { color: '#111827', width: 2 });
+  }
+  v.line(ctr, s0, { color: COL.gray, width: 1.2 }); v.line(ctr, s1p, { color: COL.gray, width: 1.2 });
+  if (s4.deg > 0) v.label([ctr[0] + ar * 1.25 * Math.cos(a0 + th / 2), ctr[1], ctr[2] + ar * 1.25 * Math.sin(a0 + th / 2)], 'θ = ' + s4.deg + '°', { color: '#111827', size: 15 });
+  if (s4.arrows && !s4.wrong) {
+    const [x0, , z0] = CUBE_VS[i], c = Math.cos(th), s = Math.sin(th);
+    const L1 = V.add(ctr, [x0 * c, 0, x0 * s]), L2 = V.add(L1, [-z0 * s, 0, z0 * c]);
+    v.arrow(ctr, L1, { color: COL.vx, width: 3.2, headLen: 10, label: 'x · (cos θ, sin θ)', labelColor: COL.vx, labelSize: 14 });
+    v.arrow(L1, L2, { color: COL.vz, width: 3.2, headLen: 10, label: 'z · (−sin θ, cos θ)', labelColor: COL.vz, labelSize: 14 });
+  }
+  cs.forEach((c, k) => v.point(c, { id: 'c' + k, r: k === i ? 6.5 : 4.5, color: c[2] <= 0 ? COL.bad : COL.cube, label: k === i ? 'corner ' + k : String(k), labelSize: 14, info: infoW('Corner ' + k + ' at θ = ' + s4.deg + '°', s4.wrong ? 'Wrong order: translate_z first, then rotate_xz.' : 'After rotate_xz(θ) and then translate_z (dz = 1).', c) }));
+  v.point(s0, { id: 'o' + i, r: 5.5, color: COL.cube, hollow: true, label: i + ' at θ = 0°', labelSize: 14, info: infoW('Corner ' + i + ' before turning (θ = 0°)', 'Where corner ' + i + ' starts on its circle.', s0) });
+}
+function s4InsetDraw(ctx, w, h, fl) {
+  const th = s4.deg * DEG, c = Math.cos(th), s = Math.sin(th), cq = Dm.q(c), sq = Dm.q(s);
+  const R = Math.min(w, h) / 2 - 52, cx = w / 2, cy = h / 2 + 8, X = x => cx + x * R, Y = z => cy - z * R;
+  line2(ctx, X(-1.3), cy, X(1.3), cy, '#9ca3af', 1); line2(ctx, cx, Y(-1.25), cx, Y(1.3), '#9ca3af', 1);
+  text2(ctx, '+x', X(1.3) + 4, cy, { color: '#4b5563', size: 14 }); text2(ctx, '+z', cx + 6, Y(1.3) + 2, { color: '#4b5563', size: 14 });
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.strokeStyle = '#d6d3c9'; ctx.lineWidth = 1.2; ctx.stroke();
+  arrow2(ctx, cx, cy, X(1), Y(0), '#b8b4a8', 2); arrow2(ctx, cx, cy, X(0), Y(1), '#b8b4a8', 2);
+  ctx.beginPath(); ctx.arc(cx, cy, R * 0.3, 0, -th, true); ctx.strokeStyle = COL.vx; ctx.lineWidth = 1.8; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, R * 0.22, -Math.PI / 2, -Math.PI / 2 - th, true); ctx.strokeStyle = COL.vz; ctx.lineWidth = 1.8; ctx.stroke();
+  arrow2(ctx, cx, cy, X(c), Y(s), COL.vx, 3); arrow2(ctx, cx, cy, X(-s), Y(c), COL.vz, 3);
+  const tip = (id, x, z, col, txt, info) => {
+    dot2(ctx, X(x), Y(z), 4.5, col); fl.hit(id, X(x), Y(z), 4.5, info);
+    const right = x >= -0.2;
+    text2(ctx, txt, X(x) + (right ? 9 : -9), Y(z) + (z >= 0 ? -12 : 14), { align: right ? 'left' : 'right', color: textCol(col), size: 14, weight: 700 });
+  };
+  tip('ux', c, s, COL.vx, '(' + Dm.f(cq) + ', ' + Dm.f(sq) + ')', () => ({ title: 'The x direction turned by θ = ' + s4.deg + '°', rows: [['x', 'cos θ = ' + Dm.f(cq)], ['z', 'sin θ = ' + Dm.f(sq)]], space: 'Top view: x to the right, z up the picture; the gray circle has radius 1.' }));
+  tip('uz', -s, c, COL.vz, '(' + Dm.f(-sq) + ', ' + Dm.f(cq) + ')', () => ({ title: 'The z direction turned by θ = ' + s4.deg + '°', rows: [['x', '−sin θ = ' + Dm.f(-sq)], ['z', 'cos θ = ' + Dm.f(cq)]], space: 'Top view: x to the right, z up the picture; the gray circle has radius 1.' }));
+  text2(ctx, 'θ = ' + s4.deg + '°', 10, 16, { color: '#111827', size: 15, weight: 700 });
+}
+function s4Nums() {
+  const r = pipeline(s4.sel, s4.deg, s4.dz, s4.wrong), f = Dm.f, i = s4.sel;
+  let h = '';
+  if (!s4.wrong) {
+    h += '<p class="eqnote"><b>The formulas</b> (<span class="m"><i>y</i></span> does not change):</p>' +
+      eq('<i>x</i><sub>new</sub>', MX + ' · cos ' + MTH + ' − ' + MZ + ' · sin ' + MTH) + eq('<i>z</i><sub>new</sub>', MX + ' · sin ' + MTH + ' + ' + MZ + ' · cos ' + MTH) +
+      '<p class="eqnote"><b>Why:</b> a corner at (<span class="m"><i>x</i>, <i>z</i></span>) means: walk <span class="m"><i>x</i></span> along the <span class="m"><i>x</i></span> direction, then <span class="m"><i>z</i></span> along the <span class="m"><i>z</i></span> direction. Turning the cube turns both directions: (1, 0) becomes the violet (cos <span class="m"><i>θ</i></span>, sin <span class="m"><i>θ</i></span>), and (0, 1) becomes the teal (−sin <span class="m"><i>θ</i></span>, cos <span class="m"><i>θ</i></span>). The same two walks along the turned directions end at the turned corner — the two arrows in the 3D picture.</p>' +
+      '<h3>Corner ' + i + ' = (' + f(r.x0) + ', ' + f(r.y0) + ', ' + f(r.z0) + ') at θ = ' + s4.deg + '°</h3>' +
+      eq('<i>c</i>', 'cos(' + s4.deg + '°)', B(f(r.c))) + eq('<i>s</i>', 'sin(' + s4.deg + '°)', B(f(r.s))) +
+      eq(MX + ' · <i>c</i>', f(r.x0) + ' × ' + fpar(r.c), B(f(r.xc))) + eq(MZ + ' · <i>s</i>', f(r.z0) + ' × ' + fpar(r.s), B(f(r.zs))) +
+      eq('<i>x</i><sub>new</sub>', f(r.xc) + ' − ' + fpar(r.zs), B(f(r.x1))) +
+      eq(MX + ' · <i>s</i>', f(r.x0) + ' × ' + fpar(r.s), B(f(r.xs))) + eq(MZ + ' · <i>c</i>', f(r.z0) + ' × ' + fpar(r.c), B(f(r.zc))) +
+      eq('<i>z</i><sub>new</sub>', f(r.xs) + ' + ' + fpar(r.zc), B(f(r.z1))) + eq('<i>y</i><sub>new</sub>', MY, B(f(r.y1))) +
+      '<p class="eqnote">Then <code>translate_z</code> pushes the corner forward by <span class="m"><i>dz</i></span> = 1:</p>' +
+      eq(MZ, '<i>z</i><sub>new</sub> + <i>dz</i>', fpar(r.z1) + ' + 1.000', B(f(r.z2)));
+  } else {
+    h += '<div class="note bad">Swapped order: <code>translate_z</code> first, <code>rotate_xz</code> second. After <code>translate_z</code> the cube\'s center is at (0, 0, 1), not at (0, 0, 0). <code>rotate_xz</code> always turns around the vertical line through (0, 0, 0) — through E. So the cube swings around the eye on a circle and spends part of the turn behind E (red corners).</div>' +
+      '<h3>Corner ' + i + ' at θ = ' + s4.deg + '° (wrong order)</h3>' +
+      eq(MZ, f(r.z0) + ' + 1.000', B(f(r.zt))) + eq('<i>c</i>', 'cos(' + s4.deg + '°)', B(f(r.c))) + eq('<i>s</i>', 'sin(' + s4.deg + '°)', B(f(r.s))) +
+      eq(MX + ' · <i>c</i>', f(r.x0) + ' × ' + fpar(r.c), B(f(r.xc))) + eq(MZ + ' · <i>s</i>', f(r.zt) + ' × ' + fpar(r.s), B(f(r.zs))) +
+      eq('<i>x</i><sub>new</sub>', f(r.xc) + ' − ' + fpar(r.zs), B(f(r.x1))) +
+      eq(MX + ' · <i>s</i>', f(r.x0) + ' × ' + fpar(r.s), B(f(r.xs))) + eq(MZ + ' · <i>c</i>', f(r.zt) + ' × ' + fpar(r.c), B(f(r.zc))) +
+      eq('<i>z</i><sub>new</sub>', f(r.xs) + ' + ' + fpar(r.zc), B(f(r.z1)));
+  }
+  return h;
+}
+const s4View = new View3D($('#s4View'), { draw: s4Draw, yaw: 0.35, pitch: 0.95, dist: 2.7, target: [0, 0.1, 1.0] });
+addViewBar(s4View);
+const s4Inset = new Flat($('#s4Inset'), s4InsetDraw);
+function s4Refresh(light) {
+  s4View.dirty = true; s4Inset.dirty = true;
+  $('#s4Nums').innerHTML = s4Nums();
+  if (light) return;
+  const L = [LG('dot', COL.eye, 'E', 'the eye', 'E'), LG('line', COL.cube, 'cube', 'turned by θ, then pushed forward by dz = 1', 'c' + s4.sel), LG('dash', COL.gray, 'gray dashed cube', 'the cube before turning (θ = 0°)'),
+    LG('ring', COL.cube, 'hollow green dot', 'corner ' + s4.sel + ' before turning', 'o' + s4.sel), LG('line', '#86c9ac', 'pale green circle', 'the path of corner ' + s4.sel + ' as θ grows'), LG('dash', '#374151', 'spin axis', s4.wrong ? 'the vertical line through E' : 'the vertical line through the cube\'s center')];
+  if (s4.arrows && !s4.wrong) L.push(LG('line', COL.vx, 'violet arrow', 'x steps along the turned x direction'), LG('line', COL.vz, 'teal arrow', 'z steps along the turned z direction'));
+  if (s4.wrong) L.push(LG('dot', COL.bad, 'red corners', 'behind E: z is 0 or negative'));
+  L.push(LG('line', COL.axis, 'axes', 'x right, y up, z forward'));
+  legend($('#s4Legend'), L, s4View);
+}
+const s4Sl = slider($('#s4Sl'), { label: '<span class="m"><i>θ</i></span> (turn)', min: 0, max: 359, step: 1, value: s4.deg, fmt: v => v + '°', oninput: v => { s4.deg = v; s4.acc = v; s4Refresh(true); } });
+const s4Sync = cornerPicker($('#s4Pick'), () => s4.sel, i => { s4.sel = i; s4Refresh(); });
+$('#s4Play').addEventListener('click', () => { s4.play = !s4.play; $('#s4Play').textContent = s4.play ? 'Pause' : 'Play'; });
+$('#s4Arrows').addEventListener('change', e => { s4.arrows = e.target.checked; s4Refresh(); });
+$('#s4Wrong').addEventListener('change', e => {
+  s4.wrong = e.target.checked; s4Refresh();
+  s4View.setView(s4.wrong ? { yaw: 0.5, pitch: 0.8, dist: 5.6, target: [0, 0, 0] } : s4View.home);
+});
+widget($('#s4'), (now, dt) => {
+  if (s4.play) {
+    s4.acc = (s4.acc + 40 * dt) % 360; const d = Math.floor(s4.acc) % 360;
+    if (d !== s4.deg) { s4.deg = d; s4Sl.set(d); s4Refresh(true); }
+  }
+  s4View.frame(now); s4Inset.frame(now);
+});
+
+/* =====================================================================
+   SECTION 5 — the whole frame()
+   ===================================================================== */
+const s5 = { deg: 30, acc: 30, play: false, fast: false, dz: 1, sel: 0, ghost: false };
+const s5Stages = i => {
+  const th = s5.deg * DEG, v0 = CUBE_VS[i], v1 = Code.rotate_xz(v0, th), v2 = Code.translate_z(v1, s5.dz);
+  return { v0, v1, v2, v3: v2[2] > 0 ? onScreen(v2) : null };
+};
+function s5Draw(v) {
+  const th = s5.deg * DEG, cs = CUBE_VS.map(p => Code.translate_z(Code.rotate_xz(p, th), s5.dz));
+  drawFloor(v, { z0: -1, z1: 4 }); drawAxes(v, { zNeg: 0.9, z: 3.6 }); drawEye(v); drawScreen(v, { grid: false });
+  if (s5.ghost) {
+    const g0 = CUBE_VS, g1 = CUBE_VS.map(p => Code.rotate_xz(p, th));
+    for (const [a, b] of CUBE_EDGES) { v.line(g0[a], g0[b], { color: COL.gray, width: 1.3, dash: [5, 4] }); v.line(g1[a], g1[b], { color: COL.vx, width: 1.3, dash: [5, 4], alpha: 0.8 }); }
+  }
+  drawCubeScene(v, cs, { sel: s5.sel, labels: true, role: 'Stage ③: after rotate_xz and translate_z.' });
+  const st = s5Stages(s5.sel), i = s5.sel;
+  const ra = Math.hypot(st.v0[0], st.v0[2]), a0 = Math.atan2(st.v0[2], st.v0[0]);
+  for (let k = 0; k < 24; k++) {
+    const t1 = a0 + th * k / 24, t2 = a0 + th * (k + 1) / 24;
+    v.line([ra * Math.cos(t1), st.v0[1], ra * Math.sin(t1)], [ra * Math.cos(t2), st.v0[1], ra * Math.sin(t2)], { color: COL.vx, width: 1.8, alpha: 0.9 });
+  }
+  v.arrow(st.v1, st.v2, { color: COL.cube, width: 2, dash: [6, 4], headLen: 10 });
+  v.point(st.v0, { id: 's0', r: 5.5, color: COL.gray, hollow: true, label: '① vs[' + i + ']', labelSize: 14, info: infoW('① corner ' + i + ' as cube.js lists it', 'The cube in cube.js is centered on E (0, 0, 0).', st.v0) });
+  v.point(st.v1, { id: 's1', r: 5.5, color: COL.vx, hollow: true, label: '② turned', labelSize: 14, info: infoW('② after rotate_xz', 'Turned by θ = ' + s5.deg + '° around the vertical line through E.', st.v1) });
+  v.label(st.v2, '③ pushed', { color: COL.cube, size: 14, r: 8, side: 'right' });
+  if (st.v3) v.label(st.v3, '④ on the screen', { color: COL.pp, size: 14, r: 6, side: 'left' });
+}
+function s5Pipe() {
+  const i = s5.sel, r = pipeline(i, s5.deg, s5.dz), f = Dm.f;
+  const edges = CUBE_EDGES.filter(e => e.includes(i)).map(e => e.join('–'));
+  return '<h4>① <code>vs[' + i + ']</code> — the corner from cube.js</h4>' + eq('', '(' + MX + ', ' + MY + ', ' + MZ + ')', '(' + f(r.x0) + ', ' + f(r.y0) + ', ' + f(r.z0) + ')') +
+    '<h4>② <code>rotate_xz(v, angle)</code>, angle = ' + s5.deg + '°</h4>' +
+    eq('<i>c</i>', 'cos(' + s5.deg + '°)', B(f(r.c))) + eq('<i>s</i>', 'sin(' + s5.deg + '°)', B(f(r.s))) +
+    eq(MX + ' · <i>c</i>', f(r.x0) + ' × ' + fpar(r.c), B(f(r.xc))) + eq(MZ + ' · <i>s</i>', f(r.z0) + ' × ' + fpar(r.s), B(f(r.zs))) +
+    eq('<i>x</i><sub>new</sub>', MX + ' · <i>c</i> − ' + MZ + ' · <i>s</i>', f(r.xc) + ' − ' + fpar(r.zs), B(f(r.x1))) +
+    eq(MX + ' · <i>s</i>', f(r.x0) + ' × ' + fpar(r.s), B(f(r.xs))) + eq(MZ + ' · <i>c</i>', f(r.z0) + ' × ' + fpar(r.c), B(f(r.zc))) +
+    eq('<i>z</i><sub>new</sub>', MX + ' · <i>s</i> + ' + MZ + ' · <i>c</i>', f(r.xs) + ' + ' + fpar(r.zc), B(f(r.z1))) + eq('<i>y</i><sub>new</sub>', MY, B(f(r.y1)) + ' (no change)') +
+    '<h4>③ <code>translate_z(v, dz)</code>, dz = ' + f(r.dz) + '</h4>' +
+    eq(MZ, '<i>z</i><sub>new</sub> + <i>dz</i>', fpar(r.z1) + ' + ' + fpar(r.dz), B(f(r.z2))) +
+    '<p class="eqnote">From here on, <span class="m"><i>z</i></span> means this pushed value.</p>' +
+    '<h4>④ <code>project(v)</code> — the formula</h4>' +
+    eq(MXP, '<i>x</i><sub>new</sub> ÷ ' + MZ, f(r.x1) + ' ÷ ' + fpar(r.z2), B(f(r.xp))) + eq(MYP, '<i>y</i><sub>new</sub> ÷ ' + MZ, f(r.y1) + ' ÷ ' + fpar(r.z2), B(f(r.yp))) +
+    '<h4>⑤ <code>screen(p)</code> — to canvas pixels</h4>' +
+    eq('', MXP + ' + 1', fpar(r.xp) + ' + 1', B(f(r.sx1))) + eq('', f(r.sx1) + ' ÷ 2', B(f(r.sx2))) + eq('pixel <i>x</i>', f(r.sx2) + ' × 800', B(f(r.sx3) + ' px')) +
+    eq('', MYP + ' + 1', fpar(r.yp) + ' + 1', B(f(r.sy1))) + eq('', f(r.sy1) + ' ÷ 2', B(f(r.sy2))) + eq('', '1 − ' + fpar(r.sy2), B(f(r.sy3))) + eq('pixel <i>y</i>', f(r.sy3) + ' × 800', B(f(r.sy4) + ' px')) +
+    '<h4>⑥ <code>line(…)</code></h4><p class="eqnote">Corner ' + i + ' is one end of 3 edges: ' + edges.join(', ') + '. The code draws a straight line from this pixel to the pixel of the other end of each edge. Every line above is rounded to 3 decimals, so the last digit can differ slightly from the exact value the code computes.</p>';
+}
+function s5Flow() {
+  const i = s5.sel, r = pipeline(i, s5.deg, s5.dz), f = Dm.f;
+  const box = (h, v, d) => '<div class="fs"><div class="fs-h">' + h + '</div><div class="fs-v">' + v + '</div><div class="fs-d">' + d + '</div></div>';
+  return [
+    box('① vs[' + i + ']', '(' + f(r.x0) + ', ' + f(r.y0) + ', ' + f(r.z0) + ')', 'corner from cube.js'),
+    box('② rotate_xz', '(' + f(r.x1) + ', ' + f(r.y1) + ', ' + f(r.z1) + ')', 'turned by ' + s5.deg + '°'),
+    box('③ translate_z', '(' + f(r.x1) + ', ' + f(r.y1) + ', ' + f(r.z2) + ')', 'z grew by dz = ' + f(r.dz)),
+    box('④ project', '(' + f(r.xp) + ', ' + f(r.yp) + ')', 'x′ = x ÷ z, y′ = y ÷ z'),
+    box('⑤ screen', '(' + f(r.sx3) + ', ' + f(r.sy4) + ') px', 'pixel on the 800 × 800 canvas'),
+    box('⑥ line', CUBE_EDGES.filter(e => e.includes(i)).map(e => e.join('–')).join(', '), 'edges that end at this corner'),
+  ].join('<div class="fa">→</div>');
+}
+const s5View = new View3D($('#s5View'), { draw: s5Draw, yaw: 0.5, pitch: 0.32, dist: 4.0, target: [0.1, 0.05, 0.7] });
+addViewBar(s5View);
+const s5Out = new Flat($('#s5Out'), (ctx, w, h, fl) => drawCodeCanvas(ctx, w, h, fl, CUBE_VS.map(p => Code.translate_z(Code.rotate_xz(p, s5.deg * DEG), s5.dz)), s5.sel, i => pipeline(i, s5.deg, s5.dz)));
+function s5Refresh(light) {
+  s5View.dirty = true; s5Out.dirty = true;
+  $('#s5Pipe').innerHTML = s5Pipe(); $('#s5Flow').innerHTML = s5Flow();
+  if (light) return;
+  const L = [LG('ring', COL.gray, '①', 'the corner as cube.js lists it (cube centered on E)', 's0'), LG('line', COL.vx, 'violet arc', 'rotate_xz turns it around the vertical line through E'), LG('ring', COL.vx, '②', 'after rotate_xz', 's1'),
+    LG('dash', COL.cube, 'green dashed arrow', 'translate_z pushes it forward by dz'), LG('dot', COL.cube, '③', 'after translate_z: the green cube', 'c' + s5.sel), LG('line', COL.sight, 'sight lines', 'from each corner to E'), LG('dot', COL.pp, '④', 'after project: on the screen', 'p' + s5.sel), LG('line', '#047857', 'dark-green lines on the screen', 'the projected edges')];
+  if (s5.ghost) L.push(LG('dash', COL.gray, 'gray dashed cube', 'stage ①: the cube from cube.js, around E'), LG('dash', COL.vx, 'violet dashed cube', 'stage ②: turned, still around E'));
+  legend($('#s5Legend'), L, s5View);
+}
+const s5SlA = slider($('#s5Sl'), { label: 'angle', min: 0, max: 359, step: 1, value: s5.deg, fmt: v => v + '°', oninput: v => { s5.deg = v; s5.acc = v; s5Refresh(true); } });
+slider($('#s5Sl'), { label: '<span class="m"><i>dz</i></span>', min: 0.5, max: 3, step: 0.05, value: s5.dz, fmt: fmtS, oninput: v => { s5.dz = v; s5Refresh(true); } });
+cornerPicker($('#s5Pick'), () => s5.sel, i => { s5.sel = i; s5Refresh(); });
+$('#s5Play').addEventListener('click', () => { s5.play = !s5.play; $('#s5Play').textContent = s5.play ? 'Pause' : 'Play'; });
+$('#s5Fast').addEventListener('change', e => { s5.fast = e.target.checked; });
+$('#s5Ghost').addEventListener('change', e => { s5.ghost = e.target.checked; s5Refresh(); });
+widget($('#s5'), (now, dt) => {
+  if (s5.play) {
+    s5.acc = (s5.acc + (s5.fast ? 180 : 30) * dt) % 360; const d = Math.floor(s5.acc) % 360;
+    if (d !== s5.deg) { s5.deg = d; s5SlA.set(d); s5Refresh(true); }
+  }
+  s5View.frame(now); s5Out.frame(now);
+});
+$('#s5Code').innerHTML = [
+  'const FPS = 60;', 'let dz = 1;', 'let angle = 0;', '',
+  'function frame() {',
+  '    const dt = 1/FPS;',
+  '    angle += Math.PI*dt;    <span class="cm">// π radians = 180°: half a turn per second</span>',
+  '    clear()',
+  '    for (const f of fs) {',
+  '        for (let i = 0; i &lt; f.length; ++i) {',
+  '            const a = vs[f[i]];',
+  '            const b = vs[f[(i+1)%f.length]];',
+  '            <span class="hl">line(screen(project(translate_z(rotate_xz(a, angle), dz))),</span>',
+  '                 <span class="hl">screen(project(translate_z(rotate_xz(b, angle), dz))))</span>',
+  '        }', '    }',
+  '    setTimeout(frame, 1000/FPS);', '}',
+].join('\n');
+$('#s5Fns').innerHTML = [
+  'function rotate_xz({x, y, z}, angle) {   <span class="cm">// ②</span>',
+  '    const c = Math.cos(angle);',
+  '    const s = Math.sin(angle);',
+  '    return { x: x*c-z*s, y, z: x*s+z*c };',
+  '}',
+  'function translate_z({x, y, z}, dz) {    <span class="cm">// ③</span>',
+  '    return {x, y, z: z + dz};',
+  '}',
+  'function project({x, y, z}) {            <span class="cm">// ④ the formula</span>',
+  '    return { <span class="hl">x: x/z</span>, <span class="hl">y: y/z</span> };',
+  '}',
+  'function screen(p) {                     <span class="cm">// ⑤</span>',
+  '    return { x: (p.x + 1)/2*game.width, y: (1 - (p.y + 1)/2)*game.height };',
+  '}',
+].join('\n');
+
+/* =====================================================================
+   SECTION 6 — exercises
+   ===================================================================== */
+function exBase(v, o = {}) { drawFloor(v, { z0: o.z0 ?? -0.5, z1: o.z1 ?? 4 }); drawAxes(v, { zNeg: o.zNeg ?? 0.5, z: o.z ?? 3.6, ticks: [] }); drawEye(v); drawScreen(v); drawViewEdges(v, o.edges ?? 2.6); }
+const EXS = [
+  {
+    q: 'Where does P = (0.600, 0.300, 3.000) appear on the screen?',
+    intro: 'P is 0.600 to the right of E, 0.300 above E, and 3.000 in front of E. Use the formula: divide <span class="m"><i>x</i></span> and <span class="m"><i>y</i></span> by <span class="m"><i>z</i></span>.',
+    choices: ['(0.200, 0.100)', '(1.800, 0.900)', '(0.600, 0.300)', '(0.200, 0.300)'], ok: 0,
+    why: ['', 'That is x × z and y × z. Multiplying would move far points outward, the opposite of what we see.', 'That ignores z. It is where P would be if P were on the screen itself (z = 1).', 'Only x was divided. y must be divided by z too.'],
+    answer: () => eq(MXP, MX + ' ÷ ' + MZ, '0.600 ÷ 3.000', B(Dm.f(Dm.div(600, 3000)))) + eq(MYP, MY + ' ÷ ' + MZ, '0.300 ÷ 3.000', B(Dm.f(Dm.div(300, 3000)))) + '<p class="eqnote">The picture now draws the sight line from P to E and P′ where it crosses the screen.</p>',
+    view: { yaw: 0.55, pitch: 0.28, dist: 5.2, target: [0.25, 0.1, 1.5] },
+    draw(v, done) {
+      exBase(v); const P = [0.6, 0.3, 3], A = [0, 0, 3], Q = [0.6, 0, 3];
+      v.line([0, 0, 0], A, { color: COL.p, width: 5, alpha: 0.3 }); v.line(A, Q, { color: COL.p, width: 2, dash: [7, 5] }); v.line(Q, P, { color: COL.p, width: 2, dash: [7, 5] });
+      v.point(P, { id: 'P', r: 7, color: COL.p, label: 'P', info: infoW('P', 'The point of the question.', P) });
+      if (done) { v.line([0, 0, 0], P, { color: COL.sight, width: 2.6, halo: true }); v.point([0.2, 0.1, 1], { id: 'Pp', r: 6, color: COL.pp, label: 'P′ (0.200, 0.100)', info: infoProj('P′', 'Where P appears on the screen.', P) }); }
+    },
+  },
+  {
+    q: 'P moves from z = 2.000 to z = 4.000 (twice as far). Where does it appear now?',
+    intro: 'P = (0.800, 0.400, 2.000) appears at P′ = (0.400, 0.200). Now P keeps its <span class="m"><i>x</i></span> and <span class="m"><i>y</i></span> but moves to <span class="m"><i>z</i> = 4.000</span>.',
+    choices: ['(0.200, 0.100)', '(0.400, 0.200)', '(0.800, 0.400)', '(1.600, 0.800)'], ok: 0,
+    why: ['', 'That is where P appeared before the move. A bigger z must change the result.', 'That ignores z: it is P\'s own x and y.', 'That is x × 2 and y × 2. Farther away must look smaller, not bigger.'],
+    answer: () => eq(MXP, MX + ' ÷ ' + MZ, '0.800 ÷ 4.000', B(Dm.f(Dm.div(800, 4000)))) + eq(MYP, MY + ' ÷ ' + MZ, '0.400 ÷ 4.000', B(Dm.f(Dm.div(400, 4000)))) + '<p class="eqnote">The new P′ is half as far from C as the old one: 0.400 ÷ 2 = 0.200 and 0.200 ÷ 2 = 0.100. Twice the distance, half the size.</p>',
+    view: { yaw: 0.55, pitch: 0.28, dist: 5.8, target: [0.3, 0.1, 2.0] },
+    draw(v, done) {
+      exBase(v, { z1: 4.5, z: 4.4 }); const P1 = [0.8, 0.4, 2], P2 = [0.8, 0.4, 4];
+      v.line([0, 0, 0], P1, { color: COL.sight, width: 1.6, alpha: 0.5 });
+      v.point(P1, { id: 'P1', r: 6, color: COL.p, alpha: 0.55, label: 'P before (z = 2)', info: infoW('P before the move', 'z = 2.000.', P1) });
+      v.point([0.4, 0.2, 1], { id: 'Pp1', r: 5, color: COL.pp, alpha: 0.55, label: 'old P′', info: infoProj('Old P′', 'Where P appeared before the move.', P1) });
+      v.line(P1, P2, { color: COL.p, width: 2, dash: [6, 4] });
+      v.point(P2, { id: 'P2', r: 7, color: COL.p, label: 'P after (z = 4)', info: infoW('P after the move', 'z = 4.000.', P2) });
+      if (done) { v.line([0, 0, 0], P2, { color: COL.sight, width: 2.6, halo: true }); v.point([0.2, 0.1, 1], { id: 'Pp2', r: 6, color: COL.pp, label: 'new P′ (0.200, 0.100)', info: infoProj('New P′', 'Where P appears after the move.', P2) }); }
+    },
+  },
+  {
+    q: 'Does the 800 × 800 canvas show the point K = (1.500, 0.000, 1.000)?',
+    intro: 'K is 1.500 to the right of E, at E\'s height, and 1.000 in front of E — on the same plane as the screen (<span class="m"><i>z</i> = 1</span>).',
+    choices: ['Yes: K is on the screen\'s plane, so the canvas shows it', 'No: K lands 1000 px from the left edge, but the canvas ends at 800 px', 'No: K is behind the eye'], ok: 1,
+    why: ['Being on the plane z = 1 is not enough: the screen square only runs from −1 to 1, and K\'s x is 1.500.', '', 'K\'s z is 1.000, which is positive: K is in front of E.'],
+    answer: () => eq(MXP, MX + ' ÷ ' + MZ, '1.500 ÷ 1.000', B('1.500')) + eq('', MXP + ' + 1', '1.500 + 1', B('2.500')) + eq('', '2.500 ÷ 2', B('1.250')) + eq('pixel <i>x</i>', '1.250 × 800', B('1000.000 px')) +
+      '<p class="eqnote">1000 px is past the right edge (800 px), so the canvas does not show K. In the picture, K is right of the screen square and outside the gray lines that mark what E can see.</p>',
+    view: { yaw: 0.3, pitch: 0.45, dist: 4.4, target: [0.6, 0, 0.8] },
+    draw(v, done) {
+      exBase(v, { edges: 2 }); const K = [1.5, 0, 1];
+      v.point(K, { id: 'K', r: 7, color: COL.p, label: 'K', info: infoW('K', 'The point of the question.', K) });
+      if (done) { v.line([0, 0, 0], K, { color: COL.sight, width: 2.6, halo: true }); v.line([1, 0, 1], K, { color: COL.bad, width: 3 }); v.label(V.lerp([1, 0, 1], K, 0.5), 'outside the screen', { color: COL.bad, side: 'below' }); }
+    },
+  },
+  {
+    q: 'B = (0.500, 0.000, −1.000) is behind the eye and to the right. Where does x′ = x ÷ z put it?',
+    intro: 'The cube in <code>cube.js</code> is centered on E, so half of its corners start behind E. This is what would happen without <code>translate_z</code>.',
+    choices: ['x′ = −0.500: on the left half of the screen', 'x′ = 0.500: on the right half of the screen', 'Nowhere: the formula refuses a negative z'], ok: 0,
+    why: ['', 'The sign of z matters: dividing by a negative number flips the sign of the result.', 'JavaScript divides by negative numbers without complaint. Only z = 0 has no answer.'],
+    answer: () => eq(MXP, MX + ' ÷ ' + MZ, '0.500 ÷ (−1.000)', B(Dm.f(Dm.div(500, -1000)))) +
+      '<p class="eqnote">The formula does not know that B is behind you. It gives the point where the line from B through E continues to the screen (red), on the left side. So the code first pushes the cube forward with <code>translate_z</code>, until every corner has a positive <span class="m"><i>z</i></span>.</p>',
+    view: { yaw: 1.0, pitch: 0.5, dist: 4.6, target: [0, 0, 0.05] },
+    draw(v, done) {
+      exBase(v, { z0: -1.5, z1: 2, zNeg: 1.5, z: 2, edges: 1.8 }); const Bp = [0.5, 0, -1];
+      v.point(Bp, { id: 'B', r: 7, color: COL.p, label: 'B (behind E)', info: infoW('B', 'Behind E: z is negative.', Bp) });
+      if (done) { v.line(Bp, [-0.5, 0, 1], { color: COL.bad, width: 2.6 }); v.point([-0.5, 0, 1], { id: 'Bp', r: 6, color: COL.bad, label: 'where the formula puts B', info: infoProj('Where the formula puts B', 'x′ = x ÷ z with a negative z.', Bp) }); }
+    },
+  },
+];
+EXS.forEach((ex, n) => {
+  const el = document.createElement('div'); el.className = 'ex';
+  el.innerHTML = '<div><div class="view3d mini"></div></div><div><h3>Question ' + (n + 1) + ': ' + ex.q + '</h3><p>' + ex.intro + '</p><div class="choices"></div><div class="fb"></div><div class="answer" hidden></div></div>';
+  $('#exList').append(el);
+  const st = { done: false };
+  const view = new View3D(el.querySelector('.view3d'), Object.assign({ draw: v => ex.draw(v, st.done) }, ex.view));
+  addViewBar(view, 'Drag to turn · click a dot');
+  const box = el.querySelector('.choices'), fb = el.querySelector('.fb'), ans = el.querySelector('.answer');
+  ex.choices.forEach((c, k) => {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = c;
+    b.addEventListener('click', () => {
+      [...box.children].forEach(x => x.classList.remove('ok', 'no'));
+      b.classList.add(k === ex.ok ? 'ok' : 'no');
+      fb.innerHTML = k === ex.ok ? '<b>Right.</b>' : '<b>Not quite.</b> ' + ex.why[k] + ' The answer is below.';
+      box.children[ex.ok].classList.add('ok');
+      ans.hidden = false; ans.innerHTML = ex.answer(); st.done = true; view.dirty = true;
+    });
+    box.append(b);
+  });
+  widget(el, now => view.frame(now));
+});
+
+/* ---------- start ---------- */
+Pop.init();
+s1Step.go(0); s2Step.go(0); s3Refresh(); s4Refresh(); s5Refresh();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

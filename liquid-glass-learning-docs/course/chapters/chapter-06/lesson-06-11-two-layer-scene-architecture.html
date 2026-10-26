@@ -14,46 +14,46 @@
 </head>
 <body>
 <main class="page">
-<div class="topbar">
-<div class="crumbs"><a href="lesson-how-android-draws-the-scene.html">Chapter 6</a> · Lesson 6.11</div>
-<div class="chips"><span class="chip progress">62 of 216 complete</span><span class="chip progress">6.11 learner complete</span><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span></div>
-</div>
+<nav class="topbar">
+<div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-how-swiftui-draws-the-scene.html">Chapter 6</a> · Lesson 6.11</div>
+<div class="chips"><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span><span class="chip progress">100 of 216 complete</span><span class="chip">iPhone 16 Pro</span></div>
+</nav>
 
-<section class="hero panel">
+<header class="hero panel">
 <div>
-<div class="eyebrow">Chapter 6 · final architecture lesson</div>
+<div class="eyebrow">Chapter 6 · How SwiftUI draws the scene</div>
 <h1>Build a two-layer scene architecture</h1>
-<p class="lead">Use two controlled <code>GraphicsLayer</code> objects for the backdrop source and the panel sample. Draw tint, border, and sharp foreground content in explicit later stages.</p>
-<div class="success"><strong>Main rule:</strong> the future blur layer must own the backdrop crop, but it must not own the label or icon that should remain sharp.</div>
+<p class="lead">Use two controlled products for the backdrop source and the panel sample. Draw tint, border, and sharp foreground content in explicit later stages.</p>
+<div class="success"><strong>Main rule:</strong> the future blur view must own the backdrop crop, and it must not own the label or icon that should remain sharp.</div>
 </div>
 <div class="card indigo">
-<h3>Two layers does not mean two pixel buffers</h3>
-<p><strong>Layer 1</strong> retains the complete backdrop drawing commands. <strong>Layer 2</strong> retains the translated panel-crop commands.</p>
-<p><code>ForegroundContent</code> is an ordinary later Compose child, not a third layer.</p>
-<p>Both controlled layers stay on the default <code>Auto</code> strategy in this lesson. Chapter 7 will add the operation that actually requires pixel input.</p>
+<h3>Two layers does not mean two offscreen images</h3>
+<p><strong>Layer 1</strong> is <code>recordedBackdrop</code>, the <code>ImageRenderer</code> image of the full backdrop. That product is pixels: backdrop points times <code>displayScale</code>.</p>
+<p><strong>Layer 2</strong> is <code>panelSample</code>, a clip and offset of that same image. This lesson does not call <code>drawingGroup()</code> and does not snapshot the panel, so the sample is not a second offscreen image allocated here.</p>
+<p><code>ForegroundContent</code> is an ordinary later child, not a third recorded product.</p>
 </div>
-</section>
+</header>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">1 · Practical problem</div><h2>Keep the future blur away from labels</h2></div><p>Architecture decides which commands can become effect input.</p></div>
+<div class="section-head"><div><div class="section-no">1 · Practical problem</div><h2>Keep the future blur away from labels</h2></div><p>Architecture decides which views can become blur input.</p></div>
 <div class="two">
-<div class="card red"><h3>One overloaded panel owner</h3><p>If the sampled backdrop, tint, border, icon, and label all enter one future blur layer, the sharp foreground becomes effect input too.</p></div>
-<div class="card green"><h3>One explicit owner split</h3><p>Let <code>GlassMaterial</code> own the sampled backdrop and material additions. Let <code>ForegroundContent</code> draw afterward as an ordinary child.</p></div>
+<div class="card red"><h3>One overloaded panel owner</h3><p>If the sampled backdrop, tint, border, icon, and label all enter one future blur view, the sharp foreground becomes blur input too.</p></div>
+<div class="card green"><h3>One explicit owner split</h3><p>Let <code>ArchitectureGlassMaterial</code> own the sampled backdrop and the later tint and border. Let <code>ArchitectureForegroundContent</code> draw afterward as an ordinary child.</p></div>
 </div>
-<div class="note">Lessons 6.6–6.10 established background recording, crop mapping, freshness, one-way ownership, synchronized movement, and the difference between a command source and a destination raster target. This lesson assembles those prerequisites into one readable production route.</div>
+<div class="note">Lessons 6.6–6.10 established the <code>ImageRenderer</code> snapshot, the clip and offset crop, freshness, one-way ownership, one shared panel position, and the difference between that snapshot and a <code>drawingGroup()</code> target. This lesson assembles those pieces into one route and leaves <code>drawingGroup()</code> off.</div>
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">2 · Exact objects</div><h2>Name the two layers and the third role</h2></div><p>Only the first two objects are <code>GraphicsLayer</code> instances.</p></div>
+<div class="section-head"><div><div class="section-no">2 · Exact objects</div><h2>Name the two layers and the third role</h2></div><p>Only the first product is an <code>ImageRenderer</code> image. The second is a replay view.</p></div>
 <div class="objects">
-<div class="card blue"><h3>Layer 1 · <code>backgroundLayer</code></h3><p><strong>Producer:</strong> <code>BackdropHost</code>.</p><p><strong>Contains:</strong> replayable drawing commands for the full <code>BackdropArtwork</code>.</p><p><strong>Consumers:</strong> the normal visible backdrop and the panel sample.</p></div>
-<div class="card indigo"><h3>Layer 2 · <code>panelSampleLayer</code></h3><p><strong>Producer:</strong> <code>GlassMaterial</code>.</p><p><strong>Contains:</strong> commands that clip, translate, and replay the matching backdrop crop.</p><p><strong>Future consumer:</strong> the blur effect.</p></div>
-<div class="card green"><h3>Ordinary role · <code>ForegroundContent</code></h3><p><strong>Producer:</strong> a later child inside <code>GlassPanel</code>.</p><p><strong>Contains:</strong> the sharp dot and label commands.</p><p><strong>Important:</strong> it never runs inside either layer's <code>record</code> block.</p></div>
+<div class="card blue"><h3>Layer 1 · <code>recordedBackdrop</code></h3><p><strong>Producer:</strong> <code>ArchitectureBackdropHost</code>.</p><p><strong>Contains:</strong> the <code>ImageRenderer</code> image of the full <code>ArchitectureBackdropArtwork</code>.</p><p><strong>Consumers:</strong> the normal visible backdrop and the panel sample.</p></div>
+<div class="card indigo"><h3>Layer 2 · <code>panelSample</code></h3><p><strong>Producer:</strong> <code>ArchitectureGlassMaterial</code>.</p><p><strong>Contains:</strong> a clip and negative offset of <code>recordedBackdrop.image</code>.</p><p><strong>Future consumer:</strong> the blur. This view is not a second snapshot.</p></div>
+<div class="card green"><h3>Ordinary role · <code>ForegroundContent</code></h3><p><strong>Producer:</strong> a later child inside <code>ArchitectureGlassPanel</code>.</p><p><strong>Contains:</strong> the sharp dot and label.</p><p><strong>Important:</strong> it is not a child of <code>panelSample</code>.</p></div>
 </div>
 <div class="route-strip" style="margin-top:18px">
-<div class="route-node"><strong>BackdropArtwork</strong><br><span class="mono">full source commands</span></div>
-<div class="route-node"><strong>backgroundLayer</strong><br><span class="mono">layer 1</span></div>
-<div class="route-node"><strong>panelSampleLayer</strong><br><span class="mono">layer 2</span></div>
+<div class="route-node"><strong>BackdropArtwork</strong><br><span class="mono">full backdrop view</span></div>
+<div class="route-node"><strong>recordedBackdrop</strong><br><span class="mono">layer 1 · ImageRenderer</span></div>
+<div class="route-node"><strong>panelSample</strong><br><span class="mono">layer 2 · clip + offset</span></div>
 <div class="route-node"><strong>Tint + border</strong><br><span class="mono">later material draws</span></div>
 <div class="route-node"><strong>ForegroundContent</strong><br><span class="mono">ordinary later child</span></div>
 <div class="route-node"><strong>ParentScene</strong><br><span class="mono">final output</span></div>
@@ -61,39 +61,39 @@
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">3 · Interactive architecture lab</div><h2>Move one panel through all three roles</h2></div><p>Every diagram and readout uses the same panel-left value.</p></div>
+<div class="section-head"><div><div class="section-no">3 · Interactive architecture lab</div><h2>Move one panel through all three roles</h2></div><p>Every diagram and readout uses the same panel-left value. The browser picture uses the point geometry. The iPhone 16 Pro explorer runs the <code>ImageRenderer</code> snapshot.</p></div>
 <div class="lab-controls">
 <div class="card control-card">
 <h3>Canonical panel position</h3>
-<div class="controls"><button class="btn" data-left="24">Left</button><button class="btn selected" data-left="72">Center</button><button class="btn" data-left="120">Right</button></div>
-<div class="slider-row"><label for="panelLeft"><strong>Panel left</strong><br><span class="mono">ParentScene-local dp</span></label><input id="panelLeft" type="range" min="24" max="120" step="8" value="72"><strong id="panelLeftValue">72 dp</strong></div>
-<div class="formula">panel origin = crop origin = (panelLeft, 72) dp</div>
+<div class="controls"><button class="btn" type="button" data-left="24">Left</button><button class="btn selected" type="button" data-left="72">Center</button><button class="btn" type="button" data-left="120">Right</button></div>
+<div class="slider-row"><label for="panelLeft"><strong>Panel left</strong><br><span class="mono">ParentScene-local pt</span></label><input id="panelLeft" type="range" min="24" max="120" step="8" value="72"><strong id="panelLeftValue">72 pt</strong></div>
+<div class="formula">panel origin = crop origin = (panelLeft, 72) pt</div>
 </div>
 <div class="card control-card">
 <h3>Inspect one role</h3>
-<div class="controls"><button class="btn selected" data-focus="all">All roles</button><button class="btn" data-focus="background">Layer 1</button><button class="btn" data-focus="sample">Layer 2</button><button class="btn" data-focus="foreground">Foreground</button></div>
-<p id="focusExplanation">All roles are visible. Follow the route from the full backdrop command source to the sharp foreground label.</p>
+<div class="controls"><button class="btn selected" type="button" data-focus="all">All roles</button><button class="btn" type="button" data-focus="background">Layer 1</button><button class="btn" type="button" data-focus="sample">Layer 2</button><button class="btn" type="button" data-focus="foreground">Foreground</button></div>
+<p id="focusExplanation">All roles are visible. Follow the route from the full backdrop image to the sharp foreground label.</p>
 </div>
 </div>
 <div class="scene-shell" style="margin-top:18px"><svg id="sceneSvg" viewBox="0 0 1300 620" role="img" aria-label="Interactive two-layer scene architecture"></svg></div>
 <div class="metrics">
-<div class="metric"><strong>Layer objects</strong><span>2</span></div>
-<div class="metric"><strong>Ordinary foreground roles</strong><span>1</span></div>
-<div class="metric"><strong>Panel origin</strong><span id="panelOrigin">(72, 72) dp</span></div>
-<div class="metric"><strong>Crop origin</strong><span id="cropOrigin">(72, 72) dp</span></div>
-<div class="metric"><strong>Red marker in panel</strong><span id="redLocal">(20, 10) dp</span></div>
+<div class="metric"><strong>Controlled products</strong><span>2</span></div>
+<div class="metric"><strong>Stored images</strong><span>1</span></div>
+<div class="metric"><strong>Panel origin</strong><span id="panelOrigin">(72, 72) pt</span></div>
+<div class="metric"><strong>Crop origin</strong><span id="cropOrigin">(72, 72) pt</span></div>
+<div class="metric"><strong>Red marker in panel</strong><span id="redLocal">(20, 10) pt</span></div>
 </div>
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">4 · Causal walkthrough</div><h2>Owner tree → two recordings → final draw order</h2></div><p>Eleven states; one production path.</p></div>
+<div class="section-head"><div><div class="section-no">4 · Causal walkthrough</div><h2>Owner tree → one snapshot → final draw order</h2></div><p>Eleven states; one production path.</p></div>
 <div class="lesson-grid">
 <div class="diagram-shell">
-<div class="diagram-nav"><button class="btn" id="diagramPrev">Previous</button><strong id="diagramStep">Step 1 of 11</strong><button class="btn" id="diagramNext">Next</button></div>
+<div class="diagram-nav"><button class="btn" type="button" id="diagramPrev">Previous</button><strong id="diagramStep">Step 1 of 11</strong><button class="btn" type="button" id="diagramNext">Next</button></div>
 <svg id="walkthroughSvg" viewBox="0 0 1080 650" role="img" aria-label="Two-layer architecture walkthrough"></svg>
 </div>
 <div class="stepper">
-<div class="step-head"><button class="btn" id="stepPrev">Previous</button><strong id="stepCounter">Step 1 of 11</strong><button class="btn" id="stepNext">Next</button></div>
+<div class="step-head"><button class="btn" type="button" id="stepPrev">Previous</button><strong id="stepCounter">Step 1 of 11</strong><button class="btn" type="button" id="stepNext">Next</button></div>
 <div class="step-body">
 <div class="step-title" id="stepTitle"></div>
 <p class="step-caption" id="stepCaption"></p>
@@ -106,148 +106,148 @@
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">5 · One coordinate and ownership trace</div><h2>Follow a backdrop point and a label command</h2></div><p>Coordinates prove alignment; ownership proves effect isolation.</p></div>
+<div class="section-head"><div><div class="section-no">5 · One coordinate and ownership trace</div><h2>Follow a backdrop point and a label</h2></div><p>Coordinates prove alignment. Ownership proves which view can become blur input.</p></div>
 <div class="table-shell"><table class="ledger">
 <thead><tr><th>Symbol or object</th><th>Exact meaning</th><th>Coordinate space or representation</th><th>Current value</th></tr></thead>
 <tbody>
-<tr><td><code>B</code></td><td>Center of the red marker inside <code>BackdropArtwork</code>.</td><td><code>BackdropHost</code>-local dp; equal to parent-local dp in this controlled scene.</td><td>(92, 82) dp</td></tr>
-<tr><td><code>P</code></td><td>Top-left origin of <code>GlassPanel</code>.</td><td><code>ParentScene</code>-local dp.</td><td id="ledgerPanel">(72, 72) dp</td></tr>
-<tr><td><code>L</code></td><td>The red marker position after the crop origin is moved to panel-local (0, 0).</td><td><code>GlassPanel</code>-local dp.</td><td id="ledgerLocal">(20, 10) dp</td></tr>
-<tr><td><code>ForegroundContent</code></td><td>The sharp dot and text declared after <code>GlassMaterial</code>.</td><td>Normal Compose child draw commands; not recorded by either layer.</td><td>Drawn last inside the panel</td></tr>
+<tr><td><code>B</code></td><td>Center of the red marker inside <code>ArchitectureBackdropArtwork</code>.</td><td><code>BackdropHost</code>-local pt. In this controlled scene that matches <code>ParentScene</code>-local pt.</td><td>(92, 82) pt</td></tr>
+<tr><td><code>P</code></td><td>Top-left origin of <code>ArchitectureGlassPanel</code>.</td><td><code>ParentScene</code>-local pt.</td><td id="ledgerPanel">(72, 72) pt</td></tr>
+<tr><td><code>L</code></td><td>The red marker position after the crop origin is moved to panel-local (0, 0).</td><td><code>GlassPanel</code>-local pt.</td><td id="ledgerLocal">(20, 10) pt</td></tr>
+<tr><td><code>ForegroundContent</code></td><td>The sharp dot and text declared after <code>ArchitectureGlassMaterial</code>.</td><td>Ordinary later child. It is not inside <code>panelSample</code>.</td><td>Drawn last inside the panel</td></tr>
 </tbody>
 </table></div>
 <div class="formula" id="localFormula" style="margin-top:16px">L = B − P
   = (92, 82) − (72, 72)
-  = (20, 10) dp</div>
+  = (20, 10) pt</div>
 <div class="trace" style="margin-top:16px">
-<div><strong>1 · Backdrop point</strong><p><code>B = (92, 82) dp</code></p></div>
-<div><strong>2 · Crop translation</strong><p id="traceTranslation"><code>(−72, −72) dp</code></p></div>
-<div><strong>3 · Panel-local point</strong><p id="traceLocal"><code>L = (20, 10) dp</code></p></div>
+<div><strong>1 · Backdrop point</strong><p><code>B = (92, 82) pt</code></p></div>
+<div><strong>2 · Crop translation</strong><p id="traceTranslation"><code>(−72, −72) pt</code></p></div>
+<div><strong>3 · Panel-local point</strong><p id="traceLocal"><code>L = (20, 10) pt</code></p></div>
 <div><strong>4 · Material additions</strong><p>Tint and border draw over the sampled backdrop.</p></div>
-<div><strong>5 · Foreground command</strong><p>The label draws afterward and never enters <code>panelSampleLayer</code>.</p></div>
+<div><strong>5 · Foreground</strong><p>The label draws afterward and never enters <code>panelSample</code>.</p></div>
 </div>
-<div class="success"><strong>Round-trip check:</strong> adding the panel origin back to the local point returns the original parent position: <span class="mono" id="roundTrip">(72, 72) + (20, 10) = (92, 82) dp</span>.</div>
+<div class="success"><strong>Round-trip check:</strong> adding the panel origin back to the local point returns the original parent position: <span class="mono" id="roundTrip">(72, 72) + (20, 10) = (92, 82) pt</span>.</div>
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">6 · Android route</div><h2>The complete source stays readable</h2></div><p>Open <code>TwoLayerSceneArchitectureExplorer.kt</code> for the full implementation.</p></div>
+<div class="section-head"><div><div class="section-no">6 · iOS route</div><h2>The complete source stays readable</h2></div><p>Open <code>TwoLayerSceneArchitectureExplorer.swift</code> for the full implementation.</p></div>
 <div class="code-grid">
 <div>
-<h3>A · Create exactly two controlled layers</h3>
-<pre class="code-block"><code>val backgroundLayer = rememberGraphicsLayer()
-val panelSampleLayer = rememberGraphicsLayer()</code></pre>
+<h3>A · Snapshot the backdrop once</h3>
+<pre class="code-block"><code>recordedBackdrop = BackdropRecorder.snapshot(
+    size: CGSize(width: 340, height: 240),
+    scale: displayScale
+) {
+    ArchitectureBackdropArtwork()
+}</code></pre>
 <h3 style="margin-top:18px">B · Keep producer and consumer as siblings</h3>
-<pre class="code-block"><code>Box {
-    ArchitectureBackdropHost(
-        backgroundLayer = backgroundLayer,
-    )
+<pre class="code-block"><code>ZStack(alignment: .topLeading) {
+    ArchitectureBackdropHost(recorded: recordedBackdrop)
 
     ArchitectureGlassPanel(
-        backgroundLayer = backgroundLayer,
-        panelSampleLayer = panelSampleLayer,
-        panelLeftDp = panelLeftDp,
+        recorded: recordedBackdrop,
+        panelLeft: panelLeftPt
     )
+    .offset(x: panelLeftPt, y: 72)
 }</code></pre>
 </div>
 <div>
 <h3>C · Split material from foreground</h3>
-<pre class="code-block"><code>Box {
+<pre class="code-block"><code>ZStack {
     ArchitectureGlassMaterial(
-        backgroundLayer = backgroundLayer,
-        panelSampleLayer = panelSampleLayer,
-        panelLeftDp = panelLeftDp,
+        recorded: recordedBackdrop,
+        panelLeft: panelLeftPt
     )
 
     ArchitectureForegroundContent()
 }</code></pre>
-<div class="card green"><h3>Read the child order literally</h3><p><code>ArchitectureGlassMaterial</code> draws first. <code>ArchitectureForegroundContent</code> is the later child, so its dot and text draw over the complete material.</p></div>
+<div class="card green"><h3>Read the child order literally</h3><p><code>ArchitectureGlassMaterial</code> is the first child. <code>ArchitectureForegroundContent</code> is the later child, so its dot and text draw over the complete material.</p></div>
 </div>
 </div>
-<h3 style="margin-top:22px">D · Record only the crop, then add material outside that layer</h3>
-<pre class="code-block"><code>panelSampleLayer.record {
-    clipRect {
-        translate(
-            left = -cropLeftPx,
-            top = -cropTopPx,
-        ) {
-            drawLayer(backgroundLayer)
-        }
-    }
-}
+<h3 style="margin-top:22px">D · Replay only the crop, then add material outside that view</h3>
+<pre class="code-block"><code>recorded.image
+    .resizable()
+    .interpolation(.none)
+    .frame(width: 340, height: 240, alignment: .topLeading)
+    .offset(x: -panelLeft, y: -72)
+    .frame(width: 196, height: 116, alignment: .topLeading)
+    .clipped()
 
-drawLayer(panelSampleLayer)
-drawRoundRect(panelTint)
-drawRoundRect(panelBorder)</code></pre>
-<div class="warning"><strong>No explicit <code>Offscreen</code> here:</strong> the sharp Chapter 6 route does not need it. The prior lesson forced it only to make one concrete raster target available for arithmetic. Chapter 7 will add a real <code>RenderEffect</code> that requires pixel input.</div>
+// Tint and border are later siblings of this view.
+// This lesson does not call drawingGroup().</code></pre>
+<div class="warning"><strong>No <code>drawingGroup()</code> here:</strong> the sharp Chapter 6 route does not need a second offscreen image. Lesson 6.10 called <code>drawingGroup(opaque: false)</code> only so one panel-sized target existed for the size estimate. Chapter 7 will add a blur that needs the sample as pixel input. Do not use <code>ultraThinMaterial</code> or <code>glassEffect</code> as the glass path.</div>
+<div class="note"><strong>Official reference:</strong> <a href="https://developer.apple.com/documentation/swiftui/imagerenderer">ImageRenderer</a> snapshots <code>ArchitectureBackdropArtwork</code>. <a href="https://developer.apple.com/documentation/swiftui/view/offset(x:y:)">offset(x:y:)</a> moves the replay in points. <a href="https://developer.apple.com/documentation/swiftui/view/clipped(antialiased:)">clipped(antialiased:)</a> keeps the replay inside the panel frame.</div>
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">7 · Prediction</div><h2>Which commands become future blur input?</h2></div><p>Assume Chapter 7 attaches a blur effect only to <code>panelSampleLayer</code>.</p></div>
+<div class="section-head"><div><div class="section-no">7 · Prediction</div><h2>Which views become future blur input?</h2></div><p>Assume Chapter 7 attaches a blur only to <code>panelSample</code>.</p></div>
 <div class="prediction">
-<button class="choice" data-prediction="sample">Only the translated backdrop crop recorded into <code>panelSampleLayer</code>.</button>
-<button class="choice" data-prediction="all-panel">The backdrop crop, white tint, border, dot, and label.</button>
-<button class="choice" data-prediction="whole-scene">The complete <code>ParentScene</code>, including every sibling.</button>
+<button class="choice" type="button" data-prediction="sample">Only the translated backdrop crop inside <code>panelSample</code>.</button>
+<button class="choice" type="button" data-prediction="all-panel">The backdrop crop, white tint, border, dot, and label.</button>
+<button class="choice" type="button" data-prediction="whole-scene">The complete <code>ParentScene</code>, including every sibling.</button>
 </div>
 <div class="result" id="predictionResult">Choose one result before opening the explanation exercises.</div>
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">8 · Coding challenge</div><h2>Restore the role boundaries</h2></div><p>Three blanks; no diagnostic branches.</p></div>
+<div class="section-head"><div><div class="section-no">8 · Coding challenge</div><h2>Restore the role boundaries</h2></div><p>Three blanks. The material receives the snapshot and the one position. The foreground stays a later child.</p></div>
 <div class="challenge">
 <div>
-<textarea class="editor" id="challengeEditor" spellcheck="false">Box {
+<textarea class="editor" id="challengeEditor" spellcheck="false">ZStack {
     ArchitectureGlassMaterial(
-        backgroundLayer = ____1____,
-        panelSampleLayer = ____2____,
-        panelLeftDp = panelLeftDp,
+        recorded: ____1____,
+        panelLeft: ____2____
     )
 
     ____3____
 }</textarea>
-<div class="controls" style="margin-top:10px"><button class="btn primary" id="checkChallenge">Check</button><button class="btn" data-code="solution">Insert solution</button><button class="btn" data-code="blank">Reset blanks</button></div>
-<div class="result" id="challengeResult">Use the two existing layers, then draw the ordinary foreground child after the material.</div>
+<div class="controls" style="margin-top:10px"><button class="btn primary" type="button" id="checkChallenge">Check</button><button class="btn" type="button" data-code="solution">Insert solution</button><button class="btn" type="button" data-code="blank">Reset blanks</button></div>
+<div class="result" id="challengeResult">Pass recordedBackdrop and panelLeftPt, then draw the ordinary foreground child after the material.</div>
 </div>
-<div class="card blue"><h3>Required ownership</h3><p>The material must receive both existing layers. The foreground call must remain a later sibling rather than moving inside the sample recording.</p><div class="formula">blank 1 → backgroundLayer
-blank 2 → panelSampleLayer
+<div class="card blue"><h3>Required ownership</h3><p>The material must receive the existing snapshot and the current panel position. The foreground call must remain a later sibling rather than moving inside the sample view.</p><div class="formula">blank 1 → recordedBackdrop
+blank 2 → panelLeftPt
 blank 3 → ArchitectureForegroundContent()</div></div>
 </div>
 </section>
 
 <section class="section panel">
 <div class="section-head"><div><div class="section-no">9 · Explain back</div><h2>Four checks for the architecture</h2></div><p>Open an answer only after stating your own version.</p></div>
-<details><summary>Why is <code>ForegroundContent</code> not a third layer?</summary><p>The architecture needs only two controlled replay boundaries: the full backdrop source and the panel crop. The foreground is ordinary later Compose content. Adding a third layer would not improve the ownership rule being taught.</p></details>
-<details><summary>Why will the label stay outside a future effect on <code>panelSampleLayer</code>?</summary><p>The label command is created after <code>ArchitectureGlassMaterial</code>. It never runs inside <code>panelSampleLayer.record</code>, so it is not part of that effect owner's input.</p></details>
-<details><summary>Why can the panel not capture itself?</summary><p><code>BackdropHost</code> and <code>GlassPanel</code> are siblings. Only the backdrop sibling is recorded into <code>backgroundLayer</code>; the consumer panel belongs to a different, later subtree.</p></details>
-<details><summary>Why does one panel position also define the crop in this sample?</summary><p><code>BackdropHost</code> fills <code>ParentScene</code>, and both begin at local origin (0, 0). Therefore the panel's parent-local origin equals its backdrop-local crop origin. Arbitrary nested layouts still require a real coordinate mapping.</p></details>
+<details><summary>Why is <code>ForegroundContent</code> not a third layer?</summary><p>The architecture needs two controlled products: the full backdrop image and the panel crop replay. The foreground is an ordinary later child. A third snapshot would not improve the ownership rule being taught.</p></details>
+<details><summary>Why will the label stay outside a future blur on <code>panelSample</code>?</summary><p>The label is created after <code>ArchitectureGlassMaterial</code>. It is not a child of the clipped replay, so it is not part of that view’s input.</p></details>
+<details><summary>Why can the panel not capture itself?</summary><p><code>ArchitectureBackdropHost</code> and <code>ArchitectureGlassPanel</code> are siblings. <code>BackdropRecorder</code> snapshots only <code>ArchitectureBackdropArtwork</code>. The consumer panel belongs to a later sibling.</p></details>
+<details><summary>Why does one panel position also define the crop in this sample?</summary><p><code>BackdropHost</code> fills <code>ParentScene</code>, and both begin at local origin (0, 0). Therefore the panel’s parent-local origin equals its backdrop-local crop origin. <code>.offset</code> uses those points. Arbitrary nested layouts still require a real coordinate mapping.</p></details>
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">10 · Preview and device checkpoint</div><h2>Verify the complete sharp architecture</h2></div><p>Use Android Studio Preview and the Pixel 8 Pro.</p></div>
+<div class="section-head"><div><div class="section-no">10 · iPhone 16 Pro checkpoint</div><h2>Verify the complete sharp architecture</h2></div><p>Use the Xcode previews, then the iPhone 16 Pro.</p></div>
 <div class="checklist">
 <label class="check"><input type="checkbox"><span>The backdrop appears normally before the panel.</span></label>
 <label class="check"><input type="checkbox"><span>Left, center, and right presets keep the sample aligned with the scene.</span></label>
 <label class="check"><input type="checkbox"><span>The red and green markers enter or leave the panel only when the crop reaches them.</span></label>
 <label class="check"><input type="checkbox"><span>The yellow guide line is continuous across the panel boundary.</span></label>
 <label class="check"><input type="checkbox"><span>The foreground dot and label remain visibly sharp.</span></label>
-<label class="check"><input type="checkbox"><span>The source owner contains no panel output and therefore no feedback cycle.</span></label>
-<label class="check"><input type="checkbox"><span>The code creates exactly two remembered <code>GraphicsLayer</code> objects.</span></label>
-<label class="check"><input type="checkbox"><span>No separate callback-written crop state can trail the panel position.</span></label>
-<label class="check"><input type="checkbox"><span>Both direct and chapter-screen previews scroll through all content.</span></label>
-<label class="check"><input type="checkbox"><span>I can state why layer count and offscreen-buffer count are different facts.</span></label>
+<label class="check"><input type="checkbox"><span>The snapshot view contains <code>ArchitectureBackdropArtwork</code> only, so the panel cannot feed back into it.</span></label>
+<label class="check"><input type="checkbox"><span>The code calls <code>BackdropRecorder</code> once and does not call <code>drawingGroup()</code>.</span></label>
+<label class="check"><input type="checkbox"><span>One <code>panelLeft</code> value places the panel and supplies the negative offset. There is no second crop state.</span></label>
+<label class="check"><input type="checkbox"><span>The Chapter 6 light preview and the Chapter 6 dark preview both scroll through the 6.11 route card.</span></label>
+<label class="check"><input type="checkbox"><span>The direct light preview and the direct dark preview both scroll through the route card. The 340 pt scene fits in the 412 pt preview.</span></label>
+<label class="check"><input type="checkbox"><span>I can state why one <code>ImageRenderer</code> image plus one replay view is not two offscreen images.</span></label>
 </div>
 </section>
 
 <section class="section panel">
-<div class="section-head"><div><div class="section-no">11 · Evidence boundary</div><h2>Chapter 6 is architecturally ready for blur</h2></div><p>Lesson 6.11 is learner-confirmed complete. Chapter 7 now begins the blur mechanism.</p></div>
+<div class="section-head"><div><div class="section-no">11 · Evidence boundary</div><h2>The sharp route is ready for blur</h2></div></div>
 <div class="two">
-<div class="card green"><h3>Established</h3><p>Two controlled replay layers coexist with a third ordinary foreground role. The source excludes the consumer. The sample layer excludes tint, border, and sharp foreground content. One panel position drives placement and crop translation in the controlled shared-origin scene.</p></div>
+<div class="card green"><h3>Established</h3><p>One <code>ImageRenderer</code> image and one panel replay view coexist with a third ordinary foreground role. The snapshot excludes the consumer. The sample view excludes tint, border, and sharp foreground content. One panel position drives placement and crop offset in the controlled shared-origin scene. <code>.offset</code> uses points.</p></div>
 <div class="card amber"><h3>Still deferred</h3><p>No blur kernel, edge treatment, downsampling, saturation adjustment, polished rim, device trace, caching, or adaptive quality has been added. Chapter 7 begins with blur as neighborhood averaging.</p></div>
 </div>
-<textarea class="record" id="record" aria-label="Local review record">Press “Build local review record” after completing the checks.</textarea>
-<div class="controls" style="margin-top:10px"><button class="btn primary" id="buildRecord">Build local review record</button></div>
+<textarea class="record" id="record" spellcheck="false" aria-label="Local review record" placeholder="Your local review record will appear here. "></textarea>
+<div class="controls" style="margin-top:10px"><button class="btn primary" type="button" id="buildRecord">Build local review record</button></div>
+<div class="warning"><strong>Evidence boundary:</strong> the browser SVG is a teaching copy of the route. The iOS explorer executes a real <code>ImageRenderer</code> snapshot and a real clip and offset. It does not call <code>drawingGroup()</code> on the panel sample. Do not use <code>ultraThinMaterial</code> or <code>glassEffect</code> as the glass path.</div>
+<p><strong>iOS files:</strong><br><code>LiquidGlassLab-iOS/LiquidGlassLab/chapter06/Chapter06Screen.swift</code><br><code>LiquidGlassLab-iOS/LiquidGlassLab/chapter06/TwoLayerSceneArchitectureExplorer.swift</code><br><code>LiquidGlassLab-iOS/LiquidGlassLab/chapter06/BackdropRecorder.swift</code></p>
 </section>
 
-<div class="footer panel"><a href="lesson-06-10-offscreen-cost.html">← Lesson 6.10 — Offscreen cost</a><strong>62 of 216 complete · Chapter 6 complete</strong><a href="../chapter-07/lesson-07-01-blur-as-neighborhood-averaging.html">Lesson 7.1 — Neighborhood averaging →</a></div>
+<nav class="footer panel"><a href="lesson-06-10-offscreen-cost.html">← Lesson 6.10</a><a href="lesson-how-swiftui-draws-the-scene.html">Chapter 6 hub</a><a href="../chapter-07/lesson-07-01-blur-as-neighborhood-averaging.html">Lesson 7.1 →</a></nav>
 </main>
 <script>
 const $=id=>document.getElementById(id);
@@ -257,37 +257,127 @@ const state={left:72,focus:'all',step:0,prediction:null};
 const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
 const STEPS=[
 {node:0,title:'Start with ParentScene',caption:'ParentScene is the final destination. It owns two sibling subtrees: the backdrop producer first and the glass consumer second.',rule:'ParentScene = BackdropHost sibling + GlassPanel sibling',input:'Two sibling owners',operation:'Declare them in draw order',output:'A source can exclude its consumer'},
-{node:1,title:'Keep BackdropHost as the source owner',caption:'BackdropHost contains only BackdropArtwork. No panel material, label, or icon belongs to this subtree.',rule:'recorded source owner = BackdropHost only',input:'BackdropArtwork commands',operation:'Restrict ownership',output:'Panel output is excluded'},
-{node:2,title:'Record Layer 1',caption:'backgroundLayer retains the complete replayable backdrop command source. This is a command recording, not proof of a full-size pixel texture.',rule:'BackdropArtwork → backgroundLayer commands',input:'Full backdrop draw commands',operation:'backgroundLayer.record',output:'Replayable backdrop source'},
-{node:3,title:'Replay the visible backdrop',caption:'Recording alone does not display anything. BackdropHost replays backgroundLayer into ParentScene so the normal sharp backdrop remains visible.',rule:'drawLayer(backgroundLayer) → ParentScene',input:'Layer 1 commands',operation:'First replay',output:'Visible sharp backdrop'},
-{node:4,title:'Use one panel origin',caption:'One panelLeft value plus the fixed top value controls both the panel placement and the crop translation in this controlled shared-origin scene.',rule:'P = crop origin = (panelLeft, 72) dp',input:'One current position',operation:'Reuse the same state',output:'Placement and crop stay aligned'},
-{node:5,title:'Record Layer 2',caption:'Inside the panel-sized GlassMaterial Canvas, panelSampleLayer records clip, negative translation, and replay of backgroundLayer.',rule:'clip + translate(−P) + replay Layer 1 → Layer 2',input:'Layer 1 + current P',operation:'panelSampleLayer.record',output:'Panel-crop command layer'},
-{node:6,title:'Replay the sharp crop',caption:'GlassMaterial replays panelSampleLayer into its current destination. No blur exists yet; this is still a sharp spatially aligned sample.',rule:'drawLayer(panelSampleLayer) → sharp panel crop',input:'Layer 2 commands',operation:'Second replay',output:'Aligned sharp backdrop sample'},
-{node:7,title:'Add tint and border afterward',caption:'Tint and border draw after panelSampleLayer.record. They are material additions, not source commands inside the future blur input.',rule:'sample → tint → border',input:'Sharp sample',operation:'Draw later material commands',output:'Complete glass material'},
-{node:8,title:'Draw ForegroundContent as a later child',caption:'The sharp dot and label are ordinary child commands declared after GlassMaterial. They never enter either recording block.',rule:'GlassMaterial child → ForegroundContent child',input:'Complete material + sharp label commands',operation:'Compose child draw order',output:'Sharp foreground over material'},
-{node:9,title:'Composite the final panel',caption:'ParentScene receives the sampled material and then the sharp foreground at the panel position. The owner boundaries remain visible in the code.',rule:'material + foreground → final panel output',input:'Two ordered panel roles',operation:'Source-over into ParentScene',output:'Final sharp Chapter 6 panel'},
-{node:10,title:'Seal the one-way architecture',caption:'The complete route moves forward from backdrop producer to sample layer to material to foreground. No consumer output points back into the source.',rule:'Backdrop → Layer 1 → Layer 2 → material → foreground → ParentScene',input:'All established boundaries',operation:'Audit ownership and draw order',output:'Architecture ready for Chapter 7 blur'}
+{node:1,title:'Keep BackdropHost as the source owner',caption:'BackdropHost contains only BackdropArtwork. No panel tint, border, label, or icon belongs to this subtree.',rule:'snapshot content = BackdropArtwork only',input:'BackdropArtwork',operation:'Restrict ownership',output:'Panel output is excluded'},
+{node:2,title:'Snapshot Layer 1',caption:'BackdropRecorder uses ImageRenderer to store BackdropArtwork as recordedBackdrop. On iOS that product is an image. Its pixel size is the backdrop’s point size times displayScale.',rule:'BackdropArtwork → ImageRenderer → recordedBackdrop',input:'BackdropArtwork',operation:'BackdropRecorder.snapshot',output:'One stored backdrop image'},
+{node:3,title:'Replay the visible backdrop',caption:'The snapshot does not replace the visible scene by itself. BackdropHost draws recordedBackdrop.image so the ordinary backdrop stays visible.',rule:'BackdropHost ← recordedBackdrop.image',input:'recordedBackdrop',operation:'Replay the image',output:'Visible sharp backdrop'},
+{node:4,title:'Use one panel origin',caption:'One panelLeft value plus the fixed top of 72 pt places GlassPanel and supplies the crop offset. ParentScene and BackdropHost both start at (0, 0).',rule:'P = crop origin = (panelLeft, 72) pt',input:'One current position',operation:'Reuse the same state',output:'Placement and crop stay aligned'},
+{node:5,title:'Build the panel sample',caption:'panelSample is a 196 × 116 pt view. It offsets recordedBackdrop.image by (−panelLeft, −72) pt and clips. This lesson does not snapshot that view and does not call drawingGroup().',rule:'offset(−P) + clip → panelSample',input:'recordedBackdrop + current P',operation:'Offset, then clip',output:'Panel-sized replay view'},
+{node:6,title:'Show the sharp crop',caption:'The clipped replay is still sharp. No blur exists yet. The crop’s source top-left lands at panel-local (0, 0).',rule:'panelSample shows the matching crop',input:'The replay view',operation:'Draw that view',output:'Aligned sharp backdrop sample'},
+{node:7,title:'Add tint and border afterward',caption:'Tint and border are later siblings of panelSample. They are material additions. They are not inside the view Chapter 7 will blur.',rule:'sample → tint → border',input:'Sharp sample',operation:'Draw later material',output:'Complete glass material'},
+{node:8,title:'Draw ForegroundContent as a later child',caption:'The sharp dot and label are an ordinary child declared after GlassMaterial. They are outside panelSample.',rule:'GlassMaterial child → ForegroundContent child',input:'Complete material + sharp label',operation:'Later child draws later',output:'Sharp foreground over material'},
+{node:9,title:'Composite the final panel',caption:'ParentScene receives the material and then the sharp foreground at the panel position. The owner boundaries stay visible in the SwiftUI tree.',rule:'material + foreground → final panel output',input:'Two ordered panel roles',operation:'Draw into ParentScene',output:'Final sharp Chapter 6 panel'},
+{node:10,title:'Seal the one-way route',caption:'The route moves from backdrop producer to snapshot to panel replay to material to foreground. No consumer output returns to BackdropArtwork. One snapshot plus one replay view is not two offscreen images.',rule:'BackdropArtwork → recordedBackdrop → panelSample → material → foreground → ParentScene',input:'All established boundaries',operation:'Audit ownership and draw order',output:'Architecture ready for Chapter 7 blur'}
 ];
 function backdrop(x,y,s,opacity=1){const w=340*s,h=240*s,bw=w/4;return `<g opacity="${opacity}"><rect x="${x}" y="${y}" width="${bw}" height="${h}" fill="#0f766e"/><rect x="${x+bw}" y="${y}" width="${bw}" height="${h}" fill="#2563eb"/><rect x="${x+2*bw}" y="${y}" width="${bw}" height="${h}" fill="#7c3aed"/><rect x="${x+3*bw}" y="${y}" width="${bw}" height="${h}" fill="#db2777"/><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#000" opacity=".14"/><line x1="${x}" y1="${y+139*s}" x2="${x+w}" y2="${y+139*s}" stroke="#ffc857" stroke-width="${8*s}"/><circle cx="${x+92*s}" cy="${y+82*s}" r="${22*s}" fill="#ff6b6b"/><circle cx="${x+258*s}" cy="${y+173*s}" r="${17*s}" fill="#6ee7b7"/></g>`}
 function opacityFor(role){return state.focus==='all'||state.focus===role?1:.18}
-function renderScene(){const sx=35,sy=75,s=1.3,px=sx+state.left*s,py=sy+PANEL.top*s,pw=PANEL.w*s,ph=PANEL.h*s,bx=585,by=110,bs=.74,tx=950,ty=112,ts=1.08,tw=PANEL.w*ts,th=PANEL.h*ts;const localX=RED.x-state.left,localY=RED.y-PANEL.top;const inside=localX>=0&&localX<=PANEL.w&&localY>=0&&localY<=PANEL.h;const bgOp=opacityFor('background'),sampleOp=opacityFor('sample'),fgOp=opacityFor('foreground');$('sceneSvg').innerHTML=`<defs><clipPath id="mainPanelClip"><rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="${24*s}"/></clipPath><clipPath id="sampleClip"><rect x="${tx}" y="${ty}" width="${tw}" height="${th}" rx="${24*ts}"/></clipPath><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#4338ca"/></marker></defs><text x="35" y="36" class="svg-label">Final ParentScene</text>${backdrop(sx,sy,s,bgOp)}<g clip-path="url(#mainPanelClip)" opacity="${sampleOp}">${backdrop(sx,sy,s,1)}<rect x="${px}" y="${py}" width="${pw}" height="${ph}" fill="#fff" opacity=".18"/></g><rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="${24*s}" fill="none" stroke="#fff" stroke-width="3" opacity="${sampleOp}"/><g opacity="${fgOp}"><circle cx="${px+25}" cy="${py+44}" r="7" fill="#ffc857"/><text x="${px+42}" y="${py+49}" fill="#fff" font-size="16" font-weight="900">SHARP FOREGROUND</text><text x="${px+25}" y="${py+76}" fill="#fff" opacity=".9" font-size="13" font-family="monospace">ordinary later child</text></g><line x1="510" y1="235" x2="565" y2="170" stroke="#4338ca" stroke-width="4" marker-end="url(#arrow)"/><text x="510" y="268" class="svg-small">record</text><rect x="565" y="42" width="310" height="285" rx="18" fill="var(--control)" stroke="${state.focus==='background'?'var(--indigo)':'var(--line)'}" stroke-width="${state.focus==='background'?4:2}" opacity="${bgOp}"/><text x="585" y="78" class="svg-label" opacity="${bgOp}">Layer 1 · backgroundLayer</text>${backdrop(bx,by,bs,bgOp)}<text x="585" y="315" class="svg-muted" opacity="${bgOp}">full BackdropArtwork command source</text><line x1="878" y1="175" x2="930" y2="160" stroke="#4338ca" stroke-width="4" marker-end="url(#arrow)"/><text x="884" y="210" class="svg-small">crop</text><rect x="930" y="42" width="260" height="235" rx="18" fill="var(--control)" stroke="${state.focus==='sample'?'var(--indigo)':'var(--line)'}" stroke-width="${state.focus==='sample'?4:2}" opacity="${sampleOp}"/><text x="950" y="75" class="svg-label" opacity="${sampleOp}">Layer 2 · panelSampleLayer</text><g clip-path="url(#sampleClip)" opacity="${sampleOp}">${backdrop(tx-state.left*ts,ty-PANEL.top*ts,ts,1)}</g><rect x="${tx}" y="${ty}" width="${tw}" height="${th}" rx="${24*ts}" fill="none" stroke="var(--indigo)" stroke-width="3" opacity="${sampleOp}"/><text x="950" y="264" class="svg-muted" opacity="${sampleOp}">panel-sized crop commands</text><line x1="1060" y1="282" x2="1060" y2="315" stroke="#4338ca" stroke-width="4" marker-end="url(#arrow)"/><rect x="930" y="330" width="260" height="115" rx="18" fill="var(--green-soft)" stroke="${state.focus==='foreground'?'var(--green)':'var(--line)'}" stroke-width="${state.focus==='foreground'?4:2}" opacity="${fgOp}"/><text x="950" y="365" class="svg-label" opacity="${fgOp}">ForegroundContent</text><circle cx="960" cy="396" r="7" fill="#ffc857" opacity="${fgOp}"/><text x="978" y="401" class="svg-mono" opacity="${fgOp}">SHARP FOREGROUND</text><text x="950" y="430" class="svg-muted" opacity="${fgOp}">ordinary child · not recorded</text><rect x="35" y="485" width="1155" height="100" rx="18" fill="var(--panel)" stroke="var(--line)"/><text x="60" y="520" class="svg-label">Current canonical state</text><text x="60" y="550" class="svg-mono">panel origin = crop origin = (${state.left}, ${PANEL.top}) dp</text><text x="60" y="577" class="svg-mono">red marker local = (${localX}, ${localY}) dp · ${inside?'inside current panel crop':'outside current panel crop'}</text>`}
+function renderScene(){
+  const sx=35,sy=75,s=1.3,px=sx+state.left*s,py=sy+PANEL.top*s,pw=PANEL.w*s,ph=PANEL.h*s,bx=585,by=110,bs=.74,tx=950,ty=112,ts=1.08,tw=PANEL.w*ts,th=PANEL.h*ts;
+  const localX=RED.x-state.left,localY=RED.y-PANEL.top;
+  const inside=localX>=0&&localX<=PANEL.w&&localY>=0&&localY<=PANEL.h;
+  const bgOp=opacityFor('background'),sampleOp=opacityFor('sample'),fgOp=opacityFor('foreground');
+  const bgStroke=state.focus==='background'?'var(--indigo)':'var(--line)';
+  const sampleStroke=state.focus==='sample'?'var(--indigo)':'var(--line)';
+  const fgStroke=state.focus==='foreground'?'var(--green)':'var(--line)';
+  $('sceneSvg').innerHTML=`<defs><clipPath id="mainPanelClip"><rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="${24*s}"/></clipPath><clipPath id="sampleClip"><rect x="${tx}" y="${ty}" width="${tw}" height="${th}" rx="${24*ts}"/></clipPath><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#4338ca"/></marker></defs><text x="35" y="36" class="svg-label">Final ParentScene</text>${backdrop(sx,sy,s,bgOp)}<g clip-path="url(#mainPanelClip)" opacity="${sampleOp}">${backdrop(sx,sy,s,1)}<rect x="${px}" y="${py}" width="${pw}" height="${ph}" fill="#fff" opacity=".18"/></g><rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="${24*s}" fill="none" stroke="#fff" stroke-width="3" opacity="${sampleOp}"/><g opacity="${fgOp}"><circle cx="${px+25}" cy="${py+44}" r="7" fill="#ffc857"/><text x="${px+42}" y="${py+49}" fill="#fff" font-size="16" font-weight="900">SHARP FOREGROUND</text><text x="${px+25}" y="${py+76}" fill="#fff" opacity=".9" font-size="13" font-family="monospace">ordinary later child</text></g><line x1="510" y1="235" x2="565" y2="170" stroke="#4338ca" stroke-width="4" marker-end="url(#arrow)"/><text x="558" y="268" text-anchor="end" class="svg-small">snapshot</text><rect x="565" y="42" width="310" height="285" rx="18" fill="var(--control)" stroke="${bgStroke}" stroke-width="${state.focus==='background'?4:2}" opacity="${bgOp}"/><text x="585" y="78" class="svg-label" opacity="${bgOp}">Layer 1 · recordedBackdrop</text>${backdrop(bx,by,bs,bgOp)}<text x="585" y="315" class="svg-muted" opacity="${bgOp}">full backdrop ImageRenderer image</text><line x1="878" y1="175" x2="930" y2="160" stroke="#4338ca" stroke-width="4" marker-end="url(#arrow)"/><text x="884" y="210" class="svg-small">crop</text><rect x="930" y="42" width="260" height="235" rx="18" fill="var(--control)" stroke="${sampleStroke}" stroke-width="${state.focus==='sample'?4:2}" opacity="${sampleOp}"/><text x="950" y="75" class="svg-label" opacity="${sampleOp}">Layer 2 · panelSample</text><g clip-path="url(#sampleClip)" opacity="${sampleOp}">${backdrop(tx-state.left*ts,ty-PANEL.top*ts,ts,1)}</g><rect x="${tx}" y="${ty}" width="${tw}" height="${th}" rx="${24*ts}" fill="none" stroke="var(--indigo)" stroke-width="3" opacity="${sampleOp}"/><text x="950" y="264" class="svg-muted" opacity="${sampleOp}">clip + offset, no second image</text><line x1="1060" y1="282" x2="1060" y2="315" stroke="#4338ca" stroke-width="4" marker-end="url(#arrow)"/><rect x="930" y="330" width="260" height="115" rx="18" fill="var(--green-soft)" stroke="${fgStroke}" stroke-width="${state.focus==='foreground'?4:2}" opacity="${fgOp}"/><text x="950" y="365" class="svg-label" opacity="${fgOp}">ForegroundContent</text><circle cx="960" cy="396" r="7" fill="#ffc857" opacity="${fgOp}"/><text x="978" y="401" class="svg-mono" opacity="${fgOp}">SHARP FOREGROUND</text><text x="950" y="430" class="svg-muted" opacity="${fgOp}">ordinary child · outside sample</text><rect x="35" y="485" width="1155" height="100" rx="18" fill="var(--panel)" stroke="var(--line)"/><text x="60" y="520" class="svg-label">Current canonical state</text><text x="60" y="550" class="svg-mono">panel origin = crop origin = (${state.left}, ${PANEL.top}) pt</text><text x="60" y="577" class="svg-mono">red marker local = (${localX}, ${localY}) pt · ${inside?'inside current panel crop':'outside current panel crop'}</text>`;
+}
 function node(x,y,w,h,title,sub,active){return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="16" fill="${active?'var(--indigo-soft)':'var(--control)'}" stroke="${active?'var(--indigo)':'var(--line)'}" stroke-width="${active?4:2}"/><text x="${x+16}" y="${y+31}" class="svg-label">${title}</text><text x="${x+16}" y="${y+58}" class="svg-muted">${sub}</text>`}
-function renderWalkthrough(){const positions=[[40,65],[300,65],[560,65],[820,65],[820,245],[560,245],[300,245],[40,245],[40,425],[300,425],[560,425]],labels=[['ParentScene','two sibling owners'],['BackdropHost','source owner only'],['backgroundLayer','layer 1 commands'],['visible backdrop','first replay'],['one panel origin','shared state'],['panelSampleLayer','layer 2 commands'],['sharp crop','second replay'],['tint + border','later material'],['ForegroundContent','ordinary child'],['final panel','parent composite'],['one-way route','chapter checkpoint']];let svg='<defs><marker id="walkArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#4338ca"/></marker></defs>';labels.forEach((label,index)=>{const [x,y]=positions[index];svg+=node(x,y,220,105,label[0],label[1],index===STEPS[state.step].node)});for(let i=0;i<positions.length-1;i++){const [x1,y1]=positions[i],[x2,y2]=positions[i+1];let a,b,c,d;if(y1===y2&&x2>x1){a=x1+220;b=y1+52;c=x2-5;d=y2+52}else if(y1===y2&&x2<x1){a=x1;b=y1+52;c=x2+225;d=y2+52}else{a=x1+110;b=y1+105;c=x2+110;d=y2-5}svg+=`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#4338ca" stroke-width="4" marker-end="url(#walkArrow)"/>`}svg+=`<rect x="820" y="425" width="220" height="105" rx="16" fill="var(--green-soft)" stroke="var(--green)" stroke-width="2"/><text x="836" y="458" class="svg-label">Two layers</text><text x="836" y="486" class="svg-muted">not two guaranteed buffers</text><text x="836" y="512" class="svg-muted">foreground stays outside</text>`;$('walkthroughSvg').innerHTML=svg}
-function renderMetrics(){const localX=RED.x-state.left,localY=RED.y-PANEL.top,inside=localX>=0&&localX<=PANEL.w&&localY>=0&&localY<=PANEL.h;$('panelLeft').value=state.left;$('panelLeftValue').textContent=`${state.left} dp`;$('panelOrigin').textContent=`(${state.left}, ${PANEL.top}) dp`;$('cropOrigin').textContent=`(${state.left}, ${PANEL.top}) dp`;$('redLocal').textContent=`(${localX}, ${localY}) dp · ${inside?'inside':'outside'}`;$('ledgerPanel').textContent=`(${state.left}, ${PANEL.top}) dp`;$('ledgerLocal').textContent=`(${localX}, ${localY}) dp${inside?'':' · outside crop'}`;$('localFormula').textContent=`L = B − P\n  = (${RED.x}, ${RED.y}) − (${state.left}, ${PANEL.top})\n  = (${localX}, ${localY}) dp`;$('traceTranslation').innerHTML=`<code>(−${state.left}, −${PANEL.top}) dp</code>`;$('traceLocal').innerHTML=`<code>L = (${localX}, ${localY}) dp</code>`;$('roundTrip').textContent=`(${state.left}, ${PANEL.top}) + (${localX}, ${localY}) = (${RED.x}, ${RED.y}) dp`;document.querySelectorAll('[data-left]').forEach(button=>button.classList.toggle('selected',Number(button.dataset.left)===state.left));document.querySelectorAll('[data-focus]').forEach(button=>button.classList.toggle('selected',button.dataset.focus===state.focus));const explanations={all:'All roles are visible. Follow the route from the full backdrop command source to the sharp foreground label.',background:'Layer 1 owns the full BackdropArtwork command source and feeds both visible scene replay and panel sampling.',sample:'Layer 2 owns only the panel crop replay commands. It is the future blur input.',foreground:'ForegroundContent is an ordinary later child. It is not recorded into either layer.'};$('focusExplanation').textContent=explanations[state.focus]}
-function renderStep(){const step=STEPS[state.step];$('stepTitle').textContent=step.title;$('stepCaption').textContent=step.caption;$('stepRule').textContent=step.rule;$('stepInput').textContent=step.input;$('stepOperation').textContent=step.operation;$('stepOutput').textContent=step.output;const counter=`Step ${state.step+1} of ${STEPS.length}`;$('diagramStep').textContent=counter;$('stepCounter').textContent=counter;['diagramPrev','stepPrev'].forEach(id=>$(id).disabled=state.step===0);['diagramNext','stepNext'].forEach(id=>$(id).disabled=state.step===STEPS.length-1);$('stepStateNote').textContent=`Canonical state: panel and crop origin (${state.left}, ${PANEL.top}) dp. The route contains two GraphicsLayer objects and one ordinary foreground child.`}
+function renderWalkthrough(){
+  const positions=[[40,65],[300,65],[560,65],[820,65],[820,245],[560,245],[300,245],[40,245],[40,425],[300,425],[560,425]];
+  const labels=[['ParentScene','two sibling owners'],['BackdropHost','source owner only'],['recordedBackdrop','ImageRenderer image'],['visible backdrop','first replay'],['one panel origin','shared state'],['panelSample','clip + offset'],['sharp crop','same image'],['tint + border','later material'],['ForegroundContent','ordinary child'],['final panel','parent composite'],['one-way route','ready for blur']];
+  let svg='<defs><marker id="walkArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#4338ca"/></marker></defs>';
+  labels.forEach((label,index)=>{const [x,y]=positions[index];svg+=node(x,y,220,105,label[0],label[1],index===STEPS[state.step].node)});
+  for(let i=0;i<positions.length-1;i++){
+    const [x1,y1]=positions[i],[x2,y2]=positions[i+1];
+    let a,b,c,d;
+    if(y1===y2&&x2>x1){a=x1+220;b=y1+52;c=x2-5;d=y2+52}
+    else if(y1===y2&&x2<x1){a=x1;b=y1+52;c=x2+225;d=y2+52}
+    else{a=x1+110;b=y1+105;c=x2+110;d=y2-5}
+    svg+=`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#4338ca" stroke-width="4" marker-end="url(#walkArrow)"/>`;
+  }
+  svg+=`<rect x="820" y="425" width="220" height="105" rx="16" fill="var(--green-soft)" stroke="var(--green)" stroke-width="2"/><text x="836" y="458" class="svg-label">One snapshot</text><text x="836" y="486" class="svg-muted">replay is not a second image</text><text x="836" y="512" class="svg-muted">foreground stays outside</text>`;
+  $('walkthroughSvg').innerHTML=svg;
+}
+function renderMetrics(){
+  const localX=RED.x-state.left,localY=RED.y-PANEL.top,inside=localX>=0&&localX<=PANEL.w&&localY>=0&&localY<=PANEL.h;
+  $('panelLeft').value=state.left;
+  $('panelLeftValue').textContent=`${state.left} pt`;
+  $('panelOrigin').textContent=`(${state.left}, ${PANEL.top}) pt`;
+  $('cropOrigin').textContent=`(${state.left}, ${PANEL.top}) pt`;
+  $('redLocal').textContent=`(${localX}, ${localY}) pt · ${inside?'inside':'outside'}`;
+  $('ledgerPanel').textContent=`(${state.left}, ${PANEL.top}) pt`;
+  $('ledgerLocal').textContent=`(${localX}, ${localY}) pt${inside?'':' · outside crop'}`;
+  $('localFormula').textContent=`L = B − P\n  = (${RED.x}, ${RED.y}) − (${state.left}, ${PANEL.top})\n  = (${localX}, ${localY}) pt`;
+  $('traceTranslation').innerHTML=`<code>(−${state.left}, −${PANEL.top}) pt</code>`;
+  $('traceLocal').innerHTML=`<code>L = (${localX}, ${localY}) pt</code>`;
+  $('roundTrip').textContent=`(${state.left}, ${PANEL.top}) + (${localX}, ${localY}) = (${RED.x}, ${RED.y}) pt`;
+  document.querySelectorAll('[data-left]').forEach(button=>button.classList.toggle('selected',Number(button.dataset.left)===state.left));
+  document.querySelectorAll('[data-focus]').forEach(button=>button.classList.toggle('selected',button.dataset.focus===state.focus));
+  const explanations={
+    all:'All roles are visible. Follow the route from the full backdrop image to the sharp foreground label.',
+    background:'Layer 1 is recordedBackdrop, the ImageRenderer image of BackdropArtwork. The visible scene and the panel sample both replay that image.',
+    sample:'Layer 2 is panelSample, a clip and offset of recordedBackdrop. It is not a second snapshot and it does not call drawingGroup(). It is the future blur input.',
+    foreground:'ForegroundContent is an ordinary later child. It is outside the sample view, so it is not future blur input.'
+  };
+  $('focusExplanation').textContent=explanations[state.focus];
+}
+function renderStep(){
+  const step=STEPS[state.step];
+  $('stepTitle').textContent=step.title;
+  $('stepCaption').textContent=step.caption;
+  $('stepRule').textContent=step.rule;
+  $('stepInput').textContent=step.input;
+  $('stepOperation').textContent=step.operation;
+  $('stepOutput').textContent=step.output;
+  const counter=`Step ${state.step+1} of ${STEPS.length}`;
+  $('diagramStep').textContent=counter;
+  $('stepCounter').textContent=counter;
+  ['diagramPrev','stepPrev'].forEach(id=>$(id).disabled=state.step===0);
+  ['diagramNext','stepNext'].forEach(id=>$(id).disabled=state.step===STEPS.length-1);
+  $('stepStateNote').textContent=`Canonical state: panel and crop origin (${state.left}, ${PANEL.top}) pt. The route has one ImageRenderer image, one replay view, and one ordinary foreground child.`;
+}
 function renderAll(){renderMetrics();renderScene();renderWalkthrough();renderStep()}
 function setStep(next){state.step=clamp(next,0,STEPS.length-1);renderAll()}
 $('panelLeft').addEventListener('input',event=>{state.left=Number(event.target.value);renderAll()});
 document.querySelectorAll('[data-left]').forEach(button=>button.addEventListener('click',()=>{state.left=Number(button.dataset.left);renderAll()}));
 document.querySelectorAll('[data-focus]').forEach(button=>button.addEventListener('click',()=>{state.focus=button.dataset.focus;renderAll()}));
 [['diagramPrev',-1],['stepPrev',-1],['diagramNext',1],['stepNext',1]].forEach(([id,delta])=>$(id).addEventListener('click',()=>setStep(state.step+delta)));
-document.querySelectorAll('[data-prediction]').forEach(button=>button.addEventListener('click',()=>{state.prediction=button.dataset.prediction;document.querySelectorAll('[data-prediction]').forEach(choice=>choice.classList.toggle('selected',choice===button));$('predictionResult').textContent=state.prediction==='sample'?'Correct. The effect owner receives only the translated backdrop crop recorded into panelSampleLayer. Tint, border, dot, and label are later commands outside that layer.':state.prediction==='all-panel'?'Not in this architecture. Tint and border draw after panelSampleLayer, while the dot and label are a later child. None of those commands are recorded into the sample layer.':'No. backgroundLayer supplies the backdrop commands, but panelSampleLayer records only the translated panel crop. ParentScene and unrelated siblings are not effect input.'}));
+document.querySelectorAll('[data-prediction]').forEach(button=>button.addEventListener('click',()=>{
+  state.prediction=button.dataset.prediction;
+  document.querySelectorAll('[data-prediction]').forEach(choice=>choice.classList.toggle('selected',choice===button));
+  $('predictionResult').textContent=state.prediction==='sample'
+    ?'Correct. A blur on panelSample receives only the translated backdrop crop. Tint, border, dot, and label are later content outside that view.'
+    :state.prediction==='all-panel'
+      ?'Not in this architecture. Tint and border draw after panelSample. The dot and label are a later child. None of those are inside the sample view.'
+      :'No. recordedBackdrop supplies the backdrop image, but panelSample shows only the translated panel crop. ParentScene and the other sibling are not blur input.';
+}));
 const blankCode=$('challengeEditor').value;
-const solutionCode=`Box {\n    ArchitectureGlassMaterial(\n        backgroundLayer = backgroundLayer,\n        panelSampleLayer = panelSampleLayer,\n        panelLeftDp = panelLeftDp,\n    )\n\n    ArchitectureForegroundContent()\n}`;
-document.querySelectorAll('[data-code]').forEach(button=>button.addEventListener('click',()=>{$('challengeEditor').value=button.dataset.code==='solution'?solutionCode:blankCode;$('challengeResult').textContent=button.dataset.code==='solution'?'Solution inserted. Run the check to verify the two layer references and later foreground child.':'Blanks restored. Keep the material first and the foreground second.'}));
-$('checkChallenge').addEventListener('click',()=>{const code=$('challengeEditor').value;const background=/backgroundLayer\s*=\s*backgroundLayer/.test(code),sample=/panelSampleLayer\s*=\s*panelSampleLayer/.test(code),foreground=/ArchitectureForegroundContent\s*\(\s*\)/.test(code),materialIndex=code.indexOf('ArchitectureGlassMaterial'),foregroundIndex=code.indexOf('ArchitectureForegroundContent');$('challengeResult').textContent=background&&sample&&foreground&&materialIndex>=0&&foregroundIndex>materialIndex?'Correct. GlassMaterial receives the two controlled layers, and ForegroundContent remains the later ordinary child.':`Still incomplete: ${[!background&&'pass backgroundLayer',!sample&&'pass panelSampleLayer',!foreground&&'call ArchitectureForegroundContent()',foregroundIndex>=0&&foregroundIndex<materialIndex&&'place foreground after material'].filter(Boolean).join(', ')}.`});
-$('buildRecord').addEventListener('click',()=>{const localX=RED.x-state.left,localY=RED.y-PANEL.top;$('record').value=`Lesson 6.11 review record\n\nTwo controlled GraphicsLayer objects:\n1. backgroundLayer = full BackdropArtwork command source\n2. panelSampleLayer = panel-sized translated crop commands\n\nOrdinary later content:\n- ForegroundContent = sharp dot and label outside both record calls\n\nCurrent trace:\npanel and crop origin = (${state.left}, ${PANEL.top}) dp\nred marker local = (${localX}, ${localY}) dp\n\nI verified the one-way route:\nBackdropArtwork → backgroundLayer → panelSampleLayer → tint and border → ForegroundContent → ParentScene\n\nI also verified that two GraphicsLayer objects do not by themselves prove two offscreen pixel buffers.\n\nLesson 6.11 is learner-confirmed complete. This local record is only a personal review note.`});
-const theme=matchMedia('(prefers-color-scheme:dark)');function updateTheme(){$('themeMode').textContent=theme.matches?'dark':'light';renderAll()}theme.addEventListener?.('change',updateTheme);updateTheme();
+const solutionCode=`ZStack {\n    ArchitectureGlassMaterial(\n        recorded: recordedBackdrop,\n        panelLeft: panelLeftPt\n    )\n\n    ArchitectureForegroundContent()\n}`;
+document.querySelectorAll('[data-code]').forEach(button=>button.addEventListener('click',()=>{
+  $('challengeEditor').value=button.dataset.code==='solution'?solutionCode:blankCode;
+  $('challengeResult').textContent=button.dataset.code==='solution'
+    ?'Solution inserted. Run the check to verify the snapshot, the position, and the later foreground child.'
+    :'Blanks restored. Keep the material first and the foreground second.';
+}));
+$('checkChallenge').addEventListener('click',()=>{
+  const code=$('challengeEditor').value;
+  const recorded=/recorded:\s*recordedBackdrop/.test(code);
+  const position=/panelLeft:\s*panelLeftPt\b/.test(code);
+  const foreground=/ArchitectureForegroundContent\s*\(\s*\)/.test(code);
+  const materialIndex=code.indexOf('ArchitectureGlassMaterial');
+  const foregroundIndex=code.indexOf('ArchitectureForegroundContent');
+  const order=foregroundIndex>materialIndex;
+  $('challengeResult').textContent=recorded&&position&&foreground&&materialIndex>=0&&order
+    ?'Correct. GlassMaterial receives recordedBackdrop and panelLeftPt, and ForegroundContent remains the later ordinary child.'
+    :`Still incomplete: ${[!recorded&&'pass recordedBackdrop',!position&&'pass panelLeftPt',!foreground&&'call ArchitectureForegroundContent()',foregroundIndex>=0&&!order&&'place foreground after material'].filter(Boolean).join(', ')}.`;
+});
+$('buildRecord').addEventListener('click',()=>{
+  const localX=RED.x-state.left,localY=RED.y-PANEL.top;
+  $('record').value=`Lesson 6.11 review record\n\nTwo controlled products:\n1. recordedBackdrop = ImageRenderer image of BackdropArtwork\n2. panelSample = clip and offset of that image. No drawingGroup(). No second snapshot.\n\nOrdinary later content:\n- ForegroundContent = sharp dot and label outside the sample view\n\nCurrent trace:\npanel and crop origin = (${state.left}, ${PANEL.top}) pt\nred marker local = (${localX}, ${localY}) pt\n\nI verified the one-way route:\nBackdropArtwork → recordedBackdrop → panelSample → tint and border → ForegroundContent → ParentScene\n\nI also verified that one ImageRenderer image plus one replay view does not allocate a second offscreen image in this lesson.\n\n`;
+});
+const theme=matchMedia('(prefers-color-scheme:dark)');
+function updateTheme(){$('themeMode').textContent=theme.matches?'dark':'light';renderAll()}
+theme.addEventListener?.('change',updateTheme);
+updateTheme();
 </script>
 </body>
 </html>

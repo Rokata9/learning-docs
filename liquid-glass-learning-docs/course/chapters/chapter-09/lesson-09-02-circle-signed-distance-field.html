@@ -13,7 +13,7 @@
 <main class="page">
   <div class="topbar">
     <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-distance-fields-image-sampling-and-refraction.html">Chapter 9</a> · Lesson 9.2 · complete</div>
-    <div class="chips"><span class="chip progress">89 of 216 complete</span><span class="chip progress">Lesson 9.2 complete</span></div>
+    <div class="chips"><span class="chip progress">100 of 216 complete</span><span class="chip progress">Lesson 9.2 complete</span></div>
   </div>
 
   <header class="hero panel">
@@ -22,7 +22,7 @@
       <h1>Circle signed distance field</h1>
       <p class="lead"><strong>Question:</strong> Lesson 9.1’s <code>length(p)</code> is never negative. It answers “how far is this pixel from the visual center?” Lesson 4.1 already defined a circle as a center plus a radius: every boundary pixel is one radius from the center. How do you turn that unsigned length into one number that is negative inside the circle, zero on the boundary, and positive outside?</p>
       <div class="plain-rule">Subtract the radius from Lesson 9.1’s length: <code>sd = length(p) − radius</code>. That result is a <strong>signed distance</strong>: a length that also carries a plus or a minus. This course’s convention: minus means inside, zero means on the boundary, plus means outside. A <strong>signed distance field</strong> is that number computed at every pixel. Production then stores orange when <code>sd &lt; 0</code> and navy otherwise.</div>
-      <div class="note"><strong>Complete.</strong> This page is a JavaScript stand-in. The Android explorer compiles the subtract and the <code>if</code>. Default radius is 0.25. Teaching pixel <code>p = (0.30, −0.40)</code> still has <code>d = 0.50</code>, so <code>sd = +0.25</code> (outside). Lesson 9.3 feeds this <code>sd</code> into <code>smoothstep</code>.</div>
+      <div class="note"><strong>Complete.</strong> This page is a JavaScript stand-in. The iPhone 16 Pro explorer’s stitchable function subtracts the radius and tests the sign. Default radius is 0.25. Teaching pixel <code>p = (0.30, −0.40)</code> still has <code>d = 0.50</code>, so <code>sd = +0.25</code> (outside). Lesson 9.3 feeds this <code>sd</code> into <code>smoothstep</code>.</div>
     </div>
     <div class="hero-art" aria-label="length minus radius becomes a signed distance">
       <div class="hero-pipeline">
@@ -100,7 +100,7 @@ This course keeps minus = inside.</div>
   </section>
 
   <section class="section panel" id="lab">
-    <div class="section-head"><div><div class="section-no">3 · INTERACTIVE LAB</div><h2>One production cut, and a comparison that keeps the magnitude</h2></div><p>Hard cut is production: orange inside, navy outside. Field view is a comparison picture that still paints orange-ish for minus and navy-ish for plus, but fades with <code>|sd|</code> so you can see how far from the boundary. Walk-around subtract is a diagnostic diamond, not a circle. The displayed AGSL string stays the hard cut.</p></div>
+    <div class="section-head"><div><div class="section-no">3 · INTERACTIVE LAB</div><h2>One production cut, and a comparison that keeps the magnitude</h2></div><p>Hard cut is production: orange inside, navy outside. Field view is a comparison picture that still paints orange-ish for minus and navy-ish for plus, but fades with <code>|sd|</code> so you can see how far from the boundary. Walk-around subtract is a diagnostic diamond, not a circle. The displayed Metal string stays the hard cut.</p></div>
     <div class="controls" role="group" aria-label="Store rule">
       <button class="btn mode-btn selected" data-mode="hard">Hard if (production)</button>
       <button class="btn mode-btn" data-mode="field">Signed-field view</button>
@@ -113,7 +113,7 @@ This course keeps minus = inside.</div>
     <div class="metrics">
       <div class="metric"><strong>p</strong><span class="origin">uv − 0.5</span><span class="value" id="pMetric"></span></div>
       <div class="metric"><strong>d = length(p)</strong><span class="origin">Lesson 9.1 leftover</span><span class="value" id="dMetric"></span></div>
-      <div class="metric"><strong>radius</strong><span class="origin">uniform</span><span class="value" id="rMetric"></span></div>
+      <div class="metric"><strong>radius</strong><span class="origin">shader argument</span><span class="value" id="rMetric"></span></div>
       <div class="metric"><strong>sd = d − radius</strong><span class="origin">this lesson</span><span class="value" id="sdMetric"></span></div>
       <div class="metric"><strong>region</strong><span class="origin">from the sign</span><span class="value" id="regionMetric"></span></div>
       <div class="metric"><strong>Store</strong><span class="origin">this pixel half4</span><span class="value" id="retMetric"></span></div>
@@ -131,13 +131,13 @@ This course keeps minus = inside.</div>
         </div>
       </article>
       <article class="canvas-card">
-        <div class="canvas-title"><strong>AGSL string</strong><span>Hard if is the production route</span></div>
+        <div class="canvas-title"><strong>Metal string</strong><span>Hard if is the production route</span></div>
         <pre class="code-block" id="labCode"></pre>
         <div class="formula" id="liveFormula" style="margin-top:12px"></div>
         <p id="labCodeCaption" style="margin-top:10px"></p>
       </article>
     </div>
-    <div class="note"><strong>Browser versus Android.</strong> This page paints with JavaScript copies of <code>length</code> and the subtract. Android compiles those names. The radius slider is a uniform write. <code>RuntimeShader</code> is not rebuilt. Neither measures GPU frame time.</div>
+    <div class="note"><strong>Browser versus iOS.</strong> This page paints with JavaScript copies of <code>length</code> and the subtract. Xcode compiles those names in the <code>.metal</code> file. The radius slider passes a shader argument. The <code>.metal</code> file is not rewritten. Neither measures GPU frame time.</div>
   </section>
 
   <section class="section panel" id="why">
@@ -210,18 +210,16 @@ radius 0.60 → sd = −0.10  (inside, orange)</div>
   </section>
 
   <section class="section panel">
-    <div class="section-head"><div><div class="section-no">7 · ANDROID ROUTE</div><h2>One radius uniform, one subtract, one if</h2></div></div>
+    <div class="section-head"><div><div class="section-no">7 · iOS ROUTE</div><h2>One radius argument, one subtract, one if</h2></div></div>
     <div class="code-grid">
-      <pre class="code-block"><code>private const val PanelSizeDp = 360
-private const val DefaultRadius = 0.25f
-private const val TeachPx = 0.30f
-private const val TeachPy = -0.40f
-
-private const val CircleAgsl = """
-uniform float2 resolution;
-uniform float radius;
-
-half4 main(float2 fragCoord) {
+      <pre class="code-block"><code>[[ stitchable ]] half4 circleSignedDistance(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float radius
+) {
+    float2 fragCoord = position * scale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float d = length(p);
@@ -233,22 +231,27 @@ half4 main(float2 fragCoord) {
     }
     return navy;
 }
-"""
 
-val shader = remember { RuntimeShader(CircleAgsl) }
+private let panelSizePt: CGFloat = 360
+private let teachPx: Float = 0.30
+private let teachPy: Float = -0.40
 
-Canvas(...) {
-    shader.setFloatUniform("resolution", size.width, size.height)
-    shader.setFloatUniform("radius", radius)
-    drawRect(brush = brush)
-}</code></pre>
+ShaderRect(
+    shader: ShaderLibrary.circleSignedDistance(
+        .float2(pixelWidth, pixelHeight),
+        .float(Float(displayScale)),
+        .float(radius)
+    )
+)
+.frame(width: panelSizePt, height: panelSizePt)
+// SwiftUI Canvas overlay: center cross, boundary circle, teaching mark</code></pre>
       <div class="card">
         <h3>What each part changes</h3>
-        <p><code>remember { RuntimeShader(CircleAgsl) }</code> compiles once. Moving the radius slider only writes the <code>radius</code> uniform. That is Lesson 8.9’s slot write.</p>
-        <p><code>DefaultRadius = 0.25</code> is the teaching radius so the teaching pixel’s <code>sd</code> is exactly +0.25. <code>PanelSizeDp = 360</code> stays square for the same UV reason as Lesson 9.1.</p>
-        <p>At the teaching pixel, Kotlin prints <code>d = 0.50</code> and <code>sd = 0.50 − radius</code> using the same arithmetic as the HTML table. The overlay circle is Compose drawing, not a second shader.</p>
-        <p>Field view and diamond comparison live in the HTML lab. The Android production route is the hard <code>if</code> only.</p>
-        <p><strong>Android files:</strong><br><code>chapter09/CircleSdfExplorer.kt</code><br><code>chapter09/Chapter09Screen.kt</code></p>
+        <p><code>panelSizePt = 360</code> is a square teaching size in points so UV x and UV y use the same pixel length. It is not glass geometry. Default radius 0.25 makes the teaching pixel’s <code>sd</code> exactly +0.25.</p>
+        <p>Xcode compiles <code>circleSignedDistance</code> in the <code>.metal</code> file. <code>ShaderLibrary</code> looks it up. <code>position</code> is points, so <code>fragCoord = position * scale</code> and <code>resolution</code> are both in pixels. <code>scale</code> is <code>displayScale</code>. <code>pixelWidth</code> and <code>pixelHeight</code> are <code>360 × displayScale</code>. <code>radius</code> is in <code>p</code> units. There is no runtime string compiler. Moving the slider passes a new <code>.float</code>. That is Lesson 8.9’s argument write. Pass every argument. Leaving one out still compiles the Swift file, and SwiftUI refuses that draw.</p>
+        <p>At the teaching pixel, Swift prints <code>d = 0.50</code> and <code>sd = 0.50 − radius</code> using the same arithmetic as the HTML table. The overlay circle is SwiftUI <code>Canvas</code> drawing, not a second shader.</p>
+        <p>Field view and diamond comparison live in the HTML lab. The iPhone 16 Pro production route is the hard <code>if</code> only.</p>
+        <p><strong>iOS files:</strong><br><code>chapter09/CircleSdfExplorer.swift</code><br><code>chapter09/CircleSdf.metal</code><br><code>chapter09/Chapter09Screen.swift</code></p>
       </div>
     </div>
   </section>
@@ -268,10 +271,14 @@ Canvas(...) {
     <div class="section-head"><div><div class="section-no">9 · CODING CHALLENGE</div><h2>Subtract the radius, then test the sign</h2></div></div>
     <div class="challenge">
       <div>
-        <textarea class="editor" id="challengeEditor" spellcheck="false">uniform float2 resolution;
-uniform float radius;
-
-half4 main(float2 fragCoord) {
+        <textarea class="editor" id="challengeEditor" spellcheck="false">[[ stitchable ]] half4 circleSignedDistance(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float radius
+) {
+    float2 fragCoord = position * scale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float d = length(p);
@@ -318,9 +325,9 @@ abs(p.x) + abs(p.y)</div>
       <label class="check"><input type="checkbox">The center prints sd = −0.25 and the store is orange (inside).</label>
       <label class="check"><input type="checkbox">The boundary mark p = (0.15, −0.20) prints d = 0.25 and sd = 0.00.</label>
       <label class="check"><input type="checkbox">Raising radius past 0.50 flips the teaching pixel from navy to orange. d stays 0.50. sd decreases through zero.</label>
-      <label class="check"><input type="checkbox">Walk-around diamond is not a circle. The displayed AGSL string stays the hard if on length.</label>
-      <label class="check"><input type="checkbox">This HTML page never claims to compile AGSL or to run smoothstep on sd.</label>
-      <label class="check"><input type="checkbox">The Android panel is square. Radius is a uniform. Light <code>@Preview</code> is first, then dark. Both previews scroll.</label>
+      <label class="check"><input type="checkbox">Walk-around diamond is not a circle. The displayed Metal string stays the hard if on length.</label>
+      <label class="check"><input type="checkbox">This HTML page never claims to compile Metal or to run smoothstep on sd.</label>
+      <label class="check"><input type="checkbox">The iPhone 16 Pro panel is square. Radius is a shader argument. Light <code>#Preview</code> is first, then dark. Both previews scroll.</label>
       <label class="check"><input type="checkbox">Chapter 7 frost is unchanged. Lesson 9.1’s unsigned gray explorer still runs on the Chapter 9 screen.</label>
     </div>
   </section>
@@ -335,7 +342,7 @@ abs(p.x) + abs(p.y)</div>
     <textarea class="record" id="record" readonly>No record generated yet.</textarea>
   </section>
 
-  <footer class="footer panel"><span>89 of 216 complete · Lesson 9.2 complete · checkpoint 9.4</span><span>Previous complete: <a href="lesson-09-01-distance-between-two-points.html">9.1 — Distance between two points</a> · Next complete: <a href="lesson-09-03-turn-distance-into-a-soft-mask.html">9.3 — Turn distance into a soft mask</a></span></footer>
+  <footer class="footer panel"><span>100 of 216 complete · checkpoint Lesson 10.1</span><span>Previous: <a href="lesson-09-01-distance-between-two-points.html">9.1 — Distance between two points</a> · Next: <a href="lesson-09-03-turn-distance-into-a-soft-mask.html">9.3 — Turn distance into a soft mask</a></span></footer>
 </main>
 <script>
 const W=400, H=400;
@@ -344,10 +351,14 @@ const CENTER={x:200,y:200};
 const BOUND={x:200+0.15*400, y:200-0.20*400};
 const NAVY=[0.10,0.25,0.40,1];
 const ORANGE=[0.88,0.48,0.18,1];
-const PROD=`uniform float2 resolution;
-uniform float radius;
-
-half4 main(float2 fragCoord) {
+const PROD=`[[ stitchable ]] half4 circleSignedDistance(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float radius
+) {
+    float2 fragCoord = position * scale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float d = length(p);
@@ -460,11 +471,11 @@ hard-cut store = ${sd<0?'orange':'navy'}`;
     mode==='hard'
       ? `Pixel (${Math.round(px)}, ${Math.round(py)}). Green circle is radius ${fmt2(radius)}. Production stores ${sd<0?'orange inside':'navy outside'}.`
       : mode==='field'
-        ? `Signed-field view. Minus stays nearer orange, plus nearer navy. Displayed AGSL stays the hard if.`
-        : `Walk-around diamond. sd uses abs(p.x)+abs(p.y) − radius. Displayed AGSL stays length.`;
+        ? `Signed-field view. Minus stays nearer orange, plus nearer navy. Displayed Metal stays the hard if.`
+        : `Walk-around diamond. sd uses abs(p.x)+abs(p.y) − radius. Displayed Metal stays length.`;
   document.getElementById('labCodeCaption').textContent=
     mode==='hard'
-      ? 'Displayed string is the production route. The radius slider only changes a uniform.'
+      ? 'Displayed string is the production route. The radius slider only passes the radius argument.'
       : 'Displayed string stays the production route. The rectangle on the left is a comparison.';
   document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('selected', b.dataset.mode===mode));
 }
@@ -547,7 +558,7 @@ const STEPS=[
   },
   {
     title:'Walk-around subtract paints a diamond, not a circle',
-    caption:'abs(p.x)+abs(p.y) − radius is zero on a diamond. Production uses length(p) − radius, zero on a circle. The diamond is the diagnostic leftover from Lesson 9.1. It is not the Android route.',
+    caption:'abs(p.x)+abs(p.y) − radius is zero on a diamond. Production uses length(p) − radius, zero on a circle. The diamond is the diagnostic leftover from Lesson 9.1. It is not the production route.',
     rule:'length → circle · walk-around → diamond',
     input:'the same radius 0.25',
     operation:'change only the distance used',
@@ -668,10 +679,14 @@ document.getElementById('checkChallenge').addEventListener('click',()=>{
   }
 });
 document.getElementById('showSolution').addEventListener('click',()=>{
-  document.getElementById('challengeEditor').value=`uniform float2 resolution;
-uniform float radius;
-
-half4 main(float2 fragCoord) {
+  document.getElementById('challengeEditor').value=`[[ stitchable ]] half4 circleSignedDistance(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float radius
+) {
+    float2 fragCoord = position * scale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float d = length(p);
@@ -700,7 +715,7 @@ document.getElementById('buildRecord').addEventListener('click',()=>{
 - Boundary p = (0.15, −0.20), d = 0.25, sd = 0.
 - Production: if (sd < 0.0) orange else navy.
 - Walk-around diamond is a comparison. smoothstep unused.
-- Lesson 9.2 complete. Checkpoint is Lesson 9.4. Completion count 89 of 216.
+- Lesson 9.2 stays complete as pixel math. Completion count 100 of 216.
 `;
 });
 const qa=new URLSearchParams(location.search).get('qa');

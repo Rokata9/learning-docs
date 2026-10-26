@@ -26,7 +26,7 @@ body{background:linear-gradient(180deg,var(--body-start),var(--body-end))}a{colo
 <main class="page">
 <nav class="topbar"><div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-color-opacity-and-compositing.html">Chapter 3</a> · <a href="../../glossary.html">Glossary</a></div><div class="header-chips"><span class="lesson-chip">Lesson 3.2</span><span class="theme-chip">OS theme · <strong id="themeMode">detecting…</strong></span></div></nav>
 
-<header class="hero panel"><div><div class="eyebrow">Chapter 3 · Color, opacity, and compositing</div><h1>Alpha</h1><p class="lead">Alpha is a fourth color channel. In this lesson, alpha is the source-opacity number that controls how strongly a fixed RGB source participates when it is drawn over a background.</p><div class="note"><strong>This lesson isolates one idea.</strong> Red, green, and blue stay fixed at <code>(0.80, 0.25, 0.60)</code>. Only alpha changes. Lesson 3.3 calculates the complete source-over result.</div></div><aside class="goal-box"><h2>Lesson goal</h2><p>By the end, you should be able to:</p><ul><li>read <code>RGBA(0.80, 0.25, 0.60, 0.50)</code> as four separate channel values;</li><li>explain <code>alpha = 0</code>, <code>0.5</code>, and <code>1</code>;</li><li>explain why lower alpha reveals more background rather than directly making the source darker;</li><li>map one alpha value to Compose <code>Color(alpha = ...)</code> without reversing it.</li></ul><div class="progress-line">Course state before completion: 18 of 216 lessons complete</div><div class="theme-rule"><strong>Theme behavior:</strong> the page chrome follows the OS setting. The magenta source, checkerboard, dark-navy background, and pale-yellow background remain exact teaching data in both modes.</div></aside></header>
+<header class="hero panel"><div><div class="eyebrow">Chapter 3 · Color, opacity, and compositing</div><h1>Alpha</h1><p class="lead">Alpha is a fourth color channel. In this lesson, alpha is the source-opacity number that controls how strongly a fixed RGB source participates when it is drawn over a background.</p><div class="note"><strong>This lesson isolates one idea.</strong> Red, green, and blue stay fixed at <code>(0.80, 0.25, 0.60)</code>. Only alpha changes. Lesson 3.3 calculates the complete source-over result.</div></div><aside class="goal-box"><h2>Lesson goal</h2><p>By the end, you should be able to:</p><ul><li>read <code>RGBA(0.80, 0.25, 0.60, 0.50)</code> as four separate channel values;</li><li>explain <code>alpha = 0</code>, <code>0.5</code>, and <code>1</code>;</li><li>explain why lower alpha reveals more background rather than directly making the source darker;</li><li>map one alpha value to SwiftUI <code>Color(..., opacity: ...)</code> without reversing it.</li></ul><div class="theme-rule"><strong>Theme behavior:</strong> the page chrome follows the OS setting. The magenta source, checkerboard, dark-navy background, and pale-yellow background remain exact teaching data in both modes.</div></aside></header>
 
 <section class="section panel"><div class="section-intro"><div><div class="section-number">1 · Vocabulary</div><h2>One new channel and three related words</h2></div><p>These words are related, but they are not interchangeable labels.</p></div><div class="four-column"><article class="card indigo"><h3>Alpha</h3><p>Alpha is the numeric channel used here to store source opacity. The normalized range is <code>0.00</code> through <code>1.00</code>.</p></article><article class="card green"><h3>Opacity</h3><p>Opacity is how strongly the source is allowed to contribute. In this lesson, opacity equals alpha.</p></article><article class="card amber"><h3>Transparency</h3><p>Transparency describes how much background is left open. In this simple lesson, the transparent share is <code>1 − alpha</code>.</p></article><article class="card blue"><h3>RGBA</h3><p>RGBA is an ordered tuple containing red, green, blue, and alpha. One tuple describes one source color value.</p></article></div><div class="formula">RGBA(red, green, blue, alpha) = RGBA(0.80, 0.25, 0.60, 0.50)</div><div class="warning"><strong>Scope limit:</strong> real renderers can also use alpha to represent partial pixel coverage at antialiased edges. Lesson 3.5 returns to that case. For this lesson, treat alpha as source opacity.</div></section>
 
@@ -38,462 +38,367 @@ body{background:linear-gradient(180deg,var(--body-start),var(--body-end))}a{colo
 
 <section class="section panel"><div class="section-intro"><div><div class="section-number">5 · Manual construction</div><h2>Build the meaning of alpha in seven steps</h2></div><p>Use <strong>Back</strong> and <strong>Next</strong>. Each step changes one part of the model.</p></div><div class="stepper-layout"><div class="step-figure"><svg id="stepSvg" viewBox="0 0 1120 650" aria-label="Alpha construction stepper"></svg></div><div class="stepper-card"><div class="stepper-nav" id="stepButtons"></div><div class="step-body"><div class="step-title" id="stepTitle"></div><p class="step-caption" id="stepCaption"></p><pre class="code-excerpt" id="stepCode"></pre><div class="io-row"><div class="io-box"><strong>Input</strong><span id="stepInput"></span></div><div class="io-box"><strong>Operation</strong><span id="stepOperation"></span></div><div class="io-box"><strong>Output</strong><span id="stepOutput"></span></div></div><div class="step-actions"><button class="secondary-button" id="stepBack" type="button">Back</button><button class="primary-button" id="stepNext" type="button">Next</button></div></div></div></div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">6 · Android value trace</div><h2>Follow one real alpha value to pixels</h2></div><p>The trace uses <code>alpha = 0.25f</code>. Each box names the exact object that receives the value.</p></div><div class="trace-grid"><article class="trace-box"><strong>1 · Learner input</strong><p>The preset button calls the supplied callback with <code>0.25f</code>.</p><code class="trace-code">onClick = { onSelected(0.25f) }</code></article><article class="trace-box"><strong>2 · State write</strong><p><code>alpha</code> stores the new normalized value.</p><code class="trace-code">alpha = 0.25f</code></article><article class="trace-box"><strong>3 · Source color</strong><p>The fixed RGB values and changing alpha become one Compose <code>Color</code>.</p><code class="trace-code">Color(
-  red = 0.80f,
-  green = 0.25f,
-  blue = 0.60f,
-  alpha = alpha,
-)</code></article><article class="trace-box"><strong>4 · Draw input</strong><p>The Canvas receives that source color.</p><code class="trace-code">drawRect(
-  color = sourceColor,
-)</code></article><article class="trace-box"><strong>5 · Renderer operation</strong><p>Compose draws the translucent source over the pixels already in the Canvas. The exact source-over arithmetic is Lesson 3.3.</p><code class="trace-code">background first
-source second</code></article><article class="trace-box"><strong>6 · Visible output</strong><p>The Pixel shows the same fixed source RGB with 25% source opacity over the selected background.</p><code class="trace-code">RGBA(
+<section class="section panel"><div class="section-intro"><div><div class="section-number">6 · iOS value trace</div><h2>Follow one real alpha value to pixels</h2></div><p>The trace uses <code>alpha = 0.25</code>. Each box names the exact object that receives the value.</p></div><div class="trace-grid"><article class="trace-box"><strong>1 · Learner input</strong><p>The preset button calls the supplied callback with <code>0.25</code>.</p><code class="trace-code">Button { onSelected(0.25) }</code></article><article class="trace-box"><strong>2 · State write</strong><p><code>alpha</code> stores the new normalized value.</p><code class="trace-code">alpha = 0.25</code></article><article class="trace-box"><strong>3 · Source color</strong><p>The fixed RGB values and changing alpha become one SwiftUI <code>Color</code>. The initializer names the fourth argument <code>opacity</code>; that argument is the alpha channel.</p><code class="trace-code">Color(
+  red: 0.80,
+  green: 0.25,
+  blue: 0.60,
+  opacity: alpha
+)</code></article><article class="trace-box"><strong>4 · Draw input</strong><p>The Canvas receives that source color.</p><code class="trace-code">context.fill(
+  Path(rect),
+  with: .color(sourceColor)
+)</code></article><article class="trace-box"><strong>5 · Renderer operation</strong><p>SwiftUI draws the translucent source over the pixels already in the Canvas. The exact source-over arithmetic is Lesson 3.3.</p><code class="trace-code">background first
+source second</code></article><article class="trace-box"><strong>6 · Visible output</strong><p>The iPhone 16 Pro shows the same fixed source RGB with 25% source opacity over the selected background.</p><code class="trace-code">RGBA(
   0.80,
   0.25,
   0.60,
-  0.25,
-)</code></article></div><div class="note"><strong>Theme boundary:</strong> <code>MaterialTheme.colorScheme</code> supplies panel, text, border, and control chrome. The instructional source and fixed comparison backgrounds are not replaced by theme colors.</div></section>
+  0.25
+)</code></article></div><div class="note"><strong>Theme boundary:</strong> system colors and <code>LabTheme</code> supply panel, text, border, and control chrome. The instructional source and fixed comparison backgrounds are not replaced by theme colors.</div></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">7 · iOS connection</div><h2>Two files change in Lesson 3.2</h2></div><p>The displayed code matches the Lesson 3.2 files in <code>LiquidGlassLab-iOS</code>. <code>Chapter03Screen</code> keeps the Lesson 3.1 explorer and adds <code>AlphaExplorer</code>.</p></div><div class="source-tabs"><button class="mode-button selected" data-source="screen" type="button">Chapter03Screen.swift</button><button class="mode-button" data-source="alpha" type="button">AlphaExplorer.swift</button></div><div class="source-pane active" id="source-screen"><pre class="source-code">import SwiftUI
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">7 · Complete changed Android source</div><h2>Two files change in Lesson 3.2</h2></div><p>The displayed code exactly matches the Android incremental ZIP.</p></div><div class="source-tabs"><button class="mode-button selected" data-source="screen" type="button">Chapter03Screen.kt</button><button class="mode-button" data-source="alpha" type="button">AlphaExplorer.kt</button></div><div class="source-pane active" id="source-screen"><pre class="source-code">package com.example.liquidglasslab.chapter03
+struct Chapter03Screen: View {
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 28) {
+                Text(&quot;COLOR, OPACITY, AND COMPOSITING&quot;)
+                    .font(.system(size: 14, weight: .black))
+                    .foregroundStyle(Color(hex: 0x059669))
 
-import android.content.res.Configuration
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.example.liquidglasslab.ui.theme.LiquidGlassLabTheme
-
-@Composable
-fun Chapter03Screen(modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background,
-        contentColor = MaterialTheme.colorScheme.onBackground,
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .safeDrawingPadding()
-                .padding(horizontal = 24.dp, vertical = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            Text(
-                text = &quot;COLOR, OPACITY, AND COMPOSITING&quot;,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = &quot;Lesson 3.2 · Alpha&quot;,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = &quot;Keep red, green, and blue fixed. Change only alpha, then inspect &quot; +
-                    &quot;how much of each background remains visible.&quot;,
-                style = MaterialTheme.typography.bodyLarge,
-            )
-
-            AlphaExplorer()
-        }
-    }
-}
-
-@Preview(
-    name = &quot;Lesson 3.2 alpha — light&quot;,
-    showBackground = true,
-    widthDp = 412,
-    heightDp = 915,
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-)
-@Preview(
-    name = &quot;Lesson 3.2 alpha — dark&quot;,
-    showBackground = true,
-    widthDp = 412,
-    heightDp = 915,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
-@Composable
-private fun Chapter03ScreenPreview() {
-    LiquidGlassLabTheme {
-        Chapter03Screen()
-    }
-}
-</pre></div><div class="source-pane" id="source-alpha"><pre class="source-code">package com.example.liquidglasslab.chapter03
-
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import java.util.Locale
-import kotlin.math.ceil
-import kotlin.math.roundToInt
-
-private const val SourceRed = 0.80f
-private const val SourceGreen = 0.25f
-private const val SourceBlue = 0.60f
-private const val InitialAlpha = 0.50f
-
-private val ExplorerShape = RoundedCornerShape(22.dp)
-private val SwatchShape = RoundedCornerShape(18.dp)
-private val CardShape = RoundedCornerShape(14.dp)
-
-private val CheckerLight = Color(0xFFF8FAFC)
-private val CheckerDark = Color(0xFFCBD5E1)
-private val DarkBackdrop = Color(0xFF0F172A)
-private val LightBackdrop = Color(0xFFFDE68A)
-
-private val FirstPresetRow = listOf(0f, 0.25f, 0.50f)
-private val SecondPresetRow = listOf(0.75f, 1f)
-
-@Composable
-internal fun AlphaExplorer(
-    modifier: Modifier = Modifier,
-) {
-    var alpha by rememberSaveable {
-        mutableFloatStateOf(InitialAlpha)
-    }
-
-    val colorScheme = MaterialTheme.colorScheme
-    val sourceColor = Color(
-        red = SourceRed,
-        green = SourceGreen,
-        blue = SourceBlue,
-        alpha = alpha,
-    )
-    val transparency = 1f - alpha
-    val alpha8Bit = (alpha * 255f).roundToInt()
-
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = ExplorerShape,
-        color = colorScheme.surface,
-        contentColor = colorScheme.onSurface,
-        border = BorderStroke(
-            width = 1.dp,
-            color = colorScheme.outlineVariant,
-        ),
-    ) {
-        Column(
-            modifier = Modifier.padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                text = &quot;One fixed RGB color, one changing alpha channel&quot;,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = &quot;The source RGB values remain (0.80, 0.25, 0.60). &quot; +
-                    &quot;Only the alpha value changes.&quot;,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-
-            CheckerboardAlphaSwatch(
-                sourceColor = sourceColor,
-                alpha = alpha,
-            )
-
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = colorScheme.surfaceVariant,
-                contentColor = colorScheme.onSurfaceVariant,
-                shape = CardShape,
-            ) {
-                Column(
-                    modifier = Modifier.padding(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
-                ) {
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.1 · Red, green, and blue channels&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
                     Text(
-                        text = &quot;RGBA(0.80, 0.25, 0.60, ${alpha.twoDecimals()})&quot;,
-                        fontWeight = FontWeight.Black,
+                        &quot;Change one channel at a time. The final swatch is one opaque RGB color &quot; +
+                        &quot;built from three independent numbers.&quot;
                     )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    RgbChannelsExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.2 · Alpha&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
                     Text(
-                        text = &quot;Opacity = ${alpha.asPercent()} · &quot; +
-                            &quot;transparent share = ${transparency.asPercent()}&quot;,
+                        &quot;Keep red, green, and blue fixed. Change only alpha, then inspect &quot; +
+                        &quot;how much of each background remains visible.&quot;
                     )
-                    Text(
-                        text = &quot;Approximate 8-bit alpha = $alpha8Bit of 255&quot;,
-                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    AlphaExplorer()
                 }
             }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 20)
+            .frame(maxWidth: .infinity)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(hex: 0xF8FAFC))
+        .safeAreaPadding()
+    }
+}
 
+private extension Color {
+    init(hex: UInt32) {
+        self.init(
+            red: Double((hex &gt;&gt; 16) &amp; 0xFF) / 255,
+            green: Double((hex &gt;&gt; 8) &amp; 0xFF) / 255,
+            blue: Double(hex &amp; 0xFF) / 255
+        )
+    }
+}
+
+#Preview(&quot;Chapter 3 explorers · light&quot;) {
+    LabTheme {
+        Chapter03Screen()
+    }
+    .labPreviewCanvas()
+}
+
+#Preview(&quot;Chapter 3 explorers · dark&quot;) {
+    LabTheme {
+        Chapter03Screen()
+    }
+    .preferredColorScheme(.dark)
+    .labPreviewCanvas()
+}
+</pre></div><div class="source-pane" id="source-alpha"><pre class="source-code">import SwiftUI
+
+private let sourceRed: CGFloat = 0.80
+private let sourceGreen: CGFloat = 0.25
+private let sourceBlue: CGFloat = 0.60
+private let initialAlpha: CGFloat = 0.50
+
+private let checkerLight = Color(hex: 0xF8FAFC)
+private let checkerDark = Color(hex: 0xCBD5E1)
+private let darkBackdrop = Color(hex: 0x0F172A)
+private let lightBackdrop = Color(hex: 0xFDE68A)
+
+private let firstPresetRow: [CGFloat] = [0, 0.25, 0.50]
+private let secondPresetRow: [CGFloat] = [0.75, 1]
+
+struct AlphaExplorer: View {
+    @State private var alpha = initialAlpha
+
+    private var sourceColor: Color {
+        Color(
+            red: sourceRed,
+            green: sourceGreen,
+            blue: sourceBlue,
+            opacity: alpha
+        )
+    }
+
+    private var transparency: CGFloat { 1 - alpha }
+    private var alpha8Bit: Int { Int((alpha * 255).rounded()) }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(&quot;One fixed RGB color, one changing alpha channel&quot;)
+                .font(.system(size: 22, weight: .black))
             Text(
-                text = &quot;Alpha channel&quot;,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Black,
+                &quot;The source RGB values remain (0.80, 0.25, 0.60). &quot; +
+                &quot;Only the alpha value changes.&quot;
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+            .font(.system(size: 15))
+
+            CheckerboardAlphaSwatch(sourceColor: sourceColor, alpha: alpha)
+
+            VStack(alignment: .leading, spacing: 5) {
+                Text(&quot;RGBA(0.80, 0.25, 0.60, \(twoDecimals(alpha)))&quot;)
+                    .fontWeight(.black)
+                Text(
+                    &quot;Opacity = \(asPercent(alpha)) · &quot; +
+                    &quot;transparent share = \(asPercent(transparency))&quot;
+                )
+                Text(&quot;Approximate 8-bit alpha = \(alpha8Bit) of 255&quot;)
+            }
+            .font(.system(size: 15))
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Color(uiColor: .secondarySystemFill))
+            )
+
+            Text(&quot;Alpha channel&quot;)
+                .font(LabType.titleMedium)
+                .fontWeight(.black)
+            HStack(spacing: 12) {
                 Slider(
-                    value = alpha,
-                    onValueChange = { alpha = it.coerceIn(0f, 1f) },
-                    valueRange = 0f..1f,
-                    modifier = Modifier
-                        .weight(1f)
-                        .semantics {
-                            contentDescription = &quot;Source alpha ${alpha.asPercent()}&quot;
-                        },
-                    colors = SliderDefaults.colors(
-                        thumbColor = colorScheme.primary,
-                        activeTrackColor = colorScheme.primary,
-                        inactiveTrackColor = colorScheme.surfaceVariant,
+                    value: Binding(
+                        get: { alpha },
+                        set: { alpha = min(max($0, 0), 1) }
                     ),
+                    in: 0...1
                 )
-                Text(
-                    text = alpha.twoDecimals(),
-                    fontWeight = FontWeight.Black,
-                )
+                .accessibilityLabel(&quot;Source alpha \(asPercent(alpha))&quot;)
+                Text(twoDecimals(alpha))
+                    .fontWeight(.black)
             }
 
-            Text(
-                text = &quot;Exact alpha presets&quot;,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Black,
-            )
-            AlphaPresetRow(
-                values = FirstPresetRow,
-                onSelected = { alpha = it },
-            )
-            AlphaPresetRow(
-                values = SecondPresetRow,
-                onSelected = { alpha = it },
-            )
+            Text(&quot;Exact alpha presets&quot;)
+                .font(LabType.titleMedium)
+                .fontWeight(.black)
+            AlphaPresetRow(values: firstPresetRow, onSelected: { alpha = $0 })
+            AlphaPresetRow(values: secondPresetRow, onSelected: { alpha = $0 })
 
-            Text(
-                text = &quot;The same RGBA source over two fixed backgrounds&quot;,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Black,
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
+            Text(&quot;The same RGBA source over two fixed backgrounds&quot;)
+                .font(LabType.titleMedium)
+                .fontWeight(.black)
+            HStack(spacing: 10) {
                 BackdropComparisonCard(
-                    label = &quot;Dark navy&quot;,
-                    backdropColor = DarkBackdrop,
-                    sourceColor = sourceColor,
-                    modifier = Modifier.weight(1f),
+                    label: &quot;Dark navy&quot;,
+                    backdropColor: darkBackdrop,
+                    sourceColor: sourceColor
                 )
                 BackdropComparisonCard(
-                    label = &quot;Pale yellow&quot;,
-                    backdropColor = LightBackdrop,
-                    sourceColor = sourceColor,
-                    modifier = Modifier.weight(1f),
+                    label: &quot;Pale yellow&quot;,
+                    backdropColor: lightBackdrop,
+                    sourceColor: sourceColor
                 )
             }
 
             Text(
-                text = &quot;The source alpha is identical in both cards. The visible results &quot; +
-                    &quot;differ because a different background remains visible through the source.&quot;,
-                style = MaterialTheme.typography.bodyMedium,
+                &quot;The source alpha is identical in both cards. The visible results &quot; +
+                &quot;differ because a different background remains visible through the source.&quot;
             )
+            .font(.system(size: 15))
         }
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(Color(uiColor: .systemBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
     }
 }
 
-@Composable
-private fun CheckerboardAlphaSwatch(
-    sourceColor: Color,
-    alpha: Float,
-) {
-    val colorScheme = MaterialTheme.colorScheme
+private struct CheckerboardAlphaSwatch: View {
+    let sourceColor: Color
+    let alpha: CGFloat
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(190.dp)
-            .clip(SwatchShape)
-            .border(
-                width = 1.dp,
-                color = colorScheme.outline,
-                shape = SwatchShape,
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        Canvas(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(190.dp),
-        ) {
-            drawCheckerboard(cellSizePx = 24.dp.toPx())
-            drawRect(color = sourceColor)
-        }
-
-        Surface(
-            color = colorScheme.surface.copy(alpha = 0.94f),
-            contentColor = colorScheme.onSurface,
-            shape = RoundedCornerShape(10.dp),
-        ) {
-            Text(
-                text = &quot;Alpha ${alpha.twoDecimals()} · ${alpha.asPercent()}&quot;,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Black,
-                modifier = Modifier.padding(
-                    horizontal = 12.dp,
-                    vertical = 8.dp,
-                ),
-            )
-        }
-    }
-}
-
-@Composable
-private fun BackdropComparisonCard(
-    label: String,
-    backdropColor: Color,
-    sourceColor: Color,
-    modifier: Modifier = Modifier,
-) {
-    val colorScheme = MaterialTheme.colorScheme
-
-    Surface(
-        modifier = modifier,
-        shape = CardShape,
-        color = colorScheme.surface,
-        contentColor = colorScheme.onSurface,
-        border = BorderStroke(
-            width = 1.dp,
-            color = colorScheme.outlineVariant,
-        ),
-    ) {
-        Column {
-            Canvas(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(112.dp),
-            ) {
-                drawRect(color = backdropColor)
-                drawRect(color = sourceColor)
-            }
-            Text(
-                text = label,
-                modifier = Modifier.padding(10.dp),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Black,
-            )
-        }
-    }
-}
-
-@Composable
-private fun AlphaPresetRow(
-    values: List&lt;Float&gt;,
-    onSelected: (Float) -&gt; Unit,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        values.forEach { preset -&gt;
-            OutlinedButton(
-                onClick = { onSelected(preset) },
-                modifier = Modifier.weight(1f),
-            ) {
-                Text(
-                    text = preset.asPercent(),
-                    fontWeight = FontWeight.Bold,
+    var body: some View {
+        ZStack {
+            Canvas { context, size in
+                drawCheckerboard(context: context, size: size, cellSize: 24)
+                context.fill(
+                    Path(CGRect(origin: .zero, size: size)),
+                    with: .color(sourceColor)
                 )
             }
+            Text(&quot;Alpha \(twoDecimals(alpha)) · \(asPercent(alpha))&quot;)
+                .font(LabType.titleMedium)
+                .fontWeight(.black)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(Color(uiColor: .systemBackground).opacity(0.94))
+                )
         }
+        .frame(maxWidth: .infinity)
+        .frame(height: 190)
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
     }
 }
 
-private fun DrawScope.drawCheckerboard(cellSizePx: Float) {
-    val columnCount = ceil(size.width / cellSizePx).toInt()
-    val rowCount = ceil(size.height / cellSizePx).toInt()
+private struct BackdropComparisonCard: View {
+    let label: String
+    let backdropColor: Color
+    let sourceColor: Color
 
-    repeat(rowCount) { row -&gt;
-        repeat(columnCount) { column -&gt;
-            val cellColor = if ((row + column) % 2 == 0) {
-                CheckerLight
-            } else {
-                CheckerDark
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Canvas { context, size in
+                let rect = Path(CGRect(origin: .zero, size: size))
+                context.fill(rect, with: .color(backdropColor))
+                context.fill(rect, with: .color(sourceColor))
             }
+            .frame(height: 112)
+            Text(label)
+                .font(LabType.label)
+                .fontWeight(.black)
+                .padding(10)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(uiColor: .systemBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+}
 
-            drawRect(
-                color = cellColor,
-                topLeft = Offset(
-                    x = column * cellSizePx,
-                    y = row * cellSizePx,
-                ),
-                size = androidx.compose.ui.geometry.Size(
-                    width = cellSizePx,
-                    height = cellSizePx,
-                ),
-            )
+private struct AlphaPresetRow: View {
+    let values: [CGFloat]
+    let onSelected: (CGFloat) -&gt; Void
+
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(values, id: \.self) { preset in
+                Button {
+                    onSelected(preset)
+                } label: {
+                    Text(asPercent(preset))
+                        .fontWeight(.bold)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+            }
         }
     }
 }
 
-private fun Float.twoDecimals(): String =
-    String.format(Locale.US, &quot;%.2f&quot;, this)
+private func drawCheckerboard(
+    context: GraphicsContext,
+    size: CGSize,
+    cellSize: CGFloat
+) {
+    let columnCount = Int(ceil(size.width / cellSize))
+    let rowCount = Int(ceil(size.height / cellSize))
+    for row in 0..&lt;rowCount {
+        for column in 0..&lt;columnCount {
+            let cellColor = (row + column).isMultiple(of: 2) ? checkerLight : checkerDark
+            let rect = CGRect(
+                x: CGFloat(column) * cellSize,
+                y: CGFloat(row) * cellSize,
+                width: cellSize,
+                height: cellSize
+            )
+            context.fill(Path(rect), with: .color(cellColor))
+        }
+    }
+}
 
-private fun Float.asPercent(): String =
-    &quot;${(this * 100f).roundToInt()}%&quot;
+private func twoDecimals(_ value: CGFloat) -&gt; String {
+    String(format: &quot;%.2f&quot;, Double(value))
+}
+
+private func asPercent(_ value: CGFloat) -&gt; String {
+    &quot;\(Int((value * 100).rounded()))%&quot;
+}
+
+private extension Color {
+    init(hex: UInt32) {
+        self.init(
+            red: Double((hex &gt;&gt; 16) &amp; 0xFF) / 255,
+            green: Double((hex &gt;&gt; 8) &amp; 0xFF) / 255,
+            blue: Double(hex &amp; 0xFF) / 255
+        )
+    }
+}
+
+#Preview(&quot;AlphaExplorer · light&quot;) {
+    LabTheme {
+        ScrollView {
+            AlphaExplorer()
+                .padding(16)
+        }
+    }
+    .labPreviewCanvas()
+}
+
+#Preview(&quot;AlphaExplorer · dark&quot;) {
+    LabTheme {
+        ScrollView {
+            AlphaExplorer()
+                .padding(16)
+        }
+    }
+    .preferredColorScheme(.dark)
+    .labPreviewCanvas()
+}
 </pre></div></section>
-
-<section class="section panel"><div class="section-intro"><div><div class="section-number">8 · Coding challenge</div><h2>Repair a reversed alpha mapping</h2></div><p>The requested alpha is <code>0.25f</code>. The defective code turns it into <code>0.75f</code>.</p></div><div class="challenge-grid"><article class="editor-card"><div class="card-header"><strong>Kotlin teaching fragment</strong><button class="secondary-button" id="resetChallenge" type="button">Reset defect</button></div><div class="editor-wrap"><textarea class="code-editor" id="codeEditor" spellcheck="false">fun buildSourceColor(alpha: Float): Color {
+<section class="section panel"><div class="section-intro"><div><div class="section-number">8 · Coding challenge</div><h2>Repair a reversed alpha mapping</h2></div><p>The requested alpha is <code>0.25</code>. The defective code turns it into <code>0.75</code>.</p></div><div class="challenge-grid"><article class="editor-card"><div class="card-header"><strong>Swift teaching fragment</strong><button class="secondary-button" id="resetChallenge" type="button">Reset defect</button></div><div class="editor-wrap"><textarea class="code-editor" id="codeEditor" spellcheck="false">func buildSourceColor(alpha: CGFloat) -> Color {
     return Color(
-        red = 0.80f,
-        green = 0.25f,
-        blue = 0.60f,
-        alpha = 1f - alpha,
+        red: 0.80,
+        green: 0.25,
+        blue: 0.60,
+        opacity: 1 - alpha
     )
 }
 
-val requestedAlpha = 0.25f</textarea><div class="controls" style="margin-top:12px"><button class="mode-button" data-mapping="direct" type="button">Use alpha directly</button><button class="mode-button selected" data-mapping="reverse" type="button">Use 1 − alpha</button><button class="mode-button" data-request="0.25" type="button">Request 0.25</button><button class="mode-button" data-request="0.75" type="button">Request 0.75</button></div><button class="primary-button" id="checkChallenge" type="button" style="margin-top:12px">Check repair</button><div class="challenge-result" id="challengeResult">The source currently receives the reversed value.</div></div></article><article class="challenge-preview"><div class="card-header"><strong>Code-driven teaching preview</strong><span class="mono" id="challengeActualLabel">actual alpha 0.75</span></div><div class="challenge-body"><div class="challenge-swatch checkerboard"><div class="source-overlay" id="challengeOverlay"></div><div class="swatch-label" id="challengeSwatchLabel"></div></div><div class="mapping-grid"><div class="mapping-card"><strong>Requested input</strong><div class="mono" id="challengeRequested">0.25</div></div><div class="mapping-card"><strong>Mapped output</strong><div class="mono" id="challengeActual">0.75</div></div></div><div class="io-row" style="margin-top:14px"><div class="io-box"><strong>Input</strong><span id="challengeInput">requestedAlpha = 0.25f</span></div><div class="io-box"><strong>Operation</strong><span id="challengeOperation">1 − 0.25</span></div><div class="io-box"><strong>Output</strong><span id="challengeOutput">source alpha = 0.75</span></div></div></div></article></div></section>
+let requestedAlpha: CGFloat = 0.25</textarea><div class="controls" style="margin-top:12px"><button class="mode-button" data-mapping="direct" type="button">Use alpha directly</button><button class="mode-button selected" data-mapping="reverse" type="button">Use 1 − alpha</button><button class="mode-button" data-request="0.25" type="button">Request 0.25</button><button class="mode-button" data-request="0.75" type="button">Request 0.75</button></div><button class="primary-button" id="checkChallenge" type="button" style="margin-top:12px">Check repair</button><div class="challenge-result" id="challengeResult">The source currently receives the reversed value.</div></div></article><article class="challenge-preview"><div class="card-header"><strong>Code-driven teaching preview</strong><span class="mono" id="challengeActualLabel">actual alpha 0.75</span></div><div class="challenge-body"><div class="challenge-swatch checkerboard"><div class="source-overlay" id="challengeOverlay"></div><div class="swatch-label" id="challengeSwatchLabel"></div></div><div class="mapping-grid"><div class="mapping-card"><strong>Requested input</strong><div class="mono" id="challengeRequested">0.25</div></div><div class="mapping-card"><strong>Mapped output</strong><div class="mono" id="challengeActual">0.75</div></div></div><div class="io-row" style="margin-top:14px"><div class="io-box"><strong>Input</strong><span id="challengeInput">requestedAlpha = 0.25f</span></div><div class="io-box"><strong>Operation</strong><span id="challengeOperation">1 − 0.25</span></div><div class="io-box"><strong>Output</strong><span id="challengeOutput">source alpha = 0.75</span></div></div></div></article></div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">9 · Pixel 8 Pro checkpoint</div><h2>Verify the Android behavior</h2></div><p>Check the visible result and the exact values. Do not rely on memory.</p></div><div class="checklist"><label class="check-row"><input type="checkbox" data-check="files"><span>The Lesson 3.2 learning-docs and Android incremental archives were applied after Lesson 3.1.</span></label><label class="check-row"><input type="checkbox" data-check="build"><span>The Android project builds and opens <strong>Lesson 3.2 · Alpha</strong>.</span></label><label class="check-row"><input type="checkbox" data-check="presets"><span>The 0%, 25%, 50%, 75%, and 100% presets update the swatches and readouts.</span></label><label class="check-row"><input type="checkbox" data-check="fixed-rgb"><span>Changing alpha leaves red <code>0.80</code>, green <code>0.25</code>, and blue <code>0.60</code> unchanged.</span></label><label class="check-row"><input type="checkbox" data-check="backgrounds"><span>The same alpha produces different visible results over dark navy and pale yellow.</span></label><label class="check-row"><input type="checkbox" data-check="zero"><span>At alpha 0, the checkerboard looks unchanged even though the displayed RGB tuple remains <code>(0.80, 0.25, 0.60)</code>.</span></label><label class="check-row"><input type="checkbox" data-check="brightness"><span>I can explain why decreasing alpha is not the same operation as decreasing brightness.</span></label><label class="check-row"><input type="checkbox" data-check="browser-theme"><span>The HTML chrome follows both OS light and dark settings while all teaching swatches keep the same numeric colors.</span></label><label class="check-row"><input type="checkbox" data-check="android-theme"><span>The Pixel UI chrome follows both OS themes while the source and fixed comparison backgrounds remain unchanged.</span></label><label class="check-row"><input type="checkbox" data-check="challenge"><span>The coding challenge and final exercises are complete.</span></label></div></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">9 · iPhone 16 Pro checkpoint</div><h2>Verify the iOS behavior</h2></div><p>Check the visible result and the exact values. Do not rely on memory.</p></div><div class="checklist"><label class="check-row"><input type="checkbox" data-check="files"><span>The Lesson 3.2 learning-docs and iOS files were applied after Lesson 3.1.</span></label><label class="check-row"><input type="checkbox" data-check="build"><span>The iOS project builds and opens <strong>Lesson 3.2 · Alpha</strong>.</span></label><label class="check-row"><input type="checkbox" data-check="presets"><span>The 0%, 25%, 50%, 75%, and 100% presets update the swatches and readouts.</span></label><label class="check-row"><input type="checkbox" data-check="fixed-rgb"><span>Changing alpha leaves red <code>0.80</code>, green <code>0.25</code>, and blue <code>0.60</code> unchanged.</span></label><label class="check-row"><input type="checkbox" data-check="backgrounds"><span>The same alpha produces different visible results over dark navy and pale yellow.</span></label><label class="check-row"><input type="checkbox" data-check="zero"><span>At alpha 0, the checkerboard looks unchanged even though the displayed RGB tuple remains <code>(0.80, 0.25, 0.60)</code>.</span></label><label class="check-row"><input type="checkbox" data-check="brightness"><span>I can explain why decreasing alpha is not the same operation as decreasing brightness.</span></label><label class="check-row"><input type="checkbox" data-check="browser-theme"><span>The HTML chrome follows both OS light and dark settings while all teaching swatches keep the same numeric colors.</span></label><label class="check-row"><input type="checkbox" data-check="ios-theme"><span>The iPhone 16 Pro UI chrome follows both OS themes while the source and fixed comparison backgrounds remain unchanged.</span></label><label class="check-row"><input type="checkbox" data-check="challenge"><span>The coding challenge and final exercises are complete.</span></label></div></section>
 
 <section class="section panel"><div class="section-intro"><div><div class="section-number">10 · Exercises</div><h2>Answer before opening the details</h2></div><p>At least one question targets the most likely misconception.</p></div><details><summary>Exercise 1 — Which channel changed?</summary><p>The source changes from <code>RGBA(0.80, 0.25, 0.60, 0.25)</code> to <code>RGBA(0.80, 0.25, 0.60, 0.75)</code>. Which channel values changed?</p><p><strong>Answer:</strong> Only alpha changed, from <code>0.25</code> to <code>0.75</code>. Red, green, and blue stayed fixed.</p></details><details><summary>Exercise 2 — Alpha 0 diagnostic</summary><p>At alpha <code>0.00</code>, must the stored straight-RGBA values red <code>0.80</code>, green <code>0.25</code>, and blue <code>0.60</code> become zero?</p><p><strong>Answer:</strong> No. The tuple can retain those RGB numbers. Alpha zero prevents the source from contributing visibly when drawn. Premultiplied storage follows an additional rule and is taught in Lesson 3.5.</p></details><details><summary>Exercise 3 — Is lower alpha always brighter?</summary><p>You reduce alpha from <code>0.75</code> to <code>0.25</code>. Can you conclude that the visible result becomes brighter?</p><p><strong>Answer:</strong> No. Lower alpha reveals more background. A dark background can make the result darker. A light background can make it lighter.</p></details><details><summary>Exercise 4 — Convert alpha to 8-bit</summary><p>What is the approximate 8-bit alpha for normalized alpha <code>0.75</code>?</p><p><strong>Answer:</strong> <code>round(0.75 × 255) = round(191.25) = 191</code>.</p></details></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">11 · Evidence and deferrals</div><h2>What this lesson proves</h2></div><p>Keep the observed API behavior separate from renderer details not inspected here.</p></div><div class="two-column"><article class="card green"><h3>The browser and Android app can prove</h3><p>They can prove that one alpha input reaches the matching <code>Color</code> argument, that RGB values can remain fixed while alpha changes, and that different backgrounds produce different visible results at the same source alpha.</p></article><article class="card amber"><h3>This lesson does not fully calculate</h3><p>It does not yet calculate each final red, green, blue, and output-alpha value. Lesson 3.3 performs the source-over arithmetic one channel at a time.</p></article></div><div class="warning"><strong>Renderer limit:</strong> exact device pixel values can also be affected by color spaces, quantization, display conversion, and later compositor stages. Those unknowns do not change the code-level conclusion that the lesson varies the source alpha while keeping source RGB fixed.</div><p class="small">Official Android references: <a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color">Compose Color API</a>, <a href="https://developer.android.com/develop/ui/compose/components/slider">Compose Slider</a>, and <a href="https://developer.android.com/develop/ui/compose/designsystems/material3">Material 3 theming</a>.</p></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">11 · Evidence and deferrals</div><h2>What this lesson proves</h2></div><p>Keep the observed API behavior separate from renderer details not inspected here.</p></div><div class="two-column"><article class="card green"><h3>The browser and iOS app can prove</h3><p>They can prove that one alpha input reaches the matching <code>Color</code> argument, that RGB values can remain fixed while alpha changes, and that different backgrounds produce different visible results at the same source alpha.</p></article><article class="card amber"><h3>This lesson does not fully calculate</h3><p>It does not yet calculate each final red, green, blue, and output-alpha value. Lesson 3.3 performs the source-over arithmetic one channel at a time.</p></article></div><div class="warning"><strong>Renderer limit:</strong> exact device pixel values can also be affected by color spaces, quantization, display conversion, and later compositor stages. Those unknowns do not change the code-level conclusion that the lesson varies the source alpha while keeping source RGB fixed.</div><p class="small">Official Apple references: <a href="https://developer.apple.com/documentation/swiftui/color">SwiftUI Color</a>, <a href="https://developer.apple.com/documentation/swiftui/slider">SwiftUI Slider</a>, and <a href="https://developer.apple.com/documentation/swiftui/environmentvalues/colorscheme">colorScheme</a>.</p></section>
 
 <section class="section panel"><div class="section-intro"><div><div class="section-number">12 · Completion record</div><h2>Copy this into the next conversation</h2></div><button class="primary-button" id="copyRecord" type="button">Copy record</button></div><textarea class="record-area" id="completionRecord" readonly></textarea><p class="small" id="copyStatus"></p></section>
 
@@ -535,11 +440,11 @@ document.querySelectorAll('[data-alpha]').forEach(button=>button.addEventListene
 setAlpha(0.5);
 
 const steps=[
- {title:'1 · Start with fixed RGB',alpha:null,bg:'checker',caption:'Red, green, and blue describe the source hue and intensity values. Alpha is not changing yet.',code:'val red = 0.80f\nval green = 0.25f\nval blue = 0.60f',input:'Three normalized RGB numbers.',operation:'Place each number in its named channel slot.',output:'RGB(0.80, 0.25, 0.60).'},
- {title:'2 · Add a fourth channel',alpha:.5,bg:'checker',caption:'RGBA adds alpha after blue. The fourth tuple position has a different job from the first three.',code:'val source = Color(\n    red = 0.80f,\n    green = 0.25f,\n    blue = 0.60f,\n    alpha = 0.50f,\n)',input:'Fixed RGB plus alpha 0.50.',operation:'Store alpha in the fourth channel.',output:'RGBA(0.80, 0.25, 0.60, 0.50).'},
- {title:'3 · Alpha 1 is opaque',alpha:1,bg:'checker',caption:'Alpha 1 allows the source to participate fully. The checkerboard behind the source is no longer visible.',code:'alpha = 1.00f',input:'Alpha 1.00.',operation:'Use full source opacity.',output:'The source is opaque over this background.'},
- {title:'4 · Alpha 0.5 is partial opacity',alpha:.5,bg:'checker',caption:'Alpha 0.5 allows a partial source contribution. The checkerboard remains visible through the source.',code:'alpha = 0.50f',input:'Alpha 0.50.',operation:'Use 50% source opacity.',output:'Source and background both influence the visible result.'},
- {title:'5 · The remaining opening is 1 − alpha',alpha:.25,bg:'checker',caption:'At alpha 0.25, the conceptual source share is 25% and the remaining background opening is 75%. Lesson 3.3 calculates the final channels.',code:'val backgroundOpening = 1f - alpha\n// 1.00 - 0.25 = 0.75',input:'Alpha 0.25.',operation:'Subtract alpha from 1.',output:'Background opening 0.75.'},
+ {title:'1 · Start with fixed RGB',alpha:null,bg:'checker',caption:'Red, green, and blue describe the source hue and intensity values. Alpha is not changing yet.',code:'let red: CGFloat = 0.80\nlet green: CGFloat = 0.25\nlet blue: CGFloat = 0.60',input:'Three normalized RGB numbers.',operation:'Place each number in its named channel slot.',output:'RGB(0.80, 0.25, 0.60).'},
+ {title:'2 · Add a fourth channel',alpha:.5,bg:'checker',caption:'RGBA adds alpha after blue. The fourth tuple position has a different job from the first three. SwiftUI Color stores that channel in the opacity argument.',code:'let source = Color(\n    red: 0.80,\n    green: 0.25,\n    blue: 0.60,\n    opacity: 0.50\n)',input:'Fixed RGB plus alpha 0.50.',operation:'Store alpha in the fourth channel.',output:'RGBA(0.80, 0.25, 0.60, 0.50).'},
+ {title:'3 · Alpha 1 is opaque',alpha:1,bg:'checker',caption:'Alpha 1 allows the source to participate fully. The checkerboard behind the source is no longer visible.',code:'alpha = 1.00',input:'Alpha 1.00.',operation:'Use full source opacity.',output:'The source is opaque over this background.'},
+ {title:'4 · Alpha 0.5 is partial opacity',alpha:.5,bg:'checker',caption:'Alpha 0.5 allows a partial source contribution. The checkerboard remains visible through the source.',code:'alpha = 0.50',input:'Alpha 0.50.',operation:'Use 50% source opacity.',output:'Source and background both influence the visible result.'},
+ {title:'5 · The remaining opening is 1 − alpha',alpha:.25,bg:'checker',caption:'At alpha 0.25, the conceptual source share is 25% and the remaining background opening is 75%. Lesson 3.3 calculates the final channels.',code:'let backgroundOpening = 1 - alpha\n// 1.00 - 0.25 = 0.75',input:'Alpha 0.25.',operation:'Subtract alpha from 1.',output:'Background opening 0.75.'},
  {title:'6 · Alpha 0 is fully transparent',alpha:0,bg:'checker',caption:'The source RGB tuple can still contain its three values, but alpha 0 prevents a visible source contribution.',code:'RGBA(0.80, 0.25, 0.60, 0.00)',input:'Alpha 0.00.',operation:'Use zero source opacity.',output:'The checkerboard looks unchanged.'},
  {title:'7 · The background determines the visible result',alpha:.5,bg:'two',caption:'The same source and the same alpha are drawn over two fixed backgrounds. The visible results differ because different background colors pass through.',code:'same source RGBA\n+ dark navy\n\nversus\n\nsame source RGBA\n+ pale yellow',input:'The same RGBA source twice.',operation:'Change only the background.',output:'Two different visible results at alpha 0.50.'}
 ];
@@ -574,26 +479,26 @@ $('stepBack').addEventListener('click',()=>{if(stepIndex>0){stepIndex--;renderSt
 
 document.querySelectorAll('[data-source]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-source]').forEach(b=>b.classList.toggle('selected',b===button));document.querySelectorAll('.source-pane').forEach(p=>p.classList.remove('active'));$(`source-${button.dataset.source}`).classList.add('active');}));
 
-const defectiveCode=`fun buildSourceColor(alpha: Float): Color {
+const defectiveCode=`func buildSourceColor(alpha: CGFloat) -> Color {
     return Color(
-        red = 0.80f,
-        green = 0.25f,
-        blue = 0.60f,
-        alpha = 1f - alpha,
+        red: 0.80,
+        green: 0.25,
+        blue: 0.60,
+        opacity: 1 - alpha
     )
 }
 
-val requestedAlpha = 0.25f`;
+let requestedAlpha: CGFloat = 0.25`;
 let challengeWasCorrect=false;
 function stripComments(text){return text.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/.*$/gm,'');}
-function parseChallenge(){const code=stripComments($('codeEditor').value);const requestMatch=code.match(/val\s+requestedAlpha\s*=\s*([0-9]*\.?[0-9]+)f?/);const requested=requestMatch?clamp(Number(requestMatch[1])):.25;let mapping='unknown';if(/alpha\s*=\s*1f?\s*-\s*alpha\s*,/.test(code))mapping='reverse';else if(/alpha\s*=\s*alpha\s*,/.test(code))mapping='direct';const actual=mapping==='direct'?requested:mapping==='reverse'?1-requested:0;return{requested,mapping,actual:clamp(actual)};}
-function replaceMapping(kind){let code=$('codeEditor').value;if(/alpha\s*=\s*(?:1f?\s*-\s*alpha|alpha)\s*,/.test(code))code=code.replace(/alpha\s*=\s*(?:1f?\s*-\s*alpha|alpha)\s*,/,kind==='direct'?'alpha = alpha,':'alpha = 1f - alpha,');$('codeEditor').value=code;challengeWasCorrect=false;updateChallenge();}
-function replaceRequest(value){let code=$('codeEditor').value;if(/val\s+requestedAlpha\s*=\s*[0-9]*\.?[0-9]+f?/.test(code))code=code.replace(/val\s+requestedAlpha\s*=\s*[0-9]*\.?[0-9]+f?/,`val requestedAlpha = ${Number(value).toFixed(2)}f`);$('codeEditor').value=code;challengeWasCorrect=false;updateChallenge();}
-function updateChallenge(){const s=parseChallenge();$('challengeRequested').textContent=two(s.requested);$('challengeActual').textContent=s.mapping==='unknown'?'not parsed':two(s.actual);$('challengeActualLabel').textContent=s.mapping==='unknown'?'mapping not parsed':`actual alpha ${two(s.actual)}`;$('challengeOverlay').style.background=s.mapping==='unknown'?'transparent':sourceCss(s.actual);$('challengeSwatchLabel').textContent=s.mapping==='unknown'?'Fix the alpha expression':`requested ${two(s.requested)} → source ${two(s.actual)}`;$('challengeInput').textContent=`requestedAlpha = ${two(s.requested)}f`;$('challengeOperation').textContent=s.mapping==='direct'?`use ${two(s.requested)} directly`:s.mapping==='reverse'?`1 − ${two(s.requested)}`:'expression not recognized';$('challengeOutput').textContent=s.mapping==='unknown'?'source alpha unavailable':`source alpha = ${two(s.actual)}`;document.querySelectorAll('[data-mapping]').forEach(b=>b.classList.toggle('selected',b.dataset.mapping===s.mapping));document.querySelectorAll('[data-request]').forEach(b=>b.classList.toggle('selected',Math.abs(Number(b.dataset.request)-s.requested)<.001));if(!challengeWasCorrect)$('challengeResult').textContent=s.mapping==='direct'?'The mapping direction is correct. Press Check repair.':s.mapping==='reverse'?'The source still receives 1 − requested alpha.':'The preview cannot find a supported alpha mapping.';}
-$('codeEditor').addEventListener('input',()=>{challengeWasCorrect=false;updateChallenge();});document.querySelectorAll('[data-mapping]').forEach(b=>b.addEventListener('click',()=>replaceMapping(b.dataset.mapping)));document.querySelectorAll('[data-request]').forEach(b=>b.addEventListener('click',()=>replaceRequest(b.dataset.request)));$('resetChallenge').addEventListener('click',()=>{$('codeEditor').value=defectiveCode;challengeWasCorrect=false;updateChallenge();});$('checkChallenge').addEventListener('click',()=>{const s=parseChallenge();const ok=s.mapping==='direct'&&Math.abs(s.requested-.25)<.001;challengeWasCorrect=ok;$('challengeResult').textContent=ok?'Correct. The requested 0.25 reaches Color(alpha = alpha) unchanged.':'Not complete. Use the direct alpha mapping and keep requestedAlpha at 0.25f.';});updateChallenge();
+function parseChallenge(){const code=stripComments($('codeEditor').value);const requestMatch=code.match(/let\s+requestedAlpha(?::\s*CGFloat)?\s*=\s*([0-9]*\.?[0-9]+)/);const requested=requestMatch?clamp(Number(requestMatch[1])):.25;let mapping='unknown';if(/opacity\s*:\s*1\s*-\s*alpha/.test(code))mapping='reverse';else if(/opacity\s*:\s*alpha/.test(code))mapping='direct';const actual=mapping==='direct'?requested:mapping==='reverse'?1-requested:0;return{requested,mapping,actual:clamp(actual)};}
+function replaceMapping(kind){let code=$('codeEditor').value;if(/opacity\s*:\s*(?:1\s*-\s*alpha|alpha)/.test(code))code=code.replace(/opacity\s*:\s*(?:1\s*-\s*alpha|alpha)/,kind==='direct'?'opacity: alpha':'opacity: 1 - alpha');$('codeEditor').value=code;challengeWasCorrect=false;updateChallenge();}
+function replaceRequest(value){let code=$('codeEditor').value;if(/let\s+requestedAlpha(?::\s*CGFloat)?\s*=\s*[0-9]*\.?[0-9]+/.test(code))code=code.replace(/let\s+requestedAlpha(?::\s*CGFloat)?\s*=\s*[0-9]*\.?[0-9]+/,`let requestedAlpha: CGFloat = ${Number(value).toFixed(2)}`);$('codeEditor').value=code;challengeWasCorrect=false;updateChallenge();}
+function updateChallenge(){const s=parseChallenge();$('challengeRequested').textContent=two(s.requested);$('challengeActual').textContent=s.mapping==='unknown'?'not parsed':two(s.actual);$('challengeActualLabel').textContent=s.mapping==='unknown'?'mapping not parsed':`actual alpha ${two(s.actual)}`;$('challengeOverlay').style.background=s.mapping==='unknown'?'transparent':sourceCss(s.actual);$('challengeSwatchLabel').textContent=s.mapping==='unknown'?'Fix the alpha expression':`requested ${two(s.requested)} → source ${two(s.actual)}`;$('challengeInput').textContent=`requestedAlpha = ${two(s.requested)}`;$('challengeOperation').textContent=s.mapping==='direct'?`use ${two(s.requested)} directly`:s.mapping==='reverse'?`1 − ${two(s.requested)}`:'expression not recognized';$('challengeOutput').textContent=s.mapping==='unknown'?'source alpha unavailable':`source alpha = ${two(s.actual)}`;document.querySelectorAll('[data-mapping]').forEach(b=>b.classList.toggle('selected',b.dataset.mapping===s.mapping));document.querySelectorAll('[data-request]').forEach(b=>b.classList.toggle('selected',Math.abs(Number(b.dataset.request)-s.requested)<.001));if(!challengeWasCorrect)$('challengeResult').textContent=s.mapping==='direct'?'The mapping direction is correct. Press Check repair.':s.mapping==='reverse'?'The source still receives 1 − requested alpha.':'The preview cannot find a supported alpha mapping.';}
+$('codeEditor').addEventListener('input',()=>{challengeWasCorrect=false;updateChallenge();});document.querySelectorAll('[data-mapping]').forEach(b=>b.addEventListener('click',()=>replaceMapping(b.dataset.mapping)));document.querySelectorAll('[data-request]').forEach(b=>b.addEventListener('click',()=>replaceRequest(b.dataset.request)));$('resetChallenge').addEventListener('click',()=>{$('codeEditor').value=defectiveCode;challengeWasCorrect=false;updateChallenge();});$('checkChallenge').addEventListener('click',()=>{const s=parseChallenge();const ok=s.mapping==='direct'&&Math.abs(s.requested-.25)<.001;challengeWasCorrect=ok;$('challengeResult').textContent=ok?'Correct. The requested 0.25 reaches Color(..., opacity: alpha) unchanged.':'Not complete. Use the direct alpha mapping and keep requestedAlpha at 0.25.';});updateChallenge();
 
 const checkboxes=[...document.querySelectorAll('[data-check]')];
-function updateRecord(){const done=checkboxes.filter(box=>box.checked).map(box=>box.dataset.check),all=done.length===checkboxes.length;$('completionRecord').value=`lesson_id: 03-02\nlesson_title: Alpha\nstatus: ${all?'completed':'in_progress'}\ncourse_lessons_completed_before_this_lesson: 18\ncourse_lessons_completed_after_completion: ${all?19:18}\ncourse_lessons_total: 216\nchapter_01_completed_by_learner: true\nchapter_02_completed_by_learner: true\nchapter_03_completed_by_learner: false\nandroid_files_applied:\n  - app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt\n  - app/src/main/java/com/example/liquidglasslab/chapter03/AlphaExplorer.kt\npixel_8_pro_tested: ${done.includes('build')&&done.includes('presets')&&done.includes('backgrounds')}\nbrowser_os_theme_verified: ${done.includes('browser-theme')}\nandroid_os_theme_verified: ${done.includes('android-theme')}\ncheckpoint_items_complete: ${done.length}/${checkboxes.length}\ncan_explain_alpha_zero_half_one: ${done.includes('zero')&&done.includes('presets')}\ncan_explain_alpha_is_not_brightness: ${done.includes('brightness')}\nnext_lesson_after_completion: 3.3 — The over operation\nremaining_questions:\n  - none`;}
+function updateRecord(){const done=checkboxes.filter(box=>box.checked).map(box=>box.dataset.check),all=done.length===checkboxes.length;$('completionRecord').value=`lesson_id: 03-02\nlesson_title: Alpha\nstatus: ${all?'completed':'in_progress'}\ncourse_progress: 100 of 216\ncompleted_through: Lesson 9.11\nthis_lesson_stays_complete: true\ncourse_lessons_total: 216\nios_files_applied:\n  - LiquidGlassLab/chapter03/Chapter03Screen.swift\n  - LiquidGlassLab/chapter03/AlphaExplorer.swift\niphone_16_pro_tested: ${done.includes('build')&&done.includes('presets')&&done.includes('backgrounds')}\nbrowser_os_theme_verified: ${done.includes('browser-theme')}\nios_os_theme_verified: ${done.includes('ios-theme')}\ncheckpoint_items_complete: ${done.length}/${checkboxes.length}\ncan_explain_alpha_zero_half_one: ${done.includes('zero')&&done.includes('presets')}\ncan_explain_alpha_is_not_brightness: ${done.includes('brightness')}\nnext_lesson_after_completion: 3.3 — The over operation\nremaining_questions:\n  - none`;}
 checkboxes.forEach(box=>box.addEventListener('change',updateRecord));updateRecord();
 $('copyRecord').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('completionRecord').value);$('copyStatus').textContent='Copied.';}catch{$('completionRecord').select();document.execCommand('copy');$('copyStatus').textContent='Copied using the browser fallback.';}});
 </script>

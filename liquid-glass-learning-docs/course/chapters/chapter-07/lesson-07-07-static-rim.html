@@ -16,7 +16,7 @@
 <main class="page">
   <div class="topbar">
     <div class="crumbs"><a href="lesson-build-convincing-frosted-glass-without-a-custom-lens.html">Chapter 7</a> · Lesson 7.7</div>
-    <div class="chips"><span class="chip progress">73 of 216 complete</span><span class="chip progress">Lesson 7.7 complete</span></div>
+    <div class="chips"><span class="chip progress">100 of 216 complete</span><span class="chip">iPhone 16 Pro</span></div>
   </div>
 
   <header class="hero panel">
@@ -40,7 +40,7 @@
   <section class="section panel">
     <div class="section-head"><div><div class="section-no">1 · THE NEW OBJECT</div><h2>A rim is a later stroke on the same panel path</h2></div></div>
     <div class="three">
-      <article class="card blue"><h3>Panel path</h3><p>The rounded rectangle that already clips the frosted fill. Its corner radius is the radius of that rectangle. On Android this lesson uses the same <code>14.dp</code> card corners as Lessons 7.5 and 7.6.</p></article>
+      <article class="card blue"><h3>Panel path</h3><p>The rounded rectangle that already clips the frosted fill. Its corner radius is the radius of that rectangle. On iOS this lesson uses the same <code>14</code> pt card corners as Lessons 7.5 and 7.6.</p></article>
       <article class="card indigo"><h3>Static rim</h3><p>A later draw: one bright color, one width, following that path. It sits beside the glass group, like the sharp label, so it is neither blurred nor moved toward gray.</p></article>
       <article class="card green"><h3>Not lighting</h3><p>A lit edge would change if a lamp moved. This stroke does not. Lesson 7.8 will add a soft inner band. Later lighting lessons will use a direction. Do not call this rim a highlight.</p></article>
     </div>
@@ -65,7 +65,7 @@
       <article class="canvas-card"><div class="canvas-title"><strong>Stroke the clip path</strong><span>outer half is missing</span></div><canvas id="clipCanvas" width="640" height="320"></canvas><p>The stroke sits on the same path that clips the fill. The clip removes the outer half, so the visible band is only half as wide as you asked.</p></article>
       <article class="canvas-card"><div class="canvas-title"><strong>Stroke an inset path · production</strong><span>full width inside</span></div><canvas id="insetCanvas" width="640" height="320"></canvas><p>The path is moved inward by half the width. The same centered stroke then fits entirely inside the clip.</p></article>
     </div>
-    <div class="note"><strong>Browser versus Android.</strong> This canvas uses CSS pixels so an 8 px teaching width is easy to see. The Android explorer uses density-independent pixels and defaults to <code>3.dp</code>. Do not treat 8 CSS px as 8 Android px. The HTML frost is a CSS blur, a pale white veil, and a 0.40 saturation filter — a visible stand-in. Android keeps the Lesson 7.6 stack: <code>18.dp</code> blur, tint amount <code>0.25</code>, saturation factor <code>0.40</code>.</div>
+    <div class="note"><strong>Browser versus iOS.</strong> This canvas uses CSS pixels so an 8 px teaching width is easy to see. The iPhone 16 Pro explorer uses points and defaults to <code>3</code> pt. Do not treat 8 CSS px as 8 points. The HTML frost is a CSS blur, a pale white veil, and a 0.40 saturation filter — a visible stand-in. The explorer keeps the Lesson 7.6 stack: <code>.blur(radius: 18)</code> in points, tint amount <code>0.25</code>, saturation factor <code>0.40</code>. <code>displayScale</code> × pt is a pixel readout. It is not the stroke width.</div>
   </section>
 
   <section class="section panel">
@@ -82,7 +82,7 @@
         </article>
       </div>
       <div>
-        <p>A Canvas stroke is <strong>centered on the path</strong>: half the requested width is painted on the inside of the path, and half on the outside. Compose <code>Stroke</code> does the same. This course’s API has no “paint only inside” style, so we move the path instead.</p>
+        <p>A Canvas stroke is <strong>centered on the path</strong>: half the requested width is painted on the inside of the path, and half on the outside. SwiftUI <code>GraphicsContext.stroke</code> does the same. This course’s API has no “paint only inside” style, so we move the path instead.</p>
         <p>The diagram enlarges the rim width so the two halves stay readable. The numbers are still the real teaching pixels from the slider.</p>
         <div class="formula" id="sectionFormula"></div>
         <div class="success" id="sectionNote"></div>
@@ -96,13 +96,13 @@
     <div class="two" style="margin-top:16px">
       <article class="card indigo">
         <h3>Inputs</h3>
-        <p><strong>Rim width</strong> — the slider. Teaching unit: CSS pixels. Android unit: dp converted to px.</p>
-        <p><strong>Panel corner radius</strong> — inherited. Teaching canvas: <code>36</code> px so the rounded corners stay obvious. Android: <code>14.dp</code>, same as the 7.5 / 7.6 card.</p>
+        <p><strong>Rim width</strong> — the slider. Teaching unit: CSS pixels. iOS unit: points. The explorer’s pixel line is <code>pt × displayScale</code> and is not the stroke width.</p>
+        <p><strong>Panel corner radius</strong> — inherited. Teaching canvas: <code>36</code> px so the rounded corners stay obvious. iOS: <code>14</code> pt, same as the 7.5 / 7.6 card.</p>
       </article>
       <article class="card green">
         <h3>Outputs, and who consumes them</h3>
-        <p><strong>Inset</strong> becomes the top-left offset of <code>drawRoundRect</code>.</p>
-        <p><strong>Inner corner radius</strong> is Lesson 4.4 with padding = inset. It keeps the inner stroke concentric with the clipped corner. <code>drawRoundRect</code> consumes both.</p>
+        <p><strong>Inset</strong> becomes the top-left offset of the stroked rounded rectangle.</p>
+        <p><strong>Inner corner radius</strong> is Lesson 4.4 with padding = inset. It keeps the inner stroke concentric with the clipped corner. <code>GraphicsContext.stroke</code> consumes both.</p>
       </article>
     </div>
   </section>
@@ -167,28 +167,31 @@
   </section>
 
   <section class="section panel">
-    <div class="section-head"><div><div class="section-no">7 · ANDROID ROUTE</div><h2>Inset, then <code>drawRoundRect</code> with <code>Stroke</code></h2></div></div>
+    <div class="section-head"><div><div class="section-no">7 · iOS ROUTE</div><h2>Inset, then stroke the smaller rounded rectangle</h2></div></div>
     <div class="code-grid">
-      <pre class="code-block"><code>val inset = rimWidthPx / 2f
-val innerRadius = (cornerRadiusPx - inset).coerceAtLeast(0f)
+      <pre class="code-block"><code>let inset = rimWidth / 2
+let innerRadius = max(0, cornerRadius - inset)
 
-drawRoundRect(
-    color = rimColor,
-    topLeft = Offset(inset, inset),
-    size = Size(
-        size.width - rimWidthPx,
-        size.height - rimWidthPx,
+context.stroke(
+    roundedRectPath(
+        rect: CGRect(
+            x: inset,
+            y: inset,
+            width: size.width - rimWidth,
+            height: size.height - rimWidth
+        ),
+        cornerRadius: innerRadius
     ),
-    cornerRadius = CornerRadius(innerRadius),
-    style = Stroke(width = rimWidthPx),
+    with: .color(rimColor),
+    lineWidth: rimWidth
 )</code></pre>
       <div class="card">
         <h3>What each part changes</h3>
-        <p>The frosted group from Lesson 7.6 stays underneath. This canvas is a sibling, still inside <code>Modifier.clip</code>. That clip discards paint outside the rounded rectangle — the same idea as Lesson 4.7 <code>clipPath</code>.</p>
+        <p>The frosted group from Lesson 7.6 stays underneath. This canvas is a sibling, still inside <code>clipShape</code>. That clip discards paint outside the rounded rectangle — the same idea as Lesson 4.7’s clip.</p>
         <p><code>inset</code> moves the path inward so a centered stroke does not lose its outer half to the clip.</p>
         <p>The inner corner radius shrinks by the same inset so the stroke still follows the rounded rectangle. That is Lesson 4.4, with padding equal to the inset.</p>
-        <p>Blur, tint amount, and saturation stay fixed. This lesson changes only the rim.</p>
-        <p><strong>Android files:</strong><br><code>chapter07/StaticRimExplorer.kt</code><br><code>chapter07/Chapter07Screen.kt</code></p>
+        <p>Blur, tint amount, and saturation stay fixed. This lesson changes only the rim. <code>.blur(radius:)</code> takes points. <code>displayScale</code> is not a stroke width.</p>
+        <p><strong>Swift files:</strong><br><code>chapter07/StaticRimExplorer.swift</code><br><code>chapter07/Chapter07Screen.swift</code></p>
       </div>
     </div>
   </section>
@@ -208,28 +211,34 @@ drawRoundRect(
     <div class="section-head"><div><div class="section-no">9 · CODING CHALLENGE</div><h2>Inset the path before stroking</h2></div></div>
     <div class="challenge">
       <div>
-        <textarea class="editor" id="challengeEditor" spellcheck="false">val inset = rimWidthPx / ___
-val innerRadius = (cornerRadiusPx - inset).coerceAtLeast(0f)
+        <textarea class="editor" id="challengeEditor" spellcheck="false">let inset = rimWidth / ___
+let innerRadius = max(0, cornerRadius - inset)
 
-drawRoundRect(
-    color = rimColor,
-    topLeft = Offset(inset, inset),
-    size = Size(size.width - rimWidthPx, size.height - rimWidthPx),
-    cornerRadius = CornerRadius(innerRadius),
-    style = ___(width = rimWidthPx),
+context.___(
+    roundedRectPath(
+        rect: CGRect(
+            x: inset,
+            y: inset,
+            width: size.width - rimWidth,
+            height: size.height - rimWidth
+        ),
+        cornerRadius: innerRadius
+    ),
+    with: .color(rimColor),
+    lineWidth: rimWidth
 )</textarea>
         <div class="controls" style="margin-top:10px">
           <button class="btn primary" id="checkChallenge">Check</button>
           <button class="btn" id="showSolution">Show solution</button>
           <button class="btn" id="resetChallenge">Reset</button>
         </div>
-        <div class="result" id="challengeResult">Fill the inset divisor and the stroke style.</div>
+        <div class="result" id="challengeResult">Fill the inset divisor and the stroke call.</div>
       </div>
       <div class="card indigo">
         <h3>Available names</h3>
-        <div class="formula">2f
-Stroke</div>
-        <p>The first blank is the divisor that turns width into the inward shift. The second blank is the draw style that paints the outline instead of filling.</p>
+        <div class="formula">2
+stroke</div>
+        <p>The first blank is the divisor that turns width into the inward shift. The second blank is the draw call that paints the outline instead of filling.</p>
       </div>
     </div>
   </section>
@@ -244,6 +253,8 @@ Stroke</div>
 
   <section class="section panel">
     <div class="section-head"><div><div class="section-no">11 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div></div>
+    <p>Use the Xcode previews, then the iPhone 16 Pro.</p>
+    <div class="note"><strong>Browser versus iOS:</strong> this page draws an 8 px teaching stroke so the lost outer half is easy to see. The iPhone 16 Pro explorer strokes in points and defaults to 3 pt. Those widths are not the same unit. The HTML frost is a CSS stand-in. The explorer uses <code>.blur(radius: 18)</code>, a tint of 0.25, and saturation 0.40.</div>
     <div class="checklist">
       <label class="check"><input type="checkbox">Width 0 removes the rim.</label>
       <label class="check"><input type="checkbox">The inset rim is the same brightness on every side.</label>
@@ -264,9 +275,10 @@ Stroke</div>
     </div>
     <button class="btn primary" id="buildRecord" style="margin-top:16px">Build local review record</button>
     <textarea class="record" id="record" readonly>No record generated yet.</textarea>
+    
   </section>
 
-  <footer class="footer panel"><span>73 of 216 complete · Lesson 7.7 complete</span><span>Next: <a href="lesson-07-08-inner-highlight.html">7.8 — Inner highlight</a></span></footer>
+  <footer class="footer panel"><span>100 of 216 complete · checkpoint Lesson 10.1</span><span>Next: <a href="lesson-07-08-inner-highlight.html">7.8 — Inner highlight</a></span></footer>
 </main>
 <script>
 const PANEL_R=36;
@@ -338,7 +350,7 @@ Case B · path moved inward by ${fmt(inset)} px:
   visible band = ${fmt(rimWidth)} px`;
   document.getElementById('sectionNote').innerHTML=rimWidth===0
     ?'<strong>No rim.</strong> Width 0 means no stroke is drawn.'
-    :`<strong>Production uses Case B.</strong> The teaching width is larger than the Android <code>3.dp</code> default so the lost outer half stays easy to see.`;
+    :`<strong>Production uses Case B.</strong> The teaching width is larger than the iPhone 16 Pro <code>3</code> pt default so the lost outer half stays easy to see.`;
   paintSections();
 }
 function sectionSvg(kind){
@@ -421,41 +433,53 @@ document.querySelectorAll('.choice').forEach(btn=>btn.addEventListener('click',(
     ?'Correct. A centered 10 px stroke puts 5 px outside the clip. That outer 5 px is discarded.'
     :'Not this one. The stroke is centered on the path, so the clip keeps only the inner half.';
 }));
-const starter=`val inset = rimWidthPx / ___
-val innerRadius = (cornerRadiusPx - inset).coerceAtLeast(0f)
+const starter=`let inset = rimWidth / ___
+let innerRadius = max(0, cornerRadius - inset)
 
-drawRoundRect(
-    color = rimColor,
-    topLeft = Offset(inset, inset),
-    size = Size(size.width - rimWidthPx, size.height - rimWidthPx),
-    cornerRadius = CornerRadius(innerRadius),
-    style = ___(width = rimWidthPx),
+context.___(
+    roundedRectPath(
+        rect: CGRect(
+            x: inset,
+            y: inset,
+            width: size.width - rimWidth,
+            height: size.height - rimWidth
+        ),
+        cornerRadius: innerRadius
+    ),
+    with: .color(rimColor),
+    lineWidth: rimWidth
 )`;
-const solution=`val inset = rimWidthPx / 2f
-val innerRadius = (cornerRadiusPx - inset).coerceAtLeast(0f)
+const solution=`let inset = rimWidth / 2
+let innerRadius = max(0, cornerRadius - inset)
 
-drawRoundRect(
-    color = rimColor,
-    topLeft = Offset(inset, inset),
-    size = Size(size.width - rimWidthPx, size.height - rimWidthPx),
-    cornerRadius = CornerRadius(innerRadius),
-    style = Stroke(width = rimWidthPx),
+context.stroke(
+    roundedRectPath(
+        rect: CGRect(
+            x: inset,
+            y: inset,
+            width: size.width - rimWidth,
+            height: size.height - rimWidth
+        ),
+        cornerRadius: innerRadius
+    ),
+    with: .color(rimColor),
+    lineWidth: rimWidth
 )`;
 const editor=document.getElementById('challengeEditor');
 document.getElementById('checkChallenge').addEventListener('click',()=>{
   document.getElementById('challengeResult').textContent=editor.value.replace(/\s+/g,'')===solution.replace(/\s+/g,'')
-    ?'Correct. Divide by 2f to get the inset. Stroke paints the outline.'
-    :'Not complete yet. The first blank is 2f. The second is Stroke.';
+    ?'Correct. Divide by 2 to get the inset. stroke paints the outline.'
+    :'Not complete yet. The first blank is 2. The second is stroke.';
 });
 document.getElementById('showSolution').addEventListener('click',()=>{editor.value=solution;document.getElementById('challengeResult').textContent='Solution inserted. The inner radius shrinks by the same inset.';});
-document.getElementById('resetChallenge').addEventListener('click',()=>{editor.value=starter;document.getElementById('challengeResult').textContent='Fill the inset divisor and the stroke style.';});
+document.getElementById('resetChallenge').addEventListener('click',()=>{editor.value=starter;document.getElementById('challengeResult').textContent='Fill the inset divisor and the stroke call.';});
 document.getElementById('buildRecord').addEventListener('click',()=>{
   document.getElementById('record').value=`# Lesson 7.7 — Static rim
 Completed: pending learner confirmation
 New mechanism: a Canvas Stroke is centered on its path, so clipping to that path discards the outer half; production insets the path by width ÷ 2.
 inset = rim width ÷ 2. Inner corner radius shrinks by the same inset (Lesson 4.4).
 This is not lighting.
-Android: chapter07/StaticRimExplorer.kt
+iOS: chapter07/StaticRimExplorer.swift
 `;
 });
 paintLab();

@@ -19,7 +19,7 @@ code{color:#e0e7ff}.lesson-chip{border-color:#1f6b55;color:#a7f3d0}.lead{color:#
 <main class="page">
 <nav class="topbar"><div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-color-opacity-and-compositing.html">Chapter 3</a> · <a href="../../glossary.html">Glossary</a></div><div class="header-chips"><span class="lesson-chip">Lesson 3.1 · Revised</span><span class="theme-chip">OS theme · <strong id="themeMode">detecting…</strong></span></div></nav>
 
-<header class="hero panel"><div><div class="eyebrow">Chapter 3 · Color, opacity, and compositing</div><h1>Red, green, and blue channels</h1><p class="lead">One opaque RGB color is described by three ordered numbers. Each number controls one named color channel at one pixel.</p><div class="note"><strong>This lesson isolates one idea.</strong> Alpha is fixed at <code>1.00</code>, which means fully opaque. Lesson 3.2 studies alpha separately.</div></div><aside class="goal-box"><h2>Lesson goal</h2><p>By the end, you should be able to:</p><ul><li>explain why one channel value is not a complete color;</li><li>read <code>RGB(0.80, 0.25, 0.60)</code> as three named values;</li><li>change one channel without claiming that the other two changed;</li><li>map the three values to Compose <code>Color</code> arguments correctly.</li></ul><div class="progress-line">Course state before completion: 17 of 216 lessons complete</div><div class="theme-rule"><strong>Theme behavior:</strong> this page follows the operating-system light or dark preference. The surrounding interface adapts. The RGB swatches do not change because those swatches are the numeric color data being studied.</div></aside></header>
+<header class="hero panel"><div><div class="eyebrow">Chapter 3 · Color, opacity, and compositing</div><h1>Red, green, and blue channels</h1><p class="lead">One opaque RGB color is described by three ordered numbers. Each number controls one named color channel at one pixel.</p><div class="note"><strong>This lesson isolates one idea.</strong> Alpha is fixed at <code>1.00</code>, which means fully opaque. Lesson 3.2 studies alpha separately.</div></div><aside class="goal-box"><h2>Lesson goal</h2><p>By the end, you should be able to:</p><ul><li>explain why one channel value is not a complete color;</li><li>read <code>RGB(0.80, 0.25, 0.60)</code> as three named values;</li><li>change one channel without claiming that the other two changed;</li><li>map the three values to SwiftUI <code>Color</code> arguments correctly.</li></ul><div class="theme-rule"><strong>Theme behavior:</strong> this page follows the operating-system light or dark preference. The surrounding interface adapts. The RGB swatches do not change because those swatches are the numeric color data being studied.</div></aside></header>
 
 <section class="section panel"><div class="section-intro"><div><div class="section-number">1 · Vocabulary</div><h2>A channel is one named number inside a color</h2></div><p>The channel name tells the renderer which primary color contribution the number controls.</p></div><div class="three-column"><article class="card red"><h3>Red channel</h3><p>The red channel is the number assigned to the red primary contribution at one pixel.</p><p><code>R = 0.80</code> means 80% of the allowed numeric range in this normalized representation.</p></article><article class="card green"><h3>Green channel</h3><p>The green channel is the number assigned to the green primary contribution at the same pixel.</p><p><code>G = 0.25</code> is independent of the red value.</p></article><article class="card blue"><h3>Blue channel</h3><p>The blue channel is the number assigned to the blue primary contribution at the same pixel.</p><p><code>B = 0.60</code> is independent of the red and green values.</p></article></div><div class="formula" style="margin-top:18px">complete opaque color = RGB(red, green, blue) = RGB(0.80, 0.25, 0.60)</div><div class="warning"><strong>Do not read <code>0.80</code> as a complete color.</strong> It is one channel value. The complete color requires the ordered group of red, green, and blue values.</div><p>A normalized channel value uses the range <code>0.00</code> through <code>1.00</code>. The word <strong>normalized</strong> means that the numeric range has been scaled to start at 0 and end at 1. It does not mean that <code>0.80</code> is exactly 80% of the screen's physical light output or perceived brightness. Those topics are deferred to later color-space and luminance lessons.</p></section>
 
@@ -31,547 +31,504 @@ code{color:#e0e7ff}.lesson-chip{border-color:#1f6b55;color:#a7f3d0}.lead{color:#
 
 <section class="section panel"><div class="section-intro"><div><div class="section-number">5 · Manual construction</div><h2>Build one color in seven small steps</h2></div><p>Use <strong>Back</strong> and <strong>Next</strong>. Each step adds one piece of the final meaning.</p></div><div class="stepper-layout"><div class="step-figure"><svg id="stepSvg" viewBox="0 0 1120 650" aria-label="RGB construction stepper"></svg></div><div class="stepper-card"><div class="stepper-nav" id="stepButtons"></div><div class="step-body"><div class="step-title" id="stepTitle"></div><p class="step-caption" id="stepCaption"></p><pre class="code-excerpt" id="stepCode"></pre><div class="io-row"><div class="io-box"><strong>Input</strong><span id="stepInput"></span></div><div class="io-box"><strong>Operation</strong><span id="stepOperation"></span></div><div class="io-box"><strong>Output</strong><span id="stepOutput"></span></div></div><div class="step-actions"><button class="secondary-button" id="stepBack" type="button">Back</button><button class="primary-button" id="stepNext" type="button">Next</button></div></div></div></div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">6 · Android value trace</div><h2>Follow three slider values to one Compose color</h2></div><p>Every stage names the exact object that supplies or consumes the values.</p></div><div class="trace-grid"><article class="trace-box"><strong>1 · Enter Chapter 3</strong><p><code>MainActivity</code> installs the Chapter 3 screen into the app window.</p><span class="trace-code">Chapter03Screen()</span></article><article class="trace-box"><strong>2 · Store three values</strong><p>Three independent state values hold red, green, and blue normalized numbers.</p><span class="trace-code">var red by rememberSaveable { ... }
-var green by rememberSaveable { ... }
-var blue by rememberSaveable { ... }</span></article><article class="trace-box"><strong>3 · Change one state</strong><p>The red slider changes only <code>red</code>. It does not write to <code>green</code> or <code>blue</code>.</p><span class="trace-code">onValueChange = { red = it }</span></article><article class="trace-box"><strong>4 · Build the color</strong><p>The constructor receives each number through its matching named argument. Alpha remains fixed.</p><span class="trace-code">Color(
- red = red,
- green = green,
- blue = blue,
- alpha = 1f,
-)</span></article><article class="trace-box"><strong>5 · Derive readable forms</strong><p>Multiplication by 255 produces approximate integer channel values. String formatting produces the hexadecimal label.</p><span class="trace-code">val red8Bit = red.toEightBit()
-"#%02X%02X%02X"</span></article><article class="trace-box"><strong>6 · Draw the swatch</strong><p>The final <code>Color</code> is passed to <code>Modifier.background</code>. The large box displays the three-channel result.</p><span class="trace-code">.background(
- color = finalColor,
- shape = SwatchShape,
-)</span></article></div><div class="formula" style="margin-top:18px">slider state → named Color arguments → one Color value → background drawing operation → visible swatch</div></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">6 · iOS value trace</div><h2>Follow three slider values to one SwiftUI color</h2></div><p>Every stage names the exact object that supplies or consumes the values.</p></div><div class="trace-grid"><article class="trace-box"><strong>1 · Enter Chapter 3</strong><p><code>LabHost</code> shows the Chapter 3 screen when Chapter 3 is selected.</p><span class="trace-code">Chapter03Screen()</span></article><article class="trace-box"><strong>2 · Store three values</strong><p>Three independent state values hold red, green, and blue normalized numbers.</p><span class="trace-code">@State private var red = RgbPreset.mixed.red
+@State private var green = RgbPreset.mixed.green
+@State private var blue = RgbPreset.mixed.blue</span></article><article class="trace-box"><strong>3 · Change one state</strong><p>The red slider changes only <code>red</code>. It does not write to <code>green</code> or <code>blue</code>.</p><span class="trace-code">Slider(value: $red, in: 0...1)</span></article><article class="trace-box"><strong>4 · Build the color</strong><p>The initializer receives each number through its matching named argument. SwiftUI names the fourth argument <code>opacity</code>; that is the alpha channel, fixed at 1.00 in this lesson.</p><span class="trace-code">Color(
+ red: red,
+ green: green,
+ blue: blue,
+ opacity: 1
+)</span></article><article class="trace-box"><strong>5 · Derive readable forms</strong><p>Multiplication by 255 produces approximate integer channel values. String formatting produces the hexadecimal label.</p><span class="trace-code">let red8Bit = eightBit(red)
+String(format: "#%02X%02X%02X", ...)</span></article><article class="trace-box"><strong>6 · Draw the swatch</strong><p>The final <code>Color</code> fills a rounded rectangle. The large box displays the three-channel result.</p><span class="trace-code">RoundedRectangle(cornerRadius: 18, style: .continuous)
+ .fill(finalColor)</span></article></div><div class="formula" style="margin-top:18px">slider state → named Color arguments → one Color value → fill drawing operation → visible swatch</div></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">7 · iOS connection</div><h2>Read the exact iOS files</h2></div><p>The source below matches the Lesson 3.1 files in <code>LiquidGlassLab-iOS</code>. <code>LabHost</code> follows the operating-system appearance. Explorer chrome uses system colors. Exact RGB swatches remain unchanged by the theme.</p></div><div class="source-tabs"><button class="mode-button selected" data-source="main" type="button">LabHost.swift</button><button class="mode-button" data-source="screen" type="button">Chapter03Screen.swift</button><button class="mode-button" data-source="explorer" type="button">RgbChannelsExplorer.swift</button></div><div class="source-pane active" id="source-main"><pre class="source-code">import SwiftUI
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">7 · Complete changed source</div><h2>Read the exact Android files</h2></div><p>The source below exactly matches the three files in the revised Android ZIP. <code>MainActivity</code> reads the operating-system preference. The chapter UI consumes <code>MaterialTheme.colorScheme</code>. Exact RGB swatches remain unchanged by the theme.</p></div><div class="source-tabs"><button class="mode-button selected" data-source="main" type="button">MainActivity.kt</button><button class="mode-button" data-source="screen" type="button">Chapter03Screen.kt</button><button class="mode-button" data-source="explorer" type="button">RgbChannelsExplorer.kt</button></div><div class="source-pane active" id="source-main"><pre class="source-code">package com.example.liquidglasslab
+struct LabHost: View {
+    @SceneStorage(&quot;lab.chapter&quot;) private var chapter = 1
+    @Environment(\.colorScheme) private var colorScheme
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.isSystemInDarkTheme
-import com.example.liquidglasslab.chapter03.Chapter03Screen
-import com.example.liquidglasslab.ui.theme.LiquidGlassLabTheme
+    var body: some View {
+        let background = colorScheme == .dark ? LabColor.backgroundDark : LabColor.backgroundLight
+        let onBackground = colorScheme == .dark ? LabColor.onBackgroundDark : LabColor.onBackgroundLight
 
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-
-        setContent {
-            LiquidGlassLabTheme(
-                darkTheme = isSystemInDarkTheme(),
-            ) {
-                Chapter03Screen()
-            }
-        }
-    }
-}
-</pre></div><div class="source-pane" id="source-screen"><pre class="source-code">package com.example.liquidglasslab.chapter03
-
-import android.content.res.Configuration
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.example.liquidglasslab.ui.theme.LiquidGlassLabTheme
-
-@Composable
-fun Chapter03Screen(modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background,
-        contentColor = MaterialTheme.colorScheme.onBackground,
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .safeDrawingPadding()
-                .padding(horizontal = 24.dp, vertical = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            Text(
-                text = "COLOR, OPACITY, AND COMPOSITING",
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = "Lesson 3.1 · Red, green, and blue channels",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = "Change one channel at a time. The final swatch is one opaque RGB color " +
-                    "built from three independent numbers.",
-                style = MaterialTheme.typography.bodyLarge,
-            )
-
-            RgbChannelsExplorer()
-        }
-    }
-}
-
-@Preview(
-    name = "Lesson 3.1 RGB channels — light",
-    showBackground = true,
-    widthDp = 412,
-    heightDp = 915,
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-)
-@Preview(
-    name = "Lesson 3.1 RGB channels — dark",
-    showBackground = true,
-    widthDp = 412,
-    heightDp = 915,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
-@Composable
-private fun Chapter03ScreenPreview() {
-    LiquidGlassLabTheme {
-        Chapter03Screen()
-    }
-}
-</pre></div><div class="source-pane" id="source-explorer"><pre class="source-code">package com.example.liquidglasslab.chapter03
-
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import java.util.Locale
-import kotlin.math.roundToInt
-
-private val ExplorerShape = RoundedCornerShape(22.dp)
-private val SwatchShape = RoundedCornerShape(18.dp)
-private val ChannelCardShape = RoundedCornerShape(14.dp)
-
-private val FirstPresetRow = listOf(
-    RgbPreset.Mixed,
-    RgbPreset.Red,
-    RgbPreset.Green,
-)
-
-private val SecondPresetRow = listOf(
-    RgbPreset.Blue,
-    RgbPreset.Black,
-    RgbPreset.White,
-)
-
-private enum class RgbPreset(
-    val buttonLabel: String,
-    val red: Float,
-    val green: Float,
-    val blue: Float,
-) {
-    Mixed(
-        buttonLabel = "Mixed",
-        red = 0.80f,
-        green = 0.25f,
-        blue = 0.60f,
-    ),
-    Red(
-        buttonLabel = "Red",
-        red = 1f,
-        green = 0f,
-        blue = 0f,
-    ),
-    Green(
-        buttonLabel = "Green",
-        red = 0f,
-        green = 1f,
-        blue = 0f,
-    ),
-    Blue(
-        buttonLabel = "Blue",
-        red = 0f,
-        green = 0f,
-        blue = 1f,
-    ),
-    Black(
-        buttonLabel = "Black",
-        red = 0f,
-        green = 0f,
-        blue = 0f,
-    ),
-    White(
-        buttonLabel = "White",
-        red = 1f,
-        green = 1f,
-        blue = 1f,
-    ),
-}
-
-@Composable
-internal fun RgbChannelsExplorer(
-    modifier: Modifier = Modifier,
-) {
-    var red by rememberSaveable {
-        mutableFloatStateOf(RgbPreset.Mixed.red)
-    }
-    var green by rememberSaveable {
-        mutableFloatStateOf(RgbPreset.Mixed.green)
-    }
-    var blue by rememberSaveable {
-        mutableFloatStateOf(RgbPreset.Mixed.blue)
-    }
-
-    val colorScheme = MaterialTheme.colorScheme
-    val darkTheme = isSystemInDarkTheme()
-    val redControlColor = if (darkTheme) Color(0xFFF87171) else Color(0xFFDC2626)
-    val greenControlColor = if (darkTheme) Color(0xFF34D399) else Color(0xFF059669)
-    val blueControlColor = if (darkTheme) Color(0xFF60A5FA) else Color(0xFF1E40AF)
-
-    val finalColor = Color(
-        red = red,
-        green = green,
-        blue = blue,
-        alpha = 1f,
-    )
-    val red8Bit = red.toEightBit()
-    val green8Bit = green.toEightBit()
-    val blue8Bit = blue.toEightBit()
-    val hexadecimal = String.format(
-        Locale.US,
-        "#%02X%02X%02X",
-        red8Bit,
-        green8Bit,
-        blue8Bit,
-    )
-
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = ExplorerShape,
-        color = colorScheme.surface,
-        contentColor = colorScheme.onSurface,
-        border = BorderStroke(
-            width = 1.dp,
-            color = colorScheme.outlineVariant,
-        ),
-    ) {
-        Column(
-            modifier = Modifier.padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                text = "Three channel contributions",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = "Each small swatch keeps one channel and sets the other two to zero. " +
-                    "The large swatch uses all three values at the same pixel.",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                ChannelContributionCard(
-                    name = "Red",
-                    value = red,
-                    swatchColor = Color(red = red, green = 0f, blue = 0f),
-                    modifier = Modifier.weight(1f),
-                )
-                ChannelContributionCard(
-                    name = "Green",
-                    value = green,
-                    swatchColor = Color(red = 0f, green = green, blue = 0f),
-                    modifier = Modifier.weight(1f),
-                )
-                ChannelContributionCard(
-                    name = "Blue",
-                    value = blue,
-                    swatchColor = Color(red = 0f, green = 0f, blue = blue),
-                    modifier = Modifier.weight(1f),
-                )
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(190.dp)
-                    .background(
-                        color = finalColor,
-                        shape = SwatchShape,
-                    )
-                    .border(
-                        width = 1.dp,
-                        color = colorScheme.outline,
-                        shape = SwatchShape,
-                    )
-                    .semantics {
-                        contentDescription =
-                            "Final RGB color $hexadecimal"
-                    },
-                contentAlignment = Alignment.Center,
-            ) {
-                Surface(
-                    color = colorScheme.surface.copy(alpha = 0.92f),
-                    contentColor = colorScheme.onSurface,
-                    shape = RoundedCornerShape(10.dp),
-                ) {
-                    Text(
-                        text = "RGB(${red.twoDecimals()}, ${green.twoDecimals()}, ${blue.twoDecimals()})",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Black,
-                        modifier = Modifier.padding(
-                            horizontal = 12.dp,
-                            vertical = 8.dp,
-                        ),
-                    )
+        VStack(spacing: 0) {
+            chapterPicker(onBackground: onBackground)
+                .safeAreaPadding(.top)
+                .safeAreaPadding(.horizontal)
+            Group {
+                switch chapter {
+                case 1:
+                    Chapter01Screen()
+                case 2:
+                    Chapter02Screen()
+                case 3:
+                    Chapter03Screen()
+                case 8:
+                    ShaderSmokeView()
+                case 4, 5, 6, 7, 9:
+                    ChapterPlaceholder(number: chapter)
+                default:
+                    Chapter01Screen()
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .background(background.ignoresSafeArea())
+    }
 
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = colorScheme.surfaceVariant,
-                contentColor = colorScheme.onSurfaceVariant,
-                shape = ChannelCardShape,
-            ) {
-                Column(
-                    modifier = Modifier.padding(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
-                ) {
-                    Text(
-                        text = "Normalized RGB = (${red.twoDecimals()}, ${green.twoDecimals()}, ${blue.twoDecimals()})",
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        text = "Approximate 8-bit RGB = ($red8Bit, $green8Bit, $blue8Bit)",
-                    )
-                    Text(
-                        text = "Hexadecimal RGB = $hexadecimal",
-                    )
-                    Text(
-                        text = "Alpha is fixed at 1.00 in this lesson.",
-                    )
+    private func chapterPicker(onBackground: Color) -&gt; some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(1...9, id: \.self) { number in
+                    chapterChip(number: number, onBackground: onBackground)
                 }
             }
-
-            ChannelSlider(
-                label = "Red channel",
-                value = red,
-                channelColor = redControlColor,
-                onValueChange = { red = it },
-            )
-            ChannelSlider(
-                label = "Green channel",
-                value = green,
-                channelColor = greenControlColor,
-                onValueChange = { green = it },
-            )
-            ChannelSlider(
-                label = "Blue channel",
-                value = blue,
-                channelColor = blueControlColor,
-                onValueChange = { blue = it },
-            )
-
-            Text(
-                text = "Exact presets",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Black,
-            )
-            PresetRow(
-                presets = FirstPresetRow,
-                onPresetSelected = { preset -&gt;
-                    red = preset.red
-                    green = preset.green
-                    blue = preset.blue
-                },
-            )
-            PresetRow(
-                presets = SecondPresetRow,
-                onPresetSelected = { preset -&gt;
-                    red = preset.red
-                    green = preset.green
-                    blue = preset.blue
-                },
-            )
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
         }
+    }
+
+    private func chapterChip(number: Int, onBackground: Color) -&gt; some View {
+        let selected = chapter == number
+        return Button {
+            chapter = number
+        } label: {
+            Text(chapterTitle(number))
+                .font(LabType.label)
+                .foregroundStyle(onBackground)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(
+                    Capsule(style: .continuous)
+                        .fill(selected ? LabColor.purple40.opacity(0.22) : Color.clear)
+                )
+                .overlay(
+                    Capsule(style: .continuous)
+                        .strokeBorder(onBackground.opacity(selected ? 0.55 : 0.28), lineWidth: 1)
+                )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func chapterTitle(_ number: Int) -&gt; String {
+        if number == 1 {
+            return &quot;Chapter 1 · iOS baseline&quot;
+        }
+        if number == 2 {
+            return &quot;Chapter 2 · The screen is a grid&quot;
+        }
+        if number == 3 {
+            return &quot;Chapter 3 · Color, opacity, and compositing&quot;
+        }
+        return &quot;Chapter \(number)&quot;
     }
 }
 
-@Composable
-private fun ChannelContributionCard(
-    name: String,
-    value: Float,
-    swatchColor: Color,
-    modifier: Modifier = Modifier,
-) {
-    val colorScheme = MaterialTheme.colorScheme
+private struct ChapterPlaceholder: View {
+    let number: Int
+    @Environment(\.colorScheme) private var colorScheme
 
-    Surface(
-        modifier = modifier,
-        shape = ChannelCardShape,
-        color = colorScheme.surface,
-        contentColor = colorScheme.onSurface,
-        border = BorderStroke(
-            width = 1.dp,
-            color = colorScheme.outlineVariant,
-        ),
-    ) {
-        Column(
-            modifier = Modifier.padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(72.dp)
-                    .background(
-                        color = swatchColor,
-                        shape = RoundedCornerShape(10.dp),
+    var body: some View {
+        let onBackground = colorScheme == .dark ? LabColor.onBackgroundDark : LabColor.onBackgroundLight
+        Text(&quot;Chapter \(number) explorers arrive in a later translation step.&quot;)
+            .font(LabType.bodyLarge)
+            .tracking(0.5)
+            .multilineTextAlignment(.center)
+            .foregroundStyle(onBackground)
+            .padding(24)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+#Preview(&quot;LabHost · light&quot;) {
+    LabTheme {
+        LabHost()
+    }
+    .labPreviewCanvas()
+}
+
+#Preview(&quot;LabHost · dark&quot;) {
+    LabTheme {
+        LabHost()
+    }
+    .preferredColorScheme(.dark)
+    .labPreviewCanvas()
+}
+</pre></div><div class="source-pane" id="source-screen"><pre class="source-code">import SwiftUI
+
+struct Chapter03Screen: View {
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 28) {
+                Text(&quot;COLOR, OPACITY, AND COMPOSITING&quot;)
+                    .font(.system(size: 14, weight: .black))
+                    .foregroundStyle(Color(hex: 0x059669))
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.1 · Red, green, and blue channels&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Change one channel at a time. The final swatch is one opaque RGB color &quot; +
+                        &quot;built from three independent numbers.&quot;
                     )
-                    .border(
-                        width = 1.dp,
-                        color = colorScheme.outline,
-                        shape = RoundedCornerShape(10.dp),
-                    ),
-            )
-            Text(
-                text = name,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = value.twoDecimals(),
-                color = colorScheme.onSurfaceVariant,
-            )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    RgbChannelsExplorer()
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 20)
+            .frame(maxWidth: .infinity)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(hex: 0xF8FAFC))
+        .safeAreaPadding()
     }
 }
 
-@Composable
-private fun ChannelSlider(
-    label: String,
-    value: Float,
-    channelColor: Color,
-    onValueChange: (Float) -&gt; Unit,
-) {
-    val colorScheme = MaterialTheme.colorScheme
-
-    Column(
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Text(
-                text = label,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = value.twoDecimals(),
-                fontWeight = FontWeight.Black,
-            )
-        }
-        Slider(
-            value = value,
-            onValueChange = onValueChange,
-            valueRange = 0f..1f,
-            colors = SliderDefaults.colors(
-                thumbColor = channelColor,
-                activeTrackColor = channelColor,
-                inactiveTrackColor = colorScheme.surfaceVariant,
-            ),
-            modifier = Modifier.semantics {
-                contentDescription = label
-            },
+private extension Color {
+    init(hex: UInt32) {
+        self.init(
+            red: Double((hex &gt;&gt; 16) &amp; 0xFF) / 255,
+            green: Double((hex &gt;&gt; 8) &amp; 0xFF) / 255,
+            blue: Double(hex &amp; 0xFF) / 255
         )
     }
 }
 
-@Composable
-private fun PresetRow(
-    presets: List&lt;RgbPreset&gt;,
-    onPresetSelected: (RgbPreset) -&gt; Unit,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        presets.forEach { preset -&gt;
-            OutlinedButton(
-                onClick = { onPresetSelected(preset) },
-                modifier = Modifier.weight(1f),
-            ) {
-                Text(preset.buttonLabel)
+#Preview(&quot;Lesson 3.1 RGB channels · light&quot;) {
+    LabTheme {
+        Chapter03Screen()
+    }
+    .labPreviewCanvas()
+}
+
+#Preview(&quot;Lesson 3.1 RGB channels · dark&quot;) {
+    LabTheme {
+        Chapter03Screen()
+    }
+    .preferredColorScheme(.dark)
+    .labPreviewCanvas()
+}
+</pre></div><div class="source-pane" id="source-explorer"><pre class="source-code">import SwiftUI
+
+private enum RgbPreset: String, CaseIterable {
+    case mixed
+    case red
+    case green
+    case blue
+    case black
+    case white
+
+    var buttonLabel: String {
+        switch self {
+        case .mixed: return &quot;Mixed&quot;
+        case .red: return &quot;Red&quot;
+        case .green: return &quot;Green&quot;
+        case .blue: return &quot;Blue&quot;
+        case .black: return &quot;Black&quot;
+        case .white: return &quot;White&quot;
+        }
+    }
+
+    var red: CGFloat {
+        switch self {
+        case .mixed: return 0.80
+        case .red, .white: return 1
+        case .green, .blue, .black: return 0
+        }
+    }
+
+    var green: CGFloat {
+        switch self {
+        case .mixed: return 0.25
+        case .green, .white: return 1
+        case .red, .blue, .black: return 0
+        }
+    }
+
+    var blue: CGFloat {
+        switch self {
+        case .mixed: return 0.60
+        case .blue, .white: return 1
+        case .red, .green, .black: return 0
+        }
+    }
+}
+
+private let firstPresetRow: [RgbPreset] = [.mixed, .red, .green]
+private let secondPresetRow: [RgbPreset] = [.blue, .black, .white]
+
+struct RgbChannelsExplorer: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var red = RgbPreset.mixed.red
+    @State private var green = RgbPreset.mixed.green
+    @State private var blue = RgbPreset.mixed.blue
+
+    private var redControlColor: Color {
+        colorScheme == .dark ? Color(hex: 0xF87171) : Color(hex: 0xDC2626)
+    }
+
+    private var greenControlColor: Color {
+        colorScheme == .dark ? Color(hex: 0x34D399) : Color(hex: 0x059669)
+    }
+
+    private var blueControlColor: Color {
+        colorScheme == .dark ? Color(hex: 0x60A5FA) : Color(hex: 0x1E40AF)
+    }
+
+    private var finalColor: Color {
+        Color(red: red, green: green, blue: blue, opacity: 1)
+    }
+
+    private var red8Bit: Int { eightBit(red) }
+    private var green8Bit: Int { eightBit(green) }
+    private var blue8Bit: Int { eightBit(blue) }
+
+    private var hexadecimal: String {
+        String(format: &quot;#%02X%02X%02X&quot;, red8Bit, green8Bit, blue8Bit)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(&quot;Three channel contributions&quot;)
+                .font(.system(size: 22, weight: .black))
+            Text(
+                &quot;Each small swatch keeps one channel and sets the other two to zero. &quot; +
+                &quot;The large swatch uses all three values at the same pixel.&quot;
+            )
+            .font(.system(size: 15))
+
+            HStack(spacing: 10) {
+                ChannelContributionCard(
+                    name: &quot;Red&quot;,
+                    value: red,
+                    swatchColor: Color(red: red, green: 0, blue: 0)
+                )
+                ChannelContributionCard(
+                    name: &quot;Green&quot;,
+                    value: green,
+                    swatchColor: Color(red: 0, green: green, blue: 0)
+                )
+                ChannelContributionCard(
+                    name: &quot;Blue&quot;,
+                    value: blue,
+                    swatchColor: Color(red: 0, green: 0, blue: blue)
+                )
+            }
+
+            ZStack {
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(finalColor)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+                    )
+                Text(
+                    &quot;RGB(\(twoDecimals(red)), \(twoDecimals(green)), \(twoDecimals(blue)))&quot;
+                )
+                .font(LabType.titleMedium)
+                .fontWeight(.black)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(Color(uiColor: .systemBackground).opacity(0.92))
+                )
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 190)
+            .accessibilityLabel(&quot;Final RGB color \(hexadecimal)&quot;)
+
+            VStack(alignment: .leading, spacing: 5) {
+                Text(
+                    &quot;Normalized RGB = (\(twoDecimals(red)), \(twoDecimals(green)), \(twoDecimals(blue)))&quot;
+                )
+                .fontWeight(.bold)
+                Text(&quot;Approximate 8-bit RGB = (\(red8Bit), \(green8Bit), \(blue8Bit))&quot;)
+                Text(&quot;Hexadecimal RGB = \(hexadecimal)&quot;)
+                Text(&quot;Alpha is fixed at 1.00 in this lesson.&quot;)
+            }
+            .font(.system(size: 15))
+            .foregroundStyle(Color.primary.opacity(0.78))
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Color(uiColor: .secondarySystemFill))
+            )
+
+            ChannelSlider(
+                label: &quot;Red channel&quot;,
+                value: $red,
+                channelColor: redControlColor
+            )
+            ChannelSlider(
+                label: &quot;Green channel&quot;,
+                value: $green,
+                channelColor: greenControlColor
+            )
+            ChannelSlider(
+                label: &quot;Blue channel&quot;,
+                value: $blue,
+                channelColor: blueControlColor
+            )
+
+            Text(&quot;Exact presets&quot;)
+                .font(LabType.titleMedium)
+                .fontWeight(.black)
+            PresetRow(presets: firstPresetRow, onPresetSelected: applyPreset)
+            PresetRow(presets: secondPresetRow, onPresetSelected: applyPreset)
+        }
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(Color(uiColor: .systemBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
+    }
+
+    private func applyPreset(_ preset: RgbPreset) {
+        red = preset.red
+        green = preset.green
+        blue = preset.blue
+    }
+}
+
+private struct ChannelContributionCard: View {
+    let name: String
+    let value: CGFloat
+    let swatchColor: Color
+
+    var body: some View {
+        VStack(spacing: 8) {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(swatchColor)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+                )
+                .frame(height: 72)
+            Text(name)
+                .fontWeight(.black)
+            Text(twoDecimals(value))
+                .foregroundStyle(.secondary)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(uiColor: .systemBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
+    }
+}
+
+private struct ChannelSlider: View {
+    let label: String
+    @Binding var value: CGFloat
+    let channelColor: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack {
+                Text(label)
+                    .fontWeight(.bold)
+                Spacer()
+                Text(twoDecimals(value))
+                    .fontWeight(.black)
+            }
+            Slider(value: $value, in: 0...1)
+                .tint(channelColor)
+                .accessibilityLabel(label)
+        }
+    }
+}
+
+private struct PresetRow: View {
+    let presets: [RgbPreset]
+    let onPresetSelected: (RgbPreset) -&gt; Void
+
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(presets, id: \.self) { preset in
+                Button {
+                    onPresetSelected(preset)
+                } label: {
+                    Text(preset.buttonLabel)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
             }
         }
     }
 }
 
-private fun Float.toEightBit(): Int =
-    (coerceIn(0f, 1f) * 255f)
-        .roundToInt()
-        .coerceIn(0, 255)
+private func eightBit(_ value: CGFloat) -&gt; Int {
+    Int((min(max(value, 0), 1) * 255).rounded())
+}
 
-private fun Float.twoDecimals(): String =
-    String.format(Locale.US, "%.2f", this)
+private func twoDecimals(_ value: CGFloat) -&gt; String {
+    String(format: &quot;%.2f&quot;, Double(value))
+}
+
+private extension Color {
+    init(hex: UInt32) {
+        self.init(
+            red: Double((hex &gt;&gt; 16) &amp; 0xFF) / 255,
+            green: Double((hex &gt;&gt; 8) &amp; 0xFF) / 255,
+            blue: Double(hex &amp; 0xFF) / 255
+        )
+    }
+}
+
+#Preview(&quot;RgbChannelsExplorer · light&quot;) {
+    LabTheme {
+        ScrollView {
+            RgbChannelsExplorer()
+                .padding(16)
+        }
+    }
+    .labPreviewCanvas()
+}
+
+#Preview(&quot;RgbChannelsExplorer · dark&quot;) {
+    LabTheme {
+        ScrollView {
+            RgbChannelsExplorer()
+                .padding(16)
+        }
+    }
+    .preferredColorScheme(.dark)
+    .labPreviewCanvas()
+}
 </pre></div></section>
-
-<section class="section panel"><div class="section-intro"><div><div class="section-number">8 · Coding challenge</div><h2>Map each value to the matching channel name</h2></div><p>The current code swaps green and blue. The preview is driven by the editable code and by the clickable mapping controls.</p></div><div class="challenge-grid"><div class="editor-card"><div class="card-header"><strong>Editable Kotlin</strong><span class="small">Input values: red 0.80 · green 0.25 · blue 0.60</span></div><div class="editor-wrap"><textarea class="code-editor" id="codeEditor" spellcheck="false">fun buildRgbColor(
-    red: Float,
-    green: Float,
-    blue: Float,
-): Color {
+<section class="section panel"><div class="section-intro"><div><div class="section-number">8 · Coding challenge</div><h2>Map each value to the matching channel name</h2></div><p>The current code swaps green and blue. The preview is driven by the editable code and by the clickable mapping controls.</p></div><div class="challenge-grid"><div class="editor-card"><div class="card-header"><strong>Editable Swift</strong><span class="small">Input values: red 0.80 · green 0.25 · blue 0.60</span></div><div class="editor-wrap"><textarea class="code-editor" id="codeEditor" spellcheck="false">func buildRgbColor(
+    red: CGFloat,
+    green: CGFloat,
+    blue: CGFloat
+) -> Color {
     return Color(
-        red = red,
-        green = blue,
-        blue = green,
-        alpha = 1f,
+        red: red,
+        green: blue,
+        blue: green,
+        opacity: 1
     )
-}</textarea><div class="mapping-grid"><div class="mapping-card"><strong>Value supplied to <code>green =</code></strong><div class="controls" style="margin-top:9px"><button class="preset-button" data-argument="green" data-source-value="red" type="button">red</button><button class="preset-button" data-argument="green" data-source-value="green" type="button">green</button><button class="preset-button" data-argument="green" data-source-value="blue" type="button">blue</button></div></div><div class="mapping-card"><strong>Value supplied to <code>blue =</code></strong><div class="controls" style="margin-top:9px"><button class="preset-button" data-argument="blue" data-source-value="red" type="button">red</button><button class="preset-button" data-argument="blue" data-source-value="green" type="button">green</button><button class="preset-button" data-argument="blue" data-source-value="blue" type="button">blue</button></div></div></div><button class="primary-button" id="checkChallenge" type="button" style="margin-top:14px">Check repair</button><div class="challenge-result" id="challengeResult">Repair the mapping, then check the result.</div></div></div><div class="challenge-preview"><div class="card-header"><strong>Code-driven teaching preview</strong><span class="small">Expected RGB(0.80, 0.25, 0.60)</span></div><div class="challenge-body"><div class="swatch-compare"><article class="compare-card"><div class="compare-swatch" id="expectedSwatch"></div><div class="compare-copy"><strong>Expected</strong><p class="mono" id="expectedLabel"></p></div></article><article class="compare-card"><div class="compare-swatch" id="actualSwatch"></div><div class="compare-copy"><strong>Code output</strong><p class="mono" id="actualLabel"></p></div></article></div><div class="formula" id="challengeFormula" style="margin-top:14px"></div><div class="io-row" style="margin-top:14px"><div class="io-box"><strong>Input</strong><span id="challengeInput"></span></div><div class="io-box"><strong>Operation</strong><span id="challengeOperation"></span></div><div class="io-box"><strong>Output</strong><span id="challengeOutput"></span></div></div></div></div></div></section>
+}</textarea><div class="mapping-grid"><div class="mapping-card"><strong>Value supplied to <code>green:</code></strong><div class="controls" style="margin-top:9px"><button class="preset-button" data-argument="green" data-source-value="red" type="button">red</button><button class="preset-button" data-argument="green" data-source-value="green" type="button">green</button><button class="preset-button" data-argument="green" data-source-value="blue" type="button">blue</button></div></div><div class="mapping-card"><strong>Value supplied to <code>blue:</code></strong><div class="controls" style="margin-top:9px"><button class="preset-button" data-argument="blue" data-source-value="red" type="button">red</button><button class="preset-button" data-argument="blue" data-source-value="green" type="button">green</button><button class="preset-button" data-argument="blue" data-source-value="blue" type="button">blue</button></div></div></div><button class="primary-button" id="checkChallenge" type="button" style="margin-top:14px">Check repair</button><div class="challenge-result" id="challengeResult">Repair the mapping, then check the result.</div></div></div><div class="challenge-preview"><div class="card-header"><strong>Code-driven teaching preview</strong><span class="small">Expected RGB(0.80, 0.25, 0.60)</span></div><div class="challenge-body"><div class="swatch-compare"><article class="compare-card"><div class="compare-swatch" id="expectedSwatch"></div><div class="compare-copy"><strong>Expected</strong><p class="mono" id="expectedLabel"></p></div></article><article class="compare-card"><div class="compare-swatch" id="actualSwatch"></div><div class="compare-copy"><strong>Code output</strong><p class="mono" id="actualLabel"></p></div></article></div><div class="formula" id="challengeFormula" style="margin-top:14px"></div><div class="io-row" style="margin-top:14px"><div class="io-box"><strong>Input</strong><span id="challengeInput"></span></div><div class="io-box"><strong>Operation</strong><span id="challengeOperation"></span></div><div class="io-box"><strong>Output</strong><span id="challengeOutput"></span></div></div></div></div></div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">9 · Pixel 8 Pro checkpoint</div><h2>Verify the real Android result</h2></div><p>The Android app is the source of truth for the Compose implementation.</p></div><div class="checklist"><label class="check-row"><input data-check="archives" type="checkbox"><span>I applied both Lesson 3.1 incremental archives after the completed Lesson 2.9 state.</span></label><label class="check-row"><input data-check="build" type="checkbox"><span>The app builds and opens Lesson 3.1 on the Pixel 8 Pro.</span></label><label class="check-row"><input data-check="browser-theme" type="checkbox"><span>I changed the desktop operating-system theme and confirmed that the Lesson 3.1 HTML follows it automatically.</span></label><label class="check-row"><input data-check="android-theme" type="checkbox"><span>I changed the Pixel 8 Pro between light and dark appearance and confirmed that the app chrome follows the OS while the selected RGB tuple and swatch color remain the same.</span></label><label class="check-row"><input data-check="presets" type="checkbox"><span>The Red, Green, Blue, Black, White, and Mixed presets produce visibly different expected colors.</span></label><label class="check-row"><input data-check="independent" type="checkbox"><span>I changed only one slider and confirmed that the other two displayed channel numbers remained unchanged.</span></label><label class="check-row"><input data-check="tuple" type="checkbox"><span>I can explain why one channel number is not a complete RGB color.</span></label><label class="check-row"><input data-check="gray" type="checkbox"><span>I can explain why equal red, green, and blue values produce gray in this model.</span></label><label class="check-row"><input data-check="challenge" type="checkbox"><span>I completed the coding challenge and the four exercises.</span></label><label class="check-row"><input data-check="commit" type="checkbox"><span>I committed the Lesson 3.1 Android changes to Git.</span></label></div></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">9 · iPhone 16 Pro checkpoint</div><h2>Verify the real iOS result</h2></div><p>The iOS app is the source of truth for the SwiftUI implementation.</p></div><div class="checklist"><label class="check-row"><input data-check="archives" type="checkbox"><span>I applied the Lesson 3.1 Swift files after the completed Lesson 2.9 state.</span></label><label class="check-row"><input data-check="build" type="checkbox"><span>The app builds and opens Lesson 3.1 on the iPhone 16 Pro.</span></label><label class="check-row"><input data-check="browser-theme" type="checkbox"><span>I changed the desktop operating-system theme and confirmed that the Lesson 3.1 HTML follows it automatically.</span></label><label class="check-row"><input data-check="ios-theme" type="checkbox"><span>I changed the iPhone 16 Pro between light and dark appearance and confirmed that the app chrome follows the OS while the selected RGB tuple and swatch color remain the same.</span></label><label class="check-row"><input data-check="presets" type="checkbox"><span>The Red, Green, Blue, Black, White, and Mixed presets produce visibly different expected colors.</span></label><label class="check-row"><input data-check="independent" type="checkbox"><span>I changed only one slider and confirmed that the other two displayed channel numbers remained unchanged.</span></label><label class="check-row"><input data-check="tuple" type="checkbox"><span>I can explain why one channel number is not a complete RGB color.</span></label><label class="check-row"><input data-check="gray" type="checkbox"><span>I can explain why equal red, green, and blue values produce gray in this model.</span></label><label class="check-row"><input data-check="challenge" type="checkbox"><span>I completed the coding challenge and the four exercises.</span></label><label class="check-row"><input data-check="commit" type="checkbox"><span>I committed the Lesson 3.1 iOS changes to Git.</span></label></div></section>
 
 <section class="section panel"><div class="section-intro"><div><div class="section-number">10 · Exercises</div><h2>Answer before opening the solutions</h2></div><p>Exercise 2 targets the most likely misconception.</p></div><details><summary>Exercise 1 · Read the tuple</summary><p>For <code>RGB(0.20, 0.70, 0.90)</code>, state the red, green, and blue channel values separately.</p><hr><p><strong>Answer:</strong> red is <code>0.20</code>, green is <code>0.70</code>, and blue is <code>0.90</code>. The position in the ordered tuple gives each number its channel name.</p></details><details><summary>Exercise 2 · Diagnostic: is 0.40 a gray color?</summary><p>Someone says, “The color is 0.40, so it is gray.” What is missing from that statement?</p><hr><p><strong>Answer:</strong> one number does not describe a complete RGB color. The statement must name the channel or provide all three channels. <code>RGB(0.40, 0.40, 0.40)</code> is gray because all three channels are equal. A lone <code>0.40</code> could be only red, only green, or only blue.</p></details><details><summary>Exercise 3 · Change only red</summary><p>Start with <code>RGB(0.20, 0.70, 0.90)</code>. Change only red to <code>0.80</code>. What is the new complete tuple, and which values remain unchanged?</p><hr><p><strong>Answer:</strong> the new color is <code>RGB(0.80, 0.70, 0.90)</code>. Green remains <code>0.70</code>. Blue remains <code>0.90</code>.</p></details><details><summary>Exercise 4 · Convert the lesson color</summary><p>Convert <code>RGB(0.80, 0.25, 0.60)</code> to approximate 8-bit channel values using <code>round(channel × 255)</code>.</p><hr><p><strong>Answer:</strong> red is <code>round(0.80 × 255) = 204</code>. Green is <code>round(0.25 × 255) = 64</code>. Blue is <code>round(0.60 × 255) = 153</code>. The approximate 8-bit color is <code>RGB(204, 64, 153)</code>, or <code>#CC4099</code>.</p></details></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">11 · Evidence and deferrals</div><h2>What this lesson proves</h2></div><p>Keep the visible model separate from display-hardware details that were not measured.</p></div><div class="two-column"><article class="card green"><h3>The browser and Android app can prove</h3><p>They can prove that three independent numeric inputs are passed to the matching red, green, and blue arguments, and that changing those inputs changes the displayed swatch.</p></article><article class="card amber"><h3>This lesson does not prove</h3><p>It does not measure the Pixel 8 Pro panel's physical light output, subpixel layout, calibration, color-management transforms, or human perceived brightness. Those questions require display documentation and measurement tools.</p></article></div><div class="note"><strong>Design conclusion:</strong> later tint, blur, and shader code must keep channel order correct. A green-blue swap is a data-mapping defect even when every input number is individually valid.</div><div class="note"><strong>Theme conclusion:</strong> interface chrome may change with the OS theme. Numeric color samples must not be recolored by that theme because doing so would change the data under study.</div><p class="small">Official Android references: <a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color">Compose Color API</a> and <a href="https://developer.android.com/develop/ui/compose/components/slider">Compose Slider</a>.</p></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">11 · Evidence and deferrals</div><h2>What this lesson proves</h2></div><p>Keep the visible model separate from display-hardware details that were not measured.</p></div><div class="two-column"><article class="card green"><h3>The browser and iOS app can prove</h3><p>They can prove that three independent numeric inputs are passed to the matching red, green, and blue arguments, and that changing those inputs changes the displayed swatch.</p></article><article class="card amber"><h3>This lesson does not prove</h3><p>It does not measure the iPhone 16 Pro panel's physical light output, subpixel layout, calibration, color-management transforms, or human perceived brightness. Those questions require display documentation and measurement tools.</p></article></div><div class="note"><strong>Design conclusion:</strong> later tint, blur, and shader code must keep channel order correct. A green-blue swap is a data-mapping defect even when every input number is individually valid.</div><div class="note"><strong>Theme conclusion:</strong> interface chrome may change with the OS theme. Numeric color samples must not be recolored by that theme because doing so would change the data under study.</div><p class="small">Official Apple references: <a href="https://developer.apple.com/documentation/swiftui/color">SwiftUI Color</a> and <a href="https://developer.apple.com/documentation/swiftui/slider">SwiftUI Slider</a>.</p></section>
 
 <section class="section panel"><div class="section-intro"><div><div class="section-number">12 · Completion record</div><h2>Copy this into the next conversation</h2></div><button class="primary-button" id="copyRecord" type="button">Copy record</button></div><textarea class="record-area" id="completionRecord" readonly></textarea><p class="small" id="copyStatus"></p></section>
 
@@ -582,24 +539,24 @@ const themePreference=window.matchMedia('(prefers-color-scheme: dark)');function
 const $=id=>document.getElementById(id);const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));const f2=n=>Number(n).toFixed(2);const to8=n=>clamp(Math.round(Number(n)*255),0,255);const hex2=n=>to8(n).toString(16).padStart(2,'0').toUpperCase();const rgbCss=(r,g,b)=>`rgb(${to8(r)} ${to8(g)} ${to8(b)})`;const tuple=(r,g,b)=>`RGB(${f2(r)}, ${f2(g)}, ${f2(b)})`;
 const state={r:.80,g:.25,b:.60};const presets={mixed:[.80,.25,.60],red:[1,0,0],green:[0,1,0],blue:[0,0,1],black:[0,0,0],white:[1,1,1]};
 function channelCard(x,name,value,color,tupleText){const fill=rgbCss(...color);const barWidth=250*value;return `<g><rect x="${x}" y="110" width="310" height="350" rx="24" fill="var(--paper)" stroke="var(--line)" stroke-width="3"/><text x="${x+155}" y="155" text-anchor="middle" font-size="26" font-weight="900" fill="var(--ink)">${name} channel</text><rect x="${x+30}" y="185" width="250" height="44" rx="12" fill="var(--soft)"/><rect x="${x+30}" y="185" width="${barWidth}" height="44" rx="12" fill="${fill}"/><text x="${x+155}" y="275" text-anchor="middle" font-size="34" font-weight="900" fill="var(--ink)">${f2(value)}</text><rect x="${x+30}" y="310" width="250" height="105" rx="18" fill="${fill}" stroke="var(--line)" stroke-width="2"/><text x="${x+155}" y="442" text-anchor="middle" font-size="17" font-weight="800" fill="var(--muted)">${tupleText}</text></g>`;}
-function drawMain(){const r=state.r,g=state.g,b=state.b,final=rgbCss(r,g,b),hex=`#${hex2(r)}${hex2(g)}${hex2(b)}`;$('redRange').value=r;$('greenRange').value=g;$('blueRange').value=b;$('redValue').textContent=f2(r);$('greenValue').textContent=f2(g);$('blueValue').textContent=f2(b);$('normalizedMetric').textContent=`(${f2(r)}, ${f2(g)}, ${f2(b)})`;$('eightBitMetric').textContent=`(${to8(r)}, ${to8(g)}, ${to8(b)})`;$('hexMetric').textContent=hex;$('mainFormula').textContent=`Color(red = ${f2(r)}, green = ${f2(g)}, blue = ${f2(b)}, alpha = 1.00)`;$('mainInput').textContent=`R ${f2(r)}, G ${f2(g)}, B ${f2(b)}`;$('mainOperation').textContent='place each number in its matching named channel';$('mainOutput').textContent=`${tuple(r,g,b)} · ${hex}`;$('rgbStage').innerHTML=`<defs><marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 Z" fill="var(--pink)"/></marker></defs><text x="800" y="52" text-anchor="middle" font-size="24" font-weight="900" fill="var(--ink)">Three independent inputs become one ordered RGB color</text>${channelCard(40,'Red',r,[r,0,0],`RGB(${f2(r)}, 0.00, 0.00)`)}${channelCard(390,'Green',g,[0,g,0],`RGB(0.00, ${f2(g)}, 0.00)`)}${channelCard(740,'Blue',b,[0,0,b],`RGB(0.00, 0.00, ${f2(b)})`)}<path d="M350 285 C1030 285 1030 285 1110 285" fill="none" stroke="var(--pink)" stroke-width="4" marker-end="url(#arrow)"/><path d="M700 285 C1030 285 1030 300 1110 300" fill="none" stroke="var(--pink)" stroke-width="4" marker-end="url(#arrow)"/><path d="M1050 285 C1090 285 1090 315 1110 315" fill="none" stroke="var(--pink)" stroke-width="4" marker-end="url(#arrow)"/><rect x="1130" y="150" width="420" height="310" rx="28" fill="${final}" stroke="var(--muted)" stroke-width="4"/><rect x="1190" y="350" width="300" height="76" rx="15" fill="var(--paper)" stroke="var(--line)" stroke-width="2"/><text x="1340" y="382" text-anchor="middle" font-size="22" font-weight="900" fill="var(--ink)">${tuple(r,g,b)}</text><text x="1340" y="412" text-anchor="middle" font-size="19" font-weight="800" fill="var(--muted)">${hex}</text><text x="1340" y="505" text-anchor="middle" font-size="19" font-weight="850" fill="var(--green)">one pixel color · alpha 1.00</text>`;document.querySelectorAll('[data-preset]').forEach(button=>{const v=presets[button.dataset.preset];button.classList.toggle('selected',v&&v[0]===r&&v[1]===g&&v[2]===b);});}
+function drawMain(){const r=state.r,g=state.g,b=state.b,final=rgbCss(r,g,b),hex=`#${hex2(r)}${hex2(g)}${hex2(b)}`;$('redRange').value=r;$('greenRange').value=g;$('blueRange').value=b;$('redValue').textContent=f2(r);$('greenValue').textContent=f2(g);$('blueValue').textContent=f2(b);$('normalizedMetric').textContent=`(${f2(r)}, ${f2(g)}, ${f2(b)})`;$('eightBitMetric').textContent=`(${to8(r)}, ${to8(g)}, ${to8(b)})`;$('hexMetric').textContent=hex;$('mainFormula').textContent=`Color(red: ${f2(r)}, green: ${f2(g)}, blue: ${f2(b)}, opacity: 1.00)`;$('mainInput').textContent=`R ${f2(r)}, G ${f2(g)}, B ${f2(b)}`;$('mainOperation').textContent='place each number in its matching named channel';$('mainOutput').textContent=`${tuple(r,g,b)} · ${hex}`;$('rgbStage').innerHTML=`<defs><marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 Z" fill="var(--pink)"/></marker></defs><text x="800" y="52" text-anchor="middle" font-size="24" font-weight="900" fill="var(--ink)">Three independent inputs become one ordered RGB color</text>${channelCard(40,'Red',r,[r,0,0],`RGB(${f2(r)}, 0.00, 0.00)`)}${channelCard(390,'Green',g,[0,g,0],`RGB(0.00, ${f2(g)}, 0.00)`)}${channelCard(740,'Blue',b,[0,0,b],`RGB(0.00, 0.00, ${f2(b)})`)}<path d="M350 285 C1030 285 1030 285 1110 285" fill="none" stroke="var(--pink)" stroke-width="4" marker-end="url(#arrow)"/><path d="M700 285 C1030 285 1030 300 1110 300" fill="none" stroke="var(--pink)" stroke-width="4" marker-end="url(#arrow)"/><path d="M1050 285 C1090 285 1090 315 1110 315" fill="none" stroke="var(--pink)" stroke-width="4" marker-end="url(#arrow)"/><rect x="1130" y="150" width="420" height="310" rx="28" fill="${final}" stroke="var(--muted)" stroke-width="4"/><rect x="1190" y="350" width="300" height="76" rx="15" fill="var(--paper)" stroke="var(--line)" stroke-width="2"/><text x="1340" y="382" text-anchor="middle" font-size="22" font-weight="900" fill="var(--ink)">${tuple(r,g,b)}</text><text x="1340" y="412" text-anchor="middle" font-size="19" font-weight="800" fill="var(--muted)">${hex}</text><text x="1340" y="505" text-anchor="middle" font-size="19" font-weight="850" fill="var(--green)">one pixel color · alpha 1.00</text>`;document.querySelectorAll('[data-preset]').forEach(button=>{const v=presets[button.dataset.preset];button.classList.toggle('selected',v&&v[0]===r&&v[1]===g&&v[2]===b);});}
 ['red','green','blue'].forEach((name,index)=>{$(`${name}Range`).addEventListener('input',event=>{state[['r','g','b'][index]]=Number(event.target.value);drawMain();});});document.querySelectorAll('[data-preset]').forEach(button=>button.addEventListener('click',()=>{const [r,g,b]=presets[button.dataset.preset];state.r=r;state.g=g;state.b=b;drawMain();}));
 function updateSame(){const v=Number($('equalRange').value);$('equalValue').textContent=f2(v);const items=[['sameRed','sameRedLabel',[v,0,0]],['sameGreen','sameGreenLabel',[0,v,0]],['sameBlue','sameBlueLabel',[0,0,v]],['sameGray','sameGrayLabel',[v,v,v]]];items.forEach(([swatch,label,color])=>{$(swatch).style.background=rgbCss(...color);$(label).textContent=tuple(...color);});}$('equalRange').addEventListener('input',updateSame);
 const steps=[
 {title:'Start with one pixel position',caption:'The lesson follows one raster position. The position will store one final color. Coordinate math is not changing here.',code:'// One pixel position will receive one Color value.',input:'one pixel position',operation:'choose the position whose color will be described',output:'one destination for the final color',stage:0},
-{title:'Choose the red channel value',caption:'Red is the first named channel. The lesson value is 0.80 on the normalized 0-to-1 scale.',code:'val red = 0.80f',input:'red value 0.80',operation:'assign the number to the red channel',output:'R = 0.80',stage:1},
-{title:'Choose the green channel value',caption:'Green is a separate number. Adding G = 0.25 does not modify the stored red value.',code:'val green = 0.25f',input:'green value 0.25',operation:'assign the number to the green channel',output:'R = 0.80, G = 0.25',stage:2},
-{title:'Choose the blue channel value',caption:'Blue is the third number. The three channel values now exist independently.',code:'val blue = 0.60f',input:'blue value 0.60',operation:'assign the number to the blue channel',output:'R = 0.80, G = 0.25, B = 0.60',stage:3},
-{title:'Keep the channel order',caption:'An RGB tuple is an ordered group. The first number means red, the second means green, and the third means blue.',code:'val rgb = (red, green, blue)\n// (0.80, 0.25, 0.60)',input:'three named values',operation:'place them in red, green, blue order',output:'RGB(0.80, 0.25, 0.60)',stage:4},
-{title:'Pass the values to Compose Color',caption:'Named arguments make the mapping explicit. Alpha is fixed at 1.00 and remains outside this lesson’s experiment.',code:'val finalColor = Color(\n    red = red,\n    green = green,\n    blue = blue,\n    alpha = 1f,\n)',input:'R 0.80, G 0.25, B 0.60',operation:'construct one opaque Compose Color',output:'finalColor',stage:5},
-{title:'Draw the final color',caption:'Modifier.background consumes finalColor. The visible swatch is the output of the three correctly mapped channel values.',code:'.background(\n    color = finalColor,\n    shape = SwatchShape,\n)',input:'finalColor',operation:'fill the swatch pixels with that Color',output:'visible #CC4099-like swatch',stage:6}
+{title:'Choose the red channel value',caption:'Red is the first named channel. The lesson value is 0.80 on the normalized 0-to-1 scale.',code:'let red: CGFloat = 0.80',input:'red value 0.80',operation:'assign the number to the red channel',output:'R = 0.80',stage:1},
+{title:'Choose the green channel value',caption:'Green is a separate number. Adding G = 0.25 does not modify the stored red value.',code:'let green: CGFloat = 0.25',input:'green value 0.25',operation:'assign the number to the green channel',output:'R = 0.80, G = 0.25',stage:2},
+{title:'Choose the blue channel value',caption:'Blue is the third number. The three channel values now exist independently.',code:'let blue: CGFloat = 0.60',input:'blue value 0.60',operation:'assign the number to the blue channel',output:'R = 0.80, G = 0.25, B = 0.60',stage:3},
+{title:'Keep the channel order',caption:'An RGB tuple is an ordered group. The first number means red, the second means green, and the third means blue.',code:'let rgb = (red, green, blue)\n// (0.80, 0.25, 0.60)',input:'three named values',operation:'place them in red, green, blue order',output:'RGB(0.80, 0.25, 0.60)',stage:4},
+{title:'Pass the values to SwiftUI Color',caption:'Named arguments make the mapping explicit. SwiftUI names the fourth argument opacity. That is still the alpha channel, fixed at 1.00 in this lesson.',code:'let finalColor = Color(\n    red: red,\n    green: green,\n    blue: blue,\n    opacity: 1\n)',input:'R 0.80, G 0.25, B 0.60',operation:'construct one opaque SwiftUI Color',output:'finalColor',stage:5},
+{title:'Draw the final color',caption:'RoundedRectangle.fill consumes finalColor. The visible swatch is the output of the three correctly mapped channel values.',code:'.fill(finalColor)',input:'finalColor',operation:'fill the swatch pixels with that Color',output:'visible #CC4099-like swatch',stage:6}
 ];let stepIndex=0;$('stepButtons').innerHTML=steps.map((_,i)=>`<button class="step-button" type="button" data-step="${i}">${i+1}</button>`).join('');document.querySelectorAll('[data-step]').forEach(button=>button.addEventListener('click',()=>{stepIndex=Number(button.dataset.step);drawStep();}));$('stepBack').addEventListener('click',()=>{stepIndex=clamp(stepIndex-1,0,steps.length-1);drawStep();});$('stepNext').addEventListener('click',()=>{stepIndex=clamp(stepIndex+1,0,steps.length-1);drawStep();});
-function drawStep(){const s=steps[stepIndex];let svg=`<defs><marker id="stepArrow" markerWidth="11" markerHeight="11" refX="9" refY="5.5" orient="auto"><path d="M0 0 L11 5.5 L0 11 Z" fill="var(--pink)"/></marker></defs><rect x="40" y="38" width="1040" height="560" rx="28" fill="var(--paper)" stroke="var(--line)" stroke-width="3"/><rect x="75" y="95" width="150" height="150" rx="18" fill="var(--soft)" stroke="var(--muted)" stroke-width="3"/><text x="150" y="165" text-anchor="middle" font-size="23" font-weight="900" fill="var(--ink)">one pixel</text><text x="150" y="198" text-anchor="middle" font-size="17" font-weight="800" fill="var(--muted)">one position</text>`;const boxes=[{x:300,name:'R',value:'.80',fill:'var(--red-soft)',stroke:'var(--red)'},{x:500,name:'G',value:'.25',fill:'var(--green-soft)',stroke:'var(--green)'},{x:700,name:'B',value:'.60',fill:'var(--blue-soft)',stroke:'var(--blue)'}];boxes.forEach((box,i)=>{if(s.stage>=i+1){svg+=`<path d="M225 170 L${box.x-20} 170" stroke="var(--pink)" stroke-width="4" marker-end="url(#stepArrow)"/><rect x="${box.x}" y="105" width="150" height="130" rx="18" fill="${box.fill}" stroke="${box.stroke}" stroke-width="4"/><text x="${box.x+75}" y="155" text-anchor="middle" font-size="30" font-weight="900" fill="${box.stroke}">${box.name}</text><text x="${box.x+75}" y="198" text-anchor="middle" font-size="28" font-weight="900" fill="var(--ink)">${box.value}</text>`;}});if(s.stage>=4){svg+=`<rect x="300" y="305" width="550" height="90" rx="18" fill="var(--indigo-soft)" stroke="var(--indigo)" stroke-width="4"/><text x="575" y="350" text-anchor="middle" font-size="28" font-weight="900" fill="var(--indigo)">RGB(0.80, 0.25, 0.60)</text><text x="575" y="378" text-anchor="middle" font-size="17" font-weight="800" fill="var(--muted)">ordered: red, green, blue</text>`;}if(s.stage>=5){svg+=`<rect x="300" y="440" width="550" height="95" rx="18" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="4"/><text x="575" y="480" text-anchor="middle" font-size="22" font-weight="900" fill="var(--amber)">Color(red = red, green = green, blue = blue, alpha = 1f)</text><text x="575" y="512" text-anchor="middle" font-size="18" font-weight="800" fill="var(--amber)">Compose Color value</text>`;}if(s.stage>=6){svg+=`<path d="M850 487 L900 487" stroke="var(--pink)" stroke-width="4" marker-end="url(#stepArrow)"/><rect x="920" y="390" width="125" height="195" rx="20" fill="rgb(204 64 153)" stroke="var(--muted)" stroke-width="4"/><rect x="930" y="520" width="105" height="46" rx="10" fill="var(--paper)"/><text x="982" y="549" text-anchor="middle" font-size="19" font-weight="900" fill="var(--ink)">#CC4099</text>`;}$('stepSvg').innerHTML=svg;$('stepTitle').textContent=s.title;$('stepCaption').textContent=s.caption;$('stepCode').textContent=s.code;$('stepInput').textContent=s.input;$('stepOperation').textContent=s.operation;$('stepOutput').textContent=s.output;document.querySelectorAll('[data-step]').forEach(button=>button.classList.toggle('selected',Number(button.dataset.step)===stepIndex));$('stepBack').disabled=stepIndex===0;$('stepNext').disabled=stepIndex===steps.length-1;}
+function drawStep(){const s=steps[stepIndex];let svg=`<defs><marker id="stepArrow" markerWidth="11" markerHeight="11" refX="9" refY="5.5" orient="auto"><path d="M0 0 L11 5.5 L0 11 Z" fill="var(--pink)"/></marker></defs><rect x="40" y="38" width="1040" height="560" rx="28" fill="var(--paper)" stroke="var(--line)" stroke-width="3"/><rect x="75" y="95" width="150" height="150" rx="18" fill="var(--soft)" stroke="var(--muted)" stroke-width="3"/><text x="150" y="165" text-anchor="middle" font-size="23" font-weight="900" fill="var(--ink)">one pixel</text><text x="150" y="198" text-anchor="middle" font-size="17" font-weight="800" fill="var(--muted)">one position</text>`;const boxes=[{x:300,name:'R',value:'.80',fill:'var(--red-soft)',stroke:'var(--red)'},{x:500,name:'G',value:'.25',fill:'var(--green-soft)',stroke:'var(--green)'},{x:700,name:'B',value:'.60',fill:'var(--blue-soft)',stroke:'var(--blue)'}];boxes.forEach((box,i)=>{if(s.stage>=i+1){svg+=`<path d="M225 170 L${box.x-20} 170" stroke="var(--pink)" stroke-width="4" marker-end="url(#stepArrow)"/><rect x="${box.x}" y="105" width="150" height="130" rx="18" fill="${box.fill}" stroke="${box.stroke}" stroke-width="4"/><text x="${box.x+75}" y="155" text-anchor="middle" font-size="30" font-weight="900" fill="${box.stroke}">${box.name}</text><text x="${box.x+75}" y="198" text-anchor="middle" font-size="28" font-weight="900" fill="var(--ink)">${box.value}</text>`;}});if(s.stage>=4){svg+=`<rect x="300" y="305" width="550" height="90" rx="18" fill="var(--indigo-soft)" stroke="var(--indigo)" stroke-width="4"/><text x="575" y="350" text-anchor="middle" font-size="28" font-weight="900" fill="var(--indigo)">RGB(0.80, 0.25, 0.60)</text><text x="575" y="378" text-anchor="middle" font-size="17" font-weight="800" fill="var(--muted)">ordered: red, green, blue</text>`;}if(s.stage>=5){svg+=`<rect x="300" y="440" width="550" height="95" rx="18" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="4"/><text x="575" y="480" text-anchor="middle" font-size="22" font-weight="900" fill="var(--amber)">Color(red: red, green: green, blue: blue, opacity: 1)</text><text x="575" y="512" text-anchor="middle" font-size="18" font-weight="800" fill="var(--amber)">SwiftUI Color value</text>`;}if(s.stage>=6){svg+=`<path d="M850 487 L900 487" stroke="var(--pink)" stroke-width="4" marker-end="url(#stepArrow)"/><rect x="920" y="390" width="125" height="195" rx="20" fill="rgb(204 64 153)" stroke="var(--muted)" stroke-width="4"/><rect x="930" y="520" width="105" height="46" rx="10" fill="var(--paper)"/><text x="982" y="549" text-anchor="middle" font-size="19" font-weight="900" fill="var(--ink)">#CC4099</text>`;}$('stepSvg').innerHTML=svg;$('stepTitle').textContent=s.title;$('stepCaption').textContent=s.caption;$('stepCode').textContent=s.code;$('stepInput').textContent=s.input;$('stepOperation').textContent=s.operation;$('stepOutput').textContent=s.output;document.querySelectorAll('[data-step]').forEach(button=>button.classList.toggle('selected',Number(button.dataset.step)===stepIndex));$('stepBack').disabled=stepIndex===0;$('stepNext').disabled=stepIndex===steps.length-1;}
 document.querySelectorAll('[data-source]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-source]').forEach(item=>item.classList.remove('selected'));button.classList.add('selected');document.querySelectorAll('.source-pane').forEach(pane=>pane.classList.remove('active'));$(`source-${button.dataset.source}`).classList.add('active');}));
-const editor=$('codeEditor');const challengeValues={red:.80,green:.25,blue:.60};let challengeWasCorrect=false;function stripComments(code){return code.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/.*$/gm,'');}function parseArgument(name){const code=stripComments(editor.value);return (code.match(new RegExp(`${name}\\s*=\\s*(red|green|blue)`))||[])[1]||null;}function sourceValue(name){return name?challengeValues[name]:null;}function setArgument(name,value){const re=new RegExp(`(${name}\\s*=\\s*)(red|green|blue)`);editor.value=editor.value.replace(re,`$1${value}`);drawChallenge();}
-function drawChallenge(){const greenSource=parseArgument('green'),blueSource=parseArgument('blue'),actual={r:challengeValues.red,g:sourceValue(greenSource),b:sourceValue(blueSource)},recognized=actual.g!==null&&actual.b!==null,correct=greenSource==='green'&&blueSource==='blue';$('expectedSwatch').style.background=rgbCss(.80,.25,.60);$('expectedLabel').textContent='RGB(0.80, 0.25, 0.60) · #CC4099';$('actualSwatch').style.background=recognized?rgbCss(actual.r,actual.g,actual.b):'var(--soft)';$('actualLabel').textContent=recognized?`${tuple(actual.r,actual.g,actual.b)} · #${hex2(actual.r)}${hex2(actual.g)}${hex2(actual.b)}`:'Unrecognized mapping';$('challengeFormula').textContent=recognized?`Color(red = red, green = ${greenSource}, blue = ${blueSource}, alpha = 1.00)`:'The editor does not contain a recognized green or blue mapping.';$('challengeInput').textContent='red 0.80, green 0.25, blue 0.60';$('challengeOperation').textContent=recognized?`green receives ${greenSource}; blue receives ${blueSource}`:'unrecognized code';$('challengeOutput').textContent=recognized?tuple(actual.r,actual.g,actual.b):'no output';document.querySelectorAll('[data-argument]').forEach(button=>{const selected=button.dataset.argument==='green'?greenSource:blueSource;button.classList.toggle('selected',button.dataset.sourceValue===selected);});if(challengeWasCorrect){challengeWasCorrect=false;$('challengeResult').textContent='The code changed after the successful check. Check the repair again.';$('challengeResult').style.background='var(--paper)';}return correct;}
+const editor=$('codeEditor');const challengeValues={red:.80,green:.25,blue:.60};let challengeWasCorrect=false;function stripComments(code){return code.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/.*$/gm,'');}function parseArgument(name){const code=stripComments(editor.value);return (code.match(new RegExp(`${name}\\s*:\\s*(red|green|blue)`))||[])[1]||null;}function sourceValue(name){return name?challengeValues[name]:null;}function setArgument(name,value){const re=new RegExp(`(${name}\\s*:\\s*)(red|green|blue)`);editor.value=editor.value.replace(re,`$1${value}`);drawChallenge();}
+function drawChallenge(){const greenSource=parseArgument('green'),blueSource=parseArgument('blue'),actual={r:challengeValues.red,g:sourceValue(greenSource),b:sourceValue(blueSource)},recognized=actual.g!==null&&actual.b!==null,correct=greenSource==='green'&&blueSource==='blue';$('expectedSwatch').style.background=rgbCss(.80,.25,.60);$('expectedLabel').textContent='RGB(0.80, 0.25, 0.60) · #CC4099';$('actualSwatch').style.background=recognized?rgbCss(actual.r,actual.g,actual.b):'var(--soft)';$('actualLabel').textContent=recognized?`${tuple(actual.r,actual.g,actual.b)} · #${hex2(actual.r)}${hex2(actual.g)}${hex2(actual.b)}`:'Unrecognized mapping';$('challengeFormula').textContent=recognized?`Color(red: red, green: ${greenSource}, blue: ${blueSource}, opacity: 1.00)`:'The editor does not contain a recognized green or blue mapping.';$('challengeInput').textContent='red 0.80, green 0.25, blue 0.60';$('challengeOperation').textContent=recognized?`green receives ${greenSource}; blue receives ${blueSource}`:'unrecognized code';$('challengeOutput').textContent=recognized?tuple(actual.r,actual.g,actual.b):'no output';document.querySelectorAll('[data-argument]').forEach(button=>{const selected=button.dataset.argument==='green'?greenSource:blueSource;button.classList.toggle('selected',button.dataset.sourceValue===selected);});if(challengeWasCorrect){challengeWasCorrect=false;$('challengeResult').textContent='The code changed after the successful check. Check the repair again.';$('challengeResult').style.background='var(--paper)';}return correct;}
 editor.addEventListener('input',drawChallenge);document.querySelectorAll('[data-argument]').forEach(button=>button.addEventListener('click',()=>setArgument(button.dataset.argument,button.dataset.sourceValue)));$('checkChallenge').addEventListener('click',()=>{if(drawChallenge()){challengeWasCorrect=true;$('challengeResult').textContent='Correct. Each input now reaches the matching named channel. The code output agrees with the expected swatch.';$('challengeResult').style.background='var(--green-soft)';}else{$('challengeResult').textContent='Not repaired yet. The green input must reach green, and the blue input must reach blue.';$('challengeResult').style.background='var(--red-soft)';}});
-const checkboxes=[...document.querySelectorAll('[data-check]')];function updateRecord(){const done=checkboxes.filter(box=>box.checked).map(box=>box.dataset.check),all=done.length===checkboxes.length;$('completionRecord').value=`lesson_id: 03-01\nlesson_title: Red, green, and blue channels\nstatus: ${all?'completed':'in_progress'}\ncourse_lessons_completed_before_this_lesson: 17\ncourse_lessons_completed_after_completion: ${all?18:17}\ncourse_lessons_total: 216\nchapter_02_completed_by_learner: true\nchapter_03_completed_by_learner: false\nandroid_files_applied:\n  - app/src/main/java/com/example/liquidglasslab/MainActivity.kt\n  - app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt\n  - app/src/main/java/com/example/liquidglasslab/chapter03/RgbChannelsExplorer.kt\npixel_8_pro_tested: ${done.includes('build')&&done.includes('presets')&&done.includes('independent')}\nbrowser_os_theme_verified: ${done.includes('browser-theme')}\nandroid_os_theme_verified: ${done.includes('android-theme')}\ncheckpoint_items_complete: ${done.length}/${checkboxes.length}\ncan_explain_one_channel_vs_complete_color: ${done.includes('tuple')}\ncan_explain_equal_channels_as_gray: ${done.includes('gray')}\nnext_lesson_after_completion: 3.2 — Alpha\nremaining_questions:\n  - none`;}
+const checkboxes=[...document.querySelectorAll('[data-check]')];function updateRecord(){const done=checkboxes.filter(box=>box.checked).map(box=>box.dataset.check),all=done.length===checkboxes.length;$('completionRecord').value=`lesson_id: 03-01\nlesson_title: Red, green, and blue channels\nstatus: ${all?'completed':'in_progress'}\ncourse_progress: 100 of 216\ncompleted_through: Lesson 9.11\nthis_lesson_stays_complete: true\ncourse_lessons_total: 216\nios_files_applied:\n  - LiquidGlassLab/LabHost.swift\n  - LiquidGlassLab/chapter03/Chapter03Screen.swift\n  - LiquidGlassLab/chapter03/RgbChannelsExplorer.swift\niphone_16_pro_tested: ${done.includes('build')&&done.includes('presets')&&done.includes('independent')}\nbrowser_os_theme_verified: ${done.includes('browser-theme')}\nios_os_theme_verified: ${done.includes('ios-theme')}\ncheckpoint_items_complete: ${done.length}/${checkboxes.length}\ncan_explain_one_channel_vs_complete_color: ${done.includes('tuple')}\ncan_explain_equal_channels_as_gray: ${done.includes('gray')}\nnext_lesson_after_completion: 3.2 — Alpha\nremaining_questions:\n  - none`;}
 checkboxes.forEach(box=>box.addEventListener('change',updateRecord));$('copyRecord').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('completionRecord').value);$('copyStatus').textContent='Copied.';}catch{$('completionRecord').select();document.execCommand('copy');$('copyStatus').textContent='Copied using the browser fallback.';}});
 drawMain();updateSame();drawStep();drawChallenge();updateRecord();
 </script>

@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 9.14 — Lens checkpoint</title>
+<style>
+  :root{
+    --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --bg:#ffffff; --soft:#f6f7f9;
+    --green:#059669; --indigo:#4338ca; --amber:#d97706; --blue:#1e40af; --red:#dc2626;
+    --hatch:repeating-linear-gradient(-45deg,#94a3b8 0 2px,#f1f5f9 2px 8px);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1600px;margin:0 auto;padding:0 24px 90px}
+  header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;border-bottom:1px solid var(--line);padding:14px 0}
+  header.top a{color:var(--blue);text-decoration:none;font-size:14px}
+  header.top a:hover{text-decoration:underline}
+  header.top .crumb{color:var(--muted);font-size:14px}
+  h1{font-size:27px;margin:20px 0 2px}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 6px}
+  h2{font-size:21px;margin:46px 0 8px;border-top:2px solid var(--line);padding-top:22px}
+  h2 .tag{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+  h3{font-size:16.5px;margin:26px 0 6px}
+  p{font-size:15.5px;max-width:78ch;margin:8px 0}
+  p.lead{font-size:17px;max-width:84ch}
+  li{font-size:15.5px}
+  code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+  code{background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+  figure{margin:16px 0}
+  canvas{display:block;border:1px solid var(--line);border-radius:8px;background:#fff}
+  canvas.see{background:var(--hatch)}
+  svg.block{display:block;border:1px solid var(--line);border-radius:8px;background:#fff}
+  figcaption{font-size:14px;color:#4b5563;max-width:100ch;margin-top:8px}
+  .pair{display:grid;grid-template-columns:auto auto;gap:28px;justify-content:start;align-items:start}
+  .stage{position:relative}
+  .grid3{display:grid;grid-template-columns:520px 520px minmax(0,1fr);gap:24px;align-items:start}
+  .gridL{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start}
+  .gridC{display:grid;grid-template-columns:520px minmax(0,1fr);gap:24px;align-items:start}
+  .maps{display:grid;grid-template-columns:368px 368px;gap:24px;margin-top:12px}
+  .info{display:inline-block;width:17px;height:17px;line-height:15px;border-radius:50%;
+    border:1px solid var(--blue);color:var(--blue);background:#eef2ff;font-size:11px;
+    text-align:center;cursor:pointer;padding:0;vertical-align:2px;font-family:inherit;margin-left:3px}
+  .info:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+  #tip{position:fixed;z-index:50;max-width:360px;max-height:calc(100vh - 20px);overflow:auto;background:#111827;color:#f9fafb;
+    border-radius:8px;padding:10px 34px 10px 12px;font-size:13.5px;line-height:1.45;
+    box-shadow:0 8px 24px rgba(0,0,0,.28);display:none}
+  #tip.open{display:block}
+  #tip.wide{max-width:560px}
+  #tip .tclose{position:absolute;top:4px;right:6px;background:none;border:0;color:#9ca3af;font-size:15px;cursor:pointer;padding:2px 4px}
+  #tip .tclose:hover{color:#fff}
+  #tip b{color:#fde68a}
+  #tip code{background:#1f2937;border-color:#374151;color:#e5e7eb}
+  #tip pre{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre;margin:8px 0 0;
+    background:#1f2937;border:1px solid #374151;border-radius:6px;padding:8px 10px;color:#e5e7eb;overflow-x:auto}
+  .ptdot{position:absolute;width:18px;height:18px;border-radius:50%;transform:translate(-50%,-50%);
+    border:3px solid #111827;cursor:pointer;padding:0;z-index:5}
+  .ptdot.sm{width:14px;height:14px;border-width:2.5px}
+  .ptdot.xs{width:10px;height:10px;border-width:2px}
+  .ptdot.ghost{width:16px;height:16px;background:transparent!important;border-color:transparent}
+  .ptdot.ghost:hover,.ptdot.ghost:focus-visible{border-color:#111827}
+  .ptdot.drag{width:24px;height:24px;cursor:grab;touch-action:none}
+  .ptdot.drag:active{cursor:grabbing}
+  .ptdot:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
+  table.trace{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}
+  table.trace th,table.trace td{border:1px solid var(--line);padding:7px 10px;vertical-align:top;text-align:left}
+  table.trace th{background:var(--soft);font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+  table.trace td.f{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+  table.trace tr.new td{background:#f0fdf4}
+  .chip{display:inline-block;padding:1px 7px;border-radius:5px;font-size:12.5px;font-weight:700;white-space:nowrap}
+  .chip.sh{background:#f3f4f6;color:#374151;border:1px solid #d1d5db}
+  .chip.p1{background:#f3e8ff;color:#6b21a8;border:1px solid #d8b4fe}
+  .chip.p2{background:#fce7f3;color:#9d174d;border:1px solid #f9a8d4}
+  .chip.mx{background:#e0e7ff;color:#3730a3;border:1px solid #a5b4fc}
+  .readout{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;
+    background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 14px;line-height:1.7;white-space:pre-wrap}
+  .readout .hl{background:#dcfce7;border-radius:3px}
+  .readout.cols{columns:2;column-gap:28px;font-size:12.5px;line-height:1.6}
+  .ctl{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:10px 0}
+  .ctl label{font-size:14px;display:flex;align-items:center;gap:8px}
+  .ctl input[type=range]{width:170px}
+  .ctlname{font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:92px}
+  .btn{font-size:14px;padding:6px 14px;border-radius:7px;border:1.5px solid var(--blue);background:#fff;color:var(--blue);cursor:pointer}
+  .btn:hover{background:#eef2ff}
+  .btn[aria-pressed="true"]{background:var(--blue);color:#fff;box-shadow:inset 0 2px 4px rgba(0,0,0,.25)}
+  .btn:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+  .btn:disabled{opacity:.45;cursor:default}
+  .note{border-left:4px solid var(--amber);background:#fffbeb;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:92ch;margin:12px 0}
+  .iosnote{border-left:4px solid var(--indigo);background:#eef2ff;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:92ch;margin:12px 0}
+  .ckpt{border:2px solid #a78bfa;background:#faf5ff;border-radius:10px;padding:12px 18px;max-width:110ch;margin:20px 0}
+  .ckpt h3{margin:4px 0 8px}
+  .ckpt ol{margin:6px 0;padding-left:22px}
+  .ckpt li{margin:6px 0}
+  details{border:1px solid var(--line);border-radius:8px;margin:10px 0;background:#fff}
+  details>summary{cursor:pointer;padding:10px 14px;font-size:15px;font-weight:600}
+  details>summary:hover{background:var(--soft)}
+  details .body{padding:4px 14px 14px}
+  details details{margin:8px 0;background:var(--soft)}
+  .stepnav{display:flex;gap:10px;align-items:center;margin:0 0 10px}
+  .stepnav .dots{display:flex;gap:6px;margin-left:8px}
+  .stepnav .dot{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--muted);background:#fff;padding:0;cursor:pointer}
+  .stepnav .dot.on{background:var(--indigo);border-color:var(--indigo)}
+  .stepcap{min-height:380px;font-size:15.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+  .legend{list-style:none;padding:0;margin:8px 0}
+  .legend li{position:relative;padding-left:42px;margin:7px 0;font-size:15px;line-height:1.45}
+  .legend.two{display:grid;grid-template-columns:1fr 1fr;column-gap:36px;max-width:1150px}
+  .legend li>span:first-child{position:absolute;left:4px;top:.2em}
+  .sw{display:block;width:28px;height:18px;border:1px solid #111827;border-radius:3px}
+  .sw.check{background:conic-gradient(#fff 0 25%,#000 0 50%,#fff 0 75%,#000 0) 0 0/18px 18px}
+  .sw.hatch{background:var(--hatch)}
+  .sw.mask{background:linear-gradient(90deg,#e9d5ff 0 50%,#f1f5f9 50%)}
+  .swl{display:block;width:28px;height:6px;border-radius:3px;border:1px solid #111827;margin-top:6px}
+  .swd{display:block;width:15px;height:15px;border-radius:50%;border:2.5px solid #111827;margin:1px 0 0 6px}
+  .sws{display:block;width:18px;height:18px;border:3px solid #a3e635;outline:1.5px solid #111827;margin:0 0 0 4px}
+  .verdict{font-size:15px;margin-top:8px;font-weight:600}
+  .verdict.ok{color:var(--green)} .verdict.no{color:var(--red)}
+  .exq{display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px;align-items:start;margin:6px 0 10px}
+  .choices{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:8px 0}
+  .choices .btn{text-align:left}
+  pre.code{font:13.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#0f172a;color:#e2e8f0;
+    border-radius:8px;padding:14px 16px;overflow-x:auto;max-width:100%}
+  pre.code .nw{background:#14532d;color:#bbf7d0;border-radius:3px}
+  pre.code .cm{color:#94a3b8}
+  #chIn{font:14px ui-monospace,Menlo,monospace;padding:6px 8px;border:1.5px solid var(--line);border-radius:6px;width:520px}
+  #record{width:100%;min-height:300px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:13px;border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--soft)}
+  .navfoot{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:50px;padding-top:16px;font-size:14px}
+  .navfoot a{color:var(--blue);text-decoration:none}
+  .navfoot span{color:var(--muted)}
+  .small{font-size:14px;color:#4b5563}
+  .wrap ul:not(.legend){max-width:110ch}
+  .pl{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#4b5563}
+  .playrow{display:flex;gap:14px;align-items:center;margin:10px 0}
+  .playrow .mono{font-size:14px}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="crumb">Liquid Glass course</span>
+  <a href="../../../liquid-glass-course.html">Course home</a>
+  <a href="lesson-distance-fields-image-sampling-and-refraction.html">Chapter 9</a>
+  <a href="../../glossary.html">Glossary</a>
+  <a href="lesson-09-13-gentle-chromatic-separation.html">← Lesson 9.13</a>
+</header>
+<div class="wrap">
+
+<h1>Lesson 9.14 — Lens checkpoint</h1>
+<p class="sub">A round glass lens with its own outline, over a wallpaper that moves. The last lesson of Chapter 9. Light theme · desktop · works from <code>file://</code>.</p>
+
+<p class="lead">In Lessons 9.11 to 9.13 every pixel W got a <b>read point</b>: the point of the wallpaper where W takes
+its color. That is one answer per pixel: <i>where does W read?</i> But the glass had no edge of its own. The bend
+faded out, and the page had to draw a violet circle to show where the glass is. A real lens ends at a sharp
+<b>outline</b>. This lesson gives every pixel a second, separate answer: <i>is W glass?</i> The <b>mask</b> of
+Lesson 9.3<button class="info" data-tip="mask">ⓘ</button> gives this second answer. The last line of the shader combines the two
+answers. Under the lens the wallpaper moves. That makes the wallpaper a <b>test pattern</b>: a simple picture made to
+reveal mistakes. Here it shows what moves and what stays still.</p>
+
+<figure>
+  <div class="pair">
+    <div class="stage" id="heroAStage"><canvas id="heroA" width="560" height="560"></canvas>
+      <figcaption><b>Lesson 9.13: one answer.</b> The edges start to bend before they reach the violet circle.</figcaption></div>
+    <div class="stage" id="heroBStage"><canvas id="heroB" width="560" height="560"></canvas>
+      <figcaption><b>This lesson: two answers.</b> The edges stay straight up to the outline, then break. No circle is drawn.</figcaption></div>
+  </div>
+  <div class="playrow"><button class="btn" id="heroPlay">❚❚ Pause</button><span class="mono" id="heroTime"></span></div>
+</figure>
+<ul class="legend two">
+  <li><span class="sw check"></span><b>The wallpaper</b>: the black-and-white checkerboard of Lesson 9.13. It moves to the left, 0.10 of the screen width every second.</li>
+  <li><span class="swl" style="background:#c084fc"></span><b>The violet circle</b> (left picture only): where the glass is. Center (the violet dot) <b>C = (0.40, 0.54)</b>, radius 0.25. The right picture needs no circle: the glass shows its own outline.</li>
+</ul>
+<p>Chapter 9 ends with a checkpoint question: <b>why are the mask and the read points two separate problems?</b>
+The box at the end of Section 2 answers it.</p>
+
+<!-- ============================ SECTION 1 ============================ -->
+<h2 id="s1"><span class="tag">Section 1 · the idea in pictures</span>Two answers for every pixel</h2>
+
+<p>Press <b>Next</b>. Each step adds one thing. The left picture shows the glass. The right picture is the
+<b>magnifier</b>: the part inside the lime square, enlarged. The panel under the magnifier collects the answers for one pixel.</p>
+
+<div class="grid3">
+  <div>
+    <div class="stage" id="s1WStage"><canvas id="s1W" width="520" height="520"></canvas></div>
+    <ul class="legend">
+      <li id="s1LegGlass"><span class="swl" style="background:#c084fc"></span>the violet circle: the glass; the violet dot: its center C</li>
+      <li id="s1LegC" style="display:none"><span class="swd" style="background:#c084fc"></span>the violet dot: C, the center of the glass</li>
+      <li id="s1LegMask" style="display:none"><span class="sw mask"></span>the mask: violet = 1 (glass), light gray = 0 (not glass)</li>
+      <li><span class="sws"></span>the lime square: the part shown in the magnifier</li>
+      <li id="s1LegW"><span class="swd" style="background:#fff"></span>W: one pixel of the screen (in steps 4, 6 and 7 filled with the color it stores)</li>
+      <li id="s1LegRing" style="display:none"><span class="swl" style="background:#fb923c"></span>the orange ring: 0.35 from C; outside it the push is 0</li>
+      <li id="s1LegPush" style="display:none"><span class="swl" style="background:#ff4d8d"></span>the pink push arrow: from W toward C, to its read points</li>
+      <li id="s1LegReads" style="display:none"><span class="sw" style="background:linear-gradient(90deg,#ef4444 0 33%,#22c55e 33% 66%,#3b82f6 66%)"></span>readRed, readGreen, readBlue: the three read points of W (red, green, blue dots, in the magnifier)</li>
+    </ul>
+  </div>
+  <div>
+    <div class="stage" id="s1MStage"><canvas id="s1M" width="520" height="520"></canvas></div>
+    <svg id="s1Pan" class="block" width="520" height="222" style="margin-top:8px" role="img" aria-label="The answers for the pixel W"></svg>
+  </div>
+  <div>
+    <div class="stepnav">
+      <button class="btn" id="stPrev">← Back</button>
+      <button class="btn" id="stNext">Next →</button>
+      <div class="dots" id="stDots"></div>
+    </div>
+    <div class="stepcap" id="stCap" aria-live="polite"></div>
+    <p class="small">Click any dot in the pictures to see its name and coordinates.</p>
+  </div>
+</div>
+
+<!-- ============================ SECTION 2 ============================ -->
+<h2 id="s2"><span class="tag">Section 2 · the new lines</span>The second answer in the code</h2>
+
+<p>Lesson 9.13 returned the color from its three read points. That color now gets a name, <code>bent</code>, and
+three new lines follow it:</p>
+<div class="readout">sd      = length(p) − radius                         both answers start from this one number
+falloff = 1 − smoothstep(−band, band, sd)            answer 2 (Lesson 9.11): how long the push is, band = 0.10
+bent    = half4(colRed.r, colGreen.g, colBlue.b, 1)  answer 2 (Lessons 9.12, 9.13): the color from the three read points
+<span class="hl">mask    = 1 − smoothstep(−maskBand, maskBand, sd)</span>    new, answer 1: how much this pixel is glass, maskBand = 0.002
+<span class="hl">plain   = wall(uv, time)</span>                             new: the wallpaper at the pixel itself, as if there were no glass
+<span class="hl">color   = mix(plain, bent, mask)</span>                     new: the mask picks between plain and bent</div>
+
+<ul>
+  <li><code>mask</code> is the soft mask of Lesson 9.3<button class="info" data-tip="mask">ⓘ</button> with a much thinner band:
+  <code>maskBand = 0.002</code><button class="info" data-tip="maskband">ⓘ</button>, about one pixel of the pictures on this
+  page. So <code>mask</code> is 1 inside the circle, 0 outside, and 0.5 exactly on the outline.</li>
+  <li><code>plain</code> is the wallpaper at the pixel's own position <code>uv</code>. It needs no push and no clamp,
+  <b>because</b> <code>uv</code> is always on the screen.</li>
+  <li><code>wall(x, y, time)</code><button class="info" data-tip="wall">ⓘ</button> is the moving wallpaper. The three read
+  points ask it too. <code>time</code><button class="info" data-tip="time">ⓘ</button> appears only inside <code>wall</code>.</li>
+  <li><code>mix(a, b, m) = a + (b − a) × m</code><button class="info" data-tip="mix">ⓘ</button>. With m = 0 it gives
+  <code>plain</code>; with m = 1 it gives <code>bent</code>. It works on each channel separately.</li>
+</ul>
+
+<h3>Why not reuse falloff?</h3>
+<p>The shader already has a number that is 1 inside the glass and 0 outside: <code>falloff</code>. Why compute a
+second one? Switch the number that the mix uses, on the same output. The magnifier enlarges the pixels inside the lime
+box 4 times, so every pixel of the picture is a 4 × 4 square.</p>
+<div class="gridC">
+  <div class="stage" id="cmpStage"><canvas id="cmpCv" width="520" height="520"></canvas>
+    <figcaption>The magnifier: the pixels inside the lime box, 4× larger.</figcaption>
+    <canvas id="cmpMag" width="520" height="260" style="margin-top:6px"></canvas></div>
+  <div>
+    <ul class="legend">
+      <li><span class="swl" style="background:#c084fc"></span>the violet circle (press <b>show</b>): the glass, center C = (0.40, 0.54)</li>
+      <li><span class="sws"></span>the lime box: the part shown in the magnifier</li>
+    </ul>
+    <div class="ctl"><span class="ctlname">Mix by</span>
+      <button class="btn" data-cmp-m="one">nothing · Lesson 9.13</button><button class="btn" data-cmp-m="falloff">falloff</button><button class="btn" data-cmp-m="hard">hard if · Lesson 9.2</button><button class="btn" data-cmp-m="mask">mask</button></div>
+    <div class="ctl"><span class="ctlname">Violet circle</span>
+      <button class="btn" data-cmp-c="0">hide</button><button class="btn" data-cmp-c="1">show</button></div>
+    <div class="readout" id="cmpOut"></div>
+    <p><b>Why falloff fails.</b> Falloff must go from 1 to 0 slowly, over sd = −0.10 … +0.10, <b>because</b> the bend
+    must fade without a corner (Lesson 9.11). But a glass outline is sharp. Mixed by falloff, every pixel in that 0.20-wide
+    ring is part plain and part bent: two faded copies of each edge, one straight and one bent. The outline needs a band
+    of about one pixel; the bend needs a band of 0.20. One band cannot do both jobs.</p>
+    <p><b>Why not a hard <code>if</code>.</b> <code>sd &lt; 0 ? 1 : 0</code> has no in-between values
+    (Lesson 9.3). Each pixel on the outline is fully bent or fully plain, so the outline shows stair steps one pixel
+    high (the magnifier). With <code>maskBand = 0.002</code>, the pixels on the outline get in-between values and the
+    steps disappear. The steps show only where the two sides of the outline have different colors. Where both sides
+    are white, no outline shows at all.</p>
+  </div>
+</div>
+
+<div class="ckpt">
+  <h3>Chapter 9 checkpoint · why two separate problems</h3>
+  <ol>
+    <li><b>They answer different questions.</b> The mask says <i>how much</i> a pixel is glass: one number, used by
+    <code>mix</code>. The read points say <i>where</i> a pixel reads: points, used to ask the wallpaper.</li>
+    <li><b>They need different widths.</b> Both start from the same <code>sd</code>. The outline needs a band of about
+    one pixel (0.004 wide). The bend needs a band of 0.20. The comparison above shows what happens when one number
+    does both jobs.</li>
+    <li><b>Neither one uses the other, the wallpaper, or the time.</b> So the wallpaper can move while the outline
+    and every read point stay still (the pictures at the top). A mistake in one answer is fixed in its own line
+    (Exercise 3).</li>
+  </ol>
+</div>
+
+<!-- ============================ SECTION 3 ============================ -->
+<h2 id="s3"><span class="tag">Section 3 · one value, traced to the end</span>The pixel W, every number</h2>
+
+<p>The whole chain for the pixel W = (0.40, 0.24) at <code>time = 2</code> seconds (step 6), with the glass at
+C = (0.40, 0.54)<button class="info" data-tip="center">ⓘ</button>, <code>radius = 0.25</code><button class="info" data-tip="radius">ⓘ</button>,
+<code>band = 0.10</code><button class="info" data-tip="band">ⓘ</button>, <code>dispLen = 0.10</code><button class="info" data-tip="displen">ⓘ</button>,
+<code>spread = 0.10</code><button class="info" data-tip="spread">ⓘ</button>, <code>maskBand = 0.002</code><button class="info" data-tip="maskband">ⓘ</button>,
+<code>speed = 0.10</code><button class="info" data-tip="speed">ⓘ</button>. The green rows are new. The <b>Answer</b> column says which question a row works on.</p>
+
+<table class="trace">
+  <tr><th style="width:120px">Step</th><th style="width:124px">Answer</th><th style="width:300px">Formula</th><th>Numbers (one operation per “=”)</th><th style="width:190px">Result</th><th style="width:110px">Used by</th></tr>
+  <tr><td>1 · position</td><td><span class="chip sh">both</span></td><td class="f">p = uv − C</td><td class="f">p.x = 0.40 − 0.40 = 0<br>p.y = 0.24 − 0.54 = −0.30<br><span class="pl">p.x is 0: W is straight above C (y grows downward).</span></td><td class="f">p = (0, −0.30)</td><td>steps 2 and 7</td></tr>
+  <tr><td>2 · distance</td><td><span class="chip sh">both</span></td><td class="f">d = length(p)<button class="info" data-tip="length">ⓘ</button></td><td class="f">p.x² = 0 × 0 = 0<br>p.y² = (−0.30) × (−0.30) = 0.09<br>sum = 0 + 0.09 = 0.09<br>d = √0.09 = 0.30</td><td class="f">d = 0.30</td><td>steps 3 and 7</td></tr>
+  <tr><td>3 · signed distance</td><td><span class="chip sh">both</span></td><td class="f">sd = d − radius<button class="info" data-tip="sd">ⓘ</button></td><td class="f">sd = 0.30 − 0.25 = 0.05</td><td class="f">sd = 0.05<br><span class="pl">plus: W is outside the circle</span></td><td>steps 4 and 5</td></tr>
+  <tr class="new"><td>4 · mask (new)</td><td><span class="chip p1">1 · is W glass?</span></td><td class="f">mask = 1 − smoothstep(−maskBand, maskBand, sd)<button class="info" data-tip="smoothstep">ⓘ</button></td><td class="f">sd − (−0.002) = 0.05 + 0.002 = 0.052<br>maskBand − (−maskBand) = 0.002 + 0.002 = 0.004<br>t = 0.052 ÷ 0.004 = 13<br>t is limited to 0 … 1 → t = 1<br>t² = 1 × 1 = 1<br>t³ = 1 × 1 = 1<br>3t² = 3 × 1 = 3<br>2t³ = 2 × 1 = 2<br>smoothstep = 3 − 2 = 1<br>mask = 1 − 1 = 0</td><td class="f">mask = 0<br><span class="pl">W is not glass</span></td><td>step 14</td></tr>
+  <tr><td>5 · falloff</td><td><span class="chip p2">2 · where does W read?</span></td><td class="f">falloff = 1 − smoothstep(−band, band, sd)</td><td class="f">sd − (−0.10) = 0.05 + 0.10 = 0.15<br>band − (−band) = 0.10 + 0.10 = 0.20<br>t = 0.15 ÷ 0.20 = 0.75<br>t² = 0.75 × 0.75 = 0.5625<br>t³ = 0.5625 × 0.75 = 0.422<br>3t² = 3 × 0.5625 = 1.6875<br>2t³ = 2 × 0.422 = 0.844<br>smoothstep = 1.6875 − 0.844 = 0.8435<br>falloff = 1 − 0.8435 = 0.1565</td><td class="f">falloff = 0.1565</td><td>step 6</td></tr>
+  <tr><td>6 · push</td><td><span class="chip p2">2 · where does W read?</span></td><td class="f">push = dispLen × falloff</td><td class="f">push = 0.10 × 0.1565 = 0.016</td><td class="f">push = 0.016<br><span class="pl">short: W is outside the circle</span></td><td>step 8</td></tr>
+  <tr><td>7 · direction</td><td><span class="chip p2">2 · where does W read?</span></td><td class="f">dir = p / d</td><td class="f">dir.x = 0 ÷ 0.30 = 0<br>dir.y = −0.30 ÷ 0.30 = −1</td><td class="f">dir = (0, −1)<br><span class="pl">straight up, away from C</span></td><td>step 8</td></tr>
+  <tr><td>8 · disp</td><td><span class="chip p2">2 · where does W read?</span></td><td class="f">disp = dir × push</td><td class="f">disp.x = 0 × 0.016 = 0<br>disp.y = −1 × 0.016 = −0.016</td><td class="f">disp = (0, −0.016)</td><td>step 9</td></tr>
+  <tr><td>9 · three read points</td><td><span class="chip p2">2 · where does W read?</span></td><td class="f">readRed = uv − disp × (1 − spread)<br>readGreen = uv − disp<br>readBlue = uv − disp × (1 + spread)</td><td class="f">1 − spread = 1 − 0.10 = 0.90<br>1 + spread = 1 + 0.10 = 1.10<br>readRed: disp.y × 0.90 = −0.016 × 0.90 = −0.0144<br>readRed.y = 0.24 − (−0.0144) = 0.2544<br>readGreen.y = 0.24 − (−0.016) = 0.256<br>readBlue: disp.y × 1.10 = −0.016 × 1.10 = −0.0176<br>readBlue.y = 0.24 − (−0.0176) = 0.2576<br>all three: x = 0.40 − 0 = 0.40</td><td class="f">readRed = (0.40, 0.2544)<br>readGreen = (0.40, 0.256)<br>readBlue = (0.40, 0.2576)</td><td>step 10</td></tr>
+  <tr><td>10 · clamp (Lesson 9.12)</td><td><span class="chip p2">2 · where does W read?</span></td><td class="f">clamp(read, 0, 1), three times<button class="info" data-tip="clamp">ⓘ</button></td><td class="f">x: 0 ≤ 0.40 ≤ 1 → yes (all three)<br>y: 0 ≤ 0.2544 ≤ 1 → yes<br>y: 0 ≤ 0.256 ≤ 1 → yes<br>y: 0 ≤ 0.2576 ≤ 1 → yes</td><td>all inside: clamp changes nothing</td><td>step 12</td></tr>
+  <tr class="new"><td>11 · shift (new)</td><td><span class="chip mx">the wallpaper</span></td><td class="f">shift = speed × time<button class="info" data-tip="time">ⓘ</button></td><td class="f">shift = 0.10 × 2 = 0.20</td><td class="f">shift = 0.20<br><span class="pl">the wallpaper has moved 0.20 to the left</span></td><td>steps 12 and 13</td></tr>
+  <tr><td>12 · bent</td><td><span class="chip p2">2 · where does W read?</span></td><td class="f">the wallpaper rule<button class="info" data-tip="wall">ⓘ</button> at the three read points, then half4(colRed.r, colGreen.g, colBlue.b, 1)</td><td class="f">x + shift = 0.40 + 0.20 = 0.60 (all three)<br>col: 0.60 × 4 = 2.40 → floor → 2<br>readRed row: 0.2544 × 4 = 1.0176 → floor → 1<br>readGreen row: 0.256 × 4 = 1.024 → floor → 1<br>readBlue row: 0.2576 × 4 = 1.0304 → floor → 1<br>col + row = 2 + 1 = 3 → odd → black (all three)<br>red = colRed.r = 0<br>green = colGreen.g = 0<br>blue = colBlue.b = 0</td><td class="f">bent = (0, 0, 0)<br><span class="pl">black: Lesson 9.13 would store this</span></td><td>step 14</td></tr>
+  <tr class="new"><td>13 · plain (new)</td><td><span class="chip mx">the mix</span></td><td class="f">plain = wall(uv, time)</td><td class="f">x + shift = 0.40 + 0.20 = 0.60<br>col: 0.60 × 4 = 2.40 → floor → 2<br>row: 0.24 × 4 = 0.96 → floor → 0<br>col + row = 2 + 0 = 2 → even → white</td><td class="f">plain = (1, 1, 1)</td><td>step 14</td></tr>
+  <tr class="new"><td>14 · mix (new)</td><td><span class="chip mx">the mix</span></td><td class="f">color = mix(plain, bent, mask)<br>= plain + (bent − plain) × mask</td><td class="f">for red, then green, then blue (the same numbers):<br>bent − plain = 0 − 1 = −1<br>(−1) × mask = (−1) × 0 = 0<br>plain + 0 = 1 + 0 = 1</td><td class="f">(1, 1, 1)<br><span class="pl">white: W shows the wallpaper</span></td><td>stored at W</td></tr>
+</table>
+
+<!-- ============================ SECTION 4 ============================ -->
+<h2 id="s4"><span class="tag">Section 4 · lab</span>Lab: the lens over the moving wallpaper</h2>
+
+<p>Press <b>Play</b>, or drag the <b>time</b> slider. Drag the dot C to move the glass, and the dot W to pick a
+pixel. Watch the two maps under the picture: they do not change while the wallpaper moves. The empty area around the
+screen is not part of the screen: nothing is drawn there.</p>
+
+<div class="gridL">
+  <div>
+    <div class="stage" id="labStage"><canvas id="labCv" width="760" height="760"></canvas></div>
+    <div class="maps">
+      <div><canvas id="labMask" width="368" height="368"></canvas>
+        <figcaption><b>Answer 1 · the mask map.</b> Violet = 1 (glass), light gray = 0.</figcaption></div>
+      <div class="stage" id="labPushStage"><canvas id="labPush" width="368" height="368"></canvas>
+        <figcaption><b>Answer 2 · the read-point map.</b> Each pink arrow goes from a pixel to its readGreen. A gray dot: push 0.</figcaption></div>
+    </div>
+  </div>
+  <div>
+    <div class="ctl"><span class="ctlname">Time</span>
+      <button class="btn" id="labPlay">▶ Play</button>
+      <label><input type="range" id="labT" min="0" max="10" step="0.05" value="2"><span class="mono" id="labTV">2.00 s</span></label>
+      <button class="info" data-tip="time">ⓘ</button></div>
+    <div class="ctl"><span class="ctlname">Wallpaper</span>
+      <button class="btn" data-lab-wall="bw">black &amp; white</button><button class="btn" data-lab-wall="checker">orange &amp; navy</button></div>
+    <div class="ctl"><span class="ctlname">Mix by</span>
+      <button class="btn" data-lab-m="mask">mask · this lesson</button><button class="btn" data-lab-m="one">nothing · Lesson 9.13</button></div>
+    <div class="ctl"><span class="ctlname">Glass at</span>
+      <button class="btn" data-lab-c="0.40,0.54">this lesson</button>
+      <button class="btn" data-lab-c="0.50,0.50">middle (Lesson 9.11)</button>
+      <button class="btn" data-lab-c="0.50,1.10">bottom edge (Lesson 9.12)</button></div>
+    <div class="ctl"><label><span class="ctlname">dispLen</span>
+      <input type="range" id="labLen" min="0" max="0.20" step="0.01" value="0.10"><span class="mono" id="labLenV">0.10</span></label>
+      <button class="info" data-tip="displen">ⓘ</button></div>
+    <div class="ctl"><label><span class="ctlname">spread</span>
+      <input type="range" id="labS" min="0" max="0.30" step="0.01" value="0.10"><span class="mono" id="labSV">0.10</span></label>
+      <button class="info" data-tip="spread">ⓘ</button></div>
+    <ul class="legend">
+      <li><span class="swd" style="background:#c084fc"></span>C: the center of the glass (drag it) · <span style="color:#7e22ce">the violet circle</span>: the glass</li>
+      <li><span class="swd" style="background:#fff"></span>W: one pixel (drag it), filled with the color it stores</li>
+      <li><span class="swl" style="background:#ff4d8d"></span>the pink push arrow: from W to readBlue, the farthest read point</li>
+      <li><span class="swl" style="background:#fb923c"></span>the orange ring: 0.35 from C; outside it the push is 0</li>
+    </ul>
+    <svg id="labPan" class="block" width="520" height="222" role="img" aria-label="The answers for the pixel W"></svg>
+    <div class="readout cols" id="labOut" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<!-- ============================ SECTION 5 ============================ -->
+<h2 id="s5"><span class="tag">Section 5 · short code excerpt</span>The iPhone shader</h2>
+
+<p>The real Metal functions from the LiquidGlassLab app: <code>chapter09/LensCheckpoint.metal</code> (explorer screen:
+<code>chapter09/LensCheckpointExplorer.swift</code>). The parameter list is packed onto fewer lines here, and the
+comments on the right were added for the lesson. The new lines are green.</p>
+
+<pre class="code">[[ stitchable ]] half4 glassLens(
+    float2 position, half4 color, float2 resolution, float2 center,
+    float dispLen, float radius, float band, float spread,
+    float maskBand, float time, float speed, float scale
+) {
+    float2 fragCoord = position * scale;
+    float2 uv = fragCoord / resolution;
+    float2 p = uv - center;
+    float d = length(p);
+<span class="nw">    float sd = d - radius;</span>                                          <span class="cm">// moved out of the if: the mask needs sd for every pixel</span>
+    float2 disp = float2(0.0, 0.0);
+    if (d &gt; 0.0001) {
+        float falloff = 1.0 - smoothstep(-band, band, sd);
+        disp = (p / d) * dispLen * falloff;
+    }
+    float2 readRed   = clamp(uv - disp * (1.0 - spread), 0.0, 1.0);
+    float2 readGreen = clamp(uv - disp, 0.0, 1.0);
+    float2 readBlue  = clamp(uv - disp * (1.0 + spread), 0.0, 1.0);
+    half4 colRed   = movingChecker(readRed, time, speed);
+    half4 colGreen = movingChecker(readGreen, time, speed);
+    half4 colBlue  = movingChecker(readBlue, time, speed);
+    half4 bent  = half4(colRed.r, colGreen.g, colBlue.b, 1.0);      <span class="cm">// the Lesson 9.13 color, now with a name</span>
+<span class="nw">    float mask  = 1.0 - smoothstep(-maskBand, maskBand, sd);</span>        <span class="cm">// new: how much this pixel is glass</span>
+<span class="nw">    half4 plain = movingChecker(uv, time, speed);</span>                   <span class="cm">// new: the wallpaper at the pixel itself</span>
+<span class="nw">    return mix(plain, bent, half(mask));</span>                            <span class="cm">// new: the mask picks</span>
+}
+
+half4 movingChecker(float2 uv, float time, float speed) {
+    if (uv.x &lt; 0.0 || uv.x &gt; 1.0 || uv.y &lt; 0.0 || uv.y &gt; 1.0) {
+        return half4(0.0, 0.0, 0.0, 0.0);                           <span class="cm">// a real picture stops at its edge (Lesson 9.12)</span>
+    }
+<span class="nw">    float col = floor((uv.x + speed * time) * 4.0);</span>                 <span class="cm">// new: + speed × time moves the wallpaper left</span>
+    float row = min(floor(uv.y * 4.0), 3.0);
+    bool even = fmod(col + row, 2.0) &lt; 0.5;
+    return even ? half4(1.0, 1.0, 1.0, 1.0) : half4(0.0, 0.0, 0.0, 1.0);
+}</pre>
+
+<ul>
+  <li><code>sd</code> moved out of the <code>if</code>. The <code>if</code> guards only the push, which divides by
+  <code>d</code>. The mask needs <code>sd</code> for every pixel, also the pixel at C, where the push is skipped.</li>
+  <li><code>half(mask)</code> turns the float into a half, the same number type as the colors (Lesson 8.7), so
+  <code>mix</code> gets three values of one kind.</li>
+  <li>Both lines use <code>floor</code>, which rounds down. Row 0 is y from 0 to 0.25: y × 4 runs from 0 to just under
+  1, and <code>floor</code> makes that 0. So the rows are numbered 0, 1, 2, 3, not 1 to 4. Only <code>row</code> has
+  <code>min(…, 3.0)</code> (the smaller of the two numbers), because y stops at the bottom edge, y = 1.00, and that
+  edge gives row 4, a row that does not exist. The edge is read often: the clamp puts every read point below the
+  screen exactly on y = 1.00 (Lesson 9.12, and Exercise 3 below). Example: the read point (0.40, 1.00) at
+  time = 2 s, with speed = 0.10<button class="info" data-tip="speed">ⓘ</button>.
+  <div class="readout">shift = speed × time = 0.10 × 2 = 0.20
+x + shift = 0.40 + 0.20 = 0.60
+col: 0.60 × 4 = 2.40 → floor → 2
+row: 1.00 × 4 = 4.00 → floor → 4
+without min: col + row = 2 + 4 = 6 → even → white (wrong)
+with min:    min(4, 3) = 3 → col + row = 2 + 3 = 5 → odd → black, the color of row 3 in column 2</div>
+  Row 4 is one more than row 3, so col + row is one more too: even becomes odd, and odd becomes even. So without
+  <code>min</code>, every read point on the edge would get the opposite color of the bottom row.</li>
+  <li><code>col</code> has no <code>min(…, 3.0)</code>, because <code>col</code> uses x + shift, and the shift grows
+  with time. So x + shift goes past 1.00, and <code>col</code> goes past 3. Example: the pixel (0.90, 0.10) at
+  time = 2 s.
+  <div class="readout">shift = speed × time = 0.10 × 2 = 0.20
+x + shift = 0.90 + 0.20 = 1.10
+col: 1.10 × 4 = 4.40 → floor → 4
+row: 0.10 × 4 = 0.40 → floor → 0
+col + row = 4 + 0 = 4 → even → white
+with min on col: min(4, 3) = 3 → col + row = 3 + 0 = 3 → odd → black (wrong)</div>
+  Column 4 is real: it is the next column of the checkerboard, sliding in from the right. At time = 2 s it covers x
+  from 0.80 to 1.00: it starts where <span style="white-space:nowrap">(x + shift) × 4 = 4</span>, that is x + shift = 1.00, so x = 1.00 − 0.20 = 0.80. With
+  <code>min</code> on
+  <code>col</code>, every pixel to the right of column 3 would copy column 3, so no new square would come in.</li>
+  <li><code>fmod(col + row, 2.0)</code> is the remainder after dividing by 2: 0 for even, 1 for odd.</li>
+  <li>In a Metal file a function must be declared before a function that calls it. In the real file,
+  <code>movingChecker</code> comes first.</li>
+</ul>
+
+<div class="iosnote"><b>Browser and iPhone.</b> On this page, JavaScript runs the same chain for every pixel of a
+canvas, about 30 times per second while a picture plays. On iPhone, the explorer wraps the view in
+<code>TimelineView(.animation)</code>, the frame clock of Lesson 5.2, and passes the elapsed seconds as the
+<code>time</code> argument, as in Lesson 8.10. Metal then runs <code>glassLens</code> for every pixel of the view, about once per display frame.
+<br><br><b>Two iPhone details.</b> The explorer passes <code>maskBand = 1 ÷ resolution.x</code>: one device pixel in
+UV, the same idea as 0.002 on this page. It also passes the time modulo 5 seconds: after 5 s the wallpaper has moved two
+cells (0.10 × 5 = 0.50) and looks the same again, and a small float stays exact.
+<br><br><b>The cost.</b> Every pixel asks the wallpaper four times: three read points and <code>plain</code>. Where
+<code>mask</code> is 0, <code>bent</code> is not used. A production shader can return <code>plain</code> early there,
+or run only on the glass's own rectangle.</div>
+
+<!-- ============================ SECTION 6 ============================ -->
+<h2 id="s6"><span class="tag">Section 6 · coding challenge</span>Challenge: write the return line</h2>
+
+<p>The shader below has its last line missing. Write it. The page runs your line on the picture, with the glass at
+C = (0.40, 0.54) and <code>time = 0</code>, and checks which color each pixel takes inside and outside the outline.</p>
+<pre class="code">    half4 bent  = half4(colRed.r, colGreen.g, colBlue.b, 1.0);
+    float mask  = 1.0 - smoothstep(-maskBand, maskBand, sd);
+    half4 plain = movingChecker(uv, time, speed);
+    <span class="nw">???</span></pre>
+<div class="gridC">
+  <div class="stage"><canvas id="chCv" width="520" height="520"></canvas>
+    <figcaption>The output of your line at time = 0. No circle is drawn.</figcaption></div>
+  <div>
+    <div class="ctl"><input id="chIn" type="text" spellcheck="false" autocomplete="off" placeholder="return mix(…);" aria-label="Your Metal line">
+      <button class="btn" id="chBtn">Run</button></div>
+    <div class="verdict" id="chVerdict"></div>
+    <details><summary>Hint</summary><div class="body"><p><code>mix(a, b, m)</code> gives <code>a</code> when m = 0 and
+    <code>b</code> when m = 1. Outside the glass the mask is 0, and the pixel should show the wallpaper at its own position.</p></div></details>
+  </div>
+</div>
+
+<!-- ============================ SECTION 7 ============================ -->
+<h2 id="s7"><span class="tag">Section 7 · exercises</span>Exercises</h2>
+<p>Each exercise starts with a picture. Read the question, pick one choice, then open the answer. Every answer draws
+the reason.</p>
+
+<details class="ex"><summary>Exercise 1 — no push: what does the glass show?</summary><div class="body">
+  <div class="exq">
+    <div class="stage" id="ex1qStage"><canvas id="ex1q" width="440" height="440"></canvas>
+      <figcaption><b>Before the change:</b> the lens of the lab, with dispLen = 0.10, at time = 0.</figcaption></div>
+    <div>
+      <ul class="legend">
+        <li><span class="sw check"></span>the black-and-white checkerboard, bent inside the glass</li>
+        <li><span class="swl" style="background:#c084fc"></span>the violet circle: the outline of the glass, 0.25 from C.
+        Inside it the mask is 1, so a pixel there shows <code>bent</code>.</li>
+        <li><span class="swd" style="background:#c084fc"></span>C = (0.40, 0.54): the center of the glass</li>
+        <li><span class="swd" style="background:#fff"></span>I = (0.40, 0.44): one pixel inside the violet circle</li>
+      </ul>
+      <p><b>The change.</b> We set <code>dispLen = 0</code><button class="info" data-tip="displen">ⓘ</button>
+      (it was 0.10). Then push = dispLen × falloff = 0 × falloff = 0 for every pixel, so no read point moves. The mask
+      line stays the same.</p>
+      <p><b>Question:</b> what does the screen show inside the violet circle now?</p>
+      <div class="choices">
+        <button class="btn" aria-pressed="false" data-ok="0" data-why="Not this one. The bend comes from the push, and the push is now 0 for every pixel.">The checkerboard, bent as before.</button>
+        <button class="btn" aria-pressed="false" data-ok="1" data-why="Right. With no push, every read point is the pixel itself, so bent and plain are the same color.">The checkerboard, exactly as with no glass.</button>
+        <button class="btn" aria-pressed="false" data-ok="0" data-why="Not this one. mask = 1 only picks bent. Now bent is read at the pixel itself, so it still shows the squares.">One flat color, because the mask is 1 there.</button>
+      </div>
+      <div class="verdict" aria-live="polite"></div>
+    </div>
+  </div>
+  <details><summary>Show the answer</summary><div class="body">
+    <div class="pair"><div class="stage" id="ex1aStage"><canvas id="ex1a" width="440" height="440"></canvas>
+      <figcaption><b>After the change, the output.</b> Only the checkerboard. The glass cannot be seen.</figcaption></div>
+      <div class="stage" id="ex1bStage"><canvas id="ex1b" width="440" height="440"></canvas>
+      <figcaption><b>After the change, the mask map.</b> The glass is still there: violet = 1, light gray = 0.</figcaption></div></div>
+    <div class="readout">push = dispLen × falloff = 0 × falloff = 0
+disp = dir × push = dir × 0 = (0, 0)
+readRed = readGreen = readBlue = I − (0, 0) = (0.40, 0.44): the pixel I itself
+the wallpaper at (0.40, 0.44), time = 0:
+  col: 0.40 × 4 = 1.60 → floor → 1
+  row: 0.44 × 4 = 1.76 → floor → 1
+  col + row = 1 + 1 = 2 → even → white (1, 1, 1)
+bent  = (1, 1, 1): all three read points are I
+plain = (1, 1, 1): the wallpaper at I
+mix(plain, bent, mask) = plain + (bent − plain) × mask, for each channel:
+  bent − plain = 1 − 1 = 0
+  0 × mask = 0 × 1 = 0
+  plain + 0 = 1 + 0 = 1
+→ I stores (1, 1, 1): white, the same as with no glass</div>
+    <p><b>Why:</b> the mask says <i>where</i> the glass is. The read points say <i>what</i> the glass shows. With no
+    push, the glass shows exactly the wallpaper under it, so it cannot be seen, like a flat, clean window. (Chapter 10
+    adds light at the edge, which shows the glass even where nothing bends.)</p>
+  </div></details>
+</div></details>
+
+<details class="ex"><summary>Exercise 2 — a capsule mask with the circle's push: which pixel differs from the wallpaper?</summary><div class="body">
+  <div class="exq">
+    <div class="stage" id="ex2qStage"><canvas id="ex2q" width="440" height="440"></canvas>
+      <figcaption><b>The wallpaper</b> at time = 0, with no glass, and the two outlines that the shader uses.</figcaption></div>
+    <div>
+      <ul class="legend">
+        <li><span class="sw check"></span>the black-and-white checkerboard at time = 0, with no glass</li>
+        <li><span class="swl" style="background:#c084fc"></span>the violet capsule: the outline of the new mask, a
+        rectangle with round ends, 0.80 wide and 0.40 tall, centered on C. Inside it the mask is 1.</li>
+        <li><span class="swl" style="background:#fb923c"></span>the orange ring: 0.35 from C. Outside it the push is 0.</li>
+        <li><span class="swd" style="background:#c084fc"></span>C = (0.40, 0.54): the center of the glass</li>
+        <li><span class="swd" style="background:#fff"></span>T = (0.78, 0.54): inside the capsule, outside the orange ring</li>
+        <li><span class="swd" style="background:#fff"></span>M = (0.40, 0.33): inside the orange ring, just outside the capsule</li>
+      </ul>
+      <p><b>The change.</b> A classmate wants glass shaped like a capsule. They change only the mask line: it now uses
+      the capsule's sd<button class="info" data-tip="capsule">ⓘ</button> instead of the circle's. They do not change the
+      lines that compute the read points, so the push still comes from the circle around C. That push is 0 outside the
+      orange ring<button class="info" data-tip="band">ⓘ</button>.</p>
+      <p><b>What this checks.</b> The shader answers two separate questions for each pixel. The mask line says whether
+      the pixel is glass. The read-point lines say whether its read points move (the push). This exercise checks what a
+      pixel shows when only the mask line changes. We ask because giving the glass a new shape means changing these
+      lines.</p>
+      <p><b>What you do.</b> For T and for M, read two facts off the picture. Inside the violet capsule? Then mask = 1:
+      the pixel is glass. Inside the orange ring? Then the pixel has a push: its read points move. Then use the last
+      line, <code>mix(plain, bent, mask)</code><button class="info" data-tip="mix">ⓘ</button>. It gives
+      <code>plain</code>, the wallpaper under the pixel, when mask = 0. It gives <code>bent</code>, the color at the
+      three read points, when mask = 1.</p>
+      <p><b>Question:</b> which of the two pixels shows a color different from the wallpaper under it?</p>
+      <div class="choices">
+        <button class="btn" aria-pressed="false" data-ok="0" data-why="Not this one. T is glass (mask = 1), but its push is 0, so it reads at T itself and shows the wallpaper under it.">Only T.</button>
+        <button class="btn" aria-pressed="false" data-ok="0" data-why="Not this one. M has a push, but its mask is 0, so mix shows plain: the wallpaper under it.">Only M.</button>
+        <button class="btn" aria-pressed="false" data-ok="0" data-why="Not this one. T has no push, and M is not glass.">Both.</button>
+        <button class="btn" aria-pressed="false" data-ok="1" data-why="Right. T is glass with no push. M has a push but is not glass. A pixel can differ from the wallpaper under it only when it has both.">Neither of them.</button>
+      </div>
+      <div class="verdict" aria-live="polite"></div>
+    </div>
+  </div>
+  <details><summary>Show the answer</summary><div class="body">
+    <div class="pair"><div class="stage" id="ex2aStage"><canvas id="ex2a" width="440" height="440"></canvas>
+      <figcaption><b>The output.</b> The checkerboard bends only in the middle of the capsule.</figcaption></div>
+      <div class="stage" id="ex2bStage"><canvas id="ex2b" width="440" height="440"></canvas>
+      <figcaption><b>The same output with the two outlines.</b></figcaption></div></div>
+    <ul class="legend two">
+      <li><span class="swl" style="background:#c084fc"></span>the violet capsule: the new mask, mask = 1 inside</li>
+      <li><span class="swl" style="background:#fb923c"></span>the orange ring: 0.35 from C, where the circle's push ends</li>
+    </ul>
+    <p>Two rules decide the answer. The mask: sd ≤ −0.002 gives mask = 1, and sd ≥ 0.002 gives mask = 0
+    (maskBand = 0.002<button class="info" data-tip="maskband">ⓘ</button>). The push: sd ≥ 0.10 gives falloff = 0,
+    so push = 0 (band = 0.10<button class="info" data-tip="band">ⓘ</button>). The circle's radius is
+    0.25<button class="info" data-tip="radius">ⓘ</button>.</p>
+    <div class="readout">T = (0.78, 0.54)
+  p = T − C = (0.78 − 0.40, 0.54 − 0.54) = (0.38, 0)
+  mask, capsule sd:  nearestX = clamp(0.38, −0.20, 0.20) = 0.20
+                     p − (nearestX, 0) = (0.38 − 0.20, 0 − 0) = (0.18, 0)
+                     its length = 0.18   (its y is 0)
+                     sd = length − 0.20 = 0.18 − 0.20 = −0.02   (0.20: the radius of the round ends)
+                     −0.02 ≤ −0.002 → mask = 1: T is glass
+  push, circle sd:   d = length(p) = 0.38   (p.y is 0)
+                     sd = d − radius = 0.38 − 0.25 = 0.13
+                     0.13 ≥ 0.10 → falloff = 0
+                     push = 0.10 × 0 = 0: the read points are T itself, so bent = plain
+  → T stores plain: the wallpaper under it
+M = (0.40, 0.33)
+  p = M − C = (0.40 − 0.40, 0.33 − 0.54) = (0, −0.21)
+  mask, capsule sd:  nearestX = clamp(0, −0.20, 0.20) = 0
+                     p − (nearestX, 0) = (0 − 0, −0.21 − 0) = (0, −0.21)
+                     its length = 0.21   (its x is 0)
+                     sd = length − 0.20 = 0.21 − 0.20 = 0.01
+                     0.01 ≥ 0.002 → mask = 0: M is not glass
+  push, circle sd:   d = length(p) = 0.21   (p.x is 0)
+                     sd = d − radius = 0.21 − 0.25 = −0.04
+                     smoothstep(−0.10, 0.10, −0.04):
+                       −0.04 − (−0.10) = 0.06   how far sd is past −0.10, where the band starts
+                       t = 0.06 ÷ 0.20 = 0.30   0.20: the band's width, from −0.10 to +0.10
+                       t² = 0.30 × 0.30 = 0.09
+                       t³ = 0.09 × 0.30 = 0.027
+                       3t² = 3 × 0.09 = 0.27
+                       2t³ = 2 × 0.027 = 0.054
+                       smoothstep = 0.27 − 0.054 = 0.216
+                     falloff = 1 − 0.216 = 0.784
+                     push = 0.10 × 0.784 = 0.0784: M's read points move
+  → mask = 0 → M stores plain: the push is thrown away</div>
+    <p><b>Why:</b> a pixel can show something other than the wallpaper under it only when it is glass <i>and</i> has a
+    push. That is only inside both outlines (“here: glass and a push” in the right picture). The new mask changed the
+    outline, but the read points still follow the circle. At the ends of the capsule the circle gives no push, so the
+    glass cannot be seen there (as in Exercise 1). Above and below the capsule, the mask throws the circle's push away.</p>
+    <p><b>What to remember:</b> to give the glass a new shape, change both answers: the mask <i>and</i> the push.
+    Changing only the mask line gives a capsule outline with a circle's bend inside it. This lesson does not build a
+    push for a capsule, and this exercise does not need one. Lesson 10.3 (the surface normal) builds a push for any
+    shape.</p>
+  </div></details>
+</div></details>
+
+<details class="ex"><summary>Exercise 3 — a black strip at the bottom of the glass: which line fixes it?</summary><div class="body">
+  <div class="exq">
+    <div class="stage" id="ex3qStage"><canvas id="ex3q" class="see" width="520" height="440"></canvas>
+      <figcaption><b>After the change:</b> the output without the three clamps, at time = 0.</figcaption></div>
+    <div>
+      <ul class="legend">
+        <li><span class="sw" style="background:conic-gradient(#e07a2e 0 25%,#1a4066 0 50%,#e07a2e 0 75%,#1a4066 0) 0 0/18px 18px"></span>the orange-and-navy checkerboard</li>
+        <li><span class="sw" style="background:#000"></span>the black strip at the bottom of the glass</li>
+        <li><span class="swl" style="background:#c084fc"></span>the violet circle: the outline of the glass, 0.25 from C</li>
+        <li><span class="swl" style="background:#ffffff"></span>the white line: the bottom edge of the screen, y = 1.00</li>
+        <li><span class="sw hatch"></span>hatch: below the screen, no wallpaper</li>
+        <li><span class="swd" style="background:#c084fc"></span>C = (0.50, 1.10): the center of the glass, below the screen</li>
+        <li><span class="swd" style="background:#000"></span>W₃ = (0.59, 0.98): one pixel in the strip</li>
+      </ul>
+      <p><b>The setup.</b> The glass center is C = (0.50, 1.10). y grows downward and the screen ends at y = 1.00, so
+      C is below the screen and only the top of the glass is on it (as in Lesson 9.12).</p>
+      <p><b>The change.</b> A classmate deletes the three clamps<button class="info" data-tip="clamp">ⓘ</button>: the
+      lines that keep each read point inside the screen. Now a black strip appears at the bottom of the glass.</p>
+      <p><b>Question:</b> which line should the classmate change to remove the strip?</p>
+      <div class="choices">
+        <button class="btn" aria-pressed="false" data-ok="0" data-why="Not this one. W₃ is inside the glass, so it must show bent. A mask of 0 there would cut a piece out of the glass, and the bent color would still be wrong.">The mask line: make the mask 0 in the strip.</button>
+        <button class="btn" aria-pressed="false" data-ok="1" data-why="Right. The strip is black because the read points of its pixels land below the screen, where there is no wallpaper. That is a read-point problem.">The read-point lines: put the three clamps back.</button>
+      </div>
+      <div class="verdict" aria-live="polite"></div>
+    </div>
+  </div>
+  <details><summary>Show the answer</summary><div class="body">
+    <div class="pair"><div class="stage" id="ex3aStage"><canvas id="ex3a" class="see" width="440" height="440"></canvas>
+      <figcaption><b>No clamp.</b> The read points of W₃ land below the screen.</figcaption></div>
+      <div class="stage" id="ex3bStage"><canvas id="ex3b" class="see" width="440" height="440"></canvas>
+      <figcaption><b>With the three clamps.</b> No black strip. The glass pixels here read the bottom row, so they show the wallpaper's own colors.</figcaption></div></div>
+    <ul class="legend two">
+      <li><span class="swl" style="background:#ffffff"></span>the white line: the bottom edge of the screen, y = 1.00</li>
+      <li><span class="sw hatch"></span>hatch: below the screen, no wallpaper</li>
+      <li><span class="swl" style="background:#ff4d8d"></span>the pink arrow: from W₃ to readBlue, the farthest read point</li>
+      <li><span class="swd" style="background:#22c55e"></span>the red, green and blue dots: readRed, readGreen, readBlue</li>
+      <li><span class="swl" style="background:#c084fc"></span>the violet circle: the outline of the glass, 0.25 from C</li>
+      <li><span class="swd" style="background:#c084fc"></span>C = (0.50, 1.10): the center of the glass</li>
+    </ul>
+    <p>The constants: radius = 0.25<button class="info" data-tip="radius">ⓘ</button>, maskBand =
+    0.002<button class="info" data-tip="maskband">ⓘ</button>, dispLen = 0.10<button class="info" data-tip="displen">ⓘ</button>,
+    spread = 0.10<button class="info" data-tip="spread">ⓘ</button>.</p>
+    <div class="readout">W₃ = (0.59, 0.98), C = (0.50, 1.10)
+p = W₃ − C = (0.59 − 0.50, 0.98 − 1.10) = (0.09, −0.12)
+p.x² = 0.09 × 0.09 = 0.0081
+p.y² = 0.12 × 0.12 = 0.0144
+p.x² + p.y² = 0.0081 + 0.0144 = 0.0225
+d = √0.0225 = 0.15
+mask:  sd = d − radius = 0.15 − 0.25 = −0.10
+       −0.10 ≤ −0.002 → mask = 1: W₃ is glass
+push:  falloff = 1 − smoothstep(−0.10, 0.10, −0.10) = 1 − 0 = 1   (sd = −0.10 is where the band starts)
+       push = 0.10 × 1 = 0.10
+dir  = p ÷ d:       0.09 ÷ 0.15 = 0.60,   −0.12 ÷ 0.15 = −0.80
+disp = dir × push:  0.60 × 0.10 = 0.06,   −0.80 × 0.10 = −0.08
+readRed:   1 − spread = 1 − 0.10 = 0.90   (red moves 0.90 of the push)
+           disp × 0.90 = (0.06 × 0.90, −0.08 × 0.90) = (0.054, −0.072)
+           W₃ − disp × 0.90 = (0.59 − 0.054, 0.98 − (−0.072)) = (0.536, 1.052)
+readGreen: W₃ − disp = (0.59 − 0.06, 0.98 − (−0.08)) = (0.53, 1.06)
+readBlue:  1 + spread = 1 + 0.10 = 1.10   (blue moves 1.10 of the push)
+           disp × 1.10 = (0.06 × 1.10, −0.08 × 1.10) = (0.066, −0.088)
+           W₃ − disp × 1.10 = (0.59 − 0.066, 0.98 − (−0.088)) = (0.524, 1.068)
+no clamp:  all three y are more than 1.00: below the screen, no wallpaper
+           → every channel = 0 → bent = (0, 0, 0)
+           mask = 1 → W₃ stores bent: black
+clamp:     y = min(1.052, 1.00) = 1.00 (the same for 1.06 and 1.068); every x is already inside 0 … 1
+           col: 0.536 × 4 = 2.144,  0.53 × 4 = 2.12,  0.524 × 4 = 2.096 → floor → 2 (all three)
+           row: 1.00 × 4 = 4.00 → floor → 4 → min(4, 3) = 3 (the edge belongs to the last row)
+           col + row = 2 + 3 = 5 → odd → navy (all three) → W₃ stores navy</div>
+    <p><b>Why:</b> the mask can only choose between <code>plain</code> and <code>bent</code>. W₃ is well inside the
+    outline, so it must show <code>bent</code>. Its <code>bent</code> is black because its read points are below the
+    screen: that is a read-point problem, so the fix is a read-point line, the clamp of Lesson 9.12. A mask of 0 in the
+    strip would cut a piece out of the glass. The strip is black, not see-through as in Lesson 9.12, <b>because</b>
+    the Lesson 9.13 line sets alpha to 1.0, and every channel read outside the wallpaper is 0.</p>
+  </div></details>
+</div></details>
+
+<!-- ============================ SECTION 8 ============================ -->
+<h2 id="s8"><span class="tag">Section 8 · copyable record</span>Take it with you</h2>
+<p>Press <b>Copy</b> and paste the record into your notes.</p>
+<textarea id="record" readonly></textarea>
+<div class="ctl"><button class="btn" id="recBtn">Copy</button><span id="recMsg" class="sub"></span></div>
+
+<div class="navfoot">
+  <a href="lesson-09-13-gentle-chromatic-separation.html">← Lesson 9.13 — Gentle chromatic separation</a>
+  <a href="../chapter-10/lesson-10-01-height-map-idea.html">Next: Chapter 10, Lesson 10.1 — Height-map idea →</a>
+</div>
+</div>
+
+<div id="tip" role="dialog" aria-modal="false">
+  <button class="tclose" id="tipClose" aria-label="Close">✕</button>
+  <div id="tipBody"></div>
+</div>
+
+<script>
+'use strict';
+/* ================= shared math — the same chain as LensCheckpoint.metal ================= */
+const RAD=0.25, BAND=0.10, MB=0.002, SPEED=0.10;
+const LES={cx:0.40, cy:0.54, len:0.10, spread:0.10};
+const WP=[0.40,0.24], TT=2;                                        // the teaching pixel W and the traced time (seconds)
+const COL={glass:'#c084fc', ring:'#fb923c', mag:'#a3e635', push:'#ff4d8d', halo:'rgba(17,24,39,0.92)'};
+const CH=['red','green','blue'], CHC=['#ef4444','#22c55e','#3b82f6'], CHD=['#b91c1c','#15803d','#1d4ed8'];
+const RNAME=['readRed','readGreen','readBlue'], CNAME=['colRed','colGreen','colBlue'];
+const WHITE=[1,1,1], BLACK=[0,0,0], ORANGE=[0.88,0.48,0.18], NAVY=[0.10,0.25,0.40];
+const MASK0=[0.945,0.961,0.976], MASK1=[0.914,0.835,1.0];        // mask map: 0 = light gray, 1 = violet
+
+function sstep(e0,e1,x){ const t=Math.min(1,Math.max(0,(x-e0)/(e1-e0))); return t*t*(3-2*t); }
+const clamp=(x,lo,hi)=>Math.min(Math.max(x,lo),hi);
+function inside(u,v){ return u>=0 && u<=1 && v>=0 && v<=1; }
+/* the moving wallpaper: null outside the screen (a real picture stops at its edge) */
+function wall(u,v,time,wl){
+  if(!inside(u,v)) return null;
+  const col=Math.floor((u+SPEED*time)*4), row=Math.min(Math.floor(v*4),3), even=((col+row)%2===0);
+  return wl==='checker'?(even?ORANGE:NAVY):(even?WHITE:BLACK);
+}
+function chain(u,v,P){
+  const px=u-P.cx, py=v-P.cy, d=Math.hypot(px,py), sd=d-RAD;
+  let fo=0, push=0, dx=0, dy=0;
+  if(d>0.0001){ fo=1-sstep(-BAND,BAND,sd); push=P.len*fo; dx=px/d; dy=py/d; }
+  return {px,py,d,sd,fo,push,dx,dy,dispX:dx*push,dispY:dy*push};
+}
+function capsuleSd(px,py){ const nx=clamp(px,-0.20,0.20); return Math.hypot(px-nx,py)-0.20; }   // Lesson 9.5
+/* the number that the mix uses: 'mask' (this lesson), 'one' (Lesson 9.13: always bent), 'falloff', 'hard', 'inv', 'zero', 'capsule' */
+function mixAmount(m,r){
+  switch(m){
+    case 'mask': return 1-sstep(-MB,MB,r.sd);
+    case 'falloff': return 1-sstep(-BAND,BAND,r.sd);
+    case 'hard': return r.sd<0?1:0;
+    case 'inv': return sstep(-MB,MB,r.sd);
+    case 'one': return 1;
+    case 'zero': return 0;
+    case 'capsule': return 1-sstep(-MB,MB,capsuleSd(r.px,r.py));
+    case 'const': return CONSTMIX;
+  }
+  return 0;
+}
+function readsOf(u,v,P,r){
+  r=r||chain(u,v,P); const sp=P.spread||0, k=[1-sp,1,1+sp];
+  return k.map(m=>{ let x=u-r.dispX*m, y=v-r.dispY*m; if(!P.noClamp){ x=clamp(x,0,1); y=clamp(y,0,1); } return [x,y]; });
+}
+/* one pixel: plain, bent, the mix amount, and the stored color. spec = {a, b, m}: color = a + (b − a) × amount */
+function pixelOf(u,v,P,time,wl,spec){
+  const r=chain(u,v,P), rd=readsOf(u,v,P,r), cols=rd.map(p=>wall(p[0],p[1],time,wl));
+  const plain=wall(u,v,time,wl), bent=[0,1,2].map(c=>cols[c]?cols[c][c]:0), m=mixAmount(spec.m,r);
+  const A=spec.a==='bent'?bent:plain, B=spec.b==='bent'?bent:plain;
+  return {r,rd,cols,plain,bent,m,out:[0,1,2].map(c=>A[c]+(B[c]-A[c])*m)};
+}
+let CONSTMIX=0.5;                                                   // the challenge: a fixed mix number typed by the learner
+const LENS={a:'plain',b:'bent',m:'mask'}, NOMASK={a:'plain',b:'bent',m:'one'}, INPUT={a:'plain',b:'plain',m:'zero'};
+
+/* ---------- views: a window of UV space drawn on a canvas ---------- */
+function view(cv,x0,y0,x1){ const s=cv.width/(x1-x0); return {x0,y0,s, X:u=>(u-x0)*s, Y:v=>(v-y0)*s}; }
+/* a field: everything about each pixel that does not depend on time (mix amount, three read points) */
+function makeField(cv,V,P,spec){
+  const W=cv.width, H=cv.height, N=W*H;
+  const F={W,H,N,spec,U:new Float64Array(N),Vv:new Float64Array(N),ok:new Uint8Array(N),M:new Float32Array(N),R:new Float64Array(6*N)};
+  for(let j=0;j<H;j++){ const v=V.y0+(j+0.5)/V.s;
+    for(let i=0;i<W;i++){ const n=j*W+i, u=V.x0+(i+0.5)/V.s; F.U[n]=u; F.Vv[n]=v;
+      if(!inside(u,v)) continue; F.ok[n]=1;
+      const r=chain(u,v,P), rd=readsOf(u,v,P,r); F.M[n]=mixAmount(spec.m,r);
+      for(let c=0;c<3;c++){ F.R[6*n+2*c]=rd[c][0]; F.R[6*n+2*c+1]=rd[c][1]; }
+    } }
+  return F;
+}
+/* paint a field at one time: color = a + (b − a) × amount; white = not the screen; opts.transparentOff: pixels off the screen stay see-through */
+function paint(cv,F,time,wl,opts){
+  const ctx=cv.getContext('2d'), img=ctx.createImageData(F.W,F.H), D=img.data, sh=SPEED*time;
+  const pal=wl==='checker'?[ORANGE,NAVY]:[WHITE,BLACK], A=F.spec.a, B=F.spec.b;
+  const wc=(x,y)=>(x<0||x>1||y<0||y>1)?null:pal[(Math.floor((x+sh)*4)+Math.min(Math.floor(y*4),3))&1];
+  for(let n=0;n<F.N;n++){ const o=n*4;
+    if(!F.ok[n]){ if(!(opts&&opts.transparentOff)){ D[o]=D[o+1]=D[o+2]=255; D[o+3]=255; } continue; }
+    const pl=wc(F.U[n],F.Vv[n]), m=F.M[n];
+    let out;
+    if(A==='plain'&&B==='plain') out=pl;
+    else if(A==='plain'&&m===0) out=pl;
+    else{
+      const q=6*n, c0=wc(F.R[q],F.R[q+1]), c1=wc(F.R[q+2],F.R[q+3]), c2=wc(F.R[q+4],F.R[q+5]);
+      const bt=[c0?c0[0]:0, c1?c1[1]:0, c2?c2[2]:0], a=A==='bent'?bt:pl, b=B==='bent'?bt:pl;
+      out=[a[0]+(b[0]-a[0])*m, a[1]+(b[1]-a[1])*m, a[2]+(b[2]-a[2])*m];
+    }
+    D[o]=Math.round(out[0]*255); D[o+1]=Math.round(out[1]*255); D[o+2]=Math.round(out[2]*255); D[o+3]=255;
+  }
+  ctx.putImageData(img,0,0);
+}
+function render(cv,V,P,spec,time,wl,opts){ const F=makeField(cv,V,P,spec); paint(cv,F,time,wl,opts); return F; }
+/* the mask map: violet = 1, light gray = 0, white = not the screen */
+function renderMask(cv,V,P,m){
+  const W=cv.width, H=cv.height, ctx=cv.getContext('2d'), img=ctx.createImageData(W,H), D=img.data;
+  for(let j=0;j<H;j++){ const v=V.y0+(j+0.5)/V.s;
+    for(let i=0;i<W;i++){ const u=V.x0+(i+0.5)/V.s, o=(j*W+i)*4;
+      let c=[1,1,1]; if(inside(u,v)){ const a=mixAmount(m||'mask',chain(u,v,P)); c=[0,1,2].map(k=>MASK0[k]+(MASK1[k]-MASK0[k])*a); }
+      D[o]=Math.round(c[0]*255); D[o+1]=Math.round(c[1]*255); D[o+2]=Math.round(c[2]*255); D[o+3]=255; } }
+  ctx.putImageData(img,0,0);
+}
+
+/* ---------- overlay helpers (solid strokes, dark halo, hues that are not in the picture) ---------- */
+function halo(ctx,draw,color,w){ for(const [lw,c] of [[w+3.5,COL.halo],[w,color]]){ ctx.lineWidth=lw; ctx.strokeStyle=c; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.beginPath(); draw(); ctx.stroke(); } }
+function line(ctx,x1,y1,x2,y2,color,w){ halo(ctx,()=>{ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);},color,w); }
+function ring(ctx,x,y,r,color,w){ halo(ctx,()=>ctx.arc(x,y,r,0,Math.PI*2),color,w); }
+function box(ctx,x,y,w,h,color,lw){ halo(ctx,()=>ctx.rect(x,y,w,h),color,lw); }
+function rrPath(ctx,x,y,w,h,r){ ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function arrow(ctx,x1,y1,x2,y2,color,w,maxHead){
+  const a=Math.atan2(y2-y1,x2-x1), L=Math.hypot(x2-x1,y2-y1); if(L<2) return;
+  const hl=Math.min(maxHead||16,L*0.45), bx=x2-Math.cos(a)*hl*0.8, by=y2-Math.sin(a)*hl*0.8;
+  line(ctx,x1,y1,bx,by,color,w);
+  const head=(h,fill)=>{ ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-h*Math.cos(a-0.45),y2-h*Math.sin(a-0.45));
+    ctx.lineTo(x2-h*Math.cos(a+0.45),y2-h*Math.sin(a+0.45)); ctx.closePath(); ctx.fillStyle=fill; ctx.fill(); };
+  head(hl+4,COL.halo); head(hl,color);
+}
+/* a label whose ink follows its background: dark ink on light pixels, bright ink with a dark halo on dark pixels */
+const INK=['#111827','#ffffff'], GLS=['#7e22ce','#c084fc'], RNG=['#c2410c','#fb923c'], PSH=['#be185d','#ff4d8d'];
+const CHP=k=>[CHD[k],CHC[k]];
+function lbl(ctx,t,x,y,pair,align,size){
+  ctx.font=`600 ${size||15}px -apple-system,"Segoe UI",Roboto,sans-serif`; const w=ctx.measureText(t).width, h=(size||15);
+  const x0=align==='right'?x-w:align==='center'?x-w/2:x;
+  const sx=Math.max(0,Math.floor(x0)), sy=Math.max(0,Math.floor(y-h/2)), sw=Math.max(1,Math.min(ctx.canvas.width-sx,Math.ceil(w))), sh=Math.max(1,Math.min(ctx.canvas.height-sy,h));
+  const d=ctx.getImageData(sx,sy,sw,sh).data; let L=0,n=0;
+  for(let i=0;i<d.length;i+=16){ if(d[i+3]<128){ L+=255; n++; continue; } L+=0.2126*d[i]+0.7152*d[i+1]+0.0722*d[i+2]; n++; }
+  const light=n?L/n/255>0.5:true;
+  ctx.textAlign=align||'left'; ctx.textBaseline='middle';
+  ctx.lineWidth=4.5; ctx.strokeStyle=light?'rgba(255,255,255,0.95)':COL.halo; ctx.strokeText(t,x,y);
+  ctx.fillStyle=light?pair[0]:pair[1]; ctx.fillText(t,x,y);
+}
+/* a label on a light plate, for places where the label crosses light and dark cells */
+function plate(ctx,t,x,y,size){
+  ctx.font=`600 ${size||14}px -apple-system,"Segoe UI",Roboto,sans-serif`; const w=ctx.measureText(t).width, h=(size||14)+8;
+  ctx.fillStyle='rgba(255,255,255,0.92)'; ctx.strokeStyle='#111827'; ctx.lineWidth=1.2;
+  ctx.beginPath(); rrPath(ctx,x-6,y-h/2,w+12,h,5); ctx.fill(); ctx.stroke();
+  ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillStyle='#111827'; ctx.fillText(t,x,y);
+}
+const rgb=c=>`rgb(${Math.round(c[0]*255)},${Math.round(c[1]*255)},${Math.round(c[2]*255)})`;
+
+/* ---------- number formatting: exact up to 4 decimals is kept, else 3 decimals ---------- */
+function f(x){
+  const r4=Math.round(x*1e4)/1e4; let s;
+  if(Math.abs(x-r4)<1e-9){ s=r4.toFixed(4).replace(/0+$/,''); if(s.endsWith('.')) s+='00'; else if(/\.\d$/.test(s)) s+='0'; }
+  else s=(Math.round(x*1e3)/1e3).toFixed(3);
+  if(/^-0\.0+$/.test(s)) s=s.slice(1);
+  return s.replace('-','−');
+}
+function f6(x){ const r=Math.round(x*1e6)/1e6; if(Number.isInteger(r)) return String(r).replace('-','−'); let s=r.toFixed(6).replace(/0+$/,''); if(/\.\d$/.test(s)) s+='0'; return s.replace('-','−'); }
+const V3=x=>Number(f(x).replace('−','-'));        // the value that is shown
+const V6=x=>Math.round(x*1e6)/1e6;
+const fz=x=>{ const t=V3(x); return Number.isInteger(t)?String(t).replace('-','−'):f(x); };   // whole numbers without decimals
+const par=x=>x<0?`(${fz(x)})`:fz(x);
+const pt=(u,v)=>`(${f(u)}, ${f(v)})`;
+const cz=c=>`(${fz(c[0])}, ${fz(c[1])}, ${fz(c[2])})`;
+
+/* ================= tooltip system (click, Enter/Space, ✕, outside click, Escape, kept inside the window) ================= */
+const tipEl=document.getElementById('tip'), tipBody=document.getElementById('tipBody');
+const tipStore=new Map(); let suppressClick=false;
+function setTip(el,html){ el.classList.add('tk'); tipStore.set(el,html); if(!el.hasAttribute('tabindex')) el.setAttribute('tabindex','0'); }
+function showTip(el){
+  const html=typeof tipStore.get(el)==='function'?tipStore.get(el)():tipStore.get(el); if(!html) return;
+  tipBody.innerHTML=html; tipEl.classList.toggle('wide',!!tipBody.querySelector('pre')); tipEl.classList.add('open');
+  const r=el.getBoundingClientRect(); tipEl.style.left='0px'; tipEl.style.top='0px';
+  const tw=tipEl.offsetWidth, th=tipEl.offsetHeight;
+  let L=r.right+10, T=r.top-8;
+  if(L+tw>innerWidth-10) L=r.left-tw-10;
+  if(L<8) L=8;
+  if(T+th>innerHeight-10) T=innerHeight-th-10;
+  if(T<8) T=8;
+  tipEl.style.left=L+'px'; tipEl.style.top=T+'px';
+}
+function hideTip(){ tipEl.classList.remove('open'); }
+document.addEventListener('click',e=>{
+  if(suppressClick){ suppressClick=false; e.stopPropagation(); return; }
+  const t=e.target.closest('.tk');
+  if(t){ e.stopPropagation(); showTip(t); return; }
+  if(!e.target.closest('#tip')) hideTip();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ hideTip(); return; }
+  if((e.key==='Enter'||e.key===' ') && e.target.classList && e.target.classList.contains('tk')){ e.preventDefault(); showTip(e.target); }
+});
+document.getElementById('tipClose').addEventListener('click',e=>{ e.stopPropagation(); hideTip(); });
+
+/* clickable point on a canvas stage */
+function addPt(stage,x,y,color,html,label,cls){
+  const b=document.createElement('button'); b.className='ptdot'+(cls?' '+cls:'');
+  b.style.left=x+'px'; b.style.top=y+'px'; b.style.background=color;
+  if(/^(#000|#000000|rgb\(0,\s*0,\s*0\)|rgb\(0,\s*0,\s*255\))$/.test(color)) b.style.borderColor='#ffffff';
+  b.setAttribute('aria-label',label); stage.appendChild(b); setTip(b,html); return b;
+}
+const clearPts=stage=>stage.querySelectorAll('.ptdot').forEach(b=>b.remove());
+/* drag a .ptdot handle over a canvas; snaps to `snap`; a click without a move still opens the tooltip */
+function dragHandle(h,cv,V,onMove,bx,get,snap){
+  const q=x=>Math.round(x/snap)*snap;
+  let on=false, moved=false;
+  h.addEventListener('pointerdown',e=>{ on=true; moved=false; h.setPointerCapture(e.pointerId); e.preventDefault(); });
+  h.addEventListener('pointermove',e=>{ if(!on) return; const r=cv.getBoundingClientRect();
+    const u=V6(q(clamp(V.x0+(e.clientX-r.left)/V.s,bx[0],bx[1]))), v=V6(q(clamp(V.y0+(e.clientY-r.top)/V.s,bx[2],bx[3])));
+    const [pu,pv]=get(); if(u!==pu||v!==pv){ moved=true; hideTip(); onMove(u,v); } });
+  h.addEventListener('pointerup',()=>{ if(on&&moved) suppressClick=true; on=false; });
+  h.addEventListener('keydown',e=>{ const k={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key]; if(!k) return;
+    e.preventDefault(); const [pu,pv]=get();
+    onMove(V6(q(clamp(pu+k[0]*snap,bx[0],bx[1]))), V6(q(clamp(pv+k[1]*snap,bx[2],bx[3])))); });
+}
+
+/* ================= ⓘ reminders and provenance ================= */
+const TIPS={
+  mask:'<b>The soft mask</b> — a reminder from Lesson 9.3.<br><code>mask = 1 − smoothstep(−band, band, sd)</code> is 1 deep inside a shape, 0 far outside, and 0.5 exactly on its edge (sd = 0). Lesson 9.3 used it to mix two colors: <code>mix(navy, orange, mask)</code>. This lesson uses a much thinner band, maskBand = 0.002.',
+  maskband:'<b>maskBand = 0.002</b><br>From: a chosen constant of this lesson, in UV. It is about one pixel of the pictures on this page: 520 × 0.002 = 1.04 pixels. The mask goes from 1 to 0 between sd = −0.002 and sd = +0.002, a band 0.004 wide.<br>Used by: mask.',
+  mix:'<b>mix(a, b, m)</b> — a reminder from Lessons 8.11 and 9.3.<br>mix(a, b, m) = a + (b − a) × m, for each channel. m = 0 gives a. m = 1 gives b. m = 0.5 gives the color halfway between.',
+  wall:'<b>The moving wallpaper</b>, wall(x, y, time):<pre>shift = speed × time\ncol   = floor((x + shift) × 4)\nrow   = floor(y × 4)   (y = 1.00 belongs to the last row)\ncol + row even → white (1, 1, 1)\ncol + row odd  → black (0, 0, 0)</pre>Adding the shift moves the picture to the <b>left</b>: Lesson 9.8 showed that a picture moves the other way from the read shift. Outside the screen (x or y outside 0 … 1) there is no color. The orange-and-navy wallpaper uses orange for even and navy for odd.',
+  time:'<b>time</b> — the seconds since the picture started. Lesson 5.2: the frame clock gives the elapsed time. Lesson 8.10: Swift writes it into a <code>float time</code> argument of the shader every frame, and every pixel reads the same number.<br>Used by: only the wallpaper, through shift = speed × time. The mask and the read points never use it.',
+  speed:'<b>speed = 0.10</b><br>From: a chosen constant of this lesson, in UV per second. The wallpaper moves 0.10 of the screen width each second. One cell (0.25 wide) takes 0.25 ÷ 0.10 = 2.5 seconds.<br>Used by: shift = speed × time.',
+  chain:'<b>The chain of Lessons 9.11 to 9.13</b>, run once for every pixel:<pre>p         = uv − C\nd         = length(p)\nsd        = d − radius\nfalloff   = 1 − smoothstep(−band, band, sd)\ndir       = p / d\npush      = dispLen × falloff\ndisp      = dir × push\nreadRed   = clamp(uv − disp × (1 − spread), 0, 1)\nreadGreen = clamp(uv − disp, 0, 1)\nreadBlue  = clamp(uv − disp × (1 + spread), 0, 1)\nbent      = (colRed.r, colGreen.g, colBlue.b)</pre>The read points move <b>toward</b> C by the length push.',
+  push:'<b>push and disp</b> (Lessons 9.11 and 9.12)<br>push = dispLen × falloff is the length of the read point\'s move. disp = dir × push is the move itself: an arrow of length push that points away from C. uv − disp moves toward C.',
+  spread:'<b>spread = 0.10</b><br>From: Lesson 9.13, a chosen constant. The red push is push × (1 − spread) = push × 0.90. The blue push is push × (1 + spread) = push × 1.10. The green push is push itself.<br>Used by: readRed and readBlue.',
+  clamp:'<b>clamp</b> — a reminder from Lesson 9.12.<br><code>clamp(read, 0.0, 1.0)</code> keeps x and y of a read point inside 0 … 1, so the read point never leaves the wallpaper. A read point that is already inside does not move.',
+  radius:'<b>radius = 0.25</b><br>From: a chosen constant, Lesson 9.2. The radius of the glass circle in UV units.<br>Used by: sd = d − radius.',
+  band:'<b>band = 0.10</b><br>From: a chosen constant, Lesson 9.3, used for the push since Lesson 9.11. Falloff goes from 1 to 0 between sd = −0.10 and sd = +0.10, so the push ends 0.25 + 0.10 = 0.35 from C.<br>Used by: falloff.',
+  displen:'<b>dispLen = 0.10</b><br>From: Lesson 9.10, the length of the full push in UV units (1 = the width of the screen).<br>Used by: push = dispLen × falloff.',
+  length:'<b>length(p) = √(p.x² + p.y²)</b> — a reminder from Lesson 9.1: the long side of a right triangle whose legs are p.x and p.y.<br>For W, p.x = 0, so the length is just the size of p.y: 0.30.',
+  sd:'<b>sd — signed distance</b>, Lesson 9.2.<br>sd = d − radius: negative inside the circle, 0 on the circle, positive outside.',
+  smoothstep:'<b>smoothstep(a, b, x)</b> — a reminder from Lesson 9.3.<br>t = (x − a) ÷ (b − a), limited to 0 … 1; then 3t² − 2t³. It is 0 at x = a and below, 1 at x = b and above.',
+  center:'<b>The glass center C = (0.40, 0.54)</b> — a parameter since Lesson 9.12 (<code>p = uv − center</code>), the same place as in Lesson 9.13.',
+  capsule:'<b>The capsule sd</b> — a reminder from Lesson 9.5.<pre>inner segment: x from −0.20 to +0.20, y = 0\nnearestX = clamp(p.x, −0.20, 0.20)\nsd = length(p − (nearestX, 0)) − 0.20</pre>nearestX is the x of the point of the inner segment closest to p. 0.20 is the radius of the round ends: half of the height 0.40. sd is negative inside the capsule, 0 on its outline, positive outside.',
+  uv:'<b>UV position</b> (Lesson 8.6)<br>Two numbers from 0 to 1. (0, 0) is the top left of the screen; (1, 1) is the bottom right. x grows to the right, y grows downward.'
+};
+document.querySelectorAll('.info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip]));
+
+const TIP_C=(cx,cy)=>`<b>C = ${pt(cx,cy)}</b>, in UV<br>Role: the center of the glass circle (radius 0.25).`;
+const TIP_W=(u,v,name)=>`<b>${name||'W'} = ${pt(u,v)}</b>, in UV<br>Role: one pixel of the screen. The shader computes a color for it.`;
+const ROLE=['its red channel: push × (1 − spread)','its green channel: push × 1','its blue channel: push × (1 + spread)'];
+const TIP_READ=(k,u,v,col,owner)=>`<b>${RNAME[k]} = ${pt(u,v)}</b>, in UV<br>Role: the read point where ${owner||'W'} reads ${ROLE[k]}.`+(col?`<br>The wallpaper there: ${cz(col)}.`:'');
+
+/* ================= the answer panel ================= */
+/* o: {title, lines:[text], plain, bent, mask, out, outNote, maskNote} — any missing part is not drawn */
+function answerPanel(svg,o){
+  let h=`<text x="12" y="24" font-size="15" font-weight="700" fill="#111827">${o.title}</text>`;
+  let y=40;
+  (o.lines||[]).forEach(t=>{ h+=`<text x="12" y="${y+14}" font-size="14.5" fill="#1f2937" font-family="ui-monospace,Menlo,monospace">${t}</text>`; y+=24; });
+  const sw=(x,yy,c,name,sub)=>`<rect x="${x}" y="${yy}" width="40" height="40" rx="4" fill="${rgb(c)}" stroke="#111827" stroke-width="1.5"/>`+
+    `<text x="${x+50}" y="${yy+16}" font-size="14.5" font-weight="700" fill="#111827">${name}</text>`+
+    `<text x="${x+50}" y="${yy+34}" font-size="14" fill="#374151" font-family="ui-monospace,Menlo,monospace">${sub}</text>`;
+  let ry=y+4;
+  if(o.plain){ h+=sw(12,ry,o.plain,'plain · the wallpaper at W',cz(o.plain)); ry+=50; }
+  if(o.bent){ h+=sw(12,ry,o.bent,'bent · answer 2, the read points',cz(o.bent)); ry+=50; }
+  if(o.mask!=null){
+    h+=`<rect x="12" y="${ry+10}" width="40" height="20" fill="#f1f5f9" stroke="#111827" stroke-width="1.2"/>`+
+       `<rect x="12" y="${ry+10}" width="${40*o.mask}" height="20" fill="#e9d5ff"/>`+
+       `<text x="62" y="${ry+16}" font-size="14.5" font-weight="700" fill="#111827">mask · answer 1, is W glass?</text>`+
+       `<text x="62" y="${ry+34}" font-size="14" fill="#374151" font-family="ui-monospace,Menlo,monospace">mask = ${fz(o.mask)}${o.maskNote?'  '+o.maskNote:''}</text>`;
+    ry+=50;
+  }
+  if(o.out){
+    h+=`<text x="352" y="54" font-size="15" font-weight="700" fill="#111827">W stores</text>`+
+       `<rect x="352" y="64" width="110" height="80" rx="6" fill="${rgb(o.out)}" stroke="#111827" stroke-width="1.8"/>`+
+       `<text x="352" y="166" font-size="14" fill="#111827" font-family="ui-monospace,Menlo,monospace">${cz(o.out)}</text>`+
+       (o.outNote?`<text x="352" y="188" font-size="14" fill="#374151">${o.outNote}</text>`:'');
+  }
+  svg.innerHTML=h;
+}
+
+/* ================= animation clock: one loop, about 30 frames per second, only for visible pictures ================= */
+const ANIMS=[];
+function addAnim(a){ a.visible=true; ANIMS.push(a);
+  if('IntersectionObserver' in window){ new IntersectionObserver(es=>{ a.visible=es[0].isIntersecting; }).observe(a.el); } }
+let lastTick=0;
+function tick(ts){
+  if(ts-lastTick>=32){ lastTick=ts;
+    for(const a of ANIMS){ if(a.playing&&a.visible){ if(a.start==null) a.start=ts-a.time*1000; a.time=((ts-a.start)/1000)%10; a.draw(a.time); } else a.start=null; } }
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+const REDUCE=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ================= hero ================= */
+(function(){
+  const pics=[['heroA',NOMASK,true],['heroB',LENS,false]].map(([id,spec,circle])=>{
+    const cv=document.getElementById(id), V=view(cv,0,0,1), stage=document.getElementById(id+'Stage');
+    const F=makeField(cv,V,LES,spec);
+    addPt(stage,V.X(LES.cx),V.Y(LES.cy),COL.glass,TIP_C(LES.cx,LES.cy),'C, the center of the glass');
+    return {cv,V,F,circle};
+  });
+  const out=document.getElementById('heroTime'), btn=document.getElementById('heroPlay');
+  function draw(t){
+    const time=Math.round(t*100)/100;
+    for(const p of pics){ paint(p.cv,p.F,time,'bw'); const ctx=p.cv.getContext('2d');
+      if(p.circle){ ring(ctx,p.V.X(LES.cx),p.V.Y(LES.cy),RAD*p.V.s,COL.glass,2.5); lbl(ctx,'the glass',p.V.X(0.40),p.V.Y(0.23),GLS,'center'); } }
+    const sh=V3(SPEED*time);
+    out.textContent=`time = ${time.toFixed(2)} s  ·  shift = speed × time = 0.10 × ${time.toFixed(2)} = ${f(sh)}  ·  the wallpaper has moved ${f(sh)} to the left`;
+  }
+  const A={el:document.getElementById('heroBStage'), playing:!REDUCE, time:0, draw};
+  addAnim(A); draw(0);
+  function sync(){ btn.textContent=A.playing?'❚❚ Pause':'▶ Play'; btn.setAttribute('aria-pressed',String(A.playing)); }
+  btn.onclick=()=>{ A.playing=!A.playing; sync(); }; sync();
+})();
+
+/* ================= section 1: the stepper ================= */
+(function(){
+  const cW=document.getElementById('s1W'), sW=document.getElementById('s1WStage');
+  const cM=document.getElementById('s1M'), sM=document.getElementById('s1MStage');
+  const VW=view(cW,0.03,0.15,0.77);
+  const MA=[0.38,0.232,0.42], MB2=[0.36,0.225,0.44];                // magnifier windows: around W and its read points; around the outline
+  const C=[LES.cx,LES.cy], W=WP, OUTL=[0.40,0.29];
+  const at=t=>pixelOf(W[0],W[1],LES,t,'bw',LENS);
+  const P0=at(0), P2=at(TT);
+  const RD=traceLines(W[0],W[1],LES,0,'bw','mask').pts.map(p=>[p[0],p[1]]);   // the traced read points: (0.40, 0.2544), (0.40, 0.256), (0.40, 0.2576)
+  const CAP=[
+    `<b>Step 1 · The wallpaper moves.</b> The wallpaper is the black-and-white checkerboard of Lesson 9.13. Now it
+     moves to the left, 0.10 of the screen width every second. The rule is
+     <code>wall(x, y, time)</code><button class="info" data-tip="wall">ⓘ</button>: the checkerboard read at
+     <b>x + speed × time</b>, with <code>speed = 0.10</code><button class="info" data-tip="speed">ⓘ</button>.
+     <code>time</code><button class="info" data-tip="time">ⓘ</button> is the number of seconds since the start. Steps 1 to 6
+     show <b>time = 0</b>. The magnifier shows the edge <b>y = 0.25</b>: a black cell above it, a white cell below it.`,
+    `<b>Step 2 · The glass, and one pixel W.</b> The violet circle is the glass of Lesson 9.11: center
+     <b>C = (0.40, 0.54)</b><button class="info" data-tip="center">ⓘ</button>, radius 0.25. <b>W = (0.40, 0.24)</b> is one
+     pixel, straight above C. Its distance to C is 0.54 − 0.24 = 0.30, so its signed distance is
+     sd = 0.30 − 0.25 = <b>+0.05</b><button class="info" data-tip="sd">ⓘ</button>. Plus means outside: <b>W is not on the
+     glass</b>. W sits in the black cell, 0.01 above the edge y = 0.25.`,
+    `<b>Step 3 · Answer 2: where does W read?</b> This is the chain of Lessons 9.11 to 9.13<button class="info" data-tip="chain">ⓘ</button>.
+     W is outside the circle, so its falloff is small (0.1565) and its push is short: <b>0.016</b> (Section 3 shows every
+     number). The three read points move down toward C, to y = 0.2544, 0.256 and 0.2576. All three are past the edge
+     y = 0.25, on white. So the color from the three read points, <b>bent</b>, is <b>(1, 1, 1): white</b>.`,
+    `<b>Step 4 · Lesson 9.13 stops here.</b> Lesson 9.13 had only answer 2: every pixel stored bent. The left picture is
+     that output, and W is white in it (the magnifier). Between the violet circle and the orange ring (0.35 from C, where
+     the push ends), the edges already bend. The pixels between the violet circle and the orange ring are <b>outside the
+     glass</b>, and W is one of them. A real lens changes only what is behind it, so a pixel outside the glass should show
+     the wallpaper unchanged.`,
+    `<b>Step 5 · Answer 1: is W glass?</b> A second, separate answer: the <b>mask</b><button class="info" data-tip="mask">ⓘ</button>,
+     <code>mask = 1 − smoothstep(−maskBand, maskBand, sd)</code> with <code>maskBand = 0.002</code><button class="info" data-tip="maskband">ⓘ</button>.
+     The left picture shows the mask of every pixel: violet = 1 (glass), light gray = 0 (not glass). The magnifier shows
+     the outline: the mask falls from 1 to 0 across a band 0.004 wide, about two pixels of a 520-pixel picture. For W,
+     sd = +0.05 is far past +0.002, so <b>mask = 0</b>. The mask uses only sd. It never asks the wallpaper, and it never
+     uses a read point.`,
+    `<b>Step 6 · The mix picks.</b> The last line combines the two answers:
+     <code>color = mix(plain, bent, mask)</code><button class="info" data-tip="mix">ⓘ</button>. <b>plain</b> is the wallpaper
+     at W itself, as if there were no glass: black. W has mask = 0, so W stores plain: <b>black (0, 0, 0)</b>. Every pixel
+     outside the outline does the same, so outside the glass the edges stay straight. Inside, the mask is 1 and a pixel
+     stores bent. Now the glass shows its own <b>outline</b>, and no violet circle is drawn: the edges break where the glass
+     begins.`,
+    `<b>Step 7 · Time moves on.</b> The same output at <b>time = 2</b> seconds. The wallpaper has moved
+     0.10 × 2 = 0.20 to the left. The outline is at the same place. W's mask is still 0, and its three read points are at
+     the same places: neither answer uses the time. Only the colors under them changed. At W the wallpaper is now white,
+     and at the read points it is black. So W stores plain: <b>white (1, 1, 1)</b>. The pictures at the top of the page
+     play this motion.`
+  ];
+  let step=0;
+  const dots=document.getElementById('stDots');
+  CAP.forEach((_,k)=>{ const b=document.createElement('button'); b.className='dot'; b.setAttribute('aria-label','Step '+(k+1));
+    b.onclick=()=>{ step=k; draw(); }; dots.appendChild(b); });
+  const TIP_O=`<b>O = (0.40, 0.29)</b>, in UV<br>Role: the point of the outline straight above C. p = (0, −0.25), d = 0.25, sd = 0.25 − 0.25 = 0, so mask = 0.5.`;
+  const show=(id,on)=>{ document.getElementById(id).style.display=on?'':'none'; };
+  function draw(){
+    clearPts(sW); clearPts(sM);
+    const time=step===6?TT:0, spec=step>=5?LENS:step===3?NOMASK:INPUT, MW=step===4?MB2:MA, MV=view(cM,...MW);
+    const store=step===3?P0.bent:step===5?P0.out:step===6?P2.out:null;
+    /* ---- whole view ---- */
+    if(step===4) renderMask(cW,VW,LES); else render(cW,VW,LES,spec,time,'bw');
+    const cx=cW.getContext('2d');
+    if(step>=1&&step<=3){ ring(cx,VW.X(C[0]),VW.Y(C[1]),RAD*VW.s,COL.glass,3); lbl(cx,'the glass',VW.X(0.40),VW.Y(0.47),GLS,'center'); }
+    if(step===3){ ring(cx,VW.X(C[0]),VW.Y(C[1]),0.35*VW.s,COL.ring,3);
+      lbl(cx,'orange ring: push 0 outside',VW.X(0.045),VW.Y(0.87),RNG,'left',14);
+      lbl(cx,'outside the glass,',VW.X(0.228),VW.Y(0.285),INK,'right',14); lbl(cx,'the edge bends →',VW.X(0.228),VW.Y(0.31),INK,'right',14); }
+    if(step===4){ lbl(cx,'mask = 1 (glass)',VW.X(0.40),VW.Y(0.60),GLS,'center'); lbl(cx,'mask = 0 (not glass)',VW.X(0.045),VW.Y(0.868),INK,'left'); }
+    if(step===0) plate(cx,'← the wallpaper moves left, 0.10 per second',VW.X(0.045),VW.Y(0.18));
+    if(step===5) lbl(cx,'the outline →',VW.X(0.195),VW.Y(0.715),INK,'right',14);
+    if(step===6) plate(cx,'← moved 0.20 to the left since time = 0',VW.X(0.045),VW.Y(0.18));
+    box(cx,VW.X(MW[0]),VW.Y(MW[1]),(MW[2]-MW[0])*VW.s,(MW[2]-MW[0])*VW.s,COL.mag,2.5);
+    if(step>=2&&step!==4) arrow(cx,VW.X(W[0]),VW.Y(W[1]),VW.X(RD[2][0]),VW.Y(RD[2][1]),COL.push,2.5,7);
+    if(step>=1){ addPt(sW,VW.X(C[0]),VW.Y(C[1]),COL.glass,TIP_C(C[0],C[1]),'C, the center of the glass');
+      lbl(cx,'C',VW.X(C[0])+14,VW.Y(C[1])-10,GLS);
+      lbl(cx,'W',VW.X(W[0])-14,VW.Y(W[1])-6,INK,'right');
+      addPt(sW,VW.X(W[0]),VW.Y(W[1]),store?rgb(store):'#fff',TIP_W(W[0],W[1])+(store?`<br>It stores ${cz(store)}.`:''),'W, one pixel','sm'); }
+    /* ---- magnifier ---- */
+    if(step===4) renderMask(cM,MV,LES); else render(cM,MV,LES,spec,time,'bw');
+    const mx=cM.getContext('2d');
+    if(step<=2){
+      lbl(mx,'black cell (0, 0, 0)',MV.X(0.3815),MV.Y(0.2345),INK,'left');
+      lbl(mx,'white cell (1, 1, 1)',MV.X(0.3815),MV.Y(0.2695),INK,'left');
+      if(step<=1) lbl(mx,'edge y = 0.25',MV.X(0.4015),MV.Y(0.2475),INK,'left',14);
+      else lbl(mx,'edge y = 0.25',MV.X(0.3815),MV.Y(0.2475),INK,'left',14);
+    }
+    if(step===4){
+      lbl(mx,'mask = 0 (light gray)',MV.X(0.362),MV.Y(0.232),INK,'left');
+      lbl(mx,'mask = 1 (violet)',MV.X(0.362),MV.Y(0.300),GLS,'left');
+      lbl(mx,'O: on the outline, mask = 0.5',MV.X(0.404),MV.Y(0.2835),INK,'left',14);
+      lbl(mx,'W: mask = 0',MV.X(0.404),MV.Y(0.24),INK,'left',14);
+      addPt(sM,MV.X(W[0]),MV.Y(W[1]),'#fff',TIP_W(W[0],W[1])+'<br>sd = +0.05, so mask = 0.','W, one pixel');
+      addPt(sM,MV.X(OUTL[0]),MV.Y(OUTL[1]),COL.glass,TIP_O,'O, a point of the outline');
+    }
+    else if(step===3){
+      lbl(mx,'W: white (Lesson 9.13)',MV.X(W[0])+16,MV.Y(W[1]),INK);
+      lbl(mx,'color strips of Lesson 9.13',MV.X(0.3815),MV.Y(0.2365),INK,'left',14);
+      addPt(sM,MV.X(W[0]),MV.Y(W[1]),rgb(store),TIP_W(W[0],W[1])+`<br>In Lesson 9.13 it stores ${cz(store)}.`,'W, one pixel');
+    }
+    else if(step>=1){
+      const showReads=step>=2, cols=step===6?P2.cols:P0.cols;
+      if(showReads) arrow(mx,MV.X(W[0]),MV.Y(W[1]),MV.X(RD[2][0]),MV.Y(RD[2][1]),COL.push,3.5);
+      lbl(mx,'W = (0.40, 0.24)',MV.X(W[0])+16,MV.Y(W[1]),INK);
+      addPt(sM,MV.X(W[0]),MV.Y(W[1]),store?rgb(store):'#fff',TIP_W(W[0],W[1])+(store?`<br>It stores ${cz(store)}.`:''),'W, one pixel');
+      if(showReads){
+        lbl(mx,'push 0.016 toward C ↓',MV.X(W[0])+16,MV.Y(0.2465),PSH,'left',14);
+        RD.forEach(([u,v],k)=>{ lbl(mx,`${RNAME[k]} ${pt(u,v)}`,MV.X(u)+14,MV.Y(v),CHP(k),'left',14);
+          addPt(sM,MV.X(u),MV.Y(v),CHC[k],TIP_READ(k,u,v,cols[k]),RNAME[k],'sm'); });
+        if(step>=5){ lbl(mx,'mask = 0 in the whole lime square:',MV.X(0.3815),MV.Y(0.2665),INK,'left',14);
+          lbl(mx,'here the output is the wallpaper',MV.X(0.3815),MV.Y(0.268),INK,'left',14); }
+      }
+    }
+    /* ---- answer panel ---- */
+    const pan=document.getElementById('s1Pan');
+    if(step===0) answerPanel(pan,{title:'The moving wallpaper',lines:['wall(x, y, time) = checker(x + shift, y)','shift = speed × time = 0.10 × 0 = 0','time = 0 s: the wallpaper has not moved yet']});
+    else if(step===1) answerPanel(pan,{title:'The pixel W',lines:['W = (0.40, 0.24)','d  = 0.54 − 0.24 = 0.30   (straight above C)','sd = 0.30 − 0.25 = 0.05','sd is positive → W is outside the glass']});
+    else if(step===2) answerPanel(pan,{title:'Answer 2 · where does W read?',bent:P0.bent});
+    else if(step===3) answerPanel(pan,{title:'Lesson 9.13: only answer 2',bent:P0.bent,out:P0.bent,outNote:'bent (Lesson 9.13)'});
+    else if(step===4) answerPanel(pan,{title:'Answer 1 · is W glass?',bent:P0.bent,mask:P0.m,maskNote:'(sd = 0.05)'});
+    else answerPanel(pan,{title:step===5?'The mix at time = 0':'The mix at time = 2 s',plain:(step===5?P0:P2).plain,bent:(step===5?P0:P2).bent,mask:(step===5?P0:P2).m,out:store,outNote:'mask 0 → plain'});
+    show('s1LegGlass',step>=1&&step<=3); show('s1LegC',step>=4); show('s1LegMask',step===4);
+    show('s1LegW',step>=1); show('s1LegRing',step===3); show('s1LegPush',step===2||step>=5); show('s1LegReads',step===2||step>=5);
+    document.getElementById('stCap').innerHTML=CAP[step]+`<div style="margin-top:8px;color:#6b7280;font-size:13.5px">Step ${step+1} of ${CAP.length}</div>`;
+    document.querySelectorAll('#stCap .info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip]));
+    [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===step));
+    document.getElementById('stPrev').disabled=step===0; document.getElementById('stNext').disabled=step===CAP.length-1;
+  }
+  document.getElementById('stPrev').onclick=()=>{ if(step>0){step--;draw();} };
+  document.getElementById('stNext').onclick=()=>{ if(step<CAP.length-1){step++;draw();} };
+  draw();
+})();
+
+/* ================= section 2: why not reuse falloff ================= */
+(function(){
+  const cv=document.getElementById('cmpCv'), V=view(cv,0,0,1), stage=document.getElementById('cmpStage');
+  const mg=document.getElementById('cmpMag'), SX=65, SY=354, SW=130, SH=65;       // the magnifier: 130 × 65 pixels, 4× larger
+  let m='mask', circ=false;
+  const TXT={
+    one:`Mix by nothing: every pixel stores bent (Lesson 9.13).
+→ no outline. Between the violet circle and the orange ring
+  (0.25 to 0.35 from C) the edges already bend: outside the glass.`,
+    falloff:`Mix by falloff: the band goes from sd = −0.10 to sd = +0.10.
+width = 0.10 + 0.10 = 0.20 in UV
+on this picture: 0.20 × 520 = 104 pixels
+→ in that ring every pixel is part plain, part bent:
+  two faded copies of each edge (the magnifier).`,
+    hard:`Mix by a hard if: sd < 0 ? 1 : 0.
+width = 0: the value jumps from 1 to 0 between two neighbouring pixels.
+→ each pixel on the outline is fully bent or fully plain:
+  stair steps one pixel high (the magnifier).`,
+    mask:`Mix by the mask: the band goes from sd = −0.002 to sd = +0.002.
+width = 0.002 + 0.002 = 0.004 in UV
+on this picture: 0.004 × 520 = 2.08 pixels
+→ a sharp outline without stair steps. Outside it the edges are straight.`
+  };
+  function draw(){
+    clearPts(stage);
+    render(cv,V,LES,{a:'plain',b:'bent',m},0,'bw');
+    const mc=mg.getContext('2d'); mc.imageSmoothingEnabled=false; mc.clearRect(0,0,mg.width,mg.height);
+    mc.drawImage(cv,SX,SY,SW,SH,0,0,SW*4,SH*4);
+    const ctx=cv.getContext('2d');
+    if(circ){ ring(ctx,V.X(LES.cx),V.Y(LES.cy),RAD*V.s,COL.glass,2.5); if(m==='one'||m==='falloff') ring(ctx,V.X(LES.cx),V.Y(LES.cy),0.35*V.s,COL.ring,2); }
+    box(ctx,SX,SY,SW,SH,COL.mag,2.5);
+    addPt(stage,V.X(LES.cx),V.Y(LES.cy),COL.glass,TIP_C(LES.cx,LES.cy),'C, the center of the glass');
+    lbl(mc,'inside the glass',mg.width-10,18,INK,'right',14);
+    lbl(mc,'outside the glass',10,200,INK,'left',14);
+    lbl(mc,{one:'nothing: the edge bends, no outline',falloff:'falloff: two faded copies of each edge',hard:'hard if: stair steps on the outline',mask:'mask: in-between pixels, no steps'}[m],10,238,INK,'left',14);
+    box(mc,1,1,mg.width-2,mg.height-2,COL.mag,2.5);
+    document.getElementById('cmpOut').textContent=TXT[m];
+    document.querySelectorAll('[data-cmp-m]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.cmpM===m)));
+    document.querySelectorAll('[data-cmp-c]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.cmpC==='1')===circ)));
+  }
+  document.querySelectorAll('[data-cmp-m]').forEach(b=>b.onclick=()=>{ m=b.dataset.cmpM; draw(); });
+  document.querySelectorAll('[data-cmp-c]').forEach(b=>b.onclick=()=>{ circ=b.dataset.cmpC==='1'; draw(); });
+  draw();
+})();
+
+/* ================= the chain for one pixel, one operation per line (shown values feed the next line) ================= */
+function smoothLines(L,sd,w,name){
+  const a=V3(sd+w); L.push(`sd − (−${f(w)}) = ${fz(sd)} + ${f(w)} = ${fz(a)}`);
+  const b=V3(2*w); L.push(`${name} − (−${name}) = ${f(w)} + ${f(w)} = ${f(b)}`);
+  let t=V3(a/b); L.push(`t = ${fz(a)} ÷ ${f(b)} = ${fz(t)}`);
+  if(t<0){ t=0; L.push('t is limited to 0 … 1 → t = 0'); } else if(t>1){ t=1; L.push('t is limited to 0 … 1 → t = 1'); }
+  const t2=V3(t*t), t3=V3(t2*t), a3=V3(3*t2), b2=V3(2*t3), s=V3(a3-b2);
+  L.push(`t² = ${fz(t)} × ${fz(t)} = ${fz(t2)}`, `t³ = ${fz(t2)} × ${fz(t)} = ${fz(t3)}`, `3t² = 3 × ${fz(t2)} = ${fz(a3)}`,
+         `2t³ = 2 × ${fz(t3)} = ${fz(b2)}`, `smoothstep = ${fz(a3)} − ${fz(b2)} = ${fz(s)}`);
+  return s;
+}
+function colorLines(L,x,y,shift,wl,name){
+  const xs=V3(x+shift), c4=V3(xs*4), r4=V3(y*4), c=Math.floor(c4), r=Math.min(Math.floor(r4),3), even=(c+r)%2===0;
+  const col=wl==='checker'?(even?ORANGE:NAVY):(even?WHITE:BLACK);
+  L.push(`${name}: x + shift = ${f(x)} + ${f(shift)} = ${f(xs)}`, `${name} col: ${f(xs)} × 4 = ${fz(c4)} → floor → ${c}`,
+         `${name} row: ${f(y)} × 4 = ${fz(r4)} → floor → ${Math.floor(r4)}`+(Math.floor(r4)>3?' → last row 3':''),
+         `${name}: ${c} + ${r} = ${c+r} → ${even?'even':'odd'} → ${cz(col)}`);
+  return col;
+}
+function traceLines(u,v,P,time,wl,mode){
+  const L=[];
+  const px=V3(u-P.cx), py=V3(v-P.cy);
+  L.push(`p.x = ${f(u)} − ${par(P.cx)} = ${fz(px)}`, `p.y = ${f(v)} − ${par(P.cy)} = ${fz(py)}`);
+  const sx=V6(px*px), sy=V6(py*py), sum=V6(sx+sy), d=V3(Math.sqrt(sum));
+  L.push(`p.x² = ${par(px)} × ${par(px)} = ${f6(sx)}`, `p.y² = ${par(py)} × ${par(py)} = ${f6(sy)}`,
+         `sum = ${f6(sx)} + ${f6(sy)} = ${f6(sum)}`, `d = √${f6(sum)} = ${f(d)}`);
+  const sd=V3(d-RAD); L.push(`sd = ${f(d)} − 0.25 = ${fz(sd)}`);
+  L.push('— answer 1: is W glass? —');
+  let mask=1;
+  if(mode==='mask'){ const s1=smoothLines(L,sd,MB,'maskBand'); mask=V3(1-s1); L.push(`mask = 1 − ${fz(s1)} = ${fz(mask)}`); }
+  else L.push('mix by nothing (Lesson 9.13): the amount is always 1');
+  L.push('— answer 2: where does W read? —');
+  let ex=0, ey=0;
+  if(d<=0.0001){ L.push('d ≤ 0.0001: the guard skips the push', 'disp = (0, 0)'); }
+  else{
+    const s2=smoothLines(L,sd,BAND,'band'), fo=V3(1-s2); L.push(`falloff = 1 − ${fz(s2)} = ${fz(fo)}`);
+    const push=V3(P.len*fo); L.push(`push = ${f(P.len)} × ${fz(fo)} = ${f(push)}`);
+    const dx=V3(px/d), dy=V3(py/d); L.push(`dir.x = ${fz(px)} ÷ ${f(d)} = ${fz(dx)}`, `dir.y = ${fz(py)} ÷ ${f(d)} = ${fz(dy)}`);
+    ex=V3(dx*push); ey=V3(dy*push); L.push(`disp.x = ${fz(dx)} × ${f(push)} = ${fz(ex)}`, `disp.y = ${fz(dy)} × ${f(push)} = ${fz(ey)}`);
+  }
+  const kR=V3(1-P.spread), kB=V3(1+P.spread);
+  L.push(`1 − spread = 1 − ${f(P.spread)} = ${f(kR)}`, `1 + spread = 1 + ${f(P.spread)} = ${f(kB)}`);
+  const pts=[]; let anyOut=false;
+  [[kR,'readRed'],[1,'readGreen'],[kB,'readBlue']].forEach(([k,n])=>{
+    let sx2=ex, sy2=ey;
+    if(k!==1){ sx2=V3(ex*k); sy2=V3(ey*k); L.push(`${n}: disp.x × ${f(k)} = ${fz(ex)} × ${f(k)} = ${fz(sx2)}`, `${n}: disp.y × ${f(k)} = ${fz(ey)} × ${f(k)} = ${fz(sy2)}`); }
+    const rx=V3(u-sx2), ry=V3(v-sy2);
+    L.push(`${n}.x = ${f(u)} − ${par(sx2)} = ${f(rx)}`, `${n}.y = ${f(v)} − ${par(sy2)} = ${f(ry)}`);
+    let cx2=rx, cy2=ry;
+    if(!inside(rx,ry)){ anyOut=true; cx2=V3(clamp(rx,0,1)); cy2=V3(clamp(ry,0,1)); L.push(`${n} is outside 0 … 1 → clamp → ${pt(cx2,cy2)}`); }
+    pts.push([cx2,cy2,n]);
+  });
+  L.push(anyOut?'clamp: every read point is now inside 0 … 1':'clamp: all three read points are inside 0 … 1, clamp changes nothing');
+  const shift=V3(SPEED*V3(time)); L.push(`shift = speed × time = 0.10 × ${fz(time)} = ${f(shift)}`);
+  const cols=pts.map(([x,y,n])=>colorLines(L,x,y,shift,wl,n));
+  const bent=[cols[0][0],cols[1][1],cols[2][2]];
+  L.push(`bent: red = colRed.r = ${fz(bent[0])}, green = colGreen.g = ${fz(bent[1])}, blue = colBlue.b = ${fz(bent[2])}`);
+  L.push('— the mix —');
+  const plain=colorLines(L,u,v,shift,wl,'plain');
+  const out=[];
+  for(let c=0;c<3;c++){ const df=V3(bent[c]-plain[c]), sc=V3(df*mask), o=V3(plain[c]+sc); out.push(o);
+    L.push(`${CH[c]}: bent − plain = ${fz(bent[c])} − ${fz(plain[c])} = ${fz(df)}`, `${CH[c]}: ${par(df)} × mask = ${par(df)} × ${fz(mask)} = ${fz(sc)}`, `${CH[c]}: plain + ${par(sc)} = ${fz(plain[c])} + ${par(sc)} = ${fz(o)}`); }
+  return {lines:L, pts, cols, bent, plain, mask, out};
+}
+
+/* ================= section 4: lab ================= */
+(function(){
+  const cv=document.getElementById('labCv'), stage=document.getElementById('labStage'), V=view(cv,-0.15,-0.15,1.25);
+  const mk=document.getElementById('labMask'), ps=document.getElementById('labPush'), VM=view(mk,0,0,1), VP=view(ps,0,0,1);
+  const S={cx:LES.cx, cy:LES.cy, len:0.10, spread:0.10, u:WP[0], v:WP[1], wl:'bw', m:'mask', time:TT};
+  let F=null, lastOut=0;
+  const P=()=>({cx:S.cx, cy:S.cy, len:S.len, spread:S.spread});
+  function rebuild(){ F=makeField(cv,V,P(),{a:'plain',b:'bent',m:S.m}); drawMaps(); }
+  function drawMaps(){
+    renderMask(mk,VM,P());
+    const c1=mk.getContext('2d'); lbl(c1,'violet: mask = 1',8,16,GLS,'left',14);
+    const c2=ps.getContext('2d'); c2.fillStyle='#f8fafc'; c2.fillRect(0,0,ps.width,ps.height);
+    ring(c2,VP.X(S.cx),VP.Y(S.cy),RAD*VP.s,COL.glass,2); ring(c2,VP.X(S.cx),VP.Y(S.cy),0.35*VP.s,COL.ring,2);
+    const pst=document.getElementById('labPushStage'); clearPts(pst);
+    for(let i=0;i<10;i++) for(let j=0;j<10;j++){ const a=V6(0.05+0.1*i), b=V6(0.05+0.1*j), rd=readsOf(a,b,P())[1], ps=chain(a,b,P()).push;
+      addPt(pst,VP.X(a),VP.Y(b),'transparent',`<b>${pt(a,b)}</b>, in UV<br>Role: a sample pixel of the read-point map. Its push is ${f(ps)}, so its readGreen is ${pt(rd[0],rd[1])}.`,'a sample pixel of the read-point map','ghost');
+      if(Math.hypot(rd[0]-a,rd[1]-b)<0.004){ c2.beginPath(); c2.arc(VP.X(a),VP.Y(b),2.5,0,Math.PI*2); c2.fillStyle='#9ca3af'; c2.fill(); }
+      else arrow(c2,VP.X(a),VP.Y(b),VP.X(rd[0]),VP.Y(rd[1]),COL.push,2.2,9); }
+    lbl(c2,'no time in this map',8,16,INK,'left',14); lbl(c1,'no time in this map',8,36,INK,'left',14);
+  }
+  function drawFrame(t){
+    const time=Math.round(t*100)/100;
+    S.time=time;
+    paint(cv,F,time,S.wl);
+    const ctx=cv.getContext('2d');
+    box(ctx,V.X(0),V.Y(0),V.s,V.s,'#9ca3af',1.5);
+    lbl(ctx,'not the screen',V.X(-0.13),V.Y(-0.08),INK);
+    ring(ctx,V.X(S.cx),V.Y(S.cy),RAD*V.s,COL.glass,2); ring(ctx,V.X(S.cx),V.Y(S.cy),0.35*V.s,COL.ring,2);
+    const rd=readsOf(S.u,S.v,P());
+    arrow(ctx,V.X(S.u),V.Y(S.v),V.X(rd[2][0]),V.Y(rd[2][1]),COL.push,3);
+    lbl(ctx,'C',V.X(S.cx)+18,V.Y(S.cy)+4,GLS); lbl(ctx,'W',V.X(S.u)-16,V.Y(S.v)-10,INK,'right');
+    const hw=stage.querySelector('[data-h=w]');
+    const px=pixelOf(S.u,S.v,P(),time,S.wl,{a:'plain',b:'bent',m:S.m});
+    if(hw) hw.style.background=rgb(px.out);
+    document.getElementById('labT').value=String(Math.round(time*100)/100);
+    document.getElementById('labTV').textContent=V3(time).toFixed(2)+' s';
+    const now=performance.now();
+    if(now-lastOut>120 || !A.playing){ lastOut=now; readout(time); }
+  }
+  function readout(time){
+    const tr=traceLines(S.u,S.v,P(),V3(time),S.wl,S.m);
+    answerPanel(document.getElementById('labPan'),{title:`The answers for W at time = ${V3(time).toFixed(2)} s`,plain:tr.plain,bent:tr.bent,mask:tr.mask,out:tr.out,outNote:S.m==='mask'?'the mix':'always bent'});
+    document.getElementById('labOut').textContent=
+`C = ${pt(S.cx,S.cy)}   W = ${pt(S.u,S.v)}
+time = ${fz(V3(time))} s   dispLen = ${f(S.len)}
+spread = ${f(S.spread)}   maskBand = 0.002
+
+`+tr.lines.join('\n')+`
+→ W stores ${cz(tr.out)}`;
+  }
+  function handles(){
+    clearPts(stage);
+    const hc=addPt(stage,V.X(S.cx),V.Y(S.cy),COL.glass,()=>TIP_C(S.cx,S.cy)+'<br>Drag it, or press the arrow keys after clicking it.','C, drag to move the glass','drag');
+    const hw=addPt(stage,V.X(S.u),V.Y(S.v),'#fff',()=>TIP_W(S.u,S.v)+`<br>At time = ${V3(S.time).toFixed(2)} s it stores ${cz(pixelOf(S.u,S.v,P(),S.time,S.wl,{a:'plain',b:'bent',m:S.m}).out)}.<br>Drag it, or press the arrow keys after clicking it.`,'W, drag to pick a pixel','drag');
+    hc.dataset.h='c'; hw.dataset.h='w';
+    dragHandle(hc,cv,V,(u,v)=>{ S.cx=u; S.cy=v; full(); stage.querySelector('[data-h=c]').focus(); },[-0.12,1.22,-0.12,1.22],()=>[S.cx,S.cy],0.01);
+    dragHandle(hw,cv,V,(u,v)=>{ S.u=u; S.v=v; full(); stage.querySelector('[data-h=w]').focus(); },[0.005,0.995,0.005,0.995],()=>[S.u,S.v],0.005);
+  }
+  function full(){ rebuild(); handles(); drawFrame(S.time); readout(S.time); syncBtns(); }
+  function syncBtns(){
+    document.querySelectorAll('[data-lab-wall]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.labWall===S.wl)));
+    document.querySelectorAll('[data-lab-m]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.labM===S.m)));
+    document.querySelectorAll('[data-lab-c]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.labC===`${S.cx.toFixed(2)},${S.cy.toFixed(2)}`)));
+    const pb=document.getElementById('labPlay'); pb.textContent=A.playing?'❚❚ Pause':'▶ Play'; pb.setAttribute('aria-pressed',String(A.playing));
+  }
+  const A={el:stage, playing:false, time:TT, draw:t=>drawFrame(t)};
+  addAnim(A);
+  document.getElementById('labPlay').onclick=()=>{ A.playing=!A.playing; A.time=S.time; if(!A.playing) readout(S.time); syncBtns(); };
+  document.getElementById('labT').oninput=e=>{ A.playing=false; A.time=Number(e.target.value); drawFrame(A.time); syncBtns(); };
+  document.querySelectorAll('[data-lab-wall]').forEach(b=>b.onclick=()=>{ S.wl=b.dataset.labWall; drawFrame(S.time); readout(S.time); syncBtns(); });
+  document.querySelectorAll('[data-lab-m]').forEach(b=>b.onclick=()=>{ S.m=b.dataset.labM; full(); });
+  document.querySelectorAll('[data-lab-c]').forEach(b=>b.onclick=()=>{ [S.cx,S.cy]=b.dataset.labC.split(',').map(Number);
+    const near={ '0.40,0.54':[0.40,0.24], '0.50,0.50':[0.65,0.30], '0.50,1.10':[0.59,0.98] }[b.dataset.labC];
+    if(near){ S.u=near[0]; S.v=near[1]; } full(); });
+  const sl=document.getElementById('labS'), ll=document.getElementById('labLen');
+  sl.oninput=()=>{ S.spread=Number(sl.value); document.getElementById('labSV').textContent=f(S.spread); full(); };
+  ll.oninput=()=>{ S.len=Number(ll.value); document.getElementById('labLenV').textContent=f(S.len); full(); };
+  full();
+})();
+
+/* ================= section 6: challenge ================= */
+(function(){
+  const cv=document.getElementById('chCv'), V=view(cv,0,0,1), inp=document.getElementById('chIn'), out=document.getElementById('chVerdict');
+  function parse(txt){
+    const s=txt.replace(/\s+/g,'').replace(/;+$/,'');
+    let q=s.match(/^return(plain|bent)$/); if(q) return {a:q[1],b:q[1],m:'zero'};
+    q=s.match(/^returnmix\((plain|bent),(plain|bent),(.+)\)$/); if(!q) return null;
+    const a=q[1], b=q[2], t=q[3].replace(/^half\((.*)\)$/,'$1');
+    let m=null;
+    if(t==='mask') m='mask'; else if(t==='falloff') m='falloff';
+    else if(/^1(\.0*)?h?-mask$/.test(t)) m='inv';
+    else if(/^1(\.0*)?h?$/.test(t)) m='one'; else if(/^0(\.0*)?h?$/.test(t)) m='zero';
+    else if(/^0?\.\d+h?$/.test(t)) return {a,b,m:'const',k:Number(t.replace('h',''))};
+    if(!m) return {bad:t};
+    return {a,b,m};
+  }
+  function draw(spec){ render(cv,V,LES,spec,0,'bw'); }
+  function run(){
+    const p=parse(inp.value);
+    if(!p||p.bad){ draw(NOMASK); out.className='verdict no';
+      out.textContent=!inp.value.trim()?'No line yet: the picture shows Lesson 9.13, every pixel stores bent.':
+        p&&p.bad?`The page does not know the third number “${p.bad}”. Use one of the names in the shader above: mask, or a number such as 1.0.`:
+        'The page could not read this line. Write it in the form return mix(A, B, M); where A and B are plain or bent, and M is the number that picks.'; return; }
+    if(p.m==='const') CONSTMIX=p.k;
+    draw(p);
+    const same=p.a===p.b || p.m==='zero' || p.m==='one';
+    const shown=p.m==='zero'?p.a:p.m==='one'?p.b:(p.a===p.b?p.a:null);
+    if(p.a==='plain'&&p.b==='bent'&&p.m==='mask'){ out.className='verdict ok'; out.textContent='Correct. Outside the outline the mask is 0, so a pixel shows plain: the edges stay straight. Inside, the mask is 1, so a pixel shows bent. On the outline, the one-pixel band mixes the two.'; }
+    else if(same&&shown==='bent'){ out.className='verdict no'; out.textContent='Every pixel shows bent: this is Lesson 9.13. The edges bend outside the glass, and there is no outline. The mask must pick.'; }
+    else if(same&&shown==='plain'){ out.className='verdict no'; out.textContent='Every pixel shows plain: the glass has disappeared. The pixels inside the outline must show bent.'; }
+    else if((p.a==='bent'&&p.b==='plain'&&p.m==='mask')||(p.a==='plain'&&p.b==='bent'&&p.m==='inv')){ out.className='verdict no'; out.textContent='Backwards: inside the outline the pixels show plain, and outside they show bent. mix gives its first color at m = 0 and its second at m = 1; the mask is 1 inside.'; }
+    else if(p.m==='const'){ out.className='verdict no'; out.textContent=`A fixed number mixes every pixel by the same amount, ${fz(p.k)}: inside and outside the glass get the same mix, so the glass gets no sharp outline. The number that picks must be 1 inside and 0 outside: the mask.`; }
+    else if(p.m==='falloff'){ out.className='verdict no'; out.textContent='Falloff is the push band, 0.20 wide. Mixed by it, each pixel in that ring is part plain and part bent: two faded copies of each edge. Use the thin mask.'; }
+    else { out.className='verdict no'; out.textContent='Not yet: outside the outline a pixel must show plain, inside it must show bent. Check which color comes first in mix, and which number picks.'; }
+  }
+  document.getElementById('chBtn').onclick=run;
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter') run(); });
+  run();
+})();
+
+/* ================= section 7: exercise pictures ================= */
+(function(){
+  { // exercise 1: no push; the glass cannot be seen
+    const I=[0.40,0.44], P={...LES,len:0};
+    // the question: the lens before the change (dispLen = 0.10), with its outline
+    const q=document.getElementById('ex1q'), sq=document.getElementById('ex1qStage'), VQ=view(q,0.03,0.17,0.77);
+    render(q,VQ,LES,LENS,0,'bw'); const cq=q.getContext('2d');
+    ring(cq,VQ.X(LES.cx),VQ.Y(LES.cy),RAD*VQ.s,COL.glass,2.5);
+    plate(cq,'violet: the outline of the glass',VQ.X(0.05),VQ.Y(0.22));
+    lbl(cq,'C',VQ.X(LES.cx)+12,VQ.Y(LES.cy)-10,GLS);
+    lbl(cq,'I',VQ.X(I[0])+14,VQ.Y(I[1])-4,INK);
+    const iq=pixelOf(I[0],I[1],LES,0,'bw',LENS).out;
+    addPt(sq,VQ.X(I[0]),VQ.Y(I[1]),rgb(iq),TIP_W(I[0],I[1],'I')+`<br>Inside the violet circle, so its mask is 1. Before the change it stores ${cz(iq)}.`,'I','sm');
+    addPt(sq,VQ.X(LES.cx),VQ.Y(LES.cy),COL.glass,TIP_C(LES.cx,LES.cy),'C','sm');
+    // the answer: the output and the mask map after the change (dispLen = 0)
+    const a=document.getElementById('ex1a'), sa=document.getElementById('ex1aStage'), VA=view(a,0.03,0.17,0.77);
+    render(a,VA,P,LENS,0,'bw'); const ca=a.getContext('2d');
+    plate(ca,'no outline anywhere',VA.X(0.05),VA.Y(0.20));
+    lbl(ca,'C',VA.X(LES.cx)+12,VA.Y(LES.cy)-10,GLS);
+    lbl(ca,'I',VA.X(I[0])+14,VA.Y(I[1])-4,INK);
+    addPt(sa,VA.X(I[0]),VA.Y(I[1]),'#fff',TIP_W(I[0],I[1],'I')+'<br>mask = 1, and it stores (1, 1, 1): the wallpaper at I.','I','sm');
+    addPt(sa,VA.X(LES.cx),VA.Y(LES.cy),COL.glass,TIP_C(LES.cx,LES.cy),'C','sm');
+    const b=document.getElementById('ex1b'), sb=document.getElementById('ex1bStage'), VB=view(b,0.03,0.17,0.77);
+    renderMask(b,VB,P); const cb=b.getContext('2d');
+    lbl(cb,'mask = 1: the glass',VB.X(0.40),VB.Y(0.62),GLS,'center');
+    lbl(cb,'mask = 0',VB.X(0.06),VB.Y(0.88),INK,'left');
+    lbl(cb,'I',VB.X(I[0])+14,VB.Y(I[1])-4,INK);
+    addPt(sb,VB.X(I[0]),VB.Y(I[1]),'#fff',TIP_W(I[0],I[1],'I')+'<br>Inside the violet circle, so mask = 1: I is glass.','I','sm');
+  }
+  { // exercise 2: capsule mask, circle push
+    const spec={a:'plain',b:'bent',m:'capsule'}, T=[0.78,0.54], M=[0.40,0.33];
+    const outlines=(ctx,V)=>{
+      halo(ctx,()=>rrPath(ctx,V.X(LES.cx-0.40),V.Y(LES.cy-0.20),0.80*V.s,0.40*V.s,0.20*V.s),COL.glass,2.5);
+      ring(ctx,V.X(LES.cx),V.Y(LES.cy),0.35*V.s,COL.ring,2.5);
+    };
+    // the question: the wallpaper with no glass, the two outlines, C, T and M
+    const q=document.getElementById('ex2q'), sq=document.getElementById('ex2qStage'), VQ=view(q,0,0,1);
+    render(q,VQ,LES,INPUT,0,'bw'); const cq=q.getContext('2d');
+    outlines(cq,VQ);
+    plate(cq,'orange: the ring 0.35 from C',VQ.X(0.03),VQ.Y(0.07));
+    plate(cq,'violet: the capsule',VQ.X(0.44),VQ.Y(0.80));
+    lbl(cq,'C',VQ.X(LES.cx)+12,VQ.Y(LES.cy)-10,GLS);
+    lbl(cq,'T',VQ.X(T[0])+24,VQ.Y(T[1])+2,INK); lbl(cq,'M',VQ.X(M[0])+12,VQ.Y(M[1])-10,INK);
+    addPt(sq,VQ.X(T[0]),VQ.Y(T[1]),'#fff',TIP_W(T[0],T[1],'T')+'<br>Inside the violet capsule, outside the orange ring.','T','sm');
+    addPt(sq,VQ.X(M[0]),VQ.Y(M[1]),'#fff',TIP_W(M[0],M[1],'M')+'<br>Inside the orange ring, just outside the violet capsule.','M','sm');
+    addPt(sq,VQ.X(LES.cx),VQ.Y(LES.cy),COL.glass,TIP_C(LES.cx,LES.cy),'C','sm');
+    // the answer: the output, and the output with the two outlines
+    for(const [id,cons] of [['ex2a',false],['ex2b',true]]){
+      const cv=document.getElementById(id), stage=document.getElementById(id+'Stage'), V=view(cv,0,0,1);
+      render(cv,V,LES,spec,0,'bw'); const ctx=cv.getContext('2d');
+      if(cons){
+        outlines(ctx,V);
+        plate(ctx,'T: glass, but no push',V.X(0.60),V.Y(0.93));
+        plate(ctx,'M: a push, but not glass',V.X(0.45),V.Y(0.26));
+        plate(ctx,'here: glass and a push',V.X(0.22),V.Y(0.69));
+        lbl(ctx,'T',V.X(T[0])+24,V.Y(T[1])+2,INK); lbl(ctx,'M',V.X(M[0])+12,V.Y(M[1])-10,INK);
+        addPt(stage,V.X(T[0]),V.Y(T[1]),'#fff',TIP_W(T[0],T[1],'T')+'<br>Capsule mask 1, push 0: it stores the wallpaper at T.','T','sm');
+        addPt(stage,V.X(M[0]),V.Y(M[1]),'#fff',TIP_W(M[0],M[1],'M')+'<br>Capsule mask 0, push 0.0784: it stores plain.','M','sm');
+      } else plate(ctx,'bent only in the middle of the capsule',V.X(0.03),V.Y(0.20));
+      addPt(stage,V.X(LES.cx),V.Y(LES.cy),COL.glass,TIP_C(LES.cx,LES.cy),'C','sm');
+    }
+  }
+  { // exercise 3: the glass at the bottom edge, without and with the clamps
+    const P0={cx:0.50, cy:1.10, len:0.10, spread:0.10}, W3=[0.59,0.98];
+    const edge=(ctx,V,cv)=>{
+      ring(ctx,V.X(P0.cx),V.Y(P0.cy),RAD*V.s,COL.glass,2.5);
+      line(ctx,0,V.Y(1),cv.width,V.Y(1),'#ffffff',2.5);
+    };
+    const tipW3=(px,clamped)=>TIP_W(W3[0],W3[1],'W₃')+`<br>mask = 1. ${clamped?'With':'Without'} the clamps it stores ${cz(px.out)}.`;
+    // the question: the output without the clamps, with C below the screen
+    const q=document.getElementById('ex3q'), sq=document.getElementById('ex3qStage'), VQ=view(q,0.22,0.78,0.78);
+    const PQ={...P0,noClamp:true};
+    render(q,VQ,PQ,LENS,0,'checker',{transparentOff:true}); const cq=q.getContext('2d');
+    edge(cq,VQ,q);
+    plate(cq,'the black strip, just above the white line',VQ.X(0.235),VQ.Y(0.81));
+    lbl(cq,'y = 1.00: the bottom edge',VQ.X(0.77),VQ.Y(1.025),INK,'right',14);
+    lbl(cq,'below the screen: no wallpaper',VQ.X(0.235),VQ.Y(1.235),INK,'left',14);
+    lbl(cq,'C',VQ.X(P0.cx)+12,VQ.Y(P0.cy)-10,GLS);
+    lbl(cq,'W₃',VQ.X(W3[0])+14,VQ.Y(W3[1])-12,INK);
+    const pq=pixelOf(W3[0],W3[1],PQ,0,'checker',LENS);
+    addPt(sq,VQ.X(W3[0]),VQ.Y(W3[1]),rgb(pq.out),tipW3(pq,false),'W3','sm');
+    addPt(sq,VQ.X(P0.cx),VQ.Y(P0.cy),COL.glass,TIP_C(P0.cx,P0.cy).replace('glass circle','glass circle, below the screen'),'C','sm');
+    // the answer: without and with the clamps, with the read points of W₃
+    for(const [id,noClamp] of [['ex3a',true],['ex3b',false]]){
+      const cv=document.getElementById(id), stage=document.getElementById(id+'Stage'), V=view(cv,0.40,0.84,0.68);
+      const P={...P0,noClamp};
+      render(cv,V,P,LENS,0,'checker',{transparentOff:true}); const ctx=cv.getContext('2d');
+      edge(ctx,V,cv);
+      plate(ctx,'y = 1.00: the bottom edge',V.X(0.41),V.Y(0.975));
+      lbl(ctx,'below the screen: no wallpaper',V.X(0.675),V.Y(1.105),INK,'right',14);
+      const r=chain(W3[0],W3[1],P), rd=readsOf(W3[0],W3[1],P,r), px=pixelOf(W3[0],W3[1],P,0,'checker',LENS);
+      arrow(ctx,V.X(W3[0]),V.Y(W3[1]),V.X(rd[2][0]),V.Y(rd[2][1]),COL.push,3);
+      lbl(ctx,'W₃',V.X(W3[0])+14,V.Y(W3[1])-12,INK);
+      lbl(ctx,'C',V.X(P0.cx)+12,V.Y(P0.cy)-10,GLS);
+      addPt(stage,V.X(W3[0]),V.Y(W3[1]),rgb(px.out),tipW3(px,!noClamp),'W3','sm');
+      addPt(stage,V.X(P0.cx),V.Y(P0.cy),COL.glass,TIP_C(P0.cx,P0.cy).replace('glass circle','glass circle, below the screen'),'C','sm');
+      rd.forEach(([u,v],k)=>addPt(stage,V.X(u),V.Y(v),CHC[k],TIP_READ(k,V3(u),V3(v),wall(u,v,0,'checker'),'W₃')+(wall(u,v,0,'checker')?'':'<br>Below the wallpaper: no color, so this channel is 0.'),RNAME[k],'xs'));
+      if(noClamp) plate(ctx,'black strip: read points below the edge',V.X(0.46),V.Y(0.87));
+      else plate(ctx,'clamp: read points moved up onto y = 1.00',V.X(0.46),V.Y(0.87));
+    }
+  }
+  // the choices: a click marks one choice and prints why it is right or not
+  document.querySelectorAll('.choices').forEach(g=>{
+    const out=g.nextElementSibling;
+    g.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+      g.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+      out.className='verdict '+(b.dataset.ok==='1'?'ok':'no'); out.textContent=b.dataset.why;
+    }));
+  });
+})();
+
+/* ================= section 8: record ================= */
+(function(){
+  const rec=document.getElementById('record');
+  rec.value=`# Lesson 9.14 — Lens checkpoint
+
+completed_by_learner: true
+date: ${new Date().toISOString().slice(0,10)}
+
+- Every pixel gets two separate answers from the same sd:
+    answer 1, is it glass?   mask  = 1 − smoothstep(−maskBand, maskBand, sd)   maskBand = 0.002 (about one pixel)
+    answer 2, where to read? falloff = 1 − smoothstep(−band, band, sd)       band = 0.10 → push → three read points → bent
+- plain = wall(uv, time): the wallpaper at the pixel itself.
+- color = mix(plain, bent, mask) = plain + (bent − plain) × mask.
+- The moving wallpaper (a test pattern): wall(x, y, time) = checker(x + speed × time, y), speed = 0.10 per second (moves left).
+  time is used only by the wallpaper. The mask and the read points never change while the wallpaper moves.
+- Teaching pixel: C = (0.40, 0.54), W = (0.40, 0.24), time = 2 s: sd = 0.05 → mask = 0; push = 0.016;
+  read points y = 0.2544 / 0.256 / 0.2576 → bent = black; plain = white → W stores white (Lesson 9.13 stored black).
+- Falloff cannot be the mask: its band is 0.20 wide (104 px on a 520-px picture) → two faded copies of each edge.
+  A hard if gives stair steps. The thin mask gives a sharp outline.
+- Chapter 9 checkpoint: the mask and the read points are separate problems because
+  (1) they answer different questions (how much glass vs where to read),
+  (2) they need different widths from the same sd (0.004 vs 0.20),
+  (3) neither uses the other, the wallpaper, or the time; a mistake in one is fixed in its own line.
+- No push → the glass is invisible (bent = plain). A new shape needs both answers changed.
+- The edge seam is a read-point problem: the clamp fixes it, the mask cannot.
+- iOS: chapter09/LensCheckpoint.metal (glassLens, movingChecker), explorer chapter09/LensCheckpointExplorer.swift,
+  time from TimelineView(.animation), maskBand = 1 / resolution.x.
+- Next: Chapter 10, Lesson 10.1 — Height-map idea.`;
+  document.getElementById('recBtn').onclick=async()=>{
+    let ok=false; try{ if(navigator.clipboard){ await navigator.clipboard.writeText(rec.value); ok=true; } }catch(e){}
+    if(!ok){ rec.select(); try{ ok=document.execCommand('copy'); }catch(e){} }
+    document.getElementById('recMsg').textContent=ok?'Copied.':'Select the text and copy it by hand.';
+  };
+})();
+</script>
+</body>
+</html>

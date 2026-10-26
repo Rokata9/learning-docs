@@ -25,10 +25,10 @@
 </head>
 <body>
 <main class="page">
-<nav class="topbar"><div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-color-opacity-and-compositing.html">Chapter 3</a> · Lesson 3.8</div><div class="chips"><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span><span class="chip progress">25 of 216 complete</span></div></nav>
+<nav class="topbar"><div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-color-opacity-and-compositing.html">Chapter 3</a> · Lesson 3.8</div><div class="chips"><span class="chip progress">100 of 216 completed</span><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span><span class="chip">iPhone 16 Pro</span></div></nav>
 <section class="hero panel">
 <div><div class="eyebrow">Chapter 3 · Color, opacity, and compositing</div><h1>Lesson 3.8 — Tint</h1><p class="lead">You already know how a translucent source color is combined with an opaque destination by the source-over operation. This lesson uses that same operation to answer one new practical question: how can a panel gain a controlled blue color influence while the original background color still contributes to the result?</p><div class="note"><strong>Tint in this lesson:</strong> one chosen straight sRGB source color drawn over an existing opaque destination with a chosen source alpha. Other APIs may use the word <em>tint</em> for different blend operations. This lesson teaches one explicit model whose inputs and output are fully visible.</div></div>
-<aside class="goal"><strong>Checkpoint goal</strong><p>Explain which object is the tint source, which object is the destination, why the tint amount is the source alpha, why the final output remains opaque, and how every output channel is calculated.</p><p><strong>Android files:</strong><br><code>chapter03/Chapter03Screen.kt</code><br><code>chapter03/TintExplorer.kt</code></p></aside>
+<aside class="goal"><strong>Checkpoint goal</strong><p>Explain which object is the tint source, which object is the destination, why the tint amount is the source alpha, why the final output remains opaque, and how every output channel is calculated.</p><p><strong>iOS files:</strong><br><code>chapter03/Chapter03Screen.swift</code><br><code>chapter03/TintExplorer.swift</code></p></aside>
 </section>
 
 <section class="section panel" id="known-object">
@@ -39,7 +39,7 @@
 </section>
 
 <section class="section panel" id="three-objects">
-<div class="section-head"><div><div class="section-no">2 · Name the three exact color objects</div><h2>Destination, tint source, and output</h2></div><p>The browser controls and Android code update the same values.</p></div>
+<div class="section-head"><div><div class="section-no">2 · Name the three exact color objects</div><h2>Destination, tint source, and output</h2></div><p>The browser controls and Swift code update the same values.</p></div>
 <div class="lab"><div class="stage"><div class="layer-grid">
 <article class="layer-card"><div class="layer-swatch" id="baseSwatch"><span class="layer-label">Already present</span></div><div class="layer-copy"><h3>1 · Destination</h3><div class="mono" id="baseTuple"></div><p>The base color is opaque. It is drawn first.</p></div></article>
 <article class="layer-card"><div class="layer-swatch checker"><div id="tintOverlay" style="position:absolute;inset:0"></div><span class="layer-label">Drawn now</span></div><div class="layer-copy"><h3>2 · Tint source</h3><div class="mono" id="tintTuple"></div><p>The tint RGB chooses the color influence. The tint alpha chooses how strongly this source participates in this draw operation.</p></div></article>
@@ -116,7 +116,7 @@ output = tint color</div></article>
 
 <section class="section panel" id="limits">
 <div class="section-head"><div><div class="section-no">8 · Evidence limit</div><h2>This is a uniform-color tint model</h2></div></div>
-<div class="two"><article class="card green"><h3>What this lesson establishes</h3><p>A known straight sRGB tint source can be drawn over a known opaque destination with source-over. The browser and Kotlin calculate the resulting RGBA channels explicitly.</p></article><article class="card amber"><h3>What remains later</h3><p>A complete Liquid Glass material may tint a backdrop that has already been blurred, displaced, or refracted. Those backdrop operations have not been built yet. This lesson does not claim Apple's private render order or that every Android API named “tint” uses this exact source-over model.</p></article></div>
+<div class="two"><article class="card green"><h3>What this lesson establishes</h3><p>A known straight sRGB tint source can be drawn over a known opaque destination with source-over. The browser and Swift calculate the resulting RGBA channels explicitly.</p></article><article class="card amber"><h3>What remains later</h3><p>A complete Liquid Glass material may tint a backdrop that has already been blurred, displaced, or refracted. Those backdrop operations have not been built yet. This lesson does not claim Apple's private render order or that every iOS API named “tint” uses this exact source-over model.</p></article></div>
 </section>
 
 <section class="section panel" id="stepper">
@@ -124,889 +124,1002 @@ output = tint color</div></article>
 <div class="stepper"><div class="step-figure"><svg aria-label="Tint calculation stepper" id="stepSvg" role="img" viewBox="0 0 1500 700"></svg></div><div class="step-card"><div class="step-nav" id="stepNav"></div><div class="step-body"><div class="step-title" id="stepTitle"></div><p class="step-caption" id="stepCaption"></p><pre class="code" id="stepCode"></pre><div class="io"><div><strong>Input</strong><span id="stepInput"></span></div><div><strong>Operation</strong><span id="stepOperation"></span></div><div><strong>Output</strong><span id="stepOutput"></span></div></div><div class="controls" style="margin-top:15px"><button class="secondary" id="stepBack">Back</button><button class="primary" id="stepNext">Next</button></div></div></div></div>
 </section>
 
-<section class="section panel" id="android-path">
-<div class="section-head"><div><div class="section-no">10 · Android value path</div><h2>Follow the exact Compose objects</h2></div></div>
-<div class="pipeline"><article class="card"><strong>1 · Known base</strong><code>baseColor</code><p>One opaque straight sRGB <code>Color</code>.</p></article><article class="card"><strong>2 · Tint controls</strong><code>tintRed</code><br><code>tintGreen</code><br><code>tintBlue</code><br><code>tintAmount</code><p>Four state values come from sliders or presets.</p></article><article class="card"><strong>3 · Source object</strong><code>tintSource</code><p>The tint RGB and tint amount become one straight RGBA source.</p></article><article class="card"><strong>4 · Source-over</strong><code>tintSource.compositeOver(baseColor)</code><p>Compose calculates one straight output <code>Color</code>.</p></article><article class="card"><strong>5 · Drawing</strong><code>drawRect(outputColor)</code><p>The output color is shown as the final tinted surface.</p></article><article class="card"><strong>6 · Next consumers</strong><code>outputColor.luminance()</code><br><code>contrastRatio(...)</code><p>The receiver is the new <code>outputColor</code>. Reusing <code>baseColor.luminance()</code> would describe the old untinted RGB.</p></article></div>
+<section class="section panel" id="ios-path">
+<div class="section-head"><div><div class="section-no">10 · iOS value path</div><h2>Follow the exact SwiftUI objects</h2></div></div>
+<div class="pipeline"><article class="card"><strong>1 · Known base</strong><code>baseColor</code><p>One opaque straight sRGB <code>Color</code>.</p></article><article class="card"><strong>2 · Tint controls</strong><code>tintRed</code><br><code>tintGreen</code><br><code>tintBlue</code><br><code>tintAmount</code><p>Four state values come from sliders or presets.</p></article><article class="card"><strong>3 · Source object</strong><code>tintSource</code><p>The tint RGB and tint amount become one straight RGBA source.</p></article><article class="card"><strong>4 · Source-over</strong><code>tintSource.compositeOver(baseColor)</code><p>The lab helper <code>compositeOver</code> calculates one straight output <code>Color</code>.</p></article><article class="card"><strong>5 · Drawing</strong><code>Canvas</code> fill<p>The output color is shown as the final tinted surface.</p></article><article class="card"><strong>6 · Next consumers</strong><code>outputColor.luminance()</code><br><code>contrastRatio(...)</code><p>The receiver is the new <code>outputColor</code>. Reusing <code>baseColor.luminance()</code> would describe the old untinted RGB.</p></article></div>
 </section>
 
 <section class="section panel" id="sources-code">
-<div class="section-head"><div><div class="section-no">11 · Complete changed Android files</div><h2>The lesson and Android package show the same Kotlin</h2></div></div>
-<div class="source-tabs"><button class="tab selected" data-source="chapter">Chapter03Screen.kt</button><button class="tab" data-source="explorer">TintExplorer.kt</button></div>
-<div class="source-pane active" id="source-chapter"><pre class="code source-code">package com.example.liquidglasslab.chapter03
+<div class="section-head"><div><div class="section-no">11 · Complete changed iOS files</div><h2>The embedded source exactly matches the iOS files</h2></div><p>The displayed code matches the Lesson 3.8 files in <code>LiquidGlassLab-iOS</code>. <code>Chapter03Screen</code> keeps the Lesson 3.1–3.7 explorers and adds <code>TintExplorer</code>.</p></div>
+<div class="source-tabs"><button class="tab selected" data-source="chapter">Chapter03Screen.swift</button><button class="tab" data-source="explorer">TintExplorer.swift</button></div>
+<div class="source-pane active" id="source-chapter"><pre class="code source-code">import SwiftUI
 
-import android.content.res.Configuration
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.example.liquidglasslab.ui.theme.LiquidGlassLabTheme
+struct Chapter03Screen: View {
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 28) {
+                Text(&quot;COLOR, OPACITY, AND COMPOSITING&quot;)
+                    .font(.system(size: 14, weight: .black))
+                    .foregroundStyle(Color(hex: 0x059669))
 
-@Composable
-fun Chapter03Screen(modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background,
-        contentColor = MaterialTheme.colorScheme.onBackground,
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .safeDrawingPadding()
-                .padding(horizontal = 24.dp, vertical = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            Text(
-                text = &quot;COLOR, OPACITY, AND COMPOSITING&quot;,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = &quot;Lesson 3.8 · Tint&quot;,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = &quot;Start with the final opaque background color from Lesson 3.7. &quot; +
-                    &quot;Draw one translucent color layer over it. The layer shifts the &quot; +
-                    &quot;visible red, green, and blue channels toward the chosen tint color &quot; +
-                    &quot;without making the final result translucent.&quot;,
-                style = MaterialTheme.typography.bodyLarge,
-            )
-
-            TintExplorer()
-        }
-    }
-}
-
-@Preview(
-    name = &quot;Lesson 3.8 chapter screen — light&quot;,
-    showBackground = true,
-    widthDp = 412,
-    heightDp = 915,
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-)
-@Preview(
-    name = &quot;Lesson 3.8 chapter screen — dark&quot;,
-    showBackground = true,
-    widthDp = 412,
-    heightDp = 915,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
-@Composable
-private fun Chapter03ScreenPreview() {
-    LiquidGlassLabTheme {
-        Chapter03Screen()
-    }
-}
-
-@Preview(
-    name = &quot;Lesson 3.8 child explorer — light&quot;,
-    showBackground = true,
-    widthDp = 412,
-    heightDp = 915,
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-)
-@Preview(
-    name = &quot;Lesson 3.8 child explorer — dark&quot;,
-    showBackground = true,
-    widthDp = 412,
-    heightDp = 915,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
-@Composable
-private fun TintExplorerPreview() {
-    LiquidGlassLabTheme {
-        Surface(
-            color = MaterialTheme.colorScheme.background,
-            contentColor = MaterialTheme.colorScheme.onBackground,
-        ) {
-            TintExplorer(
-                modifier = Modifier.padding(16.dp),
-            )
-        }
-    }
-}
-</pre></div>
-<div class="source-pane" id="source-explorer"><pre class="code source-code">package com.example.liquidglasslab.chapter03
-
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import java.util.Locale
-import kotlin.math.max
-
-private const val BaseRed = 0.80f
-private const val BaseGreen = 0.25f
-private const val BaseBlue = 0.60f
-
-private const val InitialTintRed = 0.20f
-private const val InitialTintGreen = 0.65f
-private const val InitialTintBlue = 1.00f
-private const val InitialTintAmount = 0.25f
-
-private const val ContrastOffset = 0.05f
-
-private val ExplorerShape = RoundedCornerShape(22.dp)
-private val CardShape = RoundedCornerShape(16.dp)
-
-@Composable
-internal fun TintExplorer(
-    modifier: Modifier = Modifier,
-) {
-    var tintRed by rememberSaveable { mutableFloatStateOf(InitialTintRed) }
-    var tintGreen by rememberSaveable { mutableFloatStateOf(InitialTintGreen) }
-    var tintBlue by rememberSaveable { mutableFloatStateOf(InitialTintBlue) }
-    var tintAmount by rememberSaveable { mutableFloatStateOf(InitialTintAmount) }
-
-    val baseColor = Color(
-        red = BaseRed,
-        green = BaseGreen,
-        blue = BaseBlue,
-        alpha = 1f,
-    )
-    val opaqueTintColor = Color(
-        red = tintRed,
-        green = tintGreen,
-        blue = tintBlue,
-        alpha = 1f,
-    )
-    val tintSource = opaqueTintColor.copy(alpha = tintAmount)
-    val outputColor = tintSource.compositeOver(baseColor)
-
-    val blackContrastBefore = contrastRatio(Color.Black, baseColor)
-    val whiteContrastBefore = contrastRatio(Color.White, baseColor)
-    val blackContrastAfter = contrastRatio(Color.Black, outputColor)
-    val whiteContrastAfter = contrastRatio(Color.White, outputColor)
-
-    val scheme = MaterialTheme.colorScheme
-
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = ExplorerShape,
-        color = scheme.surface,
-        contentColor = scheme.onSurface,
-        border = BorderStroke(1.dp, scheme.outlineVariant),
-    ) {
-        Column(
-            modifier = Modifier.padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp),
-        ) {
-            SectionTitle(
-                number = "1",
-                title = "Start with one final opaque background color",
-            )
-            Text(
-                text = "The course background is straight sRGB RGBA(0.80, 0.25, " +
-                    "0.60, 1.00). The new question is: how can the program give this " +
-                    "background a controlled blue influence while keeping the original " +
-                    "background color in the result?",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            LayerPreviewCard(
-                baseColor = baseColor,
-                tintSource = tintSource,
-                outputColor = outputColor,
-            )
-
-            SectionTitle(
-                number = "2",
-                title = "Choose the tint color and tint amount",
-            )
-            Text(
-                text = "This lesson defines a tint layer as one source color drawn over " +
-                    "the existing background with source-over. The tint amount is the " +
-                    "source alpha used by that one draw operation. It is not the final " +
-                    "output alpha.",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            TintControls(
-                red = tintRed,
-                green = tintGreen,
-                blue = tintBlue,
-                amount = tintAmount,
-                onRedChange = { tintRed = it },
-                onGreenChange = { tintGreen = it },
-                onBlueChange = { tintBlue = it },
-                onAmountChange = { tintAmount = it },
-                onCoolBlue = {
-                    tintRed = 0.20f
-                    tintGreen = 0.65f
-                    tintBlue = 1.00f
-                },
-                onWarmAmber = {
-                    tintRed = 1.00f
-                    tintGreen = 0.62f
-                    tintBlue = 0.20f
-                },
-                onGreen = {
-                    tintRed = 0.16f
-                    tintGreen = 0.78f
-                    tintBlue = 0.46f
-                },
-                onWhite = {
-                    tintRed = 1.00f
-                    tintGreen = 1.00f
-                    tintBlue = 1.00f
-                },
-            )
-
-            SectionTitle(
-                number = "3",
-                title = "Reuse source-over for each color channel",
-            )
-            Text(
-                text = "The destination is opaque. Therefore the output is also opaque. " +
-                    "For each channel, the tint source contributes tint amount, and the " +
-                    "background contributes the remaining amount.",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            ChannelCalculationCard(
-                label = "Red",
-                tintChannel = tintRed,
-                baseChannel = BaseRed,
-                amount = tintAmount,
-                outputChannel = outputColor.red,
-                accent = Color(0xFFDC2626),
-            )
-            ChannelCalculationCard(
-                label = "Green",
-                tintChannel = tintGreen,
-                baseChannel = BaseGreen,
-                amount = tintAmount,
-                outputChannel = outputColor.green,
-                accent = Color(0xFF059669),
-            )
-            ChannelCalculationCard(
-                label = "Blue",
-                tintChannel = tintBlue,
-                baseChannel = BaseBlue,
-                amount = tintAmount,
-                outputChannel = outputColor.blue,
-                accent = Color(0xFF2563EB),
-            )
-            ChannelMovementProofCard(
-                tintRed = tintRed,
-                tintGreen = tintGreen,
-                tintBlue = tintBlue,
-                amount = tintAmount,
-                outputColor = outputColor,
-            )
-
-            SectionTitle(
-                number = "4",
-                title = "Tint amount is not final output opacity",
-            )
-            Text(
-                text = "The tint source can be translucent while the result remains " +
-                    "opaque. The base alpha is 1.00, so it fills every part left open by " +
-                    "the tint source.",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            OutputAlphaCard(tintAmount = tintAmount)
-
-            SectionTitle(
-                number = "5",
-                title = "Recalculate measurements from the RGB that now exists",
-            )
-            Text(
-                text = "Relative luminance is derived data: it is calculated from one " +
-                    "specific RGB input. The earlier luminance still describes baseColor. " +
-                    "After source-over creates outputColor, call outputColor.luminance() " +
-                    "to calculate the measurement that describes the tinted RGB.",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            MeasurementCard(
-                baseColor = baseColor,
-                outputColor = outputColor,
-                blackContrastBefore = blackContrastBefore,
-                whiteContrastBefore = whiteContrastBefore,
-                blackContrastAfter = blackContrastAfter,
-                whiteContrastAfter = whiteContrastAfter,
-            )
-        }
-    }
-}
-
-@Composable
-private fun SectionTitle(number: String, title: String) {
-    Text(
-        text = "$number · $title",
-        style = MaterialTheme.typography.titleLarge,
-        fontWeight = FontWeight.Black,
-    )
-}
-
-@Composable
-private fun LayerPreviewCard(
-    baseColor: Color,
-    tintSource: Color,
-    outputColor: Color,
-) {
-    val scheme = MaterialTheme.colorScheme
-    Surface(
-        shape = CardShape,
-        color = scheme.surfaceContainer,
-        border = BorderStroke(1.dp, scheme.outlineVariant),
-    ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Swatch(
-                title = "Destination before tint",
-                color = baseColor,
-                checkerboard = false,
-                details = baseColor.rgbaText(),
-            )
-            Swatch(
-                title = "Tint source drawn now",
-                color = tintSource,
-                checkerboard = true,
-                details = tintSource.rgbaText(),
-            )
-            Swatch(
-                title = "Opaque output after source-over",
-                color = outputColor,
-                checkerboard = false,
-                details = outputColor.rgbaText(),
-            )
-        }
-    }
-}
-
-@Composable
-private fun Swatch(
-    title: String,
-    color: Color,
-    checkerboard: Boolean,
-    details: String,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(title, fontWeight = FontWeight.Black)
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(112.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                if (checkerboard) {
-                    val cell = 24.dp.toPx()
-                    var y = 0f
-                    var row = 0
-                    while (y &lt; size.height) {
-                        var x = 0f
-                        var column = 0
-                        while (x &lt; size.width) {
-                            drawRect(
-                                color = if ((row + column) % 2 == 0) {
-                                    Color(0xFFE2E8F0)
-                                } else {
-                                    Color(0xFF94A3B8)
-                                },
-                                topLeft = Offset(x, y),
-                                size = Size(cell, cell),
-                            )
-                            x += cell
-                            column += 1
-                        }
-                        y += cell
-                        row += 1
-                    }
-                }
-                drawRect(color)
-            }
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-                contentColor = MaterialTheme.colorScheme.onSurface,
-            ) {
-                Text(
-                    text = details,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun TintControls(
-    red: Float,
-    green: Float,
-    blue: Float,
-    amount: Float,
-    onRedChange: (Float) -&gt; Unit,
-    onGreenChange: (Float) -&gt; Unit,
-    onBlueChange: (Float) -&gt; Unit,
-    onAmountChange: (Float) -&gt; Unit,
-    onCoolBlue: () -&gt; Unit,
-    onWarmAmber: () -&gt; Unit,
-    onGreen: () -&gt; Unit,
-    onWhite: () -&gt; Unit,
-) {
-    val scheme = MaterialTheme.colorScheme
-    Surface(
-        shape = CardShape,
-        color = scheme.surfaceContainer,
-        border = BorderStroke(1.dp, scheme.outlineVariant),
-    ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            ValueSlider("Tint red", red, onRedChange, Color(0xFFDC2626))
-            ValueSlider("Tint green", green, onGreenChange, Color(0xFF059669))
-            ValueSlider("Tint blue", blue, onBlueChange, Color(0xFF2563EB))
-            ValueSlider("Tint amount / source alpha", amount, onAmountChange, scheme.primary)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                PresetButton("Cool blue", onCoolBlue, Modifier.weight(1f))
-                PresetButton("Warm amber", onWarmAmber, Modifier.weight(1f))
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                PresetButton("Green", onGreen, Modifier.weight(1f))
-                PresetButton("White veil", onWhite, Modifier.weight(1f))
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                listOf(0f, 0.10f, 0.25f, 0.50f, 1f).forEach { preset -&gt;
-                    PresetButton(
-                        label = "${(preset * 100).toInt()}%",
-                        onClick = { onAmountChange(preset) },
-                        modifier = Modifier.weight(1f),
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.1 · Red, green, and blue channels&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Change one channel at a time. The final swatch is one opaque RGB color &quot; +
+                        &quot;built from three independent numbers.&quot;
                     )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    RgbChannelsExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.2 · Alpha&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Keep red, green, and blue fixed. Change only alpha, then inspect &quot; +
+                        &quot;how much of each background remains visible.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    AlphaExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.3 · The over operation&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Draw one translucent source over one translucent destination. &quot; +
+                        &quot;Calculate the resulting RGBA color one contribution at a time.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    OverOperationExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.4 · Draw order matters&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Draw the same two translucent layers in opposite orders. &quot; +
+                        &quot;Inspect why the shared area changes even though neither RGBA &quot; +
+                        &quot;input changes.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    DrawOrderExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.5 · Straight and premultiplied RGBA&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Lesson 3.3 already combined a translucent source over a &quot; +
+                        &quot;translucent destination. This lesson gives precise names to &quot; +
+                        &quot;the two RGB forms that appeared in that calculation. It &quot; +
+                        &quot;shows when SwiftUI Color expects straight RGBA, when &quot; +
+                        &quot;premultiplied RGBA is useful, and how both forms produce &quot; +
+                        &quot;the same output.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    PremultipliedRgbaExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.6 · From a visible color to relative luminance&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Start with the same opaque Color object used in earlier lessons. &quot; +
+                        &quot;The lesson defines sRGB, which means standard Red Green Blue. &quot; +
+                        &quot;First choose one channel number and see why light-based arithmetic &quot; +
+                        &quot;needs a converted value. Then repeat the understood operation for &quot; +
+                        &quot;all three channels and calculate one relative-luminance number.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    BrightnessLuminanceExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.7 · Foreground contrast&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Start with the final opaque background color from Lesson 3.6. &quot; +
+                        &quot;Calculate one contrast ratio for a black foreground and one for a &quot; +
+                        &quot;white foreground. The larger ratio identifies the candidate with &quot; +
+                        &quot;stronger numeric separation from that background.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    ForegroundContrastExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.8 · Tint&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Start with the final opaque background color from Lesson 3.7. &quot; +
+                        &quot;Draw one translucent color layer over it. The layer shifts the &quot; +
+                        &quot;visible red, green, and blue channels toward the chosen tint color &quot; +
+                        &quot;without making the final result translucent.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    TintExplorer()
                 }
             }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 20)
+            .frame(maxWidth: .infinity)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(hex: 0xF8FAFC))
+        .safeAreaPadding()
     }
 }
 
-@Composable
-private fun ValueSlider(
-    label: String,
-    value: Float,
-    onValueChange: (Float) -&gt; Unit,
-    accent: Color,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(label, fontWeight = FontWeight.Bold)
-            Text(value.f4(), fontFamily = FontFamily.Monospace)
-        }
-        Slider(
-            value = value,
-            onValueChange = onValueChange,
-            valueRange = 0f..1f,
-            colors = androidx.compose.material3.SliderDefaults.colors(
-                thumbColor = accent,
-                activeTrackColor = accent,
-            ),
+private extension Color {
+    init(hex: UInt32) {
+        self.init(
+            red: Double((hex &gt;&gt; 16) &amp; 0xFF) / 255,
+            green: Double((hex &gt;&gt; 8) &amp; 0xFF) / 255,
+            blue: Double(hex &amp; 0xFF) / 255
         )
     }
 }
 
-@Composable
-private fun PresetButton(
-    label: String,
-    onClick: () -&gt; Unit,
-    modifier: Modifier = Modifier,
-) {
-    OutlinedButton(
-        modifier = modifier,
-        onClick = onClick,
-    ) {
-        Text(label)
+#Preview(&quot;Chapter 3 explorers · light&quot;) {
+    LabTheme {
+        Chapter03Screen()
     }
+    .labPreviewCanvas()
 }
 
-@Composable
-private fun ChannelCalculationCard(
-    label: String,
-    tintChannel: Float,
-    baseChannel: Float,
-    amount: Float,
-    outputChannel: Float,
-    accent: Color,
-) {
-    val remaining = 1f - amount
-    val tintContribution = tintChannel * amount
-    val baseContribution = baseChannel * remaining
-    val scheme = MaterialTheme.colorScheme
+#Preview(&quot;Chapter 3 explorers · dark&quot;) {
+    LabTheme {
+        Chapter03Screen()
+    }
+    .preferredColorScheme(.dark)
+    .labPreviewCanvas()
+}
+</pre></div>
+<div class="source-pane" id="source-explorer"><pre class="code source-code">import SwiftUI
+import UIKit
 
-    Surface(
-        shape = CardShape,
-        color = scheme.surfaceContainer,
-        border = BorderStroke(1.dp, scheme.outlineVariant),
-    ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Text(label, color = accent, fontWeight = FontWeight.Black)
+private let baseRed: CGFloat = 0.80
+private let baseGreen: CGFloat = 0.25
+private let baseBlue: CGFloat = 0.60
+
+private let initialTintRed: CGFloat = 0.20
+private let initialTintGreen: CGFloat = 0.65
+private let initialTintBlue: CGFloat = 1.00
+private let initialTintAmount: CGFloat = 0.25
+
+private let contrastOffset: CGFloat = 0.05
+
+struct TintExplorer: View {
+    @State private var tintRed = initialTintRed
+    @State private var tintGreen = initialTintGreen
+    @State private var tintBlue = initialTintBlue
+    @State private var tintAmount = initialTintAmount
+
+    private var baseColor: Color {
+        Color(red: baseRed, green: baseGreen, blue: baseBlue, opacity: 1)
+    }
+
+    private var opaqueTintColor: Color {
+        Color(red: tintRed, green: tintGreen, blue: tintBlue, opacity: 1)
+    }
+
+    private var tintSource: Color {
+        opaqueTintColor.opacity(tintAmount)
+    }
+
+    private var outputColor: Color {
+        tintSource.compositeOver(baseColor)
+    }
+
+    private var outputRgba: StraightRgba {
+        outputColor.toStraightRgba()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            Text(&quot;1 · Start with one final opaque background color&quot;)
+                .font(.system(size: 22, weight: .black))
             Text(
-                text = "tint channel × tint amount + base channel × remaining amount",
-                style = MaterialTheme.typography.bodySmall,
+                &quot;The course background is straight sRGB RGBA(0.80, 0.25, &quot; +
+                &quot;0.60, 1.00). The new question is: how can the program give this &quot; +
+                &quot;background a controlled blue influence while keeping the original &quot; +
+                &quot;background color in the result?&quot;
             )
-            Text(
-                text = "${tintChannel.f4()} × ${amount.f4()} + " +
-                    "${baseChannel.f4()} × ${remaining.f4()}",
-                fontFamily = FontFamily.Monospace,
+            .font(.system(size: 15))
+            LayerPreviewCard(
+                baseColor: baseColor,
+                tintSource: tintSource,
+                outputColor: outputColor
             )
+
+            Text(&quot;2 · Choose the tint color and tint amount&quot;)
+                .font(.system(size: 22, weight: .black))
             Text(
-                text = "${tintContribution.f4()} + ${baseContribution.f4()} " +
-                    "= ${outputChannel.f4()}",
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.Black,
+                &quot;This lesson defines a tint layer as one source color drawn over &quot; +
+                &quot;the existing background with source-over. The tint amount is the &quot; +
+                &quot;source alpha used by that one draw operation. It is not the final &quot; +
+                &quot;output alpha.&quot;
+            )
+            .font(.system(size: 15))
+            TintControls(
+                red: $tintRed,
+                green: $tintGreen,
+                blue: $tintBlue,
+                amount: $tintAmount
+            )
+
+            Text(&quot;3 · Reuse source-over for each color channel&quot;)
+                .font(.system(size: 22, weight: .black))
+            Text(
+                &quot;The destination is opaque. Therefore the output is also opaque. &quot; +
+                &quot;For each channel, the tint source contributes tint amount, and the &quot; +
+                &quot;background contributes the remaining amount.&quot;
+            )
+            .font(.system(size: 15))
+            ChannelCalculationCard(
+                label: &quot;Red&quot;,
+                tintChannel: tintRed,
+                baseChannel: baseRed,
+                amount: tintAmount,
+                outputChannel: outputRgba.red,
+                accent: Color(hex: 0xDC2626)
+            )
+            ChannelCalculationCard(
+                label: &quot;Green&quot;,
+                tintChannel: tintGreen,
+                baseChannel: baseGreen,
+                amount: tintAmount,
+                outputChannel: outputRgba.green,
+                accent: Color(hex: 0x059669)
+            )
+            ChannelCalculationCard(
+                label: &quot;Blue&quot;,
+                tintChannel: tintBlue,
+                baseChannel: baseBlue,
+                amount: tintAmount,
+                outputChannel: outputRgba.blue,
+                accent: Color(hex: 0x2563EB)
+            )
+            ChannelMovementProofCard(
+                tintRed: tintRed,
+                tintGreen: tintGreen,
+                tintBlue: tintBlue,
+                amount: tintAmount,
+                outputColor: outputRgba
+            )
+
+            Text(&quot;4 · Tint amount is not final output opacity&quot;)
+                .font(.system(size: 22, weight: .black))
+            Text(
+                &quot;The tint source can be translucent while the result remains &quot; +
+                &quot;opaque. The base alpha is 1.00, so it fills every part left open by &quot; +
+                &quot;the tint source.&quot;
+            )
+            .font(.system(size: 15))
+            OutputAlphaCard(tintAmount: tintAmount)
+
+            Text(&quot;5 · Recalculate measurements from the RGB that now exists&quot;)
+                .font(.system(size: 22, weight: .black))
+            Text(
+                &quot;Relative luminance is derived data: it is calculated from one &quot; +
+                &quot;specific RGB input. The earlier luminance still describes baseColor. &quot; +
+                &quot;After source-over creates outputColor, call outputColor.luminance() &quot; +
+                &quot;to calculate the measurement that describes the tinted RGB.&quot;
+            )
+            .font(.system(size: 15))
+            MeasurementCard(
+                baseColor: baseColor,
+                outputColor: outputColor,
+                blackContrastBefore: contrastRatio(Color.black, baseColor),
+                whiteContrastBefore: contrastRatio(Color.white, baseColor),
+                blackContrastAfter: contrastRatio(Color.black, outputColor),
+                whiteContrastAfter: contrastRatio(Color.white, outputColor)
             )
         }
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(Color(uiColor: .systemBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
     }
 }
 
-@Composable
-private fun ChannelMovementProofCard(
-    tintRed: Float,
-    tintGreen: Float,
-    tintBlue: Float,
-    amount: Float,
-    outputColor: Color,
-) {
-    val scheme = MaterialTheme.colorScheme
+private struct LayerPreviewCard: View {
+    let baseColor: Color
+    let tintSource: Color
+    let outputColor: Color
 
-    Surface(
-        shape = CardShape,
-        color = scheme.secondaryContainer,
-        contentColor = scheme.onSecondaryContainer,
-        border = BorderStroke(1.dp, scheme.secondary),
-    ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            Text(
-                text = "Live proof of what ‘moves toward’ means",
-                fontWeight = FontWeight.Black,
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Swatch(
+                title: &quot;Destination before tint&quot;,
+                color: baseColor,
+                checkerboard: false,
+                details: baseColor.rgbaText()
             )
-            Text(
-                text = "For one channel: output = base + amount × (tint − base). " +
-                    "The parentheses contain the full numeric gap from the base value " +
-                    "to the tint value. The amount selects how much of that gap to move.",
+            Swatch(
+                title: &quot;Tint source drawn now&quot;,
+                color: tintSource,
+                checkerboard: true,
+                details: tintSource.rgbaText()
             )
-            MovementProofRow(
-                label = "Red",
-                base = BaseRed,
-                tint = tintRed,
-                amount = amount,
-                output = outputColor.red,
-            )
-            MovementProofRow(
-                label = "Green",
-                base = BaseGreen,
-                tint = tintGreen,
-                amount = amount,
-                output = outputColor.green,
-            )
-            MovementProofRow(
-                label = "Blue",
-                base = BaseBlue,
-                tint = tintBlue,
-                amount = amount,
-                output = outputColor.blue,
+            Swatch(
+                title: &quot;Opaque output after source-over&quot;,
+                color: outputColor,
+                checkerboard: false,
+                details: outputColor.rgbaText()
             )
         }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(uiColor: .secondarySystemFill))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
     }
 }
 
-@Composable
-private fun MovementProofRow(
-    label: String,
-    base: Float,
-    tint: Float,
-    amount: Float,
-    output: Float,
-) {
-    val fullGap = tint - base
-    val selectedChange = amount * fullGap
-    val direction = when {
-        selectedChange &gt; 0.00005f -&gt; "increases"
-        selectedChange &lt; -0.00005f -&gt; "decreases"
-        else -&gt; "does not change"
-    }
+private struct Swatch: View {
+    let title: String
+    let color: Color
+    let checkerboard: Bool
+    let details: String
 
-    Surface(
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.55f),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-    ) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Text("$label channel", fontWeight = FontWeight.Black)
-            Text(
-                text = "full gap = tint − base = ${tint.f4()} − ${base.f4()} " +
-                    "= ${fullGap.signed4()}",
-                fontFamily = FontFamily.Monospace,
-            )
-            Text(
-                text = "selected change = amount × full gap = ${amount.f4()} × " +
-                    "${fullGap.signed4()} = ${selectedChange.signed4()}",
-                fontFamily = FontFamily.Monospace,
-            )
-            Text(
-                text = "output = base + selected change = ${base.f4()} + " +
-                    "(${selectedChange.signed4()}) = ${output.f4()}",
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = "$label $direction because the selected change is " +
-                    "${selectedChange.signed4()}.",
-            )
-        }
-    }
-}
-
-@Composable
-private fun OutputAlphaCard(tintAmount: Float) {
-    val baseAlpha = 1f
-    val outputAlpha = tintAmount + baseAlpha * (1f - tintAmount)
-    val scheme = MaterialTheme.colorScheme
-
-    Surface(
-        shape = CardShape,
-        color = scheme.primaryContainer,
-        contentColor = scheme.onPrimaryContainer,
-        border = BorderStroke(1.dp, scheme.primary),
-    ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Text("General source-over alpha", fontWeight = FontWeight.Black)
-            Text(
-                text = "output alpha = tint alpha + base alpha × (1 − tint alpha)",
-                fontFamily = FontFamily.Monospace,
-            )
-            Text(
-                text = "${tintAmount.f4()} + 1.0000 × (1 − ${tintAmount.f4()}) " +
-                    "= ${outputAlpha.f4()}",
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = "The output alpha stays 1.0000 because the opaque base fills " +
-                    "every portion not covered by the tint source.",
-            )
-        }
-    }
-}
-
-@Composable
-private fun MeasurementCard(
-    baseColor: Color,
-    outputColor: Color,
-    blackContrastBefore: Float,
-    whiteContrastBefore: Float,
-    blackContrastAfter: Float,
-    whiteContrastAfter: Float,
-) {
-    val scheme = MaterialTheme.colorScheme
-    val baseLuminance = baseColor.luminance()
-    val outputLuminance = outputColor.luminance()
-    val beforeWinner = if (blackContrastBefore &gt;= whiteContrastBefore) "black" else "white"
-    val afterWinner = if (blackContrastAfter &gt;= whiteContrastAfter) "black" else "white"
-    val rgbChanged = !baseColor.hasSameRgb(outputColor)
-
-    Surface(
-        shape = CardShape,
-        color = scheme.surfaceContainer,
-        border = BorderStroke(1.dp, scheme.outlineVariant),
-    ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Text(
-                text = "A derived value belongs to the exact input used to calculate it",
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = "The number ${baseLuminance.f6()} was calculated from " +
-                    "baseColor ${baseColor.rgbaText()}. It remains correct for baseColor. " +
-                    "It does not automatically become the luminance of outputColor.",
-            )
-
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = scheme.errorContainer,
-                contentColor = scheme.onErrorContainer,
-                border = BorderStroke(1.dp, scheme.error),
-            ) {
-                Column(
-                    modifier = Modifier.padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
-                ) {
-                    Text("Wrong after RGB changes: reuse the old result", fontWeight = FontWeight.Black)
-                    Text(
-                        text = "Tinted RGB = ${outputColor.rgbaText()}\n" +
-                            "reused luminance = ${baseLuminance.f6()}\n" +
-                            "reused black contrast = ${blackContrastBefore.f4()}:1\n" +
-                            "reused white contrast = ${whiteContrastBefore.f4()}:1",
-                        fontFamily = FontFamily.Monospace,
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .fontWeight(.black)
+            ZStack {
+                if checkerboard {
+                    Canvas { context, size in
+                        let cell: CGFloat = 24
+                        var y: CGFloat = 0
+                        var row = 0
+                        while y &lt; size.height {
+                            var x: CGFloat = 0
+                            var column = 0
+                            while x &lt; size.width {
+                                let light = (row + column) % 2 == 0
+                                context.fill(
+                                    Path(
+                                        CGRect(x: x, y: y, width: cell, height: cell)
+                                    ),
+                                    with: .color(
+                                        light
+                                            ? Color(hex: 0xE2E8F0)
+                                            : Color(hex: 0x94A3B8)
+                                    )
+                                )
+                                x += cell
+                                column += 1
+                            }
+                            y += cell
+                            row += 1
+                        }
+                    }
+                }
+                color
+                Text(details)
+                    .font(.system(size: 13, design: .monospaced))
+                    .fontWeight(.bold)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .fill(Color(uiColor: .systemBackground).opacity(0.92))
                     )
-                    Text(
-                        text = if (rgbChanged) {
-                            "These luminance and contrast numbers still describe the " +
-                                "untinted base RGB, not the tinted output RGB."
-                        } else {
-                            "The RGB values are currently unchanged, so the old and new " +
-                                "measurements happen to agree."
-                        },
-                    )
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 112)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+    }
+}
+
+private struct TintControls: View {
+    @Binding var red: CGFloat
+    @Binding var green: CGFloat
+    @Binding var blue: CGFloat
+    @Binding var amount: CGFloat
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            ValueSlider(
+                label: &quot;Tint red&quot;,
+                value: $red,
+                accent: Color(hex: 0xDC2626)
+            )
+            ValueSlider(
+                label: &quot;Tint green&quot;,
+                value: $green,
+                accent: Color(hex: 0x059669)
+            )
+            ValueSlider(
+                label: &quot;Tint blue&quot;,
+                value: $blue,
+                accent: Color(hex: 0x2563EB)
+            )
+            ValueSlider(
+                label: &quot;Tint amount / source alpha&quot;,
+                value: $amount,
+                accent: Color.accentColor
+            )
+            HStack(spacing: 8) {
+                PresetButton(title: &quot;Cool blue&quot;) {
+                    red = 0.20
+                    green = 0.65
+                    blue = 1.00
+                }
+                PresetButton(title: &quot;Warm amber&quot;) {
+                    red = 1.00
+                    green = 0.62
+                    blue = 0.20
                 }
             }
-
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = scheme.primaryContainer,
-                contentColor = scheme.onPrimaryContainer,
-                border = BorderStroke(1.dp, scheme.primary),
-            ) {
-                Column(
-                    modifier = Modifier.padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
-                ) {
-                    Text("Correct: calculate again from outputColor", fontWeight = FontWeight.Black)
-                    Text(
-                        text = "outputColor.luminance()\n" +
-                            "= luminance of ${outputColor.rgbaText()}\n" +
-                            "= ${outputLuminance.f6()}\n" +
-                            "black contrast = ${blackContrastAfter.f4()}:1\n" +
-                            "white contrast = ${whiteContrastAfter.f4()}:1\n" +
-                            "winner = $afterWinner",
-                        fontFamily = FontFamily.Monospace,
-                    )
+            HStack(spacing: 8) {
+                PresetButton(title: &quot;Green&quot;) {
+                    red = 0.16
+                    green = 0.78
+                    blue = 0.46
+                }
+                PresetButton(title: &quot;White veil&quot;) {
+                    red = 1.00
+                    green = 1.00
+                    blue = 1.00
                 }
             }
+            HStack(spacing: 8) {
+                ForEach([CGFloat(0), 0.10, 0.25, 0.50, 1], id: \.self) { preset in
+                    PresetButton(title: &quot;\(Int(preset * 100))%&quot;) {
+                        amount = preset
+                    }
+                }
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(uiColor: .secondarySystemFill))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
+    }
+}
 
-            Text(
-                text = "Before tint: luminance ${baseLuminance.f6()}, winner $beforeWinner. " +
-                    "After tint: luminance ${outputLuminance.f6()}, winner $afterWinner.",
-                fontFamily = FontFamily.Monospace,
+private struct ValueSlider: View {
+    let label: String
+    @Binding var value: CGFloat
+    let accent: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(label)
+                    .fontWeight(.bold)
+                Spacer()
+                Text(fourDecimals(value))
+                    .font(.system(size: 15, design: .monospaced))
+            }
+            Slider(
+                value: Binding(
+                    get: { value },
+                    set: { value = min(max($0, 0), 1) }
+                ),
+                in: 0...1
             )
+            .tint(accent)
+            .accessibilityLabel(&quot;\(label) \(fourDecimals(value))&quot;)
         }
     }
 }
 
-private fun Color.hasSameRgb(other: Color): Boolean {
-    val tolerance = 0.00005f
-    return kotlin.math.abs(red - other.red) &lt;= tolerance &amp;&amp;
-        kotlin.math.abs(green - other.green) &lt;= tolerance &amp;&amp;
-        kotlin.math.abs(blue - other.blue) &lt;= tolerance
+private struct PresetButton: View {
+    let title: String
+    let action: () -&gt; Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.bordered)
+    }
 }
 
-private fun contrastRatio(
-    foreground: Color,
-    background: Color,
-): Float {
-    val foregroundLuminance = foreground.luminance()
-    val backgroundLuminance = background.luminance()
-    val lighter = max(foregroundLuminance, backgroundLuminance)
-    val darker = minOf(foregroundLuminance, backgroundLuminance)
-    return (lighter + ContrastOffset) / (darker + ContrastOffset)
+private struct ChannelCalculationCard: View {
+    let label: String
+    let tintChannel: CGFloat
+    let baseChannel: CGFloat
+    let amount: CGFloat
+    let outputChannel: CGFloat
+    let accent: Color
+
+    private var remaining: CGFloat { 1 - amount }
+    private var tintContribution: CGFloat { tintChannel * amount }
+    private var baseContribution: CGFloat { baseChannel * remaining }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(label)
+                .fontWeight(.black)
+                .foregroundStyle(accent)
+            Text(&quot;tint channel × tint amount + base channel × remaining amount&quot;)
+                .font(.system(size: 14))
+            Text(
+                &quot;\(fourDecimals(tintChannel)) × \(fourDecimals(amount)) + &quot; +
+                &quot;\(fourDecimals(baseChannel)) × \(fourDecimals(remaining))&quot;
+            )
+            .font(.system(size: 13, design: .monospaced))
+            Text(
+                &quot;\(fourDecimals(tintContribution)) + \(fourDecimals(baseContribution)) &quot; +
+                &quot;= \(fourDecimals(outputChannel))&quot;
+            )
+            .font(.system(size: 13, design: .monospaced))
+            .fontWeight(.black)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(uiColor: .secondarySystemFill))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
+    }
 }
 
-private fun Color.rgbaText(): String {
-    return "RGBA(${red.f4()}, ${green.f4()}, ${blue.f4()}, ${alpha.f4()})"
+private struct ChannelMovementProofCard: View {
+    let tintRed: CGFloat
+    let tintGreen: CGFloat
+    let tintBlue: CGFloat
+    let amount: CGFloat
+    let outputColor: StraightRgba
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(&quot;Live proof of what ‘moves toward’ means&quot;)
+                .fontWeight(.black)
+            Text(
+                &quot;For one channel: output = base + amount × (tint − base). &quot; +
+                &quot;The parentheses contain the full numeric gap from the base value &quot; +
+                &quot;to the tint value. The amount selects how much of that gap to move.&quot;
+            )
+            .font(.system(size: 15))
+            MovementProofRow(
+                label: &quot;Red&quot;,
+                base: baseRed,
+                tint: tintRed,
+                amount: amount,
+                output: outputColor.red
+            )
+            MovementProofRow(
+                label: &quot;Green&quot;,
+                base: baseGreen,
+                tint: tintGreen,
+                amount: amount,
+                output: outputColor.green
+            )
+            MovementProofRow(
+                label: &quot;Blue&quot;,
+                base: baseBlue,
+                tint: tintBlue,
+                amount: amount,
+                output: outputColor.blue
+            )
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(hex: 0x4338CA).opacity(0.12))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color(hex: 0x4338CA), lineWidth: 1)
+        )
+    }
 }
 
-private fun Float.f4(): String = String.format(Locale.US, "%.4f", this)
-private fun Float.signed4(): String {
-    val normalized = if (kotlin.math.abs(this) &lt; 0.00005f) 0f else this
-    return String.format(Locale.US, "%+.4f", normalized)
+private struct MovementProofRow: View {
+    let label: String
+    let base: CGFloat
+    let tint: CGFloat
+    let amount: CGFloat
+    let output: CGFloat
+
+    private var fullGap: CGFloat { tint - base }
+    private var selectedChange: CGFloat { amount * fullGap }
+    private var direction: String {
+        if selectedChange &gt; 0.00005 {
+            return &quot;increases&quot;
+        }
+        if selectedChange &lt; -0.00005 {
+            return &quot;decreases&quot;
+        }
+        return &quot;does not change&quot;
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(&quot;\(label) channel&quot;)
+                .fontWeight(.black)
+            Text(
+                &quot;full gap = tint − base = \(fourDecimals(tint)) − \(fourDecimals(base)) &quot; +
+                &quot;= \(signed4(fullGap))&quot;
+            )
+            .font(.system(size: 13, design: .monospaced))
+            Text(
+                &quot;selected change = amount × full gap = \(fourDecimals(amount)) × &quot; +
+                &quot;\(signed4(fullGap)) = \(signed4(selectedChange))&quot;
+            )
+            .font(.system(size: 13, design: .monospaced))
+            Text(
+                &quot;output = base + selected change = \(fourDecimals(base)) + &quot; +
+                &quot;(\(signed4(selectedChange))) = \(fourDecimals(output))&quot;
+            )
+            .font(.system(size: 13, design: .monospaced))
+            .fontWeight(.black)
+            Text(
+                &quot;\(label) \(direction) because the selected change is &quot; +
+                &quot;\(signed4(selectedChange)).&quot;
+            )
+            .font(.system(size: 15))
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color(uiColor: .systemBackground).opacity(0.55))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
+    }
 }
-private fun Float.f6(): String = String.format(Locale.US, "%.6f", this)
+
+private struct OutputAlphaCard: View {
+    let tintAmount: CGFloat
+
+    private var outputAlpha: CGFloat {
+        tintAmount + 1 * (1 - tintAmount)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(&quot;General source-over alpha&quot;)
+                .fontWeight(.black)
+            Text(&quot;output alpha = tint alpha + base alpha × (1 − tint alpha)&quot;)
+                .font(.system(size: 13, design: .monospaced))
+            Text(
+                &quot;\(fourDecimals(tintAmount)) + 1.0000 × (1 − \(fourDecimals(tintAmount))) &quot; +
+                &quot;= \(fourDecimals(outputAlpha))&quot;
+            )
+            .font(.system(size: 13, design: .monospaced))
+            .fontWeight(.black)
+            Text(
+                &quot;The output alpha stays 1.0000 because the opaque base fills &quot; +
+                &quot;every portion not covered by the tint source.&quot;
+            )
+            .font(.system(size: 15))
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(hex: 0x059669).opacity(0.16))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color(hex: 0x059669), lineWidth: 1)
+        )
+    }
+}
+
+private struct MeasurementCard: View {
+    let baseColor: Color
+    let outputColor: Color
+    let blackContrastBefore: CGFloat
+    let whiteContrastBefore: CGFloat
+    let blackContrastAfter: CGFloat
+    let whiteContrastAfter: CGFloat
+
+    private var baseLuminance: CGFloat { baseColor.luminance() }
+    private var outputLuminance: CGFloat { outputColor.luminance() }
+    private var beforeWinner: String {
+        blackContrastBefore &gt;= whiteContrastBefore ? &quot;black&quot; : &quot;white&quot;
+    }
+    private var afterWinner: String {
+        blackContrastAfter &gt;= whiteContrastAfter ? &quot;black&quot; : &quot;white&quot;
+    }
+    private var rgbChanged: Bool {
+        !baseColor.hasSameRgb(outputColor)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(&quot;A derived value belongs to the exact input used to calculate it&quot;)
+                .fontWeight(.black)
+            Text(
+                &quot;The number \(sixDecimals(baseLuminance)) was calculated from &quot; +
+                &quot;baseColor \(baseColor.rgbaText()). It remains correct for baseColor. &quot; +
+                &quot;It does not automatically become the luminance of outputColor.&quot;
+            )
+            .font(.system(size: 15))
+
+            VStack(alignment: .leading, spacing: 5) {
+                Text(&quot;Wrong after RGB changes: reuse the old result&quot;)
+                    .fontWeight(.black)
+                Text(
+                    &quot;Tinted RGB = \(outputColor.rgbaText())
+&quot; +
+                    &quot;reused luminance = \(sixDecimals(baseLuminance))
+&quot; +
+                    &quot;reused black contrast = \(fourDecimals(blackContrastBefore)):1
+&quot; +
+                    &quot;reused white contrast = \(fourDecimals(whiteContrastBefore)):1&quot;
+                )
+                .font(.system(size: 13, design: .monospaced))
+                Text(
+                    rgbChanged
+                        ? &quot;These luminance and contrast numbers still describe the &quot; +
+                        &quot;untinted base RGB, not the tinted output RGB.&quot;
+                        : &quot;The RGB values are currently unchanged, so the old and new &quot; +
+                        &quot;measurements happen to agree.&quot;
+                )
+                .font(.system(size: 15))
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Color(hex: 0xDC2626).opacity(0.12))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .strokeBorder(Color(hex: 0xDC2626), lineWidth: 1)
+            )
+
+            VStack(alignment: .leading, spacing: 5) {
+                Text(&quot;Correct: calculate again from outputColor&quot;)
+                    .fontWeight(.black)
+                Text(
+                    &quot;outputColor.luminance()
+&quot; +
+                    &quot;= luminance of \(outputColor.rgbaText())
+&quot; +
+                    &quot;= \(sixDecimals(outputLuminance))
+&quot; +
+                    &quot;black contrast = \(fourDecimals(blackContrastAfter)):1
+&quot; +
+                    &quot;white contrast = \(fourDecimals(whiteContrastAfter)):1
+&quot; +
+                    &quot;winner = \(afterWinner)&quot;
+                )
+                .font(.system(size: 13, design: .monospaced))
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Color(hex: 0x059669).opacity(0.16))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .strokeBorder(Color(hex: 0x059669), lineWidth: 1)
+            )
+
+            Text(
+                &quot;Before tint: luminance \(sixDecimals(baseLuminance)), winner \(beforeWinner). &quot; +
+                &quot;After tint: luminance \(sixDecimals(outputLuminance)), winner \(afterWinner).&quot;
+            )
+            .font(.system(size: 13, design: .monospaced))
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(uiColor: .secondarySystemFill))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
+    }
+}
+
+private struct StraightRgba {
+    let red: CGFloat
+    let green: CGFloat
+    let blue: CGFloat
+    let alpha: CGFloat
+}
+
+private func contrastRatio(
+    _ foreground: Color,
+    _ background: Color
+) -&gt; CGFloat {
+    let foregroundLuminance = foreground.luminance()
+    let backgroundLuminance = background.luminance()
+    let lighter = max(foregroundLuminance, backgroundLuminance)
+    let darker = min(foregroundLuminance, backgroundLuminance)
+    return (lighter + contrastOffset) / (darker + contrastOffset)
+}
+
+private func decodeSrgbChannel(_ encoded: CGFloat) -&gt; CGFloat {
+    let safeEncoded = min(max(encoded, 0), 1)
+    if safeEncoded &lt;= 0.04045 {
+        return safeEncoded / 12.92
+    }
+    return CGFloat(pow(Double((safeEncoded + 0.055) / 1.055), 2.4))
+}
+
+private func calculateRelativeLuminance(
+    red: CGFloat,
+    green: CGFloat,
+    blue: CGFloat
+) -&gt; CGFloat {
+    0.2126 * decodeSrgbChannel(red)
+        + 0.7152 * decodeSrgbChannel(green)
+        + 0.0722 * decodeSrgbChannel(blue)
+}
+
+private func fourDecimals(_ value: CGFloat) -&gt; String {
+    String(format: &quot;%.4f&quot;, Double(value))
+}
+
+private func sixDecimals(_ value: CGFloat) -&gt; String {
+    String(format: &quot;%.6f&quot;, Double(value))
+}
+
+private func signed4(_ value: CGFloat) -&gt; String {
+    let normalized = abs(value) &lt; 0.00005 ? 0 : value
+    return String(format: &quot;%+.4f&quot;, Double(normalized))
+}
+
+private extension Color {
+    init(hex: UInt32) {
+        self.init(
+            red: Double((hex &gt;&gt; 16) &amp; 0xFF) / 255,
+            green: Double((hex &gt;&gt; 8) &amp; 0xFF) / 255,
+            blue: Double(hex &amp; 0xFF) / 255
+        )
+    }
+
+    func toStraightRgba() -&gt; StraightRgba {
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        guard UIColor(self).getRed(&amp;red, green: &amp;green, blue: &amp;blue, alpha: &amp;alpha) else {
+            return StraightRgba(red: 0, green: 0, blue: 0, alpha: 0)
+        }
+        return StraightRgba(red: red, green: green, blue: blue, alpha: alpha)
+    }
+
+    func rgbaText() -&gt; String {
+        let rgba = toStraightRgba()
+        return &quot;RGBA(\(fourDecimals(rgba.red)), \(fourDecimals(rgba.green)), &quot; +
+            &quot;\(fourDecimals(rgba.blue)), \(fourDecimals(rgba.alpha)))&quot;
+    }
+
+    func hasSameRgb(_ other: Color) -&gt; Bool {
+        let tolerance: CGFloat = 0.00005
+        let lhs = toStraightRgba()
+        let rhs = other.toStraightRgba()
+        return abs(lhs.red - rhs.red) &lt;= tolerance
+            &amp;&amp; abs(lhs.green - rhs.green) &lt;= tolerance
+            &amp;&amp; abs(lhs.blue - rhs.blue) &lt;= tolerance
+    }
+
+    func compositeOver(_ destination: Color) -&gt; Color {
+        let source = toStraightRgba()
+        let dest = destination.toStraightRgba()
+        let destinationOpening = 1 - source.alpha
+        let outputAlpha = source.alpha + dest.alpha * destinationOpening
+        let outputPremultipliedRed =
+            source.red * source.alpha + dest.red * dest.alpha * destinationOpening
+        let outputPremultipliedGreen =
+            source.green * source.alpha + dest.green * dest.alpha * destinationOpening
+        let outputPremultipliedBlue =
+            source.blue * source.alpha + dest.blue * dest.alpha * destinationOpening
+        if outputAlpha &lt;= 0 {
+            return Color(red: 0, green: 0, blue: 0, opacity: 0)
+        }
+        return Color(
+            red: min(max(outputPremultipliedRed / outputAlpha, 0), 1),
+            green: min(max(outputPremultipliedGreen / outputAlpha, 0), 1),
+            blue: min(max(outputPremultipliedBlue / outputAlpha, 0), 1),
+            opacity: min(max(outputAlpha, 0), 1)
+        )
+    }
+
+    func luminance() -&gt; CGFloat {
+        let rgba = toStraightRgba()
+        return calculateRelativeLuminance(
+            red: rgba.red,
+            green: rgba.green,
+            blue: rgba.blue
+        )
+    }
+}
+
+#Preview(&quot;TintExplorer · light&quot;) {
+    LabTheme {
+        ScrollView {
+            TintExplorer()
+                .padding(16)
+        }
+    }
+    .labPreviewCanvas()
+}
+
+#Preview(&quot;TintExplorer · dark&quot;) {
+    LabTheme {
+        ScrollView {
+            TintExplorer()
+                .padding(16)
+        }
+    }
+    .preferredColorScheme(.dark)
+    .labPreviewCanvas()
+}
 </pre></div>
 </section>
 
 <section class="section panel" id="challenge">
 <div class="section-head"><div><div class="section-no">12 · Coding challenge</div><h2>Put the tint source on top of the background</h2></div><p>The initial function reverses the two roles.</p></div>
-<div class="challenge"><div><textarea class="editor" id="codeEditor" spellcheck="false">fun applyTint(
+<div class="challenge"><div><textarea class="editor" id="codeEditor" spellcheck="false">func applyTint(
     background: Color,
     tintColor: Color,
-    amount: Float,
-): Color {
+    amount: CGFloat
+) -> Color {
     return background
-        .copy(alpha = amount)
+        .opacity(amount)
         .compositeOver(tintColor)
 }</textarea><div class="controls" style="margin-top:12px"><button class="preset" id="setCorrect">Tint source over background</button><button class="preset" id="setReversed">Background source over tint</button><button class="primary" id="checkCode">Check repair</button></div><div class="status" id="challengeStatus" style="margin-top:12px">The function currently gives the source role to the wrong color.</div></div><div class="challenge-output"><h3>Code-driven preview</h3><p id="challengeOrder"></p><div class="challenge-swatch" id="challengeSwatch"></div><div class="formula" id="challengeFormula"></div></div></div>
 </section>
 
 <section class="section panel" id="sources">
-<div class="section-head"><div><div class="section-no">13 · Sources and Android evidence</div><h2>What the Compose contract establishes</h2></div></div>
+<div class="section-head"><div><div class="section-no">13 · Sources and evidence limits</div><h2>What the SwiftUI contract and lab helpers establish</h2></div></div>
 <ul>
-<li><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/Color">Compose <code>Color</code> API</a> defines the color object used by the Android lesson.</li>
-<li><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode">Compose <code>BlendMode</code> API</a> defines <code>SrcOver</code> as drawing the source over the destination.</li>
-<li><a href="https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/ui/ui-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/Color.kt">AndroidX <code>Color.kt</code></a> contains the current <code>compositeOver</code> and <code>luminance</code> implementations used to verify the lesson's value flow.</li>
+<li><a href="https://developer.apple.com/documentation/swiftui/color">Apple Developer · SwiftUI <code>Color</code></a> documents <code>Color(red:green:blue:opacity:)</code> as 0...1 components stored separately from opacity.</li>
+<li><a href="https://developer.apple.com/documentation/swiftui/blendmode">Apple Developer · SwiftUI <code>BlendMode</code></a> defines <code>BlendMode.normal</code> as drawing the source over the destination.</li>
+<li>The lab helpers <code>compositeOver()</code> and <code>luminance()</code> copy the straight-RGBA source-over formula and the sRGB Rec.709 luminance path taught in Lessons 3.3 and 3.6. SwiftUI <code>Color</code> has no luminance API of its own.</li>
 </ul>
-<div class="note"><strong>Evidence limit:</strong> these sources establish the Compose color and compositing contracts. They do not establish Apple's private Liquid Glass tint order or prove that every API named “tint” performs source-over.</div>
+<div class="note"><strong>Evidence limit:</strong> these sources establish the SwiftUI color object and the lab compositing helpers. They do not establish Apple's private Liquid Glass tint order or prove that every API named “tint” performs source-over.</div>
 </section>
 
 <section class="section panel" id="exercises">
@@ -1018,10 +1131,10 @@ private fun Float.f6(): String = String.format(Locale.US, "%.6f", this)
 </section>
 
 <section class="section panel" id="checkpoint">
-<div class="section-head"><div><div class="section-no">15 · Pixel 8 Pro checkpoint</div><h2>Complete the lesson only after every statement is true</h2></div></div>
+<div class="section-head"><div><div class="section-no">15 · iPhone 16 Pro checkpoint</div><h2>Complete the lesson only after every statement is true</h2></div></div>
 <div class="checklist" id="checklist">
-<label class="check"><input type="checkbox"> The app builds and opens Lesson 3.8.</label>
-<label class="check"><input type="checkbox"> The complete chapter preview works in light and dark modes.</label>
+<label class="check"><input type="checkbox"> The iOS app builds and opens Lesson 3.8.</label>
+<label class="check"><input type="checkbox"> The light and dark Xcode #Preview canvases work at 412 × 915 points.</label>
 <label class="check"><input type="checkbox"> The direct <code>TintExplorer</code> preview works in light and dark modes.</label>
 <label class="check"><input type="checkbox"> I can identify the destination, tint source, and output.</label>
 <label class="check"><input type="checkbox"> I can explain why tint amount is the source alpha.</label>
@@ -1125,7 +1238,7 @@ const steps=[
  {title:'Calculate red',caption:'The tint red contribution is 0.05. The surviving destination red contribution is 0.60. Their sum is output red 0.65.',code:'output premultiplied R\n= 0.20 × 0.25 + 0.80 × 1.00 × 0.75\n= 0.05 + 0.60\n= 0.65\n\noutput straight R = 0.65 ÷ 1.00 = 0.65',input:'Tint R 0.20 and base R 0.80',operation:'Calculate contributions, add, divide by output alpha',output:'Output straight red 0.65'},
  {title:'Repeat for green and blue',caption:'The same source-over operation uses the matching green values and then the matching blue values.',code:'G = 0.65 × 0.25 + 0.25 × 0.75 = 0.35\nB = 1.00 × 0.25 + 0.60 × 0.75 = 0.70',input:'Matching tint and base channels',operation:'Repeat the understood channel calculation',output:'Output green 0.35, blue 0.70'},
  {title:'Assemble the output color',caption:'The three output channels and output alpha form one final opaque straight sRGB color.',code:'output = Straight sRGB RGBA(0.65, 0.35, 0.70, 1.00)',input:'R 0.65, G 0.35, B 0.70, A 1.00',operation:'Assemble the four output fields',output:'Tinted opaque output color'},
- {title:'Use the changed output',caption:'The earlier luminance belongs to baseColor. Source-over created outputColor with different RGB values, so luminance() must run with outputColor as its receiver. Contrast then consumes that new luminance.',code:'val oldLuminance = baseColor.luminance()   // describes baseColor\nval outputLuminance = outputColor.luminance() // describes outputColor\ncontrastRatio(Color.Black, outputColor)\ncontrastRatio(Color.White, outputColor)',input:'Tinted opaque outputColor',operation:'Calculate derived measurements from the new RGB input',output:'Luminance and contrast that describe outputColor'}
+ {title:'Use the changed output',caption:'The earlier luminance belongs to baseColor. Source-over created outputColor with different RGB values, so luminance() must run with outputColor as its receiver. Contrast then consumes that new luminance.',code:'let oldLuminance = baseColor.luminance()   // describes baseColor\nlet outputLuminance = outputColor.luminance() // describes outputColor\ncontrastRatio(Color.black, outputColor)\ncontrastRatio(Color.white, outputColor)',input:'Tinted opaque outputColor',operation:'Calculate derived measurements from the new RGB input',output:'Luminance and contrast that describe outputColor'}
 ];
 let stepIndex=0;
 function drawStep(){
@@ -1142,12 +1255,12 @@ $('stepNav').innerHTML=steps.map((_,i)=>`<button class="step-dot" data-step="${i
 document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{stepIndex=Number(b.dataset.step);drawStep()}));$('stepBack').addEventListener('click',()=>{if(stepIndex>0){stepIndex--;drawStep()}});$('stepNext').addEventListener('click',()=>{if(stepIndex<steps.length-1){stepIndex++;drawStep()}});
 
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('selected'));document.querySelectorAll('.source-pane').forEach(x=>x.classList.remove('active'));b.classList.add('selected');$('source-'+b.dataset.source).classList.add('active')}));
-const reversed=`fun applyTint(\n    background: Color,\n    tintColor: Color,\n    amount: Float,\n): Color {\n    return background\n        .copy(alpha = amount)\n        .compositeOver(tintColor)\n}`;
-const correct=`fun applyTint(\n    background: Color,\n    tintColor: Color,\n    amount: Float,\n): Color {\n    return tintColor\n        .copy(alpha = amount)\n        .compositeOver(background)\n}`;
-function codeIsCorrect(){const c=$('codeEditor').value.replace(/\s+/g,'');return c.includes('returntintColor.copy(alpha=amount).compositeOver(background)')}
+const reversed=`func applyTint(\n    background: Color,\n    tintColor: Color,\n    amount: CGFloat\n) -> Color {\n    return background\n        .opacity(amount)\n        .compositeOver(tintColor)\n}`;
+const correct=`func applyTint(\n    background: Color,\n    tintColor: Color,\n    amount: CGFloat\n) -> Color {\n    return tintColor\n        .opacity(amount)\n        .compositeOver(background)\n}`;
+function codeIsCorrect(){const c=$('codeEditor').value.replace(/\s+/g,'');return c.includes('returntintColor.opacity(amount).compositeOver(background)')}
 function updateChallenge(){const good=codeIsCorrect(),source=good?{r:.20,g:.65,b:1,a:.25}:{r:.80,g:.25,b:.60,a:.25},dest=good?BASE:{r:.20,g:.65,b:1,a:1},out=composite(source,dest);$('challengeOrder').textContent=good?'Tint is the source. Background is the destination.':'Background is the source. Opaque tint color is the destination.';$('challengeSwatch').style.background=rgbaCss(out);$('challengeFormula').textContent=`source = ${tuple(source)}\ndestination = ${tuple(dest)}\noutput = ${tuple(out)}`;return good}
 $('codeEditor').addEventListener('input',()=>{$('challengeStatus').className='status';$('challengeStatus').textContent='Code changed. Check the repair again.';updateChallenge()});$('setCorrect').addEventListener('click',()=>{$('codeEditor').value=correct;$('codeEditor').dispatchEvent(new Event('input'))});$('setReversed').addEventListener('click',()=>{$('codeEditor').value=reversed;$('codeEditor').dispatchEvent(new Event('input'))});$('checkCode').addEventListener('click',()=>{const good=updateChallenge();$('challengeStatus').className='status '+(good?'ok':'bad');$('challengeStatus').textContent=good?'Correct. The translucent tint color is the source drawn over the opaque background.':'Not yet. The function still gives the source role to the background.'});
-function updateRecord(){const checks=[...document.querySelectorAll('#checklist input')],done=checks.filter(c=>c.checked).length;$('record').value=`# Lesson 3.8 completion record\n\n- Lesson: Tint\n- Checkpoint items complete: ${done} of ${checks.length}\n- Android device: Pixel 8 Pro\n- Base: Straight sRGB RGBA(0.80, 0.25, 0.60, 1.00)\n- Default tint source: Straight sRGB RGBA(${f4(state.r)}, ${f4(state.g)}, ${f4(state.b)}, ${f4(state.a)})\n- Current output: ${tuple(composite({r:state.r,g:state.g,b:state.b,a:state.a},BASE))}\n- I can explain why tint amount is source alpha: [yes / not yet]\n- I can explain why output alpha stays 1.00: [yes / not yet]\n- Questions or observations: \n`}
+function updateRecord(){const checks=[...document.querySelectorAll('#checklist input')],done=checks.filter(c=>c.checked).length;$('record').value=`# Lesson 3.8 completion record\n\n- Lesson: Tint\n- Checkpoint items complete: ${done} of ${checks.length}\n- iOS device: iPhone 16 Pro\n- Base: Straight sRGB RGBA(0.80, 0.25, 0.60, 1.00)\n- Default tint source: Straight sRGB RGBA(${f4(state.r)}, ${f4(state.g)}, ${f4(state.b)}, ${f4(state.a)})\n- Current output: ${tuple(composite({r:state.r,g:state.g,b:state.b,a:state.a},BASE))}\n- I can explain why tint amount is source alpha: [yes / not yet]\n- I can explain why output alpha stays 1.00: [yes / not yet]\n- Questions or observations: \n`}
 document.querySelectorAll('#checklist input').forEach(c=>c.addEventListener('change',updateRecord));$('copyRecord').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('record').value);$('copyRecord').textContent='Copied'}catch{$('record').select();document.execCommand('copy');$('copyRecord').textContent='Copied'}setTimeout(()=>$('copyRecord').textContent='Copy completion record',1300)});
 const theme=matchMedia('(prefers-color-scheme: dark)');function themeLabel(){$('themeMode').textContent=theme.matches?'Dark':'Light'}themeLabel();if(theme.addEventListener)theme.addEventListener('change',themeLabel);else theme.addListener(themeLabel);
 syncControls();update();drawStep();updateChallenge();

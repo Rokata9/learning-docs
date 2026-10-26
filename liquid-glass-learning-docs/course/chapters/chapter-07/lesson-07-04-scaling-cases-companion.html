@@ -101,13 +101,13 @@ summary{cursor:pointer;font-weight:800}
   <section class="panel hero">
     <div class="eyebrow">One idea, then the four combinations</div>
     <h1>Two photocopies. Two thumbtacks. Four pictures.</h1>
-    <p class="lead">The Android route does two photocopies: shrink the photo onto a smaller working layer, then enlarge that stored layer onto the display. This page uses a countable <strong>8 × 8</strong> photo and a <strong>4 × 4</strong> scratch paper so every number is a whole or half unit. Same navy / orange artwork as the lesson.</p>
+    <p class="lead">The iOS route does two photocopies: shrink the photo onto a smaller bitmap, then enlarge that stored bitmap onto the display. This page uses a countable <strong>8 × 8</strong> photo and a <strong>4 × 4</strong> scratch paper so every number is a whole or half unit. Same navy / orange artwork as the lesson.</p>
     <div class="three" style="margin-top:18px">
       <div class="card blue"><strong>Photo</strong><br>8 wide × 8 tall. This is the original artwork.</div>
-      <div class="card amber"><strong>Scratch paper</strong><br>4 wide × 4 tall. This is the smaller working layer you blur.</div>
+      <div class="card amber"><strong>Scratch paper</strong><br>4 wide × 4 tall. This is the smaller bitmap you blur.</div>
       <div class="card green"><strong>Display</strong><br>8 wide × 8 tall again. This is the final output on screen.</div>
     </div>
-    <p class="caption">The Android code does the same two photocopies: draw the photo onto the scratch paper (shrink), then draw the scratch paper onto the display (enlarge). Blur happens on the scratch paper, between the two photocopies. This page ignores blur on purpose. We are only answering: <em>which part of the photo is stored, and where does it land?</em></p>
+    <p class="caption">The lab code does the same two photocopies: draw the photo onto the scratch paper (shrink), then draw the scratch paper onto the display (enlarge). Blur happens on the scratch paper, between the two photocopies. This page ignores blur on purpose. We are only answering: <em>which part of the photo is stored, and where does it land?</em></p>
   </section>
 
   <section class="panel section">
@@ -151,7 +151,7 @@ scale 2 = twice as far from the thumbtack as before (enlarge)</div>
   <section class="panel section">
     <div class="section-no">2 · THE TRAP</div>
     <h2>The lesson does not shrink inside the photo’s paper.</h2>
-    <p>Your familiar picture keeps the 8 × 8 destination and shrinks the artwork inside it. The Android route first <strong>creates a new 4 × 4 paper</strong>, then draws onto that new paper. The thumbtack is chosen on the paper you are drawing <em>onto</em>, not on the original photo.</p>
+    <p>Your familiar picture keeps the 8 × 8 destination and shrinks the artwork inside it. This lesson’s route first <strong>creates a new 4 × 4 paper</strong>, then draws onto that new paper. The thumbtack is chosen on the paper you are drawing <em>onto</em>, not on the original photo.</p>
     <div class="two" style="margin-top:16px">
       <div class="card">
         <h3>Familiar · same 8 × 8 paper</h3>
@@ -257,14 +257,13 @@ photo center = (241.5, 264)</div>
       </div>
     </div>
     <p>The extra 0.5 pixel of width (241.5 rounded up to 242) only adds a sliver of empty or overflow. It is not why a case looks shifted or cropped. The shift and the crop come from which thumbtack you used, on which paper.</p>
-    <div class="success"><strong>Production choice in the Android explorer:</strong> both thumbtacks stay at the top-left <code>(0, 0)</code>. That is Case 1. The whole photo lands on the scratch paper. The scratch paper then fills the display. No discarded region. No empty margin. The other three cases exist so you can see what those two thumbtacks actually do. You do not want Cases 2–4 in the frosted-glass path.</div>
+    <div class="success"><strong>Production choice in the iOS explorer:</strong> both thumbtacks stay at the top-left <code>(0, 0)</code>. That is Case 1. The whole photo lands on the scratch paper. The scratch paper then fills the display. No discarded region. No empty margin. The other three cases exist so you can see what those two thumbtacks actually do. You do not want Cases 2–4 in the frosted-glass path.</div>
     <div class="card indigo" style="margin-top:16px">
-      <h3>The two Kotlin sites</h3>
-      <div class="readout">scale(..., pivot = Offset.Zero)     // first photocopy: shrink onto the scratch paper
-workingLayer.pivotOffset = Offset.Zero
-workingLayer.scaleX = 2f            // second photocopy: enlarge onto the display
-workingLayer.scaleY = 2f</div>
-      <p class="caption"><code>Offset.Zero</code> means the thumbtack is the top-left of the scratch paper both times. Changing only the second one moves the already-blurred image. Changing the first one changes which original pixels were ever stored.</p>
+      <h3>The two Swift sites</h3>
+      <div class="readout">recordingPivot = .zero          // first photocopy: shrink onto the scratch bitmap
+placementPivot = .zero
+enlargeScale = 1 / workingScale   // second photocopy: enlarge onto the display</div>
+      <p class="caption"><code>.zero</code> means the thumbtack is the top-left of the scratch bitmap both times. Changing only the placement pivot moves the already-blurred image. Changing the recording pivot changes which original pixels were ever stored.</p>
     </div>
   </section>
 
@@ -275,14 +274,14 @@ workingLayer.scaleY = 2f</div>
     <div class="card">
       <p><strong>1.</strong> During the first photocopy, the thumbtack is at the scratch paper’s center (2, 2). Does the green dot at (6.5, 2.2) get stored? Why?</p>
       <p><strong>2.</strong> The scratch paper already holds the <em>whole</em> photo (Case 1’s first photocopy). You then enlarge around the scratch paper’s center. Which part of the original photo is still visible on the 8 × 8 display, and why is the top-left of the display not the top-left of the photo?</p>
-      <p><strong>3.</strong> Someone says: “If I change <code>pivotOffset</code> to the center, I will crop a different part of the original photo.” What is wrong with that sentence?</p>
+      <p><strong>3.</strong> Someone says: “If I change the placement pivot to the center, I will crop a different part of the original photo.” What is wrong with that sentence?</p>
     </div>
     <details>
       <summary>Show answers</summary>
       <p><strong>1.</strong> No. New x = 2 + (6.5 − 2) × 0.5 = 4.25. The scratch paper only exists from 0 to 4. The green dot lands just past the right edge, so it is discarded.</p>
       <p><strong>2.</strong> Visible original region is (2, 2)…(8, 8): the bottom-right 6 × 6 of the photo. Enlarging around (2, 2) sends the stored top-left (0, 0) to (−2, −2), which is off the display. This is not “one stored pixel becoming a 2 × 2 block.” It is the same thumbtack rule run backwards, once per axis, to ask which stored point landed on the display’s top-left.</p>
       <p>Forward enlarge: new = thumbtack + (old − thumbtack) × 2. Inverse: old = thumbtack + (new − thumbtack) ÷ 2. Display top-left is (0, 0), enlarge thumbtack is (2, 2), so scratch x = 2 + (0 − 2) ÷ 2 = 1, and scratch y is the same. Display (0, 0) therefore shows the color that was stored at scratch (1, 1). That stored point itself came from the first photocopy with shrink thumbtack (0, 0) and scale 0.5: original = 0 + (1 − 0) ÷ 0.5 = 2 on both axes. So display (0, 0) is original (2, 2).</p>
-      <p><strong>3.</strong> <code>pivotOffset</code> runs after the scratch paper is already filled. It only moves those stored pixels on the display. The original region was chosen by the first <code>DrawScope.scale</code> plus the 4 × 4 bounds. A later thumbtack cannot put discarded original pixels back.</p>
+      <p><strong>3.</strong> The placement pivot runs after the scratch bitmap is already filled. It only moves those stored pixels on the display. The original region was chosen by the recording scale plus the 4 × 4 bounds. A later thumbtack cannot put discarded original pixels back.</p>
     </details>
   </section>
 </div>

@@ -27,15 +27,15 @@
 <div class="page">
   <div class="topbar">
     <div class="crumbs"><a href="lesson-build-convincing-frosted-glass-without-a-custom-lens.html">Chapter 7</a> · Lesson 7.3</div>
-    <div class="chips"><span class="chip progress">65 of 216 complete</span><span class="chip progress">Lesson 7.3 complete</span></div>
+    <div class="chips"><span class="chip progress">100 of 216 complete</span><span class="chip">iPhone 16 Pro</span></div>
   </div>
 
   <header class="hero panel">
     <div>
-      <div class="eyebrow">Chapter 7 · One new BlurEffect setting</div>
+      <div class="eyebrow">Chapter 7 · One new edge rule</div>
       <h1>Edge treatment</h1>
       <p class="lead">A blur reads neighboring source pixels. Near the outer boundary of its source image, some requested neighbors may not exist.</p>
-      <div class="plain-rule"><code>edgeTreatment</code> answers one question: <em>what value should the blur use for a requested position outside its source image?</em></div>
+      <div class="plain-rule">The edge rule answers one question: <em>what value should the blur use for a requested position outside its source image?</em></div>
       <div class="note"><strong>Radius stays fixed.</strong> This lesson changes only the answer for missing source positions.</div>
     </div>
     <div class="hero-art" aria-label="A blur neighborhood crossing the left boundary of its source image">
@@ -47,7 +47,7 @@
         <circle cx="145" cy="162" r="11" fill="var(--red)"/><circle cx="122" cy="207" r="11" fill="var(--red)"/><circle cx="145" cy="252" r="11" fill="var(--red)"/>
         <path d="M158 130 C100 92 70 92 42 110" fill="none" stroke="var(--indigo)" stroke-width="5" marker-end="url(#heroArrow)"/>
         <text x="38" y="72" fill="var(--ink)" font-family="system-ui" font-weight="900" font-size="20">These reads are outside</text>
-        <text x="38" y="98" fill="var(--muted)" font-family="system-ui" font-weight="750" font-size="16">edgeTreatment supplies them</text>
+        <text x="38" y="98" fill="var(--muted)" font-family="system-ui" font-weight="750" font-size="16">the edge rule supplies them</text>
         <text x="400" y="380" text-anchor="middle" fill="var(--ink)" font-family="system-ui" font-weight="900" font-size="20">Dashed rectangle = the complete blur source</text>
       </svg>
     </div>
@@ -67,7 +67,7 @@
         <h3>Output at the left edge</h3>
         <p>For output index <code>0</code>, the fixed teaching radius requests:</p>
         <div class="formula">−2, −1, 0, 1, 2</div>
-        <p>Indexes <code>−2</code> and <code>−1</code> are outside the source. <code>edgeTreatment</code> supplies values for only those two requests.</p>
+        <p>Indexes <code>−2</code> and <code>−1</code> are outside the source. The edge rule supplies values for only those two requests.</p>
       </div>
     </div>
   </section>
@@ -78,12 +78,12 @@
       <div class="card">
         <h3>Color boundary inside the source</h3>
         <div class="boundary-picture"><div class="inside"><div class="half blue-half"></div><div class="half orange-half"></div></div></div>
-        <p>Blue pixels sit next to orange pixels, and both sides are inside the source image. Blur reads those real blue and orange pixels and mixes them. No source position is missing, so <code>edgeTreatment</code> is not involved.</p>
+        <p>Blue pixels sit next to orange pixels, and both sides are inside the source image. Blur reads those real blue and orange pixels and mixes them. No source position is missing, so the edge rule is not involved.</p>
       </div>
       <div class="card indigo">
         <h3>Outer boundary of the source</h3>
         <div class="boundary-picture"><div class="source-fill"></div><span class="missing-dot m1"></span><span class="missing-dot m2"></span></div>
-        <p>The source image ends at the dashed rectangle. A blur request beyond that rectangle has no real source pixel. Only then does <code>edgeTreatment</code> provide a replacement value.</p>
+        <p>The source image ends at the dashed rectangle. A blur request beyond that rectangle has no real source pixel. Only then does the edge rule provide a replacement value.</p>
       </div>
     </div>
     <div class="note"><strong>Separate operation:</strong> clipping after the blur can hide output pixels, but it cannot provide source pixels that the blur needed earlier.</div>
@@ -97,7 +97,7 @@
       <div class="card mode-card indigo"><h3>Mirror</h3><div class="extension-strip">B A | A B C D E | E D</div><p>Reflect the source at each boundary.</p></div>
       <div class="card mode-card green"><h3>Repeated</h3><div class="extension-strip">D E | A B C D E | A B</div><p>Continue by wrapping to the opposite side.</p></div>
     </div>
-    <div class="warning"><strong>Platform support:</strong> Compose guarantees <code>Clamp</code>, <code>Mirror</code>, and <code>Repeated</code>. Check <code>TileMode.Decal.isSupported()</code>; an unsupported mode is consumed as <code>Clamp</code>. See the linked Android <code>TileMode</code> reference in Section 7.</div>
+    <div class="warning"><strong>iOS route:</strong> SwiftUI <code>.blur(radius:)</code> has no edge-treatment argument. The explorer extends the bitmap with the closest Core Image wrap: clamp repeats the edge color, Decal leaves the outside clear, Mirror draws reflected copies, and Repeated draws translated copies. iOS 17 applies the wrap you select. There is no support check that rewrites Decal into Clamp.</div>
   </section>
 
   <section class="section panel" id="lab">
@@ -188,35 +188,23 @@ final straight RGBA
         <div class="definition"><strong>Crop</strong> means selecting a smaller rectangle from a larger image. Here, “crop after blur” means discard the extra outer border and keep the panel-sized middle.</div>
       </div>
     </div>
-    <div class="note"><strong>Why:</strong> a pixel near the panel edge needs backdrop neighbors just outside the panel. Those pixels already exist in the real scene. Reading them is better than ending the blur source exactly at the panel edge and asking <code>TileMode</code> to supply replacements there.</div>
-    <div class="warning"><strong>Boundary of this lesson:</strong> Android does not tell us exactly how far the blur internally reads, so this lesson does not claim an exact size for the extra outer border.</div>
+    <div class="note"><strong>Why:</strong> a pixel near the panel edge needs backdrop neighbors just outside the panel. Those pixels already exist in the real scene. Reading them is better than ending the blur source exactly at the panel edge and asking the edge rule to supply replacements there.</div>
+    <div class="warning"><strong>Boundary of this lesson:</strong> Core Image does not document exactly how far this Gaussian reads, so this lesson does not claim an exact size for the extra outer border.</div>
   </section>
 
   <section class="section panel">
-    <div class="section-head"><div><div class="section-no">7 · Android route</div><h2>Only <code>edgeTreatment</code> changes</h2></div></div>
+    <div class="section-head"><div><div class="section-no">7 · iOS route</div><h2>Only the wrap changes</h2></div></div>
     <div class="code-grid">
-      <div class="code-block"><code>val requestedMode = selectedMode.tileMode
-
-val appliedMode = if (requestedMode.isSupported()) {
-    requestedMode
-} else {
-    TileMode.Clamp
-}
-
-val effect = BlurEffect(
-    renderEffect = null,
-    radiusX = radiusPx,
-    radiusY = radiusPx,
-    edgeTreatment = appliedMode,
-)
-
-graphicsLayer.renderEffect = effect</code></div>
+      <div class="code-block"><code>let radiusPx = radiusPt * displayScale
+let extended = extendForEdge(source, mode: selectedMode, sigma: radiusPx)
+let blurred = extended.applyingGaussianBlur(sigma: radiusPx)
+let result = blurred.cropped(to: source.extent)</code></div>
       <div class="card">
         <h3>Meaning of each part</h3>
-        <p><code>radiusX</code> and <code>radiusY</code> keep the neighborhood reach fixed.</p>
-        <p><code>edgeTreatment</code> supplies values only for reads outside the original input bounds. That is the documented purpose of the parameter.</p>
-        <p>The larger-source glass-panel route from Section 6 is a separate integration step. This Android explorer isolates only the <code>TileMode</code> behavior.</p>
-        <p><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlurEffect">Android <code>BlurEffect</code> reference</a><br><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/TileMode">Android <code>TileMode</code> reference</a></p>
+        <p><code>radiusPt</code> stays at 18. <code>radiusPx</code> is <code>18 × displayScale</code> and is the <code>CIGaussianBlur</code> sigma in bitmap pixels. SwiftUI blur is one symmetric radius, so there is no separate horizontal and vertical sigma.</p>
+        <p><code>extendForEdge</code> supplies values only for reads outside the original bitmap. Clamp repeats the edge color. Decal leaves the outside clear. Mirror places reflected copies. Repeated places translated copies.</p>
+        <p><code>cropped(to: source.extent)</code> throws away the padding and keeps the original rectangle.</p>
+        <p>SwiftUI <code>.blur(radius:)</code> has no edge-treatment argument. This bitmap route is the closest Core Image sampler wrap. The larger-source glass-panel route from Section 6 is a separate integration step. This explorer changes only the wrap.</p>
       </div>
     </div>
   </section>
@@ -236,36 +224,26 @@ graphicsLayer.renderEffect = effect</code></div>
     <div class="section-head"><div><div class="section-no">9 · Coding challenge</div><h2>Ask whether the selected mode is supported</h2></div><p>Replace three placeholders.</p></div>
     <div class="challenge">
       <div>
-        <textarea class="editor" id="editor" spellcheck="false">val requestedMode = selectedMode.__BLANK_1__
-
-val appliedMode = if (requestedMode.__BLANK_2__) {
-    requestedMode
-} else {
-    TileMode.Clamp
-}
-
-val effect = BlurEffect(
-    renderEffect = null,
-    radiusX = radiusPx,
-    radiusY = radiusPx,
-    __BLANK_3__,
-)</textarea>
+        <textarea class="editor" id="editor" spellcheck="false">let radiusPx = radiusPt * __BLANK_1__
+let extended = extendForEdge(source, mode: __BLANK_2__, sigma: radiusPx)
+let blurred = extended.applyingGaussianBlur(sigma: __BLANK_3__)
+let result = blurred.cropped(to: source.extent)</textarea>
         <div class="controls" style="margin-top:10px"><button class="btn primary" id="checkCode">Check</button><button class="btn" id="insertSolution">Insert solution</button><button class="btn" id="resetCode">Reset</button></div>
-        <div class="result" id="codeResult">Fill the selected mode property, support check, and constructor argument.</div>
+        <div class="result" id="codeResult">Fill the scale, the selected mode, and the blur sigma.</div>
       </div>
       <div class="card indigo">
         <h3>Required route</h3>
-        <div class="formula">selectedMode.tileMode
-→ requestedMode.isSupported()
-→ requested mode or Clamp
-→ edgeTreatment = appliedMode</div>
+        <div class="formula">radiusPt * displayScale
+→ extendForEdge(source, mode: selectedMode, sigma: radiusPx)
+→ applyingGaussianBlur(sigma: radiusPx)
+→ cropped(to: source.extent)</div>
       </div>
     </div>
   </section>
 
   <section class="section panel">
     <div class="section-head"><div><div class="section-no">10 · Explain it back</div><h2>Four direct checks</h2></div></div>
-    <details><summary>When is <code>edgeTreatment</code> used?</summary><p>Only when the blur requests a source position outside the original input bounds.</p></details>
+    <details><summary>When is the edge rule used?</summary><p>Only when the blur requests a source position outside the original input bounds.</p></details>
     <details><summary>Why is a blue-to-orange boundary inside the source different?</summary><p>Both blue and orange pixels really exist inside the source. The blur mixes them normally; there is no missing source position to replace.</p></details>
     <details><summary>Why does Decal fade orange instead of adding opaque black?</summary><p>Decal supplies transparent black with alpha zero. In premultiplied form it contributes zero RGB and zero alpha, so the average becomes less opaque. The surviving straight RGB can remain orange.</p></details>
     <details><summary>What does “crop after blur” mean in the panel example?</summary><p>Blur a larger backdrop rectangle, then select only the smaller inner rectangle that matches the visible panel. The extra outer border is not drawn into the final panel.</p></details>
@@ -273,32 +251,34 @@ val effect = BlurEffect(
 
   <section class="section panel">
     <div class="section-head"><div><div class="section-no">11 · Preview and device checkpoint</div><h2>Verify the mechanism</h2></div></div>
+    <p>Use the Xcode previews, then the iPhone 16 Pro.</p>
+    <div class="note"><strong>Browser versus iOS:</strong> the page diagrams use the five-cell model and an equal average. The iPhone 16 Pro explorer runs <code>CIGaussianBlur</code> after a Core Image wrap. Those are not the same kernel. SwiftUI <code>.blur(radius:)</code> is not the call that selects the wrap.</div>
     <div class="checklist">
       <label class="check"><input type="checkbox">All four mode buttons are styled and selectable.</label>
       <label class="check"><input type="checkbox">The edge and interior targets update the same canonical state.</label>
       <label class="check"><input type="checkbox">The walkthrough has six working states.</label>
       <label class="check"><input type="checkbox">Missing requests are clearly distinguished from valid requests.</label>
-      <label class="check"><input type="checkbox">Clamp repeats the nearest edge value.</label>
-      <label class="check"><input type="checkbox">Decal supplies transparent black.</label>
+      <label class="check"><input type="checkbox">Clamp repeats the nearest edge value and stays opaque over the checkerboard.</label>
+      <label class="check"><input type="checkbox">Decal supplies transparent black, so the checkerboard shows through the edge.</label>
       <label class="check"><input type="checkbox">The Decal explanation says “same orange RGB, lower alpha” in plain language.</label>
       <label class="check"><input type="checkbox">The larger backdrop sample and final panel rectangle are visually distinct.</label>
-      <label class="check"><input type="checkbox">The complete screen scrolls in light and dark Preview.</label>
-      <label class="check"><input type="checkbox">The direct explorer scrolls in light and dark Preview.</label>
+      <label class="check"><input type="checkbox">Both complete-screen Preview variants scroll through all content at 412 × 915, light then dark.</label>
+      <label class="check"><input type="checkbox">Both direct explorer Preview variants scroll through all content at 412 × 915, light then dark.</label>
     </div>
   </section>
 
   <section class="section panel">
     <div class="section-head"><div><div class="section-no">12 · Evidence boundary</div><h2>What this lesson establishes</h2></div></div>
     <div class="two">
-      <div class="card green"><h3>Established</h3><p><code>BlurEffect.edgeTreatment</code> supplies values for reads outside the original input bounds. The four <code>TileMode</code> choices use different rules.</p></div>
-      <div class="card amber"><h3>Not claimed</h3><p>The lesson does not reveal Android's internal blur algorithm, exact sample positions, exact extra-margin requirement, allocation behavior, or measured GPU cost.</p></div>
+      <div class="card green"><h3>Established</h3><p>The edge rule supplies values for reads outside the original bitmap. Clamp, Decal, Mirror, and Repeated use different rules. The explorer applies those rules with a Core Image wrap, then <code>CIGaussianBlur</code>.</p></div>
+      <div class="card amber"><h3>Not claimed</h3><p>The lesson does not reveal Core Image's sample positions, weights, exact extra-margin requirement, allocation behavior, or measured GPU cost. It does not claim that this sigma matches SwiftUI <code>.blur(radius:)</code>.</p></div>
     </div>
     <button class="btn primary" id="buildRecord" style="margin-top:16px">Build local review record</button>
     <textarea class="record" id="record" readonly style="margin-top:12px">No record generated yet.</textarea>
-    <div class="note">This local record stores review notes only. The course state above already marks Lesson 7.3 complete.</div>
+    
   </section>
 
-  <footer class="footer panel"><span>65 of 216 complete · Lesson 7.3 complete</span><a class="btn primary" href="lesson-07-04-downsampled-blur.html">Next lesson · 7.4</a></footer>
+  <footer class="footer panel"><span>100 of 216 complete · checkpoint Lesson 10.1</span><a class="btn primary" href="lesson-07-04-downsampled-blur.html">Next lesson · 7.4</a></footer>
 </div>
 <div class="tip" id="tip" role="tooltip"></div>
 <script>
@@ -359,13 +339,13 @@ const STEPS = [
   },
   {
     title: 'Fill the missing requests',
-    caption: 'The selected TileMode supplies a value for every missing request. Real in-range source cells are never replaced.',
-    rule: 'missing request → selected TileMode value',
+    caption: 'The selected edge rule supplies a value for every missing request. Real in-range source cells are never replaced.',
+    rule: 'missing request → selected edge-rule value',
     input: 'Missing requests and mode', operation: 'Insert replacements', output: 'Five complete samples',
   },
   {
     title: 'Combine the complete samples',
-    caption: 'Now the blur has a value for every requested position. This teaching diagram uses an equal average only to make the consequence visible; Android does not promise these exact weights.',
+    caption: 'Now the blur has a value for every requested position. This teaching diagram uses an equal average only to make the consequence visible. Core Image does not promise these exact weights.',
     rule: 'teaching output = average of five complete samples',
     input: 'Five complete samples', operation: 'Average RGBA', output: 'One output color and alpha',
   },
@@ -504,36 +484,27 @@ document.querySelectorAll('[data-choice]').forEach(button => button.addEventList
 }));
 
 const starter = $('editor').value;
-const solution = `val requestedMode = selectedMode.tileMode
-
-val appliedMode = if (requestedMode.isSupported()) {
-    requestedMode
-} else {
-    TileMode.Clamp
-}
-
-val effect = BlurEffect(
-    renderEffect = null,
-    radiusX = radiusPx,
-    radiusY = radiusPx,
-    edgeTreatment = appliedMode,
-)`;
+const solution = `let radiusPx = radiusPt * displayScale
+let extended = extendForEdge(source, mode: selectedMode, sigma: radiusPx)
+let blurred = extended.applyingGaussianBlur(sigma: radiusPx)
+let result = blurred.cropped(to: source.extent)`;
 $('insertSolution').addEventListener('click', () => { $('editor').value = solution; $('codeResult').textContent = 'Solution inserted. Run the check.'; });
 $('resetCode').addEventListener('click', () => { $('editor').value = starter; $('codeResult').textContent = 'Reset. Replace all three placeholders.'; });
 $('checkCode').addEventListener('click', () => {
   const value = $('editor').value.replace(/\s+/g, ' ');
   const correct = !value.includes('__BLANK_')
-    && /selectedMode\.tileMode/.test(value)
-    && /requestedMode\.isSupported\(\)/.test(value)
-    && /edgeTreatment\s*=\s*appliedMode/.test(value);
+    && /radiusPt\s*\*\s*displayScale/.test(value)
+    && /extendForEdge\(\s*source,\s*mode:\s*selectedMode,\s*sigma:\s*radiusPx/.test(value)
+    && /applyingGaussianBlur\(\s*sigma:\s*radiusPx/.test(value)
+    && /cropped\(\s*to:\s*source\.extent/.test(value);
   $('codeResult').innerHTML = correct
-    ? '<strong>Correct.</strong> The selected mode is checked and then passed to BlurEffect.edgeTreatment.'
-    : 'The route is incomplete. Check tileMode, isSupported(), and edgeTreatment = appliedMode.';
+    ? '<strong>Correct.</strong> The point radius becomes a pixel sigma, the selected wrap extends the bitmap, and the blur is cropped back to the original extent.'
+    : 'The route is incomplete. Check displayScale, selectedMode, radiusPx, and cropped(to: source.extent).';
 });
 
 $('buildRecord').addEventListener('click', () => {
   const checked = [...document.querySelectorAll('.check input')].filter(input => input.checked).length;
-  $('record').value = `Lesson 7.3 local review\nDate: ${new Date().toISOString()}\n\nBrowser state\n- mode: ${MODES[state.mode].label}\n- target: i = ${targetIndex()}\n- requests: ${requests().join(', ')}\n- missing: ${missing().join(', ') || 'none'}\n- filled samples: ${sequenceText()}\n- teaching output alpha: ${formatAlpha(averageRgba()[3])}\n\nPrediction selected: ${state.prediction ?? 'none'}\nCheckpoint: ${checked} of 10 checked\n\nThis local record does not mark the lesson complete.`;
+  $('record').value = `Lesson 7.3 local review\nDate: ${new Date().toISOString()}\n\nBrowser state\n- mode: ${MODES[state.mode].label}\n- target: i = ${targetIndex()}\n- requests: ${requests().join(', ')}\n- missing: ${missing().join(', ') || 'none'}\n- filled samples: ${sequenceText()}\n- teaching output alpha: ${formatAlpha(averageRgba()[3])}\n\nPrediction selected: ${state.prediction ?? 'none'}\nCheckpoint: ${checked} of 10 checked\n\n`;
 });
 
 const tip = $('tip');

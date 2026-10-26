@@ -31,7 +31,7 @@ body{background:linear-gradient(180deg,var(--body-start),var(--body-end))}a{colo
 <main class="page">
 <nav class="topbar"><div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-color-opacity-and-compositing.html">Chapter 3</a> · <a href="../../glossary.html">Glossary</a></div><div class="header-chips"><span class="lesson-chip">Lesson 3.4</span><span class="theme-chip">OS theme · <strong id="themeMode">detecting…</strong></span></div></nav>
 
-<header class="hero panel"><div><div class="eyebrow">Chapter 3 · Color, opacity, and compositing</div><h1>Draw order matters</h1><p class="lead">Draw the same two translucent colors in opposite orders. The overlap changes because the layer drawn second becomes the current source.</p><div class="note"><strong>One main graphics idea:</strong> later drawing operations are placed over earlier drawing operations at positions where they overlap.</div></div><aside class="goal-box"><h2>Lesson goal</h2><ul><li>Name the source and destination from the actual draw-call order.</li><li>Predict which pixels can change when two shapes overlap.</li><li>Explain why both orders have alpha <code>0.80</code> but different RGB values.</li><li>Repair a reversed pair of Canvas draw calls.</li></ul><div class="progress-line">Before this lesson: 20 of 216 complete<br>After completion: 21 of 216 complete</div><div class="theme-rule">Interface chrome follows the OS theme. The magenta and green teaching colors remain numerically unchanged.</div></aside></header>
+<header class="hero panel"><div><div class="eyebrow">Chapter 3 · Color, opacity, and compositing</div><h1>Draw order matters</h1><p class="lead">Draw the same two translucent colors in opposite orders. The overlap changes because the layer drawn second becomes the current source.</p><div class="note"><strong>One main graphics idea:</strong> later drawing operations are placed over earlier drawing operations at positions where they overlap.</div></div><aside class="goal-box"><h2>Lesson goal</h2><ul><li>Name the source and destination from the actual draw-call order.</li><li>Predict which pixels can change when two shapes overlap.</li><li>Explain why both orders have alpha <code>0.80</code> but different RGB values.</li><li>Repair a reversed pair of Canvas draw calls.</li></ul><div class="theme-rule">Interface chrome follows the OS theme. The magenta and green teaching colors remain numerically unchanged.</div></aside></header>
 
 <section class="section panel"><div class="section-intro"><div><div class="section-number">1 · Vocabulary</div><h2>Four exact terms</h2></div><p>Each term names a concrete part of the drawing operation.</p></div><div class="four-column"><article class="card green"><h3>Draw order</h3><p><strong>Draw order</strong> is the sequence in which drawing operations write into the same drawing target. The first call runs before the second call.</p></article><article class="card indigo"><h3>Overlap</h3><p>An <strong>overlap</strong> is an image position covered by both shapes. Only overlap positions receive both colored draw operations.</p></article><article class="card amber"><h3>Source and destination</h3><p>The <strong>source</strong> is the color being drawn now. The <strong>destination</strong> is the value already present at that same position.</p></article><article class="card blue"><h3>Commutative</h3><p>A <strong>commutative operation</strong> gives the same result after its inputs exchange places. Source-over compositing is not commutative.</p></article></div><div class="formula" style="margin-top:18px">magenta over green ≠ green over magenta</div><div class="warning"><strong>The color names do not permanently own the words source and destination.</strong> A color becomes the source when its draw call is executing. Reversing the calls reverses those roles at the overlap.</div></section>
 
@@ -42,794 +42,725 @@ body{background:linear-gradient(180deg,var(--body-start),var(--body-end))}a{colo
 
 <section class="section panel"><div class="section-intro"><div><div class="section-number">4 · Manual stepper</div><h2>Follow one overlap position through eight states</h2></div><p>Press <strong>Back</strong> or <strong>Next</strong>. Every step adds one operation or one calculation.</p></div><div class="stepper-layout"><div class="step-figure"><svg id="stepSvg" viewBox="0 0 1160 720" aria-label="Draw-order derivation stepper"></svg></div><div class="stepper-card"><div class="stepper-nav" id="stepButtons"></div><div class="step-body"><div class="step-title" id="stepTitle"></div><p class="step-caption" id="stepCaption"></p><pre class="code-excerpt" id="stepCode"></pre><div class="io-row"><div class="io-box"><strong>Input</strong><span id="stepInput"></span></div><div class="io-box"><strong>Operation</strong><span id="stepOperation"></span></div><div class="io-box"><strong>Output</strong><span id="stepOutput"></span></div></div><div class="step-actions"><button class="secondary-button" id="stepBack" type="button">Back</button><button class="primary-button" id="stepNext" type="button">Next</button></div></div></div></div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">5 · Android value trace</div><h2>From the selected button to the overlap pixel</h2></div><p>The boxes below identify the exact state, branch, draw calls, and calculation.</p></div><div class="trace-grid"><article class="trace-box"><strong>1 · Input state</strong><p>The selected control writes one enum value.</p><code class="trace-code">topLayer = TopLayer.MAGENTA</code></article><article class="trace-box"><strong>2 · Choose roles</strong><p>The branch selects which color is drawn first and which color is drawn second.</p><code class="trace-code">when (topLayer) { ... }</code></article><article class="trace-box"><strong>3 · First call</strong><p>For magenta on top, green is drawn first.</p><code class="trace-code">drawGreen()</code></article><article class="trace-box"><strong>4 · Existing destination</strong><p>At the overlap, the drawing target now contains green contribution over the lower checkerboard.</p><code class="trace-code">green is already present</code></article><article class="trace-box"><strong>5 · Second call</strong><p>Magenta is drawn now with source-over blending.</p><code class="trace-code">drawMagenta()</code></article><article class="trace-box"><strong>6 · Source-over</strong><p>Magenta is the current source. Green is the two-color destination input.</p><code class="trace-code">calculateOrderSourceOver(
-  source = MagentaLayer,
-  destination = GreenLayer,
-)</code></article><article class="trace-box"><strong>7 · Output</strong><p>The overlap becomes the calculated translucent purple.</p><code class="trace-code">RGBA(.60, .40, .65, .80)</code></article><article class="trace-box"><strong>8 · Reverse</strong><p>Selecting green on top reverses the calls and produces a different overlap RGB.</p><code class="trace-code">RGBA(.30, .70, .50, .80)</code></article></div><div class="source-note" style="margin-top:18px"><strong>Evidence limit.</strong> The code and public API semantics establish the requested draw order and source-over behavior. The lesson does not claim which private GPU command, tile buffer, or internal color representation Android uses after Compose submits the drawing work. Profiling or framework-source inspection would be required for those implementation details. That unknown does not change which draw call is logically source and which is logically destination.</div></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">5 · iOS value trace</div><h2>From the selected button to the overlap pixel</h2></div><p>The boxes below identify the exact state, branch, draw calls, and calculation.</p></div><div class="trace-grid"><article class="trace-box"><strong>1 · Input state</strong><p>The selected control writes one enum value.</p><code class="trace-code">topLayer = .a</code></article><article class="trace-box"><strong>2 · Choose roles</strong><p>The branch selects which color is drawn first and which color is drawn second.</p><code class="trace-code">switch topLayer { ... }</code></article><article class="trace-box"><strong>3 · First call</strong><p>For A on top (magenta), Layer B (green) is drawn first.</p><code class="trace-code">drawLayerB()</code></article><article class="trace-box"><strong>4 · Existing destination</strong><p>At the overlap, the drawing target now contains green contribution over the lower checkerboard.</p><code class="trace-code">layer B is already present</code></article><article class="trace-box"><strong>5 · Second call</strong><p>Layer A (magenta) is drawn now with source-over blending.</p><code class="trace-code">drawLayerA()</code></article><article class="trace-box"><strong>6 · Source-over</strong><p>Magenta is the current source. Green is the two-color destination input.</p><code class="trace-code">calculateOver(
+    source: layerA,
+    destination: layerB
+)</code></article><article class="trace-box"><strong>7 · Output</strong><p>The overlap becomes the calculated translucent purple.</p><code class="trace-code">RGBA(.60, .40, .65, .80)</code></article><article class="trace-box"><strong>8 · Reverse</strong><p>Selecting B on top reverses the calls and produces a different overlap RGB.</p><code class="trace-code">RGBA(.30, .70, .50, .80)</code></article></div><div class="source-note" style="margin-top:18px"><strong>Evidence limit.</strong> The code and public API semantics establish the requested draw order and source-over behavior. The lesson does not claim which private GPU command, tile buffer, or internal color representation SwiftUI uses after Canvas submits the drawing work. Profiling or framework-source inspection would be required for those implementation details. That unknown does not change which draw call is logically source and which is logically destination.</div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">6 · Android source</div><h2>The complete Lesson 3.4 Android source</h2></div><p>The source itself is unchanged. The explanatory labels above now distinguish the output premultiplied RGB from the output straight RGBA.</p></div><div class="source-tabs"><button class="mode-button selected" data-source="screen" type="button">Chapter03Screen.kt</button><button class="mode-button" data-source="explorer" type="button">DrawOrderExplorer.kt</button></div><div class="source-pane active" id="source-screen"><pre class="source-code">package com.example.liquidglasslab.chapter03
+<section class="section panel"><div class="section-intro"><div><div class="section-number">6 · iOS connection</div><h2>Read the exact iOS files</h2></div><p>The displayed code matches the Lesson 3.4 files in <code>LiquidGlassLab-iOS</code>. <code>Chapter03Screen</code> keeps the Lesson 3.1–3.3 explorers and adds <code>DrawOrderExplorer</code>.</p></div><div class="source-tabs"><button class="mode-button selected" data-source="screen" type="button">Chapter03Screen.swift</button><button class="mode-button" data-source="explorer" type="button">DrawOrderExplorer.swift</button></div><div class="source-pane active" id="source-screen"><pre class="source-code">import SwiftUI
 
-import android.content.res.Configuration
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.example.liquidglasslab.ui.theme.LiquidGlassLabTheme
+struct Chapter03Screen: View {
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 28) {
+                Text(&quot;COLOR, OPACITY, AND COMPOSITING&quot;)
+                    .font(.system(size: 14, weight: .black))
+                    .foregroundStyle(Color(hex: 0x059669))
 
-@Composable
-fun Chapter03Screen(modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background,
-        contentColor = MaterialTheme.colorScheme.onBackground,
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .safeDrawingPadding()
-                .padding(horizontal = 24.dp, vertical = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            Text(
-                text = &quot;COLOR, OPACITY, AND COMPOSITING&quot;,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = &quot;Lesson 3.4 · Draw order matters&quot;,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = &quot;Draw the same two translucent layers in opposite orders. &quot; +
-                    &quot;Inspect why the shared area changes even though neither RGBA &quot; +
-                    &quot;input changes.&quot;,
-                style = MaterialTheme.typography.bodyLarge,
-            )
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.1 · Red, green, and blue channels&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Change one channel at a time. The final swatch is one opaque RGB color &quot; +
+                        &quot;built from three independent numbers.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    RgbChannelsExplorer()
+                }
 
-            DrawOrderExplorer()
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.2 · Alpha&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Keep red, green, and blue fixed. Change only alpha, then inspect &quot; +
+                        &quot;how much of each background remains visible.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    AlphaExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.3 · The over operation&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Draw one translucent source over one translucent destination. &quot; +
+                        &quot;Calculate the resulting RGBA color one contribution at a time.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    OverOperationExplorer()
+                }
+
+                VStack(spacing: 14) {
+                    Text(&quot;Lesson 3.4 · Draw order matters&quot;)
+                        .font(LabType.headlineMedium)
+                        .fontWeight(.black)
+                    Text(
+                        &quot;Draw the same two translucent layers in opposite orders. &quot; +
+                        &quot;Inspect why the shared area changes even though neither RGBA &quot; +
+                        &quot;input changes.&quot;
+                    )
+                    .font(LabType.bodyLarge)
+                    .multilineTextAlignment(.center)
+                    DrawOrderExplorer()
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 20)
+            .frame(maxWidth: .infinity)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(hex: 0xF8FAFC))
+        .safeAreaPadding()
     }
 }
 
-@Preview(
-    name = &quot;Lesson 3.4 draw order — light&quot;,
-    showBackground = true,
-    widthDp = 412,
-    heightDp = 915,
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-)
-@Preview(
-    name = &quot;Lesson 3.4 draw order — dark&quot;,
-    showBackground = true,
-    widthDp = 412,
-    heightDp = 915,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
-@Composable
-private fun Chapter03ScreenPreview() {
-    LiquidGlassLabTheme {
+private extension Color {
+    init(hex: UInt32) {
+        self.init(
+            red: Double((hex &gt;&gt; 16) &amp; 0xFF) / 255,
+            green: Double((hex &gt;&gt; 8) &amp; 0xFF) / 255,
+            blue: Double(hex &amp; 0xFF) / 255
+        )
+    }
+}
+
+#Preview(&quot;Chapter 3 explorers · light&quot;) {
+    LabTheme {
         Chapter03Screen()
     }
-}
-</pre></div><div class="source-pane" id="source-explorer"><pre class="source-code">package com.example.liquidglasslab.chapter03
-
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import java.util.Locale
-import kotlin.math.ceil
-
-private val LayerA = OrderRgba(
-    red = 0.90f,
-    green = 0.10f,
-    blue = 0.80f,
-    alpha = 0.50f,
-)
-
-private val LayerB = OrderRgba(
-    red = 0.10f,
-    green = 0.90f,
-    blue = 0.40f,
-    alpha = 0.60f,
-)
-
-private val ExplorerShape = RoundedCornerShape(22.dp)
-private val CardShape = RoundedCornerShape(15.dp)
-private val PreviewShape = RoundedCornerShape(16.dp)
-
-private val CheckerLight = Color(0xFFF8FAFC)
-private val CheckerDark = Color(0xFFCBD5E1)
-private val LayerAAccent = Color(0xFFBE185D)
-private val LayerBAccent = Color(0xFF059669)
-private val OverlapMarker = Color(0xFFD97706)
-
-private enum class TopLayer {
-    A,
-    B,
+    .labPreviewCanvas()
 }
 
-@Composable
-internal fun DrawOrderExplorer(
-    modifier: Modifier = Modifier,
-) {
-    var topLayer by rememberSaveable {
-        mutableStateOf(TopLayer.A)
+#Preview(&quot;Chapter 3 explorers · dark&quot;) {
+    LabTheme {
+        Chapter03Screen()
     }
-    var shapesOverlap by rememberSaveable {
-        mutableStateOf(true)
+    .preferredColorScheme(.dark)
+    .labPreviewCanvas()
+}
+</pre></div><div class="source-pane" id="source-explorer"><pre class="source-code">import SwiftUI
+
+private let layerA = OrderRgba(
+    red: 0.90,
+    green: 0.10,
+    blue: 0.80,
+    alpha: 0.50
+)
+
+private let layerB = OrderRgba(
+    red: 0.10,
+    green: 0.90,
+    blue: 0.40,
+    alpha: 0.60
+)
+
+private let checkerLight = Color(hex: 0xF8FAFC)
+private let checkerDark = Color(hex: 0xCBD5E1)
+private let layerAAccent = Color(hex: 0xBE185D)
+private let layerBAccent = Color(hex: 0x059669)
+private let overlapMarker = Color(hex: 0xD97706)
+
+private enum TopLayer {
+    case a
+    case b
+}
+
+struct DrawOrderExplorer: View {
+    @State private var topLayer = TopLayer.a
+    @State private var shapesOverlap = true
+
+    private var aOverB: OrderComposite {
+        calculateOver(source: layerA, destination: layerB)
     }
 
-    val aOverB = remember {
-        calculateOver(
-            source = LayerA,
-            destination = LayerB,
-        )
+    private var bOverA: OrderComposite {
+        calculateOver(source: layerB, destination: layerA)
     }
-    val bOverA = remember {
-        calculateOver(
-            source = LayerB,
-            destination = LayerA,
-        )
-    }
-    val selectedCalculation = if (topLayer == TopLayer.A) {
-        aOverB
-    } else {
-        bOverA
-    }
-    val selectedSourceName = if (topLayer == TopLayer.A) {
-        "Layer A"
-    } else {
-        "Layer B"
-    }
-    val selectedDestinationName = if (topLayer == TopLayer.A) {
-        "Layer B"
-    } else {
-        "Layer A"
-    }
-    val firstDrawnName = selectedDestinationName
-    val secondDrawnName = selectedSourceName
-    val colorScheme = MaterialTheme.colorScheme
 
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = ExplorerShape,
-        color = colorScheme.surface,
-        contentColor = colorScheme.onSurface,
-        border = BorderStroke(
-            width = 1.dp,
-            color = colorScheme.outlineVariant,
-        ),
-    ) {
-        Column(
-            modifier = Modifier.padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
+    private var selectedCalculation: OrderComposite {
+        topLayer == .a ? aOverB : bOverA
+    }
+
+    private var selectedSourceName: String {
+        topLayer == .a ? &quot;Layer A&quot; : &quot;Layer B&quot;
+    }
+
+    private var selectedDestinationName: String {
+        topLayer == .a ? &quot;Layer B&quot; : &quot;Layer A&quot;
+    }
+
+    private var firstDrawnName: String { selectedDestinationName }
+    private var secondDrawnName: String { selectedSourceName }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(&quot;One drawing target, two commands&quot;)
+                .font(.system(size: 22, weight: .black))
             Text(
-                text = "One drawing target, two commands",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Black,
+                &quot;The first command writes one translucent rectangle. &quot; +
+                &quot;The second command writes the other rectangle over the &quot; +
+                &quot;stored result wherever their bounds overlap.&quot;
             )
-            Text(
-                text = "The first command writes one translucent rectangle. " +
-                    "The second command writes the other rectangle over the " +
-                    "stored result wherever their bounds overlap.",
-                style = MaterialTheme.typography.bodyMedium,
-            )
+            .font(.system(size: 15))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
+            HStack(spacing: 10) {
                 LayerInputCard(
-                    label = "Layer A · magenta",
-                    rgba = LayerA,
-                    accent = LayerAAccent,
-                    modifier = Modifier.weight(1f),
+                    label: &quot;Layer A · magenta&quot;,
+                    rgba: layerA,
+                    accent: layerAAccent
                 )
                 LayerInputCard(
-                    label = "Layer B · green",
-                    rgba = LayerB,
-                    accent = LayerBAccent,
-                    modifier = Modifier.weight(1f),
+                    label: &quot;Layer B · green&quot;,
+                    rgba: layerB,
+                    accent: layerBAccent
                 )
             }
 
-            Text(
-                text = "Choose the layer drawn last",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Black,
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
+            Text(&quot;Choose the layer drawn last&quot;)
+                .font(LabType.titleMedium)
+                .fontWeight(.black)
+            HStack(spacing: 8) {
                 OrderButton(
-                    label = "A on top",
-                    selected = topLayer == TopLayer.A,
-                    onClick = { topLayer = TopLayer.A },
-                    modifier = Modifier.weight(1f),
-                )
-                OrderButton(
-                    label = "B on top",
-                    selected = topLayer == TopLayer.B,
-                    onClick = { topLayer = TopLayer.B },
-                    modifier = Modifier.weight(1f),
-                )
-            }
-
-            Text(
-                text = "Choose whether the two rectangles share positions",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Black,
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                OrderButton(
-                    label = "Overlap",
-                    selected = shapesOverlap,
-                    onClick = { shapesOverlap = true },
-                    modifier = Modifier.weight(1f),
-                )
-                OrderButton(
-                    label = "No overlap",
-                    selected = !shapesOverlap,
-                    onClick = { shapesOverlap = false },
-                    modifier = Modifier.weight(1f),
-                )
-            }
-
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = CardShape,
-                color = colorScheme.surfaceVariant,
-                contentColor = colorScheme.onSurfaceVariant,
-                border = BorderStroke(1.dp, colorScheme.outlineVariant),
-            ) {
-                Column(
-                    modifier = Modifier.padding(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                    label: &quot;A on top&quot;,
+                    selected: topLayer == .a
                 ) {
-                    Text(
-                        text = "Selected command sequence",
-                        fontWeight = FontWeight.Black,
-                    )
-                    Text(
-                        text = "1. draw $firstDrawnName",
-                    )
-                    Text(
-                        text = "2. draw $secondDrawnName · later command",
-                        fontWeight = FontWeight.Black,
-                    )
-                    Text(
-                        text = if (shapesOverlap) {
-                            "At shared positions, $selectedSourceName is the " +
-                                "source and $selectedDestinationName is the " +
-                                "destination."
-                        } else {
-                            "The rectangles share no drawing-target position, " +
-                                "so neither rectangle is composited over the " +
-                                "other at one position."
-                        },
-                    )
+                    topLayer = .a
+                }
+                OrderButton(
+                    label: &quot;B on top&quot;,
+                    selected: topLayer == .b
+                ) {
+                    topLayer = .b
                 }
             }
+
+            Text(&quot;Choose whether the two rectangles share positions&quot;)
+                .font(LabType.titleMedium)
+                .fontWeight(.black)
+            HStack(spacing: 8) {
+                OrderButton(
+                    label: &quot;Overlap&quot;,
+                    selected: shapesOverlap
+                ) {
+                    shapesOverlap = true
+                }
+                OrderButton(
+                    label: &quot;No overlap&quot;,
+                    selected: !shapesOverlap
+                ) {
+                    shapesOverlap = false
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 5) {
+                Text(&quot;Selected command sequence&quot;)
+                    .fontWeight(.black)
+                Text(&quot;1. draw \(firstDrawnName)&quot;)
+                Text(&quot;2. draw \(secondDrawnName) · later command&quot;)
+                    .fontWeight(.black)
+                Text(
+                    shapesOverlap
+                        ? &quot;At shared positions, \(selectedSourceName) is the &quot; +
+                        &quot;source and \(selectedDestinationName) is the &quot; +
+                        &quot;destination.&quot;
+                        : &quot;The rectangles share no drawing-target position, &quot; +
+                        &quot;so neither rectangle is composited over the &quot; +
+                        &quot;other at one position.&quot;
+                )
+            }
+            .font(.system(size: 15))
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 15, style: .continuous)
+                    .fill(Color(uiColor: .secondarySystemFill))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 15, style: .continuous)
+                    .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+            )
 
             DrawOrderCanvas(
-                topLayer = topLayer,
-                shapesOverlap = shapesOverlap,
-                markerColor = colorScheme.onSurface,
+                topLayer: topLayer,
+                shapesOverlap: shapesOverlap,
+                markerColor: Color(uiColor: .label)
             )
 
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = CardShape,
-                color = colorScheme.surfaceVariant,
-                contentColor = colorScheme.onSurfaceVariant,
-            ) {
-                Column(
-                    modifier = Modifier.padding(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
-                ) {
+            VStack(alignment: .leading, spacing: 5) {
+                Text(&quot;Selected shared-position result&quot;)
+                    .fontWeight(.black)
+                if shapesOverlap {
+                    Text(&quot;\(selectedSourceName) over \(selectedDestinationName)&quot;)
                     Text(
-                        text = "Selected shared-position result",
-                        fontWeight = FontWeight.Black,
+                        &quot;Source weight = &quot; +
+                        twoDecimals(selectedCalculation.sourceWeight)
                     )
-                    if (shapesOverlap) {
-                        Text(
-                            text = "$selectedSourceName over " +
-                                "$selectedDestinationName",
-                        )
-                        Text(
-                            text = "Source weight = " +
-                                selectedCalculation.sourceWeight.twoDecimals(),
-                        )
-                        Text(
-                            text = "Destination weight = " +
-                                selectedCalculation.destinationWeight
-                                    .twoDecimals(),
-                        )
-                        Text(
-                            text = "Output = " +
-                                selectedCalculation.output.asTuple(),
-                            fontWeight = FontWeight.Black,
-                        )
-                    } else {
-                        Text(
-                            text = "No shared position exists. The A-only area " +
-                                "shows A. The B-only area shows B.",
-                            fontWeight = FontWeight.Black,
-                        )
-                    }
+                    Text(
+                        &quot;Destination weight = &quot; +
+                        twoDecimals(selectedCalculation.destinationWeight)
+                    )
+                    Text(
+                        &quot;Output = &quot; +
+                        selectedCalculation.output.asTuple()
+                    )
+                    .fontWeight(.black)
+                } else {
+                    Text(
+                        &quot;No shared position exists. The A-only area &quot; +
+                        &quot;shows A. The B-only area shows B.&quot;
+                    )
+                    .fontWeight(.black)
                 }
             }
-
-            Text(
-                text = "Compare both orders at the same shared position",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Black,
+            .font(.system(size: 15))
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 15, style: .continuous)
+                    .fill(Color(uiColor: .secondarySystemFill))
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
+
+            Text(&quot;Compare both orders at the same shared position&quot;)
+                .font(LabType.titleMedium)
+                .fontWeight(.black)
+            HStack(spacing: 10) {
                 OrderResultCard(
-                    label = "A over B",
-                    sequence = "draw B, then draw A",
-                    calculation = aOverB,
-                    topLayer = TopLayer.A,
-                    modifier = Modifier.weight(1f),
+                    label: &quot;A over B&quot;,
+                    sequence: &quot;draw B, then draw A&quot;,
+                    calculation: aOverB,
+                    topLayer: .a
                 )
                 OrderResultCard(
-                    label = "B over A",
-                    sequence = "draw A, then draw B",
-                    calculation = bOverA,
-                    topLayer = TopLayer.B,
-                    modifier = Modifier.weight(1f),
+                    label: &quot;B over A&quot;,
+                    sequence: &quot;draw A, then draw B&quot;,
+                    calculation: bOverA,
+                    topLayer: .b
                 )
             }
 
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = CardShape,
-                color = colorScheme.surfaceVariant,
-                contentColor = colorScheme.onSurfaceVariant,
-            ) {
-                Column(
-                    modifier = Modifier.padding(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
-                ) {
-                    Text(
-                        text = "What changed?",
-                        fontWeight = FontWeight.Black,
-                    )
-                    Text(
-                        text = "A over B = ${aOverB.output.asTuple()}",
-                    )
-                    Text(
-                        text = "B over A = ${bOverA.output.asTuple()}",
-                    )
-                    Text(
-                        text = "Both output alphas are 0.80. The RGB channels " +
-                            "differ because the later layer receives the full " +
-                            "source role while the earlier layer survives only " +
-                            "through the source opening.",
-                        fontWeight = FontWeight.Black,
-                    )
-                }
+            VStack(alignment: .leading, spacing: 5) {
+                Text(&quot;What changed?&quot;)
+                    .fontWeight(.black)
+                Text(&quot;A over B = \(aOverB.output.asTuple())&quot;)
+                Text(&quot;B over A = \(bOverA.output.asTuple())&quot;)
+                Text(
+                    &quot;Both output alphas are 0.80. The RGB channels &quot; +
+                    &quot;differ because the later layer receives the full &quot; +
+                    &quot;source role while the earlier layer survives only &quot; +
+                    &quot;through the source opening.&quot;
+                )
+                .fontWeight(.black)
             }
+            .font(.system(size: 15))
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 15, style: .continuous)
+                    .fill(Color(uiColor: .secondarySystemFill))
+            )
         }
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(Color(uiColor: .systemBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
     }
 }
 
-@Composable
-private fun LayerInputCard(
-    label: String,
-    rgba: OrderRgba,
-    accent: Color,
-    modifier: Modifier = Modifier,
-) {
-    val colorScheme = MaterialTheme.colorScheme
+private struct LayerInputCard: View {
+    let label: String
+    let rgba: OrderRgba
+    let accent: Color
 
-    Surface(
-        modifier = modifier,
-        shape = CardShape,
-        color = colorScheme.surfaceVariant,
-        contentColor = colorScheme.onSurfaceVariant,
-        border = BorderStroke(1.dp, colorScheme.outlineVariant),
-    ) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Canvas(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(54.dp),
-            ) {
-                drawCheckerboard()
-                drawRoundRect(
-                    color = rgba.toColor(),
-                    cornerRadius = CornerRadius(10.dp.toPx()),
-                )
-                drawRoundRect(
-                    color = accent,
-                    cornerRadius = CornerRadius(10.dp.toPx()),
-                    style = Stroke(width = 3.dp.toPx()),
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Canvas { context, size in
+                drawCheckerboard(context: context, size: size, cellSize: 22)
+                let rect = CGRect(origin: .zero, size: size)
+                var fillContext = context
+                fillContext.blendMode = .normal
+                fillContext.fill(
+                    Path(roundedRect: rect, cornerRadius: 10),
+                    with: .color(rgba.toColor())
                 )
             }
-            Text(
-                text = label,
-                fontWeight = FontWeight.Black,
+            .frame(height: 54)
+            .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 11, style: .continuous)
+                    .strokeBorder(accent, lineWidth: 3)
             )
-            Text(
-                text = rgba.asTuple(),
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-    }
-}
-
-@Composable
-private fun OrderButton(
-    label: String,
-    selected: Boolean,
-    onClick: () -&gt; Unit,
-    modifier: Modifier = Modifier,
-) {
-    if (selected) {
-        Button(
-            onClick = onClick,
-            modifier = modifier,
-        ) {
             Text(label)
+                .fontWeight(.black)
+            Text(rgba.asTuple())
+                .font(.system(size: 13))
         }
-    } else {
-        OutlinedButton(
-            onClick = onClick,
-            modifier = modifier,
-        ) {
-            Text(label)
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(Color(uiColor: .secondarySystemFill))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
+    }
+}
+
+private struct OrderButton: View {
+    let label: String
+    let selected: Bool
+    let action: () -&gt; Void
+
+    var body: some View {
+        if selected {
+            Button(action: action) {
+                Text(label)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+        } else {
+            Button(action: action) {
+                Text(label)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
         }
     }
 }
 
-@Composable
-private fun DrawOrderCanvas(
-    topLayer: TopLayer,
-    shapesOverlap: Boolean,
-    markerColor: Color,
-) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = PreviewShape,
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        border = BorderStroke(
-            width = 1.dp,
-            color = MaterialTheme.colorScheme.outlineVariant,
-        ),
-    ) {
-        Canvas(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(230.dp),
-        ) {
-            drawCheckerboard()
+private struct DrawOrderCanvas: View {
+    let topLayer: TopLayer
+    let shapesOverlap: Bool
+    let markerColor: Color
 
-            val geometry = orderGeometry(
-                drawingSize = size,
-                shapesOverlap = shapesOverlap,
+    var body: some View {
+        Canvas { context, size in
+            drawCheckerboard(context: context, size: size, cellSize: 22)
+            let geometry = orderGeometry(
+                drawingSize: size,
+                shapesOverlap: shapesOverlap
             )
-
-            if (topLayer == TopLayer.A) {
-                drawLayerB(geometry)
-                drawLayerA(geometry)
+            if topLayer == .a {
+                drawLayerB(context: context, geometry: geometry)
+                drawLayerA(context: context, geometry: geometry)
             } else {
-                drawLayerA(geometry)
-                drawLayerB(geometry)
+                drawLayerA(context: context, geometry: geometry)
+                drawLayerB(context: context, geometry: geometry)
             }
-
-            if (shapesOverlap) {
-                drawCircle(
-                    color = markerColor,
-                    radius = 11.dp.toPx(),
-                    center = geometry.overlapCenter,
-                    style = Stroke(width = 3.dp.toPx()),
+            if shapesOverlap {
+                let center = geometry.overlapCenter
+                context.stroke(
+                    Path(ellipseIn: CGRect(
+                        x: center.x - 11,
+                        y: center.y - 11,
+                        width: 22,
+                        height: 22
+                    )),
+                    with: .color(markerColor),
+                    lineWidth: 3
                 )
-                drawCircle(
-                    color = OverlapMarker,
-                    radius = 4.dp.toPx(),
-                    center = geometry.overlapCenter,
+                context.fill(
+                    Path(ellipseIn: CGRect(
+                        x: center.x - 4,
+                        y: center.y - 4,
+                        width: 8,
+                        height: 8
+                    )),
+                    with: .color(overlapMarker)
                 )
             }
         }
+        .frame(height: 230)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(uiColor: .secondarySystemFill))
+        )
     }
 }
 
-@Composable
-private fun OrderResultCard(
-    label: String,
-    sequence: String,
-    calculation: OrderComposite,
-    topLayer: TopLayer,
-    modifier: Modifier = Modifier,
-) {
-    val colorScheme = MaterialTheme.colorScheme
+private struct OrderResultCard: View {
+    let label: String
+    let sequence: String
+    let calculation: OrderComposite
+    let topLayer: TopLayer
 
-    Surface(
-        modifier = modifier,
-        shape = CardShape,
-        color = colorScheme.surfaceVariant,
-        contentColor = colorScheme.onSurfaceVariant,
-        border = BorderStroke(1.dp, colorScheme.outlineVariant),
-    ) {
-        Column(
-            modifier = Modifier.padding(10.dp),
-            verticalArrangement = Arrangement.spacedBy(7.dp),
-        ) {
-            Canvas(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(116.dp),
-            ) {
-                drawCheckerboard()
-                val geometry = orderGeometry(
-                    drawingSize = size,
-                    shapesOverlap = true,
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Canvas { context, size in
+                drawCheckerboard(context: context, size: size, cellSize: 22)
+                let geometry = orderGeometry(
+                    drawingSize: size,
+                    shapesOverlap: true
                 )
-                if (topLayer == TopLayer.A) {
-                    drawLayerB(geometry)
-                    drawLayerA(geometry)
+                if topLayer == .a {
+                    drawLayerB(context: context, geometry: geometry)
+                    drawLayerA(context: context, geometry: geometry)
                 } else {
-                    drawLayerA(geometry)
-                    drawLayerB(geometry)
+                    drawLayerA(context: context, geometry: geometry)
+                    drawLayerB(context: context, geometry: geometry)
                 }
             }
-            Text(
-                text = label,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = sequence,
-                style = MaterialTheme.typography.bodySmall,
-            )
-            Text(
-                text = calculation.output.asTuple(),
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Black,
-            )
+            .frame(height: 116)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            Text(label)
+                .fontWeight(.black)
+            Text(sequence)
+                .font(.system(size: 13))
+            Text(calculation.output.asTuple())
+                .font(.system(size: 13))
+                .fontWeight(.black)
         }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(Color(uiColor: .secondarySystemFill))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .strokeBorder(Color(uiColor: .separator), lineWidth: 1)
+        )
     }
 }
 
-private data class OrderGeometry(
-    val layerSize: Size,
-    val layerATopLeft: Offset,
-    val layerBTopLeft: Offset,
-    val overlapCenter: Offset,
-    val cornerRadius: CornerRadius,
-)
+private struct OrderGeometry {
+    let layerSize: CGSize
+    let layerATopLeft: CGPoint
+    let layerBTopLeft: CGPoint
+    let overlapCenter: CGPoint
+    let cornerRadius: CGFloat
+}
 
-private fun DrawScope.orderGeometry(
-    drawingSize: Size,
-    shapesOverlap: Boolean,
-): OrderGeometry {
-    val layerSize = Size(
-        width = drawingSize.width * 0.44f,
-        height = drawingSize.height * 0.56f,
+private func orderGeometry(
+    drawingSize: CGSize,
+    shapesOverlap: Bool
+) -&gt; OrderGeometry {
+    let layerSize = CGSize(
+        width: drawingSize.width * 0.44,
+        height: drawingSize.height * 0.56
     )
-    val layerATopLeft = Offset(
-        x = drawingSize.width * 0.06f,
-        y = drawingSize.height * 0.12f,
+    let layerATopLeft = CGPoint(
+        x: drawingSize.width * 0.06,
+        y: drawingSize.height * 0.12
     )
-    val layerBTopLeft = Offset(
-        x = drawingSize.width * if (shapesOverlap) 0.34f else 0.55f,
-        y = drawingSize.height * 0.31f,
+    let layerBTopLeft = CGPoint(
+        x: drawingSize.width * (shapesOverlap ? 0.34 : 0.55),
+        y: drawingSize.height * 0.31
     )
-    val overlapLeft = maxOf(
-        layerATopLeft.x,
-        layerBTopLeft.x,
-    )
-    val overlapTop = maxOf(
-        layerATopLeft.y,
-        layerBTopLeft.y,
-    )
-    val overlapRight = minOf(
+    let overlapLeft = max(layerATopLeft.x, layerBTopLeft.x)
+    let overlapTop = max(layerATopLeft.y, layerBTopLeft.y)
+    let overlapRight = min(
         layerATopLeft.x + layerSize.width,
-        layerBTopLeft.x + layerSize.width,
+        layerBTopLeft.x + layerSize.width
     )
-    val overlapBottom = minOf(
+    let overlapBottom = min(
         layerATopLeft.y + layerSize.height,
-        layerBTopLeft.y + layerSize.height,
+        layerBTopLeft.y + layerSize.height
     )
-    val overlapCenter = Offset(
-        x = (overlapLeft + overlapRight) / 2f,
-        y = (overlapTop + overlapBottom) / 2f,
+    let overlapCenter = CGPoint(
+        x: (overlapLeft + overlapRight) / 2,
+        y: (overlapTop + overlapBottom) / 2
     )
-
     return OrderGeometry(
-        layerSize = layerSize,
-        layerATopLeft = layerATopLeft,
-        layerBTopLeft = layerBTopLeft,
-        overlapCenter = overlapCenter,
-        cornerRadius = CornerRadius(22.dp.toPx()),
+        layerSize: layerSize,
+        layerATopLeft: layerATopLeft,
+        layerBTopLeft: layerBTopLeft,
+        overlapCenter: overlapCenter,
+        cornerRadius: 22
     )
 }
 
-private fun DrawScope.drawLayerA(
-    geometry: OrderGeometry,
+private func drawLayerA(
+    context: GraphicsContext,
+    geometry: OrderGeometry
 ) {
-    drawRoundRect(
-        color = LayerA.toColor(),
-        topLeft = geometry.layerATopLeft,
-        size = geometry.layerSize,
-        cornerRadius = geometry.cornerRadius,
-        blendMode = BlendMode.SrcOver,
+    drawLayer(
+        context: context,
+        color: layerA.toColor(),
+        origin: geometry.layerATopLeft,
+        size: geometry.layerSize,
+        cornerRadius: geometry.cornerRadius
     )
 }
 
-private fun DrawScope.drawLayerB(
-    geometry: OrderGeometry,
+private func drawLayerB(
+    context: GraphicsContext,
+    geometry: OrderGeometry
 ) {
-    drawRoundRect(
-        color = LayerB.toColor(),
-        topLeft = geometry.layerBTopLeft,
-        size = geometry.layerSize,
-        cornerRadius = geometry.cornerRadius,
-        blendMode = BlendMode.SrcOver,
+    drawLayer(
+        context: context,
+        color: layerB.toColor(),
+        origin: geometry.layerBTopLeft,
+        size: geometry.layerSize,
+        cornerRadius: geometry.cornerRadius
     )
 }
 
-private fun DrawScope.drawCheckerboard() {
-    val cellSize = 22.dp.toPx()
-    val columns = ceil(size.width / cellSize).toInt()
-    val rows = ceil(size.height / cellSize).toInt()
+private func drawLayer(
+    context: GraphicsContext,
+    color: Color,
+    origin: CGPoint,
+    size: CGSize,
+    cornerRadius: CGFloat
+) {
+    let rect = CGRect(origin: origin, size: size)
+    var layered = context
+    layered.blendMode = .normal
+    layered.fill(
+        Path(roundedRect: rect, cornerRadius: cornerRadius),
+        with: .color(color)
+    )
+}
 
-    for (row in 0 until rows) {
-        for (column in 0 until columns) {
-            drawRect(
-                color = if ((row + column) % 2 == 0) {
-                    CheckerLight
-                } else {
-                    CheckerDark
-                },
-                topLeft = Offset(
-                    x = column * cellSize,
-                    y = row * cellSize,
-                ),
-                size = Size(
-                    width = cellSize,
-                    height = cellSize,
-                ),
+private func drawCheckerboard(
+    context: GraphicsContext,
+    size: CGSize,
+    cellSize: CGFloat
+) {
+    let columnCount = Int(ceil(size.width / cellSize))
+    let rowCount = Int(ceil(size.height / cellSize))
+    for row in 0..&lt;rowCount {
+        for column in 0..&lt;columnCount {
+            let cellColor = (row + column).isMultiple(of: 2) ? checkerLight : checkerDark
+            let rect = CGRect(
+                x: CGFloat(column) * cellSize,
+                y: CGFloat(row) * cellSize,
+                width: cellSize,
+                height: cellSize
             )
+            context.fill(Path(rect), with: .color(cellColor))
         }
     }
 }
 
-private data class OrderRgba(
-    val red: Float,
-    val green: Float,
-    val blue: Float,
-    val alpha: Float,
-) {
-    fun toColor(): Color = Color(
-        red = red,
-        green = green,
-        blue = blue,
-        alpha = alpha,
-    )
+private struct OrderRgba {
+    let red: CGFloat
+    let green: CGFloat
+    let blue: CGFloat
+    let alpha: CGFloat
 
-    fun asTuple(): String =
-        "RGBA(${red.twoDecimals()}, ${green.twoDecimals()}, " +
-            "${blue.twoDecimals()}, ${alpha.twoDecimals()})"
+    func toColor() -&gt; Color {
+        Color(red: red, green: green, blue: blue, opacity: alpha)
+    }
+
+    func asTuple() -&gt; String {
+        &quot;RGBA(\(twoDecimals(red)), \(twoDecimals(green)), &quot; +
+            &quot;\(twoDecimals(blue)), \(twoDecimals(alpha)))&quot;
+    }
 }
 
-private data class OrderComposite(
-    val sourceWeight: Float,
-    val destinationWeight: Float,
-    val output: OrderRgba,
-)
+private struct OrderComposite {
+    let sourceWeight: CGFloat
+    let destinationWeight: CGFloat
+    let output: OrderRgba
+}
 
-private fun calculateOver(
+private func calculateOver(
     source: OrderRgba,
-    destination: OrderRgba,
-): OrderComposite {
-    val sourceWeight = source.alpha
-    val destinationWeight = destination.alpha * (1f - source.alpha)
-    val outputAlpha = sourceWeight + destinationWeight
+    destination: OrderRgba
+) -&gt; OrderComposite {
+    let sourceWeight = source.alpha
+    let destinationWeight = destination.alpha * (1 - source.alpha)
+    let outputAlpha = sourceWeight + destinationWeight
 
-    val weightedRed =
+    let weightedRed =
         source.red * sourceWeight + destination.red * destinationWeight
-    val weightedGreen =
+    let weightedGreen =
         source.green * sourceWeight + destination.green * destinationWeight
-    val weightedBlue =
+    let weightedBlue =
         source.blue * sourceWeight + destination.blue * destinationWeight
 
-    val output = if (outputAlpha &lt;= 0f) {
-        OrderRgba(
-            red = 0f,
-            green = 0f,
-            blue = 0f,
-            alpha = 0f,
+    let output: OrderRgba
+    if outputAlpha &lt;= 0 {
+        output = OrderRgba(
+            red: 0,
+            green: 0,
+            blue: 0,
+            alpha: 0
         )
     } else {
-        OrderRgba(
-            red = weightedRed / outputAlpha,
-            green = weightedGreen / outputAlpha,
-            blue = weightedBlue / outputAlpha,
-            alpha = outputAlpha,
+        output = OrderRgba(
+            red: weightedRed / outputAlpha,
+            green: weightedGreen / outputAlpha,
+            blue: weightedBlue / outputAlpha,
+            alpha: outputAlpha
         )
     }
 
     return OrderComposite(
-        sourceWeight = sourceWeight,
-        destinationWeight = destinationWeight,
-        output = output,
+        sourceWeight: sourceWeight,
+        destinationWeight: destinationWeight,
+        output: output
     )
 }
 
-private fun Float.twoDecimals(): String =
-    String.format(Locale.US, "%.2f", this)
+private func twoDecimals(_ value: CGFloat) -&gt; String {
+    String(format: &quot;%.2f&quot;, Double(value))
+}
+
+private extension Color {
+    init(hex: UInt32) {
+        self.init(
+            red: Double((hex &gt;&gt; 16) &amp; 0xFF) / 255,
+            green: Double((hex &gt;&gt; 8) &amp; 0xFF) / 255,
+            blue: Double(hex &amp; 0xFF) / 255
+        )
+    }
+}
+
+#Preview(&quot;DrawOrderExplorer · light&quot;) {
+    LabTheme {
+        ScrollView {
+            DrawOrderExplorer()
+                .padding(16)
+        }
+    }
+    .labPreviewCanvas()
+}
+
+#Preview(&quot;DrawOrderExplorer · dark&quot;) {
+    LabTheme {
+        ScrollView {
+            DrawOrderExplorer()
+                .padding(16)
+        }
+    }
+    .preferredColorScheme(.dark)
+    .labPreviewCanvas()
+}
 </pre></div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">7 · Coding challenge</div><h2>Make “magenta on top” match the actual draw calls</h2></div><p>The defective branch draws magenta first and green second. The label says magenta is on top, but the code makes green the source at the overlap.</p></div><div class="challenge-grid"><article class="editor-card"><div class="card-header"><strong>Kotlin teaching fragment</strong><button class="secondary-button" id="resetChallenge" type="button">Reset defect</button></div><div class="editor-wrap"><textarea class="code-editor" id="codeEditor" spellcheck="false">when (topLayer) {
-    TopLayer.MAGENTA -> {
-        drawMagenta()
-        drawGreen()
-    }
-}</textarea><div class="challenge-order-list"><button class="mode-button" data-challenge-order="green-magenta" type="button">First green · second magenta</button><button class="mode-button selected" data-challenge-order="magenta-green" type="button">First magenta · second green</button></div><button class="primary-button" id="checkChallenge" type="button" style="margin-top:12px">Check repair</button><div class="challenge-result" id="challengeResult">The label promises magenta on top, but green is currently drawn second.</div></div></article><article class="challenge-preview"><div class="card-header"><strong>Code-driven teaching preview</strong><span class="small" id="challengeStatus"></span></div><div class="challenge-body"><div class="challenge-scene" id="challengeScene"><div class="challenge-layer challenge-magenta" id="challengeMagenta"></div><div class="challenge-layer challenge-green" id="challengeGreen"></div><div class="challenge-marker"></div></div><div class="metric-grid"><div class="metric"><strong>First call</strong><span id="challengeFirst"></span></div><div class="metric"><strong>Second call · source</strong><span id="challengeSecond"></span></div><div class="metric"><strong>Overlap output</strong><span id="challengeTuple"></span></div><div class="metric"><strong>Expected for label</strong><span>RGBA(0.60, 0.40, 0.65, 0.80)</span></div></div><div class="io-row"><div class="io-box"><strong>Input</strong><span>TopLayer.MAGENTA</span></div><div class="io-box"><strong>Operation</strong><span id="challengeOperation"></span></div><div class="io-box"><strong>Output</strong><span id="challengeOutput"></span></div></div></div></article></div></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">7 · Coding challenge</div><h2>Make “magenta on top” match the actual draw calls</h2></div><p>The defective branch draws magenta first and green second. The label says magenta is on top, but the code makes green the source at the overlap.</p></div><div class="challenge-grid"><article class="editor-card"><div class="card-header"><strong>Swift teaching fragment</strong><button class="secondary-button" id="resetChallenge" type="button">Reset defect</button></div><div class="editor-wrap"><textarea class="code-editor" id="codeEditor" spellcheck="false">switch topLayer {
+case .magenta:
+    drawMagenta()
+    drawGreen()
+}</textarea><div class="challenge-order-list"><button class="mode-button" data-challenge-order="green-magenta" type="button">First green · second magenta</button><button class="mode-button selected" data-challenge-order="magenta-green" type="button">First magenta · second green</button></div><button class="primary-button" id="checkChallenge" type="button" style="margin-top:12px">Check repair</button><div class="challenge-result" id="challengeResult">The label promises magenta on top, but green is currently drawn second.</div></div></article><article class="challenge-preview"><div class="card-header"><strong>Code-driven teaching preview</strong><span class="small" id="challengeStatus"></span></div><div class="challenge-body"><div class="challenge-scene" id="challengeScene"><div class="challenge-layer challenge-magenta" id="challengeMagenta"></div><div class="challenge-layer challenge-green" id="challengeGreen"></div><div class="challenge-marker"></div></div><div class="metric-grid"><div class="metric"><strong>First call</strong><span id="challengeFirst"></span></div><div class="metric"><strong>Second call · source</strong><span id="challengeSecond"></span></div><div class="metric"><strong>Overlap output</strong><span id="challengeTuple"></span></div><div class="metric"><strong>Expected for label</strong><span>RGBA(0.60, 0.40, 0.65, 0.80)</span></div></div><div class="io-row"><div class="io-box"><strong>Input</strong><span>topLayer = .magenta</span></div><div class="io-box"><strong>Operation</strong><span id="challengeOperation"></span></div><div class="io-box"><strong>Output</strong><span id="challengeOutput"></span></div></div></div></article></div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">8 · Pixel 8 Pro checkpoint</div><h2>Verify the real Android result</h2></div><p>Check each item only after observing it in the browser or on the device.</p></div><div class="checklist"><label class="check-row"><input type="checkbox" data-check="archives"><span>Both incremental ZIPs were applied after Lesson 3.3.</span></label><label class="check-row"><input type="checkbox" data-check="build"><span>The Android app builds and opens Lesson 3.4.</span></label><label class="check-row"><input type="checkbox" data-check="magenta"><span><strong>Magenta on top</strong> produces <code>RGBA(0.60, 0.40, 0.65, 0.80)</code> in the overlap readout.</span></label><label class="check-row"><input type="checkbox" data-check="green"><span><strong>Green on top</strong> produces <code>RGBA(0.30, 0.70, 0.50, 0.80)</code>.</span></label><label class="check-row"><input type="checkbox" data-check="alpha"><span>I confirmed that both orders report alpha <code>0.80</code>.</span></label><label class="check-row"><input type="checkbox" data-check="positions"><span>I confirmed that only the overlap changes when the colored calls are reversed.</span></label><label class="check-row"><input type="checkbox" data-check="roles"><span>I can name source and destination from the call that executes now and the value already present.</span></label><label class="check-row"><input type="checkbox" data-check="challenge"><span>The coding challenge is repaired and checked.</span></label><label class="check-row"><input type="checkbox" data-check="browser-theme"><span>The HTML chrome follows both OS themes while exact teaching colors remain fixed.</span></label><label class="check-row"><input type="checkbox" data-check="android-theme"><span>The Android chrome follows the Pixel 8 Pro theme while exact teaching colors remain fixed.</span></label><label class="check-row"><input type="checkbox" data-check="commit"><span>The completed work is committed to Git.</span></label></div></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">8 · iPhone 16 Pro checkpoint</div><h2>Verify the real iOS result</h2></div><p>Check each item only after observing it in the browser or on the device.</p></div><div class="checklist"><label class="check-row"><input type="checkbox" data-check="files"><span>The Lesson 3.4 learning-docs and iOS files were applied after Lesson 3.3.</span></label><label class="check-row"><input type="checkbox" data-check="build"><span>The iOS project builds and opens <strong>Lesson 3.4 · Draw order matters</strong>.</span></label><label class="check-row"><input type="checkbox" data-check="magenta"><span><strong>A on top</strong> (magenta) produces <code>RGBA(0.60, 0.40, 0.65, 0.80)</code> in the overlap readout.</span></label><label class="check-row"><input type="checkbox" data-check="green"><span><strong>B on top</strong> (green) produces <code>RGBA(0.30, 0.70, 0.50, 0.80)</code>.</span></label><label class="check-row"><input type="checkbox" data-check="alpha"><span>I confirmed that both orders report alpha <code>0.80</code>.</span></label><label class="check-row"><input type="checkbox" data-check="positions"><span>I confirmed that only the overlap changes when the colored calls are reversed.</span></label><label class="check-row"><input type="checkbox" data-check="roles"><span>I can name source and destination from the call that executes now and the value already present.</span></label><label class="check-row"><input type="checkbox" data-check="challenge"><span>The coding challenge is repaired and checked.</span></label><label class="check-row"><input type="checkbox" data-check="browser-theme"><span>The HTML chrome follows both OS themes while exact teaching colors remain fixed.</span></label><label class="check-row"><input type="checkbox" data-check="ios-theme"><span>The iPhone 16 Pro UI chrome follows both OS themes while exact teaching colors remain fixed.</span></label></div></section>
 
 <section class="section panel"><div class="section-intro"><div><div class="section-number">9 · Exercises</div><h2>Answer before opening the solutions</h2></div><p>Exercise 3 deliberately targets the most likely misconception.</p></div><div class="two-column"><article class="card"><h3>Exercise 1 · Identify the source</h3><p>The code executes <code>drawGreen()</code> and then <code>drawMagenta()</code>. Which color is the source at an overlap position during the second call?</p><details><summary>Show answer</summary><p>Magenta is the source. The source is the value being drawn by the current call. Green is already present and therefore supplies the destination input for the two-color composition.</p></details></article><article class="card"><h3>Exercise 2 · Reverse the result</h3><p>Green is drawn over magenta. Use the lesson values. What output straight RGBA tuple should the overlap have?</p><details><summary>Show answer</summary><p><code>RGBA(0.30, 0.70, 0.50, 0.80)</code>. Green has source weight <code>0.60</code>. Magenta has surviving destination weight <code>0.50 × (1 − 0.60) = 0.20</code>.</p></details></article><article class="card"><h3>Exercise 3 · Diagnostic</h3><p>Both draw orders produce output alpha <code>0.80</code>. Does that prove that the two final overlap colors are identical?</p><details><summary>Show answer</summary><p>No. Output alpha describes total coverage, not the RGB mixture. The two RGB outputs are <code>(0.60, 0.40, 0.65)</code> and <code>(0.30, 0.70, 0.50)</code>.</p></details></article><article class="card"><h3>Exercise 4 · Per-position reasoning</h3><p>A position lies inside the magenta rectangle but outside the green rectangle. Does swapping the two colored draw calls change that position?</p><details><summary>Show answer</summary><p>No. Only magenta covers that position, so only the magenta colored call affects it. Draw order matters there only if another reordered operation also covers that same position.</p></details></article></div></section>
 
 <section class="section panel"><div class="section-intro"><div><div class="section-number">10 · Completion record</div><h2>Copy this into the handoff when complete</h2></div><p>The record updates automatically as you check the checkpoint items.</p></div><textarea class="record-area" id="completionRecord" readonly></textarea><div class="controls" style="margin-top:12px"><button class="primary-button" id="copyRecord" type="button">Copy completion record</button><span id="copyStatus" class="small"></span></div></section>
 
-<section class="section panel"><div class="section-intro"><div><div class="section-number">11 · Source notes</div><h2>What public documentation supports</h2></div><p>These links are optional references. The lesson itself remains usable offline.</p></div><div class="two-column"><article class="card"><h3>Compose drawing order</h3><p>The official graphics-modifier guide explains that <code>drawWithContent</code> lets code decide whether drawing commands execute before or after composable content.</p><p><a href="https://developer.android.com/develop/ui/compose/graphics/draw/modifiers">Android Developers · Graphics modifiers</a></p></article><article class="card"><h3>Source-over blend mode</h3><p>The Compose API reference defines <code>BlendMode.SrcOver</code> as drawing the source over the destination and identifies it as the default drawing algorithm.</p><p><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode">Android Developers · BlendMode</a></p></article></div></section>
+<section class="section panel"><div class="section-intro"><div><div class="section-number">11 · Source notes</div><h2>What public documentation supports</h2></div><p>These links are optional references. The lesson itself remains usable offline.</p></div><div class="two-column"><article class="card"><h3>SwiftUI Canvas draw order</h3><p>Later <code>Canvas</code> commands write over earlier commands at overlapping positions. The explorer draws Layer B then Layer A, or the reverse, with an explicit <code>BlendMode.normal</code>.</p><p><a href="https://developer.apple.com/documentation/swiftui/canvas">Apple Developer · Canvas</a></p></article><article class="card"><h3>Source-over blend mode</h3><p>SwiftUI documents <code>BlendMode.normal</code> as source over destination and identifies it as the default drawing algorithm.</p><p><a href="https://developer.apple.com/documentation/swiftui/blendmode">Apple Developer · BlendMode</a></p></article></div></section>
 
 <nav class="footer-nav"><a href="lesson-03-03-the-over-operation.html">← Lesson 3.3</a><a href="lesson-color-opacity-and-compositing.html">Chapter 3 hub</a><a href="lesson-03-05-straight-and-premultiplied-rgba.html">Lesson 3.5 · Straight and premultiplied RGBA →</a></nav>
 </main>
@@ -857,9 +788,9 @@ function renderMain(){const svg=$('orderSvg');svg.replaceChildren();checkerPatte
 function updateMainText(){const calc=mainOrder==='magenta'?mainCalcMagenta:mainCalcGreen;const first=mainOrder==='magenta'?GREEN:MAGENTA,second=mainOrder==='magenta'?MAGENTA:GREEN;$('firstCallText').textContent=`draw ${first.name.toLowerCase()}`;$('secondCallText').textContent=`draw ${second.name.toLowerCase()} · current source`;$('sourceName').textContent=second.name;$('destinationName').textContent=first.name;$('currentTuple').textContent=tuple(calc.output);const explanations={magenta:'Only magenta covers this position. Reversing the two colored calls does not change its colored input.',overlap:`Both colors cover this position. ${second.name} is drawn second, so ${second.name.toLowerCase()} is the source.`,green:'Only green covers this position. Reversing the two colored calls does not change its colored input.'};$('positionExplanation').textContent=explanations[selectedPosition];if(selectedPosition==='overlap'){$('labInput').textContent=`${tuple(second)} over ${tuple(first)}`;$('labOperation').textContent=`source-over with weights ${two(calc.sw)} and ${two(calc.dw)}`;$('labOutput').textContent=tuple(calc.output);}else{const only=selectedPosition==='magenta'?MAGENTA:GREEN;$('labInput').textContent=`one covering color: ${tuple(only)}`;$('labOperation').textContent='only one colored draw call covers this position';$('labOutput').textContent=`the same ${only.name.toLowerCase()} layer in either order`;}$('resultMagenta').classList.toggle('active',mainOrder==='magenta');$('resultGreen').classList.toggle('active',mainOrder==='green');document.querySelectorAll('[data-main-order]').forEach(b=>b.classList.toggle('selected',b.dataset.mainOrder===mainOrder));document.querySelectorAll('[data-position]').forEach(b=>b.classList.toggle('selected',b.dataset.position===selectedPosition));}
 $('magentaOutputLayer').style.background=rgba(mainCalcMagenta.output);$('greenOutputLayer').style.background=rgba(mainCalcGreen.output);$('magentaOutputTuple').textContent=tuple(mainCalcMagenta.output);$('greenOutputTuple').textContent=tuple(mainCalcGreen.output);document.querySelectorAll('[data-main-order]').forEach(b=>b.addEventListener('click',()=>{mainOrder=b.dataset.mainOrder;renderMain();}));$('swapOrder').addEventListener('click',()=>{mainOrder=mainOrder==='magenta'?'green':'magenta';renderMain();});document.querySelectorAll('[data-position]').forEach(b=>b.addEventListener('click',()=>{selectedPosition=b.dataset.position;renderMain();}));renderMain();
 const steps=[
-{title:'1 · Start with the drawing target',caption:'The checkerboard represents lower content already available to receive the two colored layers. It is not one of the two colors whose order we are comparing.',code:'// Canvas draw block\ndrawCheckerboard()',input:'empty colored-layer stack',operation:'draw lower reference content',output:'checkerboard in the drawing target',stage:1},
+{title:'1 · Start with the drawing target',caption:'The checkerboard represents lower content already available to receive the two colored layers. It is not one of the two colors whose order we are comparing.',code:'Canvas { context, size in\n    drawCheckerboard(context: context, size: size)\n}',input:'empty colored-layer stack',operation:'draw lower reference content',output:'checkerboard in the drawing target',stage:1},
 {title:'2 · Draw green first',caption:'For “magenta on top,” the green rounded rectangle executes first. At an overlap position, green is now the value already present before magenta runs.',code:'drawGreen()',input:'green RGBA(.10, .90, .40, .60)',operation:'source-over green onto the lower content',output:'green contribution stored in covered positions',stage:2},
-{title:'3 · Name the two-color destination',caption:'For the two-color sub-composition, green is the destination input because it is the lower colored layer. The checkerboard remains a separate layer below the two-color result.',code:'val destination = GreenLayer',input:'green layer drawn first',operation:'name its role for the next colored call',output:'destination = green',stage:3},
+{title:'3 · Name the two-color destination',caption:'For the two-color sub-composition, green is the destination input because it is the lower colored layer. The checkerboard remains a separate layer below the two-color result.',code:'let destination = greenLayer',input:'green layer drawn first',operation:'name its role for the next colored call',output:'destination = green',stage:3},
 {title:'4 · Draw magenta second',caption:'Magenta is drawn now. At every overlap position, magenta is the current source because its draw call is executing after green.',code:'drawMagenta()',input:'magenta RGBA(.90, .10, .80, .50)',operation:'draw the source over the existing destination',output:'magenta becomes the top colored layer',stage:4},
 {title:'5 · Calculate the two weights',caption:'Magenta contributes with its alpha 0.50. Green contributes with its alpha 0.60 through the 0.50 opening left by magenta.',code:'sourceWeight = 0.50\ndestinationWeight = 0.60 * (1 - 0.50)',input:'source alpha .50; destination alpha .60',operation:'.60 × .50',output:'weights .50 and .30',stage:5},
 {title:'6 · Produce output premultiplied RGB',caption:'Each magenta straight channel is multiplied by 0.50. Each green straight channel is multiplied by 0.30. Adding the matching alpha-weighted contributions produces output premultiplied RGB.',code:'outputPremultipliedRgb = (.48, .32, .52)',input:'magenta straight RGB and contribution weight .50; green straight RGB and contribution weight .30',operation:'multiply each straight channel by its contribution weight, then add matching channels',output:'output premultiplied RGB (.48, .32, .52)',stage:6},
@@ -870,37 +801,33 @@ let stepIndex=0;
 function drawStepper(){const step=steps[stepIndex],svg=$('stepSvg');svg.replaceChildren();checkerPattern(svg,'stepChecker');svg.append(svgEl('rect',{x:40,y:35,width:1080,height:610,rx:24,fill:'url(#stepChecker)',stroke:'var(--line)','stroke-width':3}));if(step.stage>=2){svg.append(svgEl('rect',{x:390,y:250,width:610,height:280,rx:42,fill:rgba(GREEN),stroke:'var(--green)','stroke-width':step.stage===2||step.stage===3?7:3}));addText(svg,965,505,'Green',21,900,'var(--green)','end');}if(step.stage>=4&&step.stage<=7){svg.append(svgEl('rect',{x:130,y:110,width:650,height:300,rx:42,fill:rgba(MAGENTA),stroke:'var(--pink)','stroke-width':7}));addText(svg,160,155,'Magenta · source',21,900,'var(--pink)');}if(step.stage===8){svg.append(svgEl('rect',{x:130,y:110,width:650,height:300,rx:42,fill:rgba(MAGENTA),stroke:'var(--pink)','stroke-width':3}));svg.append(svgEl('rect',{x:390,y:250,width:610,height:280,rx:42,fill:rgba(GREEN),stroke:'var(--green)','stroke-width':7}));addText(svg,965,505,'Green · source',21,900,'var(--green)','end');}if(step.stage>=3){svg.append(svgEl('circle',{cx:600,cy:330,r:16,fill:'#f59e0b',stroke:'#78350f','stroke-width':5}));addText(svg,600,300,'one overlap position',17,900,'var(--amber)','middle');}const rows=[];if(step.stage>=3)rows.push(['Destination role',step.stage===8?'magenta':'green']);if(step.stage>=4)rows.push(['Source role',step.stage===8?'green':'magenta']);if(step.stage>=5)rows.push(['Weights',step.stage===8?'.60 and .20':'.50 and .30']);if(step.stage>=6)rows.push(['Weighted RGB',step.stage===8?'(.24, .56, .40)':'(.48, .32, .52)']);if(step.stage>=7)rows.push(['Output RGBA',step.stage===8?'(.30, .70, .50, .80)':'(.60, .40, .65, .80)']);rows.forEach((r,i)=>{const y=555+i*0;});if(rows.length){const x0=70;rows.forEach((r,i)=>{const x=x0+i*205;svg.append(svgEl('rect',{x,y:565,width:185,height:58,rx:12,fill:'var(--control)',stroke:'var(--line)'}));addText(svg,x+12,588,r[0],13,850,'var(--indigo)');addText(svg,x+12,611,r[1],15,900,'var(--ink)');});}$('stepTitle').textContent=step.title;$('stepCaption').textContent=step.caption;$('stepCode').textContent=step.code;$('stepInput').textContent=step.input;$('stepOperation').textContent=step.operation;$('stepOutput').textContent=step.output;$('stepBack').disabled=stepIndex===0;$('stepNext').disabled=stepIndex===steps.length-1;document.querySelectorAll('[data-step]').forEach((b,i)=>b.classList.toggle('selected',i===stepIndex));}
 steps.forEach((_,i)=>{const b=document.createElement('button');b.type='button';b.className='step-button';b.dataset.step=String(i);b.textContent=String(i+1);b.addEventListener('click',()=>{stepIndex=i;drawStepper();});$('stepButtons').append(b);});$('stepBack').addEventListener('click',()=>{if(stepIndex>0){stepIndex--;drawStepper();}});$('stepNext').addEventListener('click',()=>{if(stepIndex<steps.length-1){stepIndex++;drawStepper();}});drawStepper();
 document.querySelectorAll('[data-source]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-source]').forEach(b=>b.classList.toggle('selected',b===button));document.querySelectorAll('.source-pane').forEach(p=>p.classList.remove('active'));$(`source-${button.dataset.source}`).classList.add('active');}));
-const defectiveCode=`when (topLayer) {
-    TopLayer.MAGENTA -> {
-        drawMagenta()
-        drawGreen()
-    }
+const defectiveCode=`switch topLayer {
+case .magenta:
+    drawMagenta()
+    drawGreen()
 }`;let challengeWasCorrect=false;
 function stripComments(text){return text.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/.*$/gm,'');}
-function parseChallenge(){const code=stripComments($('codeEditor').value);const branch=code.match(/TopLayer\.MAGENTA\s*->\s*\{([\s\S]*?)\}/);const body=branch?branch[1]:code;const calls=[...body.matchAll(/draw(Magenta|Green)\s*\(\s*\)/g)].map(m=>m[1].toLowerCase());return calls.slice(0,2);}
-function setChallengeOrder(order){const calls=order==='green-magenta'?['drawGreen()','drawMagenta()']:['drawMagenta()','drawGreen()'];$('codeEditor').value=`when (topLayer) {
-    TopLayer.MAGENTA -> {
-        ${calls[0]}
-        ${calls[1]}
-    }
+function parseChallenge(){const code=stripComments($('codeEditor').value);const branch=code.match(/case\s+\.magenta\s*:([\s\S]*)/);const body=branch?branch[1]:code;const calls=[...body.matchAll(/draw(Magenta|Green)\s*\(\s*\)/g)].map(m=>m[1].toLowerCase());return calls.slice(0,2);}
+function setChallengeOrder(order){const calls=order==='green-magenta'?['drawGreen()','drawMagenta()']:['drawMagenta()','drawGreen()'];$('codeEditor').value=`switch topLayer {
+case .magenta:
+    ${calls[0]}
+    ${calls[1]}
 }`;challengeWasCorrect=false;updateChallenge();}
-function updateChallenge(){const calls=parseChallenge();const first=calls[0]||'unparsed',second=calls[1]||'unparsed';const valid=(first==='green'&&second==='magenta')||(first==='magenta'&&second==='green');const calc=first==='green'&&second==='magenta'?mainCalcMagenta:first==='magenta'&&second==='green'?mainCalcGreen:null;$('challengeFirst').textContent=first;$('challengeSecond').textContent=second;$('challengeTuple').textContent=calc?tuple(calc.output):'unavailable';$('challengeOperation').textContent=valid?`${first} first, ${second} second`:'two supported draw calls were not found';$('challengeOutput').textContent=calc?tuple(calc.output):'cannot calculate';$('challengeStatus').textContent=valid?`${second} is source`:'code not parsed';const mag=$('challengeMagenta'),green=$('challengeGreen');if(first==='green'&&second==='magenta'){green.style.zIndex='1';mag.style.zIndex='2';}else{mag.style.zIndex='1';green.style.zIndex='2';}document.querySelectorAll('[data-challenge-order]').forEach(b=>b.classList.toggle('selected',b.dataset.challengeOrder===(first==='green'&&second==='magenta'?'green-magenta':first==='magenta'&&second==='green'?'magenta-green':'none')));if(!challengeWasCorrect){$('challengeResult').textContent=first==='green'&&second==='magenta'?'The call order now matches “magenta on top.” Press Check repair.':first==='magenta'&&second==='green'?'The label promises magenta on top, but green is currently drawn second.':'The preview needs exactly two supported draw calls inside the MAGENTA branch.';}}
+function updateChallenge(){const calls=parseChallenge();const first=calls[0]||'unparsed',second=calls[1]||'unparsed';const valid=(first==='green'&&second==='magenta')||(first==='magenta'&&second==='green');const calc=first==='green'&&second==='magenta'?mainCalcMagenta:first==='magenta'&&second==='green'?mainCalcGreen:null;$('challengeFirst').textContent=first;$('challengeSecond').textContent=second;$('challengeTuple').textContent=calc?tuple(calc.output):'unavailable';$('challengeOperation').textContent=valid?`${first} first, ${second} second`:'two supported draw calls were not found';$('challengeOutput').textContent=calc?tuple(calc.output):'cannot calculate';$('challengeStatus').textContent=valid?`${second} is source`:'code not parsed';const mag=$('challengeMagenta'),green=$('challengeGreen');if(first==='green'&&second==='magenta'){green.style.zIndex='1';mag.style.zIndex='2';}else{mag.style.zIndex='1';green.style.zIndex='2';}document.querySelectorAll('[data-challenge-order]').forEach(b=>b.classList.toggle('selected',b.dataset.challengeOrder===(first==='green'&&second==='magenta'?'green-magenta':first==='magenta'&&second==='green'?'magenta-green':'none')));if(!challengeWasCorrect){$('challengeResult').textContent=first==='green'&&second==='magenta'?'The call order now matches “magenta on top.” Press Check repair.':first==='magenta'&&second==='green'?'The label promises magenta on top, but green is currently drawn second.':'The preview needs exactly two supported draw calls inside the .magenta case.';}}
 $('codeEditor').addEventListener('input',()=>{challengeWasCorrect=false;updateChallenge();});document.querySelectorAll('[data-challenge-order]').forEach(b=>b.addEventListener('click',()=>setChallengeOrder(b.dataset.challengeOrder)));$('resetChallenge').addEventListener('click',()=>{$('codeEditor').value=defectiveCode;challengeWasCorrect=false;updateChallenge();});$('checkChallenge').addEventListener('click',()=>{const calls=parseChallenge();const ok=calls[0]==='green'&&calls[1]==='magenta';challengeWasCorrect=ok;$('challengeResult').textContent=ok?'Correct. Green is drawn first. Magenta is drawn second and becomes the source at the overlap.':'Not complete. “Magenta on top” requires drawGreen() first and drawMagenta() second.';});updateChallenge();
 const checkboxes=[...document.querySelectorAll('[data-check]')];function updateRecord(){const done=checkboxes.filter(b=>b.checked).map(b=>b.dataset.check),all=done.length===checkboxes.length;$('completionRecord').value=`lesson_id: 03-04
 lesson_title: Draw order matters
 status: ${all?'completed':'in_progress'}
-course_lessons_completed_before_this_lesson: 20
-course_lessons_completed_after_completion: ${all?21:20}
+course_progress: 100 of 216
+completed_through: Lesson 9.11
+this_lesson_stays_complete: true
 course_lessons_total: 216
-chapter_01_completed_by_learner: true
-chapter_02_completed_by_learner: true
-chapter_03_completed_by_learner: false
-android_files_applied:
-  - app/src/main/java/com/example/liquidglasslab/chapter03/Chapter03Screen.kt
-  - app/src/main/java/com/example/liquidglasslab/chapter03/DrawOrderExplorer.kt
-pixel_8_pro_tested: ${done.includes('build')&&done.includes('magenta')&&done.includes('green')}
+ios_files_applied:
+  - LiquidGlassLab/chapter03/Chapter03Screen.swift
+  - LiquidGlassLab/chapter03/DrawOrderExplorer.swift
+iphone_16_pro_tested: ${done.includes('build')&&done.includes('magenta')&&done.includes('green')}
 browser_os_theme_verified: ${done.includes('browser-theme')}
-android_os_theme_verified: ${done.includes('android-theme')}
+ios_os_theme_verified: ${done.includes('ios-theme')}
 checkpoint_items_complete: ${done.length}/${checkboxes.length}
 can_name_source_from_draw_order: ${done.includes('roles')}
 can_explain_same_alpha_different_rgb: ${done.includes('alpha')&&done.includes('green')&&done.includes('magenta')}

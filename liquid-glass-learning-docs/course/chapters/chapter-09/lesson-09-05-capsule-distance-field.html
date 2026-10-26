@@ -13,7 +13,7 @@
 <main class="page">
   <div class="topbar">
     <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-distance-fields-image-sampling-and-refraction.html">Chapter 9</a> · Lesson 9.5 · complete</div>
-    <div class="chips"><span class="chip progress">94 of 216 complete</span><span class="chip progress">Lesson 9.5 complete</span></div>
+    <div class="chips"><span class="chip progress">100 of 216 complete</span><span class="chip progress">Lesson 9.5 complete</span></div>
   </div>
 
   <header class="hero panel">
@@ -22,7 +22,7 @@
       <h1>Capsule distance field</h1>
       <p class="lead"><strong>Question:</strong> Lesson 4.3 named a <strong>capsule</strong>: a rounded rectangle whose short ends are semicircles. Height owns the radius: <code>radius = height ÷ 2</code>. Width owns the straight span between those ends. Lesson 9.4 grew an inner box. When that inner height hits 0, the inner box is a horizontal line segment. How do you measure signed distance to that capsule from <code>p</code>?</p>
       <div class="plain-rule">Find the nearest point on the inner segment, take <code>length</code> to it, then subtract the radius. <code>clamp</code> picks the nearest segment x: if <code>p.x</code> sits between the endpoints it stays; if it sits past an end it becomes that end. Production then uses <code>if (sd &lt; 0.0)</code> on this <code>sd</code>.</div>
-      <div class="note"><strong>Complete.</strong> Default outer half-size is <code>(0.40, 0.20)</code>. Radius is 0.20, equal to the half-height. Teaching cap-boundary pixel <code>p = (0.32, −0.16)</code> has <code>sd = 0</code>. Lesson 9.9 is the unresolved checkpoint.</div>
+      <div class="note"><strong>Complete.</strong> This page is a JavaScript stand-in. The iPhone 16 Pro explorer’s stitchable function clamps onto the inner segment, subtracts the radius, and tests the sign. Default outer half-size is <code>(0.40, 0.20)</code>. Radius is 0.20, equal to the half-height. Teaching cap-boundary pixel <code>p = (0.32, −0.16)</code> has <code>sd = 0</code>.</div>
     </div>
     <div class="hero-art" aria-label="inner segment grown by radius becomes a capsule">
       <div class="hero-pipeline">
@@ -179,43 +179,63 @@ Center p = (0, 0)
         </div>
       </article>
       <article class="canvas-card">
-        <div class="canvas-title"><strong>This pixel’s arithmetic</strong><span>same clamp route as Android</span></div>
+        <div class="canvas-title"><strong>This pixel’s arithmetic</strong><span>same clamp route as the .metal file</span></div>
         <div class="formula" id="liveFormula"></div>
         <pre class="code-block" id="labCode" style="margin-top:12px;max-height:260px"></pre>
       </article>
     </div>
-    <div class="note"><strong>Browser versus Android.</strong> This page paints with a JavaScript copy of the clamp-and-length arithmetic. Android compiles the same three lines. At half-width 0.20 the inner segment has length 0 and the silhouette is a circle of radius 0.20.</div>
+    <div class="note"><strong>Browser versus iOS.</strong> This page paints with a JavaScript copy of the clamp-and-length arithmetic. Xcode compiles those three lines in the <code>.metal</code> file. The half-width slider passes a shader argument. Radius stays 0.20. The <code>.metal</code> file is not rewritten. At half-width 0.20 the inner segment has length 0 and the silhouette is a circle of radius 0.20. Neither measures GPU frame time.</div>
   </section>
 
   <section class="section panel">
-    <div class="section-head"><div><div class="section-no">5 · ANDROID ROUTE</div><h2>Width uniform, derived radius, one clamp</h2></div></div>
+    <div class="section-head"><div><div class="section-no">5 · iOS ROUTE</div><h2>Width argument, derived radius, one clamp</h2></div></div>
     <div class="code-grid">
-      <pre class="code-block"><code>private const val PanelSizeDp = 360
-private const val DefaultHalfWidth = 0.40f
-private const val HalfHeight = 0.20f
-private const val Radius = HalfHeight
-private const val TeachPx = 0.32f
-private const val TeachPy = -0.16f
-
-uniform float2 resolution;
-uniform float halfWidth;
-uniform float radius;
-
-half4 main(float2 fragCoord) {
+      <pre class="code-block"><code>[[ stitchable ]] half4 capsuleSignedDistance(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float halfWidth,
+    float radius
+) {
+    float2 fragCoord = position * scale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float innerHalfW = halfWidth - radius;
     float nearestX = clamp(p.x, -innerHalfW, innerHalfW);
     float sd = length(p - float2(nearestX, 0.0)) - radius;
-    ...
-}</code></pre>
+    half4 navy = half4(0.10, 0.25, 0.40, 1.0);
+    half4 orange = half4(0.88, 0.48, 0.18, 1.0);
+    if (sd &lt; 0.0) {
+        return orange;
+    }
+    return navy;
+}
+
+private let panelSizePt: CGFloat = 360
+private let halfHeight: Double = 0.20
+private let radius: Double = 0.20
+private let teachPx: Double = 0.32
+private let teachPy: Double = -0.16
+
+ShaderRect(
+    shader: ShaderLibrary.capsuleSignedDistance(
+        .float2(pixelWidth, pixelHeight),
+        .float(Float(displayScale)),
+        .float(Float(halfWidth)),
+        .float(Float(radius))
+    )
+)
+.frame(width: panelSizePt, height: panelSizePt)
+// SwiftUI Canvas overlay: center cross, inner segment, capsule boundary, teaching mark</code></pre>
       <div class="card">
         <h3>What each part changes</h3>
-        <p><code>Radius = HalfHeight</code> is Lesson 4.3’s derived radius, written once. The slider writes <code>halfWidth</code>. It does not write radius.</p>
+        <p><code>radius = halfHeight</code> is Lesson 4.3’s derived radius, written once. The slider passes <code>halfWidth</code>. It does not pass a new radius.</p>
         <p><code>innerHalfW</code> is half the inner-segment length. <code>clamp</code> picks the nearest x on that segment. <code>length</code> to <code>(nearestX, 0)</code> is the unsigned distance. Subtracting radius signs it.</p>
-        <p><code>DefaultHalfWidth = 0.40</code> so the teaching cap pixel’s <code>sd</code> is exactly 0. <code>PanelSizeDp = 360</code> stays square.</p>
-        <p>The green overlay is Compose <code>drawRoundRect</code> with corner radius equal to half the height in pixels.</p>
-        <p><strong>Android files:</strong><br><code>chapter09/CapsuleSdfExplorer.kt</code><br><code>chapter09/Chapter09Screen.kt</code></p>
+        <p><code>halfWidth = 0.40</code> so the teaching cap pixel’s <code>sd</code> is exactly 0. <code>panelSizePt = 360</code> stays square.</p>
+        <p>Xcode compiles <code>capsuleSignedDistance</code> in the <code>.metal</code> file. <code>ShaderLibrary</code> looks it up. <code>position</code> is points, so <code>fragCoord = position * scale</code> and <code>resolution</code> are both in pixels. <code>scale</code> is <code>displayScale</code>. <code>pixelWidth</code> and <code>pixelHeight</code> are <code>360 × displayScale</code>. <code>halfWidth</code> and <code>radius</code> are in <code>p</code> units. There is no runtime string compiler. Moving the slider passes a new <code>.float</code>. That is Lesson 8.9’s argument write. Pass every argument. Leaving one out still compiles the Swift file, and SwiftUI refuses that draw.</p>
+        <p>The green overlay is a SwiftUI <code>Canvas</code> rounded rect with corner radius equal to half the height in points.</p>
+        <p><strong>iOS files:</strong><br><code>chapter09/CapsuleSdfExplorer.swift</code><br><code>chapter09/CapsuleSdf.metal</code><br><code>chapter09/Chapter09Screen.swift</code></p>
       </div>
     </div>
   </section>
@@ -235,11 +255,15 @@ half4 main(float2 fragCoord) {
     <div class="section-head"><div><div class="section-no">7 · CODING CHALLENGE</div><h2>Clamp onto the segment, then grow</h2></div></div>
     <div class="challenge">
       <div>
-        <textarea class="editor" id="challengeEditor" spellcheck="false">uniform float2 resolution;
-uniform float halfWidth;
-uniform float radius;
-
-half4 main(float2 fragCoord) {
+        <textarea class="editor" id="challengeEditor" spellcheck="false">[[ stitchable ]] half4 capsuleSignedDistance(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float halfWidth,
+    float radius
+) {
+    float2 fragCoord = position * scale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float innerHalfW = halfWidth - radius;
@@ -247,7 +271,9 @@ half4 main(float2 fragCoord) {
     float sd = ___(p - float2(nearestX, 0.0)) ___ radius;
     half4 navy = half4(0.10, 0.25, 0.40, 1.0);
     half4 orange = half4(0.88, 0.48, 0.18, 1.0);
-    if (sd &lt; 0.0) return orange;
+    if (sd &lt; 0.0) {
+        return orange;
+    }
     return navy;
 }</textarea>
         <div class="controls" style="margin-top:10px">
@@ -353,7 +379,7 @@ length
       <label class="check"><input type="checkbox">The center prints sd = −0.20 and the store is orange.</label>
       <label class="check"><input type="checkbox">The top-flat mark prints sd = 0.00.</label>
       <label class="check"><input type="checkbox">At half-width 0.20 the silhouette is a circle of radius 0.20.</label>
-      <label class="check"><input type="checkbox">The Android panel is square. Half-width is a uniform. Radius stays 0.20. Light <code>@Preview</code> is first, then dark. Both previews scroll.</label>
+      <label class="check"><input type="checkbox">The iPhone 16 Pro panel is square. Half-width is a shader argument. Radius stays 0.20. Light <code>#Preview</code> is first, then dark. Both previews scroll.</label>
     </div>
   </section>
 
@@ -367,7 +393,7 @@ length
     <textarea class="record" id="record" readonly>No record generated yet.</textarea>
   </section>
 
-  <footer class="footer panel"><span>94 of 216 complete · Lesson 9.5 complete · checkpoint 9.9 unresolved</span><span>Previous complete: <a href="lesson-09-04-rounded-rectangle-distance-field.html">9.4 — Rounded rectangle distance field</a> · Next complete: <a href="lesson-09-06-combine-shapes.html">9.6 — Combine shapes</a></span></footer>
+  <footer class="footer panel"><span>100 of 216 complete · checkpoint Lesson 10.1</span><span>Previous: <a href="lesson-09-04-rounded-rectangle-distance-field.html">9.4 — Rounded rectangle distance field</a> · Next: <a href="lesson-09-06-combine-shapes.html">9.6 — Combine shapes</a></span></footer>
 </main>
 <script>
 const W=400, H=400;
@@ -379,11 +405,15 @@ const END={x:200+0.40*400, y:200};
 const CENTER={x:200,y:200};
 const NAVY=[0.10,0.25,0.40,1];
 const ORANGE=[0.88,0.48,0.18,1];
-const PROD=`uniform float2 resolution;
-uniform float halfWidth;
-uniform float radius;
-
-half4 main(float2 fragCoord) {
+const PROD=`[[ stitchable ]] half4 capsuleSignedDistance(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float halfWidth,
+    float radius
+) {
+    float2 fragCoord = position * scale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float innerHalfW = halfWidth - radius;
@@ -391,7 +421,9 @@ half4 main(float2 fragCoord) {
     float sd = length(p - float2(nearestX, 0.0)) - radius;
     half4 navy = half4(0.10, 0.25, 0.40, 1.0);
     half4 orange = half4(0.88, 0.48, 0.18, 1.0);
-    if (sd < 0.0) return orange;
+    if (sd < 0.0) {
+        return orange;
+    }
     return navy;
 }`;
 let px=CAP.x, py=CAP.y;
@@ -633,8 +665,8 @@ document.getElementById('checkChallenge').addEventListener('click',()=>{
   const box=document.getElementById('challengeResult');
   const cl=/nearestX\s*=\s*clamp\s*\(\s*p\.x/.test(text);
   const len=/sd\s*=\s*length\s*\(/.test(text);
-  const sub=/length\s*\([^)]*\)\s*-\s*radius/.test(text);
-  const add=/length\s*\([^)]*\)\s*\+\s*radius/.test(text);
+  const sub=/length\s*\((?:[^()]|\([^()]*\))*\)\s*-\s*radius/.test(text);
+  const add=/length\s*\((?:[^()]|\([^()]*\))*\)\s*\+\s*radius/.test(text);
   if(cl && len && sub && !add){
     box.textContent='Correct. clamp(p.x), length to (nearestX, 0), then subtract radius.';
     box.style.background='var(--green-soft)';
@@ -644,11 +676,15 @@ document.getElementById('checkChallenge').addEventListener('click',()=>{
   }
 });
 document.getElementById('showSolution').addEventListener('click',()=>{
-  document.getElementById('challengeEditor').value=`uniform float2 resolution;
-uniform float halfWidth;
-uniform float radius;
-
-half4 main(float2 fragCoord) {
+  document.getElementById('challengeEditor').value=`[[ stitchable ]] half4 capsuleSignedDistance(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float halfWidth,
+    float radius
+) {
+    float2 fragCoord = position * scale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float innerHalfW = halfWidth - radius;
@@ -656,7 +692,9 @@ half4 main(float2 fragCoord) {
     float sd = length(p - float2(nearestX, 0.0)) - radius;
     half4 navy = half4(0.10, 0.25, 0.40, 1.0);
     half4 orange = half4(0.88, 0.48, 0.18, 1.0);
-    if (sd < 0.0) return orange;
+    if (sd < 0.0) {
+        return orange;
+    }
     return navy;
 }`;
 });
@@ -675,7 +713,7 @@ document.getElementById('buildRecord').addEventListener('click',()=>{
 - Cap-boundary p = (0.32, −0.16), nearestX = 0.20, sd = 0.
 - Center sd = −0.20. Top flat p = (0, −0.20) has sd = 0.
 - Production: if (sd < 0.0) orange else navy.
-- Lesson 9.5 is complete. Completion count 94 of 216. Checkpoint is Lesson 9.9.
+- Lesson 9.5 stays complete as pixel math. Completion count 100 of 216.
 `;
 });
 const qa=new URLSearchParams(location.search).get('qa');

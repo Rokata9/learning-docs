@@ -18,7 +18,7 @@
 <main class="page">
   <div class="topbar">
     <div class="crumbs"><a href="lesson-build-convincing-frosted-glass-without-a-custom-lens.html">Chapter 7</a> · Lesson 7.4</div>
-    <div class="chips"><span class="chip progress">66 of 216 complete</span><span class="chip progress">Lesson 7.4 complete</span></div>
+    <div class="chips"><span class="chip progress">100 of 216 complete</span><span class="chip">iPhone 16 Pro</span></div>
   </div>
 
   <header class="hero panel">
@@ -116,7 +116,7 @@ blue  = (80 + 120 + 160 + 200) ÷ 4 = 140
 
 one working pixel = RGB(80, 100, 140)</div>
         <p>The working image now has one pixel where the full-size image had four.</p>
-        <div class="note"><strong>Teaching boundary:</strong> this four-pixel average makes the information loss visible. The Android example does not manually average exact 2 × 2 blocks; it draws into a smaller layer, and Compose does not expose the renderer’s exact resizing filter here.</div>
+        <div class="note"><strong>Teaching boundary:</strong> this four-pixel average makes the information loss visible. The iOS explorer does not manually average exact 2 × 2 blocks. It draws into a smaller bitmap. Core Image does not expose that draw’s resampling as this four-pixel average.</div>
       </div>
     </div>
   </section>
@@ -187,46 +187,46 @@ working-image blur radius
         <p>At half size, one working-image pixel occupies approximately two final-output pixels after enlargement. A 12-pixel working radius therefore occupies approximately 24 final-output pixels.</p>
       </div>
     </div>
-    <div class="warning"><strong>Evidence boundary:</strong> <code>BlurEffect</code> exposes radius values, but it does not expose Android's private sample count or weights. The scale calculation preserves the radius distance in output coordinates; it does not describe the internal blur kernel.</div>
+    <div class="warning"><strong>Evidence boundary:</strong> <code>CIGaussianBlur</code> exposes a pixel sigma, but it does not expose its sample count or weights. The scale calculation preserves the radius distance in output pixels. It does not describe the internal blur kernel. SwiftUI <code>.blur(radius:)</code> is not the call that blurs the smaller bitmap.</div>
   </section>
 
   <section class="section panel">
-    <div class="section-head"><div><div class="section-no">6 · ANDROID ROUTE</div><h2>One smaller <code>GraphicsLayer</code></h2></div></div>
+    <div class="section-head"><div><div class="section-no">6 · iOS ROUTE</div><h2>One smaller bitmap</h2></div></div>
     <div class="code-grid">
-      <pre class="code-block"><code>val workingWidthPx = (size.width * workingScale).roundToInt()
-val workingHeightPx = (size.height * workingScale).roundToInt()
-val workingSize = IntSize(workingWidthPx, workingHeightPx)
+      <pre class="code-block"><code>let outputWidthPx = Int((size.width * displayScale).rounded())
+let outputHeightPx = Int((size.height * displayScale).rounded())
+let workingWidthPx = max(1, Int((CGFloat(outputWidthPx) * workingScale).rounded()))
+let workingHeightPx = max(1, Int((CGFloat(outputHeightPx) * workingScale).rounded()))
+let workingRadiusPx = finalRadiusPx * workingScale
 
-workingLayer.record(
-    density = this,
-    layoutDirection = layoutDirection,
-    size = workingSize,
-) {
-    scale(
-        scaleX = workingScale,
-        scaleY = workingScale,
-        pivot = Offset.Zero,
-    ) {
-        drawLayer(sourceLayer)
-    }
-}
-
-workingLayer.renderEffect = blurEffect
-
-val enlargeScale = 1f / workingScale
-workingLayer.pivotOffset = Offset.Zero
-workingLayer.scaleX = enlargeScale
-workingLayer.scaleY = enlargeScale
-
-drawLayer(workingLayer)</code></pre>
+let source = renderDownsampleSource(
+    pixelWidth: outputWidthPx,
+    pixelHeight: outputHeightPx,
+    displayScale: displayScale
+)
+let working = drawScaled(
+    source,
+    pixelWidth: workingWidthPx,
+    pixelHeight: workingHeightPx,
+    scale: workingScale,
+    pivot: recordingPivot
+)
+let blurred = blurClamped(working, sigma: workingRadiusPx)
+let output = drawScaled(
+    blurred,
+    pixelWidth: outputWidthPx,
+    pixelHeight: outputHeightPx,
+    scale: 1 / workingScale,
+    pivot: placementPivot
+)</code></pre>
       <div class="card">
         <h3>What each part changes</h3>
-        <p><code>size = IntSize(...)</code> gives the working layer fewer pixel positions.</p>
-        <p><code>size = workingSize</code> changes the recording target bounds; it does not resize <code>sourceLayer</code> by itself.</p><p>The inner <code>DrawScope.scale(...)</code> changes source-command coordinates so the full source fits those smaller bounds.</p>
-        <p>The blur radius is reduced by the same scale.</p>
-        <p><code>pivotOffset</code> chooses the working-layer-local point that remains fixed while <code>scaleX</code> and <code>scaleY</code> enlarge the completed layer.</p>
-        <p><strong>Full source:</strong> <code>sourceLayer</code><br><strong>Smaller blur target:</strong> <code>workingLayer</code><br><strong>Final destination:</strong> the current drawing target.</p>
-        <p><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/layer/GraphicsLayer">Android <code>GraphicsLayer</code> reference</a><br><a href="https://developer.android.com/develop/ui/compose/graphics/draw/modifiers">Android graphics-layer guide</a></p>
+        <p><code>workingWidthPx</code> and <code>workingHeightPx</code> give the working bitmap fewer pixel positions.</p>
+        <p>That smaller size is the destination of the first <code>drawScaled</code>. It does not resize <code>source</code> by itself.</p>
+        <p><code>recordingPivot</code> is the point that stays fixed while <code>workingScale</code> maps the full source into the smaller bitmap. Top-left is <code>.zero</code>. Center is the center of the smaller bitmap, not the center of the original artwork.</p>
+        <p><code>workingRadiusPx</code> is the final pixel radius multiplied by the same scale. <code>blurClamped</code> runs <code>CIGaussianBlur</code> on the smaller bitmap and repeats edge pixels outside that bitmap.</p>
+        <p><code>placementPivot</code> is the point that stays fixed while <code>1 / workingScale</code> enlarges the already-blurred bitmap into the output.</p>
+        <p><strong>Full source:</strong> <code>source</code><br><strong>Smaller blur target:</strong> <code>working</code><br><strong>Final destination:</strong> <code>output</code></p>
       </div>
     </div>
   </section>
@@ -234,7 +234,7 @@ drawLayer(workingLayer)</code></pre>
 
   <section class="section panel" id="transform-pipeline-section">
     <div class="section-head"><div><div class="section-no">7 · TWO SCALES, FOUR CASES</div><h2>Which original pixels are stored, and where do they land?</h2></div></div>
-    <p>The Android route uses two separate scales. First the full source is drawn into a smaller working layer. Then that stored layer is enlarged onto the final output. Each scale has its own thumbtack: the point that stays put while everything else moves.</p>
+    <p>The iOS route uses two separate scales. First the full source is drawn into a smaller bitmap. Then that stored bitmap is enlarged onto the final output. Each scale has its own thumbtack: the point that stays put while everything else moves.</p>
     <p><a class="btn primary" href="lesson-07-04-scaling-cases-companion.html">Open the four scaling cases</a></p>
   </section>
 
@@ -254,19 +254,19 @@ drawLayer(workingLayer)</code></pre>
     <div class="section-head"><div><div class="section-no">9 · CODING CHALLENGE</div><h2>Calculate the working target</h2></div></div>
     <div class="challenge">
       <div>
-        <textarea class="editor" id="challengeEditor" spellcheck="false">val workingWidthPx = (fullWidthPx * ___).roundToInt()
-val workingHeightPx = (fullHeightPx * ___).roundToInt()
-val workingRadiusPx = finalRadiusPx * ___</textarea>
+        <textarea class="editor" id="challengeEditor" spellcheck="false">let workingWidthPx = Int((fullWidthPx * ___).rounded())
+let workingHeightPx = Int((fullHeightPx * ___).rounded())
+let workingRadiusPx = finalRadiusPx * ___</textarea>
         <div class="controls" style="margin-top:10px"><button class="btn primary" id="checkChallenge">Check</button><button class="btn" id="showSolution">Show solution</button><button class="btn" id="resetChallenge">Reset</button></div>
         <div class="result" id="challengeResult">Replace all three blanks with the same variable.</div>
       </div>
       <div class="card indigo">
         <h3>Available variable</h3>
-        <div class="formula">scale: Float
+        <div class="formula">workingScale: CGFloat
 
-1.00f = full width and height
-0.50f = half width and height
-0.25f = quarter width and height</div>
+1.00 = full width and height
+0.50 = half width and height
+0.25 = quarter width and height</div>
         <p>The same scale changes both dimensions and the radius used inside the working image.</p>
       </div>
     </div>
@@ -278,14 +278,16 @@ val workingRadiusPx = finalRadiusPx * ___</textarea>
     <details><summary>Why reduce the blur radius inside the smaller image?</summary><p>The smaller result will later be enlarged. At half size, one working pixel becomes two final pixels. Multiplying the radius by 0.5 keeps its final displayed distance roughly aligned with the requested full-size radius.</p></details>
     <details><summary>What quality can be lost?</summary><p>Small dots, thin lines, narrow text strokes, and tiny color changes may be combined into larger working pixels before blur. Enlarging cannot recover details that were removed during shrinking.</p></details>
     <details><summary>Does one quarter of the pixel positions prove a four-times speedup?</summary><p>No. It proves only the working target's pixel-position count. Device speed must be measured because other costs remain.</p></details>
-    <details><summary>What does <code>size = workingSize</code> do by itself?</summary><p>It defines the smaller layer size and the recording <code>DrawScope.size</code>. It does not automatically resize or select the source commands. In this code, the later <code>RenderEffect</code> forces rasterization into a buffer of that size, which is when transformed content outside the layer bounds is clipped.</p></details>
-    <details><summary>How are the two pivots different?</summary><p>The inner <code>DrawScope.scale</code> thumbtack chooses how the original photo lands on the smaller working layer. <code>GraphicsLayer.pivotOffset</code> chooses where that already-stored layer lands on the final output. The second thumbtack cannot restore original pixels that the first photocopy discarded. Open the four scaling cases if this is still fuzzy.</p></details>
-    <details><summary>Why use <code>Offset.Zero</code> for both production pivots?</summary><p>Both thumbtacks stay at the working-layer top-left <code>(0, 0)</code>. The whole source then lands on the smaller layer, and that layer fills the output. Other thumbtack combinations crop or shift the image. Those four cases are in the companion, not in this page.</p></details>
-    <details><summary>Why does a familiar center-scale picture differ from this code?</summary><p>The familiar picture keeps the original destination and shrinks the artwork inside it. Here, <code>record(size = workingSize)</code> first creates a new smaller paper. A “center” thumbtack is then the center of that smaller paper, which is not the center of the original photo.</p></details>
+    <details><summary>What does the smaller bitmap size do by itself?</summary><p>It defines the smaller pixel grid. It does not automatically resize the source image. <code>drawScaled</code> maps source coordinates into that grid. Pixels that land outside the grid are not stored. <code>blurClamped</code> then blurs only the pixels that were stored.</p></details>
+    <details><summary>How are the two pivots different?</summary><p>The recording pivot chooses how the original artwork lands on the smaller bitmap. The placement pivot chooses where that already-stored bitmap lands on the final output. The second thumbtack cannot restore original pixels that the first photocopy discarded. Open the four scaling cases if this is still fuzzy.</p></details>
+    <details><summary>Why use top-left for both production pivots?</summary><p>Both thumbtacks stay at the working bitmap’s top-left <code>(0, 0)</code>. The whole source then lands on the smaller bitmap, and that bitmap fills the output. Other thumbtack combinations crop or shift the image. Those four cases are in the companion, not in this page.</p></details>
+    <details><summary>Why does a familiar center-scale picture differ from this code?</summary><p>The familiar picture keeps the original destination and shrinks the artwork inside it. Here, the smaller bitmap is a new piece of paper. A “center” thumbtack is the center of that smaller paper, which is not the center of the original artwork.</p></details>
   </section>
 
   <section class="section panel">
     <div class="section-head"><div><div class="section-no">11 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div></div>
+    <p>Use the Xcode previews, then the iPhone 16 Pro.</p>
+    <div class="note"><strong>Browser versus iOS:</strong> the page’s 32 × 16 model uses a block average and an equal-weight blur. The iPhone 16 Pro explorer draws into a smaller bitmap and blurs that bitmap with <code>CIGaussianBlur</code>. Those are not the same resampling filter. The area percentage is a pixel count, not a measured frame time.</div>
     <div class="checklist">
       <label class="check"><input type="checkbox">The 1× preset preserves the most small detail.</label>
       <label class="check"><input type="checkbox">The 1/2 preset reports 25% of full pixel area.</label>
@@ -296,13 +298,13 @@ val workingRadiusPx = finalRadiusPx * ___</textarea>
       <label class="check"><input type="checkbox">The selected button visibly changes style.</label>
       <label class="check"><input type="checkbox">The four-scaling-cases companion opens from section 7.</label>
       <label class="check"><input type="checkbox">I can name the four thumbtack combinations and what each keeps or discards.</label>
-      <label class="check"><input type="checkbox">The direct composable Preview scrolls to the bottom.</label>
-      <label class="check"><input type="checkbox">The complete Chapter 7 Preview scrolls to the bottom.</label>
-      <label class="check"><input type="checkbox">On the Pixel 8 Pro, compare release-like frame behavior before claiming a speed gain.</label>
+      <label class="check"><input type="checkbox">Both direct explorer Preview variants scroll through all content at 412 × 915, light then dark.</label>
+      <label class="check"><input type="checkbox">Both complete Chapter 7 Preview variants scroll through all content at 412 × 915, light then dark.</label>
+      <label class="check"><input type="checkbox">On the iPhone 16 Pro, compare release-like frame behavior before claiming a speed gain.</label>
     </div>
   </section>
 
-  <footer class="footer panel"><span>66 of 216 complete · Lesson 7.4 complete</span><a class="btn primary" href="lesson-07-05-tint-layer.html">Next lesson · 7.5</a></footer>
+  <footer class="footer panel"><span>100 of 216 complete · checkpoint Lesson 10.1</span><a class="btn primary" href="lesson-07-05-tint-layer.html">Next lesson · 7.5</a></footer>
 </main>
 <script>
 const FULL_W=32,FULL_H=16,FINAL_RADIUS=4;
@@ -398,11 +400,11 @@ document.getElementById('stepPrev').addEventListener('click',()=>{if(currentStep
 
 
 document.querySelectorAll('.choice').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.choice').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');document.getElementById('predictionResult').textContent=btn.dataset.answer==='correct'?'Correct. Half width is 160, half height is 80, and 160 × 80 = 12,800.':'Not this one. Multiply the halved width by the halved height.'}));
-const starter=`val workingWidthPx = (fullWidthPx * ___).roundToInt()\nval workingHeightPx = (fullHeightPx * ___).roundToInt()\nval workingRadiusPx = finalRadiusPx * ___`;
-const solution=`val workingWidthPx = (fullWidthPx * scale).roundToInt()\nval workingHeightPx = (fullHeightPx * scale).roundToInt()\nval workingRadiusPx = finalRadiusPx * scale`;
+const starter=`let workingWidthPx = Int((fullWidthPx * ___).rounded())\nlet workingHeightPx = Int((fullHeightPx * ___).rounded())\nlet workingRadiusPx = finalRadiusPx * ___`;
+const solution=`let workingWidthPx = Int((fullWidthPx * workingScale).rounded())\nlet workingHeightPx = Int((fullHeightPx * workingScale).rounded())\nlet workingRadiusPx = finalRadiusPx * workingScale`;
 const editor=document.getElementById('challengeEditor'),challengeResult=document.getElementById('challengeResult');
-document.getElementById('checkChallenge').addEventListener('click',()=>{const normalized=editor.value.replace(/\s+/g,'');const expected=solution.replace(/\s+/g,'');challengeResult.textContent=normalized===expected?'Correct. One scale drives both dimensions and the working-image radius.':'Not complete yet. Replace every blank with scale; keep the three calculations unchanged.'});
-document.getElementById('showSolution').addEventListener('click',()=>{editor.value=solution;challengeResult.textContent='Solution inserted. Read the three uses of scale from top to bottom.'});document.getElementById('resetChallenge').addEventListener('click',()=>{editor.value=starter;challengeResult.textContent='Replace all three blanks with the same variable.'});
+document.getElementById('checkChallenge').addEventListener('click',()=>{const normalized=editor.value.replace(/\s+/g,'');const expected=solution.replace(/\s+/g,'');challengeResult.textContent=normalized===expected?'Correct. One scale drives both dimensions and the working-image radius.':'Not complete yet. Replace every blank with workingScale; keep the three calculations unchanged.'});
+document.getElementById('showSolution').addEventListener('click',()=>{editor.value=solution;challengeResult.textContent='Solution inserted. Read the three uses of workingScale from top to bottom.'});document.getElementById('resetChallenge').addEventListener('click',()=>{editor.value=starter;challengeResult.textContent='Replace all three blanks with the same variable.'});
 renderLab();
 </script>
 </body>

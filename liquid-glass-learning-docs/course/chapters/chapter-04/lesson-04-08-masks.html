@@ -166,7 +166,7 @@ summary{cursor:pointer;font-weight:900}
 <main class="page">
 <nav class="topbar">
   <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-shapes-corners-paths-and-masks.html">Chapter 4</a> · Lesson 4.8</div>
-  <div class="chips"><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span><span class="chip pending">Current checkpoint · 4.8</span><span class="chip progress">36 of 216 complete</span></div>
+  <div class="chips"><span class="chip">OS theme · <strong id="themeMode">detecting…</strong></span><span class="chip progress">Lesson 4.8 · completed</span><span class="chip progress">100 of 216 completed</span><span class="chip">iPhone 16 Pro</span></div>
 </nav>
 
 <header class="hero panel">
@@ -178,7 +178,9 @@ summary{cursor:pointer;font-weight:900}
   </div>
   <aside class="card amber">
     <h2>Representation used by the code</h2>
-    <p>Compose <code>Color</code> values are supplied as <strong>straight RGBA</strong>. The <code>DstIn</code> blend calculation is easiest to show with <strong>premultiplied RGBA contributions</strong>. Section 4 calculates the same case both ways and proves that both descriptions represent the same result.</p>
+    <p>SwiftUI <code>Color</code> values are supplied as <strong>straight RGBA</strong>. The <code>destinationIn</code> blend calculation is easiest to show with <strong>premultiplied RGBA contributions</strong>. Section 4 calculates the same case both ways and proves that both descriptions represent the same result.</p>
+    <p><strong>iOS files:</strong><br><code>chapter04/Chapter04Screen.swift</code><br><code>chapter04/MasksExplorer.swift</code></p>
+    <p>Lesson 4.8 stays complete as Chapter 4 geometry. </p>
   </aside>
 </header>
 
@@ -193,7 +195,7 @@ summary{cursor:pointer;font-weight:900}
   <div class="four">
     <article class="card indigo"><h3>Pattern image</h3><p>One temporary image containing every colored band, the white ring, and the white diagonal line.</p></article>
     <article class="card green"><h3>Mask image</h3><p>One temporary image covering the same Canvas bounds. Its alpha is <code>0</code> outside the capsule and the selected value inside.</p></article>
-    <article class="card blue"><h3>Drawing target</h3><p>The image that receives the next draw command. Calling <code>saveLayer</code> changes the current drawing target until the matching <code>restore</code>.</p></article>
+    <article class="card blue"><h3>Drawing target</h3><p>The image that receives the next draw command. Calling <code>drawLayer</code> changes the current drawing target until the closure returns and the layer is composited.</p></article>
     <article class="card amber"><h3>Intermediate result</h3><p>The complete image that exists after one step and becomes the input to the next step.</p></article>
   </div>
 </section>
@@ -228,16 +230,16 @@ summary{cursor:pointer;font-weight:900}
     </aside>
   </div>
   <div class="target-grid" id="targetGrid"></div>
-  <div class="note"><strong>Where the temporary images are created:</strong> the first <code>canvas.saveLayer(fullBounds, contentGroupPaint)</code> creates the pattern target. The second <code>canvas.saveLayer(fullBounds, dstInMaskPaint)</code> creates the mask target. Both are normal RGBA drawing targets. <code>BlendMode.Src</code> is used while constructing the mask target. <code>BlendMode.DstIn</code> is used later, when that completed mask target is restored into the pattern target. These are two separate operations at two separate times.</div>
+  <div class="note"><strong>Where the temporary images are created:</strong> the first <code>context.drawLayer { patternLayer in ... }</code> creates the pattern target. The nested <code>patternLayer.drawLayer { maskLayer in ... }</code> creates the mask target, composited with <code>patternLayer.blendMode = .destinationIn</code>. Both are normal RGBA drawing targets. <code>GraphicsContext.BlendMode.copy</code> is used while constructing the mask target. <code>.destinationIn</code> is used later, when that completed mask target is restored into the pattern target. These are two separate operations at two separate times.</div>
 </section>
 
 <section class="section panel" id="pixel-microscope">
   <div class="section-head"><div><div class="section-no">3 · PER-POSITION MICROSCOPE</div><h2>Why one pixel-sized position explains the complete layer operation</h2></div><p>The same rule runs independently at every matching position inside the layer bounds.</p></div>
-  <div class="success"><strong>Two separate per-position algorithms:</strong> first, <code>DstIn</code> reads the pattern pixel and mask alpha at the same coordinate <code>(x, y)</code>. Its multiplication creates the masked-pattern intermediate pixel. Second, ordinary source-over reads that masked-pattern pixel and the navy parent pixel at the same coordinate. A neighboring coordinate does not enter either calculation.</div>
+  <div class="success"><strong>Two separate per-position algorithms:</strong> first, <code>destinationIn</code> reads the pattern pixel and mask alpha at the same coordinate <code>(x, y)</code>. Its multiplication creates the masked-pattern intermediate pixel. Second, ordinary source-over reads that masked-pattern pixel and the navy parent pixel at the same coordinate. A neighboring coordinate does not enter either calculation.</div>
   <div class="microscope-layout">
     <div class="card">
       <h3>Select one position</h3>
-      <p>The strip is a magnified teaching row. It is not a physical-size claim about the Pixel 8 Pro.</p>
+      <p>The strip is a magnified teaching row. It is not a physical-size claim about the iPhone 16 Pro.</p>
       <div class="pixel-strip" id="pixelStrip"></div>
       <div class="controls" style="margin-top:14px"><button class="pixel-button selected" data-pixel="inside">Select clearly inside</button><button class="pixel-button" data-pixel="outside">Select clearly outside</button></div>
       <div class="range"><label for="maskAlphaRange">Mask alpha inside capsule</label><input id="maskAlphaRange" type="range" min="0" max="1" step="0.05" value="0.60"><output id="maskAlphaOut" class="mono">0.60</output></div>
@@ -246,7 +248,7 @@ summary{cursor:pointer;font-weight:900}
     </div>
     <div>
       <div class="pixel-pipeline" id="pixelPipeline"></div>
-      <div class="warning"><strong>Transparent mask pixels are not “missing.”</strong> The mask image contains a valid pixel with alpha <code>0</code>. The <code>DstIn</code> multiplication uses that zero and produces a transparent masked-pattern pixel. Any checkerboard shown behind that pixel is only a teaching visualization of transparency; it is not stored pixel content. A renderer may optimize the physical work internally, but the required output must match this per-position result.</div>
+      <div class="warning"><strong>Transparent mask pixels are not “missing.”</strong> The mask image contains a valid pixel with alpha <code>0</code>. The <code>destinationIn</code> multiplication uses that zero and produces a transparent masked-pattern pixel. Any checkerboard shown behind that pixel is only a teaching visualization of transparency; it is not stored pixel content. A renderer may optimize the physical work internally, but the required output must match this per-position result.</div>
     </div>
   </div>
 </section>
@@ -255,25 +257,25 @@ summary{cursor:pointer;font-weight:900}
   <div class="section-head"><div><div class="section-no">4 · STRAIGHT AND PREMULTIPLIED CASES</div><h2>Calculate both representations instead of describing the difference</h2></div><p>Choose whether the original orange content is opaque or already 50% transparent.</p></div>
   <div class="controls" id="caseButtons"><button class="case-button selected" data-case="opaque">Case A · content alpha 1.00</button><button class="case-button" data-case="translucent">Case B · content alpha 0.50</button></div>
   <div class="representation-grid">
-    <article class="rep-card"><h3>Straight RGBA path</h3><div class="formula" id="straightCase"></div><p>Compose <code>Color(red, green, blue, alpha)</code> receives these straight component values.</p></article>
-    <article class="rep-card"><h3>Premultiplied RGBA path</h3><div class="formula" id="premulCase"></div><p><code>DstIn</code> scales the stored premultiplied RGB contributions and alpha by the mask alpha. Dividing the non-zero output contributions by output alpha recovers the straight RGB.</p></article>
+    <article class="rep-card"><h3>Straight RGBA path</h3><div class="formula" id="straightCase"></div><p>SwiftUI <code>Color(red:green:blue:opacity:)</code> receives these straight component values.</p></article>
+    <article class="rep-card"><h3>Premultiplied RGBA path</h3><div class="formula" id="premulCase"></div><p><code>destinationIn</code> scales the stored premultiplied RGB contributions and alpha by the mask alpha. Dividing the non-zero output contributions by output alpha recovers the straight RGB.</p></article>
   </div>
   <div class="success" id="representationResult"></div>
 </section>
 
 <section class="section panel" id="dst-src">
-  <div class="section-head"><div><div class="section-no">5 · DSTIN VERSUS SRCIN</div><h2>The overlap can look the same while a different image supplies the surviving color</h2></div><p>Each card shows draw order, operands, and intermediate result.</p></div>
+  <div class="section-head"><div><div class="section-no">5 · DESTINATIONIN VERSUS SOURCEIN</div><h2>The overlap can look the same while a different image supplies the surviving color</h2></div><p>Each card shows draw order, operands, and intermediate result.</p></div>
   <div class="compare-grid" id="inModeCompare"></div>
 </section>
 
 <section class="section panel" id="isolation">
-  <div class="section-head"><div><div class="section-no">6 · WHY <code>graphicsLayer(Offscreen)</code> IS OPTIONAL IN THE CURRENT CODE</div><h2>One pattern-isolation method is required; the current code creates a pattern-only target with <code>saveLayer</code></h2></div><p>Switch scenarios to see exactly which image <code>DstIn</code> can modify.</p></div>
+  <div class="section-head"><div><div class="section-no">6 · WHY <code>drawingGroup()</code> IS OPTIONAL IN THE CURRENT CODE</div><h2>One pattern-isolation method is required; the current code creates a pattern-only target with <code>drawLayer</code></h2></div><p>Switch scenarios to see exactly which image <code>destinationIn</code> can modify.</p></div>
   <div class="isolation-layout">
     <div class="isolation-diagram"><svg id="isolationSvg" viewBox="0 0 940 500" role="img" aria-label="Comparison of safe and unsafe isolation arrangements"></svg></div>
     <aside class="card">
       <div class="controls" id="scenarioButtons">
-        <button class="scenario-button selected" data-scenario="explicit">Current code · pattern-target saveLayer</button>
-        <button class="scenario-button" data-scenario="graphics">Alternative · graphicsLayer Offscreen</button>
+        <button class="scenario-button selected" data-scenario="explicit">Current code · pattern-target drawLayer</button>
+        <button class="scenario-button" data-scenario="graphics">Alternative · drawingGroup</button>
         <button class="scenario-button" data-scenario="none">Unsafe · no pattern isolation</button>
         <button class="scenario-button" data-scenario="both">Redundant · both pattern-isolation methods</button>
       </div>
@@ -283,7 +285,7 @@ summary{cursor:pointer;font-weight:900}
       <div class="note" id="scenarioResult"></div>
     </aside>
   </div>
-  <div class="success"><strong>Direct answer:</strong> removing <code>graphicsLayer(Offscreen)</code> from the current replacement is expected to work because the first explicit <code>canvas.saveLayer(...)</code> replaced its pattern-isolation job. Removing both pattern-isolation methods would leave <code>DstIn</code> free to modify whatever pixels are already in the parent destination.</div>
+  <div class="success"><strong>Direct answer:</strong> removing <code>drawingGroup()</code> from the current replacement is expected to work because the first explicit <code>context.drawLayer { ... }</code> replaced its pattern-isolation job. Removing both pattern-isolation methods would leave <code>destinationIn</code> free to modify whatever pixels are already in the parent destination.</div>
 </section>
 
 <section class="section panel" id="cost">
@@ -302,43 +304,45 @@ summary{cursor:pointer;font-weight:900}
   <div class="target-count" id="targetCount"></div>
 </section>
 
-<section class="section panel" id="android-code">
-  <div class="section-head"><div><div class="section-no">8 · ANDROID CONNECTION</div><h2>Short code excerpt mapped to the visual step numbers</h2></div><p>The complete file remains in Android Studio and the incremental Android ZIP.</p></div>
-  <pre class="code">// MasksExplorer.kt — drawPatternThroughCapsuleMask
-val fullBounds = Rect(0f, 0f, size.width, size.height)
+<section class="section panel" id="ios-connection">
+  <div class="section-head"><div><div class="section-no">8 · iOS CONNECTION</div><h2>Short code excerpt mapped to the visual step numbers</h2></div><p>Complete source remains in Xcode and <code>LiquidGlassLab-iOS</code>.</p></div>
+  <pre class="code">// MasksExplorer.swift — drawPatternThroughCapsuleMask
+let fullBounds = CGRect(origin: .zero, size: size)
 
 // Step 2: create the pattern target.
-canvas.saveLayer(fullBounds, contentGroupPaint)
-try {
+context.drawLayer { patternLayer in
     // Step 3: draw every pattern object into that target.
-    drawSpatialTeachingPattern(horizontalContentOffsetPx)
+    drawSpatialTeachingPattern(
+        context: &patternLayer,
+        size: size,
+        horizontalOffset: offset
+    )
 
     // Step 4: create the full-size mask target.
-    canvas.saveLayer(fullBounds, dstInMaskPaint)
-    try {
+    // destinationIn is applied when this nested layer restores.
+    patternLayer.blendMode = .destinationIn
+    patternLayer.drawLayer { maskLayer in
         // Step 4A: construct the mask target.
-        // Src replaces every mask-target pixel with transparent RGBA,
+        // copy replaces every mask-target pixel with transparent RGBA,
         // so mask alpha is explicitly 0 across the complete bounds.
-        drawRect(Color.Transparent, blendMode = BlendMode.Src)
+        maskLayer.blendMode = .copy
+        maskLayer.fill(Path(fullBounds), with: .color(.clear))
 
         // Step 5: write the selected alpha inside the capsule.
-        drawRoundRect(
-            color = Color.Black.copy(alpha = maskAlpha),
-            topLeft = capsuleTopLeft,
-            size = capsuleSize,
-            cornerRadius = capsuleRadius,
+        maskLayer.blendMode = .normal
+        maskLayer.fill(
+            capsulePath,
+            with: .color(.black.opacity(maskAlpha))
         )
-    } finally {
-        // Step 6: apply the completed mask target.
-        // DstIn performs the per-position multiplication:
-        // pattern premultiplied RGBA × mask alpha.
-        canvas.restore()
     }
-} finally {
-    // Step 7: a separate operation. Ordinary source-over composites
-    // the masked-pattern intermediate image over the navy parent.
-    canvas.restore()
-}</pre>
+    // Step 6: apply the completed mask target.
+    // destinationIn performs the per-position multiplication:
+    // pattern premultiplied RGBA × mask alpha.
+}
+// Step 7: a separate operation. Ordinary source-over composites
+// the masked-pattern intermediate image over the navy parent.</pre>
+  <p><strong>iOS files:</strong><br><code>LiquidGlassLab-iOS/LiquidGlassLab/chapter04/Chapter04Screen.swift</code><br><code>LiquidGlassLab-iOS/LiquidGlassLab/chapter04/MasksExplorer.swift</code></p>
+  <p><a href="https://developer.apple.com/documentation/swiftui/graphicscontext/drawlayer(content:)">GraphicsContext.drawLayer</a> · <a href="https://developer.apple.com/documentation/swiftui/graphicscontext/blendmode-swift.struct/destinationin">BlendMode.destinationIn</a> · <a href="https://developer.apple.com/documentation/swiftui/view/drawinggroup(opaque:colormode:)">drawingGroup()</a></p>
 </section>
 
 <section class="section panel" id="predict">
@@ -352,29 +356,25 @@ try {
   <div class="section-head"><div><div class="section-no">10 · CODING CHALLENGE</div><h2>Restore the missing full-size transparent mask initialization</h2></div><p>The capsule alone does not write alpha <code>0</code> across every outside position.</p></div>
   <div class="challenge">
     <div>
-      <textarea class="editor" id="challengeEditor" spellcheck="false">canvas.saveLayer(fullBounds, dstInMaskPaint)
-try {
+      <textarea class="editor" id="challengeEditor" spellcheck="false">patternLayer.blendMode = .destinationIn
+patternLayer.drawLayer { maskLayer in
     // Missing operation here.
 
-    drawRoundRect(
-        color = Color.Black.copy(alpha = maskAlpha),
-        topLeft = capsuleTopLeft,
-        size = capsuleSize,
-        cornerRadius = capsuleRadius,
+    maskLayer.fill(
+        capsulePath,
+        with: .color(.black.opacity(maskAlpha))
     )
-} finally {
-    canvas.restore()
 }</textarea>
       <div class="controls" style="margin-top:12px"><button class="preset" id="insertTransparentFill">Insert transparent full-bounds fill</button><button class="primary" id="checkChallenge">Check repair</button></div>
       <div class="result" id="challengeResult">Repair the missing operation, then check it.</div>
     </div>
-    <aside class="card"><h3>Required intermediate mask image</h3><div class="figure" id="challengePreview"></div><p>The complete mask image must contain alpha <code>0</code> outside the capsule and <code>maskAlpha</code> inside it before the layer is restored with <code>DstIn</code>.</p></aside>
+    <aside class="card"><h3>Required intermediate mask image</h3><div class="figure" id="challengePreview"></div><p>The complete mask image must contain alpha <code>0</code> outside the capsule and <code>maskAlpha</code> inside it before the layer is restored with <code>destinationIn</code>.</p></aside>
   </div>
 </section>
 
 <section class="section panel" id="exercises">
   <div class="section-head"><div><div class="section-no">11 · EXERCISES</div><h2>Answer before opening each result</h2></div></div>
-  <details><summary>Exercise 1 · What is processed at an outside position?</summary><p>The full-size mask image contains a transparent pixel with alpha 0. <code>DstIn</code> uses that alpha at the same position. The masked pattern output becomes transparent there. The API-level model does not treat the position as absent.</p></details>
+  <details><summary>Exercise 1 · What is processed at an outside position?</summary><p>The full-size mask image contains a transparent pixel with alpha 0. <code>destinationIn</code> uses that alpha at the same position. The masked pattern output becomes transparent there. The API-level model does not treat the position as absent.</p></details>
   <details><summary>Exercise 2 · Straight and premultiplied output</summary><p>
     <span class="color-token"><span class="color-chip" style="--chip-color:rgba(214,92,46,1)"></span><code>straight sRGB RGBA(0.8400, 0.3600, 0.1800, 1.0000)</code><span class="value-wrap"><button class="info-dot" type="button" aria-label="Value origin">i</button><span class="info-pop">This is the opaque orange content input used throughout Lesson 4.8.</span></span></span>
     masked by <code>0.60</code> becomes
@@ -382,24 +382,24 @@ try {
     Its premultiplied representation is
     <span class="color-token"><span class="color-chip" style="--chip-color:rgba(214,92,46,.6)"></span><code>premultiplied sRGB RGBA(0.5040, 0.2160, 0.1080, 0.6000)</code><span class="value-wrap"><button class="info-dot" type="button" aria-label="Value origin">i</button><span class="info-pop">The chip shows the represented orange. The premultiplied numeric RGB fields are contributions, not straight channel values.</span></span></span>.
   </p></details>
-  <details><summary>Exercise 3 · Why does the current code not need graphicsLayer Offscreen?</summary><p>The first explicit <code>canvas.saveLayer(fullBounds, contentGroupPaint)</code> creates a pattern-only destination. The mask modifies that target, not the navy parent. <code>graphicsLayer(Offscreen)</code> would be an alternative pattern-isolation method, not an additional requirement.</p></details>
-  <details><summary>Exercise 4 · Diagnostic: what survives in DstIn?</summary><p>The destination color survives. The source alpha controls how much survives. In the current order, the pattern is destination and the mask image is source.</p></details>
+  <details><summary>Exercise 3 · Why does the current code not need drawingGroup?</summary><p>The first explicit <code>context.drawLayer { patternLayer in ... }</code> creates a pattern-only destination. The mask modifies that target, not the navy parent. <code>drawingGroup()</code> would be an alternative pattern-isolation method, not an additional requirement.</p></details>
+  <details><summary>Exercise 4 · Diagnostic: what survives in destinationIn?</summary><p>The destination color survives. The source alpha controls how much survives. In the current order, the pattern is destination and the mask image is source.</p></details>
 </section>
 
 <section class="section panel" id="checkpoint">
-  <div class="section-head"><div><div class="section-no">12 · PIXEL 8 PRO CHECKPOINT</div><h2>Confirm the visible result and the causal model</h2></div></div>
+  <div class="section-head"><div><div class="section-no">12 · IPHONE 16 PRO CHECKPOINT</div><h2>Confirm the visible result and the causal model</h2></div></div>
   <div class="checklist" id="checklist">
-    <label class="check"><input type="checkbox">The project builds and opens Lesson 4.8.</label>
+    <label class="check"><input type="checkbox">LiquidGlassLab-iOS builds and opens Lesson 4.8 on the iPhone 16 Pro.</label>
     <label class="check"><input type="checkbox">Mask alpha 1.00 shows the complete pattern only inside the capsule.</label>
     <label class="check"><input type="checkbox">Mask alpha 0.60 shows a partially visible pattern over navy inside the capsule.</label>
     <label class="check"><input type="checkbox">Mask alpha 0.00 hides the masked pattern everywhere.</label>
     <label class="check"><input type="checkbox">Outside the capsule, the navy parent remains visible.</label>
-    <label class="check"><input type="checkbox">I can point to the first saveLayer that creates the pattern target.</label>
-    <label class="check"><input type="checkbox">I can point to the second saveLayer that creates the mask target.</label>
+    <label class="check"><input type="checkbox">I can point to the first drawLayer that creates the pattern target.</label>
+    <label class="check"><input type="checkbox">I can point to the nested drawLayer that creates the mask target.</label>
     <label class="check"><input type="checkbox">I can explain the intermediate image after every step.</label>
     <label class="check"><input type="checkbox">I can calculate the opaque and translucent straight/premultiplied cases.</label>
     <label class="check"><input type="checkbox">I can explain why alpha-zero mask pixels still determine the output.</label>
-    <label class="check"><input type="checkbox">I can explain why the explicit pattern-target saveLayer replaces graphicsLayer Offscreen.</label>
+    <label class="check"><input type="checkbox">I can explain why the explicit pattern-target drawLayer replaces drawingGroup.</label>
     <label class="check"><input type="checkbox">I completed the prediction, coding challenge, and exercises.</label>
   </div>
   <button class="primary" id="buildRecord" style="margin-top:16px">Build completion record</button>
@@ -407,11 +407,11 @@ try {
 </section>
 
 <section class="section panel" id="sources">
-  <div class="section-head"><div><div class="section-no">13 · SOURCES AND EVIDENCE</div><h2>What Android’s contracts support</h2></div></div>
+  <div class="section-head"><div><div class="section-no">13 · SOURCES AND EVIDENCE</div><h2>What the iOS contracts support</h2></div></div>
   <ul>
-    <li><a href="https://developer.android.com/develop/ui/compose/graphics/draw/modifiers">Android Developers · Graphics modifiers</a> explains that <code>CompositingStrategy.Offscreen</code> rasterizes a composable into an offscreen texture and is useful when blend modes must affect only that composable’s contents.</li>
-    <li><a href="https://developer.android.com/reference/android/graphics/Canvas">Android Canvas reference</a> documents <code>saveLayer</code> as saving into an offscreen bitmap and later compositing it back with the supplied Paint.</li>
-    <li><a href="https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode">AndroidX Compose BlendMode reference</a> defines <code>DstIn</code> and <code>SrcIn</code>.</li>
+    <li><a href="https://developer.apple.com/documentation/swiftui/view/drawinggroup(opaque:colormode:)">SwiftUI drawingGroup()</a> rasterizes a view into an offscreen texture and is useful when blend modes must affect only that view’s contents.</li>
+    <li><a href="https://developer.apple.com/documentation/swiftui/graphicscontext/drawlayer(content:)">SwiftUI GraphicsContext.drawLayer</a> draws a transparency layer, then composites the result onto the context using the current blend mode.</li>
+    <li><a href="https://developer.apple.com/documentation/swiftui/graphicscontext/blendmode-swift.struct/destinationin">GraphicsContext.BlendMode.destinationIn</a> and <a href="https://developer.apple.com/documentation/swiftui/graphicscontext/blendmode-swift.struct/sourcein">.sourceIn</a> are the Porter-Duff pair used in this lesson.</li>
   </ul>
   <div class="warning"><strong>Implementation limit:</strong> the per-position formulas define the required output. A GPU may skip, tile, merge, or reuse internal work while preserving that output. This lesson does not claim one physical shader invocation per source-code-visible pixel.</div>
 </section>
@@ -476,20 +476,20 @@ function renderOverview(){
   const items=[
     ['1 · Pattern image','pattern','All bands, ring, and line are finished before masking.'],
     ['2 · Mask image','mask','The complete bounds contain alpha 0 outside and '+f2(state.maskAlpha)+' inside.'],
-    ['3 · Masked pattern','masked','DstIn has already applied the mask. Transparent outside positions remain part of this image.'],
+    ['3 · Masked pattern','masked','destinationIn has already applied the mask. Transparent outside positions remain part of this image.'],
     ['4 · Final over navy','final','The masked image is now drawn normally over the opaque navy background.']
   ];
   $('overviewCards').innerHTML=items.map((item,i)=>`<article class="visual-card"><div class="mini-canvas">${sceneSvg(item[1],`overview-${i}`)}</div><div class="visual-copy"><h3>${item[0]}</h3><p>${item[2]}</p></div></article>`).join('');
 }
 
 const layerSteps=[
-  {title:'1 · Parent already contains navy',caption:'No temporary image exists yet.',input:'Parent target',operation:'The parent Surface has already drawn navy.',output:'Parent target = navy image',code:'// No saveLayer call has run yet.',active:'parent',parent:'navy',content:'missing',mask:'missing',result:'navy'},
-  {title:'2 · Create the pattern target',caption:'The first saveLayer changes the current drawing target to a new transparent image with the complete Canvas bounds.',input:'Parent target remains navy',operation:'canvas.saveLayer(fullBounds, contentGroupPaint)',output:'New empty pattern target',code:'canvas.saveLayer(fullBounds, contentGroupPaint)',active:'content',parent:'navy',content:'transparent',mask:'missing',result:'transparent'},
-  {title:'3 · Draw the complete pattern',caption:'Every colored band, the ring, and the line is written into the same pattern target.',input:'Empty pattern target',operation:'drawSpatialTeachingPattern(...)',output:'Finished pattern image',code:'drawSpatialTeachingPattern(horizontalContentOffsetPx)',active:'content',parent:'navy',content:'pattern',mask:'missing',result:'pattern'},
-  {title:'4 · Create and initialize the mask target',caption:'The second saveLayer changes the current target to a new full-size mask image. BlendMode.Src then replaces every mask-target position with transparent RGBA, explicitly establishing mask alpha 0 everywhere. DstIn has not run yet.',input:'Finished pattern waits below',operation:'saveLayer + transparent Src fill',output:'Mask image alpha 0 everywhere',code:'canvas.saveLayer(fullBounds, dstInMaskPaint)\ndrawRect(Color.Transparent, BlendMode.Src)',active:'mask',parent:'navy',content:'pattern',mask:'mask-empty',result:'mask-empty'},
-  {title:'5 · Write capsule alpha into the mask',caption:'Only positions covered by the capsule change from alpha 0 to the selected alpha.',input:'Full-size alpha-zero mask image',operation:'drawRoundRect(mask alpha)',output:'Complete mask image',code:'drawRoundRect(Color.Black.copy(alpha = maskAlpha), ...)',active:'mask',parent:'navy',content:'pattern',mask:'mask',result:'mask'},
-  {title:'6 · Apply the mask with DstIn',caption:'The first restore applies DstIn. At each coordinate, pattern premultiplied RGBA is multiplied by mask alpha. Outside alpha 0 removes the pattern contribution. Inside the selected alpha keeps that fraction. This multiplication is specifically the DstIn operation.',input:'Pattern destination + mask source',operation:'canvas.restore() using DstIn Paint',output:'Masked pattern image',code:'canvas.restore() // DstIn: mask target → pattern target',active:'content',parent:'navy',content:'masked',mask:'restored',result:'masked'},
-  {title:'7 · Composite the masked pattern over navy',caption:'The second restore is a different algorithm: ordinary source-over. Transparent masked-pattern pixels contribute nothing, so navy remains outside. Partial-alpha pattern pixels mix with navy inside.',input:'Masked pattern + navy parent',operation:'canvas.restore() using normal Paint',output:'Final image over navy',code:'canvas.restore() // masked pattern → SrcOver → parent',active:'parent',parent:'final',content:'restored',mask:'restored',result:'final'}
+  {title:'1 · Parent already contains navy',caption:'No temporary image exists yet.',input:'Parent target',operation:'The parent Canvas has already drawn navy.',output:'Parent target = navy image',code:'// No drawLayer call has run yet.',active:'parent',parent:'navy',content:'missing',mask:'missing',result:'navy'},
+  {title:'2 · Create the pattern target',caption:'The first drawLayer changes the current drawing target to a new transparent image with the complete Canvas bounds.',input:'Parent target remains navy',operation:'context.drawLayer { patternLayer in ... }',output:'New empty pattern target',code:'context.drawLayer { patternLayer in',active:'content',parent:'navy',content:'transparent',mask:'missing',result:'transparent'},
+  {title:'3 · Draw the complete pattern',caption:'Every colored band, the ring, and the line is written into the same pattern target.',input:'Empty pattern target',operation:'drawSpatialTeachingPattern(...)',output:'Finished pattern image',code:'drawSpatialTeachingPattern(context: &patternLayer, size: size, horizontalOffset: offset)',active:'content',parent:'navy',content:'pattern',mask:'missing',result:'pattern'},
+  {title:'4 · Create and initialize the mask target',caption:'The nested drawLayer changes the current target to a new full-size mask image. BlendMode.copy then replaces every mask-target position with transparent RGBA, explicitly establishing mask alpha 0 everywhere. destinationIn has not run yet.',input:'Finished pattern waits below',operation:'drawLayer + transparent copy fill',output:'Mask image alpha 0 everywhere',code:'patternLayer.blendMode = .destinationIn\npatternLayer.drawLayer { maskLayer in\n    maskLayer.blendMode = .copy\n    maskLayer.fill(Path(fullBounds), with: .color(.clear))',active:'mask',parent:'navy',content:'pattern',mask:'mask-empty',result:'mask-empty'},
+  {title:'5 · Write capsule alpha into the mask',caption:'Only positions covered by the capsule change from alpha 0 to the selected alpha.',input:'Full-size alpha-zero mask image',operation:'fill capsule Path (mask alpha)',output:'Complete mask image',code:'maskLayer.fill(capsulePath, with: .color(.black.opacity(maskAlpha)))',active:'mask',parent:'navy',content:'pattern',mask:'mask',result:'mask'},
+  {title:'6 · Apply the mask with destinationIn',caption:'The nested drawLayer restores with destinationIn. At each coordinate, pattern premultiplied RGBA is multiplied by mask alpha. Outside alpha 0 removes the pattern contribution. Inside the selected alpha keeps that fraction. This multiplication is specifically the destinationIn operation.',input:'Pattern destination + mask source',operation:'nested drawLayer restores using destinationIn',output:'Masked pattern image',code:'} // destinationIn: mask target → pattern target',active:'content',parent:'navy',content:'masked',mask:'restored',result:'masked'},
+  {title:'7 · Composite the masked pattern over navy',caption:'The outer drawLayer restore is a different algorithm: ordinary source-over. Transparent masked-pattern pixels contribute nothing, so navy remains outside. Partial-alpha pattern pixels mix with navy inside.',input:'Masked pattern + navy parent',operation:'outer drawLayer restores using source-over',output:'Final image over navy',code:'} // masked pattern → source-over → parent',active:'parent',parent:'final',content:'restored',mask:'restored',result:'final'}
 ];
 function targetVisual(kind,prefix){
   if(kind==='missing') return sceneSvg('transparent',prefix,{caption:false}).replace('transparent target','not created');
@@ -557,8 +557,8 @@ function renderPixel(){
     :`Selected position is clearly outside the capsule. The full-size mask source pixel still exists. Its alpha is <strong>0.00</strong>.`;
   const stages=[
     {title:'1 · Pattern pixel',color:content,text:colorToken(content,'straight sRGB RGBA','This value comes from the orange band in the pattern image.')},
-    {title:'2 · Mask pixel',color:{r:0,g:0,b:0,a:maskA},text:colorToken({r:0,g:0,b:0,a:maskA},'straight sRGB RGBA','This pixel comes from the full-size mask image at the same coordinate. DstIn reads its alpha and ignores its RGB.')},
-    {title:'3 · DstIn multiplication output',color:maskedStraight,text:colorToken(maskedStraight,'straight sRGB RGBA','This intermediate pixel is produced specifically by DstIn: pattern premultiplied RGBA multiplied by mask alpha.')},
+    {title:'2 · Mask pixel',color:{r:0,g:0,b:0,a:maskA},text:colorToken({r:0,g:0,b:0,a:maskA},'straight sRGB RGBA','This pixel comes from the full-size mask image at the same coordinate. destinationIn reads its alpha and ignores its RGB.')},
+    {title:'3 · destinationIn multiplication output',color:maskedStraight,text:colorToken(maskedStraight,'straight sRGB RGBA','This intermediate pixel is produced specifically by destinationIn: pattern premultiplied RGBA multiplied by mask alpha.')},
     {title:'4 · Separate SrcOver output',color:final,text:colorToken(final,'straight sRGB RGBA','This final pixel is produced by a second, separate operation: source-over composites the masked-pattern intermediate over navy.')}
   ];
   $('pixelPipeline').innerHTML=stages.map(s=>`<article class="pixel-stage"><strong>${s.title}</strong><div class="pixel-preview"><div class="pixel-fill" style="background:${rgbaCss(s.color)}"></div></div><div>${s.text}</div></article>`).join('');
@@ -571,30 +571,30 @@ function renderRepresentations(){
   const premulInput=premultiply(straightInput);
   const premulOutput=dstInPremul(premulInput,state.maskAlpha);
   const straightOutput=unpremultiply(premulOutput);
-  const straightTokenIn=colorToken(straightInput,'straight sRGB RGBA','Compose Color receives this representation at the public API boundary.');
+  const straightTokenIn=colorToken(straightInput,'straight sRGB RGBA','SwiftUI Color receives this representation at the public API boundary.');
   const straightTokenOut=colorToken(straightOutput,'straight sRGB RGBA','This is the same represented orange with a smaller alpha after the mask.');
   const premulTuple=(c)=>`premultiplied sRGB RGBA(${f4(c.r)}, ${f4(c.g)}, ${f4(c.b)}, ${f4(c.a)})`;
   const premulTokenIn=colorToken(straightInput,'represented color','The small swatch shows the represented color. The numeric tuple beside it is premultiplied and must not be interpreted as straight.',premulTuple(premulInput));
   const premulTokenOut=colorToken(straightOutput,'represented color','The small swatch shows the represented color after converting the non-zero premultiplied result back to straight for CSS display.',premulTuple(premulOutput));
   $('straightCase').innerHTML=`input = ${straightTokenIn}\n\nmasked alpha\n= ${info(f4(contentAlpha),'Original content alpha.')} × ${info(f4(state.maskAlpha),'Mask alpha read from the same position in the mask image.')}\n= ${f4(straightOutput.a)}\n\noutput = ${straightTokenOut}`;
-  $('premulCase').innerHTML=`input = ${premulTokenIn}\n\nDstIn output contributions\n= input premultiplied RGBA × mask alpha\n= (${f4(premulInput.r)}, ${f4(premulInput.g)}, ${f4(premulInput.b)}, ${f4(premulInput.a)}) × ${f4(state.maskAlpha)}\n= ${premulTokenOut}\n\nunpremultiply when alpha > 0\n→ ${colorToken(straightOutput,'straight sRGB RGBA','Divide premultiplied RGB by output alpha to recover the straight RGB fields.')}`;
+  $('premulCase').innerHTML=`input = ${premulTokenIn}\n\ndestinationIn output contributions\n= input premultiplied RGBA × mask alpha\n= (${f4(premulInput.r)}, ${f4(premulInput.g)}, ${f4(premulInput.b)}, ${f4(premulInput.a)}) × ${f4(state.maskAlpha)}\n= ${premulTokenOut}\n\nunpremultiply when alpha > 0\n→ ${colorToken(straightOutput,'straight sRGB RGBA','Divide premultiplied RGB by output alpha to recover the straight RGB fields.')}`;
   $('representationResult').innerHTML=`Both paths describe the same masked orange: ${colorToken(straightOutput,'straight sRGB RGBA','Final masked-pattern intermediate before it is composited over navy.')}.`;
 }
 
 function renderCompare(){
   const masked='masked';
   const cards=[
-    {title:'DstIn · current code',steps:[['Destination drawn first','pattern'],['Source supplied second','mask'],['Color that survives','masked']],copy:'Destination pattern color survives. Source mask alpha decides how much remains.'},
-    {title:'SrcIn · reversed arrangement',steps:[['Destination drawn first','mask'],['Source supplied second','pattern'],['Color that survives','masked']],copy:'Source pattern color survives. Destination mask alpha decides how much remains.'}
+    {title:'destinationIn · current code',steps:[['Destination drawn first','pattern'],['Source supplied second','mask'],['Color that survives','masked']],copy:'Destination pattern color survives. Source mask alpha decides how much remains.'},
+    {title:'sourceIn · reversed arrangement',steps:[['Destination drawn first','mask'],['Source supplied second','pattern'],['Color that survives','masked']],copy:'Source pattern color survives. Destination mask alpha decides how much remains.'}
   ];
   $('inModeCompare').innerHTML=cards.map((card,ci)=>`<article class="card"><h3>${card.title}</h3><div class="operand-flow">${card.steps.map((s,i)=>`${i?'<div class="flow-arrow">→</div>':''}<div class="operand-card"><div class="operand-thumb">${sceneSvg(s[1],`compare-${ci}-${i}`,{caption:false})}</div><div class="operand-copy"><strong>${s[0]}</strong></div></div>`).join('')}</div><p>${card.copy}</p></article>`).join('');
 }
 
 const scenarios={
-  explicit:{title:'Safe: explicit pattern-target saveLayer',explanation:'The first Canvas.saveLayer creates a target containing only the pattern image. The mask target is restored into that pattern target. The navy parent is not part of the DstIn destination.',code:'saveLayer(pattern target)\n  saveLayer(mask target, DstIn)\nrestore mask target\nrestore masked pattern over navy',result:'Current code. graphicsLayer Offscreen is not needed because the explicit pattern target already isolates the pattern.'},
-  graphics:{title:'Safe alternative: graphicsLayer Offscreen',explanation:'The composable is first rasterized into a separate texture containing the pattern. The mask target is then restored into that texture. The full-size mask still supplies alpha 0 outside the capsule.',code:'graphicsLayer(Offscreen)\n  draw pattern\n  saveLayer(mask target, DstIn)\n  restore mask target',result:'Also safe. graphicsLayer supplies the pattern-only destination instead of the first explicit Canvas.saveLayer.'},
-  none:{title:'Unsafe: no pattern isolation',explanation:'The destination seen by DstIn already contains both navy and pattern. Alpha 0 outside the mask therefore removes both from that destination.',code:'draw navy + pattern into one target\nsaveLayer(mask target, DstIn)\nrestore mask target',result:'Outside the capsule becomes transparent to whatever lies below that shared target, rather than preserving the navy background.'},
-  both:{title:'Redundant teaching arrangement: both methods',explanation:'graphicsLayer creates one pattern-holding texture, then an explicit saveLayer creates another pattern target, and the mask saveLayer creates a third target.',code:'graphicsLayer(Offscreen)\n  saveLayer(pattern target)\n    saveLayer(mask target, DstIn)',result:'Correct but usually redundant. It creates two separate pattern-isolation targets without adding another visual requirement.'}
+  explicit:{title:'Safe: explicit pattern-target drawLayer',explanation:'The first GraphicsContext.drawLayer creates a target containing only the pattern image. The mask target is restored into that pattern target. The navy parent is not part of the destinationIn destination.',code:'drawLayer(pattern target)\n  drawLayer(mask target, destinationIn)\nrestore mask target\nrestore masked pattern over navy',result:'Current code. drawingGroup is not needed because the explicit pattern target already isolates the pattern.'},
+  graphics:{title:'Safe alternative: drawingGroup',explanation:'The view is first rasterized into a separate texture containing the pattern. The mask target is then restored into that texture. The full-size mask still supplies alpha 0 outside the capsule.',code:'drawingGroup()\n  draw pattern\n  drawLayer(mask target, destinationIn)\n  restore mask target',result:'Also safe. drawingGroup supplies the pattern-only destination instead of the first explicit GraphicsContext.drawLayer.'},
+  none:{title:'Unsafe: no pattern isolation',explanation:'The destination seen by destinationIn already contains both navy and pattern. Alpha 0 outside the mask therefore removes both from that destination.',code:'draw navy + pattern into one target\ndrawLayer(mask target, destinationIn)\nrestore mask target',result:'Outside the capsule becomes transparent to whatever lies below that shared target, rather than preserving the navy background.'},
+  both:{title:'Redundant teaching arrangement: both methods',explanation:'drawingGroup creates one pattern-holding texture, then an explicit drawLayer creates another pattern target, and the mask drawLayer creates a third target.',code:'drawingGroup()\n  drawLayer(pattern target)\n    drawLayer(mask target, destinationIn)',result:'Correct but usually redundant. It creates two separate pattern-isolation targets without adding another visual requirement.'}
 };
 function renderIsolation(){
   document.querySelectorAll('[data-scenario]').forEach(b=>b.classList.toggle('selected',b.dataset.scenario===state.scenario));
@@ -604,10 +604,10 @@ function renderIsolation(){
   $('scenarioCode').textContent=s.code;
   $('scenarioResult').textContent=s.result;
   const safe=state.scenario!=='none';
-  const isolationLabel=state.scenario==='explicit'?'explicit pattern target':state.scenario==='graphics'?'graphicsLayer pattern texture':state.scenario==='both'?'graphicsLayer + explicit pattern target':'no isolated pattern target';
+  const isolationLabel=state.scenario==='explicit'?'explicit pattern target':state.scenario==='graphics'?'drawingGroup pattern texture':state.scenario==='both'?'drawingGroup + explicit pattern target':'no isolated pattern target';
   const beforeKind=safe?'pattern':'pattern-navy';
   const afterKind=safe?'masked':'cleared-parent';
-  $('isolationSvg').innerHTML=`<defs><marker id="iso-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#be185d"/></marker></defs><rect width="940" height="500" fill="var(--panel)"/><text x="470" y="34" text-anchor="middle" font-size="22" font-weight="900" fill="currentColor">${s.title}</text><foreignObject x="34" y="64" width="260" height="238"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%">${sceneSvg('navy','iso-parent',{caption:false})}</div></foreignObject><text x="164" y="324" text-anchor="middle" font-size="16" font-weight="900" fill="currentColor">Parent before mask</text><foreignObject x="340" y="64" width="260" height="238"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%">${sceneSvg(beforeKind,'iso-before',{caption:false})}</div></foreignObject><text x="470" y="324" text-anchor="middle" font-size="16" font-weight="900" fill="currentColor">DstIn destination</text><foreignObject x="646" y="64" width="260" height="238"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%">${sceneSvg(afterKind,'iso-after',{caption:false})}</div></foreignObject><text x="776" y="324" text-anchor="middle" font-size="16" font-weight="900" fill="currentColor">After DstIn</text><line x1="294" y1="182" x2="330" y2="182" stroke="#be185d" stroke-width="5" marker-end="url(#iso-arrow)"/><line x1="600" y1="182" x2="636" y2="182" stroke="#be185d" stroke-width="5" marker-end="url(#iso-arrow)"/><rect x="150" y="365" width="640" height="88" rx="16" fill="${safe?'var(--green-soft)':'var(--red-soft)'}" stroke="${safe?'var(--green)':'var(--red)'}" stroke-width="3"/><text x="470" y="399" text-anchor="middle" font-size="18" font-weight="900" fill="currentColor">Pattern-isolation contract: ${isolationLabel}</text><text x="470" y="428" text-anchor="middle" font-size="15" fill="currentColor">${safe?'Navy stays outside the DstIn destination.':'Navy is inside the DstIn destination and may be removed.'}</text>`;
+  $('isolationSvg').innerHTML=`<defs><marker id="iso-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#be185d"/></marker></defs><rect width="940" height="500" fill="var(--panel)"/><text x="470" y="34" text-anchor="middle" font-size="22" font-weight="900" fill="currentColor">${s.title}</text><foreignObject x="34" y="64" width="260" height="238"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%">${sceneSvg('navy','iso-parent',{caption:false})}</div></foreignObject><text x="164" y="324" text-anchor="middle" font-size="16" font-weight="900" fill="currentColor">Parent before mask</text><foreignObject x="340" y="64" width="260" height="238"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%">${sceneSvg(beforeKind,'iso-before',{caption:false})}</div></foreignObject><text x="470" y="324" text-anchor="middle" font-size="16" font-weight="900" fill="currentColor">destinationIn destination</text><foreignObject x="646" y="64" width="260" height="238"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%">${sceneSvg(afterKind,'iso-after',{caption:false})}</div></foreignObject><text x="776" y="324" text-anchor="middle" font-size="16" font-weight="900" fill="currentColor">After destinationIn</text><line x1="294" y1="182" x2="330" y2="182" stroke="#be185d" stroke-width="5" marker-end="url(#iso-arrow)"/><line x1="600" y1="182" x2="636" y2="182" stroke="#be185d" stroke-width="5" marker-end="url(#iso-arrow)"/><rect x="150" y="365" width="640" height="88" rx="16" fill="${safe?'var(--green-soft)':'var(--red-soft)'}" stroke="${safe?'var(--green)':'var(--red)'}" stroke-width="3"/><text x="470" y="399" text-anchor="middle" font-size="18" font-weight="900" fill="currentColor">Pattern-isolation contract: ${isolationLabel}</text><text x="470" y="428" text-anchor="middle" font-size="15" fill="currentColor">${safe?'Navy stays outside the destinationIn destination.':'Navy is inside the destinationIn destination and may be removed.'}</text>`;
 }
 
 function renderCost(){
@@ -616,10 +616,10 @@ function renderCost(){
   const per=w*h*4,mb=n=>(n/1_000_000).toFixed(2);
   $('costFormula').textContent=`positions per target = ${w} × ${h} = ${(w*h).toLocaleString()}\nbytes per simple RGBA8 target ≈ ${w} × ${h} × 4 = ${per.toLocaleString()} bytes ≈ ${mb(per)} MB`;
   const modes=[
-    ['Hard clipPath',0,'No explicit mask target.'],
+    ['Hard clip(to:)',0,'No explicit mask target.'],
     ['Current explicit design',2,'Pattern target + mask target.'],
-    ['graphicsLayer alternative',2,'Offscreen composable target + mask target.'],
-    ['Both pattern-isolation methods',3,'graphicsLayer + pattern target + mask target.']
+    ['drawingGroup alternative',2,'Offscreen view target + mask target.'],
+    ['Both pattern-isolation methods',3,'drawingGroup + pattern target + mask target.']
   ];
   $('targetCount').innerHTML=modes.map(m=>`<article class="count-card"><h3>${m[0]}</h3><p><strong>${m[1]} explicit temporary target${m[1]===1?'':'s'}</strong></p><div class="memory-bar"><span style="width:${Math.max(2,m[1]/3*100)}%"></span></div><p class="mono">teaching estimate: ${mb(per*m[1])} MB</p><p>${m[2]}</p></article>`).join('');
 }
@@ -699,19 +699,19 @@ $('checkPrediction').addEventListener('click',()=>{
 });
 
 $('insertTransparentFill').addEventListener('click',()=>{
-  $('challengeEditor').value=`canvas.saveLayer(fullBounds, dstInMaskPaint)\ntry {\n    drawRect(\n        color = Color.Transparent,\n        blendMode = BlendMode.Src,\n    )\n\n    drawRoundRect(\n        color = Color.Black.copy(alpha = maskAlpha),\n        topLeft = capsuleTopLeft,\n        size = capsuleSize,\n        cornerRadius = capsuleRadius,\n    )\n} finally {\n    canvas.restore()\n}`;
+  $('challengeEditor').value=`patternLayer.blendMode = .destinationIn\npatternLayer.drawLayer { maskLayer in\n    maskLayer.blendMode = .copy\n    maskLayer.fill(Path(fullBounds), with: .color(.clear))\n\n    maskLayer.fill(\n        capsulePath,\n        with: .color(.black.opacity(maskAlpha))\n    )\n}`;
   $('challengeResult').textContent='The transparent full-bounds fill was inserted. Press Check repair.';
 });
 $('checkChallenge').addEventListener('click',()=>{
   const code=$('challengeEditor').value;
-  const ok=/drawRect\s*\([\s\S]*Color\.Transparent[\s\S]*BlendMode\.Src/.test(code)&&/drawRoundRect/.test(code);
-  $('challengeResult').textContent=ok?'Correct. The mask target now explicitly contains alpha 0 across its complete bounds before the capsule writes the inside alpha.':'Not repaired yet. Add a full-bounds transparent draw using BlendMode.Src before drawRoundRect.';
+  const ok=/blendMode\s*=\s*\.copy/.test(code)&&/\.clear/.test(code)&&/fill\(/.test(code)&&/capsulePath/.test(code);
+  $('challengeResult').textContent=ok?'Correct. The mask target now explicitly contains alpha 0 across its complete bounds before the capsule writes the inside alpha.':'Not repaired yet. Add a full-bounds transparent fill using BlendMode.copy before filling the capsule.';
   $('challengeResult').style.background=ok?'var(--green-soft)':'var(--red-soft)';
 });
 
 $('buildRecord').addEventListener('click',()=>{
   const checks=[...document.querySelectorAll('#checklist input')],done=checks.filter(c=>c.checked).length;
-  $('completionRecord').value=`# Lesson 4.8 completion record\n\n- Lesson: Masks\n- Checkpoint items complete: ${done} of ${checks.length}\n- Android device: Pixel 8 Pro\n- Current mask alpha: ${f2(state.maskAlpha)}\n- I can identify the parent, pattern, and mask targets: [yes / not yet]\n- I can describe the intermediate image after every saveLayer, draw, and restore: [yes / not yet]\n- I can explain the per-position DstIn algorithm: [yes / not yet]\n- I can calculate both straight and premultiplied cases: [yes / not yet]\n- I can explain why the explicit pattern-target saveLayer replaces graphicsLayer Offscreen: [yes / not yet]\n- Questions or observations:\n`;
+  $('completionRecord').value=`# Lesson 4.8 completion record\n\n- Lesson: Masks\n- Checkpoint items complete: ${done} of ${checks.length}\n- iOS device: iPhone 16 Pro\n- Current mask alpha: ${f2(state.maskAlpha)}\n- I can identify the parent, pattern, and mask targets: [yes / not yet]\n- I can describe the intermediate image after every drawLayer, draw, and restore: [yes / not yet]\n- I can explain the per-position destinationIn algorithm: [yes / not yet]\n- I can calculate both straight and premultiplied cases: [yes / not yet]\n- I can explain why the explicit pattern-target drawLayer replaces drawingGroup: [yes / not yet]\n- Questions or observations:\n`;
 });
 
 const media=matchMedia('(prefers-color-scheme:dark)');

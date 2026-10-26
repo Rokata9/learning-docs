@@ -16,7 +16,7 @@
 <main class="page">
   <div class="topbar">
     <div class="crumbs"><a href="lesson-build-convincing-frosted-glass-without-a-custom-lens.html">Chapter 7</a> · Lesson 7.6</div>
-    <div class="chips"><span class="chip progress">73 of 216 complete</span><span class="chip progress">Lesson 7.6 complete</span></div>
+    <div class="chips"><span class="chip progress">100 of 216 complete</span><span class="chip">iPhone 16 Pro</span></div>
   </div>
 
   <header class="hero panel">
@@ -25,7 +25,7 @@
       <h1>Saturation and contrast</h1>
       <p class="lead"><strong>Question:</strong> After blur and a pale tint, orange can still shout. How do we keep navy and orange present, but quiet enough that a sharp label can be read?</p>
       <div class="plain-rule">A <strong>saturation factor below 1</strong> moves every glass pixel closer to its own gray reference. <strong>Contrast</strong> is then measured from that new RGB, to choose white or black for the label.</div>
-      <div class="note"><strong>Lesson 3.9 already taught the factor.</strong> Lesson 3.7 already taught the contrast ratio. This lesson attaches those two finished operations to the frosted stack. It does not rebuild the ColorMatrix rows.</div>
+      <div class="note"><strong>Lesson 3.9 already taught the factor.</strong> Lesson 3.7 already taught the contrast ratio. This lesson attaches those two finished operations to the frosted stack. It does not rebuild the 4×5 matrix rows.</div>
     </div>
     <div class="hero-art" aria-label="Blur, tint, saturation, then a sharp label">
       <div class="hero-pipeline">
@@ -45,7 +45,7 @@
     <div class="two">
       <article class="card indigo">
         <h3>Saturation — a transform</h3>
-        <p>Lesson 3.9: one factor scales each channel’s signed distance from the AndroidX gray reference. Factor <code>1</code> leaves the tinted interiors unchanged. Factor <code>0.40</code> moves them closer to gray. Factor <code>0</code> makes each interior a gray whose three channels equal that interior’s own gray reference.</p>
+        <p>Lesson 3.9: one factor scales each channel’s signed distance from that lesson’s gray reference. Factor <code>1</code> leaves the tinted interiors unchanged. Factor <code>0.40</code> moves them closer to gray. Factor <code>0</code> makes each interior a gray whose three channels equal that interior’s own gray reference.</p>
       </article>
       <article class="card blue">
         <h3>Contrast — a measurement</h3>
@@ -53,7 +53,7 @@
         <div class="formula">contrast ratio
 = (lighter luminance + 0.05)
 ÷ (darker luminance + 0.05)</div>
-        <p>That number compares a label color with the glass pixel behind it. It is not a second ColorMatrix.</p>
+        <p>That number compares a label color with the glass pixel behind it. It is not a second matrix.</p>
       </article>
     </div>
     <div class="warning"><strong>Do not mix the gray reference with relative luminance.</strong> Saturation uses stored-channel weights <code>0.213</code>, <code>0.715</code>, <code>0.072</code>. Contrast uses decoded linear-light luminance from Lesson 3.6. Same-looking coefficients, different jobs.</div>
@@ -151,34 +151,38 @@ orange after tint  = (0.9250, 0.7000, 0.4000)</div>
   </section>
 
   <section class="section panel">
-    <div class="section-head"><div><div class="section-no">6 · ANDROID ROUTE</div><h2>Filter the glass group. Keep the label outside.</h2></div></div>
+    <div class="section-head"><div><div class="section-no">6 · iOS ROUTE</div><h2>Filter the glass group. Keep the label outside.</h2></div></div>
     <div class="code-grid">
-      <pre class="code-block"><code>val saturationMatrix = ColorMatrix().apply {
-    setToSaturation(saturationFactor)
-}
+      <pre class="code-block"><code>var saturationMatrix = LabColorMatrix()
+saturationMatrix.setToSaturation(saturationFactor)
 
-Box(
-    Modifier.graphicsLayer {
-        colorFilter = ColorFilter.colorMatrix(saturationMatrix)
+ZStack {
+    Canvas { context, size in
+        drawLessonArtwork(context: &amp;context, size: size)
     }
-) {
-    Canvas(Modifier.graphicsLayer {
-        renderEffect = blurEffect
-    }) {
-        drawArtwork()
-    }
-    Canvas {
-        drawRect(color = tintColor.copy(alpha = 0.25f))
-    }
+    .blur(radius: 18, opaque: false)
+
+    Rectangle()
+        .fill(whiteTint.opacity(0.25))
 }
+.compositingGroup()
+.colorEffect(
+    ShaderLibrary.saturationOnGlassGroup(
+        .float(Float(saturationFactor)),
+        .float(0.213),
+        .float(0.715),
+        .float(0.072)
+    )
+)
 
 Text("Sharp label")</code></pre>
       <div class="card">
         <h3>What each part changes</h3>
-        <p>The inner blur canvas is Lesson 7.4/7.5 artwork. The tint rectangle is Lesson 7.5 with amount fixed at <code>0.25</code>.</p>
-        <p>The wrapping <code>graphicsLayer</code> applies <code>ColorFilter.colorMatrix</code> to that already-drawn group. That is the new attachment.</p>
-        <p>The label is a sibling, not a child of the filtered box, so it is not desaturated or blurred.</p>
-        <p><strong>Android files:</strong><br><code>chapter07/SaturationContrastExplorer.kt</code><br><code>chapter07/Chapter07Screen.kt</code></p>
+        <p>The inner canvas is the Lesson 7.4/7.5 artwork. <code>.blur(radius: 18, opaque: false)</code> blurs that view. 18 is points. <code>displayScale</code> is not a blur input.</p>
+        <p>The rectangle is the Lesson 7.5 white veil with amount fixed at <code>0.25</code>.</p>
+        <p><code>compositingGroup</code> flattens the blur and the tint into one layer. <code>colorEffect</code> then runs <code>saturationOnGlassGroup</code> on that layer. The weights are <code>0.213</code>, <code>0.715</code>, and <code>0.072</code>. <code>setToSaturation</code> writes the same weights into the 4×5 matrix used for the interior readout. That attachment is the new step. It is not Core Image’s saturation control.</p>
+        <p>The label is a later sibling, not a child of the filtered group, so it is not desaturated or blurred.</p>
+        <p><strong>Swift files:</strong><br><code>chapter07/SaturationContrastExplorer.swift</code><br><code>chapter07/SaturationGlass.metal</code><br><code>chapter07/Chapter07Screen.swift</code></p>
       </div>
     </div>
   </section>
@@ -198,42 +202,50 @@ Text("Sharp label")</code></pre>
     <div class="section-head"><div><div class="section-no">8 · CODING CHALLENGE</div><h2>Attach the saturation filter to the glass group</h2></div></div>
     <div class="challenge">
       <div>
-        <textarea class="editor" id="challengeEditor" spellcheck="false">val saturationMatrix = ColorMatrix().apply {
-    ___(saturationFactor)
-}
+        <textarea class="editor" id="challengeEditor" spellcheck="false">var saturationMatrix = LabColorMatrix()
+saturationMatrix.___(saturationFactor)
 
-Box(Modifier.graphicsLayer {
-    colorFilter = ColorFilter.___(saturationMatrix)
-}) {
+ZStack {
     drawBlurredArtwork()
     drawTintRect()
-}</textarea>
+}
+.compositingGroup()
+.colorEffect(
+    ShaderLibrary.___(
+        .float(Float(saturationFactor)),
+        .float(0.213),
+        .float(0.715),
+        .float(0.072)
+    )
+)</textarea>
         <div class="controls" style="margin-top:10px">
           <button class="btn primary" id="checkChallenge">Check</button>
           <button class="btn" id="showSolution">Show solution</button>
           <button class="btn" id="resetChallenge">Reset</button>
         </div>
-        <div class="result" id="challengeResult">Fill the matrix helper and the ColorFilter factory.</div>
+        <div class="result" id="challengeResult">Fill the matrix helper and the layer filter.</div>
       </div>
       <div class="card indigo">
         <h3>Available names</h3>
         <div class="formula">setToSaturation
-colorMatrix</div>
-        <p>The first blank writes the Lesson 3.9 matrix. The second blank wraps that matrix as a color filter on the glass group.</p>
+saturationOnGlassGroup</div>
+        <p>The first blank writes the Lesson 3.9 matrix. The second blank names the layer filter on the glass group.</p>
       </div>
     </div>
   </section>
 
   <section class="section panel">
     <div class="section-head"><div><div class="section-no">9 · EXPLAIN IT BACK</div><h2>Four checks</h2></div></div>
-    <details><summary>What new attachment does this lesson add?</summary><p>A <code>ColorFilter.colorMatrix</code> using <code>setToSaturation</code> on the already blurred and tinted glass group, with the label kept outside that group.</p></details>
+    <details><summary>What new attachment does this lesson add?</summary><p>A <code>colorEffect</code> named <code>saturationOnGlassGroup</code>, using the same weights as <code>setToSaturation</code>, on the already blurred and tinted glass group. The label stays outside that group.</p></details>
     <details><summary>Why does factor 0 not make navy and orange identical?</summary><p>Each pixel has its own gray reference from its own RGB. Navy’s gray is darker than orange’s gray. Factor 0 removes chroma but can leave a lightness difference.</p></details>
     <details><summary>Why recalculate contrast after changing the factor?</summary><p>Contrast is a measurement of the current RGB. After saturation, the RGB is different, so an old contrast number is stale.</p></details>
-    <details><summary>Why is the label outside the filtered box?</summary><p>If the label were inside the <code>colorFilter</code> group, its own RGB would also move toward gray. Lesson 6.11 already kept labels outside effect layers so they stay sharp and fully colored.</p></details>
+    <details><summary>Why is the label outside the filtered group?</summary><p>If the label were inside the <code>colorEffect</code> group, its own RGB would also move toward gray. Lesson 6.11 already kept labels outside effect layers so they stay sharp and fully colored.</p></details>
   </section>
 
   <section class="section panel">
     <div class="section-head"><div><div class="section-no">10 · PREVIEW / DEVICE CHECKPOINT</div><h2>What to verify</h2></div></div>
+    <p>Use the Xcode previews, then the iPhone 16 Pro.</p>
+    <div class="note"><strong>Browser versus iOS:</strong> this page applies the short formula to the two interior colors and walks canvas pixels. The iPhone 16 Pro explorer blurs with <code>.blur(radius: 18)</code>, draws the white veil, then runs the same weights in <code>saturationOnGlassGroup</code>. The blur kernel is not this page’s average. The contrast numbers come from the formula, not a pixel readback.</div>
     <div class="checklist">
       <label class="check"><input type="checkbox">Factor 1.00 matches the 7.5 tinted look.</label>
       <label class="check"><input type="checkbox">Factor 0.40 makes orange less loud while navy and orange stay two families.</label>
@@ -249,14 +261,15 @@ colorMatrix</div>
   <section class="section panel">
     <div class="section-head"><div><div class="section-no">11 · EVIDENCE BOUNDARY</div><h2>What this lesson establishes</h2></div></div>
     <div class="two">
-      <div class="card green"><h3>Established</h3><p>After blur and a pale tint, <code>setToSaturation</code> can quiet chroma on the glass group. Foreground contrast must be measured from the transformed RGB. The label stays outside the filter.</p></div>
+      <div class="card green"><h3>Established</h3><p>After blur and a pale tint, <code>setToSaturation</code> can quiet chroma on the glass group. The explorer attaches that transform with <code>saturationOnGlassGroup</code>. Foreground contrast must be measured from the transformed RGB. The label stays outside the filter.</p></div>
       <div class="card amber"><h3>Not claimed</h3><p>Saturation does not guarantee a 4.5 : 1 pass. The lesson does not rebuild the 4×5 matrix derivation, does not treat the gray reference as luminance, and does not claim Apple’s private glass recipe.</p></div>
     </div>
     <button class="btn primary" id="buildRecord" style="margin-top:16px">Build local review record</button>
     <textarea class="record" id="record" readonly>No record generated yet.</textarea>
+    
   </section>
 
-  <footer class="footer panel"><span>73 of 216 complete · Lesson 7.6 complete</span><a class="btn primary" href="lesson-07-07-static-rim.html">Next lesson · 7.7</a></footer>
+  <footer class="footer panel"><span>100 of 216 complete · checkpoint Lesson 10.1</span><a class="btn primary" href="lesson-07-07-static-rim.html">Next lesson · 7.7</a></footer>
 </main>
 <script>
 const NAVY={r:0.10,g:0.25,b:0.40};
@@ -362,7 +375,7 @@ const steps=[
   {stage:'rgb',title:'Transform navy red',copy:()=>`Navy gray reference = ${fmt(gray(navyTinted))}. Navy red = gray + factor × (tinted red − gray) = ${fmt(sat(navyTinted,factor).r)}. Green and blue use the same gray and factor.`},
   {stage:'rgb',title:'Repeat at orange',copy:()=>`Orange gray reference = ${fmt(gray(orangeTinted))}, which is lighter than navy’s. Orange after the factor is ${tuple(sat(orangeTinted,factor))}. The two interiors can remain different even at factor 0.`},
   {stage:'contrast',title:'Measure label contrast on the new RGB',copy:()=>`Contrast uses relative luminance of the filtered color, not the gray reference. White on navy is ${fmt(contrast({r:1,g:1,b:1},sat(navyTinted,factor)))}:1. White on orange is ${fmt(contrast({r:1,g:1,b:1},sat(orangeTinted,factor)))}:1.`},
-  {stage:'contrast',title:'Keep the label outside the filter',copy:()=>`Android wraps blur + tint in a graphicsLayer whose colorFilter is the saturation matrix. The Text composable is a sibling, so the letters are not desaturated.`}
+  {stage:'contrast',title:'Keep the label outside the filter',copy:()=>`SwiftUI flattens blur and tint with compositingGroup, then runs saturationOnGlassGroup on that layer. The Text view is a later sibling, so the letters are not desaturated.`}
 ];
 function renderStep(){
   const s=steps[currentStep];
@@ -398,40 +411,52 @@ document.querySelectorAll('.choice').forEach(btn=>btn.addEventListener('click',(
     ?'Correct. Factor 0 sets every channel to that pixel’s gray reference. Navy’s gray is darker than orange’s gray.'
     :'Not this one. Factor 0 does not use a single shared 0.50 gray. Each interior keeps its own gray reference.';
 }));
-const starter=`val saturationMatrix = ColorMatrix().apply {
-    ___(saturationFactor)
-}
+const starter=`var saturationMatrix = LabColorMatrix()
+saturationMatrix.___(saturationFactor)
 
-Box(Modifier.graphicsLayer {
-    colorFilter = ColorFilter.___(saturationMatrix)
-}) {
+ZStack {
     drawBlurredArtwork()
     drawTintRect()
-}`;
-const solution=`val saturationMatrix = ColorMatrix().apply {
-    setToSaturation(saturationFactor)
 }
+.compositingGroup()
+.colorEffect(
+    ShaderLibrary.___(
+        .float(Float(saturationFactor)),
+        .float(0.213),
+        .float(0.715),
+        .float(0.072)
+    )
+)`;
+const solution=`var saturationMatrix = LabColorMatrix()
+saturationMatrix.setToSaturation(saturationFactor)
 
-Box(Modifier.graphicsLayer {
-    colorFilter = ColorFilter.colorMatrix(saturationMatrix)
-}) {
+ZStack {
     drawBlurredArtwork()
     drawTintRect()
-}`;
+}
+.compositingGroup()
+.colorEffect(
+    ShaderLibrary.saturationOnGlassGroup(
+        .float(Float(saturationFactor)),
+        .float(0.213),
+        .float(0.715),
+        .float(0.072)
+    )
+)`;
 const editor=document.getElementById('challengeEditor');
 document.getElementById('checkChallenge').addEventListener('click',()=>{
   document.getElementById('challengeResult').textContent=editor.value.replace(/\s+/g,'')===solution.replace(/\s+/g,'')
-    ?'Correct. setToSaturation writes the matrix. colorMatrix attaches it as a filter.'
-    :'Not complete yet. The first blank is setToSaturation. The second is colorMatrix.';
+    ?'Correct. setToSaturation writes the matrix. saturationOnGlassGroup attaches it as the layer filter.'
+    :'Not complete yet. The first blank is setToSaturation. The second is saturationOnGlassGroup.';
 });
-document.getElementById('showSolution').addEventListener('click',()=>{editor.value=solution;document.getElementById('challengeResult').textContent='Solution inserted. The label must stay outside this Box.';});
-document.getElementById('resetChallenge').addEventListener('click',()=>{editor.value=starter;document.getElementById('challengeResult').textContent='Fill the matrix helper and the ColorFilter factory.';});
+document.getElementById('showSolution').addEventListener('click',()=>{editor.value=solution;document.getElementById('challengeResult').textContent='Solution inserted. The label must stay outside this group.';});
+document.getElementById('resetChallenge').addEventListener('click',()=>{editor.value=starter;document.getElementById('challengeResult').textContent='Fill the matrix helper and the layer filter.';});
 document.getElementById('buildRecord').addEventListener('click',()=>{
   document.getElementById('record').value=`# Lesson 7.6 — Saturation and contrast
 Completed: pending learner confirmation
-New attachment: ColorFilter.colorMatrix(setToSaturation) on the blurred+tinted glass group.
+New attachment: saturationOnGlassGroup, using the same weights as setToSaturation, on the blurred and tinted glass group.
 Contrast is measured from the transformed RGB. The label stays outside the filter.
-Android: chapter07/SaturationContrastExplorer.kt
+iOS: chapter07/SaturationContrastExplorer.swift
 `;
 });
 paint();

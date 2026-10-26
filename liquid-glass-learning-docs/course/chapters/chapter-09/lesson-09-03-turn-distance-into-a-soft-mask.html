@@ -13,7 +13,7 @@
 <main class="page">
   <div class="topbar">
     <div class="crumbs"><a href="../../../liquid-glass-course.html">Course home</a> · <a href="lesson-distance-fields-image-sampling-and-refraction.html">Chapter 9</a> · Lesson 9.3 · complete</div>
-    <div class="chips"><span class="chip progress">89 of 216 complete</span><span class="chip progress">Lesson 9.3 complete</span></div>
+    <div class="chips"><span class="chip progress">100 of 216 complete</span><span class="chip progress">Lesson 9.3 complete</span></div>
   </div>
 
   <header class="hero panel">
@@ -22,7 +22,7 @@
       <h1>Turn distance into a soft mask</h1>
       <p class="lead"><strong>Question:</strong> Lesson 9.2’s hard <code>if (sd &lt; 0.0)</code> stores teaching orange or teaching navy. One pixel of the circle edge is fully orange. The next is fully navy. Lesson 8.11 already blended those two colors across a UV band with <code>smoothstep</code>. How do you turn the signed distance <code>sd</code> into a 0 through 1 inside-amount so the same mix can run around the circle boundary?</p>
       <div class="plain-rule">A <strong>soft mask</strong> is a 0 through 1 inside-amount that may also sit between 0 and 1. Production: <code>mask = 1.0 − smoothstep(−band, band, sd)</code>, then <code>mix(navy, orange, mask)</code>. The 1 minus is required because <code>smoothstep</code> grows as you leave the circle.</div>
-      <div class="note"><strong>Complete.</strong> This page is a JavaScript stand-in. The Android explorer compiles the <code>smoothstep</code> and the mix. Lesson 9.1’s far pixel stays navy. Lesson 9.4 builds a rounded-rectangle signed distance that this mask can wrap later.</div>
+      <div class="note"><strong>Complete.</strong> This page is a JavaScript stand-in. The iPhone 16 Pro explorer’s stitchable function computes the soft mask and the mix. Lesson 9.1’s far pixel stays navy. Lesson 9.4 builds a rounded-rectangle signed distance that this mask can wrap later.</div>
     </div>
     <div class="hero-art" aria-label="signed distance becomes a soft mask then a mix">
       <div class="hero-pipeline">
@@ -100,11 +100,11 @@ stored red     = 0.10 + (0.88 − 0.10) × 0.15625 = 0.221875</div>
       <text x="80" y="250" fill="#e07a2e" font-size="15" font-weight="800">minus = inside · mask near 1</text>
       <text x="860" y="250" fill="#1a4066" font-size="15" font-weight="800">plus = outside · mask near 0</text>
     </svg>
-    <div class="warning"><strong>Do not reverse the edges.</strong> AGSL leaves <code>smoothstep</code> undefined when <code>edge0</code> is greater than or equal to <code>edge1</code>. Writing <code>smoothstep(band, −band, sd)</code> is not a legal shortcut for the 1 minus. Keep <code>−band</code> first, then subtract from 1.</div>
+    <div class="warning"><strong>Do not reverse the edges.</strong> Metal leaves <code>smoothstep</code> undefined when <code>edge0</code> is greater than or equal to <code>edge1</code>. Writing <code>smoothstep(band, −band, sd)</code> is not a legal shortcut for the 1 minus. Keep <code>−band</code> first, then subtract from 1.</div>
   </section>
 
   <section class="section panel" id="lab">
-    <div class="section-head"><div><div class="section-no">3 · INTERACTIVE LAB</div><h2>One production mix, and two comparisons</h2></div><p>Smooth mask is production. Hard if is Lesson 9.2’s leftover. Linear mask uses <code>1 − linearFraction</code> with no bend. The displayed AGSL string stays the smooth production route. Default band 0.10 is a teaching width: 40 pixels on this 400-wide square, because the full <code>p.x</code> span is about 1.0 across 400 pixels.</p></div>
+    <div class="section-head"><div><div class="section-no">3 · INTERACTIVE LAB</div><h2>One production mix, and two comparisons</h2></div><p>Smooth mask is production. Hard if is Lesson 9.2’s leftover. Linear mask uses <code>1 − linearFraction</code> with no bend. The displayed Metal string stays the smooth production route. Default band 0.10 is a teaching width: 40 pixels on this 400-wide square, because the full <code>p.x</code> span is about 1.0 across 400 pixels.</p></div>
     <div class="controls" role="group" aria-label="Store rule">
       <button class="btn mode-btn" data-mode="hard">Hard if (9.2 leftover)</button>
       <button class="btn mode-btn" data-mode="linear">Linear mask</button>
@@ -144,7 +144,7 @@ stored red     = 0.10 + (0.88 − 0.10) × 0.15625 = 0.221875</div>
         <div class="formula" id="liveFormula" style="margin-top:12px"></div>
       </article>
     </div>
-    <div class="note"><strong>Browser versus Android.</strong> This page paints with JavaScript copies of <code>length</code>, <code>smoothstep</code>, and <code>mix</code>. Android compiles those names. Radius and band are uniform writes. <code>RuntimeShader</code> is not rebuilt. Neither measures GPU frame time.</div>
+    <div class="note"><strong>Browser versus iOS.</strong> This page paints with JavaScript copies of <code>length</code>, <code>smoothstep</code>, and <code>mix</code>. Xcode compiles those names in the <code>.metal</code> file. Radius and band are shader arguments. The <code>.metal</code> file is not rewritten. Neither measures GPU frame time.</div>
   </section>
 
   <section class="section panel" id="trace">
@@ -204,20 +204,17 @@ band 0.04 → mask 0.00     (clamped outside)</div>
   </section>
 
   <section class="section panel">
-    <div class="section-head"><div><div class="section-no">6 · ANDROID ROUTE</div><h2>Two uniforms, one 1 minus, one mix</h2></div></div>
+    <div class="section-head"><div><div class="section-no">6 · iOS ROUTE</div><h2>Two arguments, one 1 minus, one mix</h2></div></div>
     <div class="code-grid">
-      <pre class="code-block"><code>private const val PanelSizeDp = 360
-private const val DefaultRadius = 0.25f
-private const val DefaultBand = 0.10f
-private const val TeachPx = 0.18f
-private const val TeachPy = -0.24f
-
-private const val SoftMaskAgsl = """
-uniform float2 resolution;
-uniform float radius;
-uniform float band;
-
-half4 main(float2 fragCoord) {
+      <pre class="code-block"><code>[[ stitchable ]] half4 softMask(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float radius,
+    float band
+) {
+    float2 fragCoord = position * scale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float sd = length(p) - radius;
@@ -226,23 +223,28 @@ half4 main(float2 fragCoord) {
     half4 orange = half4(0.88, 0.48, 0.18, 1.0);
     return mix(navy, orange, mask);
 }
-"""
 
-val shader = remember { RuntimeShader(SoftMaskAgsl) }
+private let panelSizePt: CGFloat = 360
+private let teachPx: Float = 0.18
+private let teachPy: Float = -0.24
 
-Canvas(...) {
-    shader.setFloatUniform("resolution", size.width, size.height)
-    shader.setFloatUniform("radius", radius)
-    shader.setFloatUniform("band", band)
-    drawRect(brush = brush)
-}</code></pre>
+ShaderRect(
+    shader: ShaderLibrary.softMask(
+        .float2(pixelWidth, pixelHeight),
+        .float(Float(displayScale)),
+        .float(radius),
+        .float(band)
+    )
+)
+.frame(width: panelSizePt, height: panelSizePt)
+// SwiftUI Canvas overlay: center cross, radius ± band, teaching mark</code></pre>
       <div class="card">
         <h3>What each part changes</h3>
-        <p><code>remember { RuntimeShader(SoftMaskAgsl) }</code> compiles once. Moving either slider only writes a uniform. That is Lesson 8.9’s slot write.</p>
-        <p><code>DefaultBand = 0.10</code> is the teaching half-width so the band pixel’s linearFraction is exactly 0.75. <code>PanelSizeDp = 360</code> stays square for the same UV reason as Lesson 9.1.</p>
-        <p>At the band pixel, Kotlin prints <code>sd = +0.05</code> and <code>mask = 0.15625</code> using the same arithmetic as the HTML table. The green overlay circle is Compose drawing at the current radius. The amber overlays are radius ± band.</p>
-        <p>Hard if and linear comparison live in the HTML lab. The Android production route is the smooth mask only.</p>
-        <p><strong>Android files:</strong><br><code>chapter09/SoftMaskExplorer.kt</code><br><code>chapter09/Chapter09Screen.kt</code></p>
+        <p><code>panelSizePt = 360</code> is a square teaching size in points so UV x and UV y use the same pixel length. It is not glass geometry. Default band 0.10 makes the band pixel’s linearFraction exactly 0.75.</p>
+        <p>Xcode compiles <code>softMask</code> in the <code>.metal</code> file. <code>ShaderLibrary</code> looks it up. <code>position</code> is points, so <code>fragCoord = position * scale</code> and <code>resolution</code> are both in pixels. <code>scale</code> is <code>displayScale</code>. <code>radius</code> and <code>band</code> are in <code>p</code> units. There is no runtime string compiler. Moving either slider passes a new <code>.float</code>. That is Lesson 8.9’s argument write. Pass every argument. Leaving one out still compiles the Swift file, and SwiftUI refuses that draw.</p>
+        <p>At the band pixel, Swift prints <code>sd = +0.05</code> and <code>mask = 0.15625</code> using the same arithmetic as the HTML table. The green overlay circle is SwiftUI <code>Canvas</code> drawing at the current radius. The amber overlays are radius ± band.</p>
+        <p>Hard if and linear comparison live in the HTML lab. The iPhone 16 Pro production route is the smooth mask only.</p>
+        <p><strong>iOS files:</strong><br><code>chapter09/SoftMaskExplorer.swift</code><br><code>chapter09/SoftMask.metal</code><br><code>chapter09/Chapter09Screen.swift</code></p>
       </div>
     </div>
   </section>
@@ -262,11 +264,15 @@ Canvas(...) {
     <div class="section-head"><div><div class="section-no">8 · CODING CHALLENGE</div><h2>Build the inside-amount, then mix</h2></div></div>
     <div class="challenge">
       <div>
-        <textarea class="editor" id="challengeEditor" spellcheck="false">uniform float2 resolution;
-uniform float radius;
-uniform float band;
-
-half4 main(float2 fragCoord) {
+        <textarea class="editor" id="challengeEditor" spellcheck="false">[[ stitchable ]] half4 softMask(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float radius,
+    float band
+) {
+    float2 fragCoord = position * scale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float sd = length(p) - radius;
@@ -299,7 +305,7 @@ uv.x</div>
     <div class="section-head"><div><div class="section-no">9 · EXERCISES</div><h2>Answer before opening each hidden solution</h2></div></div>
     <details><summary>At the visual center, radius = 0.25, band = 0.10, what is the mask, and which color does production store?</summary><p>sd = −0.25, which is below −band. linearFraction clamps to 0. curvedFraction is 0. mask = 1 − 0 = 1. mix stores orange. The pixel is deep inside the band, not on the boundary.</p></details>
     <details><summary>Diagnostic: someone writes <code>float mask = smoothstep(-band, band, sd)</code> and mixes with that mask. What color is the center, and why is that backwards?</summary><p>Raw smoothstep is 0 at the center, so mix(navy, orange, 0) stores navy at the center. The inside would look like the outside. The 1 minus is what turns “how far outside” into “how much inside color.”</p></details>
-    <details><summary>Someone writes <code>smoothstep(band, -band, sd)</code> to skip the 1 minus. Why is that not this lesson’s production?</summary><p>AGSL leaves smoothstep undefined when edge0 is greater than or equal to edge1. band is greater than −band. The legal spelling keeps −band first and subtracts the result from 1.</p></details>
+    <details><summary>Someone writes <code>smoothstep(band, -band, sd)</code> to skip the 1 minus. Why is that not this lesson’s production?</summary><p>Metal leaves smoothstep undefined when edge0 is greater than or equal to edge1. band is greater than −band. The legal spelling keeps −band first and subtracts the result from 1.</p></details>
     <details><summary>Keep the far pixel at sd = +0.25. Band is 0.10. Why is its stored color still navy, and what later consumer needs the mask even there?</summary><p>sd = +0.25 is above +band, so linearFraction clamps to 1, mask is 0, mix stores navy. The mask is still computed. A later lesson that samples a background can multiply or mix with that 0 to hide the outside. Throwing the mask away on navy pixels would force a second test.</p></details>
   </section>
 
@@ -311,9 +317,9 @@ uv.x</div>
       <label class="check"><input type="checkbox">The boundary mark prints mask = 0.50.</label>
       <label class="check"><input type="checkbox">The far 9.2 pixel prints mask = 0 and stores navy.</label>
       <label class="check"><input type="checkbox">Shrinking band to 0.04 snaps the band pixel to navy. sd stays +0.05. mask decreases to 0.</label>
-      <label class="check"><input type="checkbox">Hard-if comparison has a 1-pixel-looking cut. Displayed AGSL stays the smooth mask.</label>
-      <label class="check"><input type="checkbox">This HTML page never claims to compile AGSL, to measure coverage, or to blur neighboring pixels.</label>
-      <label class="check"><input type="checkbox">The Android panel is square. Radius and band are uniforms. Light <code>@Preview</code> is first, then dark. Both previews scroll.</label>
+      <label class="check"><input type="checkbox">Hard-if comparison has a 1-pixel-looking cut. Displayed Metal stays the smooth mask.</label>
+      <label class="check"><input type="checkbox">This HTML page never claims to compile Metal, to measure coverage, or to blur neighboring pixels.</label>
+      <label class="check"><input type="checkbox">The iPhone 16 Pro panel is square. Radius and band are shader arguments. Light <code>#Preview</code> is first, then dark. Both previews scroll.</label>
     </div>
   </section>
 
@@ -327,7 +333,7 @@ uv.x</div>
     <textarea class="record" id="record" readonly>No record generated yet.</textarea>
   </section>
 
-  <footer class="footer panel"><span>89 of 216 complete · Lesson 9.3 complete · checkpoint 9.4</span><span>Previous complete: <a href="lesson-09-02-circle-signed-distance-field.html">9.2 — Circle signed distance field</a> · Next checkpoint: <a href="lesson-09-04-rounded-rectangle-distance-field.html">9.4 — Rounded rectangle distance field</a></span></footer>
+  <footer class="footer panel"><span>100 of 216 complete · checkpoint Lesson 10.1</span><span>Previous: <a href="lesson-09-02-circle-signed-distance-field.html">9.2 — Circle signed distance field</a> · Next: <a href="lesson-09-04-rounded-rectangle-distance-field.html">9.4 — Rounded rectangle distance field</a></span></footer>
 </main>
 <script>
 const W=400, H=400;
@@ -337,11 +343,15 @@ const BOUND={x:200+0.15*400, y:200-0.20*400};
 const FAR={x:320,y:40};
 const NAVY=[0.10,0.25,0.40,1];
 const ORANGE=[0.88,0.48,0.18,1];
-const PROD=`uniform float2 resolution;
-uniform float radius;
-uniform float band;
-
-half4 main(float2 fragCoord) {
+const PROD=`[[ stitchable ]] half4 softMask(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float radius,
+    float band
+) {
+    float2 fragCoord = position * scale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float sd = length(p) - radius;
@@ -487,9 +497,9 @@ mask = 1 − ${fmt5(f.curv)} = ${fmt5(f.mask)}
 used blend fraction = ${fmt5(used)}`;
   document.getElementById('labCaption').textContent=
     mode==='hard'
-      ? `Pixel (${Math.round(px)}, ${Math.round(py)}). Hard if stores ${sd<0?'orange inside':'navy outside'}. Displayed AGSL stays the smooth mask.`
+      ? `Pixel (${Math.round(px)}, ${Math.round(py)}). Hard if stores ${sd<0?'orange inside':'navy outside'}. Displayed Metal stays the smooth mask.`
       : mode==='linear'
-        ? `Linear mask uses 1 − linearFraction, with no bend. Displayed AGSL stays the smooth mask.`
+        ? `Linear mask uses 1 − linearFraction, with no bend. Displayed Metal stays the smooth mask.`
         : `Smooth mask is production. Amber rings are radius ± band. Green is sd = 0.`;
   document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('selected', b.dataset.mode===mode));
 }
@@ -690,11 +700,15 @@ document.getElementById('checkChallenge').addEventListener('click',()=>{
   }
 });
 document.getElementById('showSolution').addEventListener('click',()=>{
-  document.getElementById('challengeEditor').value=`uniform float2 resolution;
-uniform float radius;
-uniform float band;
-
-half4 main(float2 fragCoord) {
+  document.getElementById('challengeEditor').value=`[[ stitchable ]] half4 softMask(
+    float2 position,
+    half4 color,
+    float2 resolution,
+    float scale,
+    float radius,
+    float band
+) {
+    float2 fragCoord = position * scale;
     float2 uv = fragCoord / resolution;
     float2 p = uv - float2(0.5, 0.5);
     float sd = length(p) - radius;
@@ -721,7 +735,7 @@ document.getElementById('buildRecord').addEventListener('click',()=>{
 - Center mask 1. Boundary mask 0.50. Far pixel mask 0.
 - edge1 > edge0. Do not reverse the edges.
 - Not 4.8 binary, not 4.9 coverage, not blur.
-- Lesson 9.3 complete. Checkpoint is Lesson 9.4. Completion count 89 of 216.
+- Lesson 9.3 stays complete as pixel math. Completion count 100 of 216.
 `;
 });
 const qa=new URLSearchParams(location.search).get('qa');
