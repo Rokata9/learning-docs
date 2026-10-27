@@ -189,6 +189,8 @@
   #s4xSvg .small-label{font-size:14px}
   #s4xSvg .point{cursor:pointer;stroke:#111827;stroke-width:2.5}
   #s4xSvg .tk:focus-visible{outline:3px solid #4338ca;outline-offset:3px}
+  #s4xSvg .pt11{cursor:grab}
+  #s4xSvg.s4drag,#s4xSvg.s4drag *{cursor:grabbing!important}
   .s4x-controls{margin-top:8px}
   .s4x-controls .ctl{margin:4px 0}
   .s4x-controls input[type="range"]{width:320px}
@@ -197,6 +199,9 @@
   .s4x-explain p{max-width:68ch;margin:6px 0}
   .s4x-explain ul{margin:6px 0;padding-left:22px}
   .s4x-explain li{margin:3px 0}
+  .s4x-selection{margin:0 0 12px;padding:10px 12px;background:#f6f7f9;border:1px solid #d1d5db;border-radius:6px;font-size:14.5px}
+  .s4x-selection h4{margin:0 0 6px;font-size:15px}
+  .s4x-selection p{margin:4px 0}
   .s4x-math{padding:10px 0;border-bottom:1px solid #d1d5db}
   .s4x-math:empty{display:none}
   .s4x-formula{font:600 15px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;padding:8px 10px;background:#f6f7f9;border:1px solid #d1d5db;border-radius:6px;margin:0 0 8px;white-space:normal}
@@ -505,6 +510,7 @@ It then follows the read points as we move through the rim. Their change of dire
     </div>
     <aside class="s4x-side" aria-label="Explanation and calculations for the current step">
       <div class="s4x-explain" id="s4Cap" aria-live="polite"></div>
+      <div class="s4x-selection" id="s4xSelection" hidden></div>
       <div class="s4x-math" id="s4xMath"></div>
       <ul class="legend s4x-legend" id="s4Leg"></ul>
     </aside>
@@ -2579,7 +2585,7 @@ function s3Init(){
 }
 
 /* ================= Section 4: a visual, beginner-first explanation of push and fold ================= */
-const S4X={step:0,inside:5.6,E:24,letter:'b',copies:'both',probe:5.6};
+const S4X={step:0,inside:5.6,E:24,letter:'b',copies:'both',probe:5.6,showAll:false,sel:null,selCopy:'orig'};
 /* Shared teaching pixels, also used by the later challenge and exercises. */
 const PIX3=[{n:'E',i:0,dx:-8,rdx:6,row:0},{n:'P',i:5.6,dx:-8,rdx:-6,row:1},{n:'Q',i:11.2,dx:8,rdx:8,row:2}];
 const S4XB=28, S4XE=24, S4XF=FOLD, S4XFR=FOLDREAD, S4XS=SECOND;
@@ -2609,8 +2615,8 @@ function s4xArrow(x1,y1,x2,y2,color=S4XC.push,w=3,head=11){
   const p1=[x2,y2], p2=[bx+Math.sin(a)*head*.48,by-Math.cos(a)*head*.48], p3=[bx-Math.sin(a)*head*.48,by+Math.cos(a)*head*.48];
   return s4xLine(x1,y1,bx,by,color,w)+`<path d="M ${p1[0]} ${p1[1]} L ${p2[0]} ${p2[1]} L ${p3[0]} ${p3[1]} Z" fill="${color}"/>`;
 }
-function s4xPoint(x,y,color,name,html,shape='circle',radius=7){
-  const common=`class="point" tabindex="0" role="button" aria-label="${s4xEsc(name)}" data-s4tip="${s4xEsc(html)}"`;
+function s4xPoint(x,y,color,name,html,shape='circle',radius=7,attrs=''){
+  const common=`class="point" tabindex="0" role="button" aria-label="${s4xEsc(name)}" data-s4tip="${s4xEsc(html)}"${attrs?' '+attrs:''}`;
   const small=radius<7?' style="stroke-width:1.8px"':'';
   return shape==='square'?`<rect x="${x-6}" y="${y-6}" width="12" height="12" fill="${color}" ${common}/>`:`<circle cx="${x}" cy="${y}" r="${radius}" fill="${color}" ${common}${small}/>`;
 }
@@ -2963,15 +2969,18 @@ function s4xLetterSource(letter){
   if(letter==='L'){
     x.beginPath(); x.moveTo(82,70); x.lineTo(82,288); x.lineTo(214,288); x.stroke();
   } else if(letter==='A'){
-    x.beginPath(); x.moveTo(148,68); x.lineTo(67,288); x.moveTo(148,68); x.lineTo(229,288); x.stroke();
-    x.lineWidth=22; x.beginPath(); x.moveTo(95,220); x.lineTo(201,220); x.stroke();
+    /* Step 11's A11 numbers in pt × 12: legs from (2, 24) up to the apex (11.25, 5.5) and down to (20.5, 24); crossbar on row 18 from x 5 to 17.5 */
+    x.beginPath(); x.moveTo(24,288); x.lineTo(135,66); x.lineTo(246,288); x.stroke();
+    x.lineWidth=22; x.beginPath(); x.moveTo(60,216); x.lineTo(210,216); x.stroke();
   } else {
     x.lineWidth=28; x.beginPath(); x.moveTo(78,64); x.lineTo(78,288); x.stroke();
     x.lineWidth=25; x.beginPath(); x.ellipse(145,218,66,68,0,0,Math.PI*2); x.stroke();
   }
   x.globalCompositeOperation='source-atop';
-  x.fillStyle='#60a5fa'; x.fillRect(0,0,w,S4XFR*scale);
-  x.fillStyle='#f59e0b'; x.fillRect(0,S4XFR*scale,w,(24-S4XFR)*scale);
+  /* whole canvas rows only: a row half blue, half orange would show as a gray band where the output reads it many times */
+  const firstRead=Math.floor(S4XFR*scale);
+  x.fillStyle='#60a5fa'; x.fillRect(0,0,w,firstRead);
+  x.fillStyle='#f59e0b'; x.fillRect(0,firstRead,w,24*scale-firstRead);
   x.fillStyle='#8b5cf6'; x.fillRect(0,24*scale,w,h-24*scale);
   x.globalCompositeOperation='destination-over'; x.fillStyle='#f8fafc'; x.fillRect(0,0,w,h);
   x.globalCompositeOperation='source-over';
@@ -3008,10 +3017,10 @@ function s4xDraw10(){
   const {c,x}=s4xUseCanvas(), L=s4xDrawLetterPanels(x,S4X.letter,S4X.copies);
   x.fillStyle='#1f2937';x.font='700 17px -apple-system,"Segoe UI",sans-serif';x.fillText('The same row rule is applied to every column.',60,38);
   x.font='15px -apple-system,"Segoe UI",sans-serif';x.fillStyle='#4b5563';x.fillText('Blue pixel rows in the original picture are not read. Orange rows are read twice. The geometric letters make the row changes easy to see.',60,64);
-  x.fillStyle='#1f2937';x.font='600 15px -apple-system,"Segoe UI",sans-serif';x.fillText('Glass-picture rows 15.121822 → 24 are used twice: 8.878178 pt.',60,548);
+  x.fillStyle='#1f2937';x.font='600 15px -apple-system,"Segoe UI",sans-serif';x.fillText('Pixel rows in the original picture from 15.121822 to 24 are used twice: 8.878178 pt.',60,548);
   const stage=$('s4xStage'), y0=L.origin.y, x0=L.panels[1].x+L.w+8;
   [[0,'output pixel 0'],[S4XF,'fold line'],[S4XS,'second pixel reading 24']].forEach(([v,n])=>s4xCanvasPoint(stage,c,x0,y0+v*L.scale,'#fff',`<b>${n}</b><br>inside = ${s4xFmt(v,6)} pt; read = ${s4xFmt(s4xRead(v),6)} pt.`,n));
-  $('s4xSvgDesc').textContent='A geometric letter in the original picture and its actual row-mapped output. The bottom pixel rows in the original picture appears in a upside-down copy and an original-order copy.';
+  $('s4xSvgDesc').textContent='A geometric letter in the original picture and its actual row-mapped output. The bottom pixel rows in the original picture appear once upside down and once in their original order.';
   return {canvas:true,math:s4xMath('For each output row: read = inside + push. Then copy that pixel row in the original picture.',[
     ['first pixel row in the original picture read',s4xFmt(S4XFR,6)+' pt below the top of the glass'],
     ['last pixel row in the original picture read twice','24.000000 pt below the top of the glass'],
@@ -3021,67 +3030,318 @@ function s4xDraw10(){
   ],'These are geometric test letters, not a claim about Apple’s font outlines. The browser copies real rendered rows with the same read rule as the shader.'),legend:s4xLegend([[S4XC.missing,'<b>blue pixel rows in the original picture</b>: not read.'],[S4XC.twice,'<b>orange pixel rows in the original picture</b>: read twice.'],[S4XC.push,'<b>pink bracket</b>: upside-down copy.'],[S4XC.forward,'<b>teal bracket</b>: original-order copy.']])};
 }
 
-/* Step 11 */
+/* ================= Step 11: the test letter A. The output on top, the original picture straight below it ================= */
+/* The A's strokes as middle lines, in pt from the test picture's top-left corner, y down (Step 10 draws the same A):
+   left leg x = 14 − 0.5 × y and right leg x = 8.5 + 0.5 × y, from the apex (11.25, 5.5) to the feet on row 24;
+   the crossbar on row 18, from x = 5 to x = 17.5. Both pictures use 10 px per pt; the strip enlarges output rows 0–2 pt six times downward.
+   Under the straight top of the glass a read moves only down (R’s row = P’s row + push), so the output sits above the original. */
+const A11={k:10,x0:70,yP:40,yO:340,sx:420,ys:40,sz:6,rows:25,w:22.5,srows:2};
+const a11X=x=>A11.x0+x*A11.k, a11YO=y=>A11.yO+y*A11.k, a11YP=i=>A11.yP+i*A11.k, a11SX=x=>A11.sx+x*A11.k, a11SY=i=>A11.ys+i*A11.k*A11.sz;
+const S4X11_KEY=[18,19,20];
+const S4X11_COPY={up:{short:'upside-down copy',where:'the upside-down copy',col:S4XC.push,off:-2},orig:{short:'original-order copy',where:'the original-order copy',col:S4XC.forward,off:2},once:{short:'read once, below the original-order copy',where:'the rows below the original-order copy',col:S4XC.forward,off:0}};
+const s4xXY=v=>String(Math.round(v*1e6)/1e6);
+const S4X11={};
+function s4xPics11(){
+  if(S4X11.src) return S4X11;
+  const src=s4xLetterSource('A'), out=s4xWarpLetter(src), sc=S4X_LETTER_SCALE, w=src.width;
+  const crop=(img,h)=>{ const c=canvasOf(w,h); c.getContext('2d').drawImage(img,0,0,w,h,0,0,w,h); return c.toDataURL('image/png'); };
+  S4X11.src=crop(src,A11.rows*sc); S4X11.out=crop(out,A11.rows*sc); S4X11.strip=crop(out,A11.srows*sc);
+  return S4X11;
+}
+/* Every output pixel whose read lands on row y of the original picture. Its x is R's x: the read moves only up or down. */
+function s4xReaders11(y){
+  if(y<S4XFR) return [];
+  if(y<=24) return [{copy:'up',inside:y===24?0:s4xInverse(y,0,S4XF)},{copy:'orig',inside:s4xInverse(y,S4XF,S4XS)}];
+  return [{copy:'once',inside:s4xInverse(y,S4XS,28)}];
+}
+function s4xPt11(x,y,stroke){ return {x,y,stroke,readers:s4xReaders11(y)}; }
+function s4xName11(p){ return p.stroke==='right leg'&&S4X11_KEY.includes(p.y)&&p.x===8.5+.5*p.y?`R${p.y}`:'R'; }
+function s4xSet11(){
+  if(!S4X.showAll) return S4X11_KEY.map(y=>s4xPt11(8.5+.5*y,y,'right leg'));
+  const pts=[]; for(let y=8;y<=24;y+=2) pts.push(s4xPt11(14-.5*y,y,'left leg'),s4xPt11(8.5+.5*y,y,'right leg'));
+  [7.5,10,12.5,15].forEach(x=>pts.push(s4xPt11(x,18,'crossbar')));
+  return pts;
+}
+/* A clicked or dragged point stays exactly where it is put (0.1 pt steps); it never jumps to a middle line.
+   Its stroke is the nearest middle line when the point lies on the A's ink, read from the same picture the page shows. */
+function s4xStroke11(x,y){
+  if(!S4X11.ink){ const c=s4xLetterSource('A'); S4X11.ink={w:c.width,h:c.height,d:c.getContext('2d').getImageData(0,0,c.width,c.height).data}; }
+  const ink=S4X11.ink, sc=S4X_LETTER_SCALE, cx=Math.min(ink.w-1,Math.floor(x*sc)), cy=Math.min(ink.h-1,Math.floor(y*sc));
+  if(ink.d[(cy*ink.w+cx)*4+1]>205) return ''; /* the background #f8fafc has green 250; blue, orange and violet ink have green 92–165 */
+  let best=null;
+  for(const [name,ax,ay,bx,by] of [['left leg',11.25,5.5,2,24],['right leg',11.25,5.5,20.5,24],['crossbar',5,18,17.5,18]]){
+    const dx=bx-ax,dy=by-ay,t=clamp(((x-ax)*dx+(y-ay)*dy)/(dx*dx+dy*dy),0,1),d=Math.hypot(x-ax-dx*t,y-ay-dy*t);
+    if(!best||d<best.d) best={name,d};
+  }
+  return best.name;
+}
+function s4xFree11(px,py){ const r1=v=>Math.round(v*10)/10, x=clamp(r1(px),0,A11.w), y=clamp(r1(py),0,A11.rows); return s4xPt11(x,y,s4xStroke11(x,y)); }
+function s4xTipR11(p){
+  const nm=s4xName11(p), s=`<b>${nm} · ${p.stroke||'background, not on the A'}</b><br>Point of the original picture at (${s4xXY(p.x)}, ${s4xXY(p.y)}) pt from the test picture’s top-left corner, y down.<br>`;
+  if(!p.readers.length) return s+`No output pixel reads row ${s4xXY(p.y)}: rows above ${s4xFmt(S4XFR,6)} pt are never read.`;
+  return s+p.readers.map(r=>`${nm.replace('R','P')} in ${S4X11_COPY[r.copy].where}: (${s4xXY(p.x)}, ${s4xFmt(r.inside,6)}) pt`).join('<br>')+'<br>Click to select it, or drag it: its P’s follow. Its full calculation appears beside the picture.';
+}
+function s4xTipP11(p,r){
+  const nm=s4xName11(p);
+  return `<b>${nm.replace('R','P')} · ${S4X11_COPY[r.copy].short}</b><br>Output pixel at (${s4xXY(p.x)}, ${s4xFmt(r.inside,6)}) pt from the output’s top-left corner, y down.<br>It reads ${nm} = (${s4xXY(p.x)}, ${s4xXY(p.y)}) pt in the original picture, straight below it.<br>Click to select it, or drag it: ${nm} follows. Its full calculation appears beside the picture.`;
+}
+const s4xAttr11=(p,copy='')=>`data-s4r="${p.x}|${p.y}|${p.stroke}|${copy}"`;
+function s4xHaloArrow(x1,y1,x2,y2,color,w,head){ const halo=Math.min(2.2,w*1.2); return s4xArrow(x1,y1,x2,y2,'#111827',w+halo,head+halo)+s4xArrow(x1,y1,x2,y2,color,w,head); }
+/* The rectangle a plate covers: [left, top, right, bottom]. */
+function s4xPlateBox11(x,y,t,anchor,size=13){ const w=t.length*size*.62+6, left=anchor==='end'?x-w+3:anchor==='middle'?x-w/2:x-3; return [left,y-size+1,left+w,y+5]; }
+function s4xPlate(x,y,t,o={}){
+  const size=o.size||13, w=t.length*size*.62+6, left=o.anchor==='end'?x-w+3:o.anchor==='middle'?x-w/2:x-3;
+  return `<rect x="${left}" y="${y-size+1}" width="${w}" height="${size+4}" rx="3" fill="#fff" fill-opacity=".92" pointer-events="none"/>`+s4xText(x,y,t,{mono:true,weight:700,...o,size});
+}
+/* The arrows from every P down to the R it reads (the read direction), one pair per R. */
+function s4xArrows11(p,w,head,gap=4){
+  return p.readers.map(r=>{ const c=S4X11_COPY[r.copy], x=a11X(p.x)+c.off; return s4xHaloArrow(x,a11YP(r.inside)+gap,x,a11YO(p.y)-gap,c.col,w,head); }).join('');
+}
+/* A small dot inside a wider transparent circle, so it stays easy to click and to drag. */
+function s4xDot11(x,y,color,name,html,r,attrs){
+  return `<g class="pt11" tabindex="0" role="button" aria-label="${s4xEsc(name)}" data-s4tip="${s4xEsc(html)}" ${attrs}><circle cx="${x}" cy="${y}" r="${r+3}" fill="transparent"/><circle cx="${x}" cy="${y}" r="${r}" fill="${color}" stroke="#111827" stroke-width="1.3"/></g>`;
+}
+function s4xDots11(p,rR,rP){
+  let s=s4xDot11(a11X(p.x),a11YO(p.y),p.readers.length?'#ffffff':'#9ca3af',`${s4xName11(p)} on the original picture`,s4xTipR11(p),rR,s4xAttr11(p));
+  p.readers.forEach(r=>{
+    const c=S4X11_COPY[r.copy];
+    s+=s4xDot11(a11X(p.x),a11YP(r.inside),c.col,`${s4xName11(p).replace('R','P')} in ${c.where}`,s4xTipP11(p,r),rP,s4xAttr11(p,r.copy));
+    if(r.inside<=A11.srows) s+=s4xDot11(a11SX(p.x),a11SY(r.inside),c.col,`${s4xName11(p).replace('R','P')} in the enlarged strip`,s4xTipP11(p,r)+'<br>Shown in the strip: vertical ×6, horizontal ×1.',rP,s4xAttr11(p,r.copy));
+  });
+  return s;
+}
+/* The column on the right: R18 → R19 → R20 and their P’s, five times larger, with the right part and the up/down part of every move. */
+function s4xMoves11(){
+  const n6=v=>Number(s4xFmt(v,6).replace('−','-')), u=S4X11_KEY.map(y=>n6(s4xInverse(y,0,S4XF))), o=S4X11_KEY.map(y=>n6(s4xInverse(y,S4XF,S4XS)));
+  return {u,o,up:[n6(u[0]-u[1]),n6(u[1]-u[2])],down:[n6(o[1]-o[0]),n6(o[2]-o[1])]};
+}
+function s4xMovePanel11(title,col,yTitle,y0,moves,names,where,verdict,yVerdict){
+  const m=50, x0=760; let s=s4xText(700,yTitle,title,{weight:700,size:14,fill:col}), x=x0, y=y0; const pts=[[x,y]];
+  moves.forEach(([dy,word])=>{
+    const nx=x+.5*m, ny=y+dy*m;
+    s+=s4xLine(x,y,nx,y,'#9ca3af',2)+s4xLine(nx,y,nx,ny,'#9ca3af',2)+s4xArrow(x,y,nx,ny,col,2.5,9);
+    s+=s4xText(nx+10,(y+ny)/2+5,word,{mono:true,size:13,fill:col,weight:700});
+    x=nx; y=ny; pts.push([x,y]);
+  });
+  pts.forEach(([px,py],j)=>{ s+=s4xPoint(px,py,col===S4XC.ink?'#ffffff':col,`${names[j]}, enlarged`,where[j],'circle',5.5)+s4xText(px-11,py+5,names[j],{anchor:'end',mono:true,size:13,weight:700,fill:col}); });
+  return s+s4xText(700,yVerdict,verdict,{size:14,weight:700,fill:col});
+}
 function s4xDraw11(){
-  const p18=s4xInverse(18,0,S4XF),p19=s4xInverse(19,0,S4XF),p20=s4xInverse(20,0,S4XF),q18=s4xInverse(18,S4XF,S4XS),q19=s4xInverse(19,S4XF,S4XS),q20=s4xInverse(20,S4XF,S4XS);
-  const d1=Number(s4xFmt(p18,6))-Number(s4xFmt(p19,6)),d2=Number(s4xFmt(p19,6))-Number(s4xFmt(p20,6)),d3=Number(s4xFmt(q19,6))-Number(s4xFmt(q18,6)),d4=Number(s4xFmt(q20,6))-Number(s4xFmt(q19,6));
-  const scale=40, panels=[
-    {name:'ORIGINAL LINE',x:35,col:'#1e40af',start:[95,145],moves:[{dy:scale,word:'down 1.000'},{dy:scale,word:'down 1.000'}],summary:'right ÷ down stays 0.5 → straight'},
-    {name:'UPSIDE-DOWN COPY',x:405,col:S4XC.push,start:[465,260],moves:[{dy:-d1*scale,word:`up ${s4xFmt(d1,3)}`},{dy:-d2*scale,word:`up ${s4xFmt(d2,3)}`}],summary:'up moves shrink → the direction changes'},
-    {name:'ORIGINAL-ORDER COPY',x:775,col:S4XC.forward,start:[835,145],moves:[{dy:d3*scale,word:`down ${s4xFmt(d3,3)}`},{dy:d4*scale,word:`down ${s4xFmt(d4,3)}`}],summary:'down moves shrink → the direction changes'}
-  ];
-  let s=s4xText(35,30,'First, follow the same two moves in each picture: right 0.5 pt, then up or down.',{weight:700,size:17});
-  panels.forEach((p,pi)=>{
-    s+=s4xText(p.x,72,p.name,{weight:700,size:15,fill:p.col});
-    let [x,y]=p.start, row=18; const marks=[{x,y,row,word:''}];
-    p.moves.forEach(m=>{
-      const nx=x+scale,ny=y+m.dy;
-      s+=s4xArrow(x,y,nx,ny,p.col,2.5,8);
-      if(pi!==1) s+=s4xText(nx+10,(y+ny)/2-8,m.word,{fill:p.col,size:13,mono:true});
-      x=nx;y=ny;row++;marks.push({x,y,row,word:m.word});
-    });
-    if(pi===1){s+=s4xText(p.x+72,150,'18 → 19: up 0.500',{fill:p.col,size:13,mono:true})+s4xText(p.x+72,174,'19 → 20: up 0.347',{fill:p.col,size:13,mono:true});}
-    marks.forEach((m,j)=>{
-      s+=s4xPoint(m.x,m.y,p.col,`${p.name}: pixel row ${m.row}`,j===0?`${p.name}, pixel row ${m.row}. The next moves are shown from this point.`:`${p.name}, pixel row ${m.row}.<br>From the previous row: right 0.500000 pt and ${m.word} pt.`);
-      s+=s4xText(pi===1?m.x-12:m.x,m.y+22,String(m.row),{anchor:pi===1?'end':'middle',mono:true,size:14,weight:700});
-    });
-    s+=s4xText(p.x,318,p.summary,{fill:p.col,weight:700,size:14});
+  const pics=s4xPics11(), W=A11.w*A11.k, H=A11.rows*A11.k, x0=A11.x0, pts=s4xSet11();
+  if(!S4X.sel) S4X.sel=s4xPt11(17.5,18,'right leg');
+  let s='';
+  /* the two pictures, the output above the original: a read moves only down */
+  s+=s4xText(x0,28,'OUTPUT',{weight:700,size:15});
+  s+=`<image href="${pics.out}" x="${x0}" y="${A11.yP}" width="${W}" height="${H}" preserveAspectRatio="none"/>`+s4xRect(x0,A11.yP,W,H,'none','#111827',1.2);
+  s+=s4xText(x0+W+16,a11YO(0)+5,'ORIGINAL PICTURE',{weight:700,size:15})+s4xText(x0+W+16,a11YO(0)+23,'test letter A',{size:14});
+  s+=`<image href="${pics.src}" x="${x0}" y="${A11.yO}" width="${W}" height="${H}" preserveAspectRatio="none"/>`+s4xRect(x0,A11.yO,W,H,'none','#111827',1.2);
+  [A11.yP,A11.yO].forEach((y0,j)=>{
+    for(let v=0;v<=A11.rows;v+=5) s+=s4xLine(x0-6,y0+v*A11.k,x0,y0+v*A11.k,S4XC.ink,1.2)+s4xText(x0-9,y0+v*A11.k+5,String(v),{anchor:'end',mono:true,size:13});
+    s+=s4xText(24,y0+H/2,'pt below the top of the glass',{anchor:'middle',size:13,fill:S4XC.muted,rotate:-90});
   });
-  s+=s4xText(35,350,'The rightward moves are identical. Only the up/down moves change.',{fill:S4XC.muted,size:14});
-  /* The same rows as dots, so the changing direction is visible. */
-  const rows=[16,17,18,19,20], dots=[{name:'ORIGINAL PICTURE',kind:'source',x:70,col:S4XC.ink},{name:'UPSIDE-DOWN COPY',kind:'c1',x:415,col:S4XC.push},{name:'ORIGINAL-ORDER COPY',kind:'c2',x:760,col:S4XC.forward}], small=20.5;
-  s+=s4xText(35,382,'Now follow pixel rows 16–20 as dots. All three panels use one scale.',{weight:700,size:17});
-  const yFor=(kind,r)=>kind==='source'?440+(r-16)*small:kind==='c1'?440+(3.5-s4xInverse(r,0,S4XF))*small:440+(s4xInverse(r,S4XF,S4XS)-11)*small;
-  const pos=(panel,r,slanted)=>{const xx=slanted?3+.5*(r-16):1;return{x:panel.x+45+xx*small,y:yFor(panel.kind,r),inside:panel.kind==='source'?r:panel.kind==='c1'?s4xInverse(r,0,S4XF):s4xInverse(r,S4XF,S4XS)};};
-  dots.forEach(p=>{
-    s+=s4xText(p.x,414,p.name,{weight:700,size:14,fill:p.col})+s4xRect(p.x,428,280,176,'#f8fafc','#d1d5db',1,6)+s4xLine(p.x+45,434,p.x+45,580,'#9ca3af',1,'3 4')+s4xText(p.x+45,610,'horizontal 0',{anchor:'middle',fill:S4XC.muted,size:13});
-    const vpts=rows.map(r=>pos(p,r,false)), apts=rows.map(r=>pos(p,r,true));
-    s+=s4xPath(vpts.map((q,k)=>(k?'L ':'M ')+q.x+' '+q.y).join(''),'#1e40af',2.5)+s4xPath(apts.map((q,k)=>(k?'L ':'M ')+q.x+' '+q.y).join(''),'#ea580c',2.5);
-    rows.forEach(r=>[false,true].forEach(sl=>{const q=pos(p,r,sl);s+=s4xPoint(q.x,q.y,sl?'#ea580c':'#1e40af',`${p.name}, pixel row ${r}, ${sl?'slanted':'vertical'} line`,`${p.name}, pixel row ${r}.<br>${p.kind==='source'?'Position in the original picture':'Output inside'} = ${s4xFmt(q.inside,6)} pt below the top of the glass.<br>Horizontal position = ${s4xFmt(sl?3+.5*(r-16):1,3)} pt from the gray line.`,'circle',4.5);}));
-    [18,19,20].forEach(r=>{const q=pos(p,r,true);s+=s4xText(q.x+10,q.y-9,String(r),{mono:true,size:13,weight:700,fill:'#c2410c'});});
-  });
-  s+=s4xText(70,628,'blue: vertical line',{fill:'#1e40af',weight:700,size:14})+s4xText(240,628,'orange: slanted line',{fill:'#c2410c',weight:700,size:14})+s4xText(470,628,'numbers: pixel rows in the original picture',{fill:S4XC.muted,size:14});
+  /* rows of the original picture: never read, read twice, read once */
+  const bar=(y1,y2,col)=>s4xRect(x0+W+5,y1,5,y2-y1,col);
+  s+=bar(a11YO(0),a11YO(S4XFR),'#60a5fa')+bar(a11YO(S4XFR),a11YO(24),'#f59e0b')+bar(a11YO(24),a11YO(A11.rows),'#8b5cf6');
+  s+=s4xLine(x0,a11YO(S4XFR),x0+W+10,a11YO(S4XFR),'#1d4ed8',1.6)+s4xLine(x0,a11YO(24),x0+W+10,a11YO(24),'#92400e',1.6);
+  s+=s4xText(x0+W+16,a11YO(S4XFR/2)+5,'never read',{fill:'#1d4ed8',weight:700,size:14})+s4xText(x0+W+16,a11YO(S4XFR)+5,'15.122',{fill:'#1d4ed8',mono:true,size:13});
+  s+=s4xText(x0+W+16,a11YO((S4XFR+24)/2)+5,'read twice',{fill:'#92400e',weight:700,size:14})+s4xText(x0+W+16,a11YO(24)+3,'24',{fill:'#92400e',mono:true,size:13})+s4xText(x0+W+16,a11YO(A11.rows)+12,'read once',{fill:'#6d28d9',weight:700,size:14});
+  /* the two copies in the output */
+  s+=s4xRect(x0+W+5,a11YP(0),5,a11YP(S4XF)-a11YP(0),S4XC.push)+s4xRect(x0+W+5,a11YP(S4XF),5,a11YP(S4XS)-a11YP(S4XF),S4XC.forward);
+  s+=s4xLine(x0,a11YP(S4XF),x0+W+10,a11YP(S4XF),S4XC.ink,1.6)+s4xLine(x0,a11YP(S4XS),x0+W+10,a11YP(S4XS),S4XC.ink,1.6);
+  s+=s4xText(x0+W+16,a11YP(S4XF/2)+4,'upside-down',{fill:S4XC.push,weight:700,size:14})+s4xText(x0+W+16,a11YP(S4XF/2)+20,'copy',{fill:S4XC.push,weight:700,size:14});
+  s+=s4xText(x0+W+16,a11YP(S4XF)+5,'6.741 fold',{mono:true,size:13});
+  s+=s4xText(x0+W+16,a11YP((S4XF+S4XS)/2)-2,'original-order',{fill:'#0f766e',weight:700,size:14})+s4xText(x0+W+16,a11YP((S4XF+S4XS)/2)+14,'copy',{fill:'#0f766e',weight:700,size:14});
+  s+=s4xText(x0+W+16,a11YP(S4XS)+5,'23.718',{mono:true,size:13});
+  /* the strip: output rows 0–2 pt, enlarged six times downward */
+  const sh=A11.srows*A11.k*A11.sz;
+  s+=s4xText(A11.sx,28,'OUTPUT rows 0–2 pt, enlarged',{weight:700,size:15,fill:S4XC.push});
+  s+=`<image href="${pics.strip}" x="${A11.sx}" y="${A11.ys}" width="${W}" height="${sh}" preserveAspectRatio="none" style="image-rendering:pixelated"/>`+s4xRect(A11.sx,A11.ys,W,sh,'none','#111827',1.2);
+  for(let v=0;v<=A11.srows;v+=.5) s+=s4xLine(A11.sx+W,a11SY(v),A11.sx+W+6,a11SY(v),S4XC.ink,1.2)+s4xText(A11.sx+W+9,a11SY(v)+5,s4xFmt(v,1),{mono:true,size:13});
+  s+=s4xText(A11.sx,A11.ys+sh+22,'vertical ×6 · horizontal ×1',{size:14,fill:S4XC.muted})+s4xText(A11.sx,A11.ys+sh+40,'(60 px per pt down, 10 px per pt across)',{size:13,fill:S4XC.muted});
+  s+=s4xText(x0,620,'Both large pictures: 10 px per pt. x: pt from the picture’s left edge. y: pt below the top of the glass.',{size:13,fill:S4XC.muted});
+  /* how to use it */
+  s+=s4xText(430,232,'Drag or click any point.',{weight:700,size:16})+s4xText(430,254,'R: a point of the original A.',{size:14})+s4xText(430,272,'P: an output pixel that reads R.',{size:14});
+  s+=s4xText(430,290,'Each arrow runs straight down:',{size:14})+s4xText(430,308,'R’s row = P’s row + push, same x.',{size:14});
+  /* thin arrows for every shown point (all-points view), then the hit areas, then the dots */
+  if(S4X.showAll) s+=`<g pointer-events="none">${pts.map(p=>s4xArrows11(p,1,5)).join('')}</g>`;
+  s+=`<g id="s4xSelLines11" pointer-events="none"></g>`;
+  const hit=(id,zone,x,y,w,h)=>`<rect id="${id}" data-s4zone="${zone}" x="${x}" y="${y}" width="${w}" height="${h}" fill="transparent" pointer-events="all" style="cursor:crosshair;touch-action:none"/>`;
+  s+=hit('s4xHitOut11','out',x0,A11.yP,W,H)+hit('s4xHitStrip11','strip',A11.sx,A11.ys,W,sh)+hit('s4xHit11','orig',x0,A11.yO,W,H);
+  s+=pts.map(p=>s4xDots11(p,3.2,2.8)).join('');
+  /* what the selected point's labels must not cover: the preset dots and their name plates */
+  S4X11.obst=[]; const ob=(x,y,r)=>S4X11.obst.push([x-r-1,y-r-1,x+r+1,y+r+1]);
+  pts.forEach(p=>{ ob(a11X(p.x),a11YO(p.y),3.2); p.readers.forEach(r=>{ ob(a11X(p.x),a11YP(r.inside),2.8); if(r.inside<=A11.srows) ob(a11SX(p.x),a11SY(r.inside),2.8); }); });
+  const plate=(x,y,t,o={})=>{ S4X11.obst.push(s4xPlateBox11(x,y,t,o.anchor)); return s4xPlate(x,y,t,o); };
+  if(!S4X.showAll){
+    /* names of the three enlarged points, on light plates */
+    const [r18,r19,r20]=pts;
+    s+=plate(a11X(r18.x)+9,a11YO(18)+5,'R18')+plate(a11X(r19.x)-9,a11YO(19)+5,'R19',{anchor:'end'})+plate(a11X(r20.x)+9,a11YO(20)+5,'R20');
+    pts.forEach(p=>{ const [u,o]=p.readers, n=`P${p.y}`; s+=plate(a11X(p.x)+9,a11YP(o.inside)+5,n,{fill:'#0f766e'})+plate(a11SX(p.x)+9,a11SY(u.inside)+5,n,{fill:S4XC.push}); });
+  }
+  /* the enlarged column of moves, in the order of the pictures: the output copies above, the original below */
+  const mv=s4xMoves11(), f6=v=>s4xFmt(v,6);
+  s+=s4xText(700,28,'R18 → R19 → R20 and their P’s, enlarged ×5',{weight:700,size:15});
+  s+=s4xMovePanel11('OUTPUT · UPSIDE-DOWN COPY (each move: right 0.5)',S4XC.push,56,128,[[-mv.up[0],'up '+f6(mv.up[0])],[-mv.up[1],'up '+f6(mv.up[1])]],['P18','P19','P20'],
+    S4X11_KEY.map((y,j)=>`<b>P${y}</b> · upside-down copy: (${s4xXY(8.5+.5*y)}, ${f6(mv.u[j])}) pt. It reads R${y}.${j?'<br>From P'+(y-1)+': right 0.5 pt, up '+f6(mv.up[j-1])+' pt.':''}`),`right ÷ up: ${f6(.5/mv.up[0])}, then ${f6(.5/mv.up[1])} → it bends`,160);
+  s+=s4xMovePanel11('OUTPUT · ORIGINAL-ORDER COPY (each move: right 0.5)',S4XC.forward,200,218,[[mv.down[0],'down '+f6(mv.down[0])],[mv.down[1],'down '+f6(mv.down[1])]],['P18','P19','P20'],
+    S4X11_KEY.map((y,j)=>`<b>P${y}</b> · original-order copy: (${s4xXY(8.5+.5*y)}, ${f6(mv.o[j])}) pt. It reads R${y}.${j?'<br>From P'+(y-1)+': right 0.5 pt, down '+f6(mv.down[j-1])+' pt.':''}`),`right ÷ down: ${f6(.5/mv.down[0])}, then ${f6(.5/mv.down[1])} → it bends`,410);
+  s+=s4xMovePanel11('ORIGINAL A · right leg (each move: right 0.5)',S4XC.ink,450,468,[[1,'down 1.000000'],[1,'down 1.000000']],['R18','R19','R20'],
+    S4X11_KEY.map((y,j)=>`<b>R${y}</b> on the A’s right leg: (${s4xXY(8.5+.5*y)}, ${y}) pt.${j?'<br>From R'+(y-1)+': right 0.5 pt, down 1 pt.':''}`),'right ÷ down: 0.5, then 0.5 → straight',600);
+  s+=`<g id="s4xSel11"></g>`;
   const rowsMath=[
-    ['The original slanted line'],
-    ['right move for every pixel row','0.500000 pt'],
-    ['down move for every pixel row','1.000000 pt'],
-    ['right ÷ down, every time','0.500000 ÷ 1.000000 = 0.500000: the direction stays the same'],
-    ['The original-order copy'],
-    ['row 18 → row 19',`${s4xFmt(q19,6)} − ${s4xFmt(q18,6)} = ${s4xFmt(d3,6)} pt down`],
-    ['right ÷ down for that move',`0.500000 ÷ ${s4xFmt(d3,6)} = ${s4xFmt(.5/d3,6)}`],
-    ['row 19 → row 20',`${s4xFmt(q20,6)} − ${s4xFmt(q19,6)} = ${s4xFmt(d4,6)} pt down`],
-    ['right ÷ down for that move',`0.500000 ÷ ${s4xFmt(d4,6)} = ${s4xFmt(.5/d4,6)}`],
-    ['The upside-down copy'],
-    ['row 18 → row 19',`${s4xFmt(p18,6)} − ${s4xFmt(p19,6)} = ${s4xFmt(d1,6)} pt up`],
-    ['right ÷ up for that move',`0.500000 ÷ ${s4xFmt(d1,6)} = ${s4xFmt(.5/d1,6)}`],
-    ['row 19 → row 20',`${s4xFmt(p19,6)} − ${s4xFmt(p20,6)} = ${s4xFmt(d2,6)} pt up`],
-    ['right ÷ up for that move',`0.500000 ÷ ${s4xFmt(d2,6)} = ${s4xFmt(.5/d2,6)}`],
+    ['The upside-down copy: P18 → P19 → P20'],
+    ['P18 → P19',`${f6(mv.u[0])} − ${f6(mv.u[1])} = ${f6(mv.up[0])} pt up`],
+    ['right ÷ up for that move',`0.500000 ÷ ${f6(mv.up[0])} = ${f6(.5/mv.up[0])}`],
+    ['P19 → P20',`${f6(mv.u[1])} − ${f6(mv.u[2])} = ${f6(mv.up[1])} pt up`],
+    ['right ÷ up for that move',`0.500000 ÷ ${f6(mv.up[1])} = ${f6(.5/mv.up[1])}`],
+    ['The original-order copy: P18 → P19 → P20'],
+    ['P18 → P19',`${f6(mv.o[1])} − ${f6(mv.o[0])} = ${f6(mv.down[0])} pt down`],
+    ['right ÷ down for that move',`0.500000 ÷ ${f6(mv.down[0])} = ${f6(.5/mv.down[0])}`],
+    ['P19 → P20',`${f6(mv.o[2])} − ${f6(mv.o[1])} = ${f6(mv.down[1])} pt down`],
+    ['right ÷ down for that move',`0.500000 ÷ ${f6(mv.down[1])} = ${f6(.5/mv.down[1])}`],
+    ['The original A: R18 → R19 → R20 on the right leg'],
+    ['right part of each move','0.500000 pt'],
+    ['down part of each move','1.000000 pt'],
+    ['right ÷ down, both moves','0.500000 ÷ 1.000000 = 0.500000: the direction stays the same'],
     ['Why these are curves'],
-    ['original-order copy',`${s4xFmt(.5/d3,6)} ≠ ${s4xFmt(.5/d4,6)}: right ÷ down changes, so the direction changes`],
-    ['upside-down copy',`${s4xFmt(.5/d1,6)} ≠ ${s4xFmt(.5/d2,6)}: right ÷ up changes, so the direction changes`],
-    ['vertical line','right move = 0 pt for every pixel row, so its x position never changes; uneven vertical spacing cannot bend it']
+    ['upside-down copy',`${f6(.5/mv.up[0])} ≠ ${f6(.5/mv.up[1])}: right ÷ up changes, so the direction changes`],
+    ['original-order copy',`${f6(.5/mv.down[0])} ≠ ${f6(.5/mv.down[1])}: right ÷ down changes, so the direction changes`],
+    ['crossbar','every point of it is on row 18, so all its P’s share one output row: it stays a straight horizontal line'],
+    ['vertical line','right part = 0 pt for every move, so its x position never changes; uneven up/down parts cannot bend it']
   ];
-  return {svg:s,desc:'Two-move arrows and row dots compare the original slanted line with both output copies. The rightward move stays 0.5 points, but the vertical moves change, so the direction of the slanted line changes.',math:s4xMath('A straight line keeps the same right ÷ down value. A curve changes it.',rowsMath,'The vertical positions are the same ones used in Steps 8–10. The new step here is comparing the two moves directly, one after the other.'),legend:s4xLegend([['#1e40af','<b>blue</b>: the original line and the vertical comparison line.'],[S4XC.push,'<b>pink</b>: the upside-down copy.'],[S4XC.forward,'<b>teal</b>: the original-order copy.'],['#ea580c','<b>orange</b>: the slanted line.']])};
+  return {svg:s,desc:'The output on top and the original letter A straight below it, both at 10 px per pt. Arrows run straight down from every output pixel P to the point R of the A that it reads. Any R or P can be dragged; the matching points and arrows follow. A strip enlarges output rows 0 to 2 pt six times downward. The column at right enlarges P18 → P19 → P20 in both copies and R18 → R19 → R20 five times, with the right part and the up or down part of every move.',
+    math:s4xMath('A straight line keeps the same right ÷ down value. A curve changes it.',rowsMath,'The vertical positions are the same ones used in Steps 8–10. Each P’s position is the output position whose read lands on its R’s row; the selected point’s box above checks one of them line by line.'),
+    legend:s4xLegend11(),after:s4xBind11};
+}
+function s4xLegend11(){
+  const ring='<span class="swd" style="background:#fff;border-width:3px"></span>', p=S4X.sel, gray=S4X.showAll||!p.readers.length;
+  return [[swd('#ffffff'),'<b>white dot R</b>: a point of the original picture on a row the output reads. The preset points sit on the middle line of a stroke; a dragged one goes wherever you put it.'],
+    gray?[swd('#9ca3af'),'<b>gray dot R</b>: a point above row 15.122 pt. No output pixel reads it, so it has no arrow.']:null,
+    [swd(S4XC.push),'<b>pink</b>: P in the upside-down copy, and its arrow straight down to the R it reads.'],
+    [swd(S4XC.forward),'<b>teal</b>: P in the original-order copy (or below it), and its arrow straight down to the R it reads.'],
+    [ring,'<b>black ring</b>: the selected R and its P’s. Drag any of them to move them together. Their calculation is in the box above.'],
+    [sws('#60a5fa'),'<b>blue part of the A</b>: rows 0 to 15.122 pt, never read.'],
+    [sws('#f59e0b'),'<b>orange part</b>: rows 15.122 to 24 pt, read twice.'],
+    [sws('#8b5cf6'),'<b>violet part</b>: rows below 24 pt, read once.'],
+    [swl('#9ca3af'),'<b>gray lines</b> in the enlarged column: the right part and the up/down part of each move.']];
+}
+function s4xSelect11(p,copy){ S4X.sel=p; if(copy) S4X.selCopy=copy; s4xDrawSel11(); }
+/* Which picture an SVG point lies in: the original picture, the output, or the enlarged strip. */
+function s4xZone11(q){
+  const W=A11.w*A11.k, H=A11.rows*A11.k, inside=(x,y,w,h)=>q.x>=x&&q.x<=x+w&&q.y>=y&&q.y<=y+h;
+  return inside(A11.x0,A11.yO,W,H)?'orig':inside(A11.x0,A11.yP,W,H)?'out':inside(A11.sx,A11.ys,W,A11.srows*A11.k*A11.sz)?'strip':null;
+}
+/* The point under the pointer. In the original picture it is R, in 0.1 pt steps. In the output or the strip it is a P,
+   and R is the exact point that P reads, straight below it: (P.x, read of P.y); the box then checks that P's copy. */
+function s4xAt11(q,zone){
+  const k=A11.k, x=(q.x-(zone==='strip'?A11.sx:A11.x0))/k;
+  if(zone==='orig') return {p:s4xFree11(x,(q.y-A11.yO)/k)};
+  const inside=zone==='strip'?clamp((q.y-A11.ys)/(k*A11.sz),0,A11.srows):clamp((q.y-A11.yP)/k,0,A11.rows);
+  const rx=clamp(Math.round(x*10)/10,0,A11.w), ry=Math.max(s4xRead(inside),S4XFR);
+  return {p:s4xPt11(rx,ry,s4xStroke11(rx,ry)),copy:inside<S4XF?'up':inside<=S4XS?'orig':'once'};
+}
+function s4xBind11(){
+  const svg=$('s4xSvg'), at=e=>new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse());
+  svg.querySelectorAll('[data-s4zone]').forEach(el=>el.addEventListener('click',e=>{ const r=s4xAt11(at(e),el.dataset.s4zone); s4xSelect11(r.p,r.copy); }));
+  svg.querySelectorAll('[data-s4r]').forEach(el=>{
+    const go=()=>{ const [x,y,stroke,copy]=el.dataset.s4r.split('|'); s4xSelect11(s4xPt11(Number(x),Number(y),stroke),copy); };
+    el.addEventListener('click',go); el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') go(); });
+  });
+  /* Drag: press in a picture (on a dot or beside it) and move more than 4 px. The selection then follows the pointer inside the
+     picture where the press started. A press without a move stays a click, so the dot's tooltip still opens. */
+  let drag=null;
+  svg.onpointerdown=e=>{
+    if(e.button!==0||!svg.querySelector('#s4xHit11')) return;
+    const zone=s4xZone11(at(e)); if(!zone) return;
+    e.preventDefault(); drag={id:e.pointerId,zone,x:e.clientX,y:e.clientY,moved:false};
+  };
+  svg.onpointermove=e=>{
+    if(!drag||e.pointerId!==drag.id) return;
+    if(!drag.moved){ if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<4) return; drag.moved=true; try{ svg.setPointerCapture(e.pointerId); }catch(_){} svg.classList.add('s4drag'); hideTip(); }
+    const r=s4xAt11(at(e),drag.zone), p=S4X.sel;
+    if(r.p.x!==p.x||r.p.y!==p.y||r.p.stroke!==p.stroke||(r.copy&&r.copy!==S4X.selCopy)) s4xSelect11(r.p,r.copy);
+  };
+  svg.onpointerup=svg.onpointercancel=e=>{
+    if(!drag||e.pointerId!==drag.id) return;
+    if(drag.moved){
+      /* the click that ends a drag must not open a tooltip or pick a point again */
+      const stop=ev=>{ ev.stopPropagation(); ev.preventDefault(); };
+      addEventListener('click',stop,{capture:true,once:true}); setTimeout(()=>removeEventListener('click',stop,{capture:true}),0);
+    }
+    drag=null; svg.classList.remove('s4drag');
+  };
+  s4xDrawSel11();
+}
+/* The selected point: its arrows and rings in the picture, its coordinates beside the picture, its calculation in the side box. */
+function s4xDrawSel11(){
+  const g=$('s4xSel11'); if(!g) return;
+  const p=S4X.sel, nm=s4xName11(p), pn=nm.replace('R','P'), ring=(x,y)=>`<circle cx="${x}" cy="${y}" r="6.5" fill="none" stroke="#111827" stroke-width="2" pointer-events="none"/>`;
+  $('s4xSelLines11').innerHTML=s4xArrows11(p,2,8,7);
+  let s=s4xDots11(p,3.6,3.2)+ring(a11X(p.x),a11YO(p.y));
+  p.readers.forEach(r=>{ s+=ring(a11X(p.x),a11YP(r.inside)); if(r.inside<=A11.srows) s+=ring(a11SX(p.x),a11SY(r.inside)); });
+  if(S4X.showAll||nm==='R'){
+    /* a label beside its dot (outer side of a leg first), or below R / above a P, where no arrow arrives;
+       the first of these spots that covers no preset dot and no name plate (or, if none is free, the one that covers least) */
+    const covered=b=>(S4X11.obst||[]).reduce((a,o)=>a+Math.max(0,Math.min(b[2],o[2])-Math.max(b[0],o[0]))*Math.max(0,Math.min(b[3],o[3])-Math.max(b[1],o[1])),0);
+    const lab=(x,y,t,fill,isR)=>{
+      const right=[x+10,y+5,'start'], left=[x-10,y+5,'end'], vert=isR?[x,y+19,'middle']:[x,y-10,'middle'];
+      const corners=[[x+9,y-6,'start'],[x-9,y-6,'end'],[x+9,y+16,'start'],[x-9,y+16,'end'],[x+22,y+5,'start'],[x-22,y+5,'end'],
+        [x+12,y-14,'start'],[x-12,y-14,'end'],[x+12,y+25,'start'],[x-12,y+25,'end'],[x+36,y+5,'start'],[x-36,y+5,'end']];
+      const order=(p.stroke==='crossbar'?[vert,right,left]:p.x>=11.25?[right,left,vert]:[left,right,vert]).concat(corners);
+      const c=order.reduce((best,q)=>{ const a=covered(s4xPlateBox11(q[0],q[1],t,q[2])); return !best||a<best.a?{q,a}:best; },null).q;
+      return s4xPlate(c[0],c[1],t,{anchor:c[2],fill});
+    };
+    s+=lab(a11X(p.x),a11YO(p.y),nm,S4XC.ink,true);
+    p.readers.forEach(r=>{ const c=S4X11_COPY[r.copy]; s+=lab(a11X(p.x),a11YP(r.inside),pn,c.col); if(r.inside<=A11.srows) s+=lab(a11SX(p.x),a11SY(r.inside),pn,c.col); });
+  }
+  s+=s4xText(430,392,`Selected: ${nm} · ${p.stroke||'not on the A'}`,{weight:700,size:14});
+  s+=s4xText(430,412,`${nm} = (${s4xXY(p.x)}, ${s4xXY(p.y)}) pt`,{mono:true,size:14});
+  if(!p.readers.length) s+=s4xText(430,438,`No output pixel reads row ${s4xXY(p.y)}:`,{size:14,fill:'#1d4ed8'})+s4xText(430,456,'rows above 15.122 are never read.',{size:14,fill:'#1d4ed8'});
+  p.readers.forEach((r,j)=>{ const c=S4X11_COPY[r.copy]; s+=s4xText(430,440+j*42,`${pn} · ${r.copy==='once'?'read once':c.short}:`,{size:14,weight:700,fill:c.col})+s4xText(430,458+j*42,`(${s4xXY(p.x)}, ${s4xFmt(r.inside,6)}) pt`,{mono:true,size:14,fill:c.col}); });
+  s+=s4xText(430,532,'Full calculation: beside the picture →',{size:13,fill:S4XC.muted});
+  g.innerHTML=s;
+  g.querySelectorAll('[data-s4tip]').forEach(el=>setTip(el,el.dataset.s4tip));
+  /* These dots belong to the selected point already: a click only picks which P the box checks, so the dot under the tooltip stays. */
+  g.querySelectorAll('[data-s4r]').forEach(el=>{ const copy=el.dataset.s4r.split('|')[3]; const go=()=>{ if(copy){ S4X.selCopy=copy; s4xBox11(); } }; el.addEventListener('click',go); el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') go(); }); });
+  s4xBox11();
+}
+function s4xBox11(){
+  const box=$('s4xSelection'); box.innerHTML=s4xSelBox11(); box.hidden=false; bindInfo2(box);
+  box.querySelectorAll('[data-s4copy]').forEach(b=>b.onclick=()=>{ S4X.selCopy=b.dataset.s4copy; s4xBox11(); });
+  $('s4Leg').innerHTML=legendHTML(s4xLegend11());
+}
+function s4xSelBox11(){
+  const p=S4X.sel, nm=s4xName11(p), pn=nm.replace('R','P'), f6=v=>s4xFmt(v,6), y=s4xXY(p.y);
+  const rows=[['On the original picture'],[nm,`(${s4xXY(p.x)}, ${y}) pt from the test picture’s top-left corner, y down · ${p.stroke||'not on the A'}`]];
+  if(!p.readers.length) rows.push(['who reads it',`${y} < ${f6(S4XFR)}: no output pixel reads row ${y}. Rows above the fold’s read position (Step 8) are never shown.`]);
+  else if(p.readers.length===2) rows.push(['who reads it',`${f6(S4XFR)} ≤ ${y} ≤ 24: two output pixels read row ${y} (Step 8)`]);
+  else rows.push(['who reads it',`${y} > 24: one output pixel reads row ${y} (Step 8)`]);
+  let html=`<h4>Selected point ${nm}</h4>`;
+  if(p.readers.length){
+    rows.push([`In the output, straight above ${nm}`]);
+    p.readers.forEach(r=>rows.push([`${pn} · ${S4X11_COPY[r.copy].short}`,`(${s4xXY(p.x)}, ${f6(r.inside)}) pt from the output’s top-left corner, y down`]));
+  }
+  html+=s4xMath('',rows);
+  if(!p.readers.length) return html;
+  let r=p.readers.find(q=>q.copy===S4X.selCopy)||p.readers.find(q=>q.copy!=='up')||p.readers[0];
+  if(p.readers.length===2) html+=`<div class="ctl"><span class="ctlname">Check</span>${p.readers.map(q=>`<button class="btn sm" data-s4copy="${q.copy}" aria-pressed="${q===r}">${pn} in ${S4X11_COPY[q.copy].where}</button>`).join('')}</div>`;
+  const n9=v=>Number(s4xFmt(v,9).replace('−','-')), f9=v=>s4xFmt(v,9);
+  const ins=n9(r.inside), leg=n9(28-ins), leg2=n9(leg*leg), h2=n9(784-leg2), h=n9(Math.sqrt(h2)), hf=n9(h/28), left=n9(1-hf), push=n9(24*left), read=n9(ins+push), same=s4xFmt(read,6)===s4xFmt(p.y,6);
+  html+=s4xMath('',[
+    [`Check: ${pn} in ${S4X11_COPY[r.copy].where} reads ${nm}`],
+    ['inside = P.y',`${f9(ins)} pt below the top of the glass`],
+    ['leg = bevel − inside<button class="info" data-tip="bevel" aria-label="More about bevel">ⓘ</button>',`28 − ${f9(ins)} = ${f9(leg)} pt`],
+    ['leg²',`${f9(leg)} × ${f9(leg)} = ${f9(leg2)} pt²`],
+    ['h² = bevel² − leg² (28 × 28 = 784)',`784 − ${f9(leg2)} = ${f9(h2)} pt²`],
+    ['h = √h²',`√${f9(h2)} = ${f9(h)} pt`],
+    ['height fraction = h ÷ bevel',`${f9(h)} ÷ 28 = ${f9(hf)}`],
+    ['push fraction left',`1 − ${f9(hf)} = ${f9(left)}`],
+    ['push = edgePush × push fraction left<button class="info" data-tip="edgePush" aria-label="More about edgePush">ⓘ</button>',`24 × ${f9(left)} = ${f9(push)} pt`],
+    ['read = inside + push',`${f9(ins)} + ${f9(push)} = ${f9(read)} pt`,'em'],
+    [`same row as ${nm}?`,same?`${f9(read)} rounds to ${f6(read)}, ${nm}’s row: yes`:`${f9(read)} rounds to ${f6(read)}; ${nm}’s row is ${f6(p.y)}`],
+    ['P.x',`${pn}.x = ${nm}.x = ${s4xXY(p.x)} pt: the read moves only up or down, so the column stays the same`]
+  ],'This box keeps 9 decimals because near the outline a tiny change of inside moves the read a lot; the read then lands on R’s row to 6 decimals. P.y itself is the output position whose read lands on R’s row.');
+  return html;
 }
 
 /* Step 12 */
@@ -3237,18 +3497,19 @@ const S4X_STEPS=[
  {group:'C · Picture',title:'Which pixel rows in the original picture are missing or used twice?',question:'What does the turn do to the original picture?',cap:'<p>From the outline to the fold, output pixels read backward through the original picture. From the fold onward, they read forward. The pixel rows in the original picture from 15.121822 to 24 pt is shown twice.</p><p>Pixel rows in the original picture from 0 up to, but not including, 15.121822 pt are never reached. They do not appear in this part of the output.</p>',draw:s4xDraw8},
  {group:'C · Picture',title:'Why the copies have different sizes',question:'Are the upside-down and original-order copies equal-sized mirror images?',cap:'<p>No. Follow the pixel rows from 18 to 20 pt in the original picture<button class="info" data-tip="s4Band" aria-label="Why these teaching rows were chosen">ⓘ</button>. The upside-down copy gives them less output height. The original-order copy gives them more.</p><p>The row order reverses in the upside-down copy. The different heights prevent the two copies from being equal-sized mirror images.</p>',draw:s4xDraw9},
  {group:'C · Picture',title:'A whole letter through the row rule',question:'What do the missing rows and two copies do to a recognizable shape?',cap:'<p>Under the straight top of the glass, every output row copies one complete pixel row in the original picture. No pixel moves sideways in this test.</p><p>Choose a geometric letter and isolate either copy. The colors identify which pixel rows in the original picture are missing and which are used twice.</p>',draw:s4xDraw10,controls:'letters'},
- {group:'C · Picture',title:'Why a slanted line bends',question:'Why does a straight slanted line become curved, while a vertical line stays straight?',cap:'<p>In the original picture, every pixel row of the slanted line moves <b>0.5 pt right and 1 pt down</b>. Those equal moves keep the line straight.</p><p>The output keeps the 0.5 pt right moves, but the up/down moves change. So <b>right ÷ down</b> changes from one row to the next. The direction of the line changes too, and that is the curve you see.</p>',draw:s4xDraw11},
+ {group:'C · Picture',title:'Why a slanted line bends',question:'Why does a straight slanted line become curved, while a vertical line stays straight?',cap:'<p>The output is on top. The original picture is straight below it, because under the straight top of the glass every output pixel P reads a point R straight below it: R’s row = P’s row + push. <b>Drag or click any point</b>, an R on the A or a P in the output. Arrows run down from every P to the R it reads.</p><p>On the right leg, each move from R18 to R19 to R20 is <b>0.5 pt right and 1 pt down</b>. Equal moves keep the leg straight. In the output the right part stays 0.5 pt, but the up/down part changes from one move to the next. So <b>right ÷ down</b> changes, and the leg bends. The crossbar stays straight, because all its points are on one row.</p>',draw:s4xDraw11,controls:'outline'},
  {group:'D · Checks',title:'A straight ramp does not fold at edgePush 24',question:'Is the fold caused by the push rule alone, or by the rim shape too?',cap:'<p>A <b>straight ramp</b> has h = inside: it gains 1 pt of height for each 1 pt inward. Its push loses only 0.857143 pt on that move.</p><p>The inside position still gains more than the push loses. The read point keeps moving inward, so this ramp has no turn.</p>',draw:s4xDraw12},
  {group:'D · Checks',title:'What changes when edgePush changes?',question:'What does the 24 pt dial actually control?',cap:'<p>A larger edgePush divides more push across the same 28 height increments. Each height increment then removes more push.</p><p>That moves the fold and changes the pixel rows in the original picture used twice. Compare the four values without changing the rim.</p>',draw:s4xDraw13,controls:'edge'},
  {group:'D · Checks',title:'The same fold around a rounded corner',question:'Does the straight-edge explanation still apply when the outline curves?',cap:'<p>Yes, with one change. <b>Inside</b> is now measured along a straight line from the outline toward the corner circle’s center K<button class="info" data-tip="s4Corner" aria-label="More about the corner geometry">ⓘ</button>.</p><p>The height and push use the same inside distance. The fold stays 6.740815 pt<button class="info" data-tip="s4Fold" aria-label="Where the fold value came from">ⓘ</button> inside the outline, so it becomes an arc around K.</p>',draw:s4xDraw14},
- {group:'D · Checks',title:'Why the recording looks like one stretched “Tab”',question:'Why do we not see a complete upside-down word in Safari’s frame?',cap:'<p>The fold<button class="info" data-tip="s4Fold" aria-label="Where this interval came from">ⓘ</button> can reuse at most the pixel rows in the original picture from 15.121822 to 24 pt. At the teaching moment<button class="info" data-tip="s4Moment" aria-label="More about the teaching moment">ⓘ</button>, only the letters’ bottom strip lies in that interval.</p><p>The output joins a upside-down bottom strip to an original-order bottom strip. Blur hides the narrow join, so the result can read as one stretched word.</p>',draw:s4xDraw15}
+ {group:'D · Checks',title:'Why the recording looks like one stretched “Tab”',question:'Why do we not see a complete upside-down word in Safari’s frame?',cap:'<p>The fold<button class="info" data-tip="s4Fold" aria-label="Where this interval came from">ⓘ</button> can reuse at most the pixel rows in the original picture from 15.121822 to 24 pt. At the teaching moment<button class="info" data-tip="s4Moment" aria-label="More about the teaching moment">ⓘ</button>, only the letters’ bottom strip lies in that interval.</p><p>The output joins an upside-down bottom strip to an original-order bottom strip. Blur hides the narrow join, so the result can read as one stretched word.</p>',draw:s4xDraw15}
 ];
 function s4xInsideControls(){ return `<div class="ctl"><label for="s4xInside"><b>Move P through the rim</b></label><input id="s4xInside" type="range" min="0" max="28" step="0.1" value="${S4X.inside}" aria-label="P distance below the top of the glass in points"><span class="mono" id="s4xInsideValue">inside = ${s4xFmt(S4X.inside,1)} pt</span></div>`; }
 function s4xProbeControls(){ return `<div class="ctl"><label for="s4xProbe"><b>Selected pixel</b></label><input id="s4xProbe" type="range" min="0.5" max="12" step="0.1" value="${S4X.probe}" aria-label="Selected inside position in points"><span class="mono" id="s4xProbeValue">inside = ${s4xFmt(S4X.probe,1)} pt</span></div>`; }
 function s4xLetterControls(){ return `<div class="ctl"><span class="ctlname">Geometric letter</span>${['L','A','b'].map(v=>`<button class="btn sm" data-s4letter="${v}" aria-pressed="${v===S4X.letter}">${v}</button>`).join('')}</div><div class="ctl"><span class="ctlname">Show</span>${[['both','both'],['c1','upside-down only'],['c2','original order only']].map(([v,t])=>`<button class="btn sm" data-s4copies="${v}" aria-pressed="${v===S4X.copies}">${t}</button>`).join('')}</div>`; }
+function s4xOutlineControls(){ return `<div class="ctl"><span class="ctlname">Points on the A</span>${[[false,'R18, R19, R20'],[true,'evenly spaced along the whole A']].map(([v,t])=>`<button class="btn sm" data-s4all="${v}" aria-pressed="${v===S4X.showAll}">${t}</button>`).join('')}<span class="small">Drag or click a point R of the A, or a pixel P of the output: arrows run down from every P to the R it reads.</span></div>`; }
 function s4xEdgeControls(){ return `<div class="ctl"><span class="ctlname">edgePush</span>${[6,12,18,24].map(v=>`<button class="btn sm" data-s4edge="${v}" aria-pressed="${v===S4X.E}">${v} pt</button>`).join('')}</div>`; }
 function s4xSetControls(kind){
-  const box=$('s4xControls'); box.innerHTML=kind==='inside'?s4xInsideControls():kind==='probe'?s4xProbeControls():kind==='letters'?s4xLetterControls():kind==='edge'?s4xEdgeControls():'';
+  const box=$('s4xControls'); box.innerHTML=kind==='inside'?s4xInsideControls():kind==='probe'?s4xProbeControls():kind==='letters'?s4xLetterControls():kind==='edge'?s4xEdgeControls():kind==='outline'?s4xOutlineControls():'';
   if(kind==='inside') $('s4xInside').oninput=e=>{S4X.inside=Number(e.target.value);$('s4xInsideValue').textContent=`inside = ${s4xFmt(S4X.inside,1)} pt`;s4xRefresh();};
   if(kind==='probe') $('s4xProbe').oninput=e=>{S4X.probe=Number(e.target.value);$('s4xProbeValue').textContent=`inside = ${s4xFmt(S4X.probe,1)} pt`;s4xRefresh();};
   if(kind==='letters'){
@@ -3256,12 +3517,15 @@ function s4xSetControls(kind){
     box.querySelectorAll('[data-s4copies]').forEach(b=>b.onclick=()=>{S4X.copies=b.dataset.s4copies;box.querySelectorAll('[data-s4copies]').forEach(c=>c.setAttribute('aria-pressed',String(c===b)));s4xRefresh();});
   }
   if(kind==='edge') box.querySelectorAll('[data-s4edge]').forEach(b=>b.onclick=()=>{S4X.E=Number(b.dataset.s4edge);box.querySelectorAll('[data-s4edge]').forEach(c=>c.setAttribute('aria-pressed',String(c===b)));s4xRefresh();});
+  if(kind==='outline') box.querySelectorAll('[data-s4all]').forEach(b=>b.onclick=()=>{S4X.showAll=b.dataset.s4all==='true';box.querySelectorAll('[data-s4all]').forEach(c=>c.setAttribute('aria-pressed',String(c===b)));s4xRefresh();});
 }
 function s4xRefresh(){
   const st=S4X_STEPS[S4X.step], r=st.draw();
   if(r.svg) s4xUseSvg(r.svg,r.desc);
   $('s4xMath').innerHTML=r.math||''; $('s4Leg').innerHTML=legendHTML(r.legend||[]);
+  const box=$('s4xSelection'); box.hidden=true; box.innerHTML='';
   bindInfo2($('s4Cap'));bindInfo2($('s4xMath'));
+  if(r.after) r.after();
 }
 function s4xGo(k){
   S4X.step=clamp(k,0,S4X_STEPS.length-1); const st=S4X_STEPS[S4X.step];
@@ -3833,6 +4097,15 @@ date: ${new Date().toISOString().slice(0,10)}
   Original-order: rows 18 → 19 move 1.653262 pt down (right ÷ down = 0.302432), then rows 19 → 20 move
   1.499593 pt down (right ÷ down = 0.333424). Upside-down: the moves are 0.500320 pt up (right ÷ up = 0.999360),
   then 0.346653 pt up (right ÷ up = 1.442365). The changing ratios change the direction, so the line curves.
+- Actual letter (Step 11): the output on top, the test A straight below it, both 10 px per pt (a read moves only down:
+  R's row = P's row + push). Drag or click any point R of the A, or any output pixel P: arrows run straight down
+  from every P to the R it reads (P.x = R.x; only the row changes).
+  A's middle lines: left leg x = 14 − 0.5 × row, right leg x = 8.5 + 0.5 × row (apex (11.25, 5.5), feet on row 24),
+  crossbar on row 18 from x 5 to 17.5, joining both legs. R18 = (17.5, 18) is read by P18 = (17.5, 1.342588)
+  in the upside-down copy and P18 = (17.5, 15.457412) in the original-order copy.
+  "Evenly spaced along the whole A": every 2 rows on each leg (rows 8–24) and every 2.5 pt on the crossbar;
+  rows above 15.121822 have no arrow (never read). A strip enlarges output rows 0–2 pt (vertical ×6, horizontal ×1)
+  so the crowded upside-down P's stay apart. The selected point's box checks inside → leg → h → push → read at 9 decimals.
 - Straight ramp (h = inside): the push shrinks 0.857143 pt per pt < 1, so nothing flips (a ramp flips only if edgePush > bevel).
 - unsettled (Section 5): travel (441, 35.7) and lead (600, 34.3), two springs from t = 0.10 s;
     gap = |lead − travel|; unsettled = min(1, gap ÷ fullGap), fullGap 0.18 opening, 0.40 closing.
