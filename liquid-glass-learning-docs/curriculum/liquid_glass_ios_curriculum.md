@@ -1,26 +1,18 @@
 # Liquid Glass on iOS — Beginner-to-Expert Curriculum
 
-**Version:** 10.2.0
 **Updated:** 2026-10-28
 **Primary platform:** Swift + SwiftUI  
 **Minimum learning target:** iOS 17  
 **Physical test device:** iPhone 16 Pro  
 **Total lessons:** 216
 
-Live progress, current files, and the checkpoint/frontier contracts live in `CURRENT_STATE.md`. This file is the 216-lesson plan plus frozen locks needed to generate later lessons. Lesson HTML and Swift keep the full teaching prose. Do not add per-lesson implementation diaries here.
+This file is the ordered 216-lesson plan plus frozen locks needed to generate later lessons. Teaching contracts and current file references live in `CURRENT_STATE.md`. Lesson HTML and Swift keep the full teaching prose. Do not add per-lesson implementation diaries here. Lesson completion is reported only in chat when a new lesson is generated; this file does not track it.
 
-## 1. Authoritative course position
-
-- Learner-confirmed complete: **101 of 216** (Chapters 1–9 and Lesson 10.1).
-- Unresolved checkpoint: **Lesson 10.2 — Slope** (generated, not complete; also the generated frontier).
-- Next planned after the frontier: **Lesson 10.3 — Surface normal**.
-- Do not mark Lesson 10.2 complete unless the learner confirms it.
-
-## 2. How this file relates to the rule sources
+## 1. How this file relates to the rule sources
 
 Permanent teaching and delivery rules live in `AGENTS.md` and `USER_PREFERENCES.md`. Do not copy them here.
 
-This plan assumes a total beginner in graphics and mathematics, one new mechanism per full lesson, and explicit learner confirmation before a completed-count increase.
+This plan assumes a total beginner in graphics and mathematics and one new mechanism per full lesson.
 
 ## 3. Full 216-lesson plan
 
@@ -209,8 +201,8 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 
 **Purpose:** Make the edge respond like a shaped surface rather than a flat white border.
 
-1. **10.1 — Height-map idea.** Treat the glass as if its center and edge have different heights. **Complete.**
-2. **10.2 — Slope.** Measure how that height changes from one pixel to the next. **Generated. Not complete.**
+1. **10.1 — Height-map idea.** Treat the glass as if its center and edge have different heights.
+2. **10.2 — Slope.** Measure how that height changes from one pixel to the next.
 3. **10.3 — Surface normal.** Convert slope into a direction that points away from the surface.
 4. **10.4 — Dot product.** Measure how similarly two directions point, using a simple geometric explanation.
 5. **10.5 — Diffuse light.** Make a surface brighter when it faces a light.
@@ -386,7 +378,7 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 
 ## 4. Frozen locks (do not rebuild)
 
-Chapters **1–9** and Lesson **10.1** are learner-complete. Do not reopen blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula unless a later lesson explicitly redefines them. Frost formulas stay frozen.
+Do not reopen the earlier lessons' blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula unless a later lesson explicitly redefines them. Frost formulas stay frozen.
 
 **Chapter 7 frost constants**
 
@@ -418,7 +410,7 @@ Chapters **1–9** and Lesson **10.1** are learner-complete. Do not reopen blur,
      shrink to smallest failing program; teaching fault is gl_FragCoord
 ```
 
-**Stay-complete Chapter 9 (9.1–9.6)**
+**Chapter 9 teaching chain (9.1–9.6)**
 
 ```text
 9.1  right triangle first; 0.30 / 0.40 / 0.50; length(p) as gray
@@ -451,7 +443,7 @@ Chapters **1–9** and Lesson **10.1** are learner-complete. Do not reopen blur,
      many writes share one input cell; half of C→(1,1) is (0.75, 0.75)
 ```
 
-**Lesson 9.10 — completed**
+**Lesson 9.10 — teaching contract**
 
 ```text
 9.10 vertical side tilts: H (0.75, 0.50) walks to (0.85, 0.50); Q (0.75, 0.25) splits the same walk
@@ -459,7 +451,7 @@ Chapters **1–9** and Lesson **10.1** are learner-complete. Do not reopen blur,
      default dispLen = 0.10
 ```
 
-**Lesson 9.11 — completed**
+**Lesson 9.11 — teaching contract**
 
 ```text
 9.11 sd = length(p) − radius; falloff = 1 − smoothstep(−band, band, sd)

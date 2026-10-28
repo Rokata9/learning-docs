@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 10.3 — Surface normal</title>
+<link rel="icon" href="data:,">
+<style>
+  :root{--ink:#1f2937;--muted:#6b7280;--line:#d1d5db;--soft:#f6f7f9;--green:#059669;--indigo:#4338ca;--amber:#d97706;--blue:#1e40af;--red:#dc2626}
+  *{box-sizing:border-box}body{margin:0;background:#fff;color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1600px;margin:0 auto;padding:0 24px 90px}header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;border-bottom:1px solid var(--line);padding:14px 0}
+  header.top a,.navfoot a{color:var(--blue);text-decoration:none;font-size:14px}header.top a:hover,.navfoot a:hover{text-decoration:underline}.crumb,.sub{color:var(--muted);font-size:14px}
+  h1{font-size:27px;margin:20px 0 2px}h2{font-size:21px;margin:46px 0 8px;border-top:2px solid var(--line);padding-top:22px}h2 .tag{display:block;font-size:13px;color:var(--muted);margin-bottom:2px;font-weight:600}h3{font-size:16.5px;margin:26px 0 6px}p{font-size:15.5px;max-width:92ch;margin:8px 0}p.lead{font-size:17px;max-width:96ch}li{font-size:15.5px}
+  code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}code{background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:0 4px}figure{margin:16px 0}canvas{display:block;border:1px solid var(--line);border-radius:8px;background:#fff}figcaption{font-size:14px;color:#4b5563;max-width:104ch;margin-top:8px}.stage{position:relative}
+  .heroGrid{display:grid;grid-template-columns:520px 760px;gap:28px;align-items:start}.wideGrid{display:grid;grid-template-columns:1232px minmax(0,1fr);gap:20px;align-items:start}.stepPics{display:grid;grid-template-columns:240px 480px 480px;gap:16px;align-items:start}.span{grid-column:1/-1}
+  .pair{display:grid;grid-template-columns:auto auto;gap:24px;justify-content:start;align-items:start}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.labGrid{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start}.sidePair{display:grid;grid-template-columns:520px 520px;gap:20px;align-items:start}
+  .before{border:1px solid #a5b4fc;background:#eef2ff;border-radius:10px;padding:14px 18px;margin:20px 0}.before h2{font-size:18px;border:0;margin:0 0 8px;padding:0}.before p,.before li{font-size:14.5px}.before ul{margin:6px 0}
+  .info{display:inline-block;width:17px;height:17px;line-height:15px;border-radius:50%;border:1px solid var(--blue);color:var(--blue);background:#eef2ff;font-size:11px;text-align:center;cursor:pointer;padding:0;vertical-align:2px;font-family:inherit;margin-left:3px}.info:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+  #tip{position:fixed;z-index:50;max-width:420px;max-height:calc(100vh - 20px);overflow:auto;background:#111827;color:#f9fafb;border-radius:8px;padding:10px 34px 10px 12px;font-size:13.5px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.28);display:none}#tip.open{display:block}#tip.wide{max-width:600px}#tip .tclose{position:absolute;top:4px;right:6px;background:none;border:0;color:#9ca3af;font-size:15px;cursor:pointer;padding:2px 4px}#tip b{color:#fde68a}#tip code{background:#1f2937;border-color:#374151;color:#e5e7eb}#tip pre{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;margin:8px 0 0;background:#1f2937;border:1px solid #374151;border-radius:6px;padding:8px 10px;color:#e5e7eb}
+  .ptdot{position:absolute;width:22px;height:22px;border-radius:50%;transform:translate(-50%,-50%);border:3px solid #111827;cursor:grab;padding:0;z-index:5;touch-action:none}.ptdot:active{cursor:grabbing}.ptdot:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
+  table.trace{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}table.trace th,table.trace td{border:1px solid var(--line);padding:7px 10px;vertical-align:top;text-align:left}table.trace th{background:var(--soft);font-size:13.5px}table.trace td.f{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}table.trace tr.new td{background:#f0fdf4}table.trace tr.grp td{background:#eef2ff;font-weight:700;font-size:13.5px}table.trace td.a{background:#eff6ff}table.trace td.b{background:#fffbeb}table.trace td.s{background:#fdf2f8}
+  .readout{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 14px;line-height:1.7;white-space:pre-wrap}.ctl{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:10px 0}.ctl label{font-size:14px;display:flex;align-items:center;gap:8px}.ctl input[type=range]{width:200px}.ctlname{font-size:13.5px;font-weight:700;color:var(--muted);min-width:92px}
+  .btn{font-size:14px;padding:6px 14px;border-radius:7px;border:1.5px solid var(--blue);background:#fff;color:var(--blue);cursor:pointer}.btn:hover{background:#eef2ff}.btn[aria-pressed=true]{background:var(--blue);color:#fff;box-shadow:inset 0 2px 4px rgba(0,0,0,.25)}.btn:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}.btn:disabled{opacity:.45;cursor:default}
+  .note{border-left:4px solid var(--amber);background:#fffbeb;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:110ch;margin:12px 0}.iosnote{border-left:4px solid var(--indigo);background:#eef2ff;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:110ch;margin:12px 0}details{border:1px solid var(--line);border-radius:8px;margin:10px 0;background:#fff}details>summary{cursor:pointer;padding:10px 14px;font-size:15px;font-weight:600}details>summary:hover{background:var(--soft)}details .body{padding:4px 14px 14px}details details{margin:8px 0;background:var(--soft)}
+  .stepnav{display:flex;gap:10px;align-items:center;margin:0 0 10px}.stepnav .dots{display:flex;gap:6px;margin-left:8px}.stepnav .dot{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--muted);background:#fff;padding:0;cursor:pointer}.stepnav .dot.on{background:var(--indigo);border-color:var(--indigo)}.stepcap{min-height:300px;font-size:15.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+  .legend{list-style:none;padding:0;margin:8px 0}.legend li{position:relative;padding-left:42px;margin:7px 0;font-size:15px;line-height:1.45}.legend.two{display:grid;grid-template-columns:1fr 1fr;column-gap:36px;max-width:1400px}.legend li>span:first-child{position:absolute;left:4px;top:.2em}.sw{display:block;width:28px;height:18px;border:1px solid #111827;border-radius:3px}.swl{display:block;width:28px;height:6px;border-radius:3px;border:1px solid #111827;margin-top:6px}.swd{display:block;width:15px;height:15px;border-radius:50%;border:2.5px solid #111827;margin:1px 0 0 6px}
+  .verdict{font-size:15px;margin-top:8px;font-weight:600}.verdict.ok{color:var(--green)}.verdict.no{color:var(--red)}.exq{display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px;align-items:start;margin:6px 0 10px}.choices{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:8px 0}.choices .btn{text-align:left}pre.code{font:13.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;overflow-x:auto;max-width:100%}pre.code .nw{background:#14532d;color:#bbf7d0;border-radius:3px}pre.code .cm{color:#94a3b8}
+  #chIn{font:14px ui-monospace,Menlo,monospace;padding:6px 8px;border:1.5px solid var(--line);border-radius:6px;width:440px}#record{width:100%;min-height:300px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--soft)}.navfoot{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:50px;padding-top:16px;font-size:14px}.small{font-size:14px;color:#4b5563}.scale{font-size:13.5px;color:#4b5563;margin-top:6px}[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="crumb">Liquid Glass course</span>
+  <a href="../../../liquid-glass-course.html">Course home</a><a href="lesson-light-surface-direction-and-material-thickness.html">Chapter 10</a>
+  <a href="../../glossary.html">Glossary</a><a href="lesson-10-02-slope.html">← Lesson 10.2</a>
+</header>
+<div class="wrap">
+<h1>Lesson 10.3 — Surface normal</h1>
+<p class="sub">Turn two surface slopes into one direction that points away from the surface. Light theme · desktop · works from <code>file://</code>.</p>
+<p class="lead">A <b>surface normal</b> is an arrow that points straight away from a surface. This lesson builds that arrow from the x slope and y slope. We need the arrow <b>because</b> later lessons will measure how much the surface faces a light.</p>
+
+<figure><div class="heroGrid">
+  <div><div class="stage" id="heroMapStage"><canvas id="heroMap" width="520" height="520"></canvas></div><figcaption><b>The normal map.</b> Colors show the unit normal N at each pixel. The flat top points straight out of the screen. The rim points outward and upward.</figcaption></div>
+  <div><div class="stage"><canvas id="hero3d" width="760" height="520"></canvas></div><figcaption><b>The same heights as a raised surface.</b> The pink arrow starts at H, the surface point above W. Its direction is N. Drag to turn the surface. Use the wheel to zoom.</figcaption></div>
+</div></figure>
+<ul class="legend two">
+  <li><span class="swl" style="background:#a855f7"></span><b>The violet surface</b>: Lesson 10.1's flat top and quarter-circle rim, drawn with real heights.</li>
+  <li><span class="swl" style="background:#ec4899"></span><b>The pink N arrow</b>: the unit normal above W. Its length is 1, so only its direction is used later.</li>
+  <li><span class="swd" style="background:#fff"></span><b>W = (0.72, 0.50)</b>: the teaching pixel. All UV positions start at the picture's top-left, and y grows down.</li>
+  <li><span class="swl" style="background:#a3e635"></span><b>The lime cut</b>: the horizontal pixel row y = 0.50. The side view follows this row at the same scale.</li>
+</ul>
+
+<aside class="before"><h2>Before you start</h2><div class="two">
+  <div><b>Used from the course</b><ul>
+    <li><a href="../chapter-08/lesson-08-06-uv-coordinates.html">Lesson 8.6</a>: <b>UV</b> positions run from 0 to 1 across the picture.</li>
+    <li><a href="../chapter-08/lesson-08-07-scalars-and-vectors.html">Lesson 8.7</a>: a <b>vector</b> is a packed group of numbers. <code>float3</code> holds three numbers.</li>
+    <li><a href="../chapter-09/lesson-09-01-distance-between-two-points.html">Lesson 9.1</a>: <code>length</code> uses a right triangle. This lesson uses the same sum of squares with a third member.</li>
+    <li><a href="lesson-10-01-height-map-idea.html">Lesson 10.1</a>: <code>h</code> is the surface height above one pixel.</li>
+    <li><a href="lesson-10-02-slope.html">Lesson 10.2</a>: <code>slopeX</code> is height change ÷ horizontal distance.</li>
+  </ul></div>
+  <div><b>New here</b><ul>
+    <li><b>Surface normal N</b>: a direction straight away from the surface. N has three members: x, y on the screen, and z away from the screen.</li>
+    <li><b>rawNormal</b>: <code>(−slopeX, −slopeY, 1)</code>. It has the right direction, but its length may differ from 1.</li>
+    <li><b>Unit normal</b>: a direction whose length is 1. We divide every rawNormal member by normalLength <b>because</b> later light calculations need direction without the raw length.</li>
+    <li><b>Normal-map RGB</b>: <code>N × 0.5 + 0.5</code> in each channel. This is only a way to see N. It is not light on the glass.</li>
+  </ul></div>
+</div></aside>
+
+<h2 id="s1"><span class="tag">Section 1 · the idea in pictures</span>Two slopes become one unit direction</h2>
+<p>Press <b>Next</b>. The idea pictures use the round given heights 0.08, 0.06, 0.08, and 0.08. The left picture is the screen from above. The other pictures are side cuts through W.</p>
+<div class="wideGrid">
+  <div class="stepPics">
+    <div class="stage" id="stepMapStage"><canvas id="stepMap" width="240" height="240"></canvas><figcaption>Screen positions</figcaption></div>
+    <div class="stage" id="stepXStage"><canvas id="stepX" width="480" height="300"></canvas><figcaption>Horizontal cut · x right, z up</figcaption></div>
+    <div class="stage" id="stepYStage"><canvas id="stepY" width="480" height="300"></canvas><figcaption>Vertical cut · y down, z up</figcaption></div>
+    <div class="span"><table class="trace" id="stepTable"></table></div><div class="span"><ul class="legend two" id="stepLegend"></ul></div>
+  </div>
+  <div><div class="stepnav"><button class="btn" id="stepPrev">← Back</button><button class="btn" id="stepNext">Next →</button><div class="dots" id="stepDots"></div></div><div class="stepcap" id="stepCap" aria-live="polite"></div><p class="small">Every step adds something visible. The table stays under the pictures.</p></div>
+</div>
+
+<h2 id="s2"><span class="tag">Section 2 · one value, traced to the end</span>W stores N = (0.707107, 0, 0.707107)</h2>
+<p>The glass center is C = (0.50, 0.50), the radius is 0.25, and the bevel is 0.10. The chosen neighbor step is 0.01 UV. A and B measure x change. D and E measure y change. The table computes all four heights before consuming them.</p>
+<div class="pair"><div><div class="stage" id="traceSideStage"><canvas id="traceSide" width="520" height="300"></canvas><figcaption><b>The horizontal cut through W.</b> The surface falls to the right. rawNormal points right and up. N has the same direction with length 1.</figcaption></div><div class="stage" id="traceMapStage" style="margin-top:16px"><canvas id="traceMap" width="520" height="520"></canvas><figcaption><b>The stored normal-map color at W.</b> N = (0.707107, 0, 0.707107) becomes RGB (0.853553, 0.5, 0.853553).</figcaption></div></div>
+<div><table class="trace" id="traceTable"></table></div></div>
+<div class="note"><b>Why 0.5 in the color lines?</b> N's members can be negative. Multiplying by 0.5 and adding 0.5 maps the range −1 … +1 into a display channel's range 0 … 1. The 0.5 values are chosen display constants. They do not change N.</div>
+
+<h2 id="s3"><span class="tag">Section 3 · interactive lab</span>Lab: move the pixel and turn the surface</h2>
+<p>Drag C, W, A, B, D, or E on the map. Dragging a neighbor moves W to keep the four neighbors symmetric. Drag empty space in the 3D picture to turn it. Use the wheel to zoom. The 3D picture and both side cuts share the printed scale.</p>
+<div class="labGrid">
+  <div><canvas id="lab3d" width="760" height="520"></canvas><div class="scale" id="orbitScale"></div><div class="ctl"><span class="ctlname">View</span><button class="btn" data-view="angle">Three-quarter</button><button class="btn" data-view="top">Top</button><button class="btn" data-view="side">Side</button></div><div class="sidePair"><div class="stage" id="labXStage"><canvas id="labX" width="520" height="300"></canvas><figcaption>Horizontal cut</figcaption></div><div class="stage" id="labYStage"><canvas id="labY" width="520" height="300"></canvas><figcaption>Vertical cut</figcaption></div></div></div>
+  <div><div class="stage" id="labMapStage"><canvas id="labMap" width="520" height="520"></canvas><figcaption><b>The normal map.</b> Every pixel runs four height calculations, two slopes, and one normalization.</figcaption></div>
+    <div class="ctl"><label><span class="ctlname">step</span><input type="range" id="labStep" min="0.005" max="0.04" step="0.005" value="0.01"><span class="mono" id="labStepV"></span></label><button class="info" data-tip="step">ⓘ</button></div>
+    <div class="ctl"><label><span class="ctlname">bevel</span><input type="range" id="labBevel" min="0.02" max="0.25" step="0.01" value="0.10"><span class="mono" id="labBevelV"></span></label><button class="info" data-tip="bevel">ⓘ</button></div>
+    <div class="ctl"><span class="ctlname">Display</span><button class="btn" id="labMode" aria-pressed="true">normal-map RGB</button><button class="btn" id="labReset">Reset</button></div>
+    <p class="small" id="labMeaning"></p><ul class="legend" id="labLegend"></ul>
+  </div>
+</div>
+<table class="trace" id="labTable"></table>
+
+<h2 id="s4"><span class="tag">Section 4 · short code excerpt</span>The iPhone shader</h2>
+<p>The real function is in <code>chapter10/NormalMap.metal</code>. Four calls reuse Lesson 10.1's height. The new lines make two slopes, build rawNormal, and divide it by its length.</p>
+<pre class="code">float circleHeightForNormal(float2 uv, float2 center, float radius, float bevel) {
+    float2 p = uv - center;
+    float sd = length(p) - radius;
+    float inside = clamp(-sd, 0.0, bevel);
+    float leg = bevel - inside;
+    return sqrt(bevel * bevel - leg * leg);
+}
+
+[[ stitchable ]] half4 normalMap(
+    float2 position, half4 color, float2 resolution, float2 center,
+    float radius, float bevel, float step, float scale
+) {
+    float2 uv = position * scale / resolution;
+<span class="nw">    float hLeft = circleHeightForNormal(uv - float2(step, 0.0), center, radius, bevel);
+    float hRight = circleHeightForNormal(uv + float2(step, 0.0), center, radius, bevel);
+    float hAbove = circleHeightForNormal(uv - float2(0.0, step), center, radius, bevel);
+    float hBelow = circleHeightForNormal(uv + float2(0.0, step), center, radius, bevel);
+    float slopeX = (hRight - hLeft) / (2.0 * step);
+    float slopeY = (hBelow - hAbove) / (2.0 * step);
+    float3 rawNormal = float3(-slopeX, -slopeY, 1.0);
+    float normalLength = sqrt(rawNormal.x * rawNormal.x +
+                              rawNormal.y * rawNormal.y +
+                              rawNormal.z * rawNormal.z);
+    float3 N = rawNormal / normalLength;</span>
+    return half4(half3(N * 0.5 + 0.5), 1.0);
+}</pre>
+<table class="trace"><tr><th style="width:310px">Line</th><th>What it does</th><th style="width:230px">Taught in</th></tr>
+  <tr><td class="f">float circleHeightForNormal(…)</td><td>Computes Lesson 10.1's height at one UV position. Four calls supply the four neighbors.</td><td>Lessons 9.1–10.1</td></tr>
+  <tr><td class="f">[[ stitchable ]] half4 normalMap(…)</td><td>Lets SwiftUI run this function once per output pixel.</td><td>Lessons 8.1–8.3</td></tr>
+  <tr><td class="f">position * scale / resolution</td><td>Converts the output pixel position to UV.</td><td>Lessons 8.4–8.6</td></tr>
+  <tr class="new"><td class="f">uv ± float2(step, 0.0)</td><td>Moves left or right and keeps y fixed.</td><td>Lesson 10.2</td></tr>
+  <tr class="new"><td class="f">uv ± float2(0.0, step)</td><td>Moves above or below W and keeps x fixed. Plus y moves down on the screen.</td><td>New y neighbor, explained here.</td></tr>
+  <tr class="new"><td class="f">slopeY = (hBelow - hAbove) / (2.0 * step)</td><td>Measures height change as y grows down. This is the x-slope idea applied to vertical neighbors.</td><td>New use of Lesson 10.2.</td></tr>
+  <tr class="new"><td class="f">float3 rawNormal = float3(…)</td><td>Packs x, y, and z into one direction. The minus signs make the arrow point away from the surface rather than down into it.</td><td>New 3D vector, explained here.</td></tr>
+  <tr class="new"><td class="f">rawNormal.x * rawNormal.x</td><td>Squares one member. The three squares feed the 3D length.</td><td>Lesson 9.1 extended to three members.</td></tr>
+  <tr class="new"><td class="f">N = rawNormal / normalLength</td><td>Divides all three members by the same length. The direction stays fixed and the resulting length is 1.</td><td>New line of this lesson.</td></tr>
+  <tr><td class="f">half4(N * 0.5 + 0.5, 1.0)</td><td>Maps N's three members into visible RGB channels. Alpha is 1.</td><td>Lessons 3.1 and 8.3; display mapping is new.</td></tr>
+</table>
+<div class="iosnote"><b>Browser and iPhone.</b> The browser uses JavaScript canvases and the same formulas. The iPhone uses <code>NormalMap.metal</code> and <code>NormalExplorer.swift</code>. Both use finite neighbor heights, so the slopes are estimates at W. Apple's Liquid Glass implementation is not documented as using this exact normal formula.</div>
+
+<h2 id="s5"><span class="tag">Section 5 · coding challenge</span>Challenge: make the length 1</h2>
+<p>rawNormal already has the right direction. Write the right side of the N line. The page checks three directions and three raw lengths.</p>
+<pre class="code">float normalLength = sqrt(rawNormal.x * rawNormal.x +
+                          rawNormal.y * rawNormal.y +
+                          rawNormal.z * rawNormal.z);
+float3 N = <span class="nw">???</span>;</pre>
+<div class="labGrid"><div class="stage"><canvas id="challenge" width="760" height="360"></canvas><figcaption>The violet arrow is rawNormal. The lime arrow is your N. Both start at H. The numbers show their lengths.</figcaption></div>
+<div><div class="ctl"><span class="mono">float3 N =</span><input id="chIn" type="text" spellcheck="false" autocomplete="off" placeholder="rawNormal / normalLength" aria-label="The right side of the unit normal line"><button class="btn" id="chBtn">Run</button></div><div class="verdict" id="chVerdict"></div><details><summary>Hint</summary><div class="body"><p>Divide the whole vector by its own length. Metal applies <code>rawNormal / normalLength</code> to all three members.</p></div></details></div></div>
+
+<h2 id="s6"><span class="tag">Section 6 · exercises</span>Exercises</h2>
+<p>Read each picture, pick one answer, then open the hidden reason. Each exercise checks one part of the new normal formula.</p>
+
+<details class="ex"><summary>Exercise 1 — the flat top: which N does W store?</summary><div class="body">
+  <div class="exq"><div class="stage"><canvas id="ex1q" width="440" height="360"></canvas><figcaption><b>The flat top.</b> All four neighbor heights are 0.10. W = (0.50, 0.50).</figcaption></div>
+  <div><ul class="legend"><li><span class="swd" style="background:#fff"></span>A, B, D, E: all on the flat top</li><li><span class="swl" style="background:#a3e635"></span>N: the unknown arrow above W</li></ul>
+    <p><b>The change.</b> No code line changes. All four height inputs become 0.10.</p><p><b>What this checks.</b> Zero slopes do not make a zero normal. The raw z member is still 1.</p><p><b>What you do.</b> Put slopeX = 0 and slopeY = 0 into rawNormal, then divide by its length.</p><p><b>Question:</b> the flat top: which N does W store?</p>
+    <div class="choices"><button class="btn" data-ok="0" data-why="Not this one. rawNormal = (0, 0, 1), not (0, 0, 0). The z member points away from the screen.">N = (0, 0, 0): no direction.</button><button class="btn" data-ok="1" data-why="Right. rawNormal = (0, 0, 1), normalLength = 1, so N = (0, 0, 1). The flat top points straight out of the screen.">N = (0, 0, 1): straight out of the screen.</button><button class="btn" data-ok="0" data-why="Not this one. That is rawNormal before normalization in the diagonal exercise, not this flat top.">N = (1, 1, 1): equally strong in every member.</button></div><div class="verdict" aria-live="polite"></div>
+  </div></div>
+  <details><summary>Show the answer</summary><div class="body"><div class="pair"><canvas id="ex1a" width="520" height="300"></canvas><div class="readout">slopeX = (0.10 − 0.10) ÷ 0.02 = 0
+slopeY = (0.10 − 0.10) ÷ 0.02 = 0
+rawNormal = (−0, −0, 1) = (0, 0, 1)
+normalLength = √(0² + 0² + 1²) = 1
+N = (0, 0, 1) ÷ 1 = (0, 0, 1)
+
+A flat surface still has a direction.</div></div></div></details>
+</div></details>
+
+<details class="ex"><summary>Exercise 2 — the left rim: which way does N point?</summary><div class="body">
+  <div class="exq"><div class="stage"><canvas id="ex2q" width="440" height="360"></canvas><figcaption><b>The left rim from above.</b> W = (0.28, 0.50). The surface rises as x grows: slopeX = +1 and slopeY = 0.</figcaption></div>
+  <div><ul class="legend"><li><span class="swd" style="background:#2563eb"></span>A: height 0.06</li><li><span class="swd" style="background:#f59e0b"></span>B: height 0.08</li><li><span class="swl" style="background:#a3e635"></span>N: rawNormal = (−1, 0, 1) before normalization</li></ul>
+    <p><b>The change.</b> W moves to the left rim. The x heights become 0.06 and 0.08. The y heights stay equal.</p><p><b>What this checks.</b> The minus sign in rawNormal.x reverses the x-slope direction so the arrow points away from the surface.</p><p><b>What you do.</b> Read the sign of −slopeX and the positive z member, then match them to the arrow.</p><p><b>Question:</b> the left rim: which way does N point?</p>
+    <div class="choices"><button class="btn" data-ok="0" data-why="Not this one. slopeX = +1, so rawNormal.x = −1. The arrow points left, not right.">Right and up, toward the glass center.</button><button class="btn" data-ok="1" data-why="Right. rawNormal = (−1, 0, 1). Division by √2 keeps that direction: left and up, away from the rim.">Left and up, away from the rim.</button><button class="btn" data-ok="0" data-why="Not this one. rawNormal.z = +1, so the arrow points away from the screen, not into it.">Left and down, into the glass.</button></div><div class="verdict" aria-live="polite"></div>
+  </div></div>
+  <details><summary>Show the answer</summary><div class="body"><div class="pair"><canvas id="ex2a" width="520" height="300"></canvas><div class="readout">slopeX = (0.08 − 0.06) ÷ 0.02 = +1
+slopeY = 0
+rawNormal = (−1, 0, 1)
+normalLength = √((−1)² + 0² + 1²) = √2
+N = (−0.707107, 0, 0.707107)
+
+Minus x points left. Plus z points up.</div></div></div></details>
+</div></details>
+
+<details class="ex"><summary>Exercise 3 — diagonal rawNormal: what does normalization change?</summary><div class="body">
+  <div class="exq"><div class="stage"><canvas id="ex3q" width="440" height="360"></canvas><figcaption><b>One diagonal direction, two lengths.</b> slopeX = −1 and slopeY = −1 give rawNormal = (1, 1, 1).</figcaption></div>
+  <div><ul class="legend"><li><span class="swl" style="background:#a855f7"></span>rawNormal = (1, 1, 1), length √3</li><li><span class="swl" style="background:#a3e635"></span>N = rawNormal ÷ √3</li></ul>
+    <p><b>The change.</b> Both slopes become −1. rawNormal has three members equal to 1.</p><p><b>What this checks.</b> Dividing every member by the same positive number changes length but not direction.</p><p><b>What you do.</b> Compute normalLength, divide each member, and compare the two arrows.</p><p><b>Question:</b> diagonal rawNormal: what does normalization change?</p>
+    <div class="choices"><button class="btn" data-ok="0" data-why="Not this one. Equal members do not each become 1. Each becomes 1 ÷ √3 = 0.577350.">Only the x and y members change. z stays 1.</button><button class="btn" data-ok="1" data-why="Right. rawNormal has length √3 = 1.732051. N has the same direction and length 1. Every member is 0.577350.">Only the length changes. The direction stays the same.</button><button class="btn" data-ok="0" data-why="Not this one. N = (0.577350, 0.577350, 0.577350). Its direction is unchanged, so the arrow does not become vertical.">The arrow becomes vertical because every member is scaled.</button></div><div class="verdict" aria-live="polite"></div>
+  </div></div>
+  <details><summary>Show the answer</summary><div class="body"><div class="pair"><canvas id="ex3a" width="520" height="300"></canvas><div class="readout">rawNormal = (1, 1, 1)
+normalLength = √(1² + 1² + 1²) = √3 = 1.732051
+N = (1 ÷ √3, 1 ÷ √3, 1 ÷ √3)
+N = (0.577350, 0.577350, 0.577350)
+length(N) = 1
+
+The arrows share a direction. The violet arrow is longer.</div></div></div></details>
+</div></details>
+
+<h2 id="s7"><span class="tag">Section 7 · Metal exercise</span>Metal exercise: the unit normal of a glass button</h2>
+<p>Write two Metal functions. The first joins Lessons 9.4 and 10.1 to give a rounded-rectangle height. The second uses four heights and returns this lesson's unit normal. The calling shader and the picture check are ready.</p>
+<div class="exq"><div class="stage" id="metalGoalStage"><canvas id="metalGoal" width="440" height="440"></canvas><figcaption><b>The goal:</b> the normal map of a rounded-rectangle button. T1 … T5 can be clicked or dragged to inspect other positions.</figcaption></div>
+<div><ul class="legend"><li><span class="swl" style="background:#a855f7"></span>the violet button outline: center (0.50, 0.50), 0.60 wide, 0.40 tall, corner radius 0.10</li><li><span class="swd" style="background:#fff"></span>T1 … T5: the test pixels below; step = 0.01 and bevel = 0.10</li></ul>
+<table class="trace"><tr><th>Test pixel</th><th>slopeX</th><th>slopeY</th><th>Target N</th></tr>
+<tr><td>T1 = (0.50, 0.50)</td><td class="f">0</td><td class="f">0</td><td class="f">(0, 0, 1)</td></tr>
+<tr><td>T2 = (0.76, 0.50)</td><td class="f">−0.759413</td><td class="f">0</td><td class="f">(0.604787, 0, 0.796387)</td></tr>
+<tr><td>T3 = (0.24, 0.50)</td><td class="f">+0.759413</td><td class="f">0</td><td class="f">(−0.604787, 0, 0.796387)</td></tr>
+<tr><td>T4 = (0.73, 0.64)</td><td class="f">−0.349030</td><td class="f">−0.465673</td><td class="f">(0.301666, 0.402480, 0.864296)</td></tr>
+<tr><td>T5 = (0.85, 0.50)</td><td class="f">0</td><td class="f">0</td><td class="f">(0, 0, 1)</td></tr></table>
+<p class="small">The targets use six decimals because the slopes and components are small changes. T4 checks both nonzero slopes.</p></div></div>
+<h3>Your file: <code>chapter10/NormalExercise.metal</code></h3>
+<pre class="code"><span class="cm">/// Return the Lesson 10.1 height of a rounded rectangle at uv.
+/// center: the button center. outerHalf: half its width and height.
+/// cornerRadius: the rounded-corner radius. bevel: the rim width and flat-top height.</span>
+float roundedRectHeightForNormal(float2 uv, float2 center, float2 outerHalf,
+                                 float cornerRadius, float bevel) {
+<span class="nw">    // your code: p, innerHalf, q, sdBox with four cases, sd, inside, leg, h</span>
+    return 0.0;
+}
+
+<span class="cm">/// Return the unit surface normal at uv using four neighbor heights.
+/// step: the small UV distance from the requested pixel to each neighbor.</span>
+float3 roundedRectNormal(float2 uv, float2 center, float2 outerHalf,
+                         float cornerRadius, float bevel, float step) {
+<span class="nw">    // your code: four heights, slopeX, slopeY, rawNormal, normalLength, N</span>
+    return float3(0.0, 0.0, 1.0);
+}</pre>
+<details><summary>Hint</summary><div class="body"><p>Use the same rounded-rectangle cases as Lesson 9.4. Then sample left/right and above/below. rawNormal is <code>float3(-slopeX, -slopeY, 1.0)</code>. Divide by the square root of the sum of its three squares.</p></div></details>
+<h3>The prepared calling code</h3>
+<pre class="code">[[ stitchable ]] half4 buttonNormalExercise(
+    float2 position, half4 color, float2 resolution, float2 center,
+    float2 outerHalf, float cornerRadius, float bevel, float step, float scale
+) {
+    float2 uv = position * scale / resolution;
+    float3 N = roundedRectNormal(uv, center, outerHalf, cornerRadius, bevel, step);
+    return half4(half3(N * 0.5 + 0.5), 1.0);
+}</pre>
+<ul><li><code>chapter10/NormalExerciseView.swift</code> passes the button values and step 0.01.</li><li><code>chapter10/NormalExerciseKey.metal</code> contains the answer in <code>buttonNormalKey</code>. Open it after your attempt.</li><li>The check draws your picture over the key with <code>.blendMode(.difference)</code>. <code>markDifference</code> paints red where a channel differs by more than 2/255. No red pixel means your picture matches the key.</li></ul>
+<details><summary>Show the answer</summary><div class="body"><pre class="code">float roundedRectHeightForNormal(float2 uv, float2 center, float2 outerHalf,
+                                 float cornerRadius, float bevel) {
+    float2 p = uv - center;
+    float2 innerHalf = outerHalf - cornerRadius;
+    float2 q = abs(p) - innerHalf;
+    float sdBox;
+    if (q.x &gt; 0.0 &amp;&amp; q.y &gt; 0.0) {
+        sdBox = length(q);
+    } else if (q.x &gt; 0.0) {
+        sdBox = q.x;
+    } else if (q.y &gt; 0.0) {
+        sdBox = q.y;
+    } else {
+        sdBox = max(q.x, q.y);
+    }
+    float sd = sdBox - cornerRadius;
+    float inside = clamp(-sd, 0.0, bevel);
+    float leg = bevel - inside;
+    return sqrt(bevel * bevel - leg * leg);
+}
+
+float3 roundedRectNormal(float2 uv, float2 center, float2 outerHalf,
+                         float cornerRadius, float bevel, float step) {
+    float hLeft = roundedRectHeightForNormal(uv - float2(step, 0.0), center, outerHalf, cornerRadius, bevel);
+    float hRight = roundedRectHeightForNormal(uv + float2(step, 0.0), center, outerHalf, cornerRadius, bevel);
+    float hAbove = roundedRectHeightForNormal(uv - float2(0.0, step), center, outerHalf, cornerRadius, bevel);
+    float hBelow = roundedRectHeightForNormal(uv + float2(0.0, step), center, outerHalf, cornerRadius, bevel);
+    float slopeX = (hRight - hLeft) / (2.0 * step);
+    float slopeY = (hBelow - hAbove) / (2.0 * step);
+    float3 rawNormal = float3(-slopeX, -slopeY, 1.0);
+    float normalLength = sqrt(rawNormal.x * rawNormal.x +
+                              rawNormal.y * rawNormal.y +
+                              rawNormal.z * rawNormal.z);
+    return rawNormal / normalLength;
+}</pre>
+<div class="readout">T2 = (0.76, 0.50)
+hLeft = 0.086602540, hRight = 0.071414284
+slopeX = (0.071414284 − 0.086602540) ÷ 0.02 = −0.759413
+slopeY = (0.08 − 0.08) ÷ 0.02 = 0
+rawNormal = (0.759413, 0, 1)
+normalLength = √(0.759413² + 0² + 1²) = 1.255670
+N = (0.604787, 0, 0.796387)
+
+T4 = (0.73, 0.64)
+hLeft = 0.089442719, hRight = 0.082462113
+hAbove = 0.090553851, hBelow = 0.081240384
+slopeX = (0.082462113 − 0.089442719) ÷ 0.02 = −0.349030
+slopeY = (0.081240384 − 0.090553851) ÷ 0.02 = −0.465673
+rawNormal = (0.349030, 0.465673, 1)
+normalLength = √(0.349030² + 0.465673² + 1²) = 1.157011
+N = (0.301666, 0.402480, 0.864296)</div>
+<p><b>Why the split matters:</b> the height helper is reused four times. The normal function changes only the neighbor positions, the two slopes, and the direction they produce.</p></div></details>
+
+<h2 id="s8"><span class="tag">Section 8 · copyable record</span>Take it with you</h2>
+<p>Press <b>Copy</b> and paste the record into your notes.</p><textarea id="record" readonly></textarea><div class="ctl"><button class="btn" id="recBtn">Copy</button><span id="recMsg" class="sub"></span></div>
+<div class="navfoot"><a href="lesson-10-02-slope.html">← Lesson 10.2 — Slope</a><a href="lesson-light-surface-direction-and-material-thickness.html">Chapter 10 hub</a><span>Next: Lesson 10.4 — Dot product (not created yet)</span></div>
+</div>
+<div id="tip" role="dialog" aria-modal="false"><button class="tclose" id="tipClose" aria-label="Close">✕</button><div id="tipBody"></div></div>
+
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const RAD=0.25;
+const S={c:[0.50,0.50],w:[0.72,0.50],bev:0.10,step:0.01,showNormal:true,orbit:{yaw:-0.55,elev:0.88,zoom:1}};
+const COL={glass:'#a855f7',fill:'#f3e8ff',left:'#2563eb',right:'#f59e0b',above:'#06b6d4',below:'#f97316',pink:'#ec4899',screen:'#334155',halo:'rgba(17,24,39,0.92)',ink:'#111827',lime:'#a3e635',violet:'#8b5cf6'};
+const clamp=(x,lo,hi)=>Math.min(Math.max(x,lo),hi);
+const r6=x=>Math.round((x+Number.EPSILON)*1e6)/1e6;
+function f(x){const r=r6(x);if(Object.is(r,-0))return '0';return String(r).replace('-','−')}
+function f6(x){const r=r6(x);return (Object.is(r,-0)?0:r).toFixed(6).replace('-','−')}
+function heightAt(u,v,P=S){const px=u-P.c[0],py=v-P.c[1],sd=Math.hypot(px,py)-RAD,inside=clamp(-sd,0,P.bev),leg=P.bev-inside;return Math.sqrt(Math.max(0,P.bev*P.bev-leg*leg))}
+function normalAt(w=S.w,P=S){
+  const a=[w[0]-P.step,w[1]],b=[w[0]+P.step,w[1]],d=[w[0],w[1]-P.step],e=[w[0],w[1]+P.step];
+  const hl=heightAt(...a,P),hr=heightAt(...b,P),ha=heightAt(...d,P),hb=heightAt(...e,P);
+  const sx=(hr-hl)/(2*P.step),sy=(hb-ha)/(2*P.step),raw=[-sx,-sy,1],len=Math.hypot(...raw),n=raw.map(x=>x/len),rgb=n.map(x=>x*0.5+0.5);
+  return{a,b,d,e,hl,hr,ha,hb,sx,sy,raw,len,n,rgb};
+}
+function rrHeight(u,v,c=[0.5,0.5],bev=0.1){const px=Math.abs(u-c[0])-0.20,py=Math.abs(v-c[1])-0.10,box=px>0&&py>0?Math.hypot(px,py):px>0?px:py>0?py:Math.max(px,py),sd=box-0.10,inside=clamp(-sd,0,bev),leg=bev-inside;return Math.sqrt(Math.max(0,bev*bev-leg*leg))}
+function rrNormal(u,v){const hl=rrHeight(u-0.01,v),hr=rrHeight(u+0.01,v),ha=rrHeight(u,v-0.01),hb=rrHeight(u,v+0.01),sx=(hr-hl)/0.02,sy=(hb-ha)/0.02,raw=[-sx,-sy,1],len=Math.hypot(...raw);return{sx,sy,raw,len,n:raw.map(x=>x/len)}}
+function view(cv,x0=0,y0=0,x1=1){const s=cv.width/(x1-x0);return{x0,y0,s,X:u=>(u-x0)*s,Y:v=>(v-y0)*s}}
+function pixels(cv,V,colorAt){const ctx=cv.getContext('2d'),img=ctx.createImageData(cv.width,cv.height),D=img.data;for(let j=0;j<cv.height;j++){const v=V.y0+(j+0.5)/V.s;for(let i=0;i<cv.width;i++){const u=V.x0+(i+0.5)/V.s,o=(j*cv.width+i)*4,c=colorAt(u,v);D[o]=Math.round(c[0]*255);D[o+1]=Math.round(c[1]*255);D[o+2]=Math.round(c[2]*255);D[o+3]=255}}ctx.putImageData(img,0,0)}
+function renderMap(cv,V,P=S,showNormal=S.showNormal){pixels(cv,V,(u,v)=>showNormal?normalAt([u,v],P).rgb:Array(3).fill(heightAt(u,v,P)/P.bev))}
+function halo(ctx,draw,color,w=2.5){for(const[lw,c]of[[w+3.5,COL.halo],[w,color]]){ctx.lineWidth=lw;ctx.strokeStyle=c;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();draw();ctx.stroke()}}
+function line(ctx,x1,y1,x2,y2,color,w=2.5){halo(ctx,()=>{ctx.moveTo(x1,y1);ctx.lineTo(x2,y2)},color,w)}
+function ring(ctx,x,y,r,color,w=2.5){halo(ctx,()=>ctx.arc(x,y,r,0,Math.PI*2),color,w)}
+function plate(ctx,t,x,y,size=14,align='left',color=COL.ink){ctx.font=`600 ${size}px -apple-system,"Segoe UI",Roboto,sans-serif`;const w=ctx.measureText(t).width,h=size+8,x0=align==='right'?x-w:align==='center'?x-w/2:x;ctx.fillStyle='rgba(255,255,255,0.94)';ctx.strokeStyle='#111827';ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x0-5,y-h/2,w+10,h,4);ctx.fill();ctx.stroke();ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillStyle=color;ctx.fillText(t,x0,y)}
+function arrow(ctx,x1,y1,x2,y2,color,w=3){const a=Math.atan2(y2-y1,x2-x1),head=11;line(ctx,x1,y1,x2,y2,color,w);halo(ctx,()=>{ctx.moveTo(x2,y2);ctx.lineTo(x2-head*Math.cos(a-0.55),y2-head*Math.sin(a-0.55));ctx.moveTo(x2,y2);ctx.lineTo(x2-head*Math.cos(a+0.55),y2-head*Math.sin(a+0.55))},color,w)}
+function sideView(cv,P=S,w=S.w,axis='x',zoom=1){const center=axis==='x'?w[0]:w[1],x0=center-0.17,x1=center+0.17,s=520*zoom/(x1-x0),y0=cv.height-62,Y=h=>y0-h*s,X=x=>(x-center)*s+cv.width/2;return{x0,x1,s,y0,X,Y,center}}
+function drawSide(cv,P=S,w=S.w,opt={}){
+  const axis=opt.axis||'x',V=sideView(cv,P,w,axis,opt.zoom||1),ctx=cv.getContext('2d'),q0=normalAt(w,P),q=opt.idea?{...q0,hl:0.08,hr:0.06,ha:0.08,hb:0.08,sx:-1,sy:0,raw:[1,0,1],len:r6(Math.SQRT2),n:[r6(1/Math.SQRT2),0,r6(1/Math.SQRT2)]}:q0,y=V.y0,coord=axis==='x'?w[0]:w[1],hAt=x=>opt.idea?(axis==='x'?0.08-(x-q.a[0]):0.08):(axis==='x'?heightAt(x,w[1],P):heightAt(w[0],x,P));
+  ctx.clearRect(0,0,cv.width,cv.height);ctx.beginPath();ctx.moveTo(0,y);for(let i=0;i<=cv.width;i++){const x=V.x0+i/V.s;ctx.lineTo(i,V.Y(hAt(x)))}ctx.lineTo(cv.width,y);ctx.closePath();ctx.fillStyle=COL.fill;ctx.fill();line(ctx,0,y,cv.width,y,COL.screen,2.3);ctx.strokeStyle=COL.glass;ctx.lineWidth=3;ctx.beginPath();for(let i=0;i<=cv.width;i++){const x=V.x0+i/V.s,h=hAt(x);if(i===0)ctx.moveTo(i,V.Y(h));else ctx.lineTo(i,V.Y(h))}ctx.stroke();
+  const points=axis==='x'?[[q.a[0],q.hl,COL.left,'A'],[q.b[0],q.hr,COL.right,'B']]:[[q.d[1],q.ha,COL.above,'D'],[q.e[1],q.hb,COL.below,'E']];
+  if(opt.heights!==false)for(const[x,h,c,n]of points){line(ctx,V.X(x),y,V.X(x),V.Y(h),c,3);plate(ctx,`${n} · h = ${f(h)}`,V.X(x),Math.max(22,V.Y(h)-18),14,x<coord?'right':'left',c)}
+  line(ctx,V.X(coord),y,V.X(coord),V.Y(hAt(coord)),'#fff',3);plate(ctx,'W',V.X(coord),y+22,14,'center');
+  if(opt.slopes){const p1=axis==='x'?[q.a[0],q.hl]:[q.d[1],q.ha],p2=axis==='x'?[q.b[0],q.hr]:[q.e[1],q.hb];line(ctx,V.X(p1[0]),V.Y(p1[1]),V.X(p2[0]),V.Y(p2[1]),COL.pink,3);const slope=axis==='x'?q.sx:q.sy;plate(ctx,`slope${axis.toUpperCase()} = ${f(slope)}`,cv.width-12,cv.height-16,14,'right',slope<0?COL.left:COL.right)}
+  const wh=hAt(coord),slope=axis==='x'?q.sx:q.sy;
+  if(opt.raw){
+    const p1=axis==='x'?[q.a[0],q.hl]:[q.d[1],q.ha],p2=axis==='x'?[q.b[0],q.hr]:[q.e[1],q.hb],dx=p2[0]-p1[0],dh=p2[1]-p1[1];
+    line(ctx,V.X(p1[0]),V.Y(p1[1]),V.X(p2[0]),V.Y(p1[1]),COL.pink,2);line(ctx,V.X(p2[0]),V.Y(p1[1]),V.X(p2[0]),V.Y(p2[1]),COL.pink,2);
+    arrow(ctx,V.X(p1[0]),V.Y(p1[1]),V.X(p1[0]-dh),V.Y(p1[1]+dx),COL.violet,3);
+    plate(ctx,`90° turn = (${f(-dh)}, ${f(dx)})`,V.X(p1[0])+12,V.Y(p1[1])+38,14,'left',COL.violet);
+    const endX=V.X(coord-slope*0.08),endY=V.Y(wh+0.08);arrow(ctx,V.X(coord),V.Y(wh),endX,endY,COL.violet,3.2);plate(ctx,`raw = (${f(-slope)}, 1)`,Math.min(cv.width-12,endX+14),Math.max(24,endY-12),14,'left',COL.violet)
+  }
+  if(opt.normal){const endX=V.X(coord-slope*0.055),endY=V.Y(wh+0.055);arrow(ctx,V.X(coord),V.Y(wh),endX,endY,COL.lime,3.2);plate(ctx,'N · length 1',Math.min(cv.width-12,endX+14),Math.max(46,endY+18),14,'left','#4d7c0f')}
+  plate(ctx,`scale = ${f(V.s)} px/UV · ×${f(V.s/(opt.mapScale||520))} against map`,12,cv.height-16,14,'left');
+  return V;
+}
+function drawMapDecor(cv,V,P=S,w=S.w,opt={}){const ctx=cv.getContext('2d'),q=normalAt(w,P);ring(ctx,V.X(P.c[0]),V.Y(P.c[1]),RAD*V.s,COL.glass,2.3);line(ctx,V.X(q.a[0]),V.Y(w[1]),V.X(q.b[0]),V.Y(w[1]),COL.lime,2.2);line(ctx,V.X(w[0]),V.Y(q.d[1]),V.X(w[0]),V.Y(q.e[1]),COL.lime,2.2);for(const[n,pos,c]of[['C',P.c,COL.glass],['A',q.a,COL.left],['B',q.b,COL.right],['D',q.d,COL.above],['E',q.e,COL.below],['W',w,'#fff']])plate(ctx,n,V.X(pos[0])+(n==='A'||n==='D'?-12:12),V.Y(pos[1])+(n==='W'?-18:18),14,n==='A'||n==='D'?'right':'left',c);if(opt.rgb)plate(ctx,`RGB = (${q.rgb.map(f6).join(', ')})`,12,26,14,'left',COL.ink)}
+
+function f9(x){const r=Math.round((x+Number.EPSILON)*1e9)/1e9;if(Object.is(r,-0))return '0';return r.toFixed(9).replace('-','−')}
+function traceNormal(q){const hl=r6(q.hl),hr=r6(q.hr),ha=r6(q.ha),hb=r6(q.hb),sx=r6((hr-hl)/r6(2*S.step)),sy=r6((hb-ha)/r6(2*S.step)),raw=[r6(-sx),r6(-sy),1],len=r6(Math.hypot(...raw)),n=raw.map(x=>r6(x/len)),rgb=q.n.map(x=>r6(x*0.5+0.5));return{...q,hl,hr,ha,hb,sx,sy,raw,len,n,nFull:q.n,rgb}}
+function project3(u,v,h,cv,orbit=S.orbit){const scale=520*orbit.zoom,X=u-0.5,Y=v-0.5,cy=Math.cos(orbit.yaw),sy=Math.sin(orbit.yaw),x1=cy*X-sy*Y,y1=sy*X+cy*Y,ce=Math.cos(orbit.elev),se=Math.sin(orbit.elev);return{x:cv.width/2+x1*scale,y:cv.height*0.60+(y1*ce-h*se)*scale,depth:y1*se+h*ce,scale}}
+function draw3D(cv,P=S,w=S.w){const ctx=cv.getContext('2d'),q=normalAt(w,P),O=S.orbit,N=32,faces=[];ctx.clearRect(0,0,cv.width,cv.height);ctx.fillStyle='#f8fafc';ctx.fillRect(0,0,cv.width,cv.height);for(let j=0;j<N;j++)for(let i=0;i<N;i++){const u0=i/N,u1=(i+1)/N,v0=j/N,v1=(j+1)/N,hs=[heightAt(u0,v0,P),heightAt(u1,v0,P),heightAt(u1,v1,P),heightAt(u0,v1,P)];if(hs.every(h=>h<=0))continue;const ps=[[u0,v0,hs[0]],[u1,v0,hs[1]],[u1,v1,hs[2]],[u0,v1,hs[3]]].map(p=>project3(...p,cv,O)),c=normalAt([(u0+u1)/2,(v0+v1)/2],P).rgb;faces.push({ps,c,depth:ps.reduce((s,p)=>s+p.depth,0)/4})}faces.sort((a,b)=>a.depth-b.depth);for(const f of faces){ctx.beginPath();f.ps.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fillStyle=`rgb(${f.c.map(x=>Math.round(x*255)).join(',')})`;ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.30)';ctx.lineWidth=0.65;ctx.stroke()}
+  ctx.beginPath();let started=false;for(let i=0;i<=100;i++){const u=i/100,h=heightAt(u,w[1],P);if(h<=0){started=false;continue}const p=project3(u,w[1],h,cv,O);if(!started){ctx.moveTo(p.x,p.y);started=true}else ctx.lineTo(p.x,p.y)}ctx.strokeStyle=COL.lime;ctx.lineWidth=3;ctx.stroke();
+  const wh=heightAt(...w,P),start=project3(w[0],w[1],wh,cv,O),end=project3(w[0]+q.n[0]*0.12,w[1]+q.n[1]*0.12,wh+q.n[2]*0.12,cv,O);arrow(ctx,start.x,start.y,end.x,end.y,COL.pink,4);plate(ctx,'H · surface above W',start.x+12,start.y+22,14,'left');plate(ctx,'N · unit normal',end.x+12,end.y-12,14,'left',COL.pink);plate(ctx,'x right · y down · z up',14,24,14,'left');return{start,end}}
+const tipEl=$('tip'),tipBody=$('tipBody'),tipStore=new Map();let suppressClick=false;
+function setTip(el,html){el.classList.add('tk');tipStore.set(el,html);el.setAttribute('tabindex','0')}
+function showTip(el){const v=tipStore.get(el),html=typeof v==='function'?v():v;if(!html)return;tipBody.innerHTML=html;tipEl.classList.toggle('wide',!!tipBody.querySelector('pre'));tipEl.classList.add('open');const r=el.getBoundingClientRect();tipEl.style.left='0px';tipEl.style.top='0px';const tw=tipEl.offsetWidth,th=tipEl.offsetHeight;let L=r.right+10,T=r.top-8;if(L+tw>innerWidth-10)L=r.left-tw-10;if(L<8)L=8;if(T+th>innerHeight-10)T=innerHeight-th-10;if(T<8)T=8;tipEl.style.left=L+'px';tipEl.style.top=T+'px'}
+function hideTip(){tipEl.classList.remove('open')}
+document.addEventListener('click',e=>{if(suppressClick){suppressClick=false;e.stopPropagation();return}const t=e.target.closest('.tk');if(t){e.stopPropagation();showTip(t);return}if(!e.target.closest('#tip'))hideTip()});document.addEventListener('keydown',e=>{if(e.key==='Escape')hideTip();if((e.key==='Enter'||e.key===' ')&&e.target.classList?.contains('tk')){e.preventDefault();showTip(e.target)}});$('tipClose').onclick=hideTip;
+const TIPS={step:'<b>step = 0.01 UV</b><br>Origin: a chosen small distance from W to each neighbor, not a material constant.<br>Representation: UV, the same scale as positions.<br>Consumer: the horizontal and vertical distances are both 2 × step.<br>Other values: smaller steps measure a smaller part of the rim.',bevel:'<b>bevel = 0.10 UV</b><br>Origin: Lesson 10.1, a chosen rim width and flat-top height.<br>Consumer: inside, leg, and h.<br>At 0.25 the circle becomes a dome with no flat top.',radius:'<b>radius = 0.25 UV</b><br>Origin: Lesson 10.1.<br>Consumer: sd = length(p) − radius.',display:'<b>Normal-map RGB</b><br>Each channel is N member × 0.5 + 0.5. The constants map −1 … +1 into 0 … 1. They are display choices, not lighting.'};document.querySelectorAll('.info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip]));
+function pointTip(role,P=S,w=S.w){const q=normalAt(w,P),pos=role==='C'?P.c:role==='A'?q.a:role==='B'?q.b:role==='D'?q.d:role==='E'?q.e:w;const names={C:'the glass center',W:'the pixel whose normal we compute',A:'left neighbor, hLeft',B:'right neighbor, hRight',D:'above neighbor, hAbove',E:'below neighbor, hBelow'};return`<b>${role} = (${f(pos[0])}, ${f(pos[1])})</b>, in UV from the picture's top-left, y down<br>Role: ${names[role]}.<br>Drag this point. A neighbor moves W to preserve the symmetric step.`}
+function clearPoints(stage){stage.querySelectorAll('.ptdot').forEach(b=>b.remove())}let pointDrag=null;
+document.addEventListener('pointermove',e=>{if(!pointDrag)return;const r=pointDrag.canvas.getBoundingClientRect(),u=(e.clientX-r.left)/r.width,v=(e.clientY-r.top)/r.height;pointDrag.moved=true;hideTip();pointDrag.onDrag(pointDrag.role,u,v)});document.addEventListener('pointerup',()=>{if(pointDrag?.moved)suppressClick=true;pointDrag=null});
+function addPoint(stage,x,y,role,onDrag,color){const b=document.createElement('button');b.className='ptdot';b.style.left=x+'px';b.style.top=y+'px';b.style.background=color||({A:COL.left,B:COL.right,D:COL.above,E:COL.below,C:COL.glass}[role]||'#fff');b.setAttribute('aria-label',role+', draggable point');stage.appendChild(b);setTip(b,()=>pointTip(role));b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture(e.pointerId);pointDrag={canvas:stage.querySelector('canvas'),role,onDrag,moved:false}});b.addEventListener('keydown',e=>{const d={ArrowLeft:[-0.001,0],ArrowRight:[0.001,0],ArrowUp:[0,-0.001],ArrowDown:[0,0.001]}[e.key];if(!d)return;e.preventDefault();const q=normalAt(),pos=role==='C'?S.c:role==='A'?q.a:role==='B'?q.b:role==='D'?q.d:role==='E'?q.e:S.w;onDrag(role,pos[0]+d[0],pos[1]+d[1]);[...stage.querySelectorAll('.ptdot')].find(x=>x.getAttribute('aria-label').startsWith(role+','))?.focus()});return b}
+function moveRole(role,u,v){if(role==='C'){S.c=[clamp(u,0,1),clamp(v,0,1)]}else{let x=S.w[0],y=S.w[1];if(role==='A')x=u+S.step;if(role==='B')x=u-S.step;if(role==='D')y=v+S.step;if(role==='E')y=v-S.step;if(role==='W'){x=u;y=v}S.w=[clamp(x,S.step,1-S.step),clamp(y,S.step,1-S.step)]}drawShared()}
+function attachMapPoints(stage,V){const q=normalAt();for(const[role,pos]of[['C',S.c],['A',q.a],['W',S.w],['B',q.b],['D',q.d],['E',q.e]])addPoint(stage,V.X(pos[0]),V.Y(pos[1]),role,moveRole)}
+function attachSidePoints(stage,V,axis){const q=normalAt(),roles=axis==='x'?[['A',q.a[0]],['W',S.w[0]],['B',q.b[0]]]:[['D',q.d[1]],['W',S.w[1]],['E',q.e[1]]];for(const[role,x]of roles)addPoint(stage,V.X(x),V.y0,role,(r,u)=>{const value=V.x0+u*(V.x1-V.x0);if(axis==='x')moveRole(r,value,S.w[1]);else moveRole(r,S.w[0],value)})}
+let step=0;const stepDots=$('stepDots');for(let i=0;i<5;i++){const b=document.createElement('button');b.className='dot';b.setAttribute('aria-label','Step '+(i+1));b.onclick=()=>{step=i;drawShared()};stepDots.appendChild(b)}
+function renderStepPanel(T){
+  const I={...T,hl:0.08,hr:0.06,ha:0.08,hb:0.08,sx:-1,sy:0,raw:[1,0,1],len:r6(Math.SQRT2),n:[r6(1/Math.SQRT2),0,r6(1/Math.SQRT2)],nFull:[1/Math.SQRT2,0,1/Math.SQRT2],rgb:[r6(1/Math.SQRT2*0.5+0.5),0.5,r6(1/Math.SQRT2*0.5+0.5)]};
+  const caps=[`<b>Step 1 · Four neighbors supply four heights.</b> A and B are 0.01 UV left and right of W. D and E are 0.01 UV above and below W. The given heights are A 0.08, B 0.06, D 0.08, E 0.08.`,`<b>Step 2 · Measure both slopes.</b> slopeX = (0.06 − 0.08) ÷ 0.02 = −1. slopeY = (0.08 − 0.08) ÷ 0.02 = 0. The horizontal surface falls right. The vertical surface is level.`,`<b>Step 3 · Build rawNormal.</b> rawNormal = (−slopeX, −slopeY, 1) = (1, 0, 1). In the horizontal cut, turning the pink slope triangle gives a right-and-up arrow. The z member points away from the screen.`,`<b>Step 4 · Divide by the raw length.</b> normalLength = √(1² + 0² + 1²) = √2 = 1.414214. N = (1, 0, 1) ÷ 1.414214 = (0.707107, 0, 0.707107). The violet raw arrow and lime N arrow share a direction.`,`<b>Step 5 · Store N as a visible color.</b> RGB = N × 0.5 + 0.5 = (0.853553, 0.5, 0.853553). This color is only a display of N. No light has been added.`];
+  $('stepCap').innerHTML=caps[step];
+  const rows=[['neighbor heights','hLeft = 0.08, hRight = 0.06, hAbove = 0.08, hBelow = 0.08','two slopes'],...normalRows(I)];
+  let html='<tr><th>Part</th><th>Current formula and substitution</th><th>Consumer</th></tr>';
+  rows.forEach((r,i)=>{html+=`<tr class="${i>=1?'new':''}"><td>${r[0]}</td><td class="f">${r[1]}</td><td>${r[2]}</td></tr>`});
+  $('stepTable').innerHTML=html;
+  const legends=[['the violet surface: given heights on both cuts','A, B, D, E, W: the four neighbors and the pixel'],['the pink joins: the average slopes between neighbors','blue and amber bars: the measured heights'],['the violet rawNormal arrows: right direction, length not fixed','the pink slope triangles: their turn gives the arrow direction'],['the violet raw arrows and lime N arrows: same direction, different lengths','normalLength divides every raw member'],['the normal map: RGB displays N','the lime N arrows: length 1']];
+  $('stepLegend').innerHTML=legends[step].map(x=>`<li><span class="swl" style="background:${x===legends[step][0]?COL.violet:COL.lime}"></span>${x}</li>`).join('');
+  [...stepDots.children].forEach((b,i)=>b.classList.toggle('on',i===step));$('stepPrev').disabled=step===0;$('stepNext').disabled=step===4;
+}
+function draw3dOnly(){draw3D($('hero3d'));draw3D($('lab3d'));clearPoints($('labXStage'));clearPoints($('labYStage'));attachSidePoints($('labXStage'),drawSide($('labX'),S,S.w,{axis:'x',slopes:true,raw:true,normal:true,zoom:S.orbit.zoom}),'x');attachSidePoints($('labYStage'),drawSide($('labY'),S,S.w,{axis:'y',slopes:true,raw:true,normal:true,zoom:S.orbit.zoom}),'y');$('orbitScale').textContent=`3D and side cuts: ${f(520*S.orbit.zoom)} screen px per UV before rotation · zoom ${f(S.orbit.zoom)} ×`}
+function drawShared(){const T=traceNormal(normalAt());for(const[mapId,stageId,kind]of[['heroMap','heroMapStage','hero'],['stepMap','stepMapStage','step'],['labMap','labMapStage','lab']]){const cv=$(mapId),stage=$(stageId),V=view(cv);renderMap(cv,V,S,kind==='step'?step===4:kind==='lab'?S.showNormal:true);drawMapDecor(cv,V,S,S.w,{rgb:kind!=='step'||step===4});clearPoints(stage);attachMapPoints(stage,V)}clearPoints($('stepXStage'));clearPoints($('stepYStage'));attachSidePoints($('stepXStage'),drawSide($('stepX'),S,S.w,{axis:'x',heights:true,idea:true,mapScale:240,slopes:step>=1,raw:step>=2,normal:step>=3}),'x');attachSidePoints($('stepYStage'),drawSide($('stepY'),S,S.w,{axis:'y',heights:true,idea:true,mapScale:240,slopes:step>=1,raw:step>=2,normal:step>=3}),'y');clearPoints($('traceSideStage'));attachSidePoints($('traceSideStage'),drawSide($('traceSide'),S,S.w,{axis:'x',slopes:true,raw:true,normal:true}),'x');const tv=view($('traceMap'));renderMap($('traceMap'),tv,S,true);drawMapDecor($('traceMap'),tv,S,S.w,{rgb:true});clearPoints($('traceMapStage'));attachMapPoints($('traceMapStage'),tv);renderStepPanel(T);draw3dOnly();$('labStep').value=S.step;$('labBevel').value=S.bev;$('labStepV').textContent=f(S.step);$('labBevelV').textContent=f(S.bev);$('labMode').textContent=S.showNormal?'normal-map RGB':'height map';$('labMode').setAttribute('aria-pressed',String(S.showNormal));$('labMeaning').textContent=`W = (${f(S.w[0])}, ${f(S.w[1])}): slopeX ${f(T.sx)}, slopeY ${f(T.sy)}. N = (${T.n.map(f6).join(', ')}), length 1.`;$('labLegend').innerHTML=`<li><span class="swl" style="background:#a855f7"></span>the violet surface: Lesson 10.1's height</li><li><span class="swl" style="background:#ec4899"></span>the pink N arrow: away from the surface, length 1</li><li><span class="swl" style="background:#a3e635"></span>the lime cuts and N arrows: horizontal and vertical measurements</li>`;renderLabTable(T);$('traceTable').innerHTML=$('labTable').innerHTML}
+$('stepPrev').onclick=()=>{if(step>0){step--;drawShared()}};$('stepNext').onclick=()=>{if(step<4){step++;drawShared()}};
+function heightLines(name,u,v){const px=r6(u-S.c[0]),py=r6(v-S.c[1]),px2=px*px,py2=py*py,sum=px2+py2,d=r6(Math.sqrt(sum)),sd=r6(d-RAD),neg=r6(-sd),inside=clamp(neg,0,S.bev),leg=r6(S.bev-inside),b2=S.bev*S.bev,l2=leg*leg,h2=b2-l2,h=r6(Math.sqrt(Math.max(0,h2))),out={A:'hLeft',B:'hRight',D:'hAbove',E:'hBelow'}[name];return{h,lines:[`${name} = (${f(u)}, ${f(v)}) UV; ${out} uses Lesson 10.1`,`p.x = ${f(u)} − ${f(S.c[0])} = ${f(px)}; p.y = ${f(v)} − ${f(S.c[1])} = ${f(py)}`,`p.x² = ${f(px)} × ${f(px)} = ${f(px2)}; p.y² = ${f(py)} × ${f(py)} = ${f(py2)}`,`sum = ${f(px2)} + ${f(py2)} = ${f(sum)}`,`d = √${f(sum)} = ${f(d)}`,`sd = ${f(d)} − ${f(RAD)} = ${f(sd)}`,`−sd = −(${f(sd)}) = ${f(neg)}`,`inside = clamp(${f(neg)}, 0, ${f(S.bev)}) = ${f(inside)}`,`leg = ${f(S.bev)} − ${f(inside)} = ${f(leg)}`,`bevel² = ${f(S.bev)} × ${f(S.bev)} = ${f(b2)}; leg² = ${f(leg)} × ${f(leg)} = ${f(l2)}`,`h² = ${f(b2)} − ${f(l2)} = ${f(h2)}`,`${out} = √${f(h2)} = ${f(h)}`]}}
+function normalRows(T){const full=T.nFull||T.n,rgbLines=`RGB.x = N.x × 0.5 + 0.5<br>RGB.x = ${f9(full[0])} × 0.5 = ${f9(full[0]*0.5)}<br>RGB.x = ${f9(full[0]*0.5)} + 0.5 = ${f(T.rgb[0])}<br>RGB.y = ${f9(full[1])} × 0.5 + 0.5 = ${f(T.rgb[1])}<br>RGB.z = ${f9(full[2])} × 0.5 + 0.5 = ${f(T.rgb[2])}`;return[['slopeX',`slopeX = (hRight − hLeft) ÷ (2 × step)<br>slopeX = (${f(T.hr)} − ${f(T.hl)}) ÷ ${f(r6(2*S.step))} = ${f(T.sx)}`,'rawNormal.x = −slopeX'],['slopeY',`slopeY = (hBelow − hAbove) ÷ (2 × step)<br>slopeY = (${f(T.hb)} − ${f(T.ha)}) ÷ ${f(r6(2*S.step))} = ${f(T.sy)}`,'rawNormal.y = −slopeY'],['rawNormal',`rawNormal = (−slopeX, −slopeY, 1)<br>rawNormal = (−(${f(T.sx)}), −(${f(T.sy)}), 1) = (${T.raw.map(f).join(', ')})`,'normalLength'],['normalLength',`normalLength = √(rawNormal.x² + rawNormal.y² + rawNormal.z²)<br>normalLength = √((${f(T.raw[0])})² + (${f(T.raw[1])})² + 1²) = ${f(T.len)}`,'N = rawNormal ÷ normalLength'],['N',`N = rawNormal ÷ normalLength<br>N = (${T.raw.map(f).join(', ')}) ÷ ${f(T.len)} = (${T.n.map(f6).join(', ')})`,'normal-map RGB'],['RGB',rgbLines,'stored display color']]}
+function renderLabTable(T){const groups=[['A',T.a],['B',T.b],['D',T.d],['E',T.e]].map(([n,p])=>[n,heightLines(n,p[0],p[1])]);let html='<tr><th style="width:150px">Part</th><th>Live calculation · six-decimal rounding</th><th>Consumer</th></tr>';for(const[n,g]of groups){html+=`<tr class="grp"><td colspan="3">Above ${n} · Lesson 10.1 height</td></tr>`;g.lines.forEach((line,i)=>{html+=`<tr><td>${i===0?n:''}</td><td class="f">${line}</td><td>${i===g.lines.length-1?'the two slopes':'height chain'}</td></tr>`})}html+='<tr class="grp"><td colspan="3">At W · the new normal chain</td></tr>';for(const[n,line,use]of normalRows(T))html+=`<tr class="new"><td><b>${n}</b></td><td class="f">${line}</td><td>${use}</td></tr>`;$('labTable').innerHTML=html}
+$('labStep').oninput=e=>{S.step=Number(e.target.value);S.w=[clamp(S.w[0],S.step,1-S.step),clamp(S.w[1],S.step,1-S.step)];drawShared()};$('labBevel').oninput=e=>{S.bev=Number(e.target.value);drawShared()};$('labMode').onclick=()=>{S.showNormal=!S.showNormal;drawShared()};$('labReset').onclick=()=>{S.c=[0.5,0.5];S.w=[0.72,0.5];S.bev=0.1;S.step=0.01;S.showNormal=true;S.orbit={yaw:-0.55,elev:0.88,zoom:1};drawShared()};
+let orbitDrag=null;for(const id of['hero3d','lab3d']){const cv=$(id);cv.style.cursor='grab';cv.addEventListener('pointerdown',e=>{e.preventDefault();cv.setPointerCapture(e.pointerId);orbitDrag={x:e.clientX,y:e.clientY};cv.style.cursor='grabbing'});cv.addEventListener('pointermove',e=>{if(!orbitDrag)return;S.orbit.yaw+=(e.clientX-orbitDrag.x)*0.008;S.orbit.elev=clamp(S.orbit.elev+(e.clientY-orbitDrag.y)*0.006,0.08,1.45);orbitDrag={x:e.clientX,y:e.clientY};draw3dOnly()});cv.addEventListener('pointerup',()=>{orbitDrag=null;cv.style.cursor='grab'});cv.addEventListener('wheel',e=>{e.preventDefault();S.orbit.zoom=clamp(S.orbit.zoom*Math.exp(-e.deltaY*0.001),0.5,2);draw3dOnly()},{passive:false})}document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{const v=b.dataset.view;S.orbit=v==='top'?{yaw:0,elev:0.08,zoom:1}:v==='side'?{yaw:0,elev:1.35,zoom:1}:{yaw:-0.55,elev:0.88,zoom:1};draw3dOnly()});
+
+(function(){
+  const inp=$('chIn'),out=$('chVerdict'),cv=$('challenge'),ctx=cv.getContext('2d');
+  function parse(src){
+    const s=src.replace(/^\s*(float3\s+)?N\s*=\s*/,'').replace(/;\s*$/,'').trim();
+    if(!s)return{err:'empty'};
+    const toks=s.match(/\d*\.\d+|\d+\.?|[A-Za-z_]\w*|[-+*\/(),]|\S/g)||[];
+    let i=0;
+    const peek=()=>toks[i],next=()=>toks[i++],vars=['rawNormal','normalLength'];
+    function expr(){
+      let a=term();
+      while(peek()==='+'||peek()==='-'){
+        const o=next(),b=term(),A=a;
+        a=e=>o==='+'?A(e)+b(e):A(e)-b(e);
+      }
+      return a;
+    }
+    function term(){
+      let a=unary();
+      while(peek()==='*'||peek()==='/'){
+        const o=next(),b=unary(),A=a;
+        a=e=>{
+          const av=A(e),bv=b(e);
+          if(Array.isArray(av))return av.map(x=>o==='*'?x*bv:x/bv);
+          if(Array.isArray(bv))return bv.map(x=>o==='*'?av*x:av/x);
+          return o==='*'?av*bv:av/bv;
+        };
+      }
+      return a;
+    }
+    function unary(){
+      if(peek()==='-'){
+        next();
+        const a=unary();
+        return e=>{
+          const v=a(e);
+          return Array.isArray(v)?v.map(x=>-x):-v;
+        };
+      }
+      if(peek()==='+'){next();return unary()}
+      return prim();
+    }
+    function prim(){
+      const t=next();
+      if(t===undefined)throw Error('end');
+      if(/^\d/.test(t)||/^\.\d/.test(t)){const v=Number(t);return()=>v}
+      if(t==='('){const a=expr();if(next()!==')')throw Error('bracket');return a}
+      if(vars.includes(t))return e=>e[t];
+      throw Error('name:'+t);
+    }
+    try{
+      const g=expr();
+      if(i<toks.length)return{err:'extra'};
+      return{g};
+    }catch(e){return{err:e.message}}
+  }
+  const samples=[1,2,3].map(z=>({rawNormal:z===1?[1,0,1]:z===2?[1,1,1]:[-2,1,1],normalLength:z===1?Math.SQRT2:z===2?Math.sqrt(3):Math.sqrt(6)}));function draw(g){ctx.clearRect(0,0,cv.width,cv.height);const start=[220,270],raw=[1,0,1],scale=110,end=[start[0]+raw[0]*scale,start[1]-raw[2]*scale];line(ctx,70,start[1],680,start[1],COL.screen,2);arrow(ctx,...start,...end,COL.violet,4);plate(ctx,'rawNormal = (1, 0, 1)',end[0]+16,end[1]-10,15,'left',COL.violet);plate(ctx,`raw length = √2 = ${f(Math.SQRT2)}`,70,40,15,'left',COL.violet);if(g){try{const n=g(samples[0]);if(Array.isArray(n)){const len=Math.hypot(...n),end2=[start[0]+n[0]*scale,start[1]-n[2]*scale];arrow(ctx,...start,...end2,COL.lime,4);plate(ctx,`your N = (${n.map(f6).join(', ')})`,start[0]+20,start[1]+42,15,'left','#4d7c0f');plate(ctx,`your length = ${f(len)}`,420,40,15,'left',len===1?'#4d7c0f':COL.red)}}catch{}}}
+  function run(){const p=parse(inp.value);if(p.err){draw(null);out.className='verdict no';out.textContent=p.err==='empty'?'No line yet. Divide rawNormal by normalLength.':p.err.startsWith('name:')?`Unknown name “${p.err.slice(5)}”. Use rawNormal or normalLength.`:'The page could not read this expression. Use the two names, numbers, brackets, +, −, *, and /.';return}const g=p.g,valid=samples.every(e=>{try{const n=g(e);return Array.isArray(n)&&n.every((x,i)=>isFinite(x)&&Math.abs(x-e.rawNormal[i]/e.normalLength)<1e-8)}catch{return false}});draw(g);out.className='verdict '+(valid?'ok':'no');if(valid){out.textContent='Correct. N = rawNormal / normalLength. At W: (1, 0, 1) ÷ 1.414214 = (0.707107, 0, 0.707107). The length is 1.';return}let n;try{n=g(samples[0])}catch{}if(!Array.isArray(n)){out.textContent='This does not return a vector with three members. Use rawNormal / normalLength.'}else if(samples.every(e=>{const v=g(e);return Array.isArray(v)&&v.every((x,i)=>x===e.rawNormal[i])})){out.textContent='This keeps rawNormal unchanged. Divide every member by normalLength to make the length 1.'}else{out.textContent=`Not yet. Your teaching result is (${n.map(f6).join(', ')}), whose length is ${f(Math.hypot(...n))}. Divide rawNormal by normalLength.`}}
+  $('chBtn').onclick=run;inp.addEventListener('keydown',e=>{if(e.key==='Enter')run()});draw(null)})();
+function exerciseSide(id,w,answer){const P={c:[0.5,0.5],bev:0.1,step:0.01};drawSide($(id),P,w,{axis:'x',heights:true,slopes:true,raw:answer,normal:answer})}
+function drawDiagonal(id,answer){const cv=$(id),ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);const start=[150,260],rawEnd=[270,140];line(ctx,55,start[1],390,start[1],COL.screen,2);line(ctx,start[0],start[1],start[0],45,COL.screen,2);arrow(ctx,...start,...rawEnd,COL.violet,4);plate(ctx,'raw = (1, 1, 1)',rawEnd[0]+12,rawEnd[1]-8,14,'left',COL.violet);plate(ctx,'raw length = √3 = 1.732051',55,32,14,'left',COL.violet);if(answer){const end=[start[0]+70,start[1]-70];arrow(ctx,...start,...end,COL.lime,4);plate(ctx,'N = (0.577350, 0.577350, 0.577350)',end[0]+16,end[1]+24,14,'left','#4d7c0f');plate(ctx,'length(N) = 1',55,62,14,'left','#4d7c0f')}else plate(ctx,'N = ?',start[0]+100,start[1]+35,15,'left','#4d7c0f')}
+exerciseSide('ex1q',[0.5,0.5],false);exerciseSide('ex1a',[0.5,0.5],true);exerciseSide('ex2q',[0.28,0.5],false);exerciseSide('ex2a',[0.28,0.5],true);drawDiagonal('ex3q',false);drawDiagonal('ex3a',true);document.querySelectorAll('.choices').forEach(g=>{const out=g.nextElementSibling;g.querySelectorAll('button').forEach(b=>b.onclick=()=>{g.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));out.className='verdict '+(b.dataset.ok==='1'?'ok':'no');out.textContent=b.dataset.why})});
+const metalTests=[['T1',0.50,0.50],['T2',0.76,0.50],['T3',0.24,0.50],['T4',0.73,0.64],['T5',0.85,0.50]];
+function drawMetalGoal(){const cv=$('metalGoal'),stage=$('metalGoalStage'),V=view(cv);pixels(cv,V,(u,v)=>rrNormal(u,v).n.map(x=>x*0.5+0.5));const ctx=cv.getContext('2d');ctx.strokeStyle=COL.glass;ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(V.X(0.2),V.Y(0.3),0.6*V.s,0.4*V.s,0.1*V.s);ctx.stroke();clearPoints(stage);for(const test of metalTests){const[n,u,v]=test,q=rrNormal(u,v);plate(ctx,n,V.X(u)+10,V.Y(v)-14,14,'left');const b=document.createElement('button');b.className='ptdot';b.style.left=V.X(u)+'px';b.style.top=V.Y(v)+'px';b.style.background='#fff';b.setAttribute('aria-label',n+', draggable test pixel');stage.appendChild(b);const html=()=>{const z=rrNormal(test[1],test[2]);return`<b>${n} = (${f(test[1])}, ${f(test[2])})</b>, in UV from the picture's top-left, y down<br>slopeX = ${f(z.sx)}; slopeY = ${f(z.sy)}<br>rawNormal = (${z.raw.map(f6).join(', ')})<br>normalLength = ${f(z.len)}<br>N = (${z.n.map(f6).join(', ')})<br>Drag to inspect another position.`};setTip(b,html);let moved=false;b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture(e.pointerId);moved=false;const start={x:e.clientX,y:e.clientY};const move=ev=>{const r=cv.getBoundingClientRect();test[1]=clamp((ev.clientX-r.left)/r.width,0,1);test[2]=clamp((ev.clientY-r.top)/r.height,0,1);moved=true;hideTip();drawMetalGoal()};const up=()=>{b.removeEventListener('pointermove',move);b.removeEventListener('pointerup',up);if(moved)suppressClick=true};b.addEventListener('pointermove',move);b.addEventListener('pointerup',up)});b.addEventListener('keydown',e=>{const d={ArrowLeft:[-0.001,0],ArrowRight:[0.001,0],ArrowUp:[0,-0.001],ArrowDown:[0,0.001]}[e.key];if(!d)return;e.preventDefault();test[1]=clamp(test[1]+d[0],0,1);test[2]=clamp(test[2]+d[1],0,1);drawMetalGoal();[...stage.querySelectorAll('.ptdot')].find(x=>x.getAttribute('aria-label').startsWith(n+','))?.focus()})}}
+drawMetalGoal();
+(function(){const rec=$('record');rec.value=`# Lesson 10.3 — Surface normal
+
+date: ${new Date().toISOString().slice(0,10)}
+
+- A surface normal N is a direction straight away from the surface. It has screen members x, y and an outward member z.
+- Four neighbors: A = W − (step, 0), B = W + (step, 0), D = W − (0, step), E = W + (0, step).
+- slopeX = (hRight − hLeft) ÷ (2 × step); slopeY = (hBelow − hAbove) ÷ (2 × step).
+- rawNormal = (−slopeX, −slopeY, 1). Its direction is correct, but its length can differ from 1.
+- normalLength = √(rawNormal.x² + rawNormal.y² + rawNormal.z²).
+- N = rawNormal ÷ normalLength. Dividing every member by the same positive length keeps the direction and makes length 1.
+- Teaching W = (0.72, 0.50), C = (0.50, 0.50), radius 0.25, bevel 0.10, step 0.01:
+  hLeft 0.08, hRight 0.06, hAbove 0.08, hBelow 0.08; slopeX −1, slopeY 0.
+  rawNormal (1, 0, 1), normalLength √2 = 1.414214, N = (0.707107, 0, 0.707107).
+- Display only: RGB = N × 0.5 + 0.5. W stores (0.853553, 0.5, 0.853553). This is not lighting.
+- Metal exercise: write roundedRectHeightForNormal and roundedRectNormal in chapter10/NormalExercise.metal.
+  The check on Chapter10Screen compares the result with chapter10/NormalExerciseKey.metal.
+- iOS explorer: chapter10/NormalMap.metal + chapter10/NormalExplorer.swift.
+- Next: Lesson 10.4 — Dot product: measure how similarly two directions point.`;$('recBtn').onclick=async()=>{let ok=false;try{if(navigator.clipboard){await navigator.clipboard.writeText(rec.value);ok=true}}catch{}if(!ok){rec.select();try{ok=document.execCommand('copy')}catch{}}$('recMsg').textContent=ok?'Copied.':'Select the text and copy it by hand.'}})();
+drawShared();$('traceTable').innerHTML=$('labTable').innerHTML;
+</script>
+</body>
+</html>

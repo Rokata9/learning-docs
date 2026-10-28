@@ -6,7 +6,7 @@ Interactive, graphics-first lessons for building Liquid Glass effects on iOS fro
 
 Open `liquid-glass-course.html` in a browser.
 
-Live progress, current files, and the checkpoint/frontier live in `CURRENT_STATE.md`. That file wins when this README disagrees.
+Teaching contracts and current files live in `CURRENT_STATE.md`. The curriculum order lives in `curriculum/liquid_glass_ios_curriculum.md`. Lesson completion is reported only in chat when a new lesson is generated; project files do not track it.
 
 To continue as a learner, paste `NEW_CHAT_PROMPT.md` and name generate or questions in the same message.
 

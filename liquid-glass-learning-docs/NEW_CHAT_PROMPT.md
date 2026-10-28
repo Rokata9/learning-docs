@@ -1,21 +1,21 @@
 # Continue my Liquid Glass on iOS course
 
-Paste this file at the start of a new chat. Then, in the same message, either name the lesson to generate or ask questions about a named unfinished lesson.
+Paste this file at the start of a new chat. Then, in the same message, either name the lesson to generate or ask questions about a named lesson.
 
-This is a durable starter. Progress numbers, file lists, and the live checkpoint contract live in `CURRENT_STATE.md`. That file wins when this prompt disagrees.
+This is a durable starter. Teaching contracts and file lists live in `CURRENT_STATE.md`. The ordered lesson plan lives in `curriculum/liquid_glass_ios_curriculum.md`. Project files do not track lesson completion.
 
 ## How I will use this prompt
 
 Every new chat is one of two jobs:
 
-1. **Generate** a named lesson (HTML + iOS explorer + the lesson's Metal exercise with its prepared calling code + progress files). If I say “the next lesson,” that means the next planned lesson after the generated frontier in `CURRENT_STATE.md`.
-2. **Questions** about a named unfinished lesson — usually the current unresolved checkpoint, sometimes a generated-ahead lesson that is not learner-confirmed complete.
+1. **Generate** a named lesson: HTML + iOS explorer + the lesson's Metal exercise with its prepared calling code. If I say “the next lesson,” use the first lesson in curriculum order whose HTML file does not exist.
+2. **Questions** about a named lesson.
 
 If this same first message already names the job, start that work after the read. Do not stop and wait.
 
-If the first message is only this prompt, restate course state from `CURRENT_STATE.md` and wait.
+If the first message is only this prompt, say that you are ready for a lesson name or question and wait.
 
-Do not generate a later lesson than the one I named. Do not mark any lesson complete unless I explicitly confirm it. Do not generate Lesson 10.3 unless asked.
+Do not generate a later lesson than the one I named. When I explicitly confirm a lesson complete in this chat, include that confirmation in the completion count you report after the next generated lesson. Do not write completion counts or lesson status into project files.
 
 ## 1. Where the files live
 
@@ -40,15 +40,9 @@ Do not generate `.zip` files unless I ask for one.
 
 `CURRENT_STATE.md` is authoritative when older prose disagrees.
 
-## 3. Progress fields
+## 3. Course position
 
-Keep these three fields separate. Read them from `CURRENT_STATE.md`. Do not invent a fourth merged status.
-
-- **Learner-confirmed complete** — count and last completed lesson. Increases only after my explicit confirmation. Read the live count from section 12 and from `CURRENT_STATE.md`. It is **101 of 216** (Chapters 1–9 and Lesson 10.1).
-- **Unresolved checkpoint** — the unfinished lesson I am still on. Generating or revising it does not complete it. Live checkpoint is **Lesson 10.2**.
-- **Generated frontier** — the latest lesson that exists as files. It may sit on the checkpoint, or ahead of it.
-
-Total course size is **216** lessons. Do not increase the completed count because a lesson was generated, revised, or reviewed.
+Use the ordered curriculum and the lesson files on disk. Do not maintain a completed-lesson registry, unresolved checkpoint, generated frontier, or progress snapshot. The total course size is **216** lessons; this is the plan size, not a progress display.
 
 ## 4. Files for this turn
 
@@ -129,56 +123,19 @@ Run the beginner-comprehension audit in `AGENTS.md` before packaging a lesson. I
 
 ## 9. First response
 
-Confirm that the read-order files were read. Restate only the fields from `CURRENT_STATE.md`:
+Confirm that the read-order files were read. If the same message already named generate or questions, do that job next. Otherwise say that you are ready for a lesson name or question and wait.
 
-```text
-completed: {N} of 216, through {last confirmed lesson}
-current unresolved checkpoint: {checkpoint}
-generated frontier: {frontier}
-next planned lesson after the frontier: {next}
-{any generated-ahead lesson} is generated ahead and not complete
-```
+## 10. Chat-only completion report
 
-If the same message already named generate or questions, do that job next. Otherwise wait.
+When generating a lesson, end the response with `Course progress: X of 216 lessons completed.` Use explicit learner confirmations from the current conversation to update the count. Never write the count or lesson status into project files. Then give a clearly labelled best-effort estimate of remaining conversation context.
 
-## 10. Required response footer
+## 11. Teaching contract reference
 
-End every lesson-related response with:
-
-```text
-Course progress: X of 216 lessons completed.
-```
-
-Use the learner-confirmed count from `CURRENT_STATE.md`. Then give a clearly labelled best-effort estimate of remaining conversation context.
-
-## 11. Refresh this snapshot when progress moves
-
-When I confirm a lesson complete, or when the frontier / checkpoint changes, update `CURRENT_STATE.md` first, then replace **section 12 below** so a pasted prompt does not ship stale numbers. Do not rewrite sections 1–10 unless the workflow itself changed.
-
-## 12. Live snapshot — refresh from CURRENT_STATE
-
-**Last aligned:** 2026-10-28 with `CURRENT_STATE.md` (course version 10.2.0).
-
-```text
-platform: Swift / SwiftUI / Metal (.metal + ShaderLibrary)
-test device: iPhone 16 Pro
-min OS: iOS 17
-
-completed: 101 of 216
-  (Chapters 1–9 and Lesson 10.1)
-
-current unresolved checkpoint: Lesson 10.2 — Slope
-  (generated, not complete; also the generated frontier)
-
-generated frontier: Lesson 10.2 — Slope (not complete)
-next planned lesson after the frontier: Lesson 10.3 — Surface normal
-```
-
-Do not mark Lesson 10.2 complete unless I confirm it.
+Platform: Swift / SwiftUI / Metal (`.metal` + `ShaderLibrary`). Test device: iPhone 16 Pro. Minimum OS: iOS 17.
 
 Chapter 7 frost constants stay fixed: blur `18` pt / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
-**9.1 completed contract:**
+**9.1 teaching contract:**
 
 ```text
 right triangle first (square corner, two legs, long side)
@@ -190,7 +147,7 @@ right triangle first (square corner, two legs, long side)
 
 Teaching `p = (0.30, −0.40)` on a square 400×400 rectangle. Walk-around 0.70 is not the long side. × 2 unused. Sign unused. Rectangle is square so UV x and UV y share one pixel length. Nested equal-value outlines: smaller length circles are darker; smaller walk-around diamonds are that analog. The diamond is a square standing on a vertex.
 
-**9.2 completed contract:**
+**9.2 teaching contract:**
 
 ```text
 sd = length(p) − radius
@@ -200,7 +157,7 @@ sd = length(p) − radius
 
 Default radius 0.25. Teaching pixel sd = +0.25 (outside, navy). Center sd = −0.25 (inside, orange). Boundary `p = (0.15, −0.20)` has sd = 0. `smoothstep` unused. Walk-around diamond is HTML-only.
 
-**9.3 completed contract:**
+**9.3 teaching contract:**
 
 ```text
 mask = 1.0 − smoothstep(−band, band, sd)
@@ -210,7 +167,7 @@ mask = 1.0 − smoothstep(−band, band, sd)
 
 Default band 0.10. Teaching band pixel `p = (0.18, −0.24)`, `d = 0.30`. linearFraction 0.75. curvedFraction 0.84375. Far pixel `p = (0.30, −0.40)` clamps to mask 0. Center mask 1. Boundary mask 0.50. Requires `edge1 > edge0`. Not 4.8 binary, not 4.9 coverage, not blur.
 
-**9.4 completed contract:**
+**9.4 teaching contract:**
 
 ```text
 innerHalf = outerHalf − cornerRadius
@@ -221,7 +178,7 @@ innerHalf = outerHalf − cornerRadius
 
 Default outer half `(0.30, 0.20)` means full size `0.60 × 0.40`. Corner radius 0.10. Teaching pixel `p = (0.26, −0.18)` is the inner-corner plus a 3-4-5 unit step of length 0.10, and has sd = 0. Visual center `C` is not a construction-circle center. `abs(p)` mirrors left onto right and top onto bottom. Capsule is Lesson 9.5.
 
-**9.5 completed contract:**
+**9.5 teaching contract:**
 
 ```text
 nearestX = clamp(p.x, −innerHalfW, innerHalfW)
@@ -231,7 +188,7 @@ nearestX = clamp(p.x, −innerHalfW, innerHalfW)
 
 Default outer half `(0.40, 0.20)`, radius `0.20` equal to half-height. Teaching cap-boundary `p = (0.32, −0.16)` has sd = 0. Inner segment x from −0.20 to +0.20.
 
-**9.6 completed contract:**
+**9.6 teaching contract:**
 
 ```text
 sdA = length(p) − radiusA
@@ -245,7 +202,7 @@ sdA = length(p) − radiusA
 
 Two Lesson 9.2 circles. Teaching left-only `p = (−0.10, 0)` has `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15` and `sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05`. Named formula stays visible before substitution.
 
-**9.10 completed contract** (learner-confirmed 2026-09-30):
+**9.10 teaching contract** (learner-confirmed 2026-09-30):
 
 ```text
 dir = p / length(p)
@@ -256,7 +213,7 @@ dir = p / length(p)
 
 Navy input cell x `[0.50, 0.75)`, y `[0.25, 0.50)`. W `(0.65, 0.20)` reads about `(0.60528, 0.28944)` at `dispLen = 0.10` and stores navy. `dispLen` is the UV read distance, not a percentage enlargement. The shader skips the division at `d <= 0.0001`; the Metal source gives no reason for that exact cutoff. Q&A companion: `lesson-09-10-qa.html`.
 
-**9.11 completed contract** (learner-confirmed 2026-09-30):
+**9.11 teaching contract** (learner-confirmed 2026-09-30):
 
 ```text
 sd = length(p) − radius
@@ -269,7 +226,7 @@ sd = length(p) − radius
 
 Default radius 0.25, band 0.10, dispLen 0.10. Teaching W = `(0.65, 0.30)`: `p = (0.15, −0.20)`, `d = 0.25`, `sd = 0`, falloff 0.50, `dir = (0.60, −0.80)`, `disp = (0.03, −0.04)`, `readUv = (0.62, 0.34)`, stores navy. Falloff is a length scale, not a color mix. The line x = 0.90 never moves. Q&A companion: `lesson-09-11-qa.html`.
 
-**9.12 completed contract:**
+**9.12 teaching contract:**
 
 ```text
 p = uv − center → the Lesson 9.11 chain → readUv = uv − disp
@@ -278,7 +235,7 @@ p = uv − center → the Lesson 9.11 chain → readUv = uv − disp
 
 C = `(0.50, 1.10)`. W = `(0.59, 0.98)` reads R = `(0.53, 1.06)` (outside), clamps to R′ = `(0.53, 1.00)`, stores navy.
 
-**9.13 generated contract** (not complete):
+**9.13 teaching contract**:
 
 ```text
 readRed   = clamp(uv − disp × (1 − spread), 0, 1)
@@ -289,7 +246,7 @@ color     = half4(colRed.r, colGreen.g, colBlue.b, 1.0)
 
 Black-and-white checker. C = `(0.40, 0.54)`, spread 0.10. W = `(0.40, 0.405)`: push 0.10 straight down; read y 0.495 / 0.505 / 0.515 → white / black / black → stores `(1, 0, 0)`. Strips yellow 0.39–0.40 and red 0.40–0.41 on x = 0.40; none outside 0.35 from C. iOS: `chapter09/ChromaticSeparation.metal` (`chromaticRefract`) + `chapter09/ChromaticSeparationExplorer.swift`.
 
-**9.14 generated contract** (not complete):
+**9.14 teaching contract**:
 
 ```text
 answer 2, where to read?  bent  = the Lesson 9.13 color from three read points
@@ -354,6 +311,7 @@ Current Chapter 10 files:
 ```text
 course/chapters/chapter-10/lesson-10-01-height-map-idea.html
 course/chapters/chapter-10/lesson-10-02-slope.html
+course/chapters/chapter-10/lesson-10-03-surface-normal.html
 course/chapters/chapter-10/lesson-light-surface-direction-and-material-thickness.html
 
 LiquidGlassLab/chapter10/HeightMapExplorer.swift
@@ -367,5 +325,10 @@ LiquidGlassLab/chapter10/SlopeMap.metal
 LiquidGlassLab/chapter10/SlopeExercise.metal
 LiquidGlassLab/chapter10/SlopeExerciseKey.metal
 LiquidGlassLab/chapter10/SlopeExerciseView.swift
+LiquidGlassLab/chapter10/NormalExplorer.swift
+LiquidGlassLab/chapter10/NormalMap.metal
+LiquidGlassLab/chapter10/NormalExercise.metal
+LiquidGlassLab/chapter10/NormalExerciseKey.metal
+LiquidGlassLab/chapter10/NormalExerciseView.swift
 LiquidGlassLab/chapter10/Chapter10Screen.swift
 ```

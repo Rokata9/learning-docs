@@ -1,7 +1,6 @@
 # Liquid Glass iOS course — implementation handoff
 
 **Updated:** 2026-10-28
-**Course version:** 10.2.0
 
 ## Read order
 
@@ -13,21 +12,7 @@
 6. current and immediately preceding lesson HTML
 7. the current iOS files under `/Users/rosen/Code/LiquidGlassLab-iOS`
 
-Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
-
-## Authoritative status
-
-```yaml
-total_lessons: 216
-learner_confirmed_complete: 101
-completed_chapters: [1, 2, 3, 4, 5, 6, 7, 8, 9]
-chapter_10_complete: "1 of 13"
-next_unresolved_checkpoint: "Lesson 10.2 — Slope"
-generated_frontier: "Lesson 10.2 — Slope"
-next_planned_after_frontier: "Lesson 10.3 — Surface normal"
-```
-
-Chapters 1–9 and Lesson 10.1 are learner-confirmed complete. Lesson 10.2 is generated and is not complete. Do not mark it complete unless the learner confirms it.
+Use `CURRENT_STATE.md` for teaching contracts and current file references. Use the curriculum for lesson order. Lesson completion is reported only in chat when a new lesson is generated; neither file tracks it.
 
 Chapter 7 frost stays fixed: blur `18` pt / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
@@ -218,7 +203,7 @@ Black-and-white checker so any color comes from the read points. C = `(0.40, 0.5
 
 **2026-10-01 revision (learner request on the Section 4 lab):** click any pixel to pick W; readRed, readGreen and readBlue are drawn as clickable dots on the lab picture (an explicit exception to rule 8, explained in the legend); the C and W drags now follow the pointer the whole way.
 
-## Generated frontier — Lesson 9.14
+## Teaching contract — Lesson 9.14
 
 ```text
 sd    = length(uv − center) − radius              (both answers start here)
@@ -242,7 +227,7 @@ gray   = h ÷ bevel
 
 C = `(0.50, 0.50)`, radius 0.25, bevel 0.10. W = `(0.71, 0.50)`: sd = −0.04, inside 0.04, leg 0.06, h = 0.08, gray 0.80. The height uses only sd (any shape). iOS files: `chapter10/HeightMap.metal` + `HeightMapExplorer.swift`; Metal exercise: `HeightExercise.metal`, `HeightExerciseKey.metal`, `ExerciseCheck.metal`, and `HeightExerciseView.swift`. Learner-confirmed complete on 2026-10-27.
 
-### Generated frontier — Lesson 10.2 — Slope (not complete)
+### Lesson 10.2 — Slope
 
 ```text
 A      = W − (step, 0)
@@ -255,6 +240,21 @@ slopeX = deltaH ÷ deltaX
 ```
 
 One graphics idea: a signed x-slope number says whether the surface rises or falls as x grows. One math idea: height change ÷ horizontal distance. The straight join between the two surface points gives the average slope from A to B, used as an estimate at W, not an exact derivative. C = `(0.50, 0.50)`, radius 0.25, bevel 0.10, step 0.01. Teaching W = `(0.72, 0.50)`, A = `(0.71, 0.50)`, B = `(0.73, 0.50)`: hLeft 0.08, hRight 0.06, deltaH −0.02, deltaX 0.02, slopeX −1. Zero x slope means equal left and right heights; it does not measure y change. Display only: red = `clamp(0.15 + slopeX ÷ 4, 0.15, 1)`, blue = `clamp(0.15 − slopeX ÷ 4, 0.15, 1)`, green 0.15; zero is dark gray, and the range 4 is a chosen display dial. iOS: `chapter10/SlopeMap.metal` + `SlopeExplorer.swift`; exercise `SlopeExercise.metal` (`roundedRectHeightForSlope`, `roundedRectSlopeX`), `SlopeExerciseKey.metal`, and `SlopeExerciseView.swift`, wired into `Chapter10Screen`, with the live lesson before the completed 10.1 review. The final restored deliverable builds for the iPhone 16 Pro simulator. On screen: the slope map is gray in the middle, red on the left rim, and blue on the right; the untouched stubs show red on the rim, and a temporary answer-key solution gives no red pixels. The learner stubs and normal Chapter 1 startup were restored before the final build. Browser: 67 interaction checks, 3,240 finite-math states, 924 valid local links, and direct-file cold start pass at 1920×1080. Older trace cards in Chapters 4–6 needed behavior-preserving string splits so the current Swift compiler could type-check the full project. Next: Lesson 10.3 — Surface normal — do not generate unless asked.
+
+### Lesson 10.3 — Surface normal
+
+```text
+A = W − (step, 0); B = W + (step, 0)
+D = W − (0, step); E = W + (0, step)
+slopeX = (hRight − hLeft) ÷ (2 × step)
+slopeY = (hBelow − hAbove) ÷ (2 × step)
+rawNormal = (−slopeX, −slopeY, 1)
+normalLength = √(rawNormal.x² + rawNormal.y² + rawNormal.z²)
+N = rawNormal ÷ normalLength
+RGB = N × 0.5 + 0.5                         (display only)
+```
+
+One graphics idea: a unit surface normal points straight away from the surface. One math idea: divide the raw 3D direction by its length. C = `(0.50, 0.50)`, radius 0.25, bevel 0.10, step 0.01. Teaching W = `(0.72, 0.50)` has slopeX −1 and slopeY 0, so rawNormal = `(1, 0, 1)`, normalLength = √2 = 1.414214, and N = `(0.707107, 0, 0.707107)`. RGB = `(0.853553, 0.5, 0.853553)`. iOS: `chapter10/NormalMap.metal` + `NormalExplorer.swift`; exercise `NormalExercise.metal` (`roundedRectHeightForNormal`, `roundedRectNormal`), `NormalExerciseKey.metal`, and `NormalExerciseView.swift`, wired into `Chapter10Screen` before Lesson 10.2. The full app builds for the iPhone 16 Pro simulator. `LabHost` uses cold-launch state initialized to the latest chapter and a `ScrollViewReader` that brings the selected chip into view. Browser: 59 interaction checks, 2,420 finite unit-normal states, no runtime errors or horizontal overflow, all five stepper states, 3D drag/zoom/presets, point drags and popups, challenge cases, all nine exercise choices, and direct-file cold start pass at 1920×1080. A separate sweep of 116 changed HTML pages has no runtime errors or overflow and no broken local links. On-device: the final restored app builds; cold launch selects Chapter 10 with its chip visible; the normal map renders; the untouched stubs show a red rim; the temporary answer-key solution shows no red pixels. The learner stubs, original explorer order, exercise text, and 360 pt check were restored before the final build.
 
 ## Side lesson — Safari shortcut, Section 4 revised 2026-10-26
 
@@ -269,12 +269,10 @@ optional check = read(inside + 0.001) − read(inside)
 
 `bevel = 28` is the rim width, rim-circle radius and flat-top height. `edgePush = 24` is a recording-matched dial, not a material constant. Two matched 28-part rulers show why a 1 pt height increment removes `24 ÷ 28 = 0.857143` pt of push. The balance climb is computed from the original integers as `28 ÷ 24 = 1.166667`. After the learner preferred the exact form, Step 7 derives `fold inside = bevel − bevel² ÷ √(bevel² + edgePush²)` from `leg ÷ h = bevel ÷ edgePush` and `leg² + h² = bevel²`. The radius/tangent picture explains the ratio. Substitution gives `28 − 784 ÷ √1360 = 6.740815`, reading `15.121822`. The two direction checks at `6.740` and `6.741` confirm the answer rather than replacing the derivation. The second read of 24 is also exact: `2 × 28 × 24² ÷ 1360 = 23.717647`. After the Step 11 feedback, Section 4 uses original picture, upside-down copy, original-order copy, pixel row, top of the glass and output height instead of the previous shorthand. Step 11 now proves the bend with two consecutive moves: original-order down 1.653262 then 1.499593 gives `right ÷ down = 0.302432` then `0.333424`; upside-down up 0.500320 then 0.346653 gives `right ÷ up = 0.999360` then `1.442365`. The original line’s constant `0.5 ÷ 1 = 0.5` keeps it straight. Step 11 (rebuilt 2026-10-27) draws the output on top and the test A straight below it at one scale (10 px per pt), because a read moves only down (R’s row = P’s row + push); dragging or clicking any point R of the A, or any output pixel P, draws arrows straight down from every output pixel to the R it reads, and everything follows the pointer live. The two-move column is ordered like the pictures (upside-down copy, original-order copy, original A). A chooser shows R18–R20 or points evenly spaced along the whole A with all arrows; a ×6 strip keeps the crowded upside-down P's apart; the side box checks the selected point's chain at 9 decimals. The A is symmetric, its crossbar joins both legs. `AGENTS.md` rule 6 stacks read pictures the way the read really moves; rule 10 makes every point of a projection picture draggable and covers evenly spaced all-points views and the enlarged inset for crowded points. Other steps preserve unequal copy heights, letter rows, ramp comparison, other edgePush values, rounded corners and the recording.
 
-Failure → prevention: `CURRENT_STATE.md` learner feedback log, 2026-10-26 → `AGENTS.md` rules 3 (visible-role names), 10 (crowded-point insets and persistent calculations), 12 (matched scales and calculator-exact inputs) and 15 (exact forms first; consecutive moves and ratios as bend proof). QA: 738 states, 4,110 calculations, 0 arithmetic problems; all controls and marked points checked at desktop sizes. No iOS files changed. Side lesson remains unconfirmed and does not affect the 100/216 count or Lesson 10.1 checkpoint.
+Failure → prevention: `CURRENT_STATE.md` learner feedback log, 2026-10-26 → `AGENTS.md` rules 3 (visible-role names), 10 (crowded-point insets and persistent calculations), 12 (matched scales and calculator-exact inputs) and 15 (exact forms first; consecutive moves and ratios as bend proof). QA: 738 states, 4,110 calculations, 0 arithmetic problems; all controls and marked points checked at desktop sizes. No iOS files changed. The Safari side lesson remains outside the 216-lesson plan.
 
 ## Future conversation
 
-Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions. When the checkpoint or frontier moves, refresh section 12 of that prompt after `CURRENT_STATE.md`.
+Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions. Use the curriculum for lesson order and this file for teaching contracts. Report completion only in chat when generating a new lesson.
 
 Standing delivery: no ZIP archives; new `#Preview` stacks light then dark. Details in `USER_PREFERENCES.md`.
-
-Course progress: 101 of 216 lessons completed.
