@@ -1,7 +1,7 @@
 # Liquid Glass on iOS — Beginner-to-Expert Curriculum
 
-**Version:** 10.1.0  
-**Updated:** 2026-10-19  
+**Version:** 10.2.0
+**Updated:** 2026-10-28
 **Primary platform:** Swift + SwiftUI  
 **Minimum learning target:** iOS 17  
 **Physical test device:** iPhone 16 Pro  
@@ -11,10 +11,10 @@ Live progress, current files, and the checkpoint/frontier contracts live in `CUR
 
 ## 1. Authoritative course position
 
-- Learner-confirmed complete: **100 of 216** (Chapters 1–9).
-- Unresolved checkpoint: **Lesson 10.1 — Height-map idea** (generated, not complete; also the generated frontier).
-- Next planned after the frontier: **Lesson 10.2 — Slope**.
-- Do not mark Lesson 10.1 complete unless the learner confirms it.
+- Learner-confirmed complete: **101 of 216** (Chapters 1–9 and Lesson 10.1).
+- Unresolved checkpoint: **Lesson 10.2 — Slope** (generated, not complete; also the generated frontier).
+- Next planned after the frontier: **Lesson 10.3 — Surface normal**.
+- Do not mark Lesson 10.2 complete unless the learner confirms it.
 
 ## 2. How this file relates to the rule sources
 
@@ -209,8 +209,8 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 
 **Purpose:** Make the edge respond like a shaped surface rather than a flat white border.
 
-1. **10.1 — Height-map idea.** Treat the glass as if its center and edge have different heights. **Generated. Not complete.**
-2. **10.2 — Slope.** Measure how that height changes from one pixel to the next.
+1. **10.1 — Height-map idea.** Treat the glass as if its center and edge have different heights. **Complete.**
+2. **10.2 — Slope.** Measure how that height changes from one pixel to the next. **Generated. Not complete.**
 3. **10.3 — Surface normal.** Convert slope into a direction that points away from the surface.
 4. **10.4 — Dot product.** Measure how similarly two directions point, using a simple geometric explanation.
 5. **10.5 — Diffuse light.** Make a surface brighter when it faces a light.
@@ -386,7 +386,7 @@ This plan assumes a total beginner in graphics and mathematics, one new mechanis
 
 ## 4. Frozen locks (do not rebuild)
 
-Chapters **1–8** and Lessons **9.1–9.12** are learner-complete. Do not reopen blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula unless a later lesson explicitly redefines them. Frost formulas stay frozen.
+Chapters **1–9** and Lesson **10.1** are learner-complete. Do not reopen blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula unless a later lesson explicitly redefines them. Frost formulas stay frozen.
 
 **Chapter 7 frost constants**
 
@@ -470,6 +470,6 @@ Chapters **1–8** and Lessons **9.1–9.12** are learner-complete. Do not reope
 
 **Policy**
 
-- Count only explicit learner confirmation. Lessons 9.13 and 9.14 are generated and are not complete.
+- Count only explicit learner confirmation. Lesson 10.2 is generated and is not complete.
 - Current HTML/Swift paths live in `CURRENT_STATE.md`. Explorer names for older lessons live in those lesson files and the chapter screen in `LiquidGlassLab-iOS`.
 - 5.8/5.9 stay consolidated: 5.8 is the teaching page; 5.9 is the archive redirect.

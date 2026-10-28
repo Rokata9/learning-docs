@@ -1,7 +1,7 @@
 # Liquid Glass iOS course — implementation handoff
 
-**Updated:** 2026-09-30
-**Course version:** 9.14.0
+**Updated:** 2026-10-28
+**Course version:** 10.2.0
 
 ## Read order
 
@@ -19,15 +19,15 @@ Treat `CURRENT_STATE.md` as authoritative when older prose disagrees.
 
 ```yaml
 total_lessons: 216
-learner_confirmed_complete: 100
+learner_confirmed_complete: 101
 completed_chapters: [1, 2, 3, 4, 5, 6, 7, 8, 9]
-chapter_10_complete: "0 of 13"
-next_unresolved_checkpoint: "Lesson 10.1 — Height-map idea"
-generated_frontier: "Lesson 10.1 — Height-map idea"
-next_planned_after_frontier: "Lesson 10.2 — Slope"
+chapter_10_complete: "1 of 13"
+next_unresolved_checkpoint: "Lesson 10.2 — Slope"
+generated_frontier: "Lesson 10.2 — Slope"
+next_planned_after_frontier: "Lesson 10.3 — Surface normal"
 ```
 
-Chapters 1–9 are learner-confirmed complete. Lesson 10.1 is generated and is not complete. Do not mark it complete unless the learner confirms it.
+Chapters 1–9 and Lesson 10.1 are learner-confirmed complete. Lesson 10.2 is generated and is not complete. Do not mark it complete unless the learner confirms it.
 
 Chapter 7 frost stays fixed: blur `18` pt / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
@@ -231,7 +231,7 @@ wall(x, y, time) = checker(x + speed × time, y)   (moving test pattern, speed =
 
 Answers the Chapter 9 checkpoint. C = `(0.40, 0.54)`. W = `(0.40, 0.24)` at time = 2 s: sd = 0.05 → mask 0; read points y = 0.2544 / 0.256 / 0.2576 → bent black; plain white → stores white. Falloff as the mask gives a 0.20-wide ghost ring; a hard if gives stair steps. iOS files: `LensCheckpointExplorer.swift` + `LensCheckpoint.metal` (`glassLens`, `movingChecker`), built 2026-10-12. Exercises (rebuilt 2026-10-19 → AGENTS.md rule 18): each opens with its picture, one question and choice buttons; answers: 1 no push → the checkerboard as with no glass, 2 capsule mask → neither T = (0.78, 0.54) nor M = (0.40, 0.33) differs from the wallpaper, 3 black strip → the read-point lines (clamps). Exercise 2 states what it checks and what to do (2026-10-19 → rules 17, 18). Learner-confirmed complete on 2026-10-19.
 
-### Lesson 10.1 — Height-map idea (generated, not complete)
+### Lesson 10.1 — Height-map idea (complete)
 
 ```text
 inside = clamp(−sd, 0, bevel)
@@ -240,7 +240,21 @@ h      = √(bevel² − leg²)        (the rim is a quarter circle: center K, b
 gray   = h ÷ bevel
 ```
 
-C = `(0.50, 0.50)`, radius 0.25, bevel 0.10. W = `(0.71, 0.50)`: sd = −0.04, inside 0.04, leg 0.06, h = 0.08, gray 0.80. The height uses only sd (any shape). iOS files: `chapter10/HeightMap.metal` + `HeightMapExplorer.swift`; Metal exercise (new in AGENTS.md rule 18, 2026-10-19): `chapter10/HeightExercise.metal` (learner writes `roundedRectSd` and `surfaceHeight`), `HeightExerciseKey.metal`, `ExerciseCheck.metal` (`markDifference`, reusable), `HeightExerciseView.swift`, on `Chapter10Screen`. Built 2026-10-19. Next: Lesson 10.2 — Slope — do not generate unless asked.
+C = `(0.50, 0.50)`, radius 0.25, bevel 0.10. W = `(0.71, 0.50)`: sd = −0.04, inside 0.04, leg 0.06, h = 0.08, gray 0.80. The height uses only sd (any shape). iOS files: `chapter10/HeightMap.metal` + `HeightMapExplorer.swift`; Metal exercise: `HeightExercise.metal`, `HeightExerciseKey.metal`, `ExerciseCheck.metal`, and `HeightExerciseView.swift`. Learner-confirmed complete on 2026-10-27.
+
+### Generated frontier — Lesson 10.2 — Slope (not complete)
+
+```text
+A      = W − (step, 0)
+B      = W + (step, 0)
+hLeft  = Lesson 10.1 height at A
+hRight = Lesson 10.1 height at B
+deltaH = hRight − hLeft
+deltaX = 2 × step
+slopeX = deltaH ÷ deltaX
+```
+
+One graphics idea: a signed x-slope number says whether the surface rises or falls as x grows. One math idea: height change ÷ horizontal distance. The straight join between the two surface points gives the average slope from A to B, used as an estimate at W, not an exact derivative. C = `(0.50, 0.50)`, radius 0.25, bevel 0.10, step 0.01. Teaching W = `(0.72, 0.50)`, A = `(0.71, 0.50)`, B = `(0.73, 0.50)`: hLeft 0.08, hRight 0.06, deltaH −0.02, deltaX 0.02, slopeX −1. Zero x slope means equal left and right heights; it does not measure y change. Display only: red = `clamp(0.15 + slopeX ÷ 4, 0.15, 1)`, blue = `clamp(0.15 − slopeX ÷ 4, 0.15, 1)`, green 0.15; zero is dark gray, and the range 4 is a chosen display dial. iOS: `chapter10/SlopeMap.metal` + `SlopeExplorer.swift`; exercise `SlopeExercise.metal` (`roundedRectHeightForSlope`, `roundedRectSlopeX`), `SlopeExerciseKey.metal`, and `SlopeExerciseView.swift`, wired into `Chapter10Screen`, with the live lesson before the completed 10.1 review. The final restored deliverable builds for the iPhone 16 Pro simulator. On screen: the slope map is gray in the middle, red on the left rim, and blue on the right; the untouched stubs show red on the rim, and a temporary answer-key solution gives no red pixels. The learner stubs and normal Chapter 1 startup were restored before the final build. Browser: 67 interaction checks, 3,240 finite-math states, 924 valid local links, and direct-file cold start pass at 1920×1080. Older trace cards in Chapters 4–6 needed behavior-preserving string splits so the current Swift compiler could type-check the full project. Next: Lesson 10.3 — Surface normal — do not generate unless asked.
 
 ## Side lesson — Safari shortcut, Section 4 revised 2026-10-26
 
@@ -263,4 +277,4 @@ Paste `NEW_CHAT_PROMPT.md`, then in the same message name generate or questions.
 
 Standing delivery: no ZIP archives; new `#Preview` stacks light then dark. Details in `USER_PREFERENCES.md`.
 
-Course progress: 100 of 216 lessons completed.
+Course progress: 101 of 216 lessons completed.

@@ -1,7 +1,7 @@
 # Liquid Glass iOS course — current state
 
-**Updated:** 2026-10-26
-**Course version:** 10.1.0  
+**Updated:** 2026-10-28
+**Course version:** 10.2.0
 **Platform:** Swift / SwiftUI / Metal (`.metal` + `ShaderLibrary`)  
 **Test device:** iPhone 16 Pro  
 **Min OS:** iOS 17  
@@ -14,25 +14,25 @@ platform: Swift / SwiftUI / Metal (.metal + ShaderLibrary)
 test device: iPhone 16 Pro
 min OS: iOS 17
 
-learner-confirmed complete: 100 of 216
-  (Chapters 1–9)
+learner-confirmed complete: 101 of 216
+  (Chapters 1–9 and Lesson 10.1)
 
-current unresolved checkpoint: Lesson 10.1 — Height-map idea
+current unresolved checkpoint: Lesson 10.2 — Slope
   (generated, not complete; also the generated frontier)
 
-generated frontier: Lesson 10.1 — Height-map idea (not complete)
-next planned after the frontier: Lesson 10.2 — Slope
+generated frontier: Lesson 10.2 — Slope (not complete)
+next planned after the frontier: Lesson 10.3 — Surface normal
 ```
 
-Chapters 1–9 count as complete. The graphics and math are the same; only the API names differ between the earlier platform and iOS.
+Chapters 1–9 and Lesson 10.1 count as complete. The graphics and math are the same; only the API names differ between the earlier platform and iOS.
 
 Do not increase the completion count merely because a lesson was generated, revised, or reviewed. Wait for explicit learner confirmation.
 
-Do not generate Lesson 10.2 unless asked. Lesson 10.1 is generated and is not complete.
+Do not generate Lesson 10.3 unless asked. Lesson 10.2 is generated and is not complete.
 
 Reusable new-chat starter: `NEW_CHAT_PROMPT.md`. Paste it, then name generate or questions in the same message. Progress in this file wins. When the checkpoint or frontier moves, refresh section 12 of that prompt.
 
-## Complete through Lesson 9.14
+## Complete through Lesson 10.1
 
 | Chapter / lessons | Count |
 |-------------------|------:|
@@ -45,9 +45,10 @@ Reusable new-chat starter: `NEW_CHAT_PROMPT.md`. Paste it, then name generate or
 | Chapter 7 | 12 |
 | Chapter 8 | 12 |
 | Chapter 9 | 14 |
-| **Total** | **100** |
+| Chapter 10 | 1 |
+| **Total** | **101** |
 
-Lesson 10.1 is generated and is not part of the 100. The checkpoint is Lesson 10.1. Skim Lessons 5.2, 5.11, and 5.12 later only if an iOS clock API is needed. Chapter 7 frost constants stay frozen.
+Lesson 10.1 was explicitly confirmed complete by the learner on 2026-10-27. Lesson 10.2 is generated and is not part of the 101. The checkpoint is Lesson 10.2. Skim Lessons 5.2, 5.11, and 5.12 later only if an iOS clock API is needed. Chapter 7 frost constants stay frozen.
 
 ## Frozen frost stack (do not rebuild)
 
@@ -55,7 +56,7 @@ blur **18 pt**, tint **0.25**, saturation **0.40**, rim **3 pt**, inner band **1
 
 ## Current lesson files
 
-Live checkpoint and frontier HTML: Lesson 10.1. Shader host is `LabOrange.metal` + `ShaderRect` (`colorEffect`). Lesson 9.10 explorer: `chapter09/DisplacementFieldExplorer.swift` + `chapter09/DisplacementField.metal`. Lesson 9.11 explorer: `chapter09/RefractionSamplingExplorer.swift` + `chapter09/RefractionSampling.metal`. Lesson 9.12 explorer: `chapter09/EdgeSafetyExplorer.swift` + `chapter09/EdgeSafety.metal`. Lesson 9.13 explorer: `chapter09/ChromaticSeparationExplorer.swift` + `chapter09/ChromaticSeparation.metal`. Lesson 9.14 explorer: `chapter09/LensCheckpointExplorer.swift` + `chapter09/LensCheckpoint.metal`. Both trace cards share `chapter09/TraceLines.swift` (one operation per line, rule 12). Lesson 10.1 explorer: `chapter10/HeightMapExplorer.swift` + `chapter10/HeightMap.metal` (also uses `TraceLines`). Lesson 10.1 Metal exercise: `chapter10/HeightExercise.metal` (the learner's file: `roundedRectSd` and `surfaceHeight` stubs + the prepared `buttonHeightExercise`), `chapter10/HeightExerciseKey.metal` (answer key `buttonHeightKey`, `static` helpers), `chapter10/ExerciseCheck.metal` (`markDifference`, reusable by later exercises), `chapter10/HeightExerciseView.swift`. Screen: `chapter10/Chapter10Screen.swift`, Chapter 10 chip in `LabHost`.
+Live checkpoint and frontier HTML: Lesson 10.2. Shader host is `LabOrange.metal` + `ShaderRect` (`colorEffect`). Lesson 9.10 explorer: `chapter09/DisplacementFieldExplorer.swift` + `chapter09/DisplacementField.metal`. Lesson 9.11 explorer: `chapter09/RefractionSamplingExplorer.swift` + `chapter09/RefractionSampling.metal`. Lesson 9.12 explorer: `chapter09/EdgeSafetyExplorer.swift` + `chapter09/EdgeSafety.metal`. Lesson 9.13 explorer: `chapter09/ChromaticSeparationExplorer.swift` + `chapter09/ChromaticSeparation.metal`. Lesson 9.14 explorer: `chapter09/LensCheckpointExplorer.swift` + `chapter09/LensCheckpoint.metal`. The trace cards share `chapter09/TraceLines.swift` (one operation per line, rule 12). Lesson 10.1 explorer: `chapter10/HeightMapExplorer.swift` + `chapter10/HeightMap.metal`. Lesson 10.1 Metal exercise: `chapter10/HeightExercise.metal`, `HeightExerciseKey.metal`, `ExerciseCheck.metal`, and `HeightExerciseView.swift`. Lesson 10.2 explorer: `chapter10/SlopeExplorer.swift` + `chapter10/SlopeMap.metal` (also uses `TraceLines`). Lesson 10.2 Metal exercise: `chapter10/SlopeExercise.metal` (`roundedRectHeightForSlope` and `roundedRectSlopeX` stubs + the prepared `buttonSlopeExercise`), `chapter10/SlopeExerciseKey.metal` (`buttonSlopeKey`, `static` helpers), and `chapter10/SlopeExerciseView.swift`; the check reuses `markDifference`. Screen: `chapter10/Chapter10Screen.swift`, Chapter 10 chip in `LabHost`.
 
 ```text
 course/chapters/chapter-01/lesson-01-01-visible-ingredients.html
@@ -85,6 +86,7 @@ course/chapters/chapter-09/lesson-09-13-gentle-chromatic-separation.html
 course/chapters/chapter-09/lesson-09-14-lens-checkpoint.html
 course/chapters/chapter-09/lesson-distance-fields-image-sampling-and-refraction.html
 course/chapters/chapter-10/lesson-10-01-height-map-idea.html
+course/chapters/chapter-10/lesson-10-02-slope.html
 course/chapters/chapter-10/lesson-light-surface-direction-and-material-thickness.html
 course/shortcut/lesson-shortcut-safari-menu.html        (side lesson, not counted)
 ```
@@ -243,9 +245,9 @@ One graphics idea: a lens needs two separate answers per pixel, and the mask giv
 
 **iOS files (2026-10-12).** `chapter09/LensCheckpoint.metal` (`movingChecker` before `glassLens`, both as in Section 5; `mix(half4, half4, half)` compiles) + `chapter09/LensCheckpointExplorer.swift`, wired in `Chapter09Screen`. Explorer: Play/Pause (`TimelineView(.animation)`, time modulo 5 s, default 2.000 s), time, dispLen and spread sliders, the shader picture (no circle), the mask map and the read-point map (both still while time runs), and the Section 3 trace one operation per line with maskBand = 1 ÷ resolution.x (1 ÷ 1080 = 0.000926 on a 3× screen). Default trace equals Section 3 apart from maskBand (mask 0 either way).
 
-## Generated frontier — Lesson 10.1
+## Completed — Lesson 10.1
 
-Not complete. The first lesson of Chapter 10 (Light, surface direction, and material thickness).
+Learner-confirmed complete on 2026-10-27. The first lesson of Chapter 10 (Light, surface direction, and material thickness).
 
 **10.1 teaching contract:**
 
@@ -260,6 +262,28 @@ gray   = h ÷ bevel                         (new: the height map, black 0 … wh
 One graphics idea: every pixel gets a surface height h (in UV, the same unit as positions; not the Lesson 2.4 box height; the screen stays flat). One math idea, reused: the right triangle of Lesson 9.1 solved for a leg. Shape: a flat top and a rounded rim; the rim is a quarter of the rim circle (center K, bevel inside the outline, radius bevel), so the flat top is bevel high. C = `(0.50, 0.50)`, radius 0.25, bevel 0.10 (chosen constant: less than the radius so a flat top of radius 0.15 remains; 36 pt on a 360-pt panel). Teaching W = `(0.71, 0.50)` (on the axis through C): p = (0.21, 0), d = 0.21, sd = −0.04, inside 0.04, leg 0.06, bevel² 0.01, leg² 0.0036, h² 0.0064, h = 0.08, gray 0.80 (the 9.14 mask gives W the same 1 as C). Named points on the lime cut line y = 0.50: L (0.25) and O (0.75) on the outline, K = (0.65, 0), F = (0.65, height 0.10) where the flat top starts, H = the surface above W; Q = (0.78, 0.50) outside (h = 0). Hero: the height map and a view at an angle (rows lifted by h, view-angle slider 0–75°, fit-to-canvas scale printed). Stepper 7 steps: side view, height, rim circle, inside and leg, triangle, clamp (flat top / outside), height map. Section 2 compares flat slab (the mask again: a 0.10 wall at O), straight ramp (h = inside: corners at F and O, 0.04 at W), quarter circle (this lesson). Lab: drag W (side view along the line from C through W, zooms out to fit, prints its scale), bevel slider 0.02–0.25 (0.25 = dome), view angle. Challenge: write the h line (parsed safely; diagnoses plus, ramp, leg, inside-for-leg, no root, a fixed 0.01). Exercises: 1 radius 0.35 → the rim stays 0.10 wide, only the flat top grows; 2 A = (0.73, 0.50) → gray 0.60 (leg 0.08, h 0.06; not 0.20); 3 capsule E = (0.86, 0.50) and M = (0.50, 0.34) → the same height 0.08 (the height uses only sd). Metal exercise (new part of rule 18): write `roundedRectSd` (Lesson 9.4) and `surfaceHeight` for a button 0.60 × 0.40, corner radius 0.10, bevel 0.10; test pixels T1 (0.50, 0.50) sd −0.20 h 0.10 · T2 (0.76, 0.50) −0.04 / 0.08 · T3 (0.50, 0.33) −0.03 / 0.071 · T4 (0.73, 0.64) −0.05 / 0.087 · T5 (0.85, 0.50) 0.05 / 0. The check (yours over the key with `.blendMode(.difference)`, `markDifference` red above 2/255) was verified on the iPhone 16 Pro simulator: red over the whole button with the stubs, 0 red pixels with a solution written with the nested ifs of Lesson 9.4.
 
 **iOS files (2026-10-19).** As listed under “Current lesson files”. Built for the iPhone 16 Pro simulator (Xcode 26.6): succeeded; the explorer and the exercise were checked on screen.
+
+## Generated frontier — Lesson 10.2
+
+Not complete. Generated on 2026-10-28 after the learner explicitly confirmed Lesson 10.1 on 2026-10-27.
+
+**10.2 teaching contract:**
+
+```text
+A      = W − (step, 0)                  (new: one step left, the same y)
+B      = W + (step, 0)                  (new: one step right, the same y)
+hLeft  = Lesson 10.1 height at A
+hRight = Lesson 10.1 height at B
+deltaH = hRight − hLeft                 (new: signed height change from A to B)
+deltaX = 2 × step                       (new: horizontal distance from A to B)
+slopeX = deltaH ÷ deltaX                (new: average x slope, an estimate at W)
+```
+
+One graphics idea: a signed x-slope number says whether the surface rises or falls as x grows. One math idea: height change ÷ horizontal distance. The straight join between the surface above A and the surface above B gives the average slope from A to B; the lesson labels it an estimate at W, not an exact derivative. C = `(0.50, 0.50)`, radius 0.25, bevel 0.10, step 0.01 (a chosen small UV distance, not a material constant). Teaching W = `(0.72, 0.50)`, A = `(0.71, 0.50)`, B = `(0.73, 0.50)`: hLeft 0.08, hRight 0.06, deltaH −0.02, deltaX 0.02, slopeX −1. Zero x slope means equal left and right heights, not zero height and not zero change along y. Display only: red = `clamp(0.15 + slopeX ÷ 4, 0.15, 1)`, blue = `clamp(0.15 − slopeX ÷ 4, 0.15, 1)`, green 0.15; neutral pixels are dark gray `(0.15, 0.15, 0.15)`. The display range 4 is a chosen dial and is not part of the slope formula. Exercises check the positive left rim, the high flat top with slope 0, and the top rim whose x slope 0 leaves y change unknown. Metal exercise: write `roundedRectHeightForSlope` (Lessons 9.4 + 10.1) and `roundedRectSlopeX` for a rounded-rectangle button. Test targets: T1 center 0 · T2 right side −0.759413 · T3 left side +0.759413 · T4 corner −0.349030 · T5 outside 0.
+
+**iOS files.** `chapter10/SlopeMap.metal` + `SlopeExplorer.swift`, `SlopeExercise.metal` with compiling stubs and the prepared `buttonSlopeExercise`, `SlopeExerciseKey.metal` with `static` helpers and `buttonSlopeKey`, and `SlopeExerciseView.swift` using `.blendMode(.difference)` + `markDifference`; wired into `Chapter10Screen`, with the live lesson before the completed 10.1 review. The existing Lesson 10.1 exercise code was not changed.
+
+**QA (2026-10-28).** Cold-read and desktop visual audits completed. Direct `file://` cold start has no runtime error. At 1920×1080: 67 interaction checks pass, covering all five stepper states, map and enlarged-side drags, slider extremes, challenge answers and parse errors, all exercise choices and answers, Metal-point tooltips, keyboard movement, display toggle, and horizontal overflow. A separate sweep of 3,240 math states stays finite. All 924 local links resolve; no visible Markdown backticks appear in the new lesson. Screenshots inspected: hero, final stepper, extreme lab, opened exercise, and Metal exercise. The full restored iOS deliverable builds for the iPhone 16 Pro simulator. On-screen screenshots confirm the gray middle, red left rim, and blue right rim; untouched stubs show red on the rim, and a temporary answer-key solution shows no red pixels. The learner stubs, full chapter screen, and normal Chapter 1 startup were restored before the final build. Apple’s Metal Toolchain was installed with `xcodebuild -downloadComponent MetalToolchain`. Older trace cards in `chapter04/RoundedRectanglesExplorer.swift`, `ShapeLaboratory.swift`, `ConcentricCornersExplorer.swift`, `chapter05/VelocityExplorer.swift`, `chapter06/BackdropProblemExplorer.swift`, and `GraphicsLayersExplorer.swift` received behavior-preserving string splits required by the current Swift compiler. No lesson math or displayed text changed in those files. QA files stayed under `/tmp` and were removed after use.
 
 ## Side lesson — Shortcut: Safari's “…” menu (not counted)
 
@@ -388,8 +412,8 @@ One graphics idea: the rim folds the picture (near the outline h grows faster th
 
 Earlier 9.10 / 9.11 feedback rounds (2026-09-19 to 2026-09-29) are in git history before this date; their lasting rules are already in `AGENTS.md`.
 
-## Unresolved checkpoint — Lesson 10.1
+## Unresolved checkpoint — Lesson 10.2
 
-Lesson 10.1 is generated and is not complete. Do not mark it complete until the learner confirms it.
+Lesson 10.2 is generated and is not complete. Do not mark it complete until the learner confirms it.
 
-Course progress: 100 of 216 lessons completed.
+Course progress: 101 of 216 lessons completed.

@@ -15,7 +15,7 @@ If this same first message already names the job, start that work after the read
 
 If the first message is only this prompt, restate course state from `CURRENT_STATE.md` and wait.
 
-Do not generate a later lesson than the one I named. Do not mark any lesson complete unless I explicitly confirm it. Do not generate Lesson 10.2 unless asked.
+Do not generate a later lesson than the one I named. Do not mark any lesson complete unless I explicitly confirm it. Do not generate Lesson 10.3 unless asked.
 
 ## 1. Where the files live
 
@@ -44,8 +44,8 @@ Do not generate `.zip` files unless I ask for one.
 
 Keep these three fields separate. Read them from `CURRENT_STATE.md`. Do not invent a fourth merged status.
 
-- **Learner-confirmed complete** — count and last completed lesson. Increases only after my explicit confirmation. Read the live count from section 12 and from `CURRENT_STATE.md`. It is **100 of 216** (Chapters 1–9).
-- **Unresolved checkpoint** — the unfinished lesson I am still on. Generating or revising it does not complete it. Live checkpoint is **Lesson 10.1**.
+- **Learner-confirmed complete** — count and last completed lesson. Increases only after my explicit confirmation. Read the live count from section 12 and from `CURRENT_STATE.md`. It is **101 of 216** (Chapters 1–9 and Lesson 10.1).
+- **Unresolved checkpoint** — the unfinished lesson I am still on. Generating or revising it does not complete it. Live checkpoint is **Lesson 10.2**.
 - **Generated frontier** — the latest lesson that exists as files. It may sit on the checkpoint, or ahead of it.
 
 Total course size is **216** lessons. Do not increase the completed count because a lesson was generated, revised, or reviewed.
@@ -157,24 +157,24 @@ When I confirm a lesson complete, or when the frontier / checkpoint changes, upd
 
 ## 12. Live snapshot — refresh from CURRENT_STATE
 
-**Last aligned:** 2026-10-19 with `CURRENT_STATE.md` (course version 10.1.0).
+**Last aligned:** 2026-10-28 with `CURRENT_STATE.md` (course version 10.2.0).
 
 ```text
 platform: Swift / SwiftUI / Metal (.metal + ShaderLibrary)
 test device: iPhone 16 Pro
 min OS: iOS 17
 
-completed: 100 of 216
-  (Chapters 1–9)
+completed: 101 of 216
+  (Chapters 1–9 and Lesson 10.1)
 
-current unresolved checkpoint: Lesson 10.1 — Height-map idea
+current unresolved checkpoint: Lesson 10.2 — Slope
   (generated, not complete; also the generated frontier)
 
-generated frontier: Lesson 10.1 — Height-map idea (not complete)
-next planned lesson after the frontier: Lesson 10.2 — Slope
+generated frontier: Lesson 10.2 — Slope (not complete)
+next planned lesson after the frontier: Lesson 10.3 — Surface normal
 ```
 
-Do not mark Lesson 10.1 complete unless I confirm it.
+Do not mark Lesson 10.2 complete unless I confirm it.
 
 Chapter 7 frost constants stay fixed: blur `18` pt / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
 
@@ -347,4 +347,25 @@ LensCheckpointExplorer.swift
 LensCheckpoint.metal
 TraceLines.swift          (9.13 and 9.14 trace cards: one operation per line)
 Chapter09Screen.swift
+```
+
+Current Chapter 10 files:
+
+```text
+course/chapters/chapter-10/lesson-10-01-height-map-idea.html
+course/chapters/chapter-10/lesson-10-02-slope.html
+course/chapters/chapter-10/lesson-light-surface-direction-and-material-thickness.html
+
+LiquidGlassLab/chapter10/HeightMapExplorer.swift
+LiquidGlassLab/chapter10/HeightMap.metal
+LiquidGlassLab/chapter10/HeightExercise.metal
+LiquidGlassLab/chapter10/HeightExerciseKey.metal
+LiquidGlassLab/chapter10/HeightExerciseView.swift
+LiquidGlassLab/chapter10/ExerciseCheck.metal
+LiquidGlassLab/chapter10/SlopeExplorer.swift
+LiquidGlassLab/chapter10/SlopeMap.metal
+LiquidGlassLab/chapter10/SlopeExercise.metal
+LiquidGlassLab/chapter10/SlopeExerciseKey.metal
+LiquidGlassLab/chapter10/SlopeExerciseView.swift
+LiquidGlassLab/chapter10/Chapter10Screen.swift
 ```

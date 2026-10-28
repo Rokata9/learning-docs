@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 10.2 — Slope</title>
+<link rel="icon" href="data:,">
+<style>
+  :root{--ink:#1f2937;--muted:#6b7280;--line:#d1d5db;--soft:#f6f7f9;--green:#059669;--indigo:#4338ca;--amber:#d97706;--blue:#1e40af;--red:#dc2626}
+  *{box-sizing:border-box}
+  body{margin:0;background:#fff;color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1600px;margin:0 auto;padding:0 24px 90px}
+  header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;border-bottom:1px solid var(--line);padding:14px 0}
+  header.top a,.navfoot a{color:var(--blue);text-decoration:none;font-size:14px}
+  header.top a:hover,.navfoot a:hover{text-decoration:underline}
+  .crumb,.sub{color:var(--muted);font-size:14px}
+  h1{font-size:27px;margin:20px 0 2px}h2{font-size:21px;margin:46px 0 8px;border-top:2px solid var(--line);padding-top:22px}
+  h2 .tag{display:block;font-size:13px;color:var(--muted);margin-bottom:2px;font-weight:600}
+  h3{font-size:16.5px;margin:26px 0 6px}p{font-size:15.5px;max-width:88ch;margin:8px 0}p.lead{font-size:17px;max-width:92ch}li{font-size:15.5px}
+  code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+  code{background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+  figure{margin:16px 0}canvas{display:block;border:1px solid var(--line);border-radius:8px;background:#fff}
+  figcaption{font-size:14px;color:#4b5563;max-width:100ch;margin-top:8px}.stage{position:relative}
+  .heroGrid{display:grid;grid-template-columns:520px 760px;gap:28px;align-items:start}
+  .wideGrid{display:grid;grid-template-columns:1084px minmax(0,1fr);gap:24px;align-items:start}
+  .pics{display:grid;grid-template-columns:300px 760px;gap:24px;align-items:start}.span{grid-column:1/-1}
+  .labGrid{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .pair{display:grid;grid-template-columns:auto auto;gap:28px;justify-content:start;align-items:start}
+  .before{border:1px solid #a5b4fc;background:#eef2ff;border-radius:10px;padding:14px 18px;margin:20px 0}
+  .before h2{font-size:18px;border:0;margin:0 0 8px;padding:0}.before p,.before li{font-size:14.5px}.before ul{margin:6px 0}
+  .info{display:inline-block;width:17px;height:17px;line-height:15px;border-radius:50%;border:1px solid var(--blue);color:var(--blue);background:#eef2ff;font-size:11px;text-align:center;cursor:pointer;padding:0;vertical-align:2px;font-family:inherit;margin-left:3px}
+  .info:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+  #tip{position:fixed;z-index:50;max-width:400px;max-height:calc(100vh - 20px);overflow:auto;background:#111827;color:#f9fafb;border-radius:8px;padding:10px 34px 10px 12px;font-size:13.5px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.28);display:none}
+  #tip.open{display:block}#tip.wide{max-width:580px}#tip .tclose{position:absolute;top:4px;right:6px;background:none;border:0;color:#9ca3af;font-size:15px;cursor:pointer;padding:2px 4px}
+  #tip b{color:#fde68a}#tip code{background:#1f2937;border-color:#374151;color:#e5e7eb}#tip pre{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;margin:8px 0 0;background:#1f2937;border:1px solid #374151;border-radius:6px;padding:8px 10px;color:#e5e7eb}
+  .ptdot{position:absolute;width:22px;height:22px;border-radius:50%;transform:translate(-50%,-50%);border:3px solid #111827;cursor:grab;padding:0;z-index:5;touch-action:none}
+  .ptdot:active{cursor:grabbing}.ptdot:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
+  table.trace{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}table.trace th,table.trace td{border:1px solid var(--line);padding:7px 10px;vertical-align:top;text-align:left}
+  table.trace th{background:var(--soft);font-size:13.5px}table.trace td.f{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+  table.trace tr.new td{background:#f0fdf4}table.trace tr.grp td{background:#eef2ff;font-weight:700;font-size:13.5px}
+  table.trace td.a{background:#eff6ff}table.trace td.b{background:#fffbeb}table.trace td.s{background:#fdf2f8}
+  .readout{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 14px;line-height:1.7;white-space:pre-wrap}
+  .ctl{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:10px 0}.ctl label{font-size:14px;display:flex;align-items:center;gap:8px}.ctl input[type=range]{width:200px}.ctlname{font-size:13.5px;font-weight:700;color:var(--muted);min-width:92px}
+  .btn{font-size:14px;padding:6px 14px;border-radius:7px;border:1.5px solid var(--blue);background:#fff;color:var(--blue);cursor:pointer}.btn:hover{background:#eef2ff}.btn[aria-pressed=true]{background:var(--blue);color:#fff;box-shadow:inset 0 2px 4px rgba(0,0,0,.25)}.btn:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}.btn:disabled{opacity:.45;cursor:default}
+  .note{border-left:4px solid var(--amber);background:#fffbeb;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:100ch;margin:12px 0}.iosnote{border-left:4px solid var(--indigo);background:#eef2ff;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:100ch;margin:12px 0}
+  details{border:1px solid var(--line);border-radius:8px;margin:10px 0;background:#fff}details>summary{cursor:pointer;padding:10px 14px;font-size:15px;font-weight:600}details>summary:hover{background:var(--soft)}details .body{padding:4px 14px 14px}details details{margin:8px 0;background:var(--soft)}
+  .stepnav{display:flex;gap:10px;align-items:center;margin:0 0 10px}.stepnav .dots{display:flex;gap:6px;margin-left:8px}.stepnav .dot{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--muted);background:#fff;padding:0;cursor:pointer}.stepnav .dot.on{background:var(--indigo);border-color:var(--indigo)}
+  .stepcap{min-height:250px;font-size:15.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+  .legend{list-style:none;padding:0;margin:8px 0}.legend li{position:relative;padding-left:42px;margin:7px 0;font-size:15px;line-height:1.45}.legend.two{display:grid;grid-template-columns:1fr 1fr;column-gap:36px;max-width:1300px}.legend li>span:first-child{position:absolute;left:4px;top:.2em}
+  .sw{display:block;width:28px;height:18px;border:1px solid #111827;border-radius:3px}.swl{display:block;width:28px;height:6px;border-radius:3px;border:1px solid #111827;margin-top:6px}.swd{display:block;width:15px;height:15px;border-radius:50%;border:2.5px solid #111827;margin:1px 0 0 6px}
+  .verdict{font-size:15px;margin-top:8px;font-weight:600}.verdict.ok{color:var(--green)}.verdict.no{color:var(--red)}
+  .exq{display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px;align-items:start;margin:6px 0 10px}.choices{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:8px 0}.choices .btn{text-align:left}
+  pre.code{font:13.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;overflow-x:auto;max-width:100%}pre.code .nw{background:#14532d;color:#bbf7d0;border-radius:3px}pre.code .cm{color:#94a3b8}
+  #chIn{font:14px ui-monospace,Menlo,monospace;padding:6px 8px;border:1.5px solid var(--line);border-radius:6px;width:440px}#record{width:100%;min-height:300px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--soft)}
+  .navfoot{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:50px;padding-top:16px;font-size:14px}.navfoot span{color:var(--muted)}.small{font-size:14px;color:#4b5563}.scale{font-size:13.5px;color:#4b5563;margin-top:6px}[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="crumb">Liquid Glass course · 101 of 216 complete</span>
+  <a href="../../../liquid-glass-course.html">Course home</a><a href="lesson-light-surface-direction-and-material-thickness.html">Chapter 10</a>
+  <a href="../../glossary.html">Glossary</a><a href="lesson-10-01-height-map-idea.html">← Lesson 10.1</a>
+</header>
+<div class="wrap">
+<h1>Lesson 10.2 — Slope</h1>
+<p class="sub">Measure how the surface height changes as x grows. Generated, not complete · light theme · desktop · works from <code>file://</code>.</p>
+<p class="lead"><b>Slope</b> is a height change divided by the horizontal distance over which that change happens. This lesson measures the <b>x slope</b>: it reads the surface height one small step left and one small step right of a pixel. We need that number <b>because</b> Lesson 10.3 will use x and y slopes to make a surface direction, and later lessons will shine light on that direction.</p>
+
+<figure>
+  <div class="heroGrid">
+    <div><div class="stage" id="heroMapStage"><canvas id="heroMap" width="520" height="520"></canvas></div>
+      <figcaption><b>The x-slope map.</b> Red means the height grows as x grows. Blue means it falls. Dark gray means no left–right height change. The colors only show the numbers.</figcaption></div>
+    <div><div class="stage" id="heroSideStage"><canvas id="heroSide" width="760" height="380"></canvas></div>
+      <figcaption><b>The same surface from the side.</b> The blue and amber bars are the two neighbor heights. The pink line joins their surface points. Its right–down change gives the x slope at W.</figcaption></div>
+  </div>
+</figure>
+<ul class="legend two">
+  <li><span class="swl" style="background:#a855f7"></span><b>The violet surface</b>: Lesson 10.1's flat top and quarter-circle rim, seen along the horizontal line through W.</li>
+  <li><span class="swl" style="background:linear-gradient(90deg,#2563eb 0 50%,#f59e0b 50%)"></span><b>A and B</b>: the pixels one step left and right of W. Their heights are hLeft and hRight.</li>
+  <li><span class="swd" style="background:#fff"></span><b>W = (0.72, 0.50)</b>: the pixel whose x slope the page estimates. Drag A, W, B, or C in either map to move the glass or the sample positions.</li>
+  <li><span class="swl" style="background:#ec4899"></span><b>The pink line</b>: the straight join between the surface above A and the surface above B. Its slope is the average slope between A and B, an estimate at W.</li>
+</ul>
+
+<aside class="before">
+  <h2>Before you start</h2>
+  <div class="two">
+    <div><b>Used from the course</b><ul>
+      <li><a href="../chapter-08/lesson-08-06-uv-coordinates.html">Lesson 8.6</a>: <b>UV</b> means positions from 0 to 1 across the picture.</li>
+      <li><a href="../chapter-09/lesson-09-01-distance-between-two-points.html">Lesson 9.1</a>: <code>length(p)</code> is the long side of a right triangle.</li>
+      <li><a href="../chapter-09/lesson-09-02-circle-signed-distance-field.html">Lesson 9.2</a>: <code>sd</code> is minus inside the glass and plus outside.</li>
+      <li><a href="lesson-10-01-height-map-idea.html">Lesson 10.1</a>: <code>h</code> is the surface height above one pixel. A = (0.71, 0.50) has h = 0.08; B = (0.73, 0.50) has h = 0.06.</li>
+    </ul></div>
+    <div><b>New here</b><ul>
+      <li><b>x slope</b>: height change ÷ horizontal distance. A plus sign means the surface rises to the right; a minus sign means it falls to the right.</li>
+      <li><b>step = 0.01 UV</b>: a chosen small distance, not a property of glass. Smaller steps measure a smaller part of the surface.</li>
+      <li><b>Average slope</b>: the slope of the straight join between two surface points. This lesson uses it as an estimate at W. A curved rim can change steepness between A and B, so this number does not claim an exact slope at one point.</li>
+    </ul></div>
+  </div>
+</aside>
+
+<h2 id="s1"><span class="tag">Section 1 · the idea in pictures</span>Two heights make one slope</h2>
+<p>Press <b>Next</b>. Each step adds one object or operation. The left picture is the screen from above. The right picture is the side view along the horizontal pixel row through W.</p>
+<div class="wideGrid">
+  <div class="pics">
+    <div class="stage" id="stepMapStage"><canvas id="stepMap" width="300" height="300"></canvas></div>
+    <div class="stage" id="stepSideStage"><canvas id="stepSide" width="760" height="380"></canvas></div>
+    <div class="span"><table class="trace" id="stepTable"></table></div>
+    <div class="span"><ul class="legend two" id="stepLegend"></ul></div>
+  </div>
+  <div><div class="stepnav"><button class="btn" id="stepPrev">← Back</button><button class="btn" id="stepNext">Next →</button><div class="dots" id="stepDots"></div></div>
+    <div class="stepcap" id="stepCap" aria-live="polite"></div>
+    <p class="small">The numbers and pictures share one state. Drag a point in the map to test another position. A and B stay one step from W because the formula needs symmetric neighbors.</p>
+  </div>
+</div>
+
+<h2 id="s2"><span class="tag">Section 2 · one value, traced to the end</span>W stores x slope −1</h2>
+<p>The glass center is C = (0.50, 0.50), the radius is 0.25, and the bevel is 0.10. All positions and heights are in UV. The teaching step is 0.01. The table first computes both neighbor heights with Lesson 10.1, then consumes them in the new slope lines.</p>
+<div class="pair">
+  <div class="stage" id="traceSideStage"><canvas id="traceSide" width="760" height="380"></canvas><figcaption><b>The two measured changes.</b> From A to B, x grows by 0.02 and the surface height falls by 0.02. The pink join therefore falls one height unit for each horizontal unit.</figcaption></div>
+  <div>
+    <table class="trace">
+      <tr><th>Object</th><th>Named formula and substitution</th><th>Result and consumer</th></tr>
+      <tr class="grp"><td colspan="3">On the screen · choose the neighbors</td></tr>
+      <tr><td>A, left of W</td><td class="f">A.x = W.x − step = 0.72 − 0.01 = 0.71<br>A.y = W.y = 0.50</td><td class="f">A = (0.71, 0.50)<br>used by hLeft</td></tr>
+      <tr><td>B, right of W</td><td class="f">B.x = W.x + step = 0.72 + 0.01 = 0.73<br>B.y = W.y = 0.50</td><td class="f">B = (0.73, 0.50)<br>used by hRight</td></tr>
+      <tr class="grp"><td colspan="3">Above A · Lesson 10.1</td></tr>
+      <tr><td>hLeft</td><td class="f">p.x = 0.71 − 0.50 = 0.21<br>p.y = 0.50 − 0.50 = 0<br>p.x² = 0.21 × 0.21 = 0.0441<br>p.y² = 0 × 0 = 0<br>sum = 0.0441 + 0 = 0.0441<br>d = √0.0441 = 0.21<br>sd = 0.21 − 0.25 = −0.04<br>−sd = −(−0.04) = 0.04<br>inside = clamp(0.04, 0, 0.10) = 0.04<br>leg = 0.10 − 0.04 = 0.06<br>bevel² = 0.10 × 0.10 = 0.01<br>leg² = 0.06 × 0.06 = 0.0036<br>h² = 0.01 − 0.0036 = 0.0064<br>hLeft = √0.0064 = 0.08</td><td class="f">hLeft = 0.08<br>used by Δh</td></tr>
+      <tr class="grp"><td colspan="3">Above B · Lesson 10.1</td></tr>
+      <tr><td>hRight</td><td class="f">p.x = 0.73 − 0.50 = 0.23<br>p.y = 0.50 − 0.50 = 0<br>p.x² = 0.23 × 0.23 = 0.0529<br>p.y² = 0 × 0 = 0<br>sum = 0.0529 + 0 = 0.0529<br>d = √0.0529 = 0.23<br>sd = 0.23 − 0.25 = −0.02<br>−sd = −(−0.02) = 0.02<br>inside = clamp(0.02, 0, 0.10) = 0.02<br>leg = 0.10 − 0.02 = 0.08<br>bevel² = 0.10 × 0.10 = 0.01<br>leg² = 0.08 × 0.08 = 0.0064<br>h² = 0.01 − 0.0064 = 0.0036<br>hRight = √0.0036 = 0.06</td><td class="f">hRight = 0.06<br>used by Δh</td></tr>
+      <tr class="grp"><td colspan="3">At W · the new lines</td></tr>
+      <tr class="new"><td>Height change</td><td class="f">Δh = hRight − hLeft<br>Δh = 0.06 − 0.08 = −0.02</td><td class="f">Δh = −0.02<br>minus: height falls to the right</td></tr>
+      <tr class="new"><td>Horizontal distance</td><td class="f">Δx = 2 × step<br>Δx = 2 × 0.01 = 0.02<br>check: B.x − A.x = 0.73 − 0.71 = 0.02</td><td class="f">Δx = 0.02<br>the denominator of slopeX</td></tr>
+      <tr class="new"><td>x slope</td><td class="f">slopeX = Δh ÷ Δx<br>slopeX = −0.02 ÷ 0.02 = −1</td><td class="f">slopeX = −1<br>used by the display color</td></tr>
+      <tr class="new"><td>Stored color</td><td class="f">slopeX ÷ slopeRange = −1 ÷ 4 = −0.25<br>red before clamp = 0.15 + (−0.25) = −0.10<br>red = clamp(−0.10, 0.15, 1) = 0.15<br>blue before clamp = 0.15 − (−0.25) = 0.40<br>blue = clamp(0.40, 0.15, 1) = 0.40<br>green = 0.15, a fixed display color</td><td class="f">(0.15, 0.15, 0.40)<br>a dark blue pixel</td></tr>
+    </table>
+  </div>
+</div>
+<div class="note"><b>Why divide by 4 in the color lines?</b> The display range 4 is a chosen dial. It maps x slope −4 to full blue and +4 to full red. It makes small slopes visible without changing <code>slopeX</code>. The slope formula never uses 4.</div>
+
+<h2 id="s3"><span class="tag">Section 3 · interactive lab</span>Lab: move the pixels and the glass</h2>
+<p>Drag A, W, B, or C in the map. Dragging A or B moves W so the two neighbors stay symmetric. Dragging C moves the whole glass. The side view always follows the horizontal pixel row through W.</p>
+<div class="labGrid">
+  <div>
+    <div class="stage" id="labSideStage"><canvas id="labSide" width="760" height="380"></canvas></div><div class="scale" id="labScale"></div>
+    <div class="stage" id="labMapStage" style="margin-top:12px"><canvas id="labMap" width="520" height="520"></canvas><figcaption><b>The x-slope map.</b> Every pixel runs the same two height calculations and the same division.</figcaption></div>
+  </div>
+  <div>
+    <div class="ctl"><label><span class="ctlname">step</span><input type="range" id="labStep" min="0.005" max="0.04" step="0.005" value="0.01"><span class="mono" id="labStepV"></span></label><button class="info" data-tip="step">ⓘ</button></div>
+    <div class="ctl"><label><span class="ctlname">bevel</span><input type="range" id="labBevel" min="0.02" max="0.25" step="0.01" value="0.10"><span class="mono" id="labBevelV"></span></label><button class="info" data-tip="bevel">ⓘ</button></div>
+    <div class="ctl"><span class="ctlname">Display</span><button class="btn" id="labMode" aria-pressed="true">x-slope colors</button></div>
+    <div class="ctl"><button class="btn" id="labReset">Reset to the lesson</button></div>
+    <p class="small" id="labMeaning"></p><ul class="legend" id="labLegend"></ul>
+  </div>
+</div>
+<table class="trace" id="labTable"></table>
+
+<h2 id="s4"><span class="tag">Section 4 · short code excerpt</span>The iPhone shader</h2>
+<p>The real functions are in <code>chapter10/SlopeMap.metal</code>. The helper repeats Lesson 10.1 at one UV position. The shader calls the helper twice, then computes the new x slope. The last three lines only make the number visible.</p>
+<pre class="code">float circleHeightForSlope(float2 uv, float2 center, float radius, float bevel) {
+    float2 p = uv - center;
+    float sd = length(p) - radius;
+    float inside = clamp(-sd, 0.0, bevel);
+    float leg = bevel - inside;
+    return sqrt(bevel * bevel - leg * leg);
+}
+
+[[ stitchable ]] half4 slopeMap(
+    float2 position, half4 color, float2 resolution, float2 center,
+    float radius, float bevel, float step, float slopeRange, float scale
+) {
+    float2 uv = position * scale / resolution;
+<span class="nw">    float hLeft = circleHeightForSlope(uv - float2(step, 0.0), center, radius, bevel);</span>
+<span class="nw">    float hRight = circleHeightForSlope(uv + float2(step, 0.0), center, radius, bevel);</span>
+<span class="nw">    float deltaH = hRight - hLeft;</span>
+<span class="nw">    float deltaX = 2.0 * step;</span>
+<span class="nw">    float slopeX = deltaH / deltaX;</span>
+    float red = clamp(0.15 + slopeX / slopeRange, 0.15, 1.0);
+    float blue = clamp(0.15 - slopeX / slopeRange, 0.15, 1.0);
+    return half4(red, 0.15, blue, 1.0);
+}</pre>
+<table class="trace">
+  <tr><th style="width:310px">Line</th><th>What it does</th><th style="width:230px">Taught in</th></tr>
+  <tr><td class="f">float circleHeightForSlope(…)</td><td>Names a reusable block with inputs and one returned height. The UV position in brackets is the input to this call.</td><td>New Metal helper form, explained in this row.</td></tr>
+  <tr><td class="f">float2 p = uv - center</td><td>Makes the pixel position relative to the glass center.</td><td>Lesson 8.8</td></tr>
+  <tr><td class="f">float sd = length(p) - radius</td><td>Gives minus inside, zero on the outline, and plus outside.</td><td>Lessons 9.1–9.2</td></tr>
+  <tr><td class="f">inside, leg, sqrt(…)</td><td>Builds the quarter-circle surface height.</td><td>Lesson 10.1</td></tr>
+  <tr><td class="f">[[ stitchable ]] half4 slopeMap(…)</td><td>Lets SwiftUI call this Metal function once per output pixel.</td><td>Lessons 8.1–8.3</td></tr>
+  <tr><td class="f">position * scale / resolution</td><td>Converts the output pixel position to UV.</td><td>Lessons 8.4–8.6</td></tr>
+  <tr class="new"><td class="f">uv - float2(step, 0.0)</td><td>Moves one step left and keeps y unchanged. The plus version moves right.</td><td>New use of Lesson 8.7 vectors: one vector holds x and y.</td></tr>
+  <tr class="new"><td class="f">hLeft = circleHeightForSlope(…)</td><td>Computes the surface height above A. The next line computes hRight above B.</td><td>New: reuse one height function at two positions.</td></tr>
+  <tr class="new"><td class="f">deltaH = hRight - hLeft</td><td>Gives the signed height change from A to B.</td><td>New line of this lesson.</td></tr>
+  <tr class="new"><td class="f">deltaX = 2.0 * step</td><td>Gives the distance from A to B because A and B are each one step from W.</td><td>New line of this lesson.</td></tr>
+  <tr class="new"><td class="f">slopeX = deltaH / deltaX</td><td>Converts the height change into height change per horizontal UV unit.</td><td>New line of this lesson.</td></tr>
+  <tr><td class="f">red = clamp(0.15 + slopeX / slopeRange, …)</td><td>Starts all channels at 0.15. A positive slope adds red; a negative slope would take red below 0.15, so clamp keeps 0.15.</td><td>Lesson 8.11; the neutral level and display range are new.</td></tr>
+  <tr><td class="f">blue = clamp(0.15 - slopeX / slopeRange, …)</td><td>A negative slope subtracts a negative number, so it adds blue. A positive slope clamps blue to 0.15.</td><td>Lesson 8.11; the neutral level and display range are new.</td></tr>
+  <tr><td class="f">return half4(red, 0.15, blue, 1.0)</td><td>Stores extra red for rising and extra blue for falling. At zero slope all three channels are 0.15, which is dark gray.</td><td>Lessons 3.1 and 8.3</td></tr>
+</table>
+<div class="iosnote"><b>Browser and iPhone.</b> The browser uses JavaScript canvases and the same formulas. The iPhone uses Metal in <code>SlopeMap.metal</code> and the explorer in <code>SlopeExplorer.swift</code>. Both use finite neighbor heights, so their x slope is an average over A to B and an estimate at W. The screen does not move. Apple does not document that its Liquid Glass uses this exact slope formula.</div>
+
+<h2 id="s5"><span class="tag">Section 5 · coding challenge</span>Challenge: write the x-slope line</h2>
+<p>The two changes are ready. Write the right side of the <code>slopeX</code> line. The page checks positive, negative, and zero changes with several step sizes.</p>
+<pre class="code">float deltaH = hRight - hLeft;
+float deltaX = 2.0 * step;
+float slopeX = <span class="nw">???</span>;</pre>
+<div class="labGrid">
+  <div class="stage" id="challengeStage"><canvas id="challenge" width="760" height="380"></canvas><figcaption>The pink line has the correct x slope. The violet line uses your answer. Both start at the same middle point so only the steepness changes.</figcaption></div>
+  <div><div class="ctl"><span class="mono">float slopeX =</span><input id="chIn" type="text" spellcheck="false" autocomplete="off" placeholder="deltaH / deltaX" aria-label="The right side of the slope line"><button class="btn" id="chBtn">Run</button></div>
+    <div class="verdict" id="chVerdict"></div>
+    <details><summary>Hint</summary><div class="body"><p>Slope is height change ÷ horizontal distance. <code>deltaH</code> already holds hRight − hLeft. <code>deltaX</code> already holds 2 × step.</p></div></details>
+  </div>
+</div>
+
+<h2 id="s6"><span class="tag">Section 6 · exercises</span>Exercises</h2>
+<p>Read each picture, pick one answer, then open the hidden reason. Every exercise checks one part of the new slope formula.</p>
+
+<details class="ex"><summary>Exercise 1 — the left rim: what is the x slope at W?</summary><div class="body">
+  <div class="exq"><div class="stage" id="ex1qStage"><canvas id="ex1q" width="440" height="440"></canvas><figcaption><b>The left rim from above.</b> A and B are 0.01 UV left and right of W = (0.28, 0.50).</figcaption></div>
+    <div><ul class="legend"><li><span class="sw gray" style="background:linear-gradient(90deg,#000,#fff)"></span>the height map: black 0, white the flat top</li><li><span class="swd" style="background:#2563eb"></span>A = (0.27, 0.50), hLeft = 0.06</li><li><span class="swd" style="background:#f59e0b"></span>B = (0.29, 0.50), hRight = 0.08</li></ul>
+      <p><b>The change.</b> No code line changes. The page moves W to the left rim, which changes the two UV inputs to the height helper.</p>
+      <p><b>What this checks.</b> The sign of <code>hRight − hLeft</code>. It tells whether the surface rises or falls as x grows.</p>
+      <p><b>What you do.</b> Subtract the two heights, divide by 0.02, and match the sign to the picture.</p>
+      <p><b>Question:</b> the left rim: what is the x slope at W?</p>
+      <div class="choices"><button class="btn" data-ok="0" data-why="Not this one. hRight − hLeft = 0.08 − 0.06 = +0.02. The height rises to the right, so the sign is plus.">−1: the height falls to the right.</button><button class="btn" data-ok="0" data-why="Not this one. The two heights differ by 0.02. A zero slope needs equal neighbor heights.">0: the left rim has no x slope.</button><button class="btn" data-ok="1" data-why="Right. Δh = 0.08 − 0.06 = 0.02 and Δx = 0.02, so slopeX = 0.02 ÷ 0.02 = +1.">+1: the height rises to the right.</button></div><div class="verdict" aria-live="polite"></div>
+    </div></div>
+  <details><summary>Show the answer</summary><div class="body"><div class="pair"><div class="stage" id="ex1aStage"><canvas id="ex1a" width="640" height="360"></canvas><figcaption><b>The reason in the side view.</b> From A to B, the pink join goes right 0.02 and up 0.02.</figcaption></div><div class="readout">Δh = hRight − hLeft
+Δh = 0.08 − 0.06 = 0.02
+Δx = 2 × step = 2 × 0.01 = 0.02
+slopeX = Δh ÷ Δx
+slopeX = 0.02 ÷ 0.02 = 1
+
+At the same horizontal distance,
+the surface rises by the same height.</div></div></div></details>
+</div></details>
+
+<details class="ex"><summary>Exercise 2 — the flat top: can a high surface have x slope 0?</summary><div class="body">
+  <div class="exq"><div class="stage" id="ex2qStage"><canvas id="ex2q" width="440" height="440"></canvas><figcaption><b>The flat top from above.</b> W = (0.50, 0.50). A = (0.49, 0.50) and B = (0.51, 0.50) are also on the flat top.</figcaption></div>
+    <div><ul class="legend"><li><span class="sw gray" style="background:linear-gradient(90deg,#000,#fff)"></span>the height map: A, W, and B are white because their height is 0.10</li><li><span class="swd" style="background:#fff"></span>A, W, and B: three pixels on the flat top</li></ul>
+      <p><b>The change.</b> No code line changes. The page moves all three sample positions onto the flat top.</p>
+      <p><b>What this checks.</b> Slope measures a <i>change</i> between heights. It does not measure the height itself.</p>
+      <p><b>What you do.</b> Put hLeft = 0.10 and hRight = 0.10 into the same slope formula.</p>
+      <p><b>Question:</b> the flat top: can a high surface have x slope 0?</p>
+      <div class="choices"><button class="btn" data-ok="0" data-why="Not this one. Height 0.10 is not slope 0.10. The subtraction hRight − hLeft removes the shared height: 0.10 − 0.10 = 0.">No. A surface 0.10 high must have slope 0.10.</button><button class="btn" data-ok="1" data-why="Right. Δh = 0.10 − 0.10 = 0, so slopeX = 0 ÷ 0.02 = 0. The surface is high, but it does not rise or fall between A and B.">Yes. Both neighbor heights are 0.10, so their change is 0.</button><button class="btn" data-ok="0" data-why="Not this one. The flat top has x slope 0 here. A vertical surface direction is Lesson 10.3 and is not needed for this subtraction.">Only if the surface direction is vertical.</button></div><div class="verdict" aria-live="polite"></div>
+    </div></div>
+  <details><summary>Show the answer</summary><div class="body"><div class="pair"><div class="stage" id="ex2aStage"><canvas id="ex2a" width="640" height="360"></canvas><figcaption><b>The reason in the side view.</b> The blue and amber bars both have height 0.10. The pink join is horizontal in this picture.</figcaption></div><div class="readout">hLeft = 0.10
+hRight = 0.10
+Δh = hRight − hLeft
+Δh = 0.10 − 0.10 = 0
+Δx = 2 × 0.01 = 0.02
+slopeX = Δh ÷ Δx
+slopeX = 0 ÷ 0.02 = 0
+
+Height and slope are different numbers.</div></div></div></details>
+</div></details>
+
+<details class="ex"><summary>Exercise 3 — the top rim: what does x slope 0 leave unknown?</summary><div class="body">
+  <div class="exq"><div class="stage" id="ex3qStage"><canvas id="ex3q" width="440" height="440"></canvas><figcaption><b>The top rim from above.</b> A and B have the same distance from C, so they have the same height. D and E lie above and below W.</figcaption></div>
+    <div><ul class="legend"><li><span class="swd" style="background:#2563eb"></span>A = (0.49, 0.28), hLeft ≈ 0.071414</li><li><span class="swd" style="background:#f59e0b"></span>B = (0.51, 0.28), hRight ≈ 0.071414</li><li><span class="swd" style="background:#ec4899"></span>D = (0.50, 0.27), h = 0.06 · E = (0.50, 0.29), h = 0.08</li></ul>
+      <p><b>The change.</b> Only the x-neighbor positions feed <code>slopeX</code>. The code does not read D or E.</p>
+      <p><b>What this checks.</b> The x slope measures only left–right change. It cannot describe up–down change.</p>
+      <p><b>What you do.</b> Compare A with B for the x slope. Then compare D with E to decide what the x formula cannot see.</p>
+      <p><b>Question:</b> the top rim: what does x slope 0 leave unknown?</p>
+      <div class="choices"><button class="btn" data-ok="0" data-why="Not this one. D has height 0.06 and E has height 0.08. The surface changes along y even though A and B have equal heights.">Nothing. X slope 0 proves the whole surface is flat.</button><button class="btn" data-ok="1" data-why="Right. A and B give x slope 0, but D and E have different heights. The up–down change needs a separate y slope.">The up–down height change. A separate y slope must measure it.</button><button class="btn" data-ok="0" data-why="Not this one. Height and slope differ. W has a nonzero height, and the heights above and below W also differ.">The height at W. X slope 0 also forces h = 0.</button></div><div class="verdict" aria-live="polite"></div>
+    </div></div>
+  <details><summary>Show the answer</summary><div class="body"><div class="pair"><div class="stage" id="ex3aStage"><canvas id="ex3a" width="520" height="520"></canvas><figcaption><b>The reason on the height map.</b> Left and right of W have equal heights. Above and below W do not. One x number cannot carry both facts.</figcaption></div><div class="readout">x direction:
+Δh = 0.071414 − 0.071414 = 0
+slopeX = 0 ÷ 0.02 = 0
+
+y direction, for comparison:
+height at D = 0.06
+height at E = 0.08
+E − D = 0.08 − 0.06 = 0.02
+
+Lesson 10.3 needs both directions.</div></div></div></details>
+</div></details>
+
+<h2 id="s7"><span class="tag">Section 7 · Metal exercise</span>Metal exercise: the x slope of a glass button</h2>
+<p>Write two Metal functions. The first joins Lessons 9.4 and 10.1 to give a rounded-rectangle height at any UV position. The second calls that function twice and returns this lesson's x slope. The calling shader and the picture check are ready.</p>
+<div class="exq"><div class="stage" id="metalGoalStage"><canvas id="metalGoal" width="440" height="440"></canvas><figcaption><b>The goal:</b> the x-slope map of a rounded-rectangle button. Red rises to the right; blue falls; dark gray has no left–right change.</figcaption></div>
+  <div><ul class="legend"><li><span class="swl" style="background:#a855f7"></span>the violet button outline: center (0.50, 0.50), 0.60 wide, 0.40 tall, corner radius 0.10</li><li><span class="swd" style="background:#fff"></span>T1 … T5: the test pixels below; step = 0.01 and bevel = 0.10</li></ul>
+    <table class="trace"><tr><th>Test pixel</th><th>Region</th><th>hLeft → hRight</th><th>Target slopeX</th></tr>
+      <tr><td>T1 = (0.50, 0.50)</td><td>flat top</td><td class="f">0.10 → 0.10</td><td class="f">0</td></tr>
+      <tr><td>T2 = (0.76, 0.50)</td><td>right side</td><td class="f">0.086602540 → 0.071414284</td><td class="f">−0.759413</td></tr>
+      <tr><td>T3 = (0.24, 0.50)</td><td>left side</td><td class="f">0.071414284 → 0.086602540</td><td class="f">+0.759413</td></tr>
+      <tr><td>T4 = (0.73, 0.64)</td><td>rounded corner</td><td class="f">0.089442719 → 0.082462113</td><td class="f">−0.349030</td></tr>
+      <tr><td>T5 = (0.85, 0.50)</td><td>outside</td><td class="f">0 → 0</td><td class="f">0</td></tr>
+    </table><p class="small">The targets use six decimal places because the height changes are small. The hidden answer expands T2 and T4.</p>
+  </div></div>
+<h3>Your file: <code>chapter10/SlopeExercise.metal</code></h3>
+<pre class="code"><span class="cm">/// Return the Lesson 10.1 height of a rounded rectangle at uv.
+/// center: the button center. outerHalf: half its width and height.
+/// cornerRadius: the rounded-corner radius. bevel: the rim width and flat-top height.</span>
+float roundedRectHeightForSlope(float2 uv, float2 center, float2 outerHalf,
+                                float cornerRadius, float bevel) {
+<span class="nw">    // your code: p, innerHalf, q, sdBox with four cases, sd, inside, leg, h</span>
+    return 0.0;
+}
+
+<span class="cm">/// Return the average x slope between uv - (step, 0) and uv + (step, 0).
+/// step: the small horizontal distance from the requested pixel to each neighbor.</span>
+float roundedRectSlopeX(float2 uv, float2 center, float2 outerHalf,
+                        float cornerRadius, float bevel, float step) {
+<span class="nw">    // your code: two neighbor UV positions, two heights, deltaH, deltaX, slopeX</span>
+    return 0.0;
+}</pre>
+<details><summary>Hint</summary><div class="body"><p>Lesson 9.4's cases are: both q members positive → <code>length(q)</code>; only q.x positive → <code>q.x</code>; only q.y positive → <code>q.y</code>; otherwise → <code>max(q.x, q.y)</code>. Subtract the corner radius to get sd. Then use Lesson 10.1's height lines.</p><p>For the second function, call the first function at <code>uv - float2(step, 0.0)</code> and <code>uv + float2(step, 0.0)</code>.</p></div></details>
+<h3>The prepared calling code</h3>
+<pre class="code">[[ stitchable ]] half4 buttonSlopeExercise(
+    float2 position, half4 color, float2 resolution, float2 center,
+    float2 outerHalf, float cornerRadius, float bevel, float step,
+    float slopeRange, float scale
+) {
+    float2 uv = position * scale / resolution;
+    float slopeX = roundedRectSlopeX(uv, center, outerHalf, cornerRadius, bevel, step);
+    float red = clamp(0.15 + slopeX / slopeRange, 0.15, 1.0);
+    float blue = clamp(0.15 - slopeX / slopeRange, 0.15, 1.0);
+    return half4(red, 0.15, blue, 1.0);
+}</pre>
+<ul><li><code>chapter10/SlopeExerciseView.swift</code> passes the button values, step 0.01, and display range 4.</li><li><code>chapter10/SlopeExerciseKey.metal</code> contains the answer in <code>buttonSlopeKey</code>. Open it after your attempt.</li><li>The check draws your picture over the key with <code>.blendMode(.difference)</code>. <code>markDifference</code> paints red where a channel differs by more than 2/255. No red pixel means your picture matches the key.</li></ul>
+<details><summary>Show the answer</summary><div class="body">
+<pre class="code">float roundedRectHeightForSlope(float2 uv, float2 center, float2 outerHalf,
+                                float cornerRadius, float bevel) {
+    float2 p = uv - center;
+    float2 innerHalf = outerHalf - cornerRadius;
+    float2 q = abs(p) - innerHalf;
+    float sdBox;
+    if (q.x &gt; 0.0 &amp;&amp; q.y &gt; 0.0) {
+        sdBox = length(q);
+    } else if (q.x &gt; 0.0) {
+        sdBox = q.x;
+    } else if (q.y &gt; 0.0) {
+        sdBox = q.y;
+    } else {
+        sdBox = max(q.x, q.y);
+    }
+    float sd = sdBox - cornerRadius;
+    float inside = clamp(-sd, 0.0, bevel);
+    float leg = bevel - inside;
+    return sqrt(bevel * bevel - leg * leg);
+}
+
+float roundedRectSlopeX(float2 uv, float2 center, float2 outerHalf,
+                        float cornerRadius, float bevel, float step) {
+    float2 leftUv = uv - float2(step, 0.0);
+    float2 rightUv = uv + float2(step, 0.0);
+    float hLeft = roundedRectHeightForSlope(leftUv, center, outerHalf, cornerRadius, bevel);
+    float hRight = roundedRectHeightForSlope(rightUv, center, outerHalf, cornerRadius, bevel);
+    float deltaH = hRight - hLeft;
+    float deltaX = 2.0 * step;
+    return deltaH / deltaX;
+}</pre>
+<div class="readout">T2 = (0.76, 0.50): right side, neighbors x = 0.75 and 0.77
+  at A: q = (0.05, −0.10) → sdBox = 0.05 → sd = −0.05
+  leg = 0.05, hLeft = √0.0075 = 0.086602540
+  at B: q = (0.07, −0.10) → sdBox = 0.07 → sd = −0.03
+  leg = 0.07, hRight = √0.0051 = 0.071414284
+  Δh = 0.071414284 − 0.086602540 = −0.015188256
+  Δx = 2 × 0.01 = 0.02
+  slopeX = −0.015188256 ÷ 0.02 = −0.759413 (six decimals)
+
+T4 = (0.73, 0.64): rounded corner
+  at A = (0.72, 0.64): q = (0.02, 0.04)
+  sdBox = √(0.02² + 0.04²) = √0.002 = 0.044721
+  sd = −0.055279, leg = 0.044721, hLeft = √0.008 = 0.089442719
+  at B = (0.74, 0.64): q = (0.04, 0.04)
+  sdBox = √(0.04² + 0.04²) = √0.0032 = 0.056569
+  sd = −0.043431, leg = 0.056569, hRight = √0.0068 = 0.082462113
+  Δh = 0.082462113 − 0.089442719 = −0.006980606
+  slopeX = −0.006980606 ÷ 0.02 = −0.349030 (six decimals)</div>
+<p><b>Why the split matters:</b> the first function can be reused for y neighbors in Lesson 10.3. The second function changes only the two positions and the difference it returns.</p>
+</div></details>
+
+<h2 id="s8"><span class="tag">Section 8 · copyable record</span>Take it with you</h2>
+<p>Press <b>Copy</b> and paste the record into your notes.</p><textarea id="record" readonly></textarea><div class="ctl"><button class="btn" id="recBtn">Copy</button><span id="recMsg" class="sub"></span></div>
+<div class="navfoot"><a href="lesson-10-01-height-map-idea.html">← Lesson 10.1 — Height-map idea</a><span>Next: Lesson 10.3 — Surface normal (not created yet)</span></div>
+</div>
+<div id="tip" role="dialog" aria-modal="false"><button class="tclose" id="tipClose" aria-label="Close">✕</button><div id="tipBody"></div></div>
+
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const RAD=0.25, RANGE=4;
+const S={c:[0.50,0.50],w:[0.72,0.50],bev:0.10,step:0.01,showSlope:true};
+const COL={glass:'#a855f7',fill:'#f3e8ff',left:'#2563eb',right:'#f59e0b',pink:'#ec4899',screen:'#334155',halo:'rgba(17,24,39,0.92)',ink:'#111827',lime:'#a3e635'};
+const clamp=(x,lo,hi)=>Math.min(Math.max(x,lo),hi);
+const r6=x=>Math.round((x+Number.EPSILON)*1e6)/1e6;
+function f(x){const r=r6(x);if(Object.is(r,-0))return '0';return String(r).replace('-','−')}
+function f6(x){const r=r6(x);return (Object.is(r,-0)?0:r).toFixed(6).replace('-','−')}
+function f12(x){const r=Math.round((x+Number.EPSILON)*1e12)/1e12;if(Object.is(r,-0))return '0';return String(r).replace('-','−')}
+function heightAt(u,v,P=S){
+  const px=u-P.c[0],py=v-P.c[1],sd=Math.hypot(px,py)-RAD;
+  const inside=clamp(-sd,0,P.bev),leg=P.bev-inside;
+  return Math.sqrt(Math.max(0,P.bev*P.bev-leg*leg));
+}
+function slopeAt(w=S.w,P=S){const a=[w[0]-P.step,w[1]],b=[w[0]+P.step,w[1]],hl=heightAt(a[0],a[1],P),hr=heightAt(b[0],b[1],P);return {a,b,hl,hr,dh:hr-hl,dx:2*P.step,s:(hr-hl)/(2*P.step)}}
+function slopeColor(s){return [clamp(0.15+s/RANGE,0.15,1),0.15,clamp(0.15-s/RANGE,0.15,1)]}
+function rrHeight(u,v,c=[0.5,0.5],bev=0.1){
+  const px=Math.abs(u-c[0])-0.20,py=Math.abs(v-c[1])-0.10;
+  const box=px>0&&py>0?Math.hypot(px,py):px>0?px:py>0?py:Math.max(px,py),sd=box-0.10;
+  const inside=clamp(-sd,0,bev),leg=bev-inside;return Math.sqrt(Math.max(0,bev*bev-leg*leg));
+}
+function view(cv,x0=0,y0=0,x1=1){const s=cv.width/(x1-x0);return{x0,y0,s,X:u=>(u-x0)*s,Y:v=>(v-y0)*s}}
+function pixels(cv,V,colorAt){const ctx=cv.getContext('2d'),img=ctx.createImageData(cv.width,cv.height),D=img.data;for(let j=0;j<cv.height;j++){const v=V.y0+(j+0.5)/V.s;for(let i=0;i<cv.width;i++){const u=V.x0+(i+0.5)/V.s,o=(j*cv.width+i)*4,c=colorAt(u,v);D[o]=Math.round(c[0]*255);D[o+1]=Math.round(c[1]*255);D[o+2]=Math.round(c[2]*255);D[o+3]=255}}ctx.putImageData(img,0,0)}
+function renderMap(cv,V,P=S,showSlope=S.showSlope){pixels(cv,V,(u,v)=>showSlope?slopeColor(slopeAt([u,v],P).s):Array(3).fill(heightAt(u,v,P)/P.bev))}
+function halo(ctx,draw,color,w=2.5){for(const [lw,c] of [[w+3.5,COL.halo],[w,color]]){ctx.lineWidth=lw;ctx.strokeStyle=c;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();draw();ctx.stroke()}}
+function line(ctx,x1,y1,x2,y2,color,w=2.5){halo(ctx,()=>{ctx.moveTo(x1,y1);ctx.lineTo(x2,y2)},color,w)}
+function ring(ctx,x,y,r,color,w=2.5){halo(ctx,()=>ctx.arc(x,y,r,0,Math.PI*2),color,w)}
+function plate(ctx,t,x,y,size=14,align='left',color=COL.ink){ctx.font=`600 ${size}px -apple-system,"Segoe UI",Roboto,sans-serif`;const w=ctx.measureText(t).width,h=size+8,x0=align==='right'?x-w:align==='center'?x-w/2:x;ctx.fillStyle='rgba(255,255,255,0.94)';ctx.strokeStyle='#111827';ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x0-5,y-h/2,w+10,h,4);ctx.fill();ctx.stroke();ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillStyle=color;ctx.fillText(t,x0,y)}
+function bracket(ctx,x1,x2,y,color=COL.pink){halo(ctx,()=>{ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.moveTo(x1,y-7);ctx.lineTo(x1,y+7);ctx.moveTo(x2,y-7);ctx.lineTo(x2,y+7)},color,2.3)}
+function vbracket(ctx,x,y1,y2,color=COL.pink){halo(ctx,()=>{ctx.moveTo(x,y1);ctx.lineTo(x,y2);ctx.moveTo(x-7,y1);ctx.lineTo(x+7,y1);ctx.moveTo(x-7,y2);ctx.lineTo(x+7,y2)},color,2.3)}
+function sideView(cv,P=S,w=S.w){const x0=w[0]-0.12,x1=w[0]+0.12,s=cv.width/(x1-x0),y0=cv.height-70,Y=h=>y0-h*s,X=x=>(x-x0)*s;return{x0,x1,s,y0,X,Y}}
+function drawSide(cv,P=S,w=S.w,opt={}){
+  const V=sideView(cv,P,w),ctx=cv.getContext('2d'),q=slopeAt(w,P),y=V.y0;
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);ctx.beginPath();ctx.moveTo(0,y);
+  for(let i=0;i<=cv.width;i++){const x=V.x0+i/V.s;ctx.lineTo(i,V.Y(heightAt(x,w[1],P)))}ctx.lineTo(cv.width,y);ctx.closePath();ctx.fillStyle=COL.fill;ctx.fill();
+  line(ctx,0,y,cv.width,y,COL.screen,2.3);ctx.strokeStyle=COL.glass;ctx.lineWidth=3;ctx.lineJoin='round';ctx.beginPath();for(let i=0;i<=cv.width;i++){const x=V.x0+i/V.s,h=heightAt(x,w[1],P);if(i===0)ctx.moveTo(i,V.Y(h));else ctx.lineTo(i,V.Y(h))}ctx.stroke();
+  if(opt.bars!==false){for(const [x,h,c] of [[q.a[0],q.hl,COL.left],[q.b[0],q.hr,COL.right]])line(ctx,V.X(x),y,V.X(x),V.Y(h),c,3)}
+  if(opt.join)line(ctx,V.X(q.a[0]),V.Y(q.hl),V.X(q.b[0]),V.Y(q.hr),COL.pink,3.2);
+  if(opt.delta){bracket(ctx,V.X(q.a[0]),V.X(q.b[0]),y+30,COL.pink);plate(ctx,`Δx = ${f(q.dx)}`,V.X(w[0]),y+52,14,'center');const bx=V.X(q.b[0])+28;vbracket(ctx,bx,V.Y(q.hl),V.Y(q.hr),COL.pink);plate(ctx,`Δh = ${f(q.dh)}`,bx+8,V.Y((q.hl+q.hr)/2),14,'left')}
+  plate(ctx,`A · hLeft ${f(q.hl)}`,V.X(q.a[0])-8,V.Y(q.hl)-18,14,'right',COL.left);plate(ctx,`B · hRight ${f(q.hr)}`,V.X(q.b[0])+8,V.Y(q.hr)-18,14,'left',COL.right);
+  plate(ctx,'W',V.X(w[0]),y+22,14,'center');plate(ctx,`slopeX = ${f(q.s)}`,V.X(w[0]),Math.max(24,V.Y(Math.max(q.hl,q.hr))-50),15,'center',q.s<0?COL.left:q.s>0?'#b91c1c':COL.ink);
+  plate(ctx,`pixel row y = ${f(w[1])}`,12,24,14,'left');return V;
+}
+function drawMapDecor(cv,V,P=S,w=S.w,opt={}){
+  const ctx=cv.getContext('2d'),q=slopeAt(w,P);ring(ctx,V.X(P.c[0]),V.Y(P.c[1]),RAD*V.s,COL.glass,2.3);line(ctx,V.X(q.a[0]),V.Y(w[1]),V.X(q.b[0]),V.Y(w[1]),COL.lime,2.2);
+  plate(ctx,'C',V.X(P.c[0])+12,V.Y(P.c[1])-12);plate(ctx,'A',V.X(q.a[0])-8,V.Y(q.a[1])+20,14,'right',COL.left);plate(ctx,'W',V.X(w[0]),V.Y(w[1])-20,14,'center');plate(ctx,'B',V.X(q.b[0])+8,V.Y(q.b[1])+20,14,'left',COL.right);
+}
+const tipEl=$('tip'),tipBody=$('tipBody'),tipStore=new Map();let suppressClick=false;
+function setTip(el,html){el.classList.add('tk');tipStore.set(el,html);el.setAttribute('tabindex','0')}
+function showTip(el){const v=tipStore.get(el),html=typeof v==='function'?v():v;if(!html)return;tipBody.innerHTML=html;tipEl.classList.toggle('wide',!!tipBody.querySelector('pre'));tipEl.classList.add('open');const r=el.getBoundingClientRect();tipEl.style.left='0px';tipEl.style.top='0px';const tw=tipEl.offsetWidth,th=tipEl.offsetHeight;let L=r.right+10,T=r.top-8;if(L+tw>innerWidth-10)L=r.left-tw-10;if(L<8)L=8;if(T+th>innerHeight-10)T=innerHeight-th-10;if(T<8)T=8;tipEl.style.left=L+'px';tipEl.style.top=T+'px'}
+function hideTip(){tipEl.classList.remove('open')}
+document.addEventListener('click',e=>{if(suppressClick){suppressClick=false;e.stopPropagation();return}const t=e.target.closest('.tk');if(t){e.stopPropagation();showTip(t);return}if(!e.target.closest('#tip'))hideTip()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){hideTip();return}if((e.key==='Enter'||e.key===' ')&&e.target.classList?.contains('tk')){e.preventDefault();showTip(e.target)}});$('tipClose').onclick=e=>{e.stopPropagation();hideTip()};
+function pointTip(role,P=S,w=S.w){const q=slopeAt(w,P),pos=role==='C'?P.c:role==='A'?q.a:role==='B'?q.b:w;let extra=role==='C'?'the center of the glass':role==='W'?`x slope estimate ${f(q.s)}`:role==='A'?`left neighbor, hLeft ${f(q.hl)}`:`right neighbor, hRight ${f(q.hr)}`;return `<b>${role} = (${f(pos[0])}, ${f(pos[1])})</b>, in UV from the picture's top-left, y down<br>Role: ${extra}.<br>Drag this point. A and B move W to preserve the symmetric step.`}
+function clearPoints(stage){stage.querySelectorAll('.ptdot').forEach(b=>b.remove())}
+let pointDrag=null;
+document.addEventListener('pointermove',e=>{if(!pointDrag)return;const r=pointDrag.canvas.getBoundingClientRect(),u=(e.clientX-r.left)/r.width,v=(e.clientY-r.top)/r.height;pointDrag.moved=true;hideTip();pointDrag.onDrag(pointDrag.role,u,v)});
+document.addEventListener('pointerup',()=>{if(!pointDrag)return;if(pointDrag.moved)suppressClick=true;pointDrag=null});
+document.addEventListener('pointercancel',()=>{pointDrag=null});
+function addPoint(stage,x,y,role,onDrag,color){const b=document.createElement('button');b.className='ptdot';b.style.left=x+'px';b.style.top=y+'px';b.style.background=color|| (role==='A'?COL.left:role==='B'?COL.right:role==='C'?COL.glass:'#fff');b.setAttribute('aria-label',role+', draggable point');stage.appendChild(b);setTip(b,()=>pointTip(role));
+  b.addEventListener('pointerdown',e=>{pointDrag={role,canvas:stage.querySelector('canvas'),onDrag,moved:false};e.preventDefault()});
+  b.addEventListener('keydown',e=>{const d={ArrowLeft:[-0.001,0],ArrowRight:[0.001,0],ArrowUp:[0,-0.001],ArrowDown:[0,0.001]}[e.key];if(!d)return;e.preventDefault();const q=slopeAt(),pos=role==='C'?S.c:role==='A'?q.a:role==='B'?q.b:S.w;onDrag(role,pos[0]+d[0],pos[1]+d[1]);[...stage.querySelectorAll('.ptdot')].find(x=>x.getAttribute('aria-label').startsWith(role+','))?.focus()});return b;
+}
+function moveRole(role,u,v){if(role==='C'){S.c=[clamp(u,0,1),clamp(v,0,1)]}else{let x=u;if(role==='A')x=u+S.step;if(role==='B')x=u-S.step;S.w=[clamp(x,S.step,1-S.step),clamp(v,0,1)]}drawShared()}
+function attachMapPoints(stage,V){const q=slopeAt();for(const [role,pos] of [['C',S.c],['A',q.a],['W',S.w],['B',q.b]])addPoint(stage,V.X(pos[0]),V.Y(pos[1]),role,moveRole)}
+function attachSidePoints(stage,V){const q=slopeAt();for(const [role,pos] of [['A',q.a],['W',S.w],['B',q.b]])addPoint(stage,V.X(pos[0]),V.y0,role,(r,u)=>moveRole(r,V.x0+u*(V.x1-V.x0),S.w[1]))}
+
+const TIPS={
+  step:'<b>step</b><br>From: the lab slider, in UV. It is the distance from W to each neighbor. A and B are 2 × step apart.<br>Why chosen: a smaller step follows a smaller part of the curved rim. A larger step averages over more of it.<br>Used by: the two neighbor positions and deltaX.',
+  bevel:'<b>bevel</b><br>From: Lesson 10.1 and the lab slider, in UV. It is the rounded rim width, the rim-circle radius, and the flat-top height. The default 0.10 is a chosen shape dial, not a material constant.<br>Used by: both height calculations.',
+  slope:'<b>x slope</b><br><code>slopeX = (hRight − hLeft) ÷ (2 × step)</code>. It is the average slope between A and B, used as an estimate at W. Plus rises to the right; minus falls. It says nothing by itself about up–down change.'
+};
+document.querySelectorAll('.info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip]));
+
+let step=0;
+const stepDots=$('stepDots');for(let i=0;i<5;i++){const b=document.createElement('button');b.className='dot';b.setAttribute('aria-label','Step '+(i+1));b.onclick=()=>{step=i;drawShared()};stepDots.appendChild(b)}
+function drawShared(){
+  const q=slopeAt();
+  for(const [mapId,sideId,stageMap,stageSide,kind] of [['heroMap','heroSide','heroMapStage','heroSideStage','hero'],['stepMap','stepSide','stepMapStage','stepSideStage','step'],['labMap','labSide','labMapStage','labSideStage','lab']]){
+    const cv=$(mapId),stage=$(stageMap),V=view(cv);renderMap(cv,V,S,kind==='step'?step===4:kind==='lab'?S.showSlope:true);drawMapDecor(cv,V);clearPoints(stage);attachMapPoints(stage,V);
+    const sc=$(sideId),sideStage=$(stageSide),SV=drawSide(sc,S,S.w,{bars:kind!=='step'||step>=1,join:kind!=='step'||step>=3,delta:kind!=='step'||step>=2});clearPoints(sideStage);attachSidePoints(sideStage,SV);
+  }
+  $('labStep').value=S.step;$('labBevel').value=S.bev;$('labStepV').textContent=f(S.step);$('labBevelV').textContent=f(S.bev);$('labMode').textContent=S.showSlope?'x-slope colors':'height map';$('labMode').setAttribute('aria-pressed',String(S.showSlope));
+  $('labScale').textContent=`Side view: x and height use one scale, 1 UV = ${Math.round(760/0.24)} picture pixels, ×${f((760/0.24)/520)} in both directions against the 520-pixel map. It follows W and shows x from ${f(S.w[0]-0.12)} to ${f(S.w[0]+0.12)}. A, W, and B are draggable on the baseline.`;
+  $('labMeaning').textContent=q.s>0?`slopeX = ${f(q.s)}: from A to B the surface rises. Red stores a positive x slope.`:q.s<0?`slopeX = ${f(q.s)}: from A to B the surface falls. Blue stores a negative x slope.`:'slopeX = 0: A and B have equal heights. This does not measure change along y.';
+  $('labLegend').innerHTML=`<li><span class="swl" style="background:#a855f7"></span>the violet surface and outline: Lesson 10.1's glass</li><li><span class="swl" style="background:linear-gradient(90deg,#2563eb 0 50%,#f59e0b 50%)"></span>blue A and amber B: the two height inputs</li><li><span class="swl" style="background:#ec4899"></span>the pink join: the average slope between A and B</li>`;
+  renderStepPanel(q);renderLabTable(q);
+}
+function renderStepPanel(q){
+  const caps=[
+    `<b>Step 1 · Pick two neighbors.</b> A is one step left of W. B is one step right. Both have the same y as W, so the distance from A to B is only horizontal.`,
+    `<b>Step 2 · Read the two heights.</b> Lesson 10.1 gives hLeft = ${f(q.hl)} above A and hRight = ${f(q.hr)} above B. The blue and amber bars make those numbers visible.`,
+    `<b>Step 3 · Subtract and measure.</b> Δh = hRight − hLeft = ${f(q.dh)}. The horizontal distance is Δx = 2 × step = ${f(q.dx)}. The brackets show both changes.`,
+    `<b>Step 4 · Divide height change by horizontal distance.</b> slopeX = ${f(q.dh)} ÷ ${f(q.dx)} = ${f(q.s)}. The pink join goes ${q.dh<0?'down':q.dh>0?'up':'level'} from A to B. Its average slope estimates the slope at W.`,
+    `<b>Step 5 · Store the number as a color.</b> A positive slope becomes red. A negative slope becomes blue. Equal neighbor heights become dark gray. The color is only a display of slopeX.`
+  ];
+  const rows=[
+    [['W',`W = (${f(S.w[0])}, ${f(S.w[1])})`,'the pixel whose slope we estimate'],['A',`A.x = ${f(S.w[0])} − ${f(S.step)} = ${f(q.a[0])}`,'one step left'],['B',`B.x = ${f(S.w[0])} + ${f(S.step)} = ${f(q.b[0])}`,'one step right']],
+    [['hLeft',`hLeft = ${f(q.hl)}`,'surface height above A'],['hRight',`hRight = ${f(q.hr)}`,'surface height above B']],
+    [['Δh',`Δh = ${f(q.hr)} − ${f(q.hl)} = ${f(q.dh)}`,'signed height change from A to B'],['Δx',`Δx = 2 × ${f(S.step)} = ${f(q.dx)}`,'horizontal distance from A to B']],
+    [['slopeX',`slopeX = ${f(q.dh)} ÷ ${f(q.dx)} = ${f(q.s)}`,'average x slope from A to B; estimate at W']],
+    [['share',`share = ${f(q.s)} ÷ 4 = ${f(r6(r6(q.s)/4))}`,'the signed display share; slopeRange = 4'],['red',`red before clamp = 0.15 + (${f(r6(r6(q.s)/4))}) = ${f(r6(0.15+r6(r6(q.s)/4)))}<br>red = clamp(${f(r6(0.15+r6(r6(q.s)/4)))}, 0.15, 1) = ${f(slopeColor(r6(q.s))[0])}`,'extra red above the neutral 0.15'],['blue',`blue before clamp = 0.15 − (${f(r6(r6(q.s)/4))}) = ${f(r6(0.15-r6(r6(q.s)/4)))}<br>blue = clamp(${f(r6(0.15-r6(r6(q.s)/4)))}, 0.15, 1) = ${f(slopeColor(r6(q.s))[2])}`,'extra blue above the neutral 0.15']]
+  ];
+  $('stepCap').innerHTML=caps[step]+`<div style="margin-top:8px;color:#6b7280;font-size:13.5px">Step ${step+1} of 5</div>`;$('stepTable').innerHTML='<tr><th>Name</th><th>Numbers, one operation per “=”</th><th>Meaning</th></tr>'+rows[step].map(r=>`<tr class="${step>=2?'new':''}"><td><b>${r[0]}</b></td><td class="f">${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+  const legends=[['the gray height map: black 0, white the flat top','A, W, B on one horizontal pixel row'],['the blue and amber height bars: hLeft and hRight','the violet surface above the pixel row'],['the pink Δh and Δx brackets: the two changes','the blue and amber height bars'],['the pink join: its right–down or right–up change is the slope','the violet curved surface'],['red rises to the right; blue falls; dark gray has equal neighbor heights','the color map stores slopeX, not height']];
+  $('stepLegend').innerHTML=legends[step].map((t,i)=>`<li><span class="swl" style="background:${i===0&&step===4?'linear-gradient(90deg,#b91c1c,#1f2937,#2563eb)':i===0?'#a855f7':'#ec4899'}"></span>${t}</li>`).join('');[...stepDots.children].forEach((d,i)=>d.classList.toggle('on',i===step));$('stepPrev').disabled=step===0;$('stepNext').disabled=step===4;
+}
+function heightLines(name,u,v){
+  const px=r6(u-S.c[0]),py=r6(v-S.c[1]),px2=px*px,py2=py*py,sum=px2+py2,d=r6(Math.sqrt(sum)),sd=r6(d-RAD),neg=r6(-sd),inside=clamp(neg,0,S.bev),leg=r6(S.bev-inside),b2=S.bev*S.bev,l2=leg*leg,h2=b2-l2,h=r6(Math.sqrt(Math.max(0,h2))),out=name.startsWith('A')?'hLeft':'hRight';
+  return {h,lines:[`${name} = (${f(u)}, ${f(v)})`,`p.x = ${f(u)} − ${f(S.c[0])} = ${f(px)}`,`p.y = ${f(v)} − ${f(S.c[1])} = ${f(py)}`,`p.x² = ${f(px)} × ${f(px)} = ${f12(px2)}`,`p.y² = ${f(py)} × ${f(py)} = ${f12(py2)}`,`sum = ${f12(px2)} + ${f12(py2)} = ${f12(sum)}`,`d = √${f12(sum)} = ${f(d)}`,`sd = ${f(d)} − ${f(RAD)} = ${f(sd)}`,`−sd = −(${f(sd)}) = ${f(neg)}`,`inside = clamp(${f(neg)}, 0, ${f(S.bev)}) = ${f(inside)}`,`leg = ${f(S.bev)} − ${f(inside)} = ${f(leg)}`,`bevel² = ${f(S.bev)} × ${f(S.bev)} = ${f12(b2)}`,`leg² = ${f(leg)} × ${f(leg)} = ${f12(l2)}`,`h² = ${f12(b2)} − ${f12(l2)} = ${f12(h2)}`,`${out} = √${f12(h2)} = ${f(h)}`]};
+}
+function renderLabTable(q){
+  const a=heightLines('A',q.a[0],q.a[1]),b=heightLines('B',q.b[0],q.b[1]),n=Math.max(a.lines.length,b.lines.length),c=slopeColor(r6(q.s)),share=r6(r6(q.s)/4),rawR=r6(0.15+share),rawB=r6(0.15-share);
+  let html='<tr><th style="width:160px">Part</th><th>Live calculation · six-decimal rounding</th><th>Consumer</th></tr>';
+  for(let i=0;i<n;i++)html+=`<tr><td>${i===0?'<b>Height inputs</b>':''}</td><td class="f ${i%2?'b':'a'}">${a.lines[i]||''}<br>${b.lines[i]||''}</td><td>${i===n-1?'Δh uses both heights':'Lesson 10.1'}</td></tr>`;
+  const rows=[['Δh',`Δh = ${f(q.hr)} − ${f(q.hl)} = ${f(q.dh)}`,'slopeX'],['Δx',`Δx = 2 × ${f(S.step)} = ${f(q.dx)}`,'slopeX'],['slopeX',`slopeX = ${f(q.dh)} ÷ ${f(q.dx)} = ${f(q.s)}`,'display share'],['share',`share = ${f(q.s)} ÷ 4 = ${f(share)}`,'both color lines'],['red',`red before clamp = 0.15 + (${f(share)}) = ${f(rawR)}<br>red = clamp(${f(rawR)}, 0.15, 1) = ${f(c[0])}`,'stored red'],['blue',`blue before clamp = 0.15 − (${f(share)}) = ${f(rawB)}<br>blue = clamp(${f(rawB)}, 0.15, 1) = ${f(c[2])}`,'stored blue']];
+  for(const [name,line,use] of rows)html+=`<tr class="new"><td><b>${name}</b></td><td class="f s">${line}</td><td>${use}</td></tr>`;
+  html+=`<tr><td><b>Store at W</b></td><td class="f">(${f(c[0])}, ${f(c[1])}, ${f(c[2])})</td><td>the visible pixel</td></tr>`;$('labTable').innerHTML=html;
+}
+$('labStep').addEventListener('input',e=>{S.step=Number(e.target.value);S.w[0]=clamp(S.w[0],S.step,1-S.step);drawShared()});$('labBevel').addEventListener('input',e=>{S.bev=Number(e.target.value);drawShared()});$('labMode').onclick=()=>{S.showSlope=!S.showSlope;drawShared()};$('labReset').onclick=()=>{S.c=[0.5,0.5];S.w=[0.72,0.5];S.bev=0.1;S.step=0.01;S.showSlope=true;drawShared()};$('stepPrev').onclick=()=>{if(step>0){step--;drawShared()}};$('stepNext').onclick=()=>{if(step<4){step++;drawShared()}};
+
+(function(){const P={c:[0.5,0.5],bev:0.1,step:0.01},w=[0.72,0.5];drawSide($('traceSide'),P,w,{join:true,delta:true})})();
+
+(function(){
+  const cv=$('challenge'),ctx=cv.getContext('2d'),inp=$('chIn'),out=$('chVerdict'),P={c:[0.5,0.5],bev:0.1,step:0.01},w=[0.72,0.5],q=slopeAt(w,P),V=sideView(cv,P,w),mid=(q.hl+q.hr)/2;
+  function parse(src){const s=src.replace(/^\s*(float\s+)?slopeX\s*=\s*/,'').replace(/;\s*$/,'').trim();if(!s)return{err:'empty'};const toks=s.match(/\d*\.\d+|\d+\.?|[A-Za-z_]\w*|[-+*\/(),]|\S/g)||[];let i=0;const peek=()=>toks[i],next=()=>toks[i++],vars=['hLeft','hRight','step','deltaH','deltaX'];function expr(){let a=term();while(peek()==='+'||peek()==='-'){const o=next(),b=term(),A=a;a=e=>o==='+'?A(e)+b(e):A(e)-b(e)}return a}function term(){let a=unary();while(peek()==='*'||peek()==='/'){const o=next(),b=unary(),A=a;a=e=>o==='*'?A(e)*b(e):A(e)/b(e)}return a}function unary(){if(peek()==='-'){next();const a=unary();return e=>-a(e)}if(peek()==='+'){next();return unary()}return prim()}function prim(){const t=next();if(t===undefined)throw Error('end');if(/^\d/.test(t)||/^\.\d/.test(t)){const v=Number(t);return()=>v}if(t==='('){const a=expr();if(next()!==')')throw Error('bracket');return a}if(vars.includes(t))return e=>e[t];throw Error('name:'+t)}try{const g=expr();if(i<toks.length)return{err:'extra'};return{g}}catch(e){return{err:e.message}}}
+  const samples=[{hLeft:0.08,hRight:0.06,step:0.01,deltaH:-0.02,deltaX:0.02},{hLeft:0.06,hRight:0.08,step:0.01,deltaH:0.02,deltaX:0.02},{hLeft:0.1,hRight:0.1,step:0.02,deltaH:0,deltaX:0.04},{hLeft:0.02,hRight:0.08,step:0.04,deltaH:0.06,deltaX:0.08}],truth=e=>e.deltaH/e.deltaX;
+  function draw(g){ctx.clearRect(0,0,cv.width,cv.height);drawSide(cv,P,w,{join:true,delta:false});if(g){const yAt=x=>mid+g({hLeft:q.hl,hRight:q.hr,step:P.step,deltaH:q.dh,deltaX:q.dx})*(x-w[0]);line(ctx,V.X(q.a[0]-0.03),V.Y(yAt(q.a[0]-0.03)),V.X(q.b[0]+0.03),V.Y(yAt(q.b[0]+0.03)),COL.glass,3)}plate(ctx,`your slope: ${g?f(g({hLeft:q.hl,hRight:q.hr,step:P.step,deltaH:q.dh,deltaX:q.dx})):'no line yet'}`,cv.width-14,24,14,'right',COL.glass)}
+  function run(){const p=parse(inp.value);if(p.err){draw(null);out.className='verdict no';out.textContent=p.err==='empty'?'No line yet. Write height change ÷ horizontal distance.':p.err.startsWith('name:')?`Unknown name “${p.err.slice(5)}”. Use hLeft, hRight, step, deltaH, or deltaX.`:'The page could not read this expression. Use numbers, names, brackets, +, −, *, and /.';return}const g=p.g,valid=samples.every(e=>{try{return isFinite(g(e))&&Math.abs(g(e)-truth(e))<1e-8}catch{return false}});draw(g);out.className='verdict '+(valid?'ok':'no');if(valid){out.textContent='Correct. slopeX = deltaH ÷ deltaX. At W: −0.02 ÷ 0.02 = −1. The minus means the surface falls as x grows.';return}const test=samples[0],v=g(test);if(!isFinite(v))out.textContent='This expression does not give a finite number for the teaching values. Divide the height change by the horizontal distance.';else if(Math.abs(v-truth(test)/2)<1e-8)out.textContent='You divided by one step. A and B are two steps apart, so use deltaX = 2 × step.';else if(Math.abs(v+truth(test))<1e-8)out.textContent='The sign is reversed. The formula reads right minus left: hRight − hLeft.';else if(Math.abs(v-test.deltaH)<1e-8)out.textContent='This is only the height change. Divide it by deltaX to get the change per horizontal UV unit.';else out.textContent=`Not yet. The teaching values need −0.02 ÷ 0.02 = −1; your expression gives ${f(v)}.`}
+  $('chBtn').onclick=run;inp.addEventListener('keydown',e=>{if(e.key==='Enter')run()});run();
+})();
+
+function exerciseMap(id,w,extra=false){
+  const cv=$(id),V=view(cv),P={c:[0.5,0.5],bev:0.1,step:0.01};
+  pixels(cv,V,(u,v)=>Array(3).fill(heightAt(u,v,P)/P.bev));const ctx=cv.getContext('2d');ring(ctx,V.X(0.5),V.Y(0.5),RAD*V.s,COL.glass,2.3);const q=slopeAt(w,P);
+  for(const [role,pos,color] of [['A',q.a,COL.left],['W',w,'#fff'],['B',q.b,COL.right]]){
+    const dx=role==='A'?-14:role==='B'?14:0,dy=role==='W'?-24:22,align=role==='A'?'right':role==='B'?'left':'center';
+    plate(ctx,role,V.X(pos[0])+dx,V.Y(pos[1])+dy,14,align,color);
+  }
+  if(extra)for(const [role,pos] of [['D',[0.5,0.27]],['E',[0.5,0.29]]])plate(ctx,role,V.X(pos[0])+14,V.Y(pos[1]),14,'left',COL.pink);
+  return{P,q};
+}
+(function(){const a=exerciseMap('ex1q',[0.28,0.5]);drawSide($('ex1a'),a.P,[0.28,0.5],{join:true,delta:true});const b=exerciseMap('ex2q',[0.5,0.5]);drawSide($('ex2a'),b.P,[0.5,0.5],{join:true,delta:false});exerciseMap('ex3q',[0.5,0.28],true);exerciseMap('ex3a',[0.5,0.28],true);document.querySelectorAll('.choices').forEach(g=>{const out=g.nextElementSibling;g.querySelectorAll('button').forEach(b=>b.onclick=()=>{g.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));out.className='verdict '+(b.dataset.ok==='1'?'ok':'no');out.textContent=b.dataset.why})})})();
+
+(function(){const cv=$('metalGoal'),stage=$('metalGoalStage'),V=view(cv);pixels(cv,V,(u,v)=>{const hl=rrHeight(u-0.01,v),hr=rrHeight(u+0.01,v);return slopeColor((hr-hl)/0.02)});const ctx=cv.getContext('2d');ctx.strokeStyle=COL.glass;ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(V.X(0.2),V.Y(0.3),0.6*V.s,0.4*V.s,0.1*V.s);ctx.stroke();const tests=[['T1',0.5,0.5],['T2',0.76,0.5],['T3',0.24,0.5],['T4',0.73,0.64],['T5',0.85,0.5]];for(const [n,u,v] of tests){const s=(rrHeight(u+0.01,v)-rrHeight(u-0.01,v))/0.02;plate(ctx,n,V.X(u)+10,V.Y(v)-14,14,'left');const b=document.createElement('button');b.className='ptdot';b.style.left=V.X(u)+'px';b.style.top=V.Y(v)+'px';b.style.background='#fff';b.setAttribute('aria-label',n);stage.appendChild(b);setTip(b,`<b>${n} = (${f(u)}, ${f(v)})</b>, in UV<br>Target slopeX = ${f(s)}.`)}})();
+
+(function(){const rec=$('record');rec.value=`# Lesson 10.2 — Slope
+
+completed_by_learner: false
+date: ${new Date().toISOString().slice(0,10)}
+
+- x slope: height change ÷ horizontal distance. Plus rises as x grows; minus falls.
+- step = 0.01 UV is a chosen distance from W to each neighbor. A = W − (step, 0); B = W + (step, 0).
+- New lines:
+    hLeft  = height at A
+    hRight = height at B
+    deltaH = hRight − hLeft
+    deltaX = 2 × step
+    slopeX = deltaH ÷ deltaX
+- Teaching W = (0.72, 0.50), A = (0.71, 0.50), B = (0.73, 0.50):
+  hLeft = 0.08, hRight = 0.06, deltaH = −0.02, deltaX = 0.02, slopeX = −1.
+- The result is the average slope between A and B, used as an estimate at W. It is not an exact derivative.
+- Zero x slope means equal left and right neighbor heights, not zero height and not a flat surface along y.
+- Display only: red = clamp(0.15 + slopeX ÷ 4, 0.15, 1); blue = clamp(0.15 − slopeX ÷ 4, 0.15, 1); green = 0.15.
+  Zero slope stores (0.15, 0.15, 0.15), dark gray. The display range 4 is a chosen dial, not part of slopeX.
+- Metal exercise: roundedRectHeightForSlope and roundedRectSlopeX in chapter10/SlopeExercise.metal.
+  Explorer: chapter10/SlopeMap.metal + chapter10/SlopeExplorer.swift.
+- Next: Lesson 10.3 — Surface normal: use x and y slopes to make a direction away from the surface.`;$('recBtn').onclick=async()=>{let ok=false;try{if(navigator.clipboard){await navigator.clipboard.writeText(rec.value);ok=true}}catch{}if(!ok){rec.select();try{ok=document.execCommand('copy')}catch{}}$('recMsg').textContent=ok?'Copied.':'Select the text and copy it by hand.'}})();
+
+drawShared();
+</script>
+</body>
+</html>
