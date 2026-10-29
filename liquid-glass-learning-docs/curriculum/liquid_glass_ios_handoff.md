@@ -244,17 +244,15 @@ One graphics idea: a signed x-slope number says whether the surface rises or fal
 ### Lesson 10.3 — Surface normal
 
 ```text
-A = W − (step, 0); B = W + (step, 0)
 D = W − (0, step); E = W + (0, step)
-slopeX = (hRight − hLeft) ÷ (2 × step)
-slopeY = (hBelow − hAbove) ÷ (2 × step)
-rawNormal = (−slopeX, −slopeY, 1)
-normalLength = √(rawNormal.x² + rawNormal.y² + rawNormal.z²)
+slopeY = (hE − hD) ÷ (2 × step)
+rawNormal = (−slopeX, −slopeY, 1)        (quarter turn of each slope triangle)
+normalLength = √(x² + y² + z²)           (Lesson 9.1 twice)
 N = rawNormal ÷ normalLength
-RGB = N × 0.5 + 0.5                         (display only)
+RGB = N × 0.5 + 0.5                      (display only)
 ```
 
-One graphics idea: a unit surface normal points straight away from the surface. One math idea: divide the raw 3D direction by its length. C = `(0.50, 0.50)`, radius 0.25, bevel 0.10, step 0.01. Teaching W = `(0.72, 0.50)` has slopeX −1 and slopeY 0, so rawNormal = `(1, 0, 1)`, normalLength = √2 = 1.414214, and N = `(0.707107, 0, 0.707107)`. RGB = `(0.853553, 0.5, 0.853553)`. iOS: `chapter10/NormalMap.metal` + `NormalExplorer.swift`; exercise `NormalExercise.metal` (`roundedRectHeightForNormal`, `roundedRectNormal`), `NormalExerciseKey.metal`, and `NormalExerciseView.swift`, wired into `Chapter10Screen` before Lesson 10.2. The full app builds for the iPhone 16 Pro simulator. `LabHost` uses cold-launch state initialized to the latest chapter and a `ScrollViewReader` that brings the selected chip into view. Browser: 59 interaction checks, 2,420 finite unit-normal states, no runtime errors or horizontal overflow, all five stepper states, 3D drag/zoom/presets, point drags and popups, challenge cases, all nine exercise choices, and direct-file cold start pass at 1920×1080. A separate sweep of 116 changed HTML pages has no runtime errors or overflow and no broken local links. On-device: the final restored app builds; cold launch selects Chapter 10 with its chip visible; the normal map renders; the untouched stubs show a red rim; the temporary answer-key solution shows no red pixels. The learner stubs, original explorer order, exercise text, and 360 pt check were restored before the final build.
+Regenerated from scratch on 2026-10-28 (the earlier version was replaced, not copied); not learner-confirmed. One graphics idea: the normal stands at a square corner to the surface (a side-view quarter turn). One math idea: a 3D length by Pythagoras twice. Teaching W = (0.72, 0.50): slopeX −1, hD = hE = 0.071, slopeY 0, rawNormal (1, 0, 1), length 1.414, N = (0.707, 0, 0.707), stores (0.8535, 0.50, 0.8535). Section 2 test surface: slopes −0.45 / −0.60 → (0.45, 0.60, 1), shadow 0.75, length 1.25, N = (0.36, 0.48, 0.80). Exercises: the flat top, the top rim (y part), equal unit lengths, N along the rim circle's radius KH. iOS (rewritten): `chapter10/NormalMap.metal` + `NormalExplorer.swift`; Metal exercise `NormalExercise.metal` (`unitNormalFromSlopes`, `buttonNormal`; `buttonHeightForNormal` prepared), `NormalExerciseKey.metal`, `NormalExerciseView.swift`. Builds for the iPhone 16 Pro simulator; the stubs show a red rim, the answer shows none. Browser QA: 3,527 calculation lines audited, 0 problems; drags, popups, the chain window and the challenge checked at 1920×1080.
 
 ## Side lesson — Safari shortcut, Section 4 revised 2026-10-26
 
