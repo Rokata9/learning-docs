@@ -1,6 +1,6 @@
 # Liquid Glass iOS course — implementation handoff
 
-**Updated:** 2026-10-28
+**Updated:** 2026-10-29
 
 ## Read order
 
@@ -246,13 +246,13 @@ One graphics idea: a signed x-slope number says whether the surface rises or fal
 ```text
 D = W − (0, step); E = W + (0, step)
 slopeY = (hE − hD) ÷ (2 × step)
-rawNormal = (−slopeX, −slopeY, 1)        (quarter turn of each slope triangle)
+rawNormal = (−slopeX, −slopeY, 1)        (quarter turn of the walks (1, slopeX), (1, slopeY))
 normalLength = √(x² + y² + z²)           (Lesson 9.1 twice)
 N = rawNormal ÷ normalLength
 RGB = N × 0.5 + 0.5                      (display only)
 ```
 
-Regenerated from scratch on 2026-10-28 (the earlier version was replaced, not copied); not learner-confirmed. One graphics idea: the normal stands at a square corner to the surface (a side-view quarter turn). One math idea: a 3D length by Pythagoras twice. Teaching W = (0.72, 0.50): slopeX −1, hD = hE = 0.071, slopeY 0, rawNormal (1, 0, 1), length 1.414, N = (0.707, 0, 0.707), stores (0.8535, 0.50, 0.8535). Section 2 test surface: slopes −0.45 / −0.60 → (0.45, 0.60, 1), shadow 0.75, length 1.25, N = (0.36, 0.48, 0.80). Exercises: the flat top, the top rim (y part), equal unit lengths, N along the rim circle's radius KH. iOS (rewritten): `chapter10/NormalMap.metal` + `NormalExplorer.swift`; Metal exercise `NormalExercise.metal` (`unitNormalFromSlopes`, `buttonNormal`; `buttonHeightForNormal` prepared), `NormalExerciseKey.metal`, `NormalExerciseView.swift`. Builds for the iPhone 16 Pro simulator; the stubs show a red rim, the answer shows none. Browser QA: 3,527 calculation lines audited, 0 problems; drags, popups, the chain window and the challenge checked at 1920×1080.
+Regenerated from scratch on 2026-10-28 (the earlier version was replaced, not copied); Sections 1–2 rebuilt on 2026-10-29 after a learner confusion report; not learner-confirmed. One graphics idea: the normal stands at a square corner to the surface. Section 1 teaches it on a test ramp drawn on grid squares: the walk (4, −3), written (x part, height part), turns a quarter turn into (3, 4); a rising ramp shows why the minus (4, 3) → (−3, 4); a walk of 1 gives (1, slope) → (−slope, 1); the length is drawn as the squares on the three sides; N ends on the circle of radius 1 around H; Steps 9–10 return to W and the row. Section 2 introduces the 3D view first (from above, then a tilt with Q = (0.90, 0.90, 0.35)), puts a corner box with the directions and the eye in every 3D picture, names views by where the eye stands, and shows a flat companion picture beside each 3D step. One math idea: a 3D length by Pythagoras twice. Teaching W = (0.72, 0.50): slopeX −1, hD = hE = 0.071, slopeY 0, rawNormal (1, 0, 1), length 1.414, N = (0.707, 0, 0.707), stores (0.8535, 0.50, 0.8535). Section 2 test surface, the tilted board: slopes −0.45 / −0.60 → front arrow (0.45, 0, 1), side arrow (0, 0.60, 1) → (0.45, 0.60, 1), shadow 0.75, length 1.25, N = (0.36, 0.48, 0.80). Exercises: the flat top, the top rim (y part), equal unit lengths, N along the rim circle's radius KH. iOS (rewritten): `chapter10/NormalMap.metal` + `NormalExplorer.swift`; Metal exercise `NormalExercise.metal` (`unitNormalFromSlopes`, `buttonNormal`; `buttonHeightForNormal` prepared), `NormalExerciseKey.metal`, `NormalExerciseView.swift`. Builds for the iPhone 16 Pro simulator; the stubs show a red rim, the answer shows none. Browser QA: 3,527 calculation lines audited, 0 problems; drags, popups, the chain window and the challenge checked at 1920×1080. Revision QA (2026-10-29): all 20 stepper states inspected, 258 calculation lines audited, 0 problems; no runtime errors or overflow. Feedback → rules: `AGENTS.md` rules 2, 5, 6, 15, 19, 20 (see `CURRENT_STATE.md`, 2026-10-29).
 
 ## Side lesson — Safari shortcut, Section 4 revised 2026-10-26
 

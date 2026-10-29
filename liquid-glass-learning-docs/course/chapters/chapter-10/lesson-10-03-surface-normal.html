@@ -23,8 +23,8 @@
   figcaption{font-size:14px;color:#4b5563;max-width:100ch;margin-top:8px}.stage{position:relative}
   .heroGrid{display:grid;grid-template-columns:760px 760px;gap:28px;align-items:start}
   .wideGrid{display:grid;grid-template-columns:1084px minmax(0,1fr);gap:24px;align-items:start}
-  .pics{display:grid;grid-template-columns:300px 760px;gap:24px;align-items:start}.span{grid-column:1/-1}
   .grid3d{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start}
+  .s2grid{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start;margin-top:14px}.s2cap{min-height:200px;margin-bottom:12px}
   .labTop{display:grid;grid-template-columns:760px 440px minmax(0,1fr);gap:20px;align-items:start}
   .labSides{display:grid;grid-template-columns:760px 760px;gap:20px;align-items:start;margin-top:14px}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -92,6 +92,7 @@
         <li><span class="swl" style="background:#a3e635"></span><b>The lime line</b>: the pixel row y = 0.50. The right picture shows the glass cut along this row.</li>
         <li><span class="swl" style="background:#475569"></span><b>Gray arrows</b>: the normal at many pixels. In both pictures each arrow is drawn 0.06 UV long.</li>
         <li><span class="swl" style="background:#ec4899"></span><b>The pink arrow N</b> at <b>W = (0.72, 0.50)</b>: the pixel this lesson traces. It starts at <b>H</b>, the surface point above W.</li>
+        <li><span class="swl" style="background:#cbd5e1"></span><b>The box in the top-right corner</b> of the 3D picture: the directions x, y and height as this view shows them, and where your eye stands over the picture. Section 2 explains the 3D view step by step.</li>
       </ul>
     </div>
   </div>
@@ -105,70 +106,71 @@
       <li><a href="../chapter-09/lesson-09-01-distance-between-two-points.html">Lesson 9.1</a>: the long side of a right triangle is <code>√(leg² + leg²)</code>. The countable case is 3, 4, 5.</li>
       <li><a href="../chapter-09/lesson-09-10-build-a-displacement-field.html">Lesson 9.10</a>: <b>normalization</b>. <code>dir = p / length(p)</code> keeps the direction of p and makes its length 1.</li>
       <li><a href="lesson-10-01-height-map-idea.html">Lesson 10.1</a>: <code>h</code>, the surface height above a pixel, in UV. The rim is a quarter of the rim circle with center K.</li>
-      <li><a href="lesson-10-02-slope.html">Lesson 10.2</a>: <code>slopeX = (hRight − hLeft) ÷ (2 × step)</code>. At W = (0.72, 0.50) it is −1.</li>
+      <li><a href="lesson-10-02-slope.html">Lesson 10.2</a>: slope = height change ÷ horizontal distance. <code>slopeX = (hRight − hLeft) ÷ (2 × step)</code>, measured from A to B. At W = (0.72, 0.50): −0.02 ÷ 0.02 = −1.</li>
     </ul></div>
     <div><b>New here</b><ul>
-      <li><b>Surface normal</b>: an arrow that starts on the surface and stands at a square corner to it, pointing out of the glass. <a href="#s1">Section 1</a>.</li>
-      <li><b>The quarter turn</b>: turning a slope triangle by 90° gives the arrow <code>(−slope, 1)</code>. <a href="#s1">Section 1</a>.</li>
-      <li><b>slopeY</b>: Lesson 10.2's slope, measured along y. <a href="#s2">Section 2</a>.</li>
-      <li><b>Length of a 3D arrow</b>: Lesson 9.1's triangle used twice, <code>√(x² + y² + z²)</code>. <a href="#s2">Section 2</a>.</li>
-      <li><b>N, the unit normal</b>: the normal divided by its own length, so its length is 1. <a href="#s2">Section 2</a>.</li>
-      <li><b>float3</b> (Metal): one value that holds three numbers. <a href="#s5">Section 5</a>.</li>
+      <li><b>Surface normal</b>: an arrow that starts on the surface and stands at a square corner to it, pointing out of the glass. <a href="#s1">Section 1</a>, Step 1.</li>
+      <li><b>(x part, height part)</b>: an arrow written as two numbers: how far right it goes, and how far up. Minus means left or down. <a href="#s1">Section 1</a>, Step 2.</li>
+      <li><b>The walk and the quarter turn</b>: the walk (1, slope) lies along the surface; turned by 90° it becomes <code>(−slope, 1)</code>, at a square corner to the surface. <a href="#s1">Section 1</a>, Steps 2–6.</li>
+      <li><b>rawNormal</b>: that turned arrow before its length is made 1. <b>N</b>, the unit normal: rawNormal divided by its own length, so N is 1 long. <a href="#s1">Section 1</a>, Steps 6–8.</li>
+      <li><b>slopeY</b>: Lesson 10.2's slope, measured along y, from D to E. <a href="#s2">Section 2</a>.</li>
+      <li><b>3D arrows</b>: three parts, (x part, y part, height part). Their length is √(x² + y² + height²), Lesson 9.1's triangle used twice. <a href="#s2">Section 2</a>, Steps 2, 8, 9.</li>
+      <li><b>float3</b> (Metal): one value that holds three numbers, <code>.x</code>, <code>.y</code>, <code>.z</code>; z is the height part. <a href="#s5">Section 5</a>.</li>
     </ul></div>
   </div>
 </aside>
 
 <!-- ============================ SECTION 1 ============================ -->
 <h2 id="s1"><span class="tag">Section 1 · the idea in pictures</span>One slope gives one arrow</h2>
-<p>We start with one cut through the glass: the pixel row through W, seen from the front. In this picture the surface is a line, so “at a square corner to the surface” is easy to draw. Press <b>Next</b>. Each step adds one object or operation.</p>
+<p>We start in a <b>side view</b>. A side view shows only two directions: x (to the right) and height (up). In a side view the surface is a line, so “an arrow at a square corner to the surface” is easy to draw. Steps 1–8 learn the idea on a straight <b>test ramp</b>. Steps 9–10 go back to the glass. Press <b>Next</b>. Each step adds one object or one operation.</p>
 <div class="wideGrid">
-  <div class="pics">
-    <div><div class="stage" id="s1MapStage"><canvas id="s1Map" width="300" height="300"></canvas></div><p class="small">From above: the height map of Lesson 10.1 (black 0, white the flat top) and the lime pixel row through W.</p></div>
-    <div class="stage" id="s1SideStage"><canvas id="s1Side" width="760" height="470"></canvas></div>
-    <div class="span"><table class="trace" id="s1Table"></table></div>
-    <div class="span"><ul class="legend two" id="s1Legend"></ul></div>
+  <div>
+    <div class="stage" id="s1Stage"><canvas id="s1Cv" width="1084" height="500"></canvas></div>
   </div>
   <div><div class="stepnav"><button class="btn" id="s1Prev">← Back</button><button class="btn" id="s1Next">Next →</button><div class="dots" id="s1Dots"></div></div>
     <div class="stepcap" id="s1Cap" aria-live="polite"></div>
-    <p class="small"><b>The arrow ruler.</b> An arrow here is a direction: how far it goes across for how far it goes up. It has no UV size. The page draws 1 as a fixed number of picture pixels, printed on the ruler in the picture.</p>
+    <div class="ctl" id="s1TurnCtl" hidden><label><span class="ctlname">turn</span><input type="range" id="s1Turn" min="0" max="90" step="1" value="90" aria-label="How far the triangle is turned, in degrees"><span class="mono" id="s1TurnV">90°</span></label></div>
+    <p class="small" id="s1TurnHint" hidden>Drag the <b>turn</b> slider from 0° to 90° and watch the triangle turn around H.</p>
   </div>
 </div>
+<table class="trace" id="s1Table"></table>
+<ul class="legend two" id="s1Legend"></ul>
 
 <!-- ============================ SECTION 2 ============================ -->
 <h2 id="s2"><span class="tag">Section 2 · the idea in pictures</span>Two slopes give one arrow in 3D</h2>
-<p>Section 1 looked only along x. The surface can also tilt along y: toward the top or the bottom of the picture. So we measure a second slope, exactly like Lesson 10.2, but with two neighbors on the pixel column through W.</p>
+<p>Section 1 looked only along x. But the glass can also get higher or lower toward the top or the bottom of the picture. So each pixel needs a second slope, measured exactly like Lesson 10.2, but with two neighbors on the pixel column through W.</p>
 <div class="pair">
   <div class="stage" id="s2DefStage"><canvas id="s2Def" width="300" height="300"></canvas><p class="small">From above, enlarged around W: x from 0.62 to 0.82, y from 0.40 to 0.60 (×5 of a 300-pixel map).</p></div>
   <div>
-    <table class="trace" style="max-width:860px">
+    <table class="trace" style="max-width:900px">
       <tr><th>Slope</th><th>Neighbors</th><th>Formula</th><th>Meaning</th></tr>
-      <tr><td><b>slopeX</b> <button class="info" data-tip="slopeX">ⓘ</button></td><td class="f">A = W − (step, 0)<br>B = W + (step, 0)</td><td class="f">slopeX = (hRight − hLeft) ÷ (2 × step)</td><td>Lesson 10.2: height change per 1 that x grows (to the right).</td></tr>
-      <tr class="new"><td><b>slopeY</b></td><td class="f">D = W − (0, step)<br>E = W + (0, step)</td><td class="f">slopeY = (hE − hD) ÷ (2 × step)</td><td>New: height change per 1 that y grows, toward the bottom of the picture. hD and hE are the heights above D and E.</td></tr>
+      <tr><td><b>slopeX</b> <button class="info" data-tip="slopeX">ⓘ</button></td><td class="f">A = W − (step, 0)<br>B = W + (step, 0)</td><td class="f">slopeX = (hRight − hLeft) ÷ (2 × step)</td><td>Lesson 10.2: the height change from A to B, divided by the distance from A to B. A and B lie on the lime pixel row: x grows from A to B.</td></tr>
+      <tr class="new"><td><b>slopeY</b></td><td class="f">D = W − (0, step)<br>E = W + (0, step)</td><td class="f">slopeY = (hE − hD) ÷ (2 × step)</td><td>New: the same, from D to E. D and E lie on the orange pixel column: y grows from D to E, toward the bottom of the picture. hD and hE are the heights above D and E.</td></tr>
     </table>
     <ul class="legend">
       <li><span class="swd" style="background:#2563eb"></span><b>A</b> and <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f59e0b;border:2px solid #111827;vertical-align:-1px"></span> <b>B</b>: one step left and right of W, on the lime pixel row.</li>
       <li><span class="swd" style="background:#14b8a6"></span><b>D</b> and <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f43f5e;border:2px solid #111827;vertical-align:-1px"></span> <b>E</b>: one step toward the top and toward the bottom of the picture, on the orange pixel column.</li>
     </ul>
-    <p>A pixel now has two slopes. A flat surface that tilts in both directions has the same two slopes everywhere, so it is the clearest test case. The stepper below uses one: <b>slopeX = −0.45</b> and <b>slopeY = −0.60</b>, chosen round numbers, not a pixel of the glass. The traced pixel W comes back in Section 3.</p>
+    <p>So a pixel has two slopes. To see what two slopes do together we need a 3D picture. The stepper below first shows how this page draws 3D (Steps 1–2). Then it uses a test surface whose slopes are round numbers: <b>slopeX = −0.45</b> and <b>slopeY = −0.60</b>. The traced pixel W comes back in Section 3.</p>
   </div>
 </div>
-<div class="grid3d" style="margin-top:14px">
+<div class="s2grid">
   <div>
-    <div class="stage" id="s2Stage"><canvas id="s2Cv" width="760" height="500"></canvas></div>
+    <div class="stage" id="s2Stage"><canvas id="s2Cv" width="760" height="520"></canvas></div>
     <div class="viewbar" id="s2Bar"></div>
-    <table class="trace" id="s2Table"></table>
-    <ul class="legend two" id="s2Legend"></ul>
   </div>
   <div><div class="stepnav"><button class="btn" id="s2Prev">← Back</button><button class="btn" id="s2Next">Next →</button><div class="dots" id="s2Dots"></div></div>
-    <div class="stepcap" id="s2Cap" aria-live="polite"></div>
-    <p class="small">Each step moves the camera to the view that shows its fact at true size. You can still drag the picture to turn it, and use the view buttons under it.</p>
+    <div class="stepcap s2cap" id="s2Cap" aria-live="polite"></div>
+    <div class="stage" id="s2SideStage"><canvas id="s2Side" width="760" height="300"></canvas></div>
   </div>
 </div>
-<div class="note"><b>The idea in one line.</b> The x slope gives the x part, the y slope gives the y part, and the turned “1 across” gives the height part: <code>rawNormal = (−slopeX, −slopeY, 1)</code>. Dividing by its length <code>√(x² + y² + z²)</code> gives <code>N</code>, the same direction with length 1.</div>
+<table class="trace" id="s2Table"></table>
+<ul class="legend two" id="s2Legend"></ul>
+<div class="note"><b>The idea in one line.</b> The x slope gives the x part, the y slope gives the y part, and the turned walk of 1 gives the height part: <code>rawNormal = (−slopeX, −slopeY, 1)</code>. Dividing each part by the length <code>√(x² + y² + height²)</code> gives <code>N</code>: the same direction, 1 long. In Metal code (Section 5) the three parts sit in one <code>float3</code> and are called <code>.x</code>, <code>.y</code> and <code>.z</code>; <b>z is the height part</b>.</div>
 
 <!-- ============================ SECTION 3 ============================ -->
 <h2 id="s3"><span class="tag">Section 3 · one value, traced to the end</span>W stores (0.8535, 0.50, 0.8535)</h2>
-<p>The glass: C = (0.50, 0.50), radius 0.25, bevel 0.10 <button class="info" data-tip="bevel">ⓘ</button>. The neighbor distance: step = 0.01 <button class="info" data-tip="step">ⓘ</button>. All positions and heights are in UV, from the picture's top-left corner, y down. Read the cards in order. Every line does one operation and is rounded to 3 decimals; a result with at most 4 decimals stays exact.</p>
+<p>The glass: C = (0.50, 0.50), radius 0.25, bevel 0.10 <button class="info" data-tip="bevel">ⓘ</button>. The neighbor distance: step = 0.01 <button class="info" data-tip="step">ⓘ</button>. All positions and heights are in UV, from the picture's top-left corner, y down. Read the cards in order. Every line does one operation and is rounded to 3 decimals; a result with at most 4 decimals stays exact. From here on the names follow the Metal code: <b>rawNormal.x</b>, <b>rawNormal.y</b> and <b>rawNormal.z</b> are rawNormal's x part, y part and height part, and x², y², z² are their squares.</p>
 <div class="cards" id="traceCards"></div>
 
 <!-- ============================ SECTION 4 ============================ -->
@@ -230,8 +232,8 @@
   <tr><td class="f">hLeft, hRight</td><td>Heights one step left and right of the pixel.</td><td>Lesson 10.2</td></tr>
   <tr class="new"><td class="f">hD = circleHeightForNormal(uv - float2(0.0, step), …)</td><td>Height one step toward the top of the picture: the x part of the move is 0, the y part is −step. <code>hE</code> uses +step.</td><td>New in this lesson.</td></tr>
   <tr><td class="f">slopeX = (hRight - hLeft) / (2.0 * step)</td><td>Lesson 10.2's three lines (deltaH, deltaX, slopeX) written as one line. The brackets are computed first.</td><td>Lesson 10.2</td></tr>
-  <tr class="new"><td class="f">slopeY = (hE - hD) / (2.0 * step)</td><td>The same slope along y: height change per 1 that y grows.</td><td>New in this lesson (Section 2).</td></tr>
-  <tr class="new"><td class="f">float3 rawNormal = float3(-slopeX, -slopeY, 1.0)</td><td><b>New type:</b> a <code>float3</code> holds three numbers, read as <code>.x</code>, <code>.y</code>, <code>.z</code>, like the two of a <code>float2</code> (Lesson 8.7). Here x and y are the lean of the arrow and z is its height part. The minus signs and the 1 come from the quarter turn.</td><td>New in this lesson (Sections 1–2).</td></tr>
+  <tr class="new"><td class="f">slopeY = (hE - hD) / (2.0 * step)</td><td>The same slope along y: the height change from D to E, divided by their distance 2 × step.</td><td>New in this lesson (Section 2).</td></tr>
+  <tr class="new"><td class="f">float3 rawNormal = float3(-slopeX, -slopeY, 1.0)</td><td><b>New type:</b> a <code>float3</code> holds three numbers, read as <code>.x</code>, <code>.y</code>, <code>.z</code>, like the two of a <code>float2</code> (Lesson 8.7). Here x and y are the arrow's x part and y part, and z is its height part. The minus signs come from the quarter turn (Section 1, Step 5); the 1 is the turned walk of 1 (Section 1, Step 6).</td><td>New in this lesson (Sections 1–2).</td></tr>
   <tr class="new"><td class="f">float normalLength = length(rawNormal)</td><td><code>length</code> of a <code>float3</code> is <code>√(x² + y² + z²)</code>: Lesson 9.1's triangle used twice.</td><td>New use of Lesson 9.1's <code>length</code> (Section 2).</td></tr>
   <tr class="new"><td class="f">float3 N = rawNormal / normalLength</td><td>Divides each of the three numbers by the same length. The direction stays, the length becomes 1.</td><td>Lesson 9.10's normalization, now with three numbers.</td></tr>
   <tr><td class="f">float3 rgb = N * 0.5 + 0.5</td><td>Display only. Each part of N is between −1 and 1. A color channel holds 0 to 1. × 0.5 gives −0.5 to 0.5, and + 0.5 gives 0 to 1.</td><td>New display rule (Section 3, last card).</td></tr>
@@ -241,16 +243,16 @@
 
 <!-- ============================ SECTION 6 ============================ -->
 <h2 id="s6"><span class="tag">Section 6 · coding challenge</span>Challenge: write the rawNormal line</h2>
-<p>The two slopes are ready. Write the right side of the <code>rawNormal</code> line. The page tests the tilted surface of Section 2 and several other slope pairs.</p>
+<p>The two slopes are ready. Write the right side of the <code>rawNormal</code> line. The page tests the tilted board of Section 2 and several other slope pairs.</p>
 <pre class="code">float slopeX = (hRight - hLeft) / (2.0 * step);
 float slopeY = (hE - hD) / (2.0 * step);
 float3 rawNormal = <span class="nw">???</span>;</pre>
 <div class="grid3d">
   <div><div class="stage" id="chStage"><canvas id="chCv" width="760" height="420"></canvas></div><div class="viewbar" id="chBar"></div>
-    <figcaption>The tilted surface of Section 2. The pink arrow is the correct N. The teal arrow is your rawNormal divided by its length, so only its direction is compared.</figcaption></div>
+    <figcaption>The tilted board of Section 2 (slopeX = −0.45, slopeY = −0.60). The pink arrow is the correct N. The arrow labelled “your arrow ÷ its length” is your rawNormal divided by its length, so only its direction is compared.</figcaption></div>
   <div><div class="ctl"><span class="mono">float3 rawNormal =</span><input id="chIn" type="text" spellcheck="false" autocomplete="off" placeholder="float3(…, …, …)" aria-label="The right side of the rawNormal line"><button class="btn" id="chBtn">Run</button></div>
     <div class="verdict" id="chVerdict" aria-live="polite"></div>
-    <details><summary>Hint</summary><div class="body"><p>Section 1: a quarter turn makes “1 across” into the height part 1, and makes the slope leg point the other way along x. Section 2 does the same along y. Write three numbers in <code>float3( , , )</code>.</p></div></details>
+    <details><summary>Hint</summary><div class="body"><p>Section 1, Steps 5–6: the walk (1, slope) turns into (−slope, 1). The 1 is the turned walk of 1 and becomes the height part. Section 2, Step 7 does the same along y. Write three numbers in <code>float3(x part, y part, height part)</code>.</p></div></details>
   </div>
 </div>
 
@@ -265,9 +267,9 @@ float3 rawNormal = <span class="nw">???</span>;</pre>
       <p><b>What this checks.</b> Whether the height part of the arrow comes from the height (it does not) and what zero slopes give.</p>
       <p><b>What you do.</b> Read the four neighbor heights off the picture, make both slopes, then build <code>(−slopeX, −slopeY, 1)</code> and its length.</p>
       <p><b>Question:</b> the flat top: what is N at the center?</p>
-      <div class="choices"><button class="btn" data-ok="1" data-why="Right. All four heights are 0.10, so both slopes are 0 ÷ 0.02 = 0. rawNormal = (0, 0, 1), its length is 1, and N = (0, 0, 1): straight up, toward your eye.">N = (0, 0, 1): straight up</button><button class="btn" data-ok="0" data-why="Not this one. The height part of the arrow is the turned “1 across”, not the surface height. The height 0.10 cancels in hRight − hLeft.">N = (0, 0, 0.10): the height of the flat top</button><button class="btn" data-ok="0" data-why="Not this one. Zero slopes make the two lean parts 0, but the height part stays 1. A surface always faces some way.">N = (0, 0, 0): no slope, no arrow</button></div><div class="verdict" aria-live="polite"></div>
+      <div class="choices"><button class="btn" data-ok="1" data-why="Right. All four heights are 0.10, so both slopes are 0 ÷ 0.02 = 0. rawNormal = (0, 0, 1), its length is 1, and N = (0, 0, 1): straight up, toward your eye.">N = (0, 0, 1): straight up</button><button class="btn" data-ok="0" data-why="Not this one. The height part of the arrow is the turned walk of 1 (Section 1, Step 6), not the surface height. The height 0.10 cancels in hRight − hLeft.">N = (0, 0, 0.10): the height of the flat top</button><button class="btn" data-ok="0" data-why="Not this one. Zero slopes make the two lean parts 0, but the height part stays 1. A surface always faces some way.">N = (0, 0, 0): no slope, no arrow</button></div><div class="verdict" aria-live="polite"></div>
     </div></div>
-  <details><summary>Show the answer</summary><div class="body"><div class="pair"><div class="stage" id="ex1aStage"><canvas id="ex1a" width="620" height="330"></canvas><figcaption><b>The reason, cut along the row y = 0.50.</b> The slope triangle has no slope leg. A quarter turn makes “1 across” into “1 up”.</figcaption></div><div class="readout" id="ex1aText"></div></div></div></details>
+  <details><summary>Show the answer</summary><div class="body"><div class="pair"><div class="stage" id="ex1aStage"><canvas id="ex1a" width="620" height="330"></canvas><figcaption><b>The reason, cut along the row y = 0.50.</b> On the flat top the walk (1, 0) has no height part. Its quarter turn is (0, 1): straight up.</figcaption></div><div class="readout" id="ex1aText"></div></div></div></details>
 </div></details>
 
 <details class="ex"><summary>Exercise 2 — the top rim: which way does N lean?</summary><div class="body">
@@ -279,7 +281,7 @@ float3 rawNormal = <span class="nw">???</span>;</pre>
       <p><b>Question:</b> the top rim: which way does N lean?</p>
       <div class="choices"><button class="btn" data-ok="0" data-why="Not this one. slopeY = (0.08 − 0.06) ÷ 0.02 = +1, so the y part is −1: it points toward smaller y, the top of the picture. Toward C would be +y here.">Toward C, the bottom of the picture</button><button class="btn" data-ok="1" data-why="Right. slopeY = +1 (the surface rises toward the bottom of the picture), so the y part is −1. N = (0, −0.707, 0.707) leans toward the top of the picture: out of the glass.">Toward the top of the picture, out of the glass</button><button class="btn" data-ok="0" data-why="Not this one. A and B have equal heights, so x does not lean. But D and E differ, so y leans.">It does not lean: slopeX is 0</button></div><div class="verdict" aria-live="polite"></div>
     </div></div>
-  <details><summary>Show the answer</summary><div class="body"><div class="pair"><div class="stage" id="ex2aStage"><canvas id="ex2a" width="620" height="330"></canvas><figcaption><b>The reason, cut along the pixel column x = 0.50, turned on its side.</b> The top of the picture is on the left. The arrow leans left: toward the top of the picture.</figcaption></div><div class="readout" id="ex2aText"></div></div></div></details>
+  <details><summary>Show the answer</summary><div class="body"><div class="pair"><div class="stage" id="ex2aStage"><canvas id="ex2a" width="620" height="330"></canvas><figcaption><b>The reason, cut along the pixel column x = 0.50, as in Section 2's side view.</b> The top of the picture is on the left. The walk rises (slopeY = +1); its quarter turn leans left: toward the top of the picture.</figcaption></div><div class="readout" id="ex2aText"></div></div></div></details>
 </div></details>
 
 <details class="ex"><summary>Exercise 3 — two rim pixels: which N is longer?</summary><div class="body">
@@ -386,7 +388,7 @@ const $=id=>document.getElementById(id);
 const RAD=0.25;
 const TP={c:[0.5,0.5],bev:0.10,step:0.01};          // the lesson's glass, fixed
 const S={c:[0.5,0.5],w:[0.72,0.5],bev:0.10,step:0.01,mode:'normal',arrows:true};   // the lab
-const COL={glass:'#a855f7',fill:'#f3e8ff',row:'#a3e635',col:'#fb923c',A:'#2563eb',B:'#f59e0b',D:'#14b8a6',E:'#f43f5e',across:'#22d3ee',slope:'#facc15',raw:'#6366f1',N:'#ec4899',screen:'#334155',ink:'#111827',halo:'rgba(17,24,39,0.92)',gray:'#475569',kh:'#15803d',wh:'#64748b',ch:'#b45309',you:'#0f766e',card:'#dbeafe',cardLine:'#1e40af'};
+const COL={glass:'#a855f7',fill:'#f3e8ff',row:'#a3e635',col:'#fb923c',A:'#2563eb',B:'#f59e0b',D:'#14b8a6',E:'#f43f5e',across:'#22d3ee',slope:'#facc15',raw:'#6366f1',N:'#ec4899',screen:'#334155',ink:'#111827',halo:'rgba(17,24,39,0.92)',gray:'#475569',kh:'#15803d',wh:'#64748b',ch:'#b45309',you:'#d97706',card:'#dbeafe',cardLine:'#1e40af',xP:'#84cc16',xT:'#3f6212',yP:'#fb923c',yT:'#9a3412',hP:'#38bdf8',hT:'#075985',walk:'#0f766e',front:'#a5b4fc'};
 const clamp=(x,lo,hi)=>Math.min(Math.max(x,lo),hi);
 const R12=x=>Math.round(x*1e12)/1e12;
 const DEG=Math.PI/180;
@@ -451,9 +453,9 @@ function chainOf(w,P,dec){
   G.push({title:'slopeX · Lesson 10.2',lines:T.take(),isNew:false});
   const dyh=T.sub('ΔhY = hE − hD',he,hd),dist2=T.mul('2 × step',2,s),sy=T.div('slopeY',dyh,dist2);
   G.push({title:'slopeY · new',lines:T.take(),isNew:true});
-  const rx=T.neg('raw.x = −slopeX',sx),ry=T.neg('raw.y = −slopeY',sy);T.push('raw.z = 1');
+  const rx=T.neg('rawNormal.x = −slopeX',sx),ry=T.neg('rawNormal.y = −slopeY',sy);T.push('rawNormal.z = 1 (the height part: the turned walk of 1)');
   T.push(`rawNormal = (${T.t(rx)}, ${T.t(ry)}, 1)`);
-  G.push({title:'rawNormal · new (the quarter turn)',lines:T.take(),isNew:true});
+  G.push({title:'rawNormal · new (the quarter turn of the walks)',lines:T.take(),isNew:true});
   const x2=T.sq('x²',rx),y2=T.sq('y²',ry),z2=T.sq('z²',1),s1=T.add('x² + y²',x2,y2,true),s2=T.add('x² + y² + z²',s1,z2,true),len=T.root('normalLength',s2);
   G.push({title:'normalLength · new',lines:T.take(),isNew:true});
   const nx=T.div('N.x',rx,len),ny=T.div('N.y',ry,len),nz=T.div('N.z',1,len);T.push(`N = (${T.t(nx)}, ${T.t(ny)}, ${T.t(nz)})`);
@@ -522,19 +524,32 @@ const BORDER=1;   /* canvases have a 1-px border: a dot over canvas pixel x sits
 
 /* ---------- a turnable 3D view: orthographic, drag to turn, Ctrl/⌘ + wheel or buttons to zoom ---------- */
 class Orbit3D{
-  constructor(stage,cv,o){Object.assign(this,{stage,cv,ctx:cv.getContext('2d'),yaw:o.yaw,pitch:o.pitch,zoom:o.zoom||1,scale:o.scale,target:o.target,cx:cv.width/2+(o.dx||0),cy:cv.height/2+(o.dy||0),draw:o.draw,home:{yaw:o.yaw,pitch:o.pitch,zoom:o.zoom||1}});
+  constructor(stage,cv,o){Object.assign(this,{stage,cv,ctx:cv.getContext('2d'),yaw:o.yaw,pitch:o.pitch,zoom:o.zoom||1,scale:o.scale,target:o.target,cx:cv.width/2+(o.dx||0),cy:cv.height/2+(o.dy||0),draw:o.draw,home:{yaw:o.yaw,pitch:o.pitch,zoom:o.zoom||1,target:[...o.target]},compass:o.compass,compassPos:o.compassPos});
     this.btns=new Map();cv.style.cursor='grab';cv.style.touchAction='none';
     cv.addEventListener('pointerdown',e=>{if(e.button!==0)return;this.drag={x:e.clientX,y:e.clientY,yaw:this.yaw,pitch:this.pitch,moved:false};try{cv.setPointerCapture(e.pointerId)}catch(_){}cv.style.cursor='grabbing'});
-    cv.addEventListener('pointermove',e=>{if(!this.drag)return;const dx=e.clientX-this.drag.x,dy=e.clientY-this.drag.y;if(Math.hypot(dx,dy)>3)this.drag.moved=true;this.anim=null;this.yaw=this.drag.yaw-dx*0.45;this.pitch=clamp(this.drag.pitch+dy*0.45,0,90);this.render()});
+    cv.addEventListener('pointermove',e=>{if(!this.drag)return;const dx=e.clientX-this.drag.x,dy=e.clientY-this.drag.y;if(Math.hypot(dx,dy)<=3&&!this.drag.moved)return;this.drag.moved=true;this.anim=null;this.yaw=this.drag.yaw-dx*0.45;this.pitch=clamp(this.drag.pitch+dy*0.45,0,90);this.render()});
     const up=()=>{if(this.drag?.moved)suppressNow();this.drag=null;cv.style.cursor='grab'};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
     cv.addEventListener('wheel',e=>{if(!(e.ctrlKey||e.metaKey))return;e.preventDefault();this.zoom=clamp(this.zoom*Math.exp(-e.deltaY*0.0015),0.4,4);this.render()},{passive:false});
-    cv.addEventListener('dblclick',()=>this.setView(this.home.yaw,this.home.pitch,this.home.zoom))}
+    cv.addEventListener('dblclick',()=>this.setView(this.home.yaw,this.home.pitch,this.home.zoom,this.home.target))}
   proj(p){const t=this.target,x=p[0]-t[0],y=p[1]-t[1],z=p[2]-t[2],a=this.yaw*DEG,b=this.pitch*DEG,X1=x*Math.cos(a)-y*Math.sin(a),Y1=x*Math.sin(a)+y*Math.cos(a),up=z*Math.cos(b)-Y1*Math.sin(b),dep=Y1*Math.cos(b)+z*Math.sin(b),k=this.scale*this.zoom;return{x:this.cx+X1*k,y:this.cy-up*k,d:dep}}
   /* the floor point (height z0) under a picture position; null when the floor is seen edge-on */
   floorAt(px,py,z0=0){const b=this.pitch*DEG;if(Math.sin(b)<0.17)return null;const k=this.scale*this.zoom,X1=(px-this.cx)/k,up=(this.cy-py)/k,zr=z0-this.target[2],Y1=(zr*Math.cos(b)-up)/Math.sin(b),a=this.yaw*DEG;return[X1*Math.cos(a)+Y1*Math.sin(a)+this.target[0],-X1*Math.sin(a)+Y1*Math.cos(a)+this.target[1]]}
   render(){const c=this.ctx;c.fillStyle='#fff';c.fillRect(0,0,this.cv.width,this.cv.height);this.items=[];this.labels=[];this.pts=[];this.draw(this);
-    this.items.sort((p,q)=>p.k-q.k);for(const it of this.items)it.f(c);for(const L of this.labels)L(c);this.placePts()}
-  poly(ps,fill,stroke,lw=1){const pr=ps.map(p=>this.proj(p)),d=pr.reduce((s,q)=>s+q.d,0)/pr.length;this.items.push({k:d,f:c=>{c.beginPath();pr.forEach((q,i)=>i?c.lineTo(q.x,q.y):c.moveTo(q.x,q.y));c.closePath();if(fill){c.fillStyle=fill;c.fill()}if(stroke){c.lineWidth=lw;c.strokeStyle=stroke;c.stroke()}}})}
+    this.items.sort((p,q)=>p.k-q.k);for(const it of this.items)it.f(c);for(const L of this.labels)L(c);if(this.compass!==false)this.drawCompass(c);this.placePts()}
+  /* the corner box: the three directions as this view shows them, and where the eye stands over the picture */
+  drawCompass(c){const a=this.yaw*DEG,b=this.pitch*DEG,cw=this.cv.width,ch=this.cv.height,bw=272,bh=120,cp=this.compassPos||'bl',bx=cp[1]==='r'?cw-bw-8:8,by=cp[0]==='t'?8:ch-bh-8,FT='-apple-system,"Segoe UI",Roboto,sans-serif';
+    c.save();c.fillStyle='rgba(255,255,255,0.95)';c.strokeStyle='#cbd5e1';c.lineWidth=1;c.beginPath();c.roundRect(bx,by,bw,bh,8);c.fill();c.stroke();
+    c.font='600 12px '+FT;c.fillStyle='#4b5563';c.textAlign='left';c.textBaseline='middle';c.fillText('directions in this view',bx+10,by+13);c.fillText('your eye',bx+190,by+13);
+    const ox=bx+66,oy=by+64,L=24;let flatNote='';
+    for(const [v,col,tc,name] of [[[1,0,0],COL.xP,COL.xT,'x'],[[0,1,0],COL.yP,COL.yT,'y'],[[0,0,1],COL.hP,COL.hT,'height']]){const X1=v[0]*Math.cos(a)-v[1]*Math.sin(a),Y1=v[0]*Math.sin(a)+v[1]*Math.cos(a),up=v[2]*Math.cos(b)-Y1*Math.sin(b),dep=Y1*Math.cos(b)+v[2]*Math.sin(b),len=Math.hypot(X1,up);
+      if(len>0.2){arrow(c,ox,oy,ox+X1*L,oy-up*L,col,2.2,8);c.font='700 12px '+FT;c.fillStyle=tc;c.textAlign='center';c.fillText(name,ox+X1*(L+13),oy-up*(L+13))}
+      else{c.beginPath();c.arc(ox,oy,5,0,7);c.fillStyle=col;c.fill();c.lineWidth=1.4;c.strokeStyle='#111827';c.stroke();flatNote=name+(dep>0?' points at you':' points away from you')}}
+    if(flatNote){c.font='600 11.5px '+FT;c.fillStyle='#374151';c.textAlign='left';c.fillText(flatNote,bx+10,by+bh-11)}
+    const mx=bx+220,my=by+60,R=17;c.fillStyle='#f8fafc';c.fillRect(mx-R,my-R,2*R,2*R);c.strokeStyle='#64748b';c.lineWidth=1.2;c.strokeRect(mx-R,my-R,2*R,2*R);c.font='600 10.5px '+FT;c.fillStyle='#64748b';c.textAlign='center';c.fillText('top',mx,my-R-6);
+    const d=(R+14)*Math.cos(b),ex=mx+d*Math.sin(a),ey=my+d*Math.cos(a),ang=d>4?Math.atan2(my-ey,mx-ex):Math.PI/2;if(d>4)arrow(c,ex,ey,ex+(mx-ex)*0.5,ey+(my-ey)*0.5,'#334155',1.4,5);
+    c.save();c.translate(ex,ey);c.rotate(ang);c.beginPath();c.ellipse(0,0,5,8.5,0,0,Math.PI*2);c.fillStyle='#fff';c.fill();c.lineWidth=1.5;c.strokeStyle='#111827';c.stroke();c.beginPath();c.arc(1.8,0,2.6,0,Math.PI*2);c.fillStyle='#111827';c.fill();c.restore();
+    const p=Math.round(this.pitch);c.font='600 11.5px '+FT;c.fillStyle='#374151';c.textAlign='center';c.fillText(p>=89?'straight above':p<=1?'at eye level':'looking down '+p+'°',mx,by+bh-11);c.restore()}
+  poly(ps,fill,stroke,lw=1,layer=0){const pr=ps.map(p=>this.proj(p)),d=pr.reduce((s,q)=>s+q.d,0)/pr.length;this.items.push({k:layer*1e6+d,f:c=>{c.beginPath();pr.forEach((q,i)=>i?c.lineTo(q.x,q.y):c.moveTo(q.x,q.y));c.closePath();if(fill){c.fillStyle=fill;c.fill()}if(stroke){c.lineWidth=lw;c.strokeStyle=stroke;c.stroke()}}})}
   path(ps,color,w=2,plain=false,layer=1){const pr=ps.map(p=>this.proj(p)),d=pr.reduce((s,q)=>s+q.d,0)/pr.length;this.items.push({k:layer*1e6+d,f:c=>{const draw=()=>pr.forEach((q,i)=>i?c.lineTo(q.x,q.y):c.moveTo(q.x,q.y));if(plain){c.lineWidth=w;c.strokeStyle=color;c.lineJoin='round';c.beginPath();draw();c.stroke()}else halo(c,draw,color,w)}})}
   seg(a,b,color,w=2.5,plain=false,layer=1){this.path([a,b],color,w,plain,layer)}
   arrow(a,b,color,w=3,layer=2){const A=this.proj(a),B=this.proj(b);this.items.push({k:layer*1e6+(A.d+B.d)/2,f:c=>arrow(c,A.x,A.y,B.x,B.y,color,w)})}
@@ -546,12 +561,12 @@ class Orbit3D{
   placePts(){const seen=new Set();for(const q of this.pts){const P=this.proj(q.p);let b=this.btns.get(q.key);if(!b){b=addPt(this.stage,0,0,q.color,q.html,q.label,{small:true,key:q.key,move:q.opt.move?((cx,cy)=>q.opt.move(cx,cy,this)):null});this.btns.set(q.key,b)}
       b.style.left=(P.x+BORDER)+'px';b.style.top=(P.y+BORDER)+'px';b.style.background=q.color;tipStore.set(b,q.html);b.hidden=P.x<0||P.y<0||P.x>this.cv.width||P.y>this.cv.height;seen.add(q.key)}
     for(const [k,b] of this.btns)if(!seen.has(k)){b.remove();this.btns.delete(k)}}
-  setView(yaw,pitch,zoom=this.zoom){if(window.__QA_NOANIM||!window.requestAnimationFrame){Object.assign(this,{yaw,pitch,zoom});this.render();return}
-    const y0=this.yaw,p0=this.pitch,z0=this.zoom;let dy=yaw-y0;dy=((dy+540)%360)-180;const t0=performance.now(),me={};this.anim=me;
-    const tick=now=>{if(this.anim!==me)return;const t=Math.min(1,(now-t0)/480),e=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;this.yaw=y0+dy*e;this.pitch=p0+(pitch-p0)*e;this.zoom=z0+(zoom-z0)*e;this.render();if(t<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
+  setView(yaw,pitch,zoom=this.zoom,target=this.target){if(window.__QA_NOANIM||!window.requestAnimationFrame){Object.assign(this,{yaw,pitch,zoom,target:[...target]});this.render();return}
+    const y0=this.yaw,p0=this.pitch,z0=this.zoom,g0=[...this.target];let dy=yaw-y0;dy=((dy+540)%360)-180;const t0=performance.now(),me={};this.anim=me;
+    const tick=now=>{if(this.anim!==me)return;const t=Math.min(1,(now-t0)/900),e=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;this.yaw=y0+dy*e;this.pitch=p0+(pitch-p0)*e;this.zoom=z0+(zoom-z0)*e;this.target=g0.map((q,i)=>q+(target[i]-q)*e);this.render();if(t<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
 }
 function viewBar(bar,orb,views){bar.innerHTML='';for(const [name,yaw,pitch] of views){const b=document.createElement('button');b.className='btn';b.textContent=name;b.onclick=()=>orb.setView(yaw,pitch);bar.appendChild(b)}
-  for(const [t,fn] of [['＋',()=>{orb.zoom=clamp(orb.zoom*1.25,0.4,4);orb.render()}],['−',()=>{orb.zoom=clamp(orb.zoom/1.25,0.4,4);orb.render()}],['Reset',()=>orb.setView(orb.home.yaw,orb.home.pitch,orb.home.zoom)]]){const b=document.createElement('button');b.className='btn';b.textContent=t;b.setAttribute('aria-label',t==='＋'?'Zoom in':t==='−'?'Zoom out':'Reset the view');b.onclick=fn;bar.appendChild(b)}
+  for(const [t,fn] of [['＋',()=>{orb.zoom=clamp(orb.zoom*1.25,0.4,4);orb.render()}],['−',()=>{orb.zoom=clamp(orb.zoom/1.25,0.4,4);orb.render()}],['Reset',()=>orb.setView(orb.home.yaw,orb.home.pitch,orb.home.zoom,orb.home.target)]]){const b=document.createElement('button');b.className='btn';b.textContent=t;b.setAttribute('aria-label',t==='＋'?'Zoom in':t==='−'?'Zoom out':'Reset the view');b.onclick=fn;bar.appendChild(b)}
   const h=document.createElement('span');h.className='hint';h.textContent='Drag to turn · Ctrl (or ⌘) + scroll to zoom · double-click to reset';bar.appendChild(h)}
 
 /* ---------- the glass in 3D: floor = the screen (x right, y toward the bottom of the picture), height up ---------- */
@@ -578,12 +593,12 @@ function glassScene(o,P,opt){
 }
 
 /* ================= HERO ================= */
-const hero3=new Orbit3D($('hero3Stage'),$('hero3'),{yaw:-24,pitch:34,scale:780,target:[0.5,0.5,0.04],dy:20,draw:o=>{const r=glassScene(o,TP,{w:[0.72,0.5],cuts:true,arrows:true});
+const hero3=new Orbit3D($('hero3Stage'),$('hero3'),{yaw:-24,pitch:34,scale:780,target:[0.5,0.5,0.04],dy:20,compassPos:'tr',draw:o=>{const r=glassScene(o,TP,{w:[0.72,0.5],cuts:true,arrows:true});
   o.label('W',[0.72,0.5,0],10,14,'left');o.label('H',r.H,-12,-6,'right');o.label('N',[r.H[0]+r.n.N[0]*0.06,r.H[1],r.H[2]+r.n.N[2]*0.06],10,-8,'left',COL.N);o.label('C',[0.5,0.5,0],0,22,'center');
   o.pt('W',[0.72,0.5,0],'#fff','<b>W = (0.72, 0.50)</b>, in UV from the picture\'s top-left, y down<br>The pixel this lesson traces. It lies on the screen (height 0).','W');
   o.pt('H',r.H,'#fff',`<b>H</b>: the surface point above W<br>height h = ${f(r.n.h)} (Lesson 10.1), in UV`,'H');
   o.pt('Ntip',[r.H[0]+r.n.N[0]*0.06,r.H[1],r.H[2]+r.n.N[2]*0.06],COL.N,`<b>The tip of N at W</b><br>N = (${f(r.n.N[0])}, ${f(r.n.N[1])}, ${f(r.n.N[2])}), drawn 0.06 UV long from H.`,'tip of N')}});
-viewBar($('hero3Bar'),hero3,[['At an angle',-24,34],['Along the row (front)',0,0],['From above',0,90]]);
+viewBar($('hero3Bar'),hero3,[['At an angle',-24,34],['Front view (from the bottom edge)',0,0],['From above',0,90]]);
 function drawHeroSide(){const cv=$('heroSide'),F=frame(cv,'row',0.5,0.15,0.85,255),ctx=drawCut(F,TP),stage=$('heroSideStage');clearPts(stage);const L=0.06*F.k;
   for(let x=0.17;x<=0.831;x+=0.03){if(Math.abs(x-0.72)<0.012)continue;const n=normalAt(x,0.5,TP);grayArrow(ctx,F.X(x),F.Y(n.h),F.X(x)+n.N[0]*L,F.Y(n.h)-n.N[2]*L)}
   const n=normalAt(0.72,0.5,TP),hx=F.X(0.72),hy=F.Y(n.h),tx=hx+n.N[0]*L,ty=hy-n.N[2]*L;arrow(ctx,hx,hy,tx,ty,COL.N,3.2,11);
@@ -594,135 +609,336 @@ function drawHeroSide(){const cv=$('heroSide'),F=frame(cv,'row',0.5,0.15,0.85,25
   addPt(stage,hx,F.base,'#fff','<b>W = (0.72, 0.50)</b> on the screen line (height 0).','W',{small:true});addPt(stage,hx,hy,'#fff',`<b>H</b>, the surface above W: x 0.72, height ${f(n.h)} (UV).`,'H',{small:true});addPt(stage,tx,ty,COL.N,`<b>The tip of N</b>: N = (0.707, 0, 0.707) drawn 0.06 UV long. Seen from the front, its y part 0 is invisible anyway.`,'tip of N',{small:true})}
 
 /* ================= SECTION 1: one slope, one arrow (side view) ================= */
-let s1=0;const S1N=5;
+let s1=0,s1Turn=90;const S1N=10;
+const RAMP=-0.75;   /* the test ramp: it goes down 3 grid squares while it goes right 4 */
 const ROWPX=[0.14,0.26,0.28,0.40,0.50,0.60,0.72,0.74,0.86];
 const ROWGROUPS=[['1, 9: outside',[0,8]],['2: left rim',[1]],['3: left rim',[2]],['4, 5, 6: flat top',[3,4,5]],['7: W',[6]],['8: right rim',[7]]];
-function s1Map(){const cv=$('s1Map'),ctx=cv.getContext('2d'),img=ctx.createImageData(300,300),D=img.data;for(let j=0;j<300;j++)for(let i=0;i<300;i++){const g=heightAt((i+0.5)/300,(j+0.5)/300,TP)/TP.bev,o=(j*300+i)*4;D[o]=D[o+1]=D[o+2]=Math.round(g*255);D[o+3]=255}ctx.putImageData(img,0,0);
-  ring(ctx,150,150,RAD*300,COL.glass,2);line(ctx,0,150,300,150,COL.row,2.2);plate(ctx,'pixel row y = 0.50',10,s1<=2?136:284,12,'left','#3f6212');
-  const stage=$('s1MapStage');clearPts(stage);
-  if(s1<=2){addPt(stage,0.72*300,150,'#fff','<b>W = (0.72, 0.50)</b>, UV from the top-left, y down.','W',{small:true});plate(ctx,'W',0.72*300,128,12,'center')}
-  else ROWPX.forEach((x,i)=>{tag(ctx,String(i+1),x*300,150+(i%2?22:-22))})}
-function rowSlopeLines(x){const T=new Trace(3),a=x-0.01,b=x+0.01,hl=heightAt(a,0.5,TP),hr=heightAt(b,0.5,TP);const r=v=>Math.round(v*1e6)/1e6;const HL=r(hl),HR=r(hr);const dh=T.sub('ΔhX',HR,HL),sx=T.div('slopeX',dh,0.02),rx=T.neg('raw.x',sx);const x2=T.sq('x²',rx),z2=T.sq('z²',1),s=T.add('sum',x2,z2,true),L=T.root('length',s);return{HL,HR,dh,sx,rx,L,lines:T.take(),T}}
 function hTip(x,y){return()=>{const T=new Trace(3);T.push(`point = (${f(x)}, ${f(y)})`);const h=heightTrace(T,x,y,TP);return`<b>Height above (${f(x)}, ${f(y)})</b> · Lesson 10.1, C = (0.50, 0.50), radius 0.25, bevel 0.10<pre>${T.take().join('\n')}</pre>`}}
-function drawS1(){
-  const cv=$('s1Side'),stage=$('s1SideStage');clearPts(stage);let ctx,legend=[],rows=[],cap='';
-  if(s1<=2){
-    const F=frame(cv,'row',0.5,0.60,0.84,410);ctx=drawCut(F,TP);const n=normalAt(0.72,0.5,TP),hx=F.X(0.72),hy=F.Y(n.h),U=110;
-    thin(ctx,hx,F.base,hx,hy,'#94a3b8',1.5);plate(ctx,`h = ${f(n.h)}`,hx-10,(F.base+hy)/2,13,'right');
-    const tri=[[0,0],[U,0],[U,U]];   // H, end of the across leg, end of the slope leg (canvas offsets; slopeX = −1 falls 1)
-    const rot=(p,deg)=>{const t=deg*DEG;return[p[0]*Math.cos(t)+p[1]*Math.sin(t),-p[0]*Math.sin(t)+p[1]*Math.cos(t)]};
-    const drawTri=(deg,alpha,labels)=>{const q=tri.map(p=>rot(p,deg)).map(p=>[hx+p[0],hy+p[1]]);ctx.save();ctx.globalAlpha=alpha;line(ctx,q[0][0],q[0][1],q[1][0],q[1][1],COL.across,3);line(ctx,q[1][0],q[1][1],q[2][0],q[2][1],COL.slope,3);
-      if(deg===90)arrow(ctx,q[0][0],q[0][1],q[2][0],q[2][1],COL.raw,3.4,14);else line(ctx,q[0][0],q[0][1],q[2][0],q[2][1],COL.raw,3.4);ctx.restore();return q};
-    ruler(ctx,cv.height-24,U,'arrow ruler: 1 = 110 px');
-    if(s1===0){const q=drawTri(0,1);plate(ctx,'across 1',(q[0][0]+q[1][0])/2,q[0][1]-16,13,'center');plate(ctx,'falls 1',q[1][0]+10,(q[1][1]+q[2][1])/2,13,'left');plate(ctx,'along the surface at H',q[2][0]+8,q[2][1]+14,13,'left');
-      cap=`<b>Step 1 · The slope as a triangle.</b> H is the surface point above W. Lesson 10.2 measured slopeX = −1 at W: for every 1 that x grows, the height falls by 1. Draw that at H: walk <b>across 1</b> to the right, then <b>fall 1</b>. The long side follows the surface at H. The surface curves, so it soon leaves the long side. A slope is a ratio, so the triangle may have any size: Lesson 10.2's join from A to B is the same shape with 0.02 in place of 1. The page draws 1 as 110 picture pixels.`;
-      rows=[['W',`W = (0.72, 0.50)`,'the pixel, UV from the top-left, y down'],['h at W',`h = ${f(n.h)} <button class="info" data-tipfn="hW">ⓘ</button>`,'the height of H above W (Lesson 10.1)'],['slopeX',`slopeX = −0.02 ÷ 0.02 = −1 <button class="info" data-tip="slopeX">ⓘ</button>`,'Lesson 10.2: from A = (0.71, 0.50) to B = (0.73, 0.50) the height falls 0.02'],['across leg','1','a walk of 1 to the right, on the arrow ruler'],['slope leg','slopeX × 1 = −1 × 1 = −1','the height change on that walk: it falls 1']];
-      legend=[['swl','#a855f7','the violet surface: the glass cut along the pixel row y = 0.50'],['swd','#fff','W on the screen and H, the surface point above it'],['swl',COL.across,'the across leg: 1 to the right'],['swl',COL.slope,'the slope leg: falls 1, because slopeX = −1'],['swl',COL.raw,'the long side: the direction of the surface at H']]}
-    else if(s1===1){drawTri(0,0.28);drawTri(30,0.22);drawTri(60,0.22);const q=drawTri(90,1);
-      ctx.strokeStyle='#111827';ctx.lineWidth=2;ctx.beginPath();ctx.arc(hx,hy,72,45*DEG,-45*DEG,true);ctx.stroke();const ea=-45*DEG,ex=hx+72*Math.cos(ea),ey=hy+72*Math.sin(ea);ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex-12,ey+2);ctx.lineTo(ex-3,ey+11);ctx.closePath();ctx.fillStyle='#111827';ctx.fill();
-      plate(ctx,'quarter turn: 90°, against the clock',hx+140,hy+70,13,'left');plate(ctx,'up 1',q[1][0]-10,(q[0][1]+q[1][1])/2,13,'right');plate(ctx,'right 1',(q[1][0]+q[2][0])/2,q[2][1]-16,13,'center');
-      const u=unit2(1,1),v=unit2(1,-1);square(ctx,hx,hy,u,v,18);
-      cap=`<b>Step 2 · Turn the triangle a quarter turn.</b> Turn the whole triangle around H by 90°, against the clock (the faint copies show 30° and 60°). Every side turns by the same square corner. So the long side, which followed the surface, now stands at a <b>square corner</b> to the surface. The small square at H marks it.`;
-      rows=[['turn','90° against the clock, around H','every side turns by the same square corner'],['across leg','across 1 → up 1','now points straight up'],['slope leg','falls 1 → right 1','now points to the right'],['long side','along the surface → square corner to it','this is the arrow we want']];
-      legend=[['swl',COL.across,'the across leg, turned: up 1'],['swl',COL.slope,'the slope leg, turned: right 1'],['swl',COL.raw,'the long side, turned: at a square corner to the surface'],['swl','#111827','the turn and the square-corner mark']]}
-    else{const q=drawTri(90,1);const lx=hx-150,ly=hy-150,rx2=hx+150,ry2=hy+150;thin(ctx,lx,ly,rx2,ry2,'#64748b',2);plate(ctx,'surface direction at H',rx2-6,ry2-16,12,'right');
-      const u=unit2(1,1),v=unit2(1,-1);square(ctx,hx,hy,u,v,16);
-      ctx.save();ctx.globalAlpha=0.45;arrow(ctx,hx,hy,hx-U,hy+U,'#9ca3af',2.6,12);ctx.restore();plate(ctx,'✕ the other turn: into the glass',hx-U-4,hy+U+14,12,'right');
-      plate(ctx,'rawNormal (1, 1)',q[2][0]+10,q[2][1]-6,14,'left',COL.raw);plate(ctx,'up 1 = the height part',q[1][0]-10,(q[0][1]+q[1][1])/2,13,'right');plate(ctx,'right 1 = −slopeX',(q[1][0]+q[2][0])/2,q[2][1]-18,13,'center');
-      cap=`<b>Step 3 · Read the arrow.</b> The turned long side is the arrow, called <b>rawNormal</b> here. Its height part is the turned across leg: always <b>1</b>. Its x part is the turned slope leg. A quarter turn against the clock turns <i>up</i> into <i>left</i> and <i>down</i> into <i>right</i>. The slope leg rises by slopeX, so after the turn it goes left by slopeX: an x part of <b>−slopeX</b>. At W the leg falls 1 and becomes right 1: −(−1) = 1. The turn with the clock would give (−1, −1), into the glass, so we keep the arrow that points out of the glass.`;
-      rows=[['x part','−slopeX = −(−1) = 1','the slope leg after the turn'],['height part','1','the across leg after the turn, for every pixel'],['rawNormal','(1, 1) in this side view','right 1, up 1'],['other turn','(−1, −1)','points into the glass: not used']];
-      legend=[['swl',COL.raw,'rawNormal: the turned long side, (−slopeX, 1)'],['swl','#64748b','the surface direction at H, for the square-corner check'],['swl','#9ca3af','the other quarter turn, into the glass: not used']]}
-    addPt(stage,hx,F.base,'#fff','<b>W = (0.72, 0.50)</b> on the screen line (height 0).','W',{small:true});addPt(stage,hx,hy,'#fff',`<b>H</b>, the surface above W: x 0.72, height ${f(n.h)} (UV).`,'H',{small:true});plate(ctx,'W',hx,F.base+18,13,'center');plate(ctx,'H',hx-14,hy-14,13,'right');
-  } else {
-    const F=frame(cv,'row',0.5,0.10,0.90,400);ctx=drawCut(F,TP);const U=48;ruler(ctx,46,U,'arrow ruler: 1 = 48 px');
-    ROWPX.forEach((x,i)=>{const n=normalAt(x,0.5,TP),hx=F.X(x),hy=F.Y(n.h);const rl=n.len;
-      if(s1===3)arrow(ctx,hx,hy,hx+n.raw[0]*U,hy-n.raw[2]*U,COL.raw,2.6,10);
-      else{ctx.save();ctx.globalAlpha=0.3;arrow(ctx,hx,hy,hx+n.raw[0]*U,hy-n.raw[2]*U,COL.raw,2.2,9);ctx.restore();arrow(ctx,hx,hy,hx+n.N[0]*U,hy-n.N[2]*U,COL.N,3,10);if(i===1||i===6)ring(ctx,hx,hy,U,'#f9a8d4',1.4)}
-      tag(ctx,String(i+1),hx,F.base+(i%2?40:18));addPt(stage,hx,hy,'#fff',`<b>${i+1}: the surface above (${f(x)}, 0.50)</b><br>height ${f(n.h)}, slopeX ${f(n.sx)}, rawNormal (${f(n.raw[0])}, 1), length ${f(rl)}`,'point '+(i+1),{small:true})});
-    if(s1===3){plate(ctx,'longer where the rim is steeper',F.X(0.78),F.Y(0.1)-50,13,'center');
-      cap=`<b>Step 4 · Every pixel of the row.</b> The same quarter turn works at every pixel, with that pixel's own slope. Each indigo arrow stands at a square corner to the surface under it. The flat top and the screen outside have slope 0, so their arrows stand straight up and are 1 long. On the rim the arrows lean outward. They are also <b>longer</b>: (3, 1) at pixel 8 is 3.162 long.`;
-      rows=ROWGROUPS.map(([name,ids])=>{const x=ROWPX[ids[0]],r=rowSlopeLines(x),xs=ids.map(i=>f(ROWPX[i])).join(', ');return[`${name}<br><span class="small">x = ${xs}</span>`,`hLeft = ${f(r.HL)} <button class="info" data-tipfn="h:${f(x-0.01)}">ⓘ</button> · hRight = ${f(r.HR)} <button class="info" data-tipfn="h:${f(x+0.01)}">ⓘ</button> · ${r.lines.slice(0,3).join(' · ')}<br>${r.lines.slice(3).join(' · ')}`,`rawNormal (${f(r.rx)}, 1), ${f(r.L)} long`]});
-      legend=[['swl',COL.raw,'rawNormal at nine pixels of the row, (−slopeX, 1) on the arrow ruler'],['swd','#fff','1 … 9: the surface points; their pixels are tagged under the screen line']]}
-    else{cap=`<b>Step 5 · Make every arrow 1 long.</b> Only the direction says which way the surface faces. The length only grew with the steepness. So divide both parts by the arrow's own length, as <code>dir = p / length(p)</code> did in Lesson 9.10. We need length 1 <b>because</b> Lesson 10.4 compares two directions, and a longer arrow would count as “more” there. Every pink arrow N is now 1 long and still at a square corner. At W (pixel 7): (1, 1) ÷ 1.414 = (0.707, 0.707). The circles around pixels 2 and 7 have radius 1: each N ends on its circle.`;
-      rows=ROWGROUPS.map(([name,ids])=>{const x=ROWPX[ids[0]],r=rowSlopeLines(x),T=r.T,nx=T.div('N.x',r.rx,r.L),nz=T.div('N.height',1,r.L);return[`${name}<br><span class="small">x = ${ids.map(i=>f(ROWPX[i])).join(', ')}</span>`,`rawNormal = (${f(r.rx)}, 1), length = ${f(r.L)} · ${T.take().join(' · ')}`,`N = (${T.t(nx)}, ${T.t(nz)}), 1 long`]});
-      legend=[['swl',COL.N,'N: rawNormal divided by its own length, 1 long'],['swl',COL.raw,'faint: rawNormal of Step 4'],['swl','#f9a8d4','circles of radius 1 around pixels 2 and 7']]}
-  }
-  $('s1Cap').innerHTML=cap+`<div style="margin-top:8px;color:#6b7280;font-size:13.5px">Step ${s1+1} of ${S1N}</div>`;
-  $('s1Table').innerHTML=`<tr><th style="width:${s1>=3?150:150}px">${s1>=3?'Pixel':'Name'}</th><th>Numbers, one operation per “=”</th><th>${s1>=3?'Result':'Meaning'}</th></tr>`+rows.map(r=>`<tr${s1>=2?' class="new"':''}><td><b>${r[0]}</b></td><td class="f">${r[1]}</td><td>${r[2]}</td></tr>`).join('');
-  $('s1Legend').innerHTML=legend.map(l=>`<li><span class="${l[0]}" style="background:${l[1]}"></span>${l[2]}</li>`).join('');
-  bindTips($('s1Table'));s1Map();[...$('s1Dots').children].forEach((d,i)=>d.classList.toggle('on',i===s1));$('s1Prev').disabled=s1===0;$('s1Next').disabled=s1===S1N-1;
-}
+const rot2=(p,deg)=>{const t=deg*DEG,c=Math.cos(t),s=Math.sin(t);return[R12(p[0]*c-p[1]*s),R12(p[0]*s+p[1]*c)]};
+/* grid squares around the unit origin (ox, oy); S picture pixels per unit; rect clips the grid to one panel */
+function s1Grid(ctx,ox,oy,S,rect){const cw=ctx.canvas.width,ch=ctx.canvas.height,[x0,y0,x1,y1]=rect||[0,0,cw,ch];
+  ctx.fillStyle='#fff';ctx.fillRect(x0,y0,x1-x0,y1-y0);ctx.lineWidth=1;ctx.strokeStyle='#e2e8f0';ctx.beginPath();
+  for(let x=ox-Math.floor((ox-x0)/S)*S;x<=x1+0.1;x+=S){const X=Math.round(x)+0.5;ctx.moveTo(X,y0);ctx.lineTo(X,y1)}
+  for(let y=oy-Math.floor((oy-y0)/S)*S;y<=y1+0.1;y+=S){const Y=Math.round(y)+0.5;ctx.moveTo(x0,Y);ctx.lineTo(x1,Y)}
+  ctx.stroke();return{ox,oy,S,P:(u,v)=>[ox+u*S,oy-v*S]}}
+/* a straight ramp through the unit origin with slope m; the glass lies below it */
+function s1Ramp(ctx,G,m,x0,x1,alpha=1){const y=x=>G.oy-(x-G.ox)*m,ch=ctx.canvas.height;ctx.save();ctx.globalAlpha=alpha;
+  ctx.beginPath();ctx.moveTo(x0,y(x0));ctx.lineTo(x1,y(x1));ctx.lineTo(x1,ch+1e4);ctx.lineTo(x0,ch+1e4);ctx.closePath();ctx.fillStyle='rgba(216,180,254,0.32)';ctx.fill();
+  ctx.strokeStyle=COL.glass;ctx.lineWidth=3.2;ctx.beginPath();ctx.moveTo(x0,y(x0));ctx.lineTo(x1,y(x1));ctx.stroke();ctx.restore()}
+/* the two directions of a side view */
+function axes2D(ctx,x,y,o={}){const L=50;arrow(ctx,x,y,x+L,y,o.xc||COL.xP,2.6,10);arrow(ctx,x,y,x,y-L,COL.hP,2.6,10);
+  plate(ctx,o.xl||'x',x+L+6,y,12,'left',o.xt||COL.xT);plate(ctx,'height',x+8,y-L-6,12,'left',COL.hT)}
+/* a walk (u, v) from G's origin, turned by deg against the clock. Leg a: the walk's x part. Leg b: its height part.
+   A leg is lime while it lies along x and sky blue while it stands up; while it turns it is gray. */
+function s1Tri(ctx,G,u,v,deg,o={}){
+  const A=rot2([u,0],deg),B=rot2([u,v],deg),H=G.P(0,0),pa=G.P(A[0],A[1]),pb=G.P(B[0],B[1]);
+  const legCol=(p,q)=>o.gray?'#94a3b8':Math.abs(q[1]-p[1])<0.5?(o.xc||COL.xP):Math.abs(q[0]-p[0])<0.5?COL.hP:'#64748b';
+  const lw=o.lw||3;ctx.save();ctx.globalAlpha=o.alpha??1;
+  if(Math.hypot(pa[0]-H[0],pa[1]-H[1])>0.5)line(ctx,H[0],H[1],pa[0],pa[1],legCol(H,pa),lw);
+  if(Math.hypot(pb[0]-pa[0],pb[1]-pa[1])>0.5)line(ctx,pa[0],pa[1],pb[0],pb[1],legCol(pa,pb),lw);
+  if(o.long!==false)arrow(ctx,H[0],H[1],pb[0],pb[1],o.gray?'#94a3b8':(o.longCol||COL.walk),lw+0.4,o.head||13);
+  ctx.restore();
+  if(o.tags){tag(ctx,'a',(H[0]+pa[0])/2,(H[1]+pa[1])/2);if(Math.hypot(pb[0]-pa[0],pb[1]-pa[1])>24)tag(ctx,'b',(pa[0]+pb[0])/2,(pa[1]+pb[1])/2)}
+  return{H,pa,pb}}
+/* a curved arrow around (cx, cy), drawn against the clock on screen from screen angle a0 to a1 (degrees, a1 < a0) */
+function turnArc(ctx,cx,cy,r,a0,a1){if(a0-a1<2)return;ctx.lineWidth=2;ctx.strokeStyle='#111827';ctx.beginPath();ctx.arc(cx,cy,r,a0*DEG,a1*DEG,true);ctx.stroke();
+  const t=a1*DEG,ex=cx+r*Math.cos(t),ey=cy+r*Math.sin(t),tx=Math.sin(t),ty=-Math.cos(t),nx=Math.cos(t),ny=Math.sin(t);
+  ctx.beginPath();ctx.moveTo(ex+tx*7,ey+ty*7);ctx.lineTo(ex-tx*6+nx*6,ey-ty*6+ny*6);ctx.lineTo(ex-tx*6-nx*6,ey-ty*6-ny*6);ctx.closePath();ctx.fillStyle='#111827';ctx.fill()}
+const gridPos=(u,v)=>`(${f(u)}, ${f(v)}) grid squares from H: x part, height part`;
+function s1Head(ctx,t='side view · x grows to the right, height grows up · each grid square is 1 unit in both directions'){plate(ctx,t,10,18,13,'left')}
 
-/* ================= SECTION 2: the tilted flat surface in 3D ================= */
-const CARD={sx:-0.45,sy:-0.60};
-const cH=(x,y)=>CARD.sx*x+CARD.sy*y;
+function drawS1(){
+  const cv=$('s1Cv'),ctx=cv.getContext('2d'),stage=$('s1Stage'),W=cv.width;clearPts(stage);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,cv.height);
+  let cap='',rows=[],legend=[],head=['Name','Numbers, one operation per “=”','Meaning'];
+  $('s1TurnCtl').hidden=s1!==2;$('s1TurnHint').hidden=s1!==2;
+  const Hdot=(G,extra='')=>{const [x,y]=G.P(0,0);addPt(stage,x,y,'#fff',`<b>H</b>: a point on the test ramp. Arrows in this picture start here.${extra}<br>Coordinates in this picture: grid squares from H (x part, height part).`,'H',{small:true});plate(ctx,'H',x-14,y-16,13,'right')};
+  const tipPt=(G,u,v,color,name)=>{const [x,y]=G.P(u,v);addPt(stage,x,y,color,`<b>${name}</b><br>tip at ${gridPos(u,v)}`,name,{small:true})};
+  const L={ramp:['swl',COL.glass,'the test ramp: a straight surface seen from the side, glass below it'],H:['swd','#fff','H: the point on the ramp where every arrow starts'],
+    walk:['swl',COL.walk,'the walk: an arrow from H along the ramp'],xleg:['swl',COL.xP,'a leg along x: an x part'],hleg:['swl',COL.hP,'an upright leg: a height part'],
+    tags:['swd','#fff','tags a and b: the same two legs before and after the turn'],raw:['swl',COL.raw,'the turned walk; from Step 6 on it is called rawNormal'],sq:['swl','#111827','the square-corner mark (90°)'],
+    N:['swl',COL.N,'N: rawNormal made 1 long'],circ:['swl','#f9a8d4','the circle of radius 1 around H'],axes:['swl',COL.hP,'the two short arrows in the top-right corner: the directions x and height']};
+  if(s1<=3){
+    const G=s1Grid(ctx,440,284,46);s1Ramp(ctx,G,RAMP,0,W);s1Head(ctx);axes2D(ctx,990,120);
+    plate(ctx,'test ramp (glass below it)',G.P(-6.2,0)[0],G.P(0,3.4)[1]+40,13,'left','#7e22ce');
+    if(s1===0){const g=G.P(0.6*3.4,0.8*3.4);ctx.save();ctx.globalAlpha=0.45;arrow(ctx,G.ox,G.oy,g[0],g[1],COL.raw,3.2,13);ctx.restore();square(ctx,G.ox,G.oy,[0.8,0.6],[0.6,-0.8],16);
+      plate(ctx,'? the arrow we want: at a square corner to the ramp',g[0]+12,g[1]-4,13,'left',COL.raw);
+      const up=G.P(0,3);ctx.save();ctx.globalAlpha=0.5;arrow(ctx,G.ox,G.oy,up[0],up[1],'#9ca3af',2.6,11);ctx.restore();plate(ctx,'✕ straight up: not at a square corner to this ramp',up[0]-12,up[1]-6,12,'right','#4b5563');
+      addPt(stage,g[0],g[1],COL.raw,'<b>The arrow we want</b> (drawn faint)<br>It starts at H and stands at a square corner to the ramp. Its numbers are not known yet: Steps 2–6 find them.','goal arrow',{small:true});Hdot(G);
+      head=['Name','What it is','Why it matters'];
+      cap=`<b>Step 1 · A side view and a test ramp.</b> The grid squares are the unit: 1 square to the right is 1 in x, 1 square up is 1 in height. The violet line is a <b>test ramp</b>: a straight surface with glass below it. It is not the glass yet. We start with it <b>because</b> the glass rim is curved, so its steepness changes from point to point, while a straight ramp is equally steep everywhere. H is a point on the ramp. <b>Our goal:</b> the arrow that starts at H and stands at a square corner (90°) to the ramp, pointing away from the glass (faint, with “?”).`;
+      rows=[['H','a point on the ramp','where the arrow starts'],['test ramp','a straight line, glass below it','equally steep everywhere; not the glass'],['goal','the arrow at a square corner to the ramp, at H','its numbers: Steps 2–6']];
+      legend=[L.ramp,L.H,['swl',COL.raw,'faint, with “?”: the arrow we want'],['swl','#9ca3af','✕ straight up: not at a square corner to a slanted ramp'],L.sq,L.axes]}
+    else if(s1===1){s1Tri(ctx,G,4,-3,0,{tags:true});
+      plate(ctx,'a · x part 4 (right 4)',G.P(2,0)[0],G.P(0,0)[1]-26,13,'center',COL.xT);plate(ctx,'b · height part −3 (down 3)',G.P(4,0)[0]+18,G.P(0,-1.5)[1],13,'left',COL.hT);plate(ctx,'walk = (4, −3)',G.P(2.4,-2.1)[0],G.P(0,-2.1)[1]+14,14,'right',COL.walk);
+      tipPt(G,4,-3,COL.walk,'The tip of the walk');Hdot(G);
+      cap=`<b>Step 2 · Describe the ramp by a walk.</b> Walk from H along the ramp: 4 squares to the right, and the ramp takes you 3 squares down. The arrow along the ramp is this <b>walk</b>. We write an arrow as two numbers in brackets: <b>(x part, height part)</b>. The x part says how far right it goes (minus: left). The height part says how far up it goes (minus: down). So the walk is <b>(4, −3)</b>. Its two parts are drawn as legs, tagged a and b. Lesson 10.2's slope is the height change ÷ the horizontal distance: −3 ÷ 4 = −0.75.`;
+      rows=[['leg a: x part','4','count the squares under leg a: 4 to the right'],['leg b: height part','−3','leg b goes 3 squares down; minus means down'],['walk','(4, −3)','(x part, height part)'],['slope','−3 ÷ 4 = −0.75','Lesson 10.2: height change ÷ horizontal distance']];
+      legend=[L.ramp,L.H,L.walk,L.xleg,L.hleg,L.tags]}
+    else if(s1===2){const th=s1Turn;s1Tri(ctx,G,4,-3,0,{alpha:0.3});
+      for(const d of [30,60])if(d<th){const q=rot2([4,-3],d),e=G.P(q[0],q[1]);ctx.save();ctx.globalAlpha=0.5;arrow(ctx,G.ox,G.oy,e[0],e[1],'#94a3b8',1.8,9);ctx.restore()}
+      turnArc(ctx,G.ox,G.oy,78,36.87,36.87-th);
+      const t=s1Tri(ctx,G,4,-3,th,{tags:true,longCol:th===90?COL.raw:COL.walk});
+      if(th===90){square(ctx,G.ox,G.oy,[0.8,0.6],[0.6,-0.8],16);
+        plate(ctx,'a · now up 4',t.pa[0]-14,(t.H[1]+t.pa[1])/2,13,'right',COL.hT);plate(ctx,'b · now right 3',(t.pa[0]+t.pb[0])/2,t.pa[1]-20,13,'center',COL.xT);
+        plate(ctx,'turned walk: at a square corner to the ramp',t.pb[0]+14,t.pb[1]+10,13,'left',COL.raw);
+        const o=G.P(-3,-4);ctx.save();ctx.globalAlpha=0.5;arrow(ctx,G.ox,G.oy,o[0],o[1],'#9ca3af',2.6,11);ctx.restore();plate(ctx,'✕ turned the other way: into the glass',o[0]-8,o[1]+8,12,'right','#4b5563');
+        tipPt(G,3,4,COL.raw,'The tip of the turned walk')}
+      else plate(ctx,`turned ${th}° of 90°`,G.P(-1.6,2.2)[0],G.P(0,2.2)[1],13,'right');
+      plate(ctx,'quarter turn, against the clock',G.ox+96,G.oy+34,12,'left');
+      Hdot(G);
+      cap=`<b>Step 3 · Turn the walk a quarter turn.</b> Turn the whole triangle around H by 90°, against the clock. A turn changes directions, not lengths. Every side turns by the same 90°. The walk lay along the ramp, so after the turn it stands at a <b>square corner</b> to the ramp: it is the arrow we wanted. Tags a and b follow the two legs. Turning the other way (with the clock) would point into the glass (✕), so we use the turn against the clock.`;
+      head=['Name','What happens','Why'];rows=[['turn',`90°, against the clock, around H (slider: ${th}°)`,'every side turns by the same angle'],['leg a','right 4 → up 4','a turn keeps its length 4'],['leg b','down 3 → right 3','a turn keeps its length 3'],['turned walk','at a square corner to the ramp','the arrow we wanted'],['other turn','down into the glass','not used']];
+      legend=[L.ramp,L.H,['swl',COL.walk,'faint: the walk before the turn'],['swl','#94a3b8','thin arrows: the walk on its way, at 30° and 60°'],L.raw,L.tags,L.sq]}
+    else{const w=s1Tri(ctx,G,4,-3,0,{tags:true}),t=s1Tri(ctx,G,4,-3,90,{tags:true,longCol:COL.raw});square(ctx,G.ox,G.oy,[0.8,0.6],[0.6,-0.8],16);
+      plate(ctx,'a · right 4',(w.H[0]+w.pa[0])/2,w.H[1]+22,13,'center',COL.xT);plate(ctx,'b · down 3',w.pa[0]+18,(w.pa[1]+w.pb[1])/2,13,'left',COL.hT);plate(ctx,'walk (4, −3)',w.pb[0]+12,w.pb[1]+6,14,'left',COL.walk);
+      plate(ctx,'a · up 4 = height part 4',t.pa[0]-14,(t.H[1]+t.pa[1])/2,13,'right',COL.hT);plate(ctx,'b · right 3 = x part 3',(t.pa[0]+t.pb[0])/2,t.pa[1]-20,13,'center',COL.xT);plate(ctx,'turned arrow (3, 4)',t.pb[0]+14,t.pb[1]+8,14,'left',COL.raw);
+      tipPt(G,4,-3,COL.walk,'The tip of the walk (4, −3)');tipPt(G,3,4,COL.raw,'The tip of the turned arrow (3, 4)');Hdot(G);
+      cap=`<b>Step 4 · Read the turned arrow.</b> Read it as (x part, height part). Leg b now goes right 3, so the x part is <b>3</b>. Leg a now goes up 4, so the height part is <b>4</b>. The turned arrow is <b>(3, 4)</b>. Compare it with the walk (4, −3): the walk's x part 4 became the height part, and the walk's height part −3 became the x part 3, with its sign flipped.`;
+      rows=[['walk','(4, −3)','Step 2'],['turned x part','−(walk height part) = −(−3) = 3','leg b: down 3 became right 3'],['turned height part','walk x part = 4','leg a: right 4 became up 4'],['turned arrow','(3, 4)','(x part, height part)']];
+      legend=[L.ramp,L.H,L.walk,L.raw,L.xleg,L.hleg,L.tags,L.sq]}
+  }
+  else if(s1===4){
+    const S=44,GL=s1Grid(ctx,236,290,S,[0,0,540,500]);ctx.save();ctx.beginPath();ctx.rect(0,0,540,500);ctx.clip();s1Ramp(ctx,GL,-0.75,0,540);
+      const w1=s1Tri(ctx,GL,4,-3,0,{tags:true}),t1=s1Tri(ctx,GL,4,-3,90,{tags:true,longCol:COL.raw});square(ctx,GL.ox,GL.oy,[0.8,0.6],[0.6,-0.8],13);ctx.restore();
+    const GR=s1Grid(ctx,790,290,S,[544,0,1084,500]);ctx.save();ctx.beginPath();ctx.rect(544,0,540,500);ctx.clip();s1Ramp(ctx,GR,0.75,544,1084);
+      const w2=s1Tri(ctx,GR,4,3,0,{tags:true}),t2=s1Tri(ctx,GR,4,3,90,{tags:true,longCol:COL.raw});square(ctx,GR.ox,GR.oy,[0.8,-0.6],[-0.6,-0.8],13);ctx.restore();
+    thin(ctx,542,0,542,500,'#64748b',2);
+    plate(ctx,'falling ramp: slope −0.75',10,18,13,'left','#7e22ce');plate(ctx,'rising ramp: slope +0.75',556,18,13,'left','#7e22ce');axes2D(ctx,30,474);axes2D(ctx,574,474);
+    plate(ctx,'b · down 3',w1.pa[0]+16,(w1.pa[1]+w1.pb[1])/2,12,'left',COL.hT);plate(ctx,'walk (4, −3)',w1.pb[0]+10,w1.pb[1]+12,13,'left',COL.walk);
+    plate(ctx,'b · right 3: x part 3',(t1.pa[0]+t1.pb[0])/2+8,t1.pa[1]-18,12,'left',COL.xT);plate(ctx,'(3, 4)',t1.pb[0]+12,t1.pb[1]+16,14,'left',COL.raw);
+    plate(ctx,'b · up 3',w2.pa[0]-14,(w2.pa[1]+w2.pb[1])/2+24,12,'right',COL.hT);plate(ctx,'walk (4, 3)',w2.pb[0]-10,w2.pb[1]-16,13,'right',COL.walk);
+    plate(ctx,'b · left 3: x part −3',(t2.pa[0]+t2.pb[0])/2-8,t2.pa[1]-18,12,'right',COL.xT);plate(ctx,'(−3, 4)',t2.pb[0]-12,t2.pb[1]+18,14,'right',COL.raw);
+    for(const [G,nm] of [[GL,'H on the falling ramp'],[GR,'H on the rising ramp']]){const [x,y]=G.P(0,0);addPt(stage,x,y,'#fff',`<b>${nm}</b><br>The walk and the turned arrow start here. Coordinates: grid squares from H.`,nm,{small:true})}
+    tipPt(GL,3,4,COL.raw,'The turned arrow on the falling ramp: (3, 4)');tipPt(GR,-3,4,COL.raw,'The turned arrow on the rising ramp: (−3, 4)');tipPt(GL,4,-3,COL.walk,'The walk (4, −3)');tipPt(GR,4,3,COL.walk,'The walk (4, 3)');
+    cap=`<b>Step 5 · Is there always a minus? Yes.</b> The right picture shows a ramp that rises: its walk is (4, 3). A quarter turn against the clock turns <b>down into right</b> (left picture) and <b>up into left</b> (right picture). Left is a minus x part. So the turned x part is always <b>minus</b> the walk's height part: −(−3) = 3 and −(3) = −3. The turned height part is always the walk's x part, 4. In both pictures the arrow points away from the glass.`;
+    head=['Ramp','Numbers, one operation per “=”','Turned arrow'];
+    rows=[['falling (slope −0.75)','walk (4, −3) · x part = −(−3) = 3 · height part = 4','(3, 4): leans right'],['rising (slope +0.75)','walk (4, 3) · x part = −(3) = −3 · height part = 4','(−3, 4): leans left']];
+    legend=[L.ramp,L.walk,L.raw,L.xleg,L.hleg,L.tags,L.sq]}
+  else if(s1===5){
+    const G=s1Grid(ctx,400,420,100);s1Ramp(ctx,G,RAMP,0,W);s1Head(ctx,'side view · each grid square is 1 unit · this step zooms in: 1 square = 100 picture pixels');axes2D(ctx,990,120);
+    const f4=G.P(3,4);ctx.save();ctx.globalAlpha=0.35;arrow(ctx,G.ox,G.oy,f4[0],f4[1],COL.raw,2.6,12);ctx.restore();
+    const w=s1Tri(ctx,G,1,-0.75,0,{head:11}),t=s1Tri(ctx,G,1,-0.75,90,{longCol:COL.raw,head:11});square(ctx,G.ox,G.oy,[0.8,0.6],[0.6,-0.8],13);
+    plate(ctx,'right 1',(w.H[0]+w.pa[0])/2+8,w.H[1]-16,12,'center',COL.xT);plate(ctx,'down 0.75',w.pa[0]+12,(w.pa[1]+w.pb[1])/2-8,12,'left',COL.hT);plate(ctx,'walk (1, −0.75)',w.pb[0]+14,w.pb[1]-2,13,'left',COL.walk);
+    plate(ctx,'up 1',t.pa[0]-12,(t.H[1]+t.pa[1])/2,12,'right',COL.hT);plate(ctx,'right 0.75',(t.pa[0]+t.pb[0])/2,t.pa[1]-18,12,'center',COL.xT);plate(ctx,'rawNormal (0.75, 1)',t.pb[0]+14,t.pb[1]+10,14,'left',COL.raw);
+    plate(ctx,'faint: (3, 4) = 4 × (0.75, 1), the arrow of Step 4',f4[0]+14,f4[1]+12,12,'left','#4338ca');
+    tipPt(G,0.75,1,COL.raw,'The tip of rawNormal (0.75, 1)');tipPt(G,1,-0.75,COL.walk,'The tip of the walk (1, −0.75)');tipPt(G,3,4,'#c7d2fe','The tip of the faint arrow (3, 4) of Step 4');Hdot(G);
+    cap=`<b>Step 6 · Walk 1 instead of 4: the formula.</b> A shorter walk along the same ramp keeps the direction. We always walk <b>1</b> to the right <b>because</b> then the height part is the slope itself: height change = slope × horizontal distance = −0.75 × 1 = −0.75. So the walk is <b>(1, slope)</b>, and Step 5's quarter turn makes it <b>(−slope, 1)</b> = (0.75, 1). It lies along the faint (3, 4): (3, 4) ÷ 4 = (0.75, 1). We call it <b>rawNormal</b>. “Raw” means its length is not fixed yet. The 1 is our walk of 1 square, not a height of the glass.`;
+    rows=[['walk height part','slope × 1 = −0.75 × 1 = −0.75','the height change on a walk of 1'],['walk','(1, −0.75)','(1, slope)'],['rawNormal x part','−slope = −(−0.75) = 0.75','Step 5: minus the walk\'s height part'],['rawNormal height part','1','the walk\'s x part 1, turned up'],['rawNormal','(0.75, 1)','(−slope, 1)'],['check','3 ÷ 4 = 0.75 and 4 ÷ 4 = 1','(3, 4) ÷ 4: the same direction']];
+    legend=[L.ramp,L.H,L.walk,L.raw,L.xleg,L.hleg,['swl','#c7d2fe','faint: the arrow (3, 4) of Step 4'],L.sq,L.axes]}
+  else if(s1===6){
+    const G=s1Grid(ctx,420,380,160);s1Ramp(ctx,G,RAMP,0,W,0.3);s1Head(ctx,'side view · each grid square is 1 unit · this step zooms in: 1 square = 160 picture pixels');axes2D(ctx,990,120);
+    const H=G.P(0,0),c=G.P(0.75,0),T=G.P(0.75,1);
+    ctx.fillStyle='rgba(132,204,22,0.13)';ctx.fillRect(H[0],H[1],120,120);ctx.fillStyle='rgba(56,189,248,0.13)';ctx.fillRect(c[0],T[1],160,160);
+    {const v=[T[0]-H[0],T[1]-H[1]],p=[v[1],-v[0]];ctx.fillStyle='rgba(99,102,241,0.10)';ctx.beginPath();ctx.moveTo(H[0],H[1]);ctx.lineTo(T[0],T[1]);ctx.lineTo(T[0]+p[0],T[1]+p[1]);ctx.lineTo(H[0]+p[0],H[1]+p[1]);ctx.closePath();ctx.fill();
+      plate(ctx,'0.5625 + 1 = 1.5625',(H[0]+T[0]+p[0])/2,(H[1]+T[1]+p[1])/2,12,'center','#4338ca')}
+    plate(ctx,'0.75 × 0.75 = 0.5625',H[0]+60,H[1]+66,12,'center',COL.xT);plate(ctx,'1 × 1 = 1',c[0]+80,(T[1]+c[1])/2,12,'center',COL.hT);
+    line(ctx,H[0],H[1],c[0],c[1],COL.xP,3.2);line(ctx,c[0],c[1],T[0],T[1],COL.hP,3.2);arrow(ctx,H[0],H[1],T[0],T[1],COL.raw,3.6,14);square(ctx,c[0],c[1],[-1,0],[0,-1],16);
+    plate(ctx,'x part 0.75',(H[0]+c[0])/2,H[1]-16,13,'center',COL.xT);plate(ctx,'height part 1',c[0]+12,T[1]+18,13,'left',COL.hT);plate(ctx,'rawNormal: length 1.25',(H[0]+T[0])/2-14,(H[1]+T[1])/2+4,14,'right',COL.raw);
+    addPt(stage,c[0],c[1],COL.xP,'<b>The corner of the triangle</b><br>(0.75, 0) grid squares from H: the end of the x part. The square corner of the triangle is here.','corner',{small:true});
+    tipPt(G,0.75,1,COL.raw,'The tip of rawNormal (0.75, 1)');Hdot(G);
+    cap=`<b>Step 7 · The length of rawNormal.</b> rawNormal and its two parts make a right triangle. The x part (0.75) and the height part (1) are the two legs; they meet at a square corner. rawNormal is the long side. Lesson 9.1 gives the long side: √(leg² + leg²). The shaded squares show the leg squares 0.5625 and 1, and the square on the long side, 1.5625. So rawNormal is <b>√1.5625 = 1.25</b> long. Check with Lesson 9.1's countable triangle: (3, 4) is 5 long, and (0.75, 1) is (3, 4) ÷ 4, so it is 5 ÷ 4 = 1.25 long.`;
+    rows=[['x part²','0.75 × 0.75 = 0.5625','the leg along x, squared'],['height part²','1 × 1 = 1','the upright leg, squared'],['sum','0.5625 + 1 = 1.5625','the square on the long side'],['length','√1.5625 = 1.25','Lesson 9.1: the long side'],['check','5 ÷ 4 = 1.25','(3, 4) is 5 long; (0.75, 1) is a quarter of it']];
+    legend=[L.ramp,L.H,['swl',COL.xP,'the x part 0.75: a leg'],['swl',COL.hP,'the height part 1: a leg'],['swl',COL.raw,'rawNormal: the long side'],['sw','rgba(99,102,241,0.25)','the squares on the three sides (Lesson 9.1)'],L.sq,L.axes]}
+  else if(s1===7){
+    const G=s1Grid(ctx,470,330,160);s1Ramp(ctx,G,RAMP,0,W);s1Head(ctx,'side view · each grid square is 1 unit · 1 square = 160 picture pixels');axes2D(ctx,990,120);
+    ctx.strokeStyle='#f472b6';ctx.lineWidth=2;ctx.beginPath();ctx.arc(G.ox,G.oy,160,0,Math.PI*2);ctx.stroke();
+    const R=G.P(0.75,1),Np=G.P(0.6,0.8);ctx.save();ctx.globalAlpha=0.4;arrow(ctx,G.ox,G.oy,R[0],R[1],COL.raw,3,13);ctx.restore();arrow(ctx,G.ox,G.oy,Np[0],Np[1],COL.N,3.6,14);square(ctx,G.ox,G.oy,[0.8,0.6],[0.6,-0.8],16);
+    plate(ctx,'rawNormal (0.75, 1): 1.25 long',R[0]+12,R[1]-6,13,'left',COL.raw);plate(ctx,'N = (0.6, 0.8): 1 long',Np[0]+14,Np[1]+18,14,'left','#be185d');plate(ctx,'circle of radius 1 around H',G.ox-170,G.oy-20,12,'right','#be185d');
+    tipPt(G,0.6,0.8,COL.N,'The tip of N (0.6, 0.8): on the circle of radius 1');tipPt(G,0.75,1,COL.raw,'The tip of rawNormal (0.75, 1): outside the circle, 1.25 from H');Hdot(G);
+    cap=`<b>Step 8 · Make it 1 long: N.</b> Only the direction says which way the surface faces. So we make every arrow <b>1</b> long: divide both parts by the length, like <code>dir = p / length(p)</code> in Lesson 9.10. <b>N = (0.75 ÷ 1.25, 1 ÷ 1.25) = (0.6, 0.8)</b>. The pink circle has radius 1 and its center at H, where the arrows start: every 1-long arrow from H ends on it. We need length 1 <b>because</b> Lesson 10.4 compares two directions, and a longer arrow would count as “more” there. N is the <b>unit normal</b>: “unit” means 1 long.`;
+    rows=[['N x part','0.75 ÷ 1.25 = 0.6','rawNormal\'s x part ÷ its length'],['N height part','1 ÷ 1.25 = 0.8','rawNormal\'s height part ÷ its length'],['N','(0.6, 0.8)','the same direction, 1 long'],['check','0.6 × 0.6 = 0.36 · 0.8 × 0.8 = 0.64 · 0.36 + 0.64 = 1 · √1 = 1','N is 1 long']];
+    legend=[L.ramp,L.H,['swl',COL.raw,'faint: rawNormal, 1.25 long'],L.N,L.circ,L.sq,L.axes]}
+  else if(s1===8){
+    const F=frame(cv,'row',0.5,0.58,0.84,470),c2=drawCut(F,TP),n=normalAt(0.72,0.5,TP),hx=F.X(0.72),hy=F.Y(n.h),U=0.02*F.k;
+    {const N=150,x0=900,y0=34,img=c2.createImageData(N,N),D=img.data;for(let j=0;j<N;j++)for(let i=0;i<N;i++){const g=heightAt((i+0.5)/N,(j+0.5)/N,TP)/TP.bev,o=(j*N+i)*4;D[o]=D[o+1]=D[o+2]=Math.round(g*255);D[o+3]=255}c2.putImageData(img,x0,y0);c2.lineWidth=1.5;c2.strokeStyle='#111827';c2.strokeRect(x0,y0,N,N);thin(c2,x0,y0+N/2,x0+N,y0+N/2,COL.row,2);c2.beginPath();c2.arc(x0+0.72*N,y0+N/2,4,0,7);c2.fillStyle='#fff';c2.fill();c2.stroke();plate(c2,'from above: row y = 0.50, W',x0+N,y0+N+14,11,'right')}
+    for(const [nm,x,h,c] of [['A',0.71,0.08,COL.A],['B',0.73,0.06,COL.B]]){line(c2,F.X(x),F.base,F.X(x),F.Y(h),c,2.6);addPt(stage,F.X(x),F.base,c,`<b>${nm} = (${f(x)}, 0.50)</b>, UV<br>the surface above it: height ${f(h)} (Lesson 10.1)`,nm,{small:true});plate(c2,nm,F.X(x),F.base+18,13,'center')}
+    {const ax=F.X(0.71),ay=F.Y(0.08),bx=F.X(0.73),by=F.Y(0.06),e=0.9;thin(c2,ax-(bx-ax)*e,ay-(by-ay)*e,bx+(bx-ax)*e,by+(by-ay)*e,'#64748b',2.2);plate(c2,"Lesson 10.2's join from above A to above B: right 0.02, down 0.02",bx+(bx-ax)*e+6,by+(by-ay)*e+14,12,'left','#334155')}
+    const G={ox:hx,oy:hy,S:U,P:(u,v)=>[hx+u*U,hy-v*U]};
+    const w=s1Tri(ctx,G,1,-1,0,{head:10,lw:2.6}),t=s1Tri(ctx,G,1,-1,90,{longCol:COL.raw,head:10,lw:2.6});
+    const Np=G.P(Math.SQRT1_2,Math.SQRT1_2);arrow(c2,hx,hy,Np[0],Np[1],COL.N,3.2,11);square(c2,hx,hy,[0.70710678,0.70710678],[0.70710678,-0.70710678],12);
+    plate(c2,'walk (1, −1)',w.pb[0]+10,w.pb[1]+4,13,'left',COL.walk);plate(c2,'rawNormal (1, 1)',t.pb[0]+10,t.pb[1]-10,13,'left',COL.raw);plate(c2,'N (0.707, 0.707)',Np[0]+12,Np[1]+10,13,'left','#be185d');
+    ruler(c2,c2.canvas.height-62,U,'arrow ruler: 1 = 0.02 UV');plate(c2,'W',hx,F.base+18,13,'center');plate(c2,'H',hx-14,hy-14,13,'right');
+    addPt(stage,hx,F.base,'#fff','<b>W = (0.72, 0.50)</b>, UV from the picture\'s top-left, y down: the traced pixel, on the screen line (height 0).','W',{small:true});
+    addPt(stage,hx,hy,'#fff',`<b>H</b>: the glass surface above W. x 0.72, height ${f(n.h)} (UV, Lesson 10.1). Arrows start here.`,'H',{small:true});
+    addPt(stage,t.pb[0],t.pb[1],COL.raw,'<b>The tip of rawNormal (1, 1)</b>, drawn with the arrow ruler: 1 = 0.02 UV.','rawNormal tip',{small:true});addPt(stage,Np[0],Np[1],COL.N,'<b>The tip of N (0.707, 0.707)</b>, drawn with the arrow ruler: 1 = 0.02 UV.','N tip',{small:true});
+    cap=`<b>Step 9 · Back to the glass: the pixel W.</b> On the glass the slope changes from pixel to pixel, because the rim is curved. But close to H the rim is almost a small straight ramp: Lesson 10.2's join from the surface above A to the surface above B. It goes right 0.02 and down 0.02, so slopeX = −0.02 ÷ 0.02 = −1. Steps 6–8 now work in UV, the unit of x and of height: walk (1, −1) → rawNormal (1, 1) → length 1.414 → N = (0.707, 0.707). Here the slope happens to be −1; Step 10 shows others. An arrow part of 1 UV would be 4169 picture pixels long here, so the <b>arrow ruler</b> draws 1 as 0.02 UV: every arrow is drawn 0.02 times its real size.`;
+    rows=[['slopeX','−0.02 ÷ 0.02 = −1 <button class="info" data-tip="slopeX">ⓘ</button>','Lesson 10.2, from A to B'],['walk','(1, slopeX × 1) = (1, −1 × 1) = (1, −1)','Step 6: a walk of 1 in x'],['rawNormal x part','−slopeX = −(−1) = 1','Step 5'],['rawNormal','(1, 1)','(−slopeX, 1)'],['length','x part² = 1 × 1 = 1 · height part² = 1 × 1 = 1 · sum = 1 + 1 = 2 · length = √2 = 1.414','Step 7'],['N','N x part = 1 ÷ 1.414 = 0.707 · N height part = 1 ÷ 1.414 = 0.707 · N = (0.707, 0.707)','Step 8: 1 long']];
+    legend=[['swl',COL.glass,'the violet glass, cut along the pixel row y = 0.50'],['swd',COL.A,'A and B: one step left and right of W; the bars are their heights'],['swl','#64748b','Lesson 10.2\'s join from above A to above B'],L.walk,L.raw,L.N,['swl',COL.ink,'the arrow ruler: how long 1 is drawn']]}
+  else{
+    const F=frame(cv,'row',0.5,0.10,0.90,400),c2=drawCut(F,TP),U=0.04*F.k;ruler(c2,48,U,'arrow ruler: 1 = 0.04 UV');
+    ROWPX.forEach((x,i)=>{const n=normalAt(x,0.5,TP),hx=F.X(x),hy=F.Y(n.h);c2.save();c2.globalAlpha=0.32;arrow(c2,hx,hy,hx+n.raw[0]*U,hy-U,COL.raw,2.2,9);c2.restore();arrow(c2,hx,hy,hx+n.N[0]*U,hy-n.N[2]*U,COL.N,i===6?3.6:3,i===6?12:10);
+      tag(c2,String(i+1),hx,F.base+(i%2?42:20),i===6?'#fbcfe8':'#fff');const r=rowCalc(x);
+      addPt(stage,hx,hy,'#fff',`<b>${i+1}: the surface above (${f(x)}, 0.50)</b>, UV<br>height ${f(n.h)}, slopeX ${f(r.sx)}<br>rawNormal (${f(r.rx)}, 1), length ${f(r.len)}<br>N = (${f(r.nx)}, ${f(r.nz)})`,'point '+(i+1),{small:true})});
+    plate(c2,'flat top: N straight up',F.X(0.5),F.Y(0.1)-64,13,'center');plate(c2,'outside: straight up',F.X(0.14),F.base-82,13,'center');plate(c2,'right rim: N leans right',F.X(0.80),F.Y(0.05)-76,13,'center');plate(c2,'left rim: N leans left',F.X(0.20),F.Y(0.05)-76,13,'center');
+    cap=`<b>Step 10 · Every pixel of the row.</b> Each pixel gets its own slope from its own A and B, and so its own N. Where the surface is level (the flat top, the screen outside), slopeX = 0 and N = (0, 1): straight up. On the rim N leans away from the glass: right on the right rim, left on the left rim. A steeper rim makes N lean more. The faint rawNormals have different lengths; every N is 1 long, so all N are drawn the same length.`;
+    head=['Pixels','slopeX (Lesson 10.2)','rawNormal = (−slopeX, 1)','length','N'];
+    rows=ROWGROUPS.map(([name,ids])=>{const x=ROWPX[ids[0]],r=rowCalc(x);return[`${name}<br><span class="small">x = ${ids.map(i=>f(ROWPX[i])).join(', ')}</span>`,`hLeft = ${f(r.HL)} <button class="info" data-tipfn="h:${f(R12(x-0.01))}">ⓘ</button><br>hRight = ${f(r.HR)} <button class="info" data-tipfn="h:${f(R12(x+0.01))}">ⓘ</button><br>${r.L1.join('<br>')}`,`${r.L2.join('<br>')}<br>rawNormal = (${f(r.rx)}, 1)`,r.L3.join('<br>'),`${r.L4.join('<br>')}<br>N = (${f(r.nx)}, ${f(r.nz)})`]});
+    legend=[['swl',COL.glass,'the violet glass, cut along the pixel row y = 0.50'],['swl',COL.N,'N at nine pixels, drawn with the arrow ruler 1 = 0.04 UV'],['swl',COL.raw,'faint: rawNormal at the same pixels'],['swd','#fff','1 … 9: the nine pixels; 7 is W']]}
+  $('s1Cap').innerHTML=cap+`<div style="margin-top:8px;color:#6b7280;font-size:13.5px">Step ${s1+1} of ${S1N}</div>`;
+  $('s1Table').innerHTML=`<tr>${head.map((h,i)=>`<th${i===0?' style="width:170px"':''}>${h}</th>`).join('')}</tr>`+rows.map(r=>`<tr>${r.map((c,i)=>i===0?`<td><b>${c}</b></td>`:`<td class="${s1===9&&i>0||i===1?'f':''}">${c}</td>`).join('')}</tr>`).join('');
+  $('s1Legend').innerHTML=legend.map(l=>`<li><span class="${l[0]}" style="background:${l[1]}"></span>${l[2]}</li>`).join('');
+  bindTips($('s1Table'));[...$('s1Dots').children].forEach((d,i)=>d.classList.toggle('on',i===s1));$('s1Prev').disabled=s1===0;$('s1Next').disabled=s1===S1N-1;
+}
+/* one pixel of the row y = 0.50: its slope, rawNormal, length and N, one operation per line, 3 decimals */
+function rowCalc(x){const T=new Trace(3),hl=heightAt(R12(x-0.01),0.5,TP),hr=heightAt(R12(x+0.01),0.5,TP),HL=T.shown(hl),HR=T.shown(hr);
+  const dh=T.sub('ΔhX = hRight − hLeft',HR,HL),sx=T.div('slopeX',dh,0.02),L1=T.take();
+  const rx=T.neg('x part = −slopeX',sx),L2=T.take();
+  const x2=T.sq('x part²',rx),z2=T.sq('height part²',1),s=T.add('sum',x2,z2,true),len=T.root('length',s),L3=T.take();
+  const nx=T.div('N x part',rx,len),nz=T.div('N height part',1,len),L4=T.take();
+  return{HL,HR,sx,rx,len,nx,nz,L1,L2,L3,L4}}
+
+/* ================= SECTION 2: two slopes give one arrow in 3D ================= */
+const BOARD={sx:-0.45,sy:-0.60,zp:1.15,E:1};
+const bZ=(x,y)=>BOARD.zp+BOARD.sx*x+BOARD.sy*y;
+const PB=[0,0,BOARD.zp];
 const RAWC=[0.45,0.6,1],NC=[0.36,0.48,0.8];
+const add3=(a,b,k=1)=>[a[0]+b[0]*k,a[1]+b[1]*k,a[2]+b[2]*k];
 const nrm3=v=>{const L=Math.hypot(...v);return v.map(q=>q/L)};
-let s2=0;const S2N=7;
-const S2VIEW=[[28,24],[0,0],[-90,0],[28,24],[0,90],[-53.13,0],[28,24]];
-function cardScene(o,opt){
-  const g=(x,y)=>[x,y,cH(x,y)],n=4,E=1.1;
-  for(let i=0;i<n;i++)for(let j=0;j<n;j++){const x0=-E+2*E*i/n,x1=-E+2*E*(i+1)/n,y0=-E+2*E*j/n,y1=-E+2*E*(j+1)/n;o.poly([g(x0,y0),g(x1,y0),g(x1,y1),g(x0,y1)],'rgba(219,234,254,0.78)','rgba(30,64,175,0.35)',1)}
-  o.path([g(-E,-E),g(E,-E),g(E,E),g(-E,E),g(-E,-E)],COL.cardLine,1.6,true,0.5);
-  if(opt.posts!==false){const FZ=-1.6;o.path([[-E,-E,FZ],[E,-E,FZ],[E,E,FZ],[-E,E,FZ],[-E,-E,FZ]],'#cbd5e1',1.2,true,-1);for(const [x,y] of [[-E,-E],[E,-E],[E,E],[-E,E]])o.seg([x,y,FZ],g(x,y),'#94a3b8',1.4,true,-1);o.label('a level floor, for depth',[-E,E,FZ],-6,14,'left','#64748b',11)}
-  if(opt.picLabel!==false)o.label('top of the picture',g(0,-E),0,-14,'center','#4b5563',12);
-  const P=[0,0,0];o.dot(P,'#fff',5);o.pt('P',P,'#fff','<b>P</b>: the middle of the tilted flat surface. All arrows start here. Units: the arrow ruler (no UV).','P');
-  const xw=[1,0,CARD.sx],yw=[0,1,CARD.sy];
-  if(opt.walks!==false){o.arrow(P,xw,'#65a30d',3,2);o.arrow(P,yw,COL.col,3,2);
-    o.pt('xw',xw,'#a3e635','<b>End of the x walk</b>: from P, 1 in x; the height changes by slopeX × 1 = −0.45.','x walk end');o.pt('yw',yw,COL.col,'<b>End of the y walk</b>: from P, 1 in y (toward the bottom of the picture); the height changes by slopeY × 1 = −0.60.','y walk end')}
-  return{P,xw,yw};
-}
+const UV3=(u,v,h=0)=>[-1.5+3*u,-1.5+3*v,3*h];      /* the screen picture as the floor: 1 UV = 3 units of this 3D picture */
+const XW=[1,0,BOARD.sx],YW=[0,1,BOARD.sy],FRONT=[0.45,0,1],SIDE=[0,0.6,1];
+let s2=0;const S2N=10;
+const S2CAM=[[0,90,1.05,[0,0,0]],[-20,30,1.15,[0,0,0.35]],[-20,30,1.05,[0,0,0.95]],[-20,30,1.15,[0.15,0.2,1.05]],[0,0,1.4,[0.25,0,1.3]],[-90,0,1.4,[0,0.3,1.3]],[-20,30,1.6,[0.25,0.3,1.55]],[-20,60,1.7,[0.25,0.3,1.4]],[-53.13,12,1.8,[0.3,0.3,1.6]],[-20,30,1.6,[0.2,0.25,1.55]]];
+function floor3(o,opt={}){const F=1.5;o.poly([[-F,-F,0],[F,-F,0],[F,F,0],[-F,F,0]],opt.fill||'rgba(241,245,249,0.96)','#94a3b8',1.4,-3);
+  if(opt.uv)for(let i=1;i<10;i++){const t=-F+i*0.3;o.seg([t,-F,0],[t,F,0],'#e2e8f0',1,true,-2.5);o.seg([-F,t,0],[F,t,0],'#e2e8f0',1,true,-2.5)}
+  if(opt.top!==false)o.label('top of the picture',[0,-F,0],0,-13,'center','#4b5563',12);if(opt.title)o.label(opt.title,[0,F,0],0,18,'center','#475569',12)}
+function board3(o,opt={}){const E=BOARD.E,g=(x,y)=>[x,y,bZ(x,y)],cuts=[-E,-1,0,1,E];
+  for(let i=0;i<4;i++)for(let j=0;j<4;j++){const x0=cuts[i],x1=cuts[i+1],y0=cuts[j],y1=cuts[j+1];o.poly([g(x0,y0),g(x1,y0),g(x1,y1),g(x0,y1)],opt.fill||'rgba(219,234,254,0.82)','rgba(30,64,175,0.40)',1)}
+  o.path([g(-E,-E),g(E,-E),g(E,E),g(-E,E),g(-E,-E)],'#1e40af',1.8,true,0.5);
+  if(opt.posts)for(const [x,y] of [[-E,-E],[E,-E],[E,E],[-E,E]])o.seg([x,y,0],g(x,y),'#64748b',1.8,true,0);
+  o.pt('P',PB,'#fff','<b>P</b>: the middle of the tilted board. All arrows of Section 2 start here.<br>Units: one board grid square is 1 × 1; heights use the same unit.','P');
+  return g}
+/* a walk on the board from start: an arrow, plus (stairs) its floor part at the start height and its height change */
+function walk3(o,start,w,opt={}){const end=add3(start,w),lvl=[end[0],end[1],start[2]];
+  if(opt.stairs){o.seg(start,lvl,opt.ghost?(w[0]?'#d9f99d':'#fed7aa'):(w[0]?COL.xP:COL.yP),opt.ghost?2:2.8,false,1.8);o.seg(lvl,end,opt.ghost?'#bae6fd':COL.hP,opt.ghost?2:2.8,false,1.8)}
+  o.arrow(start,end,opt.ghost?'#99f6e4':(opt.color||COL.walk),opt.ghost?2.2:3.2,2);return end}
+/* an arrow from P with its three parts drawn as a staircase: x part, then y part (both at P's height), then the height part */
+function stairs3(o,v,col){const a=add3(PB,[v[0],0,0]),b=add3(a,[0,v[1],0]),c=add3(b,[0,0,v[2]]);
+  if(v[0])o.seg(PB,a,COL.xP,2.8,false,1.8);if(v[1])o.seg(a,b,COL.yP,2.8,false,1.8);o.seg(b,c,COL.hP,2.8,false,1.8);o.arrow(PB,c,col,3.4,2.4);return{a,b,c}}
+function glassMesh3(o){const P=TP,rf=Math.max(0,RAD-P.bev),R=[];for(let i=0;i<=3;i++)R.push(rf*i/3);for(let i=1;i<=12;i++){const a=(90-i*7.5)*DEG;R.push(rf+P.bev*Math.cos(a))}
+  const hr=r=>{const ins=clamp(RAD-r,0,P.bev),leg=P.bev-ins;return Math.sqrt(Math.max(0,P.bev*P.bev-leg*leg))},NS=40,q=(r,t)=>UV3(P.c[0]+r*Math.cos(t),P.c[1]+r*Math.sin(t),hr(r));
+  for(let i=0;i<R.length-1;i++)for(let j=0;j<NS;j++){const t0=j/NS*2*Math.PI,t1=(j+1)/NS*2*Math.PI;o.poly([q(R[i],t0),q(R[i+1],t0),q(R[i+1],t1),q(R[i],t1)],'rgba(233,213,255,0.42)','rgba(168,85,247,0.28)',0.7)}}
 function drawS2(o){
-  const st=s2,r=cardScene(o,{posts:[0,3,6].includes(st),picLabel:[0,3,4,6].includes(st)}),P=r.P,raw=RAWC,tip=[...raw];
-  if(st===0){o.label('x walk: 1 in x, height −0.45',r.xw,10,-14,'left','#3f6212');o.label('y walk: 1 in y, height −0.60',r.yw,10,12,'left','#9a3412')}
-  if(st>=1){o.arrow(P,tip,COL.raw,3.4,2.4);o.pt('raw',tip,COL.raw,'<b>The tip of rawNormal</b> = (0.45, 0.60, 1), on the arrow ruler.','rawNormal tip')}
-  const ux=nrm3(r.xw),uy=nrm3(r.yw),un=nrm3(raw);
-  if(st===1){o.corner(P,ux,un,0.22);o.label('x walk: across 1, falls 0.45',r.xw,8,10,'left','#3f6212');o.label('x part 0.45 for height 1',tip,10,-10,'left',COL.raw);o.label('y walk points toward you',r.yw,10,14,'left','#9a3412')}
-  if(st===2){o.corner(P,uy,un,0.22);o.label('y walk: across 1, falls 0.60',r.yw,8,10,'left','#9a3412');o.label('y part 0.60 for height 1',tip,10,-10,'left',COL.raw);o.label('x walk points away from you',r.xw,10,14,'left','#3f6212')}
-  if(st===3){o.corner(P,ux,un,0.22);o.corner(P,uy,un,0.22);o.label('rawNormal (0.45, 0.60, 1)',tip,10,-10,'left',COL.raw);o.label('x walk',r.xw,8,10,'left','#3f6212');o.label('y walk',r.yw,8,10,'left','#9a3412')}
-  if(st>=4&&st<=5){const a=[0.45,0,0],b=[0.45,0.6,0],c=[0.45,0.6,1];o.seg(P,a,'#65a30d',3,false,2);o.seg(a,b,COL.col,3,false,2);o.seg(P,b,'#0f172a',3.2,false,2);o.seg(b,c,'#94a3b8',2.6,false,2);
-    o.pt('b1',a,'#a3e635','<b>0.45 in x</b> from P (height unchanged)','corner 1');o.pt('b2',b,COL.col,'<b>The shadow tip</b>: 0.45 in x and 0.60 in y from P, at the height of P.','shadow tip');
-    if(st===4){o.corner(a,[-1,0,0],[0,1,0],0.1);o.label('0.45',[0.225,0,0],0,-14,'center','#3f6212');o.label('0.60',[0.45,0.3,0],12,0,'left','#9a3412');o.label('shadow 0.75',[0.225,0.3,0],-10,12,'right','#0f172a')}
-    else{o.corner(b,nrm3([-0.45,-0.6,0]),[0,0,1],0.1);o.label('shadow 0.75',[0.225,0.3,0],0,16,'center','#0f172a');o.label('height 1',[0.45,0.6,0.5],10,0,'left','#475569');o.label('rawNormal 1.25',[0.225,0.3,0.5],-12,-6,'right',COL.raw)}}
-  if(st===6){for(const pl of [0,1,2]){const ps=[];for(let i=0;i<=72;i++){const t=i/72*2*Math.PI,c=Math.cos(t),s=Math.sin(t);ps.push(pl===0?[c,s,0]:pl===1?[c,0,s]:[0,c,s])}o.path(ps,'#f9a8d4',1.4,true,1)}
-    o.arrow(P,NC,COL.N,3.6,2.6);o.pt('N',NC,COL.N,'<b>The tip of N</b> = (0.36, 0.48, 0.80): on the ball of radius 1 around P.','N tip');o.label('N (0.36, 0.48, 0.80)',NC,10,8,'left',COL.N);o.label('rawNormal 1.25 long',tip,10,-12,'left',COL.raw)}
+  const st=s2;
+  if(st<=1){floor3(o,{uv:true,title:'the screen picture (UV)'});
+    const ring3=[];for(let j=0;j<=96;j++){const t=j/96*2*Math.PI;ring3.push(UV3(0.5+0.25*Math.cos(t),0.5+0.25*Math.sin(t)))}o.path(ring3,COL.glass,2.2,false,-1);
+    const O=UV3(0,0);o.pt('O',O,'#fff','<b>UV (0, 0)</b>: the top-left corner of the picture (Lesson 8.6).','UV origin');
+    for(const [t,p,dx,dy,al] of [['(0, 0)',O,-8,-10,'right'],['(1, 0)',UV3(1,0),8,-10,'left'],['(0, 1)',UV3(0,1),-8,12,'right'],['(1, 1)',UV3(1,1),8,12,'left']])o.label(t,p,dx,dy,al,'#334155',12);
+    if(st===0){o.pt('W',UV3(0.72,0.5),'#fff','<b>W = (0.72, 0.50)</b>, UV: the traced pixel, on the screen (height 0).','W');o.pt('C',UV3(0.5,0.5),COL.glass,'<b>C = (0.50, 0.50)</b>, UV: the glass center.','C');o.arrow(O,UV3(0.42,0),COL.xP,3.2,1.6);o.arrow(O,UV3(0,0.42),COL.yP,3.2,1.6);o.label('x grows: to the right',UV3(0.42,0),8,-12,'left',COL.xT,13);o.label('y grows: toward the bottom of the picture',UV3(0,0.42),8,16,'left',COL.yT,13);
+      o.label('W',UV3(0.72,0.5),10,14,'left');o.label('C',UV3(0.5,0.5),0,20,'center');o.label('the glass outline',UV3(0.5,0.75),0,16,'center','#7e22ce',12)}
+    else{glassMesh3(o);const Q=UV3(0.90,0.90,0.35),a=UV3(0.90,0),b=UV3(0.90,0.90);o.arrow(O,[O[0],O[1],1.2],COL.hP,3.2,1.6);o.label('height grows: up, out of the screen',[O[0],O[1],1.2],8,-10,'left',COL.hT,13);
+      o.seg(O,a,COL.xP,3.2,false,1.7);o.seg(a,b,COL.yP,3.2,false,1.7);o.seg(b,Q,COL.hP,3.4,false,3);o.arrow(O,Q,'#334155',2.6,2);
+      o.label('x part 0.90',UV3(0.30,0),0,15,'center',COL.xT,13);o.label('y part 0.90',UV3(0.90,0.45),12,4,'left',COL.yT,13);o.label('height part 0.35',UV3(0.90,0.90,0.175),12,0,'left',COL.hT,13);o.label('Q = (0.90, 0.90, 0.35)',Q,10,-14,'left',COL.ink,13);o.label('the arrow from (0, 0) to Q',UV3(0.45,0.45,0.175),-14,-12,'right','#334155',12);
+      o.pt('Q',Q,'#fff','<b>Q = (0.90, 0.90, 0.35)</b>: a point above the screen. x 0.90 and y 0.90 in UV; height 0.35 in UV.','Q');o.pt('Qb',b,COL.yP,'<b>(0.90, 0.90) on the screen</b>, straight under Q (height 0).','under Q')}
+    return}
+  floor3(o,{title:st<=3?'the screen (the floor)':'',top:false});
+  const g=board3(o,{posts:st<=5});
+  if(st===2){o.label('the tilted board',g(-1,-1),-8,-14,'right','#1e40af',13);o.label('lower toward the right',g(1,0),12,0,'left','#1e40af',12);o.label('lower toward the bottom of the picture',g(0,1),-10,22,'right','#1e40af',12);o.label('back edge: toward the top of the picture',g(0,-1),0,-12,'center','#1e40af',12);
+    o.label('tallest post',[-1,-1,bZ(-1,-1)/2],-10,0,'right','#475569',12);o.label('shortest post',[1,1,bZ(1,1)/2],10,6,'left','#475569',12);o.label('P',PB,-10,-10,'right')}
+  if(st===3){const xe=walk3(o,PB,XW,{stairs:true}),ye=walk3(o,PB,YW,{stairs:true});walk3(o,g(-1,-0.5),XW,{stairs:true,ghost:true});walk3(o,g(-0.6,0),YW,{stairs:true,ghost:true});
+    o.label('x walk (1, 0, −0.45)',xe,10,12,'left',COL.walk,13);o.label('y walk (0, 1, −0.60)',ye,-8,18,'right',COL.walk,13);o.label('1 in x',[0.5,0,BOARD.zp],0,-14,'center',COL.xT,12);o.label('1 in y',[0,0.5,BOARD.zp],-10,-6,'right',COL.yT,12);
+    o.label('here too: −0.45',[0,-0.5,bZ(0,-0.5)],8,-12,'left','#0f766e',12);o.label('here too: −0.60',[-0.6,1,bZ(-0.6,1)],-10,10,'right','#0f766e',12);o.label('drop 0.45',[1,0,BOARD.zp-0.225],10,0,'left',COL.hT,12);o.label('drop 0.60',[0,1,BOARD.zp-0.3],-10,0,'right',COL.hT,12);o.label('P',PB,-10,-10,'right');
+    o.pt('xe',xe,COL.walk,'<b>The end of the x walk</b>: from P, 1 in x and 0 in y; the height changes by −0.45. Parts: (1, 0, −0.45).','x walk end');o.pt('ye',ye,COL.walk,'<b>The end of the y walk</b>: from P, 0 in x and 1 in y (toward the bottom of the picture); the height changes by −0.60. Parts: (0, 1, −0.60).','y walk end')}
+  if(st===4){const xe=walk3(o,PB,XW,{stairs:true}),ye=walk3(o,PB,YW,{ghost:true}),fa=add3(PB,FRONT);o.arrow(PB,fa,COL.front,3.2,2.2);o.corner(PB,nrm3(XW),nrm3(FRONT),0.16);
+    o.label('x walk: true size, right 1, down 0.45',xe,10,14,'left',COL.walk,13);o.label('front arrow (0.45, 0, 1)',fa,10,-8,'left','#4338ca',13);o.label('y walk: points at you',ye,-12,10,'right','#0f766e',12);
+    o.pt('fa',fa,COL.front,'<b>The tip of the front arrow</b> = (0.45, 0, 1) from P: x part 0.45, y part 0, height part 1.','front arrow tip');o.pt('xe',xe,COL.walk,'<b>The end of the x walk</b> (1, 0, −0.45) from P.','x walk end')}
+  if(st===5){const ye=walk3(o,PB,YW,{stairs:true}),xe=walk3(o,PB,XW,{ghost:true}),sa=add3(PB,SIDE);o.arrow(PB,sa,COL.front,3.2,2.2);o.corner(PB,nrm3(YW),nrm3(SIDE),0.16);
+    o.label('y walk: true size, 1 in y, down 0.60',ye,10,14,'left',COL.walk,13);o.label('side arrow (0, 0.60, 1)',sa,10,-8,'left','#4338ca',13);o.label('x walk: points away from you',xe,-12,-12,'right','#0f766e',12);
+    o.pt('sa',sa,COL.front,'<b>The tip of the side arrow</b> = (0, 0.60, 1) from P: x part 0, y part 0.60, height part 1.','side arrow tip');o.pt('ye',ye,COL.walk,'<b>The end of the y walk</b> (0, 1, −0.60) from P.','y walk end')}
+  if(st===6){walk3(o,PB,XW);walk3(o,PB,YW);o.arrow(PB,add3(PB,FRONT),COL.front,2.2,2.1);o.arrow(PB,add3(PB,SIDE),COL.front,2.2,2.1);const s=stairs3(o,RAWC,COL.raw);
+    o.corner(PB,nrm3(XW),nrm3(RAWC),0.15);o.corner(PB,nrm3(YW),nrm3(RAWC),0.15);
+    o.label('rawNormal (0.45, 0.60, 1)',s.c,10,-10,'left',COL.raw,14);o.label('x part 0.45',[0.225,0,BOARD.zp],-8,-10,'right',COL.xT,12);o.label('y part 0.60',[0.45,0.3,BOARD.zp],-6,20,'right',COL.yT,12);o.label('height part 1',[0.45,0.6,BOARD.zp+0.5],12,0,'left',COL.hT,12);
+    o.label('front arrow',add3(PB,FRONT),-10,-4,'right','#4338ca',12);o.label('side arrow',add3(PB,SIDE),-10,6,'right','#4338ca',12);o.label('x walk',add3(PB,XW),10,-8,'left',COL.walk,12);o.label('y walk',add3(PB,YW),10,10,'left',COL.walk,12);
+    o.pt('raw',s.c,COL.raw,'<b>The tip of rawNormal</b> = (0.45, 0.60, 1) from P.','rawNormal tip')}
+  if(st===7){const S=[0.45,0.6,BOARD.zp],a=[0.45,0,BOARD.zp],T=add3(PB,RAWC);o.seg(PB,a,COL.xP,3,false,2);o.seg(a,S,COL.yP,3,false,2);o.seg(PB,S,'#0f172a',3.4,false,2.2);o.seg(S,T,COL.hP,2.6,false,2.1);o.arrow(PB,T,COL.raw,3.2,2.4);o.corner(a,[-1,0,0],[0,1,0],0.08);
+    o.label('x part 0.45',[0.225,0,BOARD.zp],0,-14,'center',COL.xT,12);o.label('y part 0.60',[0.45,0.3,BOARD.zp],12,0,'left',COL.yT,12);o.label('shadow 0.75',[0.225,0.3,BOARD.zp],-12,14,'right','#0f172a',13);o.label('rawNormal',T,10,-6,'left',COL.raw,13);o.label('light from straight above',[0.45,0.6,BOARD.zp+0.55],12,0,'left',COL.hT,12);
+    o.pt('st',S,'#334155','<b>The tip of the shadow</b>: 0.45 in x and 0.60 in y from P, at the height of P.','shadow tip');o.pt('raw',T,COL.raw,'<b>The tip of rawNormal</b> = (0.45, 0.60, 1) from P.','rawNormal tip')}
+  if(st===8){const S=[0.45,0.6,BOARD.zp],T=add3(PB,RAWC);o.seg(PB,S,'#0f172a',3.4,false,2.2);o.seg(S,T,COL.hP,3,false,2.1);o.arrow(PB,T,COL.raw,3.4,2.4);o.corner(S,nrm3([-0.45,-0.6,0]),[0,0,1],0.09);
+    o.label('shadow 0.75',[0.225,0.3,BOARD.zp],0,16,'center','#0f172a',13);o.label('height part 1',[0.45,0.6,BOARD.zp+0.5],12,0,'left',COL.hT,13);o.label('rawNormal 1.25',[0.225,0.3,BOARD.zp+0.5],-12,-6,'right',COL.raw,13);o.label('the board, seen almost edge-on',g(-1,1),-6,-12,'left','#1e40af',12);
+    o.pt('st',S,'#334155','<b>The tip of the shadow</b>: 0.75 from P, at the height of P.','shadow tip');o.pt('raw',T,COL.raw,'<b>The tip of rawNormal</b>: 1.25 from P.','rawNormal tip')}
+  if(st===9){for(const pl of [0,1,2]){const ps=[];for(let i=0;i<=72;i++){const t=i/72*2*Math.PI,c=Math.cos(t),s=Math.sin(t);ps.push(add3(PB,pl===0?[c,s,0]:pl===1?[c,0,s]:[0,c,s]))}o.path(ps,'#f9a8d4',1.6,true,1)}
+    const T=add3(PB,RAWC),Nt=add3(PB,NC);o.arrow(PB,T,'#c7d2fe',2.4,2.1);o.arrow(PB,Nt,COL.N,3.6,2.6);
+    o.label('N (0.36, 0.48, 0.80): 1 long',Nt,12,12,'left','#be185d',14);o.label('rawNormal: 1.25 long',T,10,-10,'left',COL.raw,12);o.label('ball of radius 1 around P',add3(PB,[0,0,1]),0,-14,'center','#be185d',12);
+    o.pt('N',Nt,COL.N,'<b>The tip of N</b> = (0.36, 0.48, 0.80) from P: on the ball of radius 1 around P.','N tip');o.pt('raw',T,'#c7d2fe','<b>The tip of rawNormal</b> = (0.45, 0.60, 1): 1.25 from P, outside the ball.','rawNormal tip')}
 }
-const s2Orb=new Orbit3D($('s2Stage'),$('s2Cv'),{yaw:28,pitch:24,scale:122,target:[0,0,0],dy:-22,draw:drawS2});
-viewBar($('s2Bar'),s2Orb,[['At an angle',28,24],['Look along y (front)',0,0],['Look along x (side)',-90,0],['From above',0,90]]);
+const s2Orb=new Orbit3D($('s2Stage'),$('s2Cv'),{yaw:0,pitch:90,zoom:1.05,scale:112,target:[0,0,0],dy:-46,draw:drawS2});
+viewBar($('s2Bar'),s2Orb,[['At an angle',-20,30],['Front view (from the bottom edge)',0,0],['Side view (from the left edge)',-90,0],['From above',0,90]]);
+/* the companion picture: the step's 3D fact drawn flat, in Section 1's style */
+function drawS2Side(){const stage=$('s2SideStage'),cv=$('s2Side'),ctx=cv.getContext('2d'),Wc=cv.width;clearPts(stage);ctx.fillStyle='#fff';ctx.fillRect(0,0,Wc,cv.height);const show=![0,1,3].includes(s2);stage.hidden=!show;if(!show)return;
+  const pt2=(x,y,c,h,l)=>addPt(stage,x,y,c,h,l,{small:true});
+  if(s2===2){const F=frame(cv,'row',0.5,0.55,0.83,284),c2=drawCut(F,TP,{title:false}),n=normalAt(0.72,0.5,TP),hx=F.X(0.72),hy=F.Y(n.h);
+    const ax=F.X(0.71),ay=F.Y(0.08),bx=F.X(0.73),by=F.Y(0.06);thin(c2,ax-(bx-ax)*2.4,ay-(by-ay)*2.4,bx+(bx-ax)*2.4,by+(by-ay)*2.4,'#64748b',2.4);
+    plate(c2,'Section 1, Step 9: the glass cut along the row y = 0.50',8,14,12,'left','#3f6212');plate(c2,'near H the rim is almost a straight ramp',hx+40,hy-22,12,'left','#334155');plate(c2,'H',hx-12,hy-14,13,'right');plate(c2,'In 3D: near H the glass is almost a small tilted board.',Wc-10,44,13,'right','#1e40af');
+    pt2(hx,hy,'#fff',`<b>H</b>: the surface above W = (0.72, 0.50); height ${f(n.h)} (UV).`,'H');return}
+  if(s2===4||s2===5){const isY=s2===5,sl=isY?BOARD.sy:BOARD.sx,G=s1Grid(ctx,300,196,150);plate(ctx,isY?'side view, drawn like Section 1 · 1 grid square = 1':'front view, drawn like Section 1 · 1 grid square = 1',8,14,12,'left');
+    s1Ramp(ctx,G,sl,0,Wc);axes2D(ctx,30,280,isY?{xl:'y (toward the bottom of the picture)',xc:COL.yP,xt:COL.yT}:{});
+    const w=s1Tri(ctx,G,1,sl,0,{xc:isY?COL.yP:COL.xP,head:11}),t=s1Tri(ctx,G,1,sl,90,{xc:isY?COL.yP:COL.xP,longCol:COL.front,head:11});square(ctx,G.ox,G.oy,unit2(1,-sl),unit2(-sl,-1),13);
+    const a=f(-sl),wn=isY?'y walk':'x walk',an=isY?'side arrow':'front arrow',p=isY?'y part':'x part',tc=isY?COL.yT:COL.xT;
+    plate(ctx,`1 in ${isY?'y':'x'}`,(w.H[0]+w.pa[0])/2,w.H[1]+16,12,'center',tc);plate(ctx,`down ${a}`,w.pa[0]+10,(w.pa[1]+w.pb[1])/2+4,12,'left',COL.hT);plate(ctx,`${wn} (1, ${f(sl)})`,w.pb[0]+8,w.pb[1]+16,13,'left',COL.walk);
+    plate(ctx,'up 1',t.pa[0]-10,(t.H[1]+t.pa[1])/2,12,'right',COL.hT);plate(ctx,`${p} ${a}`,(t.pa[0]+t.pb[0])/2,t.pa[1]-16,12,'center',tc);plate(ctx,`${an} (${a}, 1)`,t.pb[0]+8,t.pb[1]+20,13,'left','#4338ca');
+    pt2(G.ox,G.oy,'#fff','<b>P</b>, seen in this view.','P');pt2(t.pb[0],t.pb[1],COL.front,`<b>The tip of the ${an}</b>: ${p} ${a}, height part 1 (grid squares from P).`,an+' tip');return}
+  if(s2===6){for(const [k,isY] of [[0,false],[1,true]]){const x0=k*382,sl=isY?BOARD.sy:BOARD.sx,G=s1Grid(ctx,x0+110,218,120,[x0,0,x0+378,300]);ctx.save();ctx.beginPath();ctx.rect(x0,0,378,300);ctx.clip();s1Ramp(ctx,G,sl,x0,x0+378);
+      s1Tri(ctx,G,1,sl,0,{xc:isY?COL.yP:COL.xP,long:true,head:10});const r=G.P(-sl,1);arrow(ctx,G.ox,G.oy,r[0],r[1],COL.raw,3.4,12);square(ctx,G.ox,G.oy,unit2(1,-sl),unit2(-sl,-1),12);ctx.restore();
+      plate(ctx,isY?'rawNormal seen from the side':'rawNormal seen from the front',x0+8,14,12,'left');plate(ctx,isY?'looks like (0.60, 1): the side arrow':'looks like (0.45, 1): the front arrow',r[0]+8,r[1]+10,12,'left',COL.raw);plate(ctx,isY?'y walk':'x walk',G.P(1,sl)[0]+6,G.P(1,sl)[1]+16,12,'left',COL.walk);
+      pt2(r[0],r[1],COL.raw,isY?'<b>rawNormal seen from the side</b>: its x part points away from you, so you see y part 0.60 and height part 1.':'<b>rawNormal seen from the front</b>: its y part points at you, so you see x part 0.45 and height part 1.',isY?'side view tip':'front view tip')}
+    thin(ctx,380,0,380,300,'#64748b',2);return}
+  if(s2===7){const S=300,G=s1Grid(ctx,220,60,45);plate(ctx,'the shadow from above, drawn flat · grid lines every 0.15',Wc-8,14,12,'right');
+    const a=[220+0.45*S,60],b=[220+0.45*S,60+0.6*S];line(ctx,220,60,a[0],a[1],COL.xP,3.2);line(ctx,a[0],a[1],b[0],b[1],COL.yP,3.2);line(ctx,220,60,b[0],b[1],'#0f172a',3.6);square(ctx,a[0],a[1],[-1,0],[0,1],13);
+    plate(ctx,'x part 0.45 (3 squares)',(220+a[0])/2,46,12,'center',COL.xT);plate(ctx,'y part 0.60 (4 squares)',a[0]+12,(a[1]+b[1])/2,12,'left',COL.yT);plate(ctx,'shadow 0.75 (5 squares)',(220+b[0])/2-14,(60+b[1])/2+8,13,'right','#0f172a');
+    arrow(ctx,40,214,90,214,COL.xP,2.4,9);plate(ctx,'x',96,214,12,'left',COL.xT);arrow(ctx,40,214,40,264,COL.yP,2.4,9);plate(ctx,'y: down in a view from above',50,276,12,'left',COL.yT);
+    pt2(b[0],b[1],'#334155','<b>The tip of the shadow</b>: 0.45 in x and 0.60 in y from P (as in the 3D picture).','shadow tip');return}
+  if(s2>=8){const G0=s1Grid(ctx,200,268,50),G={ox:200,oy:268,S:200,P:(u,v)=>[200+u*200,268-v*200]};plate(ctx,s2===8?'the standing triangle, drawn flat · grid lines every 0.25: 3 by 4 squares, long side 5':'the standing triangle with N · grid lines every 0.25',Wc-8,14,12,'right');
+    const s=G.P(0.75,0),T=G.P(0.75,1);line(ctx,G.ox,G.oy,s[0],s[1],'#0f172a',3.4);line(ctx,s[0],s[1],T[0],T[1],COL.hP,3.2);square(ctx,s[0],s[1],[-1,0],[0,-1],14);
+    if(s2===8){arrow(ctx,G.ox,G.oy,T[0],T[1],COL.raw,3.6,13);plate(ctx,'shadow 0.75',(G.ox+s[0])/2,G.oy+16,13,'center','#0f172a');plate(ctx,'height part 1',s[0]+10,(s[1]+T[1])/2,13,'left',COL.hT);plate(ctx,'rawNormal 1.25',(G.ox+T[0])/2-10,(G.oy+T[1])/2-4,14,'right',COL.raw);
+      pt2(T[0],T[1],COL.raw,'<b>The tip of rawNormal</b>: shadow part 0.75, height part 1; 1.25 from P.','rawNormal tip')}
+    else{ctx.save();ctx.globalAlpha=0.35;arrow(ctx,G.ox,G.oy,T[0],T[1],COL.raw,3,12);ctx.restore();ctx.strokeStyle='#f9a8d4';ctx.lineWidth=1.8;ctx.beginPath();ctx.arc(G.ox,G.oy,200,Math.PI,0);ctx.stroke();const Np=G.P(0.6,0.8);arrow(ctx,G.ox,G.oy,Np[0],Np[1],COL.N,3.6,13);
+      plate(ctx,'N: shadow part 0.6, height part 0.8, 1 long',Np[0]-16,Np[1]-8,13,'right','#be185d');plate(ctx,'circle of radius 1 around P',G.ox+214,G.oy-40,12,'left','#be185d');
+      pt2(Np[0],Np[1],COL.N,'<b>The tip of N</b>: 1 from P, on the circle of radius 1.','N tip')}
+    pt2(G.ox,G.oy,'#fff','<b>P</b>, where rawNormal starts.','P')}}
 function s2Panel(){
   const caps=[
-    `<b>Step 1 · A tilted flat surface and two walks.</b> Every point of this surface has slopeX = −0.45 and slopeY = −0.60. From its middle P, the <b>x walk</b> goes 1 in x; the height changes by −0.45 × 1 = −0.45. The <b>y walk</b> goes 1 in y, toward the bottom of the picture; the height changes by −0.60 × 1 = −0.60. Both walks lie on the surface.`,
-    `<b>Step 2 · Look along y.</b> From the front, the x walk is seen at its true size: across 1, falls 0.45. This is Section 1's picture, so the quarter turn gives an arrow with <b>x part −slopeX = 0.45</b> for height part 1. The small mark shows the square corner between the arrow and the x walk.`,
-    `<b>Step 3 · Look along x.</b> From the side, the y walk is seen at its true size: across 1, falls 0.60. The same quarter turn gives <b>y part −slopeY = 0.60</b> for height part 1. Here y grows to the right, so the arrow leans toward the bottom of the picture.`,
-    `<b>Step 4 · One arrow for both walks.</b> rawNormal = (0.45, 0.60, 1) stands at a square corner to the x walk and to the y walk. A post that stands at a square corner seen from the front and seen from the side stands at a square corner to the whole floor; builders check a post this way: they hold a spirit level against two of its sides. Turn the picture and check.`,
-    `<b>Step 5 · Its length, part 1: the shadow.</b> Seen from above, the arrow's height part disappears. What is left is its shadow: 0.45 in x and 0.60 in y. Those are the legs of a flat right triangle (Lesson 9.1), so the shadow is √0.5625 = 0.75 long (0.2025 + 0.36 = 0.5625, in the table). It is the 3-4-5 triangle times 0.15.`,
-    `<b>Step 6 · Its length, part 2: stand it up.</b> Look along the shadow. The shadow (0.75) and the height part (1) are the legs of a second right triangle, standing up. Its long side is the arrow: √1.5625 = 1.25 (0.5625 + 1 = 1.5625), the 3-4-5 triangle times 0.25. (From here the surface is seen edge-on, as a line, and the arrow stands at a square corner to it.) The first root is not needed: 0.75 × 0.75 gives back 0.5625. So <b>length = √(x² + y² + z²)</b>, one root of the three squares.`,
-    `<b>Step 7 · Shrink to length 1.</b> Divide each part by 1.25: <b>N = (0.36, 0.48, 0.80)</b>. Same direction, length 1: its tip lies on the ball of radius 1 around P (three light circles). The check below adds the three squares and gets exactly 1.`
+    `<b>Step 1 · The screen, seen from straight above.</b> This is the picture you know from every lesson. x grows to the right, y grows toward the bottom of the picture (Lesson 8.6). The violet circle is this lesson's glass outline, and W = (0.72, 0.50) is the traced pixel. The box in the bottom-left corner shows the directions as you see them now, and where your eye is: here straight above the picture. Next we tilt the view so that heights become visible.`,
+    `<b>Step 2 · Tilt the view: a third direction.</b> Now the screen lies flat like a table top. You look at it from in front of its bottom edge, a little from the left and from above (see the eye in the corner box). A third direction appears: <b>height</b>, straight up out of the screen. A point above the screen needs three numbers. Q is at x 0.90, y 0.90, height 0.35: walk 0.90 along x, then 0.90 along y, then 0.35 up. So the arrow from the corner (0, 0) to Q has three parts: <b>(x part, y part, height part)</b> = (0.90, 0.90, 0.35). Every 3D arrow is written this way. Section 1's arrows had no y part, because a side view cannot show y.`,
+    `<b>Step 3 · A test surface: the tilted board.</b> Section 1 used a straight ramp. In 3D the test surface is a <b>tilted board</b>: a straight surface without bumps, like a book lying on a slope. Posts hold it above the screen. The posts have different lengths, so the board is lower toward the right and lower toward the bottom of the picture. Its height above the screen does not matter here, only its tilt. P is its middle. One board grid square is 1 × 1, and heights use the same unit. We use a board <b>because</b> close to one pixel the glass is almost such a board, as the rim was almost a straight ramp in Section 1, Step 9 (picture below).`,
+    `<b>Step 4 · Two walks, the same everywhere.</b> From P, walk 1 square in x, staying on the board: the height changes by <b>−0.45</b>, so the board's slopeX = −0.45 ÷ 1 = −0.45. Walk 1 square in y, toward the bottom of the picture: the height changes by <b>−0.60</b>, so slopeY = −0.60. As three parts: x walk = (1, 0, −0.45), y walk = (0, 1, −0.60). The pale copies start at other points and drop by the same amounts. Tilted does not mean that the slope changes: a tilted board is equally steep everywhere, like the test ramp of Section 1. So it has the same two slopes at every point; the curved glass does not, so on the glass every pixel has its own.`,
+    `<b>Step 5 · Front view: Section 1 along x.</b> Stand at the bottom edge of the picture, with your eye at the height of P, and look toward the top of the picture. y now points straight at you, so no y part can be seen. You see x (to the right) and height (up): this is Section 1's side view. The x walk is seen at its true size: right 1, down 0.45. Section 1's quarter turn gives the <b>front arrow</b>: x part −slopeX = −(−0.45) = 0.45, height part 1, y part 0. It stands at a square corner to the x walk (below: the same picture, drawn like Section 1).`,
+    `<b>Step 6 · Side view: Section 1 along y.</b> Now stand at the left edge of the picture and look right. x points straight away from you. You see y (to the right in this view: toward the bottom of the picture) and height. The y walk is seen at its true size: 1 in y, down 0.60. The same quarter turn gives the <b>side arrow</b>: y part −slopeY = −(−0.60) = 0.60, height part 1, x part 0. It stands at a square corner to the y walk.`,
+    `<b>Step 7 · One arrow for both walks.</b> Join the two answers: the x part 0.45 from the front view, the y part 0.60 from the side view, and the height part 1 that both share. <b>rawNormal = (0.45, 0.60, 1)</b>; the three colored lines are its parts. From the front its y part points at you, so it looks exactly like the front arrow; from the side it looks exactly like the side arrow (below). So it stands at a square corner to both walks, and with that to the whole board: a builder checks a post the same way, with a set square from two sides. Drag the picture to check. In general: <b>rawNormal = (−slopeX, −slopeY, 1)</b>.`,
+    `<b>Step 8 · Its length, part 1: the shadow.</b> Light from straight above throws rawNormal's <b>shadow</b> (dark line) onto the level plane through P. The shadow keeps the x part 0.45 and the y part 0.60 and loses the height part. Those two parts are the legs of a flat right triangle with a square corner (below). Lesson 9.1 gives the shadow's length: √(0.45² + 0.60²) = √0.5625 = <b>0.75</b>.`,
+    `<b>Step 9 · Its length, part 2: stand it up.</b> The view turns so that this triangle faces you. The shadow (0.75) and the height part (1) are the two legs of a second right triangle, standing up on the shadow. Its long side is rawNormal itself. Lesson 9.1 again: √(0.75² + 1²) = √1.5625 = <b>1.25</b>. The first root is not needed: 0.75² gives back 0.45² + 0.60². So the length of a 3D arrow is one root of its three squares: <b>√(x² + y² + height²)</b>. From here the board is seen edge-on. (0.75, 1 and 1.25 also appeared in Section 1; they match only because both test cases were built from the 3-4-5 triangle.)`,
+    `<b>Step 10 · Make it 1 long: N.</b> Divide each of the three parts by 1.25, as in Section 1, Step 8: <b>N = (0.36, 0.48, 0.80)</b>. N points the same way as rawNormal and is 1 long: its tip lies on the ball of radius 1 around P, drawn as three pink circles. The table checks it: the three squares add up to exactly 1.`
   ];
   const T=[
-    [['slopeX','−0.45','given: the height change per 1 in x'],['slopeY','−0.60','given: the height change per 1 in y'],['x walk','x + 1, height −0.45 × 1 = −0.45','a walk on the surface'],['y walk','y + 1, height −0.60 × 1 = −0.60','a walk on the surface']],
-    [['x part','−slopeX = −(−0.45) = 0.45','Section 1: the slope leg, turned'],['height part','1','the across leg, turned']],
-    [['y part','−slopeY = −(−0.60) = 0.60','the same turn along y'],['height part','1','the across leg, turned']],
-    [['rawNormal','(0.45, 0.60, 1)','at a square corner to both walks']],
-    [['x²','0.45 × 0.45 = 0.2025','first leg of the shadow triangle'],['y²','0.60 × 0.60 = 0.36','second leg'],['shadow²','0.2025 + 0.36 = 0.5625','Lesson 9.1'],['shadow','√0.5625 = 0.75','check: 0.75 × 0.75 = 0.5625']],
-    [['shadow²','0.75 × 0.75 = 0.5625','gives back x² + y²'],['z²','1 × 1 = 1','the height part'],['length²','0.5625 + 1 = 1.5625','Lesson 9.1 again'],['normalLength','√1.5625 = 1.25','check: 1.25 × 1.25 = 1.5625']],
-    [['N.x','0.45 ÷ 1.25 = 0.36','each part divided by the length'],['N.y','0.60 ÷ 1.25 = 0.48',''],['N.z','1 ÷ 1.25 = 0.8',''],['check','0.36 × 0.36 = 0.1296<br>0.48 × 0.48 = 0.2304<br>0.8 × 0.8 = 0.64<br>0.1296 + 0.2304 = 0.36<br>0.36 + 0.64 = 1<br>√1 = 1','N is 1 long']]
+    [['x','grows to the right','Lesson 8.6'],['y','grows toward the bottom of the picture','Lesson 8.6'],['W','(0.72, 0.50)','the traced pixel, on the screen']],
+    [['Q','(0.90, 0.90, 0.35)','x, y, height: three numbers for a point above the screen'],['x part','0.90','drawn along x'],['y part','0.90','drawn along y'],['height part','0.35','drawn up'],['3D arrow','(x part, y part, height part)','the arrow from (0, 0) to Q has these three parts'],['H','(0.72, 0.50, 0.071)','the same idea: the glass surface above W (height from Lesson 10.1)']],
+    [['board','a straight surface, no bumps','a test case, not the glass'],['P','its middle','where the arrows start'],['unit','1 board grid square','heights use the same unit']],
+    [['x walk','(1, 0, −0.45)','1 in x on the board'],['slopeX','−0.45 ÷ 1 = −0.45','height change ÷ distance (Lesson 10.2)'],['y walk','(0, 1, −0.60)','1 in y on the board'],['slopeY','−0.60 ÷ 1 = −0.60','height change ÷ distance']],
+    [['x part','−slopeX = −(−0.45) = 0.45','Section 1, Step 5'],['height part','1','the walk\'s 1, turned up (Section 1, Step 6)'],['y part','0','the front view has no y'],['front arrow','(0.45, 0, 1)','square to the x walk']],
+    [['y part','−slopeY = −(−0.60) = 0.60','the same turn along y'],['height part','1','the walk\'s 1, turned up'],['x part','0','the side view has no x'],['side arrow','(0, 0.60, 1)','square to the y walk']],
+    [['x part','0.45','from the front arrow'],['y part','0.60','from the side arrow'],['height part','1','shared by both'],['rawNormal','(0.45, 0.60, 1)','square to the whole board'],['in general','(−slopeX, −slopeY, 1)','the formula']],
+    [['x part²','0.45 × 0.45 = 0.2025','the first leg, squared'],['y part²','0.60 × 0.60 = 0.36','the second leg, squared'],['shadow²','0.2025 + 0.36 = 0.5625','Lesson 9.1'],['shadow','√0.5625 = 0.75','check: 0.75 × 0.75 = 0.5625']],
+    [['shadow²','0.75 × 0.75 = 0.5625','gives back x part² + y part²'],['height part²','1 × 1 = 1','the standing leg, squared'],['length²','0.5625 + 1 = 1.5625','Lesson 9.1 again'],['normalLength','√1.5625 = 1.25','check: 1.25 × 1.25 = 1.5625']],
+    [['N x part','0.45 ÷ 1.25 = 0.36','each part ÷ the length'],['N y part','0.60 ÷ 1.25 = 0.48',''],['N height part','1 ÷ 1.25 = 0.8',''],['check','0.36 × 0.36 = 0.1296<br>0.48 × 0.48 = 0.2304<br>0.8 × 0.8 = 0.64<br>0.1296 + 0.2304 = 0.36<br>0.36 + 0.64 = 1<br>√1 = 1','N is 1 long']]
   ];
+  const cmp=['swl','#cbd5e1','the corner box: the directions x, y, height as seen now, and where your eye is'],brd=['swl','#93c5fd','the tilted board (a test surface, not the glass); posts hold it above the screen'],wk=['swl',COL.walk,'the x walk and the y walk: arrows of 1 square along the board'];
   const L=[
-    [['swl','#dbeafe','the tilted flat surface (a test case, not the glass)'],['swd','#fff','P, its middle'],['swl','#65a30d','the x walk'],['swl',COL.col,'the y walk']],
-    [['swl','#65a30d','the x walk, at true size'],['swl',COL.raw,'rawNormal, seen from the front: 0.45 across, 1 up'],['swl','#111827','the square-corner mark']],
-    [['swl',COL.col,'the y walk, at true size'],['swl',COL.raw,'rawNormal, seen from the side: 0.60 across, 1 up'],['swl','#111827','the square-corner mark']],
-    [['swl',COL.raw,'rawNormal (0.45, 0.60, 1)'],['swl','#111827','two square-corner marks: with the x walk and with the y walk']],
-    [['swl','#65a30d','0.45 in x'],['swl',COL.col,'0.60 in y'],['swl','#0f172a','the shadow, 0.75 long']],
-    [['swl','#0f172a','the shadow, 0.75'],['swl','#94a3b8','the height part, 1'],['swl',COL.raw,'rawNormal, 1.25 long']],
-    [['swl',COL.N,'N, 1 long'],['swl',COL.raw,'rawNormal, 1.25 long'],['swl','#f9a8d4','the ball of radius 1 around P (three circles)']]
+    [['swl','#94a3b8','the screen picture, UV from 0 to 1'],['swl',COL.xP,'x: grows to the right'],['swl',COL.yP,'y: grows toward the bottom of the picture'],['swl',COL.glass,'the glass outline'],cmp],
+    [['swl',COL.hP,'height: grows up, out of the screen; also the height part of the arrow to Q'],['swl','#334155','the arrow from UV (0, 0) to Q'],['swl',COL.xP,'its x part'],['swl',COL.yP,'its y part'],['swl','#d8b4fe','the glass (Lesson 10.1), faint'],cmp],
+    [brd,['swd','#fff','P: the middle of the board'],['swl','#94a3b8','the posts and the screen under the board'],cmp],
+    [wk,['swl',COL.xP,'1 in x at P\'s height'],['swl',COL.yP,'1 in y at P\'s height'],['swl',COL.hP,'the height change of a walk'],['swl','#99f6e4','pale: the same walks from other points'],cmp],
+    [wk,['swl',COL.front,'the front arrow: the x walk, turned a quarter turn'],['swl','#111827','the square-corner mark'],['swl','#99f6e4','pale: the y walk, pointing at you'],cmp],
+    [wk,['swl',COL.front,'the side arrow: the y walk, turned a quarter turn'],['swl','#111827','the square-corner mark'],['swl','#99f6e4','pale: the x walk, pointing away from you'],cmp],
+    [['swl',COL.raw,'rawNormal (0.45, 0.60, 1)'],['swl',COL.xP,'its x part 0.45'],['swl',COL.yP,'its y part 0.60'],['swl',COL.hP,'its height part 1'],['swl',COL.front,'the front arrow and the side arrow'],['swl','#111827','two square-corner marks: with the x walk and with the y walk'],wk],
+    [['swl','#0f172a','the shadow of rawNormal, 0.75 long'],['swl',COL.xP,'x part 0.45'],['swl',COL.yP,'y part 0.60'],['swl',COL.hP,'the height part 1, lost in the shadow'],['swl',COL.raw,'rawNormal'],cmp],
+    [['swl','#0f172a','the shadow, 0.75'],['swl',COL.hP,'the height part, 1'],['swl',COL.raw,'rawNormal, 1.25 long: the long side'],['swl','#111827','the square-corner mark'],cmp],
+    [['swl',COL.N,'N, 1 long'],['swl','#c7d2fe','faint: rawNormal, 1.25 long'],['swl','#f9a8d4','the ball of radius 1 around P (three circles)'],cmp]
   ];
   $('s2Cap').innerHTML=caps[s2]+`<div style="margin-top:8px;color:#6b7280;font-size:13.5px">Step ${s2+1} of ${S2N}</div>`;
-  $('s2Table').innerHTML='<tr><th style="width:130px">Name</th><th>Numbers, one operation per “=”</th><th>Meaning</th></tr>'+T[s2].map(r=>`<tr class="${s2>=1?'new':''}"><td><b>${r[0]}</b></td><td class="f">${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+  $('s2Table').innerHTML=`<tr><th style="width:170px">Name</th><th>${s2<=2?'What it is':'Numbers, one operation per “=”'}</th><th>Meaning</th></tr>`+T[s2].map(r=>`<tr><td><b>${r[0]}</b></td><td class="f">${r[1]}</td><td>${r[2]}</td></tr>`).join('');
   $('s2Legend').innerHTML=L[s2].map(l=>`<li><span class="${l[0]}" style="background:${l[1]}"></span>${l[2]}</li>`).join('');
   [...$('s2Dots').children].forEach((d,i)=>d.classList.toggle('on',i===s2));$('s2Prev').disabled=s2===0;$('s2Next').disabled=s2===S2N-1;
+  drawS2Side();
 }
-function goS2(i){s2=i;s2Panel();s2Orb.setView(S2VIEW[i][0],S2VIEW[i][1],1);s2Orb.render()}
+function goS2(i){s2=i;s2Panel();const c=S2CAM[i];s2Orb.setView(c[0],c[1],c[2],c[3])}
 function drawS2Def(){const cv=$('s2Def'),ctx=cv.getContext('2d'),x0=0.62,y0=0.40,k=300/0.2,img=ctx.createImageData(300,300),D=img.data;
   for(let j=0;j<300;j++)for(let i=0;i<300;i++){const g=heightAt(x0+(i+0.5)/k,y0+(j+0.5)/k,TP)/TP.bev,o=(j*300+i)*4;D[o]=D[o+1]=D[o+2]=Math.round(g*255);D[o+3]=255}ctx.putImageData(img,0,0);
   const X=u=>(u-x0)*k,Y=v=>(v-y0)*k;ctx.save();ctx.beginPath();ctx.rect(0,0,300,300);ctx.clip();ring(ctx,X(0.5),Y(0.5),RAD*k,COL.glass,2);ctx.restore();line(ctx,0,Y(0.5),300,Y(0.5),COL.row,2.2);line(ctx,X(0.72),0,X(0.72),300,COL.col,2.2);
@@ -739,8 +955,8 @@ function buildCards(){
     {id:'c1',t:'1 · The four neighbors',why:'Two neighbors on the pixel row (Lesson 10.2) and two on the pixel column (new), each one step from W.',html:`<div class="lines">${G[0].lines.join('\n')}</div>`,out:'Used by the four height calculations.'},
     {id:'c2',t:'2 · slopeX, as in Lesson 10.2',why:'Lesson 10.2 traced these two heights line by line; open ⓘ for the chains.',html:`<div class="lines">hLeft = 0.08 <button class="info" data-tipfn="h:0.71">ⓘ</button>   hRight = 0.06 <button class="info" data-tipfn="h:0.73">ⓘ</button>\n${G[3].lines.join('\n')}</div>`,out:'slopeX = −1: the height falls to the right. Used by rawNormal.x.'},
     {id:'c3',t:'3 · slopeY, new',why:'D and E have the same p.x and opposite p.y, so the same distance from C and the same height.',html:pairHtml(G[2])+`<div class="lines">${G[4].lines.join('\n')}</div>`,out:'slopeY = 0: along the column the surface is level at W. Used by rawNormal.y.',isNew:true},
-    {id:'c4',t:'4 · rawNormal, new',why:'The quarter turn of Section 1 along x and of Section 2 along y.',html:`<div class="lines">${G[5].lines.join('\n')}</div>`,out:'Right 1, toward neither top nor bottom, up 1. Used by normalLength.',isNew:true},
-    {id:'c5',t:'5 · normalLength and N, new',why:'Lesson 9.1 twice for the length (Section 2), then Lesson 9.10\'s division.',html:`<div class="lines">${G[6].lines.join('\n')}\n${G[7].lines.join('\n')}</div>`,out:'N = (0.707, 0, 0.707): 1 long, leaning right as much as up. Lessons 10.4 and 10.5 use N.',isNew:true},
+    {id:'c4',t:'4 · rawNormal, new',why:'The walk of 1 along x is (1, slopeX) = (1, −1); its quarter turn gives the x part −slopeX (Section 1, Steps 5–6). Section 2, Step 7 adds the y part −slopeY. The height part is the turned walk of 1.',html:`<div class="lines">${G[5].lines.join('\n')}</div>`,out:'rawNormal = (1, 0, 1): x part 1, y part 0, height part 1. Used by normalLength.',isNew:true},
+    {id:'c5',t:'5 · normalLength and N, new',why:'Lesson 9.1 twice for the length (Section 2, Steps 8–9), then Lesson 9.10\'s division (Section 1, Step 8). x, y and z are rawNormal.x, .y and .z.',html:`<div class="lines">${G[6].lines.join('\n')}\n${G[7].lines.join('\n')}</div>`,out:'N = (0.707, 0, 0.707): 1 long, leaning right as much as up. Lessons 10.4 and 10.5 use N.',isNew:true},
     {id:'c6',t:'6 · The display color, only for seeing',why:'A part of N lies between −1 and 1; a channel holds 0 to 1. × 0.5 then + 0.5 moves −1 to 0, 0 to 0.5, and 1 to 1.',html:`<div class="lines">${G[8].lines.join('\n')}</div>`,out:'Red for x, green for y, blue for the height part. W is a light pink-violet; the flat top stores (0.5, 0.5, 1), light blue.'}
   ];
   $('traceCards').innerHTML=cards.map(c=>`<div class="card${c.isNew?' new':''}"><h3>${c.t}</h3>${cardCanvas(c.id)}<p class="why">${c.why}</p>${c.html}<p class="out"><b>Result:</b> ${c.out}</p></div>`).join('');
@@ -754,8 +970,8 @@ function buildCards(){
     if(join){const [a,b]=pts;line(ctx,F.X(a[1]),F.Y(hOn(F,a[1],TP)),F.X(b[1]),F.Y(hOn(F,b[1],TP)),'#64748b',2.4)}};
   {const cv=$('c2'),F=frame(cv,'row',0.5,0.55,0.90,215),ctx=drawCut(F,TP,{title:false});plate(ctx,'row y = 0.50, front',8,14,12,'left','#3f6212');bars(F,ctx,$('c2Stage'),[['A',0.71,COL.A],['B',0.73,COL.B]],true);plate(ctx,'falls 0.02 over 0.02',F.X(0.75),F.Y(0.07)-30,12,'left')}
   {const cv=$('c3'),F=frame(cv,'col',0.72,0.325,0.675,215),ctx=drawCut(F,TP,{title:false,turnIcon:false});plate(ctx,'column x = 0.72, turned: top of the picture on the left',8,14,12,'left','#9a3412');bars(F,ctx,$('c3Stage'),[['D',0.49,COL.D],['E',0.51,COL.E]],true);plate(ctx,'level from D to E: same heights',F.X(0.53),F.Y(0.075)-34,12,'left')}
-  {const cv=$('c4'),F=frame(cv,'row',0.5,0.55,0.90,215),ctx=drawCut(F,TP,{title:false}),n=normalAt(0.72,0.5,TP),hx=F.X(0.72),hy=F.Y(n.h),U=56;plate(ctx,'row y = 0.50, front · ruler 1 = 56 px',8,14,12,'left','#3f6212');
-    line(ctx,hx,hy,hx,hy-U,COL.across,3);line(ctx,hx,hy-U,hx+U,hy-U,COL.slope,3);arrow(ctx,hx,hy,hx+U,hy-U,COL.raw,3.2,12);square(ctx,hx,hy,unit2(1,1),unit2(1,-1),13);plate(ctx,'(1, 1)',hx+U+8,hy-U,13,'left',COL.raw);addPt($('c4Stage'),hx+U,hy-U,COL.raw,'<b>The tip of rawNormal</b>, seen from the front: right 1, up 1 on the 56-px ruler. Its y part is 0.','rawNormal tip',{small:true})}
+  {const cv=$('c4'),F=frame(cv,'row',0.5,0.55,0.90,215),ctx=drawCut(F,TP,{title:false}),n=normalAt(0.72,0.5,TP),hx=F.X(0.72),hy=F.Y(n.h),U=0.03*F.k;plate(ctx,'row y = 0.50, front · arrow ruler 1 = 0.03 UV',8,14,12,'left','#3f6212');
+    ctx.save();ctx.globalAlpha=0.5;arrow(ctx,hx,hy,hx+U,hy+U,COL.walk,2.6,10);ctx.restore();plate(ctx,'walk (1, −1)',hx+U+8,hy+U-4,12,'left',COL.walk);line(ctx,hx,hy,hx,hy-U,COL.hP,3);line(ctx,hx,hy-U,hx+U,hy-U,COL.xP,3);arrow(ctx,hx,hy,hx+U,hy-U,COL.raw,3.2,12);square(ctx,hx,hy,unit2(1,1),unit2(1,-1),13);plate(ctx,'rawNormal: x part 1, height part 1',hx+U+8,hy-U,13,'left',COL.raw);addPt($('c4Stage'),hx+U,hy-U,COL.raw,'<b>The tip of rawNormal</b>, seen from the front: right 1, up 1 on the 56-px ruler. Its y part is 0.','rawNormal tip',{small:true})}
   {const cv=$('c5'),ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,700,230);const ox=230,oy=212,U=150;thin(ctx,20,oy,680,oy,'#cbd5e1',1);ctx.save();ctx.strokeStyle='#f9a8d4';ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(ox,oy,U,Math.PI,0);ctx.stroke();ctx.restore();
     arrow(ctx,ox,oy,ox+U,oy-U,COL.raw,2.8,12);arrow(ctx,ox,oy,ox+U*0.70710678,oy-U*0.70710678,COL.N,3.4,12);plate(ctx,'rawNormal (1, 0, 1): 1.414 long',ox+U+10,oy-U,12,'left',COL.raw);plate(ctx,'N = (0.707, 0, 0.707): 1 long, on the circle',ox+U*0.71+14,oy-U*0.71+30,12,'left',COL.N);plate(ctx,'circle of radius 1',ox-U-6,oy-30,12,'right','#be185d');plate(ctx,'seen from the front · arrow ruler 1 = 150 px',8,14,12,'left');
     addPt($('c5Stage'),ox+U*0.70710678,oy-U*0.70710678,COL.N,'<b>The tip of N</b>: (0.707, 0, 0.707), on the circle of radius 1.','N tip',{small:true});addPt($('c5Stage'),ox+U,oy-U,COL.raw,'<b>The tip of rawNormal</b>: (1, 0, 1), 1.414 long.','rawNormal tip',{small:true})}
@@ -768,7 +984,7 @@ function buildCards(){
 }
 
 /* ================= SECTION 4: the lab ================= */
-const lab3=new Orbit3D($('lab3Stage'),$('lab3'),{yaw:-24,pitch:34,scale:740,target:[0.5,0.5,0.04],dy:20,draw:o=>{
+const lab3=new Orbit3D($('lab3Stage'),$('lab3'),{yaw:-24,pitch:34,scale:740,target:[0.5,0.5,0.04],dy:20,compassPos:'tr',draw:o=>{
   const r=glassScene(o,S,{w:S.w,cuts:true,col:true,arrows:S.arrows,raw:true,wLen:0.1});const n=r.n,w=S.w;
   for(const [k,p,c] of [['A',n.a,COL.A],['B',n.b,COL.B],['D',n.d,COL.D],['E',n.e,COL.E]])o.dot([p[0],p[1],0],c,3.5);
   o.label('W',[w[0],w[1],0],10,16,'left');o.label('H',r.H,-12,-8,'right');
@@ -776,7 +992,7 @@ const lab3=new Orbit3D($('lab3Stage'),$('lab3'),{yaw:-24,pitch:34,scale:740,targ
   o.pt('H',r.H,'#fff',()=>`<b>H</b>: the surface point above W, height ${f(n.h)} (UV).`,'H');
   o.pt('Nt',[r.H[0]+n.N[0]*0.1,r.H[1]+n.N[1]*0.1,r.H[2]+n.N[2]*0.1],COL.N,()=>`<b>The tip of N</b>, N = (${f(n.N[0])}, ${f(n.N[1])}, ${f(n.N[2])}), drawn 0.10 UV long.`,'tip of N');
   o.pt('C',[S.c[0],S.c[1],0],COL.glass,()=>`<b>C = ${pt(S.c[0],S.c[1])}</b>: the glass center (drag it in the map).`,'C')}});
-viewBar($('lab3Bar'),lab3,[['At an angle',-24,34],['Along the row (front)',0,0],['Along the column (side)',-90,0],['From above',0,90]]);
+viewBar($('lab3Bar'),lab3,[['At an angle',-24,34],['Front view (from the bottom edge)',0,0],['Side view (from the left edge)',-90,0],['From above',0,90]]);
 let mapCache={key:'',img:null};
 function renderLabMap(){const cv=$('labMap'),ctx=cv.getContext('2d'),N=cv.width,key=[S.c,S.bev,S.step,S.mode].join('|');
   if(mapCache.key!==key){const img=ctx.createImageData(N,N),D=img.data;for(let j=0;j<N;j++)for(let i=0;i<N;i++){const u=(i+0.5)/N,v=(j+0.5)/N,o=(j*N+i)*4;let c;if(S.mode==='normal')c=normalAt(u,v,S).rgb;else{const g=heightAt(u,v,S)/S.bev;c=[g,g,g]}D[o]=Math.round(c[0]*255);D[o+1]=Math.round(c[1]*255);D[o+2]=Math.round(c[2]*255);D[o+3]=255}mapCache={key,img}}
@@ -792,17 +1008,17 @@ function renderLabZoom(){const cv=$('labZoom'),ctx=cv.getContext('2d'),N=220,hw=
   const role={A:[n.a,COL.A,[S.step,0]],B:[n.b,COL.B,[-S.step,0]],D:[n.d,COL.D,[0,S.step]],E:[n.e,COL.E,[0,-S.step]]};
   for(const [r,[p,c,off]] of Object.entries(role)){addPt(stage,X(p[0]),Y(p[1]),c,()=>{const m=normalAt(S.w[0],S.w[1],S),q=m[r.toLowerCase()],h=r==='A'?m.hl:r==='B'?m.hr:r==='D'?m.hd:m.he;return`<b>${r} = ${pt(q[0],q[1])}</b>, UV<br>height ${f(h)} (Lesson 10.1). Dragging it moves W, so the four neighbors stay one step from W.`},r,{small:true,key:r,move:(cx,cy)=>{const [x,y]=canvasPos(cv,cx,cy);setW(x0+x/k+off[0],y0+y/k+off[1])}})}
   addPt(stage,X(S.w[0]),Y(S.w[1]),'#fff',()=>`<b>W = ${pt(S.w[0],S.w[1])}</b>`,'W',{small:true,key:'W',move:(cx,cy)=>{const [x,y]=canvasPos(cv,cx,cy);setW(x0+x/k,y0+y/k)}})}
-function drawLabSide(id,axis){const cv=$(id),w=S.w,fixed=axis==='row'?w[1]:w[0],s=axis==='row'?w[0]:w[1],F=frame(cv,axis,fixed,s-0.22,s+0.22,285),ctx=drawCut(F,S),stage=$(id+'Stage'),n=normalAt(w[0],w[1],S),U=70;clearPts(stage);
+function drawLabSide(id,axis){const cv=$(id),w=S.w,fixed=axis==='row'?w[1]:w[0],s=axis==='row'?w[0]:w[1],F=frame(cv,axis,fixed,s-0.22,s+0.22,285),ctx=drawCut(F,S),stage=$(id+'Stage'),n=normalAt(w[0],w[1],S),U=0.04*F.k;clearPts(stage);
   const sl=axis==='row'?n.sx:n.sy,nb=axis==='row'?[['A',n.a[0],n.hl,COL.A],['B',n.b[0],n.hr,COL.B]]:[['D',n.d[1],n.hd,COL.D],['E',n.e[1],n.he,COL.E]];
   for(const [nm,q,h,c] of nb){line(ctx,F.X(q),F.base,F.X(q),F.Y(h),c,2.6)}
   const hx=F.X(s),hy=F.Y(n.h),rawX=axis==='row'?n.raw[0]:n.raw[1],nX=axis==='row'?n.N[0]:n.N[1];
   thin(ctx,hx-90,hy+90*sl,hx+90,hy-90*sl,'#64748b',2);arrow(ctx,hx,hy,hx+rawX*U,hy-U,COL.raw,2.8,12);arrow(ctx,hx,hy,hx+nX*U,hy-n.N[2]*U,COL.N,3.2,12);
-  square(ctx,hx,hy,unit2(1,-sl),unit2(rawX,-1),12);ruler(ctx,cv.height-16,U,'arrow ruler: 1 = 70 px');
+  square(ctx,hx,hy,unit2(1,-sl),unit2(rawX,-1),12);ruler(ctx,cv.height-16,U,'arrow ruler: 1 = 0.04 UV');
   plate(ctx,axis==='row'?`slopeX = ${f(n.sx)} → x part ${f(rawX)}`:`slopeY = ${f(n.sy)} → y part ${f(rawX)}`,cv.width-12,axis==='row'?48:128,13,'right',COL.raw);
   addPt(stage,hx,F.base,'#fff',()=>`<b>W = ${pt(w[0],w[1])}</b> on the screen line. Drag along the line.`,'W',{small:true,move:(cx,cy)=>{const [x]=canvasPos(cv,cx,cy),v=F.S(x);if(axis==='row')setW(v,S.w[1]);else setW(S.w[0],v)}});
   addPt(stage,hx,hy,'#fff',()=>`<b>H</b>: the surface above W, height ${f(n.h)} (UV).`,'H',{small:true});
   addPt(stage,hx+nX*U,hy-n.N[2]*U,COL.N,()=>axis==='row'?`<b>N seen from the front</b>: its x part ${f(n.N[0])} across, its height part ${f(n.N[2])} up. Its y part ${f(n.N[1])} points toward or away from you.`:`<b>N seen from the side</b>: its y part ${f(n.N[1])} across, its height part ${f(n.N[2])} up. Its x part ${f(n.N[0])} points toward or away from you.`,'N tip',{small:true});
-  $(id+'Cap').textContent=`${axis==='row'?'Along the pixel row':'Along the pixel column'} through W: positions and heights share one scale, 1 UV = ${Math.round(F.k)} picture pixels; it shows ${axis==='row'?'x':'y'} from ${f(s-0.22)} to ${f(s+0.22)}. Indigo: rawNormal and pink: N, as seen in this view. Gray: the surface direction at H, for the square corner.`}
+  $(id+'Cap').textContent=`${axis==='row'?'Along the pixel row':'Along the pixel column'} through W: positions and heights share one scale, 1 UV = ${Math.round(F.k)} picture pixels; it shows ${axis==='row'?'x':'y'} from ${f(s-0.22)} to ${f(s+0.22)}. Indigo: rawNormal and pink: N, as seen in this view, drawn with the arrow ruler 1 = 0.04 UV. The thin slate line: the surface direction at H, for the square corner.`}
 function setW(u,v){S.w=[snap3(clamp(u,S.step,1-S.step)),snap3(clamp(v,S.step,1-S.step))];drawLab()}
 function drawLab(){renderLabMap();renderLabZoom();lab3.render();drawLabSide('labRow','row');drawLabSide('labCol','col');
   const ch=chainOf(S.w,S,6),T=new Trace(6);
@@ -829,9 +1045,9 @@ $('labReset').onclick=()=>{Object.assign(S,{c:[0.5,0.5],w:[0.72,0.5],bev:0.1,ste
 
 /* ================= SECTION 6: the challenge ================= */
 let chUser=null;
-const chOrb=new Orbit3D($('chStage'),$('chCv'),{yaw:28,pitch:24,scale:104,target:[0,0,0],dy:-20,draw:o=>{const r=cardScene(o,{});o.arrow(r.P,NC,COL.N,3.4,2.4);o.label('correct N',NC,10,-10,'left',COL.N);o.pt('cN',NC,COL.N,'<b>The correct N</b> = (0.36, 0.48, 0.80)','correct N');
-  if(chUser){const u=chUser;o.arrow(r.P,u,COL.you,3.2,2.5);o.label('your arrow ÷ its length',u,10,14,'left',COL.you);o.pt('cU',u,COL.you,()=>`<b>Your arrow ÷ its length</b> = (${f(u[0])}, ${f(u[1])}, ${f(u[2])})`,'your arrow')}}});
-viewBar($('chBar'),chOrb,[['At an angle',28,24],['Look along y (front)',0,0],['Look along x (side)',-90,0]]);
+const chOrb=new Orbit3D($('chStage'),$('chCv'),{yaw:-20,pitch:30,zoom:1.3,scale:104,target:[0.1,0.15,1.6],dy:-10,compassPos:'tr',draw:o=>{board3(o,{});walk3(o,PB,XW);walk3(o,PB,YW);const Nt=add3(PB,NC);o.arrow(PB,Nt,COL.N,3.4,2.4);o.label('correct N',Nt,10,-10,'left',COL.N);o.pt('cN',Nt,COL.N,'<b>The correct N</b> = (0.36, 0.48, 0.80) from P','correct N');o.label('x walk',add3(PB,XW),8,12,'left',COL.walk,12);o.label('y walk',add3(PB,YW),-6,16,'right',COL.walk,12);
+  if(chUser){const u=chUser,ut=add3(PB,u);o.arrow(PB,ut,COL.you,3.2,2.5);o.label('your arrow ÷ its length',ut,10,14,'left',COL.you);o.pt('cU',ut,COL.you,()=>`<b>Your arrow ÷ its length</b> = (${f(u[0])}, ${f(u[1])}, ${f(u[2])}) from P`,'your arrow')}}});
+viewBar($('chBar'),chOrb,[['At an angle',-20,30],['Front view (from the bottom edge)',0,0],['Side view (from the left edge)',-90,0]]);
 function parseVec(src){let s=src.replace(/^\s*(float3\s+)?rawNormal\s*=\s*/,'').replace(/;\s*$/,'').trim();if(!s)return{err:'empty'};
   const toks=s.match(/\d*\.\d+|\d+\.?|[A-Za-z_]\w*|[-+*\/(),]|\S/g)||[];let i=0;const peek=()=>toks[i],next=()=>toks[i++];const vars=['slopeX','slopeY'];
   function expr(){let a=term();while(peek()==='+'||peek()==='-'){const o=next(),b=term(),A=a;a=e=>o==='+'?A(e)+b(e):A(e)-b(e)}return a}
@@ -846,17 +1062,17 @@ function chRun(){const p=parseVec($('chIn').value),out=$('chVerdict');
   for(const sm of samples){let u;try{u=p.g({slopeX:sm[0],slopeY:sm[1]})}catch(_){u=[NaN,NaN,NaN]}const t=truth(sm);if(!u.every(isFinite)){exact=dir=false;diag=diag||'nan';continue}
     if(u.some((q,j)=>Math.abs(q-t[j])>1e-9))exact=false;const Lu=Math.hypot(...u),Lt=Math.hypot(...t);if(Lu<1e-12||u.some((q,j)=>Math.abs(q/Lu-t[j]/Lt)>1e-9))dir=false}
   const u0=p.g({slopeX:-0.45,slopeY:-0.6}),L0=Math.hypot(...u0);chUser=L0>1e-12&&u0.every(isFinite)?u0.map(q=>q/L0):null;chOrb.render();
-  if(exact)return say(true,'Correct. rawNormal = (−slopeX, −slopeY, 1). For the tilted surface: (0.45, 0.60, 1); after the division the teal arrow lies on the pink one.');
+  if(exact)return say(true,'Correct. rawNormal = (−slopeX, −slopeY, 1). For the tilted board: (0.45, 0.60, 1); after the division your arrow lies on the pink one.');
   if(dir)return say(true,'Correct direction. Your arrow is a longer or shorter copy of (−slopeX, −slopeY, 1), so after the division it is the same N. The course writes the height part as 1, so the flat top gives (0, 0, 1) before the division.');
   const t=p.g({slopeX:-0.45,slopeY:-0.6});
-  if(!t.every(isFinite))return say(false,'This line gives no finite number for the tilted surface. Divide only by numbers that cannot be 0.');
-  if(Math.abs(t[2])<1e-12)return say(false,'The height part is 0, so the arrow lies flat on the screen. The turned “1 across” is the height part: write 1 there.');
+  if(!t.every(isFinite))return say(false,'This line gives no finite number for the tilted board. Divide only by numbers that cannot be 0.');
+  if(Math.abs(t[2])<1e-12)return say(false,'The height part is 0, so the arrow lies flat on the screen. The turned walk of 1 is the height part (Section 1, Step 6): write 1 there.');
   if(t[2]<0)return say(false,'The height part is negative, so the arrow points into the glass: the turn with the clock. Use +1.');
-  if(Math.abs(t[0]+0.45)<1e-9&&Math.abs(t[1]+0.6)<1e-9)return say(false,'Both lean parts have the wrong sign: (slopeX, slopeY, …) leans into the slope, toward the center of the glass. The quarter turn makes them −slopeX and −slopeY.');
-  if(Math.abs(t[0]+0.45)<1e-9)return say(false,'The x part has the wrong sign. The turned slope leg points the other way along x: use −slopeX.');
-  if(Math.abs(t[1]+0.6)<1e-9)return say(false,'The y part has the wrong sign. The turned slope leg points the other way along y: use −slopeY.');
+  if(Math.abs(t[0]+0.45)<1e-9&&Math.abs(t[1]+0.6)<1e-9)return say(false,'Both lean parts have the wrong sign: (slopeX, slopeY, …) leans into the slope, toward the center of the glass. The quarter turn turns down into right and up into left, so they are −slopeX and −slopeY (Section 1, Step 5).');
+  if(Math.abs(t[0]+0.45)<1e-9)return say(false,'The x part has the wrong sign. A quarter turn turns down into right and up into left: use −slopeX (Section 1, Step 5).');
+  if(Math.abs(t[1]+0.6)<1e-9)return say(false,'The y part has the wrong sign. A quarter turn turns down into right and up into left, along y too: use −slopeY.');
   if(Math.abs(t[0]-0.6)<1e-9&&Math.abs(t[1]-0.45)<1e-9)return say(false,'x and y are swapped. The x part comes from slopeX, the y part from slopeY.');
-  say(false,`Not yet. For the tilted surface your line gives (${f(t[0])}, ${f(t[1])}, ${f(t[2])}); the correct rawNormal is (0.45, 0.60, 1).`)}
+  say(false,`Not yet. For the tilted board your line gives (${f(t[0])}, ${f(t[1])}, ${f(t[2])}); the correct rawNormal is (0.45, 0.60, 1).`)}
 $('chBtn').onclick=chRun;$('chIn').addEventListener('keydown',e=>{if(e.key==='Enter')chRun()});
 
 /* ================= SECTION 7: exercises ================= */
@@ -868,21 +1084,21 @@ function exercises(){
   // Exercise 1
   {const w=[0.5,0.5],cv=$('ex1q'),M=heightMapCv(cv,0,0,420),ctx=M.ctx,st=$('ex1qStage');ring(ctx,210,210,RAD*420,COL.glass,2);ctx.lineWidth=2;ctx.strokeStyle='#111827';ctx.strokeRect(210-9,210-9,18,18);
     const L=[['A',0.49,0.5,COL.A,-12,-12],['B',0.51,0.5,COL.B,12,-12],['D',0.5,0.49,COL.D,12,-8],['E',0.5,0.51,COL.E,12,10],['W₁',0.5,0.5,'#fff',-12,14]];exInset(cv,w,L,280,280,130,8);addPt(st,210,210,'#fff','<b>W₁ = (0.50, 0.50)</b>: the glass center. Its four neighbors are in the enlarged picture.','W₁',{small:true});plate(ctx,'W₁',224,196,12,'left');
-    const a=$('ex1a'),F=frame(a,'row',0.5,0.30,0.70,290),c2=drawCut(F,TP),hx=F.X(0.5),hy=F.Y(0.1),U=90;line(c2,hx,hy,hx+U,hy,COL.across,3);arrow(c2,hx,hy,hx,hy-U,COL.raw,3.2,12);
-      arrow(c2,hx+6,hy,hx+6,hy-U,COL.N,2.2,10);plate(c2,'across 1, falls 0 → turned: up 1',hx+U+8,hy-12,12,'left');plate(c2,'N = (0, 0, 1)',hx+12,hy-U-4,13,'left',COL.N);ruler(c2,a.height-14,U,'arrow ruler: 1 = 90 px');
+    const a=$('ex1a'),F=frame(a,'row',0.5,0.30,0.70,290),c2=drawCut(F,TP),hx=F.X(0.5),hy=F.Y(0.1),U=0.06*F.k;arrow(c2,hx,hy,hx+U,hy,COL.walk,3,12);arrow(c2,hx,hy,hx,hy-U,COL.raw,3.2,12);square(c2,hx,hy,[1,0],[0,-1],12);
+      arrow(c2,hx+6,hy,hx+6,hy-U,COL.N,2.2,10);plate(c2,'walk (1, 0) → turned: (0, 1)',hx+U+8,hy-12,12,'left');plate(c2,'N = (0, 0, 1)',hx+12,hy-U-4,13,'left',COL.N);ruler(c2,a.height-14,U,'arrow ruler: 1 = 0.06 UV');
       addPt($('ex1aStage'),hx,hy-U,COL.N,'<b>The tip of N</b> = (0, 0, 1): straight up.','N tip',{small:true});
-      $('ex1aText').textContent=['hLeft = hRight = hD = hE = 0.10','ΔhX = 0.10 − 0.10 = 0','slopeX = 0 ÷ 0.02 = 0','ΔhY = 0.10 − 0.10 = 0','slopeY = 0 ÷ 0.02 = 0','raw.x = −(0) = 0','raw.y = −(0) = 0','raw.z = 1','x² = 0 × 0 = 0','y² = 0 × 0 = 0','z² = 1 × 1 = 1','x² + y² = 0 + 0 = 0','x² + y² + z² = 0 + 1 = 1','normalLength = √1 = 1','N.x = 0 ÷ 1 = 0','N.y = 0 ÷ 1 = 0','N.z = 1 ÷ 1 = 1','N = (0, 0, 1)','','The height 0.10 never enters rawNormal:','only height changes do. The 1 is the','turned “1 across”.'].join('\n')}
+      $('ex1aText').textContent=['hLeft = hRight = hD = hE = 0.10','ΔhX = 0.10 − 0.10 = 0','slopeX = 0 ÷ 0.02 = 0','ΔhY = 0.10 − 0.10 = 0','slopeY = 0 ÷ 0.02 = 0','rawNormal.x = −slopeX = −(0) = 0','rawNormal.y = −slopeY = −(0) = 0','rawNormal.z = 1 (the turned walk of 1)','x² = 0 × 0 = 0','y² = 0 × 0 = 0','z² = 1 × 1 = 1','x² + y² = 0 + 0 = 0','x² + y² + z² = 0 + 1 = 1','normalLength = √1 = 1','N.x = 0 ÷ 1 = 0','N.y = 0 ÷ 1 = 0','N.z = 1 ÷ 1 = 1','N = (0, 0, 1)','','The height 0.10 never enters rawNormal:','only height changes do. The 1 is the','turned walk of 1, not a height.'].join('\n')}
   // Exercise 2
   {const w=[0.5,0.28],cv=$('ex2q'),M=heightMapCv(cv,0,0,420),ctx=M.ctx,st=$('ex2qStage');ring(ctx,210,210,RAD*420,COL.glass,2);ctx.lineWidth=2;ctx.strokeStyle='#111827';ctx.strokeRect(M.X(0.5)-9,M.Y(0.28)-9,18,18);
     const L=[['A',0.49,0.28,COL.A,-12,-10],['B',0.51,0.28,COL.B,12,-10],['D',0.5,0.27,COL.D,12,-8],['E',0.5,0.29,COL.E,12,10],['W₂',0.5,0.28,'#fff',-12,14]];exInset(cv,w,L,280,280,130,8);addPt(st,M.X(0.5),M.Y(0.28),'#fff','<b>W₂ = (0.50, 0.28)</b>, UV, y down. Its neighbors are in the enlarged picture.','W₂',{small:true});plate(ctx,'W₂',M.X(0.5)+14,M.Y(0.28)-14,12,'left');plate(ctx,'top of the picture ↑',210,14,12,'center');
     const a=$('ex2a'),F=frame(a,'col',0.5,0.12,0.44,290),c2=drawCut(F,TP,{turnIcon:true}),n=normalAt(0.5,0.28,TP),hx=F.X(0.28),hy=F.Y(n.h),U=72,st2=$('ex2aStage');
       for(const [nm,s,c] of [['D',0.27,COL.D],['E',0.29,COL.E]]){const h=heightAt(0.5,s,TP);line(c2,F.X(s),F.base,F.X(s),F.Y(h),c,3);plate(c2,`${nm}: height ${f(h)}`,F.X(s)+(nm==='D'?-8:8),F.base-22,12,nm==='D'?'right':'left')}
-      line(c2,hx,hy,hx+U,hy,COL.across,3);line(c2,hx+U,hy,hx+U,hy-U,COL.slope,3);thin(c2,hx,hy,hx+U,hy-U,'#64748b',2);arrow(c2,hx,hy,hx-U,hy-U,COL.raw,3.2,12);square(c2,hx,hy,unit2(1,-1),unit2(-1,-1),12);
-      plate(c2,'across 1, rises 1 (slopeY = +1)',hx+U+8,hy-U/2,12,'left');plate(c2,'turned: y part −1, height part 1',hx-U-6,hy-U-8,12,'right',COL.raw);plate(c2,'← toward the top of the picture',hx-U-8,hy-U+18,12,'right');
+      line(c2,hx,hy,hx+U,hy,COL.yP,3);line(c2,hx+U,hy,hx+U,hy-U,COL.hP,3);arrow(c2,hx,hy,hx+U,hy-U,COL.walk,3,11);line(c2,hx,hy,hx,hy-U,COL.hP,3);line(c2,hx,hy-U,hx-U,hy-U,COL.yP,3);arrow(c2,hx,hy,hx-U,hy-U,COL.raw,3.2,12);square(c2,hx,hy,unit2(1,-1),unit2(-1,-1),12);
+      plate(c2,'walk: 1 in y, up 1 (slopeY = +1)',hx+U+8,hy-U/2,12,'left',COL.walk);plate(c2,'turned: y part −1, height part 1',hx-U-6,hy-U-8,12,'right',COL.raw);plate(c2,'← toward the top of the picture',hx-U-8,hy-U+18,12,'right');
       addPt(st2,hx-U,hy-U,COL.raw,'<b>The tip of rawNormal</b> = (0, −1, 1), seen from the side: y part −1 (toward the top of the picture), height part 1.','rawNormal tip',{small:true});
-      $('ex2aText').textContent=['hD = 0.06 (D, nearer the outline)','hE = 0.08 (E, further inside)','ΔhY = 0.08 − 0.06 = 0.02','slopeY = 0.02 ÷ 0.02 = 1','hLeft = hRight = 0.071 (A and B are mirror images)','ΔhX = 0.071 − 0.071 = 0','slopeX = 0 ÷ 0.02 = 0','raw.x = −(0) = 0','raw.y = −(1) = −1','raw.z = 1','x² = 0 × 0 = 0','y² = (−1) × (−1) = 1','z² = 1 × 1 = 1','x² + y² = 0 + 1 = 1','x² + y² + z² = 1 + 1 = 2','normalLength = √2 = 1.414','N.x = 0 ÷ 1.414 = 0','N.y = −1 ÷ 1.414 = −0.707','N.z = 1 ÷ 1.414 = 0.707','N = (0, −0.707, 0.707)','','Minus y = toward the top of the picture:','out of the glass. Display green:','N.y × 0.5 = −0.707 × 0.5 = −0.3535','green = −0.3535 + 0.5 = 0.1465'].join('\n')}
+      $('ex2aText').textContent=['hD = 0.06 (D, nearer the outline)','hE = 0.08 (E, further inside)','ΔhY = 0.08 − 0.06 = 0.02','slopeY = 0.02 ÷ 0.02 = 1','hLeft = hRight = 0.071 (A and B are mirror images)','ΔhX = 0.071 − 0.071 = 0','slopeX = 0 ÷ 0.02 = 0','rawNormal.x = −slopeX = −(0) = 0','rawNormal.y = −slopeY = −(1) = −1','rawNormal.z = 1','x² = 0 × 0 = 0','y² = (−1) × (−1) = 1','z² = 1 × 1 = 1','x² + y² = 0 + 1 = 1','x² + y² + z² = 1 + 1 = 2','normalLength = √2 = 1.414','N.x = 0 ÷ 1.414 = 0','N.y = −1 ÷ 1.414 = −0.707','N.z = 1 ÷ 1.414 = 0.707','N = (0, −0.707, 0.707)','','Minus y = toward the top of the picture:','out of the glass. Display green:','N.y × 0.5 = −0.707 × 0.5 = −0.3535','green = −0.3535 + 0.5 = 0.1465'].join('\n')}
   // Exercise 3
-  const ex3=(id,unitN)=>{const cv=$(id),F=frame(cv,'row',0.5,0.62,0.86,290),ctx=drawCut(F,TP),U=58,st=$(id+'Stage');clearPts(st);ruler(ctx,cv.height-14,U,'arrow ruler: 1 = 58 px');
+  const ex3=(id,unitN)=>{const cv=$(id),F=frame(cv,'row',0.5,0.62,0.86,290),ctx=drawCut(F,TP),U=0.02*F.k,st=$(id+'Stage');clearPts(st);ruler(ctx,cv.height-14,U,'arrow ruler: 1 = 0.02 UV');
     for(const [nm,x] of [['W',0.72],['V',0.74]]){const n=normalAt(x,0.5,TP),hx=F.X(x),hy=F.Y(n.h);if(unitN){ring(ctx,hx,hy,U,'#f9a8d4',1.4);ctx.save();ctx.globalAlpha=0.45;arrow(ctx,hx,hy,hx+n.raw[0]*U,hy-U,COL.raw,2.4,10);ctx.restore();arrow(ctx,hx,hy,hx+n.N[0]*U,hy-n.N[2]*U,COL.N,3.2,11)}else arrow(ctx,hx,hy,hx+n.raw[0]*U,hy-U,COL.raw,3,11);
       plate(ctx,nm,hx,F.base+18,13,'center');addPt(st,hx,hy,'#fff',`<b>The surface above ${nm} = (${f(x)}, 0.50)</b>: height ${f(n.h)}, slopeX ${f(n.sx)}.`,nm,{small:true});
       const tip=unitN?[hx+n.N[0]*U,hy-n.N[2]*U]:[hx+n.raw[0]*U,hy-U];addPt(st,tip[0],tip[1],unitN?COL.N:COL.raw,unitN?`<b>N at ${nm}</b> = (${f(n.N[0])}, 0, ${f(n.N[2])}): 1 long.`:`<b>rawNormal at ${nm}</b> = (${f(n.raw[0])}, 0, 1): ${f(n.len)} long.`,nm+' arrow tip',{small:true})}};
@@ -916,13 +1132,13 @@ function metalGoal(){const cv=$('metalGoal'),ctx=cv.getContext('2d'),N=440,img=c
   L.push('    hE = √(0.01 − 0.0036) = √0.0064 = 0.08');
   const dy3=T.sub('  ΔhY',0.08,0.06),sy3=T.div('  slopeY',dy3,0.02);L.push(...T.take());
   L.push('  A = (0.49, 0.33) and B = (0.51, 0.33) are both 0.03 inside the top side: hLeft = hRight, so slopeX = 0');
-  const ry3=T.neg('  raw.y',sy3);T.push('  rawNormal = (0, −1, 1)');const q1=T.sq('  y²',ry3),q2=T.add('  y² + z²',q1,1,true),l3=T.root('  normalLength',q2);T.div('  N.y',ry3,l3);T.div('  N.z',1,l3);L.push(...T.take());
+  const ry3=T.neg('  rawNormal.y = −slopeY',sy3);T.push('  rawNormal = (0, −1, 1)');const q1=T.sq('  y²',ry3),q2=T.add('  y² + z²',q1,1,true),l3=T.root('  normalLength',q2);T.div('  N.y',ry3,l3);T.div('  N.z',1,l3);L.push(...T.take());
   L.push('  N = (0, −0.707107, 0.707107)','');
   L.push('T4 = (0.73, 0.64): the bottom-right corner. Here both q parts are positive, so sdBox = length(q) and leg = sdBox.');
   for(const [nm,P0,qq,sq,sum,h2,h] of [['hLeft','A = (0.72, 0.64)','(0.02, 0.04)','0.0004 + 0.0016','0.002','0.008','0.089443'],['hRight','B = (0.74, 0.64)','(0.04, 0.04)','0.0016 + 0.0016','0.0032','0.0068','0.082462'],['hD','D = (0.73, 0.63)','(0.03, 0.03)','0.0009 + 0.0009','0.0018','0.0082','0.090554'],['hE','E = (0.73, 0.65)','(0.03, 0.05)','0.0009 + 0.0025','0.0034','0.0066','0.08124']])
     L.push(`  ${P0}: q = ${qq}, leg² = sdBox² = ${sq} = ${sum}`,`    ${nm} = √(0.01 − ${sum}) = √${h2} = ${h}`);
   const hl=0.089443,hr=0.082462,hd=0.090554,he=0.08124;
-  const dx=T.sub('  ΔhX',hr,hl),sx=T.div('  slopeX',dx,0.02),dyy=T.sub('  ΔhY',he,hd),sy=T.div('  slopeY',dyy,0.02),rx=T.neg('  raw.x',sx),ry=T.neg('  raw.y',sy);T.push('  raw.z = 1');
+  const dx=T.sub('  ΔhX',hr,hl),sx=T.div('  slopeX',dx,0.02),dyy=T.sub('  ΔhY',he,hd),sy=T.div('  slopeY',dyy,0.02),rx=T.neg('  rawNormal.x = −slopeX',sx),ry=T.neg('  rawNormal.y = −slopeY',sy);T.push('  rawNormal.z = 1');
   const x2=T.sq('  x²',rx),y2=T.sq('  y²',ry),s1=T.add('  x² + y²',x2,y2,true),s2v=T.add('  x² + y² + z²',s1,1,true),len=T.root('  normalLength',s2v),nx=T.div('  N.x',rx,len),ny=T.div('  N.y',ry,len),nz=T.div('  N.z',1,len);L.push(...T.take());L.push(`  N = (${T.t(nx)}, ${T.t(ny)}, ${T.t(nz)})`);
   L.push('  The GPU keeps every digit of the four heights and gets (0.301666, 0.402480, 0.864296).','  The last digits differ because the lines above round each height to six decimals.');
   $('metalAnswer').textContent=L.join('\n')}
@@ -933,8 +1149,10 @@ function record(){const rec=$('record');rec.value=`# Lesson 10.3 — Surface nor
 date: ${new Date().toISOString().slice(0,10)}
 
 - Surface normal: an arrow that starts on the surface and stands at a square corner (90°) to it, pointing out of the glass.
-- Why the formula: draw the slope as a triangle (across 1, height change slope × 1) and turn it a quarter turn against the clock.
-  The across leg becomes the height part 1; the slope leg turns to point the other way: −slope.
+- Arrows are written (x part, height part) in a side view, (x part, y part, height part) in 3D. Minus = left / down / toward the top.
+- Why the formula: the walk of 1 along the surface is (1, slope). A quarter turn against the clock (90°, around H) makes it stand
+  at a square corner to the surface: (−slope, 1). Down turns into right, up into left: that is the minus.
+  The 1 is the chosen walk of 1 (same unit as the heights), not a height. Test ramp: walk (4, −3) → (3, 4); walk (1, −0.75) → (0.75, 1).
 - New lines:
     D = W − (0, step); E = W + (0, step)     (one step toward the top / bottom of the picture)
     slopeY       = (hE − hD) ÷ (2 × step)
@@ -942,7 +1160,8 @@ date: ${new Date().toISOString().slice(0,10)}
     normalLength = √(x² + y² + z²)           (Lesson 9.1 twice: the shadow, then stood up)
     N            = rawNormal ÷ normalLength   (Lesson 9.10's normalization; length 1)
     RGB          = N × 0.5 + 0.5              (display only)
-- Test surface (Section 2): slopes −0.45, −0.60 → rawNormal (0.45, 0.60, 1), shadow 0.75, length 1.25, N = (0.36, 0.48, 0.80).
+- Tilted board (Section 2): slopes −0.45, −0.60 → front view gives x part 0.45, side view y part 0.60 → rawNormal (0.45, 0.60, 1),
+  shadow 0.75, length 1.25, N = (0.36, 0.48, 0.80).
 - Teaching W = (0.72, 0.50), C = (0.50, 0.50), radius 0.25, bevel 0.10, step 0.01:
   slopeX = −1, hD = hE = 0.071 → slopeY = 0, rawNormal = (1, 0, 1), normalLength = √2 = 1.414,
   N = (0.707, 0, 0.707), stores (0.8535, 0.50, 0.8535). The flat top stores (0.50, 0.50, 1).
@@ -968,7 +1187,8 @@ function bindTips(root){root.querySelectorAll('.info[data-tip]').forEach(b=>setT
   for(let i=0;i<S2N;i++){const b=document.createElement('button');b.className='dot';b.setAttribute('aria-label','Step '+(i+1));b.onclick=()=>goS2(i);$('s2Dots').appendChild(b)}
   $('s1Prev').onclick=()=>{if(s1>0){s1--;drawS1()}};$('s1Next').onclick=()=>{if(s1<S1N-1){s1++;drawS1()}};
   $('s2Prev').onclick=()=>{if(s2>0)goS2(s2-1)};$('s2Next').onclick=()=>{if(s2<S2N-1)goS2(s2+1)};
-  bindTips(document);hero3.render();drawHeroSide();drawS1();s2Panel();s2Orb.render();drawS2Def();buildCards();drawLab();chOrb.render();exercises();metalGoal();record();
+  $('s1Turn').addEventListener('input',e=>{s1Turn=Number(e.target.value);$('s1TurnV').textContent=s1Turn+'°';drawS1()});
+  bindTips(document);hero3.render();drawHeroSide();drawS1();goS2(0);drawS2Def();buildCards();drawLab();chOrb.render();exercises();metalGoal();record();
 })();
 </script>
 </body>
