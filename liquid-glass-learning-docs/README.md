@@ -8,7 +8,7 @@ Open `liquid-glass-course.html` in a browser.
 
 Teaching contracts and current files live in `CURRENT_STATE.md`. The curriculum order lives in `curriculum/liquid_glass_ios_curriculum.md`. Lesson completion is reported only in chat when a new lesson is generated; project files do not track it.
 
-To continue as a learner, paste `NEW_CHAT_PROMPT.md` and name generate or questions in the same message.
+To continue as a learner, paste `NEW_CHAT_PROMPT.md` (or tell the chat to read it from the repository) and name the job (questions or generate) in the same message. The prompt says what each job reads.
 
 ## Repos
 
@@ -22,6 +22,7 @@ To continue as a learner, paste `NEW_CHAT_PROMPT.md` and name generate or questi
 - `USER_PREFERENCES.md` — explanation calibration, visualization target, delivery preferences.
 - `curriculum/liquid_glass_ios_curriculum.md` — the 216-lesson plan and frozen locks.
 - `curriculum/liquid_glass_ios_handoff.md` — short continuation contracts for the current chapter.
+- `FEEDBACK_LOG.md` — learner corrections, newest first, each with its failure → rule link. Read on demand.
 
 ## New-learning rule
 

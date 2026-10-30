@@ -1,334 +1,99 @@
-# Continue my Liquid Glass on iOS course
+# Liquid Glass on iOS course — new chat starter
 
-Paste this file at the start of a new chat. Then, in the same message, either name the lesson to generate or ask questions about a named lesson.
+Start a new chat with this file: either paste it, or tell the chat to read `liquid-glass-learning-docs/NEW_CHAT_PROMPT.md` from the repository and follow it. In the same message, name the job:
 
-This is a durable starter. Teaching contracts and file lists live in `CURRENT_STATE.md`. The ordered lesson plan lives in `curriculum/liquid_glass_ios_curriculum.md`. Project files do not track lesson completion.
+- **Questions about lesson N.M**, followed by the questions (the most common job), or
+- **Generate lesson N.M**, or “generate the next lesson”.
 
-## How I will use this prompt
+If the job is named, start it in your first reply. If it is not named, say that you are ready and wait.
 
-Every new chat is one of two jobs:
+## 1. Where the files are
 
-1. **Generate** a named lesson: HTML + iOS explorer + the lesson's Metal exercise with its prepared calling code. If I say “the next lesson,” use the first lesson in curriculum order whose HTML file does not exist.
-2. **Questions** about a named lesson.
+- **Docs:** the folder `liquid-glass-learning-docs` in the GitHub repository `Rokata9/learning-docs`, branch `master` (https://github.com/Rokata9/learning-docs). On my Mac it is a local checkout of that repository.
+- **iOS lab:** `/Users/rosen/Code/LiquidGlassLab-iOS`. It exists only on my Mac. It is not on GitHub.
+- Read files with your file tools. If you have no local checkout, open the GitHub repository. If you can open neither, ask me to attach the files you need.
+- Never rebuild a file from memory.
+- If you cannot open a file, name it and say what that changes:
+  - questions: answer from what you could read;
+  - generate: stop and ask.
 
-If this same first message already names the job, start that work after the read. Do not stop and wait.
+## 2. Your first reply
 
-If the first message is only this prompt, say that you are ready for a lesson name or question and wait.
+1. List each file you opened, with its line count. List each file you could not open.
+2. If two files contradict each other, say so. Do not pick one silently.
+3. Then do the job in the same reply.
 
-Do not generate a later lesson than the one I named. When I explicitly confirm a lesson complete in this chat, include that confirmation in the completion count you report after the next generated lesson. Do not write completion counts or lesson status into project files.
+## 3. What to read
 
-## 1. Where the files live
+Always:
 
-Local repos, not a ChatGPT sandbox:
+1. `USER_PREFERENCES.md`: all of it except three sections that belong to other projects: “Diagram preferences (Mermaid / mmdc)”, “Call-stack / control-flow visualization” and “Architecture diagrams”.
+2. `AGENTS.md`: all of it. It is the lesson rulebook.
+3. `CURRENT_STATE.md`: the header, “Frozen frost stack”, “Pending iOS changes”, “Current lesson files”, and the section of the named lesson (if it has one).
 
-- Docs: `liquid-glass-learning-docs` (this repository). Edit in place. Do not copy this folder.
-- iOS lab: `/Users/rosen/Code/LiquidGlassLab-iOS` (sibling project). Create and write only there.
-- Do not create an `ios/` or `android/` directory in the docs repo.
+Questions about lesson N.M, also:
 
-Read files from disk. If I attached a tree instead, treat the attachment as the tree. If a required file is missing, name it and stop for that file. Do not reconstruct an unseen file from memory.
+- the lesson HTML under `course/chapters/`: the section the question is about (search for its heading), and the script that draws its pictures when the question is about a picture. Read the whole file only when the question needs it.
+- `curriculum/liquid_glass_ios_handoff.md`: the entry of lesson N.M.
+- `FEEDBACK_LOG.md`: the newest entries about lesson N.M (search for “Lesson N.M”).
+- only when the question depends on them: the lesson before N.M, and terms in `course/glossary.html` (search for the term; do not read the whole glossary).
 
-Do not generate `.zip` files unless I ask for one.
+Generate lesson N.M, also:
 
-## 2. Read order
+- `curriculum/liquid_glass_ios_curriculum.md`: the entries of N.M and its neighbors.
+- `curriculum/liquid_glass_ios_handoff.md`.
+- the HTML of the lesson before N.M in curriculum order, and the chapter hub HTML.
+- iOS: the chapter screen (`ChapterNNScreen.swift`) and the explorer that N.M sits next to. The `@main` App / `LabHost` only if the route changes.
+- `course/glossary.html` (search) if N.M adds a term.
+- `FEEDBACK_LOG.md`: the newest 10 entries. They are the most recent mistakes to avoid.
 
-1. `USER_PREFERENCES.md`
-2. `AGENTS.md`
-3. `CURRENT_STATE.md`
-4. `curriculum/liquid_glass_ios_handoff.md`
-5. `curriculum/liquid_glass_ios_curriculum.md` only for the named lesson and its immediate neighbors
-6. files required by the job (section 4)
+“The next lesson” is the first lesson in curriculum order whose HTML file does not exist under `course/chapters/`. Check the folder. Do not trust a copied list.
 
-`CURRENT_STATE.md` is authoritative when older prose disagrees.
+When files disagree:
 
-## 3. Course position
+- lesson-writing rules: `AGENTS.md` wins;
+- teaching contracts, file names and teaching values: `CURRENT_STATE.md` wins over the handoff, the curriculum and older lesson prose.
 
-Use the ordered curriculum and the lesson files on disk. Do not maintain a completed-lesson registry, unresolved checkpoint, generated frontier, or progress snapshot. The total course size is **216** lessons; this is the plan size, not a progress display.
+## 4. Who I am
 
-## 4. Files for this turn
+I am an experienced software engineer. I am a total beginner in graphics, rendering, GPU work, image processing and mathematics. The rules for explaining to me are in `USER_PREFERENCES.md` and `AGENTS.md`. The ones that matter in every reply:
 
-Always read the four files in the read order above.
+- short sentences in bullet lists; a line that announces items (“two things:”) has them as indented sub-points;
+- concrete numbers and pictures before formulas;
+- every coordinate names its coordinate system (UV, board units, …), and a switch between systems is said out loud;
+- the lesson's own names for things, the same names from start to end.
 
-Then add only what the job needs:
+## 5. Questions job
 
-**Generate lesson N.M**
+1. Answer in the chat first. Quote the exact sentence or picture the question is about. Keep the answer short (`AGENTS.md` rule 17: no proof rounds).
+2. Decide whether the question shows a defect in the lesson: unclear, wrong, inconsistent names, or a missing picture.
+3. If it does, fix it in the same chat:
+   - change the lesson as little as needed to remove the confusion; all `AGENTS.md` rules apply to the change;
+   - run `AGENTS.md` rule 24: name what failed; merge a prevention rule into `AGENTS.md` if the failure is general; add a `FEEDBACK_LOG.md` entry (newest first) with the failure → rule link;
+   - update the lesson's section in `CURRENT_STATE.md` and its handoff entry if its contract or page shape changed;
+   - re-check the changed parts: `AGENTS.md` rule 20 (cold read) and rule 21 (syntax and browser checks at 1920×1080); recompute every changed number.
+4. If the lesson is fine, only answer. Do not change files.
+5. Do not generate another lesson.
 
-- curriculum outline for N.M and the lesson immediately before it
-- HTML of the immediately preceding completed lesson
-- current chapter hub HTML
-- current chapter screen Swift
-- explorer Swift that N.M will sit next to
-- `@main App` / `LabHost` if the route must change
-- `course/glossary.html` if N.M adds a term
+## 6. Generate job
 
-**Questions about lesson N.M**
+- Generate only the named lesson: HTML, iOS explorer, and the lesson's Metal exercise with its prepared calling code (`AGENTS.md` “Scope and files”).
+- Without the iOS lab or Xcode, say so before generating.
+- Before delivering, run `AGENTS.md` rules 20, 21 and 25.
+- End with the progress line of `AGENTS.md` rule 22.
 
-- that lesson’s current HTML
-- its Swift explorer, if it has one
-- the immediately preceding lesson HTML when wording depends on it
-- `course/glossary.html` when the question is about a defined term
+## 7. Delivery
 
-Do not require the whole chapter’s older HTML and Swift on every chat.
+- With write access to my checkout and the lab: edit the files in place.
+- Without it (a cloud session or a chat): send every changed file as a download and give its repository path.
+- No ZIP files unless I ask. Do not commit or push unless I ask.
+- End with the list of changed files and their repository paths.
 
-## 5. Learner calibration
+## 8. Fixed facts
 
-I am an experienced software engineer. Treat me as a **total beginner in graphics, rendering, GPU work, image processing, and mathematics**.
-
-For every unfamiliar idea:
-
-1. Start with the practical visual problem.
-2. Name the exact objects involved.
-3. Define every new term in the same sentence before relying on it.
-4. State the coordinate space, units, or representation of every value.
-5. Explain which operation creates an intermediate value.
-6. Explain which later operation consumes that value.
-7. Trace one actual value through input → operation → output → next consumer.
-
-Use short declarative sentences. Do not invent shorthand such as “padded source,” “overscan,” “crop center,” or “hue” without an immediate plain-language definition.
-
-Do not write `arctan`, “lattice,” “level-set,” or “X is not an input.” Amount means the Lesson 7.10 slider until a later lesson redefines it.
-
-**Imagination-first (standing, 2026-09-14).** Geometric and distortion proofs must be pictures the learner can replay in their head. Visuals dominate; numbers confirm, they do not replace, the construction. No blind trust in formulas. Introductions stay gentle and do not talk as if the topic is already understood. Do not bloat openings with later machinery. Do not add restatement-only cards, numeric-only threshold tables, or slices that repeat a 2D picture. After a local cell is shown, show how the same lines continue through neighboring cells and whether the effect ends at the picture frame or continues outside. Name what each of `x` and `y` does on screen. Hidden exercise answers include diagrams of the question and of the reason. Distorted checkers must draw the true curve, not a straight stand-in. Full rule list: `USER_PREFERENCES.md` → “Imagination-first geometric proofs” and `AGENTS.md` → the matching 9.10 gate.
-
-## 6. New-learning gate
-
-Every full lesson must introduce a genuinely new mechanism, API behavior, mathematical operation, measurement method, or implementation step.
-
-A prerequisite recap must be brief and exist only to support the new operation. If a planned lesson is mostly consolidation, merge it into the next substantive lesson or make it a short checkpoint. Do not count repeated architecture prose as new progress.
-
-Run the beginner-comprehension audit in `AGENTS.md` before packaging a lesson. If you hesitate about whether a sentence is understandable from completed lessons only, treat it as not understandable and rewrite.
-
-## 7. Walkthrough and visual rules
-
-- Use the fewest states required by the causal chain.
-- Keep diagram and current explanation visible side by side when readable.
-- Every control, calculation, and diagram must read one canonical state.
-- Use semantic `<code>` elements in visible HTML. Do not leave Markdown backticks in prose.
-- Keep code-container text contrast correct.
-- Keep click-controlled popups inside the viewport.
-- Explain every non-obvious constant near its declaration or use.
-- Desktop is the required HTML layout. Floor is `1920×1080`. Light theme only for lessons. Do not add mobile layouts or dark-theme lesson QA.
-- After a lesson HTML or CSS change, verify the named sections in the browser at that desktop size.
-
-## 8. iOS delivery
-
-- Complete chapter-screen previews live in `ChapterNNScreen.swift` for the chapter being edited.
-- Direct lesson previews live in that lesson’s explorer file.
-- Both levels provide light and dark variants.
-- Both levels allow vertical scrolling through all content in a finite-height Xcode `#Preview`.
-- When stacking both theme `#Preview` blocks, put light first, then dark.
-- Preview canvas is **412 × 915 points**.
-- Test device is **iPhone 16 Pro**. Do not substitute another model.
-- Leave changed files in the two repositories (docs here; lab at `/Users/rosen/Code/LiquidGlassLab-iOS`). Do not package a ZIP unless I ask.
-- Never use `ultraThinMaterial` / `glassEffect` as the glass implementation.
-
-## 9. First response
-
-Confirm that the read-order files were read. If the same message already named generate or questions, do that job next. Otherwise say that you are ready for a lesson name or question and wait.
-
-## 10. Chat-only completion report
-
-When generating a lesson, end the response with `Course progress: X of 216 lessons completed.` Use explicit learner confirmations from the current conversation to update the count. Never write the count or lesson status into project files. Then give a clearly labelled best-effort estimate of remaining conversation context.
-
-## 11. Teaching contract reference
-
-Platform: Swift / SwiftUI / Metal (`.metal` + `ShaderLibrary`). Test device: iPhone 16 Pro. Minimum OS: iOS 17.
-
-Chapter 7 frost constants stay fixed: blur `18` pt / `18` CSS px, tint amount `0.25`, saturation `0.40`. Do not rebuild blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula.
-
-**9.1 teaching contract:**
-
-```text
-right triangle first (square corner, two legs, long side)
-→ countable 3-4-5, then teaching 0.30 / 0.40 / 0.50
-→ 0.09 + 0.16 = 0.25
-→ sqrt(0.25) = 0.50 because 0.50 × 0.50 = 0.25
-→ length(p) stored as gray
-```
-
-Teaching `p = (0.30, −0.40)` on a square 400×400 rectangle. Walk-around 0.70 is not the long side. × 2 unused. Sign unused. Rectangle is square so UV x and UV y share one pixel length. Nested equal-value outlines: smaller length circles are darker; smaller walk-around diamonds are that analog. The diamond is a square standing on a vertex.
-
-**9.2 teaching contract:**
-
-```text
-sd = length(p) − radius
-→ minus inside, zero boundary, plus outside
-→ if (sd < 0.0) orange else navy
-```
-
-Default radius 0.25. Teaching pixel sd = +0.25 (outside, navy). Center sd = −0.25 (inside, orange). Boundary `p = (0.15, −0.20)` has sd = 0. `smoothstep` unused. Walk-around diamond is HTML-only.
-
-**9.3 teaching contract:**
-
-```text
-mask = 1.0 − smoothstep(−band, band, sd)
-→ mix(navy, orange, mask)
-→ teaching sd = +0.05 → mask = 0.15625 → stored red 0.221875
-```
-
-Default band 0.10. Teaching band pixel `p = (0.18, −0.24)`, `d = 0.30`. linearFraction 0.75. curvedFraction 0.84375. Far pixel `p = (0.30, −0.40)` clamps to mask 0. Center mask 1. Boundary mask 0.50. Requires `edge1 > edge0`. Not 4.8 binary, not 4.9 coverage, not blur.
-
-**9.4 teaching contract:**
-
-```text
-innerHalf = outerHalf − cornerRadius
-→ q = abs(p) − innerHalf
-→ piecewise sdBox, then sd = sdBox − cornerRadius
-→ if (sd < 0.0) orange else navy
-```
-
-Default outer half `(0.30, 0.20)` means full size `0.60 × 0.40`. Corner radius 0.10. Teaching pixel `p = (0.26, −0.18)` is the inner-corner plus a 3-4-5 unit step of length 0.10, and has sd = 0. Visual center `C` is not a construction-circle center. `abs(p)` mirrors left onto right and top onto bottom. Capsule is Lesson 9.5.
-
-**9.5 teaching contract:**
-
-```text
-nearestX = clamp(p.x, −innerHalfW, innerHalfW)
-→ sd = length(p − (nearestX, 0)) − radius
-→ if (sd < 0.0) orange else navy
-```
-
-Default outer half `(0.40, 0.20)`, radius `0.20` equal to half-height. Teaching cap-boundary `p = (0.32, −0.16)` has sd = 0. Inner segment x from −0.20 to +0.20.
-
-**9.6 teaching contract:**
-
-```text
-sdA = length(p) − radiusA
-→ pB = p − B
-→ sdB = length(pB) − radiusB
-→ union sd = min(sdA, sdB)
-→ intersection sd = max(sdA, sdB)
-→ B minus A sd = max(sdB, −sdA)
-→ if (sd < 0.0) orange else navy
-```
-
-Two Lesson 9.2 circles. Teaching left-only `p = (−0.10, 0)` has `sdA = length(p) − radiusA = 0.10 − 0.25 = −0.15` and `sdB = length(pB) − radiusB = 0.30 − 0.25 = +0.05`. Named formula stays visible before substitution.
-
-**9.10 teaching contract** (learner-confirmed 2026-09-30):
-
-```text
-dir = p / length(p)
-→ disp = dir × dispLen
-→ readUv = uv − disp
-→ sampled = checkerBackground(readUv × resolution, resolution)
-```
-
-Navy input cell x `[0.50, 0.75)`, y `[0.25, 0.50)`. W `(0.65, 0.20)` reads about `(0.60528, 0.28944)` at `dispLen = 0.10` and stores navy. `dispLen` is the UV read distance, not a percentage enlargement. The shader skips the division at `d <= 0.0001`; the Metal source gives no reason for that exact cutoff. Q&A companion: `lesson-09-10-qa.html`.
-
-**9.11 teaching contract** (learner-confirmed 2026-09-30):
-
-```text
-sd = length(p) − radius
-→ falloff = 1.0 − smoothstep(−band, band, sd)
-→ dir = p / length(p)
-→ disp = dir × dispLen × falloff
-→ readUv = uv − disp
-→ sampled = checkerBackground(readUv × resolution, resolution)
-```
-
-Default radius 0.25, band 0.10, dispLen 0.10. Teaching W = `(0.65, 0.30)`: `p = (0.15, −0.20)`, `d = 0.25`, `sd = 0`, falloff 0.50, `dir = (0.60, −0.80)`, `disp = (0.03, −0.04)`, `readUv = (0.62, 0.34)`, stores navy. Falloff is a length scale, not a color mix. The line x = 0.90 never moves. Q&A companion: `lesson-09-11-qa.html`.
-
-**9.12 teaching contract:**
-
-```text
-p = uv − center → the Lesson 9.11 chain → readUv = uv − disp
-→ readUv = clamp(readUv, 0.0, 1.0) → sampled = checkerWithEdge(readUv)
-```
-
-C = `(0.50, 1.10)`. W = `(0.59, 0.98)` reads R = `(0.53, 1.06)` (outside), clamps to R′ = `(0.53, 1.00)`, stores navy.
-
-**9.13 teaching contract**:
-
-```text
-readRed   = clamp(uv − disp × (1 − spread), 0, 1)
-readGreen = clamp(uv − disp, 0, 1)
-readBlue  = clamp(uv − disp × (1 + spread), 0, 1)
-color     = half4(colRed.r, colGreen.g, colBlue.b, 1.0)
-```
-
-Black-and-white checker. C = `(0.40, 0.54)`, spread 0.10. W = `(0.40, 0.405)`: push 0.10 straight down; read y 0.495 / 0.505 / 0.515 → white / black / black → stores `(1, 0, 0)`. Strips yellow 0.39–0.40 and red 0.40–0.41 on x = 0.40; none outside 0.35 from C. iOS: `chapter09/ChromaticSeparation.metal` (`chromaticRefract`) + `chapter09/ChromaticSeparationExplorer.swift`.
-
-**9.14 teaching contract**:
-
-```text
-answer 2, where to read?  bent  = the Lesson 9.13 color from three read points
-answer 1, is it glass?    mask  = 1 − smoothstep(−maskBand, maskBand, sd)   maskBand = 0.002
-                          plain = wall(uv, time)
-                          color = mix(plain, bent, mask)
-moving test pattern:      wall(x, y, time) = checker(x + 0.10 × time, y)
-```
-
-C = `(0.40, 0.54)`. W = `(0.40, 0.24)` at time = 2 s: sd = 0.05 → mask 0, bent black, plain white → stores white. Answers the Chapter 9 checkpoint (two answers, two widths from one sd, neither uses the other or the time). iOS: `chapter09/LensCheckpoint.metal` (`movingChecker`, `glassLens`) + `chapter09/LensCheckpointExplorer.swift`.
-
-Current files:
-
-```text
-course/chapters/chapter-01/lesson-01-01-visible-ingredients.html
-course/chapters/chapter-01/lesson-01-02-observe-the-transition.html
-course/chapters/chapter-01/lesson-01-03-create-liquidglasslab.html
-course/chapters/chapter-01/lesson-01-04-build-a-study-background.html
-course/chapters/chapter-01/lesson-01-05-translucent-rounded-panel.html
-course/chapters/chapter-01/lesson-01-06-alpha-mixture.html
-course/chapters/chapter-01/lesson-01-07-iphone-16-pro-experiment.html
-course/chapters/chapter-01/lesson-01-08-diagnosis-and-checkpoint.html
-course/chapters/chapter-01/lesson-a-transparent-panel-is-not-yet-liquid-glass.html
-course/chapters/chapter-09/lesson-09-01-distance-between-two-points.html
-course/chapters/chapter-09/lesson-09-02-circle-signed-distance-field.html
-course/chapters/chapter-09/lesson-09-03-turn-distance-into-a-soft-mask.html
-course/chapters/chapter-09/lesson-09-04-rounded-rectangle-distance-field.html
-course/chapters/chapter-09/lesson-09-05-capsule-distance-field.html
-course/chapters/chapter-09/lesson-09-06-combine-shapes.html
-course/chapters/chapter-09/lesson-09-07-sample-an-input-shader.html
-course/chapters/chapter-09/lesson-09-08-translate-sample-coordinates.html
-course/chapters/chapter-09/lesson-09-09-scale-around-the-center.html
-course/chapters/chapter-09/lesson-09-10-build-a-displacement-field.html
-course/chapters/chapter-09/lesson-09-10-qa.html
-course/chapters/chapter-09/lesson-09-11-refraction-as-displaced-sampling.html
-course/chapters/chapter-09/lesson-09-11-qa.html
-course/chapters/chapter-09/lesson-09-12-edge-safety.html
-course/chapters/chapter-09/lesson-09-13-gentle-chromatic-separation.html
-course/chapters/chapter-09/lesson-09-14-lens-checkpoint.html
-course/chapters/chapter-09/lesson-distance-fields-image-sampling-and-refraction.html
-```
-
-iOS explorers under `/Users/rosen/Code/LiquidGlassLab-iOS/LiquidGlassLab/chapter09/`:
-
-```text
-DisplacementFieldExplorer.swift
-DisplacementField.metal
-RefractionSamplingExplorer.swift
-RefractionSampling.metal
-EdgeSafetyExplorer.swift
-EdgeSafety.metal
-ChromaticSeparationExplorer.swift
-ChromaticSeparation.metal
-LensCheckpointExplorer.swift
-LensCheckpoint.metal
-TraceLines.swift          (9.13 and 9.14 trace cards: one operation per line)
-Chapter09Screen.swift
-```
-
-Current Chapter 10 files:
-
-```text
-course/chapters/chapter-10/lesson-10-01-height-map-idea.html
-course/chapters/chapter-10/lesson-10-02-slope.html
-course/chapters/chapter-10/lesson-10-03-surface-normal.html
-course/chapters/chapter-10/lesson-light-surface-direction-and-material-thickness.html
-
-LiquidGlassLab/chapter10/HeightMapExplorer.swift
-LiquidGlassLab/chapter10/HeightMap.metal
-LiquidGlassLab/chapter10/HeightExercise.metal
-LiquidGlassLab/chapter10/HeightExerciseKey.metal
-LiquidGlassLab/chapter10/HeightExerciseView.swift
-LiquidGlassLab/chapter10/ExerciseCheck.metal
-LiquidGlassLab/chapter10/SlopeExplorer.swift
-LiquidGlassLab/chapter10/SlopeMap.metal
-LiquidGlassLab/chapter10/SlopeExercise.metal
-LiquidGlassLab/chapter10/SlopeExerciseKey.metal
-LiquidGlassLab/chapter10/SlopeExerciseView.swift
-LiquidGlassLab/chapter10/NormalExplorer.swift
-LiquidGlassLab/chapter10/NormalMap.metal
-LiquidGlassLab/chapter10/NormalExercise.metal
-LiquidGlassLab/chapter10/NormalExerciseKey.metal
-LiquidGlassLab/chapter10/NormalExerciseView.swift
-LiquidGlassLab/chapter10/Chapter10Screen.swift
-```
+- Platform: Swift, SwiftUI, Metal (`.metal` + `ShaderLibrary`). Minimum iOS 17.
+- Test device: iPhone 16 Pro. Preview canvas: 402 × 874 pt, the iPhone 16 Pro screen. Previews: light first, then dark, vertically scrollable.
+- HTML lessons: one self-contained file each (inline CSS and JS, works from `file://`), desktop at 1920×1080, light theme only.
+- The Chapter 7 frost constants are frozen (`CURRENT_STATE.md`, “Frozen frost stack”).
+- Never use `ultraThinMaterial` or `glassEffect` as the glass implementation.
+- The plan has 216 lessons. Project files never store which lessons are complete.
