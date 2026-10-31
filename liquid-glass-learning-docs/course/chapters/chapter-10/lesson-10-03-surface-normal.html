@@ -23,7 +23,7 @@
   figcaption{font-size:14px;color:#4b5563;max-width:100ch;margin-top:8px}.stage{position:relative}
   .heroGrid{display:grid;grid-template-columns:760px 760px;gap:28px;align-items:start}
   .grid3d{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start}
-  .cgTop{margin:6px 0 10px}.cgCap li{font-size:15px}.cgGrid{display:grid;grid-template-columns:442px minmax(0,1fr);gap:24px;align-items:start}.cgHead{font-size:15.5px;margin:0 0 6px}.cgBarHead{display:flex;justify-content:space-between;font-weight:400;font-size:12.5px}.cgBar{position:relative;height:18px;background:#f1f5f9;border:1px solid #94a3b8;border-radius:3px}.cgBar i{position:absolute;top:0;bottom:0}.cgBar b{position:absolute;left:50%;top:-4px;bottom:-4px;width:2px;background:#111827}
+  .cgCap li{font-size:15px}.cgGrid{display:grid;grid-template-columns:442px minmax(0,1fr);gap:28px;align-items:start;margin:10px 0 14px}.cgGrid .capl{margin-top:0}
   .ideaGrid{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start;margin-top:14px}.ideaCap{min-height:200px;margin-bottom:12px}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .pair{display:grid;grid-template-columns:auto auto;gap:28px;justify-content:start;align-items:start}
@@ -35,6 +35,7 @@
   #tip{position:fixed;z-index:60;max-width:420px;max-height:calc(100vh - 20px);overflow:auto;background:#111827;color:#f9fafb;border-radius:8px;padding:10px 34px 10px 12px;font-size:13.5px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.28);display:none}
   #tip.open{display:block}#tip.wide{max-width:600px}
 #tip.xwide{max-width:min(820px,calc(100vw - 20px))}
+#tip ul{margin:6px 0 0;padding-left:18px}#tip li{font-size:13.5px;margin:3px 0;line-height:1.4}#tip img{width:100%;display:block;border-radius:6px;margin-top:8px}
 #tip .tsec{color:#fde68a;font-weight:700;font-size:13px;margin:12px 0 0}
 #tip .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 #tip .tgrid pre{font-size:11.5px}
@@ -172,19 +173,20 @@
 <div class="cards" id="traceCards"></div>
 
 <h3 id="colorGuide">How to read the normal colors</h3>
-<div class="cgTop">
+<div class="cgGrid">
+  <div><div class="stage" id="cgMapStage"><canvas id="cgMap" width="440" height="440"></canvas></div>
+    <p class="small">Click a point, on its dot or its number. Drag W, the white dot, anywhere on the map.</p>
+    <p class="small" id="cgW"></p></div>
   <ul class="capl cgCap">
-    <li>Each pixel stores its N as a color (card 6):<ul><li>red = N's x part × 0.5 + 0.5;</li><li>green = N's y part × 0.5 + 0.5;</li><li>blue = N's height part × 0.5 + 0.5.</li></ul></li>
-    <li>Flat top and outside: N = (0, 0, 1). They store (0.5, 0.5, 1): the same light blue.</li>
-    <li>So, as in Lesson 10.2, the color changes <b>only on the rim</b>. Lesson 10.2's plain color was dark gray; here it is light blue.</li>
-    <li>Lesson 10.2 had one number per pixel, so only the left and right rims were colored. N has an x part and a y part, so every side of the rim is colored.</li>
+    <li>Each pixel stores its N as a color:<ul><li>red = N's x part × 0.5 + 0.5;</li><li>green = N's y part × 0.5 + 0.5;</li><li>blue = N's height part × 0.5 + 0.5.</li></ul></li>
+    <li>Why × 0.5 + 0.5? A part of N runs from −1 to 1. A color channel (red, green or blue) holds only 0 to 1. <button class="info" data-tip="range" aria-label="The two steps, drawn as number lines">ⓘ</button></li>
+    <li>A part of 0 stores 0.50. We call that <b>neutral</b>. A plus part stores more, a minus part stores less.</li>
+    <li>W is point 1. It stores red 0.8535, green 0.50, blue 0.8535: light pink-violet.</li>
+    <li>Flat top and outside: N = (0, 0, 1). They store (0.50, 0.50, 1): the same light blue.</li>
+    <li>So the color changes <b>only on the rim</b>. <button class="info" data-tip="vs102" aria-label="Compared with Lesson 10.2">ⓘ</button></li>
     <li>Which way N leans picks the tint:<ul><li>leans right: more red (pink); leans left: less red (blue-cyan);</li><li>leans toward the bottom: more green (light cyan); leans toward the top: less green (violet).</li></ul></li>
     <li>How far N leans picks how strong the tint is. Near the outline the rim is steepest: the tint is strongest and the blue is lowest.</li>
   </ul>
-</div>
-<div class="cgGrid">
-  <div><div class="stage" id="cgMapStage"><canvas id="cgMap" width="440" height="440"></canvas></div><p class="small">Points 1–10 are the rows of the table below. Click a point, or drag W (the white dot) anywhere on the map. The panel on the right reads the pixel under W.</p></div>
-  <div id="cgRead" aria-live="polite"></div>
 </div>
 <table class="trace" id="cgTable"></table>
 
@@ -611,7 +613,8 @@ function nTip(n,u,v){return()=>{const c=chainOf([u,v],TP,5),G=c.G,T=c.T,r3=x=>Ma
     +sec('6 · rawNormal')+pre(G[5].lines)
     +sec('7 · normalLength: first the shadow, then the length')+pre(G[6].lines)
     +sec('8 · N = rawNormal ÷ normalLength')+pre(G[7].lines)
-    +`<p class="tnote">${n==='W'?'The panel':'The table'} rounds to 3 decimals: <b>N = (${f(r3(c.nx))}, ${f(r3(c.ny))}, ${f(r3(c.nz))})</b>.</p>`}}
+    +`<p class="tnote">${n==='W'?'The line under the map':'The table'} rounds N to 3 decimals: <b>N = (${f(r3(c.nx))}, ${f(r3(c.ny))}, ${f(r3(c.nz))})</b>.</p>`
+    +sec('9 · The stored color, from that N')+pre([['red',c.nx],['green',c.ny],['blue',c.nz]].map(([nm,q])=>`${nm}: ${cgCh(r3(q))[0].replace('<br>','\n'+nm+': ')}`))}}
 const rot2=(p,deg)=>{const t=deg*DEG,c=Math.cos(t),s=Math.sin(t);return[R12(p[0]*c-p[1]*s),R12(p[0]*s+p[1]*c)]};
 /* grid squares around the unit origin (ox, oy); S picture pixels per unit; rect clips the grid to one panel */
 function flatGrid(ctx,ox,oy,S,rect){const cw=ctx.canvas.width,ch=ctx.canvas.height,[x0,y0,x1,y1]=rect||[0,0,cw,ch];
@@ -850,16 +853,16 @@ function ideaPanel(){
   ()=>({cap:`<b>Step 5 · One walk, three views.</b><ul class="capl"><li>The x walk is (1, 0, −0.45) in board units:<ul><li>x grows by 1;</li><li>y stays 0;</li><li>height falls by 0.45.</li></ul></li><li>The small pictures below show the same walk in three flat views.</li><li>Each flat view shows two of the three directions:<ul><li>view from above: x and y;</li><li>front view: x and height;</li><li>side view: y and height.</li></ul></li><li>So each view shows two of the walk's three numbers.</li><li>Steps 6–8 use the front view and the side view.</li></ul>`}),
   ()=>({cap:`<b>Step 6 · Front view: find the x part of rawNormal.</b><ul class="capl"><li>The picture below is the front view: x and height (Step 5). The x walk looks like (1, −0.45).</li><li>rawNormal must stand at a square corner to the x walk.</li><li>So turn the x walk by 90° around P, against the clock. Move the <b>turn</b> slider.</li><li>A turn changes directions. A turn does not change lengths.</li><li>Leg a: right 1 becomes up 1. That is the height part: <b>1</b>.</li><li>Leg b: down 0.45 becomes right 0.45. That is the x part: <b>0.45</b>.</li><li>Why did the sign change?<ul><li>Before the turn, leg b is a height. Down is a minus height: −0.45.</li><li>After the turn, leg b lies along x. Right is a plus x: +0.45.</li></ul></li><li>So <b>x part = −slopeX</b> = −(−0.45) = 0.45. rawNormal, seen from the front: <b>(0.45, 1)</b>.</li><li>Check: the board falls toward the right, and rawNormal leans right. It leans downhill.</li></ul>`}),
   ()=>({cap:`<b>Step 7 · Side view: find the y part of rawNormal.</b><ul class="capl"><li>The picture below is the side view: y and height (Step 5). The y walk looks like (1, −0.60).</li><li>rawNormal must also stand at a square corner to the y walk.</li><li>So turn the y walk by 90° around P, against the clock. Move the <b>turn</b> slider.</li><li>Leg a: 1 toward the bottom of the picture becomes up 1. The height part is <b>1</b> again.</li><li>Leg b: down 0.60 becomes 0.60 toward the bottom of the picture. That is the y part: <b>0.60</b>.</li><li>The sign changes for the same reason:<ul><li>before the turn, down is a minus height: −0.60;</li><li>after the turn, toward the bottom of the picture is a plus y: +0.60.</li></ul></li><li>So <b>y part = −slopeY</b> = −(−0.60) = 0.60. rawNormal, seen from the side: <b>(0.60, 1)</b>.</li><li>Check: the board falls toward the bottom of the picture, and rawNormal leans that way. Downhill again.</li></ul>`}),
-  ()=>({cap:`<b>Step 8 · All three parts: rawNormal.</b><ul class="capl"><li>Step 6 gave the x part 0.45. Step 7 gave the y part 0.60. Both gave the height part 1.</li><li>So <b>rawNormal = (0.45, 0.60, 1)</b>. The three colored lines are its parts.</li><li>Below: rawNormal in both views, each with its walk and its square corner.</li><li>The hidden part does not change the corner: y is at a square corner to the x walk.</li><li>Likewise, x is at a square corner to the y walk.</li><li>So rawNormal stands at a square corner to two walks on the board, in two directions.</li><li>Then rawNormal stands at a square corner to the whole board: the goal of Step 3.</li><li>In general: <b>rawNormal = (−slopeX, −slopeY, 1)</b>. “Raw” means: its length is not fixed yet.</li><li>Why the height part? Without it, rawNormal would lie flat: (0.45, 0.60, 0). Steps 10 and 11 use the 1.</li><li>The 1 is <b>chosen</b>: each walk is 1 long. Walks of 2 give the same direction, twice as long:<ul><li>2 × 0.45 = 0.90 and 2 × 0.60 = 1.20, so rawNormal = (0.90, 1.20, 2).</li></ul></li></ul>`}),
-  ()=>({cap:`<b>Step 9 · Its length, part 1: the shadow.</b><ul class="capl"><li>Light comes from straight above.</li><li>rawNormal throws a <b>shadow</b> (dark line) on the level plane through P.</li><li>The shadow keeps the x part 0.45 and the y part 0.60.</li><li>The shadow has no height part. Step 10 uses the height part.</li><li>0.45 and 0.60 are the legs of a flat right triangle (below).</li><li>Lesson 9.1 gives the long side of that triangle:<ul><li>x part² = 0.45 × 0.45 = 0.2025;</li><li>y part² = 0.60 × 0.60 = 0.36;</li><li>shadow² = 0.2025 + 0.36 = 0.5625;</li><li>shadow = √0.5625 = <b>0.75</b>.</li></ul></li></ul>`}),
-  ()=>({cap:`<b>Step 10 · Its length, part 2: stand it up.</b><ul class="capl"><li>A second right triangle stands on the shadow. Its legs: the shadow and the height part 1.</li><li>Its long side is rawNormal. Lesson 9.1: length² = shadow² + height part².</li><li>Step 9 already found shadow² = 0.5625.</li><li>The height part is used here: height part² = 1 × 1 = 1.</li><li>So put 0.5625 and 1 in directly: length² = 0.5625 + 1 = 1.5625.</li><li>length = √1.5625 = <b>1.25</b>. Section 2 calls this number normalLength.</li><li>rawNormal did not change: it is still (0.45, 0.60, 1). Compare two lines of the triangle:<ul><li>height part 1, the straight-up line: the tip of rawNormal is 1 board unit above P.</li><li>length 1.25, the slanted arrow: the tip of rawNormal is 1.25 board units from P.</li></ul></li><li>The bars below show the same sums. Bar 5 has three pieces: x part², y part² and height part².</li><li>So: length = <b>√(x part² + y part² + height part²)</b>: add three squares, then take one √.</li></ul>`}),
+  ()=>({cap:`<b>Step 8 · All three parts: rawNormal.</b><ul class="capl"><li>Step 6 gave the x part 0.45. Step 7 gave the y part 0.60. Both gave the height part 1.</li><li>So <b>rawNormal = (0.45, 0.60, 1)</b>. The three colored lines are its parts.</li><li>Below: rawNormal in both views, each with its walk and its square corner.</li><li>The hidden part does not change the corner: y is at a square corner to the x walk.</li><li>Likewise, x is at a square corner to the y walk.</li><li>So rawNormal stands at a square corner to two walks on the board, in two directions.</li><li>Then rawNormal stands at a square corner to the whole board: the goal of Step 3.</li><li>In general: <b>rawNormal = (−slopeX, −slopeY, 1)</b>. “Raw” means: its length is not fixed yet.</li><li>Why the height part? Without it, rawNormal would lie flat: (0.45, 0.60, 0). Steps 10 and 11 use the 1.</li><li>The height part 1 is <b>chosen</b>: each walk is 1 long. <button class="info" data-tip="chosen1" aria-label="What another choice gives">ⓘ</button></li></ul>`}),
+  ()=>({cap:`<b>Step 9 · Its length, part 1: the shadow.</b><ul class="capl"><li>Light comes from straight above.</li><li>rawNormal throws a <b>shadow</b> (dark line) on the level plane through P.</li><li>The shadow keeps the x part 0.45 and the y part 0.60.</li><li>The shadow has no height part. Step 10 uses the height part.</li><li>0.45 and 0.60 are the legs of a flat right triangle (below).</li><li>Lesson 9.1 gives the long side of that triangle, the shadow: <b>0.75</b>. <button class="info" data-tip="shadowCalc" aria-label="The calculation of the shadow">ⓘ</button></li></ul>`}),
+  ()=>({cap:`<b>Step 10 · Its length, part 2: stand it up.</b><ul class="capl"><li>A second right triangle stands on the shadow. Its legs: the shadow and the height part 1.</li><li>Its long side is rawNormal. Lesson 9.1: length² = shadow² + height part².</li><li>Step 9 found the shadow: shadow² = 0.5625 (bar 3 below).</li><li>The height part is used here: height part² = 1 × 1 = 1.</li><li>So put 0.5625 and 1 in directly: length² = 0.5625 + 1 = 1.5625.</li><li>length = √1.5625 = <b>1.25</b>.</li><li>rawNormal did not change: it is still (0.45, 0.60, 1). Compare two lines of the triangle:<ul><li>height part 1, the straight-up line: the tip of rawNormal is 1 board unit above P.</li><li>length 1.25, the slanted arrow: the tip of rawNormal is 1.25 board units from P.</li></ul></li><li>The bars below show the same sums. Bar 5 has three pieces: x part², y part² and height part².</li><li>So: length = <b>√(x part² + y part² + height part²)</b>: add three squares, then take one √.</li></ul>`}),
   ()=>({cap:`<b>Step 11 · Make it 1 long: N.</b><ul class="capl"><li>Only the direction of rawNormal matters. The direction says which way the board faces.</li><li>So we make the arrow 1 long: divide each part of rawNormal by the length of rawNormal, 1.25:<ul><li>x part: 0.45 ÷ 1.25 = 0.36;</li><li>y part: 0.60 ÷ 1.25 = 0.48;</li><li>height part: 1 ÷ 1.25 = 0.80.</li></ul></li><li>Lesson 9.10 divided the same way: <code>dir = p / length(p)</code>.</li><li><b>N = (0.36, 0.48, 0.80)</b>. N points the same way as rawNormal.</li><li>N is the <b>unit normal</b>. “Unit” means 1 long.</li><li>The tip of N lies on the ball of radius 1 around P (three pink circles).</li><li>Why length 1? Lesson 10.4 compares two directions. A longer arrow would count as “more”.</li></ul>`}),
   ()=>({cap:`<b>Step 12 · Back to the glass: slice it along one line.</b><ul class="capl"><li><b>The coordinates change here: from board units to UV.</b></li><li>The lime line on the screen is the <b>line y = 0.50</b>. It runs through C and through W.</li><li>Cut the glass straight down along the lime line, like a cake.</li><li>Take away the front half: the half toward the bottom of the picture.</li><li>The <b>cut face</b> stays. It is the violet face in the 3D picture.</li><li>The picture below shows the cut face straight on: the <b>slice</b> along the line y = 0.50.</li><li>A slice shows x (right) and height (up), both in UV. So a slice is a front view (Step 5).</li><li>W = (0.72, 0.50) lies on the line. H is the glass surface above W.</li></ul>`}),
   ()=>({cap:`<b>Step 13 · Near H, the glass is almost a small board.</b><ul class="capl"><li>Coordinates: UV, zoomed in around H.</li><li>The rim is curved. So its slopes change from pixel to pixel.</li><li>Look only near H. From above A to above B the rim is almost straight (below).</li><li>From above D to above E it is almost straight too.</li><li>So near H the glass is almost a small tilted board (blue, in the 3D picture).</li><li>That small board has W's own two slopes:<ul><li>slopeX, from A to B (Lesson 10.2);</li><li>slopeY, from D to E.</li></ul></li><li>So Steps 4–11 work at H, with W's slopes in place of −0.45 and −0.60.</li><li>Section 2 does this with every number.</li></ul>`}),
-  ()=>({cap:`<b>Step 14 · Every pixel has its own small board.</b><ul class="capl"><li>So every pixel has its own two slopes and its own N.</li><li>3D picture: N at many pixels (gray arrows, 0.06 UV long); pink: N at W.</li><li>Below: the nine pixels 1 to 9 on the line y = 0.50. On this line D and E are mirror images, so slopeY = 0.</li><li>Flat top and screen outside: both slopes are 0. N = (0, 0, 1), straight up.</li><li>Right rim: the surface falls toward the right, so N leans right.</li><li>Left rim: the surface rises toward the right. slopeX is plus, so the x part is minus: N leans left, downhill.</li><li>A steeper rim makes N lean more.</li><li>Faint arrows: rawNormal. Their lengths differ.</li><li>Pink arrows: N. All are 1 long.</li><li>Seen from above, N on the rim points outward, on any shape. Lesson 9.14's capsule needs such a direction for its push.</li></ul>`}),
+  ()=>({cap:`<b>Step 14 · Every pixel has its own small board.</b><ul class="capl"><li>So every pixel has its own two slopes and its own N.</li><li>3D picture: N at many pixels (gray arrows, 0.06 UV long); pink: N at W.</li><li>Below: the nine pixels 1 to 9 on the line y = 0.50. On this line D and E are mirror images, so slopeY = 0.</li><li>Flat top and screen outside: both slopes are 0. N = (0, 0, 1), straight up.</li><li>Right rim: the surface falls toward the right, so N leans right. <button class="info" data-tip="rimPush" aria-label="N on the rim, seen from above">ⓘ</button></li><li>Left rim: the surface rises toward the right. slopeX is plus, so the x part is minus: N leans left, downhill.</li><li>A steeper rim makes N lean more.</li><li>Faint arrows: rawNormal. Their lengths differ.</li><li>Pink arrows: N. All are 1 long.</li></ul>`}),
   ][idea]();
   $('turnCtl').hidden=$('turnHint').hidden=!(idea===5||idea===6);
-  $('ideaCap').innerHTML=S.cap+`<div style="margin-top:8px;color:#6b7280;font-size:13.5px">Step ${idea+1} of ${IDEA_N}</div>`;
+  $('ideaCap').innerHTML=S.cap+`<div style="margin-top:8px;color:#6b7280;font-size:13.5px">Step ${idea+1} of ${IDEA_N}</div>`;bindTips($('ideaCap'));
   [...$('ideaDots').children].forEach((b,i)=>b.classList.toggle('on',i===idea));$('ideaPrev').disabled=idea===0;$('ideaNext').disabled=idea===IDEA_N-1;
   drawIdeaFlat();
 }
@@ -921,7 +924,7 @@ function cardViews(){
     o.pt('N',N,COL.N,'<b>The tip of N</b> (0.707, 0, 0.707), drawn from H with 1 = 0.03 UV: on the circle of radius 1.','N tip');o.pt('rn',rn,COL.raw,'<b>The tip of rawNormal</b> (1, 0, 1): 1.414 from H.','rawNormal tip')}}).render();
 }
 /* ================= Section 2: the traced cards ================= */
-function cardCanvas(id){return`<div class="stage" id="${id}Stage"><canvas id="${id}" width="700" height="${id==='c6'?450:400}"></canvas></div>`}
+function cardCanvas(id){return`<div class="stage" id="${id}Stage"><canvas id="${id}" width="700" height="400"></canvas></div>`}
 function buildCards(){
   const ch=chainOf([0.72,0.5],TP,3),G=ch.G,Tx=new Trace(3);
   const pairHtml=g=>`<div class="lines twocol">${g.pair.map(([n,L,out,h])=>`<div class="col"><div><b>${n} = ${n==='A'?'(0.71, 0.50)':n==='B'?'(0.73, 0.50)':n==='D'?'(0.72, 0.49)':'(0.72, 0.51)'}</b></div>${L.map(s=>`<div>${s}</div>`).join('')}<div><b>${out} = ${f(h)}</b></div></div>`).join('')}</div>`;
@@ -931,14 +934,19 @@ function buildCards(){
     {id:'c3',t:'3 · slopeY, new',why:'D and E lie on the orange line x = 0.72, one step above and below W. That line passes 0.22 from C, so near W it stays on the rim. D and E have the same p.x and opposite p.y: the same distance from C, so the same height.',html:pairHtml(G[2])+`<div class="lines">${G[4].lines.join('\n')}</div>`,out:'slopeY = 0: along the line x = 0.72 the surface is level at W. Used by the y part of rawNormal.',isNew:true},
     {id:'c4',t:'4 · rawNormal, new',why:'<ul class="capl"><li>Coordinates: UV (x, y and height). rawNormal starts at H, the glass above W.</li><li>The recipe comes from Section 1, Step 8: rawNormal = (−slopeX, −slopeY, 1). Here we only put in the numbers:<ul><li>x part = −slopeX = −(−1) = 1.</li><li>y part = −slopeY = −(0) = 0.</li><li>height part = 1: chosen, always 1 (Section 1, Step 8).</li></ul></li><li>The picture checks the result. Use the buttons under it:<ul><li><b>Front view</b> (x and height): rawNormal makes a square corner with the green glass curve, along the line y = 0.50.</li><li><b>Side view</b> (y and height): rawNormal points straight up, because its y part is 0. The orange glass curve, along the line x = 0.72, is level at H. Again a square corner.</li></ul></li><li>A square corner with the glass in both directions: that is what a normal is.</li></ul>',html:`<div class="lines">${G[5].lines.join('\n')}</div>`,out:'rawNormal = (1, 0, 1): x part 1, y part 0, height part 1. Used by normalLength.',isNew:true,bar:true},
     {id:'c5',t:'5 · normalLength and N, new',why:'<ul class="capl"><li>Coordinates: UV (x, y and height). The arrows start at H. 1 = 0.03 UV (the arrow ruler).</li><li>The length of rawNormal, as in Section 1, Steps 9–10:<ul><li>First the shadow: the part of rawNormal flat on the floor, made of its x part and y part. Here the y part is 0, so the shadow is just the x part: 1 long.</li><li>Then the length: the shadow and the height part meet at a square corner. length² = shadow² + height part² = 1 + 1 = 2, so the length is 1.414.</li></ul></li><li>Then N, as in Section 1, Step 11: each part ÷ the length.</li><li>N is 1 long: its tip lies on the pink circle of radius 1 around H.</li></ul>',html:`<div class="lines">${G[6].lines.join('\n')}\n${G[7].lines.join('\n')}</div>`,out:'N = (0.707, 0, 0.707): 1 long, leaning right as much as up. Lessons 10.4 and 10.5 use N.',isNew:true},
-    {id:'c6',t:'6 · The display color, only for seeing',why:'<ul class="capl"><li>These are <b>number lines</b>: values only, not places on the screen.</li><li>A part of N can be anything from −1 to 1 (line 1).</li><li>A color channel (red, green or blue) holds only 0 (none) to 1 (full): the yellow zone.</li><li>Lines 1 and 2 stick out of the yellow zone on the left. A channel cannot store those values.</li><li>So every part goes through two steps:<ul><li>× 0.5: now from −0.5 to 0.5 (line 2).</li><li>+ 0.5: now from 0 to 1, inside the zone (line 3).</li></ul></li><li>At W: red 0.8535, green 0.50, blue 0.8535. Together: light pink-violet.</li><li>Left side of the rim, (0.28, 0.50) in UV: x part −0.707 → red 0.1465, only a little red.</li></ul>',html:`<div class="lines">${G[8].lines.join('\n')}</div>`,out:'Red for the x part, green for the y part, blue for the height part. W is light pink-violet. The flat top has N = (0, 0, 1), so it stores (0.50, 0.50, 1): light blue.'}
   ];
   $('traceCards').innerHTML=cards.map(c=>`<div class="card${c.isNew?' new':''}"><h3>${c.t}</h3>${cardCanvas(c.id)}${c.bar?`<div class="viewbar" id="${c.id}Bar"></div>`:''}${c.why.startsWith('<ul')?c.why:`<p class="why">${c.why}</p>`}${c.html}<p class="out"><b>Result:</b> ${c.out}</p></div>`).join('');
   bindTips($('traceCards'));
   // card pictures: cards 1-5 are turnable 3D views around W, coordinates UV
   cardViews();
   viewBar($('c4Bar'),CARD3D.c4,[['At an angle',25,25],['Front view',0,0],['Side view',-90,0]]);
-  {const cv=$('c6'),ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,700,450);const X=v=>40+(v+1)*200,DR='#7f1d1d';
+}
+
+
+/* the number lines of × 0.5 + 0.5, drawn once, shown inside a tooltip */
+let rangeImg=null;
+function rangePicture(){if(rangeImg)return rangeImg;
+const cv=document.createElement('canvas');cv.width=700;cv.height=450;const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,700,450);const X=v=>40+(v+1)*200,DR='#7f1d1d';
     const dotM=(x,y,k)=>{const r=6.5;if(k===2){ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=2.6;ctx.strokeStyle=DR;ctx.stroke();return}
       const cols=k===0?['#dc2626','#2563eb']:['#16a34a'];cols.forEach((c,q)=>{ctx.beginPath();ctx.moveTo(x,y);ctx.arc(x,y,r,Math.PI/2+q*2*Math.PI/cols.length,Math.PI/2+(q+1)*2*Math.PI/cols.length);ctx.closePath();ctx.fillStyle=c;ctx.fill()});ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.lineWidth=1.5;ctx.strokeStyle='#111827';ctx.stroke()};
     plate(ctx,'number lines: values, not places on the screen (not UV)',8,16,12,'left');
@@ -953,40 +961,42 @@ function buildCards(){
     MK.forEach(([t,vals,labs,c],m)=>vals.forEach((v,k)=>{dotM(X(v),LY[k],m);plate(ctx,labs[k],X(v),LY[k]+(k===2?17:-17),11,'center',c)}));
     for(const [v,l] of [[-1,'−1'],[-0.5,'−0.5'],[0,'0'],[0.5,'0.5'],[1,'1']])plate(ctx,l,X(v),342,11,'center');
     plate(ctx,'yellow zone: what a color channel holds, 0 (none) to 1 (full)',X(0.5),366,11.5,'center','#854d0e');plate(ctx,'dashed: where −1 and 1 go',470,342,11.5,'left','#475569');
-    [['W stores','(0.8535, 0.50, 0.8535)',[0.8535,0.5,0.8535]],['left rim stores','(0.1465, 0.50, 0.8535)',[0.1465,0.5,0.8535]],['the flat top stores','(0.50, 0.50, 1)',[0.5,0.5,1]]].forEach(([a,b,c],k)=>{const x0=10+k*232;ctx.fillStyle=css(c);ctx.fillRect(x0,392,56,48);ctx.strokeStyle='#111827';ctx.lineWidth=1.2;ctx.strokeRect(x0,392,56,48);plate(ctx,a,x0+64,404,11.5,'left');plate(ctx,b,x0+64,428,11.5,'left')})}
-}
-
+    [['W stores','(0.8535, 0.50, 0.8535)',[0.8535,0.5,0.8535]],['left rim stores','(0.1465, 0.50, 0.8535)',[0.1465,0.5,0.8535]],['the flat top stores','(0.50, 0.50, 1)',[0.5,0.5,1]]].forEach(([a,b,c],k)=>{const x0=10+k*232;ctx.fillStyle=css(c);ctx.fillRect(x0,392,56,48);ctx.strokeStyle='#111827';ctx.lineWidth=1.2;ctx.strokeRect(x0,392,56,48);plate(ctx,a,x0+64,404,11.5,'left');plate(ctx,b,x0+64,428,11.5,'left')})
+  rangeImg=cv.toDataURL();return rangeImg}
 
 /* ================= Section 2: how to read the normal colors ================= */
 const CGPTS=[['1',0.72,0.50],['2',0.6556,0.6556],['3',0.50,0.72],['4',0.3444,0.6556],['5',0.28,0.50],['6',0.3444,0.3444],['7',0.50,0.28],['8',0.6556,0.3444],['9',0.50,0.50],['10',0.85,0.50]];
-const CG={w:[0.72,0.5],sel:'1'},CGM=440,cgR3=v=>Math.round(v*1000)/1000;
+const CG={w:[0.72,0.5]},CGM=440,cgR3=v=>Math.round(v*1000)/1000;
 let cgImg=null;
 const cgCh=n=>{const m=R12(n*0.5),c=R12(m+0.5);return[`${n<0?'('+f(n)+')':f(n)} × 0.5 = ${f(m)}<br>${f(m)} + 0.5 = ${f(c)}`,c]};
-function cgSetPoint(n,u,v){hideTip();CG.w=[u,v];CG.sel=n;drawCgMap();cgRead();$('cgMapStage').querySelector(`[data-key="p${n}"]`)?.focus({preventScroll:true});return null}
-function cgSetW(u,v){CG.w=[snap3(clamp(u,0.01,0.99)),snap3(clamp(v,0.01,0.99))];CG.sel=null;drawCgMap();cgRead()}
+const cgN=(u,v)=>{const ch=chainOf([u,v],TP,5);return[ch.nx,ch.ny,ch.nz].map(cgR3)};
+const cgRegion=(u,v,N)=>{const d=Math.hypot(u-0.5,v-0.5);return !N[0]&&!N[1]?(d<RAD?'flat top':'outside'):(d<RAD?'rim':'at the outline')};
+/* what a clicked point says */
+function cgSays(name,u,v){const N=cgN(u,v),c=N.map(n=>cgCh(n)[1]),flat=!N[0]&&!N[1],out=Math.hypot(u-0.5,v-0.5)>=RAD,dirs=[];
+  if(N[0]>0)dirs.push('to the right');if(N[0]<0)dirs.push('to the left');if(N[1]>0)dirs.push('toward the bottom of the picture');if(N[1]<0)dirs.push('toward the top of the picture');
+  const head=flat?'Flat surface: N points straight up.':dirs.length===1?`N leans ${dirs[0]} only.`:`N leans ${dirs[0]} and ${dirs[1]}.`;
+  const col=(s,k)=>`<span style="color:${['#fca5a5','#86efac','#93c5fd'][k]};font-weight:700">${s}</span>`;
+  const part=(k,nm,ch)=>N[k]>0?`${nm} part ${f(N[k])} is above 0, so ${col(ch,k)} is higher than neutral: ${f(c[k])}.`:N[k]<0?`${nm} part ${f(N[k])} is below 0, so ${col(ch,k)} is lower than neutral: ${f(c[k])}.`:`${nm} part is 0, so ${col(ch,k)} stays neutral: ${f(c[k])}.`;
+  const lines=[part(0,'x','red'),part(1,'y','green'),flat?`Height part is 1, so ${col('blue',2)} goes to its maximum: 1.`:part(2,'Height','blue')];
+  if(!flat)lines.push(`Blue stays below the flat top's 1: part of N's length goes into the lean.`);
+  if(flat&&out)lines.push(`The surface height here is 0. On the flat top it is ${f(TP.bev)}. Blue is 1 on both: blue follows N's height part, not how high the surface is.`);
+  return`<b>${name} = ${pt(u,v)}</b> in UV · ${cgRegion(u,v,N)} · N = (${f(N[0])}, ${f(N[1])}, ${f(N[2])})<br><b>${head}</b><ul>${lines.map(l=>`<li>${l}</li>`).join('')}</ul>`}
+function cgSetW(u,v){CG.w=[snap3(clamp(u,0.01,0.99)),snap3(clamp(v,0.01,0.99))];drawCgMap();cgReadout()}
+function cgReadout(){const [u,v]=CG.w,N=cgN(u,v),c=N.map(n=>cgCh(n)[1]);
+  $('cgW').innerHTML=`<b>W = ${pt(u,v)}</b> in UV · N = (${f(N[0])}, ${f(N[1])}, ${f(N[2])}) <button class="info" id="cgInfo" aria-label="How N and the color are calculated at W">ⓘ</button> · stored color (${f(c[0])}, ${f(c[1])}, ${f(c[2])}) <span style="display:inline-block;width:34px;height:15px;border:1px solid #111827;border-radius:3px;vertical-align:-3px;background:${css(c)}"></span>`;
+  setTip($('cgInfo'),nTip('W',u,v))}
 function drawCgMap(){const cv=$('cgMap'),ctx=cv.getContext('2d'),M=CGM,stage=$('cgMapStage');
   if(!cgImg){cgImg=ctx.createImageData(M,M);const D=cgImg.data;for(let j=0;j<M;j++)for(let i=0;i<M;i++){const c=normalAt((i+0.5)/M,(j+0.5)/M,TP).rgb,o=(j*M+i)*4;D[o]=Math.round(c[0]*255);D[o+1]=Math.round(c[1]*255);D[o+2]=Math.round(c[2]*255);D[o+3]=255}}
   ctx.putImageData(cgImg,0,0);ring(ctx,0.5*M,0.5*M,RAD*M,COL.glass,1.8);ctx.save();ctx.strokeStyle='rgba(17,24,39,0.55)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(0.5*M,0.5*M,(RAD-TP.bev)*M,0,7);ctx.stroke();ctx.restore();
   plate(ctx,'coordinates: UV, from above · x →, y ↓',8,14,12,'left');plate(ctx,'flat top: light blue',0.5*M,0.5*M-62,11.5,'center');plate(ctx,'outside: the same light blue',8,M-16,11.5,'left');plate(ctx,'rim: the ring between the two circles',M-8,40,11.5,'right');
   clearPts(stage);
-  for(const [n,u,v] of CGPTS){const x=u*M,y=v*M,dx=u-0.5,dy=v-0.5,dl=Math.hypot(dx,dy)||1,off=n==='9'||n==='10'?[0,-26]:[dx/dl*28,dy/dl*28];tag(ctx,n,x+off[0],y+off[1],CG.sel===n?'#fde68a':'#fff');addPt(stage,x,y,css(normalAt(u,v,TP).N.map(q=>cgR3(q)*0.5+0.5)),()=>cgSetPoint(n,u,v),'point '+n,{small:true,key:'p'+n})}
+  for(const [n,u,v] of CGPTS){const x=u*M,y=v*M,dx=u-0.5,dy=v-0.5,dl=Math.hypot(dx,dy)||1,off=n==='9'||n==='10'?[0,-26]:[dx/dl*28,dy/dl*28],says=()=>cgSays('Point '+n,u,v);tag(ctx,n,x+off[0],y+off[1],'#fff');
+    addPt(stage,x,y,css(cgN(u,v).map(q=>q*0.5+0.5)),says,'point '+n,{small:true});
+    const num=addPt(stage,x+off[0],y+off[1],'transparent',says,'number of point '+n);num.style.borderColor='transparent';num.style.width=num.style.height='24px';num.setAttribute('tabindex','-1')}
   const [wu,wv]=CG.w,x=wu*M,y=wv*M,dx=wu-0.5,dy=wv-0.5,dl=Math.hypot(dx,dy);
   if(dl>1e-9){const s=dl>RAD?1:-1;plate(ctx,'W',x+s*dx/dl*22,y+s*dy/dl*22+4,12,'center')}else plate(ctx,'W',x+18,y+22,12,'center');
-  addPt(stage,x,y,'#fff',()=>`<b>W = ${pt(wu,wv)}</b> in UV: the pixel the panel reads. Drag it anywhere on the map.`,'W',{key:'W',move:(cx,cy)=>{const [px,py]=canvasPos(cv,cx,cy);cgSetW(px/M,py/M)},keys:d=>cgSetW(wu+d[0]*0.001,wv+d[1]*0.001)})}
-function cgRead(){const [u,v]=CG.w,ch=chainOf([u,v],TP,5),N=[ch.nx,ch.ny,ch.nz].map(cgR3),nm=CG.sel?'Point '+CG.sel:'W',d=Math.hypot(u-0.5,v-0.5),flat=!N[0]&&!N[1],inTop=d<RAD;
-  const reg=flat?(inTop?'flat top':'outside'):(inTop?'rim':'at the outline');
-  const dirs=[];if(N[0]>0)dirs.push('to the right');if(N[0]<0)dirs.push('to the left');if(N[1]>0)dirs.push('toward the bottom of the picture');if(N[1]<0)dirs.push('toward the top of the picture');
-  const lean=flat?'N does not lean: it points straight up. The surface is flat here.':dirs.length===1?`N leans ${dirs[0]} only.`:`N leans ${dirs[0]} and ${dirs[1]}.`;
-  const part=(p,name,chan,plus,minus)=>p>0?`N's ${name} part is ${f(p)}: N leans ${plus}. A plus part gives more than neutral, so ${chan} is higher.`:p<0?`N's ${name} part is ${f(p)}: N leans ${minus}. A minus part gives less than neutral, so ${chan} is lower.`:`N's ${name} part is 0: no lean ${plus} or ${minus}. So ${chan} stays neutral.`;
-  const blue=flat?`N's height part is 1: N points straight up. Only blue moves, and it goes to its maximum, 1.${inTop?'':` The surface height here is 0, and on the flat top it is ${f(TP.bev)}. Blue is 1 on both. So blue follows N's height part, not how high the surface is.`}`:`N's height part is ${f(N[2])}. It is above 0, so blue is higher than neutral. N is 1 long, and part of that length goes into the lean. So blue is lower than on the flat top, where it is 1.`;
-  const rows=[['red = x part','#dc2626',N[0],part(N[0],'x','red','to the right','to the left')],['green = y part','#16a34a',N[1],part(N[1],'y','green','toward the bottom of the picture','toward the top of the picture')],['blue = height part','#2563eb',N[2],blue]];
-  const cs=rows.map(r=>cgCh(r[2]));
-  $('cgRead').innerHTML=`<p class="cgHead"><b>Neutral</b> means 0.50: what a channel stores when N's part is 0 (0 × 0.5 = 0, then 0 + 0.5 = 0.50). Above 0.50: a plus part. Below 0.50: a minus part.</p>
-    <p class="cgHead"><b>${nm}</b> · ${reg} · ${pt(u,v)} in UV · N = (${f(N[0])}, ${f(N[1])}, ${f(N[2])}) <button class="info" id="cgInfo" aria-label="How N is calculated at ${nm}">ⓘ</button> · stored color (${f(cs[0][1])}, ${f(cs[1][1])}, ${f(cs[2][1])}) <span style="display:inline-block;width:46px;height:20px;border:1px solid #111827;border-radius:4px;vertical-align:-5px;background:${css(cs.map(c=>c[1]))}"></span></p>
-    <p class="cgHead"><b>${lean}</b></p>
-    <table class="trace"><tr><th style="width:140px">Channel</th><th style="width:250px"><span class="cgBarHead"><span>0</span><span>neutral 0.50</span><span>1</span></span></th><th style="width:220px">Stored value</th><th>Why</th></tr>`+rows.map((r,i)=>{const c=cs[i][1],lo=Math.min(c,0.5)*100,w=Math.abs(c-0.5)*100;return`<tr><td style="color:${r[1]}"><b>${r[0]}</b></td><td><div class="cgBar"><i style="left:${lo}%;width:${w}%;background:${r[1]}"></i><b></b></div></td><td class="f">${cs[i][0]}</td><td>${r[3]}</td></tr>`}).join('')+'</table>';
-  setTip($('cgInfo'),nTip(CG.sel||'W',u,v))}
-function drawColorGuide(){drawCgMap();cgRead();$('cgMap').addEventListener('click',e=>{const [x,y]=canvasPos($('cgMap'),e.clientX,e.clientY);cgSetW(x/CGM,y/CGM)});
+  addPt(stage,x,y,'#fff',()=>cgSays('W',wu,wv),'W',{key:'W',move:(cx,cy)=>{const [px,py]=canvasPos(cv,cx,cy);cgSetW(px/M,py/M)},keys:d=>cgSetW(wu+d[0]*0.001,wv+d[1]*0.001)})}
+function drawColorGuide(){drawCgMap();cgReadout();$('cgMap').addEventListener('click',e=>{const [x,y]=canvasPos($('cgMap'),e.clientX,e.clientY);cgSetW(x/CGM,y/CGM)});
   const info=CGPTS.map(([n,u,v])=>{const q=normalAt(u,v,TP),N=q.N.map(cgR3);return{n,u,v,N,h:q.h}});
   const reg=p=>{const d=Math.hypot(p.u-0.5,p.v-0.5);return d>RAD?'outside':d<RAD-TP.bev?'flat top':'rim'};
   const lean=N=>{const a=[];if(N[0]>0.05)a.push('right');if(N[0]<-0.05)a.push('left');if(N[1]>0.05)a.push('toward the bottom');if(N[1]<-0.05)a.push('toward the top');return a.length?'leans '+a.join(' and '):'no lean: straight up'};
@@ -1131,6 +1141,11 @@ $('recBtn').onclick=async()=>{let ok=false;try{if(navigator.clipboard){await nav
 
 /* ================= reminders (ⓘ) ================= */
 const TIPS={
+  range:()=>{const G=chainOf([0.72,0.5],TP,3).G;return`<b>Why × 0.5 + 0.5</b> (display only)<br>A part of N runs from −1 to 1. A color channel holds only 0 (none) to 1 (full). So every part goes through two steps: × 0.5 (line 2), then + 0.5 (line 3).<div class="tgrid" style="grid-template-columns:1fr"><img src="${rangePicture()}" alt="Three number lines on one scale: −1 to 1, then −0.5 to 0.5, then 0 to 1"></div><pre>W = (0.72, 0.50) in UV\n${G[8].lines.filter(l=>!/^4th|^W stores/.test(l)).join('\n')}</pre>`},
+  vs102:'Lesson 10.2 had the same rule: the color changes only where the surface slopes. Its plain color was dark gray; here it is light blue. Lesson 10.2 had one number per pixel, so only the left and right rims were colored. N has an x part and a y part, so every side of the rim is colored.',
+  chosen1:'Walks of 2 instead of 1 give the same direction, twice as long:<pre>2 × 0.45 = 0.90\n2 × 0.60 = 1.20\nrawNormal = (0.90, 1.20, 2)</pre>Step 11 makes the length 1 anyway. So the 1 is a choice.',
+  shadowCalc:'Lesson 9.1: the long side of a right triangle is √(leg² + leg²).<pre>x part² = 0.45 × 0.45 = 0.2025\ny part² = 0.60 × 0.60 = 0.36\nshadow² = 0.2025 + 0.36 = 0.5625\nshadow = √0.5625 = 0.75</pre>Check: 0.75 × 0.75 = 0.5625.',
+  rimPush:"Seen from above, N on the rim points outward, on any shape. Lesson 9.14's capsule needs such a direction for its push.",
   step:'<b>step</b><br>From: Lesson 10.2 and the lab slider, in UV. The distance from W to each of its four neighbors. A and B are 2 × step apart, and so are D and E.<br>A chosen dial, not a property of glass: a smaller step measures a smaller part of the curved rim.<br>Used by: the four neighbor positions and both slope lines.',
   bevel:'<b>bevel</b><br>From: Lesson 10.1 and the lab slider, in UV. The rim width, the rim-circle radius, and the height of the flat top. 0.10 is a chosen shape dial.<br>Used by: every height calculation.',
   slopeX:'<b>slopeX</b> (Lesson 10.2)<pre>slopeX = (hRight − hLeft) ÷ (2 × step)\nat W = (0.72, 0.50), step 0.01:\nhLeft = 0.08 above A = (0.71, 0.50)\nhRight = 0.06 above B = (0.73, 0.50)\nΔh = 0.06 − 0.08 = −0.02\n2 × 0.01 = 0.02\nslopeX = −0.02 ÷ 0.02 = −1</pre>The average slope from A to B, used as the slope at W. Minus: the surface falls as x grows.',
