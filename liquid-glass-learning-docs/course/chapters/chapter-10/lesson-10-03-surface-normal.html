@@ -401,11 +401,26 @@ float3 buttonNormal(float2 uv, float2 center, float2 outerHalf,
   <p class="qaQ">“Can you clarify what's the purpose of rotating a triangle by 90 deg where we change the signs between a and b in the clarification graphic at step 6 of section 1. This doesn't seem to be present in the 3D graphic in subsequent sections, where it seems everything is already ‘aligned’.”</p>
   <div class="qaGrid">
     <div><div class="stage" id="qa2Stage"><canvas id="qa2" width="720" height="480"></canvas></div><div class="viewbar" id="qa2Bar"></div>
+      <div class="ctl"><button class="btn" id="qaClimbOff" aria-pressed="true">Case 1 · Height parts negative: the walks fall</button><button class="btn" id="qaClimbOn" aria-pressed="false">Case 2 · Height parts positive: the walks climb</button></div>
       <div class="ctl"><label><span class="ctlname">turn</span><input type="range" id="qaTurn" min="0" max="90" step="1" value="90" aria-label="How far the legs are turned, in degrees"><span class="mono" id="qaTurnV">90°</span></label><span class="small">The 3D picture and the front view follow this slider.</span></div>
-      <table class="trace"><tr><th>Leg</th><th>Before the turn: a part of the x walk</th><th>After the turn: a part of rawNormal</th></tr><tr><td><b>a</b></td><td class="xc">right 1: x part +1</td><td class="hc">up 1: height part +1</td></tr><tr><td><b>b</b></td><td class="hc">down 0.45: height part −0.45</td><td class="xc">right 0.45: x part +0.45</td></tr></table>
+      <table class="trace" id="qa2Legs"></table>
     </div>
     <div>
-      <ul class="capl">
+      <div id="qa2Case2" hidden>
+        <p class="qaQ">“Can you for completeness add another graphic (and a selector below it to switch between x/y's height part negative and positive) which shows the case when x and y's height part are positive (climbs). Only then I'll see that when rotated b's parts pointing to the left and top (+ becomes -). And verify if I'm right with this one.”</p>
+        <ul class="capl">
+          <li><b>Yes, you are right.</b> When the walks climb, each leg b ends up pointing left or toward the top of the picture. Plus becomes minus.</li>
+          <li>It is the same turn, against the clock. Down turned into right, and up turns into left.</li>
+          <li>Leg a does not change: it still turns into the height part 1.</li>
+          <li>The recipe does not change either: x part = −slopeX = −(0.45) = −0.45, and y part = −slopeY = −(0.60) = −0.60. So rawNormal = (−0.45, −0.60, 1).</li>
+          <li>rawNormal leans downhill again. This board falls toward the left and toward the top of the picture.</li>
+          <li>The shadow and the length do not change, because a square has no minus: (−0.45) × (−0.45) = 0.2025, and (−0.60) × (−0.60) = 0.36. So the shadow is still 0.75 and the length still 1.25.</li>
+          <li>N has the same signs as rawNormal: −0.45 ÷ 1.25 = −0.36, −0.60 ÷ 1.25 = −0.48, 1 ÷ 1.25 = 0.80. So N = (−0.36, −0.48, 0.80).</li>
+          <li>Leg a is under the board now, and b comes up to it. In case 1, a was above the board and b came down. They are helper lines. Only the walk lies on the board.</li>
+          <li>On the glass this is the left and the top of the rim: M in card 3.</li>
+        </ul>
+      </div>
+      <ul class="capl" id="qa2Case1">
         <li><b>The purpose: to find rawNormal's numbers.</b> Nothing else.</li>
         <li>Why does a turn find them? Turn any arrow by 90°: it stands at a square corner to where it was.</li>
         <li>The x walk lies on the board. So after the turn it stands at a square corner to the board, in the front view below.</li>
@@ -799,7 +814,7 @@ const IDEA_CAM=[[0,90,0.95,[-1.05,0,0]],[-20,30,1.05,[-0.75,0.15,0.35]],...Array
 function floor3(o,opt={}){const F=1.5;o.poly([[-F,-F,0],[F,-F,0],[F,F,0],[-F,F,0]],opt.fill||'rgba(241,245,249,0.96)','#94a3b8',1.4,-3);
   if(opt.uv)for(let i=1;i<10;i++){const t=-F+i*0.3;o.seg([t,-F,0],[t,F,0],'#e2e8f0',1,true,-2.5);o.seg([-F,t,0],[F,t,0],'#e2e8f0',1,true,-2.5)}
   if(opt.top!==false)o.label('top of the picture',[0,-F,0],0,-13,'center','#4b5563',12);if(opt.title)opt.uv?o.label(opt.title,[0,F,0],0,18,'center','#475569',12):o.label(opt.title,[F,F*0.2,0],8,10,'left','#475569',12)}
-function board3(o,opt={}){const E=BOARD.E,g=(x,y)=>[x,y,bZ(x,y)],cuts=[-E,-1,0,1,E];
+function board3(o,opt={}){const E=BOARD.E,g=(x,y)=>[x,y,opt.climb?2*BOARD.zp-bZ(x,y):bZ(x,y)],cuts=[-E,-1,0,1,E];
   for(let i=0;i<4;i++)for(let j=0;j<4;j++){const x0=cuts[i],x1=cuts[i+1],y0=cuts[j],y1=cuts[j+1];o.poly([g(x0,y0),g(x1,y0),g(x1,y1),g(x0,y1)],opt.fill||'rgba(219,234,254,0.82)','rgba(30,64,175,0.40)',1)}
   o.path([g(-E,-E),g(E,-E),g(E,E),g(-E,E),g(-E,-E)],'#1e40af',1.8,true,0.5);
   if(opt.posts)for(const [x,y] of [[-E,-E],[E,-E],[E,E],[-E,E]])o.seg([x,y,0],g(x,y),'#64748b',1.8,true,0);
@@ -908,19 +923,19 @@ function bothViews(ctx,pt2){const S=96;[[0,378,false],[382,760,true]].forEach(([
       plate(ctx,`board units, ${isY?'side':'front'} view · ${isY?'y':'x'} →, height ↑`,x0+6,14,11.5,'left');plate(ctx,`rawNormal, seen ${view}: (${a}, 1)`,tp[0]+8,tp[1]-6,12,'left','#4338ca');plate(ctx,`${wn} looks like (1, ${f(sl)})`,we[0]+8,we[1]+10,12,'left',COL.walk);plate(ctx,isY?'its x part 0.45: not shown':'its y part 0.60: not shown',x0+6,284,11.5,'left','#9a3412');
       pt2(G.ox,G.oy,'#fff',`<b>P</b>, seen ${view}.`,'P');pt2(tp[0],tp[1],COL.raw,`<b>The tip of rawNormal</b>, seen ${view}: (${a}, 1). rawNormal itself is (0.45, 0.60, 1) in board units from P.`,'rawNormal tip');pt2(we[0],we[1],COL.walk,`<b>The end of the ${wn}</b>, seen ${view}: (1, ${f(sl)}).`,wn+' end')});
     thin(ctx,380,0,380,300,'#64748b',2);}
-function turnFlat(ctx,pt2,isY,d){const Wc=ctx.canvas.width,sl=isY?BOARD.sy:BOARD.sx,xc=isY?COL.yP:COL.xP,tc=isY?COL.yT:COL.xT,wn=isY?'y walk':'x walk',ax=isY?'y':'x',a=f(-sl),view=isY?'from the side':'from the front',G=flatGrid(ctx,250,160,120);
-    boardLine(ctx,G,sl,0,Wc);plate(ctx,`coordinates: board units, ${isY?'side':'front'} view · ${ax} →, height ↑ · 1 grid square = 1 unit`,8,14,12,'left');axes2D(ctx,650,130,isY?{xl:'y',xc:COL.yP,xt:COL.yT}:{});
-    {const e=G.P(1.6,1.6*sl);plate(ctx,`the board, along the ${wn}`,e[0]+8,e[1]+14,12,'left','#1e40af')}
+function turnFlat(ctx,pt2,isY,d,climb){const Wc=ctx.canvas.width,sl=(climb?-1:1)*(isY?BOARD.sy:BOARD.sx),xc=isY?COL.yP:COL.xP,tc=isY?COL.yT:COL.xT,wn=isY?'y walk':'x walk',ax=isY?'y':'x',a=f(Math.abs(sl)),view=isY?'from the side':'from the front',G=flatGrid(ctx,climb?380:250,160,120);
+    boardLine(ctx,G,sl,0,Wc);plate(ctx,`coordinates: board units, ${isY?'side':'front'} view · ${ax} →, height ↑ · 1 grid square = 1 unit`,8,14,12,'left');axes2D(ctx,climb?40:650,climb?285:130,isY?{xl:'y',xc:COL.yP,xt:COL.yT}:{});
+    {const e=climb?G.P(-1.6,-1.6*sl):G.P(1.6,1.6*sl);plate(ctx,`the board, along the ${wn}`,e[0]+8,e[1]+14,12,'left','#1e40af')}
     const w=flatTri(ctx,G,1,sl,0,{tags:true,xc,head:11});
     if(d<90)for(const q of [30,60])if(q<d){const r=rot2([1,sl],q),e=G.P(r[0],r[1]);ctx.save();ctx.globalAlpha=0.5;arrow(ctx,G.ox,G.oy,e[0],e[1],'#94a3b8',1.8,9);ctx.restore()}
     {const ang=Math.atan2(-sl,1)/DEG;turnArc(ctx,G.ox,G.oy,40,ang,ang-d)}
-    if(d===0||d===90)plate(ctx,`a · ${isY?'toward the bottom':'right'} 1: ${wn}'s ${ax} part 1`,w.H[0]+22,w.H[1]-26,12,'left',tc);plate(ctx,`b · down ${a}: ${wn}'s height part −${a}`,w.pa[0]+12,(w.pa[1]+w.pb[1])/2,12,'left',COL.hT);plate(ctx,`${wn}, seen ${view}: (1, ${f(sl)})`,w.pb[0]+10,w.pb[1]+16,13,'left',COL.walk);
+    if(d===0||d===90)plate(ctx,`a · ${isY?'toward the bottom':'right'} 1: ${wn}'s ${ax} part 1`,w.H[0]+22,w.H[1]+(climb?24:-26),12,'left',tc);plate(ctx,climb?`b · up ${a}: ${wn}'s height part +${a}`:`b · down ${a}: ${wn}'s height part −${a}`,w.pa[0]+12,(w.pa[1]+w.pb[1])/2,12,'left',COL.hT);plate(ctx,`${wn}, seen ${view}: (1, ${f(sl)})`,w.pb[0]+10,w.pb[1]+(climb?-16:16),13,'left',COL.walk);
     pt2(w.pb[0],w.pb[1],COL.walk,`<b>The end of the ${wn}</b>, seen ${view}: (1, ${f(sl)}) in board units from P.`,wn+' end');
     if(d>0){const t=flatTri(ctx,G,1,sl,d,{tags:true,xc,longCol:d===90?COL.raw:COL.walk,head:11});
       if(d===90){square(ctx,G.ox,G.oy,unit2(1,-sl),unit2(-sl,-1),12);
-        plate(ctx,"a · up 1: rawNormal's height part 1",t.pa[0]-12,(t.H[1]+t.pa[1])/2,12,'right',COL.hT);plate(ctx,`b · ${isY?'toward the bottom':'right'} ${a}: rawNormal's ${ax} part +${a}`,t.pb[0]+10,t.pb[1]-8,12,'left',tc);plate(ctx,`rawNormal, seen ${view}: (${a}, 1)`,t.pb[0]+10,t.pb[1]+18,13,'left','#4338ca');
+        plate(ctx,"a · up 1: rawNormal's height part 1",climb?t.pa[0]+12:t.pa[0]-12,climb?66:(t.H[1]+t.pa[1])/2,12,climb?'left':'right',COL.hT);plate(ctx,`b · ${climb?(isY?'toward the top':'left'):(isY?'toward the bottom':'right')} ${a}: rawNormal's ${ax} part ${climb?'−':'+'}${a}`,climb?t.pb[0]-10:t.pb[0]+10,t.pb[1]-8,12,climb?'right':'left',tc);plate(ctx,`rawNormal, seen ${view}: (${f(-sl)}, 1)`,climb?t.pb[0]-10:t.pb[0]+10,t.pb[1]+18,13,climb?'right':'left','#4338ca');
         const o=G.P(sl,-1);ctx.save();ctx.globalAlpha=0.6;arrow(ctx,G.ox,G.oy,o[0],o[1],'#6b7280',2.4,10);ctx.restore();plate(ctx,'✕ the other turn: under the board',o[0]+12,o[1]-6,12,'left','#4b5563');
-        pt2(t.pb[0],t.pb[1],COL.raw,`<b>The tip of rawNormal</b>, seen ${view}: (${a}, 1) in board units from P.`,'rawNormal tip')}
+        pt2(t.pb[0],t.pb[1],COL.raw,`<b>The tip of rawNormal</b>, seen ${view}: (${f(-sl)}, 1) in board units from P.`,'rawNormal tip')}
       else plate(ctx,`the ${wn}, turned ${d}° of 90°`,G.P(-0.2,1)[0],G.P(0,1)[1],13,'right')}
     plate(ctx,'P',G.ox-10,G.oy-14,12,'right');pt2(G.ox,G.oy,'#fff',`<b>P</b>, seen ${view}. The walk and rawNormal start here.`,'P')}
 /* the flat picture under the caption: the step's 3D fact in a flat view */
@@ -1278,7 +1293,7 @@ $('recBtn').onclick=async()=>{let ok=false;try{if(navigator.clipboard){await nav
 
 /* ================= Section 8: your questions ================= */
 const QK=[0.62,0.66],QM=[0.38,0.34];
-let qaDeg=90,qaMinus=true;
+let qaDeg=90,qaMinus=true,qaClimb=false;
 /* card 1: a point has x, y and height; an arrow has parts */
 const qa1=new Orbit3D($('qa1Stage'),$('qa1'),{yaw:-20,pitch:30,zoom:1.5,scale:112,target:[0.1,0.1,0.75],dx:40,dy:-40,coord:'UV (x, y and height)',draw:o=>{floor3(o,{uv:true,top:false});glassMesh3(o);
   const h=heightAt(QK[0],QK[1],TP),c=chainOf(QK,TP,5),O=UV3(0,0),a=UV3(QK[0],0),b=UV3(QK[0],QK[1]),S=UV3(QK[0],QK[1],h),R=1.2,p1=add3(S,[c.rx*R,0,0]),p2=add3(p1,[0,c.ry*R,0]),T=add3(p2,[0,0,R]);
@@ -1288,19 +1303,20 @@ const qa1=new Orbit3D($('qa1Stage'),$('qa1'),{yaw:-20,pitch:30,zoom:1.5,scale:11
   o.label('x part 0.349',add3(S,[c.rx*R/2,0,0]),10,31,'center',COL.xT,12);o.label('y part 0.4655',add3(p1,[0,c.ry*R/2,0]),27,20,'left',COL.yT,12);o.label('height part 1',add3(p2,[0,0,R/2]),12,0,'left',COL.hT,12);o.label('rawNormal (0.349, 0.4655, 1), starting at S',T,-8,-14,'center',COL.raw,13);
   o.label('arrow ruler: 1 = 0.40 UV',O,-40,-44,'left','#334155',11.5);
   o.pt('O',O,'#fff','<b>(0, 0, 0)</b>: the top-left corner of the picture, on the screen. A point\'s x, y and height count from here.','corner');o.pt('K',b,'#fff','<b>K = (0.62, 0.66)</b> in UV, on the screen (height 0).','K');o.pt('S',S,'#fff','<b>S</b>: the surface above K. x = 0.62, y = 0.66, height = 0.0866 in UV.','S');o.pt('T',T,COL.raw,'<b>The tip of rawNormal</b>: x part 0.349, y part 0.4655, height part 1, counted from S. Drawn with 1 = 0.40 UV.','rawNormal tip')}});
-/* card 2: the legs of both walks turn around P, in the same picture as Step 8 */
-const qa2=new Orbit3D($('qa2Stage'),$('qa2'),{yaw:BOARDCAM[0],pitch:BOARDCAM[1],zoom:BOARDCAM[2],scale:112,target:BOARDCAM[3],dy:-20,coord:'board units (not UV)',draw:o=>{floor3(o,{top:false});board3(o,{});const d=qaDeg,zp=BOARD.zp;o.label('P',PB,-12,14,'right');
-  for(const isY of [false,true]){const sl=isY?BOARD.sy:BOARD.sx,lv=isY?COL.yP:COL.xP,q=(u,h)=>isY?[0,u,zp+h]:[u,0,zp+h],A=rot2([1,0],d),B=rot2([1,sl],d),col=(along)=>d===0?(along?lv:COL.hP):d===90?(along?COL.hP:lv):'#64748b';
-    const e=walk3(o,PB,isY?YW:XW,{stairs:true});o.label(isY?'y walk':'x walk',e,isY?-8:10,isY?16:d===90?34:12,isY?'right':'left',COL.walk,12);o.label('a',q(0.5,0),isY?-8:0,isY?2:-12,isY?'right':'center',COL.ink,12);o.label('b',q(1,sl/2),isY?-10:10,0,isY?'right':'left',COL.ink,12);
+/* cards 2 and 2d: the legs of both walks turn around P, in the same picture as Step 8. climb turns the slopes to plus; full prints each leg b's number with its sign and direction */
+function turnScene(o,d,climb,full){const zp=BOARD.zp,SX=climb?-BOARD.sx:BOARD.sx,SY=climb?-BOARD.sy:BOARD.sy,sn=v=>full&&v>0?'+'+f(v):f(v);floor3(o,{top:false});board3(o,{climb});o.label('P',PB,-12,14,'right');
+  for(const isY of [false,true]){const sl=isY?SY:SX,lv=isY?COL.yP:COL.xP,q=(u,h)=>isY?[0,u,zp+h]:[u,0,zp+h],A=rot2([1,0],d),B=rot2([1,sl],d),col=(along)=>d===0?(along?lv:COL.hP):d===90?(along?COL.hP:lv):'#64748b';
+    const e=walk3(o,PB,isY?[0,1,sl]:[1,0,sl],{stairs:true});o.label(isY?'y walk':'x walk',e,isY&&!full?-8:10,isY?(full?14:16):d===90?34:12,isY&&!full?'right':'left',COL.walk,12);o.label('a',q(0.5,0),isY?-8:0,isY?2:-12,isY?'right':'center',COL.ink,12);if(!(full&&!isY&&Math.abs(o.yaw+90)<5&&Math.abs(o.pitch)<5))o.label(full?`b: height part ${sn(sl)} (${sl<0?'down':'up'})`:'b',q(1,sl/2),isY?-10:10,0,isY?'right':'left',COL.ink,12);
     if(d>0){o.seg(PB,q(A[0],A[1]),col(true),3.2,false,2.2);o.seg(q(A[0],A[1]),q(B[0],B[1]),col(false),3.2,false,2.2);
       if(d<90){o.label('a',q(A[0]/2,A[1]/2),-8,0,'right',COL.ink,12);o.label('b',q((A[0]+B[0])/2,(A[1]+B[1])/2),8,0,'left',COL.ink,12)}}}
-  if(d===90){const T=add3(PB,RAWC),px=[0.45,0,zp+1],py=[0,0.6,zp+1],Sh=[0.45,0.6,zp];o.seg(px,T,COL.yP,1.6,true,2);o.seg(py,T,COL.xP,1.6,true,2);o.seg(PB,Sh,'#0f172a',3.6,false,2.1);o.seg(Sh,T,COL.hP,1.6,true,2);o.arrow(PB,T,COL.raw,3.4,2.4);
-    o.label("shadow 0.75: level, at P's height",Sh,12,14,'left','#0f172a',12);o.pt('sh',Sh,'#0f172a',"<b>The end of the shadow</b>, straight below the tip of rawNormal, at P's height. The shadow goes 0.45 to the right and 0.60 toward the bottom of the picture, from P: it is 0.75 long (Section 1, Step 9).",'shadow end');
-    o.label('a: height part 1',[0,0,zp+0.5],-10,0,'right',COL.hT,12);o.label('b: x part 0.45',[0.225,0,zp+1],2,-14,'center',COL.xT,12);o.label('b: y part 0.60',[0,0.3,zp+1],-10,4,'right',COL.yT,12);o.label('rawNormal (0.45, 0.60, 1)',T,10,-8,'left',COL.raw,13);
-    o.pt('raw',T,COL.raw,'<b>The tip of rawNormal</b>: x part 0.45, y part 0.60, height part 1, board units from P.','rawNormal tip')}
-  else o.label(`the legs, turned ${d}° of 90°`,[0,0,zp+1],-10,-16,'center','#334155',12)}});
+  if(d===90){const T=add3(PB,[-SX,-SY,1]),px=[-SX,0,zp+1],py=[0,-SY,zp+1],Sh=[-SX,-SY,zp];o.seg(px,T,COL.yP,1.6,true,2);o.seg(py,T,COL.xP,1.6,true,2);o.seg(PB,Sh,'#0f172a',3.6,false,2.1);o.seg(Sh,T,COL.hP,1.6,true,2);o.arrow(PB,T,COL.raw,3.4,2.4);
+    o.label("shadow 0.75: level, at P's height",Sh,climb?-12:12,14,climb?'right':'left','#0f172a',12);o.pt('sh',Sh,'#0f172a',`<b>The end of the shadow</b>, straight below the tip of rawNormal, at P's height. The shadow goes ${f(Math.abs(SX))} to the ${SX<0?'right':'left'} and ${f(Math.abs(SY))} toward the ${SY<0?'bottom':'top'} of the picture, from P: it is 0.75 long (Section 1, Step 9).`,'shadow end');
+    o.label('a: height part 1',[0,0,zp+(full?0.8:0.5)],full?10:-10,full&&Math.abs(o.pitch-90)<5?18:0,full?'left':'right',COL.hT,12);o.label(`b: x part ${sn(-SX)}${full?` (${SX<0?'right':'left'})`:''}`,[-SX/2,0,zp+1],2,-14,'center',COL.xT,12);o.label(`b: y part ${sn(-SY)}${full?` (${SY<0?'toward the bottom':'toward the top'})`:''}`,[0,-SY/2,zp+1],-10,4,'right',COL.yT,12);o.label(`rawNormal (${f(-SX)}, ${f(-SY)}, 1)`,T,climb?-10:10,-8,climb?'right':'left',COL.raw,13);
+    o.pt('raw',T,COL.raw,`<b>The tip of rawNormal</b>: x part ${f(-SX)}, y part ${f(-SY)}, height part 1, board units from P.`,'rawNormal tip')}
+  else o.label(`the legs, turned ${d}° of 90°`,[0,0,zp+1],-10,-16,'center','#334155',12)}
+const qa2=new Orbit3D($('qa2Stage'),$('qa2'),{yaw:BOARDCAM[0],pitch:BOARDCAM[1],zoom:BOARDCAM[2],scale:112,target:BOARDCAM[3],dy:-20,coord:'board units (not UV)',draw:o=>{turnScene(o,qaDeg,qaClimb,qaClimb);if(qaClimb){const up=Math.abs(o.pitch-90)<5;o.label('this board rises toward the right and toward the bottom',up?[1,-1,BOARD.zp-0.15]:[1,1,BOARD.zp+1.05],0,up?-10:18,up?'right':'center','#1e40af',12)}}});
 function qaViews(){const cv=$('qa2v'),st=$('qa2vStage'),ctx=cv.getContext('2d');clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);bothViews(ctx,(x,y,c,h,l)=>addPt(st,x,y,c,h,l,{small:true}))}
-function qaFlat(){const cv=$('qa2f'),st=$('qa2fStage'),ctx=cv.getContext('2d');clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);turnFlat(ctx,(x,y,c,h,l)=>addPt(st,x,y,c,h,l,{small:true}),false,qaDeg)}
+function qaFlat(){const cv=$('qa2f'),st=$('qa2fStage'),ctx=cv.getContext('2d');clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);turnFlat(ctx,(x,y,c,h,l)=>addPt(st,x,y,c,h,l,{small:true}),false,qaDeg,qaClimb)}
 /* card 3: the glass from an angle, with and without the minus */
 const qa3=new Orbit3D($('qa3Stage'),$('qa3'),{yaw:-24,pitch:34,scale:640,target:[0.5,0.5,0.04],dx:60,dy:-6,coord:'UV (x, y and height)',draw:o=>{glassScene(o,TP,{});const s=qaMinus?1:-1,dir=n=>nrm3([s*n.raw[0],s*n.raw[1],1]);
   for(let x=0.15;x<=0.851;x+=0.05)for(let y=0.15;y<=0.851;y+=0.05){if(Math.hypot(x-TP.c[0],y-TP.c[1])>RAD+0.08)continue;const n=normalAt(x,y,TP),e=dir(n);o.grayArrow([x,y,n.h],[x+e[0]*0.06,y+e[1]*0.06,n.h+e[2]*0.06])}
@@ -1323,6 +1339,11 @@ function qaSection(){const c=chainOf(QK,TP,5),m=chainOf(QM,TP,5),o=chainOf([0.72
   setTip($('qaHInfo'),hTip(QK[0],QK[1],4));setTip($('qaKInfo'),nTip('K',QK[0],QK[1]));setTip($('qaNInfo'),nTip('K',QK[0],QK[1]));setTip($('qaK4Info'),nTip('K',QK[0],QK[1]));setTip($('qaWInfo'),nTip('W',0.71,0.5));setTip($('qaOInfo'),nTip("Lesson 10.2's pixel",0.72,0.5));
   viewBar($('qa1Bar'),qa1,[['At an angle',-20,30],['Front view',0,0],['Side view',-90,0],['From above',0,90]]);viewBar($('qa2Bar'),qa2,[['At an angle',-20,30],['Front view',0,0],['Side view',-90,0],['From above',0,90]]);
   $('qaTurn').addEventListener('input',e=>{qaDeg=Number(e.target.value);$('qaTurnV').textContent=qaDeg+'°';qa2.render();qaFlat()});
+  const legs=c=>'<tr><th>Leg</th><th>Before the turn: a part of the '+(c?'walk':'x walk')+'</th><th>After the turn: a part of rawNormal</th></tr><tr><td><b>a</b></td><td class="xc">right 1: x part +1</td><td class="hc">up 1: height part +1</td></tr>'+(c?'<tr><td><b>b</b> of the x walk</td><td class="hc">up 0.45: height part +0.45</td><td class="xc">left 0.45: x part −0.45</td></tr><tr><td><b>b</b> of the y walk</td><td class="hc">up 0.60: height part +0.60</td><td class="yc">toward the top 0.60: y part −0.60</td></tr>':'<tr><td><b>b</b></td><td class="hc">down 0.45: height part −0.45</td><td class="xc">right 0.45: x part +0.45</td></tr>');
+  $('qa2Legs').innerHTML=legs(false);
+  /* a walk that climbs shows the board nearly edge-on from Case 1's angle, so Case 2's own angle is higher; a view the learner chose stays */
+  const anglePitch=c=>c?60:30;$('qa2Bar').firstChild.onclick=()=>qa2.setView(-20,anglePitch(qaClimb));
+  const setClimb=v=>{const home=Math.abs(qa2.yaw+20)<1&&Math.abs(qa2.pitch-anglePitch(qaClimb))<1;qaClimb=v;$('qaClimbOn').setAttribute('aria-pressed',String(v));$('qaClimbOff').setAttribute('aria-pressed',String(!v));$('qa2Legs').innerHTML=legs(v);$('qa2Case1').hidden=v;$('qa2Case2').hidden=!v;qa2.home.pitch=anglePitch(v);qaFlat();if(home)qa2.setView(-20,anglePitch(v));else qa2.render()};$('qaClimbOn').onclick=()=>setClimb(true);$('qaClimbOff').onclick=()=>setClimb(false);
   const setMinus=v=>{qaMinus=v;$('qaMinusOn').setAttribute('aria-pressed',String(v));$('qaMinusOff').setAttribute('aria-pressed',String(!v));qa3.render()};$('qaMinusOn').onclick=()=>setMinus(true);$('qaMinusOff').onclick=()=>setMinus(false);
   qa1.render();qa2.render();qaFlat();qaViews();qa3.render();qaFront()}
 
