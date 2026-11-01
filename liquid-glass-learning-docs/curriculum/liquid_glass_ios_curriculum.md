@@ -462,6 +462,6 @@ Do not reopen the earlier lessons' blur, tint, saturation, inset-stroke math, ba
 
 **Policy**
 
-- Count only explicit learner confirmation. Lesson 10.2 is generated and is not complete.
+- Count only explicit learner confirmation, in chat. Project files do not store which lessons are complete.
 - Current HTML/Swift paths live in `CURRENT_STATE.md`. Explorer names for older lessons live in those lesson files and the chapter screen in `LiquidGlassLab-iOS`.
 - 5.8/5.9 stay consolidated: 5.8 is the teaching page; 5.9 is the archive redirect.

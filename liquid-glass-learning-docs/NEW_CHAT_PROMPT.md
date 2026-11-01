@@ -69,6 +69,7 @@ I am an experienced software engineer. I am a total beginner in graphics, render
 2. Decide whether the question shows a defect in the lesson: unclear, wrong, inconsistent names, or a missing picture.
 3. If it does, fix it in the same chat:
    - change the lesson as little as needed to remove the confusion; all `AGENTS.md` rules apply to the change;
+   - put the clarification in the lesson's last section, “your questions” (`AGENTS.md` rule 17), not in the existing steps: one card per question, my question word for word, its short answer and its picture; in the existing steps only correct a wrong name or number, and add no lines;
    - run `AGENTS.md` rule 24: name what failed; merge a prevention rule into `AGENTS.md` if the failure is general; add a `FEEDBACK_LOG.md` entry (newest first) with the failure → rule link;
    - update the lesson's section in `CURRENT_STATE.md` and its handoff entry if its contract or page shape changed;
    - re-check the changed parts: `AGENTS.md` rule 20 (cold read) and rule 21 (syntax and browser checks at 1920×1080); recompute every changed number.
