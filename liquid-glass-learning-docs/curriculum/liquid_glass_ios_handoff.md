@@ -246,18 +246,173 @@ N = rawNormal ÷ normalLength
 RGB = N × 0.5 + 0.5                      (display only)
 ```
 
-Regenerated from scratch on 2026-10-28 (the earlier version was replaced, not copied); the old Sections 1–2 merged into one 3D stepper on 2026-10-31; the tables and legends under the stepper, the light preview and the lab section removed the same day; learner-confirmed complete on 2026-10-31. One graphics idea: the normal stands at a square corner to the surface. Section 1 has one test surface, the tilted board (board units from P; slopes −0.45, −0.60), after the 3D on-ramp (from above, then a tilt with Q): the goal arrow, named rawNormal; the x walk and y walk; one walk in three flat views; in the front view a quarter turn of the x walk gives rawNormal's x part and height part, (0.45, 1), with a turn slider in the flat picture and the sign change explained (a height −0.45 becomes an x +0.45; rawNormal leans downhill); in the side view the y walk gives (0.60, 1); so rawNormal = (0.45, 0.60, 1). No other arrow is named. The view angle is fixed from Step 2 on. One math idea: a 3D length by Pythagoras twice: shadow 0.75, length 1.25, N = (0.36, 0.48, 0.80). Steps 12–14 return to the glass in UV (the slice, near H a small board, every pixel). The lead says what N does in the end; Lessons 10.4 and 10.5 build the brightness. Teaching W = (0.71, 0.50), Lesson 10.1's pixel (Lesson 10.2 keeps (0.72, 0.50)), chain at 5 decimals: slopeX −0.7595, hD = hE = 0.07982, slopeY 0, rawNormal (0.7595, 0, 1), length 1.256, N = (0.605, 0, 0.796), stores (0.8025, 0.50, 0.898). Then Section 2 traced value (five cards) and color guide (colored map with points 1–10 and a draggable W; a click on a point opens a short tooltip that says why each channel is above, at or below neutral 0.50; the number lines of × 0.5 + 0.5 are in a ⓘ), 3 code, 4 challenge, 5 exercises (the flat top, the top rim, equal unit lengths, which of three arrows from H is N), 6 Metal, 7 record, 8 your questions (added 2026-11-01: point against arrow parts, why the turn, why the minus, an example with slopeX −0.349; 2026-11-02: the turn cards moved to the glass at K and M, and a card says that a slope is a ratio and not a size on the glass; the rest of the page does not need it). A point has x, y, height; an arrow has parts, and each part names its arrow. iOS (rewritten): `chapter10/NormalMap.metal` + `NormalExplorer.swift`; Metal exercise `NormalExercise.metal` (`unitNormalFromSlopes`, `buttonNormal`; `buttonHeightForNormal` prepared), `NormalExerciseKey.metal`, `NormalExerciseView.swift`. Builds for the iPhone 16 Pro simulator; the stubs show a red rim, the answer shows none. Feedback → rules: `FEEDBACK_LOG.md`; QA: `CURRENT_STATE.md`.
+Regenerated from scratch on 2026-10-28 (the earlier version was replaced, not copied); the old Sections 1–2 merged into one 3D stepper on 2026-10-31; the tables and legends under the stepper, the light preview and the lab section removed the same day; learner-confirmed complete on 2026-10-31. One graphics idea: the normal stands at a square corner to the surface. Section 1 has one test surface, the tilted board (board units from P; slopes −0.45, −0.60), after the 3D on-ramp (from above, then a tilt with Q): the goal arrow, named rawNormal; the x walk and y walk; one walk in three flat views; in the front view a quarter turn of the x walk gives rawNormal's x part and height part, (0.45, 1), with a turn slider in the flat picture and the sign change explained (a height −0.45 becomes an x +0.45; rawNormal leans downhill); in the side view the y walk gives (0.60, 1); so rawNormal = (0.45, 0.60, 1). No other arrow is named. The view angle is fixed from Step 2 on. One math idea: a 3D length by Pythagoras twice: shadow 0.75, length 1.25, N = (0.36, 0.48, 0.80). Steps 12–14 return to the glass in UV (the slice, near H a small board, every pixel). The lead says what N does in the end; Lessons 10.4–10.25 build the brightness. Teaching W = (0.71, 0.50), Lesson 10.1's pixel (Lesson 10.2 keeps (0.72, 0.50)), chain at 5 decimals: slopeX −0.7595, hD = hE = 0.07982, slopeY 0, rawNormal (0.7595, 0, 1), length 1.256, N = (0.605, 0, 0.796), stores (0.8025, 0.50, 0.898). Then Section 2 traced value (five cards) and color guide (colored map with points 1–10 and a draggable W; a click on a point opens a short tooltip that says why each channel is above, at or below neutral 0.50; the number lines of × 0.5 + 0.5 are in a ⓘ), 3 code, 4 challenge, 5 exercises (the flat top, the top rim, equal unit lengths, which of three arrows from H is N), 6 Metal, 7 record, 8 your questions (added 2026-11-01: point against arrow parts, why the turn, why the minus, an example with slopeX −0.349; 2026-11-02: the turn cards moved to the glass at K and M, and a card says that a slope is a ratio and not a size on the glass; the rest of the page does not need it). A point has x, y, height; an arrow has parts, and each part names its arrow. iOS (rewritten): `chapter10/NormalMap.metal` + `NormalExplorer.swift`; Metal exercise `NormalExercise.metal` (`unitNormalFromSlopes`, `buttonNormal`; `buttonHeightForNormal` prepared), `NormalExerciseKey.metal`, `NormalExerciseView.swift`. Builds for the iPhone 16 Pro simulator; the stubs show a red rim, the answer shows none. Feedback → rules: `FEEDBACK_LOG.md`; QA: `CURRENT_STATE.md`.
 
-### Lesson 10.4 — Dot product
+### Lessons 10.4–10.18 — the dot product, split by idea (2026-11-02)
 
 ```text
-L = (0.48, −0.60, 0.64)                     (1 long, the direction toward a light, chosen, the same at every pixel)
-dot(N, L) = how far N goes along L          (a line from the tip of N meets L's line at a square corner, at F; from the start to F)
+L = (0.48, −0.60, 0.64)          1 long, the direction toward a light, chosen, the same at every pixel; arrow units: 1 = the length of L
+K = (0.62, 0.66) UV              on the rim, where none of N's parts is 0; S = the glass above K (height 0.0866)
+N at K = (0.302, 0.402, 0.864)
+dot(N, L) = how far N goes along L: a line from the tip of N meets L's line at a square corner, at F; L's ruler reads F (plus on the side L points to, minus on the other)
 dot(N, L) = N's x part × L's x part + N's y part × L's y part + N's height part × L's height part
-gray = dot(N, L) × 0.5 + 0.5                (display only: the dot map)
+at K: 0.302 × 0.48 = 0.14496; 0.402 × (−0.60) = −0.2412; 0.864 × 0.64 = 0.55296; 0.14496 + (−0.2412) = −0.09624; −0.09624 + 0.55296 = 0.45672
+W = (0.71, 0.50) UV, N at W = (0.605, 0, 0.796): 0.605 × 0.48 = 0.2904; 0 × (−0.60) = 0; 0.796 × 0.64 = 0.509; 0.2904 + 0 = 0.2904; 0.2904 + 0.509 = 0.7994; gray 0.8997
+                                 (W's lines are rounded to 3 decimals, as the page prints them; with every digit of N, the GPU gets 0.799986)
+gray = dot(N, L) × 0.5 + 0.5     display only: the dot map
 ```
 
-One graphics idea: one number says how much two arrows point the same way (1, 0, −1). One math idea: the multiply-and-add. Why it works: walk to the tip of N along its three parts; each part moves you along L's line; a walk of 1 along x moves you as far as L's x part (flip the triangle over the line halfway between the x line and L); 0.36 times the walk gives 0.36 times the move; the moves add. Test case: the tilted board's N = (0.36, 0.48, 0.80): 0.1728, −0.288, 0.512, then −0.1152, then 0.3968. Teaching W = (0.71, 0.50), N = (0.605, 0, 0.796): 0.2904, 0, 0.509, then 0.2904, then 0.7994 (the GPU, with every digit of N: 0.80); gray 0.8997. Flat top and outside: 0.64, gray 0.82. Exercises: the center of the glass (0.64); which of three far-rim pixels is below 0 (c = (0.35, 0.68)); N and b = (0.80, −0.60, 0) make a square corner; W against V with N (0.7994, 0.658) and with rawNormal (1.005, 2.08). iOS: `chapter10/DotMap.metal` + `DotExplorer.swift`; Metal exercise `DotExercise.metal` (`dotOfArrows`, `buttonDot`; `buttonNormalForDot` prepared), `DotExerciseKey.metal`, `DotExerciseView.swift`. Not learner-confirmed. Page shape and QA: `CURRENT_STATE.md`.
+**Source page:** `course/archive/lesson-10-04-dot-product-2026-11-02.html`, today's Lesson 10.4 before the split.
+
+**What carries over:**
+- the rendering engine;
+- `ideaScene` (the glass at K), `drawNLPlane` (L's ruler, its numbers, its plus side and minus side), `patchScene`, `movesPic`, `cornerAtS`, the flip slider;
+- the numbers above.
+
+**Every lesson here:**
+- Made by the ordinary job, one per chat: “Generate lesson 10.N”. Each links back to the lesson before it and on to the hub; its hub entry becomes `available` with its file.
+- `C` lessons: one idea, at most 5 stepper steps, the glass at K (no test board), the HTML page only.
+- 10.18 is `B`: it needs Xcode and the iOS lab.
+- Wherever a length along L's line is printed: “arrow units: 1 = the length of L” (review #21).
+- Review items #1–#30: `reviews/lesson-10-04-beginner-review-2026-11-02.md`.
+- Cards 1–6 are the source page's Section 8. Each card's answer goes into the step where its question arises, not into a “your questions” section.
+
+#### Lesson 10.4 — An arrow's part is a foot on an axis (`C`)
+- **File:** `lesson-10-04-arrow-part-on-an-axis.html`.
+- **From:** the hero; Steps 1–2 with the buttons x line, y line, height line.
+- **Fix:**
+  - #1: the hero says which pixel, K;
+  - #2: one sentence why an arrow and a line from one point lie in one plane: lay a flat sheet along the line and turn it until it touches the arrow;
+  - #3: why K: none of N's parts is 0, so every part has a move you can see in 10.10–10.15;
+  - #4: “right” and “toward the top of the picture” drawn on the floor;
+  - #5: no “such”;
+  - #6: draw the walk S → G → tip. The y leg and the height leg stay in the flat wall that stands at a square corner to the x line at G. Like a pole standing on a floor, the x line meets every line drawn on that wall through G at a square corner, so the line from the tip meets the x line where the x leg ends, at G. Lesson 10.11 uses the walls again.
+- **Fold in:** card 1 (the real glass, not a board), card 2 (“level” = parallel to the floor), card 3 (each part drawn as a leg).
+- **Traced value:** the three feet at 0.302, 0.402 and 0.864.
+- **Exercise, new:** where the line from the tip of N meets the height line (0.864).
+- **When this page is made** (one time, in the same job):
+  - delete `course/chapters/chapter-10/lesson-10-04-dot-product.html` (its copy is in `course/archive/`);
+  - `lesson-10-03-surface-normal.html`: replace `<a href="lesson-10-04-dot-product.html">Lesson 10.4 — Dot product →</a>` with `<a href="lesson-10-04-arrow-part-on-an-axis.html">Lesson 10.4 — An arrow's part is a foot on an axis →</a>`;
+  - the Chapter 10 hub: replace `<a href="lesson-10-04-dot-product.html">Lesson 10.4</a></nav>` with `<a href="lesson-10-04-arrow-part-on-an-axis.html">Lesson 10.4</a></nav>`, and `,'lesson-10-04-dot-product.html']` with `,'lesson-10-04-arrow-part-on-an-axis.html']`;
+  - `liquid-glass-course.html`: replace `<a href="course/chapters/chapter-10/lesson-10-04-dot-product.html">Lesson 10.4 — Dot product</a>: measure how much two arrows point the same way, as one number.` with `<a href="course/chapters/chapter-10/lesson-10-04-arrow-part-on-an-axis.html">Lesson 10.4 — An arrow's part is a foot on an axis</a>: the first of the dot product lessons (10.4–10.18).`;
+  - `CURRENT_STATE.md`: replace the section `## Lesson 10.4 — Dot product` with the new 10.4's contract, page shape and QA; in “Current lesson files”, the `Dot…` iOS files belong to Lesson 10.18;
+  - `FEEDBACK_LOG.md`, newest first: “Curriculum v3: Lesson 10.4 split into 10.4–10.18 by idea; the new 10.4 made; review items fixed: …”;
+  - check: `grep -rn "lesson-10-04-dot-product" --include=*.html --include=*.md .` lists only the plan, `FEEDBACK_LOG.md`, and the archived page's name in the handoff and in `CURRENT_STATE.md`.
+
+#### Lesson 10.5 — How far an arrow goes along any line (`C`)
+- **File:** `lesson-10-05-how-far-along-any-line.html`.
+- **From:** Step 3; `drawNLPlane` with its plus side only.
+- **Fix:** #7: name the question: 10.4's “how far N goes along x”, now along L's line.
+- **Traced value:** with L along x, along y and straight up, the reading is 0.302, 0.402 and 0.864, Lesson 10.4's three parts. With the lesson's L, about 0.46 off the ruler; 10.16 computes 0.45672.
+
+#### Lesson 10.6 — The minus side of L's ruler (`C`)
+- **File:** `lesson-10-06-the-minus-side.html`.
+- **From:** Step 3's plus side and minus side; card 5.
+- **Fix:** #29: minus means the tip of N is on the side of S that L does not point to.
+- **Fold in:** card 5.
+- **Traced value:** with L along minus x, the line from the tip still meets the x line at G, but L's ruler reads G as −0.302.
+
+#### Lesson 10.7 — Same direction 1, opposite −1 (`C`)
+- **File:** `lesson-10-07-same-direction-1-opposite-minus-1.html`.
+- **From:** Step 4 with the buttons Same direction and Opposite.
+- **Fix:** #8: as L turns toward N, the tip of N comes closer to L's line, so F slides toward the tip.
+- **Fold in:** card 4: F is where the line from the tip meets L's line; when L's line runs through the tip, F is the tip.
+
+#### Lesson 10.8 — A square corner gives 0 (`C`)
+- **File:** `lesson-10-08-a-square-corner-gives-0.html`.
+- **From:** Step 4 with the button A square corner with N.
+- **Fix:**
+  - #9: at a square corner, N itself is the line from its tip at a square corner to L's line, so F is at S. Draw the corner mark; keep the S and F labels apart;
+  - #26: the other way round: 0 means F is at S, so N stands at a square corner to L's line.
+
+#### Lesson 10.9 — Never past 1 (`C`)
+- **File:** `lesson-10-09-never-past-1.html`.
+- **From:** Step 4's caption `ⓘ`.
+- **Fix:** #10: 1² = SF² + (F to tip)² (Lesson 9.1), so SF is at most 1. The cos name of Lesson 4.9 gets its own `ⓘ`, or goes.
+- **Exercise:** “Can dot(N, L) be 1.2?” No: S to F is a shorter side of a right triangle whose long side is 1.
+
+#### Lesson 10.10 — A walk's legs each move F (`C`)
+- **File:** `lesson-10-10-each-leg-moves-f.html`.
+- **From:** Step 5.
+- **Fix:**
+  - #11: we draw these lines only to find a rule; 10.12–10.16 turn each move into a multiplication the GPU can do;
+  - #12: define once: a leg “moves F” when the meeting point goes from one F to the next, F₁ → F₂ → F₃.
+
+#### Lesson 10.11 — A leg's start does not matter (`C`)
+- **File:** `lesson-10-11-a-legs-start.html`.
+- **From:** Step 8's copy of a leg from S.
+- **Fix:** #16: flat walls at a square corner to L's line, one per ruler mark (Lesson 10.4's wall, now across L's line). The same leg crosses the same walls wherever it starts.
+- **Picture:** both moves side by side, with their ruler readings. Use the height leg: F₂ at −0.09624 → F₃ at 0.45672, and its copy from S; both move 0.55296. It is a plus move; the y leg's minus move waits for 10.15.
+
+#### Lesson 10.12 — A flip keeps lengths and square corners (`C`)
+- **File:** `lesson-10-12-a-flip-keeps-lengths.html`.
+- **From:** Step 6's gray halfway line and flip slider.
+- **Fix:** #14, first half:
+  - why the flip over the halfway line swaps the x line and L's line: the halfway line makes the same angle with both;
+  - why it keeps S: S is on the flip line;
+  - why it keeps lengths and square corners: fold the picture along the line; nothing stretches.
+- **Fold in:** card 6's first bullets.
+
+#### Lesson 10.13 — A walk of 1 along x lands at L's x part (`C`)
+- **File:** `lesson-10-13-walk-of-1-along-x.html`.
+- **From:** Step 6.
+- **Fix:**
+  - #13: name both triangles before “both”: the lime triangle S, X, J (square corner at J) and the yellow triangle S, tip of L, Q (square corner at Q);
+  - #14, second half: the flip takes X (1 along x) onto the tip of L (1 along L), and Q's square corner onto J's.
+- **Fold in:** card 6: three facts make the triangles match: the shared angle at S (the arc), a square corner, a long side of 1.
+- **The result:** Q is at 0.48 along x (Lesson 10.4), so J is at 0.48 along L's line.
+
+#### Lesson 10.14 — Growing scales every side (`C`)
+- **File:** `lesson-10-14-growing-scales-every-side.html`.
+- **From:** Step 7.
+- **Fix:** #15 (blocks) and #30. The chain, each with its reason on the page:
+  - growing from S by 1 ÷ 0.302 multiplies every distance from S by one number;
+  - a point on a line through S stays on that line, so the angle at S stays;
+  - the line from X to J moves to a line in the same direction, so the square corner stays;
+  - so the small triangle lands on the big one, and every side is multiplied by that number, the move along L's line too: 0.302 × 0.48 = 0.14496.
+
+#### Lesson 10.15 — A part that points away: the minus case (`C`)
+- **File:** `lesson-10-15-the-minus-case.html`.
+- **From:** Step 8's y part.
+- **Fix:**
+  - #17: its own gray halfway line and flip slider. The two triangles lie on opposite sides of S; Q at −0.60 lands on J at −0.60;
+  - #4: mark “right” and “toward the top of the picture” on the flat picture.
+- **The result:** 0.402 × (−0.60) = −0.2412.
+
+#### Lesson 10.16 — The dot product formula (`C`)
+- **File:** `lesson-10-16-dot-product-formula.html`.
+- **From:** Steps 9–10; Section 3's code line; Exercise 3 (b at W).
+- **Fix:**
+  - #18: “no corner between the arrows (no angle)”;
+  - #27: “Counted along the line of b from H”.
+- **Code:** `dotNL = N.x * L.x + N.y * L.y + N.z * L.z`, with its line table.
+- **Traced value:** the chain at K above. Lesson 10.5's “about 0.46” is now exact.
+- **Exercise 3:** uses 10.8's “0 means a square corner”: b = (0.796, 0, −0.605) at W, 0.48158 + 0 + (−0.48158) = 0.
+
+#### Lesson 10.17 — One light direction for every pixel: the dot map (`C`)
+- **File:** `lesson-10-17-dot-map.html`.
+- **From:** Section 2 (W's trace, the map with points 1–10); Exercises 1 and 2.
+- **Fix:**
+  - #1: W is the pixel this lesson traces;
+  - #19: from very far away, the direction toward the light changes too little across the glass to matter;
+  - #20: point 4 is just above 0 (0.0488, gray 0.5244); nearer the outline N leans further, its height part shrinks, and the number goes below 0;
+  - #22: on the flat top, the height only says where H is; the number uses only the arrows' parts;
+  - #23: “on the side of the rim away from where L leans”;
+  - #24: c leans away from both of L's level parts, so two products are minus; a and b lean away from only one;
+  - #25: one value for c's N.
+- **Traced value:** W, with the chain above.
+
+#### Lesson 10.18 — Build: the dot product in Metal (`B`)
+- **File:** `lesson-10-18-build-dot-product-in-metal.html`.
+- **Joins:** 10.4–10.17. One recall line per joined lesson, each with its `ⓘ`.
+- **From:**
+  - Section 3 (the code excerpt);
+  - Section 4: the challenge “write the dotNL line” becomes the first function of the Metal exercise; no browser challenge;
+  - Section 6 (the Metal exercise) and Section 7 (the record);
+  - the iOS files `chapter10/DotExplorer.swift`, `DotMap.metal`, `DotExercise.metal`, `DotExerciseKey.metal`, `DotExerciseView.swift` (relabelled in Phase 6 of the curriculum revision).
+
+#### Later in Chapter 10
+- Exercise 4 (rawNormal against N at W and V) moves to 10.22, “Why N must be 1 long”, with #28: from W to V the x product gains 0.456 − 0.2904 = 0.1656, but the height product loses 0.509 − 0.202 = 0.307, so the number drops from 0.7994 to 0.658.
 
 ## Side lesson — Safari shortcut, Section 4 revised 2026-10-26
 
@@ -272,7 +427,7 @@ optional check = read(inside + 0.001) − read(inside)
 
 `bevel = 28` is the rim width, rim-circle radius and flat-top height. `edgePush = 24` is a recording-matched dial, not a material constant. Two matched 28-part rulers show why a 1 pt height increment removes `24 ÷ 28 = 0.857143` pt of push. The balance climb is computed from the original integers as `28 ÷ 24 = 1.166667`. After the learner preferred the exact form, Step 7 derives `fold inside = bevel − bevel² ÷ √(bevel² + edgePush²)` from `leg ÷ h = bevel ÷ edgePush` and `leg² + h² = bevel²`. The radius/tangent picture explains the ratio. Substitution gives `28 − 784 ÷ √1360 = 6.740815`, reading `15.121822`. The two direction checks at `6.740` and `6.741` confirm the answer rather than replacing the derivation. The second read of 24 is also exact: `2 × 28 × 24² ÷ 1360 = 23.717647`. After the Step 11 feedback, Section 4 uses original picture, upside-down copy, original-order copy, pixel row, top of the glass and output height instead of the previous shorthand. Step 11 now proves the bend with two consecutive moves: original-order down 1.653262 then 1.499593 gives `right ÷ down = 0.302432` then `0.333424`; upside-down up 0.500320 then 0.346653 gives `right ÷ up = 0.999360` then `1.442365`. The original line’s constant `0.5 ÷ 1 = 0.5` keeps it straight. Step 11 (rebuilt 2026-10-27) draws the output on top and the test A straight below it at one scale (10 px per pt), because a read moves only down (R’s row = P’s row + push); dragging or clicking any point R of the A, or any output pixel P, draws arrows straight down from every output pixel to the R it reads, and everything follows the pointer live. The two-move column is ordered like the pictures (upside-down copy, original-order copy, original A). A chooser shows R18–R20 or points evenly spaced along the whole A with all arrows; a ×6 strip keeps the crowded upside-down P's apart; the side box checks the selected point's chain at 9 decimals. The A is symmetric, its crossbar joins both legs. `AGENTS.md` rule 6 stacks read pictures the way the read really moves; rule 10 makes every point of a projection picture draggable and covers evenly spaced all-points views and the enlarged inset for crowded points. Other steps preserve unequal copy heights, letter rows, ramp comparison, other edgePush values, rounded corners and the recording.
 
-Failure → prevention: `FEEDBACK_LOG.md`, 2026-10-26 → `AGENTS.md` rules 3 (visible-role names), 10 (crowded-point insets and persistent calculations), 12 (matched scales and calculator-exact inputs) and 15 (exact forms first; consecutive moves and ratios as bend proof). QA: 738 states, 4,110 calculations, 0 arithmetic problems; all controls and marked points checked at desktop sizes. No iOS files changed. The Safari side lesson remains outside the 216-lesson plan.
+Failure → prevention: `FEEDBACK_LOG.md`, 2026-10-26 → `AGENTS.md` rules 3 (visible-role names), 10 (crowded-point insets and persistent calculations), 12 (matched scales and calculator-exact inputs) and 15 (exact forms first; consecutive moves and ratios as bend proof). QA: 738 states, 4,110 calculations, 0 arithmetic problems; all controls and marked points checked at desktop sizes. No iOS files changed. The Safari side lesson remains outside the 301-lesson plan.
 
 ## Future conversation
 

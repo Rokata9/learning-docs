@@ -1,20 +1,24 @@
 # Liquid Glass on iOS — Beginner-to-Expert Curriculum
 
-**Updated:** 2026-10-28
+**Updated:** 2026-11-02
 **Primary platform:** Swift + SwiftUI  
 **Minimum learning target:** iOS 17  
 **Physical test device:** iPhone 16 Pro  
-**Total lessons:** 216
+**Total lessons:** 301
 
-This file is the ordered 216-lesson plan plus frozen locks needed to generate later lessons. Teaching contracts and current file references live in `CURRENT_STATE.md`. Lesson HTML and Swift keep the full teaching prose. Do not add per-lesson implementation diaries here. Lesson completion is reported only in chat when a new lesson is generated; this file does not track it.
+This file is the ordered 301-lesson plan plus frozen locks needed to generate later lessons. Teaching contracts and current file references live in `CURRENT_STATE.md`. Lesson HTML and Swift keep the full teaching prose. Do not add per-lesson implementation diaries here. Lesson completion is reported only in chat when a new lesson is generated; this file does not track it.
 
 ## 1. How this file relates to the rule sources
 
 Permanent teaching and delivery rules live in `AGENTS.md` and `USER_PREFERENCES.md`. Do not copy them here.
 
-This plan assumes a total beginner in graphics and mathematics and one new mechanism per full lesson.
+This plan assumes a total beginner in graphics and mathematics. From Lesson 10.4 on, every lesson has a type:
+- `C` concept: one new idea, taught in pictures with one traced value, in at most 5 stepper steps; no Metal exercise, explorer, challenge or record.
+- `B` build: no new idea; one Metal or Swift exercise that joins the concept lessons before it, with an explorer and a record.
+- `E` engineering: SwiftUI, architecture, testing or performance; code first and short.
+An idea is a fact or method with its own reason that no earlier lesson taught. Every old lesson from 10.4 on was split into its ideas, one `C` lesson per idea; the heavy math may grow by any ratio (learner, 2026-11-02). Repeating an earlier mechanism in a new place is fine.
 
-## 3. Full 216-lesson plan
+## 2. Full 301-lesson plan
 
 ### Chapter 1 — A transparent panel is not yet Liquid Glass
 
@@ -178,20 +182,20 @@ This plan assumes a total beginner in graphics and mathematics and one new mecha
 
 **Purpose:** Build the mathematical tools that let a shader know where a glass boundary is and how to bend the background.
 
-1. **9.1 — Distance between two points.** Use a right triangle visually before introducing the formula. **Complete.**
-2. **9.2 — Circle signed distance field.** Make the sign tell whether a point is inside or outside. **Complete.**
-3. **9.3 — Turn distance into a soft mask.** Use `smoothstep` around the boundary. **Complete.**
-4. **9.4 — Rounded rectangle distance field.** Build it from local coordinates and corner radius. **Complete.**
-5. **9.5 — Capsule distance field.** Build a common control shape. **Complete.**
-6. **9.6 — Combine shapes.** Learn union, intersection, and subtraction through `min` and `max`. **Complete.**
+1. **9.1 — Distance between two points.** Use a right triangle visually before introducing the formula.
+2. **9.2 — Circle signed distance field.** Make the sign tell whether a point is inside or outside.
+3. **9.3 — Turn distance into a soft mask.** Use `smoothstep` around the boundary.
+4. **9.4 — Rounded rectangle distance field.** Build it from local coordinates and corner radius.
+5. **9.5 — Capsule distance field.** Build a common control shape.
+6. **9.6 — Combine shapes.** Learn union, intersection, and subtraction through `min` and `max`.
 7. **9.7 — Sample an input shader.** Ask for the background color at a coordinate.
 8. **9.8 — Translate sample coordinates.** Shift where the background is read.
 9. **9.9 — Scale around the center.** Create simple magnification and minification.
-10. **9.10 — Build a displacement field.** Produce a vector that says where to sample instead. **Complete.**
-11. **9.11 — Refraction as displaced sampling.** Bend straight background lines near the glass boundary. **Complete.**
-12. **9.12 — Edge safety.** Clamp, pad, or extend samples to prevent transparent seams. **Complete.**
-13. **9.13 — Gentle chromatic separation.** Sample red, green, and blue at slightly different positions. **Complete.**
-14. **9.14 — Lens checkpoint.** Build a rounded lens over a moving test pattern. **Complete.**
+10. **9.10 — Build a displacement field.** Produce a vector that says where to sample instead.
+11. **9.11 — Refraction as displaced sampling.** Bend straight background lines near the glass boundary.
+12. **9.12 — Edge safety.** Clamp, pad, or extend samples to prevent transparent seams.
+13. **9.13 — Gentle chromatic separation.** Sample red, green, and blue at slightly different positions.
+14. **9.14 — Lens checkpoint.** Build a rounded lens over a moving test pattern.
 
 **Checkpoint:** Explain why the geometry mask and the background sample coordinates are separate problems.
 
@@ -204,16 +208,52 @@ This plan assumes a total beginner in graphics and mathematics and one new mecha
 1. **10.1 — Height-map idea.** Treat the glass as if its center and edge have different heights.
 2. **10.2 — Slope.** Measure how that height changes from one pixel to the next.
 3. **10.3 — Surface normal.** Convert slope into a direction that points away from the surface.
-4. **10.4 — Dot product.** Measure how similarly two directions point, using a simple geometric explanation.
-5. **10.5 — Diffuse light.** Make a surface brighter when it faces a light.
-6. **10.6 — Specular highlight.** Create a tighter bright reflection.
-7. **10.7 — Rim and Fresnel-like response.** Increase edge energy at shallow viewing angles with an approximation.
-8. **10.8 — Darkened edge.** Add depth and separation using the refined 2026 Liquid Glass direction.
-9. **10.9 — Brighter specular edge.** Pair the darkened edge with a sharper highlight.
-10. **10.10 — Thickness parameter.** Control several material properties with one meaningful value.
-11. **10.11 — Thickness changes refraction and diffusion.** Make larger material appear more substantial.
-12. **10.12 — Thickness changes shadow.** Deepen and soften the shadow as the material grows.
-13. **10.13 — Material shader version 1.** Combine mask, background sample, refraction, tint, edge, and light.
+4. **10.4 — An arrow's part is a foot on an axis.** `C` From the tip of N, a line at a square corner to the x line lands where N's x part ends: the y leg and the height leg stay in the flat wall that stands at a square corner to the x line there, like a pole standing on a floor. The same for y and height. *(was 10.4, part 1)*
+5. **10.5 — How far an arrow goes along any line.** `C` The same drawing onto L's line gives the point F, and L's ruler reads how far F is from S. That reading is dot(N, L); with L along x, y or up, it is N's x, y or height part. *(was 10.4, part 2)*
+6. **10.6 — The minus side of L's ruler.** `C` L's ruler is plus on the side L points to and minus on the other. When the tip of N is on the side of S that L does not point to, F lands on the minus side and the reading is below 0. *(was 10.4, part 3)*
+7. **10.7 — Same direction 1, opposite −1.** `C` When L's line runs through the tip of N, the line from the tip has nothing to cross: F is the tip itself, 1 from S on the plus side; when L points the opposite way, the tip is on the minus side, −1. As L turns toward N, F slides toward the tip. *(was 10.4, part 4)*
+8. **10.8 — A square corner gives 0.** `C` At a square corner, N itself is the line from its tip at a square corner to L's line, so F is at S and the reading is 0. The other way round: a reading of 0 means a square corner. *(was 10.4, part 5)*
+9. **10.9 — Never past 1.** `C` S, F and the tip of N form a right triangle whose long side is N, 1 long (Lesson 9.1), so the reading stays between −1 and 1. *(was 10.4, part 6)*
+10. **10.10 — A walk's legs each move F.** `C` Walk to the tip of N along its x, y and height parts; each leg moves the meeting point along L's line, and the moves add up to F. *(was 10.4, part 7)*
+11. **10.11 — A leg's start does not matter.** `C` Flat walls at a square corner to L's line: the same leg crosses the same walls wherever it starts. *(was 10.4, part 8)*
+12. **10.12 — A flip keeps lengths and square corners.** `C` A flip over the line halfway between the x line and L's line swaps the two lines and keeps S, every length and every square corner. *(was 10.4, part 9)*
+13. **10.13 — A walk of 1 along x lands at L's x part.** `C` Three facts make the two triangles match: they share the angle at S, each has a square corner, and each has a long side of 1. The flip takes one onto the other, so the walk lands 0.48 along L's line. *(was 10.4, part 10)*
+14. **10.14 — Growing scales every side.** `C` Grow the triangle from S by one number: every angle stays and every side grows by that number, so a walk of 0.302 along x moves F 0.302 × 0.48 along L's line. *(was 10.4, part 11)*
+15. **10.15 — A part that points away: the minus case.** `C` L's y part is negative: the flip lands on the minus side, so N's y part moves F toward the minus side: 0.402 × (−0.60) = −0.2412. *(was 10.4, part 12)*
+16. **10.16 — The dot product formula.** `C` Three products added: N's x part × L's x part + N's y part × L's y part + N's height part × L's height part = 0.45672 at K. *(was 10.4, part 13)*
+17. **10.17 — One light direction for every pixel: the dot map.** `C` A very far light gives the same L at every pixel; dot(N, L) at every pixel, shown as gray, with one pixel traced. *(was 10.4, part 14)*
+18. **10.18 — Build: the dot product in Metal.** `B` Write `dotOfArrows` and the dot map shader. Joins 10.4–10.17. Takes over the existing `DotExercise` files. *(was 10.4, its Metal exercise)*
+19. **10.19 — Why a tilted surface gets less light.** `C` A beam of light 1 wide spreads over a longer piece of a tilted surface, so each point gets beam width ÷ lit length of the light. *(was 10.5, part 1)*
+20. **10.20 — Brightness is dot(N, L).** `C` Turned a quarter turn (Lesson 10.3) and shrunk until its long side is 1 (10.14), the beam's triangle lands on the triangle S, F, tip of N, so beam width ÷ lit length = dot(N, L). *(was 10.5, part 2)*
+21. **10.21 — Facing away: max(dot, 0).** `C` A number below 0 means the surface faces away from the light; it gets no light, so it becomes 0. *(was 10.5, part 3)*
+22. **10.22 — Why N must be 1 long.** `C` A longer arrow would count as more light: rawNormal gives the wrong brightness order, N gives the right one. *(was 10.5, part 4)*
+23. **10.23 — Ambient light.** `C` A small floor so the side facing away is not black. *(was 10.5, part 5)*
+24. **10.24 — Light color and strength.** `C` Multiply the surface color by brightness, light color and strength, channel by channel. *(was 10.5, part 6)*
+25. **10.25 — Build: lit glass, version 0.** `B` One Metal function: height → slope → N → dot(N, L) → diffuse with ambient. Joins 10.19–10.24. *(new build)*
+26. **10.26 — The mirror direction and the viewer.** `C` Light bounces off a mirror at the same angle it arrives. We look straight at the screen, so the direction toward the viewer is V = (0, 0, 1) at every pixel, the same simplification as the far light (10.17). A highlight appears where the bounce goes toward V. *(was 10.6, part 1 · was 10.6, part 2)*
+27. **10.27 — The halfway arrow.** `C` L and V added make the diagonal of a rhombus; the diagonal cuts it into two triangles with three equal sides, so they match and the diagonal points halfway between L and V. Made 1 long, it is H. *(was 10.6, part 3)*
+28. **10.28 — Where N equals H.** `C` N equals H exactly where the mirror bounce of L reaches the viewer: that is where the highlight sits. *(was 10.6, part 4)*
+29. **10.29 — How close N is to H.** `C` dot(N, H) is 1 where N equals H and smaller around it. *(was 10.6, part 5)*
+30. **10.30 — Sharpening with a power.** `C` A number between 0 and 1 raised to a power shrinks, and the smaller it is, the faster: dot(N, H)ⁿ leaves only a small bright spot. The power n is a chosen dial: 8, 32 and 128 give a wide, a medium and a tight highlight. *(was 10.6, part 6 · was 10.6, part 7)*
+31. **10.31 — Adding light on top.** `C` The highlight is added to the color, not mixed, and each channel is clamped at 1. *(was 10.6, part 8)*
+32. **10.32 — Build: specular highlight.** `B` Joins 10.26–10.31, on the glass. *(was 10.6, build)*
+33. **10.33 — An edge measure: 1 − dot(N, V).** `C` dot(N, V) is N's height part, because V = (0, 0, 1): 1 on the flat top, smaller toward the outline. 1 − dot(N, V) turns it around: 0 on the flat top, growing toward the outline. *(was 10.7, part 1 · was 10.7, part 2)*
+34. **10.34 — Glancing light reflects more.** `C` What Fresnel means: a surface seen at a glancing angle reflects more of the light; a picture with numbers, no proof. *(was 10.7, part 3)*
+35. **10.35 — A Fresnel-like curve.** `C` (1 − dot(N, V))⁵ stays small, then rises fast near the outline; an approximation (Schlick's), not physics. *(was 10.7, part 4)*
+36. **10.36 — A base amount.** `C` F0 + (1 − F0) × curve: a chosen minimum reflection everywhere. *(was 10.7, part 5)*
+37. **10.37 — Build: rim on the glass.** `B` The rim together with the specular highlight. Joins 10.33–10.36. *(was 10.7, build)*
+38. **10.38 — An edge band inside the outline.** `C` From the distance field and smoothstep (Lessons 7.8 and 9.3 again): 1 at the outline, 0 a chosen width inside. *(was 10.8, part 1)*
+39. **10.39 — Darkening the band.** `C` Multiply the color by 1 − strength × band: a darkened edge. *(was 10.8, part 2)*
+40. **10.40 — A thin bright edge line.** `C` A narrower band with a higher power next to the dark band; dark beside bright reads as depth. *(was 10.9)*
+41. **10.41 — Build: edge contrast.** `B` Joins 10.38–10.40. *(new build)*
+42. **10.42 — One thickness dial.** `C` One value from 0 to 1; each property gets a range, and mix picks the value inside it. *(was 10.10)*
+43. **10.43 — Thickness changes refraction.** `C` A thicker material pushes the read point further (Lesson 9.11's push length). *(was 10.11, part 1)*
+44. **10.44 — Thickness changes diffusion.** `C` A thicker material blurs more. *(was 10.11, part 2)*
+45. **10.45 — Thickness changes shadow.** `C` Radius, opacity and offset of the shadow grow with thickness. *(was 10.12)*
+46. **10.46 — Build: thickness on the glass.** `B` One slider drives refraction, diffusion and shadow. Joins 10.42–10.45. *(new build)*
+47. **10.47 — Build: material shader v1, part 1 — optics.** `B` Mask, refraction and tint in one shader. *(was 10.13, part 1)*
+48. **10.48 — Build: material shader v1, part 2 — light.** `B` Add diffuse, specular, rim and edges. *(was 10.13, part 2)*
+49. **10.49 — Build: material shader v1, part 3 — thickness.** `B` The thickness dial drives everything; the chapter checkpoint. *(was 10.13, part 3)*
 
 **Checkpoint:** Move a virtual light and explain why the highlight travels around the silhouette.
 
@@ -223,20 +263,36 @@ This plan assumes a total beginner in graphics and mathematics and one new mecha
 
 **Purpose:** Make the material respond to its environment, size, user preference, and accessibility needs.
 
-1. **11.1 — Sample background luminance.** Estimate whether the region behind the control is light, dark, or complex.
-2. **11.2 — Regular material.** Build the versatile default that protects legibility.
-3. **11.3 — Clear material.** Build a more transparent variant with an explicit dimming layer.
-4. **11.4 — Small-control foreground switching.** Change a glyph between light and dark when needed.
-5. **11.5 — Stable large-menu foreground.** Avoid distracting full light/dark flips across a large menu.
-6. **11.6 — Adaptive tint.** Let background color influence the glass without losing control identity.
-7. **11.7 — User tint slider.** Support a range from very clear to strongly tinted.
-8. **11.8 — Content-aware shadow.** Increase separation over text and reduce it over calm solid areas.
-9. **11.9 — Complex-content diffusion.** Increase diffusion when the background becomes visually busy.
-10. **11.10 — Reduced transparency.** Replace the effect with a more opaque and readable material.
-11. **11.11 — Increased contrast.** Strengthen edges and foreground separation.
-12. **11.12 — Reduced motion.** Replace morphing and overshoot with calmer transitions.
-13. **11.13 — `GlassStyle` and `GlassEnvironment`.** Put the decisions behind a reusable model.
-14. **11.14 — Debug controls.** Display all measured values and chosen adaptations.
+1. **11.1 — Brightness behind one point.** `C` The luminance of the captured background at one pixel (Lesson 3.6, now on the background picture). *(was 11.1, part 1)*
+2. **11.2 — Average brightness of a region.** `C` Add many samples and divide by how many: the average is steadier than any one sample. *(was 11.1, part 2)*
+3. **11.3 — Fewer samples.** `C` Shrink the region to a small picture (Lesson 7.4) and average that: less work, nearly the same number. *(was 11.1, part 3)*
+4. **11.4 — Reading the background on iOS.** `E` A small snapshot of the region, averaged, at a limited rate; what it costs and what it misses. *(was 11.1, part 4)*
+5. **11.5 — Build: brightness behind a moving control.** `B` Joins 11.1–11.4. *(new build)*
+6. **11.6 — Spread.** `C` The average distance of the samples from their average brightness. It cannot tell text from a region that is half black and half white: both spread widely. *(new, busyness, needed by 11.23–11.24)*
+7. **11.7 — Detail: how much neighbours differ.** `C` The average difference between neighbouring samples is large only where the brightness changes often, as in text: this is the busyness number. *(new, busyness)*
+8. **11.8 — Build: busyness meter.** `B` Spread and detail side by side over text, photos and a half-black, half-white region. Joins 11.6–11.7. *(new build)*
+9. **11.9 — Regular material.** `C` The versatile default: its values and why they protect legibility. *(was 11.2)*
+10. **11.10 — Clear material.** `C` Less blur and tint: more of the background shows, and text needs help. *(was 11.3, part 1)*
+11. **11.11 — The dimming layer.** `C` A dark layer under the content; how much to dim follows the region's brightness. *(was 11.3, part 2)*
+12. **11.12 — Build: regular and clear material.** `B` Joins 11.9–11.11. *(new build)*
+13. **11.13 — Light or dark glyph.** `C` Compare the contrast of a light and a dark glyph against the measured background (Lesson 3.7) and take the better one. *(was 11.4, part 1)*
+14. **11.14 — One threshold.** `C` The two contrasts of Lesson 3.7 are equal at one brightness, about 0.179: below it the light glyph wins, above it the dark one. *(was 11.4, part 2)*
+15. **11.15 — No flicker: two thresholds.** `C` Hysteresis: flip to dark above one value, back to light only below a lower one. *(was 11.4, part 3)*
+16. **11.16 — Change over a short time.** `C` Move toward the new choice over a few frames instead of jumping. *(new, smoothing)*
+17. **11.17 — One decision for a large surface.** `C` A large menu decides once from its whole region, so it does not flip in patches. *(was 11.5)*
+18. **11.18 — Build: foreground switching.** `B` A small button and a large menu over moving content. Joins 11.13–11.17. *(new build)*
+19. **11.19 — Average color of a region.** `C` Average each channel, not only the brightness. *(was 11.6, part 1)*
+20. **11.20 — Adaptive tint.** `C` Mix a little of the average color into the tint, capped, so the control keeps its identity. *(was 11.6, part 2)*
+21. **11.21 — User tint slider.** `C` One value from very clear to strongly tinted, mapped to the tint amounts. *(was 11.7)*
+22. **11.22 — Build: adaptive tint with the slider.** `B` Joins 11.19–11.21. *(new build)*
+23. **11.23 — Busyness changes the shadow.** `C` More separation over busy content such as text, less over calm areas. *(was 11.8)*
+24. **11.24 — Busyness changes diffusion.** `C` More blur when the background is busy. *(was 11.9)*
+25. **11.25 — Build: the material responds to its background.** `B` Joins 11.23–11.24, with the busyness meter. *(new build)*
+26. **11.26 — Reduced transparency.** `E` Replace the effect with a more opaque, readable material. *(was 11.10)*
+27. **11.27 — Increased contrast.** `E` Strengthen edges and foreground separation. *(was 11.11)*
+28. **11.28 — Reduced motion.** `E` Replace morphing and overshoot with calmer transitions. *(was 11.12)*
+29. **11.29 — `GlassStyle` and `GlassEnvironment`.** `E` Put the decisions behind a reusable model. *(was 11.13)*
+30. **11.30 — Debug controls.** `E` Display all measured values and chosen adaptations. *(was 11.14)*
 
 **Checkpoint:** Drag one control across several backgrounds and show that its legibility changes without abrupt visual noise.
 
@@ -246,22 +302,49 @@ This plan assumes a total beginner in graphics and mathematics and one new mecha
 
 **Purpose:** Make the material behave like a flexible object during interaction and transitions.
 
-1. **12.1 — Interpolate bounds.** Move and resize from a source rectangle to a destination rectangle.
-2. **12.2 — Interpolate corner radius.** Change a circle or capsule into a sheet.
-3. **12.3 — The non-uniform scaling problem.** Observe why scaling a finished bitmap stretches highlights and text incorrectly.
-4. **12.4 — Recompute geometry each frame.** Draw the current shape instead of stretching the final image.
-5. **12.5 — Morph signed distance fields.** Blend two shape descriptions.
-6. **12.6 — Metaball idea.** Make nearby round shapes appear to attract and join.
-7. **12.7 — Merge and separate thresholds.** Control when a bridge appears between glass elements.
-8. **12.8 — Press squish.** Flatten and widen a control under touch.
-9. **12.9 — Velocity stretch.** Stretch slightly in the direction of motion.
-10. **12.10 — Perspective.** Make farther points appear smaller.
-11. **12.11 — Camera distance and 3D rotation.** Tilt a layer without extreme distortion.
-12. **12.12 — Parallax.** Move highlight, foreground, and background by different amounts.
-13. **12.13 — Material thickening while growing.** Drive optical properties from transition progress and current size.
-14. **12.14 — Traveling highlight.** Move light energy around a changing silhouette.
-15. **12.15 — Neighbor response.** Let a touch glow softly influence nearby glass controls.
-16. **12.16 — Source-anchored transition.** Keep the relationship between tapped control and revealed content clear.
+1. **12.1 — Interpolate a rectangle.** `C` Lerp (Lesson 5.4) each of the four numbers of a rectangle with one progress. *(was 12.1)*
+2. **12.2 — Interpolate the corner radius.** `C` From a circle (radius half the size) to a sheet; the radius never exceeds half the shorter side. *(was 12.2)*
+3. **12.3 — Build: circle to sheet.** `B` Joins 12.1–12.2, on a glass control. *(new build)*
+4. **12.4 — What scaling a finished picture does.** `C` A non-uniform scale stretches circles, text and highlights, with numbers. *(was 12.3)*
+5. **12.5 — Redraw the shape every frame.** `C` Compute the current shape from the interpolated numbers, so edges stay sharp and round. *(was 12.4)*
+6. **12.6 — Build: a morph without stretching.** `B` Joins 12.4–12.5. *(new build)*
+7. **12.7 — Mixing two distance fields.** `C` mix(sdA, sdB, t): its 0 line moves from one outline to the other. *(was 12.5, part 1)*
+8. **12.8 — Why the mix still works as a mask.** `C` The mix is not an exact distance, but its sign and its 0 line are right, which is all a soft mask needs. *(was 12.5, part 2)*
+9. **12.9 — Build: a distance-field morph.** `B` Circle to rounded rectangle. Joins 12.7–12.8. *(new build)*
+10. **12.10 — Union with min: a sharp crease.** `C` min of two distances joins two shapes with a sharp corner where they meet (Lesson 9.6 again). *(was 12.6, part 1)*
+11. **12.11 — Which shape is nearer: b − a.** `C` With a and b the distances to shapes A and B, b − a is plus where A is nearer, minus where B is nearer, and 0 halfway between them. *(was 12.6, part 2)*
+12. **12.12 — A weight from 0 to 1: h.** `C` Divide b − a by k, then × 0.5 + 0.5 (the dot map's mapping, 10.17) and clamp (Lesson 8.11): h is 1 where A is clearly nearer, 0 where B is, and in between only inside a band where the two distances differ by less than k. *(was 12.6, part 3)*
+13. **12.13 — Mixing the two distances with h.** `C` Inside the band, mix takes a little of each shape. *(was 12.6, part 4)*
+14. **12.14 — A hump: h × (1 − h).** `C` h × (1 − h) is 0 where one shape wins (h = 0 or 1) and largest, 0.25, where both are equally near (h = 0.5). *(was 12.6, part 5)*
+15. **12.15 — Filling the gap: the bridge.** `C` Subtracting k × h × (1 − h) lowers the distance between the shapes, so the outline moves out into the gap: a bridge instead of a crease. *(was 12.6, part 6)*
+16. **12.16 — The bridge width.** `C` k decides when the bridge appears and when it breaks. *(was 12.7)*
+17. **12.17 — Build: two glass blobs merge and separate.** `B` Joins 12.10–12.16. *(was 12.7, build)*
+18. **12.18 — Scaling a distance-field shape.** `C` To draw a shape twice as large, ask the original shape about the point halved, then double the distance it returns, so the distance stays in screen units (Lesson 9.4's local coordinates, scaled). *(new, scaling a distance field, needed by 12.19)*
+19. **12.19 — Press squish on a distance field.** `C` Lesson 5.10's press deformation inside the distance function: a different scale across and along, around the press point. The distance is no longer exact, but the mask still works (12.8). *(was 12.8)*
+20. **12.20 — Velocity as an arrow.** `C` Lesson 5.7's velocity in two directions: an arrow. *(was 12.9, part 1)*
+21. **12.21 — A point's part along a direction and across it.** `C` The dot product with the direction made 1 long gives the part along it (10.5); what is left is the part across. *(was 12.9, part 2)*
+22. **12.22 — Stretch along a direction.** `C` Scale only the part along the velocity, then add the part across back. *(was 12.9, part 3)*
+23. **12.23 — Build: squish and stretch.** `B` Joins 12.18–12.22. *(was 12.9, build)*
+24. **12.24 — Angles: degrees and radians.** `C` A turn as an angle; radians as the length of arc on a circle of radius 1. *(new, rotation, needed by 12.32)*
+25. **12.25 — cos and sin.** `C` The x part and the y part of a 1-long arrow at an angle. *(new, rotation)*
+26. **12.26 — Turning the two walks.** `C` A walk of 1 along x, turned by an angle, becomes (cos, sin); the walk along y is its quarter turn (Lesson 10.3), so it becomes (−sin, cos). *(new, rotation)*
+27. **12.27 — Turning any point.** `C` A point is a walk along x plus a walk along y; turn both and add them. *(new, rotation)*
+28. **12.28 — Build: turning a point in Metal.** `B` A function that turns a point around the glass's center, used to turn the background sample (Lesson 9.8). Joins 12.24–12.27. *(new build)*
+29. **12.29 — The picture plane.** `C` A 3D point is drawn where the line from one viewpoint to it crosses the screen; the viewpoint is a point at distance d from the screen, drawn as a point and a plane. *(was 12.10, part 1)*
+30. **12.30 — Perspective: divide by depth.** `C` The two triangles from the viewpoint have the same shape (10.14), so a point at depth z behind the screen is drawn at x × d ÷ (d + z): farther points look smaller. *(was 12.10, part 2)*
+31. **12.31 — Camera distance.** `C` A small distance distorts strongly, a large one is nearly flat. *(was 12.11, part 1)*
+32. **12.32 — Turning around an axis in 3D.** `C` A 3D turn is a turn in one plane that leaves the axis alone. *(was 12.11, part 2)*
+33. **12.33 — Build: tilt a glass layer in 3D.** `B` SwiftUI's `rotation3DEffect` with perspective, checked against the math. Joins 12.29–12.32. *(was 12.11, build)*
+34. **12.34 — Parallax.** `C` Layers at different depths move by different amounts for the same tilt. *(was 12.12)*
+35. **12.35 — Thickness from progress and size.** `C` Drive the thickness dial (10.42) from the transition's progress and the current size. *(was 12.13)*
+36. **12.36 — Build: a growing panel with parallax and thickening.** `B` Joins 12.34–12.35. *(new build)*
+37. **12.37 — Moving the light.** `C` L turns around the shape over time (cos and sin from 12.25). *(was 12.14, part 1)*
+38. **12.38 — The highlight follows the silhouette.** `C` Where N meets the moving L, the highlight moves along the outline. *(was 12.14, part 2)*
+39. **12.39 — Glow falls off with distance.** `C` smoothstep of the distance to the touch point. *(was 12.15, part 1)*
+40. **12.40 — Several controls share one glow.** `C` Each control reads its own distance to the touch. *(was 12.15, part 2)*
+41. **12.41 — Build: touch light on a group of controls.** `B` Joins 12.37–12.40. *(new build)*
+42. **12.42 — The anchor point.** `C` Keep one point of the growing shape fixed to the source control (Lesson 4.10's transform origin again). *(was 12.16, part 1)*
+43. **12.43 — Build: source-anchored transition.** `B` Joins 12.42 with 12.3; used again in 14.4 and 15.9. *(was 12.16, build)*
 
 **Checkpoint:** Morph a circular icon button into a rounded panel without stretching its text or icon.
 
@@ -271,18 +354,20 @@ This plan assumes a total beginner in graphics and mathematics and one new mecha
 
 **Purpose:** Apply the engine to common interactive components.
 
-1. **13.1 — Circular icon button.** Rest, press, release, tint, and glyph contrast.
-2. **13.2 — Capsule text button.** Concentric content placement and press deformation.
-3. **13.3 — Prominent tinted action.** Add selective color without tinting every control.
-4. **13.4 — Toolbar group.** Place related actions on one floating glass plane.
-5. **13.5 — Cluster merge and separation.** Let nearby controls visually connect during interaction.
-6. **13.6 — Floating tab bar.** Keep navigation above scrolling content.
-7. **13.7 — Selection lens.** Move a transparent selection element between tab items.
-8. **13.8 — Segmented control.** Reuse the selection lens in a compact control.
-9. **13.9 — Slider.** Build track, transparent lens/thumb, value mapping, and drag response.
-10. **13.10 — Switch.** Build mirrored capsule geometry and a moving glass thumb.
-11. **13.11 — Focus, disabled, and pressed states.** Keep state feedback clear without visual clutter.
-12. **13.12 — Component gallery screen.** Compare every control over the same test content.
+1. **13.1 — Circular icon button.** `B` Rest, press, release, tint, and glyph contrast. *(was 13.1)*
+2. **13.2 — Capsule text button.** `B` Concentric content placement and press deformation. *(was 13.2)*
+3. **13.3 — Prominent tinted action.** `B` Selective color without tinting every control. *(was 13.3)*
+4. **13.4 — Toolbar group.** `B` Related actions on one floating glass plane. *(was 13.4)*
+5. **13.5 — Cluster merge and separation.** `B` Nearby controls connect during interaction (12.10–12.17). *(was 13.5)*
+6. **13.6 — Floating tab bar.** `B` Navigation above scrolling content. *(was 13.6)*
+7. **13.7 — The nearest slot.** `C` Which tab a finger position belongs to: divide by the slot width and round; on release the lens springs there (Lesson 5.8). *(was 13.7, part 1)*
+8. **13.8 — Build: selection lens in the tab bar.** `B` A lens that magnifies around a center the finger moves (Lessons 9.9 and 9.11), stretches while it moves (12.22) and settles in the nearest slot. Joins 13.6–13.7. *(was 13.7, build)*
+9. **13.9 — Segmented control.** `B` The selection lens in a compact control. *(was 13.8)*
+10. **13.10 — Value from position.** `C` The reverse of lerp: which value a thumb position means. *(was 13.9, part 1)*
+11. **13.11 — Slider.** `B` Track, glass thumb, value mapping and drag response. *(was 13.9, build)*
+12. **13.12 — Switch.** `B` Mirrored capsule geometry and a moving glass thumb. *(was 13.10)*
+13. **13.13 — Focus, disabled, and pressed states.** `B` Clear state feedback without clutter. *(was 13.11)*
+14. **13.14 — Component gallery A.** `B` Every control over the same test content. *(was 13.12)*
 
 **Checkpoint:** All components share the same material engine but preserve their own geometry and interaction rules.
 
@@ -292,21 +377,27 @@ This plan assumes a total beginner in graphics and mathematics and one new mecha
 
 **Purpose:** Cover the other major Liquid Glass families seen across iOS.
 
-1. **14.1 — Search and address field.** Build leading icon, placeholder, clear action, and glass placement.
-2. **14.2 — Compact-to-expanded search.** Animate from toolbar control to focused field.
-3. **14.3 — Overflow menu.** Reveal a menu from a small source control.
-4. **14.4 — Context menu.** Anchor content near the interaction location.
-5. **14.5 — Popover.** Add source relationship, arrow or connection, and adaptive placement.
-6. **14.6 — Anchored action sheet.** Grow from the action that caused it instead of appearing from an unrelated edge.
-7. **14.7 — Rounded presentation sheet.** Add dimming, concentric corners, and depth response.
-8. **14.8 — Sidebar.** Let content extend behind an inset glass navigation surface.
-9. **14.9 — Scroll-edge effect.** Create a soft transition where moving content meets floating controls.
-10. **14.10 — Media controls.** Build play, seek, and accessory controls on one glass plane.
-11. **14.11 — Control Center-style tile.** Make a larger stateful toggle with a selected material.
-12. **14.12 — Notification or banner.** Balance material, text legibility, and short presentation motion.
-13. **14.13 — Badge, toast, and compact status capsule.** Build small transient surfaces.
-14. **14.14 — Layered icon experiment.** Add parallax, refraction, tint, and specular response to icon layers.
-15. **14.15 — Integrated system-style gallery.** Test all surfaces over text, photos, video-like motion, and dark/light content.
+1. **14.1 — Search and address field.** `B` Leading icon, placeholder, clear action, and glass placement. *(was 14.1)*
+2. **14.2 — Compact-to-expanded search.** `B` Animate from a toolbar control to a focused field. *(was 14.2)*
+3. **14.3 — Anchored reveal.** `E` One reusable reveal for menus, popovers and action sheets: the anchor point of Lesson 12.42, converted into the destination's coordinates (Lesson 2.7), behind one API. *(was 14.3, part 1)*
+4. **14.4 — Overflow menu.** `B` Reveal a menu from a small source control; Chapter 15 builds the full Safari version. *(was 14.3, build)*
+5. **14.5 — Adaptive placement.** `C` Keep a menu or popover on screen: choose a side, then clamp. *(was 14.5, part 1)*
+6. **14.6 — Context menu.** `B` Content anchored near the touch location and kept on screen (14.5). *(was 14.4)*
+7. **14.7 — Popover.** `B` Source relationship, arrow or connection, and adaptive placement. *(was 14.5, build)*
+8. **14.8 — Anchored action sheet.** `B` Grow from the action that caused it. *(was 14.6)*
+9. **14.9 — Rounded presentation sheet.** `B` Dimming, concentric corners, and depth response. *(was 14.7)*
+10. **14.10 — Sidebar.** `B` Content extends behind an inset glass navigation surface. *(was 14.8)*
+11. **14.11 — A fade toward the edge.** `C` A mask that grows where moving content meets floating controls. *(was 14.9, part 1)*
+12. **14.12 — A blur that changes with position.** `C` The blur radius follows the same ramp as the fade. *(was 14.9, part 2)*
+13. **14.13 — Build: scroll-edge effect.** `B` On a toolbar over scrolling content. Joins 14.11–14.12. *(was 14.9, build)*
+14. **14.14 — Media controls.** `B` Play, seek, and accessory controls on one glass plane. *(was 14.10)*
+15. **14.15 — Control Center-style tile.** `B` A larger stateful toggle with a selected material. *(was 14.11)*
+16. **14.16 — Notification or banner.** `B` Material, text legibility, and short presentation motion. *(was 14.12)*
+17. **14.17 — Badge, toast, and compact status capsule.** `B` Small transient surfaces. *(was 14.13)*
+18. **14.18 — Layered icon experiment.** `B` Parallax, refraction, tint, and specular response on icon layers. *(was 14.14)*
+19. **14.19 — Integrated system-style gallery.** `B` All surfaces over text, photos, moving content, dark and light content. *(was 14.15)*
+20. **14.20 — Measure CPU, GPU, and memory separately.** `E` Do not guess which part is slow. Moved before the capstone, which uses it in 15.27. *(was 16.10)*
+21. **14.21 — Frame budgets at 60 Hz and 120 Hz.** `E` Benchmark against the budget of the display mode. *(was 16.11)*
 
 **Checkpoint:** Recreate the major visual families without copying one fixed effect onto every element.
 
@@ -316,35 +407,35 @@ This plan assumes a total beginner in graphics and mathematics and one new mecha
 
 **Purpose:** Rebuild the compelling source-anchored menu transition in small, understandable stages.
 
-1. **15.1 — Choose and record the exact target.** Save the OS version, app version, orientation, and a reference recording.
-2. **15.2 — Inspect at slow speed.** Observe without guessing what happens between the first and last frame.
-3. **15.3 — Create a frame storyboard.** Mark rest, contact, compression, early expansion, mid expansion, content reveal, settle, and close.
-4. **15.4 — Separate facts from hypotheses.** Label what is visible and what is only an implementation guess.
-5. **15.5 — Design the scene graph.** Separate background, glass material, source icon, menu content, dimming, and debug overlays.
-6. **15.6 — Measure source and destination bounds.** Convert the three-dot button position into scene coordinates.
-7. **15.7 — Build the resting source bubble.** Match size, radius, tint, edge, and shadow.
-8. **15.8 — Add press flex.** Compress near the touch point and energize the material with a local glow.
-9. **15.9 — Start an anchored transform.** Keep one visual point attached to the source while the shape begins to grow.
-10. **15.10 — Morph bubble to rounded sheet.** Recompute bounds and corner geometry on every frame.
-11. **15.11 — Prevent stretched material artifacts.** Do not scale a final glass bitmap non-uniformly.
-12. **15.12 — Keep menu content on a separate layer.** Avoid refraction and geometric stretching of labels and icons.
-13. **15.13 — Reveal content progressively.** Fade, clip, and slightly move menu rows only after enough room exists.
-14. **15.14 — Tune a thickness curve.** Make the material appear more substantial as it becomes larger.
-15. **15.15 — Tune refraction over time.** Increase lensing during the growth phase, then settle it deliberately.
-16. **15.16 — Tune diffusion and blur over time.** Improve readability as more content appears.
-17. **15.17 — Add dark edge and bright specular highlight.** Reinforce the refined material depth.
-18. **15.18 — Add dynamic shadow.** Deepen, spread, and adapt it to the background.
-19. **15.19 — Add 3D tilt and perspective.** Create depth without making the final menu look permanently rotated.
-20. **15.20 — Add boundary lens distortion.** Bend background features near the moving silhouette.
-21. **15.21 — Add traveling interaction light.** Let the initial touch energy move through the growing material.
-22. **15.22 — Add neighboring glass response if present.** Make nearby controls react softly rather than independently flashing.
-23. **15.23 — Reverse the transition.** Return content, optics, shape, and shadow to the source in the correct order.
-24. **15.24 — Handle rapid taps.** Prevent jumps when open and close commands overlap.
-25. **15.25 — Handle interrupted and dragged states.** Continue from the current visual state rather than restarting.
-26. **15.26 — Build reduced-motion and reduced-transparency versions.** Preserve source relationship and readability.
-27. **15.27 — Profile on the iPhone 16 Pro.** Inspect frame time, shader cost, render-target size, view updates, and allocations.
-28. **15.28 — Compare at normal and slow speed.** Judge both the final appearance and the quality of intermediate frames.
-29. **15.29 — Final capstone review.** Explain every material and motion layer from first principles.
+1. **15.1 — Choose and record the exact target.** `E` Save the OS version, app version, orientation, and a reference recording. *(was 15.1)*
+2. **15.2 — Inspect at slow speed.** `E` Observe without guessing what happens between the first and last frame. *(was 15.2)*
+3. **15.3 — Create a frame storyboard.** `E` Mark rest, contact, compression, early expansion, mid expansion, content reveal, settle, and close. *(was 15.3)*
+4. **15.4 — Separate facts from hypotheses.** `E` Label what is visible and what is only an implementation guess. *(was 15.4)*
+5. **15.5 — Design the scene graph.** `E` Separate background, glass material, source icon, menu content, dimming, and debug overlays. *(was 15.5)*
+6. **15.6 — Measure source and destination bounds.** `B` Convert the three-dot button position into scene coordinates. *(was 15.6)*
+7. **15.7 — Build the resting source bubble.** `B` Match size, radius, tint, edge, and shadow. *(was 15.7)*
+8. **15.8 — Add press flex.** `B` Compress near the touch point and energize the material with a local glow. *(was 15.8)*
+9. **15.9 — Start an anchored transform.** `B` Keep one visual point attached to the source while the shape begins to grow. *(was 15.9)*
+10. **15.10 — Morph bubble to rounded sheet.** `B` Recompute bounds and corner geometry on every frame. *(was 15.10)*
+11. **15.11 — Prevent stretched material artifacts.** `B` Do not scale a final glass bitmap non-uniformly. *(was 15.11)*
+12. **15.12 — Keep menu content on a separate layer.** `B` Avoid refraction and geometric stretching of labels and icons. *(was 15.12)*
+13. **15.13 — Reveal content progressively.** `B` Fade, clip, and slightly move menu entries only after enough room exists. *(was 15.13)*
+14. **15.14 — Tune a thickness curve.** `B` Make the material appear more substantial as it becomes larger. *(was 15.14)*
+15. **15.15 — Tune refraction over time.** `B` Increase lensing during the growth phase, then settle it deliberately. *(was 15.15)*
+16. **15.16 — Tune diffusion and blur over time.** `B` Improve readability as more content appears. *(was 15.16)*
+17. **15.17 — Add dark edge and bright specular highlight.** `B` Reinforce the refined material depth. *(was 15.17)*
+18. **15.18 — Add dynamic shadow.** `B` Deepen, spread, and adapt it to the background. *(was 15.18)*
+19. **15.19 — Add 3D tilt and perspective.** `B` Create depth without making the final menu look permanently rotated. *(was 15.19)*
+20. **15.20 — Add boundary lens distortion.** `B` Bend background features near the moving silhouette. *(was 15.20)*
+21. **15.21 — Add traveling interaction light.** `B` Let the initial touch energy move through the growing material. *(was 15.21)*
+22. **15.22 — Add neighboring glass response if present.** `B` Make nearby controls react softly rather than independently flashing. *(was 15.22)*
+23. **15.23 — Reverse the transition.** `B` Return content, optics, shape, and shadow to the source in the correct order. *(was 15.23)*
+24. **15.24 — Handle rapid taps.** `B` Prevent jumps when open and close commands overlap. *(was 15.24)*
+25. **15.25 — Handle interrupted and dragged states.** `B` Continue from the current visual state rather than restarting. *(was 15.25)*
+26. **15.26 — Build reduced-motion and reduced-transparency versions.** `B` Preserve source relationship and readability. *(was 15.26)*
+27. **15.27 — Profile on the iPhone 16 Pro.** `E` Inspect frame time, shader cost, render-target size, view updates, and allocations, with 14.20–14.21. *(was 15.27)*
+28. **15.28 — Compare at normal and slow speed.** `E` Judge both the final appearance and the intermediate frames. *(was 15.28)*
+29. **15.29 — Final capstone review.** `E` Explain every material and motion layer from first principles. *(was 15.29)*
 
 **Checkpoint:** The menu must look convincing during the middle of the transition, not only at rest and at the final state.
 
@@ -354,29 +445,27 @@ This plan assumes a total beginner in graphics and mathematics and one new mecha
 
 **Purpose:** Turn experiments into a dependable graphics system.
 
-1. **16.1 — Define a reusable API.** Separate material, shape, interaction, environment, and transition parameters.
-2. **16.2 — `GlassContainer`.** Own background capture and shared context.
-3. **16.3 — `GlassEffect`.** Apply a material to a shape without owning app-specific content.
-4. **16.4 — `GlassTransition`.** Describe source, destination, progress, interruption, and content timing.
-5. **16.5 — Use meaningful units.** Distinguish points, pixels, UV, angles, and time.
-6. **16.6 — Cache shaders and offscreen snapshots.** Avoid construction and allocation every frame.
-7. **16.7 — Update uniforms efficiently.** Change visual values without rebuilding unrelated UI.
-8. **16.8 — Control render-target size.** Crop, downsample, and reuse offscreen buffers.
-9. **16.9 — Adaptive quality.** Reduce expensive details under load without abruptly changing the design.
-10. **16.10 — Measure CPU, GPU, and memory separately.** Do not guess which part is slow.
-11. **16.11 — Benchmark 60 Hz and 120 Hz behavior.** Use frame budgets appropriate to the display mode.
-12. **16.12 — Screenshot and golden tests.** Verify stable material states.
-13. **16.13 — Motion tests.** Sample important progress values instead of checking only start and end.
-14. **16.14 — iOS 16 fallbacks.** Provide frosted, tinted, or opaque alternatives.
-15. **16.15 — Build the gallery app and documentation.** Make every parameter and tradeoff inspectable.
-16. **16.16 — Independent capstone.** Choose an iOS Liquid Glass behavior not taught directly and reproduce it.
-17. **16.17 — Expert explanation.** Teach the final system to another beginner using simple language.
+1. **16.1 — Define a reusable API.** `E` Separate material, shape, interaction, environment, and transition parameters. *(was 16.1)*
+2. **16.2 — `GlassContainer`.** `E` Own background capture and shared context. *(was 16.2)*
+3. **16.3 — `GlassEffect`.** `E` Apply a material to a shape without owning app-specific content. *(was 16.3)*
+4. **16.4 — `GlassTransition`.** `E` Describe source, destination, progress, interruption, and content timing. *(was 16.4)*
+5. **16.5 — Use meaningful units.** `E` Distinguish points, pixels, UV, angles, and time. *(was 16.5)*
+6. **16.6 — Cache shaders and offscreen snapshots.** `E` Avoid construction and allocation every frame. *(was 16.6)*
+7. **16.7 — Update uniforms efficiently.** `E` Change visual values without rebuilding unrelated UI. *(was 16.7)*
+8. **16.8 — Control render-target size.** `E` Crop, downsample, and reuse offscreen buffers. *(was 16.8)*
+9. **16.9 — Adaptive quality.** `E` Reduce expensive details under load without abruptly changing the design. *(was 16.9)*
+10. **16.10 — Screenshot and golden tests.** `E` Verify stable material states. *(was 16.12)*
+11. **16.11 — Motion tests.** `E` Sample important progress values instead of checking only start and end. *(was 16.13)*
+12. **16.12 — Fallbacks when the custom glass cannot run.** `E` Frosted, tinted, or opaque alternatives within the iOS 17 minimum (the old title said iOS 16, below the course's minimum). *(was 16.14)*
+13. **16.13 — Build the gallery app and documentation.** `E` Make every parameter and tradeoff inspectable. *(was 16.15)*
+14. **16.14 — Independent capstone.** `E` Choose an iOS Liquid Glass behavior not taught directly and reproduce it. *(was 16.16)*
+15. **16.15 — Expert explanation.** `E` Teach the final system to another beginner using simple language. *(was 16.17)*
 
 **Final standard:** You can observe an unfamiliar glass effect, divide it into geometry, sampling, light, compositing, motion, accessibility, and performance problems, then build and justify an iOS implementation.
 
 ---
 
-## 4. Frozen locks (do not rebuild)
+## 3. Frozen locks (do not rebuild)
 
 Do not reopen the earlier lessons' blur, tint, saturation, inset-stroke math, band blur, shadow room, or the 7.10 store formula unless a later lesson explicitly redefines them. Frost formulas stay frozen.
 

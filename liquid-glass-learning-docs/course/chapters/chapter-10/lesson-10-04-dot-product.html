@@ -76,6 +76,7 @@
   .exq>div:first-child,.exfig>div:first-child,.pair>div:first-child{max-width:600px}
   #chResult{font-size:15px;margin-top:6px}
   .bigline{font-size:15.5px;margin:6px 0}
+  .qa{border:1px solid var(--line);border-radius:10px;padding:14px 18px 16px;margin:18px 0;background:#fff}.qa h3{margin:0 0 8px}.qaQ{margin:0 0 14px;padding:10px 14px;border-left:4px solid var(--blue);background:#edf4ff;border-radius:0 8px 8px 0;font-size:15.5px;max-width:none}.qaGrid{display:grid;grid-template-columns:720px minmax(0,1fr);gap:24px;align-items:start}.qaGrid .capl{margin-top:0}.qa .capl.wide li{max-width:150ch}
 </style>
 </head>
 <body>
@@ -106,11 +107,12 @@
       <li><a href="../chapter-04/lesson-04-09-soft-edges-and-antialiasing.html">Lesson 4.9</a>: a side step there multiplied and added two parts and named it the dot product. This lesson teaches it on its own, in 3D.</li>
       <li><a href="../chapter-09/lesson-09-01-distance-between-two-points.html">Lesson 9.1</a>: a right triangle has one square corner, two legs and one long side.</li>
       <li><a href="../chapter-09/lesson-09-10-build-a-displacement-field.html">Lesson 9.10</a>: dividing an arrow by its own length keeps its direction and makes it 1 long.</li>
-      <li><a href="lesson-10-03-surface-normal.html">Lesson 10.3</a>: <b>N</b>, the unit normal: an arrow at a square corner to the surface, 1 long, written (x part, y part, height part). Also the tilted board, and × 0.5 + 0.5 for showing a number from −1 to 1 as a color.</li>
+      <li><a href="lesson-10-03-surface-normal.html">Lesson 10.3</a>: <b>N</b>, the unit normal: an arrow at a square corner to the surface, 1 long, written (x part, y part, height part). Also the rim pixel K = (0.62, 0.66) of its Section 8, the arrow ruler (an arrow drawn shrunk: in Section 1, 1 = 0.10 UV), and × 0.5 + 0.5 for showing a number from −1 to 1 as a color.</li>
     </ul></div>
     <div><b>New here</b><ul>
       <li><b>L</b>: an arrow 1 long, the direction toward a light. <a href="#s1">Section 1</a>, Step 1.</li>
-      <li><b>Plane</b>: a flat surface without edges. Two arrows from one point always lie in one plane. Step 2.</li>
+      <li><b>Plane</b>: a flat surface without edges. An arrow and a line from one point always lie in one plane. Step 2.</li>
+      <li><b>The ruler on L's line</b>: 0 at the start, plus on the side L points to, minus on the other side. Step 3.</li>
       <li><b>dot(N, L)</b>, the dot product: how far N goes along L. Step 3.</li>
       <li><b>The dot product formula</b>: multiply each part of N by the same part of L, then add. Steps 5–10.</li>
       <li><b>The dot map</b>: dot(N, L) of every pixel, stored as gray. <a href="#s2">Section 2</a>.</li>
@@ -123,12 +125,12 @@
   <h2>Coordinate systems in this lesson</h2>
   <table class="trace">
     <tr><th style="width:170px">Label on the picture</th><th>Where</th><th>Origin</th><th>Axes</th><th>Unit</th></tr>
-    <tr><td><b>board units</b></td><td>Section 1's 3D picture, the challenge, Exercise 3</td><td>P, the middle of the tilted board</td><td>x →, y toward the bottom of the picture, height ↑</td><td>1 board grid square</td></tr>
-    <tr><td><b>a plane, board units</b></td><td>Section 1's flat pictures: one plane, seen straight on</td><td>P</td><td>the first line named in the label is drawn level (the height line stands up); the second direction is at a square corner to it, in that plane</td><td>board units, at one scale</td></tr>
-    <tr><td><b>along L's line</b></td><td>the number lines of the moves</td><td>P</td><td>plus: the way L points; minus: behind P</td><td>the unit of the arrows</td></tr>
+    <tr><td><b>UV, zoomed in at K</b></td><td>Section 1's 3D picture, the challenge, Section 8</td><td>(0, 0) = the picture's top-left corner; the picture shows a small floor patch around K</td><td>x →, y toward the bottom of the picture, height ↑</td><td>UV; an arrow 1 long is drawn 0.10 UV long (the arrow ruler)</td></tr>
+    <tr><td><b>a plane, arrow units</b></td><td>Section 1's flat pictures, Section 8, Exercise 3's answer: one plane, seen straight on</td><td>S, the start of the arrows (H in Exercise 3)</td><td>the first line named in the label is drawn left to right (the height line stands up); the second direction is at a square corner to it, in that plane</td><td>1 = the length of N, the same for every arrow</td></tr>
+    <tr><td><b>along L's line</b></td><td>the ruler on L's line, the number lines of the moves</td><td>S in Section 1, H in Section 2</td><td>plus: the side L points to; minus: the other side</td><td>1 = the length of L</td></tr>
     <tr><td><b>UV</b></td><td>the hero, Section 2, the exercises on the glass, the Metal goal</td><td>(0, 0) = the picture's top-left corner</td><td>x →, y ↓ toward the bottom of the picture, height ↑</td><td>1 = the picture's width; an arrow is drawn shrunk by the arrow ruler printed on its picture</td></tr>
   </table>
-  <p class="small">The switch from board units to UV is said in Section 2. No polar coordinates are used.</p>
+  <p class="small">Section 1 zooms in at K; Section 2 changes the pixel to W, still in UV. An arrow's parts count from the arrow's own start. No polar coordinates are used.</p>
 </aside>
 
 <!-- ============================ SECTION 1 ============================ -->
@@ -143,6 +145,7 @@
     <div class="stepcap ideaCap" id="ideaCap" aria-live="polite"></div>
     <div class="ctl" id="flipCtl" hidden><label><span class="ctlname">flip</span><input type="range" id="flipRange" min="0" max="100" step="1" value="0" aria-label="How far the yellow triangle is flipped"><span class="mono" id="flipV">0%</span></label></div>
     <div class="stage" id="ideaFlatStage"><canvas id="ideaFlat" width="760" height="300"></canvas></div>
+    <div class="flatRow" id="lineBtns" hidden><button class="btn" data-ln="0">x line</button><button class="btn" data-ln="1">y line</button><button class="btn" data-ln="2">height line</button></div>
     <div class="flatRow" id="lBtns" hidden><button class="btn" data-th="same">Same direction as N</button><button class="btn" data-th="square">A square corner with N</button><button class="btn" data-th="opp">Opposite to N</button><button class="btn" data-th="home">Back to L</button></div>
   </div>
 </div>
@@ -150,7 +153,7 @@
 <!-- ============================ SECTION 2 ============================ -->
 <h2 id="s2"><span class="tag">Section 2 · one value, traced to the end</span>W gets the number 0.7994</h2>
 <ul class="capl">
-  <li><b>The coordinates change here: from board units to UV.</b> Positions and heights are in UV, from the picture's top-left corner, y down.</li>
+  <li><b>The pixel changes here: from K to W = (0.71, 0.50).</b> The coordinates stay UV, from the picture's top-left corner, y down.</li>
   <li>The glass is the glass of Lesson 10.3: C = (0.50, 0.50), radius 0.25, bevel 0.10, step 0.01. <button class="info" data-tip="glass" aria-label="Where these numbers come from">ⓘ</button></li>
   <li>Every pixel has its own N.</li>
   <li>L is the same at every pixel. Why? We treat the light as very far away, like the sun.</li>
@@ -202,13 +205,13 @@ static float3 circleNormalForDot(float2 uv, float2 center, float radius, float b
 
 <!-- ============================ SECTION 4 ============================ -->
 <h2 id="s4"><span class="tag">Section 4 · coding challenge</span>Challenge: write the dotNL line</h2>
-<p>N and L are ready. Write the right side of the <code>dotNL</code> line. The page tests the tilted board of Section 1 and three other pairs of arrows.</p>
+<p>N and L are ready. Write the right side of the <code>dotNL</code> line. The page tests N and L at K, as in Section 1, and three other pairs of arrows.</p>
 <pre class="code">float3 N = …;
 float3 L = …;
 float dotNL = <span class="nw">???</span>;</pre>
 <div class="grid3d">
   <div><div class="stage" id="chStage"><canvas id="chCv" width="760" height="440"></canvas></div><div class="viewbar" id="chBar"></div>
-    <figcaption>The tilted board of Section 1. Emerald: how far N goes along L, from P to F. Amber: your number, measured from P along L's line.</figcaption></div>
+    <figcaption>N and L at K, as in Section 1. Emerald: how far N goes along L, from S to F. Amber: your number, measured from S along L's line.</figcaption></div>
   <div><div class="ctl"><span class="mono">float dotNL =</span><input id="chIn" type="text" spellcheck="false" autocomplete="off" placeholder="N.x * L.x + …" aria-label="The right side of the dotNL line"><button class="btn" id="chBtn">Run</button></div>
     <div class="verdict" id="chVerdict" aria-live="polite"></div>
     <details><summary>Hint</summary><div class="body"><p>Section 1, Step 10: multiply each part of N by the same part of L, then add. In code: <code>N.x</code> is N's x part, <code>N.y</code> its y part, <code>N.z</code> its height part. The same for L.</p></div></details>
@@ -236,17 +239,17 @@ float dotNL = <span class="nw">???</span>;</pre>
       <p><b>Question:</b> at which pixel is dot(N, L) below 0?</p>
       <div class="choices"><button class="btn" data-ok="0" data-why="Not this one. At pixel a the sum is 0.113: the plus result of the height parts is the larger one.">Pixel a</button><button class="btn" data-ok="0" data-why="Not this one. At pixel b the sum is 0.0278: just above 0, almost a square corner.">Pixel b</button><button class="btn" data-ok="1" data-why="Right. At pixel c, near the outline, N leans so far that its height part is small. The sum is −0.3192.">Pixel c</button></div><div class="verdict" aria-live="polite"></div>
     </div></div>
-  <details><summary>Show the answer</summary><div class="body"><div class="exfig"><div><div class="stage" id="ex2aStage"><canvas id="ex2a" width="560" height="400"></canvas></div><figcaption><b>The reason, at pixel c.</b> The line from the tip of N meets L's line behind H: N points more away from L than toward it. Pixels a and b are not as steep, so their F lies just in front of H.</figcaption></div><table class="trace" id="ex2Table"></table></div></div></details>
+  <details><summary>Show the answer</summary><div class="body"><div class="exfig"><div><div class="stage" id="ex2aStage"><canvas id="ex2a" width="560" height="400"></canvas></div><figcaption><b>The reason, at pixel c.</b> The line from the tip of N meets L's line on the minus side of H: N points more away from L than toward it. Pixels a and b are not as steep, so their F lies just on the plus side of H.</figcaption></div><table class="trace" id="ex2Table"></table></div></div></details>
 </div></details>
 
 <details class="ex"><summary>Exercise 3 — Do N and arrow b make a square corner?</summary><div class="body">
-  <div class="exq"><div><div class="stage" id="ex3qStage"><canvas id="ex3q" width="560" height="400"></canvas></div><figcaption><b>The tilted board.</b> N = (0.36, 0.48, 0.80) and arrow b = (0.80, −0.60, 0), both from P, in board units.</figcaption></div>
+  <div class="exq"><div><div class="stage" id="ex3qStage"><canvas id="ex3q" width="560" height="400"></canvas></div><figcaption><b>The glass at W, zoomed in.</b> N at W = (0.605, 0, 0.796) and arrow b = (0.796, 0, −0.605), both from H, the glass above W. Arrow b is 1 long and lies on the glass along the line y = 0.50. <button class="info" data-tip="bW" aria-label="Where arrow b comes from">ⓘ</button></figcaption></div>
     <div><p><b>Why this question.</b> In a 3D picture a square corner is hard to judge by eye. The numbers do not depend on the view.</p>
       <p><b>What you do.</b> Multiply each part of N by the same part of b, then add. Step 4 says what the result means.</p>
       <p><b>Question:</b> do N and arrow b make a square corner?</p>
-      <div class="choices"><button class="btn" data-ok="1" data-why="Right. The three results add up to 0, and 0 means a square corner.">Yes</button><button class="btn" data-ok="0" data-why="Not this one. The corner looks smaller only because of the view. The three results add up to 0, and 0 means a square corner.">No, the corner in the picture looks smaller</button></div><div class="verdict" aria-live="polite"></div>
+      <div class="choices"><button class="btn" data-ok="1" data-why="Right. The three results add up to 0, and 0 means a square corner.">Yes</button><button class="btn" data-ok="0" data-why="Not this one. The corner looks larger only because of the view. The three results add up to 0, and 0 means a square corner.">No, in the picture the corner looks larger than a square corner</button></div><div class="verdict" aria-live="polite"></div>
     </div></div>
-  <details><summary>Show the answer</summary><div class="body"><div class="pair"><div><div class="stage" id="ex3aStage"><canvas id="ex3a" width="560" height="300"></canvas></div><figcaption><b>The reason.</b> The plane that holds N and b, seen straight on. Arrow b lies on the board, and N stands at a square corner to the board (Lesson 10.3).</figcaption></div><div class="stage" id="ex3mStage"><canvas id="ex3m" width="520" height="226"></canvas></div></div></div></details>
+  <details><summary>Show the answer</summary><div class="body"><div class="pair"><div><div class="stage" id="ex3aStage"><canvas id="ex3a" width="560" height="300"></canvas></div><figcaption><b>The reason.</b> The plane that holds N and b, seen straight on. Arrow b lies on the glass, and N stands at a square corner to the glass (Lesson 10.3).</figcaption></div><div class="stage" id="ex3mStage"><canvas id="ex3m" width="520" height="226"></canvas></div></div></div></details>
 </div></details>
 
 <details class="ex"><summary>Exercise 4 — At which pixel does N point more the same way as L, W or V?</summary><div class="body">
@@ -326,6 +329,106 @@ float buttonDot(float2 uv, float2 center, float2 outerHalf, float cornerRadius,
 <!-- ============================ SECTION 7 ============================ -->
 <h2 id="s7"><span class="tag">Section 7 · copyable record</span>Take it with you</h2>
 <p>Press <b>Copy</b> and paste the record into your notes. <b>What's next:</b> Lesson 10.5 makes the glass brighter where dot(N, L) is high, and decides what a number below 0 means.</p><textarea id="record" readonly></textarea><div class="ctl"><button class="btn" id="recBtn">Copy</button><span id="recMsg" class="sub"></span></div>
+
+<!-- ============================ SECTION 8 ============================ -->
+<h2 id="s8"><span class="tag">Section 8 · your questions</span>Level, the three parts, F at the tip of N, minus, and Step 6's triangles</h2>
+<p>Your questions about this lesson, with their answers. The rest of the page does not need this section. Your questions quote the old Section 1, which used the tilted board and its middle point P. Section 1 now uses the glass at the pixel <b>K = (0.62, 0.66)</b> in UV, with <b>S</b>, the glass above K, in place of P. Every card uses K and S.</p>
+
+<div class="qa" id="q1">
+  <h3>1 · What “level” means</h3>
+  <p class="qaQ">“"The x line is level, so it leaves the tilted board." - does this mean it's parallel to the bottom ground?”</p>
+  <div class="qaGrid">
+    <div><div class="stage" id="qa1Stage"><canvas id="qa1" width="720" height="480"></canvas></div><div class="viewbar" id="qa1Bar"></div></div>
+    <div><ul class="capl">
+      <li><b>Yes.</b> Level means parallel to the floor. The floor is the screen, at height 0.</li>
+      <li>So every point of the x line has the same height.</li>
+      <li>The x line goes through S, so that height is S's height: 0.0866 in UV (lime dots).</li>
+      <li>The glass along the line y = 0.66 is not level. It falls as x grows, toward the outline of the glass (violet dots).</li>
+      <li>So the glass is above the x line on one side of S and below it on the other side. That is all “leaves” meant.</li>
+      <li>Step 2 now says: “The x line is level: parallel to the floor, at S's height.”</li>
+    </ul>
+    <table class="trace" id="qa1Table"></table>
+    <p class="small">Heights in UV, 4 decimals, because they are small. Each ⓘ gives the glass height's chain (Lesson 10.1).</p></div>
+  </div>
+</div>
+
+<div class="qa" id="q2">
+  <h3>2 · N's y part and height part, drawn</h3>
+  <p class="qaQ">“"The y part and the height part say the same for y and for height." - what kind of sentence is this, I don't see any y part on the graphic!”</p>
+  <div class="qaGrid">
+    <div><div class="stage" id="qa2Stage"><canvas id="qa2" width="720" height="480"></canvas></div><div class="viewbar" id="qa2Bar"></div></div>
+    <div><ul class="capl">
+      <li>You are right: the picture drew only the x line. The sentence pointed at two lines that were not drawn.</li>
+      <li>It meant: do the x line's drawing two more times, with two other lines through S.<ul>
+        <li>The <b>y line</b> (orange) goes along y, toward the bottom of the picture. The line from the tip of N meets it 0.402 from S: N's y part.</li>
+        <li>The <b>height line</b> (blue) goes straight up. The line from the tip of N meets it 0.864 from S: N's height part.</li></ul></li>
+      <li>Each line from the tip of N meets its line at a square corner.</li>
+      <li>This picture shows all three at once.</li>
+      <li>Step 2 now has the buttons <b>x line</b>, <b>y line</b> and <b>height line</b>, which show them one at a time.</li>
+    </ul></div>
+  </div>
+</div>
+
+<div class="qa" id="q3">
+  <h3>3 · Where F is when L points the same way as N</h3>
+  <p class="qaQ">“"Same direction as N: F is the tip of N, so the number is 1." - what you mean by "F is the tip of N", isn't just F staying exactly below N instead?! What's up with those made up words?”</p>
+  <div class="stage" id="qa3Stage"><canvas id="qa3" width="1180" height="340"></canvas></div>
+  <ul class="capl wide">
+    <li><b>F is not “below N”.</b> Step 3 says where F is: where the line from the tip of N meets L's line at a square corner.</li>
+    <li>The tip of N is the end of N with the arrowhead.</li>
+    <li>Frame 1: Step 3's flat picture draws L's line left to right. So the line from the tip of N goes straight down the picture, and F looks “below N”.</li>
+    <li>Frames 2 and 3: L turns toward N, and L's line turns with it. The line from the tip of N stays at a square corner to L's line, so it tilts and gets shorter.</li>
+    <li>Frame 4: L points the same way as N, so L's line runs through the tip of N. The line from the tip has length 0, so F is at the tip of N, 1 from S: the number is 1.</li>
+    <li>“F is the tip of N” should have said “F is at the tip of N”. Step 4 now says so.</li>
+  </ul>
+</div>
+
+<div class="qa" id="q4">
+  <h3>4 · −1: F on the minus side</h3>
+  <p class="qaQ">“"Opposite to N: F lies 1 behind P, so the number is −1." - what's meant by that?!?!?!?!??!!?!?!?”</p>
+  <div class="stage" id="qa4Stage"><canvas id="qa4" width="1180" height="440"></canvas></div>
+  <ul class="capl wide">
+    <li>“Behind P” was a made-up phrase. It meant: on the minus side of the ruler on L's line.</li>
+    <li>The ruler: 0 at S, plus numbers on the side L points to, minus numbers on the other side.</li>
+    <li>Left: the lesson's L. The tip of N is on the side L points to, so the ruler reads plus at F: about 0.46.</li>
+    <li>Right: L opposite to N. L's line again runs through the tip of N, so F is at the tip of N, as in card 3.</li>
+    <li>But L now points away from the tip of N, so the tip of N is on the minus side. It is 1 from S, so the ruler reads −1 at F.</li>
+    <li>Step 4 now says: “Opposite to N: F is at the tip of N again, now 1 on the minus side: the number is −1.”</li>
+  </ul>
+</div>
+
+<div class="qa" id="q5">
+  <h3>5 · The minus side, on the picture</h3>
+  <p class="qaQ">“"Minus means: F lies behind P, on the side L does not point to." - and this, is this on the graphic?!???!”</p>
+  <div class="qaGrid" style="grid-template-columns:762px minmax(0,1fr)">
+    <div class="stage" id="qa5Stage"><canvas id="qa5" width="760" height="360"></canvas></div>
+    <div><ul class="capl">
+      <li><b>No, it was not.</b> Step 4's ruler had tick marks, but no numbers and no names for its two sides.</li>
+      <li>Now Step 4's picture prints the ruler's numbers and names the plus side and the minus side.</li>
+      <li>Here L is turned so that F lies 0.5 from S on the minus side. The ruler reads −0.5 at F, so dot(N, L) = −0.5.</li>
+      <li>A number below 0 means: N points more away from L than toward it.</li>
+    </ul></div>
+  </div>
+</div>
+
+<div class="qa" id="q6">
+  <h3>6 · Step 6's triangles: the third fact</h3>
+  <p class="qaQ">“In step 6 of section 1 you just briefly mention that triangles have equal sides and angle of 90 deg, this is not enough for congruent triangles, they need one more rule. Who are you trying to fool?”</p>
+  <div class="stage" id="qa6Stage"><canvas id="qa6" width="1180" height="420"></canvas></div>
+  <ul class="capl wide">
+    <li><b>You are right.</b> A square corner and a long side of 1 do not fix a triangle.</li>
+    <li>Left: from X, a line at a square corner to L's line meets it at J. A line at a square corner to another line through S meets that line at R.</li>
+    <li>S, X, J and S, X, R both have the long side from S to X, 1, and a square corner. But they differ: their other sides are 0.48 and 0.877, then 0.8 and 0.6. <button class="info" data-tip="q6" aria-label="How these sides are calculated">ⓘ</button></li>
+    <li>The missing fact is the corner at S. Right: S, X, J and S, the tip of L, Q both lie between the x line and L's line, so they have the same corner at S.</li>
+    <li>With all three facts, only one triangle fits:<ul>
+      <li>put the long side 1 along one of the two lines;</li>
+      <li>the other side must run along the other line, because the corner at S is fixed;</li>
+      <li>the square corner fixes where that side ends.</li></ul></li>
+    <li>Step 6's flip does exactly this: it swaps the x line and L's line, so it keeps the corner at S and takes X onto the tip of L.</li>
+    <li>Step 7 uses the same fact. Grow the small lime triangle from S until its long side is 1: its square corner and its corner at S stay, so it lands on the big one. So the two have the same shape.</li>
+    <li>Step 6 now names all three facts and marks the corner at S with an arc. Step 7 says why its two triangles have the same shape.</li>
+  </ul>
+</div>
 <div class="navfoot"><a href="lesson-10-03-surface-normal.html">← Lesson 10.3 — Surface normal</a><a href="lesson-light-surface-direction-and-material-thickness.html">Chapter 10 overview →</a></div>
 </div>
 <div id="tip" role="dialog" aria-modal="false"><button class="tclose" id="tipClose" aria-label="Close">✕</button><div id="tipBody"></div></div>
@@ -514,7 +617,7 @@ function glassScene(o,P,opt){
 function nTip(n,u,v){return()=>{const c=chainOf([u,v],TP,5),G=c.G,T=c.T,r3=x=>Math.round(x*1000)/1000,pre=L=>`<pre>${L.join('\n')}</pre>`,sec=t=>`<div class="tsec">${t}</div>`;
   const at={A:[c.ax,v],B:[c.bx,v],D:[u,c.dy],E:[u,c.ey]};
   const pair=g=>`<div class="tgrid">${g.pair.map(([nm,L,out,h])=>`<pre><b>${nm} = (${T.t(at[nm][0])}, ${T.t(at[nm][1])})</b>\n${L.join('\n')}\n<b>${out} = ${T.t(h)}</b></pre>`).join('')}</div>`;
-  return`<b>${n==='W'?'W':'Point '+n} = ${pt(u,v)} in UV: how N is calculated</b><br>C = (0.50, 0.50), radius 0.25, bevel 0.10, step 0.01. The numbers keep up to 5 decimals, so N comes out right to 3 decimals.`
+  return`<b>${/^[A-Z]$/.test(n)?n:'Point '+n} = ${pt(u,v)} in UV: how N is calculated</b><br>C = (0.50, 0.50), radius 0.25, bevel 0.10, step 0.01. The numbers keep up to 5 decimals, so N comes out right to 3 decimals.`
     +sec(`1 · The four neighbors, one step away (UV)`)+pre(G[0].lines)
     +sec('2 · Heights above A and B (Lesson 10.1)')+pair(G[1])
     +sec('3 · Heights above D and E (Lesson 10.1)')+pair(G[2])
@@ -523,7 +626,7 @@ function nTip(n,u,v){return()=>{const c=chainOf([u,v],TP,5),G=c.G,T=c.T,r3=x=>Ma
     +sec('6 · rawNormal')+pre(G[5].lines)
     +sec('7 · normalLength: first the shadow, then the length')+pre(G[6].lines)
     +sec('8 · N = rawNormal ÷ normalLength')+pre(G[7].lines)
-    +`<p class="tnote">${n==='W'?'Rounded':'The table rounds N'} to 3 decimals: <b>N = (${f(r3(c.nx))}, ${f(r3(c.ny))}, ${f(r3(c.nz))})</b>.</p>`
+    +`<p class="tnote">${/^[A-Z]$/.test(n)?'Rounded':'The table rounds N'} to 3 decimals: <b>N = (${f(r3(c.nx))}, ${f(r3(c.ny))}, ${f(r3(c.nz))})</b>.</p>`
     }}
 const add3=(a,b,k=1)=>[a[0]+b[0]*k,a[1]+b[1]*k,a[2]+b[2]*k];
 const nrm3=v=>{const L=Math.hypot(...v);return v.map(q=>q/L)};
@@ -532,57 +635,68 @@ function mapped(o,fn){return{poly:(ps,...r)=>o.poly(ps.map(fn),...r),path:(ps,..
   corner:(p,u,v,s,color='#111827')=>{const a=add3(p,u,s),b=add3(a,v,s),c=add3(p,v,s);o.path([fn(a),fn(b),fn(c)],color,2,true,2.5)}}}
 
 /* ================= this lesson's two arrows ================= */
-Object.assign(COL,{L:'#facc15',LT:'#92400e',along:'#10b981',alongT:'#047857',drop:'#475569',mirror:'#64748b'});
-const L0=[0.48,-0.60,0.64],NB=[0.36,0.48,0.80],P0=[0,0,0];
+Object.assign(COL,{L:'#facc15',LT:'#92400e',along:'#10b981',alongT:'#047857',drop:'#475569',mirror:'#64748b',glassT:'#6b21a8',b:'#0d9488',bT:'#115e59'});
+const L0=[0.48,-0.60,0.64],P0=[0,0,0];
 const dot3=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
 const scale3=(a,k)=>[a[0]*k,a[1]*k,a[2]*k];
 const sub3=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
-const BZ=(x,y)=>-0.45*x-0.60*y;
 const r3=x=>Math.round(x*1000)/1000;
-const LIGHTC=COL.L;
+/* exact numbers up to 6 decimals, at least 2 decimals: 0.14496, −0.60, 1 */
+const fx=x=>{if(Math.abs(x)<1e-12)return '0';let s=(Math.round(x*1e6)/1e6).toFixed(6).replace(/0+$/,'');if(s.endsWith('.'))s=s.slice(0,-1);else if(/\.\d$/.test(s))s+='0';return s.replace('-','−')};
 
-/* ================= Section 1: one 3D stepper ================= */
-let idea=0,theta=0,flip=0;const IDEA_N=10;
+/* ================= Section 1: the glass at K, one 3D stepper ================= */
+/* K: a rim pixel where none of N's three parts is 0. S: the glass above K. N rounded to 3 decimals (the ⓘ shows its chain). */
+const KP=[0.62,0.66],S_UV=[0.62,0.66,heightAt(0.62,0.66,TP)],AR=0.10,NK=[0.302,0.402,0.864];
+/* the three moves, multiplied out exactly from the 3-decimal N */
+const MX=R12(NK[0]*L0[0]),MY=R12(NK[1]*L0[1]),MH=R12(NK[2]*L0[2]),M12=R12(MX+MY),DK=R12(M12+MH);
+let idea=0,theta=0,flip=0,line2=0;const IDEA_N=10;
 /* Step 4: L turns in the plane that holds N and L. theta = 0 is the lesson's L. */
-const PL_U=L0,PL_V=nrm3(sub3(NB,scale3(L0,dot3(NB,L0)))),NFLAT=[dot3(NB,PL_U),dot3(NB,PL_V)];
+const PL_U=L0,PL_V=nrm3(sub3(NK,scale3(L0,dot3(NK,L0)))),NFLAT=[dot3(NK,PL_U),dot3(NK,PL_V)];
 const lAt=th=>add3(scale3(PL_U,Math.cos(th)),PL_V,Math.sin(th));
 const THN=Math.atan2(NFLAT[1],NFLAT[0]);
-const CORNERS={a:[0.36,0,0],b:[0.36,0.48,0],c:NB};
-const F1=scale3(L0,0.1728),F2=scale3(L0,-0.1152),F3=scale3(L0,0.3968);
+const CORNERS={a:[NK[0],0,0],b:[NK[0],NK[1],0],c:NK};
+const F1=scale3(L0,MX),F2=scale3(L0,M12),F3=scale3(L0,DK);
+/* Step 2: the three lines through S */
+const AXES=[{u:[1,0,0],name:'x line',part:"N's x part",v:NK[0],col:COL.xP,t:COL.xT,ends:[-1.25,1.25],lab:'the x line: through S, level'},
+            {u:[0,1,0],name:'y line',part:"N's y part",v:NK[1],col:COL.yP,t:COL.yT,ends:[-1.25,1.25],lab:'the y line: through S, level'},
+            {u:[0,0,1],name:'height line',part:"N's height part",v:NK[2],col:COL.hP,t:COL.hT,ends:[-1.2,1.12],lab:'the height line: through S, straight up'}];
 
-function board(o){const g=(x,y)=>[x,y,BZ(x,y)],c=[-1,0,1];for(let i=0;i<2;i++)for(let j=0;j<2;j++)o.poly([g(c[i],c[j]),g(c[i+1],c[j]),g(c[i+1],c[j+1]),g(c[i],c[j+1])],'rgba(219,234,254,0.62)','rgba(30,64,175,0.30)',1,-1);
-  o.path([g(-1,-1),g(1,-1),g(1,1),g(-1,1),g(-1,-1)],'#1e40af',1.6,true,-0.5);o.label('the tilted board',g(1,1),-6,14,'right','#1e40af',13);
-  o.pt('P',P0,'#fff','<b>P</b>: the middle of the tilted board. Both arrows start here.<br>Coordinates: board units, origin P.','P');o.label('P',P0,-14,4,'right')}
-function arrN(o,faint,name='N'){o.arrow(P0,NB,faint?'#f9a8d4':COL.N,faint?2.4:3.4,faint?1.9:2.4);o.label(name,NB,10,-10,'left','#be185d',14);o.pt('Ntip',NB,faint?'#f9a8d4':COL.N,'<b>The tip of N</b> = (0.36, 0.48, 0.80) in board units, counted from P<br>x part 0.36, y part 0.48, height part 0.80. 1 long.','tip of N')}
-function arrL(o,L,faint,name='L'){o.arrow(P0,L,faint?'#fde68a':COL.L,faint?2.4:3.4,faint?1.9:2.5);if(!faint){o.label(name,L,10,-10,'left',COL.LT,14);o.pt('Ltip',L,COL.L,`<b>The tip of L</b> = (${f(r3(L[0]))}, ${f(r3(L[1]))}, ${f(r3(L[2]))}) in board units, counted from P<br>The direction toward a light. 1 long.`,'tip of L')}}
-function lineL(o,L){o.seg(scale3(L,-1.3),scale3(L,1.3),COL.L,2,false,1.2);o.label("L's line",scale3(L,-1.3),-6,12,'right',COL.LT,13)}
+/* the glass near K in UV; returns drawing calls in arrow units counted from S (1 arrow unit = AR UV) */
+function ideaScene(o){const p=patchScene(o,KP,{A:AR,K:18,r:0.06,more:true});
+  p.m.seg([KP[0],KP[1],0],S_UV,'#94a3b8',1.4,true,1.4);p.m.label('K',[KP[0],KP[1],0],-10,14,'right');
+  p.m.pt('K',[KP[0],KP[1],0],'#fff','<b>K = (0.62, 0.66)</b> in UV, on the screen (height 0).<br>The pixel of Section 1, on the rim.','K');
+  const m=mapped(o,q=>p.fn(add3(S_UV,q,AR)));
+  m.pt('S',P0,'#fff',`<b>S</b>: the glass above K, (0.62, 0.66, ${S_UV[2].toFixed(4)}) in UV.<br>Both arrows start here.`,'S');m.label('S',P0,-14,4,'right');return m}
+function arrN(o,faint,name='N'){o.arrow(P0,NK,faint?'#f9a8d4':COL.N,faint?2.4:3.4,faint?1.9:2.4);o.label(name,NK,10,-10,'left','#be185d',14);o.pt('Ntip',NK,faint?'#f9a8d4':COL.N,'<b>The tip of N</b>: the end of N with the arrowhead.<br>N = (0.302, 0.402, 0.864), 1 long, counted from S.','tip of N')}
+function arrL(o,L,faint,name='L',al='left'){o.arrow(P0,L,faint?'#fde68a':COL.L,faint?2.4:3.4,faint?1.9:2.5);if(!faint){o.label(name,L,al==='left'?10:al==='center'?0:-10,al==='center'?-24:-10,al,COL.LT,14);o.pt('Ltip',L,COL.L,`<b>The tip of L</b>. L = (${f(r3(L[0]))}, ${f(r3(L[1]))}, ${f(r3(L[2]))}), 1 long, counted from S.<br>The direction toward a light.`,'tip of L')}}
+function lineL(o,L){o.seg(scale3(L,-1.3),scale3(L,1.3),COL.L,2,false,1.2);o.label("L's line",scale3(L,1.3),-10,4,'right',COL.LT,13)}
 function dropTo(o,p,u,col=COL.drop,s=0.05){const t=dot3(p,u),F=scale3(u,t),d=sub3(p,F),dl=Math.hypot(...d);if(dl<1e-6)return F;o.seg(p,F,col,2.2,true,1.7);if(Math.abs(t)>0.02){const back=t>0?scale3(u,-1):u;o.corner(F,back,scale3(d,1/dl),s)}return F}
-function ptF(o,name,F,col,html){o.pt(name,F,col,html,name)}
 
-function drawIdea3D(o){const s=idea;board(o);
-  if(s===0){arrN(o,false,'N = (0.36, 0.48, 0.80)');arrL(o,L0,false,'L = (0.48, −0.60, 0.64)');return}
-  if(s===1){const G=CORNERS.a;o.seg([-1.25,0,0],[1.25,0,0],COL.xP,2.2,false,1.2);o.label('the x line: through P, level',[-1.25,0,0],-4,16,'left',COL.xT,13);
-    dropTo(o,NB,[1,0,0]);o.seg(P0,G,COL.xP,6,false,2.2);arrN(o);o.label("N's x part: 0.36",G,14,20,'left',COL.xT,14);o.label('G',G,6,-12,'left');o.pt('G',G,COL.xP,'<b>G</b> = (0.36, 0, 0) in board units: where the line from the tip of N meets the x line.<br>From P to G: 0.36, N\'s x part.','G');return}
-  if(s===2||s===3){const L=s===3?lAt(theta):L0,t=dot3(NB,L),F=scale3(L,t);lineL(o,L);dropTo(o,NB,L);arrL(o,L);arrN(o);if(Math.abs(t)>1e-3)o.seg(P0,F,COL.along,6,false,2.6);
-    o.label('F',F,8,12,'left');o.label(`dot(N, L): about ${f2(t)}`,F,16,30,'left',COL.alongT,14);o.pt('F',F,COL.along,`<b>F</b>: where the line from the tip of N meets L's line.<br>From P to F: about ${f2(t)}, in board units, along L's line.`,'F');return}
+function drawIdea3D(o){const s=idea,m=ideaScene(o);
+  if(s===0){arrN(m,false,'N = (0.302, 0.402, 0.864)');arrL(m,L0,false,'L = (0.48, −0.60, 0.64)','center');return}
+  if(s===1){const ax=AXES[line2],A=scale3(ax.u,ax.ends[0]),B=scale3(ax.u,ax.ends[1]);m.seg(A,B,ax.col,2.2,false,1.2);{const [P,dx,dy]=[[A,-4,16],[B,8,14],[B,12,-4]][line2];m.label(ax.lab,P,dx,dy,'left',ax.t,13)}
+    const G=dropTo(m,NK,ax.u);m.seg(P0,G,ax.col,6,false,2.2);arrN(m);m.label(`${ax.part}: ${fx(ax.v)}`,G,line2===2?-14:14,line2===2?10:20,line2===2?'right':'left',ax.t,14);m.label('G',G,line2===2?-12:6,-12,line2===2?'right':'left');
+    m.pt('G',G,ax.col,`<b>G</b>: where the line from the tip of N meets the ${ax.name}, at a square corner.<br>From S to G: ${fx(ax.v)}, ${ax.part}.`,'G');return}
+  if(s===2||s===3){const L=s===3?lAt(theta):L0,t=dot3(NK,L),F=scale3(L,t);lineL(m,L);dropTo(m,NK,L);arrL(m,L);arrN(m);if(Math.abs(t)>1e-3)m.seg(P0,F,COL.along,6,false,2.6);
+    m.label('F',F,8,12,'left');m.label(`dot(N, L): about ${f2(t)}`,F,16,30,'left',COL.alongT,14);m.pt('F',F,COL.along,`<b>F</b>: where the line from the tip of N meets L's line, at a square corner.<br>The ruler on L's line reads about ${f2(t)} at F.`,'F');return}
   const {a,b,c}=CORNERS;
-  if(s===5){const X=[1,0,0],G=[0.48,0,0],F=scale3(L0,0.48);lineL(o,L0);o.seg([-1.25,0,0],[1.25,0,0],COL.xP,2,false,1.2);
-    o.poly([P0,X,F],'rgba(132,204,22,0.42)',COL.xP,1.5,1.1);o.poly([P0,L0,G],'rgba(250,204,21,0.42)',COL.L,1.5,1.1);arrL(o,L0);o.arrow(P0,X,COL.xP,3.2,2.4);
-    o.label('X',X,8,-10,'left',COL.xT,14);o.pt('X',X,COL.xP,'<b>X</b> = (1, 0, 0) in board units: the end of a walk of 1 along x, from P.','X');o.label('J',F,-10,-8,'right');o.pt('J',F,COL.xP,"<b>J</b>: where the line from X meets L's line, at a square corner.",'J');o.label('Q',G,4,14,'left');o.pt('Q',G,COL.L,"<b>Q</b> = (0.48, 0, 0) in board units: where the line from the tip of L meets the x line.<br>From P to Q: 0.48, L's x part.",'Q');return}
+  if(s===5){const X=[1,0,0],G=[0.48,0,0],F=scale3(L0,0.48);lineL(m,L0);m.seg([-1.25,0,0],[1.25,0,0],COL.xP,2,false,1.2);m.label('the x line',[-1.25,0,0],-4,16,'left',COL.xT,13);
+    m.poly([P0,X,F],'rgba(132,204,22,0.42)',COL.xP,1.5,1.1);m.poly([P0,L0,G],'rgba(250,204,21,0.42)',COL.L,1.5,1.1);arrL(m,L0);m.arrow(P0,X,COL.xP,3.2,2.4);
+    m.label('X',X,8,-10,'left',COL.xT,14);m.pt('X',X,COL.xP,'<b>X</b>: the end of a walk of 1 along x, from S.','X');m.label('J',F,-10,-8,'right');m.pt('J',F,COL.xP,"<b>J</b>: where the line from X meets L's line, at a square corner.",'J');m.label('Q',G,4,14,'left');m.pt('Q',G,COL.L,"<b>Q</b>: where the line from the tip of L meets the x line.<br>From S to Q: 0.48, L's x part.",'Q');return}
   /* the staircase of N's three parts */
   const on=[s===4||s===6||s===9,s===4||s===7||s===9,s===4||s===8||s===9],W=i=>on[i]?3.4:1.8;
-  lineL(o,L0);arrL(o,L0);arrN(o,s!==4&&s!==9&&s!==8);
-  o.seg(P0,a,on[0]?COL.xP:'#d9f99d',W(0),false,1.8);o.seg(a,b,on[1]?COL.yP:'#fed7aa',W(1),false,1.8);o.seg(b,c,on[2]?COL.hP:'#bae6fd',W(2),false,1.8);
-  if(s===7){o.seg(P0,[0,0.48,0],'#fdba74',2.6,false,1.7);dropTo(o,[0,0.48,0],L0,'#fb923c',0.04);o.label('a copy of the y part, from P',[0,0.48,0],10,18,'left',COL.yT,13);o.pt('copy',[0,0.48,0],COL.yP,"<b>The end of the copy</b> = (0, 0.48, 0) in board units. The same walk as N's y part, started at P.",'end of the copy')}
-  if(on[0]){dropTo(o,a,L0);o.label(s===4?'x part':"N's x part",a,8,-18,'left',COL.xT,13)}
-  if(on[1]||s===7){dropTo(o,b,L0);o.label(s===4?'y part':"N's y part",[0.36,0.24,0],0,s===7?-20:20,'center',COL.yT,13)}
-  if(on[2]){dropTo(o,c,L0);o.label(s===4?'height part':"N's height part",[0.36,0.48,0.4],10,0,'left',COL.hT,13)}
-  if(s===9)o.seg(P0,F3,COL.along,6,false,2.6);
-  const FS=[['F₁',F1,COL.xP,on[0],s===4?"<b>F₁</b>: where the line from the end of the x part meets L's line.":'<b>F₁</b>: 0.1728 from P along L\'s line. The x part moves you this far.'],
-            ['F₂',F2,COL.yP,on[1],s===4?"<b>F₂</b>: where the line from the end of the y part meets L's line. It lies behind P.":"<b>F₂</b>: −0.1152 along L's line: behind P."],
-            ['F₃',F3,COL.hP,on[2],s===4?"<b>F₃</b>: where the line from the tip of N meets L's line: Step 3's F.":"<b>F₃</b>: 0.3968 along L's line: Step 3's F."]];
-  for(const [nm,Q,col,vis,html] of FS)if(vis){o.pt(nm,Q,col,html,nm);o.label(nm,Q,-14,nm==='F₂'?12:0,'right')}
-  o.pt('cA',a,COL.xP,'<b>The end of the x part</b> = (0.36, 0, 0) in board units.','end of the x part');o.pt('cB',b,COL.yP,'<b>The end of the y part</b> = (0.36, 0.48, 0) in board units.','end of the y part');
+  lineL(m,L0);arrL(m,L0);arrN(m,s!==4&&s!==9&&s!==8);
+  m.seg(P0,a,on[0]?COL.xP:'#d9f99d',W(0),false,1.8);m.seg(a,b,on[1]?COL.yP:'#fed7aa',W(1),false,1.8);m.seg(b,c,on[2]?COL.hP:'#bae6fd',W(2),false,1.8);
+  if(s===7){const Y=[0,NK[1],0];m.seg(P0,Y,'#fdba74',2.6,false,1.7);dropTo(m,Y,L0,'#fb923c',0.04);m.label('a copy of the y part, from S',Y,10,18,'left',COL.yT,13);m.pt('copy',Y,COL.yP,"<b>The end of the copy</b>: the same walk as N's y part, 0.402 toward the bottom of the picture, started at S.",'end of the copy')}
+  if(on[0]){dropTo(m,a,L0);m.label(s===4?'x part':"N's x part",a,8,-18,'left',COL.xT,13)}
+  if(on[1]||s===7){dropTo(m,b,L0);m.label(s===4?'y part':"N's y part",[NK[0],NK[1]/2,0],0,s===7?-20:20,'center',COL.yT,13)}
+  if(on[2]){dropTo(m,c,L0);m.label(s===4?'height part':"N's height part",[NK[0],NK[1],NK[2]/2],10,0,'left',COL.hT,13)}
+  if(s===9)m.seg(P0,F3,COL.along,6,false,2.6);
+  const FS=[['F₁',F1,COL.xP,on[0],s===4?"<b>F₁</b>: where the line from the end of the x part meets L's line.":`<b>F₁</b>: ${fx(MX)} from S along L's line. The x part moves you this far.`],
+            ['F₂',F2,COL.yP,on[1],s===4?"<b>F₂</b>: where the line from the end of the y part meets L's line. It lies on the minus side of S.":`<b>F₂</b>: ${fx(M12)} along L's line: on the minus side of S.`],
+            ['F₃',F3,COL.hP,on[2],s===4?"<b>F₃</b>: where the line from the tip of N meets L's line: Step 3's F.":`<b>F₃</b>: ${fx(DK)} along L's line: Step 3's F.`]];
+  for(const [nm,Q,col,vis,html] of FS)if(vis){m.pt(nm,Q,col,html,nm);m.label(nm,Q,-14,nm==='F₂'?12:0,'right')}
+  m.pt('cA',a,COL.xP,"<b>The end of N's x part</b>: 0.302 from S, along x.",'end of the x part');m.pt('cB',b,COL.yP,"<b>The end of N's y part</b>: after 0.302 along x and 0.402 along y, from S.",'end of the y part');
 }
 const f2=x=>{const v=Math.abs(x)<0.005?0:x;return v.toFixed(2).replace('-','−')};
 
@@ -598,100 +712,123 @@ function arrow2(ctx,O,a,b,col,w=3.2){const A=P2(O,a),B=P2(O,b);arrow(ctx,A[0],A[
 function seg2(ctx,O,a,b,col,w=2.2,plain=true){const A=P2(O,a),B=P2(O,b);plain?thin(ctx,A[0],A[1],B[0],B[1],col,w):line(ctx,A[0],A[1],B[0],B[1],col,w)}
 function corner2(ctx,O,F,u,v,s=13){const p=P2(O,F);square(ctx,p[0],p[1],[u[0],-u[1]],[v[0],-v[1]],s)}
 function dot2(st,O,q,col,html,label){const p=P2(O,q);addPt(st,p[0],p[1],col,html,label,{small:true})}
+/* the plane that holds N and L, seen straight on, N fixed; L at angle th from the lesson's L (th = 0: L's line drawn left to right).
+   L's line carries a ruler: 0 at S, plus the way L points, minus the other way. */
+function drawNLPlane(ctx,O,th,op={}){const L2=[Math.cos(th),Math.sin(th)],t=NFLAT[0]*L2[0]+NFLAT[1]*L2[1],F=[L2[0]*t,L2[1]*t],a=op.a??-1.25,b=op.b??1.25,st=op.st;
+  if(op.circle){ctx.strokeStyle='#e5e7eb';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(O.x,O.y,O.S,0,7);ctx.stroke()}
+  tline(ctx,O,L2,a,b,COL.L,2.4,0.1,op.numbers===false?0:0.5);
+  /* the ruler's numbers sit on one side of L's line (nc, as tline draws them); the side names beyond them; F's name on the other side */
+  const nc=[L2[1],L2[0]],lc=[L2[0],-L2[1]];
+  if(op.sides){const pe=P2(O,[L2[0]*0.75,L2[1]*0.75]),me=P2(O,[-L2[0]*0.75,-L2[1]*0.75]),k=op.numbers===false?24:50+30*Math.abs(nc[0]);
+    plate(ctx,'plus side',pe[0]+nc[0]*k,pe[1]+nc[1]*k,13,'center',COL.alongT);plate(ctx,'minus side',me[0]+nc[0]*k,me[1]+nc[1]*k,13,'center','#b91c1c')}
+  if(Math.hypot(NFLAT[0]-F[0],NFLAT[1]-F[1])>1e-3){seg2(ctx,O,NFLAT,F,COL.drop,2.2);if(Math.abs(t)>0.03){const d=unit2(NFLAT[0]-F[0],NFLAT[1]-F[1]);corner2(ctx,O,F,t>0?[-L2[0],-L2[1]]:L2,d,op.cs||13)}}
+  arrow2(ctx,O,[0,0],L2,COL.L);if(Math.abs(t)>1e-3)seg2(ctx,O,[0,0],F,COL.along,6,false);arrow2(ctx,O,[0,0],NFLAT,COL.N);
+  const nt=P2(O,NFLAT),lt=P2(O,L2),fp=P2(O,F),p=P2(O,[0,0]),same=Math.hypot(lt[0]-nt[0],lt[1]-nt[1])<30;
+  plate(ctx,'N',nt[0]+12,nt[1]-4,14,'left','#be185d');plate(ctx,'L',lt[0]+(L2[0]>=0?12:-12),lt[1]+(same?18:-12),14,L2[0]>=0?'left':'right',COL.LT);plate(ctx,'S',p[0]-12,p[1]-14,14,'right');
+  const atTip=Math.hypot(fp[0]-nt[0],fp[1]-nt[1])<4,nd=unit2(nt[0]-p[0],nt[1]-p[1]);if(atTip)plate(ctx,'F',fp[0]+nd[0]*30,fp[1]+nd[1]*30,14,'center');else if(op.numbers===false)plate(ctx,'F',fp[0]+nc[0]*20-lc[0]*30,fp[1]+nc[1]*20-lc[1]*30,14,'center');else plate(ctx,'F',fp[0]-nc[0]*20-lc[0]*14,fp[1]-nc[1]*20-lc[1]*14,14,'center');
+  if(st){dot2(st,O,[0,0],'#fff','<b>S</b>: the start of the arrows, the glass above K. On the ruler of L\'s line: 0.','S');dot2(st,O,NFLAT,COL.N,'<b>The tip of N</b>: the end of N with the arrowhead, 1 from S.','tip of N');
+    dot2(st,O,F,COL.along,`<b>F</b>: where the line from the tip of N meets L's line, at a square corner.<br>The ruler reads about ${f2(t)} at F${t<-0.02?': the minus side, the side L does not point to':''}.`,'F')}
+  return{t,F,L2,lt,nt,fp,p}}
+/* the corner at S between two lines through S: a shaded arc, its name beside it, a point with a tooltip */
+function cornerAtS(ctx,O,a0,a1,r,lab,la,lr,st,html){ctx.save();ctx.beginPath();ctx.moveTo(O.x,O.y);ctx.arc(O.x,O.y,r,-a0,-a1,true);ctx.closePath();ctx.fillStyle='rgba(15,23,42,0.14)';ctx.fill();
+  ctx.beginPath();ctx.arc(O.x,O.y,r,-a0,-a1,true);ctx.lineWidth=2.6;ctx.strokeStyle='#0f172a';ctx.stroke();ctx.restore();
+  if(lab)plate(ctx,lab,O.x+Math.cos(la)*lr,O.y-Math.sin(la)*lr,13,'center','#0f172a');
+  if(st){const m=(a0+a1)/2;addPt(st,O.x+Math.cos(m)*r,O.y-Math.sin(m)*r,'#0f172a',html,'the corner at S',{small:true})}}
+const CORNER_TIP="<b>The corner at S</b>: between the x line and L's line.<br>Both triangles lie between these two lines, so both have this corner at S.";
 /* the moves along L's line, one per line (rule: each element its own line) */
-function movesPic(ctx,R){const {x,y,w,rows,range:[a,b],titleW=92,rowH=46,size=13,st=null,pUp=4}=R,X=v=>x+titleW+(v-a)/(b-a)*(w-titleW-14),bottom=y+rowH*rows.length;
-  thin(ctx,X(0),y+4,X(0),bottom,'#94a3b8',1.5);plate(ctx,'P',X(0),y-pUp,12,'center');
+function movesPic(ctx,R){const {x,y,w,rows,range:[a,b],titleW=92,rowH=46,size=13,st=null,pUp=4,start='H'}=R,X=v=>x+titleW+(v-a)/(b-a)*(w-titleW-14),bottom=y+rowH*rows.length;
+  thin(ctx,X(0),y+4,X(0),bottom,'#94a3b8',1.5);plate(ctx,start,X(0),y-pUp,12,'center');
   let cur=0;rows.forEach((r,i)=>{const yy=y+rowH*i+rowH*0.66;thin(ctx,X(a),yy,X(b),yy,'#cbd5e1',2);plate(ctx,r.name,x,yy,size,'left',r.t||COL.ink);
-    if(r.total){if(Math.abs(r.val)>1e-9)line(ctx,X(0),yy,X(r.val),yy,COL.along,5.5);ctx.beginPath();ctx.arc(X(r.val),yy,5,0,7);ctx.fillStyle=COL.along;ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#111827';ctx.stroke();if(r.text)plate(ctx,r.text,X(Math.max(0,r.val)),yy-18,size,'center',COL.alongT);if(st)addPt(st,X(r.val),yy,COL.along,`<b>${r.name}</b>: ${r.text}<br>Counted along L's line from its start.`,r.name,{small:true});return}
+    if(r.total){if(Math.abs(r.val)>1e-9)line(ctx,X(0),yy,X(r.val),yy,COL.along,5.5);ctx.beginPath();ctx.arc(X(r.val),yy,5,0,7);ctx.fillStyle=COL.along;ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#111827';ctx.stroke();if(r.text)plate(ctx,r.text,X(Math.max(0,r.val)),yy-18,size,'center',COL.alongT);if(st)addPt(st,X(r.val),yy,COL.along,`<b>${r.name}</b>: ${r.text}<br>Counted along L's line from ${start}.`,r.name,{small:true});return}
     const nx=cur+r.val;if(r.show!==false){if(Math.abs(r.val)>1e-9)arrow(ctx,X(cur),yy,X(nx),yy,r.color,3.2,11);else{ctx.beginPath();ctx.arc(X(cur),yy,4,0,7);ctx.fillStyle=r.color;ctx.fill();ctx.lineWidth=1.6;ctx.strokeStyle='#111827';ctx.stroke()}
       if(i<rows.length-1)thin(ctx,X(nx),yy+3,X(nx),yy+rowH-3,'#64748b',1.2)}
     if(r.text)plate(ctx,r.text,X((cur+nx)/2),yy-18,size,'center',r.t||COL.ink);if(st&&r.show!==false)addPt(st,X(nx),yy,r.color,`<b>After the ${r.name.replace(/s$/,'')}</b>: ${r.text==='?'?'how far this part moves you is what the next steps find.':'this part moves you '+r.text+'.'}`,'after the '+r.name,{small:true});cur=nx})}
-const ROWNAMES=[['x part',COL.xP,COL.xT,0.1728],['y part',COL.yP,COL.yT,-0.288],['height part',COL.hP,COL.hT,0.512]];
-function boardRows(known,R){const rows=ROWNAMES.map(([name,color,t,val],i)=>({name,color,t,val,show:known==='?'||i<known,text:known==='?'?'?':i<known?(val>0?'+':'−')+f(Math.abs(val)):'?'}));
-  rows.push({name:'dot(N, L)',t:COL.alongT,total:true,val:0.3968,text:known===3?'0.3968':'about 0.40 (Step 3)'});return Object.assign({rows,range:[-0.25,0.55]},R)}
+const ROWNAMES=[['x part',COL.xP,COL.xT,MX],['y part',COL.yP,COL.yT,MY],['height part',COL.hP,COL.hT,MH]];
+function kRows(known,R){const rows=ROWNAMES.map(([name,color,t,val],i)=>({name,color,t,val,show:known==='?'||i<known,text:known==='?'?'?':i<known?(val>0?'+':'−')+fx(Math.abs(val)):'?'}));
+  rows.push({name:'dot(N, L)',t:COL.alongT,total:true,val:DK,text:known===3?fx(DK):'about 0.46 (Step 3)'});return Object.assign({rows,range:[-0.25,0.65],start:'S'},R)}
 function drawIdeaFlat(){const st=$('ideaFlatStage'),cv=$('ideaFlat'),ctx=cv.getContext('2d'),s=idea;clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
-  st.hidden=s===0;$('lBtns').hidden=s!==3;$('flipCtl').hidden=s!==5;if(s===0)return;
-  const Ptip=(O)=>dot2(st,O,[0,0],'#fff','<b>P</b>: the start of the arrows. Coordinates: board units, origin P.','P');
-  if(s===1){const O={x:230,y:252,S:200},N2=[0.36,Math.sqrt(1-0.36*0.36)],G=[0.36,0];flatTitle(ctx,'coordinates: a plane, board units · the plane that holds N and the x line, seen straight on, the x line level');
-    tline(ctx,O,[1,0],-1,2.2,COL.xP,2.4,0.1,0.5);seg2(ctx,O,N2,G,COL.drop,2.2);corner2(ctx,O,G,[-1,0],[0,1]);seg2(ctx,O,[0,0],G,COL.xP,6,false);arrow2(ctx,O,[0,0],N2,COL.N);
-    const nt=P2(O,N2),g=P2(O,G),p=P2(O,[0,0]);plate(ctx,'N',nt[0]+12,nt[1]-6,14,'left','#be185d');plate(ctx,'G',g[0]+8,g[1]-14,14,'left');plate(ctx,"N's x part: 0.36, from P to G",g[0]+14,g[1]-48,14,'left',COL.xT);plate(ctx,'P',p[0]-10,p[1]-14,14,'right');plate(ctx,'the x line',cv.width-8,g[1]-16,13,'right',COL.xT);plate(ctx,'a line from the tip of N, at a square corner to the x line',nt[0]+60,nt[1]+60,13,'left','#334155');
-    Ptip(O);dot2(st,O,N2,COL.N,'<b>The tip of N</b>, in this plane: 0.36 along the x line, 0.933 above it.<br>0.933 is the rest of N: its y part and height part together.','tip of N');dot2(st,O,G,COL.xP,'<b>G</b>: 0.36 from P along the x line.','G');return}
-  if(s===2||s===3){const O=s===2?{x:300,y:250,S:190}:{x:380,y:160,S:125},L2=[Math.cos(theta),Math.sin(theta)],t=NFLAT[0]*L2[0]+NFLAT[1]*L2[1],F=[L2[0]*t,L2[1]*t];
-    flatTitle(ctx,"coordinates: a plane, board units · the plane that holds N and L, seen straight on, L's line level at the start");
-    if(s===3){ctx.strokeStyle='#e5e7eb';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(O.x,O.y,O.S,0,7);ctx.stroke()}
-    tline(ctx,O,L2,s===2?-1.2:-1.25,s===2?2.3:1.25,COL.L,2.4,0.1,s===2?0.5:0);
-    if(Math.hypot(NFLAT[0]-F[0],NFLAT[1]-F[1])>1e-3){seg2(ctx,O,NFLAT,F,COL.drop,2.2);if(Math.abs(t)>0.03){const d=unit2(NFLAT[0]-F[0],NFLAT[1]-F[1]);corner2(ctx,O,F,t>0?[-L2[0],-L2[1]]:L2,d)}}
-    arrow2(ctx,O,[0,0],L2,COL.L);if(Math.abs(t)>1e-3)seg2(ctx,O,[0,0],F,COL.along,6,false);arrow2(ctx,O,[0,0],NFLAT,COL.N);
-    const nt=P2(O,NFLAT),lt=P2(O,L2),fp=P2(O,F),p=P2(O,[0,0]);plate(ctx,'N',nt[0]+12,nt[1]-4,14,'left','#be185d');plate(ctx,'L',lt[0]+(L2[0]>=0?12:-12),lt[1]-12,14,L2[0]>=0?'left':'right',COL.LT);plate(ctx,'P',p[0]-12,p[1]-14,14,'right');plate(ctx,'F',fp[0]+(s===2?8:-14),fp[1]-14,14,'left');
-    if(s===2){plate(ctx,"L's line",cv.width-8,p[1]-14,13,'right',COL.LT);plate(ctx,'dot(N, L): about 0.40, from P to F',fp[0]+14,fp[1]-52,14,'left',COL.alongT);plate(ctx,'a line from the tip of N, at a square corner to L\'s line',nt[0]+50,nt[1]+46,13,'left','#334155')}
-    else{const near=[[Math.abs(t-1)<0.002,'the same direction'],[Math.abs(t)<0.002,'a square corner'],[Math.abs(t+1)<0.002,'opposite directions']].find(q=>q[0]);plate(ctx,`dot(N, L) = ${f2(t)}`,cv.width-10,48,18,'right',COL.alongT);if(near)plate(ctx,near[1],cv.width-10,80,14,'right',COL.alongT);if(t<-0.02&&!near)plate(ctx,'minus: F lies behind P',cv.width-10,80,14,'right',COL.alongT);const L3=lAt(theta);plate(ctx,`L = (${f(r3(L3[0]))}, ${f(r3(L3[1]))}, ${f(r3(L3[2]))})`,10,cv.height-16,13,'left',COL.LT);plate(ctx,'gray circle: all points 1 from P',10,cv.height-44,13,'left','#4b5563')}
-    Ptip(O);dot2(st,O,NFLAT,COL.N,'<b>The tip of N</b>, 1 from P.','tip of N');dot2(st,O,F,COL.along,`<b>F</b>: where the line from the tip of N meets L's line.<br>From P to F: about ${f2(t)}.`,'F');
-    if(s===3){const c0=cv;addPt(st,lt[0],lt[1],COL.L,`<b>The tip of L</b>: drag it around the circle of radius 1. L stays 1 long.<br>Now dot(N, L) = ${f2(t)}.`,'tip of L',{key:'Ltip',move:(cx,cy)=>{const q=canvasPos(c0,cx,cy);theta=Math.atan2(O.y-q[1],q[0]-O.x);drawIdeaFlat();ideaOrb.render()},keys:d=>{theta+=(d[0]+d[1])*0.02;drawIdeaFlat();ideaOrb.render()}})}
-    else dot2(st,O,L2,COL.L,'<b>The tip of L</b>, 1 from P.','tip of L');return}
-  if(s===4){flatTitle(ctx,"coordinates: along L's line, board units, from P · one line per part of N");movesPic(ctx,boardRows('?',{x:8,y:44,w:744,rowH:60,titleW:110,size:14,st}));return}
+  st.hidden=s===0;$('lBtns').hidden=s!==3;$('lineBtns').hidden=s!==1;$('flipCtl').hidden=s!==5;if(s===0)return;
+  const Ptip=(O)=>dot2(st,O,[0,0],'#fff','<b>S</b>: the start of the arrows, the glass above K. Coordinates: a plane, arrow units, origin S.','S');
+  if(s===1){const ax=AXES[line2],v=ax.v,w=Math.sqrt(1-v*v),up=line2===2,O=up?{x:300,y:282,S:182}:{x:230,y:262,S:205},N2=up?[w,v]:[v,w],G=up?[0,v]:[v,0];
+    flatTitle(ctx,`coordinates: a plane, arrow units · N and the ${ax.name}, seen straight on, the ${ax.name} drawn ${up?'standing up':'left to right'}`);
+    tline(ctx,O,up?[0,1]:[1,0],up?-0.2:-1,up?1.22:2.2,ax.col,2.4,0.1,0.5);seg2(ctx,O,N2,G,COL.drop,2.2);corner2(ctx,O,G,up?[0,-1]:[-1,0],up?[1,0]:[0,1]);seg2(ctx,O,[0,0],G,ax.col,6,false);arrow2(ctx,O,[0,0],N2,COL.N);
+    const nt=P2(O,N2),g=P2(O,G),p=P2(O,[0,0]);plate(ctx,'N',nt[0]+12,nt[1]-6,14,'left','#be185d');plate(ctx,'G',g[0]+(up?-10:8),g[1]-14,14,up?'right':'left');plate(ctx,`${ax.part}: ${fx(v)}, from S to G`,up?g[0]-16:g[0]+14,up?g[1]+22:g[1]-48,14,up?'right':'left',ax.t);plate(ctx,'S',p[0]-10,p[1]-14,14,'right');
+    plate(ctx,`the ${ax.name}`,up?p[0]+14:cv.width-8,up?42:g[1]-16,13,up?'left':'right',ax.t);plate(ctx,`a line from the tip of N, at a square corner to the ${ax.name}`,up?nt[0]+18:nt[0]+60,up?nt[1]+70:nt[1]+60,13,'left','#334155');
+    Ptip(O);dot2(st,O,N2,COL.N,`<b>The tip of N</b>, in this plane: ${fx(v)} along the ${ax.name}, ${f(w)} away from it.`,'tip of N');dot2(st,O,G,ax.col,`<b>G</b>: ${fx(v)} from S along the ${ax.name}.`,'G');return}
+  if(s===2||s===3){const O=s===2?{x:300,y:232,S:190}:{x:380,y:160,S:125};
+    flatTitle(ctx,"coordinates: a plane, arrow units · the plane that holds N and L, seen straight on, L's line drawn left to right at the start");
+    const r=drawNLPlane(ctx,O,theta,{a:s===2?-1.2:-1.25,b:s===2?2.3:1.25,circle:s===3,sides:true,st});
+    if(s===2){plate(ctx,"L's line",cv.width-8,r.p[1]-14,13,'right',COL.LT);plate(ctx,'dot(N, L): about 0.46, from S to F',r.fp[0]+14,r.fp[1]-52,14,'left',COL.alongT);plate(ctx,'a line from the tip of N, at a square corner to L\'s line',r.nt[0]+50,r.nt[1]+46,13,'left','#334155')}
+    else{const t=r.t,near=[[Math.abs(t-1)<0.002,'the same direction'],[Math.abs(t)<0.002,'a square corner'],[Math.abs(t+1)<0.002,'opposite directions']].find(q=>q[0]);plate(ctx,`dot(N, L) = ${f2(t)}`,cv.width-10,48,18,'right',COL.alongT);if(near)plate(ctx,near[1],cv.width-10,80,14,'right',COL.alongT);if(t<-0.02&&!near)plate(ctx,'minus: F is on the minus side of S',cv.width-10,80,14,'right',COL.alongT);const L3=lAt(theta);plate(ctx,`L = (${f(r3(L3[0]))}, ${f(r3(L3[1]))}, ${f(r3(L3[2]))})`,10,cv.height-16,13,'left',COL.LT);plate(ctx,'gray circle: all points 1 from S',10,cv.height-44,13,'left','#4b5563')}
+    if(s===3){const c0=cv,lt=r.lt;addPt(st,lt[0],lt[1],COL.L,`<b>The tip of L</b>: drag it around the circle of radius 1. L stays 1 long.<br>Now dot(N, L) = ${f2(r.t)}.`,'tip of L',{key:'Ltip',move:(cx,cy)=>{const q=canvasPos(c0,cx,cy);theta=Math.atan2(O.y-q[1],q[0]-O.x);drawIdeaFlat();ideaOrb.render()},keys:d=>{theta+=(d[0]+d[1])*0.02;drawIdeaFlat();ideaOrb.render()}})}
+    else dot2(st,O,r.L2,COL.L,'<b>The tip of L</b>, 1 from S.','tip of L');return}
+  if(s===4){flatTitle(ctx,"coordinates: along L's line, from S · one line per part of N");movesPic(ctx,kRows('?',{x:8,y:44,w:744,rowH:60,titleW:110,size:14,st}));return}
   const rowsAt={x:414,y:44,w:340,rowH:58,titleW:92};
   if(s===5){const O={x:110,y:262,S:215},LP=[0.48,Math.sqrt(1-0.48*0.48)],X=[1,0],F=[0.48*LP[0],0.48*LP[1]],G=[0.48,0],c2=LP[0],s2=LP[1],M=q=>[q[0]*c2+q[1]*s2,q[0]*s2-q[1]*c2],k=flip/100,mv=q=>{const m=M(q);return[q[0]+k*(m[0]-q[0]),q[1]+k*(m[1]-q[1])]};
-    flatTitle(ctx,'coordinates: a plane, board units · the plane that holds the x line and L, seen straight on, the x line level');
+    flatTitle(ctx,'coordinates: a plane, arrow units · the plane that holds the x line and L, seen straight on, the x line drawn left to right');
     tline(ctx,O,[1,0],-0.35,1.35,COL.xP,2.4);tline(ctx,O,[LP[0],LP[1]],-0.3,1.12,COL.L,2.4);
     const halfA=Math.atan2(LP[1],LP[0])/2;seg2(ctx,O,[0,0],[1.3*Math.cos(halfA),1.3*Math.sin(halfA)],COL.mirror,2.2);const me=P2(O,[1.3*Math.cos(halfA),1.3*Math.sin(halfA)]);plate(ctx,'the gray line: halfway between the x line and L',me[0]-4,me[1]-16,13,'left','#334155');
     tri(ctx,O,[[0,0],X,F],'rgba(132,204,22,0.40)',COL.xP);tri(ctx,O,[[0,0],LP,G],'rgba(250,204,21,0.14)','#fde68a');tri(ctx,O,[mv([0,0]),mv(LP),mv(G)],'rgba(250,204,21,0.55)','#ca8a04');
     corner2(ctx,O,F,[-LP[0],-LP[1]],unit2(X[0]-F[0],X[1]-F[1]),11);{const mg=mv(G),u=unit2(mv([0,0])[0]-mg[0],mv([0,0])[1]-mg[1]),v=unit2(mv(LP)[0]-mg[0],mv(LP)[1]-mg[1]);if(k<0.49||k>0.51)corner2(ctx,O,mg,u,v,11)}
-    arrow2(ctx,O,[0,0],X,COL.xP);arrow2(ctx,O,[0,0],LP,COL.L);
+    arrow2(ctx,O,[0,0],X,COL.xP);arrow2(ctx,O,[0,0],LP,COL.L);cornerAtS(ctx,O,0,Math.atan2(LP[1],LP[0]),34,'',0,0,st,CORNER_TIP);plate(ctx,'dark arc at S: the same corner in both triangles',cv.width-10,216,13,'right','#0f172a');
     const q=(p,dx,dy,t,al='left',col=COL.ink,sz=14)=>{const a=P2(O,p);plate(ctx,t,a[0]+dx,a[1]+dy,sz,al,col)};
-    q(X,8,-14,'X','left',COL.xT);q(LP,10,-8,'L','left',COL.LT);q([0,0],-10,-14,'P','right');q(F,-8,-12,'J','right');q(G,6,18,'Q');
-    q([0.24,0],0,18,"0.48: L's x part",'center',COL.LT,14);plate(ctx,flip===100?'P to J = 0.48':'P to J = ?',cv.width-10,58,18,'right',COL.xT);plate(ctx,'lime triangle: P, X, J',cv.width-10,160,13,'right',COL.xT);plate(ctx,"yellow triangle: P, the tip of L, Q",cv.width-10,188,13,'right','#854d0e');
-    Ptip(O);dot2(st,O,X,COL.xP,'<b>X</b>: the end of a walk of 1 along x, from P.','X');dot2(st,O,LP,COL.L,'<b>The tip of L</b>, 1 from P.','tip of L');dot2(st,O,F,COL.xP,`<b>J</b>: where the line from X meets L's line.<br>${flip===100?'From P to J: 0.48.':'From P to J: “?”. Move the flip slider.'}`,'J');dot2(st,O,G,COL.L,"<b>Q</b>: where the line from the tip of L meets the x line.<br>From P to Q: 0.48, L's x part.",'Q');return}
-  if(s===6){const O={x:64,y:262,S:240},LP=[0.48,Math.sqrt(1-0.48*0.48)],X=[1,0],F=[0.48*LP[0],0.48*LP[1]],Xp=[0.36,0],Fp=[0.1728*LP[0],0.1728*LP[1]];flatTitle(ctx,'coordinates: a plane, board units · the x line and L, seen straight on · right: along L\'s line, from P');
+    q(X,8,-14,'X','left',COL.xT);q(LP,10,-8,'L','left',COL.LT);q([0,0],-10,-14,'S','right');q(F,-8,-12,'J','right');q(G,6,18,'Q');
+    q([0.24,0],0,18,"0.48: L's x part",'center',COL.LT,14);plate(ctx,flip===100?'S to J = 0.48':'S to J = ?',cv.width-10,58,18,'right',COL.xT);plate(ctx,'lime triangle: S, X, J',cv.width-10,160,13,'right',COL.xT);plate(ctx,"yellow triangle: S, the tip of L, Q",cv.width-10,188,13,'right','#854d0e');
+    Ptip(O);dot2(st,O,X,COL.xP,'<b>X</b>: the end of a walk of 1 along x, from S.','X');dot2(st,O,LP,COL.L,'<b>The tip of L</b>, 1 from S.','tip of L');dot2(st,O,F,COL.xP,`<b>J</b>: where the line from X meets L's line.<br>${flip===100?'From S to J: 0.48.':'From S to J: “?”. Move the flip slider.'}`,'J');dot2(st,O,G,COL.L,"<b>Q</b>: where the line from the tip of L meets the x line.<br>From S to Q: 0.48, L's x part.",'Q');return}
+  if(s===6){const O={x:64,y:262,S:240},LP=[0.48,Math.sqrt(1-0.48*0.48)],X=[1,0],F=[0.48*LP[0],0.48*LP[1]],Xp=[NK[0],0],Fp=[MX*LP[0],MX*LP[1]];flatTitle(ctx,'coordinates: a plane, arrow units · the x line and L, seen straight on · right: along L\'s line, from S');
     tline(ctx,O,[1,0],-0.2,1.32,COL.xP,2.2);tline(ctx,O,[LP[0],LP[1]],-0.15,1.05,COL.L,2.2);tri(ctx,O,[[0,0],X,F],'rgba(132,204,22,0.16)','#bef264');tri(ctx,O,[[0,0],Xp,Fp],'rgba(132,204,22,0.55)',COL.xP);
-    corner2(ctx,O,Fp,[-LP[0],-LP[1]],unit2(Xp[0]-Fp[0],Xp[1]-Fp[1]),9);corner2(ctx,O,F,[-LP[0],-LP[1]],unit2(X[0]-F[0],X[1]-F[1]),10);arrow2(ctx,O,[0,0],LP,COL.L);arrow2(ctx,O,[0,0],Xp,COL.xP,3.6);
+    corner2(ctx,O,Fp,[-LP[0],-LP[1]],unit2(Xp[0]-Fp[0],Xp[1]-Fp[1]),9);corner2(ctx,O,F,[-LP[0],-LP[1]],unit2(X[0]-F[0],X[1]-F[1]),10);arrow2(ctx,O,[0,0],LP,COL.L);arrow2(ctx,O,[0,0],Xp,COL.xP,3.6);cornerAtS(ctx,O,0,Math.atan2(LP[1],LP[0]),24,'',0,0,st,"<b>The corner at S</b>: between the x line and L's line.<br>Both lime triangles have it, and both have a square corner, so they have the same shape.");
     const q=(p,dx,dy,t,al='left',col=COL.ink,sz=14)=>{const a=P2(O,p);plate(ctx,t,a[0]+dx,a[1]+dy,sz,al,col)};
-    q(X,0,17,'1','center',COL.xT,14);q(Xp,0,17,'0.36','center',COL.xT,14);q([0,0],-12,-14,'P','right');q(LP,8,-8,'L','left',COL.LT);q(F,-10,-8,'0.48','right',COL.xT,14);q(Fp,-10,-12,'0.1728','right',COL.xT,14);plate(ctx,'a walk of 1 → 0.48 along L\'s line',396,112,13,'right',COL.xT);plate(ctx,'a walk of 0.36 → 0.1728 along L\'s line',396,140,13,'right',COL.xT);
-    Ptip(O);dot2(st,O,Xp,COL.xP,"<b>The end of N's x part</b>: a walk of 0.36 along x.",'end of the x part');dot2(st,O,X,'#bef264','<b>X</b>: the end of a walk of 1 along x.','X');dot2(st,O,Fp,COL.xP,"<b>F₁</b>: 0.36 × 0.48 = 0.1728 along L's line.",'F₁');dot2(st,O,F,'#bef264',"<b>J</b>: 0.48 along L's line (Step 6).",'J');
-    movesPic(ctx,boardRows(1,Object.assign({st},rowsAt)));return}
-  if(s===7){const O={x:172,y:150,S:128},LP=[-0.60,0.80],Y=[1,0],F=[-0.60*LP[0],-0.60*LP[1]],Yp=[0.48,0],Fp=[-0.288*LP[0],-0.288*LP[1]],G=[-0.60,0];flatTitle(ctx,'coordinates: a plane, board units · the y line and L, seen straight on · right: along L\'s line, from P');
+    q(X,0,17,'1','center',COL.xT,14);q(Xp,0,17,'0.302','center',COL.xT,14);q([0,0],-12,-14,'S','right');q(LP,8,-8,'L','left',COL.LT);q(F,-10,-8,'0.48','right',COL.xT,14);q(Fp,-10,-12,fx(MX),'right',COL.xT,14);plate(ctx,'dark arc: the corner at S, in both',396,84,13,'right','#0f172a');plate(ctx,'a walk of 1 → 0.48 along L\'s line',396,112,13,'right',COL.xT);plate(ctx,`a walk of 0.302 → ${fx(MX)} along L's line`,396,140,13,'right',COL.xT);
+    Ptip(O);dot2(st,O,Xp,COL.xP,"<b>The end of N's x part</b>: a walk of 0.302 along x.",'end of the x part');dot2(st,O,X,'#bef264','<b>X</b>: the end of a walk of 1 along x.','X');dot2(st,O,Fp,COL.xP,`<b>F₁</b>: 0.302 × 0.48 = ${fx(MX)} along L's line.`,'F₁');dot2(st,O,F,'#bef264',"<b>J</b>: 0.48 along L's line (Step 6).",'J');
+    movesPic(ctx,kRows(1,Object.assign({st},rowsAt)));return}
+  if(s===7){const O={x:172,y:150,S:128},LP=[-0.60,0.80],Y=[1,0],F=[-0.60*LP[0],-0.60*LP[1]],Yp=[NK[1],0],Fp=[MY*LP[0],MY*LP[1]],G=[-0.60,0];flatTitle(ctx,'coordinates: a plane, arrow units · the y line and L, seen straight on · right: along L\'s line, from S');
     tline(ctx,O,[1,0],-0.95,1.25,COL.yP,2.2);tline(ctx,O,[LP[0],LP[1]],-1.0,1.1,COL.L,2.2);tri(ctx,O,[[0,0],Y,F],'rgba(251,146,60,0.16)','#fed7aa');tri(ctx,O,[[0,0],Yp,Fp],'rgba(251,146,60,0.55)',COL.yP);tri(ctx,O,[[0,0],LP,G],'rgba(250,204,21,0.42)','#ca8a04');
     corner2(ctx,O,Fp,LP,unit2(Yp[0]-Fp[0],Yp[1]-Fp[1]),8);corner2(ctx,O,G,[1,0],[0,1],9);arrow2(ctx,O,[0,0],LP,COL.L);arrow2(ctx,O,[0,0],Yp,COL.yP,3.6);
     const q=(p,dx,dy,t,al='left',col=COL.ink,sz=14)=>{const a=P2(O,p);plate(ctx,t,a[0]+dx,a[1]+dy,sz,al,col)};
-    q(LP,10,-6,'L','left',COL.LT);q(G,-4,18,"−0.60: L's y part",'center',COL.LT,14);q(Y,0,-16,'1','center',COL.yT,14);q(Yp,0,-16,'0.48','center',COL.yT,14);q(Fp,12,16,'−0.288: behind P','left',COL.yT,14);q([0,0],-12,-14,'P','right');plate(ctx,'along the y line: walks of 1 and of 0.48',8,cv.height-16,13,'left',COL.yT);
-    Ptip(O);dot2(st,O,Yp,COL.yP,"<b>The end of the copy of N's y part</b>: a walk of 0.48 along y, from P.",'end of the copy');dot2(st,O,Fp,COL.yP,"<b>Where the line from the end of the copy meets L's line</b><br>0.48 × (−0.60) = −0.288: behind P.",'end of the move');dot2(st,O,LP,COL.L,'<b>The tip of L</b>, 1 from P.','tip of L');dot2(st,O,G,COL.L,"<b>Where the line from the tip of L meets the y line</b><br>−0.60 from P: L's y part.",'L\'s y part');
-    movesPic(ctx,boardRows(2,Object.assign({st},rowsAt)));return}
-  if(s===8){const O={x:70,y:276,S:222},h=Math.hypot(0.48,0.60),LP=[h,0.64],T=[0,1],F=[0.64*LP[0],0.64*LP[1]],Tp=[0,0.80],Fp=[0.512*LP[0],0.512*LP[1]],G=[0,0.64];flatTitle(ctx,'coordinates: a plane, board units · the height line and L, seen straight on · right: along L\'s line, from P');
+    q(LP,10,-6,'L','left',COL.LT);q(G,-4,18,"−0.60: L's y part",'center',COL.LT,14);q(Y,0,-16,'1','center',COL.yT,14);q(Yp,0,-16,'0.402','center',COL.yT,14);q(Fp,0,28,`${fx(MY)}: on the minus side of S`,'center',COL.yT,14);q([0,0],-12,-14,'S','right');plate(ctx,'along the y line: walks of 1 and of 0.402',8,cv.height-16,13,'left',COL.yT);
+    Ptip(O);dot2(st,O,Yp,COL.yP,"<b>The end of the copy of N's y part</b>: a walk of 0.402 along y, from S.",'end of the copy');dot2(st,O,Fp,COL.yP,`<b>Where the line from the end of the copy meets L's line</b><br>0.402 × (−0.60) = ${fx(MY)}: on the minus side of S.`,'end of the move');dot2(st,O,LP,COL.L,'<b>The tip of L</b>, 1 from S.','tip of L');dot2(st,O,G,COL.L,"<b>Where the line from the tip of L meets the y line</b><br>−0.60 from S: L's y part.",'L\'s y part');
+    movesPic(ctx,kRows(2,Object.assign({st},rowsAt)));return}
+  if(s===8){const O={x:70,y:276,S:222},h=Math.hypot(0.48,0.60),LP=[h,0.64],T=[0,1],F=[0.64*LP[0],0.64*LP[1]],Tp=[0,NK[2]],Fp=[MH*LP[0],MH*LP[1]],G=[0,0.64];flatTitle(ctx,'coordinates: a plane, arrow units · the height line and L, seen straight on · right: along L\'s line, from S');
     tline(ctx,O,[0,1],-0.05,1.1,COL.hP,2.2);tline(ctx,O,[LP[0],LP[1]],-0.1,1.28,COL.L,2.2);tri(ctx,O,[[0,0],T,F],'rgba(56,189,248,0.14)','#bae6fd');tri(ctx,O,[[0,0],Tp,Fp],'rgba(56,189,248,0.5)',COL.hP);tri(ctx,O,[[0,0],LP,G],'rgba(250,204,21,0.28)','#ca8a04');
     corner2(ctx,O,G,[0,-1],[1,0],9);corner2(ctx,O,Fp,[-LP[0],-LP[1]],unit2(Tp[0]-Fp[0],Tp[1]-Fp[1]),9);arrow2(ctx,O,[0,0],LP,COL.L);arrow2(ctx,O,[0,0],Tp,COL.hP,3.6);
     const q=(p,dx,dy,t,al='left',col=COL.ink,sz=14)=>{const a=P2(O,p);plate(ctx,t,a[0]+dx,a[1]+dy,sz,al,col)};
-    q(LP,8,-10,'L','left',COL.LT);q(G,-8,0,'0.64','right',COL.LT,14);q(Tp,-8,0,'0.80','right',COL.hT,14);q(T,10,4,'walk of 1 up','left',COL.hT,14);q(Fp,12,14,'0.512','left',COL.hT,14);q([0,0],-10,-14,'P','right');
-    Ptip(O);dot2(st,O,Tp,COL.hP,"<b>The end of the copy of N's height part</b>: a walk of 0.80 up, from P.",'end of the copy');dot2(st,O,Fp,COL.hP,"<b>Where the line from the end of the copy meets L's line</b><br>0.80 × 0.64 = 0.512.",'end of the move');dot2(st,O,LP,COL.L,'<b>The tip of L</b>, 1 from P.','tip of L');dot2(st,O,G,COL.L,"<b>Where the line from the tip of L meets the height line</b><br>0.64 from P: L's height part.",'L\'s height part');
-    movesPic(ctx,boardRows(3,Object.assign({st},rowsAt)));return}
+    q(LP,8,-10,'L','left',COL.LT);q(G,-8,0,'0.64','right',COL.LT,14);q(Tp,-8,0,'0.864','right',COL.hT,14);q(T,10,4,'walk of 1 up','left',COL.hT,14);q(Fp,12,14,fx(MH),'left',COL.hT,14);q([0,0],-10,-14,'S','right');
+    Ptip(O);dot2(st,O,Tp,COL.hP,"<b>The end of the copy of N's height part</b>: a walk of 0.864 up, from S.",'end of the copy');dot2(st,O,Fp,COL.hP,`<b>Where the line from the end of the copy meets L's line</b><br>0.864 × 0.64 = ${fx(MH)}.`,'end of the move');dot2(st,O,LP,COL.L,'<b>The tip of L</b>, 1 from S.','tip of L');dot2(st,O,G,COL.L,"<b>Where the line from the tip of L meets the height line</b><br>0.64 from S: L's height part.",'L\'s height part');
+    movesPic(ctx,kRows(3,Object.assign({st},rowsAt)));return}
   /* Step 10 */
-  flatTitle(ctx,"coordinates: along L's line, board units, from P · N's part × L's part, one line per part");
-  movesPic(ctx,{x:8,y:44,w:744,rowH:60,titleW:110,size:14,st,range:[-0.25,0.55],rows:[{name:'x parts',color:COL.xP,t:COL.xT,val:0.1728,text:'0.36 × 0.48 = 0.1728'},{name:'y parts',color:COL.yP,t:COL.yT,val:-0.288,text:'0.48 × (−0.60) = −0.288'},{name:'height parts',color:COL.hP,t:COL.hT,val:0.512,text:'0.80 × 0.64 = 0.512'},{name:'dot(N, L)',t:COL.alongT,total:true,val:0.3968,text:'0.3968'}]})
+  flatTitle(ctx,"coordinates: along L's line, from S · N's part × L's part, one line per part");
+  movesPic(ctx,{x:8,y:44,w:744,rowH:60,titleW:110,size:14,st,start:'S',range:[-0.25,0.65],rows:[{name:'x parts',color:COL.xP,t:COL.xT,val:MX,text:`0.302 × 0.48 = ${fx(MX)}`},{name:'y parts',color:COL.yP,t:COL.yT,val:MY,text:`0.402 × (−0.60) = ${fx(MY)}`},{name:'height parts',color:COL.hP,t:COL.hT,val:MH,text:`0.864 × 0.64 = ${fx(MH)}`},{name:'dot(N, L)',t:COL.alongT,total:true,val:DK,text:fx(DK)}]})
 }
 
+function step2Cap(){const ax=AXES[line2],goes=['along x','along y','up'][line2],runs=['along x','along y, toward the bottom of the picture','straight up'][line2],colr=['lime','orange','blue'][line2],v=fx(ax.v);
+  return `<b>Step 2 · N's parts are three such numbers.</b><ul class="capl"><li>${ax.part}, ${v}, says how far N goes ${goes}.</li><li>The ${colr} line is the <b>${ax.name}</b>: through S, ${runs}.</li><li>${line2===2?'The height line stands straight up from the floor.':`The ${ax.name} is level: parallel to the floor, at S's height.`}</li><li>Draw a line from the <b>tip of N</b> (its end with the arrowhead) to the ${ax.name}, at a square corner to the ${ax.name}.</li><li>That line meets the ${ax.name} at G, ${v} from S.</li><li>So ${ax.part} is the distance from S to G.</li><li>The buttons <b>x line</b>, <b>y line</b> and <b>height line</b> give N's three parts: 0.302, 0.402 and 0.864.</li><li>Below, seen straight on: the <b>plane</b> (a flat surface without edges) that holds N and the ${ax.name}.</li><li>An arrow and a line from one point always lie in one plane.</li><li>The button <b>Straight at the plane</b> turns the 3D picture to that plane.</li></ul>`}
 function ideaPanel(){
   const caps=[
-  `<b>Step 1 · Two arrows from one point.</b><ul class="capl"><li>The blue board is the tilted board of Lesson 10.3, with P in its middle.</li><li>Coordinates: board units, counted from P; 1 board grid square = 1 unit.</li><li><b>N</b> is the board's unit normal: (0.36, 0.48, 0.80). <button class="info" data-tip="nBoard" aria-label="Where N comes from">ⓘ</button></li><li>New arrow: <b>L</b>, the direction toward a light.</li><li>L = (0.48, −0.60, 0.64): right, toward the top of the picture, and up.</li><li>L is a chosen direction: Section 2 lets you drag it.</li><li>Both arrows are 1 long. <button class="info" data-tip="lenCheck" aria-label="The two lengths">ⓘ</button></li><li>The question of this lesson: <b>how much do N and L point the same way?</b></li><li>Why one number? Lesson 10.5 makes a pixel brighter when N points toward a light.</li></ul>`,
-  `<b>Step 2 · You already know three such numbers.</b><ul class="capl"><li>N's x part, 0.36, says how far N goes along the x direction.</li><li>The lime line is the <b>x line</b>: through P, along x.</li><li>The x line is level, so it leaves the tilted board.</li><li>Draw a line from the tip of N to the x line, at a square corner to the x line.</li><li>That line meets the x line at G, 0.36 from P.</li><li>So N's x part is the distance from P to G.</li><li>The y part and the height part say the same for y and for height.</li><li>Below, seen straight on: the <b>plane</b> (a flat surface without edges) that holds N and the x line.</li><li>Two arrows from one point always lie in one plane.</li><li>The button <b>Straight at the plane</b> turns the 3D picture to that plane.</li></ul>`,
-  `<b>Step 3 · The same question for L: the dot product.</b><ul class="capl"><li>Use <b>L's line</b> instead of the x line: the yellow line through P, along L.</li><li>Draw a line from the tip of N to L's line, at a square corner to L's line.</li><li>That line meets L's line at F.</li><li>The ruler on L's line reads about 0.40 from P to F.</li><li>So N goes about 0.40 along L.</li><li>This distance from P to F is the <b>dot product</b> of N and L, written <b>dot(N, L)</b>.</li><li>So dot(N, L) says how far N goes along L, as 0.36 says how far N goes along x.</li><li>Steps 5–10 compute dot(N, L) exactly from the parts.</li></ul>`,
-  `<b>Step 4 · What the number says.</b><ul class="capl"><li>Drag the tip of L in the picture below, or press a button.</li><li>L stays 1 long.</li><li>The more N and L point the same way, the larger the number.</li><li>Same direction as N: F is the tip of N, so the number is <b>1</b>.</li><li>A square corner with N: F is P, so the number is <b>0</b>.</li><li>Opposite to N: F lies 1 behind P, so the number is <b>−1</b>.</li><li>Minus means: F lies behind P, on the side L does not point to.</li><li>Why never past 1 or −1? P, F and the tip of N form a right triangle.<ul><li>N, 1 long, is the long side.</li><li>P to F is a shorter side. <button class="info" data-tip="cosName" aria-label="Another name for this number">ⓘ</button></li></ul></li></ul>`,
-  `<b>Step 5 · A GPU has numbers, no picture.</b><ul class="capl"><li>The GPU knows the three parts of N and the three parts of L.</li><li>The GPU cannot draw a line from the tip of N.</li><li>So walk to the tip of N along its x part, its y part and its height part.</li><li>At each stop, draw a line to L's line, at a square corner.</li><li>Those lines meet L's line at F₁, F₂ and F₃.</li><li>So each part moves you along L's line.</li><li>Below: the three moves, one per line.</li><li>The last stop is the tip of N, so F₃ is the F of Step 3.</li><li>What we need: how far does each part move you along L's line?</li></ul>`,
-  `<b>Step 6 · A walk of 1 along x moves you as far as L's x part.</b><ul class="capl"><li>Below: the plane that holds the x line and L.</li><li>Walk 1 along x, from P to X.</li><li>A line from X meets L's line at J, so the walk moves you from P to J: “?”.</li><li>The yellow triangle goes from the tip of L to Q on the x line.</li><li>The side from P to Q is L's x part: 0.48 (Step 2).</li><li>Both triangles have a square corner and a long side of 1.</li><li>Move the <b>flip</b> slider: the yellow triangle flips over the gray line.</li><li>The flip swaps the x line and L's line, so the flip swaps X and the tip of L.</li><li>The yellow triangle lands exactly on the lime triangle.</li><li>So “?” = 0.48.</li></ul>`,
-  `<b>Step 7 · N's x part is a shorter walk.</b><ul class="capl"><li>N's x part is a walk of 0.36 along x, not of 1.</li><li>The two lime triangles below have the same shape.</li><li>So 0.36 times as far along x → 0.36 times as far along L's line.</li><li>N's x part × L's x part = 0.36 × 0.48 = <b>0.1728</b>.</li><li>Plus: this move goes the way L points.</li><li>Right picture: the first line now has its number.</li></ul>`,
-  `<b>Step 8 · N's y part moves you backward.</b><ul class="capl"><li>The y part starts where the x part ended.</li><li>That start changes nothing: a copy of the y part from P moves you the same.</li><li>Why? Slide a part without turning it: both of its ends shift equally along L's line.</li><li>The same flip works with the y line.</li><li>So a walk of 1 along y moves you as far as L's y part, −0.60.</li><li>Why minus? The walk goes toward the bottom of the picture, L toward the top.</li><li>So the line from the walk's end meets L's line behind P.</li><li>N's y part × L's y part = 0.48 × (−0.60) = <b>−0.288</b>.</li><li>N's y part 0.48 and L's x part 0.48 are two numbers that only happen to match.</li></ul>`,
-  `<b>Step 9 · N's height part.</b><ul class="capl"><li>The same flip works with the height line.</li><li>So a walk of 1 up moves you as far as L's height part, 0.64.</li><li>N's height part × L's height part = 0.80 × 0.64 = <b>0.512</b>.</li><li>The height part ends at the tip of N, so the walk is done.</li></ul>`,
-  `<b>Step 10 · Add the three moves.</b><ul class="capl"><li>0.1728 + (−0.288) = −0.1152.</li><li>−0.1152 + 0.512 = <b>0.3968</b>.</li><li>That is the “about 0.40” of Step 3, now exact.</li><li>So <b>dot(N, L) = N's x part × L's x part + N's y part × L's y part + N's height part × L's height part</b>.</li><li>So the GPU needs three multiplications and two additions, no picture and no angle.</li><li>Why “dot”? Math books write the product with a dot: N · L. <button class="info" data-tip="dotName" aria-label="Where you saw this before">ⓘ</button></li></ul>`
+  `<b>Step 1 · Two arrows from one point.</b><ul class="capl"><li>The violet curves are the glass of Lessons 10.1–10.3, zoomed in at the pixel <b>K = (0.62, 0.66)</b> in UV.</li><li>Why K? K is on the rim, and there none of N's three parts is 0.</li><li><b>S</b> is the glass above K: (0.62, 0.66, 0.0866) in UV.</li><li><b>N</b> is the unit normal at K: (0.302, 0.402, 0.864). <button class="info" data-tip="nK" aria-label="How N at K is calculated">ⓘ</button></li><li>New arrow: <b>L</b>, the direction toward a light: (0.48, −0.60, 0.64): right, toward the top of the picture, and up.</li><li>L is chosen: Section 2 lets you drag it.</li><li>Both arrows start at S and are 1 long. <button class="info" data-tip="lenCheck" aria-label="The two lengths">ⓘ</button></li><li>The picture draws 1 as 0.10 UV: the arrow ruler, as in Lesson 10.3.</li><li>The question of this lesson: <b>how much do N and L point the same way?</b></li><li>Why one number? Lesson 10.5 makes a pixel brighter when N points toward a light.</li></ul>`,
+  step2Cap(),
+  `<b>Step 3 · The same question for L: the dot product.</b><ul class="capl"><li>Use <b>L's line</b> instead of the x line: the yellow line through S, along L.</li><li>Draw a line from the tip of N to L's line, at a square corner to L's line.</li><li>That line meets L's line at F.</li><li>L's line has a ruler: 0 at S, plus on the side L points to, minus on the other side.</li><li>The ruler reads about 0.46 at F, so N goes about 0.46 along L.</li><li>This distance from S to F is the <b>dot product</b> of N and L, written <b>dot(N, L)</b>.</li><li>So dot(N, L) says how far N goes along L, as 0.302 says how far N goes along x.</li><li>Steps 5–10 compute dot(N, L) from the parts.</li></ul>`,
+  `<b>Step 4 · What the number says.</b><ul class="capl"><li>Drag the tip of L in the picture below, or press a button.</li><li>L stays 1 long, and L's line turns with L.</li><li>The more N and L point the same way, the larger the number.</li><li>Same direction as N: L's line runs through the tip of N, so F is at the tip of N: the number is <b>1</b>.</li><li>A square corner with N: F is at S, so the number is <b>0</b>.</li><li>Opposite to N: F is at the tip of N again, now 1 on the minus side: the number is <b>−1</b>.</li><li>Minus means: F is on the minus side of S, the side L does not point to.</li><li>Why never past 1 or −1? S, F and the tip of N form a right triangle.<ul><li>N, 1 long, is the long side.</li><li>S to F is a shorter side. <button class="info" data-tip="cosName" aria-label="Another name for this number">ⓘ</button></li></ul></li></ul>`,
+  `<b>Step 5 · A GPU has numbers, no picture.</b><ul class="capl"><li>The GPU knows the three parts of N and the three parts of L.</li><li>The GPU cannot draw a line from the tip of N.</li><li>So walk from S to the tip of N along its x part, its y part and its height part.</li><li>At each stop, draw a line to L's line, at a square corner.</li><li>Those lines meet L's line at F₁, F₂ and F₃.</li><li>So each part moves you along L's line.</li><li>Below: the three moves, one per line.</li><li>The last stop is the tip of N, so F₃ is the F of Step 3.</li><li>What we need: how far does each part move you along L's line?</li></ul>`,
+  `<b>Step 6 · A walk of 1 along x moves you as far as L's x part.</b><ul class="capl"><li>Below: the plane that holds the x line and L.</li><li>Walk 1 along x, from S to X.</li><li>A line from X meets L's line at J, so the walk moves you from S to J: “?”.</li><li>The yellow triangle goes from the tip of L to Q on the x line.</li><li>The side from S to Q is L's x part: 0.48 (Step 2).</li><li>Both have a square corner, a long side of 1, and the same corner at S (the arc).</li><li>Move the <b>flip</b> slider: the yellow triangle flips over the gray line.</li><li>The flip swaps the x line and L's line, so the flip swaps X and the tip of L.</li><li>The yellow triangle lands exactly on the lime triangle.</li><li>So “?” = 0.48.</li></ul>`,
+  `<b>Step 7 · N's x part is a shorter walk.</b><ul class="capl"><li>N's x part is a walk of 0.302 along x, not of 1.</li><li>The two lime triangles have the same shape: a square corner and the same corner at S.</li><li>So 0.302 times as far along x → 0.302 times as far along L's line.</li><li>N's x part × L's x part = 0.302 × 0.48 = <b>${fx(MX)}</b>.</li><li>Plus: this move goes the way L points.</li><li>Right picture: the first line now has its number.</li></ul>`,
+  `<b>Step 8 · N's y part moves you toward the minus side.</b><ul class="capl"><li>The y part starts where the x part ended.</li><li>That start changes nothing: a copy of the y part from S moves you the same.</li><li>Why? Slide a part without turning it: both of its ends shift equally along L's line.</li><li>The same flip works with the y line.</li><li>So a walk of 1 along y moves you as far as L's y part, −0.60.</li><li>Why minus? The walk goes toward the bottom of the picture, L toward the top.</li><li>So the line from the walk's end meets L's line on the minus side of S.</li><li>N's y part × L's y part = 0.402 × (−0.60) = <b>${fx(MY)}</b>.</li></ul>`,
+  `<b>Step 9 · N's height part.</b><ul class="capl"><li>The same flip works with the height line.</li><li>So a walk of 1 up moves you as far as L's height part, 0.64.</li><li>N's height part × L's height part = 0.864 × 0.64 = <b>${fx(MH)}</b>.</li><li>The height part ends at the tip of N, so the walk is done.</li></ul>`,
+  `<b>Step 10 · Add the three moves.</b><ul class="capl"><li>${fx(MX)} + (${fx(MY)}) = ${fx(M12)}.</li><li>${fx(M12)} + ${fx(MH)} = <b>${fx(DK)}</b>.</li><li>That is the “about 0.46” of Step 3, now from the parts.</li><li>So <b>dot(N, L) = N's x part × L's x part + N's y part × L's y part + N's height part × L's height part</b>.</li><li>So the GPU needs three multiplications and two additions, no picture and no angle.</li><li>Why “dot”? Math books write the product with a dot: N · L. <button class="info" data-tip="dotName" aria-label="Where you saw this before">ⓘ</button></li></ul>`
   ];
   $('ideaCap').innerHTML=caps[idea]+`<div style="margin-top:8px;color:#6b7280;font-size:13.5px">Step ${idea+1} of ${IDEA_N}</div>`;bindTips($('ideaCap'));
   [...$('ideaDots').children].forEach((b,i)=>b.classList.toggle('on',i===idea));$('ideaPrev').disabled=idea===0;$('ideaNext').disabled=idea===IDEA_N-1;
-  $('planeBtn').hidden=!PLANE_VIEW[idea];
+  document.querySelectorAll('#lineBtns .btn').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.ln)===line2)));
+  $('planeBtn').hidden=!planeView();
   drawIdeaFlat();
 }
-/* the view that looks straight at the plane of a step: yaw, pitch */
-const PLANE_VIEW=[null,[180,31],[-101,29.1],[-101,29.1],null,[0,43.2],[0,43.2],[-90,36.9],[51.3,0],null];
-function goIdea(i){idea=i;theta=0;flip=0;$('flipRange').value=0;$('flipV').textContent='0%';ideaPanel();ideaOrb.render()}
+/* the view that looks straight at the plane of a step: yaw, pitch (computed from the plane's two directions) */
+function planeView(){if(idea===1)return[[180,25],[-90,19.3],[-53.1,0]][line2];return[null,null,[-105.9,24.9],[-105.9,24.9],null,[0,43.2],[0,43.2],[-90,36.9],[51.3,0],null][idea]}
+function goIdea(i){idea=i;theta=0;flip=0;line2=0;$('flipRange').value=0;$('flipV').textContent='0%';ideaPanel();ideaOrb.render()}
 
-const ideaOrb=new Orbit3D($('ideaStage'),$('ideaCv'),{yaw:-60,pitch:20,zoom:1,scale:190,target:[0.05,0,0.12],dx:20,dy:6,coord:'board units, from P',draw:drawIdea3D});
+const ideaOrb=new Orbit3D($('ideaStage'),$('ideaCv'),{yaw:-60,pitch:20,zoom:1,scale:135,target:[0.1,0,0],dx:60,dy:10,compassPos:'tl',coord:'UV, zoomed in at K',draw:drawIdea3D});
 viewBar($('ideaBar'),ideaOrb,[]);
-{const b=document.createElement('button');b.className='btn';b.id='planeBtn';b.textContent='Straight at the plane';b.onclick=()=>{const v=PLANE_VIEW[idea];if(v)ideaOrb.setView(v[0],v[1])};$('ideaBar').insertBefore(b,$('ideaBar').firstChild)}
+{const b=document.createElement('button');b.className='btn';b.id='planeBtn';b.textContent='Straight at the plane';b.onclick=()=>{const v=planeView();if(v)ideaOrb.setView(v[0],v[1])};$('ideaBar').insertBefore(b,$('ideaBar').firstChild)}
 
 /* ================= the hero ================= */
 const hero3=new Orbit3D($('hero3Stage'),$('hero3'),{yaw:-60,pitch:24,scale:640,target:[0.5,0.5,0.04],dx:40,dy:0,coord:'UV (x, y and height)',compassPos:'bl',draw:o=>{const r=glassScene(o,TP,{w:[0.71,0.5],cuts:false,arrows:true});
@@ -742,8 +879,12 @@ function patchScene(o,w,op={}){const K=op.K||18,H0=heightAt(w[0],w[1],TP),c=op.c
   m.poly([[X0,Y0,0],[X1,Y0,0],[X1,Y1,0],[X0,Y1,0]],'rgba(241,245,249,0.95)','#94a3b8',1.2,-3);
   for(let i=1;i<Math.round(2*r/0.01);i++){const g=X0+i*0.01,h=Y0+i*0.01;m.seg([g,Y0,0],[g,Y1,0],'#e2e8f0',1,true,-2.5);m.seg([X0,h,0],[X1,h,0],'#e2e8f0',1,true,-2.5)}
   const rs=[],cs=[];for(let i=0;i<=60;i++){const x=X0+i*(X1-X0)/60,y=Y0+i*(Y1-Y0)/60;rs.push([x,w[1],heightAt(x,w[1],TP)]);cs.push([w[0],y,heightAt(w[0],y,TP)])}
-  m.seg([X0,w[1],0],[X1,w[1],0],COL.row,1.8,false,-1);m.seg([w[0],Y0,0],[w[0],Y1,0],COL.col,1.8,false,-1);m.path(rs,COL.row,3,false,1.2);m.path(cs,COL.col,3,false,1.2);
-  const d=Math.hypot(w[0]-0.5,w[1]-0.5);o.labels.push(ctx=>{plate(ctx,`floor: the screen, x ${f(X0)}–${f(X1)}, y ${f(Y0)}–${f(Y1)} (grid every 0.01)`,o.cv.width-8,o.cv.height-16,12,'right','#475569');plate(ctx,`arrow ruler: 1 = ${f(op.A||0.06)} UV`,o.cv.width-8,o.cv.height-42,12,'right','#475569');plate(ctx,`lime: the surface along y = ${f(w[1])} · orange: along x = ${f(w[0])}`,o.cv.width-8,14,12,'right','#475569')});
+  /* the two lines through w on the screen, and the glass above them: violet, the glass's color (lime and orange are the x and y parts) */
+  m.seg([X0,w[1],0],[X1,w[1],0],'#c4b5fd',1.8,false,-1);m.seg([w[0],Y0,0],[w[0],Y1,0],'#c4b5fd',1.8,false,-1);m.path(rs,COL.glass,3,false,1.2);m.path(cs,COL.glass,3,false,1.2);
+  if(op.more){m.label(`the line y = ${f(w[1])}`,[X1,w[1],0],8,10,'left','#6d28d9',12);m.label(`the line x = ${f(w[0])}`,[w[0],Y1,0],-12,-4,'right','#6d28d9',12)}
+  m.label(`the glass along the line y = ${f(w[1])}`,rs[0],-8,14,'right',COL.glassT,12);m.label(`the glass along the line x = ${f(w[0])}`,cs[0],-8,-12,'right',COL.glassT,12);
+  if(op.more){const dx=TP.c[0]-w[0],dy=TP.c[1]-w[1],dl=Math.hypot(dx,dy);if(dl>1e-6){const u=[dx/dl,dy/dl],k=Math.min(r*0.9,dl),A=[w[0]+u[0]*k*0.45,w[1]+u[1]*k*0.45,0],B=[w[0]+u[0]*k,w[1]+u[1]*k,0];m.arrow(A,B,'#a78bfa',2,-0.8);m.label('toward C = (0.50, 0.50)',B,-10,-12,'right','#6d28d9',12)}}
+  o.labels.push(ctx=>{plate(ctx,`floor: the screen, x ${f(X0)}–${f(X1)}, y ${f(Y0)}–${f(Y1)} (grid every 0.01)`,o.cv.width-8,o.cv.height-16,12,'right','#475569');if(op.A!==0)plate(ctx,`arrow ruler: 1 = ${f(op.A||0.06)} UV`,o.cv.width-8,o.cv.height-42,12,'right','#475569')});
   return{m,fn,K}}
 function postAt(p,w,name){const m=p.m,h=heightAt(w[0],w[1],TP),H=[w[0],w[1],h];m.seg([w[0],w[1],0],H,'#94a3b8',1.4,true,1.4);m.pt(name,[w[0],w[1],0],'#fff',`<b>${name} = ${pt(w[0],w[1])}</b> in UV, on the screen (height 0).`,name);m.label(name,[w[0],w[1],0],-10,14,'right',COL.ink,13);m.pt(name+'H',H,'#fff',`<b>The surface above ${name}</b> = (${f(w[0])}, ${f(w[1])}, ${f(h)}) in UV.`,'surface above '+name);return H}
 function arrowsAt(p,H,N,L,A,op={}){const m=p.m,tipN=add3(H,N,A),tipL=add3(H,L,A),t=dot3(N,L),F=add3(H,L,t*A),nm=op.name||'';
@@ -756,8 +897,8 @@ viewBar($('patchBar'),patchOrb,[]);
 
 /* ================= Section 4: the challenge ================= */
 let chUser=null;
-const chOrb=new Orbit3D($('chStage'),$('chCv'),{yaw:-60,pitch:20,zoom:1,scale:165,target:[0.05,0,0.12],dx:20,coord:'board units, from P',draw:o=>{board(o);lineL(o,L0);dropTo(o,NB,L0);arrL(o,L0);arrN(o);o.seg(P0,F3,COL.along,5.5,false,2.6);o.pt('F',F3,COL.along,"<b>F</b>: 0.3968 from P along L's line. dot(N, L) = 0.3968.",'F');o.label('F',F3,8,12,'left');
-  if(chUser!==null&&Number.isFinite(chUser)){const Y=scale3(L0,clamp(chUser,-1.3,1.3));o.seg(scale3(Y,0.02),scale3(Y,0.02),COL.you,1,true,3);o.pt('you',Y,COL.you,`<b>Your number</b> on the tilted board: ${f(chUser)}, measured from P along L's line.`,'your number');o.label(`your number: ${f(chUser)}`,Y,-14,-16,'right','#92400e',13)}}});
+const chOrb=new Orbit3D($('chStage'),$('chCv'),{yaw:-60,pitch:20,zoom:1,scale:110,target:[0.1,0,0],dx:60,dy:10,compassPos:'tl',coord:'UV, zoomed in at K',draw:o=>{const m=ideaScene(o);lineL(m,L0);dropTo(m,NK,L0);arrL(m,L0);arrN(m);m.seg(P0,F3,COL.along,5.5,false,2.6);m.pt('F',F3,COL.along,`<b>F</b>: ${fx(DK)} from S along L's line. dot(N, L) = ${fx(DK)}.`,'F');m.label('F',F3,8,12,'left');
+  if(chUser!==null&&Number.isFinite(chUser)){const Y=scale3(L0,clamp(chUser,-1.3,1.3));m.dot(Y,COL.you,6);m.pt('you',Y,COL.you,`<b>Your number</b> at K: ${fx(chUser)}, measured from S along L's line.`,'your number');m.label(`your number: ${fx(chUser)}`,Y,-14,-16,'right','#92400e',13)}}});
 viewBar($('chBar'),chOrb,[]);
 /* a small safe parser: numbers, N.x … L.z, + − * / ( ), dot(N, L). No eval. */
 function parseDot(src){let s=src.trim().replace(/;\s*$/,'').replace(/\s+/g,'');if(!s)return{err:'Write something after the equals sign.'};if(/[×]/.test(s))s=s.replace(/×/g,'*');s=s.replace(/−/g,'-');let i=0;const peek=()=>s[i];
@@ -770,17 +911,17 @@ function parseDot(src){let s=src.trim().replace(/;\s*$/,'').replace(/\s+/g,'');i
   function mul(){let v=prim();while(peek()==='*'||peek()==='/'){const op=peek();i++;const a=v,b=prim();v=op==='*'?e=>a(e)*b(e):e=>a(e)/b(e)}return v}
   function sum(){let v=mul();while(peek()==='+'||peek()==='-'){const op=peek();i++;const a=v,b=mul();v=op==='+'?e=>a(e)+b(e):e=>a(e)-b(e)}return v}
   try{const v=sum();if(i<s.length)fail(`The page stopped at “${s.slice(i,i+8)}”.`);return{fn:v}}catch(e){return{err:e.message}}}
-const CH_TESTS=[{N:NB,L:L0},{N:[0.605,0,0.796],L:L0},{N:[0,0,1],L:[0.6,0,0.8]},{N:[0.6,0,0.8],L:[-0.8,0,0.6]}];
+const CH_TESTS=[{N:NK,L:L0},{N:[0.605,0,0.796],L:L0},{N:[0,0,1],L:[0.6,0,0.8]},{N:[0.6,0,0.8],L:[-0.8,0,0.6]}];
 function chRun(){const p=parseDot($('chIn').value),out=$('chVerdict');chUser=null;if(p.err){out.className='verdict no';out.textContent=p.err;chOrb.render();return}
   const vals=CH_TESTS.map(t=>p.fn(t));chUser=vals[0];chOrb.render();
-  if(vals.every((v,i)=>Math.abs(v-dot3(CH_TESTS[i].N,CH_TESTS[i].L))<1e-6)){out.className='verdict ok';out.textContent=`Right. On the tilted board your line gives ${f(vals[0])}, the same as F. It also gives the right number for the other three pairs of arrows.`;return}
+  if(vals.every((v,i)=>Math.abs(v-dot3(CH_TESTS[i].N,CH_TESTS[i].L))<1e-6)){out.className='verdict ok';out.textContent=`Right. At K your line gives ${fx(vals[0])}, the same as F. It also gives the right number for the other three pairs of arrows.`;return}
   const e=CH_TESTS[0],V=[...e.N,...e.L],near=(a,b)=>Math.abs(a-b)<1e-6;out.className='verdict no';
   if(near(vals[0],V[0]*V[3]+V[1]*V[4]))out.textContent="Not yet. N's height part × L's height part is missing. Every part of N has a move along L's line.";
   else if(near(vals[0],V[0]+V[1]+V[2]+V[3]+V[4]+V[5]))out.textContent='Not yet. Your line adds all six numbers. Multiply each part of N by the same part of L, then add the three results.';
   else if(near(vals[0],(V[0]+V[3])*(V[1]+V[4])*(V[2]+V[5])))out.textContent='Not yet. Your line adds inside the brackets and multiplies outside. It is the other way around: multiply each pair, then add.';
   else if(near(vals[0],V[0]*V[4]+V[1]*V[5]+V[2]*V[3])||near(vals[0],V[0]*V[5]+V[1]*V[3]+V[2]*V[4]))out.textContent="Not yet. Your line mixes the parts. N's x part goes with L's x part, N's y part with L's y part, and N's height part with L's height part.";
   else if(near(vals[0],V[0]*V[3]-V[1]*V[4]+V[2]*V[5])||near(vals[0],V[0]*V[3]+V[1]*V[4]-V[2]*V[5]))out.textContent='Not yet. Use plus between the three results. A minus is already inside L.y: its value is −0.60.';
-  else out.textContent=`Not yet. On the tilted board your line gives ${f(vals[0])}; F is at 0.3968. Multiply each part of N by the same part of L, then add.`}
+  else out.textContent=`Not yet. At K your line gives ${fx(vals[0])}; F is at ${fx(DK)}. Multiply each part of N by the same part of L, then add.`}
 
 /* ================= Section 5: exercises ================= */
 const EXO={};
@@ -800,13 +941,16 @@ function exercises(){
       rows.push([`pixel ${n} = ${pt(u,v)}`,`${c.T.o(N[0])} × 0.48 = ${c.T.t(c.a)}`,`${c.T.o(N[1])} × (−0.60) = ${c.T.t(c.b)}`,`${c.T.o(N[2])} × 0.64 = ${c.T.t(c.c)}`,`${c.T.t(c.a)} + ${c.T.o(c.b)} = ${c.T.t(c.s)}`,`${c.T.t(c.s)} + ${c.T.o(c.c)} = <b>${c.T.t(c.d)}</b>`])}
     tbl($('ex2Table'),['Pixel','x parts','y parts','height parts','the first two added','dot(N, L)'],rows);
     const wc=[0.35,0.68];exOrb('ex2a',o=>{const p=patchScene(o,wc,{A:0.06}),H=postAt(p,wc,'c');p.m.label('H',H,-10,-8,'right',COL.ink,13);arrowsAt(p,H,normalAt(wc[0],wc[1],TP).N,L0,0.06)},{coord:'UV, zoomed in at pixel c'})}
-  /* Exercise 3 */
-  {const B=[0.80,-0.60,0];const draw=o=>{board(o);arrN(o);o.arrow(P0,B,COL.L,3.4,2.4);o.label('arrow b',B,-10,-10,'right',COL.LT,14);o.pt('btip',B,COL.L,'<b>The tip of arrow b</b> = (0.80, −0.60, 0) in board units, counted from P. 1 long. It lies on the board.','tip of b')};
-    exOrb('ex3q',draw,{yaw:-60,pitch:20,scale:150,target:[0.05,0,0.12],coord:'board units, from P'});
-    const cv=$('ex3a'),ctx=cv.getContext('2d'),st=$('ex3aStage'),O={x:280,y:262,S:225};ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);flatTitle(ctx,'coordinates: a plane, board units · the plane that holds b and N, seen straight on, b level');
-    tline(ctx,O,[1,0],-1.1,1.2,COL.L,2.2);corner2(ctx,O,[0,0],[1,0],[0,1],16);arrow2(ctx,O,[0,0],[1,0],COL.L);arrow2(ctx,O,[0,0],[0,1],COL.N);{const a=P2(O,[0,1]),b=P2(O,[1,0]),p=P2(O,[0,0]);plate(ctx,'N',a[0]+12,a[1]+2,14,'left','#be185d');plate(ctx,'arrow b',b[0]+6,b[1]-16,14,'left',COL.LT);plate(ctx,'P',p[0]-10,p[1]+16,14,'right');plate(ctx,'F is P: N goes 0 along b',p[0]+26,p[1]-60,14,'left',COL.alongT)}
-    dot2(st,O,[0,0],'#fff','<b>P</b>: here the line from the tip of N meets the line of b. So F is P.','P');dot2(st,O,[0,1],COL.N,'<b>The tip of N</b>, 1 from P.','tip of N');dot2(st,O,[1,0],COL.L,'<b>The tip of arrow b</b>, 1 from P.','tip of b');
-    movesCanvas('ex3m',[{name:'x parts',color:COL.xP,t:COL.xT,val:0.288,text:'0.36 × 0.80 = 0.288'},{name:'y parts',color:COL.yP,t:COL.yT,val:-0.288,text:'0.48 × (−0.60) = −0.288'},{name:'height parts',color:COL.hP,t:COL.hT,val:0,text:'0.80 × 0 = 0'},{name:'dot(N, b)',t:COL.alongT,total:true,val:0,text:'0.288 + (−0.288) = 0, 0 + 0 = 0'}],[-0.15,0.5],"along the line of b, from P · board units")}
+  /* Exercise 3: at W, N and an arrow that lies on the glass */
+  {const W3=[0.71,0.5],NW=[0.605,0,0.796],B=[0.796,0,-0.605];
+    const draw=o=>{const p=patchScene(o,W3,{A:0.06}),H=postAt(p,W3,'W'),m=mapped(o,q=>p.fn(add3(H,q,0.06)));p.m.label('H',H,-10,-8,'right',COL.ink,13);
+      m.arrow(P0,NW,COL.N,3.4,2.5);m.label('N',NW,10,-8,'left','#be185d',14);m.pt('Nt3',NW,COL.N,'<b>The tip of N at W</b>. N = (0.605, 0, 0.796), 1 long, drawn 0.06 UV long.','tip of N');
+      m.arrow(P0,B,COL.b,3.4,2.4);m.label('arrow b',B,10,12,'left',COL.bT,14);m.pt('bt3',B,COL.b,'<b>The tip of arrow b</b>. b = (0.796, 0, −0.605), 1 long, drawn 0.06 UV long.<br>It lies on the glass along the line y = 0.50.','tip of b')};
+    exOrb('ex3q',draw,{coord:'UV, zoomed in at W',compassPos:'tr'});
+    const cv=$('ex3a'),ctx=cv.getContext('2d'),st=$('ex3aStage'),O={x:280,y:262,S:225};ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);flatTitle(ctx,'coordinates: a plane, arrow units · the plane that holds b and N, seen straight on, b drawn left to right');
+    tline(ctx,O,[1,0],-1.1,1.2,COL.b,2.2);corner2(ctx,O,[0,0],[1,0],[0,1],16);arrow2(ctx,O,[0,0],[1,0],COL.b);arrow2(ctx,O,[0,0],[0,1],COL.N);{const a=P2(O,[0,1]),b=P2(O,[1,0]),p=P2(O,[0,0]);plate(ctx,'N',a[0]+12,a[1]+2,14,'left','#be185d');plate(ctx,'arrow b',b[0]+6,b[1]-16,14,'left',COL.bT);plate(ctx,'H',p[0]-10,p[1]+16,14,'right');plate(ctx,'F is at H: N goes 0 along b',p[0]+26,p[1]-60,14,'left',COL.alongT)}
+    dot2(st,O,[0,0],'#fff','<b>H</b>: the glass above W. Here the line from the tip of N meets the line of b, so F is at H.','H');dot2(st,O,[0,1],COL.N,'<b>The tip of N</b>, 1 from H.','tip of N');dot2(st,O,[1,0],COL.b,'<b>The tip of arrow b</b>, 1 from H.','tip of b');
+    movesCanvas('ex3m',[{name:'x parts',color:COL.xP,t:COL.xT,val:0.48158,text:'0.605 × 0.796 = 0.48158'},{name:'y parts',color:COL.yP,t:COL.yT,val:0,text:'0 × 0 = 0'},{name:'height parts',color:COL.hP,t:COL.hT,val:-0.48158,text:'0.796 × (−0.605) = −0.48158'},{name:'dot(N, b)',t:COL.alongT,total:true,val:0,text:'0.48158 + 0 = 0.48158, 0.48158 + (−0.48158) = 0'}],[-0.55,0.55],"along the line of b, from H · arrow units")}
   /* Exercise 4 */
   {const W4=[0.71,0.5],V4=[0.74,0.5],c4=[0.72,0.5],A=0.02;const draw=ans=>o=>{const p=patchScene(o,W4,{center:c4,K:22,r:0.05,A});
       for(const [nm,w] of [['W',W4],['V',V4]]){const q=normalAt(w[0],w[1],TP),c5=chainOf(w,TP,5),h=heightAt(w[0],w[1],TP),H=[w[0],w[1],h],m=p.m;m.seg([w[0],w[1],0],H,'#94a3b8',1.4,true,1.4);m.pt(nm,[w[0],w[1],0],'#fff',`<b>${nm} = ${pt(w[0],w[1])}</b> in UV, on the screen.`,nm);m.label(nm,[w[0],w[1],0],nm==='W'?-12:0,nm==='W'?-6:18,nm==='W'?'right':'center');
@@ -837,7 +981,8 @@ date: ${new Date().toISOString().slice(0,10)}
 
 - L: an arrow 1 long, the direction toward a light. Lesson's L = (0.48, −0.60, 0.64), a chosen direction, the same at every pixel.
 - dot(N, L), the dot product: how far N goes along L. Draw a line from the tip of N to L's line (the line through the start, along L), at a square corner to L's line.
-  It meets L's line at F. The distance from the start to F is the number. Minus: F lies behind the start.
+  It meets L's line at F. L's line has a ruler: 0 at the start, plus on the side L points to, minus on the other side.
+  The ruler's reading at F is the number. Minus: F is on the minus side, the side L does not point to.
 - Both arrows 1 long: same direction 1, square corner 0, opposite −1. Never past 1 or −1: N is the long side of a right triangle.
 - Why the formula: walk to the tip of N along its three parts. Each part moves you along L's line.
   A walk of 1 along x moves you as far as L's x part: flip the triangle over the line halfway between the x line and L.
@@ -845,8 +990,9 @@ date: ${new Date().toISOString().slice(0,10)}
 - New line:
     dot(N, L) = N's x part × L's x part + N's y part × L's y part + N's height part × L's height part
     gray      = dot(N, L) × 0.5 + 0.5      (display only)
-- Tilted board: N = (0.36, 0.48, 0.80): 0.36 × 0.48 = 0.1728; 0.48 × (−0.60) = −0.288; 0.80 × 0.64 = 0.512;
-  0.1728 + (−0.288) = −0.1152; −0.1152 + 0.512 = 0.3968.
+- Section 1, the glass at K = (0.62, 0.66), S above K: N = (0.302, 0.402, 0.864):
+  0.302 × 0.48 = 0.14496; 0.402 × (−0.60) = −0.2412; 0.864 × 0.64 = 0.55296;
+  0.14496 + (−0.2412) = −0.09624; −0.09624 + 0.55296 = 0.45672.
 - Teaching W = (0.71, 0.50), C = (0.50, 0.50), radius 0.25, bevel 0.10, step 0.01: N = (0.605, 0, 0.796):
   0.605 × 0.48 = 0.2904; 0 × (−0.60) = 0; 0.796 × 0.64 = 0.509; 0.2904 + 0 = 0.2904; 0.2904 + 0.509 = 0.7994; gray 0.8997.
   With every digit of N kept, the GPU gets 0.80.
@@ -858,10 +1004,73 @@ date: ${new Date().toISOString().slice(0,10)}
 - Next: Lesson 10.5 — Diffuse light: the glass gets brighter where dot(N, L) is high.`;
 $('recBtn').onclick=async()=>{let ok=false;try{if(navigator.clipboard){await navigator.clipboard.writeText(rec.value);ok=true}}catch(_){}if(!ok){rec.select();try{ok=document.execCommand('copy')}catch(_){}}$('recMsg').textContent=ok?'Copied.':'Select the text and copy it by hand.'}}
 
+
+/* ================= Section 8: your questions ================= */
+const f4=x=>x.toFixed(4);
+function hTip(u,v){return()=>{const T=new Trace(5),h=heightTrace(T,u,v,TP);return`<b>The glass height above (${f(u)}, ${f(v)})</b> in UV (Lesson 10.1).<br>C = (0.50, 0.50), radius 0.25, bevel 0.10.<pre>${T.take().join('\n')}</pre>Rounded to 4 decimals: <b>${f4(h)}</b>.`}}
+const qa1=new Orbit3D($('qa1Stage'),$('qa1'),{yaw:-60,pitch:20,zoom:1,scale:150,target:[0.1,0,-0.75],dx:-10,dy:55,compassPos:'tr',coord:'UV, zoomed in at K',draw:o=>{const p=patchScene(o,KP,{A:0,K:18,r:0.06,more:true}),m=p.m,H=S_UV[2];
+  m.seg([KP[0],KP[1],0],S_UV,'#94a3b8',1.4,true,1.4);m.label('K',[KP[0],KP[1],0],-10,14,'right');m.pt('K',[KP[0],KP[1],0],'#fff','<b>K = (0.62, 0.66)</b> in UV, on the screen (height 0).','K');
+  const xa=[0.545,KP[1],H],xb=[0.695,KP[1],H];m.seg(xa,xb,COL.xP,2.8,false,1.3);m.label('the x line: through S, level',xb,8,-14,'left',COL.xT,13);
+  for(const x of [0.58,0.66]){const hg=heightAt(x,KP[1],TP),top=Math.max(hg,H),L=x<0.62;m.seg([x,KP[1],0],[x,KP[1],top],'#94a3b8',1.4,true,1.4);m.dot([x,KP[1],H],COL.xP,6);m.dot([x,KP[1],hg],COL.glass,6);
+    m.label(`x line: ${f4(H)}`,[x,KP[1],H],L?-12:10,L?22:-14,L?'right':'left',COL.xT,13);m.label(`glass: ${f4(hg)}`,[x,KP[1],hg],L?-12:10,L?-30:14,L?'right':'left',COL.glassT,13);
+    m.pt('x'+x,[x,KP[1],H],COL.xP,`<b>The x line above (${f(x)}, 0.66)</b>: height ${f4(H)} in UV, S's height.`,'x line at x '+x);m.pt('g'+x,[x,KP[1],hg],COL.glass,`<b>The glass above (${f(x)}, 0.66)</b>: height ${f4(hg)} in UV.`,'glass at x '+x);m.pt('f'+x,[x,KP[1],0],'#fff',`<b>(${f(x)}, 0.66)</b> in UV, on the screen (height 0).`,'floor point '+x)}
+  m.dot(S_UV,'#fff',6);m.label('S',S_UV,-14,4,'right');m.pt('S',S_UV,'#fff',`<b>S</b>: the glass above K, (0.62, 0.66, ${f4(H)}) in UV. The x line goes through it.`,'S')}});
+viewBar($('qa1Bar'),qa1,[]);
+function qa1Table(){const H=S_UV[2],row=(x,cmp,tip)=>{const hg=heightAt(x,KP[1],TP);return`<tr><td class="f">${f(x)}</td><td class="f">${f4(H)}</td><td class="f">${f4(hg)}${tip?` <button class="info" data-tip="h${x}" aria-label="How this height is calculated">ⓘ</button>`:''}</td><td>${cmp}</td></tr>`};
+  $('qa1Table').innerHTML='<tr><th>x, on the line y = 0.66 (UV)</th><th>Height of the x line</th><th>Height of the glass</th><th>The glass is</th></tr>'+row(0.58,'above the x line',true)+row(0.62,'at S: the x line and the glass meet',false)+row(0.66,'below the x line',true);
+  TIPS['h0.58']=hTip(0.58,0.66);TIPS['h0.66']=hTip(0.66,0.66);bindTips($('qa1Table'))}
+const qa2=new Orbit3D($('qa2Stage'),$('qa2'),{yaw:-60,pitch:20,zoom:1,scale:115,target:[0.1,0,0],dx:60,dy:0,compassPos:'tl',coord:'UV, zoomed in at K',draw:o=>{const m=ideaScene(o);
+  const LAB=[[-4,16,'left',0],[8,14,'left',1],[12,-4,'left',1]],VAL=[[14,20,'left'],[10,22,'left'],[-14,10,'right']];
+  AXES.forEach((ax,i)=>{const ends=[scale3(ax.u,ax.ends[0]),scale3(ax.u,ax.ends[1])];m.seg(ends[0],ends[1],ax.col,2.2,false,1.2);const [dx,dy,al,e]=LAB[i];m.label(`the ${ax.name}`,ends[e],dx,dy,al,ax.t,13);
+    const G=dropTo(m,NK,ax.u);m.seg(P0,G,ax.col,6,false,2.2);const [vx,vy,va]=VAL[i];m.label(`${ax.part}: ${fx(ax.v)}`,G,vx,vy,va,ax.t,13);m.pt('G'+i,G,ax.col,`<b>Where the line from the tip of N meets the ${ax.name}</b>, at a square corner.<br>From S: ${fx(ax.v)}, ${ax.part}.`,'end of '+ax.part)});
+  arrN(m)}});
+viewBar($('qa2Bar'),qa2,[]);
+function qa3Draw(){const cv=$('qa3'),ctx=cv.getContext('2d'),st=$('qa3Stage');clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+  flatTitle(ctx,"coordinates: a plane, arrow units · the plane that holds N and L, seen straight on · N stays, L turns toward N");
+  const corner=[THN,40*DEG,15*DEG,0],names=["Frame 1 · the lesson's L","Frame 2 · L turned toward N","Frame 3 · L turned further","Frame 4 · L the same way as N"];
+  corner.forEach((c,i)=>{const x0=i*295,O={x:x0+125,y:255,S:110};if(i)thin(ctx,x0,40,x0,cv.height-8,'#e5e7eb',1.5);plate(ctx,names[i],x0+12,54,13,'left','#334155');
+    const r=drawNLPlane(ctx,O,THN-c,{a:-1.1,b:1.1,numbers:false,cs:10,st});plate(ctx,i===3?'F is at the tip of N: the number is 1':`F: about ${f2(r.t)}`,x0+12,cv.height-18,14,'left',COL.alongT)})}
+function qa4Draw(){const cv=$('qa4'),ctx=cv.getContext('2d'),st=$('qa4Stage');clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+  flatTitle(ctx,"coordinates: a plane, arrow units · the plane that holds N and L, seen straight on · the ruler on L's line: 0 at S");
+  [[0,"The lesson's L",'F reads about 0.46: the plus side'],[THN+Math.PI,'L opposite to N','F is at the tip of N and reads −1: the minus side']].forEach(([th,name,read],i)=>{const x0=i*590,O={x:x0+290,y:262,S:125};if(i)thin(ctx,x0,40,x0,cv.height-8,'#e5e7eb',1.5);plate(ctx,name,x0+12,54,14,'left','#334155');plate(ctx,read,x0+12,84,14,'left',COL.alongT);
+    drawNLPlane(ctx,O,th,{a:-1.2,b:1.2,sides:true,circle:true,st})})}
+function qa5Draw(){const cv=$('qa5'),ctx=cv.getContext('2d'),st=$('qa5Stage');clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+  flatTitle(ctx,"coordinates: a plane, arrow units · the plane that holds N and L, seen straight on · L turned");
+  const O={x:360,y:230,S:140},r=drawNLPlane(ctx,O,THN+2*Math.PI/3,{a:-1.25,b:1.25,sides:true,circle:true,st});
+  plate(ctx,`dot(N, L) = ${f2(r.t)}`,cv.width-10,48,18,'right',COL.alongT);plate(ctx,'F is on the minus side of S',cv.width-10,80,14,'right',COL.alongT);plate(ctx,'S to F: 0.5, on the minus side',r.fp[0]+12,r.fp[1]+52,14,'left',COL.alongT)}
+
+function qa6Draw(){const cv=$('qa6'),ctx=cv.getContext('2d'),st=$('qa6Stage');clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+  flatTitle(ctx,"coordinates: a plane, arrow units · the x line and L's line, seen straight on, the x line drawn left to right");
+  const LP=[0.48,Math.sqrt(1-0.48*0.48)],D=[0.8,0.6],X=[1,0],J=[0.48*LP[0],0.48*LP[1]],R=[0.8*D[0],0.8*D[1]],Q=[0.48,0];
+  {const O={x:80,y:350,S:300},q=(p,dx,dy,t,al='left',col=COL.ink,sz=14)=>{const a=P2(O,p);plate(ctx,t,a[0]+dx,a[1]+dy,sz,al,col)};thin(ctx,560,40,560,cv.height-8,'#e5e7eb',1.5);
+    plate(ctx,'Not enough: a square corner and a long side of 1',12,52,14,'left','#334155');
+    tline(ctx,O,[1,0],-0.12,1.2,COL.xP,2.2);tline(ctx,O,LP,-0.05,0.98,COL.L,2.2);tline(ctx,O,D,-0.05,1.04,'#64748b',2.2);
+    tri(ctx,O,[[0,0],X,J],'rgba(132,204,22,0.35)',COL.xP);tri(ctx,O,[[0,0],X,R],'rgba(148,163,184,0.30)','#475569');
+    corner2(ctx,O,J,[-LP[0],-LP[1]],unit2(X[0]-J[0],X[1]-J[1]),11);corner2(ctx,O,R,[-D[0],-D[1]],unit2(X[0]-R[0],X[1]-R[1]),11);
+    q([0,0],-10,-14,'S','right');q(X,8,-14,'X','left',COL.xT);q(J,-10,-10,'J','right');q(R,0,-18,'R','center');
+    q(scale3(LP,0.98),8,-6,"L's line",'left',COL.LT,13);q(scale3(D,1.04),8,-4,'another line through S','left','#334155',13);
+    q([0.5,0],0,20,'long side: 1, from S to X','center',COL.xT,13);q(scale3(J,0.5),-12,0,'0.48','right',COL.xT,13);q([(J[0]+1)/2,J[1]/2],-4,12,'0.877','center',COL.xT,13);
+    q(scale3(R,0.55),16,14,'0.8','center','#334155',13);q([(R[0]+1)/2,R[1]/2],14,-4,'0.6','left','#334155',13);
+    plate(ctx,'S, X, J: sides 1, 0.48, 0.877',548,cv.height-46,14,'right',COL.xT);plate(ctx,'S, X, R: sides 1, 0.8, 0.6',548,cv.height-18,14,'right','#334155');
+    dot2(st,O,[0,0],'#fff','<b>S</b>: the start of both triangles, the glass above K.','S');dot2(st,O,X,COL.xP,'<b>X</b>: the end of a walk of 1 along x, from S. The long side of both triangles.','X');
+    dot2(st,O,J,COL.xP,"<b>J</b>: where the line from X meets L's line at a square corner (Step 6). From S to J: 0.48.",'J');dot2(st,O,R,'#94a3b8','<b>R</b>: where the line from X meets another line through S, along (0.8, 0.6), at a square corner. From S to R: 0.8.','R')}
+  {const O={x:650,y:350,S:300},q=(p,dx,dy,t,al='left',col=COL.ink,sz=14)=>{const a=P2(O,p);plate(ctx,t,a[0]+dx,a[1]+dy,sz,al,col)};
+    plate(ctx,'The third fact: the same corner at S in both triangles',572,52,14,'left','#334155');
+    tline(ctx,O,[1,0],-0.12,1.2,COL.xP,2.2);tline(ctx,O,LP,-0.05,1.0,COL.L,2.2);
+    tri(ctx,O,[[0,0],X,J],'rgba(132,204,22,0.35)',COL.xP);tri(ctx,O,[[0,0],LP,Q],'rgba(250,204,21,0.30)','#ca8a04');
+    corner2(ctx,O,J,[-LP[0],-LP[1]],unit2(X[0]-J[0],X[1]-J[1]),11);corner2(ctx,O,Q,[-1,0],[0,1],11);arrow2(ctx,O,[0,0],LP,COL.L);
+    cornerAtS(ctx,O,0,Math.atan2(LP[1],LP[0]),52,'corner at S',22*DEG,100,st,CORNER_TIP);
+    q([0,0],-10,-14,'S','right');q(X,8,-14,'X','left',COL.xT);q(J,-10,-10,'J','right');q(Q,-6,18,'Q','right');q(LP,10,-8,'L','left',COL.LT);q([-0.12,0],0,18,'the x line','left',COL.xT,13);
+    plate(ctx,'lime: S, X, J · yellow: S, the tip of L, Q',572,cv.height-18,14,'left','#334155');
+    dot2(st,O,[0,0],'#fff','<b>S</b>: the start of both triangles.','S');dot2(st,O,X,COL.xP,'<b>X</b>: 1 from S along the x line.','X');dot2(st,O,LP,COL.L,"<b>The tip of L</b>: 1 from S along L's line.",'tip of L');
+    dot2(st,O,J,COL.xP,"<b>J</b>: the square corner of S, X, J, on L's line.",'J');dot2(st,O,Q,COL.L,'<b>Q</b>: the square corner of S, the tip of L, Q, on the x line.','Q')}}
+
 /* ================= reminders (ⓘ) ================= */
 const TIPS={
-  nBoard:'Lesson 10.3, Step 11: the tilted board has rawNormal = (0.45, 0.60, 1), 1.25 long.<pre>0.45 ÷ 1.25 = 0.36\n0.60 ÷ 1.25 = 0.48\n1 ÷ 1.25 = 0.80</pre>',
-  lenCheck:'Lesson 10.3: first the shadow, then the length.<pre>N:\nx part² = 0.36 × 0.36 = 0.1296\ny part² = 0.48 × 0.48 = 0.2304\nshadow² = 0.1296 + 0.2304 = 0.36\nheight part² = 0.80 × 0.80 = 0.64\nlength² = 0.36 + 0.64 = 1\nlength = √1 = 1\n\nL:\nx part² = 0.48 × 0.48 = 0.2304\ny part² = (−0.60) × (−0.60) = 0.36\nshadow² = 0.2304 + 0.36 = 0.5904\nheight part² = 0.64 × 0.64 = 0.4096\nlength² = 0.5904 + 0.4096 = 1\nlength = √1 = 1</pre>',
+  nK:()=>nTip('K',0.62,0.66)(),
+  q6:'<b>The other sides</b> (Lesson 9.1: long side² = one side² + the other side²). Both long sides are 1.<pre>S, X, J: S to J = 0.48 (Step 6)\n0.48 × 0.48 = 0.2304\n1 − 0.2304 = 0.7696\nJ to X = √0.7696 = 0.877\n\nS, X, R: S to R = 0.8 (Step 6 with the other line: its x part is 0.8)\n0.8 × 0.8 = 0.64\n1 − 0.64 = 0.36\nR to X = √0.36 = 0.6</pre>',
+  lenCheck:'Lesson 10.3: first the shadow, then the length.<pre>N:\nx part² = 0.302 × 0.302 = 0.091204\ny part² = 0.402 × 0.402 = 0.161604\nshadow² = 0.091204 + 0.161604 = 0.252808\nheight part² = 0.864 × 0.864 = 0.746496\nlength² = 0.252808 + 0.746496 = 0.999304\nlength = √0.999304 = 1.000 (3 decimals)\n\nL:\nx part² = 0.48 × 0.48 = 0.2304\ny part² = (−0.60) × (−0.60) = 0.36\nshadow² = 0.2304 + 0.36 = 0.5904\nheight part² = 0.64 × 0.64 = 0.4096\nlength² = 0.5904 + 0.4096 = 1\nlength = √1 = 1</pre>N\'s length² is 0.999304, not exactly 1, because its parts are rounded to 3 decimals.',
+  bW:'<b>Arrow b</b> is Lesson 10.3\'s x walk at W, made 1 long. The x walk follows the glass along the line y = 0.50: x part 1, height part slopeX = −0.7595.<pre>x part² = 1 × 1 = 1\nheight part² = (−0.7595) × (−0.7595) = 0.57684025\nlength² = 1 + 0.57684025 = 1.57684025\nlength = √1.57684025 = 1.256\nx part = 1 ÷ 1.256 = 0.796\nheight part = −0.7595 ÷ 1.256 = −0.605</pre>So b = (0.796, 0, −0.605). Dividing by the length keeps the direction (Lesson 9.10).',
   cosName:'Lesson 4.9 wrote the part of a 1-long arrow as cos(38°). For two arrows 1 long, dot(N, L) is the cos of the corner between them. This lesson does not need that name.',
   dotName:'Lesson 4.9 did this with two parts, inside its antialiasing chain: it multiplied and added, and named the result the dot product. This lesson did the same with three parts, and showed why it works.',
   glass:'<b>The glass</b> (Lessons 10.1–10.3)<br>C: the center. radius: the outline. bevel: the rim width, a chosen shape dial. step: the distance from W to each of its four neighbors, a chosen dial.',
@@ -876,12 +1085,13 @@ function bindTips(root){root.querySelectorAll('.info[data-tip]').forEach(b=>setT
   for(let i=0;i<IDEA_N;i++){const b=document.createElement('button');b.className='dot';b.setAttribute('aria-label','Step '+(i+1));b.onclick=()=>goIdea(i);$('ideaDots').appendChild(b)}
   $('ideaPrev').onclick=()=>{if(idea>0)goIdea(idea-1)};$('ideaNext').onclick=()=>{if(idea<IDEA_N-1)goIdea(idea+1)};
   $('flipRange').addEventListener('input',e=>{flip=Number(e.target.value);$('flipV').textContent=flip+'%';drawIdeaFlat()});
+  document.querySelectorAll('#lineBtns .btn').forEach(b=>b.onclick=()=>{line2=Number(b.dataset.ln);ideaPanel();ideaOrb.render()});
   document.querySelectorAll('#lBtns .btn').forEach(b=>b.onclick=()=>{const k=b.dataset.th;theta=k==='same'?THN:k==='square'?THN-Math.PI/2:k==='opp'?THN+Math.PI:0;drawIdeaFlat();ideaOrb.render()});
   $('dmHomeW').onclick=()=>{DM.w=[0.71,0.5];dmRefresh()};$('dmHomeL').onclick=()=>{DM.l=[0.48,-0.60];dmRefresh()};
   $('chBtn').onclick=chRun;$('chIn').addEventListener('keydown',e=>{if(e.key==='Enter')chRun()});
   bindTips(document);hero3.render();paintDotMap($('heroMap').getContext('2d'),L0);
   {const ctx=$('heroMap').getContext('2d');ring(ctx,220,220,RAD*440,COL.glass,1.8);plate(ctx,'coordinates: UV, from above · x →, y ↓',8,14,12,'left');plate(ctx,'W',0.71*440,0.5*440-20,13,'center');addPt($('heroMapStage'),0.71*440,0.5*440,'#fff','<b>W = (0.71, 0.50)</b> in UV, y down. Section 2 traces this pixel: dot(N, L) = 0.7994, gray 0.8997.','W',{small:true})}
-  goIdea(0);dmRefresh();chOrb.render();exercises();metalGoal();record();
+  goIdea(0);dmRefresh();chOrb.render();exercises();metalGoal();record();qa1.render();qa1Table();qa2.render();qa3Draw();qa4Draw();qa5Draw();qa6Draw();
 })();
 </script>
 </body>

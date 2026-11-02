@@ -40,10 +40,10 @@ Questions about lesson N.M, also:
 
 Generate lesson N.M, also:
 
-- `curriculum/liquid_glass_ios_curriculum.md`: the entries of N.M and its neighbors.
-- `curriculum/liquid_glass_ios_handoff.md`.
+- `curriculum/liquid_glass_ios_curriculum.md`: the entries of N.M and its neighbors, and N.M's type (`C`, `B` or `E`); for a `B` lesson, the lessons it joins.
+- `curriculum/liquid_glass_ios_handoff.md`: N.M's entry, which may name a source page, review items to fix and question cards to fold in.
 - the HTML of the lesson before N.M in curriculum order, and the chapter hub HTML.
-- iOS: the chapter screen (`ChapterNNScreen.swift`) and the explorer that N.M sits next to. The `@main` App / `LabHost` only if the route changes.
+- iOS, for `B` and `E` lessons only: the chapter screen (`ChapterNNScreen.swift`) and the explorer that N.M sits next to. The `@main` App / `LabHost` only if the route changes.
 - `course/glossary.html` (search) if N.M adds a term.
 - `FEEDBACK_LOG.md`: the newest 10 entries. They are the most recent mistakes to avoid.
 
@@ -73,14 +73,15 @@ I am an experienced software engineer. I am a total beginner in graphics, render
    - run `AGENTS.md` rule 24: name what failed; merge a prevention rule into `AGENTS.md` if the failure is general; add a `FEEDBACK_LOG.md` entry (newest first) with the failure → rule link;
    - update the lesson's section in `CURRENT_STATE.md` and its handoff entry if its contract or page shape changed;
    - re-check the changed parts: `AGENTS.md` rule 20 (cold read) and rule 21 (syntax and browser checks at 1920×1080); recompute every changed number.
+   - run the fresh review on the revised lesson (`AGENTS.md` rule 20, `tools/beginner-review/REVIEWER_PROMPT.md`) and fix every blocks and slows item;
 4. If the lesson is fine, only answer. Do not change files.
 5. Do not generate another lesson.
 
 ## 6. Generate job
 
-- Generate only the named lesson: HTML, iOS explorer, and the lesson's Metal exercise with its prepared calling code (`AGENTS.md` “Scope and files”).
-- Without the iOS lab or Xcode, say so before generating.
-- Before delivering, run `AGENTS.md` rules 20, 21 and 25.
+- Generate only the named lesson, by its type (`AGENTS.md` rule 18 and “Scope and files”): `C` → the HTML page only; `B` → HTML, the iOS explorer, and the Metal (or Swift) exercise with its prepared calling code; `E` → HTML and its Swift files.
+- Without the iOS lab or Xcode, say so before generating a `B` or `E` lesson.
+- Before delivering, run `AGENTS.md` rules 20 (with the fresh review), 21 and 25.
 - End with the progress line of `AGENTS.md` rule 22.
 
 ## 7. Delivery
@@ -97,4 +98,4 @@ I am an experienced software engineer. I am a total beginner in graphics, render
 - HTML lessons: one self-contained file each (inline CSS and JS, works from `file://`), desktop at 1920×1080, light theme only.
 - The Chapter 7 frost constants are frozen (`CURRENT_STATE.md`, “Frozen frost stack”).
 - Never use `ultraThinMaterial` or `glassEffect` as the glass implementation.
-- The plan has 216 lessons. Project files never store which lessons are complete.
+- The plan has 301 lessons. Project files never store which lessons are complete.
