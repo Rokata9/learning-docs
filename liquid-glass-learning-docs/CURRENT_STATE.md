@@ -26,7 +26,7 @@ Shader host: `LabOrange.metal` + `ShaderRect` (`colorEffect`). Lesson 9.10 explo
 
 HTML lessons: `course/chapters/chapter-NN/` for chapters 1–10 (all exist), one file per lesson, plus a chapter hub `lesson-[chapter-name].html` in each folder. The folder is the list; the curriculum gives the order. Do not copy a file list here: a copied list went stale (it skipped Chapters 2–8).
 
-Q&A companions: `chapter-09/lesson-09-10-qa.html`, `chapter-09/lesson-09-11-qa.html`. Side lesson (not counted): `course/shortcut/lesson-shortcut-safari-menu.html`.
+Q&A companions: `chapter-09/lesson-09-10-qa.html`, `chapter-09/lesson-09-11-qa.html`. Earlier versions and drafts are not kept as files: `course/archive/` was removed on 2026-11-03 at the learner's request, and the paths named below are read from git with `git show c42d7c0:liquid-glass-learning-docs/<path>`. Side lesson (not counted): `course/shortcut/lesson-shortcut-safari-menu.html`.
 
 ## Completed contracts — Lessons 9.1–9.6
 

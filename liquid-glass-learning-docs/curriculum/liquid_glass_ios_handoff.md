@@ -262,7 +262,7 @@ W = (0.71, 0.50) UV, N at W = (0.605, 0, 0.796): 0.605 × 0.48 = 0.2904; 0 × (�
 gray = dot(N, L) × 0.5 + 0.5     display only: the dot map
 ```
 
-**Source pages:**
+**Source pages** (the folder `course/archive/` was removed on 2026-11-03 at the learner's request; read a page with `git show c42d7c0:liquid-glass-learning-docs/course/archive/<file>`):
 - `course/archive/lesson-10-04-dot-product-2026-11-02.html`, Lesson 10.4 before the split (for Lessons 10.11–10.24);
 - `course/archive/lesson-10-04-arrow-part-draft-2026-11-03.html`, the one-page draft of the foot lesson (for Lessons 10.6–10.10). Its fresh review found five new ideas, so the learner split it in three on 2026-11-03; its review is `reviews/lesson-10-04-draft-beginner-review-2026-11-02.md` (draft items #1–#29, named “draft #” below);
 - `course/archive/lesson-10-05-spin-draft-2026-11-03.html`, the spin page before its Steps 4–5 moved out (for Lesson 10.7).
