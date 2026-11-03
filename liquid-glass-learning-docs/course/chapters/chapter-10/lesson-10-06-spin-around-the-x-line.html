@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 10.6 — A turn around the x line keeps a line on the wall</title>
+<link rel="icon" href="data:,">
+<style>
+  :root{--ink:#1f2937;--muted:#6b7280;--line:#d1d5db;--soft:#f6f7f9;--green:#059669;--indigo:#4338ca;--amber:#d97706;--blue:#1e40af;--red:#dc2626}
+  *{box-sizing:border-box}
+  body{margin:0;background:#fff;color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1600px;margin:0 auto;padding:0 24px 90px}
+  header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;border-bottom:1px solid var(--line);padding:14px 0}
+  header.top a,.navfoot a{color:var(--blue);text-decoration:none;font-size:14px}
+  header.top a:hover,.navfoot a:hover{text-decoration:underline}
+  .crumb,.sub{color:var(--muted);font-size:14px}
+  h1{font-size:27px;margin:20px 0 2px}h2{font-size:21px;margin:46px 0 8px;border-top:2px solid var(--line);padding-top:22px}
+  h2 .tag{display:block;font-size:13px;color:var(--muted);margin-bottom:2px;font-weight:600}
+  h3{font-size:16.5px;margin:26px 0 6px}p{font-size:15.5px;max-width:92ch;margin:8px 0}p.lead{font-size:17px;max-width:96ch}li{font-size:15.5px}
+  code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+  code{background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+  figure{margin:16px 0}canvas{display:block;border:1px solid var(--line);border-radius:8px;background:#fff}
+  figcaption{font-size:14px;color:#4b5563;max-width:100ch;margin-top:8px}.stage{position:relative}
+  .heroGrid{display:grid;grid-template-columns:760px 760px;gap:28px;align-items:start}
+  .grid3d{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start}
+  .ideaGrid{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start;margin-top:14px}.ideaCap{min-height:200px;margin-bottom:12px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .pair{display:grid;grid-template-columns:auto auto;gap:28px;justify-content:start;align-items:start}
+  .before{border:1px solid #a5b4fc;background:#eef2ff;border-radius:10px;padding:14px 18px;margin:20px 0}
+  .before h2{font-size:18px;border:0;margin:0 0 8px;padding:0}
+  .coords{border:1px solid #93c5fd;background:#eff6ff;border-radius:10px;padding:14px 18px;margin:20px 0}.coords h2{font-size:18px;border:0;margin:0 0 6px;padding:0}.coords p{font-size:14.5px}.coords table.trace td,.coords table.trace th{background:#fff;font-size:13.5px}.before p,.before li{font-size:14.5px}.before ul{margin:6px 0}
+  .info{display:inline-block;width:17px;height:17px;line-height:15px;border-radius:50%;border:1px solid var(--blue);color:var(--blue);background:#eef2ff;font-size:11px;text-align:center;cursor:pointer;padding:0;vertical-align:2px;font-family:inherit;margin-left:3px}
+  .info:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+  #tip{position:fixed;z-index:60;max-width:420px;max-height:calc(100vh - 20px);overflow:auto;background:#111827;color:#f9fafb;border-radius:8px;padding:10px 34px 10px 12px;font-size:13.5px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.28);display:none}
+  #tip.open{display:block}#tip.wide{max-width:600px}
+#tip.xwide{max-width:min(820px,calc(100vw - 20px))}
+#tip ul{margin:6px 0 0;padding-left:18px}#tip li{font-size:13.5px;margin:3px 0;line-height:1.4}#tip img{width:100%;display:block;border-radius:6px;margin-top:8px}
+#tip .tsec{color:#fde68a;font-weight:700;font-size:13px;margin:12px 0 0}
+#tip .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#tip .tgrid pre{font-size:11.5px}
+#tip .tnote{margin:10px 0 0}#tip .tclose{position:absolute;top:4px;right:6px;background:none;border:0;color:#9ca3af;font-size:15px;cursor:pointer;padding:2px 4px}
+  #tip b{color:#fde68a}#tip code{background:#1f2937;border-color:#374151;color:#e5e7eb}#tip pre{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;margin:8px 0 0;background:#1f2937;border:1px solid #374151;border-radius:6px;padding:8px 10px;color:#e5e7eb}
+  .ptdot{position:absolute;width:20px;height:20px;border-radius:50%;transform:translate(-50%,-50%);border:3px solid #111827;cursor:pointer;padding:0;z-index:5;touch-action:none}
+  .ptdot.drag{cursor:grab}.ptdot.drag:active{cursor:grabbing}.ptdot.sm{width:15px;height:15px;border-width:2.5px}
+  .ptdot:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
+  table.trace{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}table.trace th,table.trace td{border:1px solid var(--line);padding:6px 9px;vertical-align:top;text-align:left}
+  table.trace th{background:var(--soft);font-size:13.5px}table.trace td.f{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+  table.trace tr.new td{background:#f0fdf4}table.trace tr.grp td{background:#eef2ff;font-weight:700;font-size:13.5px}
+  .readout{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 14px;line-height:1.7;white-space:pre-wrap}
+  .ctl{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:10px 0}.ctl label{font-size:14px;display:flex;align-items:center;gap:8px}.ctl input[type=range]{width:150px}.ctlname{font-size:13.5px;font-weight:700;color:var(--muted);min-width:70px}
+  .btn{font-size:14px;padding:6px 14px;border-radius:7px;border:1.5px solid var(--blue);background:#fff;color:var(--blue);cursor:pointer}.btn:hover{background:#eef2ff}.btn[aria-pressed=true]{background:var(--blue);color:#fff;box-shadow:inset 0 2px 4px rgba(0,0,0,.25)}.btn:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}.btn:disabled{opacity:.45;cursor:default}
+  .viewbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}.viewbar .btn{font-size:13px;padding:4px 10px}.viewbar .hint{font-size:13px;color:var(--muted);margin-left:6px}
+  .note{border-left:4px solid var(--amber);background:#fffbeb;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:110ch;margin:12px 0}.iosnote{border-left:4px solid var(--indigo);background:#eef2ff;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:110ch;margin:12px 0}
+  details{border:1px solid var(--line);border-radius:8px;margin:10px 0;background:#fff}details>summary{cursor:pointer;padding:10px 14px;font-size:15px;font-weight:600}details>summary:hover{background:var(--soft)}details .body{padding:4px 14px 14px}details details{margin:8px 0;background:var(--soft)}
+  .stepnav{display:flex;gap:10px;align-items:center;margin:0 0 10px}.stepnav .dots{display:flex;gap:6px;margin-left:8px}.stepnav .dot{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--muted);background:#fff;padding:0;cursor:pointer}.stepnav .dot.on{background:var(--indigo);border-color:var(--indigo)}
+  .capl{margin:6px 0 0;padding-left:20px}.capl ul{list-style:circle;padding-left:24px;margin:2px 0 4px}.capl li{font-size:15px;line-height:1.45;margin:3px 0}
+  .stepcap{min-height:230px;font-size:15.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+  .legend{list-style:none;padding:0;margin:8px 0}.legend li{position:relative;padding-left:42px;margin:7px 0;font-size:15px;line-height:1.45}.legend.two{display:grid;grid-template-columns:1fr 1fr;column-gap:36px;max-width:1500px}.legend li>span:first-child{position:absolute;left:4px;top:.2em}
+  .sw{display:block;width:28px;height:18px;border:1px solid #111827;border-radius:3px}.swl{display:block;width:28px;height:6px;border-radius:3px;border:1px solid #111827;margin-top:6px}.swd{display:block;width:15px;height:15px;border-radius:50%;border:2.5px solid #111827;margin:1px 0 0 6px}
+  .verdict{font-size:15px;margin-top:8px;font-weight:600}.verdict.ok{color:var(--green)}.verdict.no{color:var(--red)}
+  .exq{display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px;align-items:start;margin:6px 0 10px}.choices{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:8px 0}.choices .btn{text-align:left}
+  .navfoot{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:50px;padding-top:16px;font-size:14px}.small{font-size:14px;color:#4b5563}.scale{font-size:13.5px;color:#4b5563;margin-top:6px}[hidden]{display:none!important}
+  .flatRow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 0}
+  .exq>div:first-child,.exfig>div:first-child,.pair>div:first-child{max-width:600px}
+  .traceGrid{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start;margin-top:12px}.mapRow{display:grid;grid-template-columns:302px minmax(0,1fr);gap:18px;align-items:start}.tRead{font-size:15px;margin:0 0 10px;line-height:1.6}
+  table.trace td.px{border-left:6px solid #84cc16}table.trace td.py{border-left:6px solid #fb923c}table.trace td.ph{border-left:6px solid #38bdf8}table.trace td.f{white-space:nowrap}table.trace .lg{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#4b5563;font-size:12.5px}
+  .ideaCap{min-height:0}
+</style>
+<body>
+<header class="top">
+  <span class="crumb">Liquid Glass course</span>
+  <a href="../../../liquid-glass-course.html">Course home</a><a href="lesson-light-surface-direction-and-material-thickness.html">Chapter 10</a>
+  <a href="../../glossary.html">Glossary</a><a href="lesson-10-05-the-wall-is-flat.html">← Lesson 10.5</a>
+</header>
+<div class="wrap">
+<h1>Lesson 10.6 — A turn around the x line keeps a line on the wall</h1>
+<p class="sub">Turn a straight line on the wall around the x line: it stays on the wall. Light theme · desktop · works from <code>file://</code>.</p>
+<p class="lead">In Lesson 10.5 the wall of Lesson 10.4 turned out flat: the straight line between two of its points stays on it. This lesson draws one straight line on that wall, from Gx, and turns it around the x line: the turn keeps it on the wall. Lesson 10.7 uses this turn to reach every line on the wall through Gx.</p>
+
+<figure>
+  <div class="heroGrid">
+    <div><div class="stage" id="hero3Stage"><canvas id="hero3" width="760" height="470"></canvas></div>
+      <div class="viewbar" id="hero3Bar"></div>
+      <figcaption><b>The glass with its normals.</b> Gray arrows: N at many pixels. Pink arrow: N at <b>K = (0.62, 0.66)</b>, the pixel this lesson traces. N starts at S, the glass above K.</figcaption></div>
+    <div><div class="stage" id="heroZoomStage"><canvas id="heroZoom" width="760" height="470"></canvas></div>
+      <div class="viewbar" id="heroZoomBar"></div>
+      <figcaption><b>Zoomed in at K.</b> The x line (lime) goes through the wall at Gx. The teal lines: one straight line on the wall from Gx, turned around the x line (the spin, Step 3) to three places: 0° (toward the bottom of the picture), 90° (straight up) and 135° (up and toward the top of the picture). Each one stays on the wall.</figcaption></div>
+  </div>
+</figure>
+
+<aside class="before">
+  <h2>Before you start</h2>
+  <div class="two">
+    <div><b>Used from the course</b><ul>
+      <li><a href="lesson-10-05-the-wall-is-flat.html">Lesson 10.5</a>: the wall is flat (not curved): the straight line between two of its points stays on it; the straight line from Gx to the tip of N, on the wall.</li>
+      <li><a href="lesson-10-04-walk-stays-on-a-wall.html">Lesson 10.4</a>: the <b>x leg</b> from S to <b>Gx</b>, 0.302 to the right; the <b>x line</b> and its ruler; the <b>wall</b>: all points 0.302 to the right of S; the view from above and the wall seen straight on; <b>arrow units</b> (1 = the length of N).</li>
+      <li><a href="lesson-10-03-surface-normal.html">Lesson 10.3</a>: <b>N</b> at the rim pixel K = (0.62, 0.66); x, y and height are fixed directions.</li>
+      <li><a href="../chapter-09/lesson-09-01-distance-between-two-points.html">Lesson 9.1</a>: a right triangle's long side² = leg² + leg². Used in one ⓘ: the length from Gx to the tip of N.</li>
+      <li><a href="lesson-10-02-slope.html">Lesson 10.2</a> and <a href="lesson-10-01-height-map-idea.html">Lesson 10.1</a>: only inside the ⓘ chains of N and S.</li>
+    </ul></div>
+    <div><b>New here</b><ul>
+      <li><b>The teal line</b> and its end <b>T</b>: a straight line on the wall from Gx. <a href="#s1">Step 2</a>.</li>
+      <li><b>The spin</b>, by definition: a turn around the x line, like a wheel on its axle: every point of the teal line keeps how far to the right of S it is and changes only its y and height. Step 3.</li>
+      <li><b>The one idea:</b> so the spin keeps the teal line on the wall (Step 3).</li>
+    </ul></div>
+  </div>
+</aside>
+
+<aside class="coords" id="coords">
+  <h2>Coordinate systems in this lesson</h2>
+  <table class="trace">
+    <tr><th style="width:190px">Label on the picture</th><th>Where</th><th>Origin</th><th>Axes</th><th>Unit</th></tr>
+    <tr><td><b>UV</b></td><td>the hero's left drawing, Section 2's map from above</td><td>(0, 0) = the screen picture's top-left corner</td><td>x →, y toward the bottom of the picture, height ↑</td><td>1 = the screen picture's width; in the hero's left drawing an arrow is drawn shrunk: 1 arrow unit is drawn 0.06 UV long</td></tr>
+    <tr><td><b>UV, zoomed in at K</b></td><td>the hero's right drawing, the 3D drawings of Sections 1 and 2 and of the exercises</td><td>the same (0, 0); the picture shows a small floor patch around K</td><td>the same</td><td>UV for points; an arrow is drawn shrunk by the arrow ruler: 1 arrow unit is drawn 0.15 UV long</td></tr>
+    <tr><td><b>arrow units, from S</b></td><td>N's parts, the x line's ruler, the wall</td><td>S, the start of N</td><td>plus: the way x, y or height grows; minus: the opposite way</td><td>1 = the length of N</td></tr>
+    <tr><td><b>arrow units, from Gx</b></td><td>the teal line, T, the line from Gx to the tip of N, Exercise 1's point a</td><td>Gx, the end of the x leg</td><td>the same three directions</td><td>1 = the length of N</td></tr>
+    <tr><td><b>view from above</b></td><td>the drawings on the right in Steps 2 and 3</td><td>S</td><td>to the right →, toward the bottom of the picture drawn ↓; height not shown</td><td>arrow units</td></tr>
+    <tr><td><b>spin</b></td><td>Step 3's slider; fixed spins in the hero (0°, 90°, 135°), Section 2 (0° and 90°), Exercise 1 (0°; 90° in its answer) and Exercise 2 (150°)</td><td>0°: the teal line toward the bottom of the picture</td><td>growing: toward up (90°: straight up)</td><td>degrees; the slider goes to 180°, half a turn</td></tr>
+  </table>
+  <p class="small">A point of the glass or the floor has x, y and height in UV; the wall and the points on it (Gx, T, point a) are in arrow units, counted from S or Gx: places in the zoomed drawing, not sizes on the glass. “How far to the right of S” is such a count in arrow units. An arrow has an x part, a y part and a height part, counted from its own start. Polar coordinates are not used.</p>
+</aside>
+
+<!-- ============================ SECTION 1 ============================ -->
+<h2 id="s1"><span class="tag">Section 1 · the idea in pictures</span>Turn a line on the wall around the x line</h2>
+<p>Press <b>Next</b>. Each step adds one thing to the picture.</p>
+<div class="ideaGrid">
+  <div>
+    <div class="stage" id="ideaStage"><canvas id="ideaCv" width="760" height="620"></canvas></div>
+    <div class="viewbar" id="ideaBar"></div>
+  </div>
+  <div><div class="stepnav"><button class="btn" id="ideaPrev">← Back</button><button class="btn" id="ideaNext">Next →</button><div class="dots" id="ideaDots"></div></div>
+    <div class="stepcap ideaCap" id="ideaCap" aria-live="polite"></div>
+    <div class="ctl" id="spinCtl" hidden><label><span class="ctlname">spin</span><input type="range" id="spinRange" min="0" max="180" step="1" value="0" aria-label="How far the teal line has turned around the x line, in degrees"><span class="mono" id="spinV">0°</span></label></div>
+    <div class="stage" id="ideaFlatStage" style="margin-top:10px"><canvas id="ideaFlat" width="760" height="340"></canvas></div>
+  </div>
+</div>
+
+<!-- ============================ SECTION 2 ============================ -->
+<h2 id="s2"><span class="tag">Section 2 · one value, traced to the end</span>At K, after a spin of 90°, T is still 0.302 to the right of S</h2>
+<p>T, counted from Gx, at spin 0° and at spin 90°: how far to the right it is. The angled 3D view draws lines that point toward or away from us shorter, like a pencil pointed at you. <b>Drag K on the map or in the 3D drawing:</b> every pixel has its own N, so its own wall and its own teal line.</p>
+<figure id="traceFig" style="margin:12px 0 0"><div class="traceGrid">
+  <div><div class="stage" id="traceStage"><canvas id="traceCv" width="760" height="600"></canvas></div><div class="viewbar" id="traceBar"></div></div>
+  <div>
+    <div class="mapRow">
+      <div class="stage" id="tMapStage"><canvas id="tMap" width="300" height="300"></canvas></div>
+      <div><p class="tRead" id="tRead"></p><button class="btn" id="tHome">Back to K = (0.62, 0.66)</button></div>
+    </div>
+    <table class="trace" id="tTable"></table>
+    <ul class="capl" id="tCap"></ul>
+  </div>
+</div></figure>
+
+<!-- ============================ SECTION 3 ============================ -->
+<h2 id="s3"><span class="tag">Section 3 · exercises</span>Exercises</h2>
+<p>Read each picture, pick one answer, then open the hidden reason.</p>
+
+<details class="ex"><summary>Exercise 1 — Can any spin bring T to point a?</summary><div class="body">
+  <div class="exq"><div><div class="stage" id="ex1qStage"><canvas id="ex1q" width="620" height="480"></canvas></div><figcaption><b>Point a</b>, at K: from Gx, 0.2 to the right, 0 toward the bottom of the picture and 0.953 up (arrow units). The teal line is at its start (spin 0°). Drag to turn the view.</figcaption></div>
+    <div><p><b>Why this question.</b> Point a is 0.953 up from Gx's level, as high as T after a spin of 90°, but 0.2 to the right of Gx (red in the picture). Can the spin get T there?</p>
+      <p><b>What you do.</b> Read how far to the right of Gx point a is. Then remember what the spin keeps (Step 3).</p>
+      <p><b>Question:</b> can any spin bring T to point a?</p>
+      <div class="choices"><button class="btn" data-ok="1" data-why="Right. Point a is 0.2 to the right of Gx, so it is off the wall. The spin keeps every point of the teal line 0.302 to the right of S, on the wall: T never gets there.">No: the spin keeps T on the wall, and point a is off it</button><button class="btn" data-ok="0" data-why="Not this one. At 90° T is 0.953 straight up from Gx, but still on the wall, 0.2 to the left of point a. The spin never changes T's x.">Yes, at 90°</button><button class="btn" data-ok="0" data-why="Not this one. Every spin keeps T 0.302 to the right of S, on the wall. Point a is 0.502 to the right of S, so no spin reaches it.">Yes, at some spin between 90° and 180°</button></div><div class="verdict" aria-live="polite"></div>
+    </div></div>
+  <details><summary>Show the answer</summary><div class="body"><div class="exq"><div><div class="stage" id="ex1aStage"><canvas id="ex1a" width="620" height="480"></canvas></div><figcaption>The view is turned so that the wall is seen edge-on: a line. Seen from the front and a little from above: left and right show x; up and down on the screen mix y with height. Drag to turn the view.</figcaption></div>
+    <div><ul class="capl"><li>The spin changes only y and height, so T is always 0.302 to the right of S: on the wall.</li><li>Point a: 0.302 + 0.2 = 0.502 to the right of S, off the wall.</li><li>At 90°, T is straight up from Gx, 0.953 up like point a, but 0.2 to its left.</li><li>So no spin brings T to point a.</li></ul></div></div></div></details>
+</div></details>
+
+<details class="ex"><summary>Exercise 2 — The teal line has spun 150°. How far to the right of S is T now?</summary><div class="body">
+  <div class="exq"><div><div class="stage" id="ex2qStage"><canvas id="ex2q" width="620" height="480"></canvas></div><figcaption><b>The teal line at spin 150°</b>, at K. The faint teal line: where the spin started (0°, toward the bottom of the picture). The pale arc: the path of T so far. Drag to turn the view.</figcaption></div>
+    <div><p><b>Why this question.</b> The spin has moved T far toward the top of the picture and up. Has it also moved T to the right or to the left?</p>
+      <p><b>What you do.</b> Remember which numbers the spin changes (Step 3). Then read where T is.</p>
+      <p><b>Question:</b> the teal line has spun 150°. How far to the right of S is T now?</p>
+      <div class="choices"><button class="btn" data-ok="1" data-why="Right. The spin changes only y and height. T started 0.302 to the right of S, on the wall, and stays there at every spin.">0.302 to the right of S</button><button class="btn" data-ok="0" data-why="Not this one. 0.953 is how far T is from Gx, along the teal line. The spin never moves T to the right or to the left.">0.953 to the right of S</button><button class="btn" data-ok="0" data-why="Not this one. The spin changes only y and height, so every spin leaves T 0.302 to the right of S.">It depends on the spin</button></div><div class="verdict" aria-live="polite"></div>
+    </div></div>
+  <details><summary>Show the answer</summary><div class="body"><div class="exq"><div><div class="stage" id="ex2aStage"><canvas id="ex2a" width="620" height="480"></canvas></div><figcaption>The view is turned so that the wall is seen edge-on: a line. Seen from the front and a little from above: left and right show x; up and down on the screen mix y with height. Drag to turn the view.</figcaption></div>
+    <div><ul class="capl"><li>The spin changed only T's y and height.</li><li>So T stayed on the wall, seen edge-on as a line in this view.</li><li>So T is 0.302 to the right of S, like Gx.</li></ul></div></div></div></details>
+</div></details>
+
+<div class="navfoot"><a href="lesson-10-05-the-wall-is-flat.html">← Lesson 10.5 — The wall is flat and stands straight up</a><a href="lesson-light-surface-direction-and-material-thickness.html">Chapter 10 overview →</a></div>
+</div>
+<div id="tip" role="dialog" aria-modal="false"><button class="tclose" id="tipClose" aria-label="Close">✕</button><div id="tipBody"></div></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const RAD=0.25;
+const TP={c:[0.5,0.5],bev:0.10,step:0.01};          // the lesson's glass, fixed
+const COL={glass:'#a855f7',fill:'#f3e8ff',row:'#a3e635',col:'#fb923c',A:'#2563eb',B:'#f59e0b',D:'#14b8a6',E:'#f43f5e',across:'#22d3ee',slope:'#facc15',raw:'#6366f1',N:'#ec4899',screen:'#334155',ink:'#111827',halo:'rgba(17,24,39,0.92)',gray:'#475569',you:'#d97706',card:'#dbeafe',cardLine:'#1e40af',xP:'#84cc16',xT:'#3f6212',yP:'#fb923c',yT:'#9a3412',hP:'#38bdf8',hT:'#075985',walk:'#0f766e',front:'#a5b4fc'};
+const clamp=(x,lo,hi)=>Math.min(Math.max(x,lo),hi);
+const R12=x=>Math.round(x*1e12)/1e12;
+const DEG=Math.PI/180;
+/* ---------- numbers: whole numbers bare, exact values up to 4 decimals kept, else 3 decimals half up ---------- */
+function f(x){
+  if(Math.abs(x)<1e-12)return '0';
+  const r4=Math.round(x*1e4)/1e4;let s;
+  if(Math.abs(x-r4)<1e-9){if(Number.isInteger(r4))s=String(r4);else{s=r4.toFixed(4).replace(/0+$/,'');if(/\.\d$/.test(s))s+='0'}}
+  else s=(Math.sign(x)*Math.floor(Math.abs(x)*1e3+0.5+1e-9)/1e3).toFixed(3);
+  if(/^-0(\.0+)?$/.test(s))s='0';return s.replace('-','−');
+}
+const pt=(u,v)=>`(${f(u)}, ${f(v)})`;
+/* ---------- a trace: one operation per line; every line rounded the same way; the next line uses the shown value ---------- */
+class Trace{
+  constructor(dec=3){this.dec=dec;this.lines=[];this.dm=new Map()}
+  shown(v){v=R12(v);if(v===0)return 0;const keep=10**(this.dec+1);if(R12(Math.round(v*keep)/keep)===v)return v;
+    const a=Math.abs(v);let dec=this.dec;if(a<0.01){let q=a,z=0;while(q<0.1){q*=10;z++}dec=z+this.dec}
+    const k=10**dec,r=R12(Math.sign(v)*Math.floor(a*k+0.5+1e-9)/k);this.dm.set(r,dec);return r}
+  t(v){v=R12(v);if(v===0)return '0';const neg=v<0,a=Math.abs(v);let s;if(this.dm.has(v))s=a.toFixed(this.dm.get(v));else{s=String(a);if(s.includes('e'))s=a.toFixed(14).replace(/0+$/,'');if(/\.\d$/.test(s))s+='0'}return (neg?'−':'')+s}
+  o(v){return R12(v)<0?`(${this.t(v)})`:this.t(v)}
+  push(s){this.lines.push(s)}
+  take(){const l=this.lines;this.lines=[];return l}
+  add(n,a,b,exact){const r=exact?R12(a+b):this.shown(a+b);this.push(`${n} = ${this.t(a)} + ${this.o(b)} = ${this.t(r)}`);return r}
+  sub(n,a,b,exact){const r=exact?R12(a-b):this.shown(a-b);this.push(`${n} = ${this.t(a)} − ${this.o(b)} = ${this.t(r)}`);return r}
+  mul(n,a,b){const r=this.shown(a*b);this.push(`${n} = ${this.o(a)} × ${this.o(b)} = ${this.t(r)}`);return r}
+  div(n,a,b){const r=this.shown(a/b);this.push(`${n} = ${this.t(a)} ÷ ${this.o(b)} = ${this.t(r)}`);return r}
+  sq(n,a){const r=R12(a*a);this.push(`${n} = ${this.o(a)} × ${this.o(a)} = ${this.t(r)}`);return r}
+  neg(n,a){const r=R12(-a);this.push(`${n} = −(${this.t(a)}) = ${this.t(r)}`);return r}
+  root(n,a){const raw=Math.sqrt(a),c=Math.round(raw*1e6)/1e6;const r=R12(c*c)===R12(a)?R12(c):this.shown(raw);this.push(`${n} = √${this.t(a)} = ${this.t(r)}`);return r}
+}
+/* ---------- the surface: Lesson 10.1 height, Lesson 10.2 slopes, this lesson's normal ---------- */
+function heightAt(u,v,P){const sd=Math.hypot(u-P.c[0],v-P.c[1])-RAD,inside=clamp(-sd,0,P.bev),leg=P.bev-inside;return Math.sqrt(Math.max(0,P.bev*P.bev-leg*leg))}
+function normalAt(u,v,P){const s=P.step,a=[u-s,v],b=[u+s,v],d=[u,v-s],e=[u,v+s];
+  const hl=heightAt(a[0],a[1],P),hr=heightAt(b[0],b[1],P),hd=heightAt(d[0],d[1],P),he=heightAt(e[0],e[1],P);
+  const sx=(hr-hl)/(2*s),sy=(he-hd)/(2*s),raw=[-sx,-sy,1],len=Math.hypot(raw[0],raw[1],raw[2]),N=raw.map(q=>q/len);
+  return{a,b,d,e,hl,hr,hd,he,sx,sy,raw,len,N,rgb:N.map(q=>q*0.5+0.5),h:heightAt(u,v,P)}}
+/* the Lesson 10.1 chain for one point, in a Trace */
+function heightTrace(T,u,v,P){
+  const px=T.sub('p.x',u,P.c[0]),py=T.sub('p.y',v,P.c[1]);
+  const px2=T.sq('p.x²',px),py2=T.sq('p.y²',py),sum=T.add('sum',px2,py2,true),d=T.root('d',sum);
+  const sd=T.sub('sd',d,RAD),ns=T.neg('−sd',sd);let inside;
+  if(ns<0){inside=0;T.push(`inside = clamp(${T.t(ns)}, 0, ${T.t(P.bev)}) = 0`)}
+  else if(ns>P.bev){inside=P.bev;T.push(`inside = clamp(${T.t(ns)}, 0, ${T.t(P.bev)}) = ${T.t(P.bev)}`)}
+  else{inside=ns;T.push(`inside = clamp(${T.t(ns)}, 0, ${T.t(P.bev)}) = ${T.t(ns)}`)}
+  const leg=T.sub('leg',P.bev,inside),b2=T.sq('bevel²',P.bev),l2=T.sq('leg²',leg),h2=T.sub('h²',b2,l2,true);return T.root('h',h2);
+}
+/* the whole chain for W, as groups of lines */
+function chainOf(w,P,dec){
+  const T=new Trace(dec),s=P.step,G=[];
+  const ax=T.sub('A.x',w[0],s),bx=T.add('B.x',w[0],s),dy=T.sub('D.y',w[1],s),ey=T.add('E.y',w[1],s);
+  G.push({title:'On the screen · the four neighbors',lines:T.take().concat([`A = (${T.t(ax)}, ${T.t(w[1])}) · B = (${T.t(bx)}, ${T.t(w[1])})`,`D = (${T.t(w[0])}, ${T.t(dy)}) · E = (${T.t(w[0])}, ${T.t(ey)})`])});
+  const one=(u,v)=>{const t=new Trace(dec),h=heightTrace(t,u,v,P);if(t.dm.has(h))T.dm.set(h,t.dm.get(h));return[h,t.take()]};
+  const [hl,La]=one(ax,w[1]),[hr,Lb]=one(bx,w[1]),[hd,Ld]=one(w[0],dy),[he,Le]=one(w[0],ey);
+  G.push({title:'Heights above A and B · Lesson 10.1',pair:[['A',La,'hLeft',hl],['B',Lb,'hRight',hr]]});
+  G.push({title:'Heights above D and E · Lesson 10.1',pair:[['D',Ld,'hD',hd],['E',Le,'hE',he]]});
+  const dxh=T.sub('ΔhX = hRight − hLeft',hr,hl),dist=T.mul('2 × step',2,s),sx=T.div('slopeX',dxh,dist);
+  G.push({title:'slopeX · Lesson 10.2',lines:T.take(),isNew:false});
+  const dyh=T.sub('ΔhY = hE − hD',he,hd),dist2=T.mul('2 × step',2,s),sy=T.div('slopeY',dyh,dist2);
+  G.push({title:'slopeY · new',lines:T.take(),isNew:true});
+  const rx=T.neg('x part = −slopeX',sx),ry=T.neg('y part = −slopeY',sy);T.push('height part = 1 (chosen, always 1: Lesson 10.3)');
+  T.push(`rawNormal = (x part, y part, height part) = (${T.t(rx)}, ${T.t(ry)}, 1)`);
+  G.push({title:'rawNormal',lines:T.take(),isNew:true});
+  const x2=T.sq('x part²',rx),y2=T.sq('y part²',ry),s1=T.add('shadow² = x part² + y part²',x2,y2,true),z2=T.sq('height part²',1),s2=T.add('length² = shadow² + height part²',s1,z2,true),len=T.root('normalLength = √length²',s2);
+  G.push({title:'normalLength · new',lines:T.take(),isNew:true});
+  const nx=T.div('N x part = x part ÷ normalLength',rx,len),ny=T.div('N y part = y part ÷ normalLength',ry,len),nz=T.div('N height part = height part ÷ normalLength',1,len);T.push(`N = (${T.t(nx)}, ${T.t(ny)}, ${T.t(nz)})`);
+  {const a2=T.sq('check: (N x part)²',nx),b2=T.sq('(N y part)²',ny),c2=T.sq('(N height part)²',nz),t1=T.add('sum of the first two',a2,b2,true),t2=T.add('sum of all three',t1,c2,true);T.root('length of N',t2)}
+  G.push({title:'N = rawNormal ÷ normalLength · new',lines:T.take(),isNew:true});
+  const hx=T.mul('N x part × 0.5',nx,0.5),cr=T.add('red',hx,0.5),hy=T.mul('N y part × 0.5',ny,0.5),cg=T.add('green',hy,0.5),hz=T.mul('N height part × 0.5',nz,0.5),cb=T.add('blue',hz,0.5);
+  T.push('4th number: opacity = 1 (not see-through)');T.push(`W stores (${T.t(cr)}, ${T.t(cg)}, ${T.t(cb)}, 1)`);
+  G.push({title:'Display color · only for seeing',lines:T.take(),isNew:false});
+  return{G,T,ax,bx,dy,ey,hl,hr,hd,he,sx,sy,rx,ry,len,nx,ny,nz,cr,cg,cb};
+}
+/* ---------- 2D drawing helpers (solid strokes, dark halo) ---------- */
+function halo(ctx,draw,color,w=2.5){for(const [lw,c] of [[w+3.5,COL.halo],[w,color]]){ctx.lineWidth=lw;ctx.strokeStyle=c;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();draw();ctx.stroke()}}
+function line(ctx,x1,y1,x2,y2,color,w=2.5){halo(ctx,()=>{ctx.moveTo(x1,y1);ctx.lineTo(x2,y2)},color,w)}
+function thin(ctx,x1,y1,x2,y2,color,w=1.5){ctx.lineWidth=w;ctx.strokeStyle=color;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}
+function arrow(ctx,x1,y1,x2,y2,color,w=3,head=13){const L=Math.hypot(x2-x1,y2-y1);if(L<0.5)return;head=Math.min(head,L*0.55);const a=Math.atan2(y2-y1,x2-x1),bx=x2-head*Math.cos(a),by=y2-head*Math.sin(a);line(ctx,x1,y1,bx,by,color,w);
+  const s=head*0.55;ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(bx+s*Math.sin(a),by-s*Math.cos(a));ctx.lineTo(bx-s*Math.sin(a),by+s*Math.cos(a));ctx.closePath();ctx.fillStyle=color;ctx.fill();ctx.lineWidth=1.6;ctx.strokeStyle='#111827';ctx.stroke()}
+function grayArrow(ctx,x1,y1,x2,y2,color=COL.gray,w=1.8){const L=Math.hypot(x2-x1,y2-y1);if(L<0.5)return;const a=Math.atan2(y2-y1,x2-x1),hd=Math.min(7,L*0.5);thin(ctx,x1,y1,x2-hd*0.6*Math.cos(a),y2-hd*0.6*Math.sin(a),color,w);ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-hd*Math.cos(a)+hd*0.45*Math.sin(a),y2-hd*Math.sin(a)-hd*0.45*Math.cos(a));ctx.lineTo(x2-hd*Math.cos(a)-hd*0.45*Math.sin(a),y2-hd*Math.sin(a)+hd*0.45*Math.cos(a));ctx.closePath();ctx.fillStyle=color;ctx.fill()}
+function square(ctx,x,y,u,v,s=16,color='#111827'){ctx.lineWidth=2;ctx.strokeStyle=color;ctx.beginPath();ctx.moveTo(x+u[0]*s,y+u[1]*s);ctx.lineTo(x+u[0]*s+v[0]*s,y+u[1]*s+v[1]*s);ctx.lineTo(x+v[0]*s,y+v[1]*s);ctx.stroke()}
+const unit2=(x,y)=>{const L=Math.hypot(x,y)||1;return[x/L,y/L]};
+function plate(ctx,t,x,y,size=14,align='left',color=COL.ink){ctx.font=`600 ${size}px -apple-system,"Segoe UI",Roboto,sans-serif`;const w=ctx.measureText(t).width,h=size+8;let x0=align==='right'?x-w:align==='center'?x-w/2:x;x0=clamp(x0,6,ctx.canvas.width-w-6);const yy=clamp(y,h/2+3,ctx.canvas.height-h/2-3);ctx.fillStyle='rgba(255,255,255,0.94)';ctx.strokeStyle='#111827';ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x0-5,yy-h/2,w+10,h,4);ctx.fill();ctx.stroke();ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillStyle=color;ctx.fillText(t,x0,yy);return{x:x0-5,y:yy-h/2,w:w+10,h}}
+/* ---------- tooltips ---------- */
+const tipEl=$('tip'),tipBody=$('tipBody'),tipStore=new Map();let suppressAt=-1e9;const suppressNow=()=>{suppressAt=performance.now()};
+function setTip(el,html){el.classList.add('tk');tipStore.set(el,html);if(!el.hasAttribute('tabindex'))el.setAttribute('tabindex','0')}
+function showTip(el){const v=tipStore.get(el),html=typeof v==='function'?v():v;if(!html)return;tipBody.innerHTML=html;tipEl.classList.toggle('wide',!!tipBody.querySelector('pre'));tipEl.classList.toggle('xwide',!!tipBody.querySelector('.tgrid'));tipEl.classList.add('open');const r=el.getBoundingClientRect();tipEl.style.left='0px';tipEl.style.top='0px';const tw=tipEl.offsetWidth,th=tipEl.offsetHeight;let L=r.right+10,T=r.top-8;if(L+tw>innerWidth-10)L=r.left-tw-10;if(L<8)L=8;if(T+th>innerHeight-10)T=innerHeight-th-10;if(T<8)T=8;tipEl.style.left=L+'px';tipEl.style.top=T+'px'}
+function hideTip(){tipEl.classList.remove('open')}
+document.addEventListener('click',e=>{if(performance.now()-suppressAt<120){suppressAt=-1e9;e.stopPropagation();return}const t=e.target.closest('.tk');if(t){e.stopPropagation();showTip(t);return}if(!e.target.closest('#tip'))hideTip();},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){hideTip();return}if((e.key==='Enter'||e.key===' ')&&e.target.classList?.contains('tk')){e.preventDefault();showTip(e.target)}});$('tipClose').onclick=e=>{e.stopPropagation();hideTip()};
+/* clickable (and optionally draggable) points over a canvas */
+let pointDrag=null;
+document.addEventListener('pointermove',e=>{if(!pointDrag)return;if(!pointDrag.moved&&Math.hypot(e.clientX-pointDrag.x0,e.clientY-pointDrag.y0)<3)return;pointDrag.moved=true;hideTip();pointDrag.move(e.clientX,e.clientY)});
+document.addEventListener('pointerup',()=>{if(!pointDrag)return;if(pointDrag.moved)suppressNow();pointDrag=null});
+document.addEventListener('pointercancel',()=>{pointDrag=null});
+function addPt(stage,x,y,color,html,label,opt={}){const b=document.createElement('button');b.className='ptdot'+(opt.small?' sm':'')+(opt.move?' drag':'');b.style.left=(x+BORDER)+'px';b.style.top=(y+BORDER)+'px';b.style.background=color;b.setAttribute('aria-label',label);if(opt.key)b.dataset.key=opt.key;stage.appendChild(b);setTip(b,html);
+  {const cv=stage.querySelector('canvas');if(cv&&(x<-2||y<-2||x>cv.width+2||y>cv.height+2))b.hidden=true}   /* a point outside its own picture must not sit on a neighbouring one */
+  if(opt.move){b.addEventListener('pointerdown',e=>{pointDrag={x0:e.clientX,y0:e.clientY,moved:false,move:opt.move};e.preventDefault();e.stopPropagation()});
+    if(opt.keys)b.addEventListener('keydown',e=>{const d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(!d)return;e.preventDefault();opt.keys(d);stage.querySelector(`[data-key="${opt.key}"]`)?.focus()})}
+  return b}
+const clearPts=stage=>stage.querySelectorAll('.ptdot').forEach(b=>b.remove());
+const canvasPos=(cv,cx,cy)=>{const r=cv.getBoundingClientRect();return[(cx-r.left-cv.clientLeft)*cv.width/cv.clientWidth,(cy-r.top-cv.clientTop)*cv.height/cv.clientHeight]};
+const BORDER=1;   /* canvases have a 1-px border: a dot over canvas pixel x sits at x + 1 in its stage */
+/* ---------- a turnable 3D view: orthographic, drag to turn, Ctrl/⌘ + wheel or buttons to zoom ---------- */
+class Orbit3D{
+  constructor(stage,cv,o){Object.assign(this,{stage,cv,ctx:cv.getContext('2d'),yaw:o.yaw,pitch:o.pitch,zoom:o.zoom||1,scale:o.scale,target:o.target,cx:cv.width/2+(o.dx||0),cy:cv.height/2+(o.dy||0),draw:o.draw,home:{yaw:o.yaw,pitch:o.pitch,zoom:o.zoom||1,target:[...o.target]},compass:o.compass,compassPos:o.compassPos,coord:o.coord});
+    this.btns=new Map();cv.style.cursor='grab';cv.style.touchAction='none';
+    cv.addEventListener('pointerdown',e=>{if(e.button!==0)return;this.drag={x:e.clientX,y:e.clientY,yaw:this.yaw,pitch:this.pitch,moved:false};try{cv.setPointerCapture(e.pointerId)}catch(_){}cv.style.cursor='grabbing'});
+    cv.addEventListener('pointermove',e=>{if(!this.drag)return;const dx=e.clientX-this.drag.x,dy=e.clientY-this.drag.y;if(Math.hypot(dx,dy)<=3&&!this.drag.moved)return;this.drag.moved=true;this.anim=null;this.yaw=this.drag.yaw-dx*0.45;this.pitch=clamp(this.drag.pitch+dy*0.45,0,90);this.render()});
+    const up=()=>{if(this.drag?.moved)suppressNow();this.drag=null;cv.style.cursor='grab'};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+    cv.addEventListener('wheel',e=>{if(!(e.ctrlKey||e.metaKey))return;e.preventDefault();this.zoom=clamp(this.zoom*Math.exp(-e.deltaY*0.0015),0.4,4);this.render()},{passive:false});
+    cv.addEventListener('dblclick',()=>this.setView(this.home.yaw,this.home.pitch,this.home.zoom,this.home.target))}
+  proj(p){const t=this.target,x=p[0]-t[0],y=p[1]-t[1],z=p[2]-t[2],a=this.yaw*DEG,b=this.pitch*DEG,X1=x*Math.cos(a)-y*Math.sin(a),Y1=x*Math.sin(a)+y*Math.cos(a),up=z*Math.cos(b)-Y1*Math.sin(b),dep=Y1*Math.cos(b)+z*Math.sin(b),k=this.scale*this.zoom;return{x:this.cx+X1*k,y:this.cy-up*k,d:dep}}
+  /* the floor point (height z0) under a picture position; null when the floor is seen edge-on */
+  floorAt(px,py,z0=0){const b=this.pitch*DEG;if(Math.sin(b)<0.17)return null;const k=this.scale*this.zoom,X1=(px-this.cx)/k,up=(this.cy-py)/k,zr=z0-this.target[2],Y1=(zr*Math.cos(b)-up)/Math.sin(b),a=this.yaw*DEG;return[X1*Math.cos(a)+Y1*Math.sin(a)+this.target[0],-X1*Math.sin(a)+Y1*Math.cos(a)+this.target[1]]}
+  render(){const c=this.ctx;c.fillStyle='#fff';c.fillRect(0,0,this.cv.width,this.cv.height);this.items=[];this.labels=[];this.pts=[];this.draw(this);
+    this.items.sort((p,q)=>p.k-q.k);for(const it of this.items)it.f(c);for(const L of this.labels)L(c);if(this.compass!==false)this.drawCompass(c);this.placePts()}
+  /* the corner box: the coordinates of this picture and the directions x, y and height as drawn here */
+  drawCompass(c){const a=this.yaw*DEG,b=this.pitch*DEG,cw=this.cv.width,ch=this.cv.height,bw=210,bh=100,cp=this.compassPos||'bl',bx=cp[1]==='r'?cw-bw-8:8,by=cp[0]==='t'?8:ch-bh-8,FT='-apple-system,"Segoe UI",Roboto,sans-serif';
+    c.save();c.fillStyle='rgba(255,255,255,0.96)';c.strokeStyle='#cbd5e1';c.lineWidth=1;c.beginPath();c.roundRect(bx,by,bw,bh,8);c.fill();c.stroke();
+    const cn=typeof this.coord==='function'?this.coord():this.coord;c.textAlign='left';c.textBaseline='middle';if(cn){c.font='700 12px '+FT;c.fillStyle='#111827';c.fillText('coordinates: '+cn,bx+10,by+13)}
+    const ox=bx+70,oy=by+64,L=24;
+    for(const [v,col,tc,name] of [[[1,0,0],COL.xP,COL.xT,'x'],[[0,1,0],COL.yP,COL.yT,'y'],[[0,0,1],COL.hP,COL.hT,'height']]){const X1=v[0]*Math.cos(a)-v[1]*Math.sin(a),Y1=v[0]*Math.sin(a)+v[1]*Math.cos(a),up=v[2]*Math.cos(b)-Y1*Math.sin(b),len=Math.hypot(X1,up);
+      if(len>0.2){arrow(c,ox,oy,ox+X1*L,oy-up*L,col,2.2,8);c.font='700 12px '+FT;c.fillStyle=tc;c.textAlign='center';c.fillText(name,ox+X1*(L+13),oy-up*(L+13))}
+      else{c.beginPath();c.arc(ox,oy,5,0,7);c.fillStyle=col;c.fill();c.lineWidth=1.4;c.strokeStyle='#111827';c.stroke();c.font='700 12px '+FT;c.fillStyle=tc;c.textAlign='left';c.fillText(name+': not shown in this view',bx+10,by+bh-12)}}
+    c.restore()}
+  poly(ps,fill,stroke,lw=1,layer=0){const pr=ps.map(p=>this.proj(p)),d=pr.reduce((s,q)=>s+q.d,0)/pr.length;this.items.push({k:layer*1e6+d,f:c=>{c.beginPath();pr.forEach((q,i)=>i?c.lineTo(q.x,q.y):c.moveTo(q.x,q.y));c.closePath();if(fill){c.fillStyle=fill;c.fill()}if(stroke){c.lineWidth=lw;c.strokeStyle=stroke;c.stroke()}}})}
+  path(ps,color,w=2,plain=false,layer=1){const pr=ps.map(p=>this.proj(p)),d=pr.reduce((s,q)=>s+q.d,0)/pr.length;this.items.push({k:layer*1e6+d,f:c=>{const draw=()=>pr.forEach((q,i)=>i?c.lineTo(q.x,q.y):c.moveTo(q.x,q.y));if(plain){c.lineWidth=w;c.strokeStyle=color;c.lineJoin='round';c.beginPath();draw();c.stroke()}else halo(c,draw,color,w)}})}
+  seg(a,b,color,w=2.5,plain=false,layer=1){this.path([a,b],color,w,plain,layer)}
+  arrow(a,b,color,w=3,layer=2){const A=this.proj(a),B=this.proj(b);this.items.push({k:layer*1e6+(A.d+B.d)/2,f:c=>arrow(c,A.x,A.y,B.x,B.y,color,w)})}
+  grayArrow(a,b,color=COL.gray){const A=this.proj(a),B=this.proj(b);this.items.push({k:1e6+(A.d+B.d)/2,f:c=>grayArrow(c,A.x,A.y,B.x,B.y,color,1.6)})}
+  dot(p,color,r=5){const P=this.proj(p);this.items.push({k:3e6+P.d,f:c=>{c.beginPath();c.arc(P.x,P.y,r,0,Math.PI*2);c.fillStyle=color;c.fill();c.lineWidth=2;c.strokeStyle='#111827';c.stroke()}})}
+  corner(p,u,v,s,color='#111827'){const a=[p[0]+u[0]*s,p[1]+u[1]*s,p[2]+u[2]*s],b=[a[0]+v[0]*s,a[1]+v[1]*s,a[2]+v[2]*s],c2=[p[0]+v[0]*s,p[1]+v[1]*s,p[2]+v[2]*s];this.path([a,b,c2],color,2,true,2.5)}
+  label(t,p,dx=0,dy=0,align='left',color=COL.ink,size=13){const P=this.proj(p);this.labels.push(c=>plate(c,t,P.x+dx,P.y+dy,size,align,color))}
+  pt(key,p,color,html,label,opt={}){this.pts.push({key,p,color,html,label,opt})}
+  placePts(){const seen=new Set();for(const q of this.pts){const P=this.proj(q.p);let b=this.btns.get(q.key);if(!b){b=addPt(this.stage,0,0,q.color,q.html,q.label,{small:true,key:q.key,move:q.opt.move?((cx,cy)=>q.opt.move(cx,cy,this)):null});this.btns.set(q.key,b)}
+      b.style.left=(P.x+BORDER)+'px';b.style.top=(P.y+BORDER)+'px';b.style.background=q.color;tipStore.set(b,q.html);b.hidden=P.x<0||P.y<0||P.x>this.cv.width||P.y>this.cv.height;seen.add(q.key)}
+    for(const [k,b] of this.btns)if(!seen.has(k)){b.remove();this.btns.delete(k)}}
+  setView(yaw,pitch,zoom=this.zoom,target=this.target){if(window.__QA_NOANIM||!window.requestAnimationFrame){Object.assign(this,{yaw,pitch,zoom,target:[...target]});this.render();return}
+    const y0=this.yaw,p0=this.pitch,z0=this.zoom,g0=[...this.target];let dy=yaw-y0;dy=((dy+540)%360)-180;const t0=performance.now(),me={};this.anim=me;
+    const tick=now=>{if(this.anim!==me)return;const t=Math.min(1,(now-t0)/900),e=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;this.yaw=y0+dy*e;this.pitch=p0+(pitch-p0)*e;this.zoom=z0+(zoom-z0)*e;this.target=g0.map((q,i)=>q+(target[i]-q)*e);this.render();if(t<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
+}
+function viewBar(bar,orb,views){bar.innerHTML='';for(const [name,yaw,pitch] of views){const b=document.createElement('button');b.className='btn';b.textContent=name;b.onclick=()=>orb.setView(yaw,pitch);bar.appendChild(b)}
+  for(const [t,fn] of [['＋',()=>{orb.zoom=clamp(orb.zoom*1.25,0.4,4);orb.render()}],['−',()=>{orb.zoom=clamp(orb.zoom/1.25,0.4,4);orb.render()}],['Reset',()=>orb.setView(orb.home.yaw,orb.home.pitch,orb.home.zoom,orb.home.target)]]){const b=document.createElement('button');b.className='btn';b.textContent=t;b.setAttribute('aria-label',t==='＋'?'Zoom in':t==='−'?'Zoom out':'Reset the view');b.onclick=fn;bar.appendChild(b)}
+  const h=document.createElement('span');h.className='hint';h.textContent='Drag to turn the view · Ctrl (or ⌘) + scroll to zoom · double-click to reset';bar.appendChild(h)}
+/* ---------- the glass in 3D: floor = the screen (x right, y toward the bottom of the picture), height up ---------- */
+function glassScene(o,P,opt){
+  for(let i=0;i<=8;i++){const g=0.1+i*0.1;o.seg([g,0.1,0],[g,0.9,0],'#e5e7eb',1,true,-1);o.seg([0.1,g,0],[0.9,g,0],'#e5e7eb',1,true,-1)}
+  o.path([[0.1,0.1,0],[0.9,0.1,0],[0.9,0.9,0],[0.1,0.9,0],[0.1,0.1,0]],'#94a3b8',1.5,true,-1);
+  o.label('top of the picture',[0.5,0.1,0],0,-12,'center','#4b5563',12);
+  const rf=Math.max(0,RAD-P.bev);
+  const R=[];for(let i=0;i<=3;i++)R.push(rf*i/3);for(let i=1;i<=12;i++){const a=(90-i*7.5)*DEG;R.push(rf+P.bev*Math.cos(a))}
+  const hr=r=>{const ins=clamp(RAD-r,0,P.bev),leg=P.bev-ins;return Math.sqrt(Math.max(0,P.bev*P.bev-leg*leg))};
+  const NS=48,q=(r,t)=>[P.c[0]+r*Math.cos(t),P.c[1]+r*Math.sin(t),hr(r)];
+  for(let i=0;i<R.length-1;i++)for(let j=0;j<NS;j++){const t0=j/NS*2*Math.PI,t1=(j+1)/NS*2*Math.PI;o.poly([q(R[i],t0),q(R[i+1],t0),q(R[i+1],t1),q(R[i],t1)],'rgba(233,213,255,0.62)','rgba(168,85,247,0.45)',0.8)}
+  const out=[];for(let j=0;j<=96;j++){const t=j/96*2*Math.PI;out.push([P.c[0]+RAD*Math.cos(t),P.c[1]+RAD*Math.sin(t),0])}o.path(out,COL.glass,2.2,false,1);
+  const w=opt.w;
+  if(opt.cuts){const rowS=[],colS=[];for(let i=0;i<=160;i++){const x=0.1+i*0.8/160;rowS.push([x,w[1],heightAt(x,w[1],P)]);colS.push([w[0],x,heightAt(w[0],x,P)])}
+    o.seg([0.1,w[1],0],[0.9,w[1],0],COL.row,2,false,1);o.path(rowS,COL.row,2.4,false,1);
+    if(opt.col){o.seg([w[0],0.1,0],[w[0],0.9,0],COL.col,2,false,1);o.path(colS,COL.col,2.4,false,1)}}
+  if(opt.arrows){const L=0.06;for(let x=0.15;x<=0.851;x+=0.05)for(let y=0.15;y<=0.851;y+=0.05){if(Math.hypot(x-P.c[0],y-P.c[1])>RAD+0.08)continue;const n=normalAt(x,y,P),h=n.h;o.grayArrow([x,y,h],[x+n.N[0]*L,y+n.N[1]*L,h+n.N[2]*L])}}
+  if(w){const n=normalAt(w[0],w[1],P),H=[w[0],w[1],n.h],L=opt.wLen||0.06;
+    o.seg([w[0],w[1],0],H,'#94a3b8',1.4,true,1);
+    if(opt.raw)o.arrow(H,[H[0]+n.raw[0]*L,H[1]+n.raw[1]*L,H[2]+n.raw[2]*L],COL.raw,2.6,2);
+    o.arrow(H,[H[0]+n.N[0]*L,H[1]+n.N[1]*L,H[2]+n.N[2]*L],COL.N,3.2,2.2);
+    return{n,H,L}}
+}
+/* the complete calculation of N at one point, for the color table's ⓘ (5 decimals so the diagonal points come out right to 3) */
+function nTip(n,u,v){return()=>{const c=chainOf([u,v],TP,5),G=c.G,T=c.T,r3=x=>Math.round(x*1000)/1000,pre=L=>`<pre>${L.join('\n')}</pre>`,sec=t=>`<div class="tsec">${t}</div>`;
+  const at={A:[c.ax,v],B:[c.bx,v],D:[u,c.dy],E:[u,c.ey]};
+  const pair=g=>`<div class="tgrid">${g.pair.map(([nm,L,out,h])=>`<pre><b>${nm} = (${T.t(at[nm][0])}, ${T.t(at[nm][1])})</b>\n${L.join('\n')}\n<b>${out} = ${T.t(h)}</b></pre>`).join('')}</div>`;
+  return`<b>${/^[A-Z]/.test(n)?n:'Point '+n} = ${pt(u,v)} in UV: how N is calculated</b><br>C = (0.50, 0.50), radius 0.25, bevel 0.10, step 0.01. Square roots and divisions keep 5 decimals; products stay exact. N is then rounded to 3 decimals.`
+    +sec(`1 · The four neighbors, one step away (UV)`)+pre(G[0].lines)
+    +sec('2 · Heights above A and B (Lesson 10.1)')+pair(G[1])
+    +sec('3 · Heights above D and E (Lesson 10.1)')+pair(G[2])
+    +sec('4 · slopeX (Lesson 10.2)')+pre(G[3].lines)
+    +sec('5 · slopeY')+pre(G[4].lines)
+    +sec('6 · rawNormal')+pre(G[5].lines)
+    +sec('7 · normalLength: first the shadow, then the length')+pre(G[6].lines)
+    +sec('8 · N = rawNormal ÷ normalLength')+pre(G[7].lines)
+    +`<p class="tnote">Rounded to 3 decimals: <b>N = (${f(r3(c.nx))}, ${f(r3(c.ny))}, ${f(r3(c.nz))})</b>.</p>`
+    }}
+const add3=(a,b,k=1)=>[a[0]+b[0]*k,a[1]+b[1]*k,a[2]+b[2]*k];
+const nrm3=v=>{const L=Math.hypot(...v);return v.map(q=>q/L)};
+/* the same drawing calls with every point passed through fn: a scene written in UV appears in this picture's units */
+function mapped(o,fn){return{poly:(ps,...r)=>o.poly(ps.map(fn),...r),path:(ps,...r)=>o.path(ps.map(fn),...r),seg:(a,b,...r)=>o.seg(fn(a),fn(b),...r),arrow:(a,b,...r)=>o.arrow(fn(a),fn(b),...r),grayArrow:(a,b,...r)=>o.grayArrow(fn(a),fn(b),...r),dot:(p,...r)=>o.dot(fn(p),...r),label:(t,p,...r)=>o.label(t,fn(p),...r),pt:(k,p,...r)=>o.pt(k,fn(p),...r),
+  corner:(p,u,v,s,color='#111827')=>{const a=add3(p,u,s),b=add3(a,v,s),c=add3(p,v,s);o.path([fn(a),fn(b),fn(c)],color,2,true,2.5)}}}
+
+/* ================= the glass at K ================= */
+Object.assign(COL,{glassT:'#6b21a8',wallF:'rgba(100,116,139,0.20)',wallS:'#64748b',wallT:'#334155'});
+const P0=[0,0,0],AR=0.15;
+const KP=[0.62,0.66],NK=[0.302,0.402,0.864];
+const r3=x=>Math.round(x*1000)/1000;
+const nShown=(u,v)=>{const ch=chainOf([u,v],TP,5);return[ch.nx,ch.ny,ch.nz].map(r3)};
+/* exact numbers up to 6 decimals, at least 2 decimals: 0.302, −0.40, 1 */
+const fx=x=>{if(Math.abs(x)<1e-12)return '0';let s=(Math.round(x*1e6)/1e6).toFixed(6).replace(/0+$/,'');if(s.endsWith('.'))s=s.slice(0,-1);else if(/\.\d$/.test(s))s+='0';return s.replace('-','−')};
+const par=x=>x<0?`(${fx(x)})`:fx(x);
+const f4=x=>x.toFixed(4);
+const dot3=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+const scale3=(a,k)=>[a[0]*k,a[1]*k,a[2]*k];
+const f2n=t=>{const s=Number.isInteger(t)?String(t):t.toFixed(1);return s.replace('-','−')};
+/* “0.302 to the right of S”, “0.302 to the left of S”, “at S” */
+const rightOf=(v,s='S')=>Math.abs(v)<1e-9?`0 to the right of ${s}`:v<0?`${fx(-v)} to the left of ${s}`:`${fx(v)} to the right of ${s}`;
+
+/* a small piece of the glass around one pixel: UV, zoomed in; arrows drawn shrunk by the arrow ruler. Returns m (UV) and a (arrow units from S) */
+function sceneAt(o,w,op={}){const c=op.center||w,K=18,S=[w[0],w[1],heightAt(w[0],w[1],TP)],Sc=heightAt(c[0],c[1],TP),fn=p=>[(p[0]-c[0])*K,(p[1]-c[1])*K,(p[2]-Sc)*K],m=mapped(o,fn),r=0.06,X0=c[0]-r,X1=c[0]+r,Y0=c[1]-r,Y1=c[1]+r,sn=op.S||'S',kn=op.K||'K',lab=op.labels!==false,curveLab=lab&&op.curves!==false,dirLab=op.dirs!==false;
+  m.poly([[X0,Y0,0],[X1,Y0,0],[X1,Y1,0],[X0,Y1,0]],'rgba(241,245,249,0.95)','#94a3b8',1.2,-3);
+  for(let i=1;i<12;i++){const g=X0+i*0.01,h=Y0+i*0.01;m.seg([g,Y0,0],[g,Y1,0],'#e2e8f0',1,true,-2.5);m.seg([X0,h,0],[X1,h,0],'#e2e8f0',1,true,-2.5)}
+  const rs=[],cs=[];for(let i=0;i<=60;i++){const x=X0+i*(X1-X0)/60,y=Y0+i*(Y1-Y0)/60;rs.push([x,w[1],heightAt(x,w[1],TP)]);cs.push([w[0],y,heightAt(w[0],y,TP)])}
+  m.seg([X0,w[1],0],[X1,w[1],0],'#a78bfa',1.6,true,-1);m.seg([w[0],Y0,0],[w[0],Y1,0],'#a78bfa',1.6,true,-1);m.path(rs,COL.glass,3,false,0.6);m.path(cs,COL.glass,3,false,0.6);
+  if(op.floorLines!==false){m.label(`floor line y = ${f(w[1])}`,[X1,w[1],0],10,16,'left','#6d28d9',12);m.label(`floor line x = ${f(w[0])}`,[w[0],Y0,0],6,-10,'left','#6d28d9',12)}
+  /* the floor's directions, drawn on the floor */
+  const F=(x,y)=>[x,y,0],dir=(a,b,t,dx,dy,al)=>{const A=o.proj(fn(a)),B=o.proj(fn(b));o.items.push({k:-0.8e6,f:c=>grayArrow(c,A.x,A.y,B.x,B.y,'#334155',2)});if(dirLab)m.label(t,b,dx,dy,al,'#334155',12.5)};
+  dir(F(X0+0.012,Y1+0.005),F(X0+0.055,Y1+0.005),'right',8,-12,'left');
+  dir(F(X0-0.005,Y1-0.012),F(X0-0.005,Y1-0.055),'toward the top of the picture',-8,-10,'right');
+  dir(F(X1+0.005,Y0+0.004),F(X1+0.005,Y0+0.04),'toward the bottom of the picture',8,8,'left');
+  if(curveLab){if(op.yLabFar)m.label(`the glass along the floor line y = ${f(w[1])}`,rs[45],14,-6,'left',COL.glassT,13);else if(op.yLabRight)m.label(`the glass along the floor line y = ${f(w[1])}`,rs[60],8,8,'left',COL.glassT,13);else m.label(`the glass along the floor line y = ${f(w[1])}`,rs[2],-6,16,'right',COL.glassT,13);m.label(`the glass along the floor line x = ${f(w[0])}`,cs[2],-6,-12,'right',COL.glassT,13)}
+  m.seg([w[0],w[1],0],S,'#94a3b8',1.4,true,0.5);{const kl=op.kLab||[-10,14,'right'];m.label(kn,[w[0],w[1],0],kl[0],kl[1],kl[2])}
+  m.pt('K',[w[0],w[1],0],'#fff',op.Ktip||`<b>${kn} = ${pt(w[0],w[1])}</b> in UV, on the screen (height 0).`,kn,op.Kmove?{move:op.Kmove}:{});
+  const dx=TP.c[0]-w[0],dy=TP.c[1]-w[1],dl=Math.hypot(dx,dy);if(dl>1e-6&&lab){const u=[dx/dl,dy/dl],k=Math.min(r*0.9,dl),A=[w[0]+u[0]*k*0.45,w[1]+u[1]*k*0.45,0],B=[w[0]+u[0]*k,w[1]+u[1]*k,0];m.arrow(A,B,'#a78bfa',2,-0.8);m.label('toward C',B,-6,-10,'right','#6d28d9',13);m.pt('toC',B,'#a78bfa','<b>Toward C</b> = (0.50, 0.50) in UV, the center of the glass. C itself is outside this floor patch.','toward C')}
+  o.labels.push(ctx=>{const fy=op.floorY??o.cv.height-16;plate(ctx,`floor: the screen, lying level, x ${f(X0)}–${f(X1)}, y ${f(Y0)}–${f(Y1)} (grid every 0.01)`,o.cv.width-8,fy,12,'right','#475569');plate(ctx,'arrow ruler: 1 = 0.15 UV',o.cv.width-8,fy-26,12,'right','#475569')});
+  const a=mapped(o,q=>fn(add3(S,q,AR)));
+  {const T=new Trace(5),h=heightTrace(T,w[0],w[1],TP);a.pt('S',P0,'#fff',`<b>${sn}</b>: the glass above ${kn}, (${f(w[0])}, ${f(w[1])}, ${f4(S[2])}) in UV. N starts here.<br>Its height, by Lesson 10.1's formula (C = (0.50, 0.50), radius 0.25, bevel 0.10):<pre>${T.take().join('\n')}\nrounded: ${f4(h)}</pre>`+legNote,sn)}a.label(sn,P0,-14,-12,'right');
+  return{m,a,S,fn,depth:q=>o.proj(fn(add3(S,q,AR))).d}}
+function arrN(a,N,faint,name='N',html){a.arrow(P0,N,faint?'#f9a8d4':COL.N,faint?2.4:3.4,faint?1.7:2.4);if(name)a.label(name,N,10,-12,'left','#be185d',14);a.pt('Ntip',N,faint?'#f9a8d4':COL.N,html||`<b>The tip of N</b>: the end of N with the arrowhead.<br>N = (${fx(N[0])}, ${fx(N[1])}, ${fx(N[2])}), 1 long, counted from S.`,'tip of N')}
+/* the x line through S, its ruler in arrow units: a tick every 0.1, a number every 0.5 */
+function xLine(a,op={}){const la=op.a??-0.6,lb=op.b??1.0,A=[la,0,0],B=[lb,0,0],cut=op.cut,lay=op.layer||1.2;
+  if(cut==null)a.seg(A,B,COL.xP,2.2,false,lay);else{a.seg(A,[cut,0,0],COL.xP,2.2,false,op.away?1.6:1.3);a.seg([cut,0,0],B,COL.xP,2.2,false,op.away?1.3:1.6)}
+  if(op.zero!==false)a.label('0',P0,0,20,'center','#334155',12.5);
+  if(op.ticks!==false)for(let t=Math.ceil(la*10);t<=Math.floor(lb*10);t++){if(!t)continue;const q=[t/10,0,0],big=t%5===0,k=big?1.9:1,nd=[0,0,0.018];a.seg(add3(q,nd,-k),add3(q,nd,k),'#111827',big?1.7:1.1,true,1.4);if(big&&op.nums!==false)a.label(f2n(t/10),q,0,20,'center','#334155',12.5)}
+  if(op.lab!==false)a.label(op.text||'the x line',B,10,-14,'left',COL.xT,13.5)}
+/* the three legs of the walk from S, x leg first; which ones are drawn bold, faint or not at all */
+const LEGCOL=[COL.xP,COL.yP,COL.hP];
+function stops(N){return[P0,[N[0],0,0],[N[0],N[1],0],[N[0],N[1],N[2]]]}
+function legs(a,N,show=[1,1,1],layer=1.8){const s=stops(N);for(let k=0;k<3;k++){const b=show[k];if(!b||Math.abs(N[k])<1e-9)continue;a.seg(s[k],s[k+1],b===1?LEGCOL[k]:'#cbd5e1',b===1?3.4:1.6,b!==1,layer+(b===1?0.05:0))}return s}
+/* the wall at one distance to the right of S: every point keeps that distance */
+function wallOf(a,v,op={}){const lo=op.lo||[-0.62,-0.3],hi=op.hi||[0.78,1.1],mk=(y,h)=>[v,y,h];
+  a.poly([mk(lo[0],lo[1]),mk(hi[0],lo[1]),mk(hi[0],hi[1]),mk(lo[0],hi[1])],op.fill||COL.wallF,op.stroke||COL.wallS,1.4,op.layer||1.5);
+  return{corner:mk(hi[0],hi[1])}}
+/* is the plus direction of x going away from the viewer, in this view? */
+const xAway=sc=>sc.depth([1,0,0])<sc.depth(P0);
+/* the wall, the x line through it, and the walk: the hero, Section 2, the exercises */
+function walkScene(o,w,N,op={}){const sc=sceneAt(o,w,op),a=sc.a,v=N[0],G=[v,0,0],away=xAway(sc),sn=op.S||'S',gn=op.G||'Gx';
+  if(op.wall!==false)wallOf(a,v);
+  xLine(a,{cut:op.wall!==false?v:null,away,nums:op.nums,a:Math.min(-0.6,v-0.15),b:Math.max(1.0,v+0.2),text:op.lineText});
+  const st=legs(a,N,[1,1,1],1.8);arrN(a,N,false,op.nName??'N',op.nTipHtml);
+  if(op.gLab!==false)a.label(gn,G,-12,-16,'right');a.pt('Gx',G,COL.xP,`<b>${gn}</b>: the end of the x leg. On the ruler of the x line${op.gLab===false?' (Step 2)':''}: ${rightOf(v,sn)}.`,gn);
+  if(Math.abs(N[1])>1e-9)a.pt('e2',st[2],COL.yP,`<b>The end of the y leg</b>: still ${rightOf(v,sn)}.`,'end of the y leg');
+  if(op.wall!==false&&op.wallLab!==false){const q=o.proj(sc.fn(add3(sc.S,[v,0.78,1.1],AR)));o.labels.push(c=>{plate(c,'the wall: every point here is',q.x+8,q.y-12,13.5,'left',COL.wallT);plate(c,rightOf(v,sn),q.x+8,q.y+14,13.5,'left',COL.wallT)})}
+  if(op.legLabs!==false){if(op.xLegBelow)a.label('x leg',[v*0.55,0,0],4,22,'center',COL.xT,13.5);else a.label('x leg',[v*0.3,0,0],0,-14,'center',COL.xT,13.5);if(Math.abs(N[1])>1e-9)a.label('y leg',[v,N[1]/2,0],12,10,'left',COL.yT,13.5);a.label('height leg',[v,N[1],N[2]/2],12,0,'left',COL.hT,13.5)}
+  return sc}
+
+/* ================= this lesson: a straight line on the wall, spun around the x line ================= */
+Object.assign(COL,{teal:'#0d9488',tealT:'#115e59',tealF:'#99f6e4',tealA:'#5eead4',gn:'#475569',gnT:'#1f2937'});
+const R_T=Math.hypot(NK[1],NK[2]);                 /* Gx to T: as far as the tip of N is from Gx, √0.9081 */
+const dirAt=t=>[0,Math.cos(t*DEG),Math.sin(t*DEG)];
+const GX=[NK[0],0,0];
+const WALL={lo:[-1.0,-0.52],hi:[1.0,1.0]};
+const sq=x=>R12(x*x);
+/* the wall's label, at its top corner toward the bottom of the picture */
+function wallLabel(o,sc,v,sn='S',at=[WALL.hi[0],WALL.hi[1]]){const q=o.proj(sc.fn(add3(sc.S,[v,at[0],at[1]],AR)));o.labels.push(c=>{plate(c,'the wall: every point here is',q.x+8,q.y-12,13.5,'left',COL.wallT);plate(c,rightOf(v,sn),q.x+8,q.y+14,13.5,'left',COL.wallT)})}
+/* the straight line from Gx to the tip of N (Lesson 10.5), dark gray */
+function gxTip(a,G,N,lab=true,at=0.35,o=null,sc=null){a.seg(G,N,COL.gn,3,true,1.9);if(!lab)return;const q=add3(G,[N[0]-G[0],N[1]-G[1],N[2]-G[2]],at);
+  if(o&&sc){const P=o.proj(sc.fn(add3(sc.S,q,AR)));o.labels.push(c=>{const X=P.x+70,Y=P.y+70;thin(c,P.x,P.y,X-4,Y-8,COL.gnT,1.4);plate(c,'dark gray: Gx to the tip of N',X,Y,13,'left',COL.gnT)})}else a.label('dark gray: Gx to the tip of N',q,14,4,'left',COL.gnT,13)}
+/* the part of the x line past Gx, on the other side of the wall: drawn fainter when it is behind the wall in this view */
+function behindWall(a,away,v=NK[0],b=1.3,lab=true){if(!away)return;a.seg([v,0,0],[b,0,0],'rgba(255,255,255,0.62)',5,true,1.4);if(lab)a.label('behind the wall',[v+(b-v)*0.72,0,0],0,-16,'center',COL.xT,12)}
+/* the teal line at spin t: from G, r long, to T; its start (0°) faint; the path of T so far */
+function tealAt(a,G,t,op={}){const r=op.r??R_T,d=dirAt(t),T=add3(G,d,r);
+  if(op.ghost){a.seg(G,add3(G,dirAt(0),r),COL.tealF,2.4,true,1.7);if(op.ghostLab)a.label('start: spin 0°',add3(G,dirAt(0),r),12,-12,'left',COL.tealT,12.5)}
+  if(op.arc&&t>0.5){const arc=[];for(let i=0;i<=48;i++)arc.push(add3(G,dirAt(t*i/48),r));a.path(arc,COL.tealA,2.2,true,1.72);if(op.arcLab&&t>=75)a.label('path of T so far',add3(G,dirAt(t*0.8),r),10,-8,'left',COL.tealT,12.5)}
+  if(op.draw!==false)a.seg(G,T,COL.teal,3.2,false,1.85);
+  return{T,d}}
+
+/* ================= Section 1: one 3D stepper ================= */
+let idea=0,spin=0;const IDEA_N=3;
+const spinTxt=()=>`${Math.round(spin)}°`;
+function tPt(a,T,t){a.pt('T',T,COL.teal,idea<2?`<b>T</b>: the end of the teal line, ${fx(r3(R_T))} from Gx (arrow units), toward the bottom of the picture.<br>It is ${rightOf(NK[0])}, on the wall.`:`<b>T</b>: the end of the teal line.<br>Spin ${Math.round(t)}°: it has turned ${Math.round(t)}° around the x line from toward the bottom of the picture.<br>It is still ${rightOf(NK[0])}, on the wall.`,'T')}
+function drawIdea3D(o){const s=idea,sc=sceneAt(o,KP,{curves:s===0,Ktip:'<b>K = (0.62, 0.66)</b> in UV, on the screen (height 0).<br>The pixel of this lesson, on the rim.'}),a=sc.a,away=xAway(sc);
+  wallOf(a,NK[0],WALL);wallLabel(o,sc,NK[0]);
+  xLine(a,{cut:NK[0],away,a:-0.6,b:1.3,lab:false});a.label('the x line',[1.3,0,0],10,-2,'left',COL.xT,13.5);behindWall(a,away,NK[0],1.3,s<=1);
+  legs(a,NK,[1,0,0],1.8);a.label('x leg: 0.302',[NK[0]*0.5,0,0],18,30,'left',COL.xT,13);
+  arrN(a,NK,s>=1,'N');
+  gxTip(a,GX,NK,true,0.3,o,sc);
+  a.label('Gx (0.302)',GX,14,-20,'left');a.pt('Gx',GX,COL.xP,'<b>Gx</b>: the end of the x leg, 0.302 to the right of S on the x line\'s ruler.<br>The x line goes through the wall here.','Gx');
+  if(s===0)return;
+  const t=s===1?0:spin;
+  const tl=tealAt(a,GX,t,{ghost:s===2,ghostLab:s===2,arc:s===2,arcLab:s===2});
+  a.label('the teal line',add3(GX,tl.d,R_T*0.5),12,10,'left',COL.tealT,13.5);a.label('T',tl.T,-10,-14,'right',COL.tealT,14);tPt(a,tl.T,t)}
+/* ---------- flat pictures ---------- */
+const P2=(O,q)=>[O.x+q[0]*O.S,O.y-q[1]*O.S];
+function flatTitle(ctx,t){plate(ctx,t,8,16,13,'left','#334155')}
+function seg2(ctx,O,a,b,col,w=2.2,plain=true){const A=P2(O,a),B=P2(O,b);plain?thin(ctx,A[0],A[1],B[0],B[1],col,w):line(ctx,A[0],A[1],B[0],B[1],col,w)}
+function dot2(st,O,q,col,html,label){const p=P2(O,q);addPt(st,p[0],p[1],col,html,label,{small:true})}
+function fdot(ctx,p,col,r=5){ctx.beginPath();ctx.arc(p[0],p[1],r,0,7);ctx.fillStyle=col;ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#111827';ctx.stroke()}
+function gxRing(ctx,p){ctx.beginPath();ctx.arc(p[0],p[1],9,0,7);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=2.4;ctx.strokeStyle=COL.xP;ctx.stroke();ctx.beginPath();ctx.arc(p[0],p[1],3,0,7);ctx.fillStyle=COL.xT;ctx.fill()}
+/* the x line drawn left to right, with its ruler: 0 at S, a tick every 0.1, a number every 0.5 */
+function xRuler2(ctx,O,a,b,lab=true){const A=P2(O,[a,0]),B=P2(O,[b,0]);line(ctx,A[0],A[1],B[0],B[1],COL.xP,2.4);
+  for(let t=Math.ceil(a*10);t<=Math.floor(b*10);t++){const q=P2(O,[t/10,0]),big=t%5===0;thin(ctx,q[0],q[1]-(big?7:4),q[0],q[1]+(big?7:4),'#111827',1.4);if(big&&t)plate(ctx,f2n(t/10),q[0],q[1]-20,12,'center','#334155')}
+  if(lab)plate(ctx,'the x line',B[0]-4,B[1]+20,13,'right',COL.xT)}
+/* Step 2: the view from above. To the right drawn to the right, toward the bottom of the picture drawn down; height not shown */
+function drawAboveFlat(ctx,st,t=0){const O={x:190,y:172,S:150},Y=y=>-y;   /* a point 0.4 toward the bottom of the picture is drawn at −0.4 */
+  for(let i=-6;i<=12;i++){const p=P2(O,[i/10,0]);thin(ctx,p[0],P2(O,[0,Y(-1)])[1],p[0],P2(O,[0,Y(1)])[1],'#e8edf3',1)}
+  for(let j=-10;j<=10;j++){const p=P2(O,[0,Y(j/10)]);thin(ctx,P2(O,[-0.6,0])[0],p[1],P2(O,[1.2,0])[0],p[1],'#e8edf3',1)}
+  flatTitle(ctx,'coordinates: view from above · arrow units, from S · to the right →, toward the bottom of the picture: drawn ↓');
+  const wA=P2(O,[NK[0],Y(-1.02)]),wB=P2(O,[NK[0],Y(1.02)]);ctx.lineWidth=18;ctx.strokeStyle='rgba(100,116,139,0.38)';ctx.lineCap='butt';ctx.beginPath();ctx.moveTo(wA[0],wA[1]);ctx.lineTo(wB[0],wB[1]);ctx.stroke();
+  xRuler2(ctx,O,-0.6,1.2);seg2(ctx,O,[0,0],[NK[0],0],COL.xP,6,false);
+  if(t>0.5)seg2(ctx,O,[NK[0],0],[NK[0],Y(R_T)],COL.tealF,2.4);
+  const T=[NK[0],Y(R_T*Math.cos(t*DEG))];seg2(ctx,O,[NK[0],0],T,COL.teal,3.2,false);
+  const s0=P2(O,[0,0]),g=P2(O,[NK[0],0]),tp=P2(O,T);
+  plate(ctx,'S',s0[0]-10,s0[1]-18,14,'right');plate(ctx,'0',s0[0]-12,s0[1]+18,12,'right','#334155');gxRing(ctx,g);plate(ctx,'Gx',g[0]-12,g[1]+20,14,'right');plate(ctx,'x leg: 0.302',P2(O,[0.125,0])[0],s0[1]-22,12,'center',COL.xT);
+  fdot(ctx,tp,COL.teal,5);plate(ctx,t>0.5?`T (spin ${Math.round(t)}°)`:'T',tp[0]+12,tp[1]+(Math.abs(tp[1]-g[1])<20?22:0),14,'left',COL.tealT);
+  plate(ctx,'the teal line: on the gray band at every spin',752,230,12.5,'right',COL.tealT);
+  plate(ctx,'the wall, seen edge-on from above: a line,',752,150,12.5,'right',COL.wallT);plate(ctx,'drawn as a gray band (all points 0.302 to the right of S)',752,174,12.5,'right',COL.wallT);
+  plate(ctx,'height: not shown in this view',752,286,12.5,'right','#334155');plate(ctx,'pale lines: along x and along y, square cells',752,312,12.5,'right','#64748b');
+  dot2(st,O,[0,0],'#fff','<b>S</b>, seen from above: 0 on the ruler of the x line.','S');dot2(st,O,[NK[0],0],COL.xP,'<b>Gx</b>, seen from above: 0.302 to the right of S. The teal line starts here.','Gx');
+  dot2(st,O,T,COL.teal,t>0.5?`<b>T</b> at spin ${Math.round(t)}°, seen from above: 0.302 to the right of S, on the wall's line. Its height is not shown here.`:'<b>T</b>, seen from above: 0.953 toward the bottom of the picture from Gx, and 0.302 to the right of S.','T')}
+function drawIdeaFlat(){const st=$('ideaFlatStage'),cv=$('ideaFlat'),ctx=cv.getContext('2d'),s=idea;clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+  st.hidden=s<1;$('spinCtl').hidden=s<2;if(s>=1)drawAboveFlat(ctx,st,s===2?spin:0)}
+
+const info=(k,l)=>`<button class="info" data-tip="${k}" aria-label="${l}">ⓘ</button>`;
+function ideaPanel(){
+  const caps=[
+  `<b>Step 1 · The wall, the x line through it, and the question.</b><ul class="capl"><li>The glass zoomed in at K = (0.62, 0.66). N starts at S, the glass above K.</li><li>N = (0.302, 0.402, 0.864) ${info('nK','How N at K is calculated')}, in arrow units ${info('ruler','Arrow units and UV')}.</li><li>The x leg (lime) goes 0.302 to the right, along the x line, to Gx.</li><li>The <b>wall</b>: all points 0.302 to the right of S ${info('wall','The wall of Lessons 10.4 and 10.5')}. It is flat (Lesson 10.5).</li><li>The x line goes through the wall at Gx; its part behind the wall is drawn fainter.</li><li>Dark gray: the straight line from Gx to the tip of N, on the wall (Lesson 10.5).</li><li>The question: turn a straight line on the wall around the x line (Step 3 defines it: like a wheel on its axle). Does it stay on the wall?</li><li>Why ask? Lesson 10.7 uses this turn to reach every line on the wall through Gx; Lesson 10.9 then shows that the x line meets each of them at a square corner.</li></ul>`,
+  `<b>Step 2 · A straight line on the wall from Gx: the teal line.</b><ul class="capl"><li>New: the <b>teal line</b>, straight from Gx toward the bottom of the picture.</li><li>As an arrow from Gx it changes only y: x part 0, so T is Gx's 0.302 + 0 = 0.302 to the right of S, on the wall (as Lesson 10.4's y leg).</li><li>Its end <b>T</b> is 0.953 from Gx ${info('gxLen','How far the tip of N is from Gx')}.</li><li>The direction and the length are both chosen:<ul><li>toward the bottom of the picture: the way Lesson 10.4's y leg went;</li><li>0.953: as far as the tip of N is from Gx, for Lesson 10.7.</li></ul></li><li>Below: the view from above. Height is not shown in it.</li><li>The wall is seen edge-on there: a line, drawn as a gray band. The teal line is drawn on it.</li><li>So in this view, too, the teal line is 0.302 to the right of S.</li></ul>`,
+  `<b>Step 3 · Spin the teal line around the x line.</b><ul class="capl"><li>New: the <b>spin</b> slider. It turns the teal line around the x line; only the teal line spins.</li><li>Definition: a turn around the x line works like a wheel on its axle:<ul><li>every point of the teal line keeps how far to the right of S it is: 0.302;</li><li>it goes round the x line, changing only its y and height;</li><li>a point on the x line, like Gx, does not move.</li></ul></li><li>The wall is all points 0.302 to the right of S (Lesson 10.4).</li><li>So at every spin every point of the teal line is on the wall.</li><li>0°: the start (faint). The spin turns toward up (chosen): 90° is straight up, 180° toward the top of the picture.</li><li>Below: the view from above, as in Step 2. At every spin T stays on the gray band: the wall.</li><li>The angled 3D view draws T swinging left: lines that point toward or away from us look shorter, like a pencil pointed at you.</li><li>Lesson 10.7 looks at T's whole path.</li></ul>`];
+  $('ideaCap').innerHTML=caps[idea]+`<div style="margin-top:8px;color:#6b7280;font-size:13.5px">Step ${idea+1} of ${IDEA_N}</div>`;bindTips($('ideaCap'));
+  [...$('ideaDots').children].forEach((b,i)=>b.classList.toggle('on',i===idea));$('ideaPrev').disabled=idea===0;$('ideaNext').disabled=idea===IDEA_N-1;
+  $('spinRange').value=String(Math.round(spin));$('spinV').textContent=spinTxt();
+  drawIdeaFlat();
+}
+function goIdea(i){idea=i;spin=[0,0,120][i];ideaPanel();ideaOrb.render()}
+const CAM={yaw:-38,pitch:30};
+const ideaOrb=new Orbit3D($('ideaStage'),$('ideaCv'),{yaw:CAM.yaw,pitch:CAM.pitch,zoom:1,scale:90,target:[0,0,0],dx:-70,dy:60,compassPos:'tl',coord:'UV, zoomed in at K',draw:drawIdea3D});
+viewBar($('ideaBar'),ideaOrb,[]);
+
+/* ================= the hero ================= */
+const hero3=new Orbit3D($('hero3Stage'),$('hero3'),{yaw:CAM.yaw,pitch:30,scale:640,target:[0.5,0.5,0.04],dx:40,dy:0,coord:'UV (x, y and height)',compassPos:'bl',draw:o=>{const r=glassScene(o,TP,{w:KP,cuts:false,arrows:true});
+  const tipN=add3(r.H,r.n.N,0.06);o.label('N',tipN,10,-8,'left','#be185d');o.label('K',[KP[0],KP[1],0],10,14,'left');o.label('S',r.H,-12,-6,'right');o.label('C',[0.5,0.5,0],0,22,'center');
+  o.labels.push(c=>plate(c,'arrow ruler: 1 = 0.06 UV',c.canvas.width-8,c.canvas.height-16,12,'right','#475569'));
+  o.pt('K',[KP[0],KP[1],0],'#fff','<b>K = (0.62, 0.66)</b> in UV, y toward the bottom of the picture.<br>The pixel this lesson traces. It lies on the screen (height 0).','K');o.pt('S',r.H,'#fff',`<b>S</b>: the glass above K. (0.62, 0.66, ${f4(r.n.h)}) in UV.`,'S');o.pt('N',tipN,COL.N,'<b>The tip of N at K</b>. N = (0.302, 0.402, 0.864), drawn 0.06 UV long here (1 arrow unit is drawn 0.06 UV long). The zoomed pictures draw it 0.15 UV long.','tip of N');o.pt('C',[0.5,0.5,0],COL.glass,'<b>C = (0.50, 0.50)</b> in UV: the center of the glass.','C')}});
+viewBar($('hero3Bar'),hero3,[]);
+const heroZoom=new Orbit3D($('heroZoomStage'),$('heroZoom'),{yaw:CAM.yaw,pitch:CAM.pitch,scale:66,target:[0,0,0],dx:-30,dy:72,compassPos:'tl',coord:'UV, zoomed in at K',draw:o=>{const sc=sceneAt(o,KP,{floorLines:false}),a=sc.a;
+  wallOf(a,NK[0],WALL);xLine(a,{cut:NK[0],away:xAway(sc),a:-0.6,b:1.3,nums:false,lab:false,zero:false});a.label('the x line',[1.3,0,0],-6,20,'right',COL.xT,13.5);behindWall(a,xAway(sc));legs(a,NK,[1,0,0],1.8);arrN(a,NK,true,'N');
+  for(const t of [0,90,135]){const d=dirAt(t),E=add3(GX,d,R_T);a.seg(GX,E,COL.teal,2.8,false,1.84);a.label(`${t}°`,E,8,-10,'left',COL.tealT,12.5)}
+  a.label('Gx',GX,-12,-16,'right');a.pt('Gx',GX,COL.xP,'<b>Gx</b>: 0.302 to the right of S. The x line goes through the wall here.','Gx');
+  wallLabel(o,sc,NK[0]);o.labels.push(c=>plate(c,'teal: one line on the wall from Gx, at three spins',c.canvas.width-8,16,12.5,'right',COL.tealT))}});
+viewBar($('heroZoomBar'),heroZoom,[]);
+
+/* ================= Section 2: the trace at a draggable pixel ================= */
+const TR={w:[...KP],c:null};
+function dragK3D(cx,cy,o){if(!TR.c)TR.c=[...TR.w];const p=canvasPos(o.cv,cx,cy),Sc=heightAt(TR.c[0],TR.c[1],TP),g=o.floorAt(p[0],p[1],-Sc*18);if(!g)return;const q=(v,c)=>clamp(clamp(v,c-0.06,c+0.06),0.06,0.94);TR.w=[R12(Math.round(q(TR.c[0]+g[0]/18,TR.c[0])*1000)/1000),R12(Math.round(q(TR.c[1]+g[1]/18,TR.c[1])*1000)/1000)];traceAll()}
+document.addEventListener('pointerup',()=>{if(TR.c){TR.c=null;traceAll()}});
+/* the spin from 0° to 90° at one pixel */
+function traceScene(o,w,N,op={}){const sc=sceneAt(o,w,op),a=sc.a,v=N[0],G=[v,0,0],sn='S',r=Math.hypot(N[1],N[2]);
+  const xb=Math.max(1.3,v+0.3);wallOf(a,v,WALL);xLine(a,{cut:v,away:xAway(sc),a:Math.min(-0.6,v-0.3),b:xb,nums:false,lab:false,zero:false});a.label('the x line',[xb,0,0],-6,20,'right',COL.xT,13.5);
+  legs(a,N,[1,0,0],1.8);arrN(a,N,true,'N');gxTip(a,G,N,false);behindWall(a,xAway(sc),v,xb,false);
+  const T0=add3(G,dirAt(0),r),T9=add3(G,dirAt(90),r);
+  tealAt(a,G,90,{r,ghost:true,arc:true});
+  a.label('T at spin 0°',T0,12,-14,'left',COL.tealT,12.5);a.label('T at spin 90°',T9,12,-6,'left',COL.tealT,13);
+  a.label('pale arc: the path of T from 0° to 90°',add3(G,dirAt(22),r),14,10,'left',COL.tealT,12.5);a.label('Gx to the tip of N',add3(G,[0,N[1],N[2]],0.55),N[1]<0?12:-12,0,N[1]<0?'left':'right',COL.gnT,13);
+  a.label('Gx',G,-12,-16,'right');a.pt('Gx',G,COL.xP,`<b>Gx</b>: the end of the x leg, ${rightOf(v,sn)}. The x line goes through the wall here.`,'Gx');
+  a.pt('T0',T0,COL.tealF,`<b>T at spin 0°</b>: ${fx(r3(r))} toward the bottom of the picture from Gx.`,'T at spin 0°');
+  a.pt('T9',T9,COL.teal,`<b>T at spin 90°</b>: straight up from Gx, still ${rightOf(v,sn)}, on the wall.`,'T at spin 90°');
+  wallLabel(o,sc,v,sn);return sc}
+const traceOrb=new Orbit3D($('traceStage'),$('traceCv'),{yaw:CAM.yaw,pitch:CAM.pitch,scale:96,target:[0,0,0],dx:-78,dy:60,compassPos:'tl',coord:'UV, zoomed in at K',draw:o=>{traceScene(o,TR.w,nShown(TR.w[0],TR.w[1]),{curves:false,center:TR.c||TR.w,Kmove:dragK3D,Ktip:()=>`<b>K = ${pt(TR.w[0],TR.w[1])}</b> in UV, on the screen (height 0).<br>Drag K here or on the map.`});o.labels.push(c=>plate(c,`violet curves: the glass along the floor lines y = ${f(TR.w[1])} and x = ${f(TR.w[0])}`,c.canvas.width-8,16,12,'right',COL.glassT))}});
+viewBar($('traceBar'),traceOrb,[]);
+const MAPS=300;
+function drawMap(){const st=$('tMapStage'),cv=$('tMap'),ctx=cv.getContext('2d'),[u,v]=TR.w;clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,MAPS,MAPS);
+  const c=MAPS/2;ctx.beginPath();ctx.arc(c,c,RAD*MAPS,0,7);ctx.fillStyle='#f3e8ff';ctx.fill();ctx.beginPath();ctx.arc(c,c,(RAD-TP.bev)*MAPS,0,7);ctx.fillStyle='#fff';ctx.fill();
+  ctx.lineWidth=1;ctx.strokeStyle='#c4b5fd';ctx.stroke();ctx.beginPath();ctx.arc(c,c,RAD*MAPS,0,7);ctx.lineWidth=2.4;ctx.strokeStyle=COL.glass;ctx.stroke();
+  plate(ctx,'coordinates: UV, from above',8,16,12,'left');plate(ctx,'x →, y toward the bottom ↓',8,42,12,'left');plate(ctx,'white middle: the flat top',8,MAPS-16,12,'left',COL.glassT);plate(ctx,'violet band: the rim',8,MAPS-42,12,'left',COL.glassT);plate(ctx,'C',c+10,c-10,13,'left');
+  plate(ctx,'K',u*MAPS+12,v*MAPS-14,14,'left');
+  addPt(st,c,c,COL.glass,'<b>C = (0.50, 0.50)</b> in UV: the center of the glass.','C',{small:true});
+  const clampK=q=>clamp(q,0.06,0.94),set=(a,b)=>{TR.w=[R12(Math.round(clampK(a)*1000)/1000),R12(Math.round(clampK(b)*1000)/1000)];traceAll()};
+  addPt(st,u*MAPS,v*MAPS,'#fff',()=>`<b>K = ${pt(u,v)}</b> in UV. Drag it, or use the arrow keys (0.001 per press).`,'K, draggable',{key:'K',move:(cx,cy)=>{const q=canvasPos(cv,cx,cy);set(q[0]/MAPS,q[1]/MAPS)},keys:d=>set(u+d[0]*0.001,v+d[1]*0.001)})}
+/* how far the tip of N is from Gx: its y part and height part meet at a square corner (Lesson 9.1) */
+function gxChain(N){const b=sq(N[1]),h=sq(N[2]),r2=R12(b+h);return[`y part² = ${par(N[1])} × ${par(N[1])} = ${fx(b)}`,`height part² = ${fx(N[2])} × ${fx(N[2])} = ${fx(h)}`,`length² = ${fx(b)} + ${fx(h)} = ${fx(r2)}`,`length = √${fx(r2)} = ${f(Math.sqrt(r2))}`]}
+function traceAll(){const [u,v]=TR.w,N=nShown(u,v),x=N[0],r2=R12(sq(N[1])+sq(N[2])),r=f(Math.sqrt(r2));drawMap();traceOrb.render();
+  $('tRead').innerHTML=`<b>K = ${pt(u,v)}</b> in UV<br>S's height: ${f4(heightAt(u,v,TP))} in UV<br><b>N = (${fx(N[0])}, ${fx(N[1])}, ${fx(N[2])})</b> <button class="info" id="tNinfo" aria-label="How N is calculated">ⓘ</button><br><span class="small">x part, y part, height part, in arrow units</span><br>The teal line's length: <b>${r}</b> (chosen: as far as the tip of N is from Gx) <button class="info" id="tRinfo" aria-label="How far the tip of N is from Gx">ⓘ</button>`;setTip($('tNinfo'),nTipW('K',u,v));setTip($('tRinfo'),()=>`The tip of N, counted from Gx: x part 0, y part ${fx(N[1])}, height part ${fx(N[2])} (Gx has S's y and height). The y part and the height part meet at a square corner (height stands straight up from a level line: Lesson 10.3, Step 10), so by Lesson 9.1:<pre>${gxChain(N).join('\n')}</pre>The teal line is made this long (chosen, for Lesson 10.7).`);
+  const right=()=>`${fx(x)} + 0 = <b>${fx(x)}</b>`;
+  $('tTable').innerHTML=`<tr><th>T, counted from Gx (arrow units)</th><th>At spin 0°: the teal line toward the bottom of the picture</th><th>At spin 90°: straight up</th></tr>`
+   +`<tr><td class="px">x part (to the right)</td><td><b>0</b>: the teal line changes only y</td><td><b>0</b>: the spin changes only y and height</td></tr>`
+   +`<tr class="new"><td><b>How far to the right of S T is</b></td><td>${right()}</td><td>${right()}</td></tr>`;
+  bindTips($('tTable'));
+  const notes=[`<li>Each column is T at one spin, counted from Gx.</li>`,`<li>x part 0 at both spins (Step 3: the spin keeps how far to the right of S every point is), so T is ${rightOf(x)}, on this K's wall.</li>`,`<li>Where T goes in y and height is Lesson 10.7's topic.</li>`];
+  if(x<0)notes.push(`<li>Here N's x part is minus: Gx is ${fx(-x)} to the left of S, and so is the wall.</li>`);
+  if(x===0)notes.push(`<li>Here N's x part is 0: Gx is at S, and the wall goes through S.</li>`);
+  $('tCap').innerHTML=notes.join('')}
+
+/* ================= the exercises ================= */
+const exOpt={yaw:CAM.yaw,pitch:CAM.pitch,scale:74,target:[0,0,0],dx:-30,dy:60,compassPos:'tl',coord:'UV, zoomed in at K'};
+const EXA=[0.2,0,R_T];
+function ex1Scene(o,ans){const sc=sceneAt(o,KP,{labels:false,floorLines:false}),a=sc.a;wallOf(a,NK[0],WALL);xLine(a,{cut:NK[0],away:xAway(sc),a:-0.6,b:1.3,nums:false,zero:false,lab:false});a.label('the x line',[-0.6,0,0],-10,0,'right',COL.xT,13.5);behindWall(a,xAway(sc),NK[0],1.3,false);legs(a,NK,[1,0,0],1.8);
+  a.label('Gx',GX,ans?14:-12,ans?18:-16,ans?'left':'right');a.pt('Gx',GX,COL.xP,'<b>Gx</b>: 0.302 to the right of S, where the x line goes through the wall.','Gx');
+  const tl=tealAt(a,GX,ans?90:0,{ghost:ans,arc:ans});a.label(ans?'teal line at spin 90°':'teal line (spin 0°)',add3(GX,tl.d,R_T*0.55),ans?-12:12,ans?0:-14,ans?'right':'left',COL.tealT,12.5);a.label(ans?'T (spin 90°)':'T',tl.T,-10,-14,'right',COL.tealT,14);
+  const E=add3(GX,EXA);a.dot(E,'#be123c',6);a.label('point a',E,12,-8,'left','#be123c',14);a.pt('pta',E,'#be123c','<b>Point a</b>, from Gx: 0.2 to the right of Gx (off the wall), 0 toward the bottom of the picture, 0.953 up (arrow units).','point a');
+  {const W=[0,0,R_T],Wp=add3(GX,W);a.seg(Wp,E,'#be123c',1.8,true,2);a.label(ans?'0.2 to the right of the wall':'0.2',add3(Wp,[0.1,0,0]),0,22,'center','#be123c',12.5)}
+  if(ans)a.label('teal line at spin 0°',add3(GX,dirAt(0),R_T*0.7),12,8,'left',COL.tealT,12);
+  wallLabel(o,sc,NK[0],'S',ans?[WALL.hi[0],-0.25]:undefined);return sc}
+const ex1q=new Orbit3D($('ex1qStage'),$('ex1q'),Object.assign({},exOpt,{draw:o=>ex1Scene(o,false)}));
+const ex1a=new Orbit3D($('ex1aStage'),$('ex1a'),Object.assign({},exOpt,{yaw:0,pitch:22,dx:-20,dy:30,draw:o=>ex1Scene(o,true)}));
+const EX2T=150;
+function ex2Scene(o,ans){const sc=sceneAt(o,KP,{labels:false,floorLines:false}),a=sc.a;wallOf(a,NK[0],WALL);xLine(a,{cut:NK[0],away:xAway(sc),a:-0.6,b:1.3,nums:false,text:'the x line'});legs(a,NK,[1,0,0],1.8);
+  a.label('Gx',GX,-12,-16,'right');a.pt('Gx',GX,COL.xP,'<b>Gx</b>: 0.302 to the right of S, where the x line goes through the wall.','Gx');
+  const tl=tealAt(a,GX,EX2T,{ghost:true,ghostLab:true,arc:true,arcLab:!ans});a.label('the teal line, spin 150°',tl.T,10,-12,'left',COL.tealT,13.5);a.label('T',tl.T,-10,-14,'right',COL.tealT,14);
+  a.pt('T',tl.T,COL.teal,'<b>T</b>: the end of the teal line, 0.953 from Gx. Spin 150°: it has turned 150° around the x line from toward the bottom of the picture.','T');
+  if(!ans){a.label('how far to the right of S?',tl.T,-12,12,'right','#b91c1c',13.5);return sc}
+  a.label('T: on the wall, 0.302 to the right of S',tl.T,12,14,'left',COL.tealT,13.5);a.label('x leg: 0.302',[NK[0]*0.5,0,0],0,-16,'center',COL.xT,13);wallLabel(o,sc,NK[0],'S',[WALL.lo[0],WALL.hi[1]]);
+  return sc}
+const ex2q=new Orbit3D($('ex2qStage'),$('ex2q'),Object.assign({},exOpt,{draw:o=>ex2Scene(o,false)}));
+const ex2a=new Orbit3D($('ex2aStage'),$('ex2a'),Object.assign({},exOpt,{yaw:0,pitch:22,dx:-20,dy:40,draw:o=>ex2Scene(o,true)}));
+function exercises(){[ex1q,ex1a,ex2q,ex2a].forEach(o=>o.render());
+  document.querySelectorAll('.choices').forEach(g=>{const out=g.nextElementSibling;g.querySelectorAll('button').forEach(b=>{b.setAttribute('aria-pressed','false');b.onclick=()=>{g.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));out.className='verdict '+(b.dataset.ok==='1'?'ok':'no');out.textContent=b.dataset.why}})})}
+
+/* ================= tooltips of the captions ================= */
+const legNote='<p class="small">In the height lines, <i>leg</i> is a side of Lesson 10.1\'s rim triangle, not a leg of the walk.</p>';
+const nTipW=(n,u,v)=>()=>nTip(n,u,v)()+legNote;
+const TIPS={
+  nK:nTipW('K',0.62,0.66),
+  ruler:'Lesson 10.4: the <b>arrow unit</b>: 1 = the length of N. It is a unit of the drawing: each picture draws an arrow shrunk and says by how much (Lesson 10.3\'s arrow ruler). So N\'s 0.302 is a place in the drawing, not 0.302 UV on the glass. This drawing draws 1 arrow unit 0.15 UV long:<pre>the x leg, as drawn = 0.302 × 0.15 UV = 0.0453 UV</pre>S and K are points on the glass and the screen, so their numbers are in UV. The wall and the lines on it are in arrow units: places in the zoomed drawing, not sizes on the glass.',
+  wall:'Lesson 10.4: walk from S to the tip of N in three legs. The x leg goes 0.302 to the right. The y leg and the height leg have x part 0, so the rest of the walk stays 0.302 to the right of S. All such points form the <b>wall</b>: a helper, not part of the glass. Lesson 10.5: the arrow between two points of the wall has x part 0, so the straight line between them stays on it: the wall is flat.',
+  gxLen:()=>`The tip of N, counted from Gx: Gx has S's y and height (the x leg changes only x), so the y part and the height part are N's: x part 0, y part 0.402, height part 0.864. The y part and the height part meet at a square corner (height stands straight up from a level line: Lesson 10.3, Step 10's standing triangle), so by Lesson 9.1:<pre>${gxChain(NK).join('\n')}</pre>The teal line is made this long (chosen, for Lesson 10.7).`,
+  views:'Lesson 10.4, Step 5: the wall seen straight on, from S\'s side, looking to the right. It draws toward the bottom of the picture (→) and up (↑). To the right is not shown: every point here is 0.302 to the right of S, and the x line runs straight away from us, so we see only its end, Gx.',
+  turn:'Lesson 10.3, Step 6: the turn slider turned the x walk by 90° around P, the start of the x walk, against the clock, in a drawing beside the 3D picture. Only that drawing showed the turn. A turn changes directions; it does not change lengths: the turned walk was as long as before.',
+  quarter:'Lesson 10.3, Step 7: a quarter turn (90°) against the clock takes 1 toward the bottom of the picture to up 1, and the turned walk is as long as before. Here it takes the teal line\'s 0.953 toward the bottom of the picture to 0.953 up.'
+};
+function bindTips(root){root.querySelectorAll('.info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip]))}
+
+/* ================= start ================= */
+(function(){
+  for(let i=0;i<IDEA_N;i++){const b=document.createElement('button');b.className='dot';b.setAttribute('aria-label','Step '+(i+1));b.onclick=()=>goIdea(i);$('ideaDots').appendChild(b)}
+  $('ideaPrev').onclick=()=>{if(idea>0)goIdea(idea-1)};$('ideaNext').onclick=()=>{if(idea<IDEA_N-1)goIdea(idea+1)};
+  $('spinRange').addEventListener('input',e=>{spin=Number(e.target.value);$('spinV').textContent=spinTxt();drawIdeaFlat();ideaOrb.render()});
+  $('tHome').onclick=()=>{TR.w=[...KP];traceAll()};
+  hero3.render();heroZoom.render();goIdea(0);traceAll();exercises();
+})();
+</script>
+</body>
+</html>

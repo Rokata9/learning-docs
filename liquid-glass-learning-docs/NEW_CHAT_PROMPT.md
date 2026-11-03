@@ -98,4 +98,4 @@ I am an experienced software engineer. I am a total beginner in graphics, render
 - HTML lessons: one self-contained file each (inline CSS and JS, works from `file://`), desktop at 1920×1080, light theme only.
 - The Chapter 7 frost constants are frozen (`CURRENT_STATE.md`, “Frozen frost stack”).
 - Never use `ultraThinMaterial` or `glassEffect` as the glass implementation.
-- The plan has 303 lessons. Project files never store which lessons are complete.
+- The plan has 307 lessons. Project files never store which lessons are complete.
