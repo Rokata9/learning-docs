@@ -79,6 +79,7 @@ I am an experienced software engineer. I am a total beginner in graphics, render
 
 ## 6. Generate job
 
+- A lesson that turns out to hold more than one concept is split at once, without asking me (`AGENTS.md` rule 16): renumber, generate the first of the new lessons, and say in chat what was split and why.
 - Generate only the named lesson, by its type (`AGENTS.md` rule 18 and “Scope and files”): `C` → the HTML page only; `B` → HTML, the iOS explorer, and the Metal (or Swift) exercise with its prepared calling code; `E` → HTML and its Swift files.
 - Without the iOS lab or Xcode, say so before generating a `B` or `E` lesson.
 - Before delivering, run `AGENTS.md` rules 20 (with the fresh review), 21 and 25.
@@ -91,7 +92,20 @@ I am an experienced software engineer. I am a total beginner in graphics, render
 - No ZIP files unless I ask. Do not commit or push unless I ask.
 - End with the list of changed files and their repository paths.
 
-## 8. Fixed facts
+## 8. Context budget: a new session only when needed
+
+Standing preference (2026-11-04), for every job:
+
+- Keep working in this chat while the rest of the job fits in the remaining context.
+- When you estimate that it will not fit (roughly 20% of the context left with work still open), do not wait to be told:
+  1. stop at a clean point, and write the state into `CURRENT_STATE.md` and the handoff: what is done, what is open, the decisions I made;
+  2. start a new session yourself with a fresh context and a complete brief: the job, the files, the open items, what done looks like;
+  3. end your turn here with one line that names and links the new session.
+- I approve starting that session in advance. Start it directly; never offer it as a choice or a “New session / Do it here” card, and do not ask me first.
+- Your context figure is an estimate. The 20% leaves room for the write-up and the brief.
+- Never start a new session for any other reason unless I ask.
+
+## 9. Fixed facts
 
 - Platform: Swift, SwiftUI, Metal (`.metal` + `ShaderLibrary`). Minimum iOS 17.
 - Test device: iPhone 16 Pro. Preview canvas: 402 × 874 pt, the iPhone 16 Pro screen. Previews: light first, then dark, vertically scrollable.

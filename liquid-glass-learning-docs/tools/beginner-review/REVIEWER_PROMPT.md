@@ -16,7 +16,7 @@ Use this for every new lesson and every revision, before delivery (`AGENTS.md` r
    - Not a fork, and not the agent that wrote the lesson.
    - Give it the prompt below, with the six placeholders filled in.
    - It must not edit files.
-3. **Fix** every item marked `blocks` or `slows`. If the reviewer counts more new ideas than the lesson's type allows, stop and tell the learner first, with the split it proposes (`AGENTS.md` rule 16). Then extract again and run a new fresh agent once more.
+3. **Fix** every item marked `blocks` or `slows`. If the reviewer counts more new ideas than the lesson's type allows, split the lesson at once as it proposes, without asking the learner (`AGENTS.md` rule 16), and say in chat what was split. Then extract again and run a new fresh agent once more. Four fresh reviews per page at most (`AGENTS.md` rule 20); after the fourth, deliver with the open items named.
 4. **Deliver** the lesson with the reviewer's final list:
    - what was fixed;
    - what is left, and why;
