@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 10.4 — The rest of the walk stays on a wall</title>
+<link rel="icon" href="data:,">
+<style>
+  :root{--ink:#1f2937;--muted:#6b7280;--line:#d1d5db;--soft:#f6f7f9;--green:#059669;--indigo:#4338ca;--amber:#d97706;--blue:#1e40af;--red:#dc2626}
+  *{box-sizing:border-box}
+  body{margin:0;background:#fff;color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1600px;margin:0 auto;padding:0 24px 90px}
+  header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;border-bottom:1px solid var(--line);padding:14px 0}
+  header.top a,.navfoot a{color:var(--blue);text-decoration:none;font-size:14px}
+  header.top a:hover,.navfoot a:hover{text-decoration:underline}
+  .crumb,.sub{color:var(--muted);font-size:14px}
+  h1{font-size:27px;margin:20px 0 2px}h2{font-size:21px;margin:46px 0 8px;border-top:2px solid var(--line);padding-top:22px}
+  h2 .tag{display:block;font-size:13px;color:var(--muted);margin-bottom:2px;font-weight:600}
+  h3{font-size:16.5px;margin:26px 0 6px}p{font-size:15.5px;max-width:92ch;margin:8px 0}p.lead{font-size:17px;max-width:96ch}li{font-size:15.5px}
+  code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+  code{background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+  figure{margin:16px 0}canvas{display:block;border:1px solid var(--line);border-radius:8px;background:#fff}
+  figcaption{font-size:14px;color:#4b5563;max-width:100ch;margin-top:8px}.stage{position:relative}
+  .heroGrid{display:grid;grid-template-columns:760px 760px;gap:28px;align-items:start}
+  .grid3d{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start}
+  .ideaGrid{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start;margin-top:14px}.ideaCap{min-height:200px;margin-bottom:12px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .pair{display:grid;grid-template-columns:auto auto;gap:28px;justify-content:start;align-items:start}
+  .before{border:1px solid #a5b4fc;background:#eef2ff;border-radius:10px;padding:14px 18px;margin:20px 0}
+  .before h2{font-size:18px;border:0;margin:0 0 8px;padding:0}
+  .coords{border:1px solid #93c5fd;background:#eff6ff;border-radius:10px;padding:14px 18px;margin:20px 0}.coords h2{font-size:18px;border:0;margin:0 0 6px;padding:0}.coords p{font-size:14.5px}.coords table.trace td,.coords table.trace th{background:#fff;font-size:13.5px}.before p,.before li{font-size:14.5px}.before ul{margin:6px 0}
+  .info{display:inline-block;width:17px;height:17px;line-height:15px;border-radius:50%;border:1px solid var(--blue);color:var(--blue);background:#eef2ff;font-size:11px;text-align:center;cursor:pointer;padding:0;vertical-align:2px;font-family:inherit;margin-left:3px}
+  .info:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+  #tip{position:fixed;z-index:60;max-width:420px;max-height:calc(100vh - 20px);overflow:auto;background:#111827;color:#f9fafb;border-radius:8px;padding:10px 34px 10px 12px;font-size:13.5px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.28);display:none}
+  #tip.open{display:block}#tip.wide{max-width:600px}
+#tip.xwide{max-width:min(820px,calc(100vw - 20px))}
+#tip ul{margin:6px 0 0;padding-left:18px}#tip li{font-size:13.5px;margin:3px 0;line-height:1.4}#tip img{width:100%;display:block;border-radius:6px;margin-top:8px}
+#tip .tsec{color:#fde68a;font-weight:700;font-size:13px;margin:12px 0 0}
+#tip .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#tip .tgrid pre{font-size:11.5px}
+#tip .tnote{margin:10px 0 0}#tip .tclose{position:absolute;top:4px;right:6px;background:none;border:0;color:#9ca3af;font-size:15px;cursor:pointer;padding:2px 4px}
+  #tip b{color:#fde68a}#tip code{background:#1f2937;border-color:#374151;color:#e5e7eb}#tip pre{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;margin:8px 0 0;background:#1f2937;border:1px solid #374151;border-radius:6px;padding:8px 10px;color:#e5e7eb}
+  .ptdot{position:absolute;width:20px;height:20px;border-radius:50%;transform:translate(-50%,-50%);border:3px solid #111827;cursor:pointer;padding:0;z-index:5;touch-action:none}
+  .ptdot.drag{cursor:grab}.ptdot.drag:active{cursor:grabbing}.ptdot.sm{width:15px;height:15px;border-width:2.5px}
+  .ptdot:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
+  table.trace{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}table.trace th,table.trace td{border:1px solid var(--line);padding:6px 9px;vertical-align:top;text-align:left}
+  table.trace th{background:var(--soft);font-size:13.5px}table.trace td.f{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+  table.trace tr.new td{background:#f0fdf4}table.trace tr.grp td{background:#eef2ff;font-weight:700;font-size:13.5px}
+  .readout{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 14px;line-height:1.7;white-space:pre-wrap}
+  .ctl{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:10px 0}.ctl label{font-size:14px;display:flex;align-items:center;gap:8px}.ctl input[type=range]{width:150px}.ctlname{font-size:13.5px;font-weight:700;color:var(--muted);min-width:70px}
+  .btn{font-size:14px;padding:6px 14px;border-radius:7px;border:1.5px solid var(--blue);background:#fff;color:var(--blue);cursor:pointer}.btn:hover{background:#eef2ff}.btn[aria-pressed=true]{background:var(--blue);color:#fff;box-shadow:inset 0 2px 4px rgba(0,0,0,.25)}.btn:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}.btn:disabled{opacity:.45;cursor:default}
+  .viewbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}.viewbar .btn{font-size:13px;padding:4px 10px}.viewbar .hint{font-size:13px;color:var(--muted);margin-left:6px}
+  .note{border-left:4px solid var(--amber);background:#fffbeb;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:110ch;margin:12px 0}.iosnote{border-left:4px solid var(--indigo);background:#eef2ff;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:110ch;margin:12px 0}
+  details{border:1px solid var(--line);border-radius:8px;margin:10px 0;background:#fff}details>summary{cursor:pointer;padding:10px 14px;font-size:15px;font-weight:600}details>summary:hover{background:var(--soft)}details .body{padding:4px 14px 14px}details details{margin:8px 0;background:var(--soft)}
+  .stepnav{display:flex;gap:10px;align-items:center;margin:0 0 10px}.stepnav .dots{display:flex;gap:6px;margin-left:8px}.stepnav .dot{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--muted);background:#fff;padding:0;cursor:pointer}.stepnav .dot.on{background:var(--indigo);border-color:var(--indigo)}
+  .capl{margin:6px 0 0;padding-left:20px}.capl ul{list-style:circle;padding-left:24px;margin:2px 0 4px}.capl li{font-size:15px;line-height:1.45;margin:3px 0}
+  .stepcap{min-height:230px;font-size:15.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+  .legend{list-style:none;padding:0;margin:8px 0}.legend li{position:relative;padding-left:42px;margin:7px 0;font-size:15px;line-height:1.45}.legend.two{display:grid;grid-template-columns:1fr 1fr;column-gap:36px;max-width:1500px}.legend li>span:first-child{position:absolute;left:4px;top:.2em}
+  .sw{display:block;width:28px;height:18px;border:1px solid #111827;border-radius:3px}.swl{display:block;width:28px;height:6px;border-radius:3px;border:1px solid #111827;margin-top:6px}.swd{display:block;width:15px;height:15px;border-radius:50%;border:2.5px solid #111827;margin:1px 0 0 6px}
+  .verdict{font-size:15px;margin-top:8px;font-weight:600}.verdict.ok{color:var(--green)}.verdict.no{color:var(--red)}
+  .exq{display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px;align-items:start;margin:6px 0 10px}.choices{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:8px 0}.choices .btn{text-align:left}
+  .navfoot{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:50px;padding-top:16px;font-size:14px}.small{font-size:14px;color:#4b5563}.scale{font-size:13.5px;color:#4b5563;margin-top:6px}[hidden]{display:none!important}
+  .flatRow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 0}
+  .exq>div:first-child,.exfig>div:first-child,.pair>div:first-child{max-width:600px}
+  .traceGrid{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start;margin-top:12px}.mapRow{display:grid;grid-template-columns:302px minmax(0,1fr);gap:18px;align-items:start}.tRead{font-size:15px;margin:0 0 10px;line-height:1.6}
+  table.trace td.px{border-left:6px solid #84cc16}table.trace td.py{border-left:6px solid #fb923c}table.trace td.ph{border-left:6px solid #38bdf8}table.trace td.f{white-space:nowrap}table.trace .lg{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#4b5563;font-size:12.5px}
+  .ideaCap{min-height:0}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="crumb">Liquid Glass course</span>
+  <a href="../../../liquid-glass-course.html">Course home</a><a href="lesson-light-surface-direction-and-material-thickness.html">Chapter 10</a>
+  <a href="../../glossary.html">Glossary</a><a href="lesson-10-03-surface-normal.html">← Lesson 10.3</a>
+</header>
+<div class="wrap">
+<h1>Lesson 10.4 — The rest of the walk stays on a wall</h1>
+<p class="sub">After the x leg, the walk to the tip of N goes 0 to the right. Light theme · desktop · works from <code>file://</code>.</p>
+<p class="lead">Lesson 10.3 gave every pixel an arrow, N, with an x part, a y part and a height part. Walk from the start of N to its tip in three straight legs, one per part: after the x leg, the other two legs go 0 to the right, so the rest of the walk stays on one wall. Lesson 10.6 uses this wall to show that a line from the tip of N, at a square corner to the x line (the level line through S along x), meets it where the x leg ends; Lesson 10.7 draws such a line toward any direction, and where it meets says how far N goes that way.</p>
+
+<figure>
+  <div class="heroGrid">
+    <div><div class="stage" id="hero3Stage"><canvas id="hero3" width="760" height="470"></canvas></div>
+      <div class="viewbar" id="hero3Bar"></div>
+      <figcaption><b>The glass with its normals.</b> Gray arrows: N at many pixels. Pink arrow: N at <b>K = (0.62, 0.66)</b>, the pixel this lesson traces. N starts at S, the glass above K.</figcaption></div>
+    <div><div class="stage" id="heroZoomStage"><canvas id="heroZoom" width="760" height="470"></canvas></div>
+      <div class="viewbar" id="heroZoomBar"></div>
+      <figcaption><b>The same pink arrow, zoomed in at K.</b> The walk from S to the tip of N: the x leg (lime), the y leg (orange) and the height leg (blue). After the x leg, the walk stays on the gray wall.</figcaption></div>
+  </div>
+</figure>
+
+<aside class="before">
+  <h2>Before you start</h2>
+  <div class="two">
+    <div><b>Used from the course</b><ul>
+      <li><a href="lesson-10-03-surface-normal.html">Lesson 10.3</a>: <b>N</b>, the unit normal: an arrow at a square corner to the surface, 1 long, written (x part, y part, height part). Also the rim pixel K = (0.62, 0.66) of its Section 8, a <b>walk</b> (how much x, y and height change from its start to its end), the fixed directions x, y and height, <b>level</b> (parallel to the floor), the view from above and the front view, and the arrow ruler (an arrow drawn shrunk).</li>
+      <li><a href="lesson-10-02-slope.html">Lesson 10.2</a>: slopeX and slopeY. Used only inside the ⓘ chains of N.</li>
+      <li><a href="lesson-10-01-height-map-idea.html">Lesson 10.1</a>: the height of the glass above a pixel: S's height, the posts of Step 2 and N's ⓘ chains.</li>
+      <li><a href="../chapter-09/lesson-09-01-distance-between-two-points.html">Lesson 9.1</a>: the legs of a right triangle. Used only in one ⓘ, for the word “leg”.</li>
+    </ul></div>
+    <div><b>New here</b><ul>
+      <li><b>A leg of the walk</b>: one straight piece of the walk from S to the tip of N. <a href="#s1">Step 1</a>.</li>
+      <li><b>The x line</b> and its ruler. Step 2.</li>
+      <li><b>The one idea:</b> the y leg and the height leg go 0 to the right (Steps 3 and 4). So after the x leg, the rest of the walk stays on the <b>wall</b>: all points 0.302 to the right of S. Step 5.</li>
+    </ul></div>
+  </div>
+</aside>
+
+<aside class="coords" id="coords">
+  <h2>Coordinate systems in this lesson</h2>
+  <table class="trace">
+    <tr><th style="width:190px">Label on the picture</th><th>Where</th><th>Origin</th><th>Axes</th><th>Unit</th></tr>
+    <tr><td><b>UV</b></td><td>the hero's left drawing, Section 2's map from above</td><td>(0, 0) = the screen picture's top-left corner</td><td>x →, y toward the bottom of the picture, height ↑</td><td>1 = the screen picture's width; in the hero's left drawing an arrow is drawn shrunk: 1 arrow unit is drawn 0.06 UV long</td></tr>
+    <tr><td><b>UV, zoomed in at K</b></td><td>the 3D drawings of Sections 1 and 2 and of the exercises (Exercise 1: zoomed in at K₂)</td><td>the same (0, 0); the picture shows a small floor patch around K</td><td>the same</td><td>UV for points; an arrow is drawn shrunk by the arrow ruler: 1 arrow unit is drawn 0.15 UV long</td></tr>
+    <tr><td><b>arrow units, from S</b></td><td>N's parts, the legs, the ruler of the x line</td><td>S, the start of N</td><td>plus: the way x, y or height grows; minus: the opposite way</td><td>1 = the length of N</td></tr>
+    <tr><td><b>view from above</b> · <b>front view</b> · <b>the wall, seen straight on</b></td><td>the flat drawings of Steps 3, 4 and 5</td><td>S (the first two), Gx (the wall)</td><td>from above: to the right →, toward the bottom of the picture drawn ↓; front: to the right →, up ↑; the wall: toward the bottom of the picture drawn →, up ↑</td><td>arrow units</td></tr>
+  </table>
+  <p class="small">A point has x, y and height, in UV. An arrow has an x part, a y part and a height part, counted from its own start. Distances to the right of S (the x line's ruler, the wall, Exercise 2's points) are counted from S in arrow units. No polar coordinates are used.</p>
+</aside>
+
+<!-- ============================ SECTION 1 ============================ -->
+<h2 id="s1"><span class="tag">Section 1 · the idea in pictures</span>After the x leg, the walk goes 0 to the right</h2>
+<p>Press <b>Next</b>. Each step adds one thing to the picture.</p>
+<div class="ideaGrid">
+  <div>
+    <div class="stage" id="ideaStage"><canvas id="ideaCv" width="760" height="600"></canvas></div>
+    <div class="viewbar" id="ideaBar"></div>
+  </div>
+  <div><div class="stepnav"><button class="btn" id="ideaPrev">← Back</button><button class="btn" id="ideaNext">Next →</button><div class="dots" id="ideaDots"></div></div>
+    <div class="stepcap ideaCap" id="ideaCap" aria-live="polite"></div>
+    <div class="stage" id="ideaFlatStage" style="margin-top:10px"><canvas id="ideaFlat" width="760" height="320"></canvas></div>
+  </div>
+</div>
+
+<!-- ============================ SECTION 2 ============================ -->
+<h2 id="s2"><span class="tag">Section 2 · one value, traced to the end</span>The walk ends as far to the right of S as N's x part</h2>
+<p>The whole walk at once, with the numbers of each leg. <b>Drag K on the map or in the 3D drawing:</b> every pixel has its own N, so its own walk and its own wall.</p>
+<figure id="traceFig" style="margin:12px 0 0"><div class="traceGrid">
+  <div><div class="stage" id="traceStage"><canvas id="traceCv" width="760" height="560"></canvas></div><div class="viewbar" id="traceBar"></div></div>
+  <div>
+    <div class="mapRow">
+      <div class="stage" id="tMapStage"><canvas id="tMap" width="300" height="300"></canvas></div>
+      <div><p class="tRead" id="tRead"></p><button class="btn" id="tHome">Back to K = (0.62, 0.66)</button></div>
+    </div>
+    <table class="trace" id="tTable"></table>
+    <ul class="capl" id="tCap"></ul>
+  </div>
+</div></figure>
+
+<!-- ============================ SECTION 3 ============================ -->
+<h2 id="s3"><span class="tag">Section 3 · exercises</span>Exercises</h2>
+<p>Read each picture, pick one answer, then open the hidden reason.</p>
+
+<details class="ex"><summary>Exercise 1 — How far to the right of S₂ is the tip of N at K₂?</summary><div class="body">
+  <div class="exq"><div><div class="stage" id="ex1qStage"><canvas id="ex1q" width="620" height="460"></canvas></div><figcaption><b>K₂ = (0.62, 0.34)</b> in UV. <b>N at K₂ = (0.302, −0.402, 0.864)</b> <button class="info" id="n2info" aria-label="How N at K₂ is calculated">ⓘ</button>. It starts at S₂, the glass above K₂. Minus: the y leg goes toward the top of the picture. Drag to turn.</figcaption></div>
+    <div><p><b>Why this question.</b> At K the y leg went toward the bottom of the picture. At K₂ it goes the opposite way. Does that change how far to the right the walk ends?</p>
+      <p><b>What you do.</b> Follow the three legs in the picture. For each leg, ask how far it goes to the right. Then add.</p>
+      <p><b>Question:</b> how far to the right of S₂ is the tip of N at K₂?</p>
+      <div class="choices"><button class="btn" data-ok="1" data-why="Right. Only the x leg goes to the right: 0 + 0.302 = 0.302. The y leg and the height leg go 0 to the right, whichever way the y leg points.">0.302 to the right of S₂</button><button class="btn" data-ok="0" data-why="Not this one. That adds the y part to the x part: 0.302 + (−0.402) = −0.100. But the y leg goes toward the top of the picture, not to the left. It goes 0 to the right.">0.100 to the left of S₂</button><button class="btn" data-ok="0" data-why="Not this one. 0.402 is how far the y leg goes, toward the top of the picture. It is not a distance to the right or to the left.">0.402 to the left of S₂</button></div><div class="verdict" aria-live="polite"></div>
+    </div></div>
+  <details><summary>Show the answer</summary><div class="body"><div class="exq"><div><div class="stage" id="ex1aStage"><canvas id="ex1a" width="620" height="460"></canvas></div><figcaption>Turned so that the wall is seen edge-on, as a gray line. Drag to turn.</figcaption></div>
+    <div><ul class="capl"><li>The x leg ends at <b>Gx₂</b>, 0.302 to the right of S₂.</li><li>The y leg goes toward the top of the picture. It goes 0 to the right: 0.302 + 0 = 0.302.</li><li>The height leg goes up. It goes 0 to the right: 0.302 + 0 = 0.302.</li><li>So the tip of N is on the gray wall: all points 0.302 to the right of S₂.</li></ul></div></div></div></details>
+</div></details>
+
+<details class="ex"><summary>Exercise 2 — Which point is on the wall 0.302 to the right of S?</summary><div class="body">
+  <div class="exq"><div><div class="stage" id="ex2qStage"><canvas id="ex2q" width="620" height="460"></canvas></div><figcaption><b>Three points near S</b>, each reached from S by a walk of three legs. The numbers are in arrow units, from S. Drag to turn.</figcaption></div>
+    <div><p><b>Why this question.</b> Each point has three numbers. Only one of them decides whether the point is on the wall.</p>
+      <p><b>What you do.</b> Read the three numbers of each point in the table. Find the number that says how far to the right of S the point is.</p>
+      <table class="trace small" id="ex2Table" style="width:auto"></table>
+      <p><b>Question:</b> which point is on the wall 0.302 to the right of S?</p>
+      <div class="choices"><button class="btn" data-ok="1" data-why="Right. P₁'s walk goes 0.302 to the right. Its y leg and height leg go 0 to the right, so P₁ stays 0.302 to the right of S.">P₁</button><button class="btn" data-ok="0" data-why="Not this one. P₂ has 0.302 as its y leg: it goes 0.302 toward the bottom of the picture. To the right it goes 0.45.">P₂</button><button class="btn" data-ok="0" data-why="Not this one. P₃ has 0.302 as its height leg: it goes 0.302 up. To the right it goes 0.15.">P₃</button></div><div class="verdict" aria-live="polite"></div>
+    </div></div>
+  <details><summary>Show the answer</summary><div class="body"><div class="exq"><div><div class="stage" id="ex2aStage"><canvas id="ex2a" width="620" height="460"></canvas></div><figcaption>Turned so that the wall is seen edge-on, as a gray line. Drag to turn.</figcaption></div>
+    <div><ul class="capl"><li>The gray wall: all points 0.302 to the right of S.</li><li>P₁'s x leg ends at Gx. Its y leg and its height leg go 0 to the right. So P₁ is on the wall.</li><li>P₂'s x leg goes 0.45 to the right, past the wall. P₃'s goes 0.15, short of it.</li><li>Their other legs go 0 to the right. So P₂ and P₃ stay off the wall.</li></ul></div></div></div></details>
+</div></details>
+
+<div class="navfoot"><a href="lesson-10-03-surface-normal.html">← Lesson 10.3 — Surface normal</a><a href="lesson-light-surface-direction-and-material-thickness.html">Chapter 10 overview →</a></div>
+</div>
+<div id="tip" role="dialog" aria-modal="false"><button class="tclose" id="tipClose" aria-label="Close">✕</button><div id="tipBody"></div></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const RAD=0.25;
+const TP={c:[0.5,0.5],bev:0.10,step:0.01};          // the lesson's glass, fixed
+const COL={glass:'#a855f7',fill:'#f3e8ff',row:'#a3e635',col:'#fb923c',A:'#2563eb',B:'#f59e0b',D:'#14b8a6',E:'#f43f5e',across:'#22d3ee',slope:'#facc15',raw:'#6366f1',N:'#ec4899',screen:'#334155',ink:'#111827',halo:'rgba(17,24,39,0.92)',gray:'#475569',you:'#d97706',card:'#dbeafe',cardLine:'#1e40af',xP:'#84cc16',xT:'#3f6212',yP:'#fb923c',yT:'#9a3412',hP:'#38bdf8',hT:'#075985',walk:'#0f766e',front:'#a5b4fc'};
+const clamp=(x,lo,hi)=>Math.min(Math.max(x,lo),hi);
+const R12=x=>Math.round(x*1e12)/1e12;
+const DEG=Math.PI/180;
+/* ---------- numbers: whole numbers bare, exact values up to 4 decimals kept, else 3 decimals half up ---------- */
+function f(x){
+  if(Math.abs(x)<1e-12)return '0';
+  const r4=Math.round(x*1e4)/1e4;let s;
+  if(Math.abs(x-r4)<1e-9){if(Number.isInteger(r4))s=String(r4);else{s=r4.toFixed(4).replace(/0+$/,'');if(/\.\d$/.test(s))s+='0'}}
+  else s=(Math.sign(x)*Math.floor(Math.abs(x)*1e3+0.5+1e-9)/1e3).toFixed(3);
+  if(/^-0(\.0+)?$/.test(s))s='0';return s.replace('-','−');
+}
+const pt=(u,v)=>`(${f(u)}, ${f(v)})`;
+/* ---------- a trace: one operation per line; every line rounded the same way; the next line uses the shown value ---------- */
+class Trace{
+  constructor(dec=3){this.dec=dec;this.lines=[];this.dm=new Map()}
+  shown(v){v=R12(v);if(v===0)return 0;const keep=10**(this.dec+1);if(R12(Math.round(v*keep)/keep)===v)return v;
+    const a=Math.abs(v);let dec=this.dec;if(a<0.01){let q=a,z=0;while(q<0.1){q*=10;z++}dec=z+this.dec}
+    const k=10**dec,r=R12(Math.sign(v)*Math.floor(a*k+0.5+1e-9)/k);this.dm.set(r,dec);return r}
+  t(v){v=R12(v);if(v===0)return '0';const neg=v<0,a=Math.abs(v);let s;if(this.dm.has(v))s=a.toFixed(this.dm.get(v));else{s=String(a);if(s.includes('e'))s=a.toFixed(14).replace(/0+$/,'');if(/\.\d$/.test(s))s+='0'}return (neg?'−':'')+s}
+  o(v){return R12(v)<0?`(${this.t(v)})`:this.t(v)}
+  push(s){this.lines.push(s)}
+  take(){const l=this.lines;this.lines=[];return l}
+  add(n,a,b,exact){const r=exact?R12(a+b):this.shown(a+b);this.push(`${n} = ${this.t(a)} + ${this.o(b)} = ${this.t(r)}`);return r}
+  sub(n,a,b,exact){const r=exact?R12(a-b):this.shown(a-b);this.push(`${n} = ${this.t(a)} − ${this.o(b)} = ${this.t(r)}`);return r}
+  mul(n,a,b){const r=this.shown(a*b);this.push(`${n} = ${this.o(a)} × ${this.o(b)} = ${this.t(r)}`);return r}
+  div(n,a,b){const r=this.shown(a/b);this.push(`${n} = ${this.t(a)} ÷ ${this.o(b)} = ${this.t(r)}`);return r}
+  sq(n,a){const r=R12(a*a);this.push(`${n} = ${this.o(a)} × ${this.o(a)} = ${this.t(r)}`);return r}
+  neg(n,a){const r=R12(-a);this.push(`${n} = −(${this.t(a)}) = ${this.t(r)}`);return r}
+  root(n,a){const raw=Math.sqrt(a),c=Math.round(raw*1e6)/1e6;const r=R12(c*c)===R12(a)?R12(c):this.shown(raw);this.push(`${n} = √${this.t(a)} = ${this.t(r)}`);return r}
+}
+/* ---------- the surface: Lesson 10.1 height, Lesson 10.2 slopes, this lesson's normal ---------- */
+function heightAt(u,v,P){const sd=Math.hypot(u-P.c[0],v-P.c[1])-RAD,inside=clamp(-sd,0,P.bev),leg=P.bev-inside;return Math.sqrt(Math.max(0,P.bev*P.bev-leg*leg))}
+function normalAt(u,v,P){const s=P.step,a=[u-s,v],b=[u+s,v],d=[u,v-s],e=[u,v+s];
+  const hl=heightAt(a[0],a[1],P),hr=heightAt(b[0],b[1],P),hd=heightAt(d[0],d[1],P),he=heightAt(e[0],e[1],P);
+  const sx=(hr-hl)/(2*s),sy=(he-hd)/(2*s),raw=[-sx,-sy,1],len=Math.hypot(raw[0],raw[1],raw[2]),N=raw.map(q=>q/len);
+  return{a,b,d,e,hl,hr,hd,he,sx,sy,raw,len,N,rgb:N.map(q=>q*0.5+0.5),h:heightAt(u,v,P)}}
+/* the Lesson 10.1 chain for one point, in a Trace */
+function heightTrace(T,u,v,P){
+  const px=T.sub('p.x',u,P.c[0]),py=T.sub('p.y',v,P.c[1]);
+  const px2=T.sq('p.x²',px),py2=T.sq('p.y²',py),sum=T.add('sum',px2,py2,true),d=T.root('d',sum);
+  const sd=T.sub('sd',d,RAD),ns=T.neg('−sd',sd);let inside;
+  if(ns<0){inside=0;T.push(`inside = clamp(${T.t(ns)}, 0, ${T.t(P.bev)}) = 0`)}
+  else if(ns>P.bev){inside=P.bev;T.push(`inside = clamp(${T.t(ns)}, 0, ${T.t(P.bev)}) = ${T.t(P.bev)}`)}
+  else{inside=ns;T.push(`inside = clamp(${T.t(ns)}, 0, ${T.t(P.bev)}) = ${T.t(ns)}`)}
+  const leg=T.sub('leg',P.bev,inside),b2=T.sq('bevel²',P.bev),l2=T.sq('leg²',leg),h2=T.sub('h²',b2,l2,true);return T.root('h',h2);
+}
+/* the whole chain for W, as groups of lines */
+function chainOf(w,P,dec){
+  const T=new Trace(dec),s=P.step,G=[];
+  const ax=T.sub('A.x',w[0],s),bx=T.add('B.x',w[0],s),dy=T.sub('D.y',w[1],s),ey=T.add('E.y',w[1],s);
+  G.push({title:'On the screen · the four neighbors',lines:T.take().concat([`A = (${T.t(ax)}, ${T.t(w[1])}) · B = (${T.t(bx)}, ${T.t(w[1])})`,`D = (${T.t(w[0])}, ${T.t(dy)}) · E = (${T.t(w[0])}, ${T.t(ey)})`])});
+  const one=(u,v)=>{const t=new Trace(dec),h=heightTrace(t,u,v,P);if(t.dm.has(h))T.dm.set(h,t.dm.get(h));return[h,t.take()]};
+  const [hl,La]=one(ax,w[1]),[hr,Lb]=one(bx,w[1]),[hd,Ld]=one(w[0],dy),[he,Le]=one(w[0],ey);
+  G.push({title:'Heights above A and B · Lesson 10.1',pair:[['A',La,'hLeft',hl],['B',Lb,'hRight',hr]]});
+  G.push({title:'Heights above D and E · Lesson 10.1',pair:[['D',Ld,'hD',hd],['E',Le,'hE',he]]});
+  const dxh=T.sub('ΔhX = hRight − hLeft',hr,hl),dist=T.mul('2 × step',2,s),sx=T.div('slopeX',dxh,dist);
+  G.push({title:'slopeX · Lesson 10.2',lines:T.take(),isNew:false});
+  const dyh=T.sub('ΔhY = hE − hD',he,hd),dist2=T.mul('2 × step',2,s),sy=T.div('slopeY',dyh,dist2);
+  G.push({title:'slopeY · new',lines:T.take(),isNew:true});
+  const rx=T.neg('x part = −slopeX',sx),ry=T.neg('y part = −slopeY',sy);T.push('height part = 1 (chosen, always 1: Lesson 10.3)');
+  T.push(`rawNormal = (x part, y part, height part) = (${T.t(rx)}, ${T.t(ry)}, 1)`);
+  G.push({title:'rawNormal',lines:T.take(),isNew:true});
+  const x2=T.sq('x part²',rx),y2=T.sq('y part²',ry),s1=T.add('shadow² = x part² + y part²',x2,y2,true),z2=T.sq('height part²',1),s2=T.add('length² = shadow² + height part²',s1,z2,true),len=T.root('normalLength = √length²',s2);
+  G.push({title:'normalLength · new',lines:T.take(),isNew:true});
+  const nx=T.div('N x part = x part ÷ normalLength',rx,len),ny=T.div('N y part = y part ÷ normalLength',ry,len),nz=T.div('N height part = height part ÷ normalLength',1,len);T.push(`N = (${T.t(nx)}, ${T.t(ny)}, ${T.t(nz)})`);
+  {const a2=T.sq('check: (N x part)²',nx),b2=T.sq('(N y part)²',ny),c2=T.sq('(N height part)²',nz),t1=T.add('sum of the first two',a2,b2,true),t2=T.add('sum of all three',t1,c2,true);T.root('length of N',t2)}
+  G.push({title:'N = rawNormal ÷ normalLength · new',lines:T.take(),isNew:true});
+  const hx=T.mul('N x part × 0.5',nx,0.5),cr=T.add('red',hx,0.5),hy=T.mul('N y part × 0.5',ny,0.5),cg=T.add('green',hy,0.5),hz=T.mul('N height part × 0.5',nz,0.5),cb=T.add('blue',hz,0.5);
+  T.push('4th number: opacity = 1 (not see-through)');T.push(`W stores (${T.t(cr)}, ${T.t(cg)}, ${T.t(cb)}, 1)`);
+  G.push({title:'Display color · only for seeing',lines:T.take(),isNew:false});
+  return{G,T,ax,bx,dy,ey,hl,hr,hd,he,sx,sy,rx,ry,len,nx,ny,nz,cr,cg,cb};
+}
+/* ---------- 2D drawing helpers (solid strokes, dark halo) ---------- */
+function halo(ctx,draw,color,w=2.5){for(const [lw,c] of [[w+3.5,COL.halo],[w,color]]){ctx.lineWidth=lw;ctx.strokeStyle=c;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();draw();ctx.stroke()}}
+function line(ctx,x1,y1,x2,y2,color,w=2.5){halo(ctx,()=>{ctx.moveTo(x1,y1);ctx.lineTo(x2,y2)},color,w)}
+function thin(ctx,x1,y1,x2,y2,color,w=1.5){ctx.lineWidth=w;ctx.strokeStyle=color;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}
+function arrow(ctx,x1,y1,x2,y2,color,w=3,head=13){const L=Math.hypot(x2-x1,y2-y1);if(L<0.5)return;head=Math.min(head,L*0.55);const a=Math.atan2(y2-y1,x2-x1),bx=x2-head*Math.cos(a),by=y2-head*Math.sin(a);line(ctx,x1,y1,bx,by,color,w);
+  const s=head*0.55;ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(bx+s*Math.sin(a),by-s*Math.cos(a));ctx.lineTo(bx-s*Math.sin(a),by+s*Math.cos(a));ctx.closePath();ctx.fillStyle=color;ctx.fill();ctx.lineWidth=1.6;ctx.strokeStyle='#111827';ctx.stroke()}
+function grayArrow(ctx,x1,y1,x2,y2,color=COL.gray,w=1.8){const L=Math.hypot(x2-x1,y2-y1);if(L<0.5)return;const a=Math.atan2(y2-y1,x2-x1),hd=Math.min(7,L*0.5);thin(ctx,x1,y1,x2-hd*0.6*Math.cos(a),y2-hd*0.6*Math.sin(a),color,w);ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-hd*Math.cos(a)+hd*0.45*Math.sin(a),y2-hd*Math.sin(a)-hd*0.45*Math.cos(a));ctx.lineTo(x2-hd*Math.cos(a)-hd*0.45*Math.sin(a),y2-hd*Math.sin(a)+hd*0.45*Math.cos(a));ctx.closePath();ctx.fillStyle=color;ctx.fill()}
+function square(ctx,x,y,u,v,s=16,color='#111827'){ctx.lineWidth=2;ctx.strokeStyle=color;ctx.beginPath();ctx.moveTo(x+u[0]*s,y+u[1]*s);ctx.lineTo(x+u[0]*s+v[0]*s,y+u[1]*s+v[1]*s);ctx.lineTo(x+v[0]*s,y+v[1]*s);ctx.stroke()}
+const unit2=(x,y)=>{const L=Math.hypot(x,y)||1;return[x/L,y/L]};
+function plate(ctx,t,x,y,size=14,align='left',color=COL.ink){ctx.font=`600 ${size}px -apple-system,"Segoe UI",Roboto,sans-serif`;const w=ctx.measureText(t).width,h=size+8;let x0=align==='right'?x-w:align==='center'?x-w/2:x;x0=clamp(x0,6,ctx.canvas.width-w-6);const yy=clamp(y,h/2+3,ctx.canvas.height-h/2-3);ctx.fillStyle='rgba(255,255,255,0.94)';ctx.strokeStyle='#111827';ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x0-5,yy-h/2,w+10,h,4);ctx.fill();ctx.stroke();ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillStyle=color;ctx.fillText(t,x0,yy);return{x:x0-5,y:yy-h/2,w:w+10,h}}
+/* ---------- tooltips ---------- */
+const tipEl=$('tip'),tipBody=$('tipBody'),tipStore=new Map();let suppressAt=-1e9;const suppressNow=()=>{suppressAt=performance.now()};
+function setTip(el,html){el.classList.add('tk');tipStore.set(el,html);if(!el.hasAttribute('tabindex'))el.setAttribute('tabindex','0')}
+function showTip(el){const v=tipStore.get(el),html=typeof v==='function'?v():v;if(!html)return;tipBody.innerHTML=html;tipEl.classList.toggle('wide',!!tipBody.querySelector('pre'));tipEl.classList.toggle('xwide',!!tipBody.querySelector('.tgrid'));tipEl.classList.add('open');const r=el.getBoundingClientRect();tipEl.style.left='0px';tipEl.style.top='0px';const tw=tipEl.offsetWidth,th=tipEl.offsetHeight;let L=r.right+10,T=r.top-8;if(L+tw>innerWidth-10)L=r.left-tw-10;if(L<8)L=8;if(T+th>innerHeight-10)T=innerHeight-th-10;if(T<8)T=8;tipEl.style.left=L+'px';tipEl.style.top=T+'px'}
+function hideTip(){tipEl.classList.remove('open')}
+document.addEventListener('click',e=>{if(performance.now()-suppressAt<120){suppressAt=-1e9;e.stopPropagation();return}const t=e.target.closest('.tk');if(t){e.stopPropagation();showTip(t);return}if(!e.target.closest('#tip'))hideTip();},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){hideTip();return}if((e.key==='Enter'||e.key===' ')&&e.target.classList?.contains('tk')){e.preventDefault();showTip(e.target)}});$('tipClose').onclick=e=>{e.stopPropagation();hideTip()};
+/* clickable (and optionally draggable) points over a canvas */
+let pointDrag=null;
+document.addEventListener('pointermove',e=>{if(!pointDrag)return;if(!pointDrag.moved&&Math.hypot(e.clientX-pointDrag.x0,e.clientY-pointDrag.y0)<3)return;pointDrag.moved=true;hideTip();pointDrag.move(e.clientX,e.clientY)});
+document.addEventListener('pointerup',()=>{if(!pointDrag)return;if(pointDrag.moved)suppressNow();pointDrag=null});
+document.addEventListener('pointercancel',()=>{pointDrag=null});
+function addPt(stage,x,y,color,html,label,opt={}){const b=document.createElement('button');b.className='ptdot'+(opt.small?' sm':'')+(opt.move?' drag':'');b.style.left=(x+BORDER)+'px';b.style.top=(y+BORDER)+'px';b.style.background=color;b.setAttribute('aria-label',label);if(opt.key)b.dataset.key=opt.key;stage.appendChild(b);setTip(b,html);
+  {const cv=stage.querySelector('canvas');if(cv&&(x<-2||y<-2||x>cv.width+2||y>cv.height+2))b.hidden=true}   /* a point outside its own picture must not sit on a neighbouring one */
+  if(opt.move){b.addEventListener('pointerdown',e=>{pointDrag={x0:e.clientX,y0:e.clientY,moved:false,move:opt.move};e.preventDefault();e.stopPropagation()});
+    if(opt.keys)b.addEventListener('keydown',e=>{const d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(!d)return;e.preventDefault();opt.keys(d);stage.querySelector(`[data-key="${opt.key}"]`)?.focus()})}
+  return b}
+const clearPts=stage=>stage.querySelectorAll('.ptdot').forEach(b=>b.remove());
+const canvasPos=(cv,cx,cy)=>{const r=cv.getBoundingClientRect();return[(cx-r.left-cv.clientLeft)*cv.width/cv.clientWidth,(cy-r.top-cv.clientTop)*cv.height/cv.clientHeight]};
+const BORDER=1;   /* canvases have a 1-px border: a dot over canvas pixel x sits at x + 1 in its stage */
+/* ---------- a turnable 3D view: orthographic, drag to turn, Ctrl/⌘ + wheel or buttons to zoom ---------- */
+class Orbit3D{
+  constructor(stage,cv,o){Object.assign(this,{stage,cv,ctx:cv.getContext('2d'),yaw:o.yaw,pitch:o.pitch,zoom:o.zoom||1,scale:o.scale,target:o.target,cx:cv.width/2+(o.dx||0),cy:cv.height/2+(o.dy||0),draw:o.draw,home:{yaw:o.yaw,pitch:o.pitch,zoom:o.zoom||1,target:[...o.target]},compass:o.compass,compassPos:o.compassPos,coord:o.coord});
+    this.btns=new Map();cv.style.cursor='grab';cv.style.touchAction='none';
+    cv.addEventListener('pointerdown',e=>{if(e.button!==0)return;this.drag={x:e.clientX,y:e.clientY,yaw:this.yaw,pitch:this.pitch,moved:false};try{cv.setPointerCapture(e.pointerId)}catch(_){}cv.style.cursor='grabbing'});
+    cv.addEventListener('pointermove',e=>{if(!this.drag)return;const dx=e.clientX-this.drag.x,dy=e.clientY-this.drag.y;if(Math.hypot(dx,dy)<=3&&!this.drag.moved)return;this.drag.moved=true;this.anim=null;this.yaw=this.drag.yaw-dx*0.45;this.pitch=clamp(this.drag.pitch+dy*0.45,0,90);this.render()});
+    const up=()=>{if(this.drag?.moved)suppressNow();this.drag=null;cv.style.cursor='grab'};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+    cv.addEventListener('wheel',e=>{if(!(e.ctrlKey||e.metaKey))return;e.preventDefault();this.zoom=clamp(this.zoom*Math.exp(-e.deltaY*0.0015),0.4,4);this.render()},{passive:false});
+    cv.addEventListener('dblclick',()=>this.setView(this.home.yaw,this.home.pitch,this.home.zoom,this.home.target))}
+  proj(p){const t=this.target,x=p[0]-t[0],y=p[1]-t[1],z=p[2]-t[2],a=this.yaw*DEG,b=this.pitch*DEG,X1=x*Math.cos(a)-y*Math.sin(a),Y1=x*Math.sin(a)+y*Math.cos(a),up=z*Math.cos(b)-Y1*Math.sin(b),dep=Y1*Math.cos(b)+z*Math.sin(b),k=this.scale*this.zoom;return{x:this.cx+X1*k,y:this.cy-up*k,d:dep}}
+  /* the floor point (height z0) under a picture position; null when the floor is seen edge-on */
+  floorAt(px,py,z0=0){const b=this.pitch*DEG;if(Math.sin(b)<0.17)return null;const k=this.scale*this.zoom,X1=(px-this.cx)/k,up=(this.cy-py)/k,zr=z0-this.target[2],Y1=(zr*Math.cos(b)-up)/Math.sin(b),a=this.yaw*DEG;return[X1*Math.cos(a)+Y1*Math.sin(a)+this.target[0],-X1*Math.sin(a)+Y1*Math.cos(a)+this.target[1]]}
+  render(){const c=this.ctx;c.fillStyle='#fff';c.fillRect(0,0,this.cv.width,this.cv.height);this.items=[];this.labels=[];this.pts=[];this.draw(this);
+    this.items.sort((p,q)=>p.k-q.k);for(const it of this.items)it.f(c);for(const L of this.labels)L(c);if(this.compass!==false)this.drawCompass(c);this.placePts()}
+  /* the corner box: the coordinates of this picture and the directions x, y and height as drawn here */
+  drawCompass(c){const a=this.yaw*DEG,b=this.pitch*DEG,cw=this.cv.width,ch=this.cv.height,bw=210,bh=100,cp=this.compassPos||'bl',bx=cp[1]==='r'?cw-bw-8:8,by=cp[0]==='t'?8:ch-bh-8,FT='-apple-system,"Segoe UI",Roboto,sans-serif';
+    c.save();c.fillStyle='rgba(255,255,255,0.96)';c.strokeStyle='#cbd5e1';c.lineWidth=1;c.beginPath();c.roundRect(bx,by,bw,bh,8);c.fill();c.stroke();
+    const cn=typeof this.coord==='function'?this.coord():this.coord;c.textAlign='left';c.textBaseline='middle';if(cn){c.font='700 12px '+FT;c.fillStyle='#111827';c.fillText('coordinates: '+cn,bx+10,by+13)}
+    const ox=bx+70,oy=by+64,L=24;
+    for(const [v,col,tc,name] of [[[1,0,0],COL.xP,COL.xT,'x'],[[0,1,0],COL.yP,COL.yT,'y'],[[0,0,1],COL.hP,COL.hT,'height']]){const X1=v[0]*Math.cos(a)-v[1]*Math.sin(a),Y1=v[0]*Math.sin(a)+v[1]*Math.cos(a),up=v[2]*Math.cos(b)-Y1*Math.sin(b),len=Math.hypot(X1,up);
+      if(len>0.2){arrow(c,ox,oy,ox+X1*L,oy-up*L,col,2.2,8);c.font='700 12px '+FT;c.fillStyle=tc;c.textAlign='center';c.fillText(name,ox+X1*(L+13),oy-up*(L+13))}
+      else{c.beginPath();c.arc(ox,oy,5,0,7);c.fillStyle=col;c.fill();c.lineWidth=1.4;c.strokeStyle='#111827';c.stroke();c.font='700 12px '+FT;c.fillStyle=tc;c.textAlign='left';c.fillText(name+': not shown in this view',bx+10,by+bh-12)}}
+    c.restore()}
+  poly(ps,fill,stroke,lw=1,layer=0){const pr=ps.map(p=>this.proj(p)),d=pr.reduce((s,q)=>s+q.d,0)/pr.length;this.items.push({k:layer*1e6+d,f:c=>{c.beginPath();pr.forEach((q,i)=>i?c.lineTo(q.x,q.y):c.moveTo(q.x,q.y));c.closePath();if(fill){c.fillStyle=fill;c.fill()}if(stroke){c.lineWidth=lw;c.strokeStyle=stroke;c.stroke()}}})}
+  path(ps,color,w=2,plain=false,layer=1){const pr=ps.map(p=>this.proj(p)),d=pr.reduce((s,q)=>s+q.d,0)/pr.length;this.items.push({k:layer*1e6+d,f:c=>{const draw=()=>pr.forEach((q,i)=>i?c.lineTo(q.x,q.y):c.moveTo(q.x,q.y));if(plain){c.lineWidth=w;c.strokeStyle=color;c.lineJoin='round';c.beginPath();draw();c.stroke()}else halo(c,draw,color,w)}})}
+  seg(a,b,color,w=2.5,plain=false,layer=1){this.path([a,b],color,w,plain,layer)}
+  arrow(a,b,color,w=3,layer=2){const A=this.proj(a),B=this.proj(b);this.items.push({k:layer*1e6+(A.d+B.d)/2,f:c=>arrow(c,A.x,A.y,B.x,B.y,color,w)})}
+  grayArrow(a,b,color=COL.gray){const A=this.proj(a),B=this.proj(b);this.items.push({k:1e6+(A.d+B.d)/2,f:c=>grayArrow(c,A.x,A.y,B.x,B.y,color,1.6)})}
+  dot(p,color,r=5){const P=this.proj(p);this.items.push({k:3e6+P.d,f:c=>{c.beginPath();c.arc(P.x,P.y,r,0,Math.PI*2);c.fillStyle=color;c.fill();c.lineWidth=2;c.strokeStyle='#111827';c.stroke()}})}
+  corner(p,u,v,s,color='#111827'){const a=[p[0]+u[0]*s,p[1]+u[1]*s,p[2]+u[2]*s],b=[a[0]+v[0]*s,a[1]+v[1]*s,a[2]+v[2]*s],c2=[p[0]+v[0]*s,p[1]+v[1]*s,p[2]+v[2]*s];this.path([a,b,c2],color,2,true,2.5)}
+  label(t,p,dx=0,dy=0,align='left',color=COL.ink,size=13){const P=this.proj(p);this.labels.push(c=>plate(c,t,P.x+dx,P.y+dy,size,align,color))}
+  pt(key,p,color,html,label,opt={}){this.pts.push({key,p,color,html,label,opt})}
+  placePts(){const seen=new Set();for(const q of this.pts){const P=this.proj(q.p);let b=this.btns.get(q.key);if(!b){b=addPt(this.stage,0,0,q.color,q.html,q.label,{small:true,key:q.key,move:q.opt.move?((cx,cy)=>q.opt.move(cx,cy,this)):null});this.btns.set(q.key,b)}
+      b.style.left=(P.x+BORDER)+'px';b.style.top=(P.y+BORDER)+'px';b.style.background=q.color;tipStore.set(b,q.html);b.hidden=P.x<0||P.y<0||P.x>this.cv.width||P.y>this.cv.height;seen.add(q.key)}
+    for(const [k,b] of this.btns)if(!seen.has(k)){b.remove();this.btns.delete(k)}}
+  setView(yaw,pitch,zoom=this.zoom,target=this.target){if(window.__QA_NOANIM||!window.requestAnimationFrame){Object.assign(this,{yaw,pitch,zoom,target:[...target]});this.render();return}
+    const y0=this.yaw,p0=this.pitch,z0=this.zoom,g0=[...this.target];let dy=yaw-y0;dy=((dy+540)%360)-180;const t0=performance.now(),me={};this.anim=me;
+    const tick=now=>{if(this.anim!==me)return;const t=Math.min(1,(now-t0)/900),e=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;this.yaw=y0+dy*e;this.pitch=p0+(pitch-p0)*e;this.zoom=z0+(zoom-z0)*e;this.target=g0.map((q,i)=>q+(target[i]-q)*e);this.render();if(t<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
+}
+function viewBar(bar,orb,views){bar.innerHTML='';for(const [name,yaw,pitch] of views){const b=document.createElement('button');b.className='btn';b.textContent=name;b.onclick=()=>orb.setView(yaw,pitch);bar.appendChild(b)}
+  for(const [t,fn] of [['＋',()=>{orb.zoom=clamp(orb.zoom*1.25,0.4,4);orb.render()}],['−',()=>{orb.zoom=clamp(orb.zoom/1.25,0.4,4);orb.render()}],['Reset',()=>orb.setView(orb.home.yaw,orb.home.pitch,orb.home.zoom,orb.home.target)]]){const b=document.createElement('button');b.className='btn';b.textContent=t;b.setAttribute('aria-label',t==='＋'?'Zoom in':t==='−'?'Zoom out':'Reset the view');b.onclick=fn;bar.appendChild(b)}
+  const h=document.createElement('span');h.className='hint';h.textContent='Drag to turn · Ctrl (or ⌘) + scroll to zoom · double-click to reset';bar.appendChild(h)}
+/* ---------- the glass in 3D: floor = the screen (x right, y toward the bottom of the picture), height up ---------- */
+function glassScene(o,P,opt){
+  for(let i=0;i<=8;i++){const g=0.1+i*0.1;o.seg([g,0.1,0],[g,0.9,0],'#e5e7eb',1,true,-1);o.seg([0.1,g,0],[0.9,g,0],'#e5e7eb',1,true,-1)}
+  o.path([[0.1,0.1,0],[0.9,0.1,0],[0.9,0.9,0],[0.1,0.9,0],[0.1,0.1,0]],'#94a3b8',1.5,true,-1);
+  o.label('top of the picture',[0.5,0.1,0],0,-12,'center','#4b5563',12);
+  const rf=Math.max(0,RAD-P.bev);
+  const R=[];for(let i=0;i<=3;i++)R.push(rf*i/3);for(let i=1;i<=12;i++){const a=(90-i*7.5)*DEG;R.push(rf+P.bev*Math.cos(a))}
+  const hr=r=>{const ins=clamp(RAD-r,0,P.bev),leg=P.bev-ins;return Math.sqrt(Math.max(0,P.bev*P.bev-leg*leg))};
+  const NS=48,q=(r,t)=>[P.c[0]+r*Math.cos(t),P.c[1]+r*Math.sin(t),hr(r)];
+  for(let i=0;i<R.length-1;i++)for(let j=0;j<NS;j++){const t0=j/NS*2*Math.PI,t1=(j+1)/NS*2*Math.PI;o.poly([q(R[i],t0),q(R[i+1],t0),q(R[i+1],t1),q(R[i],t1)],'rgba(233,213,255,0.62)','rgba(168,85,247,0.45)',0.8)}
+  const out=[];for(let j=0;j<=96;j++){const t=j/96*2*Math.PI;out.push([P.c[0]+RAD*Math.cos(t),P.c[1]+RAD*Math.sin(t),0])}o.path(out,COL.glass,2.2,false,1);
+  const w=opt.w;
+  if(opt.cuts){const rowS=[],colS=[];for(let i=0;i<=160;i++){const x=0.1+i*0.8/160;rowS.push([x,w[1],heightAt(x,w[1],P)]);colS.push([w[0],x,heightAt(w[0],x,P)])}
+    o.seg([0.1,w[1],0],[0.9,w[1],0],COL.row,2,false,1);o.path(rowS,COL.row,2.4,false,1);
+    if(opt.col){o.seg([w[0],0.1,0],[w[0],0.9,0],COL.col,2,false,1);o.path(colS,COL.col,2.4,false,1)}}
+  if(opt.arrows){const L=0.06;for(let x=0.15;x<=0.851;x+=0.05)for(let y=0.15;y<=0.851;y+=0.05){if(Math.hypot(x-P.c[0],y-P.c[1])>RAD+0.08)continue;const n=normalAt(x,y,P),h=n.h;o.grayArrow([x,y,h],[x+n.N[0]*L,y+n.N[1]*L,h+n.N[2]*L])}}
+  if(w){const n=normalAt(w[0],w[1],P),H=[w[0],w[1],n.h],L=opt.wLen||0.06;
+    o.seg([w[0],w[1],0],H,'#94a3b8',1.4,true,1);
+    if(opt.raw)o.arrow(H,[H[0]+n.raw[0]*L,H[1]+n.raw[1]*L,H[2]+n.raw[2]*L],COL.raw,2.6,2);
+    o.arrow(H,[H[0]+n.N[0]*L,H[1]+n.N[1]*L,H[2]+n.N[2]*L],COL.N,3.2,2.2);
+    return{n,H,L}}
+}
+/* the complete calculation of N at one point, for the color table's ⓘ (5 decimals so the diagonal points come out right to 3) */
+function nTip(n,u,v){return()=>{const c=chainOf([u,v],TP,5),G=c.G,T=c.T,r3=x=>Math.round(x*1000)/1000,pre=L=>`<pre>${L.join('\n')}</pre>`,sec=t=>`<div class="tsec">${t}</div>`;
+  const at={A:[c.ax,v],B:[c.bx,v],D:[u,c.dy],E:[u,c.ey]};
+  const pair=g=>`<div class="tgrid">${g.pair.map(([nm,L,out,h])=>`<pre><b>${nm} = (${T.t(at[nm][0])}, ${T.t(at[nm][1])})</b>\n${L.join('\n')}\n<b>${out} = ${T.t(h)}</b></pre>`).join('')}</div>`;
+  return`<b>${/^[A-Z]/.test(n)?n:'Point '+n} = ${pt(u,v)} in UV: how N is calculated</b><br>C = (0.50, 0.50), radius 0.25, bevel 0.10, step 0.01. Square roots and divisions keep 5 decimals; products stay exact. N is then rounded to 3 decimals.`
+    +sec(`1 · The four neighbors, one step away (UV)`)+pre(G[0].lines)
+    +sec('2 · Heights above A and B (Lesson 10.1)')+pair(G[1])
+    +sec('3 · Heights above D and E (Lesson 10.1)')+pair(G[2])
+    +sec('4 · slopeX (Lesson 10.2)')+pre(G[3].lines)
+    +sec('5 · slopeY')+pre(G[4].lines)
+    +sec('6 · rawNormal')+pre(G[5].lines)
+    +sec('7 · normalLength: first the shadow, then the length')+pre(G[6].lines)
+    +sec('8 · N = rawNormal ÷ normalLength')+pre(G[7].lines)
+    +`<p class="tnote">Rounded to 3 decimals: <b>N = (${f(r3(c.nx))}, ${f(r3(c.ny))}, ${f(r3(c.nz))})</b>.</p>`
+    }}
+const add3=(a,b,k=1)=>[a[0]+b[0]*k,a[1]+b[1]*k,a[2]+b[2]*k];
+const nrm3=v=>{const L=Math.hypot(...v);return v.map(q=>q/L)};
+/* the same drawing calls with every point passed through fn: a scene written in UV appears in this picture's units */
+function mapped(o,fn){return{poly:(ps,...r)=>o.poly(ps.map(fn),...r),path:(ps,...r)=>o.path(ps.map(fn),...r),seg:(a,b,...r)=>o.seg(fn(a),fn(b),...r),arrow:(a,b,...r)=>o.arrow(fn(a),fn(b),...r),grayArrow:(a,b,...r)=>o.grayArrow(fn(a),fn(b),...r),dot:(p,...r)=>o.dot(fn(p),...r),label:(t,p,...r)=>o.label(t,fn(p),...r),pt:(k,p,...r)=>o.pt(k,fn(p),...r),
+  corner:(p,u,v,s,color='#111827')=>{const a=add3(p,u,s),b=add3(a,v,s),c=add3(p,v,s);o.path([fn(a),fn(b),fn(c)],color,2,true,2.5)}}}
+
+/* ================= the glass at K ================= */
+Object.assign(COL,{glassT:'#6b21a8',wallF:'rgba(100,116,139,0.20)',wallS:'#64748b',wallT:'#334155'});
+const P0=[0,0,0],AR=0.15;
+const KP=[0.62,0.66],NK=[0.302,0.402,0.864];
+const r3=x=>Math.round(x*1000)/1000;
+const nShown=(u,v)=>{const ch=chainOf([u,v],TP,5);return[ch.nx,ch.ny,ch.nz].map(r3)};
+/* exact numbers up to 6 decimals, at least 2 decimals: 0.302, −0.40, 1 */
+const fx=x=>{if(Math.abs(x)<1e-12)return '0';let s=(Math.round(x*1e6)/1e6).toFixed(6).replace(/0+$/,'');if(s.endsWith('.'))s=s.slice(0,-1);else if(/\.\d$/.test(s))s+='0';return s.replace('-','−')};
+const par=x=>x<0?`(${fx(x)})`:fx(x);
+const f4=x=>x.toFixed(4);
+const dot3=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+const scale3=(a,k)=>[a[0]*k,a[1]*k,a[2]*k];
+const f2n=t=>{const s=Number.isInteger(t)?String(t):t.toFixed(1);return s.replace('-','−')};
+/* “0.302 to the right of S”, “0.302 to the left of S”, “at S” */
+const rightOf=(v,s='S')=>Math.abs(v)<1e-9?`0 to the right of ${s}`:v<0?`${fx(-v)} to the left of ${s}`:`${fx(v)} to the right of ${s}`;
+
+/* a small piece of the glass around one pixel: UV, zoomed in; arrows drawn shrunk by the arrow ruler. Returns m (UV) and a (arrow units from S) */
+function sceneAt(o,w,op={}){const c=op.center||w,K=18,S=[w[0],w[1],heightAt(w[0],w[1],TP)],Sc=heightAt(c[0],c[1],TP),fn=p=>[(p[0]-c[0])*K,(p[1]-c[1])*K,(p[2]-Sc)*K],m=mapped(o,fn),r=0.06,X0=c[0]-r,X1=c[0]+r,Y0=c[1]-r,Y1=c[1]+r,sn=op.S||'S',kn=op.K||'K',lab=op.labels!==false,curveLab=lab&&op.curves!==false,dirLab=op.dirs!==false;
+  m.poly([[X0,Y0,0],[X1,Y0,0],[X1,Y1,0],[X0,Y1,0]],'rgba(241,245,249,0.95)','#94a3b8',1.2,-3);
+  for(let i=1;i<12;i++){const g=X0+i*0.01,h=Y0+i*0.01;m.seg([g,Y0,0],[g,Y1,0],'#e2e8f0',1,true,-2.5);m.seg([X0,h,0],[X1,h,0],'#e2e8f0',1,true,-2.5)}
+  const rs=[],cs=[];for(let i=0;i<=60;i++){const x=X0+i*(X1-X0)/60,y=Y0+i*(Y1-Y0)/60;rs.push([x,w[1],heightAt(x,w[1],TP)]);cs.push([w[0],y,heightAt(w[0],y,TP)])}
+  m.seg([X0,w[1],0],[X1,w[1],0],'#a78bfa',1.6,true,-1);m.seg([w[0],Y0,0],[w[0],Y1,0],'#a78bfa',1.6,true,-1);m.path(rs,COL.glass,3,false,0.6);m.path(cs,COL.glass,3,false,0.6);
+  if(op.floorLines!==false){m.label(`floor line y = ${f(w[1])}`,[X1,w[1],0],10,16,'left','#6d28d9',12);m.label(`floor line x = ${f(w[0])}`,[w[0],Y0,0],6,-10,'left','#6d28d9',12)}
+  /* the floor's directions, drawn on the floor */
+  const F=(x,y)=>[x,y,0],dir=(a,b,t,dx,dy,al)=>{const A=o.proj(fn(a)),B=o.proj(fn(b));o.items.push({k:-0.8e6,f:c=>grayArrow(c,A.x,A.y,B.x,B.y,'#334155',2)});if(dirLab)m.label(t,b,dx,dy,al,'#334155',12.5)};
+  dir(F(X0+0.012,Y1+0.005),F(X0+0.055,Y1+0.005),'right',8,-12,'left');
+  dir(F(X0-0.005,Y1-0.012),F(X0-0.005,Y1-0.055),'toward the top of the picture',-8,-10,'right');
+  dir(F(X1+0.005,Y0+0.004),F(X1+0.005,Y0+0.04),'toward the bottom of the picture',8,8,'left');
+  if(curveLab){if(op.yLabFar)m.label(`the glass along the floor line y = ${f(w[1])}`,rs[45],14,-6,'left',COL.glassT,13);else if(op.yLabRight)m.label(`the glass along the floor line y = ${f(w[1])}`,rs[60],8,8,'left',COL.glassT,13);else m.label(`the glass along the floor line y = ${f(w[1])}`,rs[2],-6,16,'right',COL.glassT,13);m.label(`the glass along the floor line x = ${f(w[0])}`,cs[2],-6,-12,'right',COL.glassT,13)}
+  m.seg([w[0],w[1],0],S,'#94a3b8',1.4,true,0.5);{const kl=op.kLab||[-10,14,'right'];m.label(kn,[w[0],w[1],0],kl[0],kl[1],kl[2])}
+  m.pt('K',[w[0],w[1],0],'#fff',op.Ktip||`<b>${kn} = ${pt(w[0],w[1])}</b> in UV, on the screen (height 0).`,kn,op.Kmove?{move:op.Kmove}:{});
+  const dx=TP.c[0]-w[0],dy=TP.c[1]-w[1],dl=Math.hypot(dx,dy);if(dl>1e-6&&lab){const u=[dx/dl,dy/dl],k=Math.min(r*0.9,dl),A=[w[0]+u[0]*k*0.45,w[1]+u[1]*k*0.45,0],B=[w[0]+u[0]*k,w[1]+u[1]*k,0];m.arrow(A,B,'#a78bfa',2,-0.8);m.label('toward C',B,-6,-10,'right','#6d28d9',13);m.pt('toC',B,'#a78bfa','<b>Toward C</b> = (0.50, 0.50) in UV, the center of the glass. C itself is outside this floor patch.','toward C')}
+  o.labels.push(ctx=>{const fy=op.floorY??o.cv.height-16;plate(ctx,`floor: the screen, lying flat, x ${f(X0)}–${f(X1)}, y ${f(Y0)}–${f(Y1)} (grid every 0.01)`,o.cv.width-8,fy,12,'right','#475569');plate(ctx,'arrow ruler: 1 = 0.15 UV',o.cv.width-8,fy-26,12,'right','#475569')});
+  const a=mapped(o,q=>fn(add3(S,q,AR)));
+  {const T=new Trace(5),h=heightTrace(T,w[0],w[1],TP);a.pt('S',P0,'#fff',`<b>${sn}</b>: the glass above ${kn}, (${f(w[0])}, ${f(w[1])}, ${f4(S[2])}) in UV. N starts here.<br>Its height, by Lesson 10.1's formula (C = (0.50, 0.50), radius 0.25, bevel 0.10):<pre>${T.take().join('\n')}\nrounded: ${f4(h)}</pre>`+legNote,sn)}a.label(sn,P0,-14,-12,'right');
+  return{m,a,S,fn,depth:q=>o.proj(fn(add3(S,q,AR))).d}}
+function arrN(a,N,faint,name='N',html){a.arrow(P0,N,faint?'#f9a8d4':COL.N,faint?2.4:3.4,faint?1.7:2.4);if(name)a.label(name,N,10,-12,'left','#be185d',14);a.pt('Ntip',N,faint?'#f9a8d4':COL.N,html||`<b>The tip of N</b>: the end of N with the arrowhead.<br>N = (${fx(N[0])}, ${fx(N[1])}, ${fx(N[2])}), 1 long, counted from S.`,'tip of N')}
+/* the x line through S, its ruler in arrow units: a tick every 0.1, a number every 0.5 */
+function xLine(a,op={}){const la=op.a??-0.6,lb=op.b??1.0,A=[la,0,0],B=[lb,0,0],cut=op.cut,lay=op.layer||1.2;
+  if(cut==null)a.seg(A,B,COL.xP,2.2,false,lay);else{a.seg(A,[cut,0,0],COL.xP,2.2,false,op.away?1.6:1.3);a.seg([cut,0,0],B,COL.xP,2.2,false,op.away?1.3:1.6)}
+  if(op.zero!==false)a.label('0',P0,0,20,'center','#334155',12.5);
+  if(op.ticks!==false)for(let t=Math.ceil(la*10);t<=Math.floor(lb*10);t++){if(!t)continue;const q=[t/10,0,0],big=t%5===0,k=big?1.9:1,nd=[0,0,0.018];a.seg(add3(q,nd,-k),add3(q,nd,k),'#111827',big?1.7:1.1,true,1.4);if(big&&op.nums!==false)a.label(f2n(t/10),q,0,20,'center','#334155',12.5)}
+  if(op.lab!==false)a.label(op.text||'the x line',B,10,-14,'left',COL.xT,13.5)}
+/* the three legs of the walk from S, x leg first; which ones are drawn bold, faint or not at all */
+const LEGCOL=[COL.xP,COL.yP,COL.hP];
+function stops(N){return[P0,[N[0],0,0],[N[0],N[1],0],[N[0],N[1],N[2]]]}
+function legs(a,N,show=[1,1,1],layer=1.8){const s=stops(N);for(let k=0;k<3;k++){const b=show[k];if(!b||Math.abs(N[k])<1e-9)continue;a.seg(s[k],s[k+1],b===1?LEGCOL[k]:'#cbd5e1',b===1?3.4:1.6,b!==1,layer+(b===1?0.05:0))}return s}
+/* the wall at one distance to the right of S: every point keeps that distance */
+function wallOf(a,v,op={}){const lo=op.lo||[-0.62,-0.3],hi=op.hi||[0.78,1.1],mk=(y,h)=>[v,y,h];
+  a.poly([mk(lo[0],lo[1]),mk(hi[0],lo[1]),mk(hi[0],hi[1]),mk(lo[0],hi[1])],op.fill||COL.wallF,op.stroke||COL.wallS,1.4,op.layer||1.5);
+  return{corner:mk(hi[0],hi[1])}}
+/* is the plus direction of x going away from the viewer, in this view? */
+const xAway=sc=>sc.depth([1,0,0])<sc.depth(P0);
+/* the wall, the x line through it, and the walk: the hero, Section 2, the exercises */
+function walkScene(o,w,N,op={}){const sc=sceneAt(o,w,op),a=sc.a,v=N[0],G=[v,0,0],away=xAway(sc),sn=op.S||'S',gn=op.G||'Gx';
+  if(op.wall!==false)wallOf(a,v);
+  xLine(a,{cut:op.wall!==false?v:null,away,nums:op.nums,a:Math.min(-0.6,v-0.15),b:Math.max(1.0,v+0.2),text:op.lineText});
+  const st=legs(a,N,[1,1,1],1.8);arrN(a,N,false,op.nName??'N',op.nTipHtml);
+  if(op.gLab!==false)a.label(gn,G,-12,-16,'right');a.pt('Gx',G,COL.xP,`<b>${gn}</b>: the end of the x leg. On the ruler of the x line${op.gLab===false?' (Step 2)':''}: ${rightOf(v,sn)}.`,gn);
+  if(Math.abs(N[1])>1e-9)a.pt('e2',st[2],COL.yP,`<b>The end of the y leg</b>: still ${rightOf(v,sn)}.`,'end of the y leg');
+  if(op.wall!==false&&op.wallLab!==false){const q=o.proj(sc.fn(add3(sc.S,[v,0.78,1.1],AR)));o.labels.push(c=>{plate(c,'the wall: every point here is',q.x+8,q.y-12,13.5,'left',COL.wallT);plate(c,rightOf(v,sn),q.x+8,q.y+14,13.5,'left',COL.wallT)})}
+  if(op.legLabs!==false){if(op.xLegBelow)a.label('x leg',[v*0.55,0,0],4,22,'center',COL.xT,13.5);else a.label('x leg',[v*0.3,0,0],0,-14,'center',COL.xT,13.5);if(Math.abs(N[1])>1e-9)a.label('y leg',[v,N[1]/2,0],12,10,'left',COL.yT,13.5);a.label('height leg',[v,N[1],N[2]/2],12,0,'left',COL.hT,13.5)}
+  return sc}
+
+/* ================= Section 1: one 3D stepper ================= */
+let idea=0;const IDEA_N=5;
+const GX=[NK[0],0,0];
+function drawIdea3D(o){const s=idea,sc=sceneAt(o,KP,{yLabFar:s===1,Ktip:'<b>K = (0.62, 0.66)</b> in UV, on the screen (height 0).<br>The pixel of this lesson, on the rim.'}),a=sc.a,m=sc.m,away=xAway(sc);
+  if(s===0){const st=legs(a,NK);arrN(a,NK,false,'N = (0.302, 0.402, 0.864)');
+    a.label('x leg: 0.302 to the right',[NK[0]/2,0,0],0,24,'center',COL.xT,13.5);a.label('y leg: 0.402 toward the bottom of the picture',[NK[0],NK[1],0],-6,24,'left',COL.yT,13.5);a.label('height leg: 0.864 up',[NK[0],NK[1],NK[2]/2],12,4,'left',COL.hT,13.5);
+    a.pt('e1',st[1],COL.xP,'<b>The end of the x leg</b>: 0.302 to the right of S.','end of the x leg');a.pt('e2',st[2],COL.yP,'<b>The end of the y leg</b>: 0.302 to the right of S and 0.402 toward the bottom of the picture from S.','end of the y leg');return}
+  /* from Step 2 on: the x line with its ruler, the x leg on it, Gx */
+  const wall=s===4;if(wall)wallOf(a,NK[0]);
+  xLine(a,{cut:wall?NK[0]:null,away,text:s===1?'the x line: through S, level, at S\'s height 0.0866 in UV':'the x line'});
+  legs(a,NK,[1,s>=2?1:0,s>=3?1:0],1.8);arrN(a,NK,s<3,s<3?'N':'N');
+  if(wall)a.label('Gx: on the wall',GX,8,-22,'left');else a.label('Gx',GX,-12,-16,'right');a.pt('Gx',GX,COL.xP,'<b>Gx</b>: the end of the x leg. On the ruler of the x line: 0.302 to the right of S.'+(wall?'<br>The x leg, from S to Gx, is in front of the wall; only Gx is on it.':''),'Gx');
+  if(s===1){a.label('x leg: 0.302',[NK[0]/2,0,0],20,46,'center',COL.xT,13.5);
+    /* posts: the glass falls along the floor line y = 0.66, the x line stays at S's height */
+    const H=sc.S[2];for(const x of [0.58,0.68]){const hg=heightAt(x,KP[1],TP),left=x<KP[0],top=Math.max(hg,H)+0.004;m.seg([x,KP[1],0],[x,KP[1],top],'#94a3b8',1.6,true,1.1);m.dot([x,KP[1],H],'#fff',4);m.dot([x,KP[1],hg],COL.glass,6);
+      m.label(`post at x = ${f(x)} UV, ruler ${x<0.6?'−0.267':'0.4'}: glass ${f4(hg)} high`,[x,KP[1],hg],left?-12:12,left?-34:16,left?'right':'left',COL.glassT,13);
+      m.pt('xl'+x,[x,KP[1],H],'#fff',`<b>The x line above (${f(x)}, 0.66)</b>: height ${f4(H)} in UV, S's height.<br>On the x line's ruler (arrow units, 1 = 0.15 UV):<pre>from S in UV = ${f(x)} − 0.62 = ${x<0.6?'−0.04':'0.06'}\nruler = ${x<0.6?'−0.04':'0.06'} ÷ 0.15 = ${x<0.6?'−0.267':'0.4'}</pre>`,'x line at x '+f(x));m.pt('gl'+x,[x,KP[1],hg],COL.glass,`<b>The glass above (${f(x)}, 0.66)</b>: height ${f4(hg)} in UV.`,'glass at x '+f(x))}
+    return}
+  a.label('x leg',[NK[0]*0.3,0,0],0,-14,'center',COL.xT,13.5);
+  const st=stops(NK);
+  if(s>=2){a.label(s===2?'y leg: x part 0':'y leg',[NK[0],NK[1]/2,0],12,12,'left',COL.yT,13.5);a.pt('e2',st[2],COL.yP,'<b>The end of the y leg</b>: still 0.302 to the right of S.','end of the y leg')}
+  if(s>=3)a.label(s===3?'height leg: x part 0':'height leg',[NK[0],NK[1],NK[2]*0.72],12,0,'left',COL.hT,13.5);
+  if(wall){const q=o.proj(sc.fn(add3(sc.S,[NK[0],0.78,1.1],AR)));o.labels.push(c=>{plate(c,'the wall: every point here is',q.x+8,q.y-12,13.5,'left',COL.wallT);plate(c,'0.302 to the right of S',q.x+8,q.y+14,13.5,'left',COL.wallT)});
+    a.label('the x line goes on through the wall',[0.8,0,0],8,34,'left',COL.xT,13)}
+}
+
+/* ---------- flat pictures ---------- */
+const P2=(O,q)=>[O.x+q[0]*O.S,O.y-q[1]*O.S];
+function flatTitle(ctx,t){plate(ctx,t,8,16,13,'left','#334155')}
+function seg2(ctx,O,a,b,col,w=2.2,plain=true){const A=P2(O,a),B=P2(O,b);plain?thin(ctx,A[0],A[1],B[0],B[1],col,w):line(ctx,A[0],A[1],B[0],B[1],col,w)}
+function arrow2(ctx,O,a,b,col,w=3.2){const A=P2(O,a),B=P2(O,b);arrow(ctx,A[0],A[1],B[0],B[1],col,w,12)}
+function dot2(st,O,q,col,html,label){const p=P2(O,q);addPt(st,p[0],p[1],col,html,label,{small:true})}
+/* the x line drawn left to right, with its ruler: 0 at S, a tick every 0.1, a number every 0.5 */
+function xRuler2(ctx,O,a,b){const A=P2(O,[a,0]),B=P2(O,[b,0]);line(ctx,A[0],A[1],B[0],B[1],COL.xP,2.4);
+  for(let t=Math.ceil(a*10);t<=Math.floor(b*10);t++){const q=P2(O,[t/10,0]),big=t%5===0;thin(ctx,q[0],q[1]-(big?7:4),q[0],q[1]+(big?7:4),'#111827',1.4);if(big)plate(ctx,f2n(t/10),q[0],q[1]+22,12,'center','#334155')}
+  plate(ctx,'the x line',B[0]-4,B[1]-16,13,'right',COL.xT)}
+/* the line of all points 0.302 to the right of S, in a flat view that shows “to the right” */
+function rightLine2(ctx,O,top,bot,text,atBottom){const A=P2(O,[NK[0],top]),B=P2(O,[NK[0],bot]);thin(ctx,A[0],A[1],B[0],B[1],'#64748b',2);const L=atBottom?B:A;plate(ctx,text,L[0]+10,L[1]+(atBottom?-12:12),13,'left','#334155')}
+function gxRing(ctx,p){ctx.beginPath();ctx.arc(p[0],p[1],9,0,7);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=2.4;ctx.strokeStyle=COL.xP;ctx.stroke();ctx.beginPath();ctx.arc(p[0],p[1],3,0,7);ctx.fillStyle=COL.xT;ctx.fill()}
+/* Step 3: the view from above. To the right drawn to the right, toward the bottom of the picture drawn down; height not shown */
+function drawAboveFlat(ctx,st){const O={x:200,y:150,S:230};
+  flatTitle(ctx,'coordinates: view from above · arrow units, from S · to the right →, toward the bottom of the picture: drawn ↓');
+  plate(ctx,'height: not shown in this view',8,42,13,'left','#334155');
+  rightLine2(ctx,O,0.5,-0.62,'every point on this gray line: 0.302 to the right of S',true);
+  xRuler2(ctx,O,-0.6,2.1);seg2(ctx,O,[0,0],[NK[0],0],COL.xP,6,false);seg2(ctx,O,[NK[0],0],[NK[0],-NK[1]],COL.yP,3.4,false);
+  const s0=P2(O,[0,0]),g=P2(O,[NK[0],0]),e=P2(O,[NK[0],-NK[1]]),m1=P2(O,[NK[0],-NK[1]/2]);
+  plate(ctx,'S',s0[0]-10,s0[1]-14,14,'right');plate(ctx,'0',s0[0],s0[1]+22,12,'center','#334155');gxRing(ctx,g);plate(ctx,'Gx',g[0]+12,g[1]-16,14,'left');plate(ctx,'x leg: 0.302',(s0[0]+g[0])/2,s0[1]-30,13.5,'center',COL.xT);
+  plate(ctx,'y leg: 0.402',m1[0]-12,m1[1],13.5,'right',COL.yT);plate(ctx,'end of the y leg',e[0]+12,e[1],13.5,'left',COL.yT);
+  dot2(st,O,[0,0],'#fff','<b>S</b>, seen from above: 0 on the ruler of the x line.','S');dot2(st,O,[NK[0],0],COL.xP,'<b>Gx</b>, seen from above: 0.302 to the right of S.','Gx');dot2(st,O,[NK[0],-NK[1]],COL.yP,'<b>The end of the y leg</b>, seen from above: 0.302 to the right of S, 0.402 toward the bottom of the picture from S.','end of the y leg')}
+/* Step 4: the front view. To the right drawn to the right, up drawn up; toward the bottom of the picture not shown */
+function drawFrontFlat(ctx,st){const O={x:200,y:282,S:200};
+  flatTitle(ctx,'coordinates: front view · arrow units, from S · to the right →, up ↑');
+  plate(ctx,'toward the bottom of the picture: not shown in this view',8,42,13,'left','#334155');
+  rightLine2(ctx,O,1.0,-0.1,'every point on this gray line: 0.302 to the right of S');
+  xRuler2(ctx,O,-0.8,2.7);seg2(ctx,O,[0,0],[NK[0],0],COL.xP,6,false);seg2(ctx,O,[NK[0],0],[NK[0],NK[2]],COL.hP,3.4,false);arrow2(ctx,O,[0,0],[NK[0],NK[2]],COL.N);
+  const s0=P2(O,[0,0]),g=P2(O,[NK[0],0]),tp=P2(O,[NK[0],NK[2]]),m2=P2(O,[NK[0],NK[2]/2]);
+  plate(ctx,'S',s0[0]-10,s0[1]-14,14,'right');plate(ctx,'0',s0[0],s0[1]+22,12,'center','#334155');gxRing(ctx,g);plate(ctx,'Gx',g[0]-12,g[1]-18,14,'right');
+  plate(ctx,'height leg: 0.864, drawn straight up',m2[0]+12,m2[1],13.5,'left',COL.hT);plate(ctx,'tip of N',tp[0]-12,tp[1]-4,14,'right','#be185d');plate(ctx,'N, seen from the front',(s0[0]+tp[0])/2-14,(s0[1]+tp[1])/2,13,'right','#be185d');
+  plate(ctx,'the y leg: only a point at Gx in this view',g[0]+16,g[1]-24,13,'left',COL.yT);
+  dot2(st,O,[0,0],'#fff','<b>S</b>, seen from the front: 0 on the ruler of the x line.','S');dot2(st,O,[NK[0],0],COL.xP,'<b>Gx</b>, seen from the front: 0.302 to the right of S.<br>The y leg starts here. It goes only toward the bottom of the picture, so in this view it is only this point.','Gx');dot2(st,O,[NK[0],NK[2]],COL.N,'<b>The tip of N</b>, seen from the front: 0.302 to the right of S, 0.864 above S.','tip of N')}
+/* Step 5: the wall seen straight on. Toward the bottom of the picture drawn to the right, up drawn up, origin Gx; to the right not shown */
+function drawWallFlat(ctx,st){const O={x:150,y:262,S:216},W=[[-0.3,-0.14],[0.78,-0.14],[0.78,1.0],[-0.3,1.0]];
+  ctx.beginPath();W.forEach((q,i)=>{const p=P2(O,q);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])});ctx.closePath();ctx.fillStyle='rgba(100,116,139,0.16)';ctx.fill();ctx.lineWidth=1.4;ctx.strokeStyle=COL.wallS;ctx.stroke();
+  flatTitle(ctx,'coordinates: the wall, seen straight on · arrow units, from Gx · toward the bottom of the picture: drawn →, up ↑');
+  const b=[NK[1],0],c=[NK[1],NK[2]];
+  seg2(ctx,O,[0,0],b,COL.yP,3.4,false);seg2(ctx,O,b,c,COL.hP,3.4,false);const m1=P2(O,[NK[1]/2,0]),m2=P2(O,[NK[1],NK[2]/2]);plate(ctx,'y leg: 0.402',m1[0],m1[1]+20,13.5,'center',COL.yT);plate(ctx,'height leg: 0.864',m2[0]+12,m2[1],13.5,'left',COL.hT);
+  const g=P2(O,[0,0]),tp=P2(O,c);gxRing(ctx,g);plate(ctx,'Gx',g[0]-14,g[1]-16,14,'right');plate(ctx,'tip of N',tp[0]+10,tp[1]-10,14,'left','#be185d');plate(ctx,'the wall (gray)',P2(O,[-0.3,1.0])[0]+8,P2(O,[-0.3,1.0])[1]+16,13,'left',COL.wallT);
+  plate(ctx,'seen from S\'s side, looking to the right',440,56,13.5,'left','#334155');plate(ctx,'to the right is not shown in this view:',440,82,13.5,'left','#334155');plate(ctx,'every point here is 0.302 to the right of S',440,108,13.5,'left','#334155');plate(ctx,'the x line comes straight through at Gx',440,134,13.5,'left',COL.xT);
+  dot2(st,O,b,COL.yP,'<b>The end of the y leg</b>: 0.402 from Gx toward the bottom of the picture, on the wall.','end of the y leg');
+  dot2(st,O,[0,0],COL.xP,'<b>Gx</b>: the x line comes straight through the wall here. In this view the x line is only this point.','Gx');dot2(st,O,c,COL.N,'<b>The tip of N</b>, on the wall: 0.402 toward the bottom of the picture from Gx, 0.864 above Gx.','tip of N')}
+function drawIdeaFlat(){const st=$('ideaFlatStage'),cv=$('ideaFlat'),ctx=cv.getContext('2d'),s=idea;clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+  st.hidden=s<2;if(s===2)drawAboveFlat(ctx,st);else if(s===3)drawFrontFlat(ctx,st);else if(s===4)drawWallFlat(ctx,st)}
+
+const info=(k,l)=>`<button class="info" data-tip="${k}" aria-label="${l}">ⓘ</button>`;
+function ideaPanel(){
+  const caps=[
+  `<b>Step 1 · N as a walk of three legs.</b><ul class="capl"><li>The violet curves: the glass along two floor lines, where x = 0.62 or y = 0.66.</li><li>The floor is the screen picture: “toward the bottom of the picture” means toward its bottom edge.</li><li><b>S</b> is the glass above the pixel <b>K = (0.62, 0.66)</b>: (0.62, 0.66, 0.0866) in UV.</li><li><b>N</b> is the unit normal at K: (0.302, 0.402, 0.864) ${info('nK','How N at K is calculated')}, 1 long ${info('lenN','The length of N')}, in arrow units ${info('ruler','Arrow units and UV')}.</li><li>Walk from S to the <b>tip of N</b> (its arrowhead end) in three <b>legs</b> ${info('legWord','Why the word leg')}, each changing only x, y or height:<ul><li>the <b>x leg</b>: 0.302 to the right;</li><li>the <b>y leg</b>: 0.402 toward the bottom of the picture;</li><li>the <b>height leg</b>: 0.864 up.</li></ul></li><li>Why K? None of N's parts is 0 there, so every leg can be seen.</li><li>The question: after each leg, how far to the right of S (in x) is the walk's end?</li><li>Why ask? Lesson 10.6 uses the answer for a line from the tip of N to the x line (Step 2).</li></ul>`,
+  `<b>Step 2 · The x line and its ruler.</b><ul class="capl"><li>New: the <b>x line</b> (lime): the straight line through S along which only x changes.</li><li>It is straight above the thin violet floor line y = 0.66.</li><li>Careful: the floor line x = 0.62 runs under the x line, crosswise to it.</li><li>Its height never changes, so it is <b>level</b> (parallel to the floor), at 0.0866 in UV.</li><li>The gray posts show that the x line is not the glass ${info('heights','The two glass heights')}:<ul><li>glass 0.0957 high at x = 0.58, 0.0418 at x = 0.68; x line 0.0866 at both (UV).</li></ul></li><li>The x line's ruler (arrow units): 0 at S, plus right, minus left, ticks every 0.1.</li><li>The x leg lies on the x line. It ends at <b>Gx</b>, where the ruler reads 0.302.</li><li>So after the x leg, the end of the walk is 0.302 to the right of S.</li></ul>`,
+  `<b>Step 3 · The y leg goes 0 to the right.</b><ul class="capl"><li>New: the <b>y leg</b> (orange), from Gx toward the bottom of the picture.</li><li>The y leg changes only y (Step 1).</li><li>As an arrow: x part 0, y part 0.402, height part 0.</li><li>x part 0: the y leg does not go to the right at all.</li><li>So after the y leg: 0.302 + 0 = 0.302 to the right of S.</li><li>Below: the view from above ${info('views','The flat views of Lesson 10.3')}: to the right and toward the bottom of the picture.</li><li>Height is not shown in it.</li><li>In it, the y leg is drawn from Gx toward the bottom of the drawing.</li><li>The y leg stays on the gray line of points 0.302 to the right of S.</li><li>In 3D the y leg slants on screen only because the floor is drawn turned.</li></ul>`,
+  `<b>Step 4 · The height leg goes 0 to the right.</b><ul class="capl"><li>New: the <b>height leg</b> (blue), from the y leg's end up to the tip of N.</li><li>The height leg changes only height (Step 1).</li><li>As an arrow: x part 0, y part 0, height part 0.864.</li><li>x part 0: the height leg does not go to the right at all.</li><li>So after the height leg: 0.302 + 0 = 0.302 to the right of S.</li><li>So the tip of N, where the height leg ends, is 0.302 to the right of S.</li><li>Below: the front view: to the right and up.</li><li>Toward the bottom of the picture is not shown in it.</li><li>In it, the y leg is only a point at Gx.</li><li>The height leg is drawn straight up from Gx.</li></ul>`,
+  `<b>Step 5 · The y leg, the height leg and the tip of N on one wall.</b><ul class="capl"><li>New: the <b>wall</b> (gray, a helper): all points 0.302 to the right of S ${info('wallUV','Where the wall is drawn')}.</li><li>A move toward the bottom of the picture or up has x part 0 (Steps 3 and 4).</li><li>Toward the top and down are the reverse moves: a minus on each part, and −0 = 0.</li><li>So from Gx, moving toward the bottom, the top, up or down keeps you on the wall.</li><li>The y leg, the height leg and the tip of N are all on the wall.</li><li>The x leg is in front of the wall: only its end, Gx, is on the wall.</li><li>The wall is flat and stands straight up; Lesson 10.5 shows why (this lesson does not need it).</li><li>Steps 3 and 4 (press Back) showed this wall edge-on, as a gray line: each view hid one direction.</li><li>Below: the wall, seen straight on from S's side; to the right is not shown in it.</li><li>So after the x leg, the rest of the walk stays on the wall.</li></ul>`];
+  $('ideaCap').innerHTML=caps[idea]+`<div style="margin-top:8px;color:#6b7280;font-size:13.5px">Step ${idea+1} of ${IDEA_N}</div>`;bindTips($('ideaCap'));
+  [...$('ideaDots').children].forEach((b,i)=>b.classList.toggle('on',i===idea));$('ideaPrev').disabled=idea===0;$('ideaNext').disabled=idea===IDEA_N-1;
+  drawIdeaFlat();
+}
+function goIdea(i){idea=i;ideaPanel();ideaOrb.render()}
+const CAM={yaw:-32,pitch:26};
+const ideaOrb=new Orbit3D($('ideaStage'),$('ideaCv'),{yaw:CAM.yaw,pitch:CAM.pitch,zoom:1,scale:120,target:[0,0,0],dx:-110,dy:30,compassPos:'tl',coord:'UV, zoomed in at K',draw:drawIdea3D});
+viewBar($('ideaBar'),ideaOrb,[]);
+
+/* ================= the hero ================= */
+const hero3=new Orbit3D($('hero3Stage'),$('hero3'),{yaw:CAM.yaw,pitch:30,scale:640,target:[0.5,0.5,0.04],dx:40,dy:0,coord:'UV (x, y and height)',compassPos:'bl',draw:o=>{const r=glassScene(o,TP,{w:KP,cuts:false,arrows:true});
+  const tipN=add3(r.H,r.n.N,0.06);o.label('N',tipN,10,-8,'left','#be185d');o.label('K',[KP[0],KP[1],0],10,14,'left');o.label('S',r.H,-12,-6,'right');o.label('C',[0.5,0.5,0],0,22,'center');
+  o.labels.push(c=>plate(c,'arrow ruler: 1 = 0.06 UV',c.canvas.width-8,c.canvas.height-16,12,'right','#475569'));
+  o.pt('K',[KP[0],KP[1],0],'#fff','<b>K = (0.62, 0.66)</b> in UV, y toward the bottom of the picture.<br>The pixel this lesson traces. It lies on the screen (height 0).','K');o.pt('S',r.H,'#fff',`<b>S</b>: the glass above K. (0.62, 0.66, ${f4(r.n.h)}) in UV.`,'S');o.pt('N',tipN,COL.N,'<b>The tip of N at K</b>. N = (0.302, 0.402, 0.864), drawn 0.06 UV long here (1 arrow unit = 0.06 UV). The zoomed pictures draw it 0.15 UV long.','tip of N');o.pt('C',[0.5,0.5,0],COL.glass,'<b>C = (0.50, 0.50)</b> in UV: the center of the glass.','C')}});
+viewBar($('hero3Bar'),hero3,[]);
+const heroZoom=new Orbit3D($('heroZoomStage'),$('heroZoom'),{yaw:CAM.yaw,pitch:CAM.pitch,scale:92,target:[0,0,0],dx:-70,dy:30,compassPos:'tl',coord:'UV, zoomed in at K',draw:o=>walkScene(o,KP,NK,{labels:false,floorLines:false,nums:false,gLab:false,lineText:'the x line (Step 2)'})});
+viewBar($('heroZoomBar'),heroZoom,[]);
+
+/* ================= Section 2: the trace at a draggable pixel ================= */
+const TR={w:[...KP],c:null};
+/* a drag of K in the 3D picture: the floor holds still while the pointer moves, and centres on K again when the pointer is released */
+function dragK3D(cx,cy,o){if(!TR.c)TR.c=[...TR.w];const p=canvasPos(o.cv,cx,cy),Sc=heightAt(TR.c[0],TR.c[1],TP),g=o.floorAt(p[0],p[1],-Sc*18);if(!g)return;const q=(v,c)=>clamp(clamp(v,c-0.06,c+0.06),0.06,0.94);TR.w=[R12(Math.round(q(TR.c[0]+g[0]/18,TR.c[0])*1000)/1000),R12(Math.round(q(TR.c[1]+g[1]/18,TR.c[1])*1000)/1000)];traceAll()}
+document.addEventListener('pointerup',()=>{if(TR.c){TR.c=null;traceAll()}});
+const traceOrb=new Orbit3D($('traceStage'),$('traceCv'),{yaw:CAM.yaw,pitch:CAM.pitch,scale:112,target:[0,0,0],dx:-60,dy:24,compassPos:'tl',coord:'UV, zoomed in at K',draw:o=>{walkScene(o,TR.w,nShown(TR.w[0],TR.w[1]),{curves:false,center:TR.c||TR.w,Kmove:dragK3D,Ktip:()=>`<b>K = ${pt(TR.w[0],TR.w[1])}</b> in UV, on the screen (height 0).<br>Drag K here or on the map.`});o.labels.push(c=>plate(c,`violet curves: the glass along the floor lines y = ${f(TR.w[1])} and x = ${f(TR.w[0])}`,8,124,12,'left',COL.glassT))}});
+viewBar($('traceBar'),traceOrb,[]);
+const MAPS=300;
+function drawMap(){const st=$('tMapStage'),cv=$('tMap'),ctx=cv.getContext('2d'),[u,v]=TR.w;clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,MAPS,MAPS);
+  const c=MAPS/2;ctx.beginPath();ctx.arc(c,c,RAD*MAPS,0,7);ctx.fillStyle='#f3e8ff';ctx.fill();ctx.beginPath();ctx.arc(c,c,(RAD-TP.bev)*MAPS,0,7);ctx.fillStyle='#fff';ctx.fill();
+  ctx.lineWidth=1;ctx.strokeStyle='#c4b5fd';ctx.stroke();ctx.beginPath();ctx.arc(c,c,RAD*MAPS,0,7);ctx.lineWidth=2.4;ctx.strokeStyle=COL.glass;ctx.stroke();
+  plate(ctx,'coordinates: UV, from above',8,16,12,'left');plate(ctx,'x →, y toward the bottom ↓',8,42,12,'left');plate(ctx,'white middle: the flat top',8,MAPS-16,12,'left',COL.glassT);plate(ctx,'violet band: the rim',8,MAPS-42,12,'left',COL.glassT);plate(ctx,'C',c+10,c-10,13,'left');
+  plate(ctx,'K',u*MAPS+12,v*MAPS-14,14,'left');
+  addPt(st,c,c,COL.glass,'<b>C = (0.50, 0.50)</b> in UV: the center of the glass.','C',{small:true});
+  const clampK=q=>clamp(q,0.06,0.94),set=(a,b)=>{TR.w=[R12(Math.round(clampK(a)*1000)/1000),R12(Math.round(clampK(b)*1000)/1000)];traceAll()};
+  addPt(st,u*MAPS,v*MAPS,'#fff',()=>`<b>K = ${pt(u,v)}</b> in UV. Drag it, or use the arrow keys (0.001 per press).`,'K, draggable',{key:'K',move:(cx,cy)=>{const q=canvasPos(cv,cx,cy);set(q[0]/MAPS,q[1]/MAPS)},keys:d=>set(u+d[0]*0.001,v+d[1]*0.001)})}
+const legName=['x leg','y leg','height leg'],legCls=['px','py','ph'];
+function traceAll(){const [u,v]=TR.w,N=nShown(u,v);drawMap();traceOrb.render();
+  $('tRead').innerHTML=`<b>K = ${pt(u,v)}</b> in UV<br>S's height: ${f4(heightAt(u,v,TP))} in UV<br><b>N = (${fx(N[0])}, ${fx(N[1])}, ${fx(N[2])})</b> <button class="info" id="tNinfo" aria-label="How N is calculated">ⓘ</button><br><span class="small">x part, y part, height part, in arrow units</span>`;setTip($('tNinfo'),nTipW('K',u,v));
+  const head=`<tr><th>Leg</th><th>The leg as an arrow: x part, y part, height part</th><th>How far the leg goes to the right</th><th>How far to the right of S the end of the walk is after this leg</th></tr>`;
+  let at=0;const rows=[0,1,2].map(k=>{const leg=[0,0,0];leg[k]=N[k];const go=leg[0],r=R12(at+go),cell=`${fx(at)} + ${par(go)} = <b>${fx(r)}</b>`;at=r;
+    const goTxt=Math.abs(go)<1e-9?'0: it does not go to the right':go<0?`${fx(go)}: minus, it goes to the left`:fx(go);
+    return`<tr><td class="${legCls[k]}"><b>${legName[k]}</b></td><td class="f">${fx(leg[0])}, ${fx(leg[1])}, ${fx(leg[2])}</td><td class="f">${goTxt}</td><td class="f">${cell}</td></tr>`}).join('');
+  $('tTable').innerHTML=head+rows;
+  const notes=[`<li>Each row is one leg of the walk, in the order of the picture: x leg, y leg, height leg.</li>`,`<li>The first 0: the walk starts at S, 0 to the right of S.</li>`,`<li>Only the x leg changes how far to the right the walk is. The y leg and the height leg add 0.</li>`,`<li>So the tip of N is on the gray wall: all points ${rightOf(N[0])}.</li>`];
+  if(N[0]<0)notes.push(`<li>Here N's x part is minus: the x leg goes to the left. So the wall is on the left of S.</li>`);
+  if(N[0]===0)notes.push(`<li>Here N's x part is 0: the x leg has no length, so the wall goes through S.</li>`);
+  if(N[1]===0)notes.push(`<li>Here N's y part is 0: the y leg has no length.</li>`);
+  $('tCap').innerHTML=notes.join('')}
+
+/* ================= the exercises ================= */
+const K2=[0.62,0.34],N2=[0.302,-0.402,0.864];
+const exOpt={yaw:CAM.yaw,pitch:CAM.pitch,scale:104,target:[0,0,0],dx:-30,dy:56,compassPos:'tl',coord:'UV, zoomed in at K'};
+const n2Html='<b>The tip of N at K₂</b>: N = (0.302, −0.402, 0.864), 1 long, counted from S₂.';
+const ex1q=new Orbit3D($('ex1qStage'),$('ex1q'),Object.assign({},exOpt,{yaw:32,dy:20,scale:90,dx:-10,coord:'UV, zoomed in at K₂',draw:o=>walkScene(o,K2,N2,{xLegBelow:true,kLab:[12,16,'left'],labels:false,floorLines:false,S:'S₂',K:'K₂',G:'Gx₂',wall:false,nums:true,nName:'N = (0.302, −0.402, 0.864)',nTipHtml:n2Html})}));
+const ex1a=new Orbit3D($('ex1aStage'),$('ex1a'),Object.assign({},exOpt,{pitch:22,yaw:0,scale:82,dy:34,dx:-10,coord:'UV, zoomed in at K₂',draw:o=>walkScene(o,K2,N2,{xLegBelow:true,kLab:[-12,-14,'right'],labels:false,floorLines:false,S:'S₂',K:'K₂',G:'Gx₂',nums:true,nName:'N',nTipHtml:n2Html+'<br>On the wall 0.302 to the right of S₂.'})}));
+/* Exercise 2: three points, each reached from S by three legs (arrow units, from S) */
+const EXP=[{n:'P₁',p:[0.302,-0.5,0.25],c:'#0d9488'},{n:'P₂',p:[0.45,0.302,0.6],c:'#7c3aed'},{n:'P₃',p:[0.15,0.4,0.302],c:'#b45309'}];
+function ex2Scene(o,ans){const sc=sceneAt(o,KP,{labels:false,floorLines:false}),a=sc.a;if(ans)wallOf(a,NK[0],{lo:[-0.75,-0.3],hi:[0.7,1.0]});xLine(a,{cut:ans?NK[0]:null,away:xAway(sc),b:1.0,nums:!ans});
+  if(ans){a.label('Gx: 0.302',GX,-12,-16,'right',COL.xT,13.5);a.pt('Gx',GX,COL.xP,'<b>Gx</b>: 0.302 to the right of S, on the x line. The wall crosses the x line here.','Gx');const q=o.proj(sc.fn(add3(sc.S,[NK[0],0.7,1.0],AR)));o.labels.push(c=>{plate(c,'the wall: every point here is',q.x+8,q.y-12,13.5,'left',COL.wallT);plate(c,'0.302 to the right of S',q.x+8,q.y+14,13.5,'left',COL.wallT)})}
+  if(ans)for(const P of EXP){if(P.p[0]===NK[0])continue;const E=[P.p[0],0,0];a.dot(E,P.c,5);a.label(fx(P.p[0]),E,0,22,'center',P.c,13);a.pt('xe'+P.n,E,P.c,`<b>The end of ${P.n}'s x leg</b>: ${fx(P.p[0])} on the x line's ruler, ${P.p[0]>NK[0]?'past':'short of'} the wall at 0.302.`,'end of '+P.n+'\'s x leg')}
+  for(const P of EXP){const s=stops(P.p);for(let k=0;k<3;k++)a.seg(s[k],s[k+1],P.c,ans?2.4:1.8,true,1.75);a.dot(P.p,P.c,6);a.label(P.n,P.p,10,-10,'left',P.c,14);
+    a.pt(P.n,P.p,P.c,`<b>${P.n}</b>: from S, ${rightOf(P.p[0]).replace(' of S','')}, ${fx(Math.abs(P.p[1]))} toward the ${P.p[1]<0?'top':'bottom'} of the picture, ${fx(P.p[2])} up (arrow units).${ans?`<br>${Math.abs(P.p[0]-NK[0])<1e-9?'On the wall.':'Not on the wall.'}`:''}`,P.n)}
+  return sc}
+const ex2q=new Orbit3D($('ex2qStage'),$('ex2q'),Object.assign({},exOpt,{draw:o=>ex2Scene(o,false)}));
+const ex2a=new Orbit3D($('ex2aStage'),$('ex2a'),Object.assign({},exOpt,{pitch:22,yaw:0,dy:0,draw:o=>ex2Scene(o,true)}));
+function exercises(){[ex1q,ex1a,ex2q,ex2a].forEach(o=>o.render());
+  setTip($('n2info'),nTipW('K₂',K2[0],K2[1]));
+  $('ex2Table').innerHTML='<tr><th>Point</th><th>to the right</th><th>toward the bottom of the picture (minus: toward the top)</th><th>up</th></tr>'+EXP.map(P=>`<tr><td><b style="color:${P.c}">${P.n}</b></td><td>${fx(P.p[0])}</td><td>${fx(P.p[1])}</td><td>${fx(P.p[2])}</td></tr>`).join('');
+  document.querySelectorAll('.choices').forEach(g=>{const out=g.nextElementSibling;g.querySelectorAll('button').forEach(b=>{b.setAttribute('aria-pressed','false');b.onclick=()=>{g.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));out.className='verdict '+(b.dataset.ok==='1'?'ok':'no');out.textContent=b.dataset.why}})})}
+
+/* ================= tooltips of the captions ================= */
+const legNote='<p class="small">In the height lines, <i>leg</i> is a side of Lesson 10.1\'s rim triangle, not a leg of the walk.</p>';
+const nTipW=(n,u,v)=>()=>nTip(n,u,v)()+legNote;
+const TIPS={
+  legWord:'Lesson 9.1 called the two sides at the square corner of a right triangle its legs. Neighboring pieces of this walk also meet at a square corner, because x, y and height are at square corners to each other, so the same word fits.<br>Not Lesson 10.3\'s x walk, which went down a tilted board: the x leg is level, with height part 0.',
+  wallUV:'The wall is a helper in arrow units, counted from S. This drawing draws 1 arrow unit 0.15 UV long, so the wall is drawn above the floor points with x = 0.6653, such as (0.6653, 0.66):<pre>drawn = 0.302 × 0.15 UV = 0.0453 UV\nwall x = 0.62 + 0.0453 = 0.6653</pre>With another arrow ruler it would be drawn elsewhere: it is a place in the drawing, not on the glass.',
+  nK:nTipW('K',0.62,0.66),
+  lenN:'Lesson 10.3: first the shadow, then the length.<pre>x part² = 0.302 × 0.302 = 0.091204\ny part² = 0.402 × 0.402 = 0.161604\nshadow² = 0.091204 + 0.161604 = 0.252808\nheight part² = 0.864 × 0.864 = 0.746496\nlength² = 0.252808 + 0.746496 = 0.999304\nlength = √0.999304 = 1.000 (3 decimals)</pre>Not exactly 1, because N is rounded to 3 decimals.',
+  ruler:'Lesson 10.3 wrote an arrow\'s parts as “UV, drawn shrunk by the arrow ruler”. This lesson calls that unit the <b>arrow unit</b>: 1 = the length of N. So N\'s 0.302 is not 0.302 UV on the glass; it is drawn 0.15 times as long:<pre>the x leg, as drawn = 0.302 × 0.15 UV = 0.0453 UV</pre>S and K are points on the glass and the screen, so their numbers are in UV. The legs, the x line\'s ruler, the wall and Exercise 2\'s points are in arrow units, from S: places in the zoomed drawing, not sizes on the glass.',
+  views:'Lesson 10.3, Step 5: one walk seen from above, from the front and from the side. Each flat view shows two of the three directions; a part along the third direction is not shown in that view.',
+  heights:()=>{const row=x=>{const T=new Trace(5),h=heightTrace(T,x,0.66,TP);return`<pre><b>The glass above (${f(x)}, 0.66)</b>\n${T.take().join('\n')}\n<b>rounded: ${f4(h)}</b></pre>`};return`<b>Lesson 10.1's height</b>, in UV. C = (0.50, 0.50), radius 0.25, bevel 0.10.<div class="tgrid">${row(0.58)}${row(0.68)}</div>`+legNote}
+};
+function bindTips(root){root.querySelectorAll('.info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip]))}
+
+/* ================= start ================= */
+(function(){
+  for(let i=0;i<IDEA_N;i++){const b=document.createElement('button');b.className='dot';b.setAttribute('aria-label','Step '+(i+1));b.onclick=()=>goIdea(i);$('ideaDots').appendChild(b)}
+  $('ideaPrev').onclick=()=>{if(idea>0)goIdea(idea-1)};$('ideaNext').onclick=()=>{if(idea<IDEA_N-1)goIdea(idea+1)};
+  $('tHome').onclick=()=>{TR.w=[...KP];traceAll()};
+  hero3.render();heroZoom.render();goIdea(0);traceAll();exercises();
+})();
+</script>
+</body>
+</html>
