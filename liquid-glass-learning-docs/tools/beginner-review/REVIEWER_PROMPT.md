@@ -25,8 +25,8 @@ Use this for every new lesson and every revision, before delivery (`AGENTS.md` r
    Save the list as `reviews/lesson-NN-MM-beginner-review-YYYY-MM-DD.md`.
 
 Placeholders:
-- `{LESSON}`: e.g. `Lesson 10.11 — How far an arrow goes along any line`
-- `{TYPE}`: the lesson's type in the curriculum: `C`, `B` (with the lessons it joins, e.g. `B, joins 10.4–10.21`) or `E`
+- `{LESSON}`: e.g. `Lesson 10.14 — How far an arrow goes along any line`
+- `{TYPE}`: the lesson's type in the curriculum: `C`, `B` (with the lessons it joins, e.g. `B, joins 10.4–10.24`) or `E`
 - `{TEXT}`: `/tmp/review-NN-MM/lesson-text.md`
 - `{SHOTS}`: `/tmp/review-NN-MM/shots/`
 - `{HTML}`: the lesson file
