@@ -4,7 +4,7 @@ Fresh agents that did not write the pages reviewed them in turn (`AGENTS.md` rul
 
 | Review | Page | Blocks | Slows | Minor | New ideas counted |
 |---|---|---|---|---|---|
-| 1 | “The spin keeps the length: T goes round a circle” (after the first split; now `course/archive/lesson-10-07-spin-length-circle-draft-2026-11-03.html`) | 0 | 5 | 9 | 3: the straight-on drawing shows a wall line at its whole length (Step 2); the kept length (Step 3); the circle (Step 4) |
+| 1 | “The spin keeps the length: T goes round a circle” (after the first split; now `course/archive/lesson-10-07-spin-length-circle-draft-2026-11-03.html` (deleted 2026-11-04; read it with `git show 91a51c6:liquid-glass-learning-docs/course/archive/lesson-10-07-spin-length-circle-draft-2026-11-03.html`)) | 0 | 5 | 9 | 3: the straight-on drawing shows a wall line at its whole length (Step 2); the kept length (Step 3); the circle (Step 4) |
 | 2 | “The wall seen straight on draws its lines at their whole length” (`lesson-10-07-whole-length-seen-straight-on.html`) | 0 | 6 | 10 | 1 |
 | 3 | the same page, after Review 2's fixes (the final list) | 0 | 3 | 9 | 1 (borderline: Step 5's length² = x part² + drawn length², which it counts as Lesson 10.3's sum plus Step 4) |
 
