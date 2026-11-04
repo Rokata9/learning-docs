@@ -112,4 +112,4 @@ Standing preference (2026-11-04), for every job:
 - HTML lessons: one self-contained file each (inline CSS and JS, works from `file://`), desktop at 1920×1080, light theme only.
 - The Chapter 7 frost constants are frozen (`CURRENT_STATE.md`, “Frozen frost stack”).
 - Never use `ultraThinMaterial` or `glassEffect` as the glass implementation.
-- The plan has 310 lessons. Project files never store which lessons are complete.
+- The plan has 312 lessons. Project files never store which lessons are complete.

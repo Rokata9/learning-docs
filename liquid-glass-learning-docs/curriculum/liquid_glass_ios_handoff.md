@@ -246,9 +246,9 @@ N = rawNormal ÷ normalLength
 RGB = N × 0.5 + 0.5                      (display only)
 ```
 
-Regenerated from scratch on 2026-10-28 (the earlier version was replaced, not copied); the old Sections 1–2 merged into one 3D stepper on 2026-10-31; the tables and legends under the stepper, the light preview and the lab section removed the same day; learner-confirmed complete on 2026-10-31. One graphics idea: the normal stands at a square corner to the surface. Section 1 has one test surface, the tilted board (board units from P; slopes −0.45, −0.60), after the 3D on-ramp (from above, then a tilt with Q): the goal arrow, named rawNormal; the x walk and y walk; one walk in three flat views; in the front view a quarter turn of the x walk gives rawNormal's x part and height part, (0.45, 1), with a turn slider in the flat picture and the sign change explained (a height −0.45 becomes an x +0.45; rawNormal leans downhill); in the side view the y walk gives (0.60, 1); so rawNormal = (0.45, 0.60, 1). No other arrow is named. The view angle is fixed from Step 2 on. One math idea: a 3D length by Pythagoras twice: shadow 0.75, length 1.25, N = (0.36, 0.48, 0.80). Steps 12–14 return to the glass in UV (the slice, near H a small board, every pixel). The lead says what N does in the end; Lessons 10.4–10.31 build the brightness. Teaching W = (0.71, 0.50), Lesson 10.1's pixel (Lesson 10.2 keeps (0.72, 0.50)), chain at 5 decimals: slopeX −0.7595, hD = hE = 0.07982, slopeY 0, rawNormal (0.7595, 0, 1), length 1.256, N = (0.605, 0, 0.796), stores (0.8025, 0.50, 0.898). Then Section 2 traced value (five cards) and color guide (colored map with points 1–10 and a draggable W; a click on a point opens a short tooltip that says why each channel is above, at or below neutral 0.50; the number lines of × 0.5 + 0.5 are in a ⓘ), 3 code, 4 challenge, 5 exercises (the flat top, the top rim, equal unit lengths, which of three arrows from H is N), 6 Metal, 7 record, 8 your questions (added 2026-11-01: point against arrow parts, why the turn, why the minus, an example with slopeX −0.349; 2026-11-02: the turn cards moved to the glass at K and M, and a card says that a slope is a ratio and not a size on the glass; the rest of the page does not need it). A point has x, y, height; an arrow has parts, and each part names its arrow. iOS (rewritten): `chapter10/NormalMap.metal` + `NormalExplorer.swift`; Metal exercise `NormalExercise.metal` (`unitNormalFromSlopes`, `buttonNormal`; `buttonHeightForNormal` prepared), `NormalExerciseKey.metal`, `NormalExerciseView.swift`. Builds for the iPhone 16 Pro simulator; the stubs show a red rim, the answer shows none. Feedback → rules: `FEEDBACK_LOG.md`; QA: `CURRENT_STATE.md`.
+Regenerated from scratch on 2026-10-28 (the earlier version was replaced, not copied); the old Sections 1–2 merged into one 3D stepper on 2026-10-31; the tables and legends under the stepper, the light preview and the lab section removed the same day; learner-confirmed complete on 2026-10-31. One graphics idea: the normal stands at a square corner to the surface. Section 1 has one test surface, the tilted board (board units from P; slopes −0.45, −0.60), after the 3D on-ramp (from above, then a tilt with Q): the goal arrow, named rawNormal; the x walk and y walk; one walk in three flat views; in the front view a quarter turn of the x walk gives rawNormal's x part and height part, (0.45, 1), with a turn slider in the flat picture and the sign change explained (a height −0.45 becomes an x +0.45; rawNormal leans downhill); in the side view the y walk gives (0.60, 1); so rawNormal = (0.45, 0.60, 1). No other arrow is named. The view angle is fixed from Step 2 on. One math idea: a 3D length by Pythagoras twice: shadow 0.75, length 1.25, N = (0.36, 0.48, 0.80). Steps 12–14 return to the glass in UV (the slice, near H a small board, every pixel). The lead says what N does in the end; Lessons 10.4–10.33 build the brightness. Teaching W = (0.71, 0.50), Lesson 10.1's pixel (Lesson 10.2 keeps (0.72, 0.50)), chain at 5 decimals: slopeX −0.7595, hD = hE = 0.07982, slopeY 0, rawNormal (0.7595, 0, 1), length 1.256, N = (0.605, 0, 0.796), stores (0.8025, 0.50, 0.898). Then Section 2 traced value (five cards) and color guide (colored map with points 1–10 and a draggable W; a click on a point opens a short tooltip that says why each channel is above, at or below neutral 0.50; the number lines of × 0.5 + 0.5 are in a ⓘ), 3 code, 4 challenge, 5 exercises (the flat top, the top rim, equal unit lengths, which of three arrows from H is N), 6 Metal, 7 record, 8 your questions (added 2026-11-01: point against arrow parts, why the turn, why the minus, an example with slopeX −0.349; 2026-11-02: the turn cards moved to the glass at K and M, and a card says that a slope is a ratio and not a size on the glass; the rest of the page does not need it). A point has x, y, height; an arrow has parts, and each part names its arrow. iOS (rewritten): `chapter10/NormalMap.metal` + `NormalExplorer.swift`; Metal exercise `NormalExercise.metal` (`unitNormalFromSlopes`, `buttonNormal`; `buttonHeightForNormal` prepared), `NormalExerciseKey.metal`, `NormalExerciseView.swift`. Builds for the iPhone 16 Pro simulator; the stubs show a red rim, the answer shows none. Feedback → rules: `FEEDBACK_LOG.md`; QA: `CURRENT_STATE.md`.
 
-### Lessons 10.4–10.27 — the dot product, split by idea (2026-11-02; 10.4 split in three 2026-11-03; 10.5 and 10.7 added 2026-11-03; 10.7 split in two and then three 2026-11-03, plan 310)
+### Lessons 10.4–10.29 — the dot product, split by idea (2026-11-02; 10.4 split in three 2026-11-03; 10.5 and 10.7 added 2026-11-03; 10.7 split in two and then three 2026-11-03, plan 310)
 
 ```text
 L = (0.48, −0.60, 0.64)          1 long, the direction toward a light, chosen, the same at every pixel; arrow units: 1 = the length of L
@@ -263,9 +263,9 @@ gray = dot(N, L) × 0.5 + 0.5     display only: the dot map
 ```
 
 **Source pages** (the folder `course/archive/` was removed on 2026-11-03 at the learner's request, and again on 2026-11-04 after its last page was used; read a page with `git show c42d7c0:liquid-glass-learning-docs/course/archive/<file>`, or `91a51c6:` for the 10.7 split draft):
-- `course/archive/lesson-10-04-dot-product-2026-11-02.html`, Lesson 10.4 before the split (for Lessons 10.14–10.27);
-- `course/archive/lesson-10-04-arrow-part-draft-2026-11-03.html`, the one-page draft of the foot lesson (for Lessons 10.6–10.13). Its fresh review found five new ideas, so the learner split it in three on 2026-11-03; its review is `reviews/lesson-10-04-draft-beginner-review-2026-11-02.md` (draft items #1–#29, named “draft #” below);
-- `course/archive/lesson-10-05-spin-draft-2026-11-03.html`, the spin page before its Steps 4–5 moved out (for Lessons 10.8–10.10).
+- `course/archive/lesson-10-04-dot-product-2026-11-02.html`, Lesson 10.4 before the split (for Lessons 10.16–10.29);
+- `course/archive/lesson-10-04-arrow-part-draft-2026-11-03.html`, the one-page draft of the foot lesson (for Lessons 10.6–10.15). Its fresh review found five new ideas, so the learner split it in three on 2026-11-03; its review is `reviews/lesson-10-04-draft-beginner-review-2026-11-02.md` (draft items #1–#29, named “draft #” below);
+- `course/archive/lesson-10-05-spin-draft-2026-11-03.html`, the spin page before its Steps 4–5 moved out (for Lessons 10.8–10.11).
 
 **What carries over:**
 - the rendering engine;
@@ -276,7 +276,7 @@ gray = dot(N, L) × 0.5 + 0.5     display only: the dot map
 **Every lesson here:**
 - Made by the ordinary job, one per chat: “Generate lesson 10.N”. Each links back to the lesson before it and on to the hub; its hub entry becomes `available` with its file.
 - `C` lessons: one idea, at most 5 stepper steps, the glass at K (no test board), the HTML page only.
-- 10.27 is `B`: it needs Xcode and the iOS lab.
+- 10.29 is `B`: it needs Xcode and the iOS lab.
 - Wherever a length along L's line is printed: “arrow units: 1 = the length of L” (review #21).
 - Review items #1–#30: `reviews/lesson-10-04-beginner-review-2026-11-02.md`.
 - No “coordinate systems in this lesson” panel (learner, 2026-11-04): name the system where each number is printed; a new kind of number gets a row in `course/reference-number-forms.html`.
@@ -286,7 +286,7 @@ gray = dot(N, L) × 0.5 + 0.5     display only: the dot map
 
 #### Lesson 10.4 — The rest of the walk stays on a wall (`C`, made 2026-11-03, learner-confirmed complete 2026-11-03)
 - **File:** `lesson-10-04-walk-stays-on-a-wall.html`. Contract, page shape and QA: `CURRENT_STATE.md`.
-- **One idea:** after the x leg, the y leg and the height leg go 0 to the right, so the rest of the walk, and the tip of N, stay on the wall of all points 0.302 to the right of S. No proof that the wall is flat and no square corner with the x line here (10.5–10.12), no foot (10.13), no L.
+- **One idea:** after the x leg, the y leg and the height leg go 0 to the right, so the rest of the walk, and the tip of N, stay on the wall of all points 0.302 to the right of S. No proof that the wall is flat and no square corner with the x line here (10.5–10.14), no foot (10.15), no L.
 - **Reviews:** `reviews/lesson-10-04-beginner-review-2026-11-03.md` (three fresh reviews; the last one's list).
 - **Folded in:** card 1 (the real glass, not a board), card 2 (“level” = parallel to the floor), card 3 (each part drawn as a leg); draft #1, #3–#10 and #13's “the x line goes through the wall”.
 
@@ -294,13 +294,13 @@ gray = dot(N, L) × 0.5 + 0.5     display only: the dot map
 - **File:** `lesson-10-05-the-wall-is-flat.html`. Contract, page shape and QA: `CURRENT_STATE.md`.
 - **Why it exists (learner: “Yes, flat wall first”, 2026-11-03):** Review 3 of the spin page found that the spin, the circle and the half turn rely on the wall being flat, which Lesson 10.4, Step 5 only states (“Lesson 10.5 shows why”). This lesson is that reason.
 - **One idea:** the wall is flat. Between two points of the wall the arrow's x part is 0.302 − 0.302 = 0, so walking the straight line between them, like Lesson 10.4's y leg, does not go to the right at all: it stays on the wall. M, slid along the line with a share (Lesson 5.4's progress), is only a check with numbers. “Stands straight up” is Lesson 10.4, Step 5's fact (a move up keeps you on the wall), one line at the end of Step 4 (a Step 5 on it was counted as a second idea by two fresh reviews). What flat means (not curved, never “level”) is shown on the glass first: the straight line from H₁ (above (0.62, 0.61)) to H₂ (above (0.62, 0.71)) passes 0.01725 below S, inside the glass.
-- **Traced value:** M on the straight line from Gx to the tip of N, at a share (slider), with draggable K. Lessons 10.6, 10.7 and 10.13 use that line.
+- **Traced value:** M on the straight line from Gx to the tip of N, at a share (slider), with draggable K. Lessons 10.6, 10.7 and 10.15 use that line.
 - **Reviews:** `reviews/lesson-10-05-flat-wall-beginner-review-2026-11-03.md` (the name `lesson-10-05-beginner-review-2026-11-03.md` holds the reviews of the earlier 10.5 pages).
 
 #### Lesson 10.6 — A turn around the x line keeps a line on the wall (`C`, made 2026-11-03 as 10.5, trimmed the same day)
 - **File:** `lesson-10-06-spin-around-the-x-line.html` (was `lesson-10-05-spin-around-the-x-line.html`). Contract, page shape and QA: `CURRENT_STATE.md`.
-- **History:** split from the square-corner page (learner: “Yes, split in three”, 2026-11-03; that page is `course/archive/lesson-10-05-square-corner-draft-2026-11-03.html`, the source for 10.11 and 10.12, with its reviews in `reviews/lesson-10-05-beginner-review-2026-11-03.md`, “draft-5 #N” below). Its Review 3 (same file) counted 3–4 ideas; with the learner's “Yes, flat wall first” the page stops after its Step 3, and its Steps 4–5 moved to 10.7. The page before the trim is `course/archive/lesson-10-05-spin-draft-2026-11-03.html`.
-- **One idea:** the spin is a turn around the x line: by its meaning every point keeps its x and goes round the x line (Gx does not move), so the spin changes only y and height, and the teal line (a straight line on the wall from Gx, 0.953 long: chosen, as far as the tip of N is from Gx, for 10.9) stays on the wall. Traced value: a spin of 90°, Lesson 10.3's quarter turn, takes T from (0, 0.953, 0) to (0, 0, 0.953) from Gx, still 0.302 to the right of S. Two fresh reviews in a row counted “the spin keeps the length” as a second idea, so it moved to 10.7, the lesson that needs it. No kept length (10.8), no circle (10.9), no half turn (10.10), no square corner (10.12), no hinge (10.11).
+- **History:** split from the square-corner page (learner: “Yes, split in three”, 2026-11-03; that page is `course/archive/lesson-10-05-square-corner-draft-2026-11-03.html`, the source for 10.12 and 10.14, with its reviews in `reviews/lesson-10-05-beginner-review-2026-11-03.md`, “draft-5 #N” below). Its Review 3 (same file) counted 3–4 ideas; with the learner's “Yes, flat wall first” the page stops after its Step 3, and its Steps 4–5 moved to 10.7. The page before the trim is `course/archive/lesson-10-05-spin-draft-2026-11-03.html`.
+- **One idea:** the spin is a turn around the x line: by its meaning every point keeps its x and goes round the x line (Gx does not move), so the spin changes only y and height, and the teal line (a straight line on the wall from Gx, 0.953 long: chosen, as far as the tip of N is from Gx, for 10.9) stays on the wall. Traced value: a spin of 90°, Lesson 10.3's quarter turn, takes T from (0, 0.953, 0) to (0, 0, 0.953) from Gx, still 0.302 to the right of S. Two fresh reviews in a row counted “the spin keeps the length” as a second idea, so it moved to 10.7, the lesson that needs it. No kept length (10.8), no circle (10.9), no half turn (10.10), no square corner (10.14), no hinge (10.12).
 - **Reviews:** Review 3 in `reviews/lesson-10-05-beginner-review-2026-11-03.md`; the reviews after the trim in `reviews/lesson-10-06-beginner-review-2026-11-03.md`.
 
 - **Fixed 2026-11-04 (learner):** Step 2 names the object its 0.953 ⓘ measures: the dark gray line from Gx to the tip of N, in the caption, the ⓘ and the 3D label.
@@ -316,38 +316,50 @@ gray = dot(N, L) × 0.5 + 0.5     display only: the dot map
 - **File:** `lesson-10-08-the-spin-keeps-the-length.html`. Contract, page shape and QA: `CURRENT_STATE.md`. Reviews: `reviews/lesson-10-08-beginner-review-2026-11-04.md`.
 - **From:** the archived page's Steps 1 and 3, Section 2's columns for spin 0° and 90°, and its Exercise 2 (spin 200°).
 - **The idea:** Seen straight on, the spin moves every point of the teal line round Gx by the same angle, so the teal line turns as one straight piece around Gx, like the walk of Lesson 10.3 around its start. A turn keeps lengths, and that drawing shows Gx to T at its whole length (10.7), so Gx to T stays 0.953 at every spin.
-- **Fix (Review 1 of the archived page):** #8 (say that every point turns by the same angle, so the teal line turns as one straight piece around its start Gx, like Lesson 10.3's walk around P; without it the argument assumes its result); #14 (Exercise 2: start the view where the 200° line looks clearly shorter, or say to drag); #1 (name the corner Lesson 10.12 needs: between the x line and the teal line at Gx, and why it needs the sides of S, Gx, T fixed).
+- **Fix (Review 1 of the archived page):** #8 (say that every point turns by the same angle, so the teal line turns as one straight piece around its start Gx, like Lesson 10.3's walk around P; without it the argument assumes its result); #14 (Exercise 2: start the view where the 200° line looks clearly shorter, or say to drag); #1 (name the corner Lesson 10.14 needs: between the x line and the teal line at Gx, and why it needs the sides of S, Gx, T fixed).
 
 #### Lesson 10.9 — T goes round a circle through the tip of N (`C`, made 2026-11-04)
 - **File:** `lesson-10-09-t-goes-round-a-circle.html`. Contract, page shape and QA: `CURRENT_STATE.md`. Reviews: `reviews/lesson-10-09-beginner-review-2026-11-04.md`.
 - **From:** the archived page's Steps 4–5, Section 2's column at the tip of N, and its Exercise 1 (points a, b and c).
 - **The idea:** T stays on the wall (10.6) and 0.953 from Gx (10.8), so its path is the circle of wall points 0.953 from Gx (Lesson 9.2); a full turn passes every point of it. The tip of N is on the wall and 0.953 from Gx, so one spin (about 65°) brings T there.
-- **Fix (Review 1 of the archived page):** #9 (the screen's line in the straight-on drawing: Gx has S's height, 0.0866 UV, so at this arrow ruler the screen is 0.0866 ÷ 0.15 = 0.577 below Gx; label that distance and say the dip below the screen depends on the arrow ruler); #10 (65°, 25°, 115° are read off the slider, not computed: draw the angle arc with its value); #11 (why the teal line along Gx to the tip of N matters: Lesson 10.13's foot uses that line); #12 (name both 0.302s in the x-part row); #13 (say why points a and c lie on one line through Gx, and draw it).
+- **Fix (Review 1 of the archived page):** #9 (the screen's line in the straight-on drawing: Gx has S's height, 0.0866 UV, so at this arrow ruler the screen is 0.0866 ÷ 0.15 = 0.577 below Gx; label that distance and say the dip below the screen depends on the arrow ruler); #10 (65°, 25°, 115° are read off the slider, not computed: draw the angle arc with its value); #11 (why the teal line along Gx to the tip of N matters: Lesson 10.15's foot uses that line); #12 (name both 0.302s in the x-part row); #13 (say why points a and c lie on one line through Gx, and draw it).
 
-#### Lesson 10.10 — Half a turn reaches every line on the wall through Gx (`C`)
-- **File:** `lesson-10-10-half-a-turn-reaches-every-line.html`.
-- **From:** the spin page's Step 5 and its Exercise 1 (which of three lines the teal line lies along), in the same archived page.
-- **The idea:** seen straight on, the spin turns the teal line around Gx (10.8); each line through Gx points two opposite ways, so half a turn (0° to 180°) lays the teal line along every line on the wall through Gx. The lines through Gx are straight lines on the wall because the wall is flat (10.5).
-- **Fix (Review 3 of the spin page):** why the slider may stop at 180° (each line points two ways; the tip of N is up); one meaning of “line” (a whole line through Gx, the teal line drawn on both sides of Gx); the “So” of the last step needs every line, not one example; no “the wall as it is”; Exercise 1's line a must be 0.953 long, or the question asks only which line it lies along.
-- **If its fresh review counts more than one idea,** split at once (rule 16).
+#### Lesson 10.10 — Half a turn takes T to the opposite point (`C`, made 2026-11-04)
+- **File:** `lesson-10-10-half-a-turn-to-the-opposite-point.html`. Contract, page shape and QA: `CURRENT_STATE.md`. Reviews: `reviews/lesson-10-10-beginner-review-2026-11-04.md`.
+- **Why it exists (split at once, rule 16, 2026-11-04):** the first page “Half a turn reaches every line on the wall through Gx” held two ideas (its fresh review): half a turn takes T to the opposite point (two quarter turns), and one of the two spins is always in the first half turn. This lesson is the first; 10.11 the second; plan 310 → 311.
+- **The idea:** a quarter turn takes (y part, height part) to (minus the height part, the y part) (Lesson 10.3, Steps 6–7); 90° more spin is a quarter turn wherever T is (Lesson 10.8). Twice: both parts get a minus. So half a turn takes T from the tip of N to the opposite point (0, −0.402, −0.864) from Gx, on line n (the whole line through Gx and the tip of N), 0.953 from Gx. So the teal line lies along line n at about 65° and about 245°, and along every line through Gx at two spins 180° apart.
+- **Names:** line n (indigo), lies along (every point of the teal line on the line), the opposite point. Exercises: line a at 40° → 220°; T half a turn after the tip of N.
 
-#### Lesson 10.11 — Two fixed sides and the distance between their ends fix the corner (`C`)
-- **File:** `lesson-10-11-hinge-fixes-the-corner.html`.
+#### Lesson 10.11 — Half a turn reaches every line on the wall through Gx (`C`, made 2026-11-04)
+- **File:** `lesson-10-11-half-a-turn-reaches-every-line.html`. Contract, page shape and QA: `CURRENT_STATE.md`. Reviews: `reviews/lesson-10-11-beginner-review-2026-11-04.md`.
+- **The idea:** the first half turn (spins 0° to 180°) passes every point of T's circle up from Gx (height part plus) or level with it; a line's two opposite points have opposite height parts, so one is up, or both are level; so spins from 0° to 180° lay the teal line along every line on the wall through Gx. At every K the tip of N is up (N's height part = 1 ÷ normalLength, plus), so line n's spin is in the first half turn.
+- **Names:** the first half turn (wide pale band), the level line through Gx (black), point P and line p (magenta, P draggable in both pictures). Exercises: line a at 320° → 140°; no line is lain along only past 180°.
+
+#### Lesson 10.12 — Two fixed sides and the distance between their ends fix the corner (`C`, made 2026-11-04)
+- **File:** `lesson-10-12-hinge-fixes-the-corner.html`. Contract, page shape and QA: `CURRENT_STATE.md`. Reviews: `reviews/lesson-10-12-beginner-review-2026-11-04.md`.
 - **From:** the 10.5 draft's Step 4 tooltip “Why the corner cannot change”; draft-5 review 2 #9 (draw it).
 - **The idea:** two sticks joined at a hinge, drawn flat: opening the corner moves the free ends apart, closing it brings them together. So with both sides and the distance between the ends fixed, the corner is fixed. On the glass at K: S to Gx 0.302 and Gx to T 0.953 with S to T 1.000.
 - **Fix:** draw the corner opened and closed with S to T printed longer and shorter; “the same triangle” is stronger than the hinge shows (draft-5 review 2 #14): say only that the corner cannot change.
 
-#### Lesson 10.12 — A line through a wall meets every line on it at a square corner (`C`)
-- **File:** `lesson-10-12-a-line-through-a-wall.html`.
+#### Lesson 10.13 — Three fixed lengths fix the corner in any position (`C`)
+- **File:** `lesson-10-13-three-lengths-fix-the-corner.html`.
+- **Why it exists (split at once, rule 16, 2026-11-04):** the second fresh review of the hinge page (`reviews/lesson-10-12-beginner-review-2026-11-04.md`) counted “any triangle lies flat in a plane of its own, so the hinge works in any position” as a second idea with no reason and no picture. The hinge page now stops at “on the level”; Lesson 10.14 needs the tilted case, because the spun triangle S, Gx, T is not level.
+- **The idea:** any three points lie on one flat piece (an everyday picture: a sheet resting on three pins never wobbles; a fourth pin can). The triangle lies on its own flat piece; seen straight on that piece (like the wall seen straight on, Lesson 10.7: a view that leaves out only the direction square to the piece), its sides are drawn at their whole length, and the hinge of Lesson 10.12 works the same there. So a tilted triangle with sides 0.302, 0.953 and 1.000 has the corner 90° at Gx, like the level one.
+- **Traced value:** the triangle S, Gx, T tilted by the spin (for example 120°), its three lengths, and its own flat piece drawn; Lesson 10.12's chart for its sides.
+- **Do not:** use the spin's own square corner (that is 10.14's result).
+
+#### Lesson 10.14 — A line through a wall meets every line on it at a square corner (`C`)
+- **File:** `lesson-10-14-a-line-through-a-wall.html`.
 - **From:** the 10.5 draft's Steps 2, 4 and 5, its Section 2 table (the triangle at spin 0° against the triangle when T is at the tip of N) and Exercise 2 (spin 150°: the corner is still 90°).
-- **The idea:** the teal line starts along y, square to the x line; the spin (10.6) keeps S to Gx 0.302, Gx to T 0.953 and S to T 1.000 (Lesson 10.3's three-part length: x part 0.302, y part² + height part² = 0.9081), so the corner at Gx stays square (10.11); every line on the wall through Gx is the teal line at some spin (10.10). Answers Lesson 10.3, Step 8 for the x line and this wall (y and height square to each other).
+- **The idea:** the teal line starts along y, square to the x line; the spin (10.6) keeps S to Gx 0.302, Gx to T 0.953 and S to T 1.000 (Lesson 10.3's three-part length: x part 0.302, y part² + height part² = 0.9081), so the corner at Gx stays square (10.12); every line on the wall through Gx is the teal line at some spin from 0° to 180° (10.11). Answers Lesson 10.3, Step 8 for the x line and this wall (y and height square to each other).
 - **Fix:** the title's scope (the x line goes along x, the one direction in which the wall's points agree); with N's x part 0 another point of the x line replaces S; Step 1 labels.
 - **Traced value:** the line from Gx to the tip of N, the last position of the spin.
+- **Plan drafted on 2026-11-04 (not shipped: the two splits of that day moved this lesson to 10.14):** Step 4 cites Lesson 10.12 (the hinge, on the level) and Lesson 10.13 (in any position); a ⓘ in Section 2 says why the tip of N is up at every K (N's height part = 1 ÷ normalLength, plus; moved out of 10.11 by its second review). 5 steps, spin slider 0°–180° (Lesson 10.11). 1 the x line through the wall at Gx, the dark gray line, “corner?” at Gx · 2 spin 0°: square corner (x along x, teal along y) and the triangle S, Gx, T, sides 0.302, 0.953, 1.000 (view from above, Lesson 10.12) · 3 the spin keeps all three sides: S and Gx are on the x line; Gx to T 0.953 (10.8); from S, T keeps x part 0.302 (on the wall) and the teal line's y part and height part, so S to T² = 0.091204 + 0.953 × 0.953 = 0.999413 at every spin (wall seen straight on beside it) · 4 so the corner stays square: Lesson 10.12's chart for these sides, 1.000 only at 90°; a slanted 3D view may draw the corner wider or narrower · 5 every line on the wall through Gx (10.11) is square to the x line; the button T to the tip of N; why the x line (it goes along x, the one direction in which the wall's points agree). Section 2: the triangle at spin 0° against T at the tip of N, where S to T is N itself (0.252808 + 0.746496 = 0.999304, against 0.999413 from the rounded 0.953: both 1.000), with 10.12's chart at this K; with N's x part 0, another point of the x line replaces S. Exercises: spin 150° → still 90° (distractors 150°, 60°); which of lines a (0, −0.6, 0.5), b (0.3, 0.4, 0.5), c (−0.3, 0.4, 0.5) from Gx is square to the x line (a; b's end 0.879 from S against 0.769 with a square corner: more open; c's 0.640: less open), answer in the edge-on view.
 
-#### Lesson 10.13 — An arrow's part is a foot on an axis (`C`)
-- **File:** `lesson-10-13-arrow-part-on-an-axis.html`.
+#### Lesson 10.15 — An arrow's part is a foot on an axis (`C`)
+- **File:** `lesson-10-15-arrow-part-on-an-axis.html`.
 - **From:** the draft's Step 5 (the three lines), Section 2 (three feet, draggable K) and its exercises.
-- **The idea:** the line from the tip of N to Gx lies on the wall (10.5, its traced value), so it meets the x line at a square corner (10.12). So N's x part is the reading at the foot. The same for y and height.
+- **The idea:** the line from the tip of N to Gx lies on the wall (10.5, its traced value), so it meets the x line at a square corner (10.14). So N's x part is the reading at the foot. The same for y and height.
 - **Fix:**
   - draft #17 (blocks): the method without walking: move a point along the x line until the line from the tip of N makes a square corner (a slider);
   - draft #18: one foot: the tip, Gx and another point form a right triangle with its one square corner at Gx;
@@ -357,56 +369,56 @@ gray = dot(N, L) × 0.5 + 0.5     display only: the dot map
 - **Traced value:** the three feet at 0.302, 0.402 and 0.864 from S, with draggable K.
 - **Exercise, new:** where the line from the tip of N, at a square corner to the height line, meets it (0.864), at a pixel other than K (draft #27).
 
-#### Lesson 10.14 — How far an arrow goes along any line (`C`)
-- **File:** `lesson-10-14-how-far-along-any-line.html`.
+#### Lesson 10.16 — How far an arrow goes along any line (`C`)
+- **File:** `lesson-10-16-how-far-along-any-line.html`.
 - **From:** Step 3; `drawNLPlane` with its plus side only.
 - **Fix:**
-  - #7: name the question: 10.13's “how far N goes along x”, now along L's line;
+  - #7: name the question: 10.15's “how far N goes along x”, now along L's line;
   - #2 and draft #19–#21: one sentence why an arrow and a line from one point lie in one plane: lay a flat sheet along the line and turn it until it touches the tip of N; N's start is on the line, so all of N lies on the sheet. Draw the plane in the 3D picture. If the fresh review counts the plane as a second idea, it becomes its own lesson before this one (rule 16).
-- **L appears here first.** Lessons 10.4–10.13 do not use it.
-- **Traced value:** with L along x, along y and straight up, the reading is 0.302, 0.402 and 0.864, Lesson 10.13's three parts. With the lesson's L, about 0.46 off the ruler; 10.25 computes 0.45672.
+- **L appears here first.** Lessons 10.4–10.15 do not use it.
+- **Traced value:** with L along x, along y and straight up, the reading is 0.302, 0.402 and 0.864, Lesson 10.15's three parts. With the lesson's L, about 0.46 off the ruler; 10.27 computes 0.45672.
 
-#### Lesson 10.15 — The minus side of L's ruler (`C`)
-- **File:** `lesson-10-15-the-minus-side.html`.
+#### Lesson 10.17 — The minus side of L's ruler (`C`)
+- **File:** `lesson-10-17-the-minus-side.html`.
 - **From:** Step 3's plus side and minus side; card 5.
 - **Fix:** #29: minus means the tip of N is on the side of S that L does not point to.
 - **Fold in:** card 5.
 - **Traced value:** with L along minus x, the line from the tip still meets the x line at G, but L's ruler reads G as −0.302.
 
-#### Lesson 10.16 — Same direction 1, opposite −1 (`C`)
-- **File:** `lesson-10-16-same-direction-1-opposite-minus-1.html`.
+#### Lesson 10.18 — Same direction 1, opposite −1 (`C`)
+- **File:** `lesson-10-18-same-direction-1-opposite-minus-1.html`.
 - **From:** Step 4 with the buttons Same direction and Opposite.
 - **Fix:** #8: as L turns toward N, the tip of N comes closer to L's line, so F slides toward the tip.
 - **Fold in:** card 4: F is where the line from the tip meets L's line; when L's line runs through the tip, F is the tip.
 
-#### Lesson 10.17 — A square corner gives 0 (`C`)
-- **File:** `lesson-10-17-a-square-corner-gives-0.html`.
+#### Lesson 10.19 — A square corner gives 0 (`C`)
+- **File:** `lesson-10-19-a-square-corner-gives-0.html`.
 - **From:** Step 4 with the button A square corner with N.
 - **Fix:**
   - #9: at a square corner, N itself is the line from its tip at a square corner to L's line, so F is at S. Draw the corner mark; keep the S and F labels apart;
   - #26: the other way round: 0 means F is at S, so N stands at a square corner to L's line.
 
-#### Lesson 10.18 — Never past 1 (`C`)
-- **File:** `lesson-10-18-never-past-1.html`.
+#### Lesson 10.20 — Never past 1 (`C`)
+- **File:** `lesson-10-20-never-past-1.html`.
 - **From:** Step 4's caption `ⓘ`.
 - **Fix:** #10: 1² = SF² + (F to tip)² (Lesson 9.1), so SF is at most 1. The cos name of Lesson 4.9 gets its own `ⓘ`, or goes.
 - **Exercise:** “Can dot(N, L) be 1.2?” No: S to F is a shorter side of a right triangle whose long side is 1.
 
-#### Lesson 10.19 — A walk's legs each move F (`C`)
-- **File:** `lesson-10-19-each-leg-moves-f.html`.
+#### Lesson 10.21 — A walk's legs each move F (`C`)
+- **File:** `lesson-10-21-each-leg-moves-f.html`.
 - **From:** Step 5.
 - **Fix:**
-  - #11: we draw these lines only to find a rule; 10.21–10.25 turn each move into a multiplication the GPU can do;
+  - #11: we draw these lines only to find a rule; 10.23–10.27 turn each move into a multiplication the GPU can do;
   - #12: define once: a leg “moves F” when the meeting point goes from one F to the next, F₁ → F₂ → F₃.
 
-#### Lesson 10.20 — A leg's start does not matter (`C`)
-- **File:** `lesson-10-20-a-legs-start.html`.
+#### Lesson 10.22 — A leg's start does not matter (`C`)
+- **File:** `lesson-10-22-a-legs-start.html`.
 - **From:** Step 8's copy of a leg from S.
 - **Fix:** #16: flat walls at a square corner to L's line, one per ruler mark (Lesson 10.4's wall, now across L's line). The same leg crosses the same walls wherever it starts.
-- **Picture:** both moves side by side, with their ruler readings. Use the height leg: F₂ at −0.09624 → F₃ at 0.45672, and its copy from S; both move 0.55296. It is a plus move; the y leg's minus move waits for 10.24.
+- **Picture:** both moves side by side, with their ruler readings. Use the height leg: F₂ at −0.09624 → F₃ at 0.45672, and its copy from S; both move 0.55296. It is a plus move; the y leg's minus move waits for 10.26.
 
-#### Lesson 10.21 — A flip keeps lengths and square corners (`C`)
-- **File:** `lesson-10-21-a-flip-keeps-lengths.html`.
+#### Lesson 10.23 — A flip keeps lengths and square corners (`C`)
+- **File:** `lesson-10-23-a-flip-keeps-lengths.html`.
 - **From:** Step 6's gray halfway line and flip slider.
 - **Fix:** #14, first half:
   - why the flip over the halfway line swaps the x line and L's line: the halfway line makes the same angle with both;
@@ -414,17 +426,17 @@ gray = dot(N, L) × 0.5 + 0.5     display only: the dot map
   - why it keeps lengths and square corners: fold the picture along the line; nothing stretches.
 - **Fold in:** card 6's first bullets.
 
-#### Lesson 10.22 — A walk of 1 along x lands at L's x part (`C`)
-- **File:** `lesson-10-22-walk-of-1-along-x.html`.
+#### Lesson 10.24 — A walk of 1 along x lands at L's x part (`C`)
+- **File:** `lesson-10-24-walk-of-1-along-x.html`.
 - **From:** Step 6.
 - **Fix:**
   - #13: name both triangles before “both”: the lime triangle S, X, J (square corner at J) and the yellow triangle S, tip of L, Q (square corner at Q);
   - #14, second half: the flip takes X (1 along x) onto the tip of L (1 along L), and Q's square corner onto J's.
 - **Fold in:** card 6: three facts make the triangles match: the shared angle at S (the arc), a square corner, a long side of 1.
-- **The result:** Q is at 0.48 along x (Lesson 10.13), so J is at 0.48 along L's line.
+- **The result:** Q is at 0.48 along x (Lesson 10.15), so J is at 0.48 along L's line.
 
-#### Lesson 10.23 — Growing scales every side (`C`)
-- **File:** `lesson-10-23-growing-scales-every-side.html`.
+#### Lesson 10.25 — Growing scales every side (`C`)
+- **File:** `lesson-10-25-growing-scales-every-side.html`.
 - **From:** Step 7.
 - **Fix:** #15 (blocks) and #30. The chain, each with its reason on the page:
   - growing from S by 1 ÷ 0.302 multiplies every distance from S by one number;
@@ -432,26 +444,26 @@ gray = dot(N, L) × 0.5 + 0.5     display only: the dot map
   - the line from X to J moves to a line in the same direction, so the square corner stays;
   - so the small triangle lands on the big one, and every side is multiplied by that number, the move along L's line too: 0.302 × 0.48 = 0.14496.
 
-#### Lesson 10.24 — A part that points away: the minus case (`C`)
-- **File:** `lesson-10-24-the-minus-case.html`.
+#### Lesson 10.26 — A part that points away: the minus case (`C`)
+- **File:** `lesson-10-26-the-minus-case.html`.
 - **From:** Step 8's y part.
 - **Fix:**
   - #17: its own gray halfway line and flip slider. The two triangles lie on opposite sides of S; Q at −0.60 lands on J at −0.60;
   - #4: mark “right” and “toward the top of the picture” on the flat picture.
 - **The result:** 0.402 × (−0.60) = −0.2412.
 
-#### Lesson 10.25 — The dot product formula (`C`)
-- **File:** `lesson-10-25-dot-product-formula.html`.
+#### Lesson 10.27 — The dot product formula (`C`)
+- **File:** `lesson-10-27-dot-product-formula.html`.
 - **From:** Steps 9–10; Section 3's code line; Exercise 3 (b at W).
 - **Fix:**
   - #18: “no corner between the arrows (no angle)”;
   - #27: “Counted along the line of b from H”.
 - **Code:** `dotNL = N.x * L.x + N.y * L.y + N.z * L.z`, with its line table.
-- **Traced value:** the chain at K above. Lesson 10.14's “about 0.46” is now exact.
-- **Exercise 3:** uses 10.17's “0 means a square corner”: b = (0.796, 0, −0.605) at W, 0.48158 + 0 + (−0.48158) = 0.
+- **Traced value:** the chain at K above. Lesson 10.16's “about 0.46” is now exact.
+- **Exercise 3:** uses 10.19's “0 means a square corner”: b = (0.796, 0, −0.605) at W, 0.48158 + 0 + (−0.48158) = 0.
 
-#### Lesson 10.26 — One light direction for every pixel: the dot map (`C`)
-- **File:** `lesson-10-26-dot-map.html`.
+#### Lesson 10.28 — One light direction for every pixel: the dot map (`C`)
+- **File:** `lesson-10-28-dot-map.html`.
 - **From:** Section 2 (W's trace, the map with points 1–10); Exercises 1 and 2.
 - **Fix:**
   - #1: W is the pixel this lesson traces;
@@ -463,9 +475,9 @@ gray = dot(N, L) × 0.5 + 0.5     display only: the dot map
   - #25: one value for c's N.
 - **Traced value:** W, with the chain above.
 
-#### Lesson 10.27 — Build: the dot product in Metal (`B`)
-- **File:** `lesson-10-27-build-dot-product-in-metal.html`.
-- **Joins:** 10.4–10.26. One recall line per joined lesson, each with its `ⓘ`.
+#### Lesson 10.29 — Build: the dot product in Metal (`B`)
+- **File:** `lesson-10-29-build-dot-product-in-metal.html`.
+- **Joins:** 10.4–10.28. One recall line per joined lesson, each with its `ⓘ`.
 - **From:**
   - Section 3 (the code excerpt);
   - Section 4: the challenge “write the dotNL line” becomes the first function of the Metal exercise; no browser challenge;
@@ -473,7 +485,7 @@ gray = dot(N, L) × 0.5 + 0.5     display only: the dot map
   - the iOS files `chapter10/DotExplorer.swift`, `DotMap.metal`, `DotExercise.metal`, `DotExerciseKey.metal`, `DotExerciseView.swift` (relabelled in Phase 6 of the curriculum revision).
 
 #### Later in Chapter 10
-- Exercise 4 (rawNormal against N at W and V) moves to 10.31, “Why N must be 1 long”, with #28: from W to V the x product gains 0.456 − 0.2904 = 0.1656, but the height product loses 0.509 − 0.202 = 0.307, so the number drops from 0.7994 to 0.658.
+- Exercise 4 (rawNormal against N at W and V) moves to 10.33, “Why N must be 1 long”, with #28: from W to V the x product gains 0.456 − 0.2904 = 0.1656, but the height product loses 0.509 − 0.202 = 0.307, so the number drops from 0.7994 to 0.658.
 
 ## Side lesson — Safari shortcut, Section 4 revised 2026-10-26
 
