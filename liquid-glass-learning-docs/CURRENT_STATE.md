@@ -1,6 +1,6 @@
 # Liquid Glass iOS course — teaching contracts and current files
 
-**Updated:** 2026-11-04
+**Updated:** 2026-11-05
 **Platform:** Swift / SwiftUI / Metal (`.metal` + `ShaderLibrary`)  
 **Test device:** iPhone 16 Pro  
 **Min OS:** iOS 17  
@@ -395,7 +395,9 @@ One idea: T's path is the circle of wall points 0.953 from Gx, and the tip of N 
 
 **QA (2026-11-04), both pages.** Built on Lesson 10.7's engine (lines 171–427 of that file, unchanged) plus each page's own script. JavaScript runs with no error; no horizontal overflow at 1920×1080; no visible backticks; every in-page anchor resolves. Decimal audit of every caption, tooltip, table and exercise text over several spins and 7 positions of K: 274 (10.8) and 284 (10.9) calculation lines, 0 problems, one operation per “=”. Interaction (synthetic events): the spin sliders, the tip button and its reset on Back, Section 2's spin, K dragged on the map to (0.38, 0.66) and back, every tooltip opens (51 and 50) and Escape closes it, every point has a tooltip, every exercise choice gives its verdict, one right answer each. Screenshots inspected for every stepper state at several spins, both Section 2 states and the exercises with answers open; the label overlaps they showed were moved. Fresh reviews: two per page (`reviews/lesson-10-08-beginner-review-2026-11-04.md`, `reviews/lesson-10-09-beginner-review-2026-11-04.md`); 10.8's final list had 1 block (fixed), 10.9's none. The same day Lessons 10.3–10.7 lost their coordinate panels and 10.6's Step 2 was fixed; those pages run with no error and no overflow. No iOS change. QA files stayed in the scratchpad and were deleted.
 
-## Lesson 10.10 — Half a turn takes T to the opposite point
+## Lesson 10.10 — Half a turn sends T to the opposite point
+
+**Text pass (2026-11-05, `AGENTS.md` Rule 0).** Every picture is unchanged. Only the words changed: short plain captions, a one-line Uses box instead of Before you start, AB / |AB| / ∠ABC notation, no “Why ask?” lines and no restated conclusions. The contract below is still valid; its wording (“lies along”, “first half turn”, “S to T”, “corner”) is the old one. Old title: “Half a turn takes T to the opposite point”.
 
 Generated 2026-11-04 as “Half a turn reaches every line on the wall through Gx”; its first fresh review counted two ideas, so it was split at once (rule 16): this page keeps the first (its Steps 1–2 and Exercise 2), the second became 10.11; every Chapter 10 lesson from 10.11 on moved up by one (plan 310 → 311), and after the hinge page's second review, from 10.13 on by one more (plan 312: the new 10.13 “Three fixed lengths fix the corner in any position”, planned) ( curriculum, handoff, hub, course home, glossary, Lessons 10.1–10.9 pointers, the side lesson, `REVIEWER_PROMPT.md`, plan counts in `AGENTS.md`, `NEW_CHAT_PROMPT.md`, `README.md`, `USER_PREFERENCES.md`, the lab's labels 10.27 → 10.29). Not learner-confirmed yet.
 
@@ -413,7 +415,9 @@ so the teal line lies along line n at about 65° and about 65° + 180° = about 
 
 **Page shape.** Hero: `hero3` beside `heroZoom` (line n, the opposite point, the teal line at the tip). Section 1, 3 steps, spin slider 0°–360° in every step: 3D left (yaw −56°, pitch 26°), flat right (the wall seen straight on, 1 = 142 px; compass at the top left; no screen's level line). 1 line n and the question (lies along) · 2 two quarter turns (gray dot: one quarter turn after the tip), the opposite point · 3 the two spins, why only these two (one straight line through two points; one point 0.953 from Gx on each side of Gx), buttons T to the tip of N / T to the opposite point. Section 2: K draggable (map and 3D), a table (from Gx; two quarter turns; how far from Gx; on T's circle; the spin read off; so), the flat drawing with the arc labelled “+ 180°”; `tRead` says when the heading's K differs. Exercises: 1 line a at 40° → 220° (distractors 140°, 320°: one part with a minus each); 2 T half a turn after the tip of N → (0, −0.402, −0.864) (distractors one quarter turn, only the height part flipped).
 
-## Lesson 10.11 — Half a turn reaches every line on the wall through Gx
+## Lesson 10.11 — Spins from 0° to 180° reach every line through Gx
+
+**Text pass (2026-11-05, `AGENTS.md` Rule 0).** Every picture is unchanged. Only the words changed: short plain captions, a one-line Uses box instead of Before you start, AB / |AB| / ∠ABC notation, no “Why ask?” lines and no restated conclusions. The contract below is still valid; its wording (“lies along”, “first half turn”, “S to T”, “corner”) is the old one. Old title: “Half a turn reaches every line on the wall through Gx”.
 
 Generated 2026-11-04 from the split (the first page's Step 3 and Exercise 1), with that review's items #7–#10, #13 and #17 fixed. Not learner-confirmed yet.
 
@@ -430,7 +434,9 @@ at K the tip of N is up (height part 0.864), so its spin in the first half turn 
 
 **Page shape.** Hero as 10.10 plus the band. Section 1, 3 steps: 1 the question, the band (wide pale), the level line (black) · 2 P and line p, the up point on the band, its spin and the other (+ 180°) · 3 every line; the slider stops at 180°; line n's tip is up; buttons P level with Gx / T onto line p / T to the tip of N; 90° and 180° marked on the band. Section 2: K draggable, a table (from Gx; height part; on the band?; spin read off; so), the flat drawing with the band and the level line. Exercises: 1 line a at 320° → 140° (point a is down, its opposite point up; check 140° + 180° = 320°); 2 is there a line lain along only past 180°? (no).
 
-## Lesson 10.12 — Two fixed sides and the distance between their ends fix the corner
+## Lesson 10.12 — A wider angle at Gx puts T farther from S
+
+**Text pass (2026-11-05, `AGENTS.md` Rule 0).** Every picture is unchanged. Only the words changed: short plain captions, a one-line Uses box instead of Before you start, AB / |AB| / ∠ABC notation, no “Why ask?” lines and no restated conclusions. The contract below is still valid; its wording (“lies along”, “first half turn”, “S to T”, “corner”) is the old one. Old title: “Two fixed sides and the distance between their ends fix the corner”.
 
 Generated 2026-11-04 as 10.11 (file renamed with the renumber). Not learner-confirmed yet.
 
@@ -454,6 +460,8 @@ the result is stated on the level; the tilted case is Lessons 10.13–10.14 (spl
 
 ## Lesson 10.13 — Any three points lie on one flat sheet
 
+**Text pass (2026-11-05, `AGENTS.md` Rule 0).** Every picture is unchanged. Only the words changed: short plain captions, a one-line Uses box instead of Before you start, AB / |AB| / ∠ABC notation, no “Why ask?” lines and no restated conclusions. The contract below is still valid; its wording (“lies along”, “first half turn”, “S to T”, “corner”) is the old one. Old title: “Any three points lie on one flat sheet”.
+
 Generated 2026-11-04 as part of “Three fixed lengths fix the corner in any position”; its first fresh review counted three ideas, so it was split at once (rule 16): this page keeps the first, the hinge on the sheet is 10.14; plan 312 → 313. Not learner-confirmed yet.
 
 **10.13 teaching contract:**
@@ -470,7 +478,9 @@ the sides lie on it too (Lesson 10.5)
 
 **Page shape.** Hero: `hero3` beside `heroZoom` (the door at 120° holding the tilted triangle, the level triangle faint). Section 1, 3 steps, 3D left (yaw −25°, pitch 18°, so the door shows at 50°, 65° and 120°), flat right (`edgeOn`: the wall seen straight on, 1 = 150 px, doors as lines through Gx): 1 the tilted triangle and the question (flat hidden) · 2 the door slider (default 50°) and the button “Turn the door until it touches T” · 3 the sides, every direction (faint doors at 0°, 45°, 90°, 135°), any three points; entering Step 3 sets the door to 120°. Section 2: K draggable, door slider (default 50°) and “Turn the door until it touches the tip of N” (about 65° at K), a table (S, Gx: on the door at every turn; the tip of N: on the door's line at its spin), `edgeOn` under the 3D picture. Exercise: point Q (0.6, −0.5, 0.3) from S → yes, the door at about 149°. Exercise 2 (four points) was cut by the second review.
 
-## Lesson 10.14 — On its own sheet, three fixed lengths fix the corner
+## Lesson 10.14 — Three fixed lengths fix the angle, tilted too
+
+**Text pass (2026-11-05, `AGENTS.md` Rule 0).** Every picture is unchanged. Only the words changed: short plain captions, a one-line Uses box instead of Before you start, AB / |AB| / ∠ABC notation, no “Why ask?” lines and no restated conclusions. The contract below is still valid; its wording (“lies along”, “first half turn”, “S to T”, “corner”) is the old one. Old title: “On its own sheet, three fixed lengths fix the corner”.
 
 Generated 2026-11-04 from the second and third ideas of the pre-split page (its Steps 1, 3–4, Section 2 and Exercise 1). Not learner-confirmed yet.
 
@@ -486,7 +496,9 @@ T is on the sheet, 0.953 from Gx: on T′'s path; only 90° gives 1.000 → the 
 
 **Page shape.** Hero as 10.13. Section 1, 3 steps, 3D left (yaw −45°, pitch 60°: the tilted corner is drawn about 105°), the chart right: 1 the triangle on its sheet, its three lengths (readout), the drawn corner at Gx (flat hidden) · 2 the test line, T′'s path, the chart (S to T′ every 15°; why it equals Lesson 10.12's: a flat sheet is the same whichever way it is held, everyday picture: tilting a sheet of paper does not change the drawing on it) · 3 T′'s path is every sheet point on T's side 0.953 from Gx; T is on it, 1.000 from S → 90°; entering Step 3 sets the corner to 90°. The sheet seen straight on was removed by the second review (it showed the square corner before the argument). Section 2: K draggable, corner slider (default 135°), a table (S to Gx; Gx to T with its ⓘ; S to T chain; S to T′ now; so), the chart under the 3D picture. Exercise: the 3D picture draws the corner 105°: is it more open than 90°? (no; the answer shows the chart).
 
-## Lesson 10.15 — The x line meets every line on the wall through Gx at a square corner
+## Lesson 10.15 — The x line is at 90° to every line on the wall through Gx
+
+**Text pass (2026-11-05, `AGENTS.md` Rule 0).** Every picture is unchanged. Only the words changed: short plain captions, a one-line Uses box instead of Before you start, AB / |AB| / ∠ABC notation, no “Why ask?” lines and no restated conclusions. The contract below is still valid; its wording (“lies along”, “first half turn”, “S to T”, “corner”) is the old one. Old title: “The x line meets every line on the wall through Gx at a square corner”.
 
 Generated 2026-11-04 (as 10.14, renumbered by the split). Not learner-confirmed yet.
 
@@ -503,7 +515,9 @@ every line on the wall through Gx is the teal line at a spin 0°–180° (10.11)
 
 **Page shape.** Hero: `hero3` beside `heroZoom` (the wall, the x line through it, the teal line at 0°, 65°, 140° with square marks). Section 1, 4 steps, 3D left (yaw −56°, pitch 26°, the wall see-through floor), spin slider from Step 2 (default 120°), flat right: 1 the question (Lesson 10.12's view from above at 90°) · 2 the three lengths (the wall seen straight on, readout: the every-spin chain and a check) · 3 so 90° (Lesson 10.12's chart) · 4 every line, the button “T to the tip of N”. Section 2: K draggable, spin slider, “T to the tip of N”, a table (S to Gx; Gx to T; S to T at every spin; check at the spin now; so), the wall seen straight on under the 3D picture, ⓘ: the tip of N is up at every K. Exercises: 1 spin 150° → the corner 90° (distractors 150°, 60°); 2 lines a (0, −0.6, 0.5), b (0.3, 0.4, 0.5), c (−0.3, 0.4, 0.5) from Gx: which lies on the wall, so that the lesson's square corner covers it → a only, in the front view (the comparison with 0.769 was cut by the second review: it taught the opposite fact).
 
-## Lesson 10.16 — An arrow's part is a foot on an axis
+## Lesson 10.16 — N's x part is the foot of the perpendicular on the x line
+
+**Text pass (2026-11-05, `AGENTS.md` Rule 0).** Every picture is unchanged. Only the words changed: short plain captions, a one-line Uses box instead of Before you start, AB / |AB| / ∠ABC notation, no “Why ask?” lines and no restated conclusions. The contract below is still valid; its wording (“lies along”, “first half turn”, “S to T”, “corner”) is the old one. Old title: “An arrow's part is a foot on an axis”.
 
 Generated 2026-11-04 (as 10.15, renumbered by the split). Not learner-confirmed yet.
 

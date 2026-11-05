@@ -30,7 +30,7 @@ Placeholders:
 - `{TEXT}`: `/tmp/review-NN-MM/lesson-text.md`
 - `{SHOTS}`: `/tmp/review-NN-MM/shots/`
 - `{HTML}`: the lesson file
-- `{PREREQ}`: the lessons the page's “Before you start” panel names
+- `{PREREQ}`: the lessons the page's **Uses** line names
 
 ---
 
@@ -57,7 +57,7 @@ You are reviewing one lesson of a self-study course as a total beginner. You did
    - Each stepper state: the caption, the labels drawn in its pictures, and its tooltips.
    - The whole page in reading order, with every hidden answer open.
 2. The screenshots in `{SHOTS}` (file names are given in the text file). Look at the picture of every stepper state, and at every card and exercise. A sentence may refer to something the picture does not show. Pictures outside the steppers have their labels only in the screenshots.
-3. Only to check whether a term or fact was taught earlier: the earlier lessons under `course/chapters/`. Search them with grep; do not read whole lessons. The page's "Before you start" panel lists what it takes from earlier lessons: {PREREQ}.
+3. Only to check whether a term or fact was taught earlier: the earlier lessons under `course/chapters/`. Search them with grep; do not read whole lessons. The page's **Uses** line lists what it takes from earlier lessons: {PREREQ}.
 
 Judge the lesson by what the learner sees, not by the code in `{HTML}`.
 
@@ -75,7 +75,19 @@ Also list:
 
 The stepper sections and the traced value matter most. Then the exercises and their hidden answers. For "your questions" cards, check that each answer really answers its question with reasons. For code, Metal and record sections, flag only claims a beginner could not follow.
 
-Be strict but honest: do not list what is clearly answered, and do not list style preferences.
+Be strict but honest: do not list what is clearly answered.
+
+### Also check the length and the language (`AGENTS.md` Rule 0)
+The learner is not a native English speaker. Long, wordy pages made the lessons fail (2026-11-05), so also list:
+- a sentence you had to read twice, or a phrase built from the lesson's nouns that no teacher would say (“lay the teal line along every line”, “up from Gx or level with it”);
+- a fact that the figure shows at a glance but the text proves in words;
+- a conclusion said more than once (title, lead, idea, heading, table);
+- a long wording where standard notation exists (“the line from A to B” instead of AB, “the distance between A and B” instead of |AB|);
+- page text over about 300 words before the exercises (labels and tooltips not counted), or a caption over 5 lines.
+
+Never propose removing or simplifying a picture: the learner wants the pictures kept as they are.
+
+For these items the **smallest fix is a cut or a shorter wording**, never an added sentence. Do not ask for a proof of something the figure shows.
 
 ### Count the new ideas
 A new idea is a fact or method that the page explains with its own reason and that no earlier lesson taught (check with grep). Recalling an earlier lesson is not new. A sentence that only names a result without a reason is a problem for the list below, not an idea.
@@ -93,6 +105,6 @@ Then one entry per problem, in reading order:
 - **Text:** the exact sentence or picture label, quoted
 - **Why can't a beginner answer it:** one or two short sentences: the question the reader would ask, and what is missing
 - **Severity:** blocks (the reader cannot follow the next step without it) / slows (the reader can guess, but must stop) / minor
-- **Smallest fix:** at most one sentence: what fact or picture would answer it (not a rewrite)
+- **Smallest fix:** at most one sentence: what fact or picture would answer it, or what to cut (not a rewrite)
 
 End with the 3–5 most serious problems.

@@ -58,6 +58,8 @@ When files disagree:
 
 I am an experienced software engineer. I am a total beginner in graphics, rendering, GPU work, image processing and mathematics. The rules for explaining to me are in `USER_PREFERENCES.md` and `AGENTS.md`. The ones that matter in every reply:
 
+- short text, full pictures: captions of at most 5 short lines, a one-line Uses box, about 300 words of page text before the exercises; the pictures stay as rich as they are (`AGENTS.md` Rule 0, 2026-11-05);
+- plain words and standard math notation (segment AB, |AB|, ∠ABC, P′); never a phrase built from course nouns;
 - short sentences in bullet lists; a line that announces items (“two things:”) has them as indented sub-points;
 - concrete numbers and pictures before formulas;
 - every coordinate names its coordinate system (UV, board units, …), and a switch between systems is said out loud;
