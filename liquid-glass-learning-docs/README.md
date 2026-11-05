@@ -20,7 +20,7 @@ To continue as a learner, paste `NEW_CHAT_PROMPT.md` (or tell the chat to read i
 
 - `AGENTS.md` — lesson quality, verification, Xcode `#Preview` rules.
 - `USER_PREFERENCES.md` — explanation calibration, visualization target, delivery preferences.
-- `curriculum/liquid_glass_ios_curriculum.md` — the 312-lesson plan and frozen locks.
+- `curriculum/liquid_glass_ios_curriculum.md` — the 314-lesson plan and frozen locks.
 - `curriculum/liquid_glass_ios_handoff.md` — short continuation contracts for the current chapter.
 - `FEEDBACK_LOG.md` — learner corrections, newest first, each with its failure → rule link. Read on demand.
 
