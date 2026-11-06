@@ -460,6 +460,8 @@ the result is stated on the level; the tilted case is Lessons 10.13–10.14 (spl
 
 ## Lesson 10.13 — Any three points lie on one flat sheet
 
+**No stepper (2026-11-05, `AGENTS.md` rule 9).** Section 1 shows the old last step's picture with its controls and one short caption. Where the page shape below lists steps, read them as that one state.
+
 **Text pass (2026-11-05, `AGENTS.md` Rule 0).** Every picture is unchanged. Only the words changed: short plain captions, a one-line Uses box instead of Before you start, AB / |AB| / ∠ABC notation, no “Why ask?” lines and no restated conclusions. The contract below is still valid; its wording (“lies along”, “first half turn”, “S to T”, “corner”) is the old one. Old title: “Any three points lie on one flat sheet”.
 
 Generated 2026-11-04 as part of “Three fixed lengths fix the corner in any position”; its first fresh review counted three ideas, so it was split at once (rule 16): this page keeps the first, the hinge on the sheet is 10.14; plan 312 → 313. Not learner-confirmed yet.
@@ -480,6 +482,8 @@ the sides lie on it too (Lesson 10.5)
 
 ## Lesson 10.14 — Three fixed lengths fix the angle, tilted too
 
+**No stepper (2026-11-05, `AGENTS.md` rule 9).** Section 1 shows the old last step's picture with its controls and one short caption. Where the page shape below lists steps, read them as that one state.
+
 **Text pass (2026-11-05, `AGENTS.md` Rule 0).** Every picture is unchanged. Only the words changed: short plain captions, a one-line Uses box instead of Before you start, AB / |AB| / ∠ABC notation, no “Why ask?” lines and no restated conclusions. The contract below is still valid; its wording (“lies along”, “first half turn”, “S to T”, “corner”) is the old one. Old title: “On its own sheet, three fixed lengths fix the corner”.
 
 Generated 2026-11-04 from the second and third ideas of the pre-split page (its Steps 1, 3–4, Section 2 and Exercise 1). Not learner-confirmed yet.
@@ -497,6 +501,8 @@ T is on the sheet, 0.953 from Gx: on T′'s path; only 90° gives 1.000 → the 
 **Page shape.** Hero as 10.13. Section 1, 3 steps, 3D left (yaw −45°, pitch 60°: the tilted corner is drawn about 105°), the chart right: 1 the triangle on its sheet, its three lengths (readout), the drawn corner at Gx (flat hidden) · 2 the test line, T′'s path, the chart (S to T′ every 15°; why it equals Lesson 10.12's: a flat sheet is the same whichever way it is held, everyday picture: tilting a sheet of paper does not change the drawing on it) · 3 T′'s path is every sheet point on T's side 0.953 from Gx; T is on it, 1.000 from S → 90°; entering Step 3 sets the corner to 90°. The sheet seen straight on was removed by the second review (it showed the square corner before the argument). Section 2: K draggable, corner slider (default 135°), a table (S to Gx; Gx to T with its ⓘ; S to T chain; S to T′ now; so), the chart under the 3D picture. Exercise: the 3D picture draws the corner 105°: is it more open than 90°? (no; the answer shows the chart).
 
 ## Lesson 10.15 — The x line is at 90° to every line on the wall through Gx
+
+**No stepper (2026-11-05, `AGENTS.md` rule 9).** Section 1 shows the old last step's picture with its controls and one short caption. Where the page shape below lists steps, read them as that one state.
 
 **Text pass (2026-11-05, `AGENTS.md` Rule 0).** Every picture is unchanged. Only the words changed: short plain captions, a one-line Uses box instead of Before you start, AB / |AB| / ∠ABC notation, no “Why ask?” lines and no restated conclusions. The contract below is still valid; its wording (“lies along”, “first half turn”, “S to T”, “corner”) is the old one. Old title: “The x line meets every line on the wall through Gx at a square corner”.
 
@@ -516,6 +522,8 @@ every line on the wall through Gx is the teal line at a spin 0°–180° (10.11)
 **Page shape.** Hero: `hero3` beside `heroZoom` (the wall, the x line through it, the teal line at 0°, 65°, 140° with square marks). Section 1, 4 steps, 3D left (yaw −56°, pitch 26°, the wall see-through floor), spin slider from Step 2 (default 120°), flat right: 1 the question (Lesson 10.12's view from above at 90°) · 2 the three lengths (the wall seen straight on, readout: the every-spin chain and a check) · 3 so 90° (Lesson 10.12's chart) · 4 every line, the button “T to the tip of N”. Section 2: K draggable, spin slider, “T to the tip of N”, a table (S to Gx; Gx to T; S to T at every spin; check at the spin now; so), the wall seen straight on under the 3D picture, ⓘ: the tip of N is up at every K. Exercises: 1 spin 150° → the corner 90° (distractors 150°, 60°); 2 lines a (0, −0.6, 0.5), b (0.3, 0.4, 0.5), c (−0.3, 0.4, 0.5) from Gx: which lies on the wall, so that the lesson's square corner covers it → a only, in the front view (the comparison with 0.769 was cut by the second review: it taught the opposite fact).
 
 ## Lesson 10.16 — N's x part is the foot of the perpendicular on the x line
+
+**No stepper (2026-11-05, `AGENTS.md` rule 9).** Section 1 shows the old last step's picture with its controls and one short caption. Where the page shape below lists steps, read them as that one state.
 
 **Text pass (2026-11-05, `AGENTS.md` Rule 0).** Every picture is unchanged. Only the words changed: short plain captions, a one-line Uses box instead of Before you start, AB / |AB| / ∠ABC notation, no “Why ask?” lines and no restated conclusions. The contract below is still valid; its wording (“lies along”, “first half turn”, “S to T”, “corner”) is the old one. Old title: “An arrow's part is a foot on an axis”.
 
