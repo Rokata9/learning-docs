@@ -1,10 +1,10 @@
 # Liquid Glass iOS course — teaching contracts and current files
 
-**Updated:** 2026-11-05
+**Updated:** 2026-11-06
 **Platform:** Swift / SwiftUI / Metal (`.metal` + `ShaderLibrary`)  
 **Test device:** iPhone 16 Pro  
 **Min OS:** iOS 17  
-**Total curriculum size:** 314 lessons
+**Total curriculum size:** 315 lessons
 
 This file keeps teaching contracts, current file references, and technical QA. The learner-feedback history is in `FEEDBACK_LOG.md`. It does not track lesson completion, checkpoints, or generated frontiers. The ordered plan lives in `curriculum/liquid_glass_ios_curriculum.md`. Completion is reported only in chat when a new lesson is generated.
 
@@ -22,7 +22,7 @@ None. The preview canvas is 402 × 874 pt in `ui/theme/Theme.swift` since 2026-1
 
 ## Current lesson files
 
-Shader host: `LabOrange.metal` + `ShaderRect` (`colorEffect`). Lesson 9.10 explorer: `chapter09/DisplacementFieldExplorer.swift` + `chapter09/DisplacementField.metal`. Lesson 9.11 explorer: `chapter09/RefractionSamplingExplorer.swift` + `chapter09/RefractionSampling.metal`. Lesson 9.12 explorer: `chapter09/EdgeSafetyExplorer.swift` + `chapter09/EdgeSafety.metal`. Lesson 9.13 explorer: `chapter09/ChromaticSeparationExplorer.swift` + `chapter09/ChromaticSeparation.metal`. Lesson 9.14 explorer: `chapter09/LensCheckpointExplorer.swift` + `chapter09/LensCheckpoint.metal`. The trace cards share `chapter09/TraceLines.swift` (one operation per line, rule 12). Lesson 10.1 explorer: `chapter10/HeightMapExplorer.swift` + `chapter10/HeightMap.metal`. Lesson 10.1 Metal exercise: `chapter10/HeightExercise.metal`, `HeightExerciseKey.metal`, `ExerciseCheck.metal`, and `HeightExerciseView.swift`. Lesson 10.2 explorer: `chapter10/SlopeExplorer.swift` + `chapter10/SlopeMap.metal` (also uses `TraceLines`). Lesson 10.2 Metal exercise: `chapter10/SlopeExercise.metal` (`roundedRectHeightForSlope` and `roundedRectSlopeX` stubs + the prepared `buttonSlopeExercise`), `chapter10/SlopeExerciseKey.metal` (`buttonSlopeKey`, `static` helpers), and `chapter10/SlopeExerciseView.swift`; the check reuses `markDifference`. Lesson 10.3 explorer: `chapter10/NormalExplorer.swift` + `chapter10/NormalMap.metal` (also uses `TraceLines`). Lesson 10.3 Metal exercise: `chapter10/NormalExercise.metal` (`unitNormalFromSlopes` and `buttonNormal` stubs, the prepared `static buttonHeightForNormal` and the prepared `buttonNormalExercise`), `chapter10/NormalExerciseKey.metal` (`buttonNormalKey`, `static` helpers), and `chapter10/NormalExerciseView.swift`; the check reuses `markDifference`. Lesson 10.31 explorer (made for the old Lesson 10.4): `chapter10/DotExplorer.swift` + `chapter10/DotMap.metal` (also uses `TraceLines`). Lesson 10.31 Metal exercise: `chapter10/DotExercise.metal` (`dotOfArrows` and `buttonDot` stubs, the prepared `static buttonNormalForDot` and the prepared `buttonDotExercise`), `chapter10/DotExerciseKey.metal` (`buttonDotKey`, `static` helpers), and `chapter10/DotExerciseView.swift`; the check reuses `markDifference`. Screen: `chapter10/Chapter10Screen.swift`, Chapter 10 chip in `LabHost`. Cold launch selects the latest chapter and scrolls its chip into view.
+Shader host: `LabOrange.metal` + `ShaderRect` (`colorEffect`). Lesson 9.10 explorer: `chapter09/DisplacementFieldExplorer.swift` + `chapter09/DisplacementField.metal`. Lesson 9.11 explorer: `chapter09/RefractionSamplingExplorer.swift` + `chapter09/RefractionSampling.metal`. Lesson 9.12 explorer: `chapter09/EdgeSafetyExplorer.swift` + `chapter09/EdgeSafety.metal`. Lesson 9.13 explorer: `chapter09/ChromaticSeparationExplorer.swift` + `chapter09/ChromaticSeparation.metal`. Lesson 9.14 explorer: `chapter09/LensCheckpointExplorer.swift` + `chapter09/LensCheckpoint.metal`. The trace cards share `chapter09/TraceLines.swift` (one operation per line, rule 12). Lesson 10.1 explorer: `chapter10/HeightMapExplorer.swift` + `chapter10/HeightMap.metal`. Lesson 10.1 Metal exercise: `chapter10/HeightExercise.metal`, `HeightExerciseKey.metal`, `ExerciseCheck.metal`, and `HeightExerciseView.swift`. Lesson 10.2 explorer: `chapter10/SlopeExplorer.swift` + `chapter10/SlopeMap.metal` (also uses `TraceLines`). Lesson 10.2 Metal exercise: `chapter10/SlopeExercise.metal` (`roundedRectHeightForSlope` and `roundedRectSlopeX` stubs + the prepared `buttonSlopeExercise`), `chapter10/SlopeExerciseKey.metal` (`buttonSlopeKey`, `static` helpers), and `chapter10/SlopeExerciseView.swift`; the check reuses `markDifference`. Lesson 10.3 explorer: `chapter10/NormalExplorer.swift` + `chapter10/NormalMap.metal` (also uses `TraceLines`). Lesson 10.3 Metal exercise: `chapter10/NormalExercise.metal` (`unitNormalFromSlopes` and `buttonNormal` stubs, the prepared `static buttonHeightForNormal` and the prepared `buttonNormalExercise`), `chapter10/NormalExerciseKey.metal` (`buttonNormalKey`, `static` helpers), and `chapter10/NormalExerciseView.swift`; the check reuses `markDifference`. Lesson 10.32 explorer (made for the old Lesson 10.4): `chapter10/DotExplorer.swift` + `chapter10/DotMap.metal` (also uses `TraceLines`). Lesson 10.32 Metal exercise: `chapter10/DotExercise.metal` (`dotOfArrows` and `buttonDot` stubs, the prepared `static buttonNormalForDot` and the prepared `buttonDotExercise`), `chapter10/DotExerciseKey.metal` (`buttonDotKey`, `static` helpers), and `chapter10/DotExerciseView.swift`; the check reuses `markDifference`. Screen: `chapter10/Chapter10Screen.swift`, Chapter 10 chip in `LabHost`. Cold launch selects the latest chapter and scrolls its chip into view.
 
 HTML lessons: `course/chapters/chapter-NN/` for chapters 1–10 (all exist), one file per lesson, plus a chapter hub `lesson-[chapter-name].html` in each folder. The folder is the list; the curriculum gives the order. Do not copy a file list here: a copied list went stale (it skipped Chapters 2–8).
 
@@ -544,6 +544,75 @@ the y line and the height line: Lesson 10.17 (split off by the second review: �
 **Page shape.** Hero: `hero3` beside `heroZoom` (the x line with its ruler, the dark gray line, the foot at 0.302). Section 1, 3 steps, 3D left (yaw −30°, pitch 20°), flat right (`footFlat`: the sheet holding the x line and the tip, seen straight on, 1 = 240 px; it draws the tip straight above Gx because of Lesson 10.15's square corner, said in Step 2): 1 the question · 2 P and the corner at P (it only grows as P moves right) · 3 “P to the square corner”, the wall and the dark gray line. Section 2: K draggable, a table (the foot · its reading · N's x part · side of S; so), `footFlat` with P at the foot under the 3D picture. Exercise: at M = (0.38, 0.34) the foot on the x line → −0.302 (distractors 0.302, 0). Step 4 (y and height), Section 2's three rulers and the exercise on the height line went to Lesson 10.17 (their functions stay unused in the file).
 
 **QA (2026-11-04), all four pages.** Built on Lesson 10.12's engine (lines 172–524 of that file, unchanged); 10.15 also carries 10.12's own pieces (`stChain`, `aboveFlat`, `chartFlat`). JavaScript runs with no error; no horizontal overflow at 1920×1080. Decimal audit of every caption, readout, table, tooltip and exercise over many slider values and 6–8 positions of K: 953 lines on the pre-split page, 663 (10.15), 296 (10.16), 0 problems after two fixes (two lines with two operations; a drawn length printed 0.9995 instead of 1.000). Screenshots inspected for every stepper state, Section 2 and the exercises; label overlaps moved. The lab builds for the generic iOS simulator after the label changes 10.29 → 10.30 → 10.31 (`chapter10/Chapter10Screen.swift`, `chapter10/DotExerciseView.swift`); no iPhone 16 Pro simulator is installed now (iPhone 17 models only). QA files stayed in the scratchpad.
+
+## Lesson 10.17 — Every order of the legs ends at the tip of N
+
+Generated 2026-11-06 as part of “The legs in any order: the feet on y and height”; its first fresh review counted two ideas, so it was split at once (rule 16): this page keeps “any order”, the feet are 10.18; plan 314 → 315, every later Chapter 10 lesson up by one (lab labels 10.31 → 10.32). Not learner-confirmed yet.
+
+**10.17 teaching contract:**
+
+```text
+N's walk from S (Lesson 10.4): x leg 0.302 (only x), y leg 0.402 (only y), height leg 0.864 (only height)
+six orders; the stops of each order as (x, y, height) from S, the number a leg changes marked
+in any order each number is changed once, by its own leg → every order ends at (0.302, 0.402, 0.864), the tip of N   (new: the one idea)
+```
+
+**Page shape.** Hero: `hero3` beside `heroZoom` (the faint box of all legs, the order y, height, x bold). Section 1, no stepper: 3D left (yaw −45°, pitch 28°; the faint box edges = the legs of all six orders, the picked order bold and numbered, the two middle stops clickable), right: six order buttons, a 4-line caption (a leg is a change counted from where it starts, Lesson 10.3), the stop table. Section 2: K draggable, the order picked in Section 1, the last stop in the readout (no second table). Exercise: at M = (0.38, 0.34), the height leg then the x leg → (−0.302, 0, 0.864) (distractors (0.302, 0, 0.864) and (0, −0.402, 0.864)), a 3D picture with the faint box, the answer with the two legs bold.
+
+## Lesson 10.18 — The feet on the y line and the height line
+
+Generated 2026-11-06 (the second half of the split page above). Not learner-confirmed yet.
+
+**10.18 teaching contract:**
+
+```text
+the y leg walked first (10.17): ends at Gy, 0.402 on the y line's ruler (plus: toward the bottom of the picture)
+the other legs leave y as it is → the rest stays on the wall 0.402 toward the bottom of the picture from S (Lesson 10.5)
+|Gy tip|² = 0.302² + 0.864² = 0.091204 + 0.746496 = 0.8377 (Lesson 9.1); |S tip| = 1
+with 90° at Gy: |S tip|² = 0.161604 + 0.8377 = 0.999304, √ = 1.000; wider → longer, narrower → shorter (10.12–10.14) → 90°
+so Gy is the foot on the y line: 0.402 = N's y part   (new: the one idea)
+height first: Gh 0.864, the level sheet 0.864 up, |Gh tip|² = 0.252808, 0.746496 + 0.252808 = 0.999304 → 90°: the foot reads 0.864
+x first: Lesson 10.16 (Gx, 0.302)
+```
+
+**Page shape.** Hero: `hero3` beside `heroZoom` (the three lines with their feet and dark gray lines). Section 1, no stepper: 3D left (yaw −45°, pitch 28°: the first leg's line with its ruler, the gray wall or level sheet with its label, the walk, the dark gray line from the foot to the tip with a square mark), right: buttons x / y / height leg first (default y), a 4-line caption (the triangle S, Gy, tip of N has sides 0.402, √0.8377 and 1; they fit only 90°) whose ⓘ “Why 90°” holds the chain for the chosen leg, and `footFlatK`: the sheet that holds the line and the tip of N seen straight on (the height line drawn ↑ in its own drawing, the x and y lines →; the dark gray line labelled with its length, 0.953 / 0.915 / 0.503). Section 2: K draggable, the three lines with feet in 3D, `threeRulers` under it; no table (the rulers print every reading). Exercise: the foot on the height line at W = (0.71, 0.50) → 0.796 (distractors 1 and 0.605), the front view; the answer walks the height leg first.
+
+## Lesson 10.19 — How far an arrow goes along any line
+
+Generated 2026-11-06 as 10.18 (renumbered by the split the same day). Not learner-confirmed yet.
+
+**10.19 teaching contract:**
+
+```text
+L = (0.48, −0.60, 0.64) from S, 1 long (ⓘ: 0.2304 + 0.36 = 0.5904; 0.5904 + 0.4096 = 1; 1 long so L's ruler counts arrow units)   (new object)
+L's line through S along L, its ruler: 0 at S, 1 at the tip of L, plus where L points (arrow units: 1 = the length of L)
+the gold sheet that holds L's line and the tip of N (Lesson 10.13; L's line and the cyan line stay on it, Lesson 10.5), seen straight on
+P slides along L's line (slider −0.3 … 1.1, step 0.001, default 0.2); the angle at P between the cyan line and the plus side, measured in that drawing
+F: the one place where the angle is 90° (“P to 90°” puts P exactly at F); F's reading = how far N goes along L, named dot(N, L)   (new: the one idea)
+  reason (ⓘ): from F the cyan line goes at 90° to L's line, so nowhere along L
+the lesson's L: F at 0.45672 (the page finds it), printed 0.457 (to 3 decimals); 10.30 computes it from the parts
+L along x, y, straight up: F reads 0.302, 0.402, 0.864 (Lessons 10.16, 10.18)
+```
+
+**Page shape.** Hero: `hero3` beside `heroZoom` (the gold sheet, L, N, F). Section 1, no stepper: 3D left (yaw −70°, pitch 22°: the gold sheet nearly face on), right: L buttons (along x, along y, straight up, the lesson's L), a 5-line caption, the P slider with “P to 90°”, a readout (the angle and its verdict; between two slider steps it says “P is less than 0.001 from F”), `sheetFlat`. Section 2: K draggable, the lesson's L, F in 3D, `fourRulers` (the x, y, height lines and L's line, each with its foot). Exercise: L₂ = (0, 0.6, 0.8) at K → about 0.93 (distractors 0.864, N's height part, and 1); the answer prints “about 0.93” (N rounded gives 0.9324, N with 5 decimals 0.9329).
+
+## Lesson 10.20 — The minus side of L's ruler
+
+Generated 2026-11-06 as 10.19 (renumbered by the split the same day). Not learner-confirmed yet.
+
+**10.20 teaching contract:**
+
+```text
+L's ruler (Lesson 10.19): 0 at S, plus on the side L points to, minus on the other side
+L along minus x = (−1, 0, 0): L's line is the x line, F is Gx (Lesson 10.16), 0.302 to the right of S, but L points left → −0.302
+L turned the other way: the same line and the same F; only the plus side swaps → the reading changes sign (0.457 → −0.457)
+dot(N, L) is below 0 when F is on the side of S that L does not point to   (new: the one idea)
+the tip of N is in the same half of the sheet as F (the cyan line and the split line through S are both at 90° to L's line)
+```
+
+**Page shape.** Hero: `hero3` beside `heroZoom` (L along minus x, plus and minus side labels). Section 1, no stepper: 3D left (yaw −25°, pitch 22°: the x line runs across), right: L buttons (along x, along minus x (default), Lesson 10.19's L, the same turned the other way), a 4-line caption whose second line follows the button, a readout, `sidesFlat` (the sheet seen straight on, its green plus half and red minus half split by the line through S at 90° to L's line). Section 2: K draggable, L along minus x, `twoRulers` (the x line with the x line's ruler and L's ruler, Gx read on both: 0.302 = N's x part, −0.302 = dot(N, L)); no table. Exercise: at W, L = (0, 0, −1) → F (0.796 up, Lesson 10.18) reads −0.796 (distractors 0.796 and −1).
+
+**QA (2026-11-06), all four pages.** Built from Lesson 10.16's head and engine (its lines 1–68, 150–501, 503–548, 584–586, 607–625, unchanged) plus a new body and lesson script per page. JavaScript runs with no error; no horizontal overflow at 1920×1080; every local link resolves. Decimal audit of every calculation in the page text and tooltips at K and at 7 dragged positions of K: 2,107 lines before the split, 5,086 on the final four pages, 0 problems. Two fresh reviews per page (`reviews/lesson-10-17…20-beginner-review-2026-11-06.md`): each counts one idea; every blocks and slows item fixed, the open minor items named there. Screenshots inspected for every button state, Section 2 and the exercises; label overlaps moved. The lab builds for the generic iOS simulator after the label change 10.31 → 10.32 (`chapter10/Chapter10Screen.swift`, `chapter10/DotExerciseView.swift`). `tools/beginner-review/extract_lesson.py` could not run (no Playwright): the reviewers got a text dump of the page and its tooltips plus screenshots of every state. QA files stayed in the scratchpad.
 
 ## Side lesson — Shortcut: Safari's “…” menu (not counted)
 
