@@ -1,6 +1,6 @@
 # Liquid Glass iOS course — teaching contracts and current files
 
-**Updated:** 2026-11-06
+**Updated:** 2026-11-08
 **Platform:** Swift / SwiftUI / Metal (`.metal` + `ShaderLibrary`)  
 **Test device:** iPhone 16 Pro  
 **Min OS:** iOS 17  
@@ -617,6 +617,70 @@ the tip of N is in the same half of the sheet as F (the cyan line and the split 
 **Page shape.** Hero: `hero3` beside `heroZoom` (L along minus x, plus and minus side labels). Section 1, no stepper: 3D left (yaw −25°, pitch 22°: the x line runs across), right: L buttons (along x, along minus x (default), Lesson 10.19's L, the same turned the other way), a 4-line caption whose second line follows the button, a readout, `sidesFlat` (the sheet seen straight on, its green plus half and red minus half split by the line through S at 90° to L's line). Section 2: K draggable, L along minus x, `twoRulers` (the x line with the x line's ruler and L's ruler, Gx read on both: 0.302 = N's x part, −0.302 = dot(N, L)); no table. Exercise (redrawn 2026-11-07, learner: 2D instead of the 3D taught): at W = (0.71, 0.50), L = (0, 0, −1), “What is dot(N, L)?” → −0.796 (distractors 0.796 and −1); drawn as Section 1: the 3D view at W (yaw −25°, `exOrb`, the minus side's label at 0.4 up so it misses F) in question and answer, `sidesFlat` (green and red halves) in the answer only since 2026-11-07 (3); the question marks “what is dot(N, L)?” in red. `sidesFlat`'s title is now “the gold sheet seen straight on”.
 
 **QA (2026-11-06), all four pages.** Built from Lesson 10.16's head and engine (its lines 1–68, 150–501, 503–548, 584–586, 607–625, unchanged) plus a new body and lesson script per page. JavaScript runs with no error; no horizontal overflow at 1920×1080; every local link resolves. Decimal audit of every calculation in the page text and tooltips at K and at 7 dragged positions of K: 2,107 lines before the split, 5,086 on the final four pages, 0 problems. Two fresh reviews per page (`reviews/lesson-10-17…20-beginner-review-2026-11-06.md`): each counts one idea; every blocks and slows item fixed, the open minor items named there. Screenshots inspected for every button state, Section 2 and the exercises; label overlaps moved. The lab builds for the generic iOS simulator after the label change 10.31 → 10.32 (`chapter10/Chapter10Screen.swift`, `chapter10/DotExerciseView.swift`). `tools/beginner-review/extract_lesson.py` could not run (no Playwright): the reviewers got a text dump of the page and its tooltips plus screenshots of every state. QA files stayed in the scratchpad.
+
+## Lessons 10.21–10.24 — shared build
+
+Generated 2026-11-07 in one job, from Lesson 10.20's head and engine (its lines 1–68 and 154–646, unchanged) plus a shared kit for 10.21–10.23 (`sheetFrame`, `Lturn`, `turnScene`, `turnFlat`, `barsFlat`) and a new body and lesson script per page. Not learner-confirmed yet.
+
+**Status (2026-11-08, after review 2).** Both reviews are done for all four pages (lists and fixes in `reviews/lesson-10-2N-beginner-review-2026-11-07.md`): each page counts one idea; every blocks and slows item is fixed. Decimal audit after the fixes: 13,819 lines over every button, slider value (1° steps) and 537 positions of K per page, 0 problems; no script errors; no horizontal overflow at 1920×1080; no label overlaps or labels under a corner box in any checked state. Lesson 10.24 is retitled “A walk's legs each move the meeting point” (file name unchanged): F names only the meeting point of the tip of N. **Open, minor (named in the review files):** 10.21's title wording and N at a dragged K just outside the rim; 10.22's reason for N's x part 0 at K = (0.50, 0.70) is only in the N chain ⓘ; 10.23's “|F tip|” notation; 10.24's cyan versus the height leg's blue; “leg” in the S chain ⓘ (Lesson 10.1's rim triangle). None of the four lessons is learner-confirmed yet.
+
+**The gold sheet stays while L turns (10.21–10.23).** The gold sheet is Lesson 10.19's sheet: it holds Lesson 10.19's line of L and the tip of N. L turns around S on it, so the sheet and its flat drawing do not move; only L, its line and F do. The slider is the angle between N and L, measured on the sheet (Lesson 10.19's L is 62.8° from N at K). The flat drawing keeps Lesson 10.19's frame: → along Lesson 10.19's L, ↑ at 90° to it on the sheet, toward the tip of N (`op.up` turns it a quarter turn for the height line in 10.23, Section 2). Camera yaw −70°, pitch 22° (Lesson 10.19's). Readings print to 3 decimals; N = (0.302, 0.402, 0.864) is 0.99965 long, so “1” prints as 1.000 (the ⓘ shows √0.999304 = 1.000).
+
+## Lesson 10.21 — Same direction 1, opposite −1
+
+**10.21 teaching contract:**
+
+```text
+L turns on the gold sheet toward N (slider: the angle between N and L's line, 62.8° → 0°): the cyan line gets shorter, F slides toward the tip
+L along N: L's line runs through the tip of N, so the cyan line is 0 long and F is at the tip of N   (new: the one idea)
+F is then 1 from S (N is 1 long, Lesson 10.3; ⓘ √0.999304 = 1.000), on the plus side: dot(N, L) = 1
+L opposite to N: the same line, the same F, on the minus side (Lesson 10.20): −1
+```
+
+**Page shape.** Hero: `hero3` beside `heroZoom` (L along N, F at the tip). Section 1, no stepper: 3D left (the faint “start: Lesson 10.19's L”), right: buttons Lesson 10.19's L / L along N / L opposite to N, the slider (0–62.8°), a 5-line caption, a 4-row table (angle, L's parts, the cyan line's length, F's reading), `turnFlat`. Section 2: K draggable, L along N at that K's gold sheet; table: N's length (shadow first, then the length) = |SF|, readings 1.000 and −1.000; `twoRulersN` (the line through S and the tip of N with the rulers of L along N and L opposite to N). Exercise: at W, L = (−0.605, 0, −0.796) → −1 (distractors −0.796, Lesson 10.20's L straight down, and 1); the question's 3D view leaves L's ruler out (it printed −1 at the tip). Since review 2 (2026-11-08): the Section 1 table's first row has an ⓘ on where its numbers come from; in Section 2 and the exercise answer, the ruler of L opposite to N has its “plus side” label at its left end, over its plus numbers.
+
+## Lesson 10.22 — A square corner gives 0
+
+**10.22 teaching contract:**
+
+```text
+at a square corner with N, the line from the tip of N that meets L's line at 90° is N itself, so F is at S: 0
+the other way round: a reading of 0 puts F at S, so the cyan line is N, and it meets L's line at 90°   (new: the one idea, both ways)
+below 90° F is on the plus side, above 90° on the minus side (Lesson 10.20); slider 0°–180°
+Section 2: L along x at a draggable K: F is Gx (10.16), the reading is N's x part; at K = (0.50, 0.70), N = (0, 0.503, 0.864): 0, so N meets the x line at 90°
+```
+
+**Page shape.** Hero: `heroZoom` at the square corner. Section 1, no stepper: buttons Lesson 10.19's L / a square corner with N, the slider 0–180°, a 5-line caption, the table, `turnFlat` (at 90° the cyan line is drawn under N). Section 2 (camera yaw −25°, pitch 22°: the x line runs across): K starts at (0.50, 0.70), buttons K = (0.50, 0.70) / K = (0.62, 0.66); table L, F, N's x part, N and the x line; `turnFlat` of the sheet that holds the x line and the tip of N. Exercise: at W, L = (−0.689, 0.5, 0.524) (at 90° to N, drawn about 40° wide in Section 1's view) with dot(N, L) = 0 → the angle is 90° (distractors “about 40°, as the picture draws it” and 0°); the question hides F, the cyan line and the angle; the answer shows them and the sheet that holds L's line and the tip of N. Note: Lesson 10.19's exercise (L₂ at 90° to N gives 0) already used the forward direction; this lesson names it and adds the other way round. Since review 2 (2026-11-08): Section 1 opens at the square corner; its caption recalls the forward direction from Lesson 10.19's Exercise 1 (Uses names it) and teaches the converse, with its premise (the cyan line is at 90° to L's line at F); the table has no cyan-line row; the corner box is at the top right; the flat drawing has the faint “start: Lesson 10.19's L” arrow. The exercise question draws F at S (“F, at S: 0”) and a larger red angle arc with “?”; L is written (−0.689, 0.500, 0.524).
+
+## Lesson 10.23 — Never past 1
+
+**10.23 teaching contract:**
+
+```text
+F's corner is 90° (Lesson 10.19): S, F, tip of N is a right triangle; its long side is N, 1 long
+Lesson 9.1: |SF|² + |F tip|² = |N|² = 1 (bars: one per square, end to end inside the pink frame of 1)
+|F tip|² ≥ 0 → |SF|² ≤ 1 → |SF| ≤ 1 (ⓘ 1.2 × 1.2 = 1.44) → dot(N, L) between −1 and 1   (new: the one idea)
+1 or −1 only when the cyan line is 0 long (Lesson 10.21)
+Section 2: L straight up at a draggable K: |SF| = N's height part, |F tip|² = x part² + y part² (the cyan line is level, Lesson 10.18), all exact; 0.746496 + 0.252808 = 0.999304, √ = 1.000; on the flat top 1
+```
+
+**Page shape.** Section 1, no stepper: buttons Lesson 10.19's L / L along N / a square corner with N / L opposite to N, slider 0–180°, a 5-line caption, a 4-row table (angle, |SF|, |F tip|, reading; 3 decimals), `turnFlat` with the triangle shaded and SF orange (no angle arc), `barsFlat` without numbers (with 3-decimal lengths the squares would not add to N's 0.999304: 592 of 1,801 slider states printed √ = 0.999 or 1.001). Section 2: `turnFlat` with `up` (the height line drawn ↑), exact bars with numbers, the chain table. Exercise (replaces the handoff's “Can dot(N, L) be 1.2?”, which asks back the title): at W, the cyan line 0.6 long → 0.8 (distractors 0.4 = 1 − 0.6 and 1.6); the question leaves L's ruler out; the answer's bars: 1 × 1 = 1, 0.6 × 0.6 = 0.36, 1 − 0.36 = 0.64, √0.64 = 0.8. Since review 2 (2026-11-08): no Section 1 table (the drawings print every number); SF is drawn over L's arrow so the blue line shows; the corner box is at the top right; the flat drawing has the “start” arrow; in the flat states its note reads “the triangle is flat: one side is 0 long; the bars still add up to 1”. The exercise caption is one line; the answer has 2 lines plus the 4-line chain.
+
+## Lesson 10.24 — A walk's legs each move the meeting point
+
+**10.24 teaching contract:**
+
+```text
+walk to the tip of N one leg at a time (x, y, height; Lesson 10.17); from each leg's end, the line to L's line at 90° (as for F, Lesson 10.19)
+meeting points F₁ 0.14496, F₂ −0.09624, F₃ = F 0.45672 (found by the page; exact: N to 3 decimals, L to 2)
+“a leg moves the meeting point”: from the one before (S, then F₁, F₂) to the next; moves 0.14496, −0.2412, 0.55296
+each move starts where the one before ended, so the moves add up to the reading at F   (new: the one idea)
+why: Lessons 10.25–10.30 turn each move into one multiplication
+```
+
+**Page shape.** Section 1, a 3-step stepper (x leg, y leg, height leg; camera yaw −45°, pitch 24°, as Lesson 10.17): 3D with L's line and ruler, the legs bold up to the step, cyan lines with square marks, F₁–F₃; right: `movesFlat` (L's ruler and one row per leg, each move as a subtraction; the sum in two lines at Step 3). Section 2: K draggable, the lesson's L, a table (leg · its end · meeting point · move) and `movesFlat`. Exercise: at K with L = (1, 0, 0), how far does the height leg move F? → 0 (distractors 0.864 and 0.302); the answer draws the wall (Lesson 10.4) and the lines to Gx on it (Lesson 10.15): F₁ = F₂ = F₃ = Gx. Since review 2 (2026-11-08): F₁ and F₂ labels sit to the left of L's line (the x leg and its cyan line stay clear); each move is written “reading at F₂ − reading at F₁ = …”; Section 2's heading is “The three moves at a draggable K”, its table holds only each leg's end, and its ruler drawing carries the moves and their sum; its corner box is at the top right. The exercise asks “With L along x, how far does the height leg move the meeting point?”.
+
+**QA (2026-11-07), all four pages.** JavaScript runs with no error from `file://`; no horizontal overflow at 1920×1080. Decimal audit of every calculation in page text, tables, canvas labels and tooltips, over every button, slider values and 10 positions of K: 1,735 lines, 0 problems, no line with two operations. Screenshots inspected for every button state, slider ends and middle, every step, Section 2 and the exercises; label overlaps fixed (the flat sheet drawing now uses the 3D views' label stepping). QA files stayed in the scratchpad.
 
 ## Side lesson — Shortcut: Safari's “…” menu (not counted)
 

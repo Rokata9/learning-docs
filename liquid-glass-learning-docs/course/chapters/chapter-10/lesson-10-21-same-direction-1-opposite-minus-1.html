@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 10.21 — Same direction 1, opposite −1</title>
+<link rel="icon" href="data:,">
+<style>
+  :root{--ink:#1f2937;--muted:#6b7280;--line:#d1d5db;--soft:#f6f7f9;--green:#059669;--indigo:#4338ca;--amber:#d97706;--blue:#1e40af;--red:#dc2626}
+  *{box-sizing:border-box}
+  body{margin:0;background:#fff;color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1600px;margin:0 auto;padding:0 24px 90px}
+  header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;border-bottom:1px solid var(--line);padding:14px 0}
+  header.top a,.navfoot a{color:var(--blue);text-decoration:none;font-size:14px}
+  header.top a:hover,.navfoot a:hover{text-decoration:underline}
+  .crumb,.sub{color:var(--muted);font-size:14px}
+  h1{font-size:27px;margin:20px 0 2px}h2{font-size:21px;margin:46px 0 8px;border-top:2px solid var(--line);padding-top:22px}
+  h2 .tag{display:block;font-size:13px;color:var(--muted);margin-bottom:2px;font-weight:600}
+  h3{font-size:16.5px;margin:26px 0 6px}p{font-size:15.5px;max-width:92ch;margin:8px 0}p.lead{font-size:17px;max-width:96ch}li{font-size:15.5px}
+  code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+  code{background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+  figure{margin:16px 0}canvas{display:block;border:1px solid var(--line);border-radius:8px;background:#fff}
+  figcaption{font-size:14px;color:#4b5563;max-width:100ch;margin-top:8px}.stage{position:relative}
+  .heroGrid{display:grid;grid-template-columns:760px 760px;gap:28px;align-items:start}
+  .grid3d{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start}
+  .ideaGrid{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start;margin-top:14px}.ideaCap{min-height:200px;margin-bottom:12px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .pair{display:grid;grid-template-columns:auto auto;gap:28px;justify-content:start;align-items:start}
+  .before{border:1px solid #a5b4fc;background:#eef2ff;border-radius:10px;padding:14px 18px;margin:20px 0}
+  .before h2{font-size:18px;border:0;margin:0 0 8px;padding:0}
+  .before p,.before li{font-size:14.5px}.before ul{margin:6px 0}
+  .info{display:inline-block;width:17px;height:17px;line-height:15px;border-radius:50%;border:1px solid var(--blue);color:var(--blue);background:#eef2ff;font-size:11px;text-align:center;cursor:pointer;padding:0;vertical-align:2px;font-family:inherit;margin-left:3px}
+  .info:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+  #tip{position:fixed;z-index:60;max-width:420px;max-height:calc(100vh - 20px);overflow:auto;background:#111827;color:#f9fafb;border-radius:8px;padding:10px 34px 10px 12px;font-size:13.5px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.28);display:none}
+  #tip.open{display:block}#tip.wide{max-width:600px}
+#tip.xwide{max-width:min(820px,calc(100vw - 20px))}
+#tip ul{margin:6px 0 0;padding-left:18px}#tip li{font-size:13.5px;margin:3px 0;line-height:1.4}#tip img{width:100%;display:block;border-radius:6px;margin-top:8px}
+#tip .tsec{color:#fde68a;font-weight:700;font-size:13px;margin:12px 0 0}
+#tip .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#tip .tgrid pre{font-size:11.5px}
+#tip .tnote{margin:10px 0 0}#tip .tclose{position:absolute;top:4px;right:6px;background:none;border:0;color:#9ca3af;font-size:15px;cursor:pointer;padding:2px 4px}
+  #tip b{color:#fde68a}#tip code{background:#1f2937;border-color:#374151;color:#e5e7eb}#tip pre{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;margin:8px 0 0;background:#1f2937;border:1px solid #374151;border-radius:6px;padding:8px 10px;color:#e5e7eb}
+  .ptdot{position:absolute;width:20px;height:20px;border-radius:50%;transform:translate(-50%,-50%);border:3px solid #111827;cursor:pointer;padding:0;z-index:5;touch-action:none}
+  .ptdot.drag{cursor:grab}.ptdot.drag:active{cursor:grabbing}.ptdot.sm{width:15px;height:15px;border-width:2.5px}
+  .ptdot:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
+  table.trace{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}table.trace th,table.trace td{border:1px solid var(--line);padding:6px 9px;vertical-align:top;text-align:left}
+  table.trace th{background:var(--soft);font-size:13.5px}table.trace td.f{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+  table.trace tr.new td{background:#f0fdf4}table.trace tr.grp td{background:#eef2ff;font-weight:700;font-size:13.5px}
+  .readout{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 14px;line-height:1.7;white-space:pre-wrap}
+  .ctl{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:10px 0}.ctl label{font-size:14px;display:flex;align-items:center;gap:8px}.ctl input[type=range]{width:150px}.ctlname{font-size:13.5px;font-weight:700;color:var(--muted);min-width:70px}
+  .btn{font-size:14px;padding:6px 14px;border-radius:7px;border:1.5px solid var(--blue);background:#fff;color:var(--blue);cursor:pointer}.btn:hover{background:#eef2ff}.btn[aria-pressed=true]{background:var(--blue);color:#fff;box-shadow:inset 0 2px 4px rgba(0,0,0,.25)}.btn:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}.btn:disabled{opacity:.45;cursor:default}
+  .viewbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}.viewbar .btn{font-size:13px;padding:4px 10px}.viewbar .hint{font-size:13px;color:var(--muted);margin-left:6px}
+  .note{border-left:4px solid var(--amber);background:#fffbeb;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:110ch;margin:12px 0}.iosnote{border-left:4px solid var(--indigo);background:#eef2ff;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:110ch;margin:12px 0}
+  details{border:1px solid var(--line);border-radius:8px;margin:10px 0;background:#fff}details>summary{cursor:pointer;padding:10px 14px;font-size:15px;font-weight:600}details>summary:hover{background:var(--soft)}details .body{padding:4px 14px 14px}details details{margin:8px 0;background:var(--soft)}
+  .stepnav{display:flex;gap:10px;align-items:center;margin:0 0 10px}.stepnav .dots{display:flex;gap:6px;margin-left:8px}.stepnav .dot{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--muted);background:#fff;padding:0;cursor:pointer}.stepnav .dot.on{background:var(--indigo);border-color:var(--indigo)}
+  .capl{margin:6px 0 0;padding-left:20px}.capl ul{list-style:circle;padding-left:24px;margin:2px 0 4px}.capl li{font-size:15px;line-height:1.45;margin:3px 0}
+  .stepcap{min-height:230px;font-size:15.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+  .legend{list-style:none;padding:0;margin:8px 0}.legend li{position:relative;padding-left:42px;margin:7px 0;font-size:15px;line-height:1.45}.legend.two{display:grid;grid-template-columns:1fr 1fr;column-gap:36px;max-width:1500px}.legend li>span:first-child{position:absolute;left:4px;top:.2em}
+  .sw{display:block;width:28px;height:18px;border:1px solid #111827;border-radius:3px}.swl{display:block;width:28px;height:6px;border-radius:3px;border:1px solid #111827;margin-top:6px}.swd{display:block;width:15px;height:15px;border-radius:50%;border:2.5px solid #111827;margin:1px 0 0 6px}
+  .verdict{font-size:15px;margin-top:8px;font-weight:600}.verdict.ok{color:var(--green)}.verdict.no{color:var(--red)}
+  .exq{display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px;align-items:start;margin:6px 0 10px}.choices{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:8px 0}.choices .btn{text-align:left}
+  .navfoot{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:50px;padding-top:16px;font-size:14px}.small{font-size:14px;color:#4b5563}.scale{font-size:13.5px;color:#4b5563;margin-top:6px}[hidden]{display:none!important}
+  .flatRow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 0}
+  .exq>div:first-child,.exfig>div:first-child,.pair>div:first-child{max-width:600px}
+  .traceGrid{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start;margin-top:12px}.mapRow{display:grid;grid-template-columns:302px minmax(0,1fr);gap:18px;align-items:start}.tRead{font-size:15px;margin:0 0 10px;line-height:1.6}
+  table.trace td.px{border-left:6px solid #84cc16}table.trace td.py{border-left:6px solid #fb923c}table.trace td.ph{border-left:6px solid #38bdf8}table.trace td.f{white-space:nowrap}table.trace .lg{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#4b5563;font-size:12.5px}
+  .ideaCap{min-height:0}
+  .ctl input#aRange{width:330px}.ctl .val{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;min-width:64px}
+  table.trace td.pl{border-left:6px solid #eab308}table.trace td.pc{border-left:6px solid #0891b2}table.trace td.pn{border-left:6px solid #ec4899}
+</style>
+</head>
+
+<body>
+<header class="top">
+  <span class="crumb">Liquid Glass course</span>
+  <a href="../../../liquid-glass-course.html">Course home</a><a href="lesson-light-surface-direction-and-material-thickness.html">Chapter 10</a>
+  <a href="../../glossary.html">Glossary</a><a href="../../reference-number-forms.html">How numbers are written</a><a href="lesson-10-20-the-minus-side.html">← Lesson 10.20</a>
+</header>
+<div class="wrap">
+<h1>Lesson 10.21 — Same direction 1, opposite −1</h1>
+<p class="sub">Light theme · desktop · works from <code>file://</code>.</p>
+<p class="lead">Here L turns on the gold sheet until it points along N.</p>
+
+<figure>
+  <div class="heroGrid">
+    <div><div class="stage" id="hero3Stage"><canvas id="hero3" width="760" height="560"></canvas></div>
+      <div class="viewbar" id="hero3Bar"></div>
+      <figcaption><b>The glass with its normals.</b> Gray arrows: N at many pixels. Pink arrow: N at <b>K = (0.62, 0.66)</b>, the pixel this lesson traces. N starts at S, the glass above K.</figcaption></div>
+    <div><div class="stage" id="heroZoomStage"><canvas id="heroZoom" width="760" height="560"></canvas></div>
+      <div class="viewbar" id="heroZoomBar"></div>
+      <figcaption><b>Zoomed in at K:</b> L along N.</figcaption></div>
+  </div>
+</figure>
+
+<aside class="before">
+  <h2>Uses</h2>
+  <ul>
+    <li><a href="lesson-10-19-how-far-along-any-line.html">Lesson 10.19</a>: L = (0.48, −0.60, 0.64), L's line and its ruler; F, where the line from the tip of N meets L's line at 90°; dot(N, L), what L's ruler reads at F; the gold sheet.</li>
+    <li><a href="lesson-10-20-the-minus-side.html">Lesson 10.20</a>: L turned the other way: the same line and the same F, but the reading gets a minus.</li>
+    <li><a href="lesson-10-03-surface-normal.html">Lesson 10.3</a>: N is 1 long.</li>
+  </ul>
+</aside>
+
+<!-- ============================ SECTION 1 ============================ -->
+<h2 id="s1"><span class="tag">Section 1 · the idea in pictures</span>Turn L toward N</h2>
+<p>Move the slider, or press a button.</p>
+<div class="ideaGrid">
+  <div>
+    <div class="stage" id="ideaStage"><canvas id="ideaCv" width="760" height="760"></canvas></div>
+    <div class="viewbar" id="ideaBar"></div>
+  </div>
+  <div>
+    <div class="flatRow" id="lBtns" style="margin:0 0 6px"></div>
+    <div class="ctl"><label>angle between N and L's line <input type="range" id="aRange" min="0" max="62.8" step="0.1"></label><span class="val" id="aVal"></span></div>
+    <div class="stepcap ideaCap" id="ideaCap" aria-live="polite"></div>
+    <table class="trace" id="ideaRead"></table>
+    <div class="stage" id="ideaFlatStage" style="margin-top:10px"><canvas id="ideaFlat" width="760" height="560"></canvas></div>
+    <p class="small" id="flatCap"></p>
+  </div>
+</div>
+
+<!-- ============================ SECTION 2 ============================ -->
+<h2 id="s2"><span class="tag">Section 2 · one value, traced to the end</span>L along N: L's ruler reads the length of N at F</h2>
+<p><b>Drag K</b> on the map or in the 3D drawing. At every K, L points along that K's N.</p>
+<figure id="traceFig" style="margin:12px 0 0"><div class="traceGrid">
+  <div><div class="stage" id="traceStage"><canvas id="traceCv" width="760" height="700"></canvas></div><div class="viewbar" id="traceBar"></div>
+    <div class="stage" id="tFlatStage"><canvas id="tFlat" width="760" height="300"></canvas></div></div>
+  <div>
+    <div class="mapRow">
+      <div class="stage" id="tMapStage"><canvas id="tMap" width="300" height="300"></canvas></div>
+      <div><p class="tRead" id="tRead"></p><button class="btn" id="tHome">Back to K = (0.62, 0.66)</button></div>
+    </div>
+    <table class="trace" id="tTable"></table>
+  </div>
+</div></figure>
+
+<!-- ============================ SECTION 3 ============================ -->
+<h2 id="s3"><span class="tag">Section 3 · exercises</span>Exercises</h2>
+
+<details class="ex"><summary>Exercise 1 — At W = (0.71, 0.50), L = (−0.605, 0, −0.796). What is dot(N, L)?</summary><div class="body">
+  <div class="exq"><div><div class="stage" id="ex1q3Stage"><canvas id="ex1q3" width="620" height="640"></canvas></div><div class="viewbar" id="ex1q3Bar"></div>
+      <figcaption><b>Zoomed in at W, as in Section 1.</b> L = (−0.605, 0, −0.796), 1 long, and L's line.</figcaption></div>
+    <div><p>At W = (0.71, 0.50) in UV, N = (0.605, 0, 0.796) <button class="info" data-tip="nW" aria-label="How N at W is calculated">ⓘ</button>.</p>
+      <p>Find F as in Section 1: where the line from the tip of N meets L's line at 90°. Then say what L's ruler reads at F.</p>
+      <p><b>At W = (0.71, 0.50), L = (−0.605, 0, −0.796). What is dot(N, L)?</b></p>
+      <div class="choices"><button class="btn" data-ok="1" data-why="Right. A minus on every part turns N the other way, so L points opposite to N. L's line runs through the tip of N: F is at the tip, 1 from S, on the minus side.">−1</button><button class="btn" data-ok="0" data-why="No. −0.796 is dot(N, L) for L = (0, 0, −1), straight down (Lesson 10.20's exercise). This L's line runs through the tip of N, so F is at the tip, 1 from S.">−0.796</button><button class="btn" data-ok="0" data-why="No. F is at the tip of N, 1 from S, but L points away from the tip: that is the minus side of L's ruler.">1</button></div><div class="verdict" aria-live="polite"></div>
+    </div></div>
+  <details><summary>Show the answer</summary><div class="body"><div class="exq"><div><div class="stage" id="ex1a3Stage"><canvas id="ex1a3" width="620" height="640"></canvas></div><div class="viewbar" id="ex1a3Bar"></div>
+      <div class="stage" id="ex1aStage" style="margin-top:12px"><canvas id="ex1a" width="620" height="200"></canvas></div><figcaption>The reason, in the 3D view and on L's ruler, drawn as in Section 2.</figcaption></div>
+    <div><ul class="capl"><li>A minus on every part turns N the other way (Lesson 10.20), so L points opposite to N.</li><li>So L lies on N's line (Lesson 10.20), and L's line runs through the tip of N: F is at the tip, 1 from S.</li><li>L points away from the tip, so the tip is on the minus side: dot(N, L) = −1.</li></ul></div></div></div></details>
+</div></details>
+
+<div class="navfoot"><a href="lesson-10-20-the-minus-side.html">← Lesson 10.20 — The minus side of L's ruler</a><a href="lesson-light-surface-direction-and-material-thickness.html">Chapter 10 overview →</a></div>
+</div>
+<div id="tip" role="dialog" aria-modal="false"><button class="tclose" id="tipClose" aria-label="Close">✕</button><div id="tipBody"></div></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const RAD=0.25;
+const TP={c:[0.5,0.5],bev:0.10,step:0.01};          // the lesson's glass, fixed
+const COL={glass:'#a855f7',fill:'#f3e8ff',row:'#a3e635',col:'#fb923c',A:'#2563eb',B:'#f59e0b',D:'#14b8a6',E:'#f43f5e',across:'#22d3ee',slope:'#facc15',raw:'#6366f1',N:'#ec4899',screen:'#334155',ink:'#111827',halo:'rgba(17,24,39,0.92)',gray:'#475569',you:'#d97706',card:'#dbeafe',cardLine:'#1e40af',xP:'#84cc16',xT:'#3f6212',yP:'#fb923c',yT:'#9a3412',hP:'#38bdf8',hT:'#075985',walk:'#0f766e',front:'#a5b4fc'};
+const clamp=(x,lo,hi)=>Math.min(Math.max(x,lo),hi);
+const R12=x=>Math.round(x*1e12)/1e12;
+const DEG=Math.PI/180;
+/* ---------- numbers: whole numbers bare, exact values up to 4 decimals kept, else 3 decimals half up ---------- */
+function f(x){
+  if(Math.abs(x)<1e-12)return '0';
+  const r4=Math.round(x*1e4)/1e4;let s;
+  if(Math.abs(x-r4)<1e-9){if(Number.isInteger(r4))s=String(r4);else{s=r4.toFixed(4).replace(/0+$/,'');if(/\.\d$/.test(s))s+='0'}}
+  else s=(Math.sign(x)*Math.floor(Math.abs(x)*1e3+0.5+1e-9)/1e3).toFixed(3);
+  if(/^-0(\.0+)?$/.test(s))s='0';return s.replace('-','−');
+}
+const pt=(u,v)=>`(${f(u)}, ${f(v)})`;
+/* ---------- a trace: one operation per line; every line rounded the same way; the next line uses the shown value ---------- */
+class Trace{
+  constructor(dec=3){this.dec=dec;this.lines=[];this.dm=new Map()}
+  shown(v){v=R12(v);if(v===0)return 0;const keep=10**(this.dec+1);if(R12(Math.round(v*keep)/keep)===v)return v;
+    const a=Math.abs(v);let dec=this.dec;if(a<0.01){let q=a,z=0;while(q<0.1){q*=10;z++}dec=z+this.dec}
+    const k=10**dec,r=R12(Math.sign(v)*Math.floor(a*k+0.5+1e-9)/k);this.dm.set(r,dec);return r}
+  t(v){v=R12(v);if(v===0)return '0';const neg=v<0,a=Math.abs(v);let s;if(this.dm.has(v))s=a.toFixed(this.dm.get(v));else{s=String(a);if(s.includes('e'))s=a.toFixed(14).replace(/0+$/,'');if(/\.\d$/.test(s))s+='0'}return (neg?'−':'')+s}
+  o(v){return R12(v)<0?`(${this.t(v)})`:this.t(v)}
+  push(s){this.lines.push(s)}
+  take(){const l=this.lines;this.lines=[];return l}
+  add(n,a,b,exact){const r=exact?R12(a+b):this.shown(a+b);this.push(`${n} = ${this.t(a)} + ${this.o(b)} = ${this.t(r)}`);return r}
+  sub(n,a,b,exact){const r=exact?R12(a-b):this.shown(a-b);this.push(`${n} = ${this.t(a)} − ${this.o(b)} = ${this.t(r)}`);return r}
+  mul(n,a,b){const r=this.shown(a*b);this.push(`${n} = ${this.o(a)} × ${this.o(b)} = ${this.t(r)}`);return r}
+  div(n,a,b){const r=this.shown(a/b);this.push(`${n} = ${this.t(a)} ÷ ${this.o(b)} = ${this.t(r)}`);return r}
+  sq(n,a){const r=R12(a*a);this.push(`${n} = ${this.o(a)} × ${this.o(a)} = ${this.t(r)}`);return r}
+  neg(n,a){const r=R12(-a);this.push(`${n} = −(${this.t(a)}) = ${this.t(r)}`);return r}
+  root(n,a){const raw=Math.sqrt(a),c=Math.round(raw*1e6)/1e6;const r=R12(c*c)===R12(a)?R12(c):this.shown(raw);this.push(`${n} = √${this.t(a)} = ${this.t(r)}`);return r}
+}
+/* ---------- the surface: Lesson 10.1 height, Lesson 10.2 slopes, this lesson's normal ---------- */
+function heightAt(u,v,P){const sd=Math.hypot(u-P.c[0],v-P.c[1])-RAD,inside=clamp(-sd,0,P.bev),leg=P.bev-inside;return Math.sqrt(Math.max(0,P.bev*P.bev-leg*leg))}
+function normalAt(u,v,P){const s=P.step,a=[u-s,v],b=[u+s,v],d=[u,v-s],e=[u,v+s];
+  const hl=heightAt(a[0],a[1],P),hr=heightAt(b[0],b[1],P),hd=heightAt(d[0],d[1],P),he=heightAt(e[0],e[1],P);
+  const sx=(hr-hl)/(2*s),sy=(he-hd)/(2*s),raw=[-sx,-sy,1],len=Math.hypot(raw[0],raw[1],raw[2]),N=raw.map(q=>q/len);
+  return{a,b,d,e,hl,hr,hd,he,sx,sy,raw,len,N,rgb:N.map(q=>q*0.5+0.5),h:heightAt(u,v,P)}}
+/* the Lesson 10.1 chain for one point, in a Trace */
+function heightTrace(T,u,v,P){
+  const px=T.sub('p.x',u,P.c[0]),py=T.sub('p.y',v,P.c[1]);
+  const px2=T.sq('p.x²',px),py2=T.sq('p.y²',py),sum=T.add('sum',px2,py2,true),d=T.root('d',sum);
+  const sd=T.sub('sd',d,RAD),ns=T.neg('−sd',sd);let inside;
+  if(ns<0){inside=0;T.push(`inside = clamp(${T.t(ns)}, 0, ${T.t(P.bev)}) = 0`)}
+  else if(ns>P.bev){inside=P.bev;T.push(`inside = clamp(${T.t(ns)}, 0, ${T.t(P.bev)}) = ${T.t(P.bev)}`)}
+  else{inside=ns;T.push(`inside = clamp(${T.t(ns)}, 0, ${T.t(P.bev)}) = ${T.t(ns)}`)}
+  const leg=T.sub('leg',P.bev,inside),b2=T.sq('bevel²',P.bev),l2=T.sq('leg²',leg),h2=T.sub('h²',b2,l2,true);return T.root('h',h2);
+}
+/* the whole chain for W, as groups of lines */
+function chainOf(w,P,dec){
+  const T=new Trace(dec),s=P.step,G=[];
+  const ax=T.sub('A.x',w[0],s),bx=T.add('B.x',w[0],s),dy=T.sub('D.y',w[1],s),ey=T.add('E.y',w[1],s);
+  G.push({title:'On the screen · the four neighbors',lines:T.take().concat([`A = (${T.t(ax)}, ${T.t(w[1])}) · B = (${T.t(bx)}, ${T.t(w[1])})`,`D = (${T.t(w[0])}, ${T.t(dy)}) · E = (${T.t(w[0])}, ${T.t(ey)})`])});
+  const one=(u,v)=>{const t=new Trace(dec),h=heightTrace(t,u,v,P);if(t.dm.has(h))T.dm.set(h,t.dm.get(h));return[h,t.take()]};
+  const [hl,La]=one(ax,w[1]),[hr,Lb]=one(bx,w[1]),[hd,Ld]=one(w[0],dy),[he,Le]=one(w[0],ey);
+  G.push({title:'Heights above A and B · Lesson 10.1',pair:[['A',La,'hLeft',hl],['B',Lb,'hRight',hr]]});
+  G.push({title:'Heights above D and E · Lesson 10.1',pair:[['D',Ld,'hD',hd],['E',Le,'hE',he]]});
+  const dxh=T.sub('ΔhX = hRight − hLeft',hr,hl),dist=T.mul('2 × step',2,s),sx=T.div('slopeX',dxh,dist);
+  G.push({title:'slopeX · Lesson 10.2',lines:T.take(),isNew:false});
+  const dyh=T.sub('ΔhY = hE − hD',he,hd),dist2=T.mul('2 × step',2,s),sy=T.div('slopeY',dyh,dist2);
+  G.push({title:'slopeY · new',lines:T.take(),isNew:true});
+  const rx=T.neg('x part = −slopeX',sx),ry=T.neg('y part = −slopeY',sy);T.push('height part = 1 (chosen, always 1: Lesson 10.3)');
+  T.push(`rawNormal = (x part, y part, height part) = (${T.t(rx)}, ${T.t(ry)}, 1)`);
+  G.push({title:'rawNormal',lines:T.take(),isNew:true});
+  const x2=T.sq('x part²',rx),y2=T.sq('y part²',ry),s1=T.add('shadow² = x part² + y part²',x2,y2,true),z2=T.sq('height part²',1),s2=T.add('length² = shadow² + height part²',s1,z2,true),len=T.root('normalLength = √length²',s2);
+  G.push({title:'normalLength · new',lines:T.take(),isNew:true});
+  const nx=T.div('N x part = x part ÷ normalLength',rx,len),ny=T.div('N y part = y part ÷ normalLength',ry,len),nz=T.div('N height part = height part ÷ normalLength',1,len);T.push(`N = (${T.t(nx)}, ${T.t(ny)}, ${T.t(nz)})`);
+  {const a2=T.sq('check: (N x part)²',nx),b2=T.sq('(N y part)²',ny),c2=T.sq('(N height part)²',nz),t1=T.add('sum of the first two',a2,b2,true),t2=T.add('sum of all three',t1,c2,true);T.root('length of N',t2)}
+  G.push({title:'N = rawNormal ÷ normalLength · new',lines:T.take(),isNew:true});
+  const hx=T.mul('N x part × 0.5',nx,0.5),cr=T.add('red',hx,0.5),hy=T.mul('N y part × 0.5',ny,0.5),cg=T.add('green',hy,0.5),hz=T.mul('N height part × 0.5',nz,0.5),cb=T.add('blue',hz,0.5);
+  T.push('4th number: opacity = 1 (not see-through)');T.push(`W stores (${T.t(cr)}, ${T.t(cg)}, ${T.t(cb)}, 1)`);
+  G.push({title:'Display color · only for seeing',lines:T.take(),isNew:false});
+  return{G,T,ax,bx,dy,ey,hl,hr,hd,he,sx,sy,rx,ry,len,nx,ny,nz,cr,cg,cb};
+}
+/* ---------- 2D drawing helpers (solid strokes, dark halo) ---------- */
+function halo(ctx,draw,color,w=2.5){for(const [lw,c] of [[w+3.5,COL.halo],[w,color]]){ctx.lineWidth=lw;ctx.strokeStyle=c;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();draw();ctx.stroke()}}
+function line(ctx,x1,y1,x2,y2,color,w=2.5){halo(ctx,()=>{ctx.moveTo(x1,y1);ctx.lineTo(x2,y2)},color,w)}
+function thin(ctx,x1,y1,x2,y2,color,w=1.5){ctx.lineWidth=w;ctx.strokeStyle=color;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}
+function arrow(ctx,x1,y1,x2,y2,color,w=3,head=13){const L=Math.hypot(x2-x1,y2-y1);if(L<0.5)return;head=Math.min(head,L*0.55);const a=Math.atan2(y2-y1,x2-x1),bx=x2-head*Math.cos(a),by=y2-head*Math.sin(a);line(ctx,x1,y1,bx,by,color,w);
+  const s=head*0.55;ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(bx+s*Math.sin(a),by-s*Math.cos(a));ctx.lineTo(bx-s*Math.sin(a),by+s*Math.cos(a));ctx.closePath();ctx.fillStyle=color;ctx.fill();ctx.lineWidth=1.6;ctx.strokeStyle='#111827';ctx.stroke()}
+function grayArrow(ctx,x1,y1,x2,y2,color=COL.gray,w=1.8){const L=Math.hypot(x2-x1,y2-y1);if(L<0.5)return;const a=Math.atan2(y2-y1,x2-x1),hd=Math.min(7,L*0.5);thin(ctx,x1,y1,x2-hd*0.6*Math.cos(a),y2-hd*0.6*Math.sin(a),color,w);ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-hd*Math.cos(a)+hd*0.45*Math.sin(a),y2-hd*Math.sin(a)-hd*0.45*Math.cos(a));ctx.lineTo(x2-hd*Math.cos(a)-hd*0.45*Math.sin(a),y2-hd*Math.sin(a)+hd*0.45*Math.cos(a));ctx.closePath();ctx.fillStyle=color;ctx.fill()}
+function square(ctx,x,y,u,v,s=16,color='#111827'){ctx.lineWidth=2;ctx.strokeStyle=color;ctx.beginPath();ctx.moveTo(x+u[0]*s,y+u[1]*s);ctx.lineTo(x+u[0]*s+v[0]*s,y+u[1]*s+v[1]*s);ctx.lineTo(x+v[0]*s,y+v[1]*s);ctx.stroke()}
+const unit2=(x,y)=>{const L=Math.hypot(x,y)||1;return[x/L,y/L]};
+function plate(ctx,t,x,y,size=14,align='left',color=COL.ink){ctx.font=`600 ${size}px -apple-system,"Segoe UI",Roboto,sans-serif`;const w=ctx.measureText(t).width,h=size+8;let x0=align==='right'?x-w:align==='center'?x-w/2:x;x0=clamp(x0,6,ctx.canvas.width-w-6);let yy=clamp(y,h/2+3,ctx.canvas.height-h/2-3);if(ctx.__placed){/* in a 3D view a label that would cover an earlier label or the corner box moves a little (at most 42 px up or down and 40 px sideways); an exact repeat stays */const hit=(X,Y)=>ctx.__placed.some(r=>!(r.t===t&&Math.abs(r.x-X+5)<1&&Math.abs(r.y-Y+h/2)<1)&&X-5<r.x+r.w-1&&r.x<X+w+4&&Y-h/2<r.y+r.h-1&&r.y<Y+h/2-1);if(hit(x0,yy))for(const [ex,ey] of [[0,-14],[0,14],[0,-28],[0,28],[0,-42],[0,42],[-40,0],[40,0],[-40,-14],[40,-14],[-40,14],[40,14],[-40,-28],[40,-28],[-40,28],[40,28]]){const X=clamp(x0+ex,6,ctx.canvas.width-w-6),Y=clamp(yy+ey,h/2+3,ctx.canvas.height-h/2-3);if(!hit(X,Y)){x0=X;yy=Y;break}}ctx.__placed.push({x:x0-5,y:yy-h/2,w:w+10,h,t})}ctx.fillStyle='rgba(255,255,255,0.94)';ctx.strokeStyle='#111827';ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x0-5,yy-h/2,w+10,h,4);ctx.fill();ctx.stroke();ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillStyle=color;ctx.fillText(t,x0,yy);return{x:x0-5,y:yy-h/2,w:w+10,h}}
+/* ---------- tooltips ---------- */
+const tipEl=$('tip'),tipBody=$('tipBody'),tipStore=new Map();let suppressAt=-1e9;const suppressNow=()=>{suppressAt=performance.now()};
+function setTip(el,html){el.classList.add('tk');tipStore.set(el,html);if(!el.hasAttribute('tabindex'))el.setAttribute('tabindex','0')}
+function showTip(el){const v=tipStore.get(el),html=typeof v==='function'?v():v;if(!html)return;tipBody.innerHTML=html;tipEl.classList.toggle('wide',!!tipBody.querySelector('pre'));tipEl.classList.toggle('xwide',!!tipBody.querySelector('.tgrid'));tipEl.classList.add('open');const r=el.getBoundingClientRect();tipEl.style.left='0px';tipEl.style.top='0px';const tw=tipEl.offsetWidth,th=tipEl.offsetHeight;let L=r.right+10,T=r.top-8;if(L+tw>innerWidth-10)L=r.left-tw-10;if(L<8)L=8;if(T+th>innerHeight-10)T=innerHeight-th-10;if(T<8)T=8;tipEl.style.left=L+'px';tipEl.style.top=T+'px'}
+function hideTip(){tipEl.classList.remove('open')}
+document.addEventListener('click',e=>{if(performance.now()-suppressAt<120){suppressAt=-1e9;e.stopPropagation();return}const t=e.target.closest('.tk');if(t){e.stopPropagation();showTip(t);return}if(!e.target.closest('#tip'))hideTip();},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){hideTip();return}if((e.key==='Enter'||e.key===' ')&&e.target.classList?.contains('tk')){e.preventDefault();showTip(e.target)}});$('tipClose').onclick=e=>{e.stopPropagation();hideTip()};
+/* clickable (and optionally draggable) points over a canvas */
+let pointDrag=null;
+document.addEventListener('pointermove',e=>{if(!pointDrag)return;if(!pointDrag.moved&&Math.hypot(e.clientX-pointDrag.x0,e.clientY-pointDrag.y0)<3)return;pointDrag.moved=true;hideTip();pointDrag.move(e.clientX,e.clientY)});
+document.addEventListener('pointerup',()=>{if(!pointDrag)return;if(pointDrag.moved)suppressNow();pointDrag=null});
+document.addEventListener('pointercancel',()=>{pointDrag=null});
+function addPt(stage,x,y,color,html,label,opt={}){const b=document.createElement('button');b.className='ptdot'+(opt.small?' sm':'')+(opt.move?' drag':'');b.style.left=(x+BORDER)+'px';b.style.top=(y+BORDER)+'px';b.style.background=color;b.setAttribute('aria-label',label);if(opt.key)b.dataset.key=opt.key;stage.appendChild(b);setTip(b,html);
+  {const cv=stage.querySelector('canvas');if(cv&&(x<-2||y<-2||x>cv.width+2||y>cv.height+2))b.hidden=true}   /* a point outside its own picture must not sit on a neighbouring one */
+  if(opt.move){b.addEventListener('pointerdown',e=>{pointDrag={x0:e.clientX,y0:e.clientY,moved:false,move:opt.move};e.preventDefault();e.stopPropagation()});
+    if(opt.keys)b.addEventListener('keydown',e=>{const d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(!d)return;e.preventDefault();opt.keys(d);stage.querySelector(`[data-key="${opt.key}"]`)?.focus()})}
+  return b}
+const clearPts=stage=>stage.querySelectorAll('.ptdot').forEach(b=>b.remove());
+const canvasPos=(cv,cx,cy)=>{const r=cv.getBoundingClientRect();return[(cx-r.left-cv.clientLeft)*cv.width/cv.clientWidth,(cy-r.top-cv.clientTop)*cv.height/cv.clientHeight]};
+const BORDER=1;   /* canvases have a 1-px border: a dot over canvas pixel x sits at x + 1 in its stage */
+/* ---------- a turnable 3D view: orthographic, drag to turn, Ctrl/⌘ + wheel or buttons to zoom ---------- */
+class Orbit3D{
+  constructor(stage,cv,o){Object.assign(this,{stage,cv,ctx:cv.getContext('2d'),yaw:o.yaw,pitch:o.pitch,zoom:o.zoom||1,scale:o.scale,target:o.target,cx:cv.width/2+(o.dx||0),cy:cv.height/2+(o.dy||0),draw:o.draw,home:{yaw:o.yaw,pitch:o.pitch,zoom:o.zoom||1,target:[...o.target]},compass:o.compass,compassPos:o.compassPos,coord:o.coord});
+    this.btns=new Map();cv.style.cursor='grab';cv.style.touchAction='none';
+    cv.addEventListener('pointerdown',e=>{if(e.button!==0)return;this.drag={x:e.clientX,y:e.clientY,yaw:this.yaw,pitch:this.pitch,moved:false};try{cv.setPointerCapture(e.pointerId)}catch(_){}cv.style.cursor='grabbing'});
+    cv.addEventListener('pointermove',e=>{if(!this.drag)return;const dx=e.clientX-this.drag.x,dy=e.clientY-this.drag.y;if(Math.hypot(dx,dy)<=3&&!this.drag.moved)return;this.drag.moved=true;this.anim=null;this.yaw=this.drag.yaw-dx*0.45;this.pitch=clamp(this.drag.pitch+dy*0.45,0,90);this.render()});
+    const up=()=>{if(this.drag?.moved)suppressNow();this.drag=null;cv.style.cursor='grab'};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+    cv.addEventListener('wheel',e=>{if(!(e.ctrlKey||e.metaKey))return;e.preventDefault();this.zoom=clamp(this.zoom*Math.exp(-e.deltaY*0.0015),0.4,4);this.render()},{passive:false});
+    cv.addEventListener('dblclick',()=>this.setView(this.home.yaw,this.home.pitch,this.home.zoom,this.home.target))}
+  proj(p){const t=this.target,x=p[0]-t[0],y=p[1]-t[1],z=p[2]-t[2],a=this.yaw*DEG,b=this.pitch*DEG,X1=x*Math.cos(a)-y*Math.sin(a),Y1=x*Math.sin(a)+y*Math.cos(a),up=z*Math.cos(b)-Y1*Math.sin(b),dep=Y1*Math.cos(b)+z*Math.sin(b),k=this.scale*this.zoom;return{x:this.cx+X1*k,y:this.cy-up*k,d:dep}}
+  /* the floor point (height z0) under a picture position; null when the floor is seen edge-on */
+  floorAt(px,py,z0=0){const b=this.pitch*DEG;if(Math.sin(b)<0.17)return null;const k=this.scale*this.zoom,X1=(px-this.cx)/k,up=(this.cy-py)/k,zr=z0-this.target[2],Y1=(zr*Math.cos(b)-up)/Math.sin(b),a=this.yaw*DEG;return[X1*Math.cos(a)+Y1*Math.sin(a)+this.target[0],-X1*Math.sin(a)+Y1*Math.cos(a)+this.target[1]]}
+  render(){const c=this.ctx;c.fillStyle='#fff';c.fillRect(0,0,this.cv.width,this.cv.height);this.items=[];this.labels=[];this.pts=[];this.draw(this);
+    this.items.sort((p,q)=>p.k-q.k);for(const it of this.items)it.f(c);{const cw=this.cv.width,ch=this.cv.height,cp=this.compassPos||'bl';c.__placed=this.compass!==false?[{x:cp[1]==='r'?cw-218:8,y:cp[0]==='t'?8:ch-108,w:210,h:100}]:[];for(const L of this.labels)L(c);c.__placed=null}if(this.compass!==false)this.drawCompass(c);this.placePts()}
+  /* the corner box: the coordinates of this picture and the directions x, y and height as drawn here */
+  drawCompass(c){const a=this.yaw*DEG,b=this.pitch*DEG,cw=this.cv.width,ch=this.cv.height,bw=210,bh=100,cp=this.compassPos||'bl',bx=cp[1]==='r'?cw-bw-8:8,by=cp[0]==='t'?8:ch-bh-8,FT='-apple-system,"Segoe UI",Roboto,sans-serif';
+    c.save();c.fillStyle='rgba(255,255,255,0.96)';c.strokeStyle='#cbd5e1';c.lineWidth=1;c.beginPath();c.roundRect(bx,by,bw,bh,8);c.fill();c.stroke();
+    const cn=typeof this.coord==='function'?this.coord():this.coord;c.textAlign='left';c.textBaseline='middle';if(cn){c.font='700 12px '+FT;c.fillStyle='#111827';c.fillText('coordinates: '+cn,bx+10,by+13)}
+    c.font='600 11.5px '+FT;c.fillStyle='#475569';['in arrow units:','arrows, lengths','and rulers'].forEach((t,i)=>c.fillText(t,bx+122,by+38+i*16));
+    const ox=bx+70,oy=by+64,L=24;
+    for(const [v,col,tc,name] of [[[1,0,0],COL.xP,COL.xT,'x'],[[0,1,0],COL.yP,COL.yT,'y'],[[0,0,1],COL.hP,COL.hT,'height']]){const X1=v[0]*Math.cos(a)-v[1]*Math.sin(a),Y1=v[0]*Math.sin(a)+v[1]*Math.cos(a),up=v[2]*Math.cos(b)-Y1*Math.sin(b),len=Math.hypot(X1,up);
+      if(len>0.2){arrow(c,ox,oy,ox+X1*L,oy-up*L,col,2.2,8);c.font='700 12px '+FT;c.fillStyle=tc;c.textAlign='center';c.fillText(name,ox+X1*(L+13),oy-up*(L+13))}
+      else{c.beginPath();c.arc(ox,oy,5,0,7);c.fillStyle=col;c.fill();c.lineWidth=1.4;c.strokeStyle='#111827';c.stroke();c.font='700 12px '+FT;c.fillStyle=tc;c.textAlign='left';c.fillText(name+': not shown in this view',bx+10,by+bh-12)}}
+    c.restore()}
+  poly(ps,fill,stroke,lw=1,layer=0){const pr=ps.map(p=>this.proj(p)),d=pr.reduce((s,q)=>s+q.d,0)/pr.length;this.items.push({k:layer*1e6+d,f:c=>{c.beginPath();pr.forEach((q,i)=>i?c.lineTo(q.x,q.y):c.moveTo(q.x,q.y));c.closePath();if(fill){c.fillStyle=fill;c.fill()}if(stroke){c.lineWidth=lw;c.strokeStyle=stroke;c.stroke()}}})}
+  path(ps,color,w=2,plain=false,layer=1){const pr=ps.map(p=>this.proj(p)),d=pr.reduce((s,q)=>s+q.d,0)/pr.length;this.items.push({k:layer*1e6+d,f:c=>{const draw=()=>pr.forEach((q,i)=>i?c.lineTo(q.x,q.y):c.moveTo(q.x,q.y));if(plain){c.lineWidth=w;c.strokeStyle=color;c.lineJoin='round';c.beginPath();draw();c.stroke()}else halo(c,draw,color,w)}})}
+  seg(a,b,color,w=2.5,plain=false,layer=1){this.path([a,b],color,w,plain,layer)}
+  arrow(a,b,color,w=3,layer=2){const A=this.proj(a),B=this.proj(b);this.items.push({k:layer*1e6+(A.d+B.d)/2,f:c=>arrow(c,A.x,A.y,B.x,B.y,color,w)})}
+  grayArrow(a,b,color=COL.gray){const A=this.proj(a),B=this.proj(b);this.items.push({k:1e6+(A.d+B.d)/2,f:c=>grayArrow(c,A.x,A.y,B.x,B.y,color,1.6)})}
+  dot(p,color,r=5){const P=this.proj(p);this.items.push({k:3e6+P.d,f:c=>{c.beginPath();c.arc(P.x,P.y,r,0,Math.PI*2);c.fillStyle=color;c.fill();c.lineWidth=2;c.strokeStyle='#111827';c.stroke()}})}
+  corner(p,u,v,s,color='#111827'){const a=[p[0]+u[0]*s,p[1]+u[1]*s,p[2]+u[2]*s],b=[a[0]+v[0]*s,a[1]+v[1]*s,a[2]+v[2]*s],c2=[p[0]+v[0]*s,p[1]+v[1]*s,p[2]+v[2]*s];this.path([a,b,c2],color,2,true,2.5)}
+  label(t,p,dx=0,dy=0,align='left',color=COL.ink,size=13){const P=this.proj(p);this.labels.push(c=>plate(c,t,P.x+dx,P.y+dy,size,align,color))}
+  pt(key,p,color,html,label,opt={}){this.pts.push({key,p,color,html,label,opt})}
+  placePts(){const seen=new Set();for(const q of this.pts){const P=this.proj(q.p);let b=this.btns.get(q.key);if(!b){b=addPt(this.stage,0,0,q.color,q.html,q.label,{small:true,key:q.key,move:q.opt.move?((cx,cy)=>q.opt.move(cx,cy,this)):null});this.btns.set(q.key,b)}
+      b.style.left=(P.x+BORDER)+'px';b.style.top=(P.y+BORDER)+'px';b.style.background=q.color;tipStore.set(b,q.html);b.hidden=P.x<0||P.y<0||P.x>this.cv.width||P.y>this.cv.height;seen.add(q.key)}
+    for(const [k,b] of this.btns)if(!seen.has(k)){b.remove();this.btns.delete(k)}}
+  setView(yaw,pitch,zoom=this.zoom,target=this.target){if(window.__QA_NOANIM||!window.requestAnimationFrame){Object.assign(this,{yaw,pitch,zoom,target:[...target]});this.render();return}
+    const y0=this.yaw,p0=this.pitch,z0=this.zoom,g0=[...this.target];let dy=yaw-y0;dy=((dy+540)%360)-180;const t0=performance.now(),me={};this.anim=me;
+    const tick=now=>{if(this.anim!==me)return;const t=Math.min(1,(now-t0)/900),e=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;this.yaw=y0+dy*e;this.pitch=p0+(pitch-p0)*e;this.zoom=z0+(zoom-z0)*e;this.target=g0.map((q,i)=>q+(target[i]-q)*e);this.render();if(t<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
+}
+function viewBar(bar,orb,views){bar.innerHTML='';for(const [name,yaw,pitch] of views){const b=document.createElement('button');b.className='btn';b.textContent=name;b.onclick=()=>orb.setView(yaw,pitch);bar.appendChild(b)}
+  for(const [t,fn] of [['＋',()=>{orb.zoom=clamp(orb.zoom*1.25,0.4,4);orb.render()}],['−',()=>{orb.zoom=clamp(orb.zoom/1.25,0.4,4);orb.render()}],['Reset',()=>orb.setView(orb.home.yaw,orb.home.pitch,orb.home.zoom,orb.home.target)]]){const b=document.createElement('button');b.className='btn';b.textContent=t;b.setAttribute('aria-label',t==='＋'?'Zoom in':t==='−'?'Zoom out':'Reset the view');b.onclick=fn;bar.appendChild(b)}
+  const h=document.createElement('span');h.className='hint';h.textContent='Drag to turn the view · Ctrl (or ⌘) + scroll to zoom · double-click to reset';bar.appendChild(h)}
+/* ---------- the glass in 3D: floor = the screen (x right, y toward the bottom of the picture), height up ---------- */
+function glassScene(o,P,opt){
+  for(let i=0;i<=8;i++){const g=0.1+i*0.1;o.seg([g,0.1,0],[g,0.9,0],'#e5e7eb',1,true,-1);o.seg([0.1,g,0],[0.9,g,0],'#e5e7eb',1,true,-1)}
+  o.path([[0.1,0.1,0],[0.9,0.1,0],[0.9,0.9,0],[0.1,0.9,0],[0.1,0.1,0]],'#94a3b8',1.5,true,-1);
+  o.label('top of the picture',[0.5,0.1,0],0,-12,'center','#4b5563',12);
+  const rf=Math.max(0,RAD-P.bev);
+  const R=[];for(let i=0;i<=3;i++)R.push(rf*i/3);for(let i=1;i<=12;i++){const a=(90-i*7.5)*DEG;R.push(rf+P.bev*Math.cos(a))}
+  const hr=r=>{const ins=clamp(RAD-r,0,P.bev),leg=P.bev-ins;return Math.sqrt(Math.max(0,P.bev*P.bev-leg*leg))};
+  const NS=48,q=(r,t)=>[P.c[0]+r*Math.cos(t),P.c[1]+r*Math.sin(t),hr(r)];
+  for(let i=0;i<R.length-1;i++)for(let j=0;j<NS;j++){const t0=j/NS*2*Math.PI,t1=(j+1)/NS*2*Math.PI;o.poly([q(R[i],t0),q(R[i+1],t0),q(R[i+1],t1),q(R[i],t1)],'rgba(233,213,255,0.62)','rgba(168,85,247,0.45)',0.8)}
+  const out=[];for(let j=0;j<=96;j++){const t=j/96*2*Math.PI;out.push([P.c[0]+RAD*Math.cos(t),P.c[1]+RAD*Math.sin(t),0])}o.path(out,COL.glass,2.2,false,1);
+  const w=opt.w;
+  if(opt.cuts){const rowS=[],colS=[];for(let i=0;i<=160;i++){const x=0.1+i*0.8/160;rowS.push([x,w[1],heightAt(x,w[1],P)]);colS.push([w[0],x,heightAt(w[0],x,P)])}
+    o.seg([0.1,w[1],0],[0.9,w[1],0],COL.row,2,false,1);o.path(rowS,COL.row,2.4,false,1);
+    if(opt.col){o.seg([w[0],0.1,0],[w[0],0.9,0],COL.col,2,false,1);o.path(colS,COL.col,2.4,false,1)}}
+  if(opt.arrows){const L=0.06;for(let x=0.15;x<=0.851;x+=0.05)for(let y=0.15;y<=0.851;y+=0.05){if(Math.hypot(x-P.c[0],y-P.c[1])>RAD+0.08)continue;const n=normalAt(x,y,P),h=n.h;o.grayArrow([x,y,h],[x+n.N[0]*L,y+n.N[1]*L,h+n.N[2]*L])}}
+  if(w){const n=normalAt(w[0],w[1],P),H=[w[0],w[1],n.h],L=opt.wLen||0.06;
+    o.seg([w[0],w[1],0],H,'#94a3b8',1.4,true,1);
+    if(opt.raw)o.arrow(H,[H[0]+n.raw[0]*L,H[1]+n.raw[1]*L,H[2]+n.raw[2]*L],COL.raw,2.6,2);
+    o.arrow(H,[H[0]+n.N[0]*L,H[1]+n.N[1]*L,H[2]+n.N[2]*L],COL.N,3.2,2.2);
+    return{n,H,L}}
+}
+/* the complete calculation of N at one point, for the color table's ⓘ (5 decimals so the diagonal points come out right to 3) */
+function nTip(n,u,v){return()=>{const c=chainOf([u,v],TP,5),G=c.G,T=c.T,r3=x=>Math.round(x*1000)/1000,pre=L=>`<pre>${L.join('\n')}</pre>`,sec=t=>`<div class="tsec">${t}</div>`;
+  const at={A:[c.ax,v],B:[c.bx,v],D:[u,c.dy],E:[u,c.ey]};
+  const pair=g=>`<div class="tgrid">${g.pair.map(([nm,L,out,h])=>`<pre><b>${nm} = (${T.t(at[nm][0])}, ${T.t(at[nm][1])})</b>\n${L.join('\n')}\n<b>${out} = ${T.t(h)}</b></pre>`).join('')}</div>`;
+  return`<b>${/^[A-Z]/.test(n)?n:'Point '+n} = ${pt(u,v)} in UV: how N is calculated</b><br>C = (0.50, 0.50), radius 0.25, bevel 0.10, step 0.01. Square roots and divisions keep 5 decimals; products stay exact. N is then rounded to 3 decimals.`
+    +sec(`1 · The four neighbors, one step away (UV)`)+pre(G[0].lines)
+    +sec('2 · Heights above A and B (Lesson 10.1)')+pair(G[1])
+    +sec('3 · Heights above D and E (Lesson 10.1)')+pair(G[2])
+    +sec('4 · slopeX (Lesson 10.2)')+pre(G[3].lines)
+    +sec('5 · slopeY')+pre(G[4].lines)
+    +sec('6 · rawNormal')+pre(G[5].lines)
+    +sec('7 · normalLength: first the shadow, then the length')+pre(G[6].lines)
+    +sec('8 · N = rawNormal ÷ normalLength')+pre(G[7].lines)
+    +`<p class="tnote">Rounded to 3 decimals: <b>N = (${f(r3(c.nx))}, ${f(r3(c.ny))}, ${f(r3(c.nz))})</b>.</p>`
+    }}
+const add3=(a,b,k=1)=>[a[0]+b[0]*k,a[1]+b[1]*k,a[2]+b[2]*k];
+const nrm3=v=>{const L=Math.hypot(...v);return v.map(q=>q/L)};
+/* the same drawing calls with every point passed through fn: a scene written in UV appears in this picture's units */
+function mapped(o,fn){return{poly:(ps,...r)=>o.poly(ps.map(fn),...r),path:(ps,...r)=>o.path(ps.map(fn),...r),seg:(a,b,...r)=>o.seg(fn(a),fn(b),...r),arrow:(a,b,...r)=>o.arrow(fn(a),fn(b),...r),grayArrow:(a,b,...r)=>o.grayArrow(fn(a),fn(b),...r),dot:(p,...r)=>o.dot(fn(p),...r),label:(t,p,...r)=>o.label(t,fn(p),...r),pt:(k,p,...r)=>o.pt(k,fn(p),...r),
+  corner:(p,u,v,s,color='#111827')=>{const a=add3(p,u,s),b=add3(a,v,s),c=add3(p,v,s);o.path([fn(a),fn(b),fn(c)],color,2,true,2.5)}}}
+
+/* ================= the glass at K ================= */
+Object.assign(COL,{glassT:'#6b21a8',wallF:'rgba(100,116,139,0.20)',wallS:'#64748b',wallT:'#334155'});
+const P0=[0,0,0],AR=0.15;
+const KP=[0.62,0.66],NK=[0.302,0.402,0.864];
+const r3=x=>Math.round(x*1000)/1000;
+const nShown=(u,v)=>{const ch=chainOf([u,v],TP,5);return[ch.nx,ch.ny,ch.nz].map(r3)};
+/* exact numbers up to 6 decimals, at least 2 decimals: 0.302, −0.40, 1 */
+const fx=x=>{if(Math.abs(x)<1e-12)return '0';let s=(Math.round(x*1e6)/1e6).toFixed(6).replace(/0+$/,'');if(s.endsWith('.'))s=s.slice(0,-1);else if(/\.\d$/.test(s))s+='0';return s.replace('-','−')};
+const par=x=>x<0?`(${fx(x)})`:fx(x);
+const f4=x=>x.toFixed(4);
+const dot3=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+const scale3=(a,k)=>[a[0]*k,a[1]*k,a[2]*k];
+const f2n=t=>{const s=Number.isInteger(t)?String(t):t.toFixed(1);return s.replace('-','−')};
+/* “0.302 to the right of S”, “0.302 to the left of S”, “at S” */
+const rightOf=(v,s='S')=>Math.abs(v)<1e-9?`0 to the right of ${s}`:v<0?`${fx(-v)} to the left of ${s}`:`${fx(v)} to the right of ${s}`;
+
+/* a small piece of the glass around one pixel: UV, zoomed in; arrows drawn shrunk by the arrow ruler. Returns m (UV) and a (arrow units from S) */
+function sceneAt(o,w,op={}){const c=op.center||w,K=18,S=[w[0],w[1],heightAt(w[0],w[1],TP)],Sc=heightAt(c[0],c[1],TP),fn=p=>[(p[0]-c[0])*K,(p[1]-c[1])*K,(p[2]-Sc)*K],m=mapped(o,fn),r=0.06,X0=c[0]-r,X1=c[0]+r,Y0=c[1]-r,Y1=c[1]+r,sn=op.S||'S',kn=op.K||'K',lab=op.labels!==false,curveLab=lab&&op.curves!==false,dirLab=true;
+  m.poly([[X0,Y0,0],[X1,Y0,0],[X1,Y1,0],[X0,Y1,0]],op.floorFill||'rgba(241,245,249,0.95)','#94a3b8',1.2,-3);
+  for(let i=1;i<12;i++){const g=X0+i*0.01,h=Y0+i*0.01;m.seg([g,Y0,0],[g,Y1,0],'#e2e8f0',1,true,-2.5);m.seg([X0,h,0],[X1,h,0],'#e2e8f0',1,true,-2.5)}
+  const rs=[],cs=[];for(let i=0;i<=60;i++){const x=X0+i*(X1-X0)/60,y=Y0+i*(Y1-Y0)/60;rs.push([x,w[1],heightAt(x,w[1],TP)]);cs.push([w[0],y,heightAt(w[0],y,TP)])}
+  m.seg([X0,w[1],0],[X1,w[1],0],'#a78bfa',1.6,true,-1);m.seg([w[0],Y0,0],[w[0],Y1,0],'#a78bfa',1.6,true,-1);m.path(rs,COL.glass,3,false,0.6);m.path(cs,COL.glass,3,false,0.6);
+  if(op.floorLines!==false){m.label(`floor line y = ${f(w[1])}`,[X1,w[1],0],10,16,'left','#6d28d9',12);m.label(`floor line x = ${f(w[0])}`,[w[0],Y0,0],6,-10,'left','#6d28d9',12)}
+  /* the floor's directions, drawn on the floor */
+  const F=(x,y)=>[x,y,0],dir=(a,b,t,dx,dy,al)=>{const A=o.proj(fn(a)),B=o.proj(fn(b));o.items.push({k:-0.8e6,f:c=>grayArrow(c,A.x,A.y,B.x,B.y,'#334155',2)});if(dirLab)m.label(t,b,dx,dy,al,'#334155',12.5)};
+  dir(F(X0+0.012,Y1+0.005),F(X0+0.055,Y1+0.005),'right',8,-12,'left');
+  dir(F(X0-0.005,Y1-0.012),F(X0-0.005,Y1-0.055),'toward the top of the picture',-8,-10,'right');
+  dir(F(X1+0.005,Y0+0.004),F(X1+0.005,Y0+0.04),'toward the bottom of the picture',8,8,'left');
+  if(curveLab){if(op.yLabFar)m.label(`the glass along the floor line y = ${f(w[1])}`,rs[45],14,-6,'left',COL.glassT,13);else if(op.yLabRight)m.label(`the glass along the floor line y = ${f(w[1])}`,rs[60],8,8,'left',COL.glassT,13);else m.label(`the glass along the floor line y = ${f(w[1])}`,rs[2],-6,16,'right',COL.glassT,13);m.label(`the glass along the floor line x = ${f(w[0])}`,cs[2],-6,-12,'right',COL.glassT,13)}
+  m.seg([w[0],w[1],0],S,'#94a3b8',1.4,true,0.5);{const kl=op.kLab||[-10,14,'right'];m.label(kn,[w[0],w[1],0],kl[0],kl[1],kl[2])}
+  m.pt('K',[w[0],w[1],0],'#fff',op.Ktip||`<b>${kn} = ${pt(w[0],w[1])}</b> in UV, on the screen (height 0).`,kn,op.Kmove?{move:op.Kmove}:{});
+  const dx=TP.c[0]-w[0],dy=TP.c[1]-w[1],dl=Math.hypot(dx,dy);if(dl>1e-6&&lab&&op.toC!==false){const u=[dx/dl,dy/dl],k=Math.min(r*0.9,dl),A=[w[0]+u[0]*k*0.45,w[1]+u[1]*k*0.45,0],B=[w[0]+u[0]*k,w[1]+u[1]*k,0];m.arrow(A,B,'#a78bfa',2,-0.8);m.label('toward C',B,-6,-10,'right','#6d28d9',13);m.pt('toC',B,'#a78bfa','<b>Toward C</b> = (0.50, 0.50) in UV, the center of the glass. C itself is outside this floor patch.','toward C')}
+  o.labels.push(ctx=>{const fy=op.floorY??o.cv.height-16;plate(ctx,`floor: the screen, lying level, x ${f(X0)}–${f(X1)}, y ${f(Y0)}–${f(Y1)} (grid every 0.01)`,o.cv.width-8,fy,o.cv.width<700?11.5:12,'right','#475569');   /* 11.5 in the exercise views: clear of the corner box */plate(ctx,'arrow ruler: 1 = 0.15 UV',o.cv.width-8,fy-26,12,'right','#475569')});
+  const a=mapped(o,q=>fn(add3(S,q,AR)));
+  {const T=new Trace(5),h=heightTrace(T,w[0],w[1],TP);a.pt('S',P0,'#fff',`<b>${sn}</b>: the glass above ${kn}, (${f(w[0])}, ${f(w[1])}, ${f4(S[2])}) in UV. N starts here.<br>Its height, by Lesson 10.1's formula (C = (0.50, 0.50), radius 0.25, bevel 0.10):<pre>${T.take().join('\n')}\nrounded: ${f4(h)}</pre>`+legNote,sn)}a.label(sn,P0,-14,-12,'right');
+  return{m,a,S,fn,depth:q=>o.proj(fn(add3(S,q,AR))).d}}
+function arrN(a,N,faint,name='N',html){a.arrow(P0,N,faint?'#f9a8d4':COL.N,faint?2.4:3.4,faint?1.7:2.4);if(name)a.label(name,N,10,-12,'left','#be185d',14);a.pt('Ntip',N,faint?'#f9a8d4':COL.N,html||`<b>The tip of N</b>: the end of N with the arrowhead.<br>N = (${fx(N[0])}, ${fx(N[1])}, ${fx(N[2])}), 1 long, counted from S.`,'tip of N')}
+/* the x line through S, its ruler in arrow units: a tick every 0.1, a number every 0.5 */
+function xLine(a,op={}){const la=op.a??-0.6,lb=op.b??1.0,A=[la,0,0],B=[lb,0,0],cut=op.cut,lay=op.layer||1.2;
+  if(cut==null)a.seg(A,B,COL.xP,2.2,false,lay);else{a.seg(A,[cut,0,0],COL.xP,2.2,false,op.away?1.6:1.3);a.seg([cut,0,0],B,COL.xP,2.2,false,op.away?1.3:1.6)}
+  if(op.zero!==false)a.label('0',P0,0,20,'center','#334155',12.5);
+  if(op.ticks!==false)for(let t=Math.ceil(la*10);t<=Math.floor(lb*10);t++){if(!t)continue;const q=[t/10,0,0],big=t%5===0,k=big?1.9:1,nd=[0,0,0.018];a.seg(add3(q,nd,-k),add3(q,nd,k),'#111827',big?1.7:1.1,true,1.4);if(big&&op.nums!==false)a.label(f2n(t/10),q,0,20,'center','#334155',12.5)}
+  if(op.lab!==false)a.label(op.text||'the x line',B,10,-14,'left',COL.xT,13.5)}
+/* the three legs of the walk from S, x leg first; which ones are drawn bold, faint or not at all */
+const LEGCOL=[COL.xP,COL.yP,COL.hP];
+function stops(N){return[P0,[N[0],0,0],[N[0],N[1],0],[N[0],N[1],N[2]]]}
+function legs(a,N,show=[1,1,1],layer=1.8){const s=stops(N);for(let k=0;k<3;k++){const b=show[k];if(!b||Math.abs(N[k])<1e-9)continue;a.seg(s[k],s[k+1],b===1?LEGCOL[k]:'#cbd5e1',b===1?3.4:1.6,b!==1,layer+(b===1?0.05:0))}return s}
+/* the wall at one distance to the right of S: every point keeps that distance */
+function wallOf(a,v,op={}){const lo=op.lo||[-0.62,-0.3],hi=op.hi||[0.78,1.1],mk=(y,h)=>[v,y,h];
+  a.poly([mk(lo[0],lo[1]),mk(hi[0],lo[1]),mk(hi[0],hi[1]),mk(lo[0],hi[1])],op.fill||COL.wallF,op.stroke||COL.wallS,1.4,op.layer||1.5);
+  return{corner:mk(hi[0],hi[1])}}
+/* is the plus direction of x going away from the viewer, in this view? */
+const xAway=sc=>sc.depth([1,0,0])<sc.depth(P0);
+/* the wall, the x line through it, and the walk: the hero, Section 2, the exercises */
+function walkScene(o,w,N,op={}){const sc=sceneAt(o,w,op),a=sc.a,v=N[0],G=[v,0,0],away=xAway(sc),sn=op.S||'S',gn=op.G||'Gx';
+  if(op.wall!==false)wallOf(a,v);
+  xLine(a,{cut:op.wall!==false?v:null,away,nums:op.nums,a:Math.min(-0.6,v-0.15),b:Math.max(1.0,v+0.2),text:op.lineText});
+  const st=legs(a,N,[1,1,1],1.8);arrN(a,N,false,op.nName??'N',op.nTipHtml);
+  if(op.gLab!==false)a.label(gn,G,-12,-16,'right');a.pt('Gx',G,COL.xP,`<b>${gn}</b>: the end of the x leg. On the ruler of the x line${op.gLab===false?' (Step 2)':''}: ${rightOf(v,sn)}.`,gn);
+  if(Math.abs(N[1])>1e-9)a.pt('e2',st[2],COL.yP,`<b>The end of the y leg</b>: still ${rightOf(v,sn)}.`,'end of the y leg');
+  if(op.wall!==false&&op.wallLab!==false){const q=o.proj(sc.fn(add3(sc.S,[v,0.78,1.1],AR)));o.labels.push(c=>{plate(c,'the wall: every point here is',q.x+8,q.y-12,13.5,'left',COL.wallT);plate(c,rightOf(v,sn),q.x+8,q.y+14,13.5,'left',COL.wallT)})}
+  if(op.legLabs!==false){if(op.xLegBelow)a.label('x leg',[v*0.55,0,0],4,22,'center',COL.xT,13.5);else a.label('x leg',[v*0.3,0,0],0,-14,'center',COL.xT,13.5);if(Math.abs(N[1])>1e-9)a.label('y leg',[v,N[1]/2,0],12,10,'left',COL.yT,13.5);a.label('height leg',[v,N[1],N[2]/2],12,0,'left',COL.hT,13.5)}
+  return sc}
+
+/* ================= this lesson: T stays on the wall and 0.953 from Gx, so it goes round a circle through the tip of N ================= */
+Object.assign(COL,{teal:'#0d9488',tealT:'#115e59',tealF:'#99f6e4',tealA:'#5eead4',gn:'#475569',gnT:'#1f2937',ang:'#111827',low:'rgba(13,148,136,0.6)',screenL:'#334155'});
+const R_T=r3(Math.hypot(NK[1],NK[2]));             /* the teal line's length: as far as the tip of N is from Gx, √0.9081 = 0.953 (Lesson 10.6) */
+const dirAt=t=>[0,Math.cos(t*DEG),Math.sin(t*DEG)];
+const GX=[NK[0],0,0];
+const WALL={lo:[-1.15,-1.1],hi:[1.15,1.1]};        /* y range, height range of the drawn wall, arrow units from S */
+const sq=x=>R12(x*x);
+const PX=142;                                       /* the flat drawings: 1 arrow unit = 142 px both ways (Lesson 10.7) */
+const tipSpinOf=N=>{let a=Math.atan2(N[2],N[1])/DEG;if(a<0)a+=360;return a};   /* the spin at which T is at the tip of N (found by turning; read off) */
+const T_TIP=tipSpinOf(NK);                          /* about 65° at K */
+const floorOf=w=>-heightAt(w[0],w[1],TP)/AR;        /* the screen's level, in arrow units from S (−0.577 at K) */
+const FLOOR_K=floorOf(KP);
+const SEE='rgba(241,245,249,0.74)';                 /* the floor patch, a little see-through: what is below the screen's level shows faintly */
+const degTxt=t=>`${Math.round(t)}°`;
+/* the wall's label, at its top corner toward the bottom of the picture */
+function wallLabel(o,sc,v,sn='S',at=[WALL.hi[0],WALL.hi[1]]){const q=o.proj(sc.fn(add3(sc.S,[v,at[0],at[1]],AR)));o.labels.push(c=>{plate(c,'the wall: every point here is',q.x+8,q.y-12,13.5,'left',COL.wallT);plate(c,rightOf(v,sn),q.x+8,q.y+14,13.5,'left',COL.wallT)})}
+function behindWall(a,away,v=NK[0],b=1.3,lab=true){if(!away)return;a.seg([v,0,0],[b,0,0],'rgba(255,255,255,0.62)',5,true,1.4);if(lab)a.label('behind the wall',[v+(b-v)*0.42,0,0],0,-16,'center',COL.xT,12)}
+/* a path in arrow units from S, cut where it crosses the screen's level: the part below is drawn thin, under the see-through floor */
+function splitPath(a,pts,col,w,lay,fh,plain){let run=[],low=null;
+  const out=()=>{if(run.length<2)return;if(low)a.path(run,COL.low,Math.max(1.3,w*0.55),true,-3.5);else a.path(run,col,w,plain,lay)};
+  for(let i=0;i<pts.length;i++){const p=pts[i],b=p[2]<fh-1e-9;
+    if(low===null){low=b;run=[p];continue}
+    if(b!==low){const q=pts[i-1],k=(fh-q[2])/(p[2]-q[2]),c=[q[0]+(p[0]-q[0])*k,q[1]+(p[1]-q[1])*k,fh];run.push(c);out();low=b;run=[c,p]}else run.push(p)}
+  out()}
+/* the wall, cut at the screen's level: the part below is drawn faint, under the floor */
+function wallSplit(a,v,fh){const lo=WALL.lo,hi=WALL.hi,mk=(y,h)=>[v,y,h],top=Math.max(fh,lo[1]);
+  a.poly([mk(lo[0],top),mk(hi[0],top),mk(hi[0],hi[1]),mk(lo[0],hi[1])],COL.wallF,COL.wallS,1.4,1.5);
+  if(fh>lo[1]){a.poly([mk(lo[0],lo[1]),mk(hi[0],lo[1]),mk(hi[0],fh),mk(lo[0],fh)],'rgba(100,116,139,0.10)','rgba(100,116,139,0.45)',1,-3.6)}}
+/* the straight line from Gx to the tip of N (Lesson 10.5), dark gray */
+function gxTip(a,G,N,lab,o,sc){a.seg(G,N,COL.gn,3,true,1.9);if(!lab)return;const q=add3(G,[0,N[1],N[2]],0.3);const P=o.proj(sc.fn(add3(sc.S,q,AR)));o.labels.push(c=>{const X=P.x-40,Y=P.y-70;thin(c,P.x,P.y,X+2,Y+8,COL.gnT,1.4);plate(c,lab,X,Y,13,'right',COL.gnT)})}
+/* the teal line at spin t: from G, r long, to T; its start (0°) faint; the path of T so far */
+function tealAt(a,G,t,op={}){const r=op.r??R_T,d=dirAt(t),T=add3(G,d,r),fh=op.fh??-9;
+  if(op.ghost&&t>0.5){splitPath(a,[G,add3(G,dirAt(0),r)],COL.tealF,2.6,1.7,fh,true);if(op.ghostLab)a.label('start: spin 0°',add3(G,dirAt(0),r),12,-12,'left',COL.tealT,12.5)}
+  if(op.arc&&t>0.5){const arc=[];const n=Math.max(8,Math.round(t/3));for(let i=0;i<=n;i++)arc.push(add3(G,dirAt(t*i/n),r));splitPath(a,arc,'rgba(94,234,212,0.75)',7,1.66,fh,true)}
+  splitPath(a,[G,T],COL.teal,3.2,1.85,fh,false);return{T,d}}
+/* T's whole path for a full turn: the circle around G, r from it, on the wall */
+function circleOf(a,G,r,fh){const c=[];for(let i=0;i<=120;i++)c.push(add3(G,dirAt(i*3),r));splitPath(a,c,COL.tealT,1.4,1.74,fh,true)}
+/* the spin's angle at Gx, from the start to now */
+function angle3(a,G,t,txt,rr=0.22){if(t<0.5)return;const p=[];const n=Math.max(6,Math.round(t/6));for(let i=0;i<=n;i++)p.push(add3(G,dirAt(t*i/n),rr));a.path(p,COL.ang,1.8,true,1.9);a.label(txt||degTxt(t),add3(G,dirAt(t/2),rr+0.2),0,0,'center',COL.ang,13)}
+/* ---------- flat pictures: the wall seen straight on ---------- */
+function flatTitle(ctx,t){ctx.font='600 13px -apple-system,"Segoe UI",Roboto,sans-serif';if(ctx.measureText(t).width>ctx.canvas.width-24){const i=t.indexOf(' · toward');plate(ctx,t.slice(0,i),8,16,13,'left','#334155');plate(ctx,t.slice(i+3),8,42,13,'left','#334155')}else plate(ctx,t,8,16,13,'left','#334155')}
+function fdot(ctx,p,col,r=5){ctx.beginPath();ctx.arc(p[0],p[1],r,0,7);ctx.fillStyle=col;ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#111827';ctx.stroke()}
+function gxRing(ctx,p){ctx.beginPath();ctx.arc(p[0],p[1],9,0,7);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=2.4;ctx.strokeStyle=COL.xP;ctx.stroke();ctx.beginPath();ctx.arc(p[0],p[1],3,0,7);ctx.fillStyle=COL.xT;ctx.fill()}
+function flatCompass(ctx,x0,y0){const bw=196,bh=96,FT='-apple-system,"Segoe UI",Roboto,sans-serif';ctx.save();ctx.fillStyle='rgba(255,255,255,0.96)';ctx.strokeStyle='#cbd5e1';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(x0,y0,bw,bh,8);ctx.fill();ctx.stroke();
+  const ox=x0+40,oy=y0+56;arrow(ctx,ox,oy,ox+30,oy,COL.yP,2.2,8);arrow(ctx,ox,oy,ox,oy-30,COL.hP,2.2,8);
+  ctx.font='700 12px '+FT;ctx.textBaseline='middle';ctx.textAlign='left';ctx.fillStyle=COL.yT;ctx.fillText('y',ox+36,oy);ctx.fillStyle=COL.hT;ctx.fillText('height',ox+6,oy-36);
+  ctx.beginPath();ctx.arc(x0+16,y0+bh-14,5,0,7);ctx.fillStyle=COL.xP;ctx.fill();ctx.lineWidth=1.4;ctx.strokeStyle='#111827';ctx.stroke();ctx.fillStyle=COL.xT;ctx.fillText('x: not shown in this view',x0+26,y0+bh-14);ctx.restore()}
+/* toward the bottom of the picture drawn to the right, up drawn up; origin Gx; x not drawn.
+   op: O, t (spin), r, circle, floor (fh), tip (N), atTip, angle, angTxt, pts (points on the wall), notes, compass, line (two points for a thin line) */
+function wallFlat(cv,st,op){const ctx=cv.getContext('2d'),O=op.O,P=q=>[O.x+q[0]*O.S,O.y-q[1]*O.S],W=cv.width,H=cv.height,g=P([0,0]),r=op.r??R_T,t=op.t??0,c=Math.cos(t*DEG),s=Math.sin(t*DEG),N=op.N||NK;
+  clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  const a0=P([WALL.lo[0],WALL.hi[1]]),b0=P([WALL.hi[0],WALL.lo[1]]);ctx.fillStyle='rgba(100,116,139,0.13)';ctx.fillRect(a0[0],a0[1],b0[0]-a0[0],b0[1]-a0[1]);ctx.lineWidth=1.4;ctx.strokeStyle=COL.wallS;ctx.strokeRect(a0[0],a0[1],b0[0]-a0[0],b0[1]-a0[1]);
+  /* this drawing's two rulers through Gx: a tick every 0.1; numbers at the wall's left and bottom edges */
+  {const L=P([-1.12,0]),R=P([1.12,0]),D=P([0,-1.08]),U=P([0,1.08]);thin(ctx,L[0],L[1],R[0],R[1],'#94a3b8',1.4);thin(ctx,D[0],D[1],U[0],U[1],'#94a3b8',1.4);
+    for(let k=-11;k<=11;k++){if(!k)continue;const big=k%5===0,h=P([k/10,0]),v=P([0,k/10]);thin(ctx,h[0],h[1]-(big?6:3),h[0],h[1]+(big?6:3),'#475569',1.2);if(Math.abs(k)<=10)thin(ctx,v[0]-(big?6:3),v[1],v[0]+(big?6:3),v[1],'#475569',1.2);
+      if(big&&op.nums!==false){plate(ctx,f2n(k/10),h[0],b0[1]+14,11.5,'center','#475569');if(Math.abs(k)<=10){plate(ctx,f2n(k/10),a0[0]-8,v[1],11.5,'right','#475569');thin(ctx,a0[0],v[1],a0[0]+6,v[1],'#475569',1.2)}}}}
+  flatTitle(ctx,`coordinates: the wall seen straight on · arrow units, from Gx, 1 = ${O.S} px · toward the bottom of the picture: drawn →, up: drawn ↑`);
+  if(op.compass!==false)flatCompass(ctx,8,H-104);
+  if(op.notes!==false){plate(ctx,'to the right: not drawn',W-8,(op.notesY??60),12,'right','#334155');plate(ctx,'the x line runs straight away from us:',W-8,(op.notesY??60)+24,12,'right',COL.xT);plate(ctx,'seen end-on, as the one point Gx',W-8,(op.notesY??60)+48,12,'right',COL.xT)}
+  if(op.floor!=null){const y=P([0,op.floor])[1];thin(ctx,a0[0]-4,y,b0[0]+4,y,COL.screenL,2);const k=op.floorK||'K';
+    plate(ctx,"the screen's level, seen edge-on:",W-8,y-36,12,'right',COL.screenL);plate(ctx,`${f(-op.floor)} below Gx at ${k}`,W-8,y-12,12,'right',COL.screenL);
+    if(op.floorWhy)addPt(st,b0[0]-30,y,COL.screenL,op.floorWhy,"the screen's level",{small:true})}
+  if(op.circle){ctx.beginPath();ctx.arc(g[0],g[1],r*O.S,0,2*Math.PI);ctx.lineWidth=1.4;ctx.strokeStyle=COL.tealT;ctx.stroke();if(op.low){const lp=P([0,-r]);fdot(ctx,lp,'#fff',4);plate(ctx,'lowest point: T at 270°',lp[0]-10,lp[1]-14,12,'right',COL.tealT);addPt(st,lp[0],lp[1],COL.tealT,`<b>The lowest point of T's circle</b>: T at spin 270°, ${f(r)} straight below Gx.`,'lowest point',{small:true})}if(op.circleLab!==false){const ca=(op.circleAt??150)*DEG,q=P([r*Math.cos(ca),r*Math.sin(ca)]),rt=Math.cos(ca)>0;plate(ctx,`thin line: T's circle, ${f(r)} from Gx`,q[0]+(rt?10:-10),q[1]-10,12.5,rt?'left':'right',COL.tealT)}}
+  if(op.line){const A=P(op.line[0]),B=P(op.line[1]);thin(ctx,A[0],A[1],B[0],B[1],'#94a3b8',2)}
+  if(op.under)op.under(ctx,P,g);const tipQ=[N[1],N[2]],tp=P(tipQ);
+  if(op.tip){thin(ctx,g[0],g[1],tp[0],tp[1],COL.gn,3.4);fdot(ctx,tp,COL.N,5);if(!op.atTip){plate(ctx,'tip of N',tp[0]+12,tp[1]-10,13.5,'left','#be185d');const mq=P([tipQ[0]*0.55,tipQ[1]*0.55]);plate(ctx,`dark gray: Gx to the tip of N, ${f(Math.sqrt(R12(sq(N[1])+sq(N[2]))))}`,mq[0]+14,mq[1]+4,12.5,'left',COL.gnT)}
+    addPt(st,tp[0],tp[1],COL.N,op.atTip?`<b>The tip of N</b>, and T: ${fx(N[1])} toward the bottom of the picture and ${fx(N[2])} up from Gx (arrow units).`:`<b>The tip of N</b>, on the wall: ${fx(N[1])} toward the bottom of the picture and ${fx(N[2])} up from Gx (arrow units).`,'tip of N',{small:true})}
+  const moved=t>0.5,T0=P([r,0]),T=P([r*c,r*s]);
+  if(op.teal!==false){
+    if(moved){thin(ctx,g[0],g[1],T0[0],T0[1],COL.tealF,3);fdot(ctx,T0,COL.tealF,5);plate(ctx,'start: 0°',T0[0]+8,T0[1]+22,12.5,'left',COL.tealT);
+      if(op.band!==false){ctx.lineWidth=8;ctx.strokeStyle='rgba(94,234,212,0.6)';ctx.beginPath();ctx.arc(g[0],g[1],r*O.S,-t*DEG,0);ctx.stroke();}if(op.pathLab!==false&&!op.tip&&t>40){const m=(t/2)*DEG,q=[g[0]+(r*O.S+14)*Math.cos(m),g[1]-(r*O.S+14)*Math.sin(m)];plate(ctx,"pale band: T's path",q[0],q[1],12,Math.cos(m)>0.2?'left':Math.cos(m)<-0.2?'right':'center',COL.tealT)}}
+    if(op.angle&&moved){ctx.beginPath();ctx.arc(g[0],g[1],30,-t*DEG,0);ctx.lineWidth=1.8;ctx.strokeStyle=COL.ang;ctx.stroke();const m=(t/2)*DEG,rr=(op.angTxt||'').length>5?74:52;plate(ctx,op.angTxt||degTxt(t),g[0]+rr*Math.cos(m),g[1]-rr*Math.sin(m),13,'center',COL.ang)}
+    line(ctx,g[0],g[1],T[0],T[1],COL.teal,3.2);fdot(ctx,T,COL.teal,5);
+    plate(ctx,op.tLab?op.tLab:op.atTip?'T, at the tip of N':(moved?`T (${op.angTxt||degTxt(t)})`:'T'),T[0]+(s<0.35&&s>-0.35?14:0),T[1]-(s<0.35&&s>-0.35?14:(s>0?20:-22)),14,s<0.35&&s>-0.35?'left':'center',COL.tealT);
+    if(!op.atTip)addPt(st,T[0],T[1],COL.teal,`<b>T</b> at a spin of ${op.angTxt||degTxt(t)}, seen straight on: drawn ${f(r)} × ${O.S} px = ${f(R12(r*O.S))} px from Gx, on T's circle.`,'T',{small:true})}
+  (op.pts||[]).forEach(q=>{const p=P([q.p[0],q.p[1]]);fdot(ctx,p,q.c,6);plate(ctx,q.lab,p[0]+(q.dx??12),p[1]+(q.dy??-12),13,q.al||'left',q.c);addPt(st,p[0],p[1],q.c,q.html,q.name,{small:true})});
+  {const ll=op.teal!==false&&s<-0.2&&c<0;gxRing(ctx,g);plate(ctx,op.sLab||'Gx (S is drawn here too)',g[0]+(ll?14:-14),g[1]+(ll?-22:24),13,ll?'left':'right')}
+  addPt(st,g[0],g[1],COL.xP,'<b>Gx</b>, the wall seen straight on. The x line goes only to the right, which this drawing leaves out, so the x line is drawn as this one point.<br>S is drawn at the same place: SGx goes only along x.','Gx',{small:true})}
+const FO={x:400,y:214,S:PX};
+const floorWhyK=()=>`<b>The screen's level.</b> Gx has S's height, ${f4(heightAt(KP[0],KP[1],TP))} UV (the x leg changes only x). The zoomed drawings make 1 arrow unit 0.15 UV long (their arrow ruler), so the screen is, in arrow units, below Gx by:<pre>${f4(heightAt(KP[0],KP[1],TP))} ÷ 0.15 = ${f(heightAt(KP[0],KP[1],TP)/0.15)}</pre>T's circle reaches 0.953 below Gx, more than 0.577. The wall and T's circle are helpers of the drawing, not the glass; only the glass sits on the screen, so the helpers go on below it.`;
+/* ================= Section 2: the trace at a draggable pixel ================= */
+const TR={w:[...KP],c:null};
+function dragK3D(cx,cy,o){if(!TR.c)TR.c=[...TR.w];const p=canvasPos(o.cv,cx,cy),Sc=heightAt(TR.c[0],TR.c[1],TP),g=o.floorAt(p[0],p[1],-Sc*18);if(!g)return;const q=(v,c)=>clamp(clamp(v,c-0.06,c+0.06),0.06,0.94);TR.w=[R12(Math.round(q(TR.c[0]+g[0]/18,TR.c[0])*1000)/1000),R12(Math.round(q(TR.c[1]+g[1]/18,TR.c[1])*1000)/1000)];traceAll()}
+document.addEventListener('pointerup',()=>{if(TR.c){TR.c=null;traceAll()}});
+const tealLenOf=N=>r3(Math.sqrt(R12(sq(N[1])+sq(N[2]))));
+const MAPS=300;
+function drawMap(){const st=$('tMapStage'),cv=$('tMap'),ctx=cv.getContext('2d'),[u,v]=TR.w;clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,MAPS,MAPS);
+  const c=MAPS/2;ctx.beginPath();ctx.arc(c,c,RAD*MAPS,0,7);ctx.fillStyle='#f3e8ff';ctx.fill();ctx.beginPath();ctx.arc(c,c,(RAD-TP.bev)*MAPS,0,7);ctx.fillStyle='#fff';ctx.fill();
+  ctx.lineWidth=1;ctx.strokeStyle='#c4b5fd';ctx.stroke();ctx.beginPath();ctx.arc(c,c,RAD*MAPS,0,7);ctx.lineWidth=2.4;ctx.strokeStyle=COL.glass;ctx.stroke();
+  plate(ctx,'coordinates: UV, from above',8,16,12,'left');plate(ctx,'x →, y toward the bottom ↓',8,42,12,'left');plate(ctx,'white middle: the flat top',8,MAPS-16,12,'left',COL.glassT);plate(ctx,'violet band: the rim',8,MAPS-42,12,'left',COL.glassT);plate(ctx,'C',c+10,c-10,13,'left');
+  plate(ctx,'K',u*MAPS+12,v*MAPS+(Math.hypot(u-0.5,v-0.5)<0.06?18:-14),14,'left');   /* below K when K is near C, so the labels K and C do not overlap */
+  addPt(st,c,c,COL.glass,'<b>C = (0.50, 0.50)</b> in UV: the center of the glass.','C',{small:true});
+  const clampK=q=>clamp(q,0.06,0.94),set=(a,b)=>{TR.w=[R12(Math.round(clampK(a)*1000)/1000),R12(Math.round(clampK(b)*1000)/1000)];traceAll()};
+  addPt(st,u*MAPS,v*MAPS,'#fff',()=>`<b>K = ${pt(u,v)}</b> in UV. Drag it, or use the arrow keys (0.001 per press).`,'K, draggable',{key:'K',move:(cx,cy)=>{const q=canvasPos(cv,cx,cy);set(q[0]/MAPS,q[1]/MAPS)},keys:d=>set(u+d[0]*0.001,v+d[1]*0.001)})}
+function twoChain(y,h,pre=''){const b=sq(y),c=sq(h),r2=R12(b+c);return[`y part² = ${par(y)} × ${par(y)} = ${fx(b)}`,`height part² = ${par(h)} × ${par(h)} = ${fx(c)}`,`${pre}length² = ${fx(b)} + ${fx(c)} = ${fx(r2)}`,`${pre}length = √${fx(r2)} = ${f(Math.sqrt(r2))}`]}
+
+
+/* ================= this lesson: an arrow's part is a foot on an axis ================= */
+Object.assign(COL,{drop:'#0891b2',dropT:'#155e75'});
+let idea=0,pv=0.1;const IDEA_N=3;
+const CAM={yaw:-30,pitch:20};
+const awayOf=N=>Math.sqrt(R12(sq(N[1])+sq(N[2])));          /* how far the tip of N is from the x line: Gx to the tip */
+const isFoot=(p,N=NK)=>Math.abs(p-N[0])<1e-9;
+/* the corner at P, measured in the sheet seen straight on: between the x line's plus side and the line from P to the tip */
+const cornerAt=(p,N=NK)=>Math.atan2(awayOf(N),N[0]-p)/DEG;
+const degF=a=>(Math.round(a*10)/10).toFixed(1);
+/* a ruler on a line through S: dir, from la to lb; ticks every 0.1, numbers every 0.5 */
+function ruler3(a,dir,la,lb,col,tick,op={}){a.seg(scale3(dir,la),scale3(dir,lb),col,2.2,false,op.layer||1.2);
+  for(let t=Math.ceil(la*10);t<=Math.floor(lb*10);t++){if(!t)continue;const q=scale3(dir,t/10),big=t%5===0,k=big?1.9:1;a.seg(add3(q,tick,-k),add3(q,tick,k),'#111827',big?1.7:1.1,true,1.4);if(big&&op.nums!==false)a.label(f2n(t/10),q,op.nx??0,op.ny??20,'center','#334155',12.5)}
+  if(op.lab)a.label(op.lab,scale3(dir,lb),10,-12,'left',op.labCol||col,13.5)}
+function footScene(o,w,N,op={}){const sc=sceneAt(o,w,op),a=sc.a,x=N[0],G=[x,0,0];
+  ruler3(a,[1,0,0],Math.min(-0.5,x-0.2),Math.max(1.0,x+0.2),COL.xP,[0,0,0.018],{lab:'the x line',labCol:COL.xT});a.label('0',P0,0,20,'center','#334155',12.5);
+  if(op.walk)legs(a,N,[1,1,1],1.8);else legs(a,N,[1,0,0],1.8);
+  arrN(a,N,false,'N');
+  if(op.wall){wallOf(a,x,{lo:[-0.62,-0.3],hi:[0.78,1.1]});gxTip(a,G,N,'',o,sc)}
+  return{sc,a,G}}
+
+/* ---------- flat: the sheet that holds the x line and the tip of N, seen straight on (x →, away from the x line ↑); origin S ---------- */
+function footFlat(ctx,st,op){const O=op.O,N=op.N||NK,x=N[0],d=awayOf(N),P=q=>[O.x+q[0]*O.S,O.y-q[1]*O.S],W=ctx.canvas.width,H=ctx.canvas.height,S=P([0,0]),g=P([x,0]),tp=P([x,d]),p=op.p;
+  plate(ctx,`coordinates: the sheet that holds the x line and the tip of N, seen straight on · arrow units, from S, 1 = ${O.S} px`,8,16,12.5,'left','#334155');plate(ctx,'x: drawn → (the x line\'s ruler) · along the dark gray line, from Gx toward the tip: drawn ↑',8,42,12.5,'left','#334155');
+  const L=P([-0.55,0]),R=P([1.05,0]);thin(ctx,L[0],L[1],R[0],R[1],COL.xP,2.6);plate(ctx,'the x line',R[0]+6,R[1],12.5,'left',COL.xT);
+  for(let k=-5;k<=10;k++){const q=P([k/10,0]),big=k%5===0;thin(ctx,q[0],q[1]-(big?7:4),q[0],q[1]+(big?7:4),'#475569',1.3);if(big)plate(ctx,f2n(k/10),q[0],q[1]+20,11.5,'center','#475569')}
+  plate(ctx,'minus side',L[0]+4,L[1]-16,11.5,'left','#475569');plate(ctx,'plus side',R[0]-4,R[1]-16,11.5,'right','#475569');
+  line(ctx,S[0],S[1],tp[0],tp[1],COL.N,3);plate(ctx,'N, 1 long',(S[0]+tp[0])/2-10,(S[1]+tp[1])/2,12.5,'right','#be185d');
+  if(op.gray){thin(ctx,g[0],g[1],tp[0],tp[1],COL.gn,9);plate(ctx,`dark gray: Gx to the tip, ${f(d)} long (not a height)`,g[0]+12,(g[1]+tp[1])/2,12,'left',COL.gnT)}
+  if(op.leg!==false){line(ctx,S[0],S[1],g[0],g[1],COL.xP,4);if(p==null)plate(ctx,`x leg ends at ${fx(x)}`,g[0]+(x<0?-10:10),g[1]+40,12.5,x<0?'right':'left',COL.xT)}
+  if(p!=null){const q=P([p,0]);if(isFoot(p,N))thin(ctx,q[0],q[1],tp[0],tp[1],COL.drop,2.2);else line(ctx,q[0],q[1],tp[0],tp[1],COL.drop,3);const c=cornerAt(p,N),ft=isFoot(p,N);
+    if(ft)square(ctx,q[0],q[1],[1,0],[0,-1],16);else{ctx.beginPath();ctx.arc(q[0],q[1],28,-c*DEG,0);ctx.lineWidth=1.8;ctx.strokeStyle=COL.ang;ctx.stroke()}
+    plate(ctx,ft?'90°: square':`${degF(c)}°`,q[0]+(c<120?34:-34),q[1]-(c<120?30:40),13,c<120?'left':'right',COL.ang);
+    fdot(ctx,q,ft?'#facc15':'#fff',6);plate(ctx,ft?'P, at F: the foot':'P',q[0],q[1]+44,13.5,'center',COL.dropT);
+    addPt(st,q[0],q[1],'#fff',`<b>${ft?'P, at the foot F':'P'}</b>: on the x line, reading ${p.toFixed(3).replace('-','−')} (${Math.abs(p).toFixed(3)} to the ${p<0?'left':'right'} of S). The corner at P, measured in this drawing: ${degF(c)}°.`,'P',{small:true})}
+  fdot(ctx,S,'#fff',5);plate(ctx,'S',S[0]-10,S[1]-16,14,'right');gxRing(ctx,g);plate(ctx,'Gx',g[0]+12,g[1]-16,14,'left');fdot(ctx,tp,COL.N,5);plate(ctx,'tip of N',tp[0]+12,tp[1]-10,13.5,'left','#be185d');
+  addPt(st,S[0],S[1],'#fff','<b>S</b>: 0 on the x line\'s ruler. N starts here.','S',{small:true});
+  addPt(st,g[0],g[1],COL.xP,`<b>Gx</b>: the end of the x leg, reading ${fx(x)} on the ruler.`,'Gx',{small:true});
+  addPt(st,tp[0],tp[1],COL.N,`<b>The tip of N</b>, seen straight on this sheet: Gx is ${fx(x)} along the x line from S, and the tip is ${f(d)} from Gx along the dark gray line (Lesson 10.5).`,'tip of N',{small:true})}
+/* three rulers side by side: the feet */
+function threeRulers(ctx,st,N,X0=0,W=ctx.canvas.width){const H=ctx.canvas.height,S=Math.min(300,(W-120)/1.6),x0=X0+60+0.5*S;
+  plate(ctx,'the three rulers through S · arrow units, 1 = '+Math.round(S)+' px · 0 at S',X0+8,16,12.5,'left','#334155');
+  [['the x line',COL.xP,COL.xT,0,'N\'s x part'],['the y line',COL.yP,COL.yT,1,'N\'s y part'],['the height line',COL.hP,COL.hT,2,'N\'s height part']].forEach(([nm,c,ct,k,pn],i)=>{const y=82+i*Math.min(80,(H-110)/3);
+    thin(ctx,x0-0.5*S,y,x0+1.0*S,y,c,3);for(let t=-5;t<=10;t++){const xx=x0+t/10*S,big=t%5===0;thin(ctx,xx,y-(big?7:4),xx,y+(big?7:4),'#475569',1.2);if(big)plate(ctx,f2n(t/10),xx,y+18,11,'center','#475569')}
+    plate(ctx,nm,X0+8,y-18,12.5,'left',ct);const v=N[k],fxp=x0+v*S;fdot(ctx,[fxp,y],'#facc15',6);plate(ctx,`foot: ${fx(v)} = ${pn}`,fxp+(v<0?-10:10),y-20,12.5,v<0?'right':'left',ct);
+    addPt(st,fxp,y,'#facc15',`<b>The foot on ${nm}</b>: where a line from the tip of N meets ${nm} at a square corner. Its reading: ${fx(v)}${v<0?' (minus: on the side of S the line\'s plus side does not point to)':''}.`,'foot on '+nm,{small:true})})}
+
+function footX3(a,N){const F=[N[0],0,0];a.seg(F,N,COL.gn,3,true,1.9);a.corner(F,[1,0,0],nrm3([0,N[1],N[2]]),0.1);a.dot(F,'#facc15',5);a.label(`foot ${fx(N[0])}`,F,10,18,'left',COL.xT,13);a.pt('F0',F,'#facc15',`<b>The foot on the x line</b>: Gx, reading ${fx(N[0])}, N's x part. The dark gray line from the tip of N meets the x line here at a square corner (Lesson 10.15).`,'foot')}
+function feet3(a,N){ruler3(a,[0,1,0],Math.min(-0.4,N[1]-0.2),Math.max(1.0,N[1]+0.2),COL.yP,[0,0,0.018],{lab:'the y line',labCol:COL.yT,nums:false});ruler3(a,[0,0,1],Math.min(-0.3,N[2]-0.2),1.2,COL.hP,[0.018,0,0],{lab:'the height line',labCol:COL.hT,nums:false});
+  for(const [k,u] of [[0,[0,N[1],N[2]]],[1,[N[0],0,N[2]]],[2,[N[0],N[1],0]]]){const F=[0,0,0];F[k]=N[k];if(Math.hypot(...u)<1e-9)continue;a.seg(F,N,COL.drop,2,true,1.9);const ax=[0,0,0];ax[k]=N[k]<0?-1:1;a.corner(F,[ax[0]*(N[k]<0?-1:1)*(N[k]<0?-1:1),ax[1],ax[2]],nrm3(u),0.1);a.dot(F,'#facc15',5);a.label(`foot ${fx(N[k])}`,F,k===2?-12:10,k===2?0:18,k===2?'right':'left',[COL.xT,COL.yT,COL.hT][k],13);a.pt('F'+k,F,'#facc15',`<b>The foot on ${['the x line','the y line','the height line'][k]}</b>: reading ${fx(N[k])}, N's ${['x','y','height'][k]} part.`,'foot')}}
+const NW=nShown(0.71,0.50),NM=nShown(0.38,0.34);
+function frontW(ctx,st,ans){const O={x:220,y:300,S:250},P=q=>[O.x+q[0]*O.S,O.y-q[1]*O.S],S=P([0,0]),tp=P([NW[0],NW[2]]),F=P([0,NW[2]]);
+  plate(ctx,'coordinates: front view at W · arrow units, from S, 1 = 250 px',8,16,12.5,'left','#334155');plate(ctx,'x: drawn →, height: drawn ↑, y: left out (N\'s y part is 0 at W)',8,42,12.5,'left','#334155');
+  thin(ctx,40,S[1],600,S[1],COL.xP,2.4);plate(ctx,'the x line',598,S[1]+16,12.5,'right',COL.xT);
+  const lo=P([0,-0.15]),hi=P([0,1.1]);thin(ctx,lo[0],lo[1],hi[0],hi[1],COL.hP,2.6);plate(ctx,'the height line',hi[0]+8,hi[1]+8,12.5,'left',COL.hT);
+  for(let t=1;t<=10;t++){const q=P([0,t/10]),big=t%5===0;thin(ctx,q[0]-(big?7:4),q[1],q[0]+(big?7:4),q[1],'#475569',1.2);if(big)plate(ctx,f2n(t/10),q[0]-12,q[1],11.5,'right','#475569')}
+  line(ctx,S[0],S[1],tp[0],tp[1],COL.N,3);fdot(ctx,tp,COL.N,5);plate(ctx,'tip of N',tp[0]+10,tp[1]-12,13.5,'left','#be185d');plate(ctx,'N, 1 long',(S[0]+tp[0])/2+10,(S[1]+tp[1])/2+16,12.5,'left','#be185d');
+  addPt(st,tp[0],tp[1],COL.N,`<b>The tip of N at W</b>. N = (${fx(NW[0])}, ${fx(NW[1])}, ${fx(NW[2])}) ${'from S'}.`,'tip of N',{small:true});
+  if(ans){line(ctx,S[0],S[1],F[0],F[1],COL.hP,4);thin(ctx,F[0],F[1],tp[0],tp[1],COL.drop,3);square(ctx,F[0],F[1],[1,0],[0,1],14);fdot(ctx,F,'#facc15',6);plate(ctx,`foot: ${fx(NW[2])}`,F[0]-12,F[1]-16,13,'right',COL.hT);plate(ctx,`height leg: ${fx(NW[2])}`,S[0]-12,(S[1]+F[1])/2+30,12.5,'right',COL.hT);addPt(st,F[0],F[1],'#facc15',`<b>The foot on the height line</b>: the end of the height leg, reading ${fx(NW[2])}.`,'foot',{small:true})}
+  fdot(ctx,S,'#fff',5);plate(ctx,'S',S[0]-10,S[1]+16,14,'right');addPt(st,S[0],S[1],'#fff','<b>S</b>, the glass above W: 0 on both rulers.','S',{small:true})}
+function aboveM(ctx,st,ans){const O={x:380,y:150,S:250},P=q=>[O.x+q[0]*O.S,O.y+q[1]*O.S],S=P([0,0]),g=P([NM[0],0]),tp=P([NM[0],NM[1]]);
+  plate(ctx,'coordinates: view from above at M · arrow units, from S, 1 = 250 px',8,16,12.5,'left','#334155');plate(ctx,'x: drawn →, y: drawn ↓, height: left out',8,42,12.5,'left','#334155');
+  thin(ctx,40,S[1],600,S[1],COL.xP,2.4);plate(ctx,'the x line',598,S[1]+40,12.5,'right',COL.xT);
+  for(let t=-6;t<=8;t++){const q=P([t/10,0]),big=t%5===0;thin(ctx,q[0],q[1]-(big?7:4),q[0],q[1]+(big?7:4),'#475569',1.2);if(big)plate(ctx,f2n(t/10),q[0],q[1]+20,11.5,'center','#475569')}
+  plate(ctx,'minus side',50,S[1]-16,11.5,'left','#475569');plate(ctx,'plus side',592,S[1]-16,11.5,'right','#475569');
+  line(ctx,S[0],S[1],tp[0],tp[1],COL.N,3);fdot(ctx,tp,COL.N,5);plate(ctx,`tip of N (height ${fx(NM[2])}: left out)`,tp[0]-12,tp[1]+18,13,'right','#be185d');
+  addPt(st,tp[0],tp[1],COL.N,`<b>The tip of N at M</b>. N = (${fx(NM[0])}, ${fx(NM[1])}, ${fx(NM[2])}) from S; seen from above, its height part is left out.`,'tip of N',{small:true});
+  if(ans){line(ctx,S[0],S[1],g[0],g[1],COL.xP,4);thin(ctx,g[0],g[1],tp[0],tp[1],COL.drop,3);square(ctx,g[0],g[1],[1,0],[0,-1],14);fdot(ctx,g,'#facc15',6);plate(ctx,`Gx = the foot: ${fx(NM[0])}`,g[0]-12,g[1]-18,13,'right',COL.xT);plate(ctx,'cyan: Gx to the tip',(g[0]+tp[0])/2-12,(g[1]+tp[1])/2,12.5,'right',COL.dropT);addPt(st,g[0],g[1],'#facc15',`<b>The foot on the x line</b>: Gx, the end of the x leg, reading ${fx(NM[0])}: on the minus side.`,'foot',{small:true})}
+  fdot(ctx,S,'#fff',5);plate(ctx,'S',S[0]+10,S[1]-16,14,'left');addPt(st,S[0],S[1],'#fff','<b>S</b>, the glass above M: 0 on the ruler.','S',{small:true})}
+
+/* ================= Lesson 10.20: the minus side of L's ruler (helpers as in Lesson 10.19) ================= */
+Object.assign(COL,{L:'#eab308',LT:'#854d0e',sheetF:'rgba(234,179,8,0.11)',sheetS:'#ca8a04'});
+const sub3=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
+const LK=[0.48,-0.60,0.64];
+const LSET=[['x','L along x',[1,0,0]],['mx','L along minus x',[-1,0,0]],['L','Lesson 10.19\'s L',LK],['mL','Lesson 10.19\'s L, turned the other way',[-0.48,0.60,-0.64]]];
+let Lk='mx';
+const Lof=k=>LSET.find(q=>q[0]===k)[2];
+const v3=v=>`(${v.map(fx).join(', ')})`;
+const p3=x=>x.toFixed(3).replace('-','−');
+/* the foot on L's line: the page finds the reading t where the angle is 90°; d: how far the tip is from L's line; u: on the sheet, at 90° to L's line, toward the tip */
+function footOf(N,L){const t=R12(dot3(N,L)),F=scale3(L,t),a=sub3(N,F),d=Math.hypot(...a);let u;if(d>1e-9)u=a.map(q=>q/d);else{const h=Math.abs(L[2])<0.9?[0,0,1]:[1,0,0];u=nrm3(sub3(h,scale3(L,dot3(h,L))))}return{t,F,d,u}}
+const angAt=(p,R)=>Math.atan2(R.d,R.t-p)/DEG;
+const atF=(p,R)=>Math.abs(p-R.t)<1e-9;
+const tTxt=R=>Math.abs(R.t*1000-Math.round(R.t*1000))<1e-6?fx(R.t):p3(R.t);
+/* the flat sheet that holds L's line and the tip of N, in 3D */
+function sheetLN(a,R,L,A=[-0.32,1.25],B=[-0.22,1.08]){const mk=(s,t)=>add3(scale3(L,s),R.u,t);a.poly([mk(A[0],B[0]),mk(A[1],B[0]),mk(A[1],B[1]),mk(A[0],B[1])],COL.sheetF,COL.sheetS,1.2,1.45);return mk(A[1],B[1])}
+/* L, its line with a ruler, N, and the line from the tip of N to P (P = F when p is the foot) */
+function lineScene(o,w,N,L,p,op={}){const sc=sceneAt(o,w,{toC:false,...op}),a=sc.a,R=footOf(N,L),nm=op.name||'L';
+  const cnr=sheetLN(a,R,L,[op.la??-0.32,1.25]);
+  ruler3(a,L,op.la??-0.32,1.25,COL.L,scale3(R.u,0.018),{lab:`${nm}'s line`,labCol:COL.LT,nx:-20,ny:6});a.label('0',P0,0,22,'center','#334155',12.5);
+  a.arrow(P0,L,COL.L,3.8,2.35);a.label(nm,L,8,-16,'left',COL.LT,14);
+  a.pt('Ltip',L,COL.L,`<b>The tip of ${nm}</b>: ${nm} = ${v3(L)} from S, 1 long. ${nm}'s ruler reads 1 here.`,'tip of '+nm);
+  arrN(a,N,false,'N');
+  if(p!=null){const q=scale3(L,p),f=atF(p,R);a.seg(N,q,COL.drop,3,false,1.9);if(f)a.corner(q,scale3(L,R.t>0?-1:1),R.u,0.1);
+    a.dot(q,f?'#facc15':'#fff',5);a.label(f?(op.fLab||`F: ${tTxt(R)}`):'P',q,f?12:0,f?20:24,f?'left':'center',f?COL.LT:COL.dropT,13.5);
+    a.pt('P',q,f?'#facc15':'#fff',()=>f?`<b>F</b>, the foot on ${nm}'s line: the line from the tip of N meets ${nm}'s line here at 90°. ${nm}'s ruler reads ${tTxt(R)} here.`:`<b>P</b> on ${nm}'s line, reading ${p3(p)}.`,f?'F':'P')}
+  {const q=o.proj(sc.fn(add3(sc.S,cnr,AR)));o.labels.push(c=>{const X=clamp(q.x+8,8,c.canvas.width-230),Y=clamp(q.y,70,c.canvas.height-90);plate(c,`gold sheet: it holds ${nm}'s line`,X,Y-12,13,'left',COL.LT);plate(c,'and the tip of N',X,Y+14,13,'left',COL.LT)})}
+  return{sc,a,R}}
+
+/* ---------- flat: the sheet that holds L's line and the tip of N, seen straight on (L's line →, at 90° to it on the sheet ↑); origin S ---------- */
+function sheetFlat(ctx,st,op){const O=op.O,R=op.R,p=op.p,nm=op.name||'L',P=q=>[O.x+q[0]*O.S,O.y-q[1]*O.S],S=P([0,0]),tp=P([R.t,R.d]),Lt=P([1,0]);
+  ctx.fillStyle='rgba(234,179,8,0.08)';{const a=P([-0.3,1.12]),b=P([1.25,-0.12]);ctx.fillRect(a[0],a[1],b[0]-a[0],b[1]-a[1])}
+  if(op.short){plate(ctx,`coordinates: the sheet that holds ${nm}'s line and the tip of N,`,8,16,12.5,'left','#334155');plate(ctx,`seen straight on · arrow units, from S, 1 = ${O.S} px`,8,42,12.5,'left','#334155');plate(ctx,`${nm}'s line: drawn → · at 90° to it on the sheet: drawn ↑`,8,68,12.5,'left','#334155')}
+  else{plate(ctx,`coordinates: the sheet that holds ${nm}'s line and the tip of N, seen straight on · arrow units, from S, 1 = ${O.S} px`,8,16,12.5,'left','#334155');
+  plate(ctx,`${nm}'s line: drawn → · on the sheet, at 90° to ${nm}'s line, toward the tip of N: drawn ↑`,8,42,12.5,'left','#334155')}
+  const A=P([-0.3,0]),B=P([op.short?1.1:1.25,0]);thin(ctx,A[0],A[1],B[0],B[1],COL.L,3);plate(ctx,`${nm}'s line`,B[0]+6,B[1],12.5,'left',COL.LT);
+  for(let i=-3;i<=(op.short?11:12);i++){const q=P([i/10,0]),big=i%5===0;thin(ctx,q[0],q[1]-(big?7:4),q[0],q[1]+(big?7:4),'#475569',1.3);if(big)plate(ctx,f2n(i/10),q[0],q[1]+20,11.5,'center','#475569')}
+  if(!op.short)plate(ctx,`plus side: where ${nm} points`,B[0]+6,B[1]+24,11.5,'left','#475569');
+  arrow(ctx,S[0],S[1],Lt[0],Lt[1],COL.L,4.5,14);if(op.short)plate(ctx,`${nm}, 1 long`,P([0.3,0])[0],Lt[1]+44,12.5,'center',COL.LT);else plate(ctx,`${nm}, 1 long, ends here`,Lt[0]+4,Lt[1]-22,12.5,'left',COL.LT);
+  line(ctx,S[0],S[1],tp[0],tp[1],COL.N,3);plate(ctx,'N, 1 long',(S[0]+tp[0])/2-12,(S[1]+tp[1])/2,12.5,'right','#be185d');
+  if(p!=null){const q=P([p,0]),f=atF(p,R),c=angAt(p,R);line(ctx,q[0],q[1],tp[0],tp[1],COL.drop,3);
+    if(f)square(ctx,q[0],q[1],[R.t>0?-1:1,0],[0,-1],16);else{ctx.beginPath();ctx.arc(q[0],q[1],28,-c*DEG,0);ctx.lineWidth=1.8;ctx.strokeStyle=COL.ang;ctx.stroke()}
+    if(op.ang!==false)plate(ctx,f?'90°':`${degF(c)}°`,q[0]+(c<120?34:-34),q[1]-(c<120?30:40),13,c<120?'left':'right',COL.ang);
+    fdot(ctx,q,f?'#facc15':'#fff',6);if(op.pLab!==false)plate(ctx,f?(op.fLab||`P, at F: ${tTxt(R)}`):'P',q[0],q[1]+44,13.5,'center',f?COL.LT:COL.dropT);
+    addPt(st,q[0],q[1],f?'#facc15':'#fff',f?`<b>F</b>, the foot: the line from the tip of N meets ${nm}'s line here at 90°.${op.pLab===false?'':` ${nm}'s ruler reads ${tTxt(R)}.`}`:`<b>P</b> on ${nm}'s line, reading ${p3(p)}. The angle at P, measured in this drawing: ${degF(c)}°.`,f?'F':'P',{small:true})}
+  fdot(ctx,S,'#fff',5);plate(ctx,'S',S[0]-12,S[1]-16,14,'right');fdot(ctx,tp,COL.N,5);plate(ctx,'tip of N',tp[0]+12,tp[1]-10,13.5,'left','#be185d');fdot(ctx,Lt,COL.L,5);
+  addPt(st,S[0],S[1],'#fff',`<b>S</b>: 0 on ${nm}'s ruler. N and ${nm} start here.`,'S',{small:true});
+  addPt(st,Lt[0],Lt[1],COL.L,`<b>The tip of ${nm}</b>: 1 on ${nm}'s ruler.`,'tip of '+nm,{small:true});
+  addPt(st,tp[0],tp[1],COL.N,`<b>The tip of N</b>, 1 from S, on this sheet.`,'tip of N',{small:true})}
+
+/* ---------- 10.20: the sheet seen straight on, with L's ruler on both sides and the two halves of the sheet ---------- */
+function sidesFlat(ctx,st,op){const O=op.O,R=op.R,nm='L',P=q=>[O.x+q[0]*O.S,O.y-q[1]*O.S],W=ctx.canvas.width,S=P([0,0]),tp=P([R.t,R.d]),Lt=P([1,0]),F=P([R.t,0]),lo=-1.05,hi=1.2;
+  {const a=P([lo,1.0]),b=P([0,-0.12]);ctx.fillStyle='rgba(244,63,94,0.08)';ctx.fillRect(a[0],a[1],b[0]-a[0],b[1]-a[1]);const c=P([0,1.0]),d=P([hi,-0.12]);ctx.fillStyle='rgba(16,185,129,0.09)';ctx.fillRect(c[0],c[1],d[0]-c[0],d[1]-c[1])}
+  {const a=P([0,1.0]),b=P([0,-0.12]);thin(ctx,a[0],a[1],b[0],b[1],'#64748b',1.6);plate(ctx,'through S, at 90° to L\'s line',a[0]+6,P([0,0.62])[1],11.5,'left','#475569')}
+  plate(ctx,`coordinates: the gold sheet seen straight on · arrow units, from S, 1 = ${O.S} px`,8,16,12.5,'left','#334155');
+  plate(ctx,`→: along L's line, where L points · ↑: across L's line, toward the tip of N`,8,42,12.5,'left','#334155');
+  plate(ctx,'green half: plus side',P([hi,0])[0]-6,P([0,0.93])[1],12,'right','#047857');plate(ctx,'red half: minus side',P([lo,0])[0]+6,P([0,0.93])[1],12,'left','#be123c');
+  const A=P([lo,0]),B=P([hi,0]);thin(ctx,A[0],A[1],B[0],B[1],COL.L,3);plate(ctx,"L's line",B[0]+6,B[1],12.5,'left',COL.LT);
+  for(let i=-10;i<=12;i++){const q=P([i/10,0]),big=i%5===0;thin(ctx,q[0],q[1]-(big?7:4),q[0],q[1]+(big?7:4),'#475569',1.3);if(big)plate(ctx,f2n(i/10),q[0],q[1]+20,11.5,'center','#475569')}
+  arrow(ctx,S[0],S[1],Lt[0],Lt[1],COL.L,4.5,14);plate(ctx,'L, 1 long',Lt[0],Lt[1]+44,12.5,'center',COL.LT);
+  line(ctx,S[0],S[1],tp[0],tp[1],COL.N,3);plate(ctx,'N, 1 long',(S[0]+tp[0])/2+(R.t<0?14:-14),(S[1]+tp[1])/2,12.5,R.t<0?'left':'right','#be185d');
+  if(!op.noF){line(ctx,F[0],F[1],tp[0],tp[1],COL.drop,3);if(R.d>1e-9)square(ctx,F[0],F[1],[R.t>0?-1:1,0],[0,-1],16);
+  fdot(ctx,F,'#facc15',6);plate(ctx,`F: ${tTxt(R)}`,F[0],F[1]+44,13.5,'center',COL.LT)}
+  fdot(ctx,S,'#fff',5);plate(ctx,'S',S[0]+(R.t<0?12:-12),S[1]-16,14,R.t<0?'left':'right');fdot(ctx,tp,COL.N,5);plate(ctx,'tip of N',tp[0]+12,tp[1]-10,13.5,'left','#be185d');fdot(ctx,Lt,COL.L,5);
+  addPt(st,S[0],S[1],'#fff','<b>S</b>: 0 on L\'s ruler. N and L start here.','S',{small:true});
+  addPt(st,Lt[0],Lt[1],COL.L,'<b>The tip of L</b>: 1 on L\'s ruler, on the plus side.','tip of L',{small:true});
+  if(!op.noF)addPt(st,F[0],F[1],'#facc15',`<b>F</b>: the line from the tip of N meets L's line here at 90°. L's ruler reads ${tTxt(R)}: ${R.t<0?'the minus side':'the plus side'}.`,'F',{small:true});
+  addPt(st,tp[0],tp[1],COL.N,`<b>The tip of N</b>, 1 from S, on the ${R.t<0?'red half: the minus side':'green half: the plus side'}.`,'tip of N',{small:true})}
+
+/* ================= Lessons 10.21–10.23: L turns on the gold sheet ================= */
+Object.assign(COL,{sf:'#1d4ed8',sfT:'#1e3a8a',triF:'rgba(8,145,178,0.12)'});
+/* the gold sheet at a pixel holds Lesson 10.19's line of L and the tip of N (Lesson 10.13).
+   e1: along Lesson 10.19's L · e2: on the sheet, at 90° to e1, toward the tip of N · thN: the angle from e1 to N, measured on the sheet */
+function sheetFrame(N,L0=LK){const R=footOf(N,L0);return{N,e1:L0,e2:R.u,thN:Math.atan2(R.d,R.t)/DEG}}
+/* L turned on that sheet: alpha = the angle between N and L in degrees, on e1's side of N; opp: L turned the other way (Lesson 10.20) */
+function Lturn(fr,alpha,opp){let L;if(Math.abs(alpha-fr.thN)<1e-9)L=[...fr.e1];else{const a=(fr.thN-alpha)*DEG;L=add3(scale3(fr.e1,Math.cos(a)),fr.e2,Math.sin(a))}return opp?scale3(L,-1):L}
+const onSheet=(fr,s,t)=>add3(scale3(fr.e1,s),fr.e2,t);
+const sheetXY=(fr,v)=>[dot3(v,fr.e1),dot3(v,fr.e2)];
+const angNL=(N,L)=>Math.acos(clamp(dot3(N,L)/Math.hypot(...N),-1,1))/DEG;     /* the angle at S between N and L */
+const r4=x=>R12(Math.sign(x)*Math.floor(Math.abs(x)*1e4+0.5+1e-9)/1e4);
+const f3s=x=>{const v=Math.sign(x)*Math.floor(Math.abs(x)*1e3+0.5+1e-9)/1e3;return Math.abs(v)<1e-12?'0':v.toFixed(3).replace('-','−')};
+const isAlong=R=>R.d<1e-6;                    /* L's line runs through the tip of N */
+const atS=R=>Math.abs(R.t)<1e-9;              /* F is at S */
+const sideWord=R=>atS(R)?'at S':R.t<0?'the minus side':'the plus side';
+
+/* the zoomed glass at w: the gold sheet (it stays while L turns), L's line with its ruler, N, the cyan line from the tip of N to F, F and the angle at S */
+function turnScene(o,w,N,fr,L,op={}){const sc=sceneAt(o,w,{toC:false,curves:false,floorLines:false,...op}),a=sc.a,R=footOf(N,L),nm=op.name||'L';
+  const lxy=sheetXY(fr,L),nxy=sheetXY(fr,N),perp=onSheet(fr,-lxy[1],lxy[0]),side=(lxy[0]*nxy[1]-lxy[1]*nxy[0])>=0?-1:1,sh=op.sheet||[-1.15,1.25,-1.15,1.25];
+  if(op.sheetOn!==false){a.poly([onSheet(fr,sh[0],sh[2]),onSheet(fr,sh[1],sh[2]),onSheet(fr,sh[1],sh[3]),onSheet(fr,sh[0],sh[3])],COL.sheetF,COL.sheetS,1.2,1.45);
+    const q=o.proj(sc.fn(add3(sc.S,onSheet(fr,sh[1],sh[3]),AR)));o.labels.push(c=>{const X=clamp(q.x+8,8,c.canvas.width-240),Y=clamp(q.y,70,c.canvas.height-110);plate(c,op.sheetText||'gold sheet: L turns on it',X,Y-12,13,'left',COL.LT);plate(c,op.sheetText2||'and it holds the tip of N',X,Y+14,13,'left',COL.LT)})}
+  if(op.start&&dot3(L,fr.e1)<1-1e-9){a.arrow(P0,fr.e1,'#fde68a',2.4,1.95);a.label("start: Lesson 10.19's L",fr.e1,8,16,'left',COL.LT,12)}
+  /* L's line and its ruler: a tick every 0.1, a number every 0.5, the numbers on the side away from the tip of N */
+  const la=op.la??-1.1,lb=op.lb??1.2;a.seg(scale3(L,la),scale3(L,lb),COL.L,2.2,false,1.2);
+  if(op.ruler!==false){for(let k=Math.ceil(la*10);k<=Math.floor(lb*10);k++){if(!k)continue;const q=scale3(L,k/10),big=k%5===0,h=big?0.034:0.018;a.seg(add3(q,perp,-h),add3(q,perp,h),'#111827',big?1.7:1.1,true,1.4);if(big)a.label(f2n(k/10),add3(q,perp,side*0.17),0,0,'center','#334155',12.5)}
+    a.label('0',add3(P0,perp,side*0.17),0,0,'center','#334155',12.5)}
+  a.label(op.lineText||`${nm}'s line`,scale3(L,lb),10,-12,'left',COL.LT,13.5);
+  if(op.sides){a.label('plus side',scale3(L,0.78),14,-16,'left','#047857',13);a.label('minus side',scale3(L,-0.6),14,-16,'left','#be123c',13)}
+  const along=isAlong(R)&&R.t>0;
+  if(along){a.seg(P0,L,COL.L,10,true,2.3);a.label(`${nm} (under N)`,scale3(L,0.55),-14,14,'right',COL.LT,13.5)}
+  else{a.arrow(P0,L,COL.L,3.8,2.35);const lo=op.lOff||[8,-16,'left'];a.label(nm,L,lo[0],lo[1],lo[2],COL.LT,14)}
+  a.pt('Ltip',L,COL.L,`<b>The tip of ${nm}</b>: ${nm} = (${L.map(f3s).join(', ')}) from S (to 3 decimals), 1 long. ${nm}'s ruler reads 1 here.${L[2]<0?` ${nm} is an arrow from S, not a place: its tip can lie below the screen (Lesson 10.20).`:''}`,'tip of '+nm);
+  if(op.tri&&!isAlong(R)&&!atS(R))a.poly([P0,R.F,N],COL.triF,null,1,1.5);
+  if(op.tri&&!atS(R))a.seg(P0,R.F,COL.sf,6,false,2.38);   /* SF lies on L's line: drawn over L's arrow, under N */
+  if(atS(R)&&op.cyan!==false)a.seg(P0,N,COL.drop,10,true,2.3);
+  arrN(a,N,false,op.nName??'N');
+  if(!isAlong(R)&&!atS(R)&&op.cyan!==false)a.seg(N,R.F,COL.drop,3,false,1.9);
+  if(!isAlong(R)&&op.cyan!==false)a.corner(R.F,scale3(L,R.t>1e-9?-1:1),R.u,0.1);
+  if(op.showF!==false){a.dot(R.F,'#facc15',5);a.label(op.fLab||`F: ${tTxt(R)}`,R.F,op.fDx??12,op.fDy??22,op.fAl||'left',COL.LT,13.5);
+    a.pt('F',R.F,'#facc15',()=>`<b>F</b>: where the line from the tip of N meets ${nm}'s line at 90°${isAlong(R)?' (here the line is 0 long: F is at the tip of N)':atS(R)?' (here that line is N itself: F is at S)':''}. ${nm}'s ruler reads ${tTxt(R)} here: ${sideWord(R)}.`,'F')}
+  if(op.angle!==false){const g=angNL(N,L);if(g>2){const aL=Math.atan2(lxy[1],lxy[0]),aN=Math.atan2(nxy[1],nxy[0]);let d=aN-aL;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;const arc=[],rr=op.angleR||0.14,ac=op.angleText?'#dc2626':COL.ang;for(let i=0;i<=24;i++){const t=aL+d*i/24;arc.push(onSheet(fr,rr*Math.cos(t),rr*Math.sin(t)))}a.path(arc,ac,op.angleText?2.6:1.8,true,1.9);const m=aL+d/2;a.label(op.angleText||`${degF(g)}°`,onSheet(fr,(rr+0.13)*Math.cos(m),(rr+0.13)*Math.sin(m)),op.angleDx||0,0,'center',op.angleText?'#b91c1c':COL.ang,op.angleText?15:13)}}
+  return{sc,a,R}}
+
+/* ---------- flat: the gold sheet seen straight on, in a frame that stays while L turns; origin S.
+   default: e1 drawn →, e2 drawn ↑ · op.up: e1 drawn ↑, e2 drawn → (for the height line) ---------- */
+function turnFlat(ctx,st,op){const W0=ctx.canvas.width,O=op.O,fr=op.fr,N=op.N,L=op.L,R=footOf(N,L),nm=op.name||'L',P=q=>op.up?[O.x+q[1]*O.S,O.y-q[0]*O.S]:[O.x+q[0]*O.S,O.y-q[1]*O.S];
+  const nxy=sheetXY(fr,N),lxy=sheetXY(fr,L),S=P([0,0]),tp=P(nxy),Lt=P(lxy),F=P([lxy[0]*R.t,lxy[1]*R.t]),dir=(q)=>{const p=P(q);return unit2(p[0]-S[0],p[1]-S[1])};
+  const ld=dir(lxy),tipSide=(lxy[0]*nxy[1]-lxy[1]*nxy[0])>=0?1:-1,sp=dir([-lxy[1],lxy[0]]),sd=[sp[0]*tipSide,sp[1]*tipSide];   /* ld: along L on the screen; sd: across L's line, toward the tip of N */
+  const along=isAlong(R)&&R.t>0,sAng=p=>Math.atan2(-(p[1]-S[1]),p[0]-S[0]);
+  {const sh=op.sheet||[-1.15,1.28,-1.15,1.2],A=P([sh[0],sh[3]]),B=P([sh[1],sh[2]]);ctx.fillStyle='rgba(234,179,8,0.08)';ctx.fillRect(Math.min(A[0],B[0]),Math.min(A[1],B[1]),Math.abs(B[0]-A[0]),Math.abs(B[1]-A[1]))}
+  ctx.__placed=[];
+  plate(ctx,`coordinates: the gold sheet seen straight on · arrow units, from S, 1 = ${O.S} px`,8,16,12.5,'left','#334155');
+  if(op.turns){plate(ctx,"→: along Lesson 10.19's L, fixed while L turns",8,42,12.5,'left','#334155');plate(ctx,'↑: on the sheet, at 90° to →, toward the tip of N',8,68,12.5,'left','#334155')}
+  else plate(ctx,op.up?`↑: ${op.e1Name} · →: on the sheet, at 90° to ↑, toward the tip of N`:`→: ${op.e1Name||"along Lesson 10.19's L"} · ↑: on the sheet, at 90° to →, toward the tip of N`,8,42,12.5,'left','#334155');
+  if(op.start&&dot3(L,fr.e1)<1-1e-9){const e=P([1,0]);arrow(ctx,S[0],S[1],e[0],e[1],'#fde68a',3,12);plate(ctx,"start: Lesson 10.19's L",e[0]+8,e[1]+18,12,'left',COL.LT)}
+  /* L's line and its ruler: numbers on the side away from the tip of N */
+  const la=op.la??-1.1,lb=op.lb??1.2,A=P([lxy[0]*la,lxy[1]*la]),B=P([lxy[0]*lb,lxy[1]*lb]);thin(ctx,A[0],A[1],B[0],B[1],COL.L,3);
+  for(let k=Math.ceil(la*10);k<=Math.floor(lb*10);k++){const q=P([lxy[0]*k/10,lxy[1]*k/10]),big=k%5===0,h=big?7:4;thin(ctx,q[0]+sd[0]*h,q[1]+sd[1]*h,q[0]-sd[0]*h,q[1]-sd[1]*h,'#475569',1.3);if(big)plate(ctx,f2n(k/10),q[0]-sd[0]*22,q[1]-sd[1]*22,11.5,'center','#475569')}
+  plate(ctx,op.lineText||`${nm}'s line`,B[0]+ld[0]*14,B[1]+ld[1]*14-(Math.abs(ld[0])>0.5?0:0),12.5,ld[0]<-0.3?'right':ld[0]>0.3?'left':'center',COL.LT);
+  /* the triangle S, F, tip of N (Lesson 10.23) */
+  if(op.tri&&!isAlong(R)&&!atS(R)){ctx.beginPath();ctx.moveTo(S[0],S[1]);ctx.lineTo(F[0],F[1]);ctx.lineTo(tp[0],tp[1]);ctx.closePath();ctx.fillStyle=COL.triF;ctx.fill()}
+  if(op.tri&&(isAlong(R)||atS(R)))plate(ctx,'the triangle is flat: one side is 0 long; the bars still add up to 1',W0-8,ctx.canvas.height-16,12.5,'right','#0e7490');
+  if(along)thin(ctx,S[0],S[1],Lt[0],Lt[1],COL.L,13);else arrow(ctx,S[0],S[1],Lt[0],Lt[1],COL.L,4.5,14);
+  if(op.tri&&!atS(R))line(ctx,S[0],S[1],F[0],F[1],COL.sf,6);   /* SF lies on L's line: drawn over L's arrow */
+  if(atS(R))thin(ctx,S[0],S[1],tp[0],tp[1],COL.drop,13);
+  line(ctx,S[0],S[1],tp[0],tp[1],COL.N,3);
+  if(!isAlong(R)&&!atS(R))line(ctx,F[0],F[1],tp[0],tp[1],COL.drop,3);
+  if(!isAlong(R)){const toS=unit2(S[0]-F[0],S[1]-F[1]),u=(atS(R)||Math.hypot(S[0]-F[0],S[1]-F[1])<1)?ld:toS,v=unit2(tp[0]-F[0],tp[1]-F[1]);square(ctx,F[0],F[1],u,v,16)}
+  /* the angle at S between N and L */
+  if(op.angle!==false){const g=angNL(N,L);if(g>2){const aL=sAng(Lt),aN=sAng(tp);let d=aN-aL;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;ctx.beginPath();ctx.arc(S[0],S[1],40,-aL,-aN,d>0);ctx.lineWidth=1.8;ctx.strokeStyle=COL.ang;ctx.stroke();const m=aL+d/2;plate(ctx,`${degF(g)}°`,S[0]+66*Math.cos(m),S[1]-66*Math.sin(m),13,'center',COL.ang)}}
+  fdot(ctx,F,'#facc15',6);fdot(ctx,S,'#fff',5);fdot(ctx,tp,COL.N,5);if(!along)fdot(ctx,Lt,COL.L,5);
+  /* labels, most important first: later ones step aside */
+  {const fl=op.fLab||`F: ${tTxt(R)}`;if(along)plate(ctx,fl,F[0]+ld[0]*16+16,F[1]+ld[1]*16-6,13.5,'left',COL.LT);else if(isAlong(R))plate(ctx,fl,F[0]-sd[0]*30-16,F[1]-sd[1]*30,13.5,'right',COL.LT);else if(atS(R))plate(ctx,fl,S[0]-sd[0]*34-ld[0]*30,S[1]-sd[1]*34-ld[1]*30,13.5,'center',COL.LT);else plate(ctx,fl,F[0]-sd[0]*50,F[1]-sd[1]*50,13.5,'center',COL.LT)}
+  plate(ctx,'S',S[0]-ld[0]*16-sd[0]*16+(atS(R)?-8:0),S[1]-ld[1]*16-sd[1]*16,14,'center');
+  if(!along)plate(ctx,'tip of N',tp[0]+12,tp[1]-12,13.5,'left','#be185d');
+  if(op.tri&&!isAlong(R)&&!atS(R)){const m1=[(S[0]+F[0])/2,(S[1]+F[1])/2],m2=[(F[0]+tp[0])/2,(F[1]+tp[1])/2],c=[(S[0]+F[0]+tp[0])/3,(S[1]+F[1]+tp[1])/3];
+    plate(ctx,`|SF| = ${f3s(Math.abs(R.t))}`,m1[0]+sd[0]*22,m1[1]+sd[1]*22,12.5,'center',COL.sfT);
+    const out=unit2(m2[0]-c[0],m2[1]-c[1]);plate(ctx,`|F tip| = ${f3s(R.d)}`,m2[0]+out[0]*40,m2[1]+out[1]*24,12.5,'center',COL.dropT)}
+  {const m=[(S[0]+tp[0])/2,(S[1]+tp[1])/2],nd=unit2(tp[0]-S[0],tp[1]-S[1]),pn=[-nd[1],nd[0]],ref=(!isAlong(R)&&!atS(R))?F:Lt,away=(pn[0]*(ref[0]-S[0])+pn[1]*(ref[1]-S[1]))>0?-1:1;plate(ctx,atS(R)?'N, 1 long: here the cyan line too':'N, 1 long',m[0]+pn[0]*away*34,m[1]+pn[1]*away*34,12.5,'center','#be185d')}
+  {const q=P([lxy[0]*0.75,lxy[1]*0.75]);plate(ctx,along?`${nm}, 1 long (under N)`:`${nm}, 1 long`,q[0]-sd[0]*46,q[1]-sd[1]*46,12.5,'center',COL.LT)}
+  ctx.__placed=null;
+  addPt(st,S[0],S[1],'#fff',`<b>S</b>: 0 on ${nm}'s ruler. N and ${nm} start here.`,'S',{small:true});
+  if(!along)addPt(st,Lt[0],Lt[1],COL.L,`<b>The tip of ${nm}</b>: 1 on ${nm}'s ruler.`,'tip of '+nm,{small:true});
+  addPt(st,F[0],F[1],'#facc15',`<b>F</b>: the line from the tip of N meets ${nm}'s line here at 90°${along?' (the line is 0 long)':''}. ${nm}'s ruler reads ${tTxt(R)}: ${sideWord(R)}.`,'F',{small:true});
+  if(!along)addPt(st,tp[0],tp[1],COL.N,'<b>The tip of N</b>, 1 from S, on this sheet.','tip of N',{small:true});
+  return R}
+
+/* ---------- bars for Lesson 9.1: |SF|² and |F tip|² end to end make |N|² ---------- */
+function barsFlat(ctx,st,a2,b2,n2,txt){const W=ctx.canvas.width,x0=24,K=560,y1=58,y2=104,y3=150;
+  plate(ctx,'Lesson 9.1, drawn as bars: one bar per square · 1 = '+K+' px',8,16,12.5,'left','#334155');
+  const bar=(x,y,w,col,lab,al='left')=>{ctx.fillStyle=col;ctx.fillRect(x,y-11,Math.max(w,1),22);ctx.lineWidth=1.2;ctx.strokeStyle='#111827';ctx.strokeRect(x,y-11,Math.max(w,1),22);if(lab)plate(ctx,lab,al==='left'?x+w+10:x,y,12.5,al,'#111827')};
+  bar(x0,y1,a2*K,'#93c5fd',txt.a);bar(x0,y2,b2*K,'#67e8f9',txt.b);
+  bar(x0,y3,a2*K,'#93c5fd',null);bar(x0+a2*K,y3,b2*K,'#67e8f9',null);
+  ctx.lineWidth=3;ctx.strokeStyle='#be185d';ctx.strokeRect(x0,y3-15,n2*K,30);plate(ctx,txt.c,x0+n2*K+12,y3,12.5,'left','#be185d');
+  thin(ctx,x0+K,y1-24,x0+K,y3+22,'#475569',1.2);plate(ctx,'1',x0+K,y3+30,11.5,'center','#475569')}
+
+/* ================= Lesson 10.21: same direction 1, opposite −1 ================= */
+const FRK=sheetFrame(NK),A0=FRK.thN;          /* Lesson 10.19's L is about 62.8° from N, measured on the gold sheet */
+const SH21=[-0.6,1.25,-1.1,1.2];               /* the part of the gold sheet drawn: e1 from −0.6 to 1.25, e2 from −1.1 to 1.2 (arrow units) */
+let al=A0,opp=false;                           /* Section 1: the angle between N and L's line; opp: L opposite to N */
+const curL=()=>opp?scale3(Lturn(FRK,0),-1):Lturn(FRK,al);
+const info=(k,l)=>`<button class="info" data-tip="${k}" aria-label="${l}">ⓘ</button>`;
+const KTIP='<b>K = (0.62, 0.66)</b> in UV, on the screen (height 0).<br>The pixel of this lesson, on the rim.';
+function legend3(o,txt){o.labels.push(c=>{plate(c,txt||'gold: L and its line · cyan: from the tip of N to F · square mark: 90°',8,16,12.5,'left',COL.LT);plate(c,'violet curves: the glass near S',8,42,12.5,'left','#6b21a8')})}
+
+/* ================= Section 1 ================= */
+function drawIdea3D(o){const L=curL(),R=footOf(NK,L);turnScene(o,KP,NK,FRK,L,{la:opp?-1.1:-0.45,lb:1.2,sheet:SH21,start:true,angle:!opp,Ktip:KTIP});legend3(o,isAlong(R)?'gold: L and its line · F: at the tip of N':null)}
+function lBtns(){const box=$('lBtns');box.innerHTML='<span class="ctlname">L</span>';
+  for(const [name,on,set] of [["Lesson 10.19's L",()=>!opp&&al===A0,()=>{al=A0;opp=false}],['L along N',()=>!opp&&al===0,()=>{al=0;opp=false}],['L opposite to N',()=>opp,()=>{al=0;opp=true}]]){
+    const b=document.createElement('button');b.className='btn';b.textContent=name;b.setAttribute('aria-pressed',String(on()));b.onclick=()=>{set();ideaAll()};box.appendChild(b)}}
+function ideaPanel(){const L=curL(),R=footOf(NK,L);lBtns();
+  $('aRange').value=String(Math.round((opp?0:al)*10)/10);$('aVal').textContent=`${degF(opp?0:al)}°`;
+  $('ideaCap').innerHTML=`<ul class="capl">`
+   +`<li>The slider turns L on the gold sheet ${info('sheet','Why L can reach N on the gold sheet')}, toward N: F slides toward the tip of N.</li>`
+   +`<li>L along N: L's line runs through the tip of N, so the cyan line is 0 long and F is at the tip ${info('zero','Why F is at the tip')}.</li>`
+   +`<li>F is 1 from S (N is 1 long ${info('nlen','N is 1 long')}), on the side L points to: dot(N, L) = 1.</li>`
+   +`<li>L opposite to N: F is on the minus side (Lesson 10.20): −1.</li></ul>`;
+  const Lname=opp?'opposite to N':al===0?'along N, and 1 long like N: the same parts':al===A0?"Lesson 10.19's L":'turned on the gold sheet';
+  $('ideaRead').innerHTML=`<tr><th>the angle between N and L's line, on the gold sheet ${info('meas','Where these numbers come from')}</th><td class="f">${degF(opp?0:al)}°${opp?": L's line is N's line; L points the other way along it":''}</td></tr>`
+   +`<tr><th>L, 1 long (from S, to 3 decimals)</th><td class="f pl">(${L.map(f3s).join(', ')}): ${Lname}</td></tr>`
+   +`<tr><th>the cyan line, from the tip of N to F</th><td class="f pc">${isAlong(R)?'0':f3s(R.d)} long</td></tr>`
+   +`<tr><th>L's ruler at F: dot(N, L)</th><td class="f">${tTxt(R)}: ${sideWord(R)} <span class="lg">(arrow units: 1 = the length of L)</span></td></tr>`;
+  $('flatCap').innerHTML=`The gold sheet, seen straight on ${info('flat','Why this drawing shows real sizes')}: only L turns in it.`;
+  bindTips($('ideaCap'));bindTips($('flatCap'));bindTips($('ideaRead'));
+  {const st=$('ideaFlatStage'),cv=$('ideaFlat'),ctx=cv.getContext('2d');clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);turnFlat(ctx,st,{O:{x:250,y:300,S:210},fr:FRK,N:NK,L,start:true,turns:true,angle:!opp,sheet:[-1.15,1.25,-1.15,1.2],la:opp?-1.1:-0.45,fLab:isAlong(R)?`F, at the tip of N: ${tTxt(R)}`:null})}}
+function ideaAll(){ideaPanel();ideaOrb.render()}
+$('aRange').addEventListener('input',e=>{const v=Number(e.target.value);al=v>=62.8?A0:v;opp=false;ideaAll()});
+const ideaOrb=new Orbit3D($('ideaStage'),$('ideaCv'),{yaw:-70,pitch:22,zoom:1,scale:96,target:[0.8,0.0,1.0],dx:-56,dy:-37,compassPos:'tr',coord:'UV, zoomed in at K',draw:drawIdea3D});
+viewBar($('ideaBar'),ideaOrb,[]);
+
+/* ================= the hero ================= */
+const hero3=new Orbit3D($('hero3Stage'),$('hero3'),{yaw:-56,pitch:30,scale:640,target:[0.5,0.5,0.04],dx:40,dy:0,coord:'UV (x, y and height)',compassPos:'bl',draw:o=>{const r=glassScene(o,TP,{w:KP,cuts:false,arrows:true});
+  const tipN=add3(r.H,r.n.N,0.06);o.label('N',tipN,10,-8,'left','#be185d');o.label('K',[KP[0],KP[1],0],10,14,'left');o.label('S',r.H,-12,-6,'right');o.label('C',[0.5,0.5,0],0,22,'center');
+  o.labels.push(c=>plate(c,'arrow ruler: 1 = 0.06 UV',c.canvas.width-8,c.canvas.height-16,12,'right','#475569'));
+  o.pt('K',[KP[0],KP[1],0],'#fff','<b>K = (0.62, 0.66)</b> in UV, y toward the bottom of the picture.<br>The pixel this lesson traces. It lies on the screen (height 0).','K');o.pt('S',r.H,'#fff',`<b>S</b>: the glass above K. (0.62, 0.66, ${f4(r.n.h)}) in UV.`,'S');o.pt('N',tipN,COL.N,'<b>The tip of N at K</b>. N = (0.302, 0.402, 0.864), made 0.06 UV long in this 3D scene (1 arrow unit is made 0.06 UV long). The zoomed pictures make it 0.15 UV long.','tip of N');o.pt('C',[0.5,0.5,0],COL.glass,'<b>C = (0.50, 0.50)</b> in UV: the center of the glass.','C')}});
+viewBar($('hero3Bar'),hero3,[]);
+const heroZoom=new Orbit3D($('heroZoomStage'),$('heroZoom'),{yaw:-70,pitch:22,scale:71,target:[0.8,0.0,1.0],dx:-6,dy:-50,compassPos:'bl',coord:'UV, zoomed in at K',draw:o=>{turnScene(o,KP,NK,FRK,Lturn(FRK,0),{la:-0.45,lb:1.2,sheet:SH21,labels:false,fLab:'F, at the tip of N: 1.000',Ktip:KTIP})}});
+viewBar($('heroZoomBar'),heroZoom,[]);
+
+/* ================= Section 2: L along N at a draggable K ================= */
+const traceOrb=new Orbit3D($('traceStage'),$('traceCv'),{yaw:-70,pitch:22,scale:86,target:[0.8,0.0,1.0],dx:-8,dy:-34,compassPos:'bl',coord:'UV, zoomed in at K',draw:o=>{const w=TR.w,N=nShown(w[0],w[1]),fr=sheetFrame(N),R=footOf(N,Lturn(fr,0));
+  turnScene(o,w,N,fr,Lturn(fr,0),{la:-0.45,lb:1.2,sheetOn:false,center:TR.c||w,Kmove:dragK3D,Ktip:()=>`<b>K = ${pt(w[0],w[1])}</b> in UV, on the screen (height 0).<br>Drag K here or on the map.`,fLab:`F, at the tip of N: ${f3s(R.t)}`});
+  legend3(o,'gold: L along N, and its line · F: at the tip of N')}});
+viewBar($('traceBar'),traceOrb,[]);
+/* the line through S and the tip of N, with two rulers: L along N (plus toward the tip) and L opposite to N (plus away from it) */
+function twoRulersN(ctx,st,len,only){const W=ctx.canvas.width,S=only?230:240,x0=only?W/2-120:W/2-110,tp=x0+len*S,rows=only?[[110,-1,'L\'s ruler, L opposite to N','plus side: away from the tip of N']]:[[110,1,"L's ruler, L along N",'plus side: toward the tip of N'],[220,-1,"L's ruler, L opposite to N",'plus side: away from the tip of N']];
+  if(only){plate(ctx,`the line through S and the tip of N · arrow units from S, 1 = ${S} px`,8,16,12.5,'left','#334155');plate(ctx,'drawn →: from S toward the tip of N',8,42,12.5,'left','#334155')}
+  else plate(ctx,`the line through S and the tip of N · arrow units from S, 1 = ${S} px · drawn →: from S toward the tip of N`,8,16,12.5,'left','#334155');
+  for(const [y,sg,name,plus] of rows){thin(ctx,x0-1.2*S,y,x0+1.2*S,y,COL.L,3);for(let t=-12;t<=12;t++){const xx=x0+t/10*S,big=t%5===0;thin(ctx,xx,y-(big?7:4),xx,y+(big?7:4),'#475569',1.2);if(big)plate(ctx,f2n(sg*t/10),xx,y+18,11,'center','#475569')}
+    if(sg>0){plate(ctx,name,8,y-30,12.5,'left',COL.LT);plate(ctx,plus,W-8,y-30,12,'right',COL.LT)}else{plate(ctx,plus,8,y-36,12,'left',COL.LT);plate(ctx,name,W-8,y-36,12.5,'right',COL.LT)}   /* each plus-side label sits over that ruler's plus numbers */
+    const v=sg*len;fdot(ctx,[tp,y],'#facc15',6);plate(ctx,`F, at the tip of N: ${f3s(v)} = dot(N, L)`,tp,y+44,12.5,'center',COL.LT);fdot(ctx,[x0,y],'#fff',5);plate(ctx,'S',sg>0?x0-10:x0+12,y-14,13,sg>0?'right':'left');
+    addPt(st,tp,y,'#facc15',`<b>F, at the tip of N</b>: L's ruler reads ${f3s(v)} here: ${v<0?'the minus side':'the plus side'}.`,'F',{small:true});addPt(st,x0,y,'#fff','<b>S</b>: 0 on this ruler.','S',{small:true})}
+  if(!only){thin(ctx,tp,140,tp,196,'#94a3b8',1.6);plate(ctx,'the same point: the tip of N',tp-10,178,12,'right','#475569')}}
+function traceAll(){const [u,v]=TR.w,N=nShown(u,v);drawMap();traceOrb.render();
+  $('tRead').innerHTML=`<b>K = ${pt(u,v)}</b> in UV<br><b>N = (${N.map(f3s).join(', ')})</b> <button class="info" id="tNinfo" aria-label="How N is calculated">ⓘ</button><br><span class="small">x part, y part, height part, in arrow units</span>`;setTip($('tNinfo'),nTipW('K',u,v));
+  const T=new Trace(3),x2=T.sq('x part²',N[0]),y2=T.sq('y part²',N[1]),s2=T.add('shadow² = x part² + y part²',x2,y2,true),h2=T.sq('height part²',N[2]),l2=T.add('length² = shadow² + height part²',s2,h2,true),len=T.root('length = √length²',l2),lines=T.take();
+  $('tTable').innerHTML=`<tr class="grp"><td colspan="2">F is at the tip of N</td></tr>`
+   +`<tr><th>the length of N (Lesson 10.3: the shadow first, then the length)</th><td class="f pn">${lines.join('<br>')}</td></tr>`
+   +`<tr><th>L along N: L's ruler at F (1 = the length of L)</th><td class="f pl">${f3s(len)}: the plus side</td></tr>`
+   +`<tr><th>L opposite to N: L's ruler at F (1 = the length of L)</th><td class="f pl">${f3s(-len)}: the minus side</td></tr>`
+   +`<tr><td colspan="2" class="lg">N's parts are rounded to 3 decimals, so at a few K this length prints 0.999 or 1.001.</td></tr>`;
+  {const st=$('tFlatStage'),cv=$('tFlat'),ctx=cv.getContext('2d');clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);twoRulersN(ctx,st,len)}}
+
+/* ================= the exercise: at W, L = N with a minus on every part ================= */
+const WP=[0.71,0.50],FRW=sheetFrame(NW),LOW=scale3(Lturn(FRW,0),-1);   /* (−0.605, 0, −0.796) to 3 decimals */
+const exOrb=(id,ans)=>{const o=new Orbit3D($(id+'Stage'),$(id),{yaw:-70,pitch:22,scale:80,target:[0.2,0,0.3],dx:-10,dy:-20,compassPos:'bl',coord:'UV, zoomed in at W',draw:o=>{const R=footOf(NW,LOW);
+  turnScene(o,WP,NW,FRW,LOW,{la:-1.1,lb:0.9,K:'W',sheetOn:false,angle:false,cyan:true,showF:ans,ruler:ans,lineText:ans?"L's line":"L's line (its ruler left out)",fLab:`F, at the tip of N: ${tTxt(R)}`,kLab:[12,16,'left'],Ktip:'<b>W = (0.71, 0.50)</b> in UV, on the screen (height 0).'});
+  o.labels.push(c=>{plate(c,ans?'gold: L = (−0.605, 0, −0.796) and its line · F: at the tip of N':'gold: L = (−0.605, 0, −0.796) and its line',8,16,12,'left',COL.LT);plate(c,'violet curves: the glass near S',8,42,12,'left','#6b21a8');if(!ans)plate(c,'what is dot(N, L)?',8,68,13.5,'left','#b91c1c')})}});viewBar($(id+'Bar'),o,[]);return o};
+const exQ3=exOrb('ex1q3',false),exA3=exOrb('ex1a3',true);
+function exercises(){exQ3.render();exA3.render();
+  {const cv=$('ex1a'),st=$('ex1aStage'),ctx=cv.getContext('2d');clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);twoRulersN(ctx,st,-tAt(NW,LOW),true)}
+  document.querySelectorAll('.choices').forEach(g=>{const out=g.nextElementSibling;g.querySelectorAll('button').forEach(b=>{b.setAttribute('aria-pressed','false');b.onclick=()=>{g.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));out.className='verdict '+(b.dataset.ok==='1'?'ok':'no');out.textContent=b.dataset.why}})})}
+const tAt=(N,L)=>footOf(N,L).t;
+
+/* ================= tooltips ================= */
+const legNote='<p class="small">In this chain, <i>leg</i> is a side of Lesson 10.1\'s rim triangle.</p>';
+const nTipW=(n,u,v)=>()=>nTip(n,u,v)()+legNote;
+const TIPS={
+  sheet:'The gold sheet holds Lesson 10.19\'s line of L and the tip of N (Lesson 10.13). S and the tip of N are both on it, so N lies on it: the straight line between two points of a flat sheet stays on it (Lesson 10.5). So L, turning around S on the sheet, can reach N. The sheet does not move; only L turns.',
+  zero:'F is where the line from the tip of N meets L\'s line at 90° (Lesson 10.19). Here the tip of N is on L\'s line itself, so that line starts and ends at the tip: it is 0 long.',
+  nlen:'Lesson 10.3 made N 1 long. With its parts rounded to 3 decimals:<pre>0.302 × 0.302 = 0.091204\n0.402 × 0.402 = 0.161604\nshadow² = 0.091204 + 0.161604 = 0.252808\n0.864 × 0.864 = 0.746496\nlength² = 0.252808 + 0.746496 = 0.999304\nlength = √0.999304 = 1.000</pre>',
+  meas:'The page finds F as in Lesson 10.19 and measures on the gold sheet seen straight on, which shows lengths and angles at their real size: the angle at S between N and L, and the cyan line from the tip of N to F. At Lesson 10.19\'s L, L\'s ruler reads 0.457 at F, as in Lesson 10.19.',
+  flat:'Lesson 10.19: the sheet seen straight on shows lengths and angles on the sheet at their real size. Its → direction is along Lesson 10.19\'s L, as in Lesson 10.19\'s drawing.',
+  nW:()=>nTipW('W',0.71,0.50)()
+};
+function bindTips(root){root.querySelectorAll('.info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip]))}
+
+/* ================= start ================= */
+(function(){
+  $('tHome').onclick=()=>{TR.w=[...KP];traceAll()};
+  hero3.render();heroZoom.render();ideaAll();traceAll();exercises();bindTips(document.querySelector('#s3').parentNode);
+})();
+</script>
+</body>
+</html>

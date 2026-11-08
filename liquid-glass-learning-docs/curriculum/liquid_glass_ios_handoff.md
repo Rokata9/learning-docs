@@ -412,31 +412,27 @@ gray = dot(N, L) × 0.5 + 0.5     display only: the dot map
 - **Folded in:** #29 (minus: F, and the tip of N with it, is on the side of S that L does not point to; the sheet picture shades the two halves); card 5 (L turned so that F is on the minus side: Lesson 10.19's L turned the other way reads −0.457).
 - **Traced value:** with L along minus x, the line from the tip still meets the x line at Gx, but L's ruler reads Gx as −0.302 (Section 2: one line, two rulers). **Exercise:** at W, L straight down: “What is dot(N, L)?” → −0.796 (distractors 0.796 and −1); since 2026-11-07 drawn as Section 1 (3D view at W and the green/red sheet drawing), not as a front view. Since 2026-11-07 (3) the question shows only the 3D view, with a red marker on what to find; the answer keeps the flat drawing.
 
-#### Lesson 10.21 — Same direction 1, opposite −1 (`C`)
-- **File:** `lesson-10-21-same-direction-1-opposite-minus-1.html`.
-- **From:** Step 4 with the buttons Same direction and Opposite.
-- **Fix:** #8: as L turns toward N, the tip of N comes closer to L's line, so F slides toward the tip.
-- **Fold in:** card 4: F is where the line from the tip meets L's line; when L's line runs through the tip, F is the tip.
+#### Lesson 10.21 — Same direction 1, opposite −1 (`C`, made 2026-11-07)
+- **File:** `lesson-10-21-same-direction-1-opposite-minus-1.html`. Contract, page shape and QA: `CURRENT_STATE.md` (“Lessons 10.21–10.24 — shared build”). Reviews: `reviews/lesson-10-21-beginner-review-2026-11-07.md`.
+- **From:** Step 4 with the buttons Same direction and Opposite. **Fixed:** #8 (as L turns toward N, the cyan line gets shorter and F slides toward the tip: the slider and the table's cyan length). **Folded in:** card 4 (F is where the line from the tip meets L's line; when L's line runs through the tip, that line is 0 long and F is at the tip).
+- **Traced value:** L along N at a draggable K: |SF| is the length of N (shadow first, then the length), 1.000; opposite −1.000. **Exercise:** at W, L = (−0.605, 0, −0.796) → −1.
 
-#### Lesson 10.22 — A square corner gives 0 (`C`)
-- **File:** `lesson-10-22-a-square-corner-gives-0.html`.
-- **From:** Step 4 with the button A square corner with N.
-- **Fix:**
-  - #9: at a square corner, N itself is the line from its tip at a square corner to L's line, so F is at S. Draw the corner mark; keep the S and F labels apart;
-  - #26: the other way round: 0 means F is at S, so N stands at a square corner to L's line.
+#### Lesson 10.22 — A square corner gives 0 (`C`, made 2026-11-07)
+- **File:** `lesson-10-22-a-square-corner-gives-0.html`. Reviews: `reviews/lesson-10-22-beginner-review-2026-11-07.md`.
+- **Fixed:** #9 (at a square corner N itself is the line from its tip to L's line at 90°, so F is at S; the square mark is drawn and the S and F labels are apart), #26 (the other way round: 0 puts F at S, so N meets L's line at 90°).
+- **Traced value:** L along x at a draggable K (Lesson 10.16: the reading is N's x part); at K = (0.50, 0.70), N = (0, 0.503, 0.864), the reading is 0 and N meets the x line at 90°. **Exercise:** at W, L = (−0.689, 0.5, 0.524) with dot(N, L) = 0 → 90°, though Section 1's view draws it about 40° wide.
+- **Overlap named:** Lesson 10.19's exercise (L₂ at 90° to N reads 0) already applied the forward direction; this lesson names it and adds the other way round, which Lesson 10.30's Exercise 3 needs.
 
-#### Lesson 10.23 — Never past 1 (`C`)
-- **File:** `lesson-10-23-never-past-1.html`.
-- **From:** Step 4's caption `ⓘ`.
-- **Fix:** #10: 1² = SF² + (F to tip)² (Lesson 9.1), so SF is at most 1. The cos name of Lesson 4.9 gets its own `ⓘ`, or goes.
-- **Exercise:** “Can dot(N, L) be 1.2?” No: S to F is a shorter side of a right triangle whose long side is 1.
+#### Lesson 10.23 — Never past 1 (`C`, made 2026-11-07)
+- **File:** `lesson-10-23-never-past-1.html`. Reviews: `reviews/lesson-10-23-beginner-review-2026-11-07.md`.
+- **Fixed:** #10 (1² = |SF|² + |F tip|², Lesson 9.1, so |SF| is at most 1, drawn as bars). The cos name of Lesson 4.9 went (no ⓘ for it).
+- **Exercise changed:** the planned “Can dot(N, L) be 1.2?” asks back the title (`AGENTS.md` rule 18), so the exercise uses the triangle on a new case: at W, the cyan line 0.6 long → 0.8.
+- **Traced value:** L straight up at a draggable K, where every square is exact: |SF| = N's height part, |F tip|² = x part² + y part².
 
-#### Lesson 10.24 — A walk's legs each move F (`C`)
-- **File:** `lesson-10-24-each-leg-moves-f.html`.
-- **From:** Step 5.
-- **Fix:**
-  - #11: we draw these lines only to find a rule; 10.26–10.30 turn each move into a multiplication the GPU can do;
-  - #12: define once: a leg “moves F” when the meeting point goes from one F to the next, F₁ → F₂ → F₃.
+#### Lesson 10.24 — A walk's legs each move the meeting point (`C`, made 2026-11-07; retitled 2026-11-08 from “… each move F”, because F is only the meeting point of the tip of N)
+- **File:** `lesson-10-24-each-leg-moves-f.html`. Reviews: `reviews/lesson-10-24-beginner-review-2026-11-07.md`.
+- **Fixed:** #11 (we draw these lines only to find a rule; Lessons 10.25–10.30 turn each move into one multiplication), #12 (“a leg moves F” defined once: the meeting point goes from the one before, S, F₁, F₂, to the next).
+- **Traced value:** the three moves 0.14496, −0.2412, 0.55296 and their sum 0.45672 at a draggable K. **Exercise:** with L along x, the height leg moves the meeting point 0 (both its ends are on the wall through Gx).
 
 #### Lesson 10.25 — A leg's start does not matter (`C`)
 - **File:** `lesson-10-25-a-legs-start.html`.
