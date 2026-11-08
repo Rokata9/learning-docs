@@ -26,7 +26,7 @@ Use this for every new lesson and every revision, before delivery (`AGENTS.md` r
 
 Placeholders:
 - `{LESSON}`: e.g. `Lesson 10.19 — How far an arrow goes along any line`
-- `{TYPE}`: the lesson's type in the curriculum: `C`, `B` (with the lessons it joins, e.g. `B, joins 10.4–10.29`) or `E`
+- `{TYPE}`: the lesson's type in the curriculum: `C`, `B` (with the lessons it joins, e.g. `B, joins 10.4–10.36`) or `E`
 - `{TEXT}`: `/tmp/review-NN-MM/lesson-text.md`
 - `{SHOTS}`: `/tmp/review-NN-MM/shots/`
 - `{HTML}`: the lesson file
