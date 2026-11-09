@@ -26,7 +26,7 @@ Use this for every new lesson and every revision, before delivery (`AGENTS.md` r
 
 Placeholders:
 - `{LESSON}`: e.g. `Lesson 10.19 — How far an arrow goes along any line`
-- `{TYPE}`: the lesson's type in the curriculum: `C`, `B` (with the lessons it joins, e.g. `B, joins 10.4–10.36`) or `E`
+- `{TYPE}`: the lesson's type in the curriculum: `C`, `B` (with the lessons it joins, e.g. `B, joins 10.4–10.38`) or `E`
 - `{TEXT}`: `/tmp/review-NN-MM/lesson-text.md`
 - `{SHOTS}`: `/tmp/review-NN-MM/shots/`
 - `{HTML}`: the lesson file
@@ -90,7 +90,7 @@ Never propose removing or simplifying a picture: the learner wants the pictures 
 For these items the **smallest fix is a cut or a shorter wording**, never an added sentence. Do not ask for a proof of something the figure shows.
 
 ### Count the new ideas
-A new idea is a fact or method that the page explains with its own reason and that no earlier lesson taught (check with grep). Recalling an earlier lesson is not new. A sentence that only names a result without a reason is a problem for the list below, not an idea.
+A new idea is a fact or method that the page explains with its own reason and that no earlier lesson taught (check with grep). Recalling an earlier lesson is not new. The words and numbers the idea is stated in (a pair of rulers such as along and across, a way of writing a point) are part of that idea, not a second one: if they are unclear, list that as a problem, not as an idea to split off. A sentence that only names a result without a reason is a problem for the list below, not an idea.
 - List every new idea, one line each, with the step where it first appears.
 - Say whether the count fits the type: `C` exactly one, `B` none, `E` one practice.
 - If it does not fit, say for each extra idea where the page could stop before it, so that it becomes its own lesson.

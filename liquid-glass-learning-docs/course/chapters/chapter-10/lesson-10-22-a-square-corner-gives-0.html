@@ -67,6 +67,7 @@
   .ideaCap{min-height:0}
   .ctl input#aRange{width:330px}.ctl .val{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;min-width:64px}
   table.trace td.pl{border-left:6px solid #eab308}table.trace td.pc{border-left:6px solid #0891b2}table.trace td.pn{border-left:6px solid #ec4899}
+.kn{background:#dcfce7;color:#14532d;border-radius:3px;padding:0 2px}#tip .kn{background:#1f4d33;color:#bbf7d0}
 </style>
 </head>
 
@@ -80,6 +81,7 @@
 <h1>Lesson 10.22 — A square corner gives 0</h1>
 <p class="sub">Light theme · desktop · works from <code>file://</code>.</p>
 <p class="lead">Here L turns all the way from along N to opposite N, through a square corner with N.</p>
+<p class="lead"><b>Where this is used.</b> Lessons 10.4–10.37 build, step by step, the formula for how far N goes along L, written dot(N, L) (from Lesson 10.38 on, L points toward the light). dot(N, L) sets each pixel's brightness (Lesson 10.41) and where the highlight sits (Lessons 10.47–10.51); Lesson 10.46 computes it in Metal.</p>
 
 <figure>
   <div class="heroGrid">
@@ -102,6 +104,7 @@
     <li><a href="lesson-10-14-three-lengths-fix-the-corner.html">Lesson 10.14</a>: a slanted view does not draw angles at their real size.</li>
   </ul>
 </aside>
+<p class="small">In a calculation, <span class="kn">green</span> marks a number known before the calculation starts: given, or found earlier. The other numbers are worked out in it.</p>
 
 <!-- ============================ SECTION 1 ============================ -->
 <h2 id="s1"><span class="tag">Section 1 · the idea in pictures</span>Turn L past a square corner with N</h2>
@@ -146,11 +149,11 @@
       <p>F is found as in Lesson 10.19, and L's ruler reads 0 there: dot(N, L) = 0.</p>
       <p>Use the reading, not the drawing: what does 0 say about F, and about the cyan line?</p>
       <p><b>At W = (0.71, 0.50), dot(N, L) = 0 for L = (−0.689, 0.500, 0.524). What is the angle between N and L?</b></p>
-      <div class="choices"><button class="btn" data-ok="1" data-why="Right. 0 puts F at S. The cyan line then runs from the tip of N to S: it is N, and it meets L's line at 90°.">90°</button><button class="btn" data-ok="0" data-why="No. That is how the slanted view draws it. 0 puts F at S, so N itself meets L's line at 90°.">about 40°, as the picture draws it</button><button class="btn" data-ok="0" data-why="No. At 0° L would point along N, and the reading would be 1 (Lesson 10.21).">0°</button></div><div class="verdict" aria-live="polite"></div>
+      <div class="choices"><button class="btn" data-ok="1" data-why="Right. 0 puts F at S. Segment NF is then NS: it is N, and it meets L's line at 90°.">90°</button><button class="btn" data-ok="0" data-why="No. That is how the slanted view draws it. 0 puts F at S, so N itself meets L's line at 90°.">about 40°, as the picture draws it</button><button class="btn" data-ok="0" data-why="No. At 0° L would point along N, and the reading would be 1 (Lesson 10.21).">0°</button></div><div class="verdict" aria-live="polite"></div>
     </div></div>
   <details><summary>Show the answer</summary><div class="body"><div class="exq"><div><div class="stage" id="ex1a3Stage"><canvas id="ex1a3" width="620" height="640"></canvas></div><div class="viewbar" id="ex1a3Bar"></div>
       <div class="stage" id="ex1aStage" style="margin-top:12px"><canvas id="ex1a" width="620" height="520"></canvas></div><figcaption>The reason, in the 3D view and in the gold sheet seen straight on, as in Section 1.</figcaption></div>
-    <div><ul class="capl"><li>L's ruler reads 0 at F, so F is at S.</li><li>The cyan line runs from the tip of N to F, at 90° to L's line. With F at S, the cyan line is N itself.</li><li>So N meets L's line at 90°: the angle between N and L is 90°.</li></ul></div></div></div></details>
+    <div><ul class="capl"><li>L's ruler reads 0 at F, so F is at S.</li><li>Segment NF meets L's line at 90°. With F at S, the cyan line is N itself.</li><li>So N meets L's line at 90°: the angle between N and L is 90°.</li></ul></div></div></div></details>
 </div></details>
 
 <div class="navfoot"><a href="lesson-10-21-same-direction-1-opposite-minus-1.html">← Lesson 10.21 — Same direction 1, opposite −1</a><a href="lesson-light-surface-direction-and-material-thickness.html">Chapter 10 overview →</a></div>
@@ -182,16 +185,20 @@ class Trace{
     const k=10**dec,r=R12(Math.sign(v)*Math.floor(a*k+0.5+1e-9)/k);this.dm.set(r,dec);return r}
   t(v){v=R12(v);if(v===0)return '0';const neg=v<0,a=Math.abs(v);let s;if(this.dm.has(v))s=a.toFixed(this.dm.get(v));else{s=String(a);if(s.includes('e'))s=a.toFixed(14).replace(/0+$/,'');if(/\.\d$/.test(s))s+='0'}return (neg?'−':'')+s}
   o(v){return R12(v)<0?`(${this.t(v)})`:this.t(v)}
-  push(s){this.lines.push(s)}
+  K(...f){this.kf=f;return this}
+  k(i,s){return this.kf&&this.kf[i]?`<span class="kn">${s}</span>`:s}
+  G(s){return `<span class="kn">${s}</span>`}
+  push(s){this.lines.push(s);this.kf=null}
   take(){const l=this.lines;this.lines=[];return l}
-  add(n,a,b,exact){const r=exact?R12(a+b):this.shown(a+b);this.push(`${n} = ${this.t(a)} + ${this.o(b)} = ${this.t(r)}`);return r}
-  sub(n,a,b,exact){const r=exact?R12(a-b):this.shown(a-b);this.push(`${n} = ${this.t(a)} − ${this.o(b)} = ${this.t(r)}`);return r}
-  mul(n,a,b){const r=this.shown(a*b);this.push(`${n} = ${this.o(a)} × ${this.o(b)} = ${this.t(r)}`);return r}
-  div(n,a,b){const r=this.shown(a/b);this.push(`${n} = ${this.t(a)} ÷ ${this.o(b)} = ${this.t(r)}`);return r}
-  sq(n,a){const r=R12(a*a);this.push(`${n} = ${this.o(a)} × ${this.o(a)} = ${this.t(r)}`);return r}
-  neg(n,a){const r=R12(-a);this.push(`${n} = −(${this.t(a)}) = ${this.t(r)}`);return r}
-  root(n,a){const raw=Math.sqrt(a),c=Math.round(raw*1e6)/1e6;const r=R12(c*c)===R12(a)?R12(c):this.shown(raw);this.push(`${n} = √${this.t(a)} = ${this.t(r)}`);return r}
+  add(n,a,b,exact){const r=exact?R12(a+b):this.shown(a+b);this.push(`${n} = ${this.k(0,this.t(a))} + ${this.k(1,this.o(b))} = ${this.t(r)}`);return r}
+  sub(n,a,b,exact){const r=exact?R12(a-b):this.shown(a-b);this.push(`${n} = ${this.k(0,this.t(a))} − ${this.k(1,this.o(b))} = ${this.t(r)}`);return r}
+  mul(n,a,b){const r=this.shown(a*b);this.push(`${n} = ${this.k(0,this.o(a))} × ${this.k(1,this.o(b))} = ${this.t(r)}`);return r}
+  div(n,a,b){const r=this.shown(a/b);this.push(`${n} = ${this.k(0,this.t(a))} ÷ ${this.k(1,this.o(b))} = ${this.t(r)}`);return r}
+  sq(n,a){const r=R12(a*a);this.push(`${n} = ${this.k(0,this.o(a))} × ${this.k(0,this.o(a))} = ${this.t(r)}`);return r}
+  neg(n,a){const r=R12(-a);this.push(`${n} = −(${this.k(0,this.t(a))}) = ${this.t(r)}`);return r}
+  root(n,a){const raw=Math.sqrt(a),c=Math.round(raw*1e6)/1e6;const r=R12(c*c)===R12(a)?R12(c):this.shown(raw);this.push(`${n} = √${this.k(0,this.t(a))} = ${this.t(r)}`);return r}
 }
+const KN=x=>`<span class="kn">${x}</span>`;   /* green: known before the calculation starts */
 /* ---------- the surface: Lesson 10.1 height, Lesson 10.2 slopes, this lesson's normal ---------- */
 function heightAt(u,v,P){const sd=Math.hypot(u-P.c[0],v-P.c[1])-RAD,inside=clamp(-sd,0,P.bev),leg=P.bev-inside;return Math.sqrt(Math.max(0,P.bev*P.bev-leg*leg))}
 function normalAt(u,v,P){const s=P.step,a=[u-s,v],b=[u+s,v],d=[u,v-s],e=[u,v+s];
@@ -199,37 +206,37 @@ function normalAt(u,v,P){const s=P.step,a=[u-s,v],b=[u+s,v],d=[u,v-s],e=[u,v+s];
   const sx=(hr-hl)/(2*s),sy=(he-hd)/(2*s),raw=[-sx,-sy,1],len=Math.hypot(raw[0],raw[1],raw[2]),N=raw.map(q=>q/len);
   return{a,b,d,e,hl,hr,hd,he,sx,sy,raw,len,N,rgb:N.map(q=>q*0.5+0.5),h:heightAt(u,v,P)}}
 /* the Lesson 10.1 chain for one point, in a Trace */
-function heightTrace(T,u,v,P){
-  const px=T.sub('p.x',u,P.c[0]),py=T.sub('p.y',v,P.c[1]);
+function heightTrace(T,u,v,P,ku=1,kv=1){
+  const px=T.K(ku,1).sub('p.x',u,P.c[0]),py=T.K(kv,1).sub('p.y',v,P.c[1]);
   const px2=T.sq('p.x²',px),py2=T.sq('p.y²',py),sum=T.add('sum',px2,py2,true),d=T.root('d',sum);
-  const sd=T.sub('sd',d,RAD),ns=T.neg('−sd',sd);let inside;
-  if(ns<0){inside=0;T.push(`inside = clamp(${T.t(ns)}, 0, ${T.t(P.bev)}) = 0`)}
-  else if(ns>P.bev){inside=P.bev;T.push(`inside = clamp(${T.t(ns)}, 0, ${T.t(P.bev)}) = ${T.t(P.bev)}`)}
-  else{inside=ns;T.push(`inside = clamp(${T.t(ns)}, 0, ${T.t(P.bev)}) = ${T.t(ns)}`)}
-  const leg=T.sub('leg',P.bev,inside),b2=T.sq('bevel²',P.bev),l2=T.sq('leg²',leg),h2=T.sub('h²',b2,l2,true);return T.root('h',h2);
+  const sd=T.K(0,1).sub('sd',d,RAD),ns=T.neg('−sd',sd);let inside;
+  if(ns<0){inside=0;T.push(`inside = clamp(${T.t(ns)}, ${T.G('0')}, ${T.G(T.t(P.bev))}) = 0`)}
+  else if(ns>P.bev){inside=P.bev;T.push(`inside = clamp(${T.t(ns)}, ${T.G('0')}, ${T.G(T.t(P.bev))}) = ${T.t(P.bev)}`)}
+  else{inside=ns;T.push(`inside = clamp(${T.t(ns)}, ${T.G('0')}, ${T.G(T.t(P.bev))}) = ${T.t(ns)}`)}
+  const leg=T.K(1,0).sub('leg',P.bev,inside),b2=T.K(1).sq('bevel²',P.bev),l2=T.sq('leg²',leg),h2=T.sub('h²',b2,l2,true);return T.root('h',h2);
 }
 /* the whole chain for W, as groups of lines */
 function chainOf(w,P,dec){
   const T=new Trace(dec),s=P.step,G=[];
-  const ax=T.sub('A.x',w[0],s),bx=T.add('B.x',w[0],s),dy=T.sub('D.y',w[1],s),ey=T.add('E.y',w[1],s);
-  G.push({title:'On the screen · the four neighbors',lines:T.take().concat([`A = (${T.t(ax)}, ${T.t(w[1])}) · B = (${T.t(bx)}, ${T.t(w[1])})`,`D = (${T.t(w[0])}, ${T.t(dy)}) · E = (${T.t(w[0])}, ${T.t(ey)})`])});
-  const one=(u,v)=>{const t=new Trace(dec),h=heightTrace(t,u,v,P);if(t.dm.has(h))T.dm.set(h,t.dm.get(h));return[h,t.take()]};
-  const [hl,La]=one(ax,w[1]),[hr,Lb]=one(bx,w[1]),[hd,Ld]=one(w[0],dy),[he,Le]=one(w[0],ey);
+  const ax=T.K(1,1).sub('A.x',w[0],s),bx=T.K(1,1).add('B.x',w[0],s),dy=T.K(1,1).sub('D.y',w[1],s),ey=T.K(1,1).add('E.y',w[1],s);
+  G.push({title:'On the screen · the four neighbors',lines:T.take().concat([`A = (${T.t(ax)}, ${T.G(T.t(w[1]))}) · B = (${T.t(bx)}, ${T.G(T.t(w[1]))})`,`D = (${T.G(T.t(w[0]))}, ${T.t(dy)}) · E = (${T.G(T.t(w[0]))}, ${T.t(ey)})`])});
+  const one=(u,v,ku,kv)=>{const t=new Trace(dec),h=heightTrace(t,u,v,P,ku,kv);if(t.dm.has(h))T.dm.set(h,t.dm.get(h));return[h,t.take()]};
+  const [hl,La]=one(ax,w[1],0,1),[hr,Lb]=one(bx,w[1],0,1),[hd,Ld]=one(w[0],dy,1,0),[he,Le]=one(w[0],ey,1,0);
   G.push({title:'Heights above A and B · Lesson 10.1',pair:[['A',La,'hLeft',hl],['B',Lb,'hRight',hr]]});
   G.push({title:'Heights above D and E · Lesson 10.1',pair:[['D',Ld,'hD',hd],['E',Le,'hE',he]]});
-  const dxh=T.sub('ΔhX = hRight − hLeft',hr,hl),dist=T.mul('2 × step',2,s),sx=T.div('slopeX',dxh,dist);
+  const dxh=T.sub('ΔhX = hRight − hLeft',hr,hl),dist=T.K(1,1).mul('2 × step',2,s),sx=T.div('slopeX',dxh,dist);
   G.push({title:'slopeX · Lesson 10.2',lines:T.take(),isNew:false});
-  const dyh=T.sub('ΔhY = hE − hD',he,hd),dist2=T.mul('2 × step',2,s),sy=T.div('slopeY',dyh,dist2);
+  const dyh=T.sub('ΔhY = hE − hD',he,hd),dist2=T.K(1,1).mul('2 × step',2,s),sy=T.div('slopeY',dyh,dist2);
   G.push({title:'slopeY · new',lines:T.take(),isNew:true});
-  const rx=T.neg('x part = −slopeX',sx),ry=T.neg('y part = −slopeY',sy);T.push('height part = 1 (chosen, always 1: Lesson 10.3)');
-  T.push(`rawNormal = (x part, y part, height part) = (${T.t(rx)}, ${T.t(ry)}, 1)`);
+  const rx=T.neg('x part = −slopeX',sx),ry=T.neg('y part = −slopeY',sy);T.push(`height part = ${T.G('1')} (chosen, always 1: Lesson 10.3)`);
+  T.push(`rawNormal = (x part, y part, height part) = (${T.t(rx)}, ${T.t(ry)}, ${T.G('1')})`);
   G.push({title:'rawNormal',lines:T.take(),isNew:true});
-  const x2=T.sq('x part²',rx),y2=T.sq('y part²',ry),s1=T.add('shadow² = x part² + y part²',x2,y2,true),z2=T.sq('height part²',1),s2=T.add('length² = shadow² + height part²',s1,z2,true),len=T.root('normalLength = √length²',s2);
+  const x2=T.sq('x part²',rx),y2=T.sq('y part²',ry),s1=T.add('shadow² = x part² + y part²',x2,y2,true),z2=T.K(1).sq('height part²',1),s2=T.add('length² = shadow² + height part²',s1,z2,true),len=T.root('normalLength = √length²',s2);
   G.push({title:'normalLength · new',lines:T.take(),isNew:true});
-  const nx=T.div('N x part = x part ÷ normalLength',rx,len),ny=T.div('N y part = y part ÷ normalLength',ry,len),nz=T.div('N height part = height part ÷ normalLength',1,len);T.push(`N = (${T.t(nx)}, ${T.t(ny)}, ${T.t(nz)})`);
+  const nx=T.div('N x part = x part ÷ normalLength',rx,len),ny=T.div('N y part = y part ÷ normalLength',ry,len),nz=T.K(1,0).div('N height part = height part ÷ normalLength',1,len);T.push(`N = (${T.t(nx)}, ${T.t(ny)}, ${T.t(nz)})`);
   {const a2=T.sq('check: (N x part)²',nx),b2=T.sq('(N y part)²',ny),c2=T.sq('(N height part)²',nz),t1=T.add('sum of the first two',a2,b2,true),t2=T.add('sum of all three',t1,c2,true);T.root('length of N',t2)}
   G.push({title:'N = rawNormal ÷ normalLength · new',lines:T.take(),isNew:true});
-  const hx=T.mul('N x part × 0.5',nx,0.5),cr=T.add('red',hx,0.5),hy=T.mul('N y part × 0.5',ny,0.5),cg=T.add('green',hy,0.5),hz=T.mul('N height part × 0.5',nz,0.5),cb=T.add('blue',hz,0.5);
+  const hx=T.K(0,1).mul('N x part × 0.5',nx,0.5),cr=T.K(0,1).add('red',hx,0.5),hy=T.K(0,1).mul('N y part × 0.5',ny,0.5),cg=T.K(0,1).add('green',hy,0.5),hz=T.K(0,1).mul('N height part × 0.5',nz,0.5),cb=T.K(0,1).add('blue',hz,0.5);
   T.push('4th number: opacity = 1 (not see-through)');T.push(`W stores (${T.t(cr)}, ${T.t(cg)}, ${T.t(cb)}, 1)`);
   G.push({title:'Display color · only for seeing',lines:T.take(),isNew:false});
   return{G,T,ax,bx,dy,ey,hl,hr,hd,he,sx,sy,rx,ry,len,nx,ny,nz,cr,cg,cb};
@@ -282,7 +289,7 @@ class Orbit3D{
   drawCompass(c){const a=this.yaw*DEG,b=this.pitch*DEG,cw=this.cv.width,ch=this.cv.height,bw=210,bh=100,cp=this.compassPos||'bl',bx=cp[1]==='r'?cw-bw-8:8,by=cp[0]==='t'?8:ch-bh-8,FT='-apple-system,"Segoe UI",Roboto,sans-serif';
     c.save();c.fillStyle='rgba(255,255,255,0.96)';c.strokeStyle='#cbd5e1';c.lineWidth=1;c.beginPath();c.roundRect(bx,by,bw,bh,8);c.fill();c.stroke();
     const cn=typeof this.coord==='function'?this.coord():this.coord;c.textAlign='left';c.textBaseline='middle';if(cn){c.font='700 12px '+FT;c.fillStyle='#111827';c.fillText('coordinates: '+cn,bx+10,by+13)}
-    c.font='600 11.5px '+FT;c.fillStyle='#475569';['in arrow units:','arrows, lengths','and rulers'].forEach((t,i)=>c.fillText(t,bx+122,by+38+i*16));
+    c.font='600 11.5px '+FT;c.fillStyle='#475569';['in arrow units:','arrows, lengths','and rulers;','1 = N\'s length'].forEach((t,i)=>c.fillText(t,bx+122,by+32+i*15));
     const ox=bx+70,oy=by+64,L=24;
     for(const [v,col,tc,name] of [[[1,0,0],COL.xP,COL.xT,'x'],[[0,1,0],COL.yP,COL.yT,'y'],[[0,0,1],COL.hP,COL.hT,'height']]){const X1=v[0]*Math.cos(a)-v[1]*Math.sin(a),Y1=v[0]*Math.sin(a)+v[1]*Math.cos(a),up=v[2]*Math.cos(b)-Y1*Math.sin(b),len=Math.hypot(X1,up);
       if(len>0.2){arrow(c,ox,oy,ox+X1*L,oy-up*L,col,2.2,8);c.font='700 12px '+FT;c.fillStyle=tc;c.textAlign='center';c.fillText(name,ox+X1*(L+13),oy-up*(L+13))}
@@ -479,7 +486,7 @@ function wallFlat(cv,st,op){const ctx=cv.getContext('2d'),O=op.O,P=q=>[O.x+q[0]*
   if(op.circle){ctx.beginPath();ctx.arc(g[0],g[1],r*O.S,0,2*Math.PI);ctx.lineWidth=1.4;ctx.strokeStyle=COL.tealT;ctx.stroke();if(op.low){const lp=P([0,-r]);fdot(ctx,lp,'#fff',4);plate(ctx,'lowest point: T at 270°',lp[0]-10,lp[1]-14,12,'right',COL.tealT);addPt(st,lp[0],lp[1],COL.tealT,`<b>The lowest point of T's circle</b>: T at spin 270°, ${f(r)} straight below Gx.`,'lowest point',{small:true})}if(op.circleLab!==false){const ca=(op.circleAt??150)*DEG,q=P([r*Math.cos(ca),r*Math.sin(ca)]),rt=Math.cos(ca)>0;plate(ctx,`thin line: T's circle, ${f(r)} from Gx`,q[0]+(rt?10:-10),q[1]-10,12.5,rt?'left':'right',COL.tealT)}}
   if(op.line){const A=P(op.line[0]),B=P(op.line[1]);thin(ctx,A[0],A[1],B[0],B[1],'#94a3b8',2)}
   if(op.under)op.under(ctx,P,g);const tipQ=[N[1],N[2]],tp=P(tipQ);
-  if(op.tip){thin(ctx,g[0],g[1],tp[0],tp[1],COL.gn,3.4);fdot(ctx,tp,COL.N,5);if(!op.atTip){plate(ctx,'tip of N',tp[0]+12,tp[1]-10,13.5,'left','#be185d');const mq=P([tipQ[0]*0.55,tipQ[1]*0.55]);plate(ctx,`dark gray: Gx to the tip of N, ${f(Math.sqrt(R12(sq(N[1])+sq(N[2]))))}`,mq[0]+14,mq[1]+4,12.5,'left',COL.gnT)}
+  if(op.tip){thin(ctx,g[0],g[1],tp[0],tp[1],COL.gn,3.4);fdot(ctx,tp,COL.N,5);if(!op.atTip){plate(ctx,'tip of N',tp[0]+12,tp[1]-10,13.5,'left','#be185d');const mq=P([tipQ[0]*0.55,tipQ[1]*0.55]);plate(ctx,`dark gray: GxN, ${f(Math.sqrt(R12(sq(N[1])+sq(N[2]))))}`,mq[0]+14,mq[1]+4,12.5,'left',COL.gnT)}
     addPt(st,tp[0],tp[1],COL.N,op.atTip?`<b>The tip of N</b>, and T: ${fx(N[1])} toward the bottom of the picture and ${fx(N[2])} up from Gx (arrow units).`:`<b>The tip of N</b>, on the wall: ${fx(N[1])} toward the bottom of the picture and ${fx(N[2])} up from Gx (arrow units).`,'tip of N',{small:true})}
   const moved=t>0.5,T0=P([r,0]),T=P([r*c,r*s]);
   if(op.teal!==false){
@@ -493,7 +500,7 @@ function wallFlat(cv,st,op){const ctx=cv.getContext('2d'),O=op.O,P=q=>[O.x+q[0]*
   {const ll=op.teal!==false&&s<-0.2&&c<0;gxRing(ctx,g);plate(ctx,op.sLab||'Gx (S is drawn here too)',g[0]+(ll?14:-14),g[1]+(ll?-22:24),13,ll?'left':'right')}
   addPt(st,g[0],g[1],COL.xP,'<b>Gx</b>, the wall seen straight on. The x line goes only to the right, which this drawing leaves out, so the x line is drawn as this one point.<br>S is drawn at the same place: SGx goes only along x.','Gx',{small:true})}
 const FO={x:400,y:214,S:PX};
-const floorWhyK=()=>`<b>The screen's level.</b> Gx has S's height, ${f4(heightAt(KP[0],KP[1],TP))} UV (the x leg changes only x). The zoomed drawings make 1 arrow unit 0.15 UV long (their arrow ruler), so the screen is, in arrow units, below Gx by:<pre>${f4(heightAt(KP[0],KP[1],TP))} ÷ 0.15 = ${f(heightAt(KP[0],KP[1],TP)/0.15)}</pre>T's circle reaches 0.953 below Gx, more than 0.577. The wall and T's circle are helpers of the drawing, not the glass; only the glass sits on the screen, so the helpers go on below it.`;
+const floorWhyK=()=>`<b>The screen's level.</b> Gx has S's height, ${f4(heightAt(KP[0],KP[1],TP))} UV (the x leg changes only x). The zoomed drawings make 1 arrow unit 0.15 UV long (their arrow ruler), so the screen is, in arrow units, below Gx by:<pre>${KN(f4(heightAt(KP[0],KP[1],TP)))} ÷ ${KN('0.15')} = ${f(heightAt(KP[0],KP[1],TP)/0.15)}</pre>T's circle reaches 0.953 below Gx, more than 0.577. The wall and T's circle are helpers of the drawing, not the glass; only the glass sits on the screen, so the helpers go on below it.`;
 /* ================= Section 2: the trace at a draggable pixel ================= */
 const TR={w:[...KP],c:null};
 function dragK3D(cx,cy,o){if(!TR.c)TR.c=[...TR.w];const p=canvasPos(o.cv,cx,cy),Sc=heightAt(TR.c[0],TR.c[1],TP),g=o.floorAt(p[0],p[1],-Sc*18);if(!g)return;const q=(v,c)=>clamp(clamp(v,c-0.06,c+0.06),0.06,0.94);TR.w=[R12(Math.round(q(TR.c[0]+g[0]/18,TR.c[0])*1000)/1000),R12(Math.round(q(TR.c[1]+g[1]/18,TR.c[1])*1000)/1000)];traceAll()}
@@ -508,7 +515,7 @@ function drawMap(){const st=$('tMapStage'),cv=$('tMap'),ctx=cv.getContext('2d'),
   addPt(st,c,c,COL.glass,'<b>C = (0.50, 0.50)</b> in UV: the center of the glass.','C',{small:true});
   const clampK=q=>clamp(q,0.06,0.94),set=(a,b)=>{TR.w=[R12(Math.round(clampK(a)*1000)/1000),R12(Math.round(clampK(b)*1000)/1000)];traceAll()};
   addPt(st,u*MAPS,v*MAPS,'#fff',()=>`<b>K = ${pt(u,v)}</b> in UV. Drag it, or use the arrow keys (0.001 per press).`,'K, draggable',{key:'K',move:(cx,cy)=>{const q=canvasPos(cv,cx,cy);set(q[0]/MAPS,q[1]/MAPS)},keys:d=>set(u+d[0]*0.001,v+d[1]*0.001)})}
-function twoChain(y,h,pre=''){const b=sq(y),c=sq(h),r2=R12(b+c);return[`y part² = ${par(y)} × ${par(y)} = ${fx(b)}`,`height part² = ${par(h)} × ${par(h)} = ${fx(c)}`,`${pre}length² = ${fx(b)} + ${fx(c)} = ${fx(r2)}`,`${pre}length = √${fx(r2)} = ${f(Math.sqrt(r2))}`]}
+function twoChain(y,h,pre=''){const b=sq(y),c=sq(h),r2=R12(b+c);return[`y part² = ${KN(par(y))} × ${KN(par(y))} = ${fx(b)}`,`height part² = ${KN(par(h))} × ${KN(par(h))} = ${fx(c)}`,`${pre}length² = ${fx(b)} + ${fx(c)} = ${fx(r2)}`,`${pre}length = √${fx(r2)} = ${f(Math.sqrt(r2))}`]}
 
 
 /* ================= this lesson: an arrow's part is a foot on an axis ================= */
@@ -752,8 +759,8 @@ let al=90;                                     /* Section 1: the angle between N
 const curL=()=>Lturn(FRK,al);
 const info=(k,l)=>`<button class="info" data-tip="${k}" aria-label="${l}">ⓘ</button>`;
 const KTIP='<b>K = (0.62, 0.66)</b> in UV, on the screen (height 0).<br>The pixel of this lesson, on the rim.';
-function legend3(o,txt){o.labels.push(c=>{plate(c,txt||'gold: L and its line · cyan: from the tip of N to F · square mark: 90°',8,16,12.5,'left',COL.LT);plate(c,'violet curves: the glass near S',8,42,12.5,'left','#6b21a8')})}
-const legOf=R=>isAlong(R)?'gold: L and its line · F: at the tip of N':atS(R)?'gold: L and its line · cyan: from the tip of N to F, here N itself · square mark: 90°':null;
+function legend3(o,txt){o.labels.push(c=>{plate(c,txt||'gold: L and its line · cyan: NF · square mark: 90°',8,16,12.5,'left',COL.LT);plate(c,'violet curves: the glass near S',8,42,12.5,'left','#6b21a8')})}
+const legOf=R=>isAlong(R)?'gold: L and its line · F: at the tip of N':atS(R)?'gold: L and its line · cyan: NF, here N itself · square mark: 90°':null;
 
 /* ================= Section 1 ================= */
 function drawIdea3D(o){const L=curL(),R=footOf(NK,L);turnScene(o,KP,NK,FRK,L,{la:-1.1,lb:1.2,sheet:SHF,fLab:atS(R)?'F, at S: 0':null,fDx:atS(R)?14:12,fDy:atS(R)?-22:22,Ktip:KTIP});legend3(o,legOf(R))}
@@ -766,7 +773,7 @@ function ideaPanel(){const L=curL(),R=footOf(NK,L);lBtns();
    +`<li>L at a square corner with N gives dot(N, L) = 0 (Lesson 10.19, Exercise 1).</li>`
    +`<li>At a square corner, N itself meets L's line at 90° at S, so F is at S ${info('itself','Why F is at S')}.</li>`
    +`<li>The other way round: if L's ruler reads 0 at F, F is at S.</li>`
-   +`<li>Then the cyan line, at 90° to L's line at F, runs from the tip of N to S: it is N.</li>`
+   +`<li>Then the cyan line, at 90° to L's line at F, is NS: it is N.</li>`
    +`<li>So N meets L's line at 90°: L is at a square corner with N.</li></ul>`;
   const Lname=al===0?'along N':al===A0?"Lesson 10.19's L":al===90?'a square corner with N':al===180?'opposite to N':'turned on the gold sheet';
   $('ideaRead').innerHTML=`<tr><th>the angle between N and L, on the gold sheet</th><td class="f">${degF(al)}°</td></tr>`
@@ -795,7 +802,7 @@ TR.w=[...K0];
 const SHX=[-0.65,1.05,-0.3,1.15];
 const traceOrb=new Orbit3D($('traceStage'),$('traceCv'),{yaw:-25,pitch:22,scale:104,target:[0.2,0.3,0.6],dx:-24,dy:-40,compassPos:'bl',coord:'UV, zoomed in at K',draw:o=>{const w=TR.w,N=nShown(w[0],w[1]),fr=sheetFrame(N,LX),R=footOf(N,LX);
   turnScene(o,w,N,fr,LX,{la:-0.6,lb:1.0,sheet:SHX,center:TR.c||w,Kmove:dragK3D,lineText:"L's line: the x line",sheetText:'gold sheet: it holds the x line',sheetText2:'and the tip of N',angle:!atS(R),Ktip:()=>`<b>K = ${pt(w[0],w[1])}</b> in UV, on the screen (height 0).<br>Drag K here or on the map.`,fLab:atS(R)?'F, at S: 0':`F = Gx: ${tTxt(R)}`,fDx:atS(R)?14:12,fDy:atS(R)?-22:22});
-  legend3(o,atS(R)?'gold: L = (1, 0, 0) and its line, the x line · cyan: N itself · square mark: 90°':'gold: L = (1, 0, 0) and its line, the x line · cyan: from the tip of N to F')}});
+  legend3(o,atS(R)?'gold: L = (1, 0, 0) and its line, the x line · cyan: N itself · square mark: 90°':'gold: L = (1, 0, 0) and its line, the x line · cyan: NF')}});
 viewBar($('traceBar'),traceOrb,[]);
 function traceAll(){const [u,v]=TR.w,N=nShown(u,v),fr=sheetFrame(N,LX),R=footOf(N,LX);drawMap();traceOrb.render();
   const home=u===K0[0]&&v===K0[1];$('tRead').innerHTML=`<b>K = ${pt(u,v)}</b> in UV${home?'':' <span class="small">(the heading is for K = (0.50, 0.70))</span>'}<br><b>N = (${fx(N[0])}, ${fx(N[1])}, ${fx(N[2])})</b> <button class="info" id="tNinfo" aria-label="How N is calculated">ⓘ</button><br><span class="small">x part, y part, height part, in arrow units</span>`;setTip($('tNinfo'),nTipW('K',u,v));
