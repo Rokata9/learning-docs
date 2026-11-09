@@ -73,7 +73,7 @@ Also list:
 - an argument whose steps do not follow (a missing premise, like calling two triangles identical from only two facts);
 - two different values printed for the same quantity.
 
-The stepper sections and the traced value matter most. Then the exercises and their hidden answers. For "your questions" cards, check that each answer really answers its question with reasons. For code, Metal and record sections, flag only claims a beginner could not follow.
+The stepper sections and the traced value matter most. Then the exercises and their hidden answers. For a step or card that answers a learner's question, check that it really answers it with reasons. For code, Metal and record sections, flag only claims a beginner could not follow.
 
 Be strict but honest: do not list what is clearly answered.
 
