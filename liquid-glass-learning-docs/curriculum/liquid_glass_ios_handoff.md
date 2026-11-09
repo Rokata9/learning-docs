@@ -462,14 +462,17 @@ gray = dot(N, L) × 0.5 + 0.5     display only: the dot map
 - **The idea:** straight from 10.25: X's foot is M (10.26), so the flip moves X to the point on line XM on the other side of M, as far from M: the tip of L; S stays, and the turned x line is still straight (10.8) and goes through S and the tip of L, so it is L's line (and L's line goes onto the x line). Its first review found two proofs on one page (10.25's route and 10.27's numbers): 10.25's route is now the only one, in Section 1, Section 2 and the exercise.
 - **Traced value:** the x line and N's line at a draggable K: half a turn around line SQ moves X to the tip of N, with its own turn slider. **Exercise:** the height line onto L's line around the second gray line: U's foot is M₂ (10.26's exercise), and the tip of L is on line UM₂, on the other side of M₂, 0.424 from it.
 
-#### Lesson 10.29 — The flip keeps lengths (`C`, made 2026-11-08 as part of 10.26)
-- **File:** `lesson-10-29-the-flip-keeps-lengths.html`. Reviews: `reviews/lesson-10-27-beginner-review-2026-11-08.md` (the reviews of the pre-split flip page and of this page).
-- **The idea:** for two points that both move (Gx and F₁, the ends of the cyan line), GxF₁'s part along the gray line stays and its part across gets a minus (ⓘ: end's number minus start's), the two parts meet at 90° (Lesson 9.1), so |Gx′F₁′| = |GxF₁|; any two points (ⓘ: off the sheet the part across is an arrow at 90° to the gray line), so every length stays and mark t lands on mark t.
-- **Traced value:** Gx, F₁, Gx′, F₁′ (along, across; 4 decimals, found by the page) and both length chains at a draggable K. **Exercise:** at W, |GxF₁| = 0.531, so |Gx′F₁′| = 0.531 (distractors 0.3146 and 0.605).
+#### Lesson 10.29 — The flip keeps lengths (`C`, made 2026-11-08 as part of 10.26; Section 1 rewritten 2026-11-09)
+- **File:** `lesson-10-29-the-flip-keeps-lengths.html`. Reviews: `reviews/lesson-10-27-beginner-review-2026-11-08.md` (the reviews of the pre-split flip page and of this page), `reviews/lesson-10-29-beginner-review-2026-11-09.md` (the rewrite).
+- **The idea:** for two points that both move (Gx and F₁, the ends of the cyan line), GxF₁'s two parts on the sheet make a right triangle △GxDF₁ with GxF₁ as its long side; the flip keeps the part along and puts a minus on the part across (10.27), so |Gx′F₁′| = |GxF₁| (Lesson 9.1); the steps use no special value of Gx or F₁, so any two points of the sheet keep their distance (|SGx′| = |SGx|, |SF₁′| = |SF₁|, which 10.30 needs).
+- **Section 1 (2026-11-09):** a 3-step stepper: the flip with each corner's teal way; △GxDF₁ with D named and both points' along/across numbers; the mirror △Gx′D′F₁′.
+- **Traced value:** Gx, F₁, Gx′, F₁′ (along, across; 4 decimals, found by the page) and both length chains at a draggable K, with both orange triangles. **Exercise:** at W, |GxF₁| = 0.531, so |Gx′F₁′| = 0.531 (distractors 0.3146 and 0.605).
+- **Questions (2026-11-09):** what flipped; the black lines and what along/across are measured against; the tooltip's unnamed numbers; why |GxF₁|² = part along² + part across² when GxF₁ is not the long side of △SGxF₁. Answered in Section 1's rewrite and in Section 4's four cards.
 
 #### Lesson 10.30 — The flip keeps square corners (`C`, made 2026-11-08)
 - **File:** `lesson-10-30-the-flip-keeps-square-corners.html`. Reviews: `reviews/lesson-10-28-beginner-review-2026-11-08.md`.
 - **The idea:** the flip keeps the lime triangle's three sides (10.29), and three sides fix the angles (10.14), so F₁′ has a square corner: Gx′F₁′ meets the x line at 90°.
+- **Since 2026-11-09:** its pictures draw the teal ways of Gx and F₁ (10.29, Step 1).
 - **Traced value:** the three sides before and after at a draggable K (right half of the rim). **Exercise:** at W, the angle at F₁′ is 90° (distractors: “less than 90°, as the 3D view draws it”; “it cannot be known”).
 
 #### Lesson 10.31 — Walls across L's line (`C`, made 2026-11-08 as 10.27)
