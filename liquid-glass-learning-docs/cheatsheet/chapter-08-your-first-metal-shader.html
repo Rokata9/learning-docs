@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>10 Image sampling — Formula cheatsheet</title>
+<title>Chapter 8 Your first Metal shader — Formula cheatsheet</title>
 <style>
 /* ===== Formula cheatsheet — the common styles. Every page carries this same block (no shared .css file). ===== */
 :root{
@@ -195,66 +195,98 @@ table.terms td .kn,.kn{background:#dcfce7;color:#14532d;border-radius:4px;paddin
 .toc small{color:var(--muted);font-size:13.5px}
 table.terms.tight td{padding:3px 4px;font-size:12px}
 .toc-h{font-size:22px;letter-spacing:-.01em;margin:30px 0 -12px}
+.xref{background:#f8fafc;border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:10px;padding:8px 14px;margin:0 0 18px;font-size:14.5px}
+.xref b{color:var(--ink)}.xref ul{margin:4px 0 0;padding-left:20px}.xref li{margin:2px 0;color:var(--muted)}
 </style>
 </head>
 <body>
 <main>
-<div class="crumbs"><a href="index.html">← Cheatsheet: all sections</a><a href="../liquid-glass-course.html">Course home</a><a href="../course/glossary.html">Glossary</a></div>
-<section class="cat" id="cat-sampling" style="--acc:#9333ea" data-title="Image sampling" data-range="9.7 – 9.9">
-<div class="cat-head"><span class="cat-num">10</span><h1>Image sampling</h1><span class="range">Lessons 9.7 – 9.9 (wallpaper rule used up to 9.14)</span></div>
-<p class="cat-intro">The pixel that is written (W) and the point that is read (R) can differ. The picture then appears to move or resize — always opposite to the read move.</p>
+<div class="crumbs"><a href="index.html">← Cheatsheet: all chapters</a><a href="../liquid-glass-course.html">Course home</a><a href="../course/chapters/chapter-08/lesson-your-first-metal-shader.html">Chapter 8</a><a href="../course/glossary.html">Glossary</a></div>
+<section class="cat" id="cat-ch8" style="--acc:#15803d">
+<div class="cat-head"><span class="cat-num">Ch 8</span><h1>Your first Metal shader</h1><span class="range">Lessons 8.1 – 8.11</span></div>
+<p class="cat-intro"><b>Shader building blocks.</b> A shader is one small function that runs once per output pixel. Swift passes arguments (uniforms) once per draw; every pixel reads the same values. Coordinates: the UV card below.</p>
+<div class="xref"><b>Cards on other chapter pages that this chapter's lessons use</b><ul>
+<li><a href="chapter-03-color-opacity-and-compositing.html#card-channels-0-1-and-8-bit">Channels: 0 … 1 and 8-bit</a>: on the Chapter 3 page; uses Lesson 8.3 of this chapter.</li>
+<li><a href="chapter-02-the-screen-is-a-grid.html#card-points-and-pixels">Points and pixels</a>: on the Chapter 2 page; uses Lessons 8.4, 8.5 of this chapter.</li>
+<li><a href="chapter-05-motion-without-mystery.html#card-linear-interpolation">Linear interpolation</a>: on the Chapter 5 page; uses Lesson 8.11 of this chapter.</li>
+</ul></div>
 <div class="grid">
 
 <article class="card">
-  <div class="card-top"><h3>Ask the input for a color</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-07-sample-an-input-shader.html" title="Lesson 9.7 — Sample an input shader">9.7</a></span></div>
-  <div class="f"><div>sampled = background(fragCoord, resolution)</div><div>        <span class="c">← a copy of the input color at that pair</span></div><div>stripes input: cell = fract(uv.x × 5.0)</div><div>               cell &lt; 0.5 → orange, else navy</div></div>
-  <div class="ex"><div class="ex-h">Example <span>pixel T, uv.x = 0.15 on a 400-px square</span></div>
-  <table class="steps"><tr><th>pixel</th><td><span class="eq">0.15 × 400 = 60 px</span></td></tr>
-  <tr><th>cell</th><td><span class="eq">5.0 × 0.15 = 0.75</span>     <span class="eq">fract(0.75) = 0.75</span></td></tr>
-  <tr><th>color</th><td>0.75 ≥ 0.5 → <span class="r">navy</span></td></tr></table></div>
+  <div class="card-top"><h3>One function per pixel</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-08/lesson-08-01-what-a-shader-does.html" title="Lesson 8.1 — What a shader does">8.1</a><a class="lesson" href="../course/chapters/chapter-08/lesson-08-02-add-a-metal-file.html" title="Lesson 8.2 — Add a .metal file">8.2</a><a class="lesson" href="../course/chapters/chapter-08/lesson-08-03-return-one-fixed-color.html" title="Lesson 8.3 — Return one fixed color">8.3</a><a class="lesson" href="../course/chapters/chapter-08/lesson-08-09-uniforms.html" title="Lesson 8.9 — Uniforms">8.9</a></span></div>
+  <div class="f"><div>color = colorAt(column, row)               <span class="c">← the same function for every pixel</span></div><div>call number = row × width + column + 1      <span class="c">← CPU loop order, 8 × 4 grid</span></div><div>return half4(r, g, b, a)                    <span class="c">← channels 0 … 1</span></div><div>stripe: column remainder 2 = 1 → navy, 0 → orange</div></div>
+  <div class="ex"><div class="ex-h">Example <span>column 3, row 1 on an 8-wide grid</span></div>
+  <table class="steps"><tr><th>call</th><td><span class="eq">1 × 8 = 8</span>     <span class="eq">8 + 3 = 11</span>     <span class="eq">11 + 1 = <span class="r">12</span></span></td></tr>
+  <tr><th>stripe</th><td><span class="eq">3 remainder 2 = <span class="r">1</span></span> → navy</td></tr></table></div>
+  <div class="note"><b>Uniforms (8.9):</b> <b>if (uv.x &lt; splitU)</b> — moving a slider writes a new splitU; nothing is recompiled.</div>
 </article>
 
-<article class="card">
-  <div class="card-top"><h3>Checkerboard wallpaper rule</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-09-scale-around-the-center.html" title="Lesson 9.9 — Scale around the center">9.9</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-10-build-a-displacement-field.html" title="Lesson 9.10 — Build a displacement field">9.10</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-12-edge-safety.html" title="Lesson 9.12 — Edge safety">9.12</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-13-gentle-chromatic-separation.html" title="Lesson 9.13 — Gentle chromatic separation">9.13</a></span></div>
-  <div class="f"><div>col = floor(x × 4)          row = floor(y × 4)</div><div>col + row even → orange (white)    odd → navy (black)</div><div>9.12 on: col = min(floor(x × 4), 3), the same for row</div><div>         <span class="c">← the edge 1.00 belongs to the last cell</span></div><div>9.12 on: outside 0 … 1 → transparent (no wallpaper)</div></div>
-  <div class="sym">Same test written another way (9.10): fract((col + row) × 0.5) is 0 for even, 0.5 for odd. Black and white from 9.13 on.</div>
-  <div class="ex"><div class="ex-h">Example <span>read point (0.62, 0.34)</span></div>
-  <table class="steps"><tr><th>col</th><td><span class="eq">0.62 × 4 = 2.48</span> → floor → 2</td></tr>
-  <tr><th>row</th><td><span class="eq">0.34 × 4 = 1.36</span> → floor → 1</td></tr>
-  <tr><th>color</th><td><span class="eq">2 + 1 = 3</span> → odd → <span class="r">navy</span></td></tr></table></div>
+<article class="card" id="card-uv-and-the-centered-pair-p">
+  <div class="card-top"><h3>UV and the centered pair p</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-08/lesson-08-06-uv-coordinates.html" title="Lesson 8.6 — UV coordinates">8.6</a><a class="lesson" href="../course/chapters/chapter-08/lesson-08-07-scalars-and-vectors.html" title="Lesson 8.7 — Scalars and vectors">8.7</a><a class="lesson" href="../course/chapters/chapter-08/lesson-08-08-vector-arithmetic.html" title="Lesson 8.8 — Vector arithmetic">8.8</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-01-distance-between-two-points.html" title="Lesson 9.1 — Distance between two points">9.1</a></span></div>
+  <div class="f tf"><div class="tex">\begin{aligned} uv &= fragCoord \div resolution \\ p &= uv - (0.5,\; 0.5) \\ p &= uv - center \end{aligned}</div></div>
+  <div class="where">
+    <span class="tx">fragCoord</span><span>the pixel, in px from the top-left corner, y down.</span>
+    <span class="tx">resolution</span><span>the rectangle's size in px; the division is member by member.</span>
+    <span class="tx">uv</span><span>the pixel as fractions of the width and the height, 0 … 1.</span>
+    <span class="tx">p</span><span>the arrow from the visual center C to the pixel, in UV. p.y is negative above C, because y grows down.</span>
+    <span class="tx">center</span><span>Lessons 9.12 – 9.14: the glass center, anywhere in the picture.</span>
+  </div>
+  <div class="pic"><figure><svg width="720" height="330" viewBox="0 0 720 330" role="img" aria-label="A 400 by 160 pixel rectangle with fragCoord rulers on top, uv rulers below, center C and pixel P"><rect x="70" y="70" width="520" height="208" fill="#f8fafc" stroke="#475569" stroke-width="2" rx="0" /><line x1="70" y1="64" x2="70" y2="70" stroke="#64748b" stroke-width="1.5"/><text x="70" y="58" fill="#64748b" font-size="13" text-anchor="middle" font-weight="500">0</text><line x1="200" y1="64" x2="200" y2="70" stroke="#64748b" stroke-width="1.5"/><text x="200" y="58" fill="#64748b" font-size="13" text-anchor="middle" font-weight="500">100</text><line x1="265" y1="64" x2="265" y2="70" stroke="#64748b" stroke-width="1.5"/><text x="265" y="58" fill="#db2777" font-size="13" text-anchor="middle" font-weight="700">150</text><line x1="330" y1="64" x2="330" y2="70" stroke="#64748b" stroke-width="1.5"/><text x="330" y="58" fill="#64748b" font-size="13" text-anchor="middle" font-weight="500">200</text><line x1="460" y1="64" x2="460" y2="70" stroke="#64748b" stroke-width="1.5"/><text x="460" y="58" fill="#64748b" font-size="13" text-anchor="middle" font-weight="500">300</text><line x1="590" y1="64" x2="590" y2="70" stroke="#64748b" stroke-width="1.5"/><text x="590" y="58" fill="#64748b" font-size="13" text-anchor="middle" font-weight="500">400 px</text><line x1="70" y1="278" x2="70" y2="284" stroke="#2563eb" stroke-width="1.5"/><text x="70" y="300" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="700">0</text><line x1="265" y1="278" x2="265" y2="284" stroke="#2563eb" stroke-width="1.5"/><text x="265" y="300" fill="#db2777" font-size="13" text-anchor="middle" font-weight="700">0.375</text><line x1="330" y1="278" x2="330" y2="284" stroke="#2563eb" stroke-width="1.5"/><text x="330" y="300" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="700">0.5</text><line x1="590" y1="278" x2="590" y2="284" stroke="#2563eb" stroke-width="1.5"/><text x="590" y="300" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="700">1</text><text x="60" y="75" fill="#64748b" font-size="13" text-anchor="end" font-weight="500">0</text><text x="600" y="75" fill="#2563eb" font-size="13" text-anchor="start" font-weight="700">0</text><text x="60" y="179" fill="#64748b" font-size="13" text-anchor="end" font-weight="500">80</text><text x="600" y="179" fill="#2563eb" font-size="13" text-anchor="start" font-weight="700">0.5</text><text x="60" y="283" fill="#64748b" font-size="13" text-anchor="end" font-weight="500">160</text><text x="600" y="283" fill="#2563eb" font-size="13" text-anchor="start" font-weight="700">1</text><text x="10" y="40" fill="#64748b" font-size="14" text-anchor="start" font-weight="600">fragCoord (px), from the top-left, y down</text><text x="70" y="322" fill="#2563eb" font-size="14" text-anchor="start" font-weight="700">uv (fractions of the width and the height)</text><line x1="265" y1="174" x2="265" y2="70" stroke="#db2777" stroke-width="1.5" stroke-dasharray="4 3"/><line x1="265" y1="174" x2="265" y2="278" stroke="#db2777" stroke-width="1.5" stroke-dasharray="4 3"/><line x1="330" y1="174" x2="278.0" y2="174.0" stroke="#059669" stroke-width="3"/><polygon points="272.0,174.0 281.2,170.1 281.2,177.9" fill="#059669"/><text x="297.5" y="162" fill="#059669" font-size="14" text-anchor="middle" font-weight="700" paint-order="stroke" stroke="#fff" stroke-width="4" stroke-linejoin="round">p = (−0.125, 0)</text><circle cx="330" cy="174" r="6" fill="#facc15" stroke="#0f172a" stroke-width="2" data-tip="&lt;b&gt;C&lt;/b&gt; the visual center&lt;br&gt;fragCoord (200, 80) px · uv (0.5, 0.5) · p (0, 0)"/><text x="339" y="196" fill="#a16207" font-size="16" text-anchor="start" font-weight="800" paint-order="stroke" stroke="#fff" stroke-width="4" stroke-linejoin="round">C</text><circle cx="265" cy="174" r="6" fill="#db2777" stroke="#0f172a" stroke-width="2" data-tip="&lt;b&gt;P&lt;/b&gt; the pixel of the example&lt;br&gt;fragCoord (150, 80) px&lt;br&gt;uv (0.375, 0.5) · p (−0.125, 0)"/><text x="255" y="196" fill="#db2777" font-size="16" text-anchor="end" font-weight="800" paint-order="stroke" stroke="#fff" stroke-width="4" stroke-linejoin="round">P</text></svg></figure></div>
+  <div class="ex"><div class="ex-h">Example <span>pixel P of the picture</span></div>
+  <div class="given"><span><span class="tx">fragCoord = (150, 80)</span> px</span><span><span class="tx">resolution = (400, 160)</span> px</span></div>
+  <div class="tex">\begin{aligned} uv &= fragCoord \div resolution = (\kn{150} \div \kn{400},\; \kn{80} \div \kn{160}) = (0.375,\; 0.5) \\ p &= uv - (0.5,\; 0.5) = (0.375 - 0.5,\; 0.5 - 0.5) = (-0.125,\; 0) \end{aligned}</div></div>
+  <div class="note"><b>Lesson 8.8</b> also shows p × 2, which puts the edges at −1 and +1: (−0.125 × 2, 0 × 2) = (−0.25, 0). Chapter 9 uses p without × 2.</div>
+  <div class="swift">In the iOS lab: <a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter08/UvShaderExplorer.swift">UvShaderExplorer.swift</a><a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter08/VectorArithmeticExplorer.swift">VectorArithmeticExplorer.swift</a></div>
 </article>
 
-<article class="card">
-  <div class="card-top"><h3>Translate the read point</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-08-translate-sample-coordinates.html" title="Lesson 9.8 — Translate sample coordinates">9.8</a></span></div>
-  <div class="f"><div>readCoord = fragCoord − (offsetU × resolution.x, 0)</div><div>sampled   = background(readCoord, resolution)</div></div>
-  <div class="sym"><b>offsetU</b> width fraction to read to the left. The stripes appear to move <b>right</b>. background() does not clamp or wrap a negative read x.</div>
-  <div class="ex"><div class="ex-h">Example <span>W at x = 60 px (uv.x 0.15), offsetU 0.10, width 400</span></div>
-  <table class="steps"><tr><th>offset</th><td><span class="eq">0.10 × 400 = 40 px</span></td></tr>
-  <tr><th>read</th><td><span class="eq">60 − 40 = 20 px</span>     <span class="eq">20 ÷ 400 = 0.05</span></td></tr>
-  <tr><th>cell</th><td><span class="eq">5.0 × 0.05 = 0.25</span>     <span class="eq">fract(0.25) = 0.25</span> → <span class="r">orange</span> stored at W</td></tr></table></div>
+<article class="card" id="card-time-uniform-and-fract">
+  <div class="card-top"><h3>Time uniform and fract</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-08/lesson-08-10-time-uniform.html" title="Lesson 8.10 — Time uniform">8.10</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-14-lens-checkpoint.html" title="Lesson 9.14 — Lens checkpoint">9.14</a></span></div>
+  <div class="f"><div>trips  = elapsedSeconds ÷ 4.0         <span class="c">← Swift side</span></div><div>red    = fract(uv.x − time)            <span class="c">← shader side</span></div><div>fract(x) = x − floor(x)                <span class="c">← floor: largest integer ≤ x</span></div><div>shift  = speed × time                  <span class="c">← 9.14 moving wallpaper, speed 0.10 UV/s</span></div></div>
+  <div class="ex"><div class="ex-h">Example <span>pixel x = 100 on a 400-px width, time = 0.50 trips</span></div>
+  <table class="steps"><tr><th>uv.x</th><td><span class="eq">100 ÷ 400 = 0.25</span></td></tr>
+  <tr><th>fract</th><td><span class="eq">0.25 − 0.50 = −0.25</span>
+<span class="eq">floor(−0.25) = −1</span>
+<span class="eq">−0.25 − (−1) = <span class="r">0.75</span></span></td></tr>
+  <tr><th>9.14 shift</th><td><span class="eq">0.10 × 2 = <span class="r">0.20</span> UV at time = 2 s</span></td></tr></table></div>
 </article>
 
-<article class="card">
-  <div class="card-top"><h3>Scale around the center</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-09-scale-around-the-center.html" title="Lesson 9.9 — Scale around the center">9.9</a></span></div>
-  <div class="f"><div>p      = uv − 0.5</div><div>readUv = p ÷ scale + 0.5           <span class="c">← scale 2 reads half as far from C: magnify</span></div></div>
-  <div class="sym"><b>scale</b> is the magnification, not displayScale. No “inner half” if: at scale 2 the middle 2 × 2 cells fill the picture; the outer ring is never read.</div>
-  <div class="ex"><div class="ex-h">Example <span>W = uv (0.80, 0.50), scale 2</span></div>
-  <table class="steps"><tr><th>p</th><td><span class="eq">0.80 − 0.5 = 0.30</span>     <span class="eq">0.50 − 0.5 = 0</span></td></tr>
-  <tr><th>÷ scale</th><td><span class="eq">0.30 ÷ 2 = 0.15</span>     <span class="eq">0 ÷ 2 = 0</span></td></tr>
-  <tr><th>+ 0.5</th><td><span class="eq">0.15 + 0.5 = 0.65</span>     <span class="eq">0 + 0.5 = 0.50</span>     <span class="eq">→ R = (0.65, 0.50)</span></td></tr>
-  <tr><th>color</th><td><span class="eq">0.65 × 4 = 2.60</span> → 2     <span class="eq">0.50 × 4 = 2</span> → 2     <span class="eq">2 + 2 = 4</span> → even → <span class="r">orange</span></td></tr></table></div>
+<article class="card" id="card-clamp">
+  <div class="card-top"><h3>clamp</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-08/lesson-08-11-clamp-mix-smoothstep.html" title="Lesson 8.11 — clamp, mix, and smoothstep">8.11</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-05-capsule-distance-field.html" title="Lesson 9.5 — Capsule distance field">9.5</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-12-edge-safety.html" title="Lesson 9.12 — Edge safety">9.12</a></span></div>
+  <div class="f"><div>clamp(x, lo, hi) = min(max(x, lo), hi)     <span class="c">← both ends included</span></div><div>saturate(x)      = clamp(x, 0.0, 1.0)</div><div>clamp(pair, 0, 1) clamps x and y separately</div></div>
+  <div class="ex"><div class="ex-h">Example</div>
+  <table class="steps"><tr><th>below</th><td><span class="eq">max(−0.20, 0) = 0</span>     <span class="eq">min(0, 1) = <span class="r">0</span></span></td></tr>
+  <tr><th>inside</th><td><span class="eq">max(0.45, 0) = 0.45</span>     <span class="eq">min(0.45, 1) = <span class="r">0.45</span></span></td></tr>
+  <tr><th>above</th><td><span class="eq">max(1.20, 0) = 1.20</span>     <span class="eq">min(1.20, 1) = <span class="r">1</span></span></td></tr></table></div>
+</article>
+
+<article class="card" id="card-mix">
+  <div class="card-top"><h3>mix</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-08/lesson-08-11-clamp-mix-smoothstep.html" title="Lesson 8.11 — clamp, mix, and smoothstep">8.11</a><a class="lesson" href="../course/chapters/chapter-05/lesson-05-04-linear-interpolation.html" title="Lesson 5.4 — Linear interpolation">5.4</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-03-turn-distance-into-a-soft-mask.html" title="Lesson 9.3 — Turn distance into a soft mask">9.3</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-14-lens-checkpoint.html" title="Lesson 9.14 — Lens checkpoint">9.14</a></span></div>
+  <div class="f"><div>mix(a, b, t) = a + (b − a) × t     <span class="c">← t = 0 gives a, t = 1 gives b</span></div><div>colors: the same t for red, green and blue</div></div>
+  <div class="ex"><div class="ex-h">Example <span>mix(navy, orange, 0.25)</span></div>
+  <table class="steps"><tr><th>red</th><td><span class="eq">0.88 − 0.10 = 0.78</span>     <span class="eq">0.78 × 0.25 = 0.195</span>     <span class="eq">0.10 + 0.195 = <span class="r">0.295</span></span></td></tr>
+  <tr><th>green</th><td><span class="eq">0.48 − 0.25 = 0.23</span>     <span class="eq">0.23 × 0.25 = 0.0575</span>     <span class="eq">0.25 + 0.0575 = <span class="r">0.3075</span></span></td></tr>
+  <tr><th>blue</th><td><span class="eq">0.18 − 0.40 = −0.22</span>     <span class="eq">−0.22 × 0.25 = −0.055</span>     <span class="eq">0.40 + (−0.055) = <span class="r">0.345</span></span></td></tr></table></div>
+  <div class="note"><b>t outside 0 … 1</b> walks past the colors: t = 1.50 gives red 0.78 × 1.50 = 1.17, 0.10 + 1.17 = 1.27. Clamp t first.</div>
+</article>
+
+<article class="card" id="card-smoothstep">
+  <div class="card-top"><h3>smoothstep</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-08/lesson-08-11-clamp-mix-smoothstep.html" title="Lesson 8.11 — clamp, mix, and smoothstep">8.11</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-03-turn-distance-into-a-soft-mask.html" title="Lesson 9.3 — Turn distance into a soft mask">9.3</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-11-refraction-as-displaced-sampling.html" title="Lesson 9.11 — Refraction as displaced sampling">9.11</a></span></div>
+  <div class="f"><div>t = clamp((x − edge0) ÷ (edge1 − edge0), 0, 1)   <span class="c">← requires edge1 &gt; edge0</span></div><div>smoothstep = t × t × (3 − 2t)</div><div>           = 3t² − 2t³                         <span class="c">← the form used in 9.11 – 9.14</span></div></div>
+  <div class="sym">0 left of edge0, 1 right of edge1, an S-shaped rise in between (slow, fast, slow).</div>
+  <div class="ex"><div class="ex-h">Example <span>x = 0.45 (pixel 180 of 400), edges 0.40 … 0.60</span></div>
+  <table class="steps"><tr><th>t</th><td><span class="eq">0.45 − 0.40 = 0.05</span>     <span class="eq">0.60 − 0.40 = 0.20</span>     <span class="eq">0.05 ÷ 0.20 = <span class="r">0.25</span></span></td></tr>
+  <tr><th>curve</th><td><span class="eq">0.25 × 0.25 = 0.0625</span>     <span class="eq">2 × 0.25 = 0.50</span>     <span class="eq">3 − 0.50 = 2.50</span>
+<span class="eq">0.0625 × 2.50 = <span class="r">0.156</span></span>     (exact 0.15625)</td></tr>
+  <tr><th>store red</th><td><span class="eq">0.88 − 0.10 = 0.78</span>     <span class="eq">0.78 × 0.156 = 0.122</span>     <span class="eq">0.10 + 0.122 = <span class="r">0.222</span></span></td></tr></table></div>
 </article>
 
 <article class="card wide">
-  <div class="card-top"><h3>Diagram · write W, read R</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-07-sample-an-input-shader.html" title="Lesson 9.7 — Sample an input shader">9.7</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-08-translate-sample-coordinates.html" title="Lesson 9.8 — Translate sample coordinates">9.8</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-09-scale-around-the-center.html" title="Lesson 9.9 — Scale around the center">9.9</a></span></div>
-  <div class="dia"><div class="dia-h">Interactive <span>pick a lesson, move the slider, click the output to choose W</span></div>
-  <div class="ctrls" id="smModes"></div>
-  <div class="ctrls"><label id="smLab">offsetU <input type="range" id="smS" min="0" max="0.5" step="0.01" value="0.10"><output id="smSO"></output></label></div>
-  <div class="row">
-    <div class="col"><div class="pic-title">Input (what background() returns)</div><canvas id="smIn" width="320" height="320"></canvas></div>
-    <div class="col"><div class="pic-title">Output (what each pixel stores)</div><canvas id="smOutCv" width="320" height="320"></canvas></div>
-    <div class="col" style="flex:1;min-width:330px"><div class="leg"><span><i class="dot" style="background:#ec4899"></i>W: the written pixel (both pictures)</span><span><i class="dot" style="background:#a3e635"></i>R: the read point (input only)</span><span><i style="background:#ec4899"></i>pink arrow: from W's spot to R</span><span><i class="dot" style="background:#22d3ee"></i>C: the center (scale only)</span></div><div class="readout" id="smOut"></div></div>
-  </div></div>
+  <div class="card-top"><h3>Diagram · clamp, mix and smoothstep on one band</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-08/lesson-08-11-clamp-mix-smoothstep.html" title="Lesson 8.11 — clamp, mix, and smoothstep">8.11</a></span></div>
+  <div class="dia"><div class="dia-h">Interactive <span>move x and the two edges</span></div>
+  <div class="ctrls"><label>x (uv.x) <input type="range" id="ssX" min="0" max="1" step="0.005" value="0.45"><output id="ssXO"></output></label><label>edge0 <input type="range" id="ssE0" min="0" max="0.95" step="0.01" value="0.40"><output id="ssE0O"></output></label><label>edge1 <input type="range" id="ssE1" min="0.05" max="1" step="0.01" value="0.60"><output id="ssE1O"></output></label></div>
+  <div class="row"><svg id="ssSvg" width="560" height="360" viewBox="0 0 560 360"></svg>
+  <div class="col" style="flex:1;min-width:400px"><div class="leg"><span><i style="background:#94a3b8"></i>gray: linear fraction t (clamped)</span><span><i style="background:#4f46e5"></i>indigo: smoothstep(edge0, edge1, x)</span><span><i class="dot" style="background:#ec4899"></i>X: the chosen x on the smoothstep curve</span><span><i class="box" style="background:linear-gradient(90deg,#1a4066,#e07a2e)"></i>strip: mix(navy, orange, smoothstep) across the width</span></div><div class="readout" id="ssOut"></div></div></div>
+  </div>
 </article>
 
 </div>
@@ -270,19 +302,27 @@ table.terms.tight td{padding:3px 4px;font-size:12px}
    SECTIONS lists every page of the cheatsheet: when a page is added, add it to SECTIONS in every page. */
 
 /* ================= the sections (menu, pager) ================= */
-const SECTIONS = [{"n": 1, "file": "01-coordinates-and-units.html", "title": "Coordinates and units", "acc": "#2563eb", "range": "2.1 – 2.9 · 4.10 · 5.10 · 8.4 – 8.8"}, {"n": 2, "file": "02-color-numbers.html", "title": "Color numbers", "acc": "#db2777", "range": "1.6 · 3.1 · 3.2 · 3.6 · 3.7 · 7.10 · 7.12 · 8.3"}, {"n": 3, "file": "03-alpha-and-compositing.html", "title": "Alpha and compositing", "acc": "#7c3aed", "range": "1.6 · 3.3 – 3.5 · 3.8 · 3.10 · 3.11 · 4.8 · 4.9 · 7.5"}, {"n": 4, "file": "04-color-adjustments.html", "title": "Color adjustments", "acc": "#ea580c", "range": "3.9 · 7.6 · 7.12"}, {"n": 5, "file": "05-shape-geometry.html", "title": "Shape geometry", "acc": "#0d9488", "range": "4.1 – 4.6 · 4.10 · 4.11 · 5.10 · 6.3 · 7.4c · 7.7 · 7.8"}, {"n": 6, "file": "06-motion-and-time.html", "title": "Motion and time", "acc": "#b45309", "range": "5.1 – 5.12 · 8.10"}, {"n": 7, "file": "07-backdrop-blur-and-frost.html", "title": "Backdrop, blur and frost", "acc": "#0e7490", "range": "6.5 – 6.11 · 7.1 – 7.12"}, {"n": 8, "file": "08-shader-building-blocks.html", "title": "Shader building blocks", "acc": "#4f46e5", "range": "8.1 – 8.12"}, {"n": 9, "file": "09-distance-fields.html", "title": "Distance fields", "acc": "#15803d", "range": "9.1 – 9.6 · 9.14"}, {"n": 10, "file": "10-image-sampling.html", "title": "Image sampling", "acc": "#9333ea", "range": "9.7 – 9.9 (wallpaper rule used up to 9.14)"}, {"n": 11, "file": "11-displacement-refraction-and-lens.html", "title": "Displacement, refraction and the lens", "acc": "#dc2626", "range": "9.10 – 9.14"}, {"n": 12, "file": "12-light-and-surface.html", "title": "Light and surface", "acc": "#a855f7", "range": "10.1–10.3"}, {"n": 13, "file": "13-constants-and-conventions.html", "title": "Constants and conventions", "acc": "#475569", "range": "all chapters"},
-  /* one page per chapter for cards added after 2026-11-10 (learner); n is the badge */
-  {"n": "Ch 9", "file": "chapter-09-distance-fields-image-sampling-and-refraction.html", "title": "Distance fields, image sampling, and refraction", "acc": "#b45309", "range": "9.13"},
-  {"n": "Ch 10", "file": "chapter-10-light-surface-direction-and-material-thickness.html", "title": "Light, surface direction, and material thickness", "acc": "#0369a1", "range": "10.29"}];
+/* one page per chapter, in course order (learner, 2026-11-10), then the page that every chapter uses; n is the badge */
+const SECTIONS = [{"n": "Ch 1", "file": "chapter-01-a-transparent-panel-is-not-yet-liquid-glass.html", "title": "A transparent panel is not yet Liquid Glass", "acc": "#7c3aed", "range": "1.6 – 1.7"},
+  {"n": "Ch 2", "file": "chapter-02-the-screen-is-a-grid.html", "title": "The screen is a grid", "acc": "#2563eb", "range": "2.5 – 2.9"},
+  {"n": "Ch 3", "file": "chapter-03-color-opacity-and-compositing.html", "title": "Color, opacity, and compositing", "acc": "#db2777", "range": "3.1 – 3.11"},
+  {"n": "Ch 4", "file": "chapter-04-shapes-corners-paths-and-masks.html", "title": "Shapes, corners, paths, and masks", "acc": "#0d9488", "range": "4.1 – 4.11"},
+  {"n": "Ch 5", "file": "chapter-05-motion-without-mystery.html", "title": "Motion without mystery", "acc": "#ea580c", "range": "5.1 – 5.12"},
+  {"n": "Ch 6", "file": "chapter-06-how-swiftui-draws-the-scene.html", "title": "How SwiftUI draws the scene", "acc": "#0e7490", "range": "6.4 – 6.11"},
+  {"n": "Ch 7", "file": "chapter-07-build-convincing-frosted-glass-without-a-custom-lens.html", "title": "Build convincing frosted glass without a custom lens", "acc": "#9333ea", "range": "7.1 – 7.12"},
+  {"n": "Ch 8", "file": "chapter-08-your-first-metal-shader.html", "title": "Your first Metal shader", "acc": "#15803d", "range": "8.1 – 8.11"},
+  {"n": "Ch 9", "file": "chapter-09-distance-fields-image-sampling-and-refraction.html", "title": "Distance fields, image sampling, and refraction", "acc": "#b45309", "range": "9.1 – 9.14"},
+  {"n": "Ch 10", "file": "chapter-10-light-surface-direction-and-material-thickness.html", "title": "Light, surface direction, and material thickness", "acc": "#0369a1", "range": "10.1 – 10.29"},
+  {"n": "All", "file": "all-chapters-constants-and-conventions.html", "title": "Constants and conventions", "acc": "#475569", "range": "all chapters"}];
 
 (function chrome(){
   const here = location.pathname.split('/').pop();
   document.body.insertAdjacentHTML('afterbegin',
-    '<button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menu"><span class="ico">☰</span>Sections</button>' +
-    '<nav class="menu" id="menu" aria-label="Sections"><div class="menu-h">Sections <button id="menuClose" aria-label="Close menu">×</button></div><div id="menuList"></div></nav>' +
+    '<button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menu"><span class="ico">☰</span>Chapters</button>' +
+    '<nav class="menu" id="menu" aria-label="Chapters"><div class="menu-h">Chapters <button id="menuClose" aria-label="Close menu">×</button></div><div id="menuList"></div></nav>' +
     '<div class="tip" id="tip" role="dialog"><button aria-label="Close">×</button><div></div></div>');
   const list = document.getElementById('menuList');
-  list.insertAdjacentHTML('beforeend', `<a href="index.html" class="${here === 'index.html' || here === '' ? 'active' : ''}"><span class="n" style="background:#172033">☰</span><span>All sections and conventions</span><small></small></a>`);
+  list.insertAdjacentHTML('beforeend', `<a href="index.html" class="${here === 'index.html' || here === '' ? 'active' : ''}"><span class="n" style="background:#172033">☰</span><span>All chapters and conventions</span><small></small></a>`);
   SECTIONS.forEach(c => {
     list.insertAdjacentHTML('beforeend', `<a href="${c.file}" class="${c.file === here ? 'active' : ''}" title="Lessons ${c.range}"><span class="n" style="background:${c.acc}">${String(c.n).padStart(2, '0')}</span><span>${c.title}</span><small>${c.range}</small></a>`);
   });
@@ -297,7 +337,7 @@ const SECTIONS = [{"n": 1, "file": "01-coordinates-and-units.html", "title": "Co
   if(pager && i >= 0){
     const prev = SECTIONS[i - 1], next = SECTIONS[i + 1];
     pager.innerHTML = (prev ? `<a href="${prev.file}">← ${String(prev.n).padStart(2, '0')} ${prev.title}</a>` : '<span></span>') +
-      `<a href="index.html">All sections</a>` + (next ? `<a href="${next.file}">${String(next.n).padStart(2, '0')} ${next.title} →</a>` : '<span></span>');
+      `<a href="index.html">All chapters</a>` + (next ? `<a href="${next.file}">${String(next.n).padStart(2, '0')} ${next.title} →</a>` : '<span></span>');
   }
 })();
 
@@ -763,50 +803,47 @@ function chainRows(W, o){
 })();
 </script>
 <script>
+/* ===== the pictures of the cards that came from the old “Shader building blocks” page; in their own function, so their names stay local ===== */
+(function(){
 'use strict';
-/* ================= D12 sampling: write W, read R ================= */
-(function sampling(){
-  const modes = {id: '9.7 · read = write', tr: '9.8 · translate', sc: '9.9 · scale around C'};
-  let mode = 'tr', W = [0.15, 0.50];
-  Object.keys(modes).forEach(k => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = modes[k]; b.dataset.k = k; b.onclick = () => { mode = k; if(k === 'sc'){ W = [0.80, 0.50]; $('smS').min = 0.25; $('smS').max = 3; $('smS').step = 0.05; $('smS').value = 2; } else { W = [0.15, 0.50]; $('smS').min = 0; $('smS').max = 0.5; $('smS').step = 0.01; $('smS').value = 0.10; } draw(); }; $('smModes').appendChild(b); });
-  const cvO = $('smOutCv'), cvI = $('smIn');
-  const vO = View(cvO, 0, 0, 1, 1);
-  function readOf(u, v, s){ if(mode === 'id') return [u, v]; if(mode === 'tr') return [u - s, v]; return [(u - .5) / s + .5, (v - .5) / s + .5]; }
+/* ================= D10 clamp / mix / smoothstep ================= */
+(function smooth(){
+  const navy = [0.10, 0.25, 0.40], orange = [0.88, 0.48, 0.18];
   function draw(){
-    document.querySelectorAll('#smModes .btn').forEach(b => b.classList.toggle('on', b.dataset.k === mode));
-    const s = mode === 'id' ? 0 : R(+$('smS').value);
-    $('smLab').style.display = mode === 'id' ? 'none' : '';
-    $('smLab').firstChild.textContent = mode === 'sc' ? 'scale ' : 'offsetU ';
-    $('smSO').textContent = F(s);
-    const wall = mode === 'sc' ? WALLS.on : WALLS.stripes;
-    const [rx, ry] = readOf(W[0], W[1], s);
-    let x0 = rx < 0 ? rx - .06 : 0, x1 = rx > 1 ? rx + .06 : 1, y0 = ry < 0 ? ry - .06 : 0, y1 = ry > 1 ? ry + .06 : 1;
-    const span = Math.max(x1 - x0, y1 - y0); x1 = x0 + span; y1 = y0 + span;
-    const vI = View(cvI, x0, y0, x1, y1);
-    paint(vI, (u, v) => { const c = wall(u, v); return (u < 0 || u > 1 || v < 0 || v > 1) ? [c[0] * .45 + .45, c[1] * .45 + .45, c[2] * .45 + .45, 1] : c; });
-    paint(vO, (u, v) => { const [a, b] = readOf(u, v, s); return wall(a, b); });
-    const ci = vI.ctx, co = vO.ctx; cvI._pts = []; cvO._pts = [];
-    if(span > 1.001){ const [fx0, fy0] = vI.px(0, 0), [fx1, fy1] = vI.px(1, 1); ci.save(); ci.strokeStyle = '#0f172a'; ci.lineWidth = 2; ci.strokeRect(fx0, fy0, fx1 - fx0, fy1 - fy0); ci.restore(); cLabel(ci, fx0 + 4, fy1 - 4, 'picture 0 … 1 (paler = outside)', {size: 14}); }
-    const [wxi, wyi] = vI.px(W[0], W[1]), [rxi, ryi] = vI.px(rx, ry), [wxo, wyo] = vO.px(W[0], W[1]);
-    if(mode === 'sc'){ const [cx, cy] = vI.px(.5, .5); cDot(ci, cx, cy, '#22d3ee', 5); cLabel(ci, cx - 10, cy - 8, 'C', {anchor: 'end'}); cvI._pts.push({x: cx, y: cy, name: 'C', role: 'center of the scale', coords: 'uv (0.50, 0.50)'}); }
-    if(Math.hypot(rxi - wxi, ryi - wyi) > 3) cArrow(ci, wxi, wyi, rxi, ryi, '#ec4899');
-    cDot(ci, wxi, wyi, '#ec4899'); cDot(ci, rxi, ryi, '#a3e635');
-    cLabel(ci, wxi + 8, wyi - 8, "W's spot"); cLabel(ci, rxi + 8, ryi + 22, 'R ' + fu(rx, ry));
-    cvI._pts.push({x: wxi, y: wyi, name: "W's spot", role: 'where W sits, drawn on the input', coords: 'uv ' + fu(W[0], W[1])}, {x: rxi, y: ryi, name: 'R', role: 'the read point of W', coords: 'uv ' + fu(rx, ry)});
-    cDot(co, wxo, wyo, '#ec4899'); cLabel(co, wxo + 8, wyo - 8, 'W ' + fu(W[0], W[1]));
-    cvO._pts.push({x: wxo, y: wyo, name: 'W', role: 'the written pixel', coords: 'uv ' + fu(W[0], W[1])});
-    const rows = [['W', `uv ${fu(W[0], W[1])}`]];
-    let rxr = W[0], ryr = W[1];
-    if(mode === 'tr'){ const px = mul(s, 400), xw = mul(W[0], 400); rxr = sub(W[0], s); rows.push(['offset', `${line(s, '×', 400, px)} px (width 400)`], ['read', `${line(W[0], '×', 400, xw)} px     ${line(xw, '−', px, sub(xw, px))} px     ${line(W[0], '−', s, rxr)} (uv)`]); }
-    if(mode === 'sc'){ const pX = sub(W[0], .5), pY = sub(W[1], .5), qX = div(pX, s), qY = div(pY, s); rxr = add(qX, .5); ryr = add(qY, .5); rows.push(['p', `${line(W[0], '−', .5, pX)}     ${line(W[1], '−', .5, pY)}`], ['÷ scale', `${line(pX, '÷', s, qX)}     ${line(pY, '÷', s, qY)}`], ['+ 0.5', `${line(qX, '+', .5, rxr)}     ${line(qY, '+', .5, ryr)}`]); }
-    if(mode === 'sc'){ const ws = wallSteps(rxr, ryr, 'on'); rows.push(['color', ws.txt + ` → W stores <span class="r">${ws.name}</span>`]); }
-    else { const c5 = mul(rxr, 5), fr = R(c5 - Math.floor(c5)); rows.push(['color', `cell: ${line(5, '×', rxr, c5)}     fract(${F(c5)}) = ${F(fr)} → ${fr < .5 ? '&lt; 0.5 → orange' : '≥ 0.5 → navy'} → W stores <span class="r">${fr < .5 ? 'orange' : 'navy'}</span>`]); }
-    $('smOut').innerHTML = steps(rows, modes[mode]);
+    let e0 = R(+$('ssE0').value), e1 = R(+$('ssE1').value);
+    if(e1 <= e0 + 0.01){ e1 = R(e0 + 0.05); $('ssE1').value = e1; }
+    const x = R(+$('ssX').value);
+    $('ssXO').textContent = F(x); $('ssE0O').textContent = F(e0); $('ssE1O').textContent = F(e1);
+    const lin = q => clamp01((q - e0) / (e1 - e0)), sm = q => { const t = lin(q); return t * t * (3 - 2 * t); };
+    const svg = $('ssSvg'); clearSvg(svg);
+    const x0 = 50, y0 = 250, S = 470, Hh = 210;
+    el('rect', {x: x0, y: y0 - Hh, width: S, height: Hh, fill: '#fff', stroke: '#334155'}, svg);
+    [e0, e1].forEach((e, i) => { el('line', {x1: x0 + e * S, y1: y0 - Hh, x2: x0 + e * S, y2: y0, stroke: '#a3a3a3', 'stroke-dasharray': '5 4'}, svg); sText(svg, x0 + e * S, y0 - Hh - 6, i ? 'edge1' : 'edge0', {anchor: 'middle', size: 14}); });
+    let d1 = '', d2 = '';
+    for(let i = 0; i <= 200; i++){ const q = i / 200; d1 += (i ? 'L' : 'M') + (x0 + q * S) + ',' + (y0 - lin(q) * Hh); d2 += (i ? 'L' : 'M') + (x0 + q * S) + ',' + (y0 - sm(q) * Hh); }
+    el('path', {d: d1, fill: 'none', stroke: '#94a3b8', 'stroke-width': 2.5}, svg);
+    el('path', {d: d2, fill: 'none', stroke: '#4f46e5', 'stroke-width': 4}, svg);
+    sText(svg, x0 - 6, y0 + 4, '0', {anchor: 'end', size: 14}); sText(svg, x0 - 6, y0 - Hh + 4, '1', {anchor: 'end', size: 14});
+    sText(svg, x0, y0 + 18, '0', {anchor: 'middle', size: 14}); sText(svg, x0 + S, y0 + 18, '1', {anchor: 'middle', size: 14}); sText(svg, x0 + S / 2, y0 + 18, 'x (uv.x)', {anchor: 'middle', size: 14});
+    /* strip */
+    for(let i = 0; i < 235; i++){ const q = (i + .5) / 235, t = sm(q); el('rect', {x: x0 + i * 2, y: y0 + 30, width: 2.1, height: 50, fill: rgbCss(navy.map((n, j) => lerp(n, orange[j], t)))}, svg); }
+    el('rect', {x: x0, y: y0 + 30, width: S, height: 50, fill: 'none', stroke: '#334155'}, svg);
+    const tn = sub(x, e0), td = sub(e1, e0), traw = div(tn, td), t = Math.min(1, Math.max(0, traw));
+    const tt = mul(t, t), t2 = mul(2, t), k3 = sub(3, t2), s = mul(tt, k3);
+    const px = x0 + x * S, py = y0 - sm(x) * Hh;
+    el('line', {x1: px, y1: y0 - Hh, x2: px, y2: y0 + 80, stroke: '#ec4899', 'stroke-width': 2}, svg);
+    el('circle', {cx: px, cy: py, r: 7, fill: '#ec4899', stroke: '#111', 'stroke-width': 1.5}, svg);
+    sText(svg, px + 9, py - 9, `X (${F(x)}, ${F(s)})`, {size: 15});
+    const rows = [['t', `${line(x, '−', e0, tn)}     ${line(e1, '−', e0, td)}     ${line(tn, '÷', td, traw)}${traw < 0 ? ' → clamp → 0' : traw > 1 ? ' → clamp → 1' : ''}`],
+      ['smoothstep', `${line(t, '×', t, tt)}     ${line(2, '×', t, t2)}     ${line(3, '−', t2, k3)}     ${line(tt, '×', k3, s)}`]];
+    const store = [];
+    ['red', 'green', 'blue'].forEach((n, i) => { const d = sub(orange[i], navy[i]), p = mul(d, s), r = add(navy[i], p); store.push(r); rows.push([n, `${line(orange[i], '−', navy[i], d)}     ${line(d, '×', s, p)}     ${line(navy[i], '+', p, r)}`]); });
+    rows.push(['store', `<span class="r">(${store.map(F).join(', ')})</span> <span class="sw" style="background:${rgbCss(store)}"></span>`]);
+    $('ssOut').innerHTML = steps(rows, 'mix(navy, orange, smoothstep(edge0, edge1, x))');
   }
-  pickable(cvO, (x, y) => { const [u, v] = vO.uv(x, y); W = [Math.round(u * 200) / 200, Math.round(v * 200) / 200]; draw(); });
-  pickable(cvI, null);
-  $('smS').addEventListener('input', draw);
+  ['ssX', 'ssE0', 'ssE1'].forEach(id => $(id).addEventListener('input', draw));
   draw();
+})();
 })();
 </script>
 </body>

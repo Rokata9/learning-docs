@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 3 Color, opacity, and compositing — Formula cheatsheet</title>
+<style>
+/* ===== Formula cheatsheet — the common styles. Every page carries this same block (no shared .css file). ===== */
+:root{
+  color-scheme:light;
+  --ink:#172033;--muted:#5d6879;--line:#dbe2eb;--paper:#fff;--soft:#f8fafc;--body:#f1f5fa;
+  --blue:#1e40af;--green:#059669;--shadow:0 10px 30px rgba(30,41,59,.07);
+  --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  --f-bg:#eef3ff;--f-line:#c9d6f5;
+  --ex-bg:#f3faf6;--ex-line:#bfe3cf;
+  --navy:#1a4066;--orange:#e07a2e;
+  --acc:#1e40af;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{margin:0;background:var(--body);color:var(--ink);font:16px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:var(--blue)}
+main{width:min(1560px,calc(100% - 180px));margin:0 auto;padding:36px 0 120px}
+.crumbs{margin-bottom:18px;font-size:15px}
+.crumbs a{margin-right:14px}
+
+/* hero */
+.hero{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:30px 34px;display:grid;grid-template-columns:1.05fr 1fr;gap:30px;align-items:start}
+.eyebrow{color:var(--green);font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:13px}
+h1{font-size:44px;letter-spacing:-.03em;margin:.2rem 0 .6rem;line-height:1.1}
+.hero p{margin:.3rem 0;color:var(--muted)}
+.conv{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.conv div{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14.5px}
+.conv b{display:block;font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:2px}
+.legend-blocks{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.legend-blocks span{font-size:13.5px;padding:4px 10px;border-radius:8px;border:1px solid var(--line)}
+.legend-blocks .lf{background:var(--f-bg);border-color:var(--f-line)}
+.legend-blocks .le{background:var(--ex-bg);border-color:var(--ex-line)}
+.legend-blocks .ln{background:#fffaf0;border-color:#f3dcb0}
+.legend-blocks .ld{background:#fff;border-color:#cbd5e1}
+
+/* category */
+.cat{margin-top:46px;--acc:#1e40af}
+.cat-head{display:flex;align-items:baseline;gap:16px;border-bottom:3px solid var(--acc);padding-bottom:8px;margin-bottom:18px}
+.cat-num{font:800 15px var(--mono);color:#fff;background:var(--acc);border-radius:8px;padding:4px 10px}
+.cat-head h2{font-size:30px;margin:0;letter-spacing:-.02em}
+.cat-head .range{color:var(--muted);font-size:15px;margin-left:auto}
+.cat-intro{color:var(--muted);margin:-6px 0 16px;font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+.card{background:var(--paper);border:1px solid var(--line);border-top:4px solid var(--acc);border-radius:16px;box-shadow:var(--shadow);padding:18px 20px 16px;min-width:0}
+.card.wide{grid-column:1 / -1}
+.card h3{margin:0;font-size:19px;letter-spacing:-.01em}
+.card-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.card-top .ls{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+a.lesson{font:700 12.5px var(--mono);text-decoration:none;color:var(--acc);border:1.5px solid var(--acc);border-radius:999px;padding:2px 9px;background:#fff;white-space:nowrap}
+a.lesson:hover{background:var(--acc);color:#fff}
+a.lesson::before{content:"L "}
+
+/* blocks */
+.f{background:var(--f-bg);border:1px solid var(--f-line);border-left:5px solid var(--acc);border-radius:10px;padding:10px 14px;font:15px/1.65 var(--mono);overflow-x:auto;margin:8px 0}
+.f div{white-space:pre-wrap}
+.f .c{color:#64748b;font-size:13.5px}
+.f .new{background:#fff3c4;border-radius:4px;padding:0 3px}
+.sym{margin:6px 0 8px;font-size:14.5px;color:var(--muted)}
+.sym b{color:var(--ink);font-family:var(--mono);font-weight:600}
+.ex{background:var(--ex-bg);border:1px solid var(--ex-line);border-radius:10px;padding:8px 12px 10px;margin:10px 0 6px}
+.ex-h{font-size:12.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#047857;margin-bottom:4px}
+.ex-h span{font-weight:600;text-transform:none;letter-spacing:0;color:var(--muted);font-size:13.5px;margin-left:6px}
+table.steps{border-collapse:collapse;width:100%;font:14px/1.6 var(--mono)}
+table.steps th{text-align:left;vertical-align:top;padding:4px 12px 4px 0;font:600 13px/1.6 Inter,system-ui,sans-serif;color:#047857;white-space:nowrap;width:1%}
+table.steps td{padding:4px 0;border-top:1px dashed #cfe9db;white-space:pre-wrap}
+table.steps tr:first-child td{border-top:0}
+table.steps td .r{font-weight:700;color:#065f46}
+.note{background:#fffaf0;border:1px solid #f3dcb0;border-radius:10px;padding:7px 12px;font-size:14.5px;margin:8px 0 2px}
+.note b{color:#9a5b00}
+.dia{border:1px solid #cbd5e1;border-radius:12px;padding:12px;margin:10px 0 4px;background:#fff}
+.dia-h{font-size:12.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#475569;margin-bottom:8px}
+.dia-h span{font-weight:600;text-transform:none;letter-spacing:0;font-size:13.5px;margin-left:6px}
+.row{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+.col{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ctrls{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:4px 0 8px;font-size:14.5px}
+.ctrls label{display:flex;align-items:center;gap:6px}
+.ctrls input[type=range]{width:150px}
+.ctrls output{font:600 14px var(--mono);min-width:44px}
+.btn{font:600 13.5px Inter,system-ui,sans-serif;border:1.5px solid #94a3b8;background:#fff;border-radius:8px;padding:4px 10px;cursor:pointer;color:var(--ink)}
+.btn.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn:focus-visible,a:focus-visible,.menu-btn:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+.readout{font:13.5px/1.6 var(--mono);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:8px 12px;white-space:pre-wrap;min-width:0;flex:1}
+.readout b{color:var(--acc)}
+.eq{white-space:nowrap}
+.cap{font-size:14px;color:var(--muted);margin:4px 0 0}
+.leg{display:flex;flex-direction:column;gap:3px;font-size:14px;min-width:220px}
+.leg span{display:flex;align-items:center;gap:7px}
+.leg i{display:inline-block;width:22px;height:4px;border-radius:2px;flex:none}
+.leg i.dot{width:11px;height:11px;border-radius:50%;border:2px solid #111}
+.leg i.box{width:14px;height:14px;border-radius:3px;border:1px solid #475569}
+[hidden]{display:none!important}
+canvas{display:block;border-radius:8px;cursor:crosshair;image-rendering:pixelated}
+canvas.np{cursor:default}
+svg text{font-family:Inter,system-ui,sans-serif}
+.pic-title{font-size:14px;font-weight:700;color:#334155;max-width:340px}
+.col > canvas,.col > svg{align-self:flex-start}
+.sw{display:inline-block;width:16px;height:16px;border-radius:4px;border:1px solid #475569;vertical-align:-3px}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.swatches figure{margin:0;text-align:center;font-size:12.5px;color:var(--muted)}
+.swatches .chip{width:84px;height:56px;border-radius:8px;border:1px solid #94a3b8;background-image:linear-gradient(45deg,#cbd5e1 25%,transparent 25%,transparent 75%,#cbd5e1 75%),linear-gradient(45deg,#cbd5e1 25%,transparent 25%,transparent 75%,#cbd5e1 75%);background-size:14px 14px;background-position:0 0,7px 7px;position:relative;overflow:hidden}
+.swatches .chip i{position:absolute;inset:0}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:13.5px var(--mono)}
+.flow span{background:var(--f-bg);border:1px solid var(--f-line);border-radius:8px;padding:3px 8px}
+.flow em{font-style:normal;color:#94a3b8}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:14.5px}
+.kv b{font-family:var(--mono);font-weight:600}
+
+/* floating section menu */
+.menu-btn{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:50;writing-mode:vertical-rl;text-orientation:mixed;background:#172033;color:#fff;border:0;border-radius:0 12px 12px 0;padding:16px 9px;font:700 14px Inter,system-ui,sans-serif;letter-spacing:.06em;cursor:pointer;box-shadow:0 8px 24px rgba(15,23,42,.25);display:flex;align-items:center;gap:8px}
+.menu-btn .ico{writing-mode:horizontal-tb;font-size:18px;line-height:1}
+.menu-btn[aria-expanded=true]{background:#1e40af}
+.menu{position:fixed;left:52px;top:50%;transform:translateY(-50%) translateX(-12px);opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;z-index:49;width:360px;max-height:86vh;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 50px rgba(15,23,42,.22);padding:10px}
+.menu.open{opacity:1;pointer-events:auto;transform:translateY(-50%)}
+.menu-h{display:flex;align-items:center;justify-content:space-between;padding:4px 6px 8px;font-weight:800;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.menu-h button{border:0;background:none;font-size:20px;cursor:pointer;color:var(--muted)}
+.menu a{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;text-decoration:none;color:var(--ink);font-size:15px}
+.menu a:hover{background:var(--soft)}
+.menu a.active{background:#eef3ff}
+.menu a .n{font:800 12.5px var(--mono);color:#fff;border-radius:6px;padding:2px 7px}
+.menu a small{color:var(--muted);font:12.5px var(--mono)}
+
+/* point tooltip */
+.tip{position:fixed;z-index:60;background:#0f172a;color:#f8fafc;border-radius:10px;padding:8px 30px 8px 12px;font:13.5px/1.5 Inter,system-ui,sans-serif;max-width:340px;box-shadow:0 10px 30px rgba(0,0,0,.3);display:none}
+.tip b{color:#fde68a}
+.tip button{position:absolute;top:4px;right:6px;border:0;background:none;color:#cbd5e1;font-size:16px;cursor:pointer}
+footer{margin-top:60px;color:var(--muted);font-size:14px;text-align:center}
+
+/* ===== section pages (2026-11-10) ===== */
+.cat{margin-top:8px}
+.cat-head h1{font-size:34px;margin:0;letter-spacing:-.02em}
+.pager{display:flex;justify-content:space-between;gap:16px;margin-top:40px;font-size:15px;border-top:1px solid var(--line);padding-top:14px}
+/* typeset formulas (MathML from LaTeX) */
+math{font-family:"STIX Two Math","Latin Modern Math","Cambria Math",math;font-size:1.13em}
+.tex{margin:6px 0;overflow-x:auto;overflow-y:hidden;padding:2px 0}
+.tex math{display:inline math}
+.f .tex{font-family:inherit}
+.f.tf{font:16px/1.5 Inter,system-ui,sans-serif}
+.tx-aligned mtd{padding-top:3px;padding-bottom:3px}
+.tx-cases mtd{padding-top:2px;padding-bottom:2px}
+.tx-bmatrix mtd{padding:2px .55em}
+.tx-kn{background:#dcfce7;color:#14532d;border-radius:3px;padding:0 1px}
+.tx-hl{background:#fff3c4;border-radius:3px}
+.tx-b{font-weight:700}
+.tx-fn{font-style:normal}
+mtext{font-family:Inter,system-ui,sans-serif;font-size:.88em}
+/* the meaning of each letter */
+.where{margin:6px 0 8px;font-size:14.5px;display:grid;grid-template-columns:auto 1fr;gap:3px 12px;align-items:baseline}
+.where > span:nth-child(odd){text-align:right;white-space:nowrap}
+.where > span:nth-child(even){color:var(--muted)}
+/* a value list that names each number before it is used */
+.given{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14.5px;margin:2px 0 6px}
+.given span{background:#dcfce7;color:#14532d;border-radius:6px;padding:1px 8px}
+/* tables whose header row is the formula's terms */
+table.terms{border-collapse:collapse;font:14px/1.5 var(--mono);margin:6px 0;width:100%}
+table.terms th{font:600 14px/1.4 Inter,system-ui,sans-serif;color:#047857;text-align:right;padding:4px 6px;border-bottom:1.5px solid #bfe3cf;vertical-align:bottom}
+table.terms th math{font-size:1em}
+table.terms td{text-align:right;padding:3px 6px;border-top:1px dashed #cfe9db;white-space:nowrap;font-size:12.5px}
+.terms-wrap{overflow-x:auto}
+table.terms td:first-child,table.terms th:first-child{text-align:left}
+table.terms td.r{font-weight:700;color:#065f46}
+table.terms td .kn,.kn{background:#dcfce7;color:#14532d;border-radius:4px;padding:0 3px}
+/* pictures in cards */
+.pic{margin:10px 0 4px;display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.pic figure{margin:0;display:flex;flex-direction:column;gap:4px}
+.pic figcaption{font-size:13.5px;color:var(--muted);max-width:520px}
+.pic svg{background:#fff;border:1px solid var(--line);border-radius:10px;max-width:100%;height:auto}
+/* color chips with their numbers */
+.chips{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:8px 0}
+.chips figure{margin:0;text-align:center;font-size:12.5px;color:var(--muted);line-height:1.35}
+.chips .sq{width:78px;height:52px;border-radius:8px;border:1px solid #94a3b8;margin:0 auto 3px;position:relative;overflow:hidden;background-image:linear-gradient(45deg,#cbd5e1 25%,transparent 25%,transparent 75%,#cbd5e1 75%),linear-gradient(45deg,#cbd5e1 25%,transparent 25%,transparent 75%,#cbd5e1 75%);background-size:14px 14px;background-position:0 0,7px 7px}
+.chips .sq i{position:absolute;inset:0}
+.chips .op{font:700 20px Inter,system-ui,sans-serif;color:#64748b;align-self:center;padding-bottom:22px}
+/* links to the iOS lab */
+.swift{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:10px 0 0;font-size:13.5px;color:var(--muted)}
+.swift a{font:600 12.5px var(--mono);text-decoration:none;color:#9a3412;background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:2px 8px}
+.swift a:hover{background:#ffedd5}
+.swift a::before{content:"iOS · ";font-weight:500;color:#c2410c}
+/* steppers */
+.stepper{display:flex;gap:8px;align-items:center;margin:6px 0;flex-wrap:wrap}
+.stepper .dots{display:flex;gap:4px;flex-wrap:wrap}
+.stepper .dots button{width:26px;height:26px;border-radius:50%;border:1.5px solid #94a3b8;background:#fff;font:600 12px var(--mono);cursor:pointer;padding:0}
+.stepper .dots button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+/* index page */
+.toc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:26px}
+.toc a{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;background:#fff;border:1px solid var(--line);border-left:5px solid var(--acc);border-radius:14px;padding:14px 16px;text-decoration:none;color:var(--ink);box-shadow:var(--shadow)}
+.toc a:hover{border-color:var(--acc)}
+.toc .cat-num{grid-row:span 2;align-self:start}
+.toc b{font-size:18px}
+.toc small{color:var(--muted);font-size:13.5px}
+table.terms.tight td{padding:3px 4px;font-size:12px}
+.toc-h{font-size:22px;letter-spacing:-.01em;margin:30px 0 -12px}
+.xref{background:#f8fafc;border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:10px;padding:8px 14px;margin:0 0 18px;font-size:14.5px}
+.xref b{color:var(--ink)}.xref ul{margin:4px 0 0;padding-left:20px}.xref li{margin:2px 0;color:var(--muted)}
+</style>
+<style>
+/* ===== this page's own styles, from the old “Color numbers” page ===== */
+.dith-row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+.dith-row canvas{border:1px solid var(--line)}
+.mag{display:grid;grid-template-columns:repeat(12,42px);gap:2px;margin-top:6px}
+.mag span{height:30px;display:flex;align-items:center;justify-content:center;font:600 12.5px var(--mono);color:#fff;border-radius:3px}
+.mag-h{font-size:13.5px;color:var(--muted);margin-top:8px}
+.circ-row{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
+.seq{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;font:13px var(--mono);min-width:520px}
+.seq span{border:1px solid var(--line);border-radius:6px;padding:3px 7px;color:#94a3b8;background:#fff}
+.seq span.v{color:var(--ink);background:#fdf2f8;border-color:#f9a8d4}
+.seq span.cur{background:#db2777;border-color:#db2777;color:#fff}
+.sub-h{font-size:16px;font-weight:800;margin:18px 0 4px;color:#172033}
+</style>
+</head>
+<body>
+<main>
+<div class="crumbs"><a href="index.html">← Cheatsheet: all chapters</a><a href="../liquid-glass-course.html">Course home</a><a href="../course/chapters/chapter-03/lesson-color-opacity-and-compositing.html">Chapter 3</a><a href="../course/glossary.html">Glossary</a></div>
+<section class="cat" id="cat-ch3" style="--acc:#db2777">
+<div class="cat-head"><span class="cat-num">Ch 3</span><h1>Color, opacity, and compositing</h1><span class="range">Lessons 3.1 – 3.11</span></div>
+<p class="cat-intro"><b>Alpha and compositing.</b> Source = the upper color, drawn now. Destination = the color already at the same position underneath. Every formula here reads one position only: no neighbour, so no blur and no bending. The color chips on each card show what is drawn over what; a checkerboard behind a chip is its transparent part.</p>
+<div class="xref"><b>Cards on other chapter pages that this chapter's lessons use</b><ul>
+<li><a href="chapter-01-a-transparent-panel-is-not-yet-liquid-glass.html#card-source-over-full-rgba-straight">Source-over, full RGBA (straight)</a>: on the Chapter 1 page; uses Lessons 3.3, 3.4 of this chapter.</li>
+</ul></div>
+<div class="grid">
+
+<article class="card" id="card-channels-0-1-and-8-bit">
+  <div class="card-top"><h3>Channels: 0 … 1 and 8-bit</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-01-red-green-and-blue-channels.html" title="Lesson 3.1 — Red, green, and blue channels">3.1</a><a class="lesson" href="../course/chapters/chapter-03/lesson-03-02-alpha.html" title="Lesson 3.2 — Alpha">3.2</a><a class="lesson" href="../course/chapters/chapter-08/lesson-08-03-return-one-fixed-color.html" title="Lesson 8.3 — Return one fixed color">8.3</a></span></div>
+  <div class="f tf"><div class="tex">\begin{aligned} channel8 &= round(channel \times 255) \\ channel &= channel8 \div 255 \\ alpha &= percent \div 100 \end{aligned}</div></div>
+  <div class="where">
+    <span class="tx">channel</span><span>one of red, green, blue or alpha, from 0 to 1. RGBA(red, green, blue, alpha) is one color.</span>
+    <span class="tx">channel8</span><span>the same channel stored in 8 bits: a whole number from 0 to 255.</span>
+    <span class="tx">percent</span><span>an opacity written in percent, such as 75%.</span>
+  </div>
+  <div class="pic"><figure><svg width="700" height="230" viewBox="0 0 700 230" role="img" aria-label="Red, green and blue bars of the teaching orange, on a 0 to 1 ruler and a 0 to 255 ruler"><rect x="70" y="40" width="420" height="26" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" rx="4" /><rect x="70" y="40" width="369.6" height="26" fill="#dc2626" stroke="#dc2626" stroke-width="1" rx="4" /><text x="60" y="58" fill="#dc2626" font-size="14" text-anchor="end" font-weight="700">red</text><text x="447.6" y="58" fill="#dc2626" font-size="14" text-anchor="start" font-weight="700">0.88 → 224</text><rect x="70" y="92" width="420" height="26" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" rx="4" /><rect x="70" y="92" width="201.6" height="26" fill="#16a34a" stroke="#16a34a" stroke-width="1" rx="4" /><text x="60" y="110" fill="#16a34a" font-size="14" text-anchor="end" font-weight="700">green</text><text x="279.6" y="110" fill="#16a34a" font-size="14" text-anchor="start" font-weight="700">0.48 → 122</text><rect x="70" y="144" width="420" height="26" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" rx="4" /><rect x="70" y="144" width="75.6" height="26" fill="#2563eb" stroke="#2563eb" stroke-width="1" rx="4" /><text x="60" y="162" fill="#2563eb" font-size="14" text-anchor="end" font-weight="700">blue</text><text x="153.6" y="162" fill="#2563eb" font-size="14" text-anchor="start" font-weight="700">0.18 → 46</text><line x1="70" y1="30" x2="70" y2="190" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/><text x="70" y="24" fill="#64748b" font-size="13" text-anchor="middle" font-weight="600">0</text><text x="70" y="208" fill="#64748b" font-size="13" text-anchor="middle" font-weight="600">0</text><line x1="280" y1="30" x2="280" y2="190" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/><text x="280" y="24" fill="#64748b" font-size="13" text-anchor="middle" font-weight="600">0.5</text><text x="280" y="208" fill="#64748b" font-size="13" text-anchor="middle" font-weight="600">127.5</text><line x1="490" y1="30" x2="490" y2="190" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/><text x="490" y="24" fill="#64748b" font-size="13" text-anchor="middle" font-weight="600">1</text><text x="490" y="208" fill="#64748b" font-size="13" text-anchor="middle" font-weight="600">255</text><text x="70" y="226" fill="#64748b" font-size="13" text-anchor="start" font-weight="500">top ruler: channel 0 … 1 · bottom ruler: 8-bit 0 … 255</text><rect x="560" y="40" width="110" height="70" fill="rgb(224,122,46)" stroke="#475569" stroke-width="1.5" rx="8" /><text x="615" y="130" fill="#64748b" font-size="13" text-anchor="middle" font-weight="500">alpha 1</text><defs><pattern id="ck1" width="18" height="18" patternUnits="userSpaceOnUse" x="560" y="145"><rect width="18" height="18" fill="#fff"/><rect width="9" height="9" fill="#cbd5e1"/><rect x="9" y="9" width="9" height="9" fill="#cbd5e1"/></pattern></defs><rect x="560" y="145" width="110" height="50" fill="url(#ck1)" stroke="#94a3b8" stroke-width="1" rx="0" /><rect x="560" y="145" width="110" height="50" fill="rgba(224,122,46,0.75)" stroke="#475569" stroke-width="1.5" rx="0" /><text x="615" y="214" fill="#64748b" font-size="13" text-anchor="middle" font-weight="500">alpha 0.75</text></svg></figure></div>
+  <div class="ex"><div class="ex-h">Example <span>the teaching orange</span></div>
+  <div class="given"><span><span class="tx">(red, green, blue) = (0.88, 0.48, 0.18)</span></span><span><span class="tx">percent = 75</span></span></div>
+  <div class="tex">\begin{aligned} red8 &= round(\kn{0.88} \times 255) = round(224.4) = 224 \\ green8 &= round(\kn{0.48} \times 255) = round(122.4) = 122 \\ blue8 &= round(\kn{0.18} \times 255) = round(45.9) = 46 \\ red &= red8 \div 255 = 224 \div 255 = 0.878 \\ alpha &= \kn{75} \div 100 = 0.75 \end{aligned}</div></div>
+  <div class="note"><b>Note:</b> 0.878 is not 0.88 again: the 8-bit store keeps only 256 steps. 0.40 alone is one channel, not a color; RGB(0.40, 0.40, 0.40) with alpha 1 is gray #666666.</div>
+  <div class="swift">In the iOS lab: <a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter03/RgbChannelsExplorer.swift">RgbChannelsExplorer.swift</a><a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter03/AlphaExplorer.swift">AlphaExplorer.swift</a><a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter08/FixedColorShaderExplorer.swift">FixedColorShaderExplorer.swift</a></div>
+</article>
+
+<article class="card" id="card-premultiplied-rgba">
+  <div class="card-top"><h3>Premultiplied RGBA</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-05-straight-and-premultiplied-rgba.html" title="Lesson 3.5 — Straight and premultiplied RGBA">3.5</a><a class="lesson" href="../course/chapters/chapter-04/lesson-04-08-masks.html" title="Lesson 4.8 — Masks">4.8</a></span></div>
+  <div class="f tf"><div class="tex">\begin{aligned} P &= C \times A \\ P_{out} &= P_S + P_D \times (1 - A_S) \\ A_{out} &= A_S + A_D \times (1 - A_S) \\ C_{out} &= P_{out} \div A_{out} \quad \text{(only if } A_{out} > 0\text{)} \end{aligned}</div></div>
+  <div class="where">
+    <span class="tx">C, A</span><span>a straight channel and its alpha, as in source-over.</span>
+    <span class="tx">P</span><span>the premultiplied channel: the channel already multiplied by its alpha.</span>
+    <span class="tx">P_S, P_D</span><span>the premultiplied channel of the source and of the destination.</span>
+    <span class="tx">C_{out}</span><span>the result as a straight channel again.</span>
+  </div>
+  <div class="pic"><figure><svg width="560" height="230" viewBox="0 0 560 230" role="img" aria-label="Straight and premultiplied channels of the source and the destination as bars"><text x="20" y="22" fill="#334155" font-size="14" text-anchor="start" font-weight="600">light bar: straight channel · dark bar and number below: premultiplied</text><text x="30" y="50" fill="#172033" font-size="14" text-anchor="start" font-weight="700">S, alpha 0.50</text><rect x="30" y="81" width="40" height="99" fill="#dc2626" stroke="#dc2626" stroke-width="1" rx="0" opacity="0.3"/><rect x="30" y="130.5" width="40" height="49.5" fill="#dc2626" stroke="#dc2626" stroke-width="1" rx="0" /><text x="50" y="75" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">0.90</text><text x="50" y="216" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="800">0.45</text><text x="50" y="196" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">R</text><rect x="100" y="169" width="40" height="11" fill="#16a34a" stroke="#16a34a" stroke-width="1" rx="0" opacity="0.3"/><rect x="100" y="174.5" width="40" height="5.5" fill="#16a34a" stroke="#16a34a" stroke-width="1" rx="0" /><text x="120" y="163" fill="#16a34a" font-size="13" text-anchor="middle" font-weight="700">0.10</text><text x="120" y="216" fill="#16a34a" font-size="13" text-anchor="middle" font-weight="800">0.05</text><text x="120" y="196" fill="#16a34a" font-size="13" text-anchor="middle" font-weight="700">G</text><rect x="170" y="92" width="40" height="88" fill="#2563eb" stroke="#2563eb" stroke-width="1" rx="0" opacity="0.3"/><rect x="170" y="136" width="40" height="44" fill="#2563eb" stroke="#2563eb" stroke-width="1" rx="0" /><text x="190" y="86" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="700">0.80</text><text x="190" y="216" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="800">0.4</text><text x="190" y="196" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="700">B</text><text x="300" y="50" fill="#172033" font-size="14" text-anchor="start" font-weight="700">D, alpha 0.60</text><rect x="300" y="169" width="40" height="11" fill="#dc2626" stroke="#dc2626" stroke-width="1" rx="0" opacity="0.3"/><rect x="300" y="173.4" width="40" height="6.6" fill="#dc2626" stroke="#dc2626" stroke-width="1" rx="0" /><text x="320" y="163" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">0.10</text><text x="320" y="216" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="800">0.06</text><text x="320" y="196" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">R</text><rect x="370" y="81" width="40" height="99" fill="#16a34a" stroke="#16a34a" stroke-width="1" rx="0" opacity="0.3"/><rect x="370" y="120.6" width="40" height="59.4" fill="#16a34a" stroke="#16a34a" stroke-width="1" rx="0" /><text x="390" y="75" fill="#16a34a" font-size="13" text-anchor="middle" font-weight="700">0.90</text><text x="390" y="216" fill="#16a34a" font-size="13" text-anchor="middle" font-weight="800">0.54</text><text x="390" y="196" fill="#16a34a" font-size="13" text-anchor="middle" font-weight="700">G</text><rect x="440" y="136" width="40" height="44" fill="#2563eb" stroke="#2563eb" stroke-width="1" rx="0" opacity="0.3"/><rect x="440" y="153.6" width="40" height="26.4" fill="#2563eb" stroke="#2563eb" stroke-width="1" rx="0" /><text x="460" y="130" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="700">0.40</text><text x="460" y="216" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="800">0.24</text><text x="460" y="196" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="700">B</text></svg></figure></div>
+  <div class="ex"><div class="ex-h">Example <span>the same S over D as the source-over card</span></div>
+  <div class="given"><span><span class="tx">A_S = 0.50,\; A_D = 0.60</span></span><span><span class="tx">1 - A_S = 0.50,\; A_{out} = 0.80</span> from the source-over card</span></div>
+  <div class="terms-wrap"><table class="terms"><tr><th>channel</th><th><span class="tx">P_S = C_S \times A_S</span></th><th><span class="tx">P_D = C_D \times A_D</span></th><th><span class="tx">P_D \times (1 - A_S)</span>, then <span class="tx">P_{out}</span></th><th><span class="tx">C_{out}</span></th></tr>
+  <tr><td>red</td><td><span class="kn">0.90</span> × 0.50 = 0.45</td><td><span class="kn">0.10</span> × 0.60 = 0.06</td><td>0.06 × 0.50 = 0.03<br>0.45 + 0.03 = 0.48</td><td class="r">0.48 ÷ 0.80 = 0.60</td></tr>
+  <tr><td>green</td><td><span class="kn">0.10</span> × 0.50 = 0.05</td><td><span class="kn">0.90</span> × 0.60 = 0.54</td><td>0.54 × 0.50 = 0.27<br>0.05 + 0.27 = 0.32</td><td class="r">0.32 ÷ 0.80 = 0.40</td></tr>
+  <tr><td>blue</td><td><span class="kn">0.80</span> × 0.50 = 0.40</td><td><span class="kn">0.40</span> × 0.60 = 0.24</td><td>0.24 × 0.50 = 0.12<br>0.40 + 0.12 = 0.52</td><td class="r">0.52 ÷ 0.80 = 0.65</td></tr></table></div></div>
+  <div class="note"><b>Which form?</b> SwiftUI <code>Color(red:green:blue:opacity:)</code> takes straight values. A premultiplied buffer (for example <code>CGImageAlphaInfo.premultipliedLast</code>) stores premultiplied values. A bare RGB triple does not say which; label it.</div>
+  <div class="swift">In the iOS lab: <a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter03/PremultipliedRgbaExplorer.swift">PremultipliedRgbaExplorer.swift</a></div>
+</article>
+
+<article class="card wide">
+  <div class="card-top"><h3>Diagram · source-over calculator</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-03-the-over-operation.html" title="Lesson 3.3 — The over operation">3.3</a><a class="lesson" href="../course/chapters/chapter-03/lesson-03-04-draw-order-matters.html" title="Lesson 3.4 — Draw order matters">3.4</a><a class="lesson" href="../course/chapters/chapter-03/lesson-03-05-straight-and-premultiplied-rgba.html" title="Lesson 3.5 — Straight and premultiplied RGBA">3.5</a></span></div>
+  <div class="dia"><div class="dia-h">Interactive <span>move the sliders; “Swap layers” exchanges source and destination</span></div>
+  <div class="row">
+    <div class="col" style="min-width:470px">
+      <div class="ctrls" id="soS"></div>
+      <div class="ctrls" id="soD"></div>
+      <div class="ctrls"><button class="btn" id="soSwap">Swap layers</button><button class="btn" id="soReset">Course values</button></div>
+      <div class="swatches" id="soSw"></div>
+      <p class="cap">Checkerboard behind a chip = transparent part. “Over white” and “over black” place the result on one more opaque layer.</p>
+    </div>
+    <div class="readout" id="soOut" style="min-width:520px"></div>
+  </div></div>
+</article>
+
+<article class="card wide" id="card-from-a-stored-color-to-a-contrast-ratio">
+  <div class="card-top"><h3>From a stored color to a contrast ratio</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-06-brightness-and-relative-luminance.html" title="Lesson 3.6 — From a visible color to relative luminance">3.6</a><a class="lesson" href="../course/chapters/chapter-03/lesson-03-07-foreground-contrast.html" title="Lesson 3.7 — Foreground contrast">3.7</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-06-saturation-and-contrast.html" title="Lesson 7.6 — Saturation and contrast">7.6</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-12-compare-backgrounds.html" title="Lesson 7.12 — Compare backgrounds">7.12</a></span></div>
+  <div class="f tf"><div class="tex">\begin{aligned} \text{1. decode each channel:}\quad linear &= \begin{cases} s \div 12.92 & \text{if } s \le 0.04045 \\ ((s + 0.055) \div 1.055)^{2.4} & \text{if } s > 0.04045 \end{cases} \\ \text{2. relative luminance:}\quad L &= 0.2126 \times R_{lin} + 0.7152 \times G_{lin} + 0.0722 \times B_{lin} \\ \text{3. contrast ratio:}\quad ratio &= (L_{lighter} + 0.05) \div (L_{darker} + 0.05) \\ \text{4. text color:}\quad & \text{the one with the larger ratio; it passes if } ratio \ge 4.5 \end{aligned}</div></div>
+  <div class="where">
+    <span class="tx">s</span><span>a stored sRGB channel, 0 … 1: the number in <code>Color(red:green:blue:)</code>.</span>
+    <span class="tx">linear</span><span>the same channel as an amount of light. The small 2.4 is a power, not × 2.4.</span>
+    <span class="tx">R_{lin}, G_{lin}, B_{lin}</span><span>the three decoded channels. Each feeds step 2 with its own weight; green counts most.</span>
+    <span class="tx">L</span><span>relative luminance, 0 (black) … 1 (white). Alpha is not in it: alpha acts earlier, in source-over.</span>
+    <span class="tx">L_{lighter}, L_{darker}</span><span>the L of the lighter and of the darker of the two colors. 0.05 is a fixed constant of the WCAG standard.</span>
+    <span class="tx">4.5</span><span>the WCAG minimum for normal text: a policy step, checked after the ratio.</span>
+  </div>
+  <div class="pic">
+    <figure><svg width="440" height="340" viewBox="0 0 440 340" role="img" aria-label="The sRGB decode curve with the three channels of the course color marked"><rect x="92" y="20" width="280" height="280" fill="#fff" stroke="#94a3b8" stroke-width="1" rx="0" /><line x1="92" y1="300" x2="372" y2="20" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="5 4"/><text x="209.6" y="160" fill="#94a3b8" font-size="13" text-anchor="end" font-weight="500">linear = s</text><polyline points="92.0,300.0 94.8,299.8 97.6,299.6 100.4,299.3 103.2,299.1 106.0,298.9 108.8,298.6 111.6,298.3 114.4,298.0 117.2,297.6 120.0,297.2 122.8,296.7 125.6,296.2 128.4,295.7 131.2,295.1 134.0,294.5 136.8,293.8 139.6,293.1 142.4,292.4 145.2,291.6 148.0,290.7 150.8,289.8 153.6,288.9 156.4,287.9 159.2,286.9 162.0,285.8 164.8,284.6 167.6,283.4 170.4,282.2 173.2,280.9 176.0,279.5 178.8,278.1 181.6,276.6 184.4,275.1 187.2,273.5 190.0,271.9 192.8,270.2 195.6,268.4 198.4,266.6 201.2,264.7 204.0,262.8 206.8,260.8 209.6,258.8 212.4,256.6 215.2,254.5 218.0,252.2 220.8,249.9 223.6,247.6 226.4,245.1 229.2,242.6 232.0,240.1 234.8,237.4 237.6,234.8 240.4,232.0 243.2,229.2 246.0,226.3 248.8,223.3 251.6,220.3 254.4,217.2 257.2,214.0 260.0,210.8 262.8,207.5 265.6,204.1 268.4,200.7 271.2,197.2 274.0,193.6 276.8,189.9 279.6,186.2 282.4,182.4 285.2,178.5 288.0,174.6 290.8,170.5 293.6,166.4 296.4,162.3 299.2,158.0 302.0,153.7 304.8,149.3 307.6,144.8 310.4,140.3 313.2,135.6 316.0,130.9 318.8,126.1 321.6,121.3 324.4,116.3 327.2,111.3 330.0,106.2 332.8,101.0 335.6,95.8 338.4,90.4 341.2,85.0 344.0,79.5 346.8,73.9 349.6,68.3 352.4,62.5 355.2,56.7 358.0,50.8 360.8,44.8 363.6,38.7 366.4,32.6 369.2,26.3 372.0,20.0" fill="none" stroke="#7c3aed" stroke-width="3"/><line x1="316" y1="300" x2="316" y2="131.16" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 3"/><line x1="92" y1="131.16" x2="316" y2="131.16" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="316" cy="131.16" r="6" fill="#dc2626" stroke="#0f172a" stroke-width="2" data-tip="&lt;b&gt;red&lt;/b&gt;&lt;br&gt;stored s = 0.80&lt;br&gt;linear = 0.603"/><text x="86" y="136.16" fill="#dc2626" font-size="13" text-anchor="end" font-weight="700">0.603</text><text x="316" y="318" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">0.80</text><line x1="162" y1="300" x2="162" y2="285.72" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="4 3"/><line x1="92" y1="285.72" x2="162" y2="285.72" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="162" cy="285.72" r="6" fill="#16a34a" stroke="#0f172a" stroke-width="2" data-tip="&lt;b&gt;green&lt;/b&gt;&lt;br&gt;stored s = 0.25&lt;br&gt;linear = 0.051"/><text x="86" y="290.72" fill="#16a34a" font-size="13" text-anchor="end" font-weight="700">0.051</text><text x="162" y="318" fill="#16a34a" font-size="13" text-anchor="middle" font-weight="700">0.25</text><line x1="260" y1="300" x2="260" y2="210.68" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4 3"/><line x1="92" y1="210.68" x2="260" y2="210.68" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="260" cy="210.68" r="6" fill="#2563eb" stroke="#0f172a" stroke-width="2" data-tip="&lt;b&gt;blue&lt;/b&gt;&lt;br&gt;stored s = 0.60&lt;br&gt;linear = 0.319"/><text x="86" y="215.68" fill="#2563eb" font-size="13" text-anchor="end" font-weight="700">0.319</text><text x="260" y="318" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="700">0.60</text><text x="232" y="340" fill="#64748b" font-size="14" text-anchor="middle" font-weight="600">stored sRGB value s</text><text x="16" y="160.0" fill="#64748b" font-size="14" font-weight="600" text-anchor="middle" transform="rotate(-90 16 160.0)">linear light</text><text x="100" y="40" fill="#7c3aed" font-size="14" text-anchor="start" font-weight="700">decode curve</text></svg><figcaption>Step 1: each stored channel is read up to the purple curve. The dashed line would keep the number unchanged.</figcaption></figure>
+    <figure><svg width="420" height="200" viewBox="0 0 420 200" role="img" aria-label="Relative luminance L as three weighted pieces placed end to end"><text x="30" y="26" fill="#172033" font-size="14" text-anchor="start" font-weight="700">L = the three weighted pieces end to end</text><rect x="30" y="44" width="46.08" height="34" fill="#dc2626" stroke="#0f172a" stroke-width="1" rx="0" /><rect x="76.08" y="44" width="12.96" height="34" fill="#16a34a" stroke="#0f172a" stroke-width="1" rx="0" /><rect x="89.04" y="44" width="8.28" height="34" fill="#2563eb" stroke="#0f172a" stroke-width="1" rx="0" /><rect x="30" y="44" width="360" height="34" fill="none" stroke="#94a3b8" stroke-width="1" rx="0" stroke-dasharray="4 3" /><text x="30" y="104" fill="#dc2626" font-size="14" text-anchor="start" font-weight="600">red 0.2126 × 0.603 = 0.128</text><text x="30" y="126" fill="#16a34a" font-size="14" text-anchor="start" font-weight="600">green 0.7152 × 0.051 = 0.036</text><text x="30" y="148" fill="#2563eb" font-size="14" text-anchor="start" font-weight="600">blue 0.0722 × 0.319 = 0.023</text><text x="103.32" y="66" fill="#172033" font-size="14" text-anchor="start" font-weight="800" paint-order="stroke" stroke="#fff" stroke-width="4" stroke-linejoin="round">L = 0.187</text><text x="30" y="184" fill="#64748b" font-size="13" text-anchor="start" font-weight="500">dashed box: L = 1 (white)</text><text x="390" y="40" fill="#64748b" font-size="13" text-anchor="end" font-weight="500">1</text></svg><figcaption>Step 2: L adds the three weighted pieces.</figcaption></figure>
+    <figure><svg width="420" height="200" viewBox="0 0 420 200" role="img" aria-label="The course color with black text and with white text, and their contrast ratios"><rect x="20" y="20" width="180" height="120" fill="rgb(204,64,153)" stroke="#475569" stroke-width="1.5" rx="10" /><text x="110" y="96" fill="#000" font-size="46" text-anchor="middle" font-weight="800">Aa</text><text x="110" y="164" fill="#172033" font-size="14" text-anchor="middle" font-weight="700">black text: 4.74 : 1</text><rect x="220" y="20" width="180" height="120" fill="rgb(204,64,153)" stroke="#475569" stroke-width="1.5" rx="10" /><text x="310" y="96" fill="#fff" font-size="46" text-anchor="middle" font-weight="800">Aa</text><text x="310" y="164" fill="#172033" font-size="14" text-anchor="middle" font-weight="700">white text: 4.43 : 1</text><text x="20" y="192" fill="#64748b" font-size="13" text-anchor="start" font-weight="500">background: the course color sRGB (0.80, 0.25, 0.60)</text></svg><figcaption>Steps 3–4: black text wins, 4.74 against 4.43.</figcaption></figure>
+  </div>
+  <div class="ex"><div class="ex-h">Example <span>the course color as background</span></div>
+  <div class="given"><span><span class="tx">(R, G, B) = (0.80, 0.25, 0.60)</span> stored sRGB</span><span>black: <span class="tx">L = 0</span></span><span>white: <span class="tx">L = 1</span></span></div>
+  <div class="terms-wrap"><table class="terms"><tr><th>channel</th><th><span class="tx">s</span></th><th><span class="tx">s + 0.055</span></th><th><span class="tx">÷ 1.055</span></th><th><span class="tx">(\ldots)^{2.4} = linear</span></th><th>weight</th><th>weight × linear</th></tr>
+  <tr><td>red</td><td class="kn">0.80</td><td>0.80 + 0.055 = 0.855</td><td>0.855 ÷ 1.055 = 0.81</td><td>0.81<sup>2.4</sup> = 0.603</td><td>0.2126</td><td>0.2126 × 0.603 = 0.128</td></tr>
+  <tr><td>green</td><td class="kn">0.25</td><td>0.25 + 0.055 = 0.305</td><td>0.305 ÷ 1.055 = 0.289</td><td>0.289<sup>2.4</sup> = 0.051</td><td>0.7152</td><td>0.7152 × 0.051 = 0.036</td></tr>
+  <tr><td>blue</td><td class="kn">0.60</td><td>0.60 + 0.055 = 0.655</td><td>0.655 ÷ 1.055 = 0.621</td><td>0.621<sup>2.4</sup> = 0.319</td><td>0.0722</td><td>0.0722 × 0.319 = 0.023</td></tr></table></div>
+  <div class="tex">\begin{aligned} L &= 0.128 + 0.036 + 0.023 = 0.164 + 0.023 = 0.187 \\ ratio_{black} &= (L + 0.05) \div (\kn{0} + 0.05) = (0.187 + 0.05) \div 0.05 = 0.237 \div 0.05 = 4.74 \\ ratio_{white} &= (\kn{1} + 0.05) \div (L + 0.05) = 1.05 \div (0.187 + 0.05) = 1.05 \div 0.237 = 4.43 \\ \text{choice} &: 4.74 > 4.43 \to \text{black text,}\; 4.74 \ge 4.5 \to \text{it passes} \end{aligned}</div></div>
+  <div class="note"><b>Notes:</b> all channels here are above 0.04045, so every one takes the power line; a dark channel such as s = 0.02 takes the other line: 0.02 ÷ 12.92 = 0.002. Lessons 3.6 and 3.7 keep 6 decimals (L = 0.187759) and print 4.76 and 4.42: the same choice. The ratio runs from 1 : 1 (two equal colors) to 21 : 1 (black on white: 1.05 ÷ 0.05 = 21).</div>
+  <div class="swift">In the iOS lab: <a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter03/BrightnessLuminanceExplorer.swift">BrightnessLuminanceExplorer.swift</a><a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter03/ForegroundContrastExplorer.swift">ForegroundContrastExplorer.swift</a><a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter07/CompareBackgroundsExplorer.swift">CompareBackgroundsExplorer.swift</a></div>
+</article>
+
+<article class="card" id="card-tint">
+  <div class="card-top"><h3>Tint</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-08-tint.html" title="Lesson 3.8 — Tint">3.8</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-05-tint-layer.html" title="Lesson 7.5 — Tint layer">7.5</a></span></div>
+  <div class="f tf"><div class="tex">\begin{aligned} output &= tint \times amount + base \times (1 - amount) \\ &= base + amount \times (tint - base) \end{aligned}</div></div>
+  <div class="where">
+    <span class="tx">base</span><span>one channel of the opaque color underneath.</span>
+    <span class="tx">tint</span><span>the same channel of the tint color drawn over it.</span>
+    <span class="tx">amount</span><span>the tint's alpha, 0 … 1: 0 keeps the base, 1 gives the tint color. This is source-over with an opaque base.</span>
+    <span class="tx">tint - base</span><span>its sign says the direction: plus, the channel rises toward the tint; minus, it falls.</span>
+  </div>
+  <div class="chips"><figure><div class="sq"><i style="background:rgb(204,64,153)"></i></div>base: course color<br>(0.80, 0.25, 0.60)</figure><span class="op">+</span><figure><div class="sq"><i style="background:rgba(51,166,255,0.25)"></i></div>tint (0.20, 0.65, 1.00)<br>amount 0.25</figure><span class="op">=</span><figure><div class="sq"><i style="background:rgb(166,89,178)"></i></div>output<br>(0.65, 0.35, 0.70)</figure></div>
+  <div class="chips"><figure><div class="sq"><i style="background:rgb(204,64,153)"></i></div>amount 0</figure><figure><div class="sq"><i style="background:rgb(166,89,178)"></i></div>amount 0.25</figure><figure><div class="sq"><i style="background:rgb(128,115,204)"></i></div>amount 0.5</figure><figure><div class="sq"><i style="background:rgb(89,140,230)"></i></div>amount 0.75</figure><figure><div class="sq"><i style="background:rgb(51,166,255)"></i></div>amount 1</figure></div>
+  <div class="ex"><div class="ex-h">Example 1 <span>Lesson 3.8: a blue tint over the course color</span></div>
+  <div class="given"><span><span class="tx">base = (0.80, 0.25, 0.60)</span></span><span><span class="tx">tint = (0.20, 0.65, 1.00)</span></span><span><span class="tx">amount = 0.25</span></span></div>
+  <div class="terms-wrap"><table class="terms"><tr><th>channel</th><th><span class="tx">tint - base</span></th><th><span class="tx">amount \times (tint - base)</span></th><th><span class="tx">output = base + \ldots</span></th></tr>
+  <tr><td>red</td><td><span class="kn">0.20</span> − <span class="kn">0.80</span> = −0.60</td><td><span class="kn">0.25</span> × (−0.60) = −0.15</td><td class="r">0.80 + (−0.15) = 0.65 (falls)</td></tr>
+  <tr><td>green</td><td><span class="kn">0.65</span> − <span class="kn">0.25</span> = 0.40</td><td><span class="kn">0.25</span> × 0.40 = 0.10</td><td class="r">0.25 + 0.10 = 0.35 (rises)</td></tr>
+  <tr><td>blue</td><td><span class="kn">1.00</span> − <span class="kn">0.60</span> = 0.40</td><td><span class="kn">0.25</span> × 0.40 = 0.10</td><td class="r">0.60 + 0.10 = 0.70 (rises)</td></tr></table></div></div>
+  <div class="chips"><figure><div class="sq"><i style="background:rgb(26,64,102)"></i></div>base: navy<br>(0.10, 0.25, 0.40)</figure><span class="op">+</span><figure><div class="sq"><i style="background:rgba(255,255,255,0.25)"></i></div>tint: white<br>amount 0.25</figure><span class="op">=</span><figure><div class="sq"><i style="background:rgb(83,112,140)"></i></div>output<br>(0.325, 0.4375, 0.55)</figure></div>
+  <div class="ex"><div class="ex-h">Example 2 <span>Lesson 7.5: the frost tint, white at 0.25 over navy</span></div>
+  <div class="given"><span><span class="tx">base = (0.10, 0.25, 0.40)</span></span><span><span class="tx">tint = (1, 1, 1)</span></span><span><span class="tx">amount = 0.25</span></span></div>
+  <div class="terms-wrap"><table class="terms"><tr><th>channel</th><th><span class="tx">tint - base</span></th><th><span class="tx">amount \times (tint - base)</span></th><th><span class="tx">output = base + \ldots</span></th></tr>
+  <tr><td>red</td><td><span class="kn">1</span> − <span class="kn">0.10</span> = 0.90</td><td><span class="kn">0.25</span> × 0.90 = 0.225</td><td class="r">0.10 + 0.225 = 0.325</td></tr>
+  <tr><td>green</td><td><span class="kn">1</span> − <span class="kn">0.25</span> = 0.75</td><td><span class="kn">0.25</span> × 0.75 = 0.1875</td><td class="r">0.25 + 0.1875 = 0.4375</td></tr>
+  <tr><td>blue</td><td><span class="kn">1</span> − <span class="kn">0.40</span> = 0.60</td><td><span class="kn">0.25</span> × 0.60 = 0.15</td><td class="r">0.40 + 0.15 = 0.55</td></tr></table></div></div>
+  <div class="swift">In the iOS lab: <a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter03/TintExplorer.swift">TintExplorer.swift</a><a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter07/TintLayerExplorer.swift">TintLayerExplorer.swift</a></div>
+</article>
+
+<article class="card" id="card-color-matrix-4-5">
+  <div class="card-top"><h3>Color matrix (4 × 5)</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-09-saturation.html" title="Lesson 3.9 — Saturation">3.9</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-06-saturation-and-contrast.html" title="Lesson 7.6 — Saturation and contrast">7.6</a></span></div>
+  <div class="f tf"><div class="tex">\begin{bmatrix} R' \\ G' \\ B' \\ A' \end{bmatrix} = \begin{bmatrix} m_{00} & m_{01} & m_{02} & m_{03} & m_{04} \\ m_{10} & m_{11} & m_{12} & m_{13} & m_{14} \\ m_{20} & m_{21} & m_{22} & m_{23} & m_{24} \\ m_{30} & m_{31} & m_{32} & m_{33} & m_{34} \end{bmatrix} \begin{bmatrix} R \\ G \\ B \\ A \\ 1 \end{bmatrix}</div>
+  <div class="tex">R' = m_{00} \times R + m_{01} \times G + m_{02} \times B + m_{03} \times A + m_{04} \times 1</div></div>
+  <div class="where">
+    <span class="tx">R, G, B, A</span><span>the input color, channels 0 … 1.</span>
+    <span class="tx">R', G', B', A'</span><span>the output color: each output channel is one row of the matrix times the five inputs, added up.</span>
+    <span class="tx">m_{04}, m_{14}, …</span><span>the fifth column multiplies a constant 1, so it is an offset added to the channel.</span>
+  </div>
+  <div class="f tf"><div class="c" style="font-family:Inter,system-ui,sans-serif">The saturation matrix of the lab, for a saturation factor s (the frozen frost uses s = 0.40):</div>
+  <div class="tex">\begin{bmatrix} 0.213(1-s)+s & 0.715(1-s) & 0.072(1-s) & 0 & 0 \\ 0.213(1-s) & 0.715(1-s)+s & 0.072(1-s) & 0 & 0 \\ 0.213(1-s) & 0.715(1-s) & 0.072(1-s)+s & 0 & 0 \\ 0 & 0 & 0 & 1 & 0 \end{bmatrix}</div></div>
+  <div class="chips"><figure><div class="sq"><i style="background:rgb(224,122,46)"></i></div>teaching orange<br>(0.88, 0.48, 0.18)</figure><span class="op">→</span><figure><div class="sq"><i style="background:rgb(173,132,101)"></i></div>after the matrix<br>(0.678, 0.518, 0.398)</figure></div>
+  <div class="ex"><div class="ex-h">Example <span>the teaching orange at s = 0.40</span></div>
+  <div class="given"><span><span class="tx">s = 0.40</span></span><span><span class="tx">(R, G, B, A) = (0.88, 0.48, 0.18, 1)</span></span></div>
+  <div class="tex">\begin{aligned} 1 - s &= 1 - \kn{0.40} = 0.60 \\ 0.213(1-s) &= 0.213 \times 0.60 = 0.1278 &\qquad 0.1278 + s &= 0.1278 + \kn{0.40} = 0.5278 \\ 0.715(1-s) &= 0.715 \times 0.60 = 0.429 &\qquad 0.429 + s &= 0.429 + \kn{0.40} = 0.829 \\ 0.072(1-s) &= 0.072 \times 0.60 = 0.0432 &\qquad 0.0432 + s &= 0.0432 + \kn{0.40} = 0.4432 \end{aligned}</div>
+  <div class="terms-wrap"><table class="terms tight"><tr><th>row</th><th><span class="tx">m_{r0} \times R</span></th><th><span class="tx">m_{r1} \times G</span></th><th><span class="tx">m_{r2} \times B</span></th><th>sum</th></tr>
+  <tr><td><span class="tx">R'</span></td><td>0.5278 × <span class="kn">0.88</span> = 0.464</td><td>0.429 × <span class="kn">0.48</span> = 0.206</td><td>0.0432 × <span class="kn">0.18</span> = 0.008</td><td>0.464 + 0.206 = 0.67<br>0.67 + 0.008 = <b>0.678</b></td></tr>
+  <tr><td><span class="tx">G'</span></td><td>0.1278 × <span class="kn">0.88</span> = 0.112</td><td>0.829 × <span class="kn">0.48</span> = 0.398</td><td>0.0432 × <span class="kn">0.18</span> = 0.008</td><td>0.112 + 0.398 = 0.51<br>0.51 + 0.008 = <b>0.518</b></td></tr>
+  <tr><td><span class="tx">B'</span></td><td>0.1278 × <span class="kn">0.88</span> = 0.112</td><td>0.429 × <span class="kn">0.48</span> = 0.206</td><td>0.4432 × <span class="kn">0.18</span> = 0.08</td><td>0.112 + 0.206 = 0.318<br>0.318 + 0.08 = <b>0.398</b></td></tr></table></div>
+  <div class="cap">The A column and the offsets are 0 in this matrix, so A′ = 1 × A = 1.</div></div>
+  <div class="note"><b>On iOS:</b> the lab builds the matrix itself in <code>LabColorMatrix.setToSaturation</code>, a copy of Android's <code>ColorMatrix.setSaturation</code>. Core Image's <code>CIColorMatrix</code> filter takes the same 20 numbers: <code>inputRVector</code> … <code>inputAVector</code> are the rows' first four numbers, <code>inputBiasVector</code> the fifth column. SwiftUI's <code>.saturation(_:)</code> is a different recipe: Apple does not publish its weights, so the lab does not use it.</div>
+  <div class="swift">In the iOS lab: <a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter03/SaturationExplorer.swift">SaturationExplorer.swift</a><a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter07/SaturationContrastExplorer.swift">SaturationContrastExplorer.swift</a><a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter07/CompareBackgroundsExplorer.swift">CompareBackgroundsExplorer.swift</a></div>
+</article>
+
+<article class="card" id="card-saturation-lab-matrix">
+  <div class="card-top"><h3>Saturation (lab matrix)</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-09-saturation.html" title="Lesson 3.9 — Saturation">3.9</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-06-saturation-and-contrast.html" title="Lesson 7.6 — Saturation and contrast">7.6</a></span></div>
+  <div class="f"><div>gray   = 0.213 × R + 0.715 × G + 0.072 × B      <span class="c">← weights add to 1.000</span></div><div>output = gray + factor × (channel − gray)</div><div>shown  = clamp(output, 0, 1)                    <span class="c">← alpha is copied unchanged</span></div></div>
+  <div class="sym"><b>factor</b> &lt; 1 moves each channel toward gray, 1 keeps it, &gt; 1 pushes it away. The gray reference is not relative luminance (different weights, no sRGB decode). Frozen frost factor: <b>0.40</b>.</div>
+  <div class="f"><div><span class="c">same thing as the 4 × 5 matrix row for red (s = factor):</span></div><div>( 0.213 × (1 − s) + s,  0.715 × (1 − s),  0.072 × (1 − s),  0,  0 )</div></div>
+  <div class="ex"><div class="ex-h">Example <span>navy after tint (0.325, 0.4375, 0.55), factor 0.40</span></div>
+  <table class="steps"><tr><th>gray</th><td><span class="eq">0.213 × 0.325 = 0.069</span>
+<span class="eq">0.715 × 0.4375 = 0.313</span>
+<span class="eq">0.072 × 0.55 = 0.0396</span>
+<span class="eq">0.069 + 0.313 = 0.382</span>
+<span class="eq">0.382 + 0.0396 = <span class="r">0.4216</span></span></td></tr>
+  <tr><th>red</th><td><span class="eq">0.325 − 0.4216 = −0.0966</span>
+<span class="eq">0.40 × (−0.0966) = −0.039</span>
+<span class="eq">0.4216 + (−0.039) = <span class="r">0.3826</span></span></td></tr>
+  <tr><th>green</th><td><span class="eq">0.4375 − 0.4216 = 0.0159</span>
+<span class="eq">0.40 × 0.0159 = 0.006</span>
+<span class="eq">0.4216 + 0.006 = <span class="r">0.4276</span></span></td></tr>
+  <tr><th>blue</th><td><span class="eq">0.55 − 0.4216 = 0.1284</span>
+<span class="eq">0.40 × 0.1284 = 0.051</span>
+<span class="eq">0.4216 + 0.051 = <span class="r">0.4726</span></span></td></tr></table></div>
+</article>
+
+<article class="card" id="card-diagram-saturation-factor">
+  <div class="card-top"><h3>Diagram · saturation factor</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-09-saturation.html" title="Lesson 3.9 — Saturation">3.9</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-06-saturation-and-contrast.html" title="Lesson 7.6 — Saturation and contrast">7.6</a></span></div>
+  <div class="dia"><div class="dia-h">Interactive <span>bars = channels 0 … 1; the dashed line is the gray reference</span></div>
+  <div class="ctrls"><label>factor <input type="range" id="satF" min="0" max="2.4" step="0.05" value="0.4"><output id="satFO"></output></label></div>
+  <div class="ctrls" id="satPresets"></div>
+  <div class="row"><svg id="satSvg" width="330" height="230" viewBox="0 0 330 230"></svg>
+  <div class="col"><div class="swatches"><figure><div class="chip"><i id="satIn"></i></div>input</figure><figure><div class="chip"><i id="satOutSw"></i></div>output</figure></div></div></div>
+  <div class="readout" id="satOut" style="margin-top:8px"></div>
+  </div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Blend modes (opaque layers)</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-10-blend-modes.html" title="Lesson 3.10 — Blend modes">3.10</a></span></div>
+  <div class="f tf"><div class="tex">\begin{aligned} \text{Normal:}\quad out &= s \\ \text{Multiply:}\quad out &= s \times d \\ \text{Screen:}\quad out &= 1 - (1 - s) \times (1 - d) \\ \text{Plus:}\quad out &= clamp(s + d,\; 0,\; 1) \end{aligned}</div></div>
+  <div class="where">
+    <span class="tx">s</span><span>one channel of the source (the upper layer).</span>
+    <span class="tx">d</span><span>the same channel of the destination (the lower layer).</span>
+    <span>neutral</span><span>a source that changes nothing: white (1) for Multiply, black (0) for Screen and Plus.</span>
+  </div>
+  <div class="chips"><figure><div class="sq"><i style="background:rgb(214,92,46)"></i></div>source s<br>(0.84, 0.36, 0.18)</figure><figure><div class="sq"><i style="background:rgb(56,148,194)"></i></div>destination d<br>(0.22, 0.58, 0.76)</figure><span class="op">→</span><figure><div class="sq"><i style="background:rgb(47,53,35)"></i></div>Multiply<br>(0.1848, 0.2088, 0.1368)</figure><figure><div class="sq"><i style="background:rgb(223,186,205)"></i></div>Screen<br>(0.8752, 0.7312, 0.8032)</figure><figure><div class="sq"><i style="background:rgb(255,240,240)"></i></div>Plus<br>(1, 0.94, 0.94)</figure></div>
+  <div class="ex"><div class="ex-h">Example <span>the two colors of the blend-mode diagram</span></div>
+  <div class="given"><span><span class="tx">s = (0.84, 0.36, 0.18)</span></span><span><span class="tx">d = (0.22, 0.58, 0.76)</span></span></div>
+  <div class="terms-wrap"><table class="terms"><tr><th>channel</th><th>Multiply <span class="tx">s \times d</span></th><th>Screen <span class="tx">1 - (1 - s) \times (1 - d)</span></th><th>Plus <span class="tx">clamp(s + d)</span></th></tr>
+  <tr><td>red</td><td><span class="kn">0.84</span> × <span class="kn">0.22</span> = 0.1848</td><td class="r">0.16 × 0.78 = 0.1248<br>1 − 0.1248 = 0.8752</td><td class="r">0.84 + 0.22 = 1.06 → 1</td></tr>
+  <tr><td>green</td><td><span class="kn">0.36</span> × <span class="kn">0.58</span> = 0.2088</td><td class="r">0.64 × 0.42 = 0.2688<br>1 − 0.2688 = 0.7312</td><td class="r">0.36 + 0.58 = 0.94</td></tr>
+  <tr><td>blue</td><td><span class="kn">0.18</span> × <span class="kn">0.76</span> = 0.1368</td><td class="r">0.82 × 0.24 = 0.1968<br>1 − 0.1968 = 0.8032</td><td class="r">0.18 + 0.76 = 0.94</td></tr></table></div>
+  <div class="cap">The 1 − s and 1 − d values: red 1 − 0.84 = 0.16 and 1 − 0.22 = 0.78; green 0.64 and 0.42; blue 0.82 and 0.24.</div></div>
+  <div class="note"><b>With alpha</b> (Multiply, general form): out = s × (1 − A_D) + d × (1 − A_S) + s × d. With both alphas 1 it is s × d.</div>
+  <div class="swift">In the iOS lab: <a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter03/BlendModesExplorer.swift">BlendModesExplorer.swift</a></div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Diagram · blend modes</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-10-blend-modes.html" title="Lesson 3.10 — Blend modes">3.10</a></span></div>
+  <div class="dia"><div class="dia-h">Interactive <span>pick a mode</span></div>
+    <div class="ctrls" id="bmBtns"></div>
+    <div class="row"><canvas id="bmCv" width="250" height="170" class="np"></canvas>
+    <div class="leg"><span><i class="box" style="background:rgb(214,92,46)"></i>source s (0.84, 0.36, 0.18)</span><span><i class="box" style="background:rgb(56,148,194)"></i>destination d (0.22, 0.58, 0.76)</span><span><i class="box" id="bmSwOut"></i>overlap = the mode output</span></div></div>
+    <div class="readout" id="bmOut" style="margin-top:8px"></div>
+  </div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Stack of layers</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-11-compositing-laboratory.html" title="Lesson 3.11 — Compositing laboratory">3.11</a></span></div>
+  <div class="f tf"><div class="tex">\begin{aligned} running &= base \\ \text{for each layer:}\quad running &= sourceOver(layer,\; running) \end{aligned}</div></div>
+  <div class="where">
+    <span class="tx">base</span><span>the bottom color; opaque here, so every running result stays opaque (alpha 1).</span>
+    <span class="tx">running</span><span>the result so far: the destination for the next layer.</span>
+    <span class="tx">layer</span><span>each layer in draw order, with its own alpha <span class="tx">A_L</span>.</span>
+  </div>
+  <div class="chips"><figure><div class="sq"><i style="background:rgb(56,148,194)"></i></div>base<br>(0.22, 0.58, 0.76), alpha 1</figure><span class="op">+</span><figure><div class="sq"><i style="background:rgba(230,76,51,0.5)"></i></div>layer A (0.90, 0.30, 0.20)<br>alpha 0.50</figure><span class="op">=</span><figure><div class="sq"><i style="background:rgb(143,112,122)"></i></div>running<br>(0.56, 0.44, 0.48)</figure><span class="op">+</span><figure><div class="sq"><i style="background:rgba(51,51,153,0.25)"></i></div>layer B (0.20, 0.20, 0.60)<br>alpha 0.25</figure><span class="op">=</span><figure><div class="sq"><i style="background:rgb(120,97,130)"></i></div>running<br>(0.47, 0.38, 0.51)</figure></div>
+  <div class="ex"><div class="ex-h">Example <span>two layers over an opaque blue base</span></div>
+  <div class="given"><span><span class="tx">base = (0.22, 0.58, 0.76)</span></span><span>A: <span class="tx">(0.90, 0.30, 0.20),\; A_L = 0.50</span></span><span>B: <span class="tx">(0.20, 0.20, 0.60),\; A_L = 0.25</span></span></div>
+  <div class="terms-wrap"><table class="terms"><tr><th>layer, channel</th><th><span class="tx">layer \times A_L</span></th><th><span class="tx">running \times (1 - A_L)</span></th><th>new <span class="tx">running</span></th></tr>
+  <tr><td>A, red</td><td><span class="kn">0.90</span> × <span class="kn">0.50</span> = 0.45</td><td><span class="kn">0.22</span> × 0.50 = 0.11</td><td class="r">0.45 + 0.11 = 0.56</td></tr>
+  <tr><td>A, green</td><td><span class="kn">0.30</span> × <span class="kn">0.50</span> = 0.15</td><td><span class="kn">0.58</span> × 0.50 = 0.29</td><td class="r">0.15 + 0.29 = 0.44</td></tr>
+  <tr><td>A, blue</td><td><span class="kn">0.20</span> × <span class="kn">0.50</span> = 0.10</td><td><span class="kn">0.76</span> × 0.50 = 0.38</td><td class="r">0.10 + 0.38 = 0.48</td></tr>
+  <tr><td>B, red</td><td><span class="kn">0.20</span> × <span class="kn">0.25</span> = 0.05</td><td>0.56 × 0.75 = 0.42</td><td class="r">0.05 + 0.42 = 0.47</td></tr>
+  <tr><td>B, green</td><td><span class="kn">0.20</span> × <span class="kn">0.25</span> = 0.05</td><td>0.44 × 0.75 = 0.33</td><td class="r">0.05 + 0.33 = 0.38</td></tr>
+  <tr><td>B, blue</td><td><span class="kn">0.60</span> × <span class="kn">0.25</span> = 0.15</td><td>0.48 × 0.75 = 0.36</td><td class="r">0.15 + 0.36 = 0.51</td></tr></table></div>
+  <div class="cap">1 − A_L: 1 − 0.50 = 0.50 for A, 1 − 0.25 = 0.75 for B. Layer B uses A's result as its destination.</div></div>
+  <div class="note"><b>Bug to avoid:</b> passing the base instead of the running result as the destination drops every earlier layer.</div>
+  <div class="swift">In the iOS lab: <a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter03/CompositingLaboratory.swift">CompositingLaboratory.swift</a></div>
+</article>
+
+</div>
+</section>
+<nav class="pager" id="pager"></nav>
+</main>
+<script>
+'use strict';
+/* Formula cheatsheet — the common script. Every page carries this same block, before its own script
+   (every page is self-contained: no shared .js or .css file).
+   It adds the section menu and the point tooltip, typesets the LaTeX formulas as MathML,
+   and holds the helpers the pictures share.
+   SECTIONS lists every page of the cheatsheet: when a page is added, add it to SECTIONS in every page. */
+
+/* ================= the sections (menu, pager) ================= */
+/* one page per chapter, in course order (learner, 2026-11-10), then the page that every chapter uses; n is the badge */
+const SECTIONS = [{"n": "Ch 1", "file": "chapter-01-a-transparent-panel-is-not-yet-liquid-glass.html", "title": "A transparent panel is not yet Liquid Glass", "acc": "#7c3aed", "range": "1.6 – 1.7"},
+  {"n": "Ch 2", "file": "chapter-02-the-screen-is-a-grid.html", "title": "The screen is a grid", "acc": "#2563eb", "range": "2.5 – 2.9"},
+  {"n": "Ch 3", "file": "chapter-03-color-opacity-and-compositing.html", "title": "Color, opacity, and compositing", "acc": "#db2777", "range": "3.1 – 3.11"},
+  {"n": "Ch 4", "file": "chapter-04-shapes-corners-paths-and-masks.html", "title": "Shapes, corners, paths, and masks", "acc": "#0d9488", "range": "4.1 – 4.11"},
+  {"n": "Ch 5", "file": "chapter-05-motion-without-mystery.html", "title": "Motion without mystery", "acc": "#ea580c", "range": "5.1 – 5.12"},
+  {"n": "Ch 6", "file": "chapter-06-how-swiftui-draws-the-scene.html", "title": "How SwiftUI draws the scene", "acc": "#0e7490", "range": "6.4 – 6.11"},
+  {"n": "Ch 7", "file": "chapter-07-build-convincing-frosted-glass-without-a-custom-lens.html", "title": "Build convincing frosted glass without a custom lens", "acc": "#9333ea", "range": "7.1 – 7.12"},
+  {"n": "Ch 8", "file": "chapter-08-your-first-metal-shader.html", "title": "Your first Metal shader", "acc": "#15803d", "range": "8.1 – 8.11"},
+  {"n": "Ch 9", "file": "chapter-09-distance-fields-image-sampling-and-refraction.html", "title": "Distance fields, image sampling, and refraction", "acc": "#b45309", "range": "9.1 – 9.14"},
+  {"n": "Ch 10", "file": "chapter-10-light-surface-direction-and-material-thickness.html", "title": "Light, surface direction, and material thickness", "acc": "#0369a1", "range": "10.1 – 10.29"},
+  {"n": "All", "file": "all-chapters-constants-and-conventions.html", "title": "Constants and conventions", "acc": "#475569", "range": "all chapters"}];
+
+(function chrome(){
+  const here = location.pathname.split('/').pop();
+  document.body.insertAdjacentHTML('afterbegin',
+    '<button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menu"><span class="ico">☰</span>Chapters</button>' +
+    '<nav class="menu" id="menu" aria-label="Chapters"><div class="menu-h">Chapters <button id="menuClose" aria-label="Close menu">×</button></div><div id="menuList"></div></nav>' +
+    '<div class="tip" id="tip" role="dialog"><button aria-label="Close">×</button><div></div></div>');
+  const list = document.getElementById('menuList');
+  list.insertAdjacentHTML('beforeend', `<a href="index.html" class="${here === 'index.html' || here === '' ? 'active' : ''}"><span class="n" style="background:#172033">☰</span><span>All chapters and conventions</span><small></small></a>`);
+  SECTIONS.forEach(c => {
+    list.insertAdjacentHTML('beforeend', `<a href="${c.file}" class="${c.file === here ? 'active' : ''}" title="Lessons ${c.range}"><span class="n" style="background:${c.acc}">${String(c.n).padStart(2, '0')}</span><span>${c.title}</span><small>${c.range}</small></a>`);
+  });
+  const btn = document.getElementById('menuBtn'), menu = document.getElementById('menu');
+  function setOpen(o){ menu.classList.toggle('open', o); btn.setAttribute('aria-expanded', o); }
+  btn.addEventListener('click', e => { e.stopPropagation(); setOpen(!menu.classList.contains('open')); });
+  document.getElementById('menuClose').addEventListener('click', () => setOpen(false));
+  document.addEventListener('click', e => { if(menu.classList.contains('open') && !menu.contains(e.target) && e.target !== btn) setOpen(false); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') setOpen(false); });
+  /* pager under the section */
+  const i = SECTIONS.findIndex(c => c.file === here), pager = document.getElementById('pager');
+  if(pager && i >= 0){
+    const prev = SECTIONS[i - 1], next = SECTIONS[i + 1];
+    pager.innerHTML = (prev ? `<a href="${prev.file}">← ${String(prev.n).padStart(2, '0')} ${prev.title}</a>` : '<span></span>') +
+      `<a href="index.html">All chapters</a>` + (next ? `<a href="${next.file}">${String(next.n).padStart(2, '0')} ${next.title} →</a>` : '<span></span>');
+  }
+})();
+
+/* ================= LaTeX → MathML =================
+   A small LaTeX reader for the formulas of this cheatsheet. The browser draws MathML itself,
+   so the pages need no library and work from file://.
+   Write a formula in an element with class "tex" (a block) or "tx" (inside a sentence).
+   Supported: { } ^ _ \frac \sqrt \text \mathrm \operatorname \left \right \quad \qquad \, \;
+   \begin{aligned} (& and \\), \begin{cases}, \begin{bmatrix}, \color{#hex}{…}, \kn{…} (a known input, green),
+   \hl{…} (yellow), \times \div \cdot \le \ge \ne \approx \to \pm \ldots and Greek letters.
+   A run of two or more letters is one name, drawn upright (px, displayScale); one letter is italic (x, A). */
+const TeX = (() => {
+  const M = 'http://www.w3.org/1998/Math/MathML';
+  const SYM = {times:'×', div:'÷', cdot:'·', le:'≤', leq:'≤', ge:'≥', geq:'≥', ne:'≠', neq:'≠', approx:'≈', to:'→', rightarrow:'→',
+    Rightarrow:'⇒', leftarrow:'←', pm:'±', ldots:'…', dots:'…', cdots:'⋯', vert:'|', lvert:'|', rvert:'|', infty:'∞', circ:'∘',
+    prime:'′', mid:'|', lbrace:'{', rbrace:'}', langle:'⟨', rangle:'⟩', percent:'%', degree:'°', sum:'∑', in:'∈', bmod:'mod', pmod:'mod'};
+  const GREEK = {alpha:'α', beta:'β', gamma:'γ', delta:'δ', Delta:'Δ', epsilon:'ε', theta:'θ', lambda:'λ', mu:'μ', pi:'π', rho:'ρ',
+    sigma:'σ', tau:'τ', phi:'φ', omega:'ω', Omega:'Ω'};
+  const FUN = ['min', 'max', 'round', 'clamp', 'floor', 'mix', 'sqrt', 'length', 'smoothstep', 'mod', 'abs'];
+  const SPACE = {quad:'1em', qquad:'2em', ',':'0.17em', ';':'0.28em', ' ':'0.25em', ':':'0.22em', '!':'0em'};
+  function tokens(src){
+    const out = []; let i = 0;
+    while(i < src.length){
+      const c = src[i];
+      if(c === '\\'){
+        const m = /^\\([A-Za-z]+|.)/.exec(src.slice(i));
+        out.push({t:'cmd', v:m[1]}); i += m[0].length;
+        if(m[1] === 'text' || m[1] === 'mathrm' || m[1] === 'operatorname'){
+          /* read the braced argument raw, so spaces stay */
+          while(src[i] === ' ') i++;
+          if(src[i] === '{'){ let d = 1, j = i + 1; while(j < src.length && d){ if(src[j] === '{') d++; else if(src[j] === '}') d--; j++; } out.push({t:'raw', v:src.slice(i + 1, j - 1)}); i = j; }
+        }
+      } else if(/\s/.test(c)){ i++; }
+      else if(c === '-' && /[0-9.]/.test(src[i + 1] || '') && (() => { const q = out[out.length - 1];
+        return !q || (q.t === 'ch' && '(,=[{&'.includes(q.v)) || (q.t === 'cmd' && /^(;|,|quad|qquad| |times|div|cdot|le|ge|to|approx)$/.test(q.v)); })()){
+        const m = /^-[0-9]*\.?[0-9]+/.exec(src.slice(i)); out.push({t:'num', v:'−' + m[0].slice(1)}); i += m[0].length; }
+      else if(/[0-9.]/.test(c)){ const m = /^[0-9]*\.?[0-9]+|^[0-9]+\.?/.exec(src.slice(i)); out.push({t:'num', v:m[0]}); i += m[0].length; }
+      else if(/[A-Za-z]/.test(c)){ const m = /^[A-Za-z]+/.exec(src.slice(i)); out.push({t:'word', v:m[0]}); i += m[0].length; }
+      else { out.push({t:'ch', v:c}); i++; }
+    }
+    return out;
+  }
+  function el(tag, kids, attrs){
+    const e = document.createElementNS(M, tag);
+    if(attrs) for(const k in attrs) e.setAttribute(k, attrs[k]);
+    (kids || []).forEach(k => e.appendChild(typeof k === 'string' ? document.createTextNode(k) : k));
+    return e;
+  }
+  const row = kids => kids.length === 1 ? kids[0] : el('mrow', kids);
+  function parse(src){
+    const tk = tokens(src); let p = 0;
+    const peek = () => tk[p], next = () => tk[p++];
+    function arg(){
+      const t = peek();
+      if(t && t.t === 'ch' && t.v === '{'){ next(); const r = seq(['}']); next(); return row(r); }
+      return atom();
+    }
+    function seq(stops){
+      const kids = [];
+      while(p < tk.length){
+        const t = peek();
+        if(t.t === 'ch' && stops.includes(t.v)) break;
+        if(t.t === 'cmd' && (stops.includes('\\' + t.v))) break;
+        if(t.t === 'cmd' && (t.v === 'right' || t.v === 'end') && stops.includes('\\' + t.v)) break;
+        const a = atom(); if(a) kids.push(scripts(a));
+      }
+      return kids;
+    }
+    function scripts(base){
+      let sub = null, sup = null;
+      for(;;){
+        const t = peek();
+        if(t && t.t === 'ch' && t.v === '^'){ next(); sup = arg(); }
+        else if(t && t.t === 'ch' && t.v === '_'){ next(); sub = arg(); }
+        else if(t && t.t === 'ch' && (t.v === '′' || t.v === "'")){ next(); sup = sup ? row([sup, el('mo', ['′'])]) : el('mo', ['′']); }
+        else break;
+      }
+      if(sub && sup) return el('msubsup', [base, sub, sup]);
+      if(sub) return el('msub', [base, sub]);
+      if(sup) return el('msup', [base, sup]);
+      return base;
+    }
+    function env(name){
+      /* rows split by \\, cells by & */
+      const rows = [[[]]];
+      while(p < tk.length){
+        const t = peek();
+        if(t.t === 'cmd' && t.v === 'end'){ next(); arg(); break; }
+        if(t.t === 'cmd' && t.v === '\\'){ next(); rows.push([[]]); continue; }
+        if(t.t === 'ch' && t.v === '&'){ next(); rows[rows.length - 1].push([]); continue; }
+        const a = atom(); if(a){ const r = rows[rows.length - 1]; r[r.length - 1].push(scripts(a)); }
+      }
+      if(rows.length > 1 && rows[rows.length - 1].every(c => !c.length)) rows.pop();
+      const table = el('mtable', rows.map(r => el('mtr', r.map((c, j) => {
+        return el('mtd', [row(c.length ? c : [el('mrow')])]);
+      }))), {class:'tx-' + name});
+      if(name === 'cases') return el('mrow', [el('mo', ['{'], {stretchy:'true'}), table]);
+      if(name === 'bmatrix') return el('mrow', [el('mo', ['['], {stretchy:'true'}), table, el('mo', [']'], {stretchy:'true'})]);
+      return table;
+    }
+    function atom(){
+      const t = next();
+      if(t.t === 'num') return el('mn', [t.v]);
+      if(t.t === 'word'){
+        if(FUN.includes(t.v) || t.v.length > 1) return el('mi', [t.v], t.v.length === 1 ? {} : {});
+        return el('mi', [t.v]);
+      }
+      if(t.t === 'raw') return el('mtext', [t.v]);
+      if(t.t === 'ch'){
+        if(t.v === '{'){ const r = seq(['}']); next(); return row(r); }
+        if(t.v === '-') return el('mo', ['−']);
+        if(t.v === '*') return el('mo', ['×']);
+        if(t.v === '~') return el('mspace', [], {width:'0.25em'});
+        if(t.v === '(' || t.v === ')' || t.v === '[' || t.v === ']' || t.v === '|') return el('mo', [t.v], {stretchy:'false'});
+        return el('mo', [t.v]);
+      }
+      /* commands */
+      const v = t.v;
+      if(v === 'frac'){ const a = arg(), b = arg(); return el('mfrac', [a, b]); }
+      if(v === 'sqrt') return el('msqrt', [arg()]);
+      if(v === 'text'){ const r = next(); return el('mtext', [r.v]); }
+      if(v === 'mathrm' || v === 'operatorname'){ const r = next(); return el('mi', [r.v], {mathvariant:'normal', class:'tx-fn'}); }
+      if(v === 'left' || v === 'right' || v === 'big' || v === 'Big' || v === 'bigl' || v === 'bigr'){
+        const d = next(); const ch = d.t === 'cmd' ? (SYM[d.v] || d.v) : d.v;
+        return ch === '.' ? null : el('mo', [ch], {stretchy:'true'});
+      }
+      if(v === 'begin'){ const n = arg().textContent.trim(); return env(n); }
+      if(v === 'color'){ const c = arg().textContent.replace(/\s/g, ''); const b = arg(); return el('mrow', [b], {style:'color:' + c}); }
+      if(v === 'kn') return el('mrow', [arg()], {class:'tx-kn'});
+      if(v === 'hl') return el('mrow', [arg()], {class:'tx-hl'});
+      if(v === 'bold') return el('mrow', [arg()], {class:'tx-b'});
+      if(v in SPACE) return el('mspace', [], {width:SPACE[v]});
+      if(v in GREEK) return el('mi', [GREEK[v]]);
+      if(v in SYM) return el('mo', [SYM[v]]);
+      if(v === '{' || v === '}' || v === '%' || v === '&' || v === '#' || v === '_') return el('mo', [v]);
+      if(FUN.includes(v)) return el('mi', [v], {class:'tx-fn'});
+      return el('mtext', ['\\' + v]);
+    }
+    return seq([]);
+  }
+  function render(node){
+    if(node._tex) return;
+    const src = node.textContent;
+    const block = node.classList.contains('tex');
+    const m = el('math', parse(src), block ? {displaystyle:'true'} : {});
+    m.setAttribute('aria-label', src.replace(/\\[a-z]+/g, ' ').replace(/[{}]/g, ''));
+    node.textContent = ''; node.appendChild(m); node._tex = src; node.title = '';
+  }
+  /* Chrome centers every MathML table cell. Pad the cells so that, in an aligned block,
+     the left side of each "=" is right-aligned and the right side left-aligned. */
+  function align(root){
+    (root || document).querySelectorAll('mtable.tx-aligned, mtable.tx-cases').forEach(t => {
+      const rows = [...t.children], cols = [];
+      rows.forEach(r => [...r.children].forEach((c, j) => { c.style.paddingLeft = c.style.paddingRight = '0px'; }));
+      rows.forEach(r => [...r.children].forEach((c, j) => { const w = c.firstElementChild ? c.firstElementChild.getBoundingClientRect().width : 0; cols[j] = Math.max(cols[j] || 0, w); }));
+      if(!cols.some(w => w > 0)) return;
+      const gap = t.classList.contains('tx-cases') ? 0 : 0;
+      rows.forEach(r => [...r.children].forEach((c, j) => {
+        const w = c.firstElementChild ? c.firstElementChild.getBoundingClientRect().width : 0, extra = cols[j] - w;
+        const right = t.classList.contains('tx-aligned') && j % 2 === 0, gapL = t.classList.contains('tx-cases') && j > 0 ? 18 : 0;
+        c.style.paddingLeft = (right ? extra : gapL) + 'px'; c.style.paddingRight = (right ? 0 : extra) + 'px';
+      }));
+    });
+  }
+  function all(root){ (root || document).querySelectorAll('.tex, .tx').forEach(render); align(root); }
+  return {render, all, parse, align};
+})();
+TeX.all();
+
+
+/* ================= utilities ================= */
+const $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+/* rounding rule of the course: exact if at most 4 decimals, else 3 decimals half up */
+function R(x){
+  if(!isFinite(x)) return x;
+  const s = x < 0 ? -1 : 1, a = Math.abs(x);
+  const e4 = Math.round(a * 1e4);
+  if(Math.abs(a * 1e4 - e4) < 1e-6) return s * e4 / 1e4 || 0;
+  return s * Math.round(a * 1e3 + 1e-7) / 1e3 || 0;
+}
+function fmtAbs(a, maxDec){
+  if(Math.abs(a - Math.round(a)) < 1e-9) return String(Math.round(a));
+  let d = 2;
+  while(d < maxDec && Math.abs(Math.round(a * 10 ** d) - a * 10 ** d) > 1e-6) d++;
+  return a.toFixed(d);
+}
+function F(x){ x = R(x); const s = fmtAbs(Math.abs(x), 4); return (x < 0 && s !== '0' ? '−' : '') + s; }
+/* exact format: squares that feed a square root stay exact */
+function FX(x){ const a = Math.abs(x); const s = fmtAbs(a, 8); return (x < 0 && s !== '0' ? '−' : '') + s; }
+function P(x){ const s = F(x); return R(x) < 0 ? '(' + s + ')' : s; }
+function PX(x){ const s = FX(x); return x < 0 ? '(' + s + ')' : s; }
+const add = (a, b) => R(a + b), sub = (a, b) => R(a - b), mul = (a, b) => R(a * b), div = (a, b) => R(a / b);
+const clamp01 = x => Math.min(1, Math.max(0, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+function rgbCss(c, a){ const f = v => Math.round(clamp01(v) * 255); return a === undefined ? `rgb(${f(c[0])},${f(c[1])},${f(c[2])})` : `rgba(${f(c[0])},${f(c[1])},${f(c[2])},${a})`; }
+function el(tag, attrs, parent, text){
+  const e = document.createElementNS(NS, tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  if(text !== undefined) e.textContent = text;
+  if(parent) parent.appendChild(e);
+  return e;
+}
+function clearSvg(s){ while(s.firstChild) s.removeChild(s.firstChild); }
+/* svg label with a white halo so it reads on any background */
+function sText(svg, x, y, t, o = {}){
+  return el('text', {x, y, 'font-size': o.size || 14, 'font-weight': o.weight || 600, fill: o.fill || '#0f172a', 'text-anchor': o.anchor || 'start', stroke: o.halo === false ? 'none' : '#fff', 'stroke-width': 4, 'paint-order': 'stroke', 'stroke-linejoin': 'round'}, svg, t);
+}
+function sArrow(svg, x0, y0, x1, y1, color, w = 2.5){
+  const a = Math.atan2(y1 - y0, x1 - x0), h = 10;
+  const g = el('g', {}, svg);
+  el('line', {x1: x0, y1: y0, x2: x1 - Math.cos(a) * h * .6, y2: y1 - Math.sin(a) * h * .6, stroke: color, 'stroke-width': w}, g);
+  el('polygon', {points: `${x1},${y1} ${x1 - h * Math.cos(a - .4)},${y1 - h * Math.sin(a - .4)} ${x1 - h * Math.cos(a + .4)},${y1 - h * Math.sin(a + .4)}`, fill: color}, g);
+  return g;
+}
+/* steps table used by every readout: rows = [[label, text], ...] */
+function steps(rows, head){
+  let h = head ? `<div class="ex-h" style="color:var(--acc)">${head}</div>` : '';
+  h += '<table class="steps">';
+  for(const [l, t] of rows) h += `<tr><th>${l}</th><td>${nowrapEq(t)}</td></tr>`;
+  return h + '</table>';
+}
+const B = s => `<b>${s}</b>`;
+function nowrapEq(t){ return String(t).split('\n').map(l => l.split(/ {3,}/).map(x => x.split(' → ').map(y => y.includes(' = ') ? `<span class="eq">${y}</span>` : y).join(' → ')).join('     ')).join('\n'); }
+function line(a, o, b, r){ return `${F(a)} ${o} ${P(b)} = ${F(r)}`; }
+
+/* ================= point tooltips (click a labelled point) ================= */
+const Tip = (() => {
+  const tip = $('tip'), body = tip.querySelector('div');
+  let open = false;
+  function show(cx, cy, html){
+    body.innerHTML = html; tip.style.display = 'block';
+    const r = tip.getBoundingClientRect();
+    let x = cx + 14, y = cy + 14;
+    if(x + r.width > innerWidth - 8) x = cx - r.width - 14;
+    if(y + r.height > innerHeight - 8) y = cy - r.height - 14;
+    tip.style.left = Math.max(8, x) + 'px'; tip.style.top = Math.max(8, y) + 'px';
+    open = true;
+  }
+  function hide(){ tip.style.display = 'none'; open = false; }
+  tip.querySelector('button').addEventListener('click', hide);
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') hide(); });
+  document.addEventListener('pointerdown', e => { if(open && !tip.contains(e.target) && !e.target.closest('canvas,svg')) hide(); });
+  return {show, hide};
+})();
+/* canvases keep a list of labelled points; a click near one opens its tooltip and does nothing else.
+   o.drag: a press that moves 3 px or more drags, onPick follows the pointer live, and the click that ends the drag does nothing else;
+   cv._grab lists the draggable points (the cursor shows a hand over them) */
+function pickable(cv, onPick, o = {}){
+  cv._pts = [];
+  const at = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height]; };
+  let press = null, dragged = false;
+  if(o.drag){
+    cv.style.touchAction = 'none';
+    cv.addEventListener('pointerdown', e => { if(e.button === 0){ press = [e.clientX, e.clientY]; dragged = false; } });
+    cv.addEventListener('pointermove', e => {
+      const [x, y] = at(e);
+      if(!press){ cv.style.cursor = (cv._grab || []).some(p => Math.hypot(p.x - x, p.y - y) < 9) ? 'grab' : ''; return; }
+      if(!dragged){
+        if(Math.hypot(e.clientX - press[0], e.clientY - press[1]) < 3) return;
+        dragged = true; Tip.hide(); cv.style.cursor = 'grabbing';
+        try { cv.setPointerCapture(e.pointerId); } catch(_){}
+        if(o.start) o.start();
+      }
+      onPick(x, y);
+    });
+    const end = () => { if(!press) return; press = null; if(dragged){ cv.style.cursor = ''; if(o.end) o.end(); } };
+    cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  }
+  cv.addEventListener('click', e => {
+    if(dragged){ dragged = false; return; }
+    const [x, y] = at(e);
+    for(const p of cv._pts){
+      if(Math.hypot(p.x - x, p.y - y) < 9){ Tip.show(e.clientX, e.clientY, `<b>${p.name}</b><br>${p.role}<br>${p.coords}`); return; }
+    }
+    Tip.hide();
+    if(onPick) onPick(x, y);
+  });
+}
+
+/* ================= picture helpers (canvas) ================= */
+const ORANGE = [0.88, 0.48, 0.18, 1], NAVY = [0.10, 0.25, 0.40, 1], WHITE = [1, 1, 1, 1], BLACK = [0, 0, 0, 1], CLEAR = [0, 0, 0, 0];
+const TURQ = [0.18, 0.83, 0.75, 1];
+function View(cv, x0, y0, x1, y1){
+  const v = {cv, ctx: cv.getContext('2d'), x0, y0, x1, y1, w: cv.width, h: cv.height};
+  v.px = (u, w) => [(u - v.x0) / (v.x1 - v.x0) * v.w, (w - v.y0) / (v.y1 - v.y0) * v.h];
+  v.uv = (x, y) => [v.x0 + x / v.w * (v.x1 - v.x0), v.y0 + y / v.h * (v.y1 - v.y0)];
+  v.len = d => d / (v.x1 - v.x0) * v.w;
+  return v;
+}
+/* fill every pixel from fn(u, v) → [r, g, b, a]; transparent pixels show a hatch */
+function paint(view, fn, target){
+  const w = view.w, h = view.h, ctx = (target || view.cv).getContext('2d');
+  const img = ctx.createImageData(w, h), d = img.data;
+  for(let j = 0; j < h; j++){
+    const vv = view.y0 + (j + .5) / h * (view.y1 - view.y0);
+    for(let i = 0; i < w; i++){
+      const u = view.x0 + (i + .5) / w * (view.x1 - view.x0);
+      let c = fn(u, vv);
+      const k = (j * w + i) * 4;
+      if(c[3] === 0){ const s = ((i + j) % 8) < 3; c = s ? [0.80, 0.84, 0.88, 1] : [1, 1, 1, 1]; }
+      else if(c[3] < 1){ const s = ((i + j) % 8) < 3 ? 0.84 : 1; c = [c[0] * c[3] + s * (1 - c[3]), c[1] * c[3] + s * (1 - c[3]), c[2] * c[3] + s * (1 - c[3]), 1]; }
+      d[k] = c[0] * 255; d[k + 1] = c[1] * 255; d[k + 2] = c[2] * 255; d[k + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+function offscreen(w, h){ const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+function cStroke(ctx, path, color, w = 2.5){
+  ctx.save(); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.strokeStyle = 'rgba(15,23,42,.85)'; ctx.lineWidth = w + 3; path(); ctx.stroke();
+  ctx.strokeStyle = color; ctx.lineWidth = w; path(); ctx.stroke(); ctx.restore();
+}
+function cCircle(ctx, x, y, r, color, w = 2.5){ cStroke(ctx, () => { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); }, color, w); }
+function cArrow(ctx, x0, y0, x1, y1, color, w = 2.5){
+  const a = Math.atan2(y1 - y0, x1 - x0), L = Math.hypot(x1 - x0, y1 - y0), h = Math.min(10, L * .45);
+  cStroke(ctx, () => { ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.moveTo(x1 - h * Math.cos(a - .45), y1 - h * Math.sin(a - .45)); ctx.lineTo(x1, y1); ctx.lineTo(x1 - h * Math.cos(a + .45), y1 - h * Math.sin(a + .45)); }, color, w);
+}
+function cDot(ctx, x, y, color, r = 5.5){ ctx.save(); ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = color; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = '#0f172a'; ctx.stroke(); ctx.restore(); }
+/* labels sit on a light plate, so they read on dark and light pixels */
+function cLabel(ctx, x, y, t, o = {}){
+  ctx.save(); ctx.font = `${o.weight || 700} ${o.size || 14}px Inter,system-ui,sans-serif`;
+  const w = ctx.measureText(t).width + 8, h = (o.size || 14) + 6;
+  let X = o.anchor === 'end' ? x - w : o.anchor === 'middle' ? x - w / 2 : x, Y = y - h + 4;
+  X = Math.max(1, Math.min(ctx.canvas.width - w - 1, X)); Y = Math.max(1, Math.min(ctx.canvas.height - h - 1, Y));
+  ctx.fillStyle = 'rgba(255,255,255,.88)'; ctx.strokeStyle = 'rgba(15,23,42,.35)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.roundRect ? ctx.roundRect(X, Y, w, h, 5) : ctx.rect(X, Y, w, h); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = o.color || '#0f172a'; ctx.fillText(t, X + 4, Y + h - 6); ctx.restore();
+}
+const Fc = x => { const s = F(x); return /^−?\d+$/.test(s) && s !== '0' ? (+R(x)).toFixed(2).replace('-', '−') : s; };
+const fu = (u, v) => `(${Fc(u)}, ${Fc(v)})`;
+function hatchRect(ctx, x, y, w, h){ ctx.save(); ctx.fillStyle = '#fff'; ctx.fillRect(x, y, w, h); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip(); ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 2; for(let k = -h; k < w; k += 7){ ctx.beginPath(); ctx.moveTo(x + k, y + h); ctx.lineTo(x + k + h, y); ctx.stroke(); } ctx.restore(); }
+
+/* ================= wallpapers ================= */
+function checker(x, y, a, b, edge){
+  if(edge && (x < 0 || x > 1 || y < 0 || y > 1)) return CLEAR;
+  let c = Math.floor(x * 4), r = Math.floor(y * 4);
+  if(edge){ c = Math.min(c, 3); r = Math.min(r, 3); }
+  return (((c + r) % 2) + 2) % 2 === 0 ? a : b;
+}
+const WALLS = {
+  stripes: (x, y) => { const c = x * 5 - Math.floor(x * 5); return c < .5 ? ORANGE : NAVY; },
+  on: (x, y) => checker(x, y, ORANGE, NAVY, false),
+  lines: (x, y) => Math.abs(x - .65) < .003 ? WHITE : Math.abs(x - .90) < .003 ? TURQ : checker(x, y, ORANGE, NAVY, false),
+  onEdge: (x, y) => checker(x, y, ORANGE, NAVY, true),
+  bw: (x, y) => checker(x, y, WHITE, BLACK, true),
+  bwMove: (x, y, t) => { if(y < 0 || y > 1) return CLEAR; const c = Math.floor((x + 0.10 * t) * 4), r = Math.min(Math.floor(y * 4), 3); return (((c + r) % 2) + 2) % 2 === 0 ? WHITE : BLACK; }
+};
+const WALLNAME = {on: ['orange', 'navy'], lines: ['orange', 'navy'], onEdge: ['orange', 'navy'], bw: ['white', 'black'], bwMove: ['white', 'black']};
+/* the wallpaper rule printed one step at a time (uses the rounded read point) */
+function wallSteps(x, y, kind, time){
+  const out = [];
+  const edge = kind === 'onEdge' || kind === 'bw' || kind === 'bwMove';
+  if(edge && kind !== 'bwMove' && (x < 0 || x > 1 || y < 0 || y > 1)) return {txt: `${fu(x, y)} is outside 0 … 1 → no wallpaper → transparent (0, 0, 0, 0)`, color: CLEAR, name: 'none'};
+  let xx = x;
+  if(kind === 'bwMove'){ const sh = mul(0.10, time), xs = add(x, sh); out.push(`shift: ${line(0.10, '×', time, sh)}     x + shift: ${line(x, '+', sh, xs)}`); xx = xs; }
+  if(kind === 'lines'){ if(Math.abs(x - .65) < .003) return {txt: `x = ${F(x)} lies on the white line x = 0.65 → white`, color: WHITE, name: 'white'}; if(Math.abs(x - .90) < .003) return {txt: `x = ${F(x)} lies on the turquoise line x = 0.90 → turquoise`, color: TURQ, name: 'turquoise'}; }
+  const cx = mul(xx, 4), ry = mul(y, 4);
+  let c = Math.floor(cx + 1e-9), r = Math.floor(ry + 1e-9);
+  let ct = `col: ${line(xx, '×', 4, cx)} → floor → ${c}`, rt = `row: ${line(y, '×', 4, ry)} → floor → ${r}`;
+  if(edge && kind !== 'bwMove' && c > 3){ ct += ' → min(4, 3) = 3'; c = 3; }
+  if(edge && r > 3){ rt += ' → min(4, 3) = 3'; r = 3; }
+  const even = (((c + r) % 2) + 2) % 2 === 0, nm = WALLNAME[kind][even ? 0 : 1];
+  out.push(`${ct}     ${rt}`);
+  out.push(`${c} + ${P(r)} = ${c + r} → ${even ? 'even' : 'odd'} → ${nm}`);
+  const pal = kind.startsWith('bw') ? (even ? WHITE : BLACK) : (even ? ORANGE : NAVY);
+  return {txt: out.join('\n'), color: pal, name: nm};
+}
+
+/* ================= the lens function (exact, for pictures) ================= */
+function smoothF(e0, e1, x){ const t = clamp01((x - e0) / (e1 - e0)); return t * t * (3 - 2 * t); }
+function falloffOf(rule, sd, band){
+  if(rule === 'const') return 1;
+  if(rule === 'smooth') return 1 - smoothF(-band, band, sd);
+  if(rule === 'linear') return 1 - clamp01((sd + band) / (2 * band));
+  return sd < 0 ? 1 : 0;
+}
+function lens(u, v, o){
+  const px = u - o.cx, py = v - o.cy, d = Math.hypot(px, py), sd = d - o.radius;
+  const fall = falloffOf(o.rule, sd, o.band), push = o.dispLen * fall;
+  let dx = 0, dy = 0;
+  if(d > 0.0001){ dx = px / d * push; dy = py / d * push; }
+  const wall = WALLS[o.wall], cl = q => o.clamp ? clamp01(q) : q;
+  let bent;
+  if(o.spread === undefined || o.spread === null) bent = wall(cl(u - dx), cl(v - dy), o.time);
+  else {
+    const s = o.spread;
+    const r = wall(cl(u - dx * (1 - s)), cl(v - dy * (1 - s)), o.time), g = wall(cl(u - dx), cl(v - dy), o.time), b = wall(cl(u - dx * (1 + s)), cl(v - dy * (1 + s)), o.time);
+    bent = [r[0], g[1], b[2], 1];
+  }
+  return {bent, sd, fall, push, dx, dy, d};
+}
+
+/* ================= the lens chain printed one operation per line ================= */
+function chainRows(W, o){
+  const rows = [], [u, v] = W;
+  const px = sub(u, o.cx), py = sub(v, o.cy);
+  rows.push(['p = uv − C', `${line(u, '−', o.cx, px)}     ${line(v, '−', o.cy, py)}`]);
+  const sx = px * px, sy = py * py, ss = sx + sy, d = R(Math.sqrt(ss));
+  rows.push(['d = length(p)', `${PX(px)} × ${PX(px)} = ${FX(sx)}     ${PX(py)} × ${PX(py)} = ${FX(sy)}     ${FX(sx)} + ${FX(sy)} = ${FX(ss)}     √${FX(ss)} = ${F(d)}`]);
+  const sd = sub(d, o.radius);
+  rows.push(['sd = d − radius', line(d, '−', o.radius, sd)]);
+  let fall;
+  if(o.rule === 'const'){ fall = 1; rows.push(['falloff', 'none in Lesson 9.10: every pixel gets the full push']); }
+  else if(o.rule === 'hard'){ fall = sd < 0 ? 1 : 0; rows.push(['falloff (hard if)', `${F(sd)} ${sd < 0 ? '&lt; 0 → 1' : '≥ 0 → 0'}`]); }
+  else {
+    const tn = sub(sd, -o.band), td = sub(o.band, -o.band), t0 = div(tn, td);
+    const t = Math.min(1, Math.max(0, t0));
+    let txt = `${F(sd)} − (${F(-o.band)}) = ${F(tn)}     ${F(o.band)} − (${F(-o.band)}) = ${F(td)}     ${line(tn, '÷', td, t0)}${t0 < 0 ? ' → limited to 0' : t0 > 1 ? ' → limited to 1' : ''} (t)`;
+    if(o.rule === 'linear'){ fall = sub(1, t); txt += `\nfalloff: ${line(1, '−', t, fall)}`; rows.push(['falloff (straight line)', txt]); }
+    else {
+      const t2 = mul(t, t), t3 = mul(t2, t), a = mul(3, t2), b = mul(2, t3), s = sub(a, b); fall = sub(1, s);
+      txt += `\n${line(t, '×', t, t2)} (t²)     ${line(t2, '×', t, t3)} (t³)     ${line(3, '×', t2, a)}     ${line(2, '×', t3, b)}     ${line(a, '−', b, s)}\nfalloff: ${line(1, '−', s, fall)}`;
+      rows.push(['falloff (smoothstep)', txt]);
+    }
+  }
+  const push = mul(o.dispLen, fall);
+  rows.push(['push', line(o.dispLen, '×', fall, push)]);
+  let dx = 0, dy = 0;
+  if(d <= 0.0001){ rows.push(['dir, disp', 'd ≤ 0.0001: the shader skips the division → disp = (0, 0)']); }
+  else {
+    const ex = div(px, d), ey = div(py, d); dx = mul(ex, push); dy = mul(ey, push);
+    rows.push(['dir = p ÷ d', `${line(px, '÷', d, ex)}     ${line(py, '÷', d, ey)}`]);
+    rows.push(['disp = dir × push', `${line(ex, '×', push, dx)}     ${line(ey, '×', push, dy)}`]);
+  }
+  const reads = [];
+  const doRead = (name, k) => {
+    let ax = dx, ay = dy, pre = '';
+    if(k !== 1){ const kk = k; ax = mul(dx, kk); ay = mul(dy, kk); pre = `${line(dx, '×', kk, ax)}     ${line(dy, '×', kk, ay)}\n`; }
+    const rx = sub(u, ax), ry = sub(v, ay);
+    let txt = pre + `${line(u, '−', ax, rx)}     ${line(v, '−', ay, ry)}`;
+    let fx = rx, fy = ry;
+    if(o.clamp){
+      const c1 = Math.max(rx, 0), c2 = Math.min(c1, 1), c3 = Math.max(ry, 0), c4 = Math.min(c3, 1);
+      if(c2 !== rx || c4 !== ry) txt += `\nclamp: x: max(${F(rx)}, 0) = ${F(c1)}     min(${F(c1)}, 1) = ${F(c2)}     y: max(${F(ry)}, 0) = ${F(c3)}     min(${F(c3)}, 1) = ${F(c4)}`;
+      else txt += '\nclamp: both inside 0 … 1 → unchanged';
+      fx = c2; fy = c4;
+    }
+    const ws = wallSteps(fx, fy, o.wall, o.time);
+    txt += '\n' + ws.txt;
+    reads.push({name, x: fx, y: fy, rx, ry, color: ws.color, cname: ws.name});
+    rows.push([name, txt]);
+  };
+  if(o.spread === undefined || o.spread === null){ doRead('read point R', 1); }
+  else {
+    const k1 = sub(1, o.spread), k2 = add(1, o.spread);
+    rows.push(['spread factors', `${line(1, '−', o.spread, k1)}     ${line(1, '+', o.spread, k2)}`]);
+    doRead('readRed', k1); doRead('readGreen', 1); doRead('readBlue', k2);
+  }
+  let bent;
+  if(reads.length === 1) bent = reads[0].color;
+  else { bent = [reads[0].color[0], reads[1].color[1], reads[2].color[2], 1]; rows.push(['bent', `red = ${F(bent[0])} (from readRed)     green = ${F(bent[1])} (from readGreen)     blue = ${F(bent[2])} (from readBlue)`]); }
+  return {rows, reads, bent, push, sd, d, px, py, dx, dy};
+}
+
+/* ================= labelled points in static pictures =================
+   An SVG element with data-tip opens the point tooltip on click, Enter or Space. */
+(function svgTips(){
+  document.querySelectorAll('svg [data-tip]').forEach(e => { e.setAttribute('tabindex', '0'); e.setAttribute('role', 'button'); e.style.cursor = 'pointer'; });
+  function open(e, t){ const r = t.getBoundingClientRect(); Tip.show(e.clientX || r.right, e.clientY || r.bottom, t.dataset.tip); }
+  document.addEventListener('click', e => { const t = e.target.closest && e.target.closest('svg [data-tip]'); if(t){ e.stopPropagation(); open(e, t); } }, true);
+  document.addEventListener('keydown', e => { const t = document.activeElement; if((e.key === 'Enter' || e.key === ' ') && t && t.dataset && t.dataset.tip){ e.preventDefault(); open({}, t); } });
+})();
+</script>
+<script>
+/* ===== the pictures of the cards that came from the old “Alpha and compositing” page; in their own function, so their names stay local ===== */
+(function(){
+'use strict';
+/* ================= D2 source-over calculator ================= */
+(function sourceOver(){
+  const S = [0.90, 0.10, 0.80, 0.50], D = [0.10, 0.90, 0.40, 0.60];
+  const names = ['R', 'G', 'B', 'A'];
+  const inputs = {S: [], D: []};
+  function mk(box, arr, key, title){
+    const t = document.createElement('b'); t.textContent = title; t.style.minWidth = '110px'; box.appendChild(t);
+    names.forEach((n, i) => {
+      const lab = document.createElement('label');
+      lab.innerHTML = `${n} <input type="range" min="0" max="1" step="0.01" value="${arr[i]}" style="width:80px"><output>${arr[i].toFixed(2)}</output>`;
+      const inp = lab.querySelector('input'), o = lab.querySelector('output');
+      inp.addEventListener('input', () => { arr[i] = +inp.value; o.textContent = (+inp.value).toFixed(2); calc(); });
+      inputs[key].push([inp, o]);
+      box.appendChild(lab);
+    });
+  }
+  mk($('soS'), S, 'S', 'Source (upper)'); mk($('soD'), D, 'D', 'Destination');
+  function sync(){ ['S', 'D'].forEach(k => inputs[k].forEach(([inp, o], i) => { const v = (k === 'S' ? S : D)[i]; inp.value = v; o.textContent = v.toFixed(2); })); }
+  $('soSwap').addEventListener('click', () => { for(let i = 0; i < 4; i++){ const t = S[i]; S[i] = D[i]; D[i] = t; } sync(); calc(); });
+  $('soReset').addEventListener('click', () => { S.splice(0, 4, .90, .10, .80, .50); D.splice(0, 4, .10, .90, .40, .60); sync(); calc(); });
+  const sw = $('soSw');
+  sw.innerHTML = ['source alone', 'destination alone', 'result', 'result over white', 'result over black'].map((t, i) => `<figure><div class="chip"><i id="soC${i}"></i></div>${t}</figure>`).join('');
+  function calc(){
+    const As = S[3], Ad = D[3];
+    const open = sub(1, As), w = mul(Ad, open), A = add(As, w);
+    const rows = [['alpha', `1 − Aₛ: ${line(1, '−', As, open)}\nweight of the destination: ${line(Ad, '×', open, w)}\noutput alpha: ${line(As, '+', w, A)}`]];
+    const out = [];
+    ['red', 'green', 'blue'].forEach((n, i) => {
+      const a = mul(S[i], As), b = mul(D[i], w), s = add(a, b);
+      if(A > 0){ const st = div(s, A); out.push(st); rows.push([n, `source part: ${line(S[i], '×', As, a)}\ndestination part: ${line(D[i], '×', w, b)}\npremultiplied: ${line(a, '+', b, s)}\nstraight: ${line(s, '÷', A, st)}`]); }
+      else { out.push(0); rows.push([n, 'output alpha is 0: no color (fully transparent)']); }
+    });
+    rows.push(['result', `<span class="r">RGBA(${out.map(F).join(', ')}, ${F(A)})</span>`]);
+    $('soOut').innerHTML = steps(rows, 'Calculation');
+    const set = (i, c, a) => $('soC' + i).style.background = rgbCss(c, a);
+    set(0, S, As); set(1, D, Ad); set(2, out, A);
+    set(3, out.map(c => c * A + 1 * (1 - A)));
+    set(4, out.map(c => c * A));
+  }
+  calc();
+})();
+/* ================= D3 blend modes ================= */
+(function blend(){
+  const s = [0.84, 0.36, 0.18], d = [0.22, 0.58, 0.76];
+  const modes = {Normal: 'source-over', Multiply: 'multiply', Screen: 'screen', Plus: 'lighter'};
+  let mode = 'Multiply';
+  const box = $('bmBtns');
+  Object.keys(modes).forEach(m => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = m; b.onclick = () => { mode = m; draw(); }; box.appendChild(b); });
+  function chan(i){
+    const a = s[i], b = d[i];
+    if(mode === 'Normal') return [a, `out = s: ${F(a)}`];
+    if(mode === 'Multiply'){ const r = mul(a, b); return [r, line(a, '×', b, r)]; }
+    if(mode === 'Screen'){ const x = sub(1, a), y = sub(1, b), z = mul(x, y), r = sub(1, z); return [r, `${line(1, '−', a, x)}     ${line(1, '−', b, y)}     ${line(x, '×', y, z)}     ${line(1, '−', z, r)}`]; }
+    const t = add(a, b), r = Math.min(1, t); return [r, `${line(a, '+', b, t)}${t > 1 ? ' → clamp → 1' : ''}`];
+  }
+  function draw(){
+    [...box.children].forEach(b => b.classList.toggle('on', b.textContent === mode));
+    const cv = $('bmCv'), c = cv.getContext('2d');
+    c.globalCompositeOperation = 'source-over'; c.fillStyle = '#fff'; c.fillRect(0, 0, 250, 170);
+    c.fillStyle = rgbCss(d); c.beginPath(); c.arc(95, 85, 62, 0, 7); c.fill();
+    c.globalCompositeOperation = modes[mode]; c.fillStyle = rgbCss(s); c.beginPath(); c.arc(155, 85, 62, 0, 7); c.fill();
+    c.globalCompositeOperation = 'source-over';
+    c.font = '600 14px Inter,system-ui'; c.fillStyle = '#0f172a'; c.fillText('d', 50, 90); c.fillText('s', 195, 90);
+    const res = [0, 1, 2].map(chan);
+    $('bmSwOut').style.background = rgbCss(res.map(r => r[0]));
+    $('bmOut').innerHTML = steps([['red', res[0][1]], ['green', res[1][1]], ['blue', res[2][1]], ['overlap', `<span class="r">(${res.map(r => F(r[0])).join(', ')})</span>`]], mode);
+  }
+  draw();
+})();
+})();
+</script>
+<script>
+/* ===== the pictures of the cards that came from the old “Color adjustments” page; in their own function, so their names stay local ===== */
+(function(){
+'use strict';
+/* ================= D5 saturation ================= */
+(function saturation(){
+  const presets = {'navy after tint': [0.325, 0.4375, 0.55], 'orange after tint': [0.925, 0.70, 0.40], 'Lesson 3.9 color': [0.65, 0.35, 0.70]};
+  let col = presets['navy after tint'], name = 'navy after tint';
+  const box = $('satPresets');
+  Object.keys(presets).forEach(k => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = k; b.onclick = () => { col = presets[k]; name = k; draw(); }; box.appendChild(b); });
+  function draw(){
+    [...box.children].forEach(b => b.classList.toggle('on', b.textContent === name));
+    const f = R(+$('satF').value); $('satFO').textContent = F(f);
+    const w = [0.213, 0.715, 0.072];
+    const t = col.map((c, i) => mul(w[i], c));
+    const s1 = add(t[0], t[1]), g = add(s1, t[2]);
+    const rows = [['gray', `${line(w[0], '×', col[0], t[0])}     ${line(w[1], '×', col[1], t[1])}     ${line(w[2], '×', col[2], t[2])}\n${line(t[0], '+', t[1], s1)}     ${line(s1, '+', t[2], g)}`]];
+    const out = [];
+    ['red', 'green', 'blue'].forEach((n, i) => {
+      const dd = sub(col[i], g), sc = mul(f, dd), o = add(g, sc), shown = Math.min(1, Math.max(0, o));
+      out.push(shown);
+      rows.push([n, `${line(col[i], '−', g, dd)}     ${line(f, '×', dd, sc)}     ${line(g, '+', sc, o)}${o !== shown ? ' → clamp → ' + F(shown) : ''}`]);
+    });
+    $('satOut').innerHTML = steps(rows, 'factor ' + F(f));
+    $('satIn').style.background = rgbCss(col); $('satOutSw').style.background = rgbCss(out);
+    const svg = $('satSvg'); clearSvg(svg);
+    const base = 200, hgt = 170, cols = ['#ef4444', '#22c55e', '#3b82f6'];
+    el('line', {x1: 30, y1: base, x2: 320, y2: base, stroke: '#334155'}, svg);
+    sText(svg, 26, base + 4, '0', {anchor: 'end', size: 14}); sText(svg, 26, base - hgt + 4, '1', {anchor: 'end', size: 14});
+    el('line', {x1: 30, y1: base - hgt, x2: 320, y2: base - hgt, stroke: '#e2e8f0'}, svg);
+    [0, 1, 2].forEach(i => {
+      el('rect', {x: 40 + i * 44, y: base - col[i] * hgt, width: 34, height: col[i] * hgt, fill: cols[i], opacity: .55}, svg);
+      el('rect', {x: 185 + i * 44, y: base - out[i] * hgt, width: 34, height: out[i] * hgt, fill: cols[i]}, svg);
+    });
+    sText(svg, 100, base + 20, 'input', {anchor: 'middle'}); sText(svg, 245, base + 20, 'output', {anchor: 'middle'});
+    el('line', {x1: 30, y1: base - g * hgt, x2: 320, y2: base - g * hgt, stroke: '#0f172a', 'stroke-width': 2, 'stroke-dasharray': '6 4'}, svg);
+    sText(svg, 322, base - g * hgt - 6, 'gray ' + F(g), {anchor: 'end', size: 14});
+  }
+  $('satF').addEventListener('input', draw);
+  draw();
+})();
+})();
+</script>
+</body>
+</html>
