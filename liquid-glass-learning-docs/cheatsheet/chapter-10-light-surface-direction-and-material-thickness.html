@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 10 Light, surface direction, and material thickness — Formula cheatsheet</title>
+<style>
+/* ===== the cheatsheet's shared styles (a copy of shared/cheatsheet.css, 2026-11-10): this page is self-contained ===== */
+:root{
+  color-scheme:light;
+  --ink:#172033;--muted:#5d6879;--line:#dbe2eb;--paper:#fff;--soft:#f8fafc;--body:#f1f5fa;
+  --blue:#1e40af;--green:#059669;--shadow:0 10px 30px rgba(30,41,59,.07);
+  --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  --f-bg:#eef3ff;--f-line:#c9d6f5;
+  --ex-bg:#f3faf6;--ex-line:#bfe3cf;
+  --navy:#1a4066;--orange:#e07a2e;
+  --acc:#1e40af;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{margin:0;background:var(--body);color:var(--ink);font:16px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:var(--blue)}
+main{width:min(1560px,calc(100% - 180px));margin:0 auto;padding:36px 0 120px}
+.crumbs{margin-bottom:18px;font-size:15px}
+.crumbs a{margin-right:14px}
+
+/* hero */
+.hero{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:30px 34px;display:grid;grid-template-columns:1.05fr 1fr;gap:30px;align-items:start}
+.eyebrow{color:var(--green);font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:13px}
+h1{font-size:44px;letter-spacing:-.03em;margin:.2rem 0 .6rem;line-height:1.1}
+.hero p{margin:.3rem 0;color:var(--muted)}
+.conv{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.conv div{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14.5px}
+.conv b{display:block;font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:2px}
+.legend-blocks{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.legend-blocks span{font-size:13.5px;padding:4px 10px;border-radius:8px;border:1px solid var(--line)}
+.legend-blocks .lf{background:var(--f-bg);border-color:var(--f-line)}
+.legend-blocks .le{background:var(--ex-bg);border-color:var(--ex-line)}
+.legend-blocks .ln{background:#fffaf0;border-color:#f3dcb0}
+.legend-blocks .ld{background:#fff;border-color:#cbd5e1}
+
+/* category */
+.cat{margin-top:46px;--acc:#1e40af}
+.cat-head{display:flex;align-items:baseline;gap:16px;border-bottom:3px solid var(--acc);padding-bottom:8px;margin-bottom:18px}
+.cat-num{font:800 15px var(--mono);color:#fff;background:var(--acc);border-radius:8px;padding:4px 10px}
+.cat-head h2{font-size:30px;margin:0;letter-spacing:-.02em}
+.cat-head .range{color:var(--muted);font-size:15px;margin-left:auto}
+.cat-intro{color:var(--muted);margin:-6px 0 16px;font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+.card{background:var(--paper);border:1px solid var(--line);border-top:4px solid var(--acc);border-radius:16px;box-shadow:var(--shadow);padding:18px 20px 16px;min-width:0}
+.card.wide{grid-column:1 / -1}
+.card h3{margin:0;font-size:19px;letter-spacing:-.01em}
+.card-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.card-top .ls{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+a.lesson{font:700 12.5px var(--mono);text-decoration:none;color:var(--acc);border:1.5px solid var(--acc);border-radius:999px;padding:2px 9px;background:#fff;white-space:nowrap}
+a.lesson:hover{background:var(--acc);color:#fff}
+a.lesson::before{content:"L "}
+
+/* blocks */
+.f{background:var(--f-bg);border:1px solid var(--f-line);border-left:5px solid var(--acc);border-radius:10px;padding:10px 14px;font:15px/1.65 var(--mono);overflow-x:auto;margin:8px 0}
+.f div{white-space:pre-wrap}
+.f .c{color:#64748b;font-size:13.5px}
+.f .new{background:#fff3c4;border-radius:4px;padding:0 3px}
+.sym{margin:6px 0 8px;font-size:14.5px;color:var(--muted)}
+.sym b{color:var(--ink);font-family:var(--mono);font-weight:600}
+.ex{background:var(--ex-bg);border:1px solid var(--ex-line);border-radius:10px;padding:8px 12px 10px;margin:10px 0 6px}
+.ex-h{font-size:12.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#047857;margin-bottom:4px}
+.ex-h span{font-weight:600;text-transform:none;letter-spacing:0;color:var(--muted);font-size:13.5px;margin-left:6px}
+table.steps{border-collapse:collapse;width:100%;font:14px/1.6 var(--mono)}
+table.steps th{text-align:left;vertical-align:top;padding:4px 12px 4px 0;font:600 13px/1.6 Inter,system-ui,sans-serif;color:#047857;white-space:nowrap;width:1%}
+table.steps td{padding:4px 0;border-top:1px dashed #cfe9db;white-space:pre-wrap}
+table.steps tr:first-child td{border-top:0}
+table.steps td .r{font-weight:700;color:#065f46}
+.note{background:#fffaf0;border:1px solid #f3dcb0;border-radius:10px;padding:7px 12px;font-size:14.5px;margin:8px 0 2px}
+.note b{color:#9a5b00}
+.dia{border:1px solid #cbd5e1;border-radius:12px;padding:12px;margin:10px 0 4px;background:#fff}
+.dia-h{font-size:12.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#475569;margin-bottom:8px}
+.dia-h span{font-weight:600;text-transform:none;letter-spacing:0;font-size:13.5px;margin-left:6px}
+.row{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+.col{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ctrls{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:4px 0 8px;font-size:14.5px}
+.ctrls label{display:flex;align-items:center;gap:6px}
+.ctrls input[type=range]{width:150px}
+.ctrls output{font:600 14px var(--mono);min-width:44px}
+.btn{font:600 13.5px Inter,system-ui,sans-serif;border:1.5px solid #94a3b8;background:#fff;border-radius:8px;padding:4px 10px;cursor:pointer;color:var(--ink)}
+.btn.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn:focus-visible,a:focus-visible,.menu-btn:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+.readout{font:13.5px/1.6 var(--mono);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:8px 12px;white-space:pre-wrap;min-width:0;flex:1}
+.readout b{color:var(--acc)}
+.eq{white-space:nowrap}
+.cap{font-size:14px;color:var(--muted);margin:4px 0 0}
+.leg{display:flex;flex-direction:column;gap:3px;font-size:14px;min-width:220px}
+.leg span{display:flex;align-items:center;gap:7px}
+.leg i{display:inline-block;width:22px;height:4px;border-radius:2px;flex:none}
+.leg i.dot{width:11px;height:11px;border-radius:50%;border:2px solid #111}
+.leg i.box{width:14px;height:14px;border-radius:3px;border:1px solid #475569}
+[hidden]{display:none!important}
+canvas{display:block;border-radius:8px;cursor:crosshair;image-rendering:pixelated}
+canvas.np{cursor:default}
+svg text{font-family:Inter,system-ui,sans-serif}
+.pic-title{font-size:14px;font-weight:700;color:#334155;max-width:340px}
+.col > canvas,.col > svg{align-self:flex-start}
+.sw{display:inline-block;width:16px;height:16px;border-radius:4px;border:1px solid #475569;vertical-align:-3px}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.swatches figure{margin:0;text-align:center;font-size:12.5px;color:var(--muted)}
+.swatches .chip{width:84px;height:56px;border-radius:8px;border:1px solid #94a3b8;background-image:linear-gradient(45deg,#cbd5e1 25%,transparent 25%,transparent 75%,#cbd5e1 75%),linear-gradient(45deg,#cbd5e1 25%,transparent 25%,transparent 75%,#cbd5e1 75%);background-size:14px 14px;background-position:0 0,7px 7px;position:relative;overflow:hidden}
+.swatches .chip i{position:absolute;inset:0}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:13.5px var(--mono)}
+.flow span{background:var(--f-bg);border:1px solid var(--f-line);border-radius:8px;padding:3px 8px}
+.flow em{font-style:normal;color:#94a3b8}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:14.5px}
+.kv b{font-family:var(--mono);font-weight:600}
+
+/* floating section menu */
+.menu-btn{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:50;writing-mode:vertical-rl;text-orientation:mixed;background:#172033;color:#fff;border:0;border-radius:0 12px 12px 0;padding:16px 9px;font:700 14px Inter,system-ui,sans-serif;letter-spacing:.06em;cursor:pointer;box-shadow:0 8px 24px rgba(15,23,42,.25);display:flex;align-items:center;gap:8px}
+.menu-btn .ico{writing-mode:horizontal-tb;font-size:18px;line-height:1}
+.menu-btn[aria-expanded=true]{background:#1e40af}
+.menu{position:fixed;left:52px;top:50%;transform:translateY(-50%) translateX(-12px);opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;z-index:49;width:360px;max-height:86vh;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 50px rgba(15,23,42,.22);padding:10px}
+.menu.open{opacity:1;pointer-events:auto;transform:translateY(-50%)}
+.menu-h{display:flex;align-items:center;justify-content:space-between;padding:4px 6px 8px;font-weight:800;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.menu-h button{border:0;background:none;font-size:20px;cursor:pointer;color:var(--muted)}
+.menu a{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;text-decoration:none;color:var(--ink);font-size:15px}
+.menu a:hover{background:var(--soft)}
+.menu a.active{background:#eef3ff}
+.menu a .n{font:800 12.5px var(--mono);color:#fff;border-radius:6px;padding:2px 7px}
+.menu a small{color:var(--muted);font:12.5px var(--mono)}
+
+/* point tooltip */
+.tip{position:fixed;z-index:60;background:#0f172a;color:#f8fafc;border-radius:10px;padding:8px 30px 8px 12px;font:13.5px/1.5 Inter,system-ui,sans-serif;max-width:340px;box-shadow:0 10px 30px rgba(0,0,0,.3);display:none}
+.tip b{color:#fde68a}
+.tip button{position:absolute;top:4px;right:6px;border:0;background:none;color:#cbd5e1;font-size:16px;cursor:pointer}
+footer{margin-top:60px;color:var(--muted);font-size:14px;text-align:center}
+
+/* ===== section pages (2026-11-10) ===== */
+.cat{margin-top:8px}
+.cat-head h1{font-size:34px;margin:0;letter-spacing:-.02em}
+.pager{display:flex;justify-content:space-between;gap:16px;margin-top:40px;font-size:15px;border-top:1px solid var(--line);padding-top:14px}
+/* typeset formulas (MathML from LaTeX) */
+math{font-family:"STIX Two Math","Latin Modern Math","Cambria Math",math;font-size:1.13em}
+.tex{margin:6px 0;overflow-x:auto;overflow-y:hidden;padding:2px 0}
+.tex math{display:inline math}
+.f .tex{font-family:inherit}
+.f.tf{font:16px/1.5 Inter,system-ui,sans-serif}
+.tx-aligned mtd{padding-top:3px;padding-bottom:3px}
+.tx-cases mtd{padding-top:2px;padding-bottom:2px}
+.tx-bmatrix mtd{padding:2px .55em}
+.tx-kn{background:#dcfce7;color:#14532d;border-radius:3px;padding:0 1px}
+.tx-hl{background:#fff3c4;border-radius:3px}
+.tx-b{font-weight:700}
+.tx-fn{font-style:normal}
+mtext{font-family:Inter,system-ui,sans-serif;font-size:.88em}
+/* the meaning of each letter */
+.where{margin:6px 0 8px;font-size:14.5px;display:grid;grid-template-columns:auto 1fr;gap:3px 12px;align-items:baseline}
+.where > span:nth-child(odd){text-align:right;white-space:nowrap}
+.where > span:nth-child(even){color:var(--muted)}
+/* a value list that names each number before it is used */
+.given{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14.5px;margin:2px 0 6px}
+.given span{background:#dcfce7;color:#14532d;border-radius:6px;padding:1px 8px}
+/* tables whose header row is the formula's terms */
+table.terms{border-collapse:collapse;font:14px/1.5 var(--mono);margin:6px 0;width:100%}
+table.terms th{font:600 14px/1.4 Inter,system-ui,sans-serif;color:#047857;text-align:right;padding:4px 6px;border-bottom:1.5px solid #bfe3cf;vertical-align:bottom}
+table.terms th math{font-size:1em}
+table.terms td{text-align:right;padding:3px 6px;border-top:1px dashed #cfe9db;white-space:nowrap;font-size:12.5px}
+.terms-wrap{overflow-x:auto}
+table.terms td:first-child,table.terms th:first-child{text-align:left}
+table.terms td.r{font-weight:700;color:#065f46}
+table.terms td .kn,.kn{background:#dcfce7;color:#14532d;border-radius:4px;padding:0 3px}
+/* pictures in cards */
+.pic{margin:10px 0 4px;display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.pic figure{margin:0;display:flex;flex-direction:column;gap:4px}
+.pic figcaption{font-size:13.5px;color:var(--muted);max-width:520px}
+.pic svg{background:#fff;border:1px solid var(--line);border-radius:10px;max-width:100%;height:auto}
+/* color chips with their numbers */
+.chips{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:8px 0}
+.chips figure{margin:0;text-align:center;font-size:12.5px;color:var(--muted);line-height:1.35}
+.chips .sq{width:78px;height:52px;border-radius:8px;border:1px solid #94a3b8;margin:0 auto 3px;position:relative;overflow:hidden;background-image:linear-gradient(45deg,#cbd5e1 25%,transparent 25%,transparent 75%,#cbd5e1 75%),linear-gradient(45deg,#cbd5e1 25%,transparent 25%,transparent 75%,#cbd5e1 75%);background-size:14px 14px;background-position:0 0,7px 7px}
+.chips .sq i{position:absolute;inset:0}
+.chips .op{font:700 20px Inter,system-ui,sans-serif;color:#64748b;align-self:center;padding-bottom:22px}
+/* links to the iOS lab */
+.swift{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:10px 0 0;font-size:13.5px;color:var(--muted)}
+.swift a{font:600 12.5px var(--mono);text-decoration:none;color:#9a3412;background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:2px 8px}
+.swift a:hover{background:#ffedd5}
+.swift a::before{content:"iOS · ";font-weight:500;color:#c2410c}
+/* steppers */
+.stepper{display:flex;gap:8px;align-items:center;margin:6px 0;flex-wrap:wrap}
+.stepper .dots{display:flex;gap:4px;flex-wrap:wrap}
+.stepper .dots button{width:26px;height:26px;border-radius:50%;border:1.5px solid #94a3b8;background:#fff;font:600 12px var(--mono);cursor:pointer;padding:0}
+.stepper .dots button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+/* index page */
+.toc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:26px}
+.toc a{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;background:#fff;border:1px solid var(--line);border-left:5px solid var(--acc);border-radius:14px;padding:14px 16px;text-decoration:none;color:var(--ink);box-shadow:var(--shadow)}
+.toc a:hover{border-color:var(--acc)}
+.toc .cat-num{grid-row:span 2;align-self:start}
+.toc b{font-size:18px}
+.toc small{color:var(--muted);font-size:13.5px}
+table.terms.tight td{padding:3px 4px;font-size:12px}
+.toc-h{font-size:22px;letter-spacing:-.01em;margin:30px 0 -12px}
+</style>
+<style>
+/* this page: wide enough for Lesson 10.29's two 760-px pictures side by side */
+main{width:min(1640px,calc(100% - 180px))}
+/* ===== Lesson 10.29's own styles, scoped to the card's picture block (copied from the lesson) ===== */
+.l29{--ink:#1f2937;--muted:#6b7280;--line:#d1d5db;--soft:#f6f7f9;--indigo:#4338ca;--amber:#d97706;--blue:#1e40af;--red:#dc2626;color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.l29 canvas{display:block;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:default;image-rendering:auto}
+.l29 .stage{position:relative}
+.l29 .k29Grid{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start;margin-top:10px}
+.l29 .stepcap{font-size:15.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin-bottom:12px}
+.l29 .capl{margin:6px 0 0;padding-left:20px}.l29 .capl ul{list-style:circle;padding-left:24px;margin:2px 0 4px}.l29 .capl li{font-size:15px;line-height:1.45;margin:3px 0}
+.l29 .ctl{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:10px 0}.l29 .ctl label{font-size:14px;display:flex;align-items:center;gap:8px}
+.l29 .ctlname{font-size:13.5px;font-weight:700;color:var(--muted);min-width:70px}
+.l29 .ctl input[type=range]{width:150px}.l29 .ctl .val{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;min-width:64px}
+.l29 .btn{font:400 14px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:6px 14px;border-radius:7px;border:1.5px solid var(--blue);background:#fff;color:var(--blue);cursor:pointer}
+.l29 .btn:hover{background:#eef2ff}.l29 .btn[aria-pressed=true]{background:var(--blue);color:#fff;box-shadow:inset 0 2px 4px rgba(0,0,0,.25)}
+.l29 .btn:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}.l29 .btn:disabled{opacity:.45;cursor:default}
+.l29 .viewbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}.l29 .viewbar .btn{font-size:13px;padding:4px 10px}.l29 .viewbar .hint{font-size:13px;color:var(--muted);margin-left:6px}
+.l29 .ptdot{position:absolute;width:20px;height:20px;border-radius:50%;transform:translate(-50%,-50%);border:3px solid #111827;cursor:pointer;padding:0;z-index:5;touch-action:none}
+.l29 .ptdot.drag{cursor:grab}.l29 .ptdot.drag:active{cursor:grabbing}.l29 .ptdot.sm{width:15px;height:15px;border-width:2.5px}
+.l29 .ptdot:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
+.l29 .kn{background:#dcfce7;color:#14532d;border-radius:3px;padding:0 2px}
+.l29 .src{font-size:14px;color:var(--muted);margin:2px 0 0}
+#ltip{position:fixed;z-index:60;max-width:420px;max-height:calc(100vh - 20px);overflow:auto;background:#111827;color:#f9fafb;border-radius:8px;padding:10px 34px 10px 12px;font:13.5px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.28);display:none}
+#ltip.open{display:block}#ltip.wide{max-width:600px}#ltip.xwide{max-width:min(820px,calc(100vw - 20px))}
+#ltip b{color:#fde68a}#ltip .kn{background:#1f4d33;color:#bbf7d0;border-radius:3px;padding:0 2px}
+#ltip pre{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;margin:8px 0 0;background:#1f2937;border:1px solid #374151;border-radius:6px;padding:8px 10px;color:#e5e7eb}
+#ltip .tclose{position:absolute;top:4px;right:6px;background:none;border:0;color:#9ca3af;font-size:15px;cursor:pointer;padding:2px 4px}
+</style>
+</head>
+<body>
+<main>
+<div class="crumbs"><a href="index.html">← Cheatsheet: all sections</a><a href="../liquid-glass-course.html">Course home</a><a href="../course/chapters/chapter-10/lesson-light-surface-direction-and-material-thickness.html">Chapter 10</a><a href="../course/glossary.html">Glossary</a></div>
+<section class="cat" id="cat-ch10" style="--acc:#0369a1">
+<div class="cat-head"><span class="cat-num">Ch 10</span><h1>Light, surface direction, and material thickness</h1><span class="range">Lesson 10.29</span></div>
+<div class="grid">
+<!-- 10.29 -->
+<article class="card wide" id="flip-keeps-lengths">
+  <div class="card-top"><h3>The flip keeps lengths</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-10/lesson-10-29-the-flip-keeps-lengths.html#s1" title="Lesson 10.29 — The flip keeps lengths">10.29</a></span></div>
+  <div class="f tf"><div class="tex">\begin{aligned} {|\mathrm{Gx}\mathrm{′}\mathrm{D}\mathrm{′}|} &= {|\mathrm{A}\mathrm{B}|} = {|\mathrm{Gx}\mathrm{D}|} \\ {|\mathrm{D}\mathrm{′}\mathrm{F}_1\mathrm{′}|} &= {|\mathrm{D}\mathrm{′}\mathrm{B}|} + {|\mathrm{B}\mathrm{F}_1\mathrm{′}|} = {|\mathrm{D}\mathrm{B}|} + {|\mathrm{B}\mathrm{F}_1|} = {|\mathrm{D}\mathrm{F}_1|} \\ {|\mathrm{Gx}\mathrm{′}\mathrm{F}_1\mathrm{′}|} &= {|\mathrm{Gx}\mathrm{F}_1|} \end{aligned}</div></div>
+  <div class="where">
+    <span class="tx">\mathrm{Gx},\; \mathrm{F}_1</span><span>the ends of the cyan line GxF₁: Gx is the end of the x leg; F₁ is on L's line, where GxF₁ meets it at 90° (Lesson 10.24).</span>
+    <span class="tx">\mathrm{A},\; \mathrm{B}</span><span>the feet of Gx and F₁ on the gray line (Lesson 10.25). The flip does not move them.</span>
+    <span class="tx">\mathrm{D}</span><span>the square corner of GxF₁'s two legs: GxD is parallel to the gray line, DF₁ crosses it at B at 90° (the lesson's Step 4).</span>
+    <span class="tx">\mathrm{P}\mathrm{′}</span><span>point P after the flip: half a turn around the gray line (Lessons 10.25, 10.27).</span>
+    <span class="tx">{|\mathrm{P}\mathrm{Q}|}</span><span>the length of segment PQ, in arrow units (1 = N's length).</span>
+    <span class="tx">+</span><span>at K, D and F₁ are on opposite sides of the gray line, and so are D′ and F₁′: each across leg's two pieces add up.</span>
+  </div>
+  <div class="l29">
+    <p class="src">Lesson 10.29, Section 1, Step 6, unchanged. The steps it names (1, 4 and 5) are in the lesson's <a href="../course/chapters/chapter-10/lesson-10-29-the-flip-keeps-lengths.html#s1">Section 1</a>.</p>
+    <div class="k29Grid">
+      <div>
+        <div class="stage" id="k29Stage"><canvas id="k29Cv" width="760" height="850"></canvas></div>
+        <div class="viewbar" id="k29Bar"></div>
+      </div>
+      <div>
+        <div class="stepcap" id="k29Cap" aria-live="polite"></div>
+        <div class="ctl"><label><span class="ctlname">turn around the gray line</span><input type="range" id="k29Range" min="0" max="180" step="1" value="180" aria-label="How far the flip has turned"><span class="val" id="k29V">180°</span></label><button class="btn" id="k29End">Half a turn: 180°</button><button class="btn" id="k29Start">Back to 0°</button></div>
+        <div class="stage" id="k29FlatStage" style="margin-top:10px"><canvas id="k29Flat" width="760" height="560"></canvas></div>
+      </div>
+    </div>
+    <div id="ltip" role="dialog" aria-modal="false"><button class="tclose" id="ltipClose" aria-label="Close">✕</button><div id="ltipBody"></div></div>
+  </div>
+</article>
+
+</div>
+</section>
+<nav class="pager" id="pager"></nav>
+</main>
+<script>
+/* ===== the cheatsheet's shared script (a copy of shared/cheatsheet.js, 2026-11-10): this page is self-contained.
+   SECTIONS below is a copy too: when a page is added, add it here as well as in shared/cheatsheet.js. ===== */
+'use strict';
+/* Formula cheatsheet — shared script. Every page loads it before its own script.
+   It adds the section menu and the point tooltip, typesets the LaTeX formulas as MathML,
+   and holds the helpers the pictures share. */
+
+/* ================= the sections (menu, pager) ================= */
+const SECTIONS = [{"n": 1, "file": "01-coordinates-and-units.html", "title": "Coordinates and units", "acc": "#2563eb", "range": "2.1 – 2.9 · 4.10 · 5.10 · 8.4 – 8.8"}, {"n": 2, "file": "02-color-numbers.html", "title": "Color numbers", "acc": "#db2777", "range": "1.6 · 3.1 · 3.2 · 3.6 · 3.7 · 7.10 · 7.12 · 8.3"}, {"n": 3, "file": "03-alpha-and-compositing.html", "title": "Alpha and compositing", "acc": "#7c3aed", "range": "1.6 · 3.3 – 3.5 · 3.8 · 3.10 · 3.11 · 4.8 · 4.9 · 7.5"}, {"n": 4, "file": "04-color-adjustments.html", "title": "Color adjustments", "acc": "#ea580c", "range": "3.9 · 7.6 · 7.12"}, {"n": 5, "file": "05-shape-geometry.html", "title": "Shape geometry", "acc": "#0d9488", "range": "4.1 – 4.6 · 4.10 · 4.11 · 5.10 · 6.3 · 7.4c · 7.7 · 7.8"}, {"n": 6, "file": "06-motion-and-time.html", "title": "Motion and time", "acc": "#b45309", "range": "5.1 – 5.12 · 8.10"}, {"n": 7, "file": "07-backdrop-blur-and-frost.html", "title": "Backdrop, blur and frost", "acc": "#0e7490", "range": "6.5 – 6.11 · 7.1 – 7.12"}, {"n": 8, "file": "08-shader-building-blocks.html", "title": "Shader building blocks", "acc": "#4f46e5", "range": "8.1 – 8.12"}, {"n": 9, "file": "09-distance-fields.html", "title": "Distance fields", "acc": "#15803d", "range": "9.1 – 9.6 · 9.14"}, {"n": 10, "file": "10-image-sampling.html", "title": "Image sampling", "acc": "#9333ea", "range": "9.7 – 9.9 (wallpaper rule used up to 9.14)"}, {"n": 11, "file": "11-displacement-refraction-and-lens.html", "title": "Displacement, refraction and the lens", "acc": "#dc2626", "range": "9.10 – 9.14"}, {"n": 12, "file": "12-light-and-surface.html", "title": "Light and surface", "acc": "#a855f7", "range": "10.1–10.3"}, {"n": 13, "file": "13-constants-and-conventions.html", "title": "Constants and conventions", "acc": "#475569", "range": "all chapters"},
+  /* one page per chapter for cards added after 2026-11-10 (learner); n is the badge */
+  {"n": "Ch 10", "file": "chapter-10-light-surface-direction-and-material-thickness.html", "title": "Light, surface direction, and material thickness", "acc": "#0369a1", "range": "10.29"}];
+
+(function chrome(){
+  const here = location.pathname.split('/').pop();
+  document.body.insertAdjacentHTML('afterbegin',
+    '<button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menu"><span class="ico">☰</span>Sections</button>' +
+    '<nav class="menu" id="menu" aria-label="Sections"><div class="menu-h">Sections <button id="menuClose" aria-label="Close menu">×</button></div><div id="menuList"></div></nav>' +
+    '<div class="tip" id="tip" role="dialog"><button aria-label="Close">×</button><div></div></div>');
+  const list = document.getElementById('menuList');
+  list.insertAdjacentHTML('beforeend', `<a href="index.html" class="${here === 'index.html' || here === '' ? 'active' : ''}"><span class="n" style="background:#172033">☰</span><span>All sections and conventions</span><small></small></a>`);
+  SECTIONS.forEach(c => {
+    list.insertAdjacentHTML('beforeend', `<a href="${c.file}" class="${c.file === here ? 'active' : ''}" title="Lessons ${c.range}"><span class="n" style="background:${c.acc}">${String(c.n).padStart(2, '0')}</span><span>${c.title}</span><small>${c.range}</small></a>`);
+  });
+  const btn = document.getElementById('menuBtn'), menu = document.getElementById('menu');
+  function setOpen(o){ menu.classList.toggle('open', o); btn.setAttribute('aria-expanded', o); }
+  btn.addEventListener('click', e => { e.stopPropagation(); setOpen(!menu.classList.contains('open')); });
+  document.getElementById('menuClose').addEventListener('click', () => setOpen(false));
+  document.addEventListener('click', e => { if(menu.classList.contains('open') && !menu.contains(e.target) && e.target !== btn) setOpen(false); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') setOpen(false); });
+  /* pager under the section */
+  const i = SECTIONS.findIndex(c => c.file === here), pager = document.getElementById('pager');
+  if(pager && i >= 0){
+    const prev = SECTIONS[i - 1], next = SECTIONS[i + 1];
+    pager.innerHTML = (prev ? `<a href="${prev.file}">← ${String(prev.n).padStart(2, '0')} ${prev.title}</a>` : '<span></span>') +
+      `<a href="index.html">All sections</a>` + (next ? `<a href="${next.file}">${String(next.n).padStart(2, '0')} ${next.title} →</a>` : '<span></span>');
+  }
+})();
+
+/* ================= LaTeX → MathML =================
+   A small LaTeX reader for the formulas of this cheatsheet. The browser draws MathML itself,
+   so the pages need no library and work from file://.
+   Write a formula in an element with class "tex" (a block) or "tx" (inside a sentence).
+   Supported: { } ^ _ \frac \sqrt \text \mathrm \operatorname \left \right \quad \qquad \, \;
+   \begin{aligned} (& and \\), \begin{cases}, \begin{bmatrix}, \color{#hex}{…}, \kn{…} (a known input, green),
+   \hl{…} (yellow), \times \div \cdot \le \ge \ne \approx \to \pm \ldots and Greek letters.
+   A run of two or more letters is one name, drawn upright (px, displayScale); one letter is italic (x, A). */
+const TeX = (() => {
+  const M = 'http://www.w3.org/1998/Math/MathML';
+  const SYM = {times:'×', div:'÷', cdot:'·', le:'≤', leq:'≤', ge:'≥', geq:'≥', ne:'≠', neq:'≠', approx:'≈', to:'→', rightarrow:'→',
+    Rightarrow:'⇒', leftarrow:'←', pm:'±', ldots:'…', dots:'…', cdots:'⋯', vert:'|', lvert:'|', rvert:'|', infty:'∞', circ:'∘',
+    prime:'′', mid:'|', lbrace:'{', rbrace:'}', langle:'⟨', rangle:'⟩', percent:'%', degree:'°', sum:'∑', in:'∈', bmod:'mod', pmod:'mod'};
+  const GREEK = {alpha:'α', beta:'β', gamma:'γ', delta:'δ', Delta:'Δ', epsilon:'ε', theta:'θ', lambda:'λ', mu:'μ', pi:'π', rho:'ρ',
+    sigma:'σ', tau:'τ', phi:'φ', omega:'ω', Omega:'Ω'};
+  const FUN = ['min', 'max', 'round', 'clamp', 'floor', 'mix', 'sqrt', 'length', 'smoothstep', 'mod', 'abs'];
+  const SPACE = {quad:'1em', qquad:'2em', ',':'0.17em', ';':'0.28em', ' ':'0.25em', ':':'0.22em', '!':'0em'};
+  function tokens(src){
+    const out = []; let i = 0;
+    while(i < src.length){
+      const c = src[i];
+      if(c === '\\'){
+        const m = /^\\([A-Za-z]+|.)/.exec(src.slice(i));
+        out.push({t:'cmd', v:m[1]}); i += m[0].length;
+        if(m[1] === 'text' || m[1] === 'mathrm' || m[1] === 'operatorname'){
+          /* read the braced argument raw, so spaces stay */
+          while(src[i] === ' ') i++;
+          if(src[i] === '{'){ let d = 1, j = i + 1; while(j < src.length && d){ if(src[j] === '{') d++; else if(src[j] === '}') d--; j++; } out.push({t:'raw', v:src.slice(i + 1, j - 1)}); i = j; }
+        }
+      } else if(/\s/.test(c)){ i++; }
+      else if(c === '-' && /[0-9.]/.test(src[i + 1] || '') && (() => { const q = out[out.length - 1];
+        return !q || (q.t === 'ch' && '(,=[{&'.includes(q.v)) || (q.t === 'cmd' && /^(;|,|quad|qquad| |times|div|cdot|le|ge|to|approx)$/.test(q.v)); })()){
+        const m = /^-[0-9]*\.?[0-9]+/.exec(src.slice(i)); out.push({t:'num', v:'−' + m[0].slice(1)}); i += m[0].length; }
+      else if(/[0-9.]/.test(c)){ const m = /^[0-9]*\.?[0-9]+|^[0-9]+\.?/.exec(src.slice(i)); out.push({t:'num', v:m[0]}); i += m[0].length; }
+      else if(/[A-Za-z]/.test(c)){ const m = /^[A-Za-z]+/.exec(src.slice(i)); out.push({t:'word', v:m[0]}); i += m[0].length; }
+      else { out.push({t:'ch', v:c}); i++; }
+    }
+    return out;
+  }
+  function el(tag, kids, attrs){
+    const e = document.createElementNS(M, tag);
+    if(attrs) for(const k in attrs) e.setAttribute(k, attrs[k]);
+    (kids || []).forEach(k => e.appendChild(typeof k === 'string' ? document.createTextNode(k) : k));
+    return e;
+  }
+  const row = kids => kids.length === 1 ? kids[0] : el('mrow', kids);
+  function parse(src){
+    const tk = tokens(src); let p = 0;
+    const peek = () => tk[p], next = () => tk[p++];
+    function arg(){
+      const t = peek();
+      if(t && t.t === 'ch' && t.v === '{'){ next(); const r = seq(['}']); next(); return row(r); }
+      return atom();
+    }
+    function seq(stops){
+      const kids = [];
+      while(p < tk.length){
+        const t = peek();
+        if(t.t === 'ch' && stops.includes(t.v)) break;
+        if(t.t === 'cmd' && (stops.includes('\\' + t.v))) break;
+        if(t.t === 'cmd' && (t.v === 'right' || t.v === 'end') && stops.includes('\\' + t.v)) break;
+        const a = atom(); if(a) kids.push(scripts(a));
+      }
+      return kids;
+    }
+    function scripts(base){
+      let sub = null, sup = null;
+      for(;;){
+        const t = peek();
+        if(t && t.t === 'ch' && t.v === '^'){ next(); sup = arg(); }
+        else if(t && t.t === 'ch' && t.v === '_'){ next(); sub = arg(); }
+        else if(t && t.t === 'ch' && (t.v === '′' || t.v === "'")){ next(); sup = sup ? row([sup, el('mo', ['′'])]) : el('mo', ['′']); }
+        else break;
+      }
+      if(sub && sup) return el('msubsup', [base, sub, sup]);
+      if(sub) return el('msub', [base, sub]);
+      if(sup) return el('msup', [base, sup]);
+      return base;
+    }
+    function env(name){
+      /* rows split by \\, cells by & */
+      const rows = [[[]]];
+      while(p < tk.length){
+        const t = peek();
+        if(t.t === 'cmd' && t.v === 'end'){ next(); arg(); break; }
+        if(t.t === 'cmd' && t.v === '\\'){ next(); rows.push([[]]); continue; }
+        if(t.t === 'ch' && t.v === '&'){ next(); rows[rows.length - 1].push([]); continue; }
+        const a = atom(); if(a){ const r = rows[rows.length - 1]; r[r.length - 1].push(scripts(a)); }
+      }
+      if(rows.length > 1 && rows[rows.length - 1].every(c => !c.length)) rows.pop();
+      const table = el('mtable', rows.map(r => el('mtr', r.map((c, j) => {
+        return el('mtd', [row(c.length ? c : [el('mrow')])]);
+      }))), {class:'tx-' + name});
+      if(name === 'cases') return el('mrow', [el('mo', ['{'], {stretchy:'true'}), table]);
+      if(name === 'bmatrix') return el('mrow', [el('mo', ['['], {stretchy:'true'}), table, el('mo', [']'], {stretchy:'true'})]);
+      return table;
+    }
+    function atom(){
+      const t = next();
+      if(t.t === 'num') return el('mn', [t.v]);
+      if(t.t === 'word'){
+        if(FUN.includes(t.v) || t.v.length > 1) return el('mi', [t.v], t.v.length === 1 ? {} : {});
+        return el('mi', [t.v]);
+      }
+      if(t.t === 'raw') return el('mtext', [t.v]);
+      if(t.t === 'ch'){
+        if(t.v === '{'){ const r = seq(['}']); next(); return row(r); }
+        if(t.v === '-') return el('mo', ['−']);
+        if(t.v === '*') return el('mo', ['×']);
+        if(t.v === '~') return el('mspace', [], {width:'0.25em'});
+        if(t.v === '(' || t.v === ')' || t.v === '[' || t.v === ']' || t.v === '|') return el('mo', [t.v], {stretchy:'false'});
+        return el('mo', [t.v]);
+      }
+      /* commands */
+      const v = t.v;
+      if(v === 'frac'){ const a = arg(), b = arg(); return el('mfrac', [a, b]); }
+      if(v === 'sqrt') return el('msqrt', [arg()]);
+      if(v === 'text'){ const r = next(); return el('mtext', [r.v]); }
+      if(v === 'mathrm' || v === 'operatorname'){ const r = next(); return el('mi', [r.v], {mathvariant:'normal', class:'tx-fn'}); }
+      if(v === 'left' || v === 'right' || v === 'big' || v === 'Big' || v === 'bigl' || v === 'bigr'){
+        const d = next(); const ch = d.t === 'cmd' ? (SYM[d.v] || d.v) : d.v;
+        return ch === '.' ? null : el('mo', [ch], {stretchy:'true'});
+      }
+      if(v === 'begin'){ const n = arg().textContent.trim(); return env(n); }
+      if(v === 'color'){ const c = arg().textContent.replace(/\s/g, ''); const b = arg(); return el('mrow', [b], {style:'color:' + c}); }
+      if(v === 'kn') return el('mrow', [arg()], {class:'tx-kn'});
+      if(v === 'hl') return el('mrow', [arg()], {class:'tx-hl'});
+      if(v === 'bold') return el('mrow', [arg()], {class:'tx-b'});
+      if(v in SPACE) return el('mspace', [], {width:SPACE[v]});
+      if(v in GREEK) return el('mi', [GREEK[v]]);
+      if(v in SYM) return el('mo', [SYM[v]]);
+      if(v === '{' || v === '}' || v === '%' || v === '&' || v === '#' || v === '_') return el('mo', [v]);
+      if(FUN.includes(v)) return el('mi', [v], {class:'tx-fn'});
+      return el('mtext', ['\\' + v]);
+    }
+    return seq([]);
+  }
+  function render(node){
+    if(node._tex) return;
+    const src = node.textContent;
+    const block = node.classList.contains('tex');
+    const m = el('math', parse(src), block ? {displaystyle:'true'} : {});
+    m.setAttribute('aria-label', src.replace(/\\[a-z]+/g, ' ').replace(/[{}]/g, ''));
+    node.textContent = ''; node.appendChild(m); node._tex = src; node.title = '';
+  }
+  /* Chrome centers every MathML table cell. Pad the cells so that, in an aligned block,
+     the left side of each "=" is right-aligned and the right side left-aligned. */
+  function align(root){
+    (root || document).querySelectorAll('mtable.tx-aligned, mtable.tx-cases').forEach(t => {
+      const rows = [...t.children], cols = [];
+      rows.forEach(r => [...r.children].forEach((c, j) => { c.style.paddingLeft = c.style.paddingRight = '0px'; }));
+      rows.forEach(r => [...r.children].forEach((c, j) => { const w = c.firstElementChild ? c.firstElementChild.getBoundingClientRect().width : 0; cols[j] = Math.max(cols[j] || 0, w); }));
+      if(!cols.some(w => w > 0)) return;
+      const gap = t.classList.contains('tx-cases') ? 0 : 0;
+      rows.forEach(r => [...r.children].forEach((c, j) => {
+        const w = c.firstElementChild ? c.firstElementChild.getBoundingClientRect().width : 0, extra = cols[j] - w;
+        const right = t.classList.contains('tx-aligned') && j % 2 === 0, gapL = t.classList.contains('tx-cases') && j > 0 ? 18 : 0;
+        c.style.paddingLeft = (right ? extra : gapL) + 'px'; c.style.paddingRight = (right ? 0 : extra) + 'px';
+      }));
+    });
+  }
+  function all(root){ (root || document).querySelectorAll('.tex, .tx').forEach(render); align(root); }
+  return {render, all, parse, align};
+})();
+TeX.all();
+
+
+/* ================= utilities ================= */
+const $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+/* rounding rule of the course: exact if at most 4 decimals, else 3 decimals half up */
+function R(x){
+  if(!isFinite(x)) return x;
+  const s = x < 0 ? -1 : 1, a = Math.abs(x);
+  const e4 = Math.round(a * 1e4);
+  if(Math.abs(a * 1e4 - e4) < 1e-6) return s * e4 / 1e4 || 0;
+  return s * Math.round(a * 1e3 + 1e-7) / 1e3 || 0;
+}
+function fmtAbs(a, maxDec){
+  if(Math.abs(a - Math.round(a)) < 1e-9) return String(Math.round(a));
+  let d = 2;
+  while(d < maxDec && Math.abs(Math.round(a * 10 ** d) - a * 10 ** d) > 1e-6) d++;
+  return a.toFixed(d);
+}
+function F(x){ x = R(x); const s = fmtAbs(Math.abs(x), 4); return (x < 0 && s !== '0' ? '−' : '') + s; }
+/* exact format: squares that feed a square root stay exact */
+function FX(x){ const a = Math.abs(x); const s = fmtAbs(a, 8); return (x < 0 && s !== '0' ? '−' : '') + s; }
+function P(x){ const s = F(x); return R(x) < 0 ? '(' + s + ')' : s; }
+function PX(x){ const s = FX(x); return x < 0 ? '(' + s + ')' : s; }
+const add = (a, b) => R(a + b), sub = (a, b) => R(a - b), mul = (a, b) => R(a * b), div = (a, b) => R(a / b);
+const clamp01 = x => Math.min(1, Math.max(0, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+function rgbCss(c, a){ const f = v => Math.round(clamp01(v) * 255); return a === undefined ? `rgb(${f(c[0])},${f(c[1])},${f(c[2])})` : `rgba(${f(c[0])},${f(c[1])},${f(c[2])},${a})`; }
+function el(tag, attrs, parent, text){
+  const e = document.createElementNS(NS, tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  if(text !== undefined) e.textContent = text;
+  if(parent) parent.appendChild(e);
+  return e;
+}
+function clearSvg(s){ while(s.firstChild) s.removeChild(s.firstChild); }
+/* svg label with a white halo so it reads on any background */
+function sText(svg, x, y, t, o = {}){
+  return el('text', {x, y, 'font-size': o.size || 14, 'font-weight': o.weight || 600, fill: o.fill || '#0f172a', 'text-anchor': o.anchor || 'start', stroke: o.halo === false ? 'none' : '#fff', 'stroke-width': 4, 'paint-order': 'stroke', 'stroke-linejoin': 'round'}, svg, t);
+}
+function sArrow(svg, x0, y0, x1, y1, color, w = 2.5){
+  const a = Math.atan2(y1 - y0, x1 - x0), h = 10;
+  const g = el('g', {}, svg);
+  el('line', {x1: x0, y1: y0, x2: x1 - Math.cos(a) * h * .6, y2: y1 - Math.sin(a) * h * .6, stroke: color, 'stroke-width': w}, g);
+  el('polygon', {points: `${x1},${y1} ${x1 - h * Math.cos(a - .4)},${y1 - h * Math.sin(a - .4)} ${x1 - h * Math.cos(a + .4)},${y1 - h * Math.sin(a + .4)}`, fill: color}, g);
+  return g;
+}
+/* steps table used by every readout: rows = [[label, text], ...] */
+function steps(rows, head){
+  let h = head ? `<div class="ex-h" style="color:var(--acc)">${head}</div>` : '';
+  h += '<table class="steps">';
+  for(const [l, t] of rows) h += `<tr><th>${l}</th><td>${nowrapEq(t)}</td></tr>`;
+  return h + '</table>';
+}
+const B = s => `<b>${s}</b>`;
+function nowrapEq(t){ return String(t).split('\n').map(l => l.split(/ {3,}/).map(x => x.split(' → ').map(y => y.includes(' = ') ? `<span class="eq">${y}</span>` : y).join(' → ')).join('     ')).join('\n'); }
+function line(a, o, b, r){ return `${F(a)} ${o} ${P(b)} = ${F(r)}`; }
+
+/* ================= point tooltips (click a labelled point) ================= */
+const Tip = (() => {
+  const tip = $('tip'), body = tip.querySelector('div');
+  let open = false;
+  function show(cx, cy, html){
+    body.innerHTML = html; tip.style.display = 'block';
+    const r = tip.getBoundingClientRect();
+    let x = cx + 14, y = cy + 14;
+    if(x + r.width > innerWidth - 8) x = cx - r.width - 14;
+    if(y + r.height > innerHeight - 8) y = cy - r.height - 14;
+    tip.style.left = Math.max(8, x) + 'px'; tip.style.top = Math.max(8, y) + 'px';
+    open = true;
+  }
+  function hide(){ tip.style.display = 'none'; open = false; }
+  tip.querySelector('button').addEventListener('click', hide);
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') hide(); });
+  document.addEventListener('pointerdown', e => { if(open && !tip.contains(e.target) && !e.target.closest('canvas,svg')) hide(); });
+  return {show, hide};
+})();
+/* canvases keep a list of labelled points; a click near one opens its tooltip and does nothing else.
+   o.drag: a press that moves 3 px or more drags, onPick follows the pointer live, and the click that ends the drag does nothing else;
+   cv._grab lists the draggable points (the cursor shows a hand over them) */
+function pickable(cv, onPick, o = {}){
+  cv._pts = [];
+  const at = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height]; };
+  let press = null, dragged = false;
+  if(o.drag){
+    cv.style.touchAction = 'none';
+    cv.addEventListener('pointerdown', e => { if(e.button === 0){ press = [e.clientX, e.clientY]; dragged = false; } });
+    cv.addEventListener('pointermove', e => {
+      const [x, y] = at(e);
+      if(!press){ cv.style.cursor = (cv._grab || []).some(p => Math.hypot(p.x - x, p.y - y) < 9) ? 'grab' : ''; return; }
+      if(!dragged){
+        if(Math.hypot(e.clientX - press[0], e.clientY - press[1]) < 3) return;
+        dragged = true; Tip.hide(); cv.style.cursor = 'grabbing';
+        try { cv.setPointerCapture(e.pointerId); } catch(_){}
+        if(o.start) o.start();
+      }
+      onPick(x, y);
+    });
+    const end = () => { if(!press) return; press = null; if(dragged){ cv.style.cursor = ''; if(o.end) o.end(); } };
+    cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  }
+  cv.addEventListener('click', e => {
+    if(dragged){ dragged = false; return; }
+    const [x, y] = at(e);
+    for(const p of cv._pts){
+      if(Math.hypot(p.x - x, p.y - y) < 9){ Tip.show(e.clientX, e.clientY, `<b>${p.name}</b><br>${p.role}<br>${p.coords}`); return; }
+    }
+    Tip.hide();
+    if(onPick) onPick(x, y);
+  });
+}
+
+/* ================= picture helpers (canvas) ================= */
+const ORANGE = [0.88, 0.48, 0.18, 1], NAVY = [0.10, 0.25, 0.40, 1], WHITE = [1, 1, 1, 1], BLACK = [0, 0, 0, 1], CLEAR = [0, 0, 0, 0];
+const TURQ = [0.18, 0.83, 0.75, 1];
+function View(cv, x0, y0, x1, y1){
+  const v = {cv, ctx: cv.getContext('2d'), x0, y0, x1, y1, w: cv.width, h: cv.height};
+  v.px = (u, w) => [(u - v.x0) / (v.x1 - v.x0) * v.w, (w - v.y0) / (v.y1 - v.y0) * v.h];
+  v.uv = (x, y) => [v.x0 + x / v.w * (v.x1 - v.x0), v.y0 + y / v.h * (v.y1 - v.y0)];
+  v.len = d => d / (v.x1 - v.x0) * v.w;
+  return v;
+}
+/* fill every pixel from fn(u, v) → [r, g, b, a]; transparent pixels show a hatch */
+function paint(view, fn, target){
+  const w = view.w, h = view.h, ctx = (target || view.cv).getContext('2d');
+  const img = ctx.createImageData(w, h), d = img.data;
+  for(let j = 0; j < h; j++){
+    const vv = view.y0 + (j + .5) / h * (view.y1 - view.y0);
+    for(let i = 0; i < w; i++){
+      const u = view.x0 + (i + .5) / w * (view.x1 - view.x0);
+      let c = fn(u, vv);
+      const k = (j * w + i) * 4;
+      if(c[3] === 0){ const s = ((i + j) % 8) < 3; c = s ? [0.80, 0.84, 0.88, 1] : [1, 1, 1, 1]; }
+      else if(c[3] < 1){ const s = ((i + j) % 8) < 3 ? 0.84 : 1; c = [c[0] * c[3] + s * (1 - c[3]), c[1] * c[3] + s * (1 - c[3]), c[2] * c[3] + s * (1 - c[3]), 1]; }
+      d[k] = c[0] * 255; d[k + 1] = c[1] * 255; d[k + 2] = c[2] * 255; d[k + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+function offscreen(w, h){ const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+function cStroke(ctx, path, color, w = 2.5){
+  ctx.save(); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.strokeStyle = 'rgba(15,23,42,.85)'; ctx.lineWidth = w + 3; path(); ctx.stroke();
+  ctx.strokeStyle = color; ctx.lineWidth = w; path(); ctx.stroke(); ctx.restore();
+}
+function cCircle(ctx, x, y, r, color, w = 2.5){ cStroke(ctx, () => { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); }, color, w); }
+function cArrow(ctx, x0, y0, x1, y1, color, w = 2.5){
+  const a = Math.atan2(y1 - y0, x1 - x0), L = Math.hypot(x1 - x0, y1 - y0), h = Math.min(10, L * .45);
+  cStroke(ctx, () => { ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.moveTo(x1 - h * Math.cos(a - .45), y1 - h * Math.sin(a - .45)); ctx.lineTo(x1, y1); ctx.lineTo(x1 - h * Math.cos(a + .45), y1 - h * Math.sin(a + .45)); }, color, w);
+}
+function cDot(ctx, x, y, color, r = 5.5){ ctx.save(); ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = color; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = '#0f172a'; ctx.stroke(); ctx.restore(); }
+/* labels sit on a light plate, so they read on dark and light pixels */
+function cLabel(ctx, x, y, t, o = {}){
+  ctx.save(); ctx.font = `${o.weight || 700} ${o.size || 14}px Inter,system-ui,sans-serif`;
+  const w = ctx.measureText(t).width + 8, h = (o.size || 14) + 6;
+  let X = o.anchor === 'end' ? x - w : o.anchor === 'middle' ? x - w / 2 : x, Y = y - h + 4;
+  X = Math.max(1, Math.min(ctx.canvas.width - w - 1, X)); Y = Math.max(1, Math.min(ctx.canvas.height - h - 1, Y));
+  ctx.fillStyle = 'rgba(255,255,255,.88)'; ctx.strokeStyle = 'rgba(15,23,42,.35)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.roundRect ? ctx.roundRect(X, Y, w, h, 5) : ctx.rect(X, Y, w, h); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = o.color || '#0f172a'; ctx.fillText(t, X + 4, Y + h - 6); ctx.restore();
+}
+const Fc = x => { const s = F(x); return /^−?\d+$/.test(s) && s !== '0' ? (+R(x)).toFixed(2).replace('-', '−') : s; };
+const fu = (u, v) => `(${Fc(u)}, ${Fc(v)})`;
+function hatchRect(ctx, x, y, w, h){ ctx.save(); ctx.fillStyle = '#fff'; ctx.fillRect(x, y, w, h); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip(); ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 2; for(let k = -h; k < w; k += 7){ ctx.beginPath(); ctx.moveTo(x + k, y + h); ctx.lineTo(x + k + h, y); ctx.stroke(); } ctx.restore(); }
+
+/* ================= wallpapers ================= */
+function checker(x, y, a, b, edge){
+  if(edge && (x < 0 || x > 1 || y < 0 || y > 1)) return CLEAR;
+  let c = Math.floor(x * 4), r = Math.floor(y * 4);
+  if(edge){ c = Math.min(c, 3); r = Math.min(r, 3); }
+  return (((c + r) % 2) + 2) % 2 === 0 ? a : b;
+}
+const WALLS = {
+  stripes: (x, y) => { const c = x * 5 - Math.floor(x * 5); return c < .5 ? ORANGE : NAVY; },
+  on: (x, y) => checker(x, y, ORANGE, NAVY, false),
+  lines: (x, y) => Math.abs(x - .65) < .003 ? WHITE : Math.abs(x - .90) < .003 ? TURQ : checker(x, y, ORANGE, NAVY, false),
+  onEdge: (x, y) => checker(x, y, ORANGE, NAVY, true),
+  bw: (x, y) => checker(x, y, WHITE, BLACK, true),
+  bwMove: (x, y, t) => { if(y < 0 || y > 1) return CLEAR; const c = Math.floor((x + 0.10 * t) * 4), r = Math.min(Math.floor(y * 4), 3); return (((c + r) % 2) + 2) % 2 === 0 ? WHITE : BLACK; }
+};
+const WALLNAME = {on: ['orange', 'navy'], lines: ['orange', 'navy'], onEdge: ['orange', 'navy'], bw: ['white', 'black'], bwMove: ['white', 'black']};
+/* the wallpaper rule printed one step at a time (uses the rounded read point) */
+function wallSteps(x, y, kind, time){
+  const out = [];
+  const edge = kind === 'onEdge' || kind === 'bw' || kind === 'bwMove';
+  if(edge && kind !== 'bwMove' && (x < 0 || x > 1 || y < 0 || y > 1)) return {txt: `${fu(x, y)} is outside 0 … 1 → no wallpaper → transparent (0, 0, 0, 0)`, color: CLEAR, name: 'none'};
+  let xx = x;
+  if(kind === 'bwMove'){ const sh = mul(0.10, time), xs = add(x, sh); out.push(`shift: ${line(0.10, '×', time, sh)}     x + shift: ${line(x, '+', sh, xs)}`); xx = xs; }
+  if(kind === 'lines'){ if(Math.abs(x - .65) < .003) return {txt: `x = ${F(x)} lies on the white line x = 0.65 → white`, color: WHITE, name: 'white'}; if(Math.abs(x - .90) < .003) return {txt: `x = ${F(x)} lies on the turquoise line x = 0.90 → turquoise`, color: TURQ, name: 'turquoise'}; }
+  const cx = mul(xx, 4), ry = mul(y, 4);
+  let c = Math.floor(cx + 1e-9), r = Math.floor(ry + 1e-9);
+  let ct = `col: ${line(xx, '×', 4, cx)} → floor → ${c}`, rt = `row: ${line(y, '×', 4, ry)} → floor → ${r}`;
+  if(edge && kind !== 'bwMove' && c > 3){ ct += ' → min(4, 3) = 3'; c = 3; }
+  if(edge && r > 3){ rt += ' → min(4, 3) = 3'; r = 3; }
+  const even = (((c + r) % 2) + 2) % 2 === 0, nm = WALLNAME[kind][even ? 0 : 1];
+  out.push(`${ct}     ${rt}`);
+  out.push(`${c} + ${P(r)} = ${c + r} → ${even ? 'even' : 'odd'} → ${nm}`);
+  const pal = kind.startsWith('bw') ? (even ? WHITE : BLACK) : (even ? ORANGE : NAVY);
+  return {txt: out.join('\n'), color: pal, name: nm};
+}
+
+/* ================= the lens function (exact, for pictures) ================= */
+function smoothF(e0, e1, x){ const t = clamp01((x - e0) / (e1 - e0)); return t * t * (3 - 2 * t); }
+function falloffOf(rule, sd, band){
+  if(rule === 'const') return 1;
+  if(rule === 'smooth') return 1 - smoothF(-band, band, sd);
+  if(rule === 'linear') return 1 - clamp01((sd + band) / (2 * band));
+  return sd < 0 ? 1 : 0;
+}
+function lens(u, v, o){
+  const px = u - o.cx, py = v - o.cy, d = Math.hypot(px, py), sd = d - o.radius;
+  const fall = falloffOf(o.rule, sd, o.band), push = o.dispLen * fall;
+  let dx = 0, dy = 0;
+  if(d > 0.0001){ dx = px / d * push; dy = py / d * push; }
+  const wall = WALLS[o.wall], cl = q => o.clamp ? clamp01(q) : q;
+  let bent;
+  if(o.spread === undefined || o.spread === null) bent = wall(cl(u - dx), cl(v - dy), o.time);
+  else {
+    const s = o.spread;
+    const r = wall(cl(u - dx * (1 - s)), cl(v - dy * (1 - s)), o.time), g = wall(cl(u - dx), cl(v - dy), o.time), b = wall(cl(u - dx * (1 + s)), cl(v - dy * (1 + s)), o.time);
+    bent = [r[0], g[1], b[2], 1];
+  }
+  return {bent, sd, fall, push, dx, dy, d};
+}
+
+/* ================= the lens chain printed one operation per line ================= */
+function chainRows(W, o){
+  const rows = [], [u, v] = W;
+  const px = sub(u, o.cx), py = sub(v, o.cy);
+  rows.push(['p = uv − C', `${line(u, '−', o.cx, px)}     ${line(v, '−', o.cy, py)}`]);
+  const sx = px * px, sy = py * py, ss = sx + sy, d = R(Math.sqrt(ss));
+  rows.push(['d = length(p)', `${PX(px)} × ${PX(px)} = ${FX(sx)}     ${PX(py)} × ${PX(py)} = ${FX(sy)}     ${FX(sx)} + ${FX(sy)} = ${FX(ss)}     √${FX(ss)} = ${F(d)}`]);
+  const sd = sub(d, o.radius);
+  rows.push(['sd = d − radius', line(d, '−', o.radius, sd)]);
+  let fall;
+  if(o.rule === 'const'){ fall = 1; rows.push(['falloff', 'none in Lesson 9.10: every pixel gets the full push']); }
+  else if(o.rule === 'hard'){ fall = sd < 0 ? 1 : 0; rows.push(['falloff (hard if)', `${F(sd)} ${sd < 0 ? '&lt; 0 → 1' : '≥ 0 → 0'}`]); }
+  else {
+    const tn = sub(sd, -o.band), td = sub(o.band, -o.band), t0 = div(tn, td);
+    const t = Math.min(1, Math.max(0, t0));
+    let txt = `${F(sd)} − (${F(-o.band)}) = ${F(tn)}     ${F(o.band)} − (${F(-o.band)}) = ${F(td)}     ${line(tn, '÷', td, t0)}${t0 < 0 ? ' → limited to 0' : t0 > 1 ? ' → limited to 1' : ''} (t)`;
+    if(o.rule === 'linear'){ fall = sub(1, t); txt += `\nfalloff: ${line(1, '−', t, fall)}`; rows.push(['falloff (straight line)', txt]); }
+    else {
+      const t2 = mul(t, t), t3 = mul(t2, t), a = mul(3, t2), b = mul(2, t3), s = sub(a, b); fall = sub(1, s);
+      txt += `\n${line(t, '×', t, t2)} (t²)     ${line(t2, '×', t, t3)} (t³)     ${line(3, '×', t2, a)}     ${line(2, '×', t3, b)}     ${line(a, '−', b, s)}\nfalloff: ${line(1, '−', s, fall)}`;
+      rows.push(['falloff (smoothstep)', txt]);
+    }
+  }
+  const push = mul(o.dispLen, fall);
+  rows.push(['push', line(o.dispLen, '×', fall, push)]);
+  let dx = 0, dy = 0;
+  if(d <= 0.0001){ rows.push(['dir, disp', 'd ≤ 0.0001: the shader skips the division → disp = (0, 0)']); }
+  else {
+    const ex = div(px, d), ey = div(py, d); dx = mul(ex, push); dy = mul(ey, push);
+    rows.push(['dir = p ÷ d', `${line(px, '÷', d, ex)}     ${line(py, '÷', d, ey)}`]);
+    rows.push(['disp = dir × push', `${line(ex, '×', push, dx)}     ${line(ey, '×', push, dy)}`]);
+  }
+  const reads = [];
+  const doRead = (name, k) => {
+    let ax = dx, ay = dy, pre = '';
+    if(k !== 1){ const kk = k; ax = mul(dx, kk); ay = mul(dy, kk); pre = `${line(dx, '×', kk, ax)}     ${line(dy, '×', kk, ay)}\n`; }
+    const rx = sub(u, ax), ry = sub(v, ay);
+    let txt = pre + `${line(u, '−', ax, rx)}     ${line(v, '−', ay, ry)}`;
+    let fx = rx, fy = ry;
+    if(o.clamp){
+      const c1 = Math.max(rx, 0), c2 = Math.min(c1, 1), c3 = Math.max(ry, 0), c4 = Math.min(c3, 1);
+      if(c2 !== rx || c4 !== ry) txt += `\nclamp: x: max(${F(rx)}, 0) = ${F(c1)}     min(${F(c1)}, 1) = ${F(c2)}     y: max(${F(ry)}, 0) = ${F(c3)}     min(${F(c3)}, 1) = ${F(c4)}`;
+      else txt += '\nclamp: both inside 0 … 1 → unchanged';
+      fx = c2; fy = c4;
+    }
+    const ws = wallSteps(fx, fy, o.wall, o.time);
+    txt += '\n' + ws.txt;
+    reads.push({name, x: fx, y: fy, rx, ry, color: ws.color, cname: ws.name});
+    rows.push([name, txt]);
+  };
+  if(o.spread === undefined || o.spread === null){ doRead('read point R', 1); }
+  else {
+    const k1 = sub(1, o.spread), k2 = add(1, o.spread);
+    rows.push(['spread factors', `${line(1, '−', o.spread, k1)}     ${line(1, '+', o.spread, k2)}`]);
+    doRead('readRed', k1); doRead('readGreen', 1); doRead('readBlue', k2);
+  }
+  let bent;
+  if(reads.length === 1) bent = reads[0].color;
+  else { bent = [reads[0].color[0], reads[1].color[1], reads[2].color[2], 1]; rows.push(['bent', `red = ${F(bent[0])} (from readRed)     green = ${F(bent[1])} (from readGreen)     blue = ${F(bent[2])} (from readBlue)`]); }
+  return {rows, reads, bent, push, sd, d, px, py, dx, dy};
+}
+
+/* ================= labelled points in static pictures =================
+   An SVG element with data-tip opens the point tooltip on click, Enter or Space. */
+(function svgTips(){
+  document.querySelectorAll('svg [data-tip]').forEach(e => { e.setAttribute('tabindex', '0'); e.setAttribute('role', 'button'); e.style.cursor = 'pointer'; });
+  function open(e, t){ const r = t.getBoundingClientRect(); Tip.show(e.clientX || r.right, e.clientY || r.bottom, t.dataset.tip); }
+  document.addEventListener('click', e => { const t = e.target.closest && e.target.closest('svg [data-tip]'); if(t){ e.stopPropagation(); open(e, t); } }, true);
+  document.addEventListener('keydown', e => { const t = document.activeElement; if((e.key === 'Enter' || e.key === ' ') && t && t.dataset && t.dataset.tip){ e.preventDefault(); open({}, t); } });
+})();
+</script>
+<script>
+/* Lesson 10.29's drawing code for Section 1, Step 6: copied from the lesson, only the parts Step 6 runs.
+   It sits in its own function, so its names do not meet the shared script's. */
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const RAD=0.25;
+const TP={c:[0.5,0.5],bev:0.10,step:0.01};
+          // the lesson's glass, fixed
+const COL={glass:'#a855f7',fill:'#f3e8ff',row:'#a3e635',col:'#fb923c',A:'#2563eb',B:'#f59e0b',D:'#14b8a6',E:'#f43f5e',across:'#22d3ee',slope:'#facc15',raw:'#6366f1',N:'#ec4899',screen:'#334155',ink:'#111827',halo:'rgba(17,24,39,0.92)',gray:'#475569',you:'#d97706',card:'#dbeafe',cardLine:'#1e40af',xP:'#84cc16',xT:'#3f6212',yP:'#fb923c',yT:'#9a3412',hP:'#38bdf8',hT:'#075985',walk:'#0f766e',front:'#a5b4fc'};
+const clamp=(x,lo,hi)=>Math.min(Math.max(x,lo),hi);
+const R12=x=>Math.round(x*1e12)/1e12;
+const DEG=Math.PI/180;
+/* ---------- numbers: whole numbers bare, exact values up to 4 decimals kept, else 3 decimals half up ---------- */
+function f(x){
+  if(Math.abs(x)<1e-12)return '0';
+  const r4=Math.round(x*1e4)/1e4;let s;
+  if(Math.abs(x-r4)<1e-9){if(Number.isInteger(r4))s=String(r4);else{s=r4.toFixed(4).replace(/0+$/,'');if(/\.\d$/.test(s))s+='0'}}
+  else s=(Math.sign(x)*Math.floor(Math.abs(x)*1e3+0.5+1e-9)/1e3).toFixed(3);
+  if(/^-0(\.0+)?$/.test(s))s='0';return s.replace('-','−');
+}
+const pt=(u,v)=>`(${f(u)}, ${f(v)})`;
+/* ---------- a trace: one operation per line; every line rounded the same way; the next line uses the shown value ---------- */
+class Trace{
+  constructor(dec=3){this.dec=dec;this.lines=[];this.dm=new Map()}
+  shown(v){v=R12(v);if(v===0)return 0;const keep=10**(this.dec+1);if(R12(Math.round(v*keep)/keep)===v)return v;
+    const a=Math.abs(v);let dec=this.dec;if(a<0.01){let q=a,z=0;while(q<0.1){q*=10;z++}dec=z+this.dec}
+    const k=10**dec,r=R12(Math.sign(v)*Math.floor(a*k+0.5+1e-9)/k);this.dm.set(r,dec);return r}
+  t(v){v=R12(v);if(v===0)return '0';const neg=v<0,a=Math.abs(v);let s;if(this.dm.has(v))s=a.toFixed(this.dm.get(v));else{s=String(a);if(s.includes('e'))s=a.toFixed(14).replace(/0+$/,'');if(/\.\d$/.test(s))s+='0'}return (neg?'−':'')+s}
+  o(v){return R12(v)<0?`(${this.t(v)})`:this.t(v)}
+  K(...f){this.kf=f;return this}
+  k(i,s){return this.kf&&this.kf[i]?`<span class="kn">${s}</span>`:s}
+  G(s){return `<span class="kn">${s}</span>`}
+  push(s){this.lines.push(s);this.kf=null}
+  take(){const l=this.lines;this.lines=[];return l}
+  add(n,a,b,exact){const r=exact?R12(a+b):this.shown(a+b);this.push(`${n} = ${this.k(0,this.t(a))} + ${this.k(1,this.o(b))} = ${this.t(r)}`);return r}
+  sub(n,a,b,exact){const r=exact?R12(a-b):this.shown(a-b);this.push(`${n} = ${this.k(0,this.t(a))} − ${this.k(1,this.o(b))} = ${this.t(r)}`);return r}
+  mul(n,a,b){const r=this.shown(a*b);this.push(`${n} = ${this.k(0,this.o(a))} × ${this.k(1,this.o(b))} = ${this.t(r)}`);return r}
+  div(n,a,b){const r=this.shown(a/b);this.push(`${n} = ${this.k(0,this.t(a))} ÷ ${this.k(1,this.o(b))} = ${this.t(r)}`);return r}
+  sq(n,a){const r=R12(a*a);this.push(`${n} = ${this.k(0,this.o(a))} × ${this.k(0,this.o(a))} = ${this.t(r)}`);return r}
+  neg(n,a){const r=R12(-a);this.push(`${n} = −(${this.k(0,this.t(a))}) = ${this.t(r)}`);return r}
+  root(n,a){const raw=Math.sqrt(a),c=Math.round(raw*1e6)/1e6;const r=R12(c*c)===R12(a)?R12(c):this.shown(raw);this.push(`${n} = √${this.k(0,this.t(a))} = ${this.t(r)}`);return r}
+}
+const KN=x=>`<span class="kn">${x}</span>`;
+   /* green: known before the calculation starts */
+/* ---------- the surface: Lesson 10.1 height, Lesson 10.2 slopes, this lesson's normal ---------- */
+function heightAt(u,v,P){const sd=Math.hypot(u-P.c[0],v-P.c[1])-RAD,inside=clamp(-sd,0,P.bev),leg=P.bev-inside;return Math.sqrt(Math.max(0,P.bev*P.bev-leg*leg))}
+/* the Lesson 10.1 chain for one point, in a Trace */
+function heightTrace(T,u,v,P,ku=1,kv=1){
+  const px=T.K(ku,1).sub('p.x',u,P.c[0]),py=T.K(kv,1).sub('p.y',v,P.c[1]);
+  const px2=T.sq('p.x²',px),py2=T.sq('p.y²',py),sum=T.add('sum',px2,py2,true),d=T.root('d',sum);
+  const sd=T.K(0,1).sub('sd',d,RAD),ns=T.neg('−sd',sd);let inside;
+  if(ns<0){inside=0;T.push(`inside = clamp(${T.t(ns)}, ${T.G('0')}, ${T.G(T.t(P.bev))}) = 0`)}
+  else if(ns>P.bev){inside=P.bev;T.push(`inside = clamp(${T.t(ns)}, ${T.G('0')}, ${T.G(T.t(P.bev))}) = ${T.t(P.bev)}`)}
+  else{inside=ns;T.push(`inside = clamp(${T.t(ns)}, ${T.G('0')}, ${T.G(T.t(P.bev))}) = ${T.t(ns)}`)}
+  const leg=T.K(1,0).sub('leg',P.bev,inside),b2=T.K(1).sq('bevel²',P.bev),l2=T.sq('leg²',leg),h2=T.sub('h²',b2,l2,true);return T.root('h',h2);
+}
+/* ---------- 2D drawing helpers (solid strokes, dark halo) ---------- */
+function halo(ctx,draw,color,w=2.5){for(const [lw,c] of [[w+3.5,COL.halo],[w,color]]){ctx.lineWidth=lw;ctx.strokeStyle=c;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();draw();ctx.stroke()}}
+function line(ctx,x1,y1,x2,y2,color,w=2.5){halo(ctx,()=>{ctx.moveTo(x1,y1);ctx.lineTo(x2,y2)},color,w)}
+function thin(ctx,x1,y1,x2,y2,color,w=1.5){ctx.lineWidth=w;ctx.strokeStyle=color;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}
+function arrow(ctx,x1,y1,x2,y2,color,w=3,head=13){const L=Math.hypot(x2-x1,y2-y1);if(L<0.5)return;head=Math.min(head,L*0.55);const a=Math.atan2(y2-y1,x2-x1),bx=x2-head*Math.cos(a),by=y2-head*Math.sin(a);line(ctx,x1,y1,bx,by,color,w);
+  const s=head*0.55;ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(bx+s*Math.sin(a),by-s*Math.cos(a));ctx.lineTo(bx-s*Math.sin(a),by+s*Math.cos(a));ctx.closePath();ctx.fillStyle=color;ctx.fill();ctx.lineWidth=1.6;ctx.strokeStyle='#111827';ctx.stroke()}
+function grayArrow(ctx,x1,y1,x2,y2,color=COL.gray,w=1.8){const L=Math.hypot(x2-x1,y2-y1);if(L<0.5)return;const a=Math.atan2(y2-y1,x2-x1),hd=Math.min(7,L*0.5);thin(ctx,x1,y1,x2-hd*0.6*Math.cos(a),y2-hd*0.6*Math.sin(a),color,w);ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-hd*Math.cos(a)+hd*0.45*Math.sin(a),y2-hd*Math.sin(a)-hd*0.45*Math.cos(a));ctx.lineTo(x2-hd*Math.cos(a)-hd*0.45*Math.sin(a),y2-hd*Math.sin(a)+hd*0.45*Math.cos(a));ctx.closePath();ctx.fillStyle=color;ctx.fill()}
+function square(ctx,x,y,u,v,s=16,color='#111827'){ctx.lineWidth=2;ctx.strokeStyle=color;ctx.beginPath();ctx.moveTo(x+u[0]*s,y+u[1]*s);ctx.lineTo(x+u[0]*s+v[0]*s,y+u[1]*s+v[1]*s);ctx.lineTo(x+v[0]*s,y+v[1]*s);ctx.stroke()}
+const unit2=(x,y)=>{const L=Math.hypot(x,y)||1;return[x/L,y/L]};
+function plate(ctx,t,x,y,size=14,align='left',color=COL.ink){ctx.font=`600 ${size}px -apple-system,"Segoe UI",Roboto,sans-serif`;const w=ctx.measureText(t).width,h=size+8;let x0=align==='right'?x-w:align==='center'?x-w/2:x;x0=clamp(x0,6,ctx.canvas.width-w-6);let yy=clamp(y,h/2+3,ctx.canvas.height-h/2-3);if(ctx.__placed){/* in a 3D view a label that would cover an earlier label or the corner box moves a little (at most 42 px up or down and 40 px sideways); an exact repeat stays */const hit=(X,Y)=>ctx.__placed.some(r=>!(r.t===t&&Math.abs(r.x-X+5)<1&&Math.abs(r.y-Y+h/2)<1)&&X-5<r.x+r.w-1&&r.x<X+w+4&&Y-h/2<r.y+r.h-1&&r.y<Y+h/2-1);if(hit(x0,yy))for(const [ex,ey] of [[0,-14],[0,14],[0,-28],[0,28],[0,-42],[0,42],[-40,0],[40,0],[-40,-14],[40,-14],[-40,14],[40,14],[-40,-28],[40,-28],[-40,28],[40,28]]){const X=clamp(x0+ex,6,ctx.canvas.width-w-6),Y=clamp(yy+ey,h/2+3,ctx.canvas.height-h/2-3);if(!hit(X,Y)){x0=X;yy=Y;break}}ctx.__placed.push({x:x0-5,y:yy-h/2,w:w+10,h,t})}ctx.fillStyle='rgba(255,255,255,0.94)';ctx.strokeStyle='#111827';ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x0-5,yy-h/2,w+10,h,4);ctx.fill();ctx.stroke();ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillStyle=color;ctx.fillText(t,x0,yy);return{x:x0-5,y:yy-h/2,w:w+10,h}}
+/* ---------- tooltips ---------- */
+const tipEl=$('ltip'),tipBody=$('ltipBody'),tipStore=new Map();
+let suppressAt=-1e9;
+const suppressNow=()=>{suppressAt=performance.now()};
+function setTip(el,html){el.classList.add('tk');tipStore.set(el,html);if(!el.hasAttribute('tabindex'))el.setAttribute('tabindex','0')}
+function showTip(el){const v=tipStore.get(el),html=typeof v==='function'?v():v;if(!html)return;tipBody.innerHTML=html;tipEl.classList.toggle('wide',!!tipBody.querySelector('pre'));tipEl.classList.toggle('xwide',!!tipBody.querySelector('.tgrid'));tipEl.classList.add('open');const r=el.getBoundingClientRect();tipEl.style.left='0px';tipEl.style.top='0px';const tw=tipEl.offsetWidth,th=tipEl.offsetHeight;let L=r.right+10,T=r.top-8;if(L+tw>innerWidth-10)L=r.left-tw-10;if(L<8)L=8;if(T+th>innerHeight-10)T=innerHeight-th-10;if(T<8)T=8;tipEl.style.left=L+'px';tipEl.style.top=T+'px'}
+function hideTip(){tipEl.classList.remove('open')}
+document.addEventListener('click',e=>{if(performance.now()-suppressAt<120){suppressAt=-1e9;e.stopPropagation();return}const t=e.target.closest('.tk');if(t){e.stopPropagation();showTip(t);return}if(!e.target.closest('#ltip'))hideTip();},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){hideTip();return}if((e.key==='Enter'||e.key===' ')&&e.target.classList?.contains('tk')){e.preventDefault();showTip(e.target)}});
+$('ltipClose').onclick=e=>{e.stopPropagation();hideTip()};
+/* clickable (and optionally draggable) points over a canvas */
+let pointDrag=null;
+document.addEventListener('pointermove',e=>{if(!pointDrag)return;if(!pointDrag.moved&&Math.hypot(e.clientX-pointDrag.x0,e.clientY-pointDrag.y0)<3)return;pointDrag.moved=true;hideTip();pointDrag.move(e.clientX,e.clientY)});
+document.addEventListener('pointerup',()=>{if(!pointDrag)return;if(pointDrag.moved)suppressNow();pointDrag=null});
+document.addEventListener('pointercancel',()=>{pointDrag=null});
+function addPt(stage,x,y,color,html,label,opt={}){const b=document.createElement('button');b.className='ptdot'+(opt.small?' sm':'')+(opt.move?' drag':'');b.style.left=(x+BORDER)+'px';b.style.top=(y+BORDER)+'px';b.style.background=color;b.setAttribute('aria-label',label);if(opt.key)b.dataset.key=opt.key;stage.appendChild(b);setTip(b,html);
+  {const cv=stage.querySelector('canvas');if(cv&&(x<-2||y<-2||x>cv.width+2||y>cv.height+2))b.hidden=true}   /* a point outside its own picture must not sit on a neighbouring one */
+  if(opt.move){b.addEventListener('pointerdown',e=>{pointDrag={x0:e.clientX,y0:e.clientY,moved:false,move:opt.move};e.preventDefault();e.stopPropagation()});
+    if(opt.keys)b.addEventListener('keydown',e=>{const d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(!d)return;e.preventDefault();opt.keys(d);stage.querySelector(`[data-key="${opt.key}"]`)?.focus()})}
+  return b}
+const clearPts=stage=>stage.querySelectorAll('.ptdot').forEach(b=>b.remove());
+const BORDER=1;
+   /* canvases have a 1-px border: a dot over canvas pixel x sits at x + 1 in its stage */
+/* ---------- a turnable 3D view: orthographic, drag to turn, Ctrl/⌘ + wheel or buttons to zoom ---------- */
+class Orbit3D{
+  constructor(stage,cv,o){Object.assign(this,{stage,cv,ctx:cv.getContext('2d'),yaw:o.yaw,pitch:o.pitch,zoom:o.zoom||1,scale:o.scale,target:o.target,cx:cv.width/2+(o.dx||0),cy:cv.height/2+(o.dy||0),draw:o.draw,home:{yaw:o.yaw,pitch:o.pitch,zoom:o.zoom||1,target:[...o.target]},compass:o.compass,compassPos:o.compassPos,coord:o.coord});
+    this.btns=new Map();cv.style.cursor='grab';cv.style.touchAction='none';
+    cv.addEventListener('pointerdown',e=>{if(e.button!==0)return;this.drag={x:e.clientX,y:e.clientY,yaw:this.yaw,pitch:this.pitch,moved:false};try{cv.setPointerCapture(e.pointerId)}catch(_){}cv.style.cursor='grabbing'});
+    cv.addEventListener('pointermove',e=>{if(!this.drag)return;const dx=e.clientX-this.drag.x,dy=e.clientY-this.drag.y;if(Math.hypot(dx,dy)<=3&&!this.drag.moved)return;this.drag.moved=true;this.anim=null;this.yaw=this.drag.yaw-dx*0.45;this.pitch=clamp(this.drag.pitch+dy*0.45,0,90);this.render()});
+    const up=()=>{if(this.drag?.moved)suppressNow();this.drag=null;cv.style.cursor='grab'};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+    cv.addEventListener('wheel',e=>{if(!(e.ctrlKey||e.metaKey))return;e.preventDefault();this.zoom=clamp(this.zoom*Math.exp(-e.deltaY*0.0015),0.4,4);this.render()},{passive:false});
+    cv.addEventListener('dblclick',()=>this.setView(this.home.yaw,this.home.pitch,this.home.zoom,this.home.target))}
+  proj(p){const t=this.target,x=p[0]-t[0],y=p[1]-t[1],z=p[2]-t[2],a=this.yaw*DEG,b=this.pitch*DEG,X1=x*Math.cos(a)-y*Math.sin(a),Y1=x*Math.sin(a)+y*Math.cos(a),up=z*Math.cos(b)-Y1*Math.sin(b),dep=Y1*Math.cos(b)+z*Math.sin(b),k=this.scale*this.zoom;return{x:this.cx+X1*k,y:this.cy-up*k,d:dep}}
+  /* the floor point (height z0) under a picture position; null when the floor is seen edge-on */
+  floorAt(px,py,z0=0){const b=this.pitch*DEG;if(Math.sin(b)<0.17)return null;const k=this.scale*this.zoom,X1=(px-this.cx)/k,up=(this.cy-py)/k,zr=z0-this.target[2],Y1=(zr*Math.cos(b)-up)/Math.sin(b),a=this.yaw*DEG;return[X1*Math.cos(a)+Y1*Math.sin(a)+this.target[0],-X1*Math.sin(a)+Y1*Math.cos(a)+this.target[1]]}
+  render(){const c=this.ctx;c.fillStyle='#fff';c.fillRect(0,0,this.cv.width,this.cv.height);this.items=[];this.labels=[];this.pts=[];this.draw(this);
+    this.items.sort((p,q)=>p.k-q.k);for(const it of this.items)it.f(c);{const cw=this.cv.width,ch=this.cv.height,cp=this.compassPos||'bl';c.__placed=this.compass!==false?[{x:cp[1]==='r'?cw-218:8,y:cp[0]==='t'?8:ch-108,w:210,h:100}]:[];for(const L of this.labels)L(c);c.__placed=null}if(this.compass!==false)this.drawCompass(c);this.placePts()}
+  /* the corner box: the coordinates of this picture and the directions x, y and height as drawn here */
+  drawCompass(c){const a=this.yaw*DEG,b=this.pitch*DEG,cw=this.cv.width,ch=this.cv.height,bw=210,bh=100,cp=this.compassPos||'bl',bx=cp[1]==='r'?cw-bw-8:8,by=cp[0]==='t'?8:ch-bh-8,FT='-apple-system,"Segoe UI",Roboto,sans-serif';
+    c.save();c.fillStyle='rgba(255,255,255,0.96)';c.strokeStyle='#cbd5e1';c.lineWidth=1;c.beginPath();c.roundRect(bx,by,bw,bh,8);c.fill();c.stroke();
+    const cn=typeof this.coord==='function'?this.coord():this.coord;c.textAlign='left';c.textBaseline='middle';if(cn){c.font='700 12px '+FT;c.fillStyle='#111827';c.fillText('coordinates: '+cn,bx+10,by+13)}
+    c.font='600 11.5px '+FT;c.fillStyle='#475569';['in arrow units:','arrows, lengths','and rulers;','1 = N\'s length'].forEach((t,i)=>c.fillText(t,bx+122,by+32+i*15));
+    const ox=bx+70,oy=by+64,L=24;
+    for(const [v,col,tc,name] of [[[1,0,0],COL.xP,COL.xT,'x'],[[0,1,0],COL.yP,COL.yT,'y'],[[0,0,1],COL.hP,COL.hT,'height']]){const X1=v[0]*Math.cos(a)-v[1]*Math.sin(a),Y1=v[0]*Math.sin(a)+v[1]*Math.cos(a),up=v[2]*Math.cos(b)-Y1*Math.sin(b),len=Math.hypot(X1,up);
+      if(len>0.2){arrow(c,ox,oy,ox+X1*L,oy-up*L,col,2.2,8);c.font='700 12px '+FT;c.fillStyle=tc;c.textAlign='center';c.fillText(name,ox+X1*(L+13),oy-up*(L+13))}
+      else{c.beginPath();c.arc(ox,oy,5,0,7);c.fillStyle=col;c.fill();c.lineWidth=1.4;c.strokeStyle='#111827';c.stroke();c.font='700 12px '+FT;c.fillStyle=tc;c.textAlign='left';c.fillText(name+': not shown in this view',bx+10,by+bh-12)}}
+    c.restore()}
+  poly(ps,fill,stroke,lw=1,layer=0){const pr=ps.map(p=>this.proj(p)),d=pr.reduce((s,q)=>s+q.d,0)/pr.length;this.items.push({k:layer*1e6+d,f:c=>{c.beginPath();pr.forEach((q,i)=>i?c.lineTo(q.x,q.y):c.moveTo(q.x,q.y));c.closePath();if(fill){c.fillStyle=fill;c.fill()}if(stroke){c.lineWidth=lw;c.strokeStyle=stroke;c.stroke()}}})}
+  path(ps,color,w=2,plain=false,layer=1){const pr=ps.map(p=>this.proj(p)),d=pr.reduce((s,q)=>s+q.d,0)/pr.length;this.items.push({k:layer*1e6+d,f:c=>{const draw=()=>pr.forEach((q,i)=>i?c.lineTo(q.x,q.y):c.moveTo(q.x,q.y));if(plain){c.lineWidth=w;c.strokeStyle=color;c.lineJoin='round';c.beginPath();draw();c.stroke()}else halo(c,draw,color,w)}})}
+  seg(a,b,color,w=2.5,plain=false,layer=1){this.path([a,b],color,w,plain,layer)}
+  arrow(a,b,color,w=3,layer=2){const A=this.proj(a),B=this.proj(b);this.items.push({k:layer*1e6+(A.d+B.d)/2,f:c=>arrow(c,A.x,A.y,B.x,B.y,color,w)})}
+  grayArrow(a,b,color=COL.gray){const A=this.proj(a),B=this.proj(b);this.items.push({k:1e6+(A.d+B.d)/2,f:c=>grayArrow(c,A.x,A.y,B.x,B.y,color,1.6)})}
+  dot(p,color,r=5){const P=this.proj(p);this.items.push({k:3e6+P.d,f:c=>{c.beginPath();c.arc(P.x,P.y,r,0,Math.PI*2);c.fillStyle=color;c.fill();c.lineWidth=2;c.strokeStyle='#111827';c.stroke()}})}
+  corner(p,u,v,s,color='#111827'){const a=[p[0]+u[0]*s,p[1]+u[1]*s,p[2]+u[2]*s],b=[a[0]+v[0]*s,a[1]+v[1]*s,a[2]+v[2]*s],c2=[p[0]+v[0]*s,p[1]+v[1]*s,p[2]+v[2]*s];this.path([a,b,c2],color,2,true,2.5)}
+  label(t,p,dx=0,dy=0,align='left',color=COL.ink,size=13){const P=this.proj(p);this.labels.push(c=>plate(c,t,P.x+dx,P.y+dy,size,align,color))}
+  pt(key,p,color,html,label,opt={}){this.pts.push({key,p,color,html,label,opt})}
+  placePts(){const seen=new Set();for(const q of this.pts){const P=this.proj(q.p);let b=this.btns.get(q.key);if(!b){b=addPt(this.stage,0,0,q.color,q.html,q.label,{small:true,key:q.key,move:q.opt.move?((cx,cy)=>q.opt.move(cx,cy,this)):null});this.btns.set(q.key,b)}
+      b.style.left=(P.x+BORDER)+'px';b.style.top=(P.y+BORDER)+'px';b.style.background=q.color;tipStore.set(b,q.html);b.hidden=P.x<0||P.y<0||P.x>this.cv.width||P.y>this.cv.height;seen.add(q.key)}
+    for(const [k,b] of this.btns)if(!seen.has(k)){b.remove();this.btns.delete(k)}}
+  setView(yaw,pitch,zoom=this.zoom,target=this.target){if(window.__QA_NOANIM||!window.requestAnimationFrame){Object.assign(this,{yaw,pitch,zoom,target:[...target]});this.render();return}
+    const y0=this.yaw,p0=this.pitch,z0=this.zoom,g0=[...this.target];let dy=yaw-y0;dy=((dy+540)%360)-180;const t0=performance.now(),me={};this.anim=me;
+    const tick=now=>{if(this.anim!==me)return;const t=Math.min(1,(now-t0)/900),e=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;this.yaw=y0+dy*e;this.pitch=p0+(pitch-p0)*e;this.zoom=z0+(zoom-z0)*e;this.target=g0.map((q,i)=>q+(target[i]-q)*e);this.render();if(t<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
+}
+function viewBar(bar,orb,views){bar.innerHTML='';for(const [name,yaw,pitch] of views){const b=document.createElement('button');b.className='btn';b.textContent=name;b.onclick=()=>orb.setView(yaw,pitch);bar.appendChild(b)}
+  for(const [t,fn] of [['＋',()=>{orb.zoom=clamp(orb.zoom*1.25,0.4,4);orb.render()}],['−',()=>{orb.zoom=clamp(orb.zoom/1.25,0.4,4);orb.render()}],['Reset',()=>orb.setView(orb.home.yaw,orb.home.pitch,orb.home.zoom,orb.home.target)]]){const b=document.createElement('button');b.className='btn';b.textContent=t;b.setAttribute('aria-label',t==='＋'?'Zoom in':t==='−'?'Zoom out':'Reset the view');b.onclick=fn;bar.appendChild(b)}
+  const h=document.createElement('span');h.className='hint';h.textContent='Drag to turn the view · Ctrl (or ⌘) + scroll to zoom · double-click to reset';bar.appendChild(h)}
+const add3=(a,b,k=1)=>[a[0]+b[0]*k,a[1]+b[1]*k,a[2]+b[2]*k];
+const nrm3=v=>{const L=Math.hypot(...v);return v.map(q=>q/L)};
+/* the same drawing calls with every point passed through fn: a scene written in UV appears in this picture's units */
+function mapped(o,fn){return{poly:(ps,...r)=>o.poly(ps.map(fn),...r),path:(ps,...r)=>o.path(ps.map(fn),...r),seg:(a,b,...r)=>o.seg(fn(a),fn(b),...r),arrow:(a,b,...r)=>o.arrow(fn(a),fn(b),...r),grayArrow:(a,b,...r)=>o.grayArrow(fn(a),fn(b),...r),dot:(p,...r)=>o.dot(fn(p),...r),label:(t,p,...r)=>o.label(t,fn(p),...r),pt:(k,p,...r)=>o.pt(k,fn(p),...r),
+  corner:(p,u,v,s,color='#111827')=>{const a=add3(p,u,s),b=add3(a,v,s),c=add3(p,v,s);o.path([fn(a),fn(b),fn(c)],color,2,true,2.5)}}}
+/* ================= the glass at K ================= */
+Object.assign(COL,{glassT:'#6b21a8',wallF:'rgba(100,116,139,0.20)',wallS:'#64748b',wallT:'#334155'});
+const P0=[0,0,0],AR=0.15;
+const KP=[0.62,0.66],NK=[0.302,0.402,0.864];
+/* exact numbers up to 6 decimals, at least 2 decimals: 0.302, −0.40, 1 */
+const fx=x=>{if(Math.abs(x)<1e-12)return '0';let s=(Math.round(x*1e6)/1e6).toFixed(6).replace(/0+$/,'');if(s.endsWith('.'))s=s.slice(0,-1);else if(/\.\d$/.test(s))s+='0';return s.replace('-','−')};
+const f4=x=>x.toFixed(4);
+const dot3=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+const scale3=(a,k)=>[a[0]*k,a[1]*k,a[2]*k];
+const f2n=t=>{const s=Number.isInteger(t)?String(t):t.toFixed(1);return s.replace('-','−')};
+/* a small piece of the glass around one pixel: UV, zoomed in; arrows drawn shrunk by the arrow ruler. Returns m (UV) and a (arrow units from S) */
+function sceneAt(o,w,op={}){const c=op.center||w,K=18,S=[w[0],w[1],heightAt(w[0],w[1],TP)],Sc=heightAt(c[0],c[1],TP),fn=p=>[(p[0]-c[0])*K,(p[1]-c[1])*K,(p[2]-Sc)*K],m=mapped(o,fn),r=op.floorR||0.06,X0=c[0]-r,X1=c[0]+r,Y0=c[1]-r,Y1=c[1]+r,sn=op.S||'S',kn=op.K||'K',lab=op.labels!==false,curveLab=lab&&op.curves!==false,dirLab=true;
+  m.poly([[X0,Y0,0],[X1,Y0,0],[X1,Y1,0],[X0,Y1,0]],op.floorFill||'rgba(241,245,249,0.95)','#94a3b8',1.2,-3);
+  for(let i=1;i<Math.round(2*r/0.01);i++){const g=X0+i*0.01,h=Y0+i*0.01;m.seg([g,Y0,0],[g,Y1,0],'#e2e8f0',1,true,-2.5);m.seg([X0,h,0],[X1,h,0],'#e2e8f0',1,true,-2.5)}
+  const rs=[],cs=[];for(let i=0;i<=60;i++){const x=X0+i*(X1-X0)/60,y=Y0+i*(Y1-Y0)/60;rs.push([x,w[1],heightAt(x,w[1],TP)]);cs.push([w[0],y,heightAt(w[0],y,TP)])}
+  m.seg([X0,w[1],0],[X1,w[1],0],'#a78bfa',1.6,true,-1);m.seg([w[0],Y0,0],[w[0],Y1,0],'#a78bfa',1.6,true,-1);m.path(rs,COL.glass,3,false,0.6);m.path(cs,COL.glass,3,false,0.6);
+  if(op.floorLines!==false){m.label(`floor line y = ${f(w[1])}`,[X1,w[1],0],10,16,'left','#6d28d9',12);m.label(`floor line x = ${f(w[0])}`,[w[0],Y0,0],6,-10,'left','#6d28d9',12)}
+  /* the floor's directions, drawn on the floor */
+  const F=(x,y)=>[x,y,0],dir=(a,b,t,dx,dy,al)=>{const A=o.proj(fn(a)),B=o.proj(fn(b));o.items.push({k:-0.8e6,f:c=>grayArrow(c,A.x,A.y,B.x,B.y,'#334155',2)});if(dirLab)m.label(t,b,dx,dy,al,'#334155',12.5)};
+  dir(F(X0+0.012,Y1+0.005),F(X0+0.055,Y1+0.005),'right',8,-12,'left');
+  dir(F(X0-0.005,Y1-0.012),F(X0-0.005,Y1-0.055),'toward the top of the picture',-8,-10,'right');
+  dir(F(X1+0.005,Y0+0.004),F(X1+0.005,Y0+0.04),'toward the bottom of the picture',8,8,'left');
+  if(curveLab){if(op.yLabFar)m.label(`the glass along the floor line y = ${f(w[1])}`,rs[45],14,-6,'left',COL.glassT,13);else if(op.yLabRight)m.label(`the glass along the floor line y = ${f(w[1])}`,rs[60],8,8,'left',COL.glassT,13);else m.label(`the glass along the floor line y = ${f(w[1])}`,rs[2],-6,16,'right',COL.glassT,13);m.label(`the glass along the floor line x = ${f(w[0])}`,cs[2],-6,-12,'right',COL.glassT,13)}
+  m.seg([w[0],w[1],0],S,'#94a3b8',1.4,true,0.5);{const kl=op.kLab||[-10,14,'right'];m.label(kn,[w[0],w[1],0],kl[0],kl[1],kl[2])}
+  m.pt('K',[w[0],w[1],0],'#fff',op.Ktip||`<b>${kn} = ${pt(w[0],w[1])}</b> in UV, on the screen (height 0).`,kn,op.Kmove?{move:op.Kmove}:{});
+  const dx=TP.c[0]-w[0],dy=TP.c[1]-w[1],dl=Math.hypot(dx,dy);if(dl>1e-6&&lab&&op.toC!==false){const u=[dx/dl,dy/dl],k=Math.min(r*0.9,dl),A=[w[0]+u[0]*k*0.45,w[1]+u[1]*k*0.45,0],B=[w[0]+u[0]*k,w[1]+u[1]*k,0];m.arrow(A,B,'#a78bfa',2,-0.8);m.label('toward C',B,-6,-10,'right','#6d28d9',13);m.pt('toC',B,'#a78bfa','<b>Toward C</b> = (0.50, 0.50) in UV, the center of the glass. C itself is outside this floor patch.','toward C')}
+  o.labels.push(ctx=>{const fy=op.floorY??o.cv.height-16;plate(ctx,`floor: the screen, lying level, x ${f(X0)}–${f(X1)}, y ${f(Y0)}–${f(Y1)} (grid every 0.01)`,o.cv.width-8,fy,o.cv.width<700?11.5:12,'right','#475569');   /* 11.5 in the exercise views: clear of the corner box */plate(ctx,'arrow ruler: 1 = 0.15 UV',o.cv.width-8,fy-26,12,'right','#475569')});
+  const a=mapped(o,q=>fn(add3(S,q,AR)));
+  {const T=new Trace(5),h=heightTrace(T,w[0],w[1],TP);a.pt('S',P0,'#fff',`<b>${sn}</b>: the glass above ${kn}, (${f(w[0])}, ${f(w[1])}, ${f4(S[2])}) in UV. N starts here.<br>Its height, by Lesson 10.1's formula (C = (0.50, 0.50), radius 0.25, bevel 0.10):<pre>${T.take().join('\n')}\nrounded: ${f4(h)}</pre>`+legNote,sn)}a.label(sn,P0,-14,-12,'right');
+  return{m,a,S,fn,depth:q=>o.proj(fn(add3(S,q,AR))).d}}
+function arrN(a,N,faint,name='N',html){a.arrow(P0,N,faint?'#f9a8d4':COL.N,faint?2.4:3.4,faint?1.7:2.4);if(name)a.label(name,N,10,-12,'left','#be185d',14);a.pt('Ntip',N,faint?'#f9a8d4':COL.N,html||`<b>The tip of N</b>: the end of N with the arrowhead.<br>N = (${fx(N[0])}, ${fx(N[1])}, ${fx(N[2])}), 1 long, counted from S.`,'tip of N')}
+/* the three legs of the walk from S, x leg first; which ones are drawn bold, faint or not at all */
+const LEGCOL=[COL.xP,COL.yP,COL.hP];
+function stops(N){return[P0,[N[0],0,0],[N[0],N[1],0],[N[0],N[1],N[2]]]}
+function legs(a,N,show=[1,1,1],layer=1.8){const s=stops(N);for(let k=0;k<3;k++){const b=show[k];if(!b||Math.abs(N[k])<1e-9)continue;a.seg(s[k],s[k+1],b===1?LEGCOL[k]:'#cbd5e1',b===1?3.4:1.6,b!==1,layer+(b===1?0.05:0))}return s}
+/* ================= this lesson: T stays on the wall and 0.953 from Gx, so it goes round a circle through the tip of N ================= */
+Object.assign(COL,{teal:'#0d9488',tealT:'#115e59',tealF:'#99f6e4',tealA:'#5eead4',gn:'#475569',gnT:'#1f2937',ang:'#111827',low:'rgba(13,148,136,0.6)',screenL:'#334155'});
+        /* y range, height range of the drawn wall, arrow units from S */
+const sq=x=>R12(x*x);
+function fdot(ctx,p,col,r=5){ctx.beginPath();ctx.arc(p[0],p[1],r,0,7);ctx.fillStyle=col;ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#111827';ctx.stroke()}
+/* ================= this lesson: an arrow's part is a foot on an axis ================= */
+Object.assign(COL,{drop:'#0891b2',dropT:'#155e75'});
+/* a ruler on a line through S: dir, from la to lb; ticks every 0.1, numbers every 0.5 */
+function ruler3(a,dir,la,lb,col,tick,op={}){a.seg(scale3(dir,la),scale3(dir,lb),col,2.2,false,op.layer||1.2);
+  for(let t=Math.ceil(la*10);t<=Math.floor(lb*10);t++){if(!t)continue;const q=scale3(dir,t/10),big=t%5===0,k=big?1.9:1;a.seg(add3(q,tick,-k),add3(q,tick,k),'#111827',big?1.7:1.1,true,1.4);if(big&&op.nums!==false)a.label(f2n(t/10),q,op.nx??0,op.ny??20,'center','#334155',12.5)}
+  if(op.lab)a.label(op.lab,scale3(dir,lb),10,-12,'left',op.labCol||col,13.5)}
+/* ================= Lesson 10.20: the minus side of L's ruler (helpers as in Lesson 10.19) ================= */
+Object.assign(COL,{L:'#eab308',LT:'#854d0e',sheetF:'rgba(234,179,8,0.11)',sheetS:'#ca8a04'});
+const sub3=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
+const LK=[0.48,-0.60,0.64];
+const v3=v=>`(${v.map(fx).join(', ')})`;
+const KTIP='<b>K = (0.62, 0.66)</b> in UV, on the screen (height 0).<br>The pixel of Lesson 10.29, on the rim.';
+const cross3=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+/* ================= Lessons 10.25–10.35: shared kit ================= */
+Object.assign(COL,{sheetX:'rgba(99,102,241,0.10)',sheetXS:'#6366f1',sheetXT:'#3730a3',half:'#1f2937',limeF:'rgba(132,204,22,0.42)',limeS:'#3f6212',limeF2:'rgba(77,124,15,0.50)',yelF:'rgba(250,204,21,0.50)',yelS:'#a16207',wallX:'rgba(100,116,139,0.16)',wallXS:'#475569',wallXT:'#334155',copyY:'#fdba74',copyH:'#7dd3fc'});
+const legNote='<p class="small">In this chain, <i>leg</i> is a side of Lesson 10.1\'s rim triangle.</p>';
+function bindTips(root){root.querySelectorAll('.info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip]))}
+/* ---------- the sheet that holds the line along D (through S) and L's line ----------
+   g: along the gray line, halfway between the two lines; h: across it on the sheet, toward L's line; n: at 90° to the sheet */
+function frameOf(D,L){const c=dot3(D,L),g=nrm3(add3(D,L)),h=nrm3(sub3(L,D)),n=nrm3(cross3(D,L)),phi=Math.acos(clamp(c,-1,1))/2;return{D,L,c,g,h,n,phi}}
+const FX=frameOf([1,0,0],LK);
+const abOf=(F,p)=>[dot3(p,F.g),dot3(p,F.h)];
+const fromAB=(F,a,b)=>add3(scale3(F.g,a),F.h,b);
+/* the flip: a turn by th degrees around the gray line (half a turn at 180°); the sign picks the way round */
+function flipPt(F,p,th){const a=dot3(p,F.g),b=dot3(p,F.h),c=dot3(p,F.n),t=th*DEG,cs=Math.cos(t),sn=Math.sin(t);return add3(add3(scale3(F.g,a),F.h,b*cs-c*sn),F.n,b*sn+c*cs)}
+/* which way round the shape turns so it swings toward the viewer (drawn over the sheet) */
+const towardViewer=(o,F,b)=>{const a=o.yaw*DEG,bb=o.pitch*DEG,v=[Math.cos(bb)*Math.sin(a),Math.cos(bb)*Math.cos(a),Math.sin(bb)];return Math.sign(b||1)*Math.sign(dot3(F.n,v)||1)};
+/* 3D: the zoomed glass at w, the indigo sheet, the line along D and L's line with their rulers, L, X and (op.half) the gray line */
+function sheetScene(o,w,F,op={}){const sc=sceneAt(o,w,{toC:false,floorLines:false,curves:false,...op}),a=sc.a,D=F.D,L=F.L,ln=op.lName||'L',dn=op.dName||'the x line',dcol=op.dCol||COL.xP,dt=op.dT||COL.xT;
+  const A0=op.A0??-0.3,A1=op.A1??1.25,B=op.B??0.72;
+  a.poly([fromAB(F,A0,-B),fromAB(F,A1,-B),fromAB(F,A1,B),fromAB(F,A0,B)],COL.sheetX,COL.sheetXS,1.2,1.45);
+  const tk=scale3(F.n,0.018);
+  ruler3(a,D,op.dlo??-0.45,op.dhi??1.15,dcol,tk,{lab:dn,labCol:dt,ny:op.dny??20,nx:op.dnx??0});
+  ruler3(a,L,op.llo??-0.45,op.lhi??1.15,COL.L,tk,{lab:`${ln}'s line`,labCol:COL.LT,ny:op.lny??-18,nx:op.lnx??0});
+  a.label('0',P0,op.zx??-12,op.zy??22,'center','#334155',12.5);
+  if(op.Ltip!==false){a.arrow(P0,L,COL.L,3.8,2.35);a.label(ln,L,8,-16,'left',COL.LT,14);a.pt('Ltip',L,COL.L,`<b>The tip of ${ln}</b>: ${ln} = ${v3(L)} from S, 1 long. ${ln}'s ruler reads 1 here.`,'tip of '+ln)}
+  if(op.X!==false){a.dot(D,dcol,5);a.label(op.xName||'X',D,op.xdx??6,op.xdy??20,'left',dt,14);a.pt('X',D,dcol,op.xTip||`<b>${op.xName||'X'}</b>: the end of a walk of 1 along ${dn==='the x line'?'x':'the height line'}, from S. ${dn==='the x line'?"The x line's":"The height line's"} ruler reads 1 here.`,op.xName||'X')}
+  if(op.half){a.seg(fromAB(F,op.halfLo??-0.38,0),fromAB(F,op.halfHi??1.38,0),COL.half,2.6,false,1.55);a.label(op.halfLab||'gray line: halfway between the two lines',fromAB(F,op.halfAt??1.38,0),op.halfDx??8,op.halfDy??0,op.halfAl||'left',COL.half,13)}
+  if(op.sheetLab!==false){const q=o.proj(sc.fn(add3(sc.S,fromAB(F,A0,B),AR)));o.labels.push(c=>{const X=clamp(q.x-6,8,c.canvas.width-260),Y=clamp(q.y-30,72,c.canvas.height-90);plate(c,op.sheetText||`indigo sheet: it holds ${dn} and ${ln}'s line`,X,Y,13,'left',COL.sheetXT)})}
+  return{sc,a}}
+const dAB=F=>[Math.cos(F.phi),-Math.sin(F.phi)],lAB=F=>[Math.cos(F.phi),Math.sin(F.phi)];
+const dirPx=(A,B)=>unit2(B[0]-A[0],B[1]-A[1]);
+/* ---------- 10.29–10.30: the triangle S, Gx, F₁ and its flip ---------- */
+const r4s=x=>R12(Math.round(x*1e4)/1e4),p4=x=>(Math.abs(x)<5e-13?0:x).toFixed(4).replace('-','−');
+/* Gx and F₁ for an N: their points (arrow units from S), F₁'s reading, and their numbers on the indigo sheet [along, across] to 4 decimals */
+function gf(N){const Gx=[N[0],0,0],t1=R12(N[0]*LK[0]),F1=scale3(LK,t1);return{Gx,t1,F1,g:abOf(FX,Gx).map(r4s),f:abOf(FX,F1).map(r4s)}}
+/* the length of GxF₁ (sg = 1) or Gx′F₁′ (sg = −1) from its two legs, one operation per line. A leg is a length (no sign): the along leg is the bigger along reading − the smaller;
+   the across leg adds the two distances from the gray line when the points are on opposite sides of it, and subtracts them on one side. known: the chain starts at the squares (Step 5) */
+function lenChain(q,sg,T=new Trace(3),known){const nm=sg>0?['Gx','F₁']:['Gx′','F₁′'],hi=Math.max(q.g[0],q.f[0]),lo=Math.min(q.g[0],q.f[0]),gd=Math.abs(q.g[1]),fd=Math.abs(q.f[1]),opp=q.g[1]*q.f[1]<0,a0=R12(hi-lo),b0=opp?R12(gd+fd):R12(Math.max(gd,fd)-Math.min(gd,fd));for(const v of [hi,lo,gd,fd,a0,b0])if(Math.abs(v)>1e-12){T.dm.set(R12(Math.abs(v)),4);T.dm.set(R12(-Math.abs(v)),4)}
+  const a=known?a0:T.K(1,1).sub(`along leg`,hi,lo,true),b=known?b0:opp?T.K(1,1).add(`across leg`,gd,fd,true):T.K(1,1).sub(`across leg`,Math.max(gd,fd),Math.min(gd,fd),true),a2=(known?T.K(1):T).sq('along leg²',a),b2=(known?T.K(1):T).sq('across leg²',b),s2=T.add(`|${nm[0]}${nm[1]}|²`,a2,b2,true),r=T.root(`|${nm[0]}${nm[1]}|`,s2);return{a,b,r,lines:T.take()}}
+/* a label that follows a turning point (Step 6's slider): the first of FREEC's places beside (x, y) that covers no placed label and no point of dots */
+const FREEC=[[12,-14,'left'],[-12,-14,'right'],[12,14,'left'],[-12,14,'right'],[16,0,'left'],[-16,0,'right'],[0,-24,'center'],[0,24,'center'],[22,-30,'left'],[-22,-30,'right'],[22,30,'left'],[-22,30,'right'],[38,-8,'left'],[-38,-8,'right'],[38,8,'left'],[-38,8,'right'],[0,-42,'center'],[0,42,'center'],[40,-40,'left'],[-40,-40,'right'],[40,40,'left'],[-40,40,'right'],[60,0,'left'],[-60,0,'right'],[0,-60,'center'],[0,60,'center']];
+function freePlate(ctx,t,x,y,size,color,dots){ctx.font=`600 ${size}px -apple-system,"Segoe UI",Roboto,sans-serif`;const w=ctx.measureText(t).width,h=size+8,pl=ctx.__placed||[],W=ctx.canvas.width,H=ctx.canvas.height;
+  for(const [dx,dy,al] of FREEC){const x0=al==='right'?x+dx-w:al==='center'?x+dx-w/2:x+dx,y0=y+dy,R={x:x0-5,y:y0-h/2,w:w+10,h};
+    if(R.x<6||R.x+R.w>W-6||R.y<86||R.y+R.h>H-30)continue;
+    if(pl.some(r=>R.x<r.x+r.w&&r.x<R.x+R.w&&R.y<r.y+r.h&&r.y<R.y+R.h))continue;
+    if(dots.some(d=>d.x>R.x-6&&d.x<R.x+R.w+6&&d.y>R.y-6&&d.y<R.y+R.h+6))continue;
+    return plate(ctx,t,x0,y0,size,'left',color)}
+  return plate(ctx,t,x+12,y-14,size,'left',color)}
+/* colors: teal the half circles of the flip; blue the feet and across parts (as Lesson 10.27); dark the two legs of Lesson 9.1 */
+const TEAL='#0f766e',TEALP='#99f6e4',BLU='#2563eb',BLUT='#1e40af',BLUP='#93c5fd',LEGC='#334155';
+/* 3D: the indigo sheet at w, the gray line, GxF₁ and its flip by th.
+   op.step 1: the flip, with the half circles of Gx and F₁ (teal); 2: the feet A, B, the along part from S (black) and the across parts (blue);
+   3: GxF₁ with its two legs (Lesson 9.1), square corner at D; 4: after the flip, Gx′F₁′ with its legs, the same feet A, B.
+   op.parts 'both': GxF₁ and Gx′F₁′ with their legs (Section 2, the exercise answer). op.names: points labelled by name only. */
+function flip3D(o,w,N,th,op={}){const r=sheetScene(o,w,FX,{half:true,...op}),a=r.a,q=gf(N),Gx=q.Gx,t1=q.t1,F1=q.F1,sg=towardViewer(o,FX,abOf(FX,Gx)[1]),st=op.step||0,nm=!!op.names,both=op.parts==='both';
+  if(op.N!==false)arrN(a,N,true,'N');
+  const fl=(p,t)=>flipPt(FX,p,sg*t),gA=abOf(FX,Gx),fA=abOf(FX,F1),Af=fromAB(FX,gA[0],0),Bf=fromAB(FX,fA[0],0),D3=fromAB(FX,fA[0],gA[1]),done=th===180,lime=st<=1&&!both,faint0=false;   /* lime: GxF₁ with its flip and the half circles (hero, Step 1, the exercise question); no triangle since 2026-11-09 */
+  const foot=(p,n,who,rd)=>{a.dot(p,BLU,3.6);a.label(n,p,8,16,'left',BLUT,13);a.pt('foot'+n,p,BLU,`<b>${n}</b>: ${who}'s foot on the gray line, where the line from ${who} at 90° to the gray line meets it (Lesson 10.25). The gray line's ruler reads ${p4(rd)} here.`,n)};
+  const legs3=(G,Dp,F,lab,tip)=>{a.seg(G,F,COL.drop,3,false,1.8);a.seg(G,Dp,LEGC,2.6,false,1.76);a.seg(Dp,F,LEGC,2.6,false,1.76);a.corner(Dp,nrm3(sub3(G,Dp)),nrm3(sub3(F,Dp)),0.035,LEGC);a.dot(Dp,LEGC,4);if(lab[0]!=='~')a.label(lab,Dp,-10,16,'right',LEGC,13.5);a.pt('D'+lab,Dp,LEGC,tip,lab.replace('~',''))};
+  if(lime)a.seg(Gx,F1,COL.drop,2.8,false,1.9);
+  a.dot(Gx,faint0?'#d9f99d':COL.xP,faint0?3.5:5);a.label(nm?'Gx':(op.gLab||`Gx: ${fx(N[0])}`),Gx,10,14,'left',faint0?'#65a30d':COL.xT,faint0?12:13.5);
+  a.dot(F1,faint0?'#e2e8f0':'#fff',faint0?3.5:4.5);a.label(nm?'F₁':(op.fLab||`F₁: ${fx(t1)}`),F1,-12,-4,'right',faint0?'#64748b':'#111827',faint0?12:13.5);
+  if(op.lenLab){const lo=op.lenOff||[-10,10,'right'];a.label(op.lenLab,scale3(add3(Gx,F1),0.5),lo[0],lo[1],lo[2],COL.dropT,13)}
+  a.pt('Gx',Gx,COL.xP,`<b>Gx</b>: the end of the x leg (Lesson 10.24).${nm?'':` The x line's ruler reads ${fx(N[0])} here.`}`,'Gx');a.pt('F1',F1,'#fff',`<b>F₁</b>: the cyan line from Gx meets L's line here at 90° (Lesson 10.24).${nm?'':` L's ruler reads ${fx(t1)}.`}`,'F₁');
+  /* the half circles (teal): each of Gx and F₁ turns around its own foot on the gray line, out of the sheet, back on the other side (Lesson 10.25) */
+  if(th>0&&op.paths!==false&&(lime||st===4))for(const p of st===4?[Gx,F1,D3]:[Gx,F1]){const all=[],run=[];for(let k=0;k<=48;k++){all.push(fl(p,180*k/48));run.push(fl(p,th*k/48))}a.path(all,TEALP,1.6,false,1.66);a.path(run,TEAL,2.8,false,1.67);a.dot(fromAB(FX,abOf(FX,p)[0],0),TEAL,3.2)}
+  /* op.mids (Section 4, the turn card): each half circle's middle, the corner's foot on the gray line, and how far the corner stays from it */
+  const ml=(typeof op.midLab==='function'?op.midLab(th):op.midLab)||{A:[10,-14,'left',12,14,'left'],B:[-12,18,'left',-14,-2,'right']};   /* per middle: its name's place, then its distance label's place */
+  if(op.mids&&lime)for(const [p,n,who,ab] of [[Gx,'A','Gx',gA],[F1,'B','F₁',fA]]){const m=fromAB(FX,ab[0],0),L=ml[n];a.seg(m,p,TEAL,1.8,false,1.68);if(th>0)a.seg(m,fl(p,th),TEAL,1.8,false,1.68);a.dot(m,TEAL,4.2);a.label(n,m,L[0],L[1],L[2],COL.tealT,14);
+    a.label(`|${n}${who}| = ${p4(Math.abs(ab[1]))}`,scale3(add3(m,p),0.5),L[3],L[4],L[5],COL.tealT,12.5);
+    a.pt('mid'+n,m,TEAL,`<b>${n}</b>: ${who}'s foot on the gray line (Lesson 10.25), the middle of ${who}'s half circle. ${who} stays ${p4(Math.abs(ab[1]))} from ${n} all the way round.`,n)}
+  const dTip='<b>D</b>: the corner of GxF₁\'s two legs. From Gx, parallel to the gray line, to D (as long as AB); from D, on B\'s across ruler, to F₁.';
+  if(st===2){a.seg(P0,Af,'#111827',4.2,false,1.7);a.seg(Af,Gx,BLU,3.4,false,1.75);a.seg(Bf,F1,BLU,3.4,false,1.75);foot(Af,'A','Gx',gA[0]);foot(Bf,'B','F₁',fA[0])}
+  if(st===3||st===4||both){a.seg(Af,Bf,'#111827',4.2,false,1.7);a.seg(Af,Gx,BLUP,1.6,false,1.66);a.seg(Bf,F1,BLUP,1.6,false,1.66);foot(Af,'A','Gx',gA[0]);foot(Bf,'B','F₁',fA[0]);legs3(Gx,D3,F1,'D',dTip)}
+  if(th>0&&st!==2&&st!==3){const f=p=>fl(p,th),G2=f(Gx),F2=f(F1);
+    if(lime){a.seg(G2,F2,COL.drop,2.4,false,1.95);
+      if(op.lines!==false){const tk=scale3(FX.n,0.016);a.seg(f([-0.45,0,0]),f([1.15,0,0]),'#65a30d',1.8,false,1.62);for(let k=-4;k<=11;k++){if(!k)continue;const p=f([k/10,0,0]),big=k%5===0;a.seg(add3(p,f(tk),-(big?1.9:1)),add3(p,f(tk),big?1.9:1),'#3f6212',big?1.6:1,true,1.63)}
+        {const lf=[f(scale3(LK,-0.45)),f(scale3(LK,1.15))];a.seg(lf[0],lf[1],'#ca8a04',th===180?0.9:1.6,true,1.6);if(op.Ltip!==false)a.dot(f(LK),COL.L,4.5)}}}
+    if((done&&both)||st===4){a.seg(Af,G2,BLUP,1.6,false,1.66);a.seg(Bf,F2,BLUP,1.6,false,1.66);
+      legs3(G2,f(D3),F2,done?'D′':'~D turned',done?'<b>D′</b>: the corner of Gx′F₁′\'s two legs: from Gx′, parallel to the gray line, to D′; from D′, on B\'s across ruler, to F₁′.':`<b>D, turned ${th}°</b>: on its half circle, as far from the gray line as D.`)}
+    if(op.corner&&done)a.corner(F2,scale3([1,0,0],q.t1>0?-1:1),nrm3(sub3(G2,F2)),0.06);
+    a.dot(G2,'#4d7c0f',4.5);a.dot(F2,'#fff',4);
+    if(done){a.label('Gx′',G2,-12,-8,'right','#3f6212',13);if(op.cornerAsk)a.label(op.cornerAsk,F2,10,18,'left','#b91c1c',14);else a.label('F₁′',F2,10,18,'left','#3f6212',13);if(op.askLab)a.label(op.askLab,scale3(add3(G2,F2),0.5),12,-6,'left','#b91c1c',14);else if(op.lenLab2)a.label(op.lenLab2,scale3(add3(G2,F2),0.5),12,-6,'left',COL.dropT,13)}
+    else{if(op.lines!==false)a.label(`turned ${th}°`,f([1,0,0]),10,8,'left','#3f6212',12.5);if(st===4){const pj=p=>{let Q;o.label=(t,pp)=>{Q=o.proj(pp)};a.label('',p);delete o.label;return Q},D2=f(D3),dots=[P0,Gx,F1,D3,Af,Bf,G2,F2,D2].map(pj);
+        for(const [t,p] of [[`Gx, turned ${th}°`,G2],[`F₁, turned ${th}°`,F2],[`D, turned ${th}°`,D2]]){const Q=pj(p);o.labels.push(c=>freePlate(c,t,Q.x,Q.y,12.5,'#3f6212',dots))}}
+      else{const tl=typeof op.turnLab==='function'?op.turnLab(th):op.turnLab,tg=tl?.g||[-12,-8,'right'],tf=tl?.f||[10,18,'left'];a.label(`Gx, turned ${th}°`,G2,tg[0],tg[1],tg[2],'#3f6212',12.5);if(nm)a.label(`F₁, turned ${th}°`,F2,tf[0],tf[1],tf[2],'#3f6212',12.5)}}
+    a.pt('G2',G2,'#4d7c0f',done?'<b>Gx′</b>: where the flip takes Gx. On L\'s line (Lesson 10.28).':`<b>Gx, turned ${th}°</b>: on its half circle, as far from the gray line as Gx.`,done?'Gx′':'Gx turned');a.pt('F2',F2,'#fff',done?'<b>F₁′</b>: where the flip takes F₁. On the x line (Lesson 10.28).':`<b>F₁, turned ${th}°</b>: on its half circle, as far from the gray line as F₁.`,done?'F₁′':'F₁ turned')}
+  return r}
+/* flat: the indigo sheet seen straight on, zoomed on S; the gray line drawn → with its along ruler (0 at S).
+   step 1: the flip by th (teal); 2: the feet A, B, along from S to the foot (black), across from the foot to the point (blue);
+   3: GxF₁ with its two legs, square corner at D; 4: after the flip, Gx′F₁′ with its legs; 5: both (Section 2, the exercise answer) */
+const LEGF=['','teal: Gx\'s and F₁\'s half circles, seen straight on: straight lines · cyan: GxF₁',
+  'A, B: the feet of Gx and F₁ · black: along, from S to the foot · blue: across, from the foot to the point',
+  'cyan: GxF₁, before the flip · dark: its two legs, square corner at D · black: AB · thin blue: AGx',
+  'cyan: GxF₁ and its flip Gx′F₁′ · dark: their legs · black: AB · teal: Gx\'s way (Step 1); F₁\'s and D\'s lie under the legs',
+  'cyan: GxF₁ and Gx′F₁′ · dark: their legs · black: AB · thin blue: across rulers through A and B'];
+function flipFlat(ctx,st,N,th,step,op={}){const W=ctx.canvas.width,H=ctx.canvas.height,q=gf(N),c=Math.cos(th*DEG),done=th===180;ctx.__placed=[];
+  const g=q.g,f=q.f,d=[f[0],g[1]],g2=[g[0],-g[1]],f2=[f[0],-f[1]],d2=[d[0],-d[1]],Ap=[g[0],0],Bp=[f[0],0],small=W<700,fs=small?12:12.5;
+  const pts=[[0,0],g,f,g2,f2],lo=Math.min(...pts.map(p=>p[0])),hi=Math.max(...pts.map(p=>p[0])),mb=Math.max(...pts.map(p=>Math.abs(p[1])));
+  const S0=Math.round(Math.min(op.maxS||1100,(W-(small?250:300))/Math.max(0.05,hi-lo),(H-250)/Math.max(0.05,2*mb))),O={x:Math.round((small?90:120)-lo*S0),y:Math.round((H+64)/2)},P=p=>[O.x+p[0]*S0,O.y-p[1]*S0];
+  ctx.fillStyle='rgba(99,102,241,0.07)';ctx.fillRect(4,84,W-8,H-88);ctx.lineWidth=1;ctx.strokeStyle='#a5b4fc';ctx.strokeRect(4,84,W-8,H-88);
+  plate(ctx,small?`coordinates: the indigo sheet seen straight on · arrow units, from S, 1 = ${S0} px`:`coordinates: the indigo sheet seen straight on, zoomed in · arrow units, from S, 1 = ${S0} px`,8,16,fs,'left','#334155');
+  plate(ctx,'→: along the gray line · ↑: across it on the sheet, toward L\'s line (plus)',8,42,fs,'left','#334155');
+  plate(ctx,op.leg||LEGF[step],8,68,fs,'left','#334155');
+  const S=P([0,0]);
+  ctx.save();ctx.beginPath();ctx.rect(5,85,W-10,H-90);ctx.clip();
+  {const A=P([lo-1,0]),B=P([hi+1,0]);line(ctx,A[0],A[1],B[0],B[1],'#64748b',2.4)}
+  for(let k=-2;k<=Math.floor(hi*20)+1;k++){if(!k)continue;const p=P([k/20,0]),big=k%2===0;thin(ctx,p[0],p[1]-(big?7:4),p[0],p[1]+(big?7:4),'#475569',1.3)}
+  for(const [v,col] of [[dAB(FX),COL.xP],[lAB(FX),COL.L]]){const A=P([-v[0],-v[1]]),B=P([v[0],v[1]]);thin(ctx,A[0],A[1],B[0],B[1],col,3)}
+  ctx.restore();
+  plate(ctx,'gray line',W-12,S[1]-18,fs,'right',COL.half);
+  const poly=(ps,fill,stroke,w)=>{const Q=ps.map(P);ctx.beginPath();Q.forEach((r,i)=>i?ctx.lineTo(r[0],r[1]):ctx.moveTo(r[0],r[1]));ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill()}ctx.lineWidth=w;ctx.strokeStyle=stroke;ctx.stroke();return Q};
+  const lab=(t,p,dx,dy,al,col,sz=13)=>{const Q=P(p);plate(ctx,t,Q[0]+dx,Q[1]+dy,sz,al,col)};
+  const sq=(at,to1,to2,s,col)=>{const A=P(at);square(ctx,A[0],A[1],dirPx(A,P(to1)),dirPx(A,P(to2)),s,col)};
+  const pt=(p,col,html,name,r=4.5)=>{const Q=P(p);fdot(ctx,Q,col,r);addPt(st,Q[0],Q[1],col,html,name,{small:true})};
+  const seg=(p,q2,col,w)=>{const A=P(p),B=P(q2);line(ctx,A[0],A[1],B[0],B[1],col,w)};
+  const ab=p=>`along ${p4(p[0])}, across ${p4(p[1])}`;
+  /* a dimension bar from S to a foot, dy px from the gray line, with its label */
+  const bar=(to,dy,t)=>{const A=P([0,0]),B=P(to);ctx.lineWidth=3;ctx.strokeStyle='#111827';ctx.beginPath();ctx.moveTo(A[0],A[1]+dy);ctx.lineTo(B[0],B[1]+dy);ctx.stroke();ctx.lineWidth=1.5;for(const X of [A[0],B[0]]){ctx.beginPath();ctx.moveTo(X,A[1]+dy-6);ctx.lineTo(X,A[1]+dy+6);ctx.stroke()}plate(ctx,t,(A[0]+B[0])/2,A[1]+dy+(dy<0?-16:16),12.5,'center','#111827')};
+  /* GxF₁'s two legs (Lesson 9.1): from G parallel to the gray line to Dp, then on B's across ruler to F */
+  const legs=(G,F,Dp,labs)=>{seg(G,F,COL.drop,3.2);seg(G,Dp,LEGC,2.6);seg(Dp,F,LEGC,2.6);sq(Dp,G,F,11,LEGC);
+    if(labs){const Gq=P(G),Dq=P(Dp),Fq=P(F),below=Dp[1]<G[1]+1e-9&&Dp[1]<0;const ya=Dq[1]+(Dp[1]<0?20:-20);labs[0].forEach((t,i)=>plate(ctx,t,(Gq[0]+Dq[0])/2,ya+(Dp[1]<0?i*24:-i*24),12.5,'center',LEGC));
+      const ym=Dq[1]+(Fq[1]-Dq[1])*(labs[2]??0.5);labs[1].forEach((t,i)=>plate(ctx,t,Dq[0]-12,ym+(i-(labs[1].length-1)/2)*24,12.5,'right',LEGC))}};
+  const lenLab=(G,F,t,dy)=>{const A=P(G),C=P(F);plate(ctx,t,(A[0]+C[0])/2+14,(A[1]+C[1])/2+dy,12.5,'left',COL.dropT)};
+  const L0=lenChain(q,1),L1=lenChain(q,-1);
+  if(step===1){seg(g,f,COL.drop,2.8);
+    const teal=()=>{for(const p of [g,f]){const A=P(p),B=P([p[0],-p[1]]),M=P([p[0],p[1]*c]);thin(ctx,A[0],A[1],B[0],B[1],TEALP,2.4);thin(ctx,A[0],A[1],M[0],M[1],TEAL,3.2);sq([p[0],0],[0,0],p,9,TEAL)}};
+    if(!(th>0))teal();
+    if(th>0){const q1=[P([g[0],g[1]*c]),P([f[0],f[1]*c])];line(ctx,q1[0][0],q1[0][1],q1[1][0],q1[1][1],COL.drop,2.4);teal();
+      if(done){lab('Gx′',g2,10,-14,'left','#3f6212');lab('F₁′',f2,-12,16,'right','#3f6212');pt(g2,'#4d7c0f',`<b>Gx′</b>: where the flip takes Gx. ${ab(g2)}.`,'Gx′');pt(f2,'#fff',`<b>F₁′</b>: where the flip takes F₁. ${ab(f2)}.`,'F₁′',4)}
+      else{const G1=[g[0],g[1]*c],F1t=[f[0],f[1]*c];lab(`Gx, turned ${th}°`,G1,10,-14,'left','#3f6212',12.5);lab(`F₁, turned ${th}°`,F1t,-12,16,'right','#3f6212',12.5);plate(ctx,`turned ${th}°: GxF₁ now points partly out of the sheet, which this drawing does not show (Lesson 10.7)`,W-12,H-44,12,'right','#3f6212');pt(G1,'#4d7c0f',`<b>Gx, turned ${th}°</b>: partly out of the sheet, so drawn nearer the gray line (Lesson 10.7).`,'Gx turned');pt(F1t,'#fff',`<b>F₁, turned ${th}°</b>: partly out of the sheet, so drawn nearer the gray line (Lesson 10.7).`,'F₁ turned',4)}}
+    lab('Gx',g,10,16,'left',COL.xT);lab('F₁',f,-12,-14,'right','#111827');
+    /* op.mids (Step 2): A and B, the middles, and how far Gx and F₁ stay from them */
+    if(op.mids){lab('A',Ap,-10,-14,'right',COL.tealT,14);lab('B',Bp,8,16,'left',COL.tealT,14);lab(`|AGx| = ${p4(Math.abs(g[1]))}`,[g[0],g[1]/2],12,4,'left',COL.tealT,12.5);lab(`|BF₁| = ${p4(Math.abs(f[1]))}`,[f[0],f[1]/2],12,0,'left',COL.tealT,12.5)}}
+  if(step===2){seg(Ap,g,BLU,3.4);seg(Bp,f,BLU,3.4);bar(Bp,-26,`along ${p4(f[0])}: from S to B`);bar(Ap,46,`along ${p4(g[0])}: from S to A`);sq(Ap,[0,0],g,10,'#111827');sq(Bp,[0,0],f,10,'#111827');
+    {const A=P(Ap),G=P(g);plate(ctx,`across ${p4(g[1])}: from A to Gx`,A[0]+12,(A[1]+G[1])/2+20,12.5,'left',BLUT);plate(ctx,'(minus: the x line\'s side)',A[0]+12,(A[1]+G[1])/2+44,12.5,'left',BLUT)}
+    {const B=P(Bp),F=P(f);plate(ctx,`across ${p4(f[1])}: from B to F₁ (plus: L's side)`,B[0]+12,(B[1]+F[1])/2-8,12.5,'left',BLUT)}
+    lab('A',Ap,10,-14,'left',BLUT,14);lab('B',Bp,-10,-14,'right',BLUT,14);lab('Gx',g,12,14,'left',COL.xT,14);lab('F₁',f,-12,-12,'right','#111827',14)}
+  if(step===3&&op.change){seg(Bp,Ap,'#111827',4.2);seg(Ap,g,BLUP,1.6);seg(Bp,f,BLUP,1.6);   /* Step 4: each leg's number as end − start, with the readings at both ends */
+    legs(g,f,d,[[`along leg: ${p4(g[0])} − ${p4(f[0])} = ${p4(L0.a)}`,'(as long as AB)'],['across leg:',`${p4(Math.abs(g[1]))} + ${p4(Math.abs(f[1]))}`,`= ${p4(L0.b)}`],0.25]);
+    lab(`A: along ${p4(g[0])}`,Ap,10,-14,'left',BLUT,13);lab(`B: along ${p4(f[0])}`,Bp,-10,-14,'right',BLUT,13);lab(`D: ${p4(Math.abs(g[1]))} from B, as Gx from A`,d,-12,16,'right',LEGC,13);lab(`|AGx| = ${p4(Math.abs(g[1]))}`,[g[0],g[1]/2],12,0,'left',BLUT,12.5);lab('Gx',g,12,14,'left',COL.xT,14);lab(`F₁: ${p4(Math.abs(f[1]))} from B`,f,-12,-12,'right','#111827',13)}
+  else if(step===3){seg(Bp,Ap,'#111827',4.2);seg(Ap,g,BLUP,1.6);seg(Bp,f,BLUP,1.6);
+    legs(g,f,d,[[`along leg: ${p4(L0.a)}`],[`across leg: ${p4(L0.b)}`],0.25]);
+    lenLab(g,f,`|GxF₁| = ${fx(L0.r)}`,-4);lab('AB',[(Ap[0]+Bp[0])/2,0],0,-16,'center','#111827',12.5);
+    lab('A',Ap,10,-14,'left',BLUT,14);lab('B',Bp,-10,-14,'right',BLUT,14);lab('D',d,-12,16,'right',LEGC,14);lab('Gx',g,12,14,'left',COL.xT,14);lab('F₁',f,-12,-12,'right','#111827',14)}
+  if(step===4){seg(Bp,Ap,'#111827',4.2);   /* Step 6: GxF₁ with its legs, and the same triangle turned by th (at 180°: Gx′F₁′ with its legs and their lengths) */
+    if(th>0){const A=P(g),B=P(g2),M=P([g[0],g[1]*c]);thin(ctx,A[0],A[1],B[0],B[1],TEALP,2.4);thin(ctx,A[0],A[1],M[0],M[1],TEAL,3.2);sq(Ap,[0,0],g,9,TEAL)}
+    legs(g,f,d);{const G=P(g);plate(ctx,`|GxF₁| = ${fx(L0.r)}`,G[0]+14,G[1]-34,12.5,'left',COL.dropT)}
+    lab('A',Ap,10,16,'left',BLUT,14);lab('B',Bp,-10,16,'right',BLUT,14);lab('D',d,-12,16,'right',LEGC,14);lab('Gx',g,12,14,'left',COL.xT,14);lab('F₁',f,-12,-12,'right','#111827',14);
+    if(done){legs(g2,f2,d2,[[`along leg: ${p4(L1.a)} (as long as AB)`],['across leg:',`${p4(Math.abs(g[1]))} + ${p4(Math.abs(f[1]))}`,`= ${p4(L1.b)}`]]);
+      {const G=P(g2);plate(ctx,`|Gx′F₁′| = ${fx(L1.r)}`,G[0]+14,G[1]+34,12.5,'left',COL.dropT)}
+      lab(`D′: ${p4(Math.abs(g[1]))} from B, as Gx′ from A`,d2,-12,-16,'right',LEGC,13);lab('Gx′',g2,12,-14,'left','#3f6212',14);lab(`F₁′: ${p4(Math.abs(f[1]))} from B`,f2,-12,14,'right','#3f6212',13)}
+    else if(th>0){const G1=[g[0],g[1]*c],F1t=[f[0],f[1]*c],D1=[d[0],d[1]*c],up=c<0;seg(G1,F1t,COL.drop,3.2);seg(G1,D1,LEGC,2.6);seg(D1,F1t,LEGC,2.6);if(Math.abs(c)>0.12)sq(D1,G1,F1t,11,LEGC);
+      {const dots=[[0,0],g,f,d,Ap,Bp,G1,F1t,D1].map(p=>{const Q=P(p);return{x:Q[0],y:Q[1]}});for(let k=2;k<=Math.floor(hi*20);k+=2){const Q=P([k/20,0]);dots.push({x:Q[0]-8,y:Q[1]+15},{x:Q[0]-22,y:Q[1]+15})}   /* the ruler's numbers, placed later */
+      for(const [t,p] of [[`Gx, turned ${th}°`,G1],[`F₁, turned ${th}°`,F1t],[`D, turned ${th}°`,D1]]){const Q=P(p);freePlate(ctx,t,Q[0],Q[1],12.5,'#3f6212',dots)}}
+      plate(ctx,`turned ${th}°: the turned triangle points partly out of the sheet, which this drawing does not show (Lesson 10.7)`,W-12,H-44,12,'right','#3f6212');
+      for(const [p,n,col,r] of [[G1,'Gx','#4d7c0f',4.5],[F1t,'F₁','#fff',4],[D1,'D',LEGC,4]])pt(p,col,`<b>${n}, turned ${th}°</b>: partly out of the sheet, so drawn nearer the gray line (Lesson 10.7).`,n+' turned',r)}
+  }
+  if(step===5){seg(Bp,Ap,'#111827',4.2);seg(Ap,g,BLUP,1.4);seg(Bp,f,BLUP,1.4);seg(Ap,g2,BLUP,1.4);seg(Bp,f2,BLUP,1.4);
+    legs(g,f,d,[[`along leg ${p4(L0.a)}`],[`across leg ${p4(L0.b)}`],0.2]);legs(g2,f2,d2,[[`along leg ${p4(L1.a)}`],[`across leg ${p4(L1.b)}`],0.2]);
+    lenLab(g,f,`|GxF₁| = ${fx(L0.r)}`,-4);lenLab(g2,f2,`|Gx′F₁′| = ${fx(L1.r)}`,6);
+    lab('A',Ap,10,-14,'left',BLUT);lab('B',Bp,-10,-14,'right',BLUT);lab('D',d,-12,16,'right',LEGC);lab('D′',d2,-12,-16,'right',LEGC);lab('Gx',g,12,14,'left',COL.xT);lab('F₁',f,-12,-12,'right','#111827');lab('Gx′',g2,12,-14,'left','#3f6212');lab('F₁′',f2,-12,14,'right','#3f6212')}
+  for(let k=2;k<=Math.floor(hi*20);k+=2){const p=P([k/20,0]);plate(ctx,f2n(k/20),p[0]-3,p[1]+15,11.5,'right','#475569')}
+  /* clickable points */
+  pt([0,0],'#fff','<b>S</b>: on the gray line; the flip does not move it. The gray line\'s ruler reads 0 here.','S',5);plate(ctx,'S',S[0]-12,S[1]-14,14,'right');
+  const f4=false;pt(g,f4?'#d9f99d':COL.xP,`<b>Gx</b>: ${ab(g)} (found by the page, rounded to 4 decimals).`,'Gx',f4?3.5:5);pt(f,f4?'#e2e8f0':'#fff',`<b>F₁</b>: ${ab(f)} (found by the page, rounded to 4 decimals).`,'F₁',f4?3.5:4.5);
+  if(step>=2){pt(Ap,BLU,`<b>A</b>: Gx's foot on the gray line (Lesson 10.25). The gray line's ruler reads ${p4(g[0])} here.`,'A',4);pt(Bp,BLU,`<b>B</b>: F₁'s foot on the gray line. The gray line's ruler reads ${p4(f[0])} here.`,'B',4)}
+  if(step>=3)pt(d,LEGC,`<b>D</b>: the corner of GxF₁'s two legs, on B's across ruler, as far from the gray line as Gx. ${ab(d)}.`,'D',4);
+  if(step===5||(step===4&&done)){pt(g2,'#4d7c0f',`<b>Gx′</b>: where the flip takes Gx. Foot A, ${ab(g2)}.`,'Gx′');pt(f2,'#fff',`<b>F₁′</b>: where the flip takes F₁. Foot B, ${ab(f2)}.`,'F₁′',4);pt(d2,LEGC,`<b>D′</b>: the corner of Gx′F₁′'s two legs. ${ab(d2)}.`,'D′',4)}
+  plate(ctx,'lime: the x line · gold: L\'s line · black ticks: the gray line\'s ruler, every 0.05',8,H-16,12,'left','#3f6212');
+  ctx.__placed=null}
+                     /* the flip's turn around the gray line, in degrees, 0 … 180 */
+const CAM26={yaw:-25,pitch:30};
+         /* stepper index → the step of flip3D and flipFlat; index 1 also draws the half circles' middles (mids) */
+let flipT6=180;
+function legend27(o,extra,noN){o.labels.push(c=>{plate(c,c.canvas.width<700?'lime: the x line · gold: L\'s line · dark gray: the gray line':'lime: the x line · gold: L\'s line · indigo: the sheet that holds them · dark gray: the gray line',8,16,12.5,'left','#334155');plate(c,extra||'cyan: GxF₁ and its flip',8,42,12.5,'left',COL.limeS);plate(c,noN?'violet curves: the glass near S':'pale pink: N · violet curves: the glass near S',8,68,12.5,'left','#6b21a8')})}
+/* zoomed in further than the other 3D views (scale 230), so the triangle and the teal ways are large; the rulers stop at 0.5 */
+const ZOOM29={floorR:0.035,N:false,X:false,Ltip:false,names:true,lines:false,dlo:-0.12,dhi:0.5,llo:-0.12,lhi:0.5,A0:-0.14,A1:0.5,B:0.3,halfLo:-0.14,halfHi:0.52,halfAt:0.52,halfLab:'gray line'};
+
+/* ================= the card: Lesson 10.29, Section 1, Step 6 (the lesson's code, Step 6 only) ================= */
+const CAP6=q=>{const L=lenChain(q,-1),gd=p4(Math.abs(q.g[1])),fd=p4(Math.abs(q.f[1]));return`<b>Step 6 · After the flip: both legs are as long as before.</b><ul class="capl"><li>This is Step 1's flip again, now with the legs: Gx, F₁ and D turn on teal half circles to Gx′, F₁′ and D′. Move the slider to turn them.</li><li>Each goes straight across the gray line, as far on the other side. So the feet A and B stay, and Gx′ and F₁′ are as far from the gray line as Gx and F₁.</li><li>Along leg Gx′D′: as long as AB again, ${p4(L.a)}.</li><li>Across leg D′F₁′: two pieces as long as Step 4's, |D′B| = ${gd} and |BF₁′| = ${fd}. Together: ${KN(gd)} + ${KN(fd)} = ${p4(L.b)}.</li><li>Both legs are as long as in Step 5, so the long side is too: |Gx′F₁′| = |GxF₁| = ${fx(L.r)}.</li><li>This holds for any two points of the sheet: the flip keeps every point's foot and its distance from the gray line. So |SGx′| = |SGx| and |SF₁′| = |SF₁| too.</li></ul>`};
+const LEG6='cyan: GxF₁ and its flip Gx′F₁′ · dark: their legs, corners D, D′ · teal: half circles';
+const TIPS={};
+const ideaOrb=new Orbit3D($('k29Stage'),$('k29Cv'),{yaw:CAM26.yaw,pitch:CAM26.pitch,zoom:1,scale:230,target:[0,0,0],dx:-40,dy:-15,compassPos:'tr',coord:'UV, zoomed in at K',draw:o=>{flip3D(o,KP,NK,flipT6,{Ktip:KTIP,step:4,...ZOOM29,sheetLab:false});legend27(o,LEG6,true)}});
+viewBar($('k29Bar'),ideaOrb,[]);
+function step6(){const q=gf(NK);$('k29Cap').innerHTML=CAP6(q);bindTips($('k29Cap'));
+  $('k29V').textContent=flipT6+'°';$('k29Range').value=flipT6;ideaOrb.render();
+  const st=$('k29FlatStage'),cv=$('k29Flat'),ctx=cv.getContext('2d');clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);flipFlat(ctx,st,NK,flipT6,4,{mids:false,change:false,leg:null})}
+$('k29Range').addEventListener('input',e=>{flipT6=Number(e.target.value);step6()});
+$('k29End').onclick=()=>{flipT6=180;step6()};$('k29Start').onclick=()=>{flipT6=0;step6()};
+step6();
+
+})();
+</script>
+</body>
+</html>
