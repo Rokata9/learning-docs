@@ -220,6 +220,8 @@ If a normal-width diagram is > ~2400px, retry not more than 2 times to compact i
 
 ### File form
 
+- **Delivery from Claude on the web (a cloud session)** (2026-11-10): one `.patch` file per answer, applied with `git apply` from the repository root, holding only that answer's changes: not cumulative, no earlier patches. Not separate changed files.
+
 - **In Claude web / artifacts**: a fragment relying on host CSS variables is fine (that's what the artifact runtime provides).
 - **On disk (repos, learning docs)**: a fully **standalone single HTML file** — inline CSS + JS + SVG, system font stack, no external dependencies or CDNs, must work from `file://` in light mode. Page max-width ~880px and widget viewBox ≤ ~760 wide remain good defaults for prose-led lessons. An intentionally ultrawide figure may use up to `5124×1440`. SVG labels must be ≥ 14px. Prose must be ≥ 15px.
 - Multi-topic lessons: stack sections vertically (scannable, re-readable), one widget per section; use a stepper INSIDE a section when that section's story is sequential.

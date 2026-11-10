@@ -90,7 +90,8 @@ I am an experienced software engineer. I am a total beginner in graphics, render
 ## 7. Delivery
 
 - With write access to my checkout and the lab: edit the files in place.
-- Without it (a cloud session or a chat): send every changed file as a download and give its repository path.
+- Without it (a cloud session, e.g. Claude on the web): send one `.patch` file made with `git diff` from the repository root, holding only this answer's changes (not cumulative, no earlier patches), and the command to apply it: `git apply <file>.patch` from the repository root. It is made on top of the previous answer's patch; say so when an earlier patch must be applied first. No separate changed files.
+- In a chat without a repository: send every changed file as a download and give its repository path.
 - No ZIP files unless I ask. Do not commit or push unless I ask.
 - End with the list of changed files and their repository paths.
 
