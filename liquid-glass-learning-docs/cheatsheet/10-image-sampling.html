@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10 Image sampling — Formula cheatsheet</title>
+<link rel="stylesheet" href="shared/cheatsheet.css">
+</head>
+<body>
+<main>
+<div class="crumbs"><a href="index.html">← Cheatsheet: all sections</a><a href="../liquid-glass-course.html">Course home</a><a href="../course/glossary.html">Glossary</a></div>
+<section class="cat" id="cat-sampling" style="--acc:#9333ea" data-title="Image sampling" data-range="9.7 – 9.9">
+<div class="cat-head"><span class="cat-num">10</span><h1>Image sampling</h1><span class="range">Lessons 9.7 – 9.9 (wallpaper rule used up to 9.14)</span></div>
+<p class="cat-intro">The pixel that is written (W) and the point that is read (R) can differ. The picture then appears to move or resize — always opposite to the read move.</p>
+<div class="grid">
+
+<article class="card">
+  <div class="card-top"><h3>Ask the input for a color</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-07-sample-an-input-shader.html" title="Lesson 9.7 — Sample an input shader">9.7</a></span></div>
+  <div class="f"><div>sampled = background(fragCoord, resolution)</div><div>        <span class="c">← a copy of the input color at that pair</span></div><div>stripes input: cell = fract(uv.x × 5.0)</div><div>               cell &lt; 0.5 → orange, else navy</div></div>
+  <div class="ex"><div class="ex-h">Example <span>pixel T, uv.x = 0.15 on a 400-px square</span></div>
+  <table class="steps"><tr><th>pixel</th><td><span class="eq">0.15 × 400 = 60 px</span></td></tr>
+  <tr><th>cell</th><td><span class="eq">5.0 × 0.15 = 0.75</span>     <span class="eq">fract(0.75) = 0.75</span></td></tr>
+  <tr><th>color</th><td>0.75 ≥ 0.5 → <span class="r">navy</span></td></tr></table></div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Checkerboard wallpaper rule</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-09-scale-around-the-center.html" title="Lesson 9.9 — Scale around the center">9.9</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-10-build-a-displacement-field.html" title="Lesson 9.10 — Build a displacement field">9.10</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-12-edge-safety.html" title="Lesson 9.12 — Edge safety">9.12</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-13-gentle-chromatic-separation.html" title="Lesson 9.13 — Gentle chromatic separation">9.13</a></span></div>
+  <div class="f"><div>col = floor(x × 4)          row = floor(y × 4)</div><div>col + row even → orange (white)    odd → navy (black)</div><div>9.12 on: col = min(floor(x × 4), 3), the same for row</div><div>         <span class="c">← the edge 1.00 belongs to the last cell</span></div><div>9.12 on: outside 0 … 1 → transparent (no wallpaper)</div></div>
+  <div class="sym">Same test written another way (9.10): fract((col + row) × 0.5) is 0 for even, 0.5 for odd. Black and white from 9.13 on.</div>
+  <div class="ex"><div class="ex-h">Example <span>read point (0.62, 0.34)</span></div>
+  <table class="steps"><tr><th>col</th><td><span class="eq">0.62 × 4 = 2.48</span> → floor → 2</td></tr>
+  <tr><th>row</th><td><span class="eq">0.34 × 4 = 1.36</span> → floor → 1</td></tr>
+  <tr><th>color</th><td><span class="eq">2 + 1 = 3</span> → odd → <span class="r">navy</span></td></tr></table></div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Translate the read point</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-08-translate-sample-coordinates.html" title="Lesson 9.8 — Translate sample coordinates">9.8</a></span></div>
+  <div class="f"><div>readCoord = fragCoord − (offsetU × resolution.x, 0)</div><div>sampled   = background(readCoord, resolution)</div></div>
+  <div class="sym"><b>offsetU</b> width fraction to read to the left. The stripes appear to move <b>right</b>. background() does not clamp or wrap a negative read x.</div>
+  <div class="ex"><div class="ex-h">Example <span>W at x = 60 px (uv.x 0.15), offsetU 0.10, width 400</span></div>
+  <table class="steps"><tr><th>offset</th><td><span class="eq">0.10 × 400 = 40 px</span></td></tr>
+  <tr><th>read</th><td><span class="eq">60 − 40 = 20 px</span>     <span class="eq">20 ÷ 400 = 0.05</span></td></tr>
+  <tr><th>cell</th><td><span class="eq">5.0 × 0.05 = 0.25</span>     <span class="eq">fract(0.25) = 0.25</span> → <span class="r">orange</span> stored at W</td></tr></table></div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Scale around the center</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-09-scale-around-the-center.html" title="Lesson 9.9 — Scale around the center">9.9</a></span></div>
+  <div class="f"><div>p      = uv − 0.5</div><div>readUv = p ÷ scale + 0.5           <span class="c">← scale 2 reads half as far from C: magnify</span></div></div>
+  <div class="sym"><b>scale</b> is the magnification, not displayScale. No “inner half” if: at scale 2 the middle 2 × 2 cells fill the picture; the outer ring is never read.</div>
+  <div class="ex"><div class="ex-h">Example <span>W = uv (0.80, 0.50), scale 2</span></div>
+  <table class="steps"><tr><th>p</th><td><span class="eq">0.80 − 0.5 = 0.30</span>     <span class="eq">0.50 − 0.5 = 0</span></td></tr>
+  <tr><th>÷ scale</th><td><span class="eq">0.30 ÷ 2 = 0.15</span>     <span class="eq">0 ÷ 2 = 0</span></td></tr>
+  <tr><th>+ 0.5</th><td><span class="eq">0.15 + 0.5 = 0.65</span>     <span class="eq">0 + 0.5 = 0.50</span>     <span class="eq">→ R = (0.65, 0.50)</span></td></tr>
+  <tr><th>color</th><td><span class="eq">0.65 × 4 = 2.60</span> → 2     <span class="eq">0.50 × 4 = 2</span> → 2     <span class="eq">2 + 2 = 4</span> → even → <span class="r">orange</span></td></tr></table></div>
+</article>
+
+<article class="card wide">
+  <div class="card-top"><h3>Diagram · write W, read R</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-07-sample-an-input-shader.html" title="Lesson 9.7 — Sample an input shader">9.7</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-08-translate-sample-coordinates.html" title="Lesson 9.8 — Translate sample coordinates">9.8</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-09-scale-around-the-center.html" title="Lesson 9.9 — Scale around the center">9.9</a></span></div>
+  <div class="dia"><div class="dia-h">Interactive <span>pick a lesson, move the slider, click the output to choose W</span></div>
+  <div class="ctrls" id="smModes"></div>
+  <div class="ctrls"><label id="smLab">offsetU <input type="range" id="smS" min="0" max="0.5" step="0.01" value="0.10"><output id="smSO"></output></label></div>
+  <div class="row">
+    <div class="col"><div class="pic-title">Input (what background() returns)</div><canvas id="smIn" width="320" height="320"></canvas></div>
+    <div class="col"><div class="pic-title">Output (what each pixel stores)</div><canvas id="smOutCv" width="320" height="320"></canvas></div>
+    <div class="col" style="flex:1;min-width:330px"><div class="leg"><span><i class="dot" style="background:#ec4899"></i>W: the written pixel (both pictures)</span><span><i class="dot" style="background:#a3e635"></i>R: the read point (input only)</span><span><i style="background:#ec4899"></i>pink arrow: from W's spot to R</span><span><i class="dot" style="background:#22d3ee"></i>C: the center (scale only)</span></div><div class="readout" id="smOut"></div></div>
+  </div></div>
+</article>
+
+</div>
+</section>
+<nav class="pager" id="pager"></nav>
+</main>
+<script src="shared/cheatsheet.js"></script>
+<script>
+'use strict';
+/* ================= D12 sampling: write W, read R ================= */
+(function sampling(){
+  const modes = {id: '9.7 · read = write', tr: '9.8 · translate', sc: '9.9 · scale around C'};
+  let mode = 'tr', W = [0.15, 0.50];
+  Object.keys(modes).forEach(k => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = modes[k]; b.dataset.k = k; b.onclick = () => { mode = k; if(k === 'sc'){ W = [0.80, 0.50]; $('smS').min = 0.25; $('smS').max = 3; $('smS').step = 0.05; $('smS').value = 2; } else { W = [0.15, 0.50]; $('smS').min = 0; $('smS').max = 0.5; $('smS').step = 0.01; $('smS').value = 0.10; } draw(); }; $('smModes').appendChild(b); });
+  const cvO = $('smOutCv'), cvI = $('smIn');
+  const vO = View(cvO, 0, 0, 1, 1);
+  function readOf(u, v, s){ if(mode === 'id') return [u, v]; if(mode === 'tr') return [u - s, v]; return [(u - .5) / s + .5, (v - .5) / s + .5]; }
+  function draw(){
+    document.querySelectorAll('#smModes .btn').forEach(b => b.classList.toggle('on', b.dataset.k === mode));
+    const s = mode === 'id' ? 0 : R(+$('smS').value);
+    $('smLab').style.display = mode === 'id' ? 'none' : '';
+    $('smLab').firstChild.textContent = mode === 'sc' ? 'scale ' : 'offsetU ';
+    $('smSO').textContent = F(s);
+    const wall = mode === 'sc' ? WALLS.on : WALLS.stripes;
+    const [rx, ry] = readOf(W[0], W[1], s);
+    let x0 = rx < 0 ? rx - .06 : 0, x1 = rx > 1 ? rx + .06 : 1, y0 = ry < 0 ? ry - .06 : 0, y1 = ry > 1 ? ry + .06 : 1;
+    const span = Math.max(x1 - x0, y1 - y0); x1 = x0 + span; y1 = y0 + span;
+    const vI = View(cvI, x0, y0, x1, y1);
+    paint(vI, (u, v) => { const c = wall(u, v); return (u < 0 || u > 1 || v < 0 || v > 1) ? [c[0] * .45 + .45, c[1] * .45 + .45, c[2] * .45 + .45, 1] : c; });
+    paint(vO, (u, v) => { const [a, b] = readOf(u, v, s); return wall(a, b); });
+    const ci = vI.ctx, co = vO.ctx; cvI._pts = []; cvO._pts = [];
+    if(span > 1.001){ const [fx0, fy0] = vI.px(0, 0), [fx1, fy1] = vI.px(1, 1); ci.save(); ci.strokeStyle = '#0f172a'; ci.lineWidth = 2; ci.strokeRect(fx0, fy0, fx1 - fx0, fy1 - fy0); ci.restore(); cLabel(ci, fx0 + 4, fy1 - 4, 'picture 0 … 1 (paler = outside)', {size: 14}); }
+    const [wxi, wyi] = vI.px(W[0], W[1]), [rxi, ryi] = vI.px(rx, ry), [wxo, wyo] = vO.px(W[0], W[1]);
+    if(mode === 'sc'){ const [cx, cy] = vI.px(.5, .5); cDot(ci, cx, cy, '#22d3ee', 5); cLabel(ci, cx - 10, cy - 8, 'C', {anchor: 'end'}); cvI._pts.push({x: cx, y: cy, name: 'C', role: 'center of the scale', coords: 'uv (0.50, 0.50)'}); }
+    if(Math.hypot(rxi - wxi, ryi - wyi) > 3) cArrow(ci, wxi, wyi, rxi, ryi, '#ec4899');
+    cDot(ci, wxi, wyi, '#ec4899'); cDot(ci, rxi, ryi, '#a3e635');
+    cLabel(ci, wxi + 8, wyi - 8, "W's spot"); cLabel(ci, rxi + 8, ryi + 22, 'R ' + fu(rx, ry));
+    cvI._pts.push({x: wxi, y: wyi, name: "W's spot", role: 'where W sits, drawn on the input', coords: 'uv ' + fu(W[0], W[1])}, {x: rxi, y: ryi, name: 'R', role: 'the read point of W', coords: 'uv ' + fu(rx, ry)});
+    cDot(co, wxo, wyo, '#ec4899'); cLabel(co, wxo + 8, wyo - 8, 'W ' + fu(W[0], W[1]));
+    cvO._pts.push({x: wxo, y: wyo, name: 'W', role: 'the written pixel', coords: 'uv ' + fu(W[0], W[1])});
+    const rows = [['W', `uv ${fu(W[0], W[1])}`]];
+    let rxr = W[0], ryr = W[1];
+    if(mode === 'tr'){ const px = mul(s, 400), xw = mul(W[0], 400); rxr = sub(W[0], s); rows.push(['offset', `${line(s, '×', 400, px)} px (width 400)`], ['read', `${line(W[0], '×', 400, xw)} px     ${line(xw, '−', px, sub(xw, px))} px     ${line(W[0], '−', s, rxr)} (uv)`]); }
+    if(mode === 'sc'){ const pX = sub(W[0], .5), pY = sub(W[1], .5), qX = div(pX, s), qY = div(pY, s); rxr = add(qX, .5); ryr = add(qY, .5); rows.push(['p', `${line(W[0], '−', .5, pX)}     ${line(W[1], '−', .5, pY)}`], ['÷ scale', `${line(pX, '÷', s, qX)}     ${line(pY, '÷', s, qY)}`], ['+ 0.5', `${line(qX, '+', .5, rxr)}     ${line(qY, '+', .5, ryr)}`]); }
+    if(mode === 'sc'){ const ws = wallSteps(rxr, ryr, 'on'); rows.push(['color', ws.txt + ` → W stores <span class="r">${ws.name}</span>`]); }
+    else { const c5 = mul(rxr, 5), fr = R(c5 - Math.floor(c5)); rows.push(['color', `cell: ${line(5, '×', rxr, c5)}     fract(${F(c5)}) = ${F(fr)} → ${fr < .5 ? '&lt; 0.5 → orange' : '≥ 0.5 → navy'} → W stores <span class="r">${fr < .5 ? 'orange' : 'navy'}</span>`]); }
+    $('smOut').innerHTML = steps(rows, modes[mode]);
+  }
+  pickable(cvO, (x, y) => { const [u, v] = vO.uv(x, y); W = [Math.round(u * 200) / 200, Math.round(v * 200) / 200]; draw(); });
+  pickable(cvI, null);
+  $('smS').addEventListener('input', draw);
+  draw();
+})();
+</script>
+</body>
+</html>

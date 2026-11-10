@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 Backdrop, blur and frost — Formula cheatsheet</title>
+<link rel="stylesheet" href="shared/cheatsheet.css">
+</head>
+<body>
+<main>
+<div class="crumbs"><a href="index.html">← Cheatsheet: all sections</a><a href="../liquid-glass-course.html">Course home</a><a href="../course/glossary.html">Glossary</a></div>
+<section class="cat" id="cat-frost" style="--acc:#0e7490" data-title="Backdrop, blur and frost" data-range="6.5 – 6.11 · 7.1 – 7.12">
+<div class="cat-head"><span class="cat-num">07</span><h1>Backdrop, blur and frost</h1><span class="range">Lessons 6.5 – 6.11 · 7.1 – 7.12</span></div>
+<div class="grid">
+
+<article class="card">
+  <div class="card-top"><h3>Why blur needs the backdrop</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-01/lesson-01-06-alpha-mixture.html" title="Lesson 1.6 — Learn the first alpha-mixture formula">1.6</a><a class="lesson" href="../course/chapters/chapter-06/lesson-06-04-blur-on-owned-content.html" title="Lesson 6.4 — .blur() on owned content">6.4</a><a class="lesson" href="../course/chapters/chapter-06/lesson-06-05-backdrop-problem.html" title="Lesson 6.5 — The backdrop problem">6.5</a><a class="lesson" href="../course/chapters/chapter-06/lesson-06-09-avoid-feedback-loops.html" title="Lesson 6.9 — Avoid feedback loops">6.9</a></span></div>
+  <div class="f"><div>alpha only:   out(p) = Panel(p) over B(p)                <span class="c">← one position</span></div><div>blur:         B̄(p)  = [B(p − 1) + B(p) + B(p + 1)] ÷ 3   <span class="c">← neighbors</span></div><div>frosted:      out(p) = PanelMaterial(p) over B̄(p)</div></div>
+  <div class="sym">A view's <b>.blur()</b> blurs only its own pixels (6.4). The backdrop B must be recorded (ImageRenderer) and replayed as an image the panel owns.</div>
+  <div class="note"><b>No feedback loop (6.9):</b> the recorded subtree must not contain the glass panel; otherwise the panel records itself.</div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Crop the correct backdrop region</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-06/lesson-06-07-crop-the-correct-region.html" title="Lesson 6.7 — Crop the correct region">6.7</a><a class="lesson" href="../course/chapters/chapter-06/lesson-06-08-keep-the-sample-current.html" title="Lesson 6.8 — Keep the sample current">6.8</a><a class="lesson" href="../course/chapters/chapter-06/lesson-06-11-two-layer-scene-architecture.html" title="Lesson 6.11 — Build a two-layer scene architecture">6.11</a></span></div>
+  <div class="f"><div>C_b = P_p − B_p          <span class="c">← crop origin in backdrop-local pt</span></div><div>T   = −C_b               <span class="c">← .offset for the replayed image</span></div><div>Q_panel = Q_b + T        <span class="c">← a backdrop point seen in the panel</span></div><div>stale error = layer-content error + bounds error</div></div>
+  <div class="sym"><b>P_p</b> panel origin in the parent · <b>B_p</b> backdrop origin in the parent. All in points; never pass pixels to <b>.offset</b>.</div>
+  <div class="ex"><div class="ex-h">Example</div>
+  <table class="steps"><tr><th>crop</th><td><span class="eq">(64, 70) − (12, 10) = <span class="r">(52, 60)</span> pt</span></td></tr>
+  <tr><th>far corner</th><td><span class="eq">(52, 60) + (210, 130) = (262, 190) pt</span></td></tr>
+  <tr><th>point</th><td><span class="eq">(172, 163.2) + (−52, −60) = <span class="r">(120, 103.2)</span> pt</span></td></tr>
+  <tr><th>wrong T</th><td><span class="eq">(172, 163.2) + (−64, −70) = (108, 93.2)</span>
+<span class="eq">(108, 93.2) − (120, 103.2) = <span class="r">(−12, −10)</span> pt error</span></td></tr>
+  <tr><th>stale</th><td><span class="eq">(56, −24) + (32, 16) = <span class="r">(88, −8)</span> pt</span></td></tr></table></div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Offscreen cost</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-06/lesson-06-10-offscreen-cost.html" title="Lesson 6.10 — Offscreen cost">6.10</a><a class="lesson" href="../course/chapters/chapter-04/lesson-04-08-masks.html" title="Lesson 4.8 — Masks">4.8</a></span></div>
+  <div class="f"><div>Wpx = round(Wpt × scale)        Hpx = round(Hpt × scale)</div><div>pixels = Wpx × Hpx</div><div>bytes  = pixels × 4                 <span class="c">← RGBA8 estimate</span></div><div>MiB    = bytes ÷ 1,048,576</div><div>budget = 1,000 ms ÷ frames per second</div></div>
+  <div class="ex"><div class="ex-h">Example <span>panel 196 × 116 pt at scale 3</span></div>
+  <table class="steps"><tr><th>size</th><td><span class="eq">196 × 3 = 588 px</span>     <span class="eq">116 × 3 = 348 px</span></td></tr>
+  <tr><th>pixels</th><td><span class="eq">588 × 348 = <span class="r">204,624</span></span></td></tr>
+  <tr><th>memory</th><td><span class="eq">204,624 × 4 = 818,496</span>
+<span class="eq">818,496 ÷ 1,048,576 = <span class="r">0.781</span> MiB</span></td></tr>
+  <tr><th>budget</th><td><span class="eq">1,000 ÷ 120 = <span class="r">8.333</span> ms per frame at 120 frames per second</span></td></tr></table></div>
+  <div class="note"><b>Note:</b> double width and height → 2 × 2 = 4 times the pixels. An estimate, not a measured GPU time.</div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Blur = neighborhood average</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-07/lesson-07-01-blur-as-neighborhood-averaging.html" title="Lesson 7.1 — Blur as neighborhood averaging">7.1</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-02-blur-radius.html" title="Lesson 7.2 — Blur radius">7.2</a></span></div>
+  <div class="f"><div>out = (sum of the 9 neighbors) ÷ 9      <span class="c">← 3 × 3 teaching box, equal weights 1 ÷ 9</span></div><div>radiusPx = radiusPt × displayScale      <span class="c">← readout only; .blur(radius:) takes pt</span></div></div>
+  <div class="ex"><div class="ex-h">Example <span>four RGB(18, 54, 90) and five RGB(225, 153, 45), 8-bit</span></div>
+  <table class="steps"><tr><th>red</th><td><span class="eq">4 × 18 = 72</span>     <span class="eq">5 × 225 = 1125</span>     <span class="eq">72 + 1125 = 1197</span>     <span class="eq">1197 ÷ 9 = <span class="r">133</span></span></td></tr>
+  <tr><th>green</th><td><span class="eq">4 × 54 = 216</span>     <span class="eq">5 × 153 = 765</span>     <span class="eq">216 + 765 = 981</span>     <span class="eq">981 ÷ 9 = <span class="r">109</span></span></td></tr>
+  <tr><th>blue</th><td><span class="eq">4 × 90 = 360</span>     <span class="eq">5 × 45 = 225</span>     <span class="eq">360 + 225 = 585</span>     <span class="eq">585 ÷ 9 = <span class="r">65</span></span></td></tr>
+  <tr><th>radius</th><td><span class="eq">12 × 3 = <span class="r">36</span> px on iPhone 16 Pro</span></td></tr></table></div>
+  <div class="note"><b>Note:</b> SwiftUI's real blur kernel is private. The 3 × 3 box is a teaching model.</div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Diagram · 3 × 3 average</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-07/lesson-07-01-blur-as-neighborhood-averaging.html" title="Lesson 7.1 — Blur as neighborhood averaging">7.1</a></span></div>
+  <div class="dia"><div class="dia-h">Interactive <span>click a cell to swap navy ↔ orange</span></div>
+  <div class="row"><svg id="bbSvg" width="250" height="250" viewBox="0 0 250 250"></svg>
+  <div class="col"><div class="pic-title">output pixel (the center)</div><div class="chip" style="width:110px;height:110px;border-radius:10px;border:1px solid #475569" id="bbChip"></div></div></div>
+  <div class="readout" id="bbOut" style="margin-top:8px"></div>
+  </div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Edge treatment (reads outside the image)</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-07/lesson-07-03-edge-treatment.html" title="Lesson 7.3 — Edge treatment">7.3</a></span></div>
+  <div class="f"><div>clamp    → repeat the nearest edge color</div><div>decal    → transparent (0, 0, 0, 0)</div><div>mirror   → reflected copy        repeat → translated copy</div><div>average premultiplied samples, then straight = RGB ÷ alpha</div></div>
+  <div class="ex"><div class="ex-h">Example <span>decal: samples T, T, C, C, C with C = (1.00, 0.40, 0.10, 1.00)</span></div>
+  <table class="steps"><tr><th>sum rule</th><td>the two T samples add 0; the three C samples add 3 × C</td></tr>
+  <tr><th>red</th><td><span class="eq">3 × 1.00 = 3.00</span>     <span class="eq">3.00 ÷ 5 = 0.60</span></td></tr>
+  <tr><th>green</th><td><span class="eq">3 × 0.40 = 1.20</span>     <span class="eq">1.20 ÷ 5 = 0.24</span></td></tr>
+  <tr><th>blue</th><td><span class="eq">3 × 0.10 = 0.30</span>     <span class="eq">0.30 ÷ 5 = 0.06</span></td></tr>
+  <tr><th>alpha</th><td><span class="eq">3 × 1 = 3</span>     <span class="eq">3 ÷ 5 = <span class="r">0.60</span></span></td></tr>
+  <tr><th>straight</th><td><span class="eq">0.60 ÷ 0.60 = 1.00</span>     <span class="eq">0.24 ÷ 0.60 = 0.40</span>     <span class="eq">0.06 ÷ 0.60 = 0.10</span>
+→ <span class="r">(1.00, 0.40, 0.10, 0.60)</span>: same color, partly transparent</td></tr></table></div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Downsampled blur</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-07/lesson-07-04-downsampled-blur.html" title="Lesson 7.4 — Downsampled blur">7.4</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-04-scaling-cases-companion.html" title="Lesson 7.4 companion — the four scaling cases">7.4 companion</a></span></div>
+  <div class="f"><div>working width  = final width × scale</div><div>working height = final height × scale</div><div>working pixels = working width × working height</div><div>working radius = final radius × scale</div><div>enlarge scale  = 1 ÷ scale</div></div>
+  <div class="ex"><div class="ex-h">Example <span>320 × 160 px, radius 24 px, scale 0.50</span></div>
+  <table class="steps"><tr><th>size</th><td><span class="eq">320 × 0.50 = 160</span>     <span class="eq">160 × 0.50 = 80</span></td></tr>
+  <tr><th>pixels</th><td><span class="eq">160 × 80 = <span class="r">12,800</span></span>     <span class="eq">(full: 320 × 160 = 51,200)</span></td></tr>
+  <tr><th>radius</th><td><span class="eq">24 × 0.50 = <span class="r">12</span> px</span></td></tr>
+  <tr><th>2 × 2 block</th><td><span class="eq">20 + 60 = 80</span>     <span class="eq">80 + 100 = 180</span>     <span class="eq">180 + 140 = 320</span>     <span class="eq">320 ÷ 4 = <span class="r">80</span> (red)</span></td></tr>
+  <tr><th>enlarge</th><td><span class="eq">1 ÷ 0.50 = 2</span></td></tr></table></div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Outer shadow room</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-07/lesson-07-09-outer-shadow.html" title="Lesson 7.9 — Outer shadow">7.9</a></span></div>
+  <div class="f"><div>room needed  = shadow blur radius (+ offset on that side)</div><div>glass height = stage height − 2 × stage pad</div><div>shadow top   = stage pad + offset        <span class="c">← same height as the glass</span></div></div>
+  <div class="ex"><div class="ex-h">Example <span>teaching canvas: stage 320, pad 32, offset 8</span></div>
+  <table class="steps"><tr><th>glass</th><td><span class="eq">2 × 32 = 64</span>     <span class="eq">320 − 64 = <span class="r">256</span></span></td></tr>
+  <tr><th>shadow</th><td><span class="eq">32 + 8 = 40 (top)</span>     <span class="eq">40 + 256 = <span class="r">296</span> (bottom)</span></td></tr>
+  <tr><th>room below</th><td><span class="eq">320 − 296 = <span class="r">24</span></span>     ≥ largest blur 24 → nothing is cut</td></tr></table></div>
+  <div class="note"><b>iOS:</b> shadow .blur(radius: 12), offset 4 pt, stage pad 20 pt.</div>
+</article>
+
+<article class="card wide">
+  <div class="card-top"><h3>The frosted stack: one slot per ingredient</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-06/lesson-06-02-draw-order-and-ownership.html" title="Lesson 6.2 — Draw order and ownership">6.2</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-05-tint-layer.html" title="Lesson 7.5 — Tint layer">7.5</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-06-saturation-and-contrast.html" title="Lesson 7.6 — Saturation and contrast">7.6</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-07-static-rim.html" title="Lesson 7.7 — Static rim">7.7</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-08-inner-highlight.html" title="Lesson 7.8 — Inner highlight">7.8</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-09-outer-shadow.html" title="Lesson 7.9 — Outer shadow">7.9</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-10-fine-noise.html" title="Lesson 7.10 — Fine noise or dither">7.10</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-11-combine-the-layers.html" title="Lesson 7.11 — Combine the layers">7.11</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-12-compare-backgrounds.html" title="Lesson 7.12 — Compare backgrounds">7.12</a></span></div>
+  <div class="row" style="align-items:stretch">
+  <div style="flex:1;min-width:430px">
+  <div class="f"><div>slot(ingredient) = (clip membership, effect owner, sibling order)</div><div>wrong clip membership → pixels outside the path are discarded</div><div>wrong sibling order   → a later sibling covers an earlier one</div></div>
+  <div class="kv" style="margin-top:10px">
+    <b>blur</b><span>18 pt (fill owns it)</span>
+    <b>tint</b><span>white, amount 0.25</span>
+    <b>saturation</b><span>factor 0.40 (weights 0.213 / 0.715 / 0.072)</span>
+    <b>rim</b><span>3 pt stroke, inset 1.5 pt</span>
+    <b>inner band</b><span>12 pt, band blur 6 pt</span>
+    <b>shadow</b><span>blur 12 pt, offset 4 pt, outside the clip</span>
+    <b>noise</b><span>amount 0.02, 16 × 16 tile</span>
+    <b>verdict</b><span>white text passes if contrast ≥ 4.5 (one sample pixel)</span>
+  </div>
+  </div>
+  <div class="dia" style="flex:1;min-width:430px;margin-top:8px"><div class="dia-h">Diagram <span>draw order, bottom to top</span></div>
+  <svg id="stackSvg" width="560" height="330" viewBox="0 0 560 330" style="width:100%;max-width:640px;height:auto"></svg></div>
+  </div>
+</article>
+
+</div>
+</section>
+<nav class="pager" id="pager"></nav>
+</main>
+<script src="shared/cheatsheet.js"></script>
+<script>
+'use strict';
+/* ================= D18 3 × 3 box average ================= */
+(function box(){
+  const navy = [18, 54, 90], orange = [225, 153, 45];
+  const cells = [0, 0, 1, 0, 1, 1, 0, 1, 1]; /* 1 = orange: four navy, five orange */
+  const svg = $('bbSvg');
+  function draw(){
+    clearSvg(svg);
+    cells.forEach((c, i) => {
+      const x = 10 + (i % 3) * 77, y = 10 + Math.floor(i / 3) * 77;
+      const r = el('rect', {x, y, width: 74, height: 74, rx: 6, fill: `rgb(${(c ? orange : navy).join(',')})`, stroke: i === 4 ? '#ec4899' : '#334155', 'stroke-width': i === 4 ? 4 : 1, style: 'cursor:pointer'}, svg);
+      r.addEventListener('click', () => { cells[i] ^= 1; draw(); });
+      sText(svg, x + 37, y + 43, c ? 'orange' : 'navy', {anchor: 'middle', size: 14, halo: false, fill: c ? '#1f2937' : '#fff'});
+    });
+    const no = cells.filter(c => c).length, nn = 9 - no;
+    const rows = [['count', `${nn} navy RGB(18, 54, 90) · ${no} orange RGB(225, 153, 45)`]];
+    const res = [];
+    ['red', 'green', 'blue'].forEach((n, i) => {
+      const a = nn * navy[i], b = no * orange[i], s = a + b, o = R(s / 9);
+      res.push(o);
+      rows.push([n, `${nn} × ${navy[i]} = ${a}     ${no} × ${orange[i]} = ${b}     ${a} + ${b} = ${s}     ${s} ÷ 9 = ${F(o)}`]);
+    });
+    rows.push(['output', `<span class="r">RGB(${res.map(F).join(', ')})</span> (8-bit, before rounding to whole numbers)`]);
+    $('bbOut').innerHTML = steps(rows);
+    $('bbChip').style.background = `rgb(${res.map(Math.round).join(',')})`;
+  }
+  draw();
+})();
+
+
+(function stackDiagram(){
+  const s = $('stackSvg');
+  const items = [['shadow', 'own blur 12 pt · offset 4 pt · outside the clip', '#cbd5e1'], ['fill (backdrop replay)', 'blur 18 pt → tint 0.25 → saturation 0.40', '#bae6fd'], ['grain (noise)', 'signed offset, amount 0.02', '#e9d5ff'], ['inner band', '12 pt stroke, band blur 6 pt', '#fde68a'], ['rim', '3 pt stroke, inset 1.5 pt', '#fecaca'], ['sharp label', 'no blur, outside the fill filter', '#bbf7d0']];
+  items.forEach(([t, d, c], i) => {
+    const y = 280 - i * 52, x = i ? 96 : 80, w = i ? 444 : 476;
+    el('rect', {x, y, width: w, height: 44, rx: 8, fill: c, stroke: '#334155'}, s);
+    sText(s, x + 12, y + 19, `${i + 1} · ${t}`, {size: 14, halo: false, weight: 700});
+    sText(s, x + 12, y + 37, d, {size: 14, halo: false, weight: 500, fill: '#334155'});
+  });
+  el('rect', {x: 86, y: 14, width: 464, height: 262, rx: 12, fill: 'none', stroke: '#7c3aed', 'stroke-width': 2.5, 'stroke-dasharray': '8 5'}, s);
+  const t1 = sText(s, 70, 145, 'inside clipShape', {anchor: 'middle', size: 14, fill: '#6d28d9'}); t1.setAttribute('transform', 'rotate(-90 70 145)');
+  sArrow(s, 36, 320, 36, 16, '#334155', 2);
+  const t2 = sText(s, 22, 168, 'drawn later = on top', {anchor: 'middle', size: 14}); t2.setAttribute('transform', 'rotate(-90 22 168)');
+})();
+</script>
+</body>
+</html>

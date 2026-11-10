@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>11 Displacement, refraction and the lens — Formula cheatsheet</title>
+<link rel="stylesheet" href="shared/cheatsheet.css">
+</head>
+<body>
+<main>
+<div class="crumbs"><a href="index.html">← Cheatsheet: all sections</a><a href="../liquid-glass-course.html">Course home</a><a href="../course/glossary.html">Glossary</a></div>
+<section class="cat" id="cat-lens" style="--acc:#dc2626" data-title="Displacement, refraction, lens" data-range="9.10 – 9.14">
+<div class="cat-head"><span class="cat-num">11</span><h1>Displacement, refraction and the lens</h1><span class="range">Lessons 9.10 – 9.14</span></div>
+<p class="cat-intro">Defaults: glass radius 0.25 · band 0.10 · dispLen 0.10 · spread 0.10 · maskBand 0.002 · speed 0.10 UV/s. All positions in UV (0 … 1 of a square picture). Read points are drawn on the wallpaper; the output is a separate picture.</p>
+<div class="grid">
+
+<article class="card wide">
+  <div class="card-top"><h3>The whole lens chain at a glance (Lesson 9.14)</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-10-build-a-displacement-field.html" title="Lesson 9.10 — Build a displacement field">9.10</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-11-refraction-as-displaced-sampling.html" title="Lesson 9.11 — Refraction as displaced sampling">9.11</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-12-edge-safety.html" title="Lesson 9.12 — Edge safety">9.12</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-13-gentle-chromatic-separation.html" title="Lesson 9.13 — Gentle chromatic separation">9.13</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-14-lens-checkpoint.html" title="Lesson 9.14 — Lens checkpoint">9.14</a></span></div>
+  <div class="dia"><div class="dia-h">Diagram <span>each box names the lesson that added it</span></div>
+  <svg id="chainSvg" width="1480" height="300" viewBox="0 0 1480 300" style="width:100%;height:auto"></svg></div>
+  <div class="f"><div>p = uv − center          d = length(p)          sd = d − radius                         <span class="c">← both answers start here</span></div><div>answer 2 · where does the pixel read?</div><div>  falloff = 1 − smoothstep(−band, band, sd)     push = dispLen × falloff     dir = p ÷ d     disp = dir × push</div><div>  readRed   = clamp(uv − disp × (1 − spread), 0, 1)</div><div>  readGreen = clamp(uv − disp, 0, 1)</div><div>  readBlue  = clamp(uv − disp × (1 + spread), 0, 1)</div><div>  bent  = half4(wall(readRed).r, wall(readGreen).g, wall(readBlue).b, 1)</div><div>answer 1 · is the pixel glass?</div><div>  mask  = 1 − smoothstep(−maskBand, maskBand, sd)</div><div>plain = wall(uv, time)                        color = mix(plain, bent, mask)</div></div>
+</article>
+
+<!-- 9.10 -->
+<article class="card">
+  <div class="card-top"><h3>Displacement field</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-10-build-a-displacement-field.html" title="Lesson 9.10 — Build a displacement field">9.10</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-10-qa.html" title="Lesson 9.10 — visual answers to your questions">9.10 Q&amp;A</a></span></div>
+  <div class="f"><div>p      = uv − (0.5, 0.5)</div><div>d      = length(p)</div><div>dir    = p ÷ d                 <span class="c">← length 1, away from C</span></div><div>                               <span class="c">← skipped if d ≤ 0.0001</span></div><div>disp   = dir × dispLen          <span class="c">← the same length for every pixel</span></div><div>readUv = uv − disp              <span class="c">← R lies dispLen closer to C</span></div><div>color  = wall(readUv)</div></div>
+  <div class="sym"><b>dispLen</b> a UV read distance, not a percentage. Every read point moves the same length toward C, so the whole picture bends, even far from C.</div>
+  <div class="ex"><div class="ex-h">Example <span>W = (0.65, 0.20), dispLen 0.10</span></div>
+  <table class="steps"><tr><th>p</th><td><span class="eq">0.65 − 0.50 = 0.15</span>     <span class="eq">0.20 − 0.50 = −0.30</span></td></tr>
+  <tr><th>d</th><td><span class="eq">0.15 × 0.15 = 0.0225</span>     <span class="eq">(−0.30) × (−0.30) = 0.09</span>
+<span class="eq">0.0225 + 0.09 = 0.1125</span>     <span class="eq">√0.1125 = 0.335</span></td></tr>
+  <tr><th>dir</th><td><span class="eq">0.15 ÷ 0.335 = 0.448</span>     <span class="eq">−0.30 ÷ 0.335 = −0.896</span></td></tr>
+  <tr><th>disp</th><td><span class="eq">0.448 × 0.10 = 0.0448</span>     <span class="eq">−0.896 × 0.10 = −0.0896</span></td></tr>
+  <tr><th>readUv</th><td><span class="eq">0.65 − 0.0448 = 0.6052</span>     <span class="eq">0.20 − (−0.0896) = 0.2896</span></td></tr>
+  <tr><th>color</th><td><span class="eq">0.6052 × 4 = 2.4208</span> → 2     <span class="eq">0.2896 × 4 = 1.1584</span> → 1
+<span class="eq">2 + 1 = 3</span> → odd → <span class="r">navy</span>  (W itself sits on orange)</td></tr></table></div>
+</article>
+
+<!-- 9.11 -->
+<article class="card">
+  <div class="card-top"><h3>Refraction: push fades across the band</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-11-refraction-as-displaced-sampling.html" title="Lesson 9.11 — Refraction as displaced sampling">9.11</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-11-qa.html" title="Lesson 9.11 — visual answers to your questions">9.11 Q&amp;A</a></span></div>
+  <div class="f"><div>sd      = d − radius</div><div><span class="new">falloff = 1 − smoothstep(−band, band, sd)</span>   <span class="c">← 1 inside, 0 outside</span></div><div>push    = dispLen × falloff</div><div>disp    = dir × push                <span class="c">← = dir × dispLen × falloff</span></div><div>readUv  = uv − disp</div></div>
+  <div class="sym"><b>Rings:</b> inner ring sd = −band (0.15 from C, full push 0.10) · circle sd = 0 (half push 0.05) · outer ring sd = +band (0.35 from C, no push). Outside the outer ring nothing moves: the line x = 0.90 stays straight.</div>
+  <div class="ex"><div class="ex-h">Example <span>W = (0.65, 0.30), C = (0.50, 0.50)</span></div>
+  <table class="steps"><tr><th>p</th><td><span class="eq">0.65 − 0.50 = 0.15</span>     <span class="eq">0.30 − 0.50 = −0.20</span></td></tr>
+  <tr><th>d, sd</th><td><span class="eq">0.15 × 0.15 = 0.0225</span>     <span class="eq">(−0.20) × (−0.20) = 0.04</span>
+<span class="eq">0.0225 + 0.04 = 0.0625</span>     <span class="eq">√0.0625 = 0.25</span>     <span class="eq">0.25 − 0.25 = 0</span></td></tr>
+  <tr><th>falloff</th><td><span class="eq">0 − (−0.10) = 0.10</span>     <span class="eq">0.10 − (−0.10) = 0.20</span>     <span class="eq">0.10 ÷ 0.20 = 0.50</span>
+<span class="eq">0.50 × 0.50 = 0.25 (t²)</span>     <span class="eq">0.25 × 0.50 = 0.125 (t³)</span>
+<span class="eq">3 × 0.25 = 0.75</span>     <span class="eq">2 × 0.125 = 0.25</span>     <span class="eq">0.75 − 0.25 = 0.50</span>
+<span class="eq">1 − 0.50 = <span class="r">0.50</span></span></td></tr>
+  <tr><th>push</th><td><span class="eq">0.10 × 0.50 = <span class="r">0.05</span></span></td></tr>
+  <tr><th>dir, disp</th><td><span class="eq">0.15 ÷ 0.25 = 0.60</span>     <span class="eq">−0.20 ÷ 0.25 = −0.80</span>
+<span class="eq">0.60 × 0.05 = 0.03</span>     <span class="eq">−0.80 × 0.05 = −0.04</span></td></tr>
+  <tr><th>readUv</th><td><span class="eq">0.65 − 0.03 = 0.62</span>     <span class="eq">0.30 − (−0.04) = 0.34</span></td></tr>
+  <tr><th>color</th><td><span class="eq">0.62 × 4 = 2.48</span> → 2     <span class="eq">0.34 × 4 = 1.36</span> → 1     <span class="eq">2 + 1 = 3</span> → <span class="r">navy</span></td></tr></table></div>
+  <div class="note"><b>Why smoothstep, not a straight line:</b> a straight falloff has corners at the two rings, so the bent lines get visible kinks there; a hard if makes a jump (lines break and pixels near the circle are never read). Compare them in the diagram below.</div>
+</article>
+
+<article class="card wide">
+  <div class="card-top"><h3>Diagram · 9.10 displacement field → 9.11 refraction</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-10-build-a-displacement-field.html" title="Lesson 9.10 — Build a displacement field">9.10</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-11-refraction-as-displaced-sampling.html" title="Lesson 9.11 — Refraction as displaced sampling">9.11</a></span></div>
+  <div class="dia"><div class="dia-h">Interactive <span>choose the push rule; click either picture to move W</span></div>
+  <div class="ctrls" id="rfModes"></div>
+  <div class="ctrls"><label>dispLen <input type="range" id="rfL" min="0" max="0.25" step="0.005" value="0.10"><output id="rfLO"></output></label><label>band <input type="range" id="rfB" min="0.02" max="0.2" step="0.01" value="0.10"><output id="rfBO"></output></label><label><input type="checkbox" id="rfField" checked> arrow field</label></div>
+  <div class="row">
+    <div class="col"><div class="pic-title">Push length against distance from C</div><svg id="rfGraph" width="380" height="330" viewBox="0 0 380 330"></svg></div>
+    <div class="col"><div class="pic-title">Wallpaper (input) · spot, push, read point</div><canvas id="rfWall" width="330" height="330"></canvas></div>
+    <div class="col"><div class="pic-title">Output (what the shader paints)</div><canvas id="rfOutCv" width="330" height="330"></canvas></div>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <div class="leg" style="min-width:330px"><span><i style="background:#fff;border:1px solid #475569"></i>white line x = 0.65 (part of the wallpaper)</span><span><i style="background:#2dd4bf"></i>turquoise line x = 0.90 (part of the wallpaper)</span><span><i style="background:#a855f7"></i>violet circle: the glass edge, sd = 0</span><span><i style="background:#a3e635"></i>lime rings: sd = −band and sd = +band</span><span><i style="background:#ec4899"></i>pink arrow: the push, from W's spot to R</span><span><i class="dot" style="background:#ec4899"></i>W: the written pixel · <i class="dot" style="background:#a3e635"></i> R: its read point</span></div>
+    <div class="readout" id="rfOut"></div>
+  </div></div>
+</article>
+
+<!-- 9.12 -->
+<article class="card">
+  <div class="card-top"><h3>Edge safety: clamp the read point</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-12-edge-safety.html" title="Lesson 9.12 — Edge safety">9.12</a></span></div>
+  <div class="f"><div>p      = uv − center                    <span class="c">← the glass can sit anywhere</span></div><div>readUv = uv − disp                      <span class="c">← R, may leave the wallpaper</span></div><div><span class="new">readUv = clamp(readUv, 0.0, 1.0)</span>        <span class="c">← R′: x and y clamped separately</span></div><div>color  = checkerWithEdge(readUv)         <span class="c">← transparent outside 0 … 1</span></div></div>
+  <div class="sym">Without the clamp, pixels whose R leaves the picture have no color: a see-through seam (an arch along the bottom edge). R′ is <b>not</b> where the push arrow crosses the edge. SwiftUI's <b>Layer.sample</b> already clamps. With the glass in the middle the clamp changes no pixel.</div>
+  <div class="ex"><div class="ex-h">Example <span>C = (0.50, 1.10), W = (0.59, 0.98)</span></div>
+  <table class="steps"><tr><th>p</th><td><span class="eq">0.59 − 0.50 = 0.09</span>     <span class="eq">0.98 − 1.10 = −0.12</span></td></tr>
+  <tr><th>d, sd</th><td><span class="eq">0.09 × 0.09 = 0.0081</span>     <span class="eq">(−0.12) × (−0.12) = 0.0144</span>
+<span class="eq">0.0081 + 0.0144 = 0.0225</span>     <span class="eq">√0.0225 = 0.15</span>     <span class="eq">0.15 − 0.25 = −0.10</span></td></tr>
+  <tr><th>falloff</th><td><span class="eq">−0.10 + 0.10 = 0</span>     <span class="eq">0.10 + 0.10 = 0.20</span>     <span class="eq">0 ÷ 0.20 = 0 (t)</span>
+<span class="eq">0 × 0 = 0 (t²)</span>     <span class="eq">0 × 0 = 0 (t³)</span>     <span class="eq">3 × 0 = 0</span>     <span class="eq">2 × 0 = 0</span>     <span class="eq">0 − 0 = 0</span>
+<span class="eq">1 − 0 = 1</span></td></tr>
+  <tr><th>push</th><td><span class="eq">0.10 × 1 = 0.10</span></td></tr>
+  <tr><th>dir, disp</th><td><span class="eq">0.09 ÷ 0.15 = 0.60</span>     <span class="eq">−0.12 ÷ 0.15 = −0.80</span>
+<span class="eq">0.60 × 0.10 = 0.06</span>     <span class="eq">−0.80 × 0.10 = −0.08</span></td></tr>
+  <tr><th>R</th><td><span class="eq">0.59 − 0.06 = 0.53</span>     <span class="eq">0.98 − (−0.08) = 1.06</span>     → outside</td></tr>
+  <tr><th>R′</th><td><span class="eq">x: max(0.53, 0) = 0.53</span>     <span class="eq">min(0.53, 1) = 0.53</span>
+<span class="eq">y: max(1.06, 0) = 1.06</span>     <span class="eq">min(1.06, 1) = <span class="r">1.00</span></span></td></tr>
+  <tr><th>color</th><td><span class="eq">0.53 × 4 = 2.12</span> → 2     <span class="eq">1.00 × 4 = 4</span> → floor 4 → <span class="eq">min(4, 3) = 3</span>
+<span class="eq">2 + 3 = 5</span> → odd → <span class="r">navy</span></td></tr></table></div>
+</article>
+
+<!-- 9.13 -->
+<article class="card">
+  <div class="card-top"><h3>Gentle chromatic separation</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-13-gentle-chromatic-separation.html" title="Lesson 9.13 — Gentle chromatic separation">9.13</a></span></div>
+  <div class="f"><div><span class="new">readRed   = clamp(uv − disp × (1 − spread), 0, 1)</span>   <span class="c">← shorter push</span></div><div>readGreen = clamp(uv − disp, 0, 1)                <span class="c">← the 9.12 read point</span></div><div><span class="new">readBlue  = clamp(uv − disp × (1 + spread), 0, 1)</span>   <span class="c">← longer push</span></div><div><span class="new">color = half4(colRed.r, colGreen.g, colBlue.b, 1.0)</span>   <span class="c">← one channel from each</span></div><div>strip width = spread × push                <span class="c">← 0.10 × 0.10 = 0.01 UV at full push</span></div></div>
+  <div class="sym">A fringe appears only where an edge lies between the read points. Read points that cross white into black give yellow and red strips; read points that cross black into white give cyan and blue strips (blue next to black). No push → no fringe. Cost: three wallpaper reads per pixel.</div>
+  <div class="ex"><div class="ex-h">Example <span>B/W checker, C = (0.40, 0.54), W = (0.40, 0.405)</span></div>
+  <table class="steps"><tr><th>p</th><td><span class="eq">0.40 − 0.40 = 0</span>     <span class="eq">0.405 − 0.54 = −0.135</span></td></tr>
+  <tr><th>d, sd</th><td><span class="eq">0 × 0 = 0</span>     <span class="eq">(−0.135) × (−0.135) = 0.018225</span>     <span class="eq">0 + 0.018225 = 0.018225</span>
+<span class="eq">√0.018225 = 0.135</span>     <span class="eq">0.135 − 0.25 = −0.115</span></td></tr>
+  <tr><th>falloff</th><td><span class="eq">−0.115 + 0.10 = −0.015</span>     <span class="eq">0.10 + 0.10 = 0.20</span>     <span class="eq">−0.015 ÷ 0.20 = −0.075</span> → limited to 0
+<span class="eq">0 × 0 = 0 (t²)</span>     <span class="eq">0 × 0 = 0 (t³)</span>     <span class="eq">3 × 0 = 0</span>     <span class="eq">2 × 0 = 0</span>     <span class="eq">0 − 0 = 0</span>
+<span class="eq">1 − 0 = 1</span></td></tr>
+  <tr><th>push</th><td><span class="eq">0.10 × 1 = 0.10</span></td></tr>
+  <tr><th>dir, disp</th><td><span class="eq">0 ÷ 0.135 = 0</span>     <span class="eq">−0.135 ÷ 0.135 = −1</span>
+<span class="eq">0 × 0.10 = 0</span>     <span class="eq">−1 × 0.10 = −0.10</span>     <span class="eq">→ disp = (0, −0.10)</span></td></tr>
+  <tr><th>x (all three)</th><td><span class="eq">0 × 0.90 = 0</span>     <span class="eq">0 × 1.10 = 0</span>     <span class="eq">0.40 − 0 = 0.40</span></td></tr>
+  <tr><th>readRed y</th><td><span class="eq">1 − 0.10 = 0.90</span>     <span class="eq">−0.10 × 0.90 = −0.09</span>     <span class="eq">0.405 − (−0.09) = 0.495</span></td></tr>
+  <tr><th>readGreen y</th><td><span class="eq">0.405 − (−0.10) = 0.505</span></td></tr>
+  <tr><th>readBlue y</th><td><span class="eq">1 + 0.10 = 1.10</span>     <span class="eq">−0.10 × 1.10 = −0.11</span>     <span class="eq">0.405 − (−0.11) = 0.515</span></td></tr>
+  <tr><th>colors</th><td><span class="eq">col: 0.40 × 4 = 1.60</span> → 1 (all three)
+<span class="eq">red row: 0.495 × 4 = 1.98</span> → 1     <span class="eq">1 + 1 = 2</span> → even → white → <span class="eq">red = 1</span>
+<span class="eq">green row: 0.505 × 4 = 2.02</span> → 2     <span class="eq">1 + 2 = 3</span> → odd → black → <span class="eq">green = 0</span>
+<span class="eq">blue row: 0.515 × 4 = 2.06</span> → 2     <span class="eq">1 + 2 = 3</span> → odd → black → <span class="eq">blue = 0</span></td></tr>
+  <tr><th>W stores</th><td><span class="r">(1, 0, 0)</span> — pure red</td></tr></table></div>
+</article>
+
+<article class="card wide">
+  <div class="card-top"><h3>Diagram · 9.12 edge safety</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-12-edge-safety.html" title="Lesson 9.12 — Edge safety">9.12</a></span></div>
+  <div class="dia"><div class="dia-h">Interactive <span>move the glass down; switch the clamp; click the output to move W</span></div>
+  <div class="ctrls"><label>glass center y <input type="range" id="esY" min="0.5" max="1.2" step="0.01" value="1.10"><output id="esYO"></output></label><span id="esBtns"></span></div>
+  <div class="row">
+    <div class="col"><div class="pic-title">Wallpaper and the area outside it (x −0.05 … 1.05, y −0.05 … 1.25)</div><canvas id="esWall" width="330" height="390"></canvas></div>
+    <div class="col"><div class="pic-title">Output (hatched = see-through)</div><canvas id="esOutCv" width="330" height="330"></canvas></div>
+    <div class="col"><div class="pic-title" id="esZoomT">Wallpaper around W (zoom)</div><canvas id="esZoom" width="230" height="230"></canvas></div>
+    <div class="col" style="flex:1;min-width:250px"><div class="leg"><span><i style="background:#facc15"></i>yellow line: the bottom edge y = 1.00</span><span><i style="background:#a855f7"></i>violet circle: the glass edge</span><span><i style="background:#ec4899"></i>pink arrow: W's push to R</span><span><i style="background:#f97316"></i>orange box: the zoom window</span><span><i class="dot" style="background:#a3e635"></i>R: the read point · <i class="dot" style="background:#fff"></i> R′: after clamp</span><span><i class="box" style="background:repeating-linear-gradient(45deg,#cbd5e1 0 3px,#fff 3px 6px)"></i>hatch: no wallpaper there</span></div></div>
+  </div>
+  <div class="readout" id="esOut" style="margin-top:8px"></div></div>
+</article>
+
+<article class="card wide">
+  <div class="card-top"><h3>Diagram · 9.13 three read points per pixel</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-13-gentle-chromatic-separation.html" title="Lesson 9.13 — Gentle chromatic separation">9.13</a></span></div>
+  <div class="dia"><div class="dia-h">Interactive <span>change the spread; click the output to choose W (the magnifiers follow W)</span></div>
+  <div class="ctrls"><label>spread <input type="range" id="crS" min="0" max="0.4" step="0.01" value="0.10"><output id="crSO"></output></label><label>dispLen <input type="range" id="crL" min="0" max="0.2" step="0.005" value="0.10"><output id="crLO"></output></label></div>
+  <div class="row">
+    <div class="col"><div class="pic-title">Output</div><canvas id="crOutCv" width="330" height="330"></canvas></div>
+    <div class="col"><div class="pic-title" id="crZoomT">Output around W (zoom)</div><canvas id="crZoom" width="230" height="230" class="np"></canvas></div>
+    <div class="col"><div class="pic-title" id="crWallT">Wallpaper around W (zoom) · read points</div><canvas id="crWall" width="230" height="230" class="np"></canvas></div>
+    <div class="col" style="min-width:250px"><div class="pic-title">W's channels</div><svg id="crBars" width="250" height="150" viewBox="0 0 250 150"></svg>
+    <div class="leg"><span><i style="background:#a855f7"></i>violet circle: the glass edge</span><span><i class="dot" style="background:#ec4899"></i>W · <i style="background:#ec4899"></i> pink arrow: push</span><span><i class="dot" style="background:#ef4444"></i>readRed <i class="dot" style="background:#22c55e"></i>readGreen <i class="dot" style="background:#3b82f6"></i>readBlue</span><span><i style="background:#f97316"></i>orange box: the zoom window</span></div></div>
+  </div>
+  <div class="readout" id="crOut" style="margin-top:8px"></div>
+  </div>
+</article>
+
+<!-- 9.14 -->
+<article class="card">
+  <div class="card-top"><h3>Lens checkpoint: mask × bend</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-14-lens-checkpoint.html" title="Lesson 9.14 — Lens checkpoint">9.14</a></span></div>
+  <div class="f"><div>sd    = length(p) − radius               <span class="c">← computed for every pixel</span></div><div><span class="new">mask  = 1 − smoothstep(−maskBand, maskBand, sd)</span>   <span class="c">← answer 1: is it glass?</span></div><div>bent  = the 9.13 color                   <span class="c">← answer 2: where to read</span></div><div><span class="new">plain = wall(uv, time)</span>                  <span class="c">← the wallpaper at the pixel itself</span></div><div><span class="new">color = mix(plain, bent, mask)</span>          <span class="c">← = plain + (bent − plain) × mask</span></div><div>wall(x, y, time) = checker(x + speed × time, y)    <span class="c">← moves left</span></div></div>
+  <div class="sym"><b>maskBand</b> 0.002 ≈ one pixel of a 520-px picture (520 × 0.002 = 1.04); iOS: 1 ÷ resolution.x. Mixing by falloff instead gives a 0.20-wide ghost ring; a hard if gives stair steps. Cost: four wallpaper reads per pixel.</div>
+  <div class="ex"><div class="ex-h">Example <span>W = (0.40, 0.24), time = 2 s, C = (0.40, 0.54)</span></div>
+  <table class="steps"><tr><th>p, d, sd</th><td><span class="eq">0.40 − 0.40 = 0</span>     <span class="eq">0.24 − 0.54 = −0.30</span>
+<span class="eq">0 × 0 = 0</span>     <span class="eq">(−0.30) × (−0.30) = 0.09</span>     <span class="eq">0 + 0.09 = 0.09</span>     <span class="eq">√0.09 = 0.30</span>
+<span class="eq">0.30 − 0.25 = 0.05</span></td></tr>
+  <tr><th>mask</th><td><span class="eq">0.05 + 0.002 = 0.052</span>     <span class="eq">0.002 + 0.002 = 0.004</span>     <span class="eq">0.052 ÷ 0.004 = 13</span> → limited to 1
+<span class="eq">1 × 1 = 1 (t²)</span>     <span class="eq">1 × 1 = 1 (t³)</span>     <span class="eq">3 × 1 = 3</span>     <span class="eq">2 × 1 = 2</span>     <span class="eq">3 − 2 = 1</span>
+<span class="eq">1 − 1 = <span class="r">0</span> </span> → not glass</td></tr>
+  <tr><th>falloff</th><td><span class="eq">0.05 + 0.10 = 0.15</span>     <span class="eq">0.10 + 0.10 = 0.20</span>     <span class="eq">0.15 ÷ 0.20 = 0.75</span>
+<span class="eq">0.75 × 0.75 = 0.5625</span>     <span class="eq">0.5625 × 0.75 = 0.422</span>
+<span class="eq">3 × 0.5625 = 1.6875</span>     <span class="eq">2 × 0.422 = 0.844</span>     <span class="eq">1.6875 − 0.844 = 0.8435</span>
+<span class="eq">1 − 0.8435 = 0.1565</span></td></tr>
+  <tr><th>push</th><td><span class="eq">0.10 × 0.1565 = 0.016</span></td></tr>
+  <tr><th>dir, disp</th><td><span class="eq">0 ÷ 0.30 = 0</span>     <span class="eq">−0.30 ÷ 0.30 = −1</span>     <span class="eq">0 × 0.016 = 0</span>     <span class="eq">−1 × 0.016 = −0.016</span></td></tr>
+  <tr><th>reads (x)</th><td><span class="eq">0 × 0.90 = 0</span>     <span class="eq">0 × 1.10 = 0</span>     <span class="eq">0.40 − 0 = 0.40 (all three)</span></td></tr>
+  <tr><th>reads (y)</th><td><span class="eq">−0.016 × 0.90 = −0.0144</span>     <span class="eq">0.24 − (−0.0144) = 0.2544</span>
+<span class="eq">0.24 − (−0.016) = 0.256</span>
+<span class="eq">−0.016 × 1.10 = −0.0176</span>     <span class="eq">0.24 − (−0.0176) = 0.2576</span></td></tr>
+  <tr><th>shift</th><td><span class="eq">0.10 × 2 = 0.20</span>     <span class="eq">0.40 + 0.20 = 0.60</span>     <span class="eq">0.60 × 4 = 2.40</span> → col 2</td></tr>
+  <tr><th>bent</th><td><span class="eq">rows: 0.2544 × 4 = 1.0176</span> → 1     <span class="eq">0.256 × 4 = 1.024</span> → 1     <span class="eq">0.2576 × 4 = 1.0304</span> → 1
+<span class="eq">2 + 1 = 3</span> → odd → black for all three → <span class="eq">bent = (0, 0, 0)</span></td></tr>
+  <tr><th>plain</th><td><span class="eq">0.24 × 4 = 0.96</span> → 0     <span class="eq">2 + 0 = 2</span> → even → white → <span class="eq">plain = (1, 1, 1)</span></td></tr>
+  <tr><th>mix</th><td><span class="eq">0 − 1 = −1</span>     <span class="eq">−1 × 0 = 0</span>     <span class="eq">1 + 0 = <span class="r">1</span> per channel</span> → W stores white</td></tr></table></div>
+  <div class="note"><b>Lesson 9.13 alone</b> would store bent = black here: the bend leaked outside the circle (up to the outer ring 0.35 from C). The mask gives the glass its own outline.</div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>What each lens answer cannot do</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-14-lens-checkpoint.html" title="Lesson 9.14 — Lens checkpoint">9.14</a></span></div>
+  <div class="ex"><div class="ex-h">Checks <span>Lesson 9.14 exercises</span></div>
+  <table class="steps"><tr><th>dispLen = 0</th><td><span class="eq">I = (0.40, 0.44): 0.40 − 0.40 = 0</span>     <span class="eq">0.44 − 0.54 = −0.10</span>
+<span class="eq">0 × 0 = 0</span>     <span class="eq">(−0.10) × (−0.10) = 0.01</span>     <span class="eq">0 + 0.01 = 0.01</span>     <span class="eq">√0.01 = 0.10 (d)</span>
+<span class="eq">0.10 − 0.25 = −0.15</span>     <span class="eq">−0.15 + 0.002 = −0.148</span>     <span class="eq">−0.148 ÷ 0.004 = −37</span> → limited to 0 → <span class="eq">mask 1 − 0 = 1</span>
+<span class="eq">push: 0 × falloff = 0</span> → every read point is I itself → <span class="eq">bent = plain</span>
+→ I is glass, but the lens is <span class="r">invisible</span></td></tr>
+  <tr><th>capsule mask</th><td><span class="eq">T = (0.78, 0.54): 0.78 − 0.40 = 0.38</span>     <span class="eq">0.54 − 0.54 = 0</span>
+<span class="eq">capsule: clamp(0.38, −0.20, 0.20) = 0.20</span>     <span class="eq">0.38 − 0.20 = 0.18</span>     <span class="eq">0 − 0 = 0</span>
+<span class="eq">0.18 × 0.18 = 0.0324</span>     <span class="eq">0 × 0 = 0</span>     <span class="eq">0.0324 + 0 = 0.0324</span>     <span class="eq">√0.0324 = 0.18</span>
+<span class="eq">0.18 − 0.20 = −0.02</span>     <span class="eq">−0.02 + 0.002 = −0.018</span>     <span class="eq">−0.018 ÷ 0.004 = −4.5</span> → 0 → <span class="eq">mask 1 − 0 = 1</span>
+<span class="eq">circle push: 0.38 × 0.38 = 0.1444</span>     <span class="eq">0.1444 + 0 = 0.1444</span>     <span class="eq">√0.1444 = 0.38</span>     <span class="eq">0.38 − 0.25 = 0.13</span>
+<span class="eq">0.13 + 0.10 = 0.23</span>     <span class="eq">0.23 ÷ 0.20 = 1.15</span> → limited to 1
+<span class="eq">1 × 1 = 1 (t²)</span>     <span class="eq">1 × 1 = 1 (t³)</span>     <span class="eq">3 × 1 = 3</span>     <span class="eq">2 × 1 = 2</span>     <span class="eq">3 − 2 = 1</span>     <span class="eq">falloff 1 − 1 = 0</span>     <span class="eq">push 0.10 × 0 = 0</span>
+→ glass that does not bend. A new shape needs both answers changed.</td></tr>
+  <tr><th>no clamp</th><td><span class="eq">W₃ = (0.59, 0.98), C = (0.50, 1.10), disp = (0.06, −0.08) (9.12 card)</span>
+<span class="eq">−0.08 × 0.90 = −0.072</span>     <span class="eq">0.98 − (−0.072) = 1.052</span>
+<span class="eq">0.98 − (−0.08) = 1.06</span>
+<span class="eq">−0.08 × 1.10 = −0.088</span>     <span class="eq">0.98 − (−0.088) = 1.068</span>
+all three y &gt; 1 → no wallpaper → each channel 0 → <span class="eq">bent = (0, 0, 0)</span>
+mask 1 → stores <span class="r">black</span> (alpha 1: not see-through). The clamp fixes it; the mask cannot.</td></tr></table></div>
+  <div class="f"><div>checkpoint: mask asks “how much glass?” (width 0.004)</div><div>            falloff asks “how far to read?” (width 0.20)</div><div>            both come from the same sd; neither uses the other</div></div>
+</article>
+
+<article class="card wide">
+  <div class="card-top"><h3>Diagram · 9.14 lens: plain, bent, mask, result</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-09/lesson-09-14-lens-checkpoint.html" title="Lesson 9.14 — Lens checkpoint">9.14</a></span></div>
+  <div class="dia"><div class="dia-h">Interactive <span>choose what the mix uses; play the moving wallpaper; click any picture to move W</span></div>
+  <div class="ctrls" id="lnModes"></div>
+  <div class="ctrls"><label>time <input type="range" id="lnT" min="0" max="5" step="0.05" value="2"><output id="lnTO"></output></label><button class="btn" id="lnPlay">▶ Play</button><label>spread <input type="range" id="lnS" min="0" max="0.3" step="0.01" value="0.10"><output id="lnSO"></output></label></div>
+  <div class="row">
+    <div class="col"><div class="pic-title">plain = wall(uv, time)</div><canvas id="lnPlain" width="250" height="250"></canvas></div>
+    <div class="col"><div class="pic-title">bent (Lesson 9.13 output)</div><canvas id="lnBent" width="250" height="250"></canvas></div>
+    <div class="col"><div class="pic-title" id="lnMaskT">mask map</div><canvas id="lnMask" width="250" height="250"></canvas></div>
+    <div class="col"><div class="pic-title">color = mix(plain, bent, mask)</div><canvas id="lnFinal" width="250" height="250"></canvas></div>
+    <div class="col"><div class="pic-title">result around W, 4×</div><canvas id="lnZoom" width="200" height="200" class="np"></canvas></div>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <div class="leg" style="min-width:300px"><span><i style="background:#a855f7"></i>violet circle (plain and bent only): the glass edge</span><span><i class="box" style="background:#8b5cf6"></i>mask 1 (glass) · <i class="box" style="background:#e5e7eb"></i> mask 0</span><span><i class="dot" style="background:#ec4899"></i>W: the traced pixel (all pictures)</span><span><i style="background:#f97316"></i>orange box: the zoom window</span></div>
+    <div class="readout" id="lnOut"></div>
+  </div></div>
+</article>
+
+</div>
+</section>
+<nav class="pager" id="pager"></nav>
+</main>
+<script src="shared/cheatsheet.js"></script>
+<script>
+'use strict';
+/* ================= D13 + D14 displacement → refraction ================= */
+(function refraction(){
+  const rules = {const: '9.10 · no falloff', smooth: '9.11 · smoothstep', linear: 'straight line', hard: 'hard if'};
+  const rcol = {const: '#64748b', smooth: '#dc2626', linear: '#2563eb', hard: '#16a34a'};
+  let rule = 'smooth', W = [0.65, 0.30];
+  Object.keys(rules).forEach(k => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = rules[k]; b.dataset.k = k; b.onclick = () => { rule = k; if(k === 'const' && W[0] === 0.65 && W[1] === 0.30) W = [0.65, 0.20]; else if(k !== 'const' && W[0] === 0.65 && W[1] === 0.20) W = [0.65, 0.30]; draw(); }; $('rfModes').appendChild(b); });
+  const cvW = $('rfWall'), cvO = $('rfOutCv'), vW = View(cvW, 0, 0, 1, 1), vO = View(cvO, 0, 0, 1, 1);
+  function draw(){
+    document.querySelectorAll('#rfModes .btn').forEach(b => b.classList.toggle('on', b.dataset.k === rule));
+    const dispLen = R(+$('rfL').value), band = R(+$('rfB').value);
+    $('rfLO').textContent = F(dispLen); $('rfBO').textContent = F(band);
+    const o = {cx: .5, cy: .5, radius: .25, band, dispLen, rule, clamp: false, wall: 'lines'};
+    paint(vW, (u, v) => WALLS.lines(u, v));
+    paint(vO, (u, v) => lens(u, v, o).bent);
+    const cw = vW.ctx, co = vO.ctx; cvW._pts = []; cvO._pts = [];
+    const [cx, cy] = vO.px(.5, .5);
+    [cw, co].forEach(ctx => {
+      if(rule !== 'const'){ cCircle(ctx, cx, cy, vO.len(.25 - band), '#a3e635', 1.5); cCircle(ctx, cx, cy, vO.len(.25 + band), '#a3e635', 1.5); }
+      cCircle(ctx, cx, cy, vO.len(.25), '#a855f7', 2.5);
+      cDot(ctx, cx, cy, '#a855f7', 4);
+    });
+    if($('rfField').checked){
+      for(let j = 0; j < 10; j++) for(let i = 0; i < 10; i++){
+        const u = .05 + i * .1, v = .05 + j * .1, L = lens(u, v, o);
+        const [a, b] = vW.px(u, v), [c, d] = vW.px(u - L.dx, v - L.dy);
+        if(Math.hypot(c - a, d - b) > 2) { cw.save(); cw.globalAlpha = .75; cArrow(cw, a, b, c, d, '#ec4899', 1.3); cw.restore(); } else { cw.fillStyle = '#ec4899'; cw.fillRect(a - 1.5, b - 1.5, 3, 3); }
+      }
+    }
+    const ch = chainRows(W, o);
+    const rd = ch.reads[0];
+    const [wx, wy] = vW.px(W[0], W[1]), [rx, ry] = vW.px(rd.x, rd.y);
+    if(Math.hypot(rx - wx, ry - wy) > 3) cArrow(cw, wx, wy, rx, ry, '#ec4899', 3);
+    cDot(cw, wx, wy, '#ec4899'); cDot(cw, rx, ry, '#a3e635');
+    cLabel(cw, wx + 9, wy - 9, "W's spot"); cLabel(cw, rx + 9, ry + 22, `R · push ${F(ch.push)}`);
+    cvW._pts.push({x: wx, y: wy, name: "W's spot", role: 'where W sits, drawn on the wallpaper', coords: 'uv ' + fu(W[0], W[1])}, {x: rx, y: ry, name: 'R', role: 'the read point of W', coords: 'uv ' + fu(rd.x, rd.y)}, {x: cx, y: cy, name: 'C', role: 'center of the glass', coords: 'uv (0.50, 0.50)'});
+    const [ox, oy] = vO.px(W[0], W[1]); cDot(co, ox, oy, '#ec4899'); cLabel(co, ox + 9, oy - 9, 'W ' + fu(W[0], W[1]));
+    cvO._pts.push({x: ox, y: oy, name: 'W', role: 'the written pixel', coords: 'uv ' + fu(W[0], W[1])}, {x: cx, y: cy, name: 'C', role: 'center of the glass', coords: 'uv (0.50, 0.50)'});
+    cLabel(co, cx, cy + vO.len(.25) + 18, 'circle sd = 0', {anchor: 'middle'});
+    /* graph */
+    const g = $('rfGraph'); clearSvg(g);
+    const x0 = 50, y0 = 282, Wd = 310, Hh = 212, ymax = Math.max(0.12, dispLen * 1.15);
+    const X = d => x0 + d / .5 * Wd, Y = p => y0 - p / ymax * Hh;
+    el('rect', {x: x0, y: y0 - Hh, width: Wd, height: Hh, fill: '#fff', stroke: '#334155'}, g);
+    [[.25 - band, '#65a30d', 'inner ring'], [.25, '#9333ea', 'circle'], [.25 + band, '#65a30d', 'outer ring']].forEach(([d, c, n], i) => { if(rule === 'const' && i !== 1) return; el('line', {x1: X(d), y1: y0 - Hh, x2: X(d), y2: y0, stroke: c, 'stroke-width': 2}, g); sText(g, X(d), y0 - Hh - 6 - (i === 1 ? 18 : 0), n + ' ' + F(d), {anchor: i === 0 ? 'end' : i === 2 ? 'start' : 'middle', size: 14, fill: c}); });
+    for(const k in rules){
+      let path = ''; let prev = null;
+      for(let i = 0; i <= 250; i++){
+        const d = i / 500, p = dispLen * falloffOf(k, d - .25, band);
+        const jump = prev !== null && Math.abs(p - prev) > dispLen * 0.5;
+        path += (i === 0 || jump ? 'M' : 'L') + X(d).toFixed(1) + ',' + Y(p).toFixed(1); prev = p;
+      }
+      el('path', {d: path, fill: 'none', stroke: rcol[k], 'stroke-width': k === rule ? 4 : 1.6, opacity: k === rule ? 1 : .55}, g);
+    }
+    sText(g, x0 + Wd / 2, y0 + 38, 'distance d from C', {anchor: 'middle', size: 14});
+    [0, .1, .2, .3, .4, .5].forEach(d => sText(g, X(d), y0 + 18, F(d), {anchor: 'middle', size: 14}));
+    sText(g, x0 - 6, Y(0) + 5, '0', {anchor: 'end', size: 14}); sText(g, x0 - 6, Y(dispLen) + 5, F(dispLen), {anchor: 'end', size: 14});
+    const yl = sText(g, 14, y0 - Hh / 2, 'push', {anchor: 'middle', size: 14}); yl.setAttribute('transform', `rotate(-90 14 ${y0 - Hh / 2})`);
+    el('circle', {cx: X(Math.min(.5, ch.d)), cy: Y(ch.push), r: 7, fill: '#ec4899', stroke: '#111', 'stroke-width': 1.5}, g);
+    sText(g, X(Math.min(.5, ch.d)) + 9, Y(ch.push) - 9, `W: d ${F(ch.d)}, push ${F(ch.push)}`, {size: 14, anchor: ch.d > .3 ? 'end' : 'start'});
+    const leg = Object.keys(rules).map((k, i) => `<tspan fill="${rcol[k]}" font-weight="${k === rule ? 800 : 500}">${i ? ' · ' : ''}${rules[k]}</tspan>`).join('');
+    const lt = el('text', {x: 4, y: 18, 'font-size': 14}, g); lt.innerHTML = leg;
+    $('rfOut').innerHTML = steps(ch.rows.concat([['W stores', `<span class="r">${ch.reads[0].cname}</span>`]]), `${rules[rule]} · W = ${fu(W[0], W[1])}`);
+  }
+  const pick = view => (x, y) => { const [u, v] = view.uv(x, y); W = [Math.round(u * 200) / 200, Math.round(v * 200) / 200]; draw(); };
+  pickable(cvW, pick(vW)); pickable(cvO, pick(vO));
+  ['rfL', 'rfB', 'rfField'].forEach(id => $(id).addEventListener('input', draw));
+  draw();
+})();
+
+/* ================= D15 edge safety ================= */
+(function edge(){
+  let clampOn = true, W = [0.59, 0.98];
+  const box = $('esBtns');
+  [['No fix', false], ['Clamp (9.12)', true]].forEach(([t, v]) => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = t; b.style.marginRight = '6px'; b.onclick = () => { clampOn = v; draw(); }; box.appendChild(b); });
+  const cvW = $('esWall'), cvO = $('esOutCv');
+  const vW = View(cvW, -0.05, -0.05, 1.05, 1.25), vO = View(cvO, 0, 0, 1, 1);
+  function draw(){
+    [...box.children].forEach((b, i) => b.classList.toggle('on', (i === 1) === clampOn));
+    const cy = R(+$('esY').value); $('esYO').textContent = F(cy);
+    const o = {cx: .5, cy, radius: .25, band: .10, dispLen: .10, rule: 'smooth', clamp: clampOn, wall: 'onEdge'};
+    paint(vW, (u, v) => WALLS.onEdge(u, v));
+    paint(vO, (u, v) => lens(u, v, o).bent);
+    const cw = vW.ctx, co = vO.ctx; cvW._pts = []; cvO._pts = [];
+    const [ex0, ey] = vW.px(0, 1), [ex1] = vW.px(1, 1);
+    cStroke(cw, () => { cw.beginPath(); cw.moveTo(ex0, ey); cw.lineTo(ex1, ey); }, '#facc15', 3);
+    cLabel(cw, ex1 - 4, ey - 6, 'y = 1.00', {anchor: 'end'});
+    const [gx, gy] = vW.px(.5, cy); cCircle(cw, gx, gy, vW.len(.25), '#a855f7', 2.5); cDot(cw, gx, gy, '#a855f7', 4); cLabel(cw, gx + 8, gy + 20, `C (0.50, ${F(cy)})`);
+    cvW._pts.push({x: gx, y: gy, name: 'C', role: 'center of the glass', coords: `uv (0.50, ${F(cy)})`});
+    const [ox, oy] = vO.px(.5, cy); cCircle(co, ox, oy, vO.len(.25), '#a855f7', 2.5);
+    const ch = chainRows(W, o), rd = ch.reads[0];
+    const pts = [[W[0], W[1]], [rd.rx, rd.ry], [rd.x, rd.y]];
+    const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+    const win = Math.max(0.08, 1.6 * Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) + 0.03);
+    const zx0 = (Math.min(...xs) + Math.max(...xs)) / 2 - win / 2, zy0 = (Math.min(...ys) + Math.max(...ys)) / 2 - win / 2;
+    const [wx, wy] = vW.px(W[0], W[1]), [rx, ry] = vW.px(rd.rx, rd.ry);
+    if(Math.hypot(rx - wx, ry - wy) > 3) cArrow(cw, wx, wy, rx, ry, '#ec4899', 2);
+    cDot(cw, wx, wy, '#ec4899', 4); cDot(cw, rx, ry, '#a3e635', 4);
+    const [bx, by] = vW.px(zx0, zy0);
+    cStroke(cw, () => { cw.beginPath(); cw.rect(bx, by, vW.len(win), vW.len(win)); }, '#f97316', 2);
+    cvW._pts.push({x: wx, y: wy, name: "W's spot", role: 'where W sits, drawn on the wallpaper', coords: 'uv ' + fu(W[0], W[1])}, {x: rx, y: ry, name: 'R', role: 'the read point before the clamp', coords: 'uv ' + fu(rd.rx, rd.ry)});
+    /* zoom around W, R and R′ */
+    const zc = $('esZoom'), vz = View(zc, zx0, zy0, zx0 + win, zy0 + win), zz = vz.ctx; zc._pts = [];
+    paint(vz, (u, v) => WALLS.onEdge(u, v));
+    if(zy0 < 1 && zy0 + win > 1){ const [l0, ly] = vz.px(Math.max(0, zx0), 1), [l1] = vz.px(Math.min(1, zx0 + win), 1); cStroke(zz, () => { zz.beginPath(); zz.moveTo(l0, ly); zz.lineTo(l1, ly); }, '#facc15', 3); }
+    const [zwx, zwy] = vz.px(W[0], W[1]), [zrx, zry] = vz.px(rd.rx, rd.ry);
+    if(Math.hypot(zrx - zwx, zry - zwy) > 3) cArrow(zz, zwx, zwy, zrx, zry, '#ec4899', 3);
+    cDot(zz, zwx, zwy, '#ec4899'); cLabel(zz, zwx + 10, zwy - 8, "W's spot");
+    cDot(zz, zrx, zry, '#a3e635'); cLabel(zz, zrx + 10, zry + 20, `R ${fu(rd.rx, rd.ry)} · push ${F(ch.push)}`);
+    zc._pts.push({x: zwx, y: zwy, name: "W's spot", role: 'where W sits, drawn on the wallpaper', coords: 'uv ' + fu(W[0], W[1])}, {x: zrx, y: zry, name: 'R', role: 'the read point before the clamp', coords: 'uv ' + fu(rd.rx, rd.ry)});
+    if(clampOn && (rd.rx !== rd.x || rd.ry !== rd.y)){
+      const [qx, qy] = vz.px(rd.x, rd.y); cDot(zz, qx, qy, '#ffffff'); cLabel(zz, qx - 10, qy - 10, `R′ ${fu(rd.x, rd.y)}`, {anchor: 'end'});
+      zc._pts.push({x: qx, y: qy, name: 'R′', role: 'the read point after clamp(R, 0, 1)', coords: 'uv ' + fu(rd.x, rd.y)});
+      const [q2, q3] = vW.px(rd.x, rd.y); cDot(cw, q2, q3, '#ffffff', 4);
+    }
+    $('esZoomT').textContent = `Wallpaper around W (zoom ${F(R(230 / (win * 300)))}×)`;
+    const [wo, wq] = vO.px(W[0], W[1]); cDot(co, wo, wq, '#ec4899'); cLabel(co, wo + 9, wq - 9, 'W ' + fu(W[0], W[1]));
+    cvO._pts.push({x: wo, y: wq, name: 'W', role: 'the written pixel', coords: 'uv ' + fu(W[0], W[1])});
+    const stored = rd.color[3] === 0 ? 'nothing: see-through' : rd.cname;
+    $('esOut').innerHTML = steps(ch.rows.concat([['W stores', `<span class="r">${stored}</span>`]]), (clampOn ? 'clamp on' : 'no fix') + ` · C = (0.50, ${F(cy)}) · W = ${fu(W[0], W[1])}`);
+  }
+  pickable(cvO, (x, y) => { const [u, v] = vO.uv(x, y); W = [Math.round(u * 200) / 200, Math.round(v * 200) / 200]; draw(); });
+  pickable(cvW, null); pickable($('esZoom'), null);
+  $('esY').addEventListener('input', draw);
+  draw();
+})();
+
+/* ================= D16 chromatic separation ================= */
+(function chroma(){
+  let W = [0.40, 0.405];
+  const cvO = $('crOutCv'), vO = View(cvO, 0, 0, 1, 1), off = offscreen(330, 330);
+  function draw(){
+    const spread = R(+$('crS').value), dispLen = R(+$('crL').value);
+    $('crSO').textContent = F(spread); $('crLO').textContent = F(dispLen);
+    const o = {cx: .40, cy: .54, radius: .25, band: .10, dispLen, rule: 'smooth', clamp: true, wall: 'bw', spread};
+    paint(vO, (u, v) => lens(u, v, o).bent, off);
+    const co = vO.ctx; co.drawImage(off, 0, 0); cvO._pts = [];
+    const [cx, cy] = vO.px(.40, .54); cCircle(co, cx, cy, vO.len(.25), '#a855f7', 2.5);
+    cvO._pts.push({x: cx, y: cy, name: 'C', role: 'center of the glass', coords: 'uv (0.40, 0.54)'});
+    const ch = chainRows(W, o), rd = ch.reads;
+    /* zoom window: fits W and all three read points */
+    const xs = [W[0], ...rd.map(r => r.x)], ys = [W[1], ...rd.map(r => r.y)];
+    const mx = (Math.min(...xs) + Math.max(...xs)) / 2, my = (Math.min(...ys) + Math.max(...ys)) / 2;
+    const win = Math.max(0.05, 1.5 * Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) + 0.02);
+    const zx0 = mx - win / 2, zy0 = my - win / 2;
+    const factor = R(230 / (win * 330));
+    const [bx, by] = vO.px(zx0, zy0);
+    cStroke(co, () => { co.beginPath(); co.rect(bx, by, vO.len(win), vO.len(win)); }, '#f97316', 2);
+    const [wx, wy] = vO.px(W[0], W[1]); cDot(co, wx, wy, '#ec4899', 5); cLabel(co, wx + 9, wy - 9, 'W ' + fu(W[0], W[1]));
+    cvO._pts.push({x: wx, y: wy, name: 'W', role: 'the written pixel', coords: 'uv ' + fu(W[0], W[1])});
+    /* output zoom: the same pixels, enlarged */
+    const z = $('crZoom').getContext('2d'); z.imageSmoothingEnabled = false;
+    z.fillStyle = '#fff'; z.fillRect(0, 0, 230, 230);
+    z.drawImage(off, bx, by, vO.len(win), vO.len(win), 0, 0, 230, 230);
+    const vz = View($('crZoom'), zx0, zy0, zx0 + win, zy0 + win);
+    const [zwx, zwy] = vz.px(W[0], W[1]); cDot(z, zwx, zwy, '#ec4899', 6); cLabel(z, zwx + 9, zwy - 9, 'W');
+    $('crZoomT').textContent = `Output around W (zoom ${F(factor)}×)`;
+    /* wallpaper zoom with the read points */
+    const vw = View($('crWall'), zx0, zy0, zx0 + win, zy0 + win);
+    paint(vw, (u, v) => WALLS.bw(u, v));
+    const zw = vw.ctx; $('crWall')._pts = [];
+    const [a, b] = vw.px(W[0], W[1]), last = rd[2], [c, d] = vw.px(last.x, last.y);
+    if(Math.hypot(c - a, d - b) > 3) cArrow(zw, a, b, c, d, '#ec4899', 2.5);
+    cDot(zw, a, b, '#ec4899', 6); cLabel(zw, a + 9, b - 9, `W's spot · push ${F(ch.push)}`);
+    $('crWall')._pts.push({x: a, y: b, name: "W's spot", role: 'where W sits, on the wallpaper', coords: 'uv ' + fu(W[0], W[1])});
+    const dc = ['#ef4444', '#22c55e', '#3b82f6'];
+    rd.forEach((r, i) => { const [p, q] = vw.px(r.x, r.y); cDot(zw, p, q, dc[i], 5.5); cLabel(zw, p + 12, q + 8 + (i - 1) * 23, `${r.name} ${F(r.y)} ${r.cname}`, {size: 14}); $('crWall')._pts.push({x: p, y: q, name: r.name, role: `reads ${r.cname}; gives the ${['red', 'green', 'blue'][i]} channel`, coords: 'uv ' + fu(r.x, r.y)}); });
+    $('crWallT').textContent = `Wallpaper around W (zoom ${F(factor)}×) · read points`;
+    /* channel bars */
+    const s = $('crBars'); clearSvg(s);
+    ['red', 'green', 'blue'].forEach((n, i) => { const v = ch.bent[i]; el('rect', {x: 20 + i * 75, y: 20, width: 50, height: 100, fill: '#f1f5f9', stroke: '#94a3b8'}, s); el('rect', {x: 20 + i * 75, y: 120 - v * 100, width: 50, height: v * 100, fill: dc[i]}, s); sText(s, 45 + i * 75, 140, `${n} ${F(v)}`, {anchor: 'middle', size: 14}); });
+    el('rect', {x: 0, y: 0, width: 250, height: 14, fill: rgbCss(ch.bent)}, s);
+    $('crOut').innerHTML = steps(ch.rows.concat([['W stores', `<span class="r">(${ch.bent.slice(0, 3).map(F).join(', ')})</span> <span class="sw" style="background:${rgbCss(ch.bent)}"></span>`]]), `spread ${F(spread)} · dispLen ${F(dispLen)} · W = ${fu(W[0], W[1])}`);
+  }
+  pickable(cvO, (x, y) => { const [u, v] = vO.uv(x, y); W = [Math.round(u * 200) / 200, Math.round(v * 200) / 200]; draw(); });
+  pickable($('crWall'), null);
+  ['crS', 'crL'].forEach(id => $(id).addEventListener('input', draw));
+  draw();
+})();
+
+/* ================= D17 lens checkpoint ================= */
+(function lensDia(){
+  const modes = {mask: 'mask (9.14 production)', falloff: 'falloff (ghost ring)', hard: 'hard if (stair steps)', none: 'no mask (= Lesson 9.13)'};
+  let mode = 'mask', W = [0.40, 0.24], playing = false, last = 0;
+  Object.keys(modes).forEach(k => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = modes[k]; b.dataset.k = k; b.onclick = () => { mode = k; draw(); }; $('lnModes').appendChild(b); });
+  const ids = ['lnPlain', 'lnBent', 'lnMask', 'lnFinal'], views = ids.map(id => View($(id), 0, 0, 1, 1));
+  const offFinal = offscreen(250, 250);
+  const weight = (L, o) => mode === 'mask' ? 1 - smoothF(-0.002, 0.002, L.sd) : mode === 'falloff' ? L.fall : mode === 'hard' ? (L.sd < 0 ? 1 : 0) : 1;
+  function draw(){
+    document.querySelectorAll('#lnModes .btn').forEach(b => b.classList.toggle('on', b.dataset.k === mode));
+    const time = R(+$('lnT').value), spread = R(+$('lnS').value);
+    $('lnTO').textContent = F(time) + ' s'; $('lnSO').textContent = F(spread);
+    $('lnMaskT').textContent = {mask: 'mask map (maskBand 0.002)', falloff: 'falloff used as the mix weight', hard: 'hard if used as the mix weight', none: 'no mask: weight 1 everywhere'}[mode];
+    const o = {cx: .40, cy: .54, radius: .25, band: .10, dispLen: .10, rule: 'smooth', clamp: true, wall: 'bwMove', spread, time};
+    const [vp, vb, vm, vf] = views;
+    paint(vp, (u, v) => WALLS.bwMove(u, v, time));
+    paint(vb, (u, v) => lens(u, v, o).bent);
+    paint(vm, (u, v) => { const m = weight(lens(u, v, o)); return [lerp(.9, .545, m), lerp(.906, .361, m), lerp(.922, .965, m), 1]; });
+    paint(vf, (u, v) => { const L = lens(u, v, o), m = weight(L), p = WALLS.bwMove(u, v, time); return [0, 1, 2].map(i => lerp(p[i], L.bent[i], m)).concat(1); }, offFinal);
+    vf.ctx.drawImage(offFinal, 0, 0);
+    const [cx, cy] = vp.px(.40, .54);
+    [vp, vb].forEach(v => cCircle(v.ctx, cx, cy, v.len(.25), '#a855f7', 2.5));
+    const win = 0.2, zx0 = Math.min(1 - win, Math.max(0, W[0] - win / 2)), zy0 = Math.min(1 - win, Math.max(0, W[1] - win / 2));
+    const [bx, by] = vf.px(zx0, zy0);
+    views.forEach((v, i) => { v.cv._pts = []; const [x, y] = v.px(W[0], W[1]); cDot(v.ctx, x, y, '#ec4899', 5); cLabel(v.ctx, x + 8, y - 8, 'W'); v.cv._pts.push({x, y, name: 'W', role: 'the traced pixel', coords: 'uv ' + fu(W[0], W[1])}); });
+    cStroke(vf.ctx, () => { vf.ctx.beginPath(); vf.ctx.rect(bx, by, vf.len(win), vf.len(win)); }, '#f97316', 2);
+    const z = $('lnZoom').getContext('2d'); z.imageSmoothingEnabled = false;
+    z.drawImage(offFinal, bx, by, vf.len(win), vf.len(win), 0, 0, 200, 200);
+    const vz = View($('lnZoom'), zx0, zy0, zx0 + win, zy0 + win), [zx, zy] = vz.px(W[0], W[1]); cDot(z, zx, zy, '#ec4899', 6); cLabel(z, zx + 9, zy - 9, 'W');
+    if(!playing) readout(o, time);
+  }
+  function readout(o, time){
+    const ch = chainRows(W, o);
+    const rows = ch.rows.slice();
+    const sd = ch.sd;
+    let m;
+    if(mode === 'mask'){
+      const tn = sub(sd, -0.002), td = sub(0.002, -0.002), t0 = div(tn, td), t = Math.min(1, Math.max(0, t0));
+      const t2 = mul(t, t), t3 = mul(t2, t), a = mul(3, t2), b = mul(2, t3), s = sub(a, b); m = sub(1, s);
+      rows.push(['mask (new)', `${F(sd)} − (−0.002) = ${F(tn)}     0.002 − (−0.002) = ${F(td)}     ${line(tn, '÷', td, t0)}${t0 < 0 ? ' → limited to 0' : t0 > 1 ? ' → limited to 1' : ''} (t)\n${line(t, '×', t, t2)} (t²)     ${line(t2, '×', t, t3)} (t³)     ${line(3, '×', t2, a)}     ${line(2, '×', t3, b)}     ${line(a, '−', b, s)}\nmask: ${line(1, '−', s, m)}`]);
+    } else if(mode === 'falloff'){ m = R(ch.push / 0.10); rows.push(['weight', `falloff used instead of a mask: ${F(m)} (the falloff row above)`]); }
+    else if(mode === 'hard'){ m = sd < 0 ? 1 : 0; rows.push(['weight', `hard if: ${F(sd)} ${sd < 0 ? '&lt; 0 → 1' : '≥ 0 → 0'}`]); }
+    else { m = 1; rows.push(['weight', 'no mask: 1 (the pixel always shows bent)']); }
+    const pw = wallSteps(W[0], W[1], 'bwMove', time);
+    rows.push(['plain = wall(uv, time)', pw.txt]);
+    const plain = pw.color, bent = ch.bent, outc = [];
+    let mixTxt = '';
+    ['red', 'green', 'blue'].forEach((n, i) => { const d = sub(bent[i], plain[i]), p = mul(d, m), r = add(plain[i], p); outc.push(r); mixTxt += `${n}: ${line(bent[i], '−', plain[i], d)}     ${line(d, '×', m, p)}     ${line(plain[i], '+', p, r)}\n`; });
+    rows.push(['color = mix(plain, bent, weight)', mixTxt.trim()]);
+    rows.push(['W stores', `<span class="r">(${outc.map(F).join(', ')})</span> <span class="sw" style="background:${rgbCss(outc)}"></span>`]);
+    $('lnOut').innerHTML = steps(rows, `${modes[mode]} · time ${F(time)} s · W = ${fu(W[0], W[1])}`);
+  }
+  function tick(ts){
+    if(!playing) return;
+    const dt = last ? (ts - last) / 1000 : 0; last = ts;
+    let t = +$('lnT').value + dt; if(t > 5) t -= 5;
+    $('lnT').value = t; draw();
+    requestAnimationFrame(tick);
+  }
+  $('lnPlay').onclick = () => { playing = !playing; last = 0; $('lnPlay').textContent = playing ? '❚❚ Pause' : '▶ Play'; $('lnPlay').classList.toggle('on', playing); if(playing) requestAnimationFrame(tick); else draw(); };
+  views.forEach(v => pickable(v.cv, (x, y) => { const [u, w] = v.uv(x, y); W = [Math.round(u * 200) / 200, Math.round(w * 200) / 200]; draw(); }));
+  ['lnT', 'lnS'].forEach(id => $(id).addEventListener('input', draw));
+  draw();
+})();
+
+/* ================= static diagrams: lens chain and frost stack ================= */
+(function chainDiagram(){
+  const s = $('chainSvg');
+  const box = (x, y, w, t, l, c) => {
+    el('rect', {x, y, width: w, height: 48, rx: 10, fill: c, stroke: '#334155', 'stroke-width': 1.2}, s);
+    sText(s, x + w / 2, y + 21, t, {anchor: 'middle', size: 14, halo: false});
+    sText(s, x + w / 2, y + 40, l, {anchor: 'middle', size: 14, weight: 700, fill: '#b91c1c', halo: false});
+  };
+  const ar = (x0, y0, x1, y1) => sArrow(s, x0, y0, x1, y1, '#64748b', 2);
+  const ln = pts => el('polyline', {points: pts.map(p => p.join(',')).join(' '), fill: 'none', stroke: '#64748b', 'stroke-width': 2}, s);
+  const c1 = '#eef3ff', c2 = '#fef2f2', c3 = '#f0fdf4', c4 = '#fefce8';
+  sText(s, 50, 24, 'shared: both answers start from sd', {size: 14, weight: 800, fill: '#475569'});
+  sText(s, 50, 126, 'answer 2 · where does the pixel read?', {size: 14, weight: 800, fill: '#b91c1c'});
+  sText(s, 50, 236, 'answer 1 · is the pixel glass?', {size: 14, weight: 800, fill: '#15803d'});
+  box(50, 34, 150, 'uv = fragCoord ÷ res', 'Lesson 8.6', c1); ar(200, 57, 230, 57);
+  box(230, 34, 180, 'p = uv − center', 'Lessons 8.8 · 9.12', c1); ar(410, 57, 440, 57);
+  box(440, 34, 160, 'd = length(p)', 'Lessons 9.1 · 9.10', c1); ar(600, 57, 630, 57);
+  box(630, 34, 170, 'sd = d − radius', 'Lessons 9.2 · 9.11', c1);
+  ln([[715, 80], [715, 100], [20, 100], [20, 267]]);
+  ar(20, 157, 50, 157); ar(20, 267, 50, 267);
+  box(50, 134, 230, 'falloff = 1 − smoothstep(±band, sd)', 'Lesson 9.11', c2); ar(280, 157, 302, 157);
+  box(302, 134, 170, 'push = dispLen × falloff', 'Lesson 9.11', c2); ar(472, 157, 494, 157);
+  box(494, 134, 180, 'disp = (p ÷ d) × push', 'Lesson 9.10', c2); ar(674, 157, 696, 157);
+  box(696, 134, 230, 'read = uv − disp × (1 ∓ spread)', 'Lesson 9.13 (three points)', c2); ar(926, 157, 948, 157);
+  box(948, 134, 160, 'clamp(read, 0, 1)', 'Lesson 9.12', c2); ar(1108, 157, 1130, 157);
+  box(1130, 134, 210, 'bent = (R.r, G.g, B.b, 1)', 'Lesson 9.13', c2);
+  box(50, 244, 300, 'mask = 1 − smoothstep(±maskBand, sd)', 'Lesson 9.14', c3); ar(350, 267, 700, 267);
+  box(700, 244, 260, 'color = mix(plain, bent, mask)', 'Lesson 9.14 (mix: 8.11)', c4);
+  box(1040, 244, 230, 'plain = wall(uv, time)', 'Lesson 9.14 · time: 8.10', c4); ar(1040, 267, 960, 267);
+  ar(1235, 180, 860, 244);
+})();
+</script>
+</body>
+</html>

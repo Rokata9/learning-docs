@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 Color adjustments — Formula cheatsheet</title>
+<link rel="stylesheet" href="shared/cheatsheet.css">
+</head>
+<body>
+<main>
+<div class="crumbs"><a href="index.html">← Cheatsheet: all sections</a><a href="../liquid-glass-course.html">Course home</a><a href="../course/glossary.html">Glossary</a></div>
+<section class="cat" id="cat-adjust" style="--acc:#ea580c" data-title="Color adjustments" data-range="3.9 · 7.6">
+<div class="cat-head"><span class="cat-num">04</span><h1>Color adjustments</h1><span class="range">Lessons 3.9 · 7.6 · 7.12</span></div>
+<div class="grid">
+
+<article class="card">
+  <div class="card-top"><h3>Saturation (lab matrix)</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-09-saturation.html" title="Lesson 3.9 — Saturation">3.9</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-06-saturation-and-contrast.html" title="Lesson 7.6 — Saturation and contrast">7.6</a></span></div>
+  <div class="f"><div>gray   = 0.213 × R + 0.715 × G + 0.072 × B      <span class="c">← weights add to 1.000</span></div><div>output = gray + factor × (channel − gray)</div><div>shown  = clamp(output, 0, 1)                    <span class="c">← alpha is copied unchanged</span></div></div>
+  <div class="sym"><b>factor</b> &lt; 1 moves each channel toward gray, 1 keeps it, &gt; 1 pushes it away. The gray reference is not relative luminance (different weights, no sRGB decode). Frozen frost factor: <b>0.40</b>.</div>
+  <div class="f"><div><span class="c">same thing as the 4 × 5 matrix row for red (s = factor):</span></div><div>( 0.213 × (1 − s) + s,  0.715 × (1 − s),  0.072 × (1 − s),  0,  0 )</div></div>
+  <div class="ex"><div class="ex-h">Example <span>navy after tint (0.325, 0.4375, 0.55), factor 0.40</span></div>
+  <table class="steps"><tr><th>gray</th><td><span class="eq">0.213 × 0.325 = 0.069</span>
+<span class="eq">0.715 × 0.4375 = 0.313</span>
+<span class="eq">0.072 × 0.55 = 0.0396</span>
+<span class="eq">0.069 + 0.313 = 0.382</span>
+<span class="eq">0.382 + 0.0396 = <span class="r">0.4216</span></span></td></tr>
+  <tr><th>red</th><td><span class="eq">0.325 − 0.4216 = −0.0966</span>
+<span class="eq">0.40 × (−0.0966) = −0.039</span>
+<span class="eq">0.4216 + (−0.039) = <span class="r">0.3826</span></span></td></tr>
+  <tr><th>green</th><td><span class="eq">0.4375 − 0.4216 = 0.0159</span>
+<span class="eq">0.40 × 0.0159 = 0.006</span>
+<span class="eq">0.4216 + 0.006 = <span class="r">0.4276</span></span></td></tr>
+  <tr><th>blue</th><td><span class="eq">0.55 − 0.4216 = 0.1284</span>
+<span class="eq">0.40 × 0.1284 = 0.051</span>
+<span class="eq">0.4216 + 0.051 = <span class="r">0.4726</span></span></td></tr></table></div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Diagram · saturation factor</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-09-saturation.html" title="Lesson 3.9 — Saturation">3.9</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-06-saturation-and-contrast.html" title="Lesson 7.6 — Saturation and contrast">7.6</a></span></div>
+  <div class="dia"><div class="dia-h">Interactive <span>bars = channels 0 … 1; the dashed line is the gray reference</span></div>
+  <div class="ctrls"><label>factor <input type="range" id="satF" min="0" max="2.4" step="0.05" value="0.4"><output id="satFO"></output></label></div>
+  <div class="ctrls" id="satPresets"></div>
+  <div class="row"><svg id="satSvg" width="330" height="230" viewBox="0 0 330 230"></svg>
+  <div class="col"><div class="swatches"><figure><div class="chip"><i id="satIn"></i></div>input</figure><figure><div class="chip"><i id="satOutSw"></i></div>output</figure></div></div></div>
+  <div class="readout" id="satOut" style="margin-top:8px"></div>
+  </div>
+</article>
+
+</div>
+</section>
+<nav class="pager" id="pager"></nav>
+</main>
+<script src="shared/cheatsheet.js"></script>
+<script>
+'use strict';
+/* ================= D5 saturation ================= */
+(function saturation(){
+  const presets = {'navy after tint': [0.325, 0.4375, 0.55], 'orange after tint': [0.925, 0.70, 0.40], 'Lesson 3.9 color': [0.65, 0.35, 0.70]};
+  let col = presets['navy after tint'], name = 'navy after tint';
+  const box = $('satPresets');
+  Object.keys(presets).forEach(k => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = k; b.onclick = () => { col = presets[k]; name = k; draw(); }; box.appendChild(b); });
+  function draw(){
+    [...box.children].forEach(b => b.classList.toggle('on', b.textContent === name));
+    const f = R(+$('satF').value); $('satFO').textContent = F(f);
+    const w = [0.213, 0.715, 0.072];
+    const t = col.map((c, i) => mul(w[i], c));
+    const s1 = add(t[0], t[1]), g = add(s1, t[2]);
+    const rows = [['gray', `${line(w[0], '×', col[0], t[0])}     ${line(w[1], '×', col[1], t[1])}     ${line(w[2], '×', col[2], t[2])}\n${line(t[0], '+', t[1], s1)}     ${line(s1, '+', t[2], g)}`]];
+    const out = [];
+    ['red', 'green', 'blue'].forEach((n, i) => {
+      const dd = sub(col[i], g), sc = mul(f, dd), o = add(g, sc), shown = Math.min(1, Math.max(0, o));
+      out.push(shown);
+      rows.push([n, `${line(col[i], '−', g, dd)}     ${line(f, '×', dd, sc)}     ${line(g, '+', sc, o)}${o !== shown ? ' → clamp → ' + F(shown) : ''}`]);
+    });
+    $('satOut').innerHTML = steps(rows, 'factor ' + F(f));
+    $('satIn').style.background = rgbCss(col); $('satOutSw').style.background = rgbCss(out);
+    const svg = $('satSvg'); clearSvg(svg);
+    const base = 200, hgt = 170, cols = ['#ef4444', '#22c55e', '#3b82f6'];
+    el('line', {x1: 30, y1: base, x2: 320, y2: base, stroke: '#334155'}, svg);
+    sText(svg, 26, base + 4, '0', {anchor: 'end', size: 14}); sText(svg, 26, base - hgt + 4, '1', {anchor: 'end', size: 14});
+    el('line', {x1: 30, y1: base - hgt, x2: 320, y2: base - hgt, stroke: '#e2e8f0'}, svg);
+    [0, 1, 2].forEach(i => {
+      el('rect', {x: 40 + i * 44, y: base - col[i] * hgt, width: 34, height: col[i] * hgt, fill: cols[i], opacity: .55}, svg);
+      el('rect', {x: 185 + i * 44, y: base - out[i] * hgt, width: 34, height: out[i] * hgt, fill: cols[i]}, svg);
+    });
+    sText(svg, 100, base + 20, 'input', {anchor: 'middle'}); sText(svg, 245, base + 20, 'output', {anchor: 'middle'});
+    el('line', {x1: 30, y1: base - g * hgt, x2: 320, y2: base - g * hgt, stroke: '#0f172a', 'stroke-width': 2, 'stroke-dasharray': '6 4'}, svg);
+    sText(svg, 322, base - g * hgt - 6, 'gray ' + F(g), {anchor: 'end', size: 14});
+  }
+  $('satF').addEventListener('input', draw);
+  draw();
+})();
+</script>
+</body>
+</html>

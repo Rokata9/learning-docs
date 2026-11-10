@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>08 Shader building blocks — Formula cheatsheet</title>
+<link rel="stylesheet" href="shared/cheatsheet.css">
+</head>
+<body>
+<main>
+<div class="crumbs"><a href="index.html">← Cheatsheet: all sections</a><a href="../liquid-glass-course.html">Course home</a><a href="../course/glossary.html">Glossary</a></div>
+<section class="cat" id="cat-shader" style="--acc:#4f46e5" data-title="Shader building blocks" data-range="8.1 – 8.12">
+<div class="cat-head"><span class="cat-num">08</span><h1>Shader building blocks</h1><span class="range">Lessons 8.1 – 8.12</span></div>
+<p class="cat-intro">A shader is one small function that runs once per output pixel. Swift passes arguments (uniforms) once per draw; every pixel reads the same values. Coordinates are in the Coordinates category.</p>
+<div class="grid">
+
+<article class="card">
+  <div class="card-top"><h3>One function per pixel</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-08/lesson-08-01-what-a-shader-does.html" title="Lesson 8.1 — What a shader does">8.1</a><a class="lesson" href="../course/chapters/chapter-08/lesson-08-02-add-a-metal-file.html" title="Lesson 8.2 — Add a .metal file">8.2</a><a class="lesson" href="../course/chapters/chapter-08/lesson-08-03-return-one-fixed-color.html" title="Lesson 8.3 — Return one fixed color">8.3</a><a class="lesson" href="../course/chapters/chapter-08/lesson-08-09-uniforms.html" title="Lesson 8.9 — Uniforms">8.9</a></span></div>
+  <div class="f"><div>color = colorAt(column, row)               <span class="c">← the same function for every pixel</span></div><div>call number = row × width + column + 1      <span class="c">← CPU loop order, 8 × 4 grid</span></div><div>return half4(r, g, b, a)                    <span class="c">← channels 0 … 1</span></div><div>stripe: column remainder 2 = 1 → navy, 0 → orange</div></div>
+  <div class="ex"><div class="ex-h">Example <span>column 3, row 1 on an 8-wide grid</span></div>
+  <table class="steps"><tr><th>call</th><td><span class="eq">1 × 8 = 8</span>     <span class="eq">8 + 3 = 11</span>     <span class="eq">11 + 1 = <span class="r">12</span></span></td></tr>
+  <tr><th>stripe</th><td><span class="eq">3 remainder 2 = <span class="r">1</span></span> → navy</td></tr></table></div>
+  <div class="note"><b>Uniforms (8.9):</b> <b>if (uv.x &lt; splitU)</b> — moving a slider writes a new splitU; nothing is recompiled.</div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>clamp</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-08/lesson-08-11-clamp-mix-smoothstep.html" title="Lesson 8.11 — clamp, mix, and smoothstep">8.11</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-05-capsule-distance-field.html" title="Lesson 9.5 — Capsule distance field">9.5</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-12-edge-safety.html" title="Lesson 9.12 — Edge safety">9.12</a></span></div>
+  <div class="f"><div>clamp(x, lo, hi) = min(max(x, lo), hi)     <span class="c">← both ends included</span></div><div>saturate(x)      = clamp(x, 0.0, 1.0)</div><div>clamp(pair, 0, 1) clamps x and y separately</div></div>
+  <div class="ex"><div class="ex-h">Example</div>
+  <table class="steps"><tr><th>below</th><td><span class="eq">max(−0.20, 0) = 0</span>     <span class="eq">min(0, 1) = <span class="r">0</span></span></td></tr>
+  <tr><th>inside</th><td><span class="eq">max(0.45, 0) = 0.45</span>     <span class="eq">min(0.45, 1) = <span class="r">0.45</span></span></td></tr>
+  <tr><th>above</th><td><span class="eq">max(1.20, 0) = 1.20</span>     <span class="eq">min(1.20, 1) = <span class="r">1</span></span></td></tr></table></div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>mix</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-08/lesson-08-11-clamp-mix-smoothstep.html" title="Lesson 8.11 — clamp, mix, and smoothstep">8.11</a><a class="lesson" href="../course/chapters/chapter-05/lesson-05-04-linear-interpolation.html" title="Lesson 5.4 — Linear interpolation">5.4</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-03-turn-distance-into-a-soft-mask.html" title="Lesson 9.3 — Turn distance into a soft mask">9.3</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-14-lens-checkpoint.html" title="Lesson 9.14 — Lens checkpoint">9.14</a></span></div>
+  <div class="f"><div>mix(a, b, t) = a + (b − a) × t     <span class="c">← t = 0 gives a, t = 1 gives b</span></div><div>colors: the same t for red, green and blue</div></div>
+  <div class="ex"><div class="ex-h">Example <span>mix(navy, orange, 0.25)</span></div>
+  <table class="steps"><tr><th>red</th><td><span class="eq">0.88 − 0.10 = 0.78</span>     <span class="eq">0.78 × 0.25 = 0.195</span>     <span class="eq">0.10 + 0.195 = <span class="r">0.295</span></span></td></tr>
+  <tr><th>green</th><td><span class="eq">0.48 − 0.25 = 0.23</span>     <span class="eq">0.23 × 0.25 = 0.0575</span>     <span class="eq">0.25 + 0.0575 = <span class="r">0.3075</span></span></td></tr>
+  <tr><th>blue</th><td><span class="eq">0.18 − 0.40 = −0.22</span>     <span class="eq">−0.22 × 0.25 = −0.055</span>     <span class="eq">0.40 + (−0.055) = <span class="r">0.345</span></span></td></tr></table></div>
+  <div class="note"><b>t outside 0 … 1</b> walks past the colors: t = 1.50 gives red 0.78 × 1.50 = 1.17, 0.10 + 1.17 = 1.27. Clamp t first.</div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>smoothstep</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-08/lesson-08-11-clamp-mix-smoothstep.html" title="Lesson 8.11 — clamp, mix, and smoothstep">8.11</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-03-turn-distance-into-a-soft-mask.html" title="Lesson 9.3 — Turn distance into a soft mask">9.3</a><a class="lesson" href="../course/chapters/chapter-09/lesson-09-11-refraction-as-displaced-sampling.html" title="Lesson 9.11 — Refraction as displaced sampling">9.11</a></span></div>
+  <div class="f"><div>t = clamp((x − edge0) ÷ (edge1 − edge0), 0, 1)   <span class="c">← requires edge1 &gt; edge0</span></div><div>smoothstep = t × t × (3 − 2t)</div><div>           = 3t² − 2t³                         <span class="c">← the form used in 9.11 – 9.14</span></div></div>
+  <div class="sym">0 left of edge0, 1 right of edge1, an S-shaped rise in between (slow, fast, slow).</div>
+  <div class="ex"><div class="ex-h">Example <span>x = 0.45 (pixel 180 of 400), edges 0.40 … 0.60</span></div>
+  <table class="steps"><tr><th>t</th><td><span class="eq">0.45 − 0.40 = 0.05</span>     <span class="eq">0.60 − 0.40 = 0.20</span>     <span class="eq">0.05 ÷ 0.20 = <span class="r">0.25</span></span></td></tr>
+  <tr><th>curve</th><td><span class="eq">0.25 × 0.25 = 0.0625</span>     <span class="eq">2 × 0.25 = 0.50</span>     <span class="eq">3 − 0.50 = 2.50</span>
+<span class="eq">0.0625 × 2.50 = <span class="r">0.156</span></span>     (exact 0.15625)</td></tr>
+  <tr><th>store red</th><td><span class="eq">0.88 − 0.10 = 0.78</span>     <span class="eq">0.78 × 0.156 = 0.122</span>     <span class="eq">0.10 + 0.122 = <span class="r">0.222</span></span></td></tr></table></div>
+</article>
+
+<article class="card wide">
+  <div class="card-top"><h3>Diagram · clamp, mix and smoothstep on one band</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-08/lesson-08-11-clamp-mix-smoothstep.html" title="Lesson 8.11 — clamp, mix, and smoothstep">8.11</a></span></div>
+  <div class="dia"><div class="dia-h">Interactive <span>move x and the two edges</span></div>
+  <div class="ctrls"><label>x (uv.x) <input type="range" id="ssX" min="0" max="1" step="0.005" value="0.45"><output id="ssXO"></output></label><label>edge0 <input type="range" id="ssE0" min="0" max="0.95" step="0.01" value="0.40"><output id="ssE0O"></output></label><label>edge1 <input type="range" id="ssE1" min="0.05" max="1" step="0.01" value="0.60"><output id="ssE1O"></output></label></div>
+  <div class="row"><svg id="ssSvg" width="560" height="360" viewBox="0 0 560 360"></svg>
+  <div class="col" style="flex:1;min-width:400px"><div class="leg"><span><i style="background:#94a3b8"></i>gray: linear fraction t (clamped)</span><span><i style="background:#4f46e5"></i>indigo: smoothstep(edge0, edge1, x)</span><span><i class="dot" style="background:#ec4899"></i>X: the chosen x on the smoothstep curve</span><span><i class="box" style="background:linear-gradient(90deg,#1a4066,#e07a2e)"></i>strip: mix(navy, orange, smoothstep) across the width</span></div><div class="readout" id="ssOut"></div></div></div>
+  </div>
+</article>
+
+</div>
+</section>
+<nav class="pager" id="pager"></nav>
+</main>
+<script src="shared/cheatsheet.js"></script>
+<script>
+'use strict';
+/* ================= D10 clamp / mix / smoothstep ================= */
+(function smooth(){
+  const navy = [0.10, 0.25, 0.40], orange = [0.88, 0.48, 0.18];
+  function draw(){
+    let e0 = R(+$('ssE0').value), e1 = R(+$('ssE1').value);
+    if(e1 <= e0 + 0.01){ e1 = R(e0 + 0.05); $('ssE1').value = e1; }
+    const x = R(+$('ssX').value);
+    $('ssXO').textContent = F(x); $('ssE0O').textContent = F(e0); $('ssE1O').textContent = F(e1);
+    const lin = q => clamp01((q - e0) / (e1 - e0)), sm = q => { const t = lin(q); return t * t * (3 - 2 * t); };
+    const svg = $('ssSvg'); clearSvg(svg);
+    const x0 = 50, y0 = 250, S = 470, Hh = 210;
+    el('rect', {x: x0, y: y0 - Hh, width: S, height: Hh, fill: '#fff', stroke: '#334155'}, svg);
+    [e0, e1].forEach((e, i) => { el('line', {x1: x0 + e * S, y1: y0 - Hh, x2: x0 + e * S, y2: y0, stroke: '#a3a3a3', 'stroke-dasharray': '5 4'}, svg); sText(svg, x0 + e * S, y0 - Hh - 6, i ? 'edge1' : 'edge0', {anchor: 'middle', size: 14}); });
+    let d1 = '', d2 = '';
+    for(let i = 0; i <= 200; i++){ const q = i / 200; d1 += (i ? 'L' : 'M') + (x0 + q * S) + ',' + (y0 - lin(q) * Hh); d2 += (i ? 'L' : 'M') + (x0 + q * S) + ',' + (y0 - sm(q) * Hh); }
+    el('path', {d: d1, fill: 'none', stroke: '#94a3b8', 'stroke-width': 2.5}, svg);
+    el('path', {d: d2, fill: 'none', stroke: '#4f46e5', 'stroke-width': 4}, svg);
+    sText(svg, x0 - 6, y0 + 4, '0', {anchor: 'end', size: 14}); sText(svg, x0 - 6, y0 - Hh + 4, '1', {anchor: 'end', size: 14});
+    sText(svg, x0, y0 + 18, '0', {anchor: 'middle', size: 14}); sText(svg, x0 + S, y0 + 18, '1', {anchor: 'middle', size: 14}); sText(svg, x0 + S / 2, y0 + 18, 'x (uv.x)', {anchor: 'middle', size: 14});
+    /* strip */
+    for(let i = 0; i < 235; i++){ const q = (i + .5) / 235, t = sm(q); el('rect', {x: x0 + i * 2, y: y0 + 30, width: 2.1, height: 50, fill: rgbCss(navy.map((n, j) => lerp(n, orange[j], t)))}, svg); }
+    el('rect', {x: x0, y: y0 + 30, width: S, height: 50, fill: 'none', stroke: '#334155'}, svg);
+    const tn = sub(x, e0), td = sub(e1, e0), traw = div(tn, td), t = Math.min(1, Math.max(0, traw));
+    const tt = mul(t, t), t2 = mul(2, t), k3 = sub(3, t2), s = mul(tt, k3);
+    const px = x0 + x * S, py = y0 - sm(x) * Hh;
+    el('line', {x1: px, y1: y0 - Hh, x2: px, y2: y0 + 80, stroke: '#ec4899', 'stroke-width': 2}, svg);
+    el('circle', {cx: px, cy: py, r: 7, fill: '#ec4899', stroke: '#111', 'stroke-width': 1.5}, svg);
+    sText(svg, px + 9, py - 9, `X (${F(x)}, ${F(s)})`, {size: 15});
+    const rows = [['t', `${line(x, '−', e0, tn)}     ${line(e1, '−', e0, td)}     ${line(tn, '÷', td, traw)}${traw < 0 ? ' → clamp → 0' : traw > 1 ? ' → clamp → 1' : ''}`],
+      ['smoothstep', `${line(t, '×', t, tt)}     ${line(2, '×', t, t2)}     ${line(3, '−', t2, k3)}     ${line(tt, '×', k3, s)}`]];
+    const store = [];
+    ['red', 'green', 'blue'].forEach((n, i) => { const d = sub(orange[i], navy[i]), p = mul(d, s), r = add(navy[i], p); store.push(r); rows.push([n, `${line(orange[i], '−', navy[i], d)}     ${line(d, '×', s, p)}     ${line(navy[i], '+', p, r)}`]); });
+    rows.push(['store', `<span class="r">(${store.map(F).join(', ')})</span> <span class="sw" style="background:${rgbCss(store)}"></span>`]);
+    $('ssOut').innerHTML = steps(rows, 'mix(navy, orange, smoothstep(edge0, edge1, x))');
+  }
+  ['ssX', 'ssE0', 'ssE1'].forEach(id => $(id).addEventListener('input', draw));
+  draw();
+})();
+</script>
+</body>
+</html>

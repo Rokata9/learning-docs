@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 Alpha and compositing — Formula cheatsheet</title>
+<link rel="stylesheet" href="shared/cheatsheet.css">
+</head>
+<body>
+<main>
+<div class="crumbs"><a href="index.html">← Cheatsheet: all sections</a><a href="../liquid-glass-course.html">Course home</a><a href="../course/glossary.html">Glossary</a></div>
+<section class="cat" id="cat-composite" style="--acc:#7c3aed">
+<div class="cat-head"><span class="cat-num">03</span><h1>Alpha and compositing</h1><span class="range">Lessons 1.6 · 3.3 – 3.5 · 3.8 · 3.10 · 3.11 · 4.7 – 4.9 · 7.5</span></div>
+<p class="cat-intro">Source = the upper color, drawn now. Destination = the color already at the same position underneath. Every formula here reads one position only: no neighbour, so no blur and no bending. The color chips on each card show what is drawn over what; a checkerboard behind a chip is its transparent part.</p>
+<div class="grid">
+
+<article class="card">
+  <div class="card-top"><h3>Alpha mixture over an opaque background</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-01/lesson-01-06-alpha-mixture.html" title="Lesson 1.6 — Learn the first alpha-mixture formula">1.6</a><a class="lesson" href="../course/chapters/chapter-01/lesson-01-07-iphone-16-pro-experiment.html" title="Lesson 1.7 — Run a controlled iPhone 16 Pro opacity experiment">1.7</a></span></div>
+  <div class="f tf"><div class="tex">result = F \times A + B \times (1 - A)</div></div>
+  <div class="where">
+    <span class="tx">F</span><span>one channel of the foreground (the panel drawn on top), 0 … 1.</span>
+    <span class="tx">B</span><span>the same channel of the opaque background at the same position.</span>
+    <span class="tx">A</span><span>the foreground's alpha: 0 shows only B, 1 shows only F.</span>
+  </div>
+  <div class="pic"><figure><svg width="560" height="210" viewBox="0 0 560 210" role="img" aria-label="A white panel at alpha 0.25 over a dark gray background"><rect x="20" y="20" width="300" height="170" fill="rgb(51,51,51)" stroke="#475569" stroke-width="1.5" rx="6" /><rect x="150" y="55" width="200" height="100" fill="rgba(255,255,255,0.25)" stroke="#fff" stroke-width="1.5" rx="14" /><text x="30" y="44" fill="#fff" font-size="14" text-anchor="start" font-weight="700">background B = 0.20</text><text x="235" y="110" fill="#172033" font-size="14" text-anchor="middle" font-weight="700">panel over B: 0.40</text><text x="335" y="175" fill="#334155" font-size="14" text-anchor="start" font-weight="700">panel F = 1.00, A = 0.25</text><text x="360" y="40" fill="#334155" font-size="14" text-anchor="start" font-weight="500">where the panel is over B,</text><text x="360" y="60" fill="#334155" font-size="14" text-anchor="start" font-weight="500">the screen shows 0.40 gray</text></svg></figure></div>
+  <div class="chips"><figure><div class="sq"><i style="background:rgb(51,51,51)"></i></div>background B<br>0.20 gray</figure><span class="op">+</span><figure><div class="sq"><i style="background:rgba(255,255,255,0.25)"></i></div>panel F = 1.00<br>at A = 0.25</figure><span class="op">=</span><figure><div class="sq"><i style="background:rgb(102,102,102)"></i></div>result<br>0.40 gray</figure></div>
+  <div class="ex"><div class="ex-h">Example <span>the picture: a white panel over dark gray (all three channels alike)</span></div>
+  <div class="given"><span><span class="tx">F = 1.00</span> white</span><span><span class="tx">A = 0.25</span></span><span><span class="tx">B = 0.20</span> dark gray</span></div>
+  <div class="tex">\begin{aligned} result &= F \times A + B \times (1 - A) \\ &= \kn{1.00} \times \kn{0.25} + \kn{0.20} \times (1 - \kn{0.25}) \\ &= 0.25 + 0.20 \times (1 - 0.25) \\ &= 0.25 + 0.20 \times 0.75 \\ &= 0.25 + 0.15 = 0.40 \end{aligned}</div></div>
+  <div class="swift">In the iOS lab: <a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter01/TranslucentRoundedPanel.swift">TranslucentRoundedPanel.swift</a><a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter01/OpacityExperimentControls.swift">OpacityExperimentControls.swift</a></div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Source-over, full RGBA (straight)</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-01/lesson-01-06-alpha-mixture.html" title="Lesson 1.6 — Learn the first alpha-mixture formula">1.6</a><a class="lesson" href="../course/chapters/chapter-03/lesson-03-03-the-over-operation.html" title="Lesson 3.3 — The over operation">3.3</a><a class="lesson" href="../course/chapters/chapter-03/lesson-03-04-draw-order-matters.html" title="Lesson 3.4 — Draw order matters">3.4</a></span></div>
+  <div class="f tf"><div class="tex">\begin{aligned} w_D &= A_D \times (1 - A_S) \\ A_{out} &= A_S + w_D \\ C_{out} &= (C_S \times A_S + C_D \times w_D) \div A_{out} \end{aligned}</div></div>
+  <div class="where">
+    <span class="tx">C_S, A_S</span><span>one channel and the alpha of the source S, drawn now on top.</span>
+    <span class="tx">C_D, A_D</span><span>the same channel and the alpha of the destination D, already there.</span>
+    <span class="tx">w_D</span><span>how much of D still shows through S. Work out the alphas first.</span>
+    <span class="tx">A_{out}, C_{out}</span><span>the result's alpha and channel. With an opaque D (A_D = 1) this is the alpha mixture card.</span>
+  </div>
+  <div class="pic"><figure><svg width="560" height="240" viewBox="0 0 560 240" role="img" aria-label="Destination and source squares on a transparent checkerboard; their overlap is the source-over result"><defs><pattern id="ck3" width="20" height="20" patternUnits="userSpaceOnUse" x="20" y="20"><rect width="20" height="20" fill="#fff"/><rect width="10" height="10" fill="#cbd5e1"/><rect x="10" y="10" width="10" height="10" fill="#cbd5e1"/></pattern></defs><rect x="20" y="20" width="360" height="200" fill="url(#ck3)" stroke="#94a3b8" stroke-width="1" rx="0" /><rect x="40" y="40" width="200" height="140" fill="rgba(26,230,102,0.6)" stroke="#0f172a" stroke-width="1.5" rx="0" /><rect x="150" y="80" width="200" height="120" fill="rgba(230,26,204,0.5)" stroke="#0f172a" stroke-width="1.5" rx="0" /><rect x="150" y="80" width="90" height="100" fill="rgba(153,102,166,0.8)" stroke="#0f172a" stroke-width="2.5" rx="0" /><text x="48" y="62" fill="#0f172a" font-size="16" text-anchor="start" font-weight="800" paint-order="stroke" stroke="#fff" stroke-width="4" stroke-linejoin="round">D</text><text x="340" y="192" fill="#0f172a" font-size="16" text-anchor="end" font-weight="800" paint-order="stroke" stroke="#fff" stroke-width="4" stroke-linejoin="round">S</text><text x="195" y="136" fill="#0f172a" font-size="14" text-anchor="middle" font-weight="800" paint-order="stroke" stroke="#fff" stroke-width="4" stroke-linejoin="round">S over D</text><text x="395" y="50" fill="#334155" font-size="14" text-anchor="start" font-weight="700">D: destination,</text><text x="395" y="70" fill="#334155" font-size="14" text-anchor="start" font-weight="500">drawn first</text><text x="395" y="110" fill="#334155" font-size="14" text-anchor="start" font-weight="700">S: source, drawn</text><text x="395" y="130" fill="#334155" font-size="14" text-anchor="start" font-weight="500">now, on top</text><text x="395" y="170" fill="#334155" font-size="14" text-anchor="start" font-weight="700">checkerboard:</text><text x="395" y="190" fill="#334155" font-size="14" text-anchor="start" font-weight="500">transparent</text></svg></figure></div>
+  <div class="chips"><figure><div class="sq"><i style="background:rgba(230,26,204,0.5)"></i></div>S (0.90, 0.10, 0.80)<br>alpha 0.50</figure><span class="op">over</span><figure><div class="sq"><i style="background:rgba(26,230,102,0.6)"></i></div>D (0.10, 0.90, 0.40)<br>alpha 0.60</figure><span class="op">=</span><figure><div class="sq"><i style="background:rgba(153,102,166,0.8)"></i></div>S over D (0.60, 0.40, 0.65)<br>alpha 0.80</figure><span class="op">·</span><figure><div class="sq"><i style="background:rgba(76,178,128,0.8)"></i></div>D over S (0.30, 0.70, 0.50)<br>alpha 0.80</figure></div>
+  <div class="ex"><div class="ex-h">Example <span>S over D, the squares of the picture</span></div>
+  <div class="given"><span><span class="tx">S = (0.90, 0.10, 0.80),\; A_S = 0.50</span></span><span><span class="tx">D = (0.10, 0.90, 0.40),\; A_D = 0.60</span></span></div>
+  <div class="tex">\begin{aligned} w_D &= A_D \times (1 - A_S) = \kn{0.60} \times (1 - \kn{0.50}) = 0.60 \times 0.50 = 0.30 \\ A_{out} &= A_S + w_D = \kn{0.50} + 0.30 = 0.80 \end{aligned}</div>
+  <div class="terms-wrap"><table class="terms"><tr><th>channel</th><th><span class="tx">C_S \times A_S</span></th><th><span class="tx">C_D \times w_D</span></th><th>sum, then <span class="tx">C_{out} = sum \div A_{out}</span></th></tr>
+  <tr><td>red</td><td><span class="kn">0.90</span> × <span class="kn">0.50</span> = 0.45</td><td><span class="kn">0.10</span> × 0.30 = 0.03</td><td class="r">0.45 + 0.03 = 0.48<br>0.48 ÷ 0.80 = 0.60</td></tr>
+  <tr><td>green</td><td><span class="kn">0.10</span> × <span class="kn">0.50</span> = 0.05</td><td><span class="kn">0.90</span> × 0.30 = 0.27</td><td class="r">0.05 + 0.27 = 0.32<br>0.32 ÷ 0.80 = 0.40</td></tr>
+  <tr><td>blue</td><td><span class="kn">0.80</span> × <span class="kn">0.50</span> = 0.40</td><td><span class="kn">0.40</span> × 0.30 = 0.12</td><td class="r">0.40 + 0.12 = 0.52<br>0.52 ÷ 0.80 = 0.65</td></tr></table></div>
+  <div class="cap">S over D = RGBA(0.60, 0.40, 0.65, 0.80). Lesson 3.4 swaps the layers: D over S = RGBA(0.30, 0.70, 0.50, 0.80). Same alpha, different color.</div></div>
+  <div class="swift">In the iOS lab: <a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter03/OverOperationExplorer.swift">OverOperationExplorer.swift</a><a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter03/DrawOrderExplorer.swift">DrawOrderExplorer.swift</a></div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Premultiplied RGBA</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-05-straight-and-premultiplied-rgba.html" title="Lesson 3.5 — Straight and premultiplied RGBA">3.5</a><a class="lesson" href="../course/chapters/chapter-04/lesson-04-08-masks.html" title="Lesson 4.8 — Masks">4.8</a></span></div>
+  <div class="f tf"><div class="tex">\begin{aligned} P &= C \times A \\ P_{out} &= P_S + P_D \times (1 - A_S) \\ A_{out} &= A_S + A_D \times (1 - A_S) \\ C_{out} &= P_{out} \div A_{out} \quad \text{(only if } A_{out} > 0\text{)} \end{aligned}</div></div>
+  <div class="where">
+    <span class="tx">C, A</span><span>a straight channel and its alpha, as in source-over.</span>
+    <span class="tx">P</span><span>the premultiplied channel: the channel already multiplied by its alpha.</span>
+    <span class="tx">P_S, P_D</span><span>the premultiplied channel of the source and of the destination.</span>
+    <span class="tx">C_{out}</span><span>the result as a straight channel again.</span>
+  </div>
+  <div class="pic"><figure><svg width="560" height="230" viewBox="0 0 560 230" role="img" aria-label="Straight and premultiplied channels of the source and the destination as bars"><text x="20" y="22" fill="#334155" font-size="14" text-anchor="start" font-weight="600">light bar: straight channel · dark bar and number below: premultiplied</text><text x="30" y="50" fill="#172033" font-size="14" text-anchor="start" font-weight="700">S, alpha 0.50</text><rect x="30" y="81" width="40" height="99" fill="#dc2626" stroke="#dc2626" stroke-width="1" rx="0" opacity="0.3"/><rect x="30" y="130.5" width="40" height="49.5" fill="#dc2626" stroke="#dc2626" stroke-width="1" rx="0" /><text x="50" y="75" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">0.90</text><text x="50" y="216" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="800">0.45</text><text x="50" y="196" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">R</text><rect x="100" y="169" width="40" height="11" fill="#16a34a" stroke="#16a34a" stroke-width="1" rx="0" opacity="0.3"/><rect x="100" y="174.5" width="40" height="5.5" fill="#16a34a" stroke="#16a34a" stroke-width="1" rx="0" /><text x="120" y="163" fill="#16a34a" font-size="13" text-anchor="middle" font-weight="700">0.10</text><text x="120" y="216" fill="#16a34a" font-size="13" text-anchor="middle" font-weight="800">0.05</text><text x="120" y="196" fill="#16a34a" font-size="13" text-anchor="middle" font-weight="700">G</text><rect x="170" y="92" width="40" height="88" fill="#2563eb" stroke="#2563eb" stroke-width="1" rx="0" opacity="0.3"/><rect x="170" y="136" width="40" height="44" fill="#2563eb" stroke="#2563eb" stroke-width="1" rx="0" /><text x="190" y="86" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="700">0.80</text><text x="190" y="216" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="800">0.4</text><text x="190" y="196" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="700">B</text><text x="300" y="50" fill="#172033" font-size="14" text-anchor="start" font-weight="700">D, alpha 0.60</text><rect x="300" y="169" width="40" height="11" fill="#dc2626" stroke="#dc2626" stroke-width="1" rx="0" opacity="0.3"/><rect x="300" y="173.4" width="40" height="6.6" fill="#dc2626" stroke="#dc2626" stroke-width="1" rx="0" /><text x="320" y="163" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">0.10</text><text x="320" y="216" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="800">0.06</text><text x="320" y="196" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">R</text><rect x="370" y="81" width="40" height="99" fill="#16a34a" stroke="#16a34a" stroke-width="1" rx="0" opacity="0.3"/><rect x="370" y="120.6" width="40" height="59.4" fill="#16a34a" stroke="#16a34a" stroke-width="1" rx="0" /><text x="390" y="75" fill="#16a34a" font-size="13" text-anchor="middle" font-weight="700">0.90</text><text x="390" y="216" fill="#16a34a" font-size="13" text-anchor="middle" font-weight="800">0.54</text><text x="390" y="196" fill="#16a34a" font-size="13" text-anchor="middle" font-weight="700">G</text><rect x="440" y="136" width="40" height="44" fill="#2563eb" stroke="#2563eb" stroke-width="1" rx="0" opacity="0.3"/><rect x="440" y="153.6" width="40" height="26.4" fill="#2563eb" stroke="#2563eb" stroke-width="1" rx="0" /><text x="460" y="130" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="700">0.40</text><text x="460" y="216" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="800">0.24</text><text x="460" y="196" fill="#2563eb" font-size="13" text-anchor="middle" font-weight="700">B</text></svg></figure></div>
+  <div class="ex"><div class="ex-h">Example <span>the same S over D as the source-over card</span></div>
+  <div class="given"><span><span class="tx">A_S = 0.50,\; A_D = 0.60</span></span><span><span class="tx">1 - A_S = 0.50,\; A_{out} = 0.80</span> from the source-over card</span></div>
+  <div class="terms-wrap"><table class="terms"><tr><th>channel</th><th><span class="tx">P_S = C_S \times A_S</span></th><th><span class="tx">P_D = C_D \times A_D</span></th><th><span class="tx">P_D \times (1 - A_S)</span>, then <span class="tx">P_{out}</span></th><th><span class="tx">C_{out}</span></th></tr>
+  <tr><td>red</td><td><span class="kn">0.90</span> × 0.50 = 0.45</td><td><span class="kn">0.10</span> × 0.60 = 0.06</td><td>0.06 × 0.50 = 0.03<br>0.45 + 0.03 = 0.48</td><td class="r">0.48 ÷ 0.80 = 0.60</td></tr>
+  <tr><td>green</td><td><span class="kn">0.10</span> × 0.50 = 0.05</td><td><span class="kn">0.90</span> × 0.60 = 0.54</td><td>0.54 × 0.50 = 0.27<br>0.05 + 0.27 = 0.32</td><td class="r">0.32 ÷ 0.80 = 0.40</td></tr>
+  <tr><td>blue</td><td><span class="kn">0.80</span> × 0.50 = 0.40</td><td><span class="kn">0.40</span> × 0.60 = 0.24</td><td>0.24 × 0.50 = 0.12<br>0.40 + 0.12 = 0.52</td><td class="r">0.52 ÷ 0.80 = 0.65</td></tr></table></div></div>
+  <div class="note"><b>Which form?</b> SwiftUI <code>Color(red:green:blue:opacity:)</code> takes straight values. A premultiplied buffer (for example <code>CGImageAlphaInfo.premultipliedLast</code>) stores premultiplied values. A bare RGB triple does not say which; label it.</div>
+  <div class="swift">In the iOS lab: <a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter03/PremultipliedRgbaExplorer.swift">PremultipliedRgbaExplorer.swift</a></div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Tint</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-08-tint.html" title="Lesson 3.8 — Tint">3.8</a><a class="lesson" href="../course/chapters/chapter-07/lesson-07-05-tint-layer.html" title="Lesson 7.5 — Tint layer">7.5</a></span></div>
+  <div class="f tf"><div class="tex">\begin{aligned} output &= tint \times amount + base \times (1 - amount) \\ &= base + amount \times (tint - base) \end{aligned}</div></div>
+  <div class="where">
+    <span class="tx">base</span><span>one channel of the opaque color underneath.</span>
+    <span class="tx">tint</span><span>the same channel of the tint color drawn over it.</span>
+    <span class="tx">amount</span><span>the tint's alpha, 0 … 1: 0 keeps the base, 1 gives the tint color. This is source-over with an opaque base.</span>
+    <span class="tx">tint - base</span><span>its sign says the direction: plus, the channel rises toward the tint; minus, it falls.</span>
+  </div>
+  <div class="chips"><figure><div class="sq"><i style="background:rgb(204,64,153)"></i></div>base: course color<br>(0.80, 0.25, 0.60)</figure><span class="op">+</span><figure><div class="sq"><i style="background:rgba(51,166,255,0.25)"></i></div>tint (0.20, 0.65, 1.00)<br>amount 0.25</figure><span class="op">=</span><figure><div class="sq"><i style="background:rgb(166,89,178)"></i></div>output<br>(0.65, 0.35, 0.70)</figure></div>
+  <div class="chips"><figure><div class="sq"><i style="background:rgb(204,64,153)"></i></div>amount 0</figure><figure><div class="sq"><i style="background:rgb(166,89,178)"></i></div>amount 0.25</figure><figure><div class="sq"><i style="background:rgb(128,115,204)"></i></div>amount 0.5</figure><figure><div class="sq"><i style="background:rgb(89,140,230)"></i></div>amount 0.75</figure><figure><div class="sq"><i style="background:rgb(51,166,255)"></i></div>amount 1</figure></div>
+  <div class="ex"><div class="ex-h">Example 1 <span>Lesson 3.8: a blue tint over the course color</span></div>
+  <div class="given"><span><span class="tx">base = (0.80, 0.25, 0.60)</span></span><span><span class="tx">tint = (0.20, 0.65, 1.00)</span></span><span><span class="tx">amount = 0.25</span></span></div>
+  <div class="terms-wrap"><table class="terms"><tr><th>channel</th><th><span class="tx">tint - base</span></th><th><span class="tx">amount \times (tint - base)</span></th><th><span class="tx">output = base + \ldots</span></th></tr>
+  <tr><td>red</td><td><span class="kn">0.20</span> − <span class="kn">0.80</span> = −0.60</td><td><span class="kn">0.25</span> × (−0.60) = −0.15</td><td class="r">0.80 + (−0.15) = 0.65 (falls)</td></tr>
+  <tr><td>green</td><td><span class="kn">0.65</span> − <span class="kn">0.25</span> = 0.40</td><td><span class="kn">0.25</span> × 0.40 = 0.10</td><td class="r">0.25 + 0.10 = 0.35 (rises)</td></tr>
+  <tr><td>blue</td><td><span class="kn">1.00</span> − <span class="kn">0.60</span> = 0.40</td><td><span class="kn">0.25</span> × 0.40 = 0.10</td><td class="r">0.60 + 0.10 = 0.70 (rises)</td></tr></table></div></div>
+  <div class="chips"><figure><div class="sq"><i style="background:rgb(26,64,102)"></i></div>base: navy<br>(0.10, 0.25, 0.40)</figure><span class="op">+</span><figure><div class="sq"><i style="background:rgba(255,255,255,0.25)"></i></div>tint: white<br>amount 0.25</figure><span class="op">=</span><figure><div class="sq"><i style="background:rgb(83,112,140)"></i></div>output<br>(0.325, 0.4375, 0.55)</figure></div>
+  <div class="ex"><div class="ex-h">Example 2 <span>Lesson 7.5: the frost tint, white at 0.25 over navy</span></div>
+  <div class="given"><span><span class="tx">base = (0.10, 0.25, 0.40)</span></span><span><span class="tx">tint = (1, 1, 1)</span></span><span><span class="tx">amount = 0.25</span></span></div>
+  <div class="terms-wrap"><table class="terms"><tr><th>channel</th><th><span class="tx">tint - base</span></th><th><span class="tx">amount \times (tint - base)</span></th><th><span class="tx">output = base + \ldots</span></th></tr>
+  <tr><td>red</td><td><span class="kn">1</span> − <span class="kn">0.10</span> = 0.90</td><td><span class="kn">0.25</span> × 0.90 = 0.225</td><td class="r">0.10 + 0.225 = 0.325</td></tr>
+  <tr><td>green</td><td><span class="kn">1</span> − <span class="kn">0.25</span> = 0.75</td><td><span class="kn">0.25</span> × 0.75 = 0.1875</td><td class="r">0.25 + 0.1875 = 0.4375</td></tr>
+  <tr><td>blue</td><td><span class="kn">1</span> − <span class="kn">0.40</span> = 0.60</td><td><span class="kn">0.25</span> × 0.60 = 0.15</td><td class="r">0.40 + 0.15 = 0.55</td></tr></table></div></div>
+  <div class="swift">In the iOS lab: <a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter03/TintExplorer.swift">TintExplorer.swift</a><a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter07/TintLayerExplorer.swift">TintLayerExplorer.swift</a></div>
+</article>
+
+<article class="card wide">
+  <div class="card-top"><h3>Diagram · source-over calculator</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-03-the-over-operation.html" title="Lesson 3.3 — The over operation">3.3</a><a class="lesson" href="../course/chapters/chapter-03/lesson-03-04-draw-order-matters.html" title="Lesson 3.4 — Draw order matters">3.4</a><a class="lesson" href="../course/chapters/chapter-03/lesson-03-05-straight-and-premultiplied-rgba.html" title="Lesson 3.5 — Straight and premultiplied RGBA">3.5</a></span></div>
+  <div class="dia"><div class="dia-h">Interactive <span>move the sliders; “Swap layers” exchanges source and destination</span></div>
+  <div class="row">
+    <div class="col" style="min-width:470px">
+      <div class="ctrls" id="soS"></div>
+      <div class="ctrls" id="soD"></div>
+      <div class="ctrls"><button class="btn" id="soSwap">Swap layers</button><button class="btn" id="soReset">Course values</button></div>
+      <div class="swatches" id="soSw"></div>
+      <p class="cap">Checkerboard behind a chip = transparent part. “Over white” and “over black” place the result on one more opaque layer.</p>
+    </div>
+    <div class="readout" id="soOut" style="min-width:520px"></div>
+  </div></div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Blend modes (opaque layers)</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-10-blend-modes.html" title="Lesson 3.10 — Blend modes">3.10</a></span></div>
+  <div class="f tf"><div class="tex">\begin{aligned} \text{Normal:}\quad out &= s \\ \text{Multiply:}\quad out &= s \times d \\ \text{Screen:}\quad out &= 1 - (1 - s) \times (1 - d) \\ \text{Plus:}\quad out &= clamp(s + d,\; 0,\; 1) \end{aligned}</div></div>
+  <div class="where">
+    <span class="tx">s</span><span>one channel of the source (the upper layer).</span>
+    <span class="tx">d</span><span>the same channel of the destination (the lower layer).</span>
+    <span>neutral</span><span>a source that changes nothing: white (1) for Multiply, black (0) for Screen and Plus.</span>
+  </div>
+  <div class="chips"><figure><div class="sq"><i style="background:rgb(214,92,46)"></i></div>source s<br>(0.84, 0.36, 0.18)</figure><figure><div class="sq"><i style="background:rgb(56,148,194)"></i></div>destination d<br>(0.22, 0.58, 0.76)</figure><span class="op">→</span><figure><div class="sq"><i style="background:rgb(47,53,35)"></i></div>Multiply<br>(0.1848, 0.2088, 0.1368)</figure><figure><div class="sq"><i style="background:rgb(223,186,205)"></i></div>Screen<br>(0.8752, 0.7312, 0.8032)</figure><figure><div class="sq"><i style="background:rgb(255,240,240)"></i></div>Plus<br>(1, 0.94, 0.94)</figure></div>
+  <div class="ex"><div class="ex-h">Example <span>the two colors of the blend-mode diagram</span></div>
+  <div class="given"><span><span class="tx">s = (0.84, 0.36, 0.18)</span></span><span><span class="tx">d = (0.22, 0.58, 0.76)</span></span></div>
+  <div class="terms-wrap"><table class="terms"><tr><th>channel</th><th>Multiply <span class="tx">s \times d</span></th><th>Screen <span class="tx">1 - (1 - s) \times (1 - d)</span></th><th>Plus <span class="tx">clamp(s + d)</span></th></tr>
+  <tr><td>red</td><td><span class="kn">0.84</span> × <span class="kn">0.22</span> = 0.1848</td><td class="r">0.16 × 0.78 = 0.1248<br>1 − 0.1248 = 0.8752</td><td class="r">0.84 + 0.22 = 1.06 → 1</td></tr>
+  <tr><td>green</td><td><span class="kn">0.36</span> × <span class="kn">0.58</span> = 0.2088</td><td class="r">0.64 × 0.42 = 0.2688<br>1 − 0.2688 = 0.7312</td><td class="r">0.36 + 0.58 = 0.94</td></tr>
+  <tr><td>blue</td><td><span class="kn">0.18</span> × <span class="kn">0.76</span> = 0.1368</td><td class="r">0.82 × 0.24 = 0.1968<br>1 − 0.1968 = 0.8032</td><td class="r">0.18 + 0.76 = 0.94</td></tr></table></div>
+  <div class="cap">The 1 − s and 1 − d values: red 1 − 0.84 = 0.16 and 1 − 0.22 = 0.78; green 0.64 and 0.42; blue 0.82 and 0.24.</div></div>
+  <div class="note"><b>With alpha</b> (Multiply, general form): out = s × (1 − A_D) + d × (1 − A_S) + s × d. With both alphas 1 it is s × d.</div>
+  <div class="swift">In the iOS lab: <a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter03/BlendModesExplorer.swift">BlendModesExplorer.swift</a></div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Diagram · blend modes</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-10-blend-modes.html" title="Lesson 3.10 — Blend modes">3.10</a></span></div>
+  <div class="dia"><div class="dia-h">Interactive <span>pick a mode</span></div>
+    <div class="ctrls" id="bmBtns"></div>
+    <div class="row"><canvas id="bmCv" width="250" height="170" class="np"></canvas>
+    <div class="leg"><span><i class="box" style="background:rgb(214,92,46)"></i>source s (0.84, 0.36, 0.18)</span><span><i class="box" style="background:rgb(56,148,194)"></i>destination d (0.22, 0.58, 0.76)</span><span><i class="box" id="bmSwOut"></i>overlap = the mode output</span></div></div>
+    <div class="readout" id="bmOut" style="margin-top:8px"></div>
+  </div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Stack of layers</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-03/lesson-03-11-compositing-laboratory.html" title="Lesson 3.11 — Compositing laboratory">3.11</a></span></div>
+  <div class="f tf"><div class="tex">\begin{aligned} running &= base \\ \text{for each layer:}\quad running &= sourceOver(layer,\; running) \end{aligned}</div></div>
+  <div class="where">
+    <span class="tx">base</span><span>the bottom color; opaque here, so every running result stays opaque (alpha 1).</span>
+    <span class="tx">running</span><span>the result so far: the destination for the next layer.</span>
+    <span class="tx">layer</span><span>each layer in draw order, with its own alpha <span class="tx">A_L</span>.</span>
+  </div>
+  <div class="chips"><figure><div class="sq"><i style="background:rgb(56,148,194)"></i></div>base<br>(0.22, 0.58, 0.76), alpha 1</figure><span class="op">+</span><figure><div class="sq"><i style="background:rgba(230,76,51,0.5)"></i></div>layer A (0.90, 0.30, 0.20)<br>alpha 0.50</figure><span class="op">=</span><figure><div class="sq"><i style="background:rgb(143,112,122)"></i></div>running<br>(0.56, 0.44, 0.48)</figure><span class="op">+</span><figure><div class="sq"><i style="background:rgba(51,51,153,0.25)"></i></div>layer B (0.20, 0.20, 0.60)<br>alpha 0.25</figure><span class="op">=</span><figure><div class="sq"><i style="background:rgb(120,97,130)"></i></div>running<br>(0.47, 0.38, 0.51)</figure></div>
+  <div class="ex"><div class="ex-h">Example <span>two layers over an opaque blue base</span></div>
+  <div class="given"><span><span class="tx">base = (0.22, 0.58, 0.76)</span></span><span>A: <span class="tx">(0.90, 0.30, 0.20),\; A_L = 0.50</span></span><span>B: <span class="tx">(0.20, 0.20, 0.60),\; A_L = 0.25</span></span></div>
+  <div class="terms-wrap"><table class="terms"><tr><th>layer, channel</th><th><span class="tx">layer \times A_L</span></th><th><span class="tx">running \times (1 - A_L)</span></th><th>new <span class="tx">running</span></th></tr>
+  <tr><td>A, red</td><td><span class="kn">0.90</span> × <span class="kn">0.50</span> = 0.45</td><td><span class="kn">0.22</span> × 0.50 = 0.11</td><td class="r">0.45 + 0.11 = 0.56</td></tr>
+  <tr><td>A, green</td><td><span class="kn">0.30</span> × <span class="kn">0.50</span> = 0.15</td><td><span class="kn">0.58</span> × 0.50 = 0.29</td><td class="r">0.15 + 0.29 = 0.44</td></tr>
+  <tr><td>A, blue</td><td><span class="kn">0.20</span> × <span class="kn">0.50</span> = 0.10</td><td><span class="kn">0.76</span> × 0.50 = 0.38</td><td class="r">0.10 + 0.38 = 0.48</td></tr>
+  <tr><td>B, red</td><td><span class="kn">0.20</span> × <span class="kn">0.25</span> = 0.05</td><td>0.56 × 0.75 = 0.42</td><td class="r">0.05 + 0.42 = 0.47</td></tr>
+  <tr><td>B, green</td><td><span class="kn">0.20</span> × <span class="kn">0.25</span> = 0.05</td><td>0.44 × 0.75 = 0.33</td><td class="r">0.05 + 0.33 = 0.38</td></tr>
+  <tr><td>B, blue</td><td><span class="kn">0.60</span> × <span class="kn">0.25</span> = 0.15</td><td>0.48 × 0.75 = 0.36</td><td class="r">0.15 + 0.36 = 0.51</td></tr></table></div>
+  <div class="cap">1 − A_L: 1 − 0.50 = 0.50 for A, 1 − 0.25 = 0.75 for B. Layer B uses A's result as its destination.</div></div>
+  <div class="note"><b>Bug to avoid:</b> passing the base instead of the running result as the destination drops every earlier layer.</div>
+  <div class="swift">In the iOS lab: <a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter03/CompositingLaboratory.swift">CompositingLaboratory.swift</a></div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Mask (destinationIn)</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-04/lesson-04-08-masks.html" title="Lesson 4.8 — Masks">4.8</a><a class="lesson" href="../course/chapters/chapter-04/lesson-04-07-clipping.html" title="Lesson 4.7 — Clipping">4.7</a></span></div>
+  <div class="f tf"><div class="tex">\begin{aligned} P_{masked} &= P_{content} \times mask \\ result &= sourceOver(masked,\; parent) \end{aligned}</div></div>
+  <div class="where">
+    <span class="tx">P_{content}</span><span>the content's premultiplied RGBA at one position (x, y).</span>
+    <span class="tx">mask</span><span>the mask's alpha at the same position, 0 … 1.</span>
+    <span class="tx">parent</span><span>what is already drawn underneath, here opaque.</span>
+  </div>
+  <div class="chips"><figure><div class="sq"><i style="background:rgb(224,122,46)"></i></div>content: orange<br>alpha 1</figure><span class="op">×</span><figure><div class="sq"><i style="background:rgba(255,255,255,0.6)"></i></div>mask alpha<br>0.60</figure><span class="op">=</span><figure><div class="sq"><i style="background:rgba(224,122,46,0.6)"></i></div>masked<br>alpha 0.60</figure><span class="op">over</span><figure><div class="sq"><i style="background:rgb(26,64,102)"></i></div>parent: navy</figure><span class="op">=</span><figure><div class="sq"><i style="background:rgb(145,99,68)"></i></div>result<br>(0.568, 0.388, 0.268)</figure></div>
+  <div class="ex"><div class="ex-h">Example <span>the teaching orange through a 0.60 mask, over navy</span></div>
+  <div class="given"><span><span class="tx">content = (0.88, 0.48, 0.18),\; alpha\;1</span></span><span><span class="tx">mask = 0.60</span></span><span><span class="tx">parent = (0.10, 0.25, 0.40)</span> navy</span></div>
+  <div class="terms-wrap"><table class="terms"><tr><th>channel</th><th><span class="tx">P_{content} \times mask</span></th><th><span class="tx">parent \times (1 - 0.60)</span></th><th><span class="tx">result</span></th></tr>
+  <tr><td>red</td><td><span class="kn">0.88</span> × <span class="kn">0.60</span> = 0.528</td><td><span class="kn">0.10</span> × 0.40 = 0.04</td><td class="r">0.528 + 0.04 = 0.568</td></tr>
+  <tr><td>green</td><td><span class="kn">0.48</span> × <span class="kn">0.60</span> = 0.288</td><td><span class="kn">0.25</span> × 0.40 = 0.10</td><td class="r">0.288 + 0.10 = 0.388</td></tr>
+  <tr><td>blue</td><td><span class="kn">0.18</span> × <span class="kn">0.60</span> = 0.108</td><td><span class="kn">0.40</span> × 0.40 = 0.16</td><td class="r">0.108 + 0.16 = 0.268</td></tr>
+  <tr><td>alpha</td><td><span class="kn">1.00</span> × <span class="kn">0.60</span> = 0.60</td><td><span class="kn">1.00</span> × 0.40 = 0.40</td><td class="r">0.60 + 0.40 = 1.00</td></tr></table></div>
+  <div class="cap">1 − 0.60 = 0.40: the share of the parent that shows through. The orange content has alpha 1, so its premultiplied channels are the straight ones.</div></div>
+  <div class="note"><b>Mask 0</b> → the masked pixel is transparent (alpha 0); the parent shows. <b>Clip</b> (Lesson 4.7) is the hard version: outside the clip the draw is rejected and the destination stays.</div>
+  <div class="swift">In the iOS lab: <a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter04/MasksExplorer.swift">MasksExplorer.swift</a><a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter04/ClippingExplorer.swift">ClippingExplorer.swift</a></div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Coverage and antialiasing</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-04/lesson-04-09-soft-edges-and-antialiasing.html" title="Lesson 4.9 — Soft edges and antialiasing">4.9</a></span></div>
+  <div class="f tf"><div class="tex">\begin{aligned} coverage &= insideProbes \div allProbes \\ edgeAlpha &= shapeAlpha \times coverage \end{aligned}</div></div>
+  <div class="where">
+    <span class="tx">insideProbes</span><span>the test points inside the pixel square whose center is inside the shape.</span>
+    <span class="tx">allProbes</span><span>all test points of the pixel, such as 12 × 12 = 144.</span>
+    <span class="tx">coverage</span><span>the fraction of the pixel's area inside the shape, 0 … 1.</span>
+    <span class="tx">shapeAlpha</span><span>the shape's own alpha; edgeAlpha is the alpha the edge pixel is drawn with.</span>
+  </div>
+  <div class="ex"><div class="ex-h">Example <span>the coverage diagram at its start values</span></div>
+  <div class="given"><span><span class="tx">allProbes = 12 \times 12</span></span><span><span class="tx">insideProbes = 94</span></span><span><span class="tx">shapeAlpha = 0.50</span></span></div>
+  <div class="tex">\begin{aligned} allProbes &= \kn{12} \times \kn{12} = 144 \\ coverage &= insideProbes \div allProbes = \kn{94} \div 144 = 0.653 \\ edgeAlpha &= shapeAlpha \times coverage = \kn{0.50} \times 0.653 = 0.327 \end{aligned}</div></div>
+  <div class="note"><b>Few probes are coarse:</b> with 2 × 2 probes a pixel whose true covered area is 40% can report 2 ÷ 4 = 50%.</div>
+  <div class="swift">In the iOS lab: <a href="../../../LiquidGlassLab-iOS/LiquidGlassLab/chapter04/SoftEdgesAntialiasingExplorer.swift">SoftEdgesAntialiasingExplorer.swift</a></div>
+</article>
+
+<article class="card">
+  <div class="card-top"><h3>Diagram · coverage of one pixel</h3><span class="ls"><a class="lesson" href="../course/chapters/chapter-04/lesson-04-09-soft-edges-and-antialiasing.html" title="Lesson 4.9 — Soft edges and antialiasing">4.9</a></span></div>
+  <div class="dia"><div class="dia-h">Interactive <span>tilt and move the shape edge</span></div>
+  <div class="ctrls"><label>edge angle <input type="range" id="cvAng" min="0" max="180" value="52"><output id="cvAngO"></output></label><label>edge shift from the center <input type="range" id="cvOff" min="-70" max="70" value="-29"><output id="cvOffO"></output></label><label>probes <select id="cvN"><option>2</option><option>4</option><option selected>12</option></select></label></div>
+  <div class="row"><svg id="cvSvg" width="280" height="280" viewBox="0 0 280 280"></svg>
+  <div class="col" style="flex:1;min-width:220px"><div class="leg"><span><i class="box" style="background:#fdba74"></i>orange: the shape side</span><span><i style="background:#7c3aed"></i>violet line: the shape edge</span><span><i class="dot" style="background:#16a34a"></i>green probe: center inside</span><span><i class="dot" style="background:#fff"></i>white probe: center outside</span></div><div class="readout" id="cvOut"></div></div></div>
+  </div>
+</article>
+
+</div>
+</section>
+<nav class="pager" id="pager"></nav>
+</main>
+<script src="shared/cheatsheet.js"></script>
+<script>
+'use strict';
+/* ================= D2 source-over calculator ================= */
+(function sourceOver(){
+  const S = [0.90, 0.10, 0.80, 0.50], D = [0.10, 0.90, 0.40, 0.60];
+  const names = ['R', 'G', 'B', 'A'];
+  const inputs = {S: [], D: []};
+  function mk(box, arr, key, title){
+    const t = document.createElement('b'); t.textContent = title; t.style.minWidth = '110px'; box.appendChild(t);
+    names.forEach((n, i) => {
+      const lab = document.createElement('label');
+      lab.innerHTML = `${n} <input type="range" min="0" max="1" step="0.01" value="${arr[i]}" style="width:80px"><output>${arr[i].toFixed(2)}</output>`;
+      const inp = lab.querySelector('input'), o = lab.querySelector('output');
+      inp.addEventListener('input', () => { arr[i] = +inp.value; o.textContent = (+inp.value).toFixed(2); calc(); });
+      inputs[key].push([inp, o]);
+      box.appendChild(lab);
+    });
+  }
+  mk($('soS'), S, 'S', 'Source (upper)'); mk($('soD'), D, 'D', 'Destination');
+  function sync(){ ['S', 'D'].forEach(k => inputs[k].forEach(([inp, o], i) => { const v = (k === 'S' ? S : D)[i]; inp.value = v; o.textContent = v.toFixed(2); })); }
+  $('soSwap').addEventListener('click', () => { for(let i = 0; i < 4; i++){ const t = S[i]; S[i] = D[i]; D[i] = t; } sync(); calc(); });
+  $('soReset').addEventListener('click', () => { S.splice(0, 4, .90, .10, .80, .50); D.splice(0, 4, .10, .90, .40, .60); sync(); calc(); });
+  const sw = $('soSw');
+  sw.innerHTML = ['source alone', 'destination alone', 'result', 'result over white', 'result over black'].map((t, i) => `<figure><div class="chip"><i id="soC${i}"></i></div>${t}</figure>`).join('');
+  function calc(){
+    const As = S[3], Ad = D[3];
+    const open = sub(1, As), w = mul(Ad, open), A = add(As, w);
+    const rows = [['alpha', `1 − Aₛ: ${line(1, '−', As, open)}\nweight of the destination: ${line(Ad, '×', open, w)}\noutput alpha: ${line(As, '+', w, A)}`]];
+    const out = [];
+    ['red', 'green', 'blue'].forEach((n, i) => {
+      const a = mul(S[i], As), b = mul(D[i], w), s = add(a, b);
+      if(A > 0){ const st = div(s, A); out.push(st); rows.push([n, `source part: ${line(S[i], '×', As, a)}\ndestination part: ${line(D[i], '×', w, b)}\npremultiplied: ${line(a, '+', b, s)}\nstraight: ${line(s, '÷', A, st)}`]); }
+      else { out.push(0); rows.push([n, 'output alpha is 0: no color (fully transparent)']); }
+    });
+    rows.push(['result', `<span class="r">RGBA(${out.map(F).join(', ')}, ${F(A)})</span>`]);
+    $('soOut').innerHTML = steps(rows, 'Calculation');
+    const set = (i, c, a) => $('soC' + i).style.background = rgbCss(c, a);
+    set(0, S, As); set(1, D, Ad); set(2, out, A);
+    set(3, out.map(c => c * A + 1 * (1 - A)));
+    set(4, out.map(c => c * A));
+  }
+  calc();
+})();
+
+/* ================= D3 blend modes ================= */
+(function blend(){
+  const s = [0.84, 0.36, 0.18], d = [0.22, 0.58, 0.76];
+  const modes = {Normal: 'source-over', Multiply: 'multiply', Screen: 'screen', Plus: 'lighter'};
+  let mode = 'Multiply';
+  const box = $('bmBtns');
+  Object.keys(modes).forEach(m => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = m; b.onclick = () => { mode = m; draw(); }; box.appendChild(b); });
+  function chan(i){
+    const a = s[i], b = d[i];
+    if(mode === 'Normal') return [a, `out = s: ${F(a)}`];
+    if(mode === 'Multiply'){ const r = mul(a, b); return [r, line(a, '×', b, r)]; }
+    if(mode === 'Screen'){ const x = sub(1, a), y = sub(1, b), z = mul(x, y), r = sub(1, z); return [r, `${line(1, '−', a, x)}     ${line(1, '−', b, y)}     ${line(x, '×', y, z)}     ${line(1, '−', z, r)}`]; }
+    const t = add(a, b), r = Math.min(1, t); return [r, `${line(a, '+', b, t)}${t > 1 ? ' → clamp → 1' : ''}`];
+  }
+  function draw(){
+    [...box.children].forEach(b => b.classList.toggle('on', b.textContent === mode));
+    const cv = $('bmCv'), c = cv.getContext('2d');
+    c.globalCompositeOperation = 'source-over'; c.fillStyle = '#fff'; c.fillRect(0, 0, 250, 170);
+    c.fillStyle = rgbCss(d); c.beginPath(); c.arc(95, 85, 62, 0, 7); c.fill();
+    c.globalCompositeOperation = modes[mode]; c.fillStyle = rgbCss(s); c.beginPath(); c.arc(155, 85, 62, 0, 7); c.fill();
+    c.globalCompositeOperation = 'source-over';
+    c.font = '600 14px Inter,system-ui'; c.fillStyle = '#0f172a'; c.fillText('d', 50, 90); c.fillText('s', 195, 90);
+    const res = [0, 1, 2].map(chan);
+    $('bmSwOut').style.background = rgbCss(res.map(r => r[0]));
+    $('bmOut').innerHTML = steps([['red', res[0][1]], ['green', res[1][1]], ['blue', res[2][1]], ['overlap', `<span class="r">(${res.map(r => F(r[0])).join(', ')})</span>`]], mode);
+  }
+  draw();
+})();
+
+/* ================= D4 coverage of one pixel ================= */
+(function coverage(){
+  const svg = $('cvSvg'), x0 = 20, y0 = 20, S = 240;
+  function draw(){
+    const ang = +$('cvAng').value, off = +$('cvOff').value / 240, N = +$('cvN').value;
+    $('cvAngO').textContent = ang + '°'; $('cvOffO').textContent = F(off);
+    const th = ang * Math.PI / 180;
+    const ex = Math.cos(th), ey = -Math.sin(th); /* edge direction, y down */
+    const nx = -ey, ny = ex;                     /* normal: the shape side */
+    const inside = (u, v) => (u - .5) * nx + (v - .5) * ny - off > 0; /* u, v in 0 … 1 of the pixel */
+    clearSvg(svg);
+    el('defs', {}, svg).innerHTML = `<clipPath id="cvClip"><rect x="${x0}" y="${y0}" width="${S}" height="${S}"/></clipPath>`;
+    el('rect', {x: x0, y: y0, width: S, height: S, fill: '#fff', stroke: '#334155', 'stroke-width': 2}, svg);
+    /* shape half-plane */
+    const cx = .5 + nx * off, cy = .5 + ny * off, L = 3;
+    const pts = [[cx - ex * L, cy - ey * L], [cx + ex * L, cy + ey * L], [cx + ex * L + nx * L, cy + ey * L + ny * L], [cx - ex * L + nx * L, cy - ey * L + ny * L]];
+    el('polygon', {points: pts.map(p => `${x0 + p[0] * S},${y0 + p[1] * S}`).join(' '), fill: '#fdba74', 'clip-path': 'url(#cvClip)'}, svg);
+    for(let i = 1; i < N; i++){
+      el('line', {x1: x0 + i * S / N, y1: y0, x2: x0 + i * S / N, y2: y0 + S, stroke: '#94a3b8', 'stroke-width': .6}, svg);
+      el('line', {x1: x0, y1: y0 + i * S / N, x2: x0 + S, y2: y0 + i * S / N, stroke: '#94a3b8', 'stroke-width': .6}, svg);
+    }
+    el('line', {x1: x0 + (cx - ex * L) * S, y1: y0 + (cy - ey * L) * S, x2: x0 + (cx + ex * L) * S, y2: y0 + (cy + ey * L) * S, stroke: '#7c3aed', 'stroke-width': 3, 'clip-path': 'url(#cvClip)'}, svg);
+    let cnt = 0;
+    for(let j = 0; j < N; j++) for(let i = 0; i < N; i++){
+      const u = (i + .5) / N, v = (j + .5) / N, ins = inside(u, v); if(ins) cnt++;
+      el('circle', {cx: x0 + u * S, cy: y0 + v * S, r: N > 6 ? 3.2 : 6, fill: ins ? '#16a34a' : '#fff', stroke: '#111', 'stroke-width': 1}, svg);
+    }
+    el('rect', {x: x0, y: y0, width: S, height: S, fill: 'none', stroke: '#334155', 'stroke-width': 2}, svg);
+    let fine = 0; const M = 200;
+    for(let j = 0; j < M; j++) for(let i = 0; i < M; i++) if(inside((i + .5) / M, (j + .5) / M)) fine++;
+    const tot = N * N, cov = div(cnt, tot), area = div(fine, M * M);
+    $('cvOut').innerHTML = steps([
+      ['probes', `${line(N, '×', N, tot)}`],
+      ['inside', `${cnt} green probes`],
+      ['coverage', `${line(cnt, '÷', tot, cov)}`],
+      ['true area', `≈ ${F(area)}     (an estimate from a 200 × 200 grid)`],
+      ['edge alpha', `shape alpha 0.50:     ${line(.5, '×', cov, mul(.5, cov))}`]
+    ]);
+  }
+  ['cvAng', 'cvOff', 'cvN'].forEach(id => $(id).addEventListener('input', draw));
+  draw();
+})();
+
+</script>
+</body>
+</html>
