@@ -81,7 +81,8 @@ I am an experienced software engineer. I am a total beginner in graphics, render
 
 ## 6. Generate job
 
-- A lesson that turns out to hold more than one concept is split at once, without asking me (`AGENTS.md` rule 16): renumber, generate the first of the new lessons, and say in chat what was split and why.
+- No splits for the idea count (`AGENTS.md` rule 16, 2026-11-11): a step of the lesson's own argument belongs to its idea. A page that teaches two unrelated concepts is split only after asking me.
+- Never edit a lesson before the one being worked on: I don't re-read passed lessons (`AGENTS.md`, “Scope and files”).
 - Generate only the named lesson, by its type (`AGENTS.md` rule 18 and “Scope and files”): `C` → the HTML page only; `B` → HTML, the iOS explorer, and the Metal (or Swift) exercise with its prepared calling code; `E` → HTML and its Swift files.
 - Without the iOS lab or Xcode, say so before generating a `B` or `E` lesson.
 - Before delivering, run `AGENTS.md` rules 20 (with the fresh review), 21 and 25.

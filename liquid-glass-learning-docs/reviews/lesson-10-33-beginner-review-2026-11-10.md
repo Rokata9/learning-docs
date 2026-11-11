@@ -43,7 +43,7 @@ About 45 claims checked (12 printed calculations, all calculator-exact); 11 list
 
 Sweep after these fixes: 0 problems (Step 1; Step 2 at 101 slider values; Step 3 at 202; 144 positions of K; the hero; the exercise). No script errors. Looked at, at 1920 wide: the hero, Step 2 at 100 %, Step 3 at 0.04 and at the end, Section 2 at K, the exercise with its answer. Recomputed: −0.09624 + 0.04 = −0.05624; 0.45672 + 0.04 = 0.49672; 0.49672 + 0.05624 = 0.55296.
 
-## Fresh review 2 (on the page after review 1's fixes) — to apply
+## Fresh review 2 (on the page after review 1's fixes) — applied 2026-11-10 in the questions job (all but item 3)
 
 About 45 claims checked; 11 listed: 0 blocks, 4 slows, 7 minor. New ideas: 1 (sliding a leg without turning, along the cyan line from its start and then in L's direction, until it starts at S keeps its move, so a leg moves the meeting point as far as its copy from S). Fits type C; no split. Every chain recomputed; Lessons 10.24, 10.31, 10.32, 10.7 and 10.19 state the cited facts. Review 1's fixed places hold: Step 2's picture reason (but see item 4), the outlined leg and the brown arrows, Step 3's F₂, F, F₂′, F′, Section 2's labels and the exercise's slides (with items 8 and 10); pale blue is named only for the copy from S (leftovers: items 2 and 7).
 
@@ -63,6 +63,85 @@ Length: about 470 words before the exercises with Step 1 showing, about 700 with
 
 Most serious, in the reviewer's order: 1, 6, 4, 5, 8.
 
+## Review 2, applied (2026-11-10, questions job “Questions about lesson 10.33”)
+
+1. Fixed: the hero's “copy from S” sits right of the copy; the copy's meeting point is labelled “meeting point of the copy”, with no number.
+2. Fixed: “faint gray: the x leg and the y leg”.
+3. Open (minor): three 3D labels of Section 1 lie over the leg.
+4. Fixed: Step 2's “is a copy of the wall” sentence cut (“copy” now means only the copy from S on the page; Uses no longer calls the walls copies).
+5. Fixed: Step 3's “its start goes along L's line …” cut; Step 3 has five bullets.
+6. Fixed, then rewritten after the review below (its item 11).
+7. Fixed: one name, “copy from S” (“the height leg's copy from S”; in Section 2 “y leg's copy”, “height leg's copy”).
+8. Fixed: “meeting point of the y leg's copy: …”, “meeting point of the height leg's copy: …”.
+9. Fixed: the question's red label “how far does the copy / move the meeting point?”, joined to the copy's end by a red line.
+10. Fixed: the start's slide from F₂ to S is drawn over L's arrow.
+11. Fixed: “along the cyan line from its start”; “stays on its wall”; the answer rewritten (below).
+
+## Revision of 2026-11-10 (questions job): the learner's complaint
+
+The learner: “absolutely garbage lessons which doesn't show the clear intention of it. Absolutely zero learning gain, the question also is not clear, what's trying to achieve. Talks about some copies, while the title is "A leg's start does not change its move".”
+
+Changed: the title (“A leg moves the meeting point as far as its copy from S”); the lead (the copy defined; “Why slide the leg to S?”); Step 1's last line; the exercise (“At W, how far does the height leg's copy from S move the meeting point?”, choices 0.796 · 0.50944 · 0.79984).
+
+### Fresh review 1 of this revision
+
+About 50 claims checked; 20 listed: 0 blocks, 10 slows, 10 minor. New ideas: 1 (a leg moves the meeting point as far as its copy from S, by the two slides). Fits type C. On the three checks: the lead now says why the lesson exists; “copy from S” is used the same way in title, lead, Section 2 and the exercise; the question is clear, its “why it matters” line was weak.
+
+1. Lead: “Why move the leg to S? … the move …”: “move” in two senses. **slows**. Fixed: “Why slide the leg to S?”.
+2. Lead: why must the walk start at S? **slows**. Fixed: “Their triangles have a corner at S, so the walk must start at S.”
+3. Lead: 10.34's walk up the height line is only its Section 2. minor. Fixed: “Lessons 10.34 (Section 2) and 10.35 (its exercise)”.
+4. Hero: the height line is not labelled. minor. Fixed: the height line drawn and labelled; “copy from S” stays right of the copy.
+5. Step 1: “The line under the flat drawing”. minor. Fixed: “The calculation under the flat drawing”.
+6. Steps 1–2: the cyan lines look dark teal. minor. Open: the course-wide name.
+7. Step 1: why two slides; “without turning” not defined. **slows**. Fixed: “Steps 2–3 slide the leg to S without turning it: both ends move by the same arrow.” and “Why two slides? A slide in L's direction (Lesson 10.32) moves the start along a line that misses S. So Step 2 first brings the start onto L's line, at F₂.”
+8. Step 2: the end's wall read off the picture only. **slows**. Fixed: “In the flat drawing, every wall is a line drawn up and down, and so is the start's brown arrow.” / “The end's brown arrow is the same arrow, so it is drawn up and down too, along the wall at mark 0.45672: the end stays on that wall.”
+9. Step 2's tooltip of the leg's start: numbers without origin. minor. Open.
+10. Step 3: d also names 10.1's distance in the S tooltip. minor. Open (shared engine tooltip).
+11. Step 3: the plus-side case had no reason. **slows**. Fixed: “If the start's meeting point is on the plus side of S, the leg slides back, against L's direction: that undoes a slide of Lesson 10.32, so both readings get d less.”
+12. Step 3: why the slid leg is the copy. **slows**. Fixed: “At d = 0.09624 the leg starts at S, as long and in the same direction as before (a slide keeps every arrow, Lesson 10.32): it is the height leg's copy from S.”; Uses: 10.32 “… and keeps every arrow: its length and its direction”; the last line, which repeated the title, cut.
+13. Step 3's caption length. minor. Fixed: “Any leg slides to S this way.” cut; five bullets.
+14. Section 2: what to look for while dragging. **slows**. Fixed: “at every K, the two are equally long.”
+15. Section 2: “row”, “ruler drawing”. minor. Fixed: “In the drawing under the 3D view, each leg's arrow is followed by its copy's arrow”.
+16. Two wordings for the copy's meeting point. minor. Fixed: “meeting point of the copy” everywhere (tooltips add “at its end”).
+17. The exercise's “why it matters” line ran the other way. **slows**. Fixed: “Lesson 10.35 will work this move out a second way, from the copy alone. Here, read F₂ and F in the picture, where the cyan lines from the leg's two ends meet L's line, and use Section 1.”
+18. The answer leaned on the plus-side case without naming it. **slows**. Fixed: “F₂ is on the plus side of S, so the leg slides back 0.2904 to S, where it is its copy (Section 1, Step 3). Both readings get 0.2904 less, so the copy's move is also 0.50944” (no second calculation of 0.50944, Rule 0).
+19. Answer flat drawing: F's label under the copy's. minor. Fixed: F's label above its dot.
+20. Length about 700 words. **slows**. Cut: the highlight clause of “Where this is used”, the Lesson 10.19 Uses line, Step 3's “Any leg slides …” and the repeated conclusion. Added text for items 2, 7, 11, 12 and 14 keeps the page near its old length; the reasons were asked for.
+
+
+### Fresh review 2 of this revision (the last one)
+
+About 90 claims checked; 26 listed: 0 blocks, 13 slows, 13 minor. New ideas: **2** by this reviewer (Step 2: a slide inside a wall keeps both meeting points; Step 3: the title idea); every earlier review of the page counted 1, and fresh review 1 of this revision said Step 2 “is a step of the same argument … no split is needed”. **Not split** in this questions job: `NEW_CHAT_PROMPT.md` §5 says not to generate another lesson, and the 10.26 questions job (`FEEDBACK_LOG.md` 2026-11-08 (2)) proposed its split instead of doing it. Instead Step 2 now rests on recalled facts (Lessons 10.31 and 10.7), the reviewer's own alternative. The learner declined the split on 2026-11-11 (“I don't want any meaningless splits”).
+
+1. Lead: “Why slide the leg to S?” before any slide is mentioned. **slows**. Fixed: “Why the copy from S?”.
+2. Lead: “Their triangles have a corner at S”: triangles not shown. **slows**. Fixed: cut; “work out the move of a walk up the height line from S as one multiplication”.
+3. Lead: missing premise, “with this lesson”. **slows**. Fixed: “The height leg does not start at S, but its copy does. This lesson shows that both move the meeting point as far.”
+4. Lead: L's height part without its number. minor. Fixed: “how far up × 0.64, L's height part”.
+5. Hero: the copy's meeting point has no reading. **slows**. Open: printing 0.55296 there puts the number before Section 1 works it out (`AGENTS.md` rule 12), and the page's earlier review asked to remove it; the hero caption and lead carry the claim instead.
+6. Hero and Step 1: the y leg is not labelled. minor. Open.
+7. Section 1's heading never says “copy”. **slows**. Fixed: “Slide the height leg onto its copy from S”.
+8. Step 1: “So it moves the meeting point from F₂ to F.” repeats Uses. minor. Fixed: “The leg's move, from F₂ to F, is worked out under the flat drawing.”
+9. Step 1: “Why two slides?” answer did not cover a straight slide. **slows**. Fixed: “The walls tell how the readings change for two kinds of slide only: inside a wall (Step 2) and in L's direction (Lesson 10.32, Step 3).”
+10. Step 2: why “drawn on the wall's line” means “on the wall”. **slows**. Fixed: “The end moves by the same arrow, at 90° to L's line.” / “In the flat drawing, the walls and both brown arrows are drawn up and down. The drawing leaves out only the part at 90° to the sheet (Lesson 10.7), and that part runs along every wall.” / “So each end stays on its wall …”.
+11. “move” for the leg's number and for the meeting points' sliding. **slows**. Fixed: “the leg's move” in Steps 1–3.
+12. “ways” in the legends. minor. Open: the course's word for a moved point's path (Lesson 10.32, `AGENTS.md` rule 6).
+13. The leg's start has no letter. minor. Open.
+14. Step 3: “a slide keeps every arrow” cited for Step 2's slide too. minor. Fixed: “Both slides added one arrow to both ends, so it is as long and in the same direction as the height leg (Lesson 10.32)”.
+15. Step 3 never joins “the move stays” and “it is the copy”. **slows**. Fixed: the copy line first, then “Both readings grew by the same d, so the copy moves the meeting point as far as the height leg: 0.55296.”
+16. Step 3: the plus-side case is not drawn at K. minor. Kept (Section 2's y leg needs it before the exercise), shortened; the exercise answer draws it.
+17. Captions over 5 lines. minor. Partly: Step 1 four bullets, Step 2 four, Step 3 five with two sums.
+18. Section 2: “arrow” and “equally long” switch meaning. **slows**. Fixed: “The drawing under the 3D view traces each leg's move, then its copy's move … At every K the two moves are equal”.
+19. Section 2: why any leg at any K. minor. Fixed: “Section 1's two slides work for any leg.”
+20. Section 2's table does not show the moves. **slows**. Fixed by naming the traced value in Section 2's line (the moves, in the drawing); the table keeps where each leg starts and where its copy ends, so the moves are not printed twice on one screen (`AGENTS.md` rule 17).
+21. “meeting point of the copy” vs “… copy's end”. minor. Open (one wording kept on the page; tooltips add “at its end”).
+22. Exercise: “Lesson 10.35 will work this move out” is false for W. **slows**. Fixed: “Lesson 10.35 works out a copy's move from the copy alone (at another pixel, R). Here, get it from the leg: read F₂ and F …”.
+23. Exercise: “use Section 1” unclear. **slows**. Fixed with 22 (“get it from the leg”).
+24. Exercise: five sentences before the question. minor. Fixed: “The page found F₁ and F as in Lesson 10.24.” cut.
+25. Answer skips the first slide. minor. Fixed: “After the slide along the cyan line to F₂, the leg slides back 0.2904 to S, against L's direction: that undoes a slide of Lesson 10.32, so both readings get 0.2904 less.”
+26. Length. minor. Partly: the lead is shorter; the page is about 640 words before the exercises, because both reviews asked for reasons in Steps 1–3 (Rule 0 lets a lesson that needs it use more text).
+
 ## Left open
 
-To be filled in after fresh review 2's items are applied.
+- Review 2 of the earlier job: item 3 (three 3D labels over the leg in Section 1). Minor.
+- This revision's review 1: items 6 (the cyan lines look dark teal, a course-wide name), 9 (the start's tooltip numbers), 10 (d in the shared S tooltip). Minor.
+- This revision's review 2: items 5 (no reading on the hero's copy label, rule 12), 6, 12, 13, 21 (minor). Its idea count (2; 1 by all the others) is settled: no split (learner, 2026-11-11).

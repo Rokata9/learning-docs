@@ -93,7 +93,7 @@ For these items the **smallest fix is a cut or a shorter wording**, never an add
 A new idea is a fact or method that the page explains with its own reason and that no earlier lesson taught (check with grep). Recalling an earlier lesson is not new. The words and numbers the idea is stated in (a pair of rulers such as along and across, a way of writing a point) are part of that idea, not a second one: if they are unclear, list that as a problem, not as an idea to split off. A sentence that only names a result without a reason is a problem for the list below, not an idea.
 - List every new idea, one line each, with the step where it first appears.
 - Say whether the count fits the type: `C` exactly one, `B` none, `E` one practice.
-- If it does not fit, say for each extra idea where the page could stop before it, so that it becomes its own lesson.
+- A step of the lesson's own argument (a reason its one idea needs) is part of that idea, not a second one. The learner does not want splits (2026-11-11): for a real extra idea, say which earlier lesson the step could rest on, or how to explain it more clearly where it is.
 
 ### Report format (plain text, this shape)
 First line: roughly how many claims you checked, and how many you list.
