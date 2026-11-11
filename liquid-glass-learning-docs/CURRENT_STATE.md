@@ -1,6 +1,6 @@
 # Liquid Glass iOS course — teaching contracts and current files
 
-**Updated:** 2026-11-10
+**Updated:** 2026-11-11
 **Platform:** Swift / SwiftUI / Metal (`.metal` + `ShaderLibrary`)  
 **Test device:** iPhone 16 Pro  
 **Min OS:** iOS 17  
@@ -796,6 +796,7 @@ Job: the learner's checklist A1–E25 on Lessons 10.30–10.35 (the mistakes of 
 - **State at the pause (2026-11-10, second session):**
   - 10.33: the 11 items of fresh review 1 are applied, the sweep is 0, the screenshots were looked at, and the review file marks each item “Fixed”. Page now: Step 2's reason for the end points at the flat drawing (the end's brown arrow lies on the edge-on wall at mark 0.45672); the ways are brown arrows (`WAY`); the leg before the slide is drawn outlined (pale blue means only the copy from S); Step 3 keeps F₂ and F and names the slid meeting points F₂′ and F′; walls are “wall at mark …”; Section 2 labels “y copy: …” and “height copy: …” (ruler at y 130, names on up to three rows); the exercise answer draws Section 1's two slides per end and has no move line (`wallsFlat` options `ex`, `move`, `hTop`). The second fresh review (the last one allowed) came back during the pause: 11 items, 0 blocks, 4 slows (the hero's “copy from S” label over the dot at 0.55296; Step 2's “is a copy of the wall” sentence, to cut; Step 3's caption length; the plus-side sentence), saved in the review file under “Fresh review 2 … to apply”. Applied on 2026-11-10 in the questions job on 10.33 (all but item 3, minor), with the learner's fixes; see the Lesson 10.33 section.
   - 10.34: the 15 items of fresh review 1 are applied, the sweep is 0, no script errors, and the review file marks each item “Fixed”. NOT done: looking at the eight screenshots (`pack.py 34 …` writes them). Page now: Step 2 says “The flip swaps SX and SL … Q, on SX, to Q′ on SL”; Step 3 has its own angle `flipT3` (opens at 180°) and no “So L's ruler reads 0.48 at J.”; the arrow is labelled “L = (0.48, −0.60, 0.64)”; no “0.5” plates near Q and J (`skip5`); Section 2 says “the second gray line” and G₂ and has the ⓘ `same`; names in `NX`/`NH`/`NL2` (`g`, `gl`, `half`, `halfFlat`, `mRef`, `lAt`). No second review is planned for it (wording and label fixes only) unless the screenshots show a problem.
+  - **Superseded 2026-11-11:** 10.34 and 10.35 were rebuilt in standard words (their sections below); the items listed here for them no longer apply.
   - 10.35: nothing applied yet. Its 11 items (3 slows) are in its review file under “to apply”; the core ones are items 3, 4 and 7 (Step 3's caption and table: X′ and J′ have k × the numbers of X and J from S, an arrow's part is its end's number minus its start's, both Lesson 10.5; the two ⓘ chains become table rows). A second review is justified there, because Step 3's argument changes.
 - **Not written:** the six `FEEDBACK_LOG.md` entries; the sections of 10.30–10.35 below (they still describe the pages before this job); the handoff entries; the curriculum entry and the hub text of 10.31 (they still say the flip carries the x line's wall); “Left open” in the review files of 10.33 and 10.34, and all of “Fixed” in 10.35's; the final chat report (10.32–10.35 in reading order, the table of six lessons, the changed files; `image.png` and `questions.md` show as deleted in `git status` and were not deleted by this job).
 - **Scratch tools** (outside the repository, to delete when the job ends): `/private/tmp/claude-501/-Users-rosen--claude-spares-spare-bhYXLf/fbdd3997-470c-43b1-a589-a963a2c2fdc3/scratchpad`: `qa.py` (headless Chrome driver: `--js`, `--shot`, `--dump`), `pack.py NN lesson.html dNN_text.js shotsNN.json` (text dump, screenshots and the label sweep into `review-10-NN/`), `checklist.md` (A1–E25 for the fresh reviewer), `STATE.md`. The second session's fix scripts (applied, do not rerun) are in `/private/tmp/claude-501/-Users-rosen-Code-learning-docs/d4668772-b3bb-4b02-b27a-8c15bede4f2b/scratchpad` (`edit.py` is the small replace helper). `d34_text.js` now also sets `flipT3`.
@@ -853,29 +854,31 @@ Step 3 (shift 2, slider 0 … 0.09624): A′ is on L's line at −0.09624, so it
 
 **QA (2026-11-11).** No script errors; no horizontal overflow at 1920×1080; label sweep (the hero, Step 1, Step 2 at 11 slider values, Step 3 at 12, 20 positions of K, the exercise): 0 overlapping or cut labels; screenshots looked at (the hero, Steps 1–3 including Step 3 halfway, Section 2, the exercise with its answer; 10.35's exercise).
 
-## Lesson 10.34 — A walk of 1 along x moves the meeting point to L's x part (made as 10.29)
+## Lesson 10.34 — X is 1 along x; its foot on L's line is L's x part from S (made as 10.29; rebuilt 2026-11-11)
 
 ```text
-yellow triangle S, tip of L, Q: Q where the line from the tip of L meets the x line at 90°, reading 0.48 = L's x part (ⓘ, Lesson 10.16 applied to L)
-lime triangle S, X, J: X 1 along x; J where the line from X meets L's line at 90°: “?”
-both long sides are 1 (said in the flat drawing)
-flip the yellow triangle (10.28–10.30): the tip of L goes to X, Q goes 0.48 along L's line with its square corner → that place is J (one place only, 10.19)
-J reads 0.48: a walk of 1 along x moves the meeting point from S to 0.48, L's x part   (new: the one idea)
-Section 2: the height line: Q₂ 0.64 (ⓘ, Lesson 10.18 applied to L), U 1 up, J₂ 0.64
+lead: the x leg ends at Gx, 0.302 along x; its foot F₁ on L's line has |SF₁| = 0.14496 (10.24); 10.34–10.35 get it as 0.302 × 0.48
+yellow △SLQ: Q, the foot of the tip of L on the x line: |SQ| = 0.48, L's x part (ⓘ, Lesson 10.16 applied to L)
+lime △SXJ: X 1 along x; J, the foot of X on L's line: |SJ| = ?
+flip the yellow triangle (10.27–10.30): it takes the tip of L to X and Q to Q′ on L's line; |SQ′| = |SQ| = 0.48 (keeps lengths)
+it keeps the square corner, so Q′ is J: |SJ| = 0.48, L's x part   (new: the one idea)
+Section 2: the same three steps on the height line: |SQ₂| = 0.64, |SQ₂′| = 0.64, |SJ₂| = 0.64
 ```
 
-**Page shape.** Hero: `heroZoom` (X, J, the lime triangle; no yellow). Section 1, no stepper: 3D left (the yellow triangle turns toward the viewer and covers the lime one at 180°), right: a 5-line caption, the flip slider and buttons, `tri27Flat` (“the same corner at S”, “long sides: SX and L, each 1 long”; J's label “J: ?” until 180°, then “Q′ = J: 0.48”). Section 2: the sheet that holds the height line and L's line (camera yaw 40°), its own flip slider (default 180°), `tri27Flat` with the height line, a table (point · before · after half a turn). Exercise: L₂ = (0.80, 0, 0.60) (ⓘ: its length, shadow first), “where does a walk of 1 along x meet L₂'s line?” → 0.8 (distractors 0.6 and 0.48); the question's 3D view draws only X, the rulers and the red question; the answer draws both triangles at 180° and the flat drawing.
+**Rebuilt 2026-11-11 (learner: “stop using "readings", "meeting point" and similar bullshit … stop inventing your own shit”).** Only standard words: “the foot of X on L's line” (the point where the line from X meets L's line at 90°) and lengths |SQ|, |SJ|. No “reading”, “reads”, “meeting point”, “moves”, “walk of”, “L's ruler”. **Page shape.** Hero: `heroZoom` (X, J, the lime triangle). Section 1, a 3-step stepper (two triangles; the flip, slider 0–180°; Q′ = J): 3D left (`tri27`), right: caption, slider, `lines34` (760 × 290): the x line and L's line as two number lines (distance from S, in arrow units), the flip drawn as dashed brown connectors from Q to Q′ and X to the tip of L. Section 2: Section 1's three steps on the height line, its own flip slider, `lines34`, a table with one line per step (|SQ₂|, |SQ₂′|, |SJ₂|). Exercise: L₂ = (0.80, 0, 0.60) (ⓘ: its length), “how far from S is the foot of X on L₂'s line?” → |SJ| = 0.80 (distractors 0.60, 0.48); answer bullets are Section 1's steps.
 
-## Lesson 10.35 — Growing from S multiplies every side (made as 10.30)
+## Lesson 10.35 — Scaling from S keeps the shape: |SF₁| = 0.302 × 0.48 (made as 10.30; rebuilt 2026-11-11)
 
 ```text
-lime S, X, J (J 0.48, 10.34); darker lime S, Gx, F₁ (Gx 0.302; F₁ found by the page, 0.14496, 10.24); both: the corner at S and a square corner
-grow S, X, J from S by k (slider 0.10–1.20 in 0.01): every point k times as far on its line through S; X′ = 1 × k, J′ = 0.48 × k
-the side from X to J: its parts × k (ⓘ: → −0.7696, ↑ 0.42096 with L's ↑ per 1 rounded to 0.877; Trace with 5 decimals) → it keeps its direction (10.3) → the square corner stays
-k = 0.302: X′ is Gx; J′ on L's line with a square corner toward Gx → J′ is F₁ (10.19): 0.48 × 0.302 = 0.14496   (new: the one idea)
+lime △SXJ: |SJ| = 0.48 (10.34); darker △SGxF₁: |SGx| = 0.302, F₁ the foot of Gx on L's line, |SF₁| = ? (10.24 measured 0.14496)
+scale △SXJ from S by k (slider 0.10–1.20): every point k times as far from S on its line through S: |SX′| = k, |SJ′| = k × 0.48
+scaling keeps the shape (similar triangles; ⓘ: X′ = k × X, J′ = k × J part by part, so X′J′ = k × XJ keeps its direction, 10.3/10.5): the corner at J′ is square, J′ is the foot of X′
+k = 0.302: X′ = Gx, so J′ = F₁: |SF₁| = 0.302 × 0.48 = 0.14496 = N's x part × L's x part   (new: the one idea)
 ```
 
-**Page shape.** Hero: `heroZoom` (the two triangles). Section 1, a 3-step stepper (two triangles; grow by k, slider, default 0.60; k = 0.302): 3D left (the teal grown triangle), right: caption, slider, `growFlat` (760 × 520, 1 = 420 px, the x line drawn →; labels “X′ = Gx” and “J′ = F₁: 0.48 × 0.302 = 0.14496” when they meet). Section 2: K draggable, kept on the right half (x from 0.50: a minus x part needs a grow by a minus number, not taught; the 10.36 handoff entry says so); grow by N's x part; a 3-row table (N's x part, k, J′ = F₁ as one product). Exercise: the height leg's move: its copy from S (10.33) on the height line, 1 up → 0.64 (10.34 Section 2), grow by 0.864 → 0.64 × 0.864 = 0.55296 (distractors 0.864, 0.64); camera yaw 40°; answer: the teal triangle grown by 0.864 and `growFlat` with the height line drawn ↑.
+**Rebuilt 2026-11-11 (same learner message as 10.34; the learner chose “without the full proof” on 2026-11-11).** The old Step 3 (the parts of the arrow from X to J × k, a 3-column table and two ⓘ chains) is gone; “scaling keeps the shape” is stated, with a short optional ⓘ. Standard words only, as in 10.34; “grow” became “scale from S by k”. **Page shape.** Hero: `heroZoom` (the two triangles). Section 1, a 3-step stepper (two triangles; scale by k, slider, default 0.60; k = 0.302): 3D left (`grow3D`, teal △SX′J′ with arrows X→X′, J→J′; labels placed off the triangles by `freeLab` with preferred spots), right: caption, slider, `lines35` (760 × 320): two number lines (the x line, L's line), cyan dashed lines from a point to its foot, teal arrows for the scaling; labels in tiers (S, X, J above; X′, J′ higher; Gx, F₁ below). Section 2: Section 1's three steps at a draggable K, kept on the right half (N's x part above 0); `lines35`; a table with one line per step (|SGx|; |SX′|, |SJ′| = g × 0.48; |SF₁|). Exercise: at R = (0.70, 0.62), N's height part 0.539: H is 0.539 up from S; “how far from S is the foot of H on L's line?” → scale △SUJ₂ (|SJ₂| = 0.64, 10.34 Section 2) by 0.539: 0.539 × 0.64 = 0.34496 (distractors 0.539, 0.64); the question draws △SUJ₂, SH and the cyan line from H with “?” at its foot; the answer draws the teal △SU′J₂′ and `lines35` with the height line.
+
+**QA (2026-11-11), both pages.** No script errors; no horizontal overflow at 1920×1080; label sweep (10.34: 3 steps × 5 flip angles, 3 Section 2 angles, the exercise; 10.35: Step 1, Step 2 at 12 slider values, Step 3, 42 positions of K, the exercise): 0 overlapping or cut labels; all drawn labels, tooltips and page text grepped for “reading/reads/meeting point/move/walk of/row/slide”: none (except 10.34's navfoot link with 10.33's title); screenshots looked at.
 
 ## Side lesson — Shortcut: Safari's “…” menu (not counted)
 

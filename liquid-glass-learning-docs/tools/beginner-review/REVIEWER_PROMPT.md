@@ -48,7 +48,7 @@ You are reviewing one lesson of a self-study course as a total beginner. You did
 - Gets angry at:
   - claims stated as facts without reasons ("so", "because", "the same" with nothing behind them);
   - sentences that point at things not drawn in the picture;
-  - coined words or metaphors that are not defined;
+  - coined words or metaphors, even defined ones, where a standard math word exists (“reading”, “meeting point”, “moves the meeting point”, “walk of 1” instead of the foot of a point on a line and a length |SJ|; 2026-11-11);
   - numbers whose meaning is not said (what does this 0, 1 or minus mean here?);
   - vague pointers ("the same", "it", "this").
 
