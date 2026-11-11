@@ -145,3 +145,49 @@ About 90 claims checked; 26 listed: 0 blocks, 13 slows, 13 minor. New ideas: **2
 - Review 2 of the earlier job: item 3 (three 3D labels over the leg in Section 1). Minor.
 - This revision's review 1: items 6 (the cyan lines look dark teal, a course-wide name), 9 (the start's tooltip numbers), 10 (d in the shared S tooltip). Minor.
 - This revision's review 2: items 5 (no reading on the hero's copy label, rule 12), 6, 12, 13, 21 (minor). Its idea count (2; 1 by all the others) is settled: no split (learner, 2026-11-11).
+
+## Rewrite of 2026-11-11 (the learner: “still unclear what you're trying to achieve … the 2D views are pure shit”)
+
+The page was rewritten: the goal in numbers in the lead; the height leg named AN (A′N′ after shift 1, SH after shift 2); amounts as numbers, no letter d; every flat view L's ruler as a number line; the exercise asks for H's reading. See `FEEDBACK_LOG.md` 2026-11-11 (2).
+
+### Fresh review 1 of the rewrite
+
+About 55 claims checked; 21 listed: 1 blocks, 11 slows, 9 minor. New ideas: 1. Purpose: a beginner can say it in one sentence after the hero.
+
+- **Blocks** — Step 3 said “That shifts every wall 0.09624 further along L's ruler”, but only A′ and N′ move. Fixed: “A point moved 0.09624 in L's direction goes from the wall at mark t to the wall at mark t + 0.09624 (Lesson 10.32). So both readings grow by 0.09624”.
+- **Slows**, all fixed:
+  - L's height part named in the lead: “0.864 × 0.64 (L's height part)”.
+  - Uses: “reading” is this page's name for the mark at the meeting point (10.24 does not use the word); 10.32's line now has a subject (“a point moved 0.1 in L's direction …”).
+  - Why two parts: Step 1's last line.
+  - Which point lands on S: “until A is at S”.
+  - Where A's reading comes from: “A's cyan line meets L's line at F₂ …”.
+  - N names the point and the arrow: “to N (the tip of the arrow N)”.
+  - “(the slider)” read as a name: “Drag the slider: …”.
+  - Why every point of AF₂ reads −0.09624: “From any point of AF₂, the cyan line is AF₂ itself”.
+  - Why N stays on its wall: “N's wall is A's wall moved in L's direction, which keeps every arrow (Lesson 10.32)”.
+  - “after 0.09624”: the reason given (A′ reads −0.09624, S reads 0).
+  - The backward shift: “Going back 0.1 undoes going forward 0.1, so both readings drop by 0.1.”
+- **Minor:**
+  - Fixed: “in the same direction, by the same distance”; “in L's direction” for N′; “in arrow units”; old dots labelled “A′ before”, “N′ before”; “S reads 0”; “end”, not “top”; the 10.35 sentence; pink and violet in the legend.
+  - Open: Step 3's caption is about 10 lines (its reasons were asked for).
+
+### Fresh review 2 of the rewrite (the last one)
+
+About 64 claims checked; 29 listed: 1 blocks, 12 slows, 16 minor. Purpose: yes, a beginner can say it after the hero.
+
+- **Blocks** — Step 2: “N's wall is A's wall moved in L's direction … So NN′ lies on N's wall” did not follow. Fixed: “Both brown arrows are at 90° to L's line, like AF₂. Each wall is flat and at 90° to L's line (Lesson 10.31), so a point that goes at 90° to L's line stays on its wall.”
+- **Slows**, fixed:
+  - “move” used for the motion: the motion is “shift” everywhere, “move” is the number.
+  - The height line drawn in the leg's blue: now gray.
+  - Uses 10.31 gave one direction only: “holds exactly the points that read that mark”.
+  - The letter t: “a point shifted 0.05 in L's direction reads 0.05 more”.
+  - The plan's reason: “Only from L's line does a shift in L's direction reach S.”
+  - The names “A's wall” and “N's wall”: “the wall at mark …”.
+  - Why 0.09624, and why A′ reaches S: “A′ is on L's line … where mark 0 is S … after 0 − (−0.09624) = 0.09624.”
+  - The backward case: written with the exercise's number, 0.2904.
+  - “at every K”: “Section 1's steps work for any leg.”
+  - The ⓘ said “slide” and “the leg's point”: rewritten.
+  - The exercise's 10.35 sentence: replaced by why it matters (10.37 adds the three moves; the height leg's is H's reading).
+- **Minor:**
+  - Fixed: 0.864 named as N's height part; “the sum is dot(N, L)”; the hero caption; “in the walk” instead of “where it is”; the legend “blue: the height leg”; the answer's shift 1 line.
+  - Open: the “Light theme …” line (on every page); the Section 2 tag “one value, traced to the end” (the course's tag); the unlabeled points in Section 2's 3D; N at W given without its chain; the tooltip coordinates.
