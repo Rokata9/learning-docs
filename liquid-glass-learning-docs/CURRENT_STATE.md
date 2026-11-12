@@ -1,6 +1,6 @@
 # Liquid Glass iOS course — teaching contracts and current files
 
-**Updated:** 2026-11-11
+**Updated:** 2026-11-12
 **Platform:** Swift / SwiftUI / Metal (`.metal` + `ShaderLibrary`)  
 **Test device:** iPhone 16 Pro  
 **Min OS:** iOS 17  
@@ -888,40 +888,46 @@ The build lesson 10.40 was made afterwards, in its own session (section “Lesso
 
 **Build.** Each page = Lesson 10.34's head (lines 1–71) and engine (script lines 152–838, the 10.25–10.35 kit included) + a body and a lesson script, assembled by a scratch `build.py` with small engine patches (scratch only, deleted): N printed with 3 decimals everywhere (0.670, not 0.67: `nTip`'s last line and `arrN`'s tooltip), the floor label “right” movable (`op.rightLab`, 10.36), `walk3D`'s tip-of-L tooltip and meeting-point tooltips name `op.lName`, its labels optionally placed by `freeLab` (`op.free`, 10.38), the map's K label kept off C's label (10.38). Shared new helpers per page: `keepClear`, `freeLab`, `pjOf`; legends are drawn first (`o.labels.unshift`) so labels avoid them.
 
-## Lesson 10.36 — A walk of 1 along y moves the meeting point to −0.60
+## Lesson 10.36 — Y is 1 along y; its foot on L's line is at −0.60, L's y part (reworded 2026-11-12)
 
 ```text
-yellow △SLQ: Q, the foot of the tip of L on the y line, reads −0.60: L's y part (ⓘ 10.18 for any arrow), on the other side of S from Y (10.20)
-orange △SYJ: Y 1 along y; J: Y's meeting point, “?”
-the flip around the gray line halfway between the y line and L's line (ⓘ same as 10.34): the tip of L → Y, Y → the tip of L (10.28); QY turns as one straight piece, S does not move (10.8)
-so Q′ is on the other side of S from the tip of L: −0.60 on L's ruler (|SQ′| = 0.60, 10.29)   (new: the one idea)
-the square corner stays (10.30): Q′ = J; a walk of 1 along y moves the meeting point to −0.60
-Step 4: Gy (the y leg's copy from S, 0.402, 10.18, 10.33); grow △SYJ by 0.402 (10.35): J′ at 0.402 × (−0.60) = −0.2412, the y leg's move
+yellow △SLQ: Q, the foot of the tip of L on the y line, at −0.60 on the y line: L's y part (ⓘ 10.18 for any arrow), 0.60 from S on the other side of S from Y (10.20)
+orange △SYJ: Y 1 along y from S; J, the foot of Y on L's line: “?”
+the flip around the gray line halfway between the y line and L's line (ⓘ same as 10.34): the tip of L → Y, Y → the tip of L (10.28); QY turns as one straight piece, S stays (10.8)
+so Q′ is on the other side of S from the tip of L: at −0.60 on L's line (|SQ′| = 0.60, 10.29)   (new: the one idea)
+the square corner stays (10.30): Q′ = J, at −0.60, L's y part
+Step 4: Gy, 0.402 along y from S (10.18); SGy is the y leg shifted to S (10.33); scale △SYJ from S by 0.402 (10.35): J′, the foot of Gy, at 0.402 × (−0.60) = −0.2412
 ```
 
-**Page shape.** Hero: `hero3` (K) beside the zoom (orange △SYJ). Section 1, 4 steps (`st36`, `CAP36`): 3D `tri36` (camera yaw −110°, pitch 22°: the y–L sheet nearly face on, the gray line not edge-on, so the half circles show as curves; rulers −0.75…1.15 with “minus side” labels), flip slider in Steps 2–3 (Step 3 its own angle, opens at 180°), dark orange QY turning in Step 2, N's walk with the y leg thick in Step 4; flat `tri36Flat` on `flipFrameV` (the gray line drawn ↑, the tip of L on the left, both rulers' plus and minus sides, ruler numbers drawn last, minus numbers above their ruler). Section 2: the y leg's move at a draggable K (v ≥ 0.51), grow by N's y part, table of 3 rows. Exercise: L₃ = (−0.80, 0, 0.60), “Where on L₃'s ruler does a walk of 1 along x move the meeting point?” → −0.80 (camera yaw −25°, pitch 30°).
+**Page shape.** Hero: `hero3` (K) beside the zoom (orange △SYJ and, since 2026-11-12, the teal △SYJ scaled by 0.402 with Gy and J′). Section 1, 4 steps (`st36`, `CAP36`): 3D `tri36` (camera yaw −110°, pitch 22°: the y–L sheet nearly face on, the gray line not edge-on, so the half circles show as curves; number lines −0.75…1.15 with “minus side” labels), flip slider in Steps 2–3 (Step 3 its own angle, opens at 180°), dark orange QY turning in Step 2, N's walk with the y leg thick in Step 4; flat `lines36` (760 × 320, since 2026-11-12; it replaced `tri36Flat` on `flipFrameV`, the sheet seen straight on): the y line and L's line as two number lines (the distance from S, a minus on the minus side, both sides named), the flip as dashed brown connectors Q → Q′ and Y → the tip of L (as 10.34's `lines34`), Step 2's QY dark orange on both lines, Step 4 with cyan dashed foot lines and teal scaling arrows (as 10.35's `lines35`). Section 2 “Section 1's steps at a draggable K” (v ≥ 0.51): scale by N's y part, table with one line per step (Steps 1–3: J at −0.60; Step 4: |SGy|; Step 4: J′). Exercise: L₃ = (−0.80, 0, 0.60), “where on L₃'s line is the foot of X?” → at −0.80 (camera yaw −25°, pitch 30°); the answer draws `lines36` with the x line and L₃'s line.
 
-## Lesson 10.37 — A leg the minus way: the plus leg's move, reversed (new, split off 2026-11-11)
+**Reworded 2026-11-12** (`AGENTS.md` Rule 0, “Standard math words”; the learner's rebuilt 10.33–10.35 as the model): no “reading”, “reads”, “meeting point”, “walk of”, “ruler”, “grow”, “copy”, “move” in the rendered text, except the quoted title of Lesson 10.33 in Uses. Lead: Why (SGy, the foot of Gy at −0.2412, Lessons 10.24 and 10.33) · This lesson · Where this is used (10.35's form, with the three products). Uses: 10.18, 10.20, 10.34, 10.33 (quoted title, then its fact in standard words), 10.35. After review 1: the lead derives −0.2412 from 10.24's feet (−0.09624 − 0.14496); Step 2's reason in two lines (S stays between Q and Y, so between Q′ and the tip of L); Step 4 labels the y leg's ends Gx and A in 3D; the sheet label of Step 1 sits at the lower left, clear of Q's square corner (`sheetXY`); “half circles” for the teal ways; Section 2 says L is the same at every K.
+
+## Lesson 10.37 — A leg toward the minus side: the foot of Gx is at (−0.302) × 0.48 (new, split off 2026-11-11; reworded 2026-11-12)
 
 ```text
-K₂ = (0.38, 0.66), N = (−0.302, 0.402, 0.864) (ⓘ chain): the x leg goes 0.302 to the left, the minus way: Gx reads −0.302 (10.20)
-there and back: the walk ends at S, so the moves add up to 0 (10.24); the way back moves the meeting point as much as its copy from S (10.33): 0.14496 (10.35)
-F₁ reads 0 − 0.14496 = −0.14496: as far as a leg 0.302 to the right, toward the minus side   (new: the one idea)
+K₂ = (0.38, 0.66), N = (−0.302, 0.402, 0.864) (ⓘ chain): the x leg goes 0.302 to the left, the minus way: Gx at −0.302 on the x line (10.20); F₁, the foot of Gx on L's line: “?”
+there and back: the way back, Gx to S, 0.302 to the right; shifted to S it is SE (10.33), and P, the foot of E, is at 0.302 × 0.48 = 0.14496 (10.35)
+so from F₁ to S is 0.14496 toward the plus side, as from S to P; the way back ends at S, at 0: F₁ at 0 − 0.14496 = −0.14496   (new: the one idea)
 the formula of 10.35 gives it: (−0.302) × 0.48 = −0.14496
 ```
 
-**Page shape.** Hero: the whole glass at K₂ (a floor “left” arrow) beside the zoom. Section 1, 3 steps (`st37`): 3D `back3D` (camera yaw −25°, pitch 30°, scale 178: the leg, the way back as an arc on the sheet, its copy from S in light green with its meeting point), flat `backFlat` (L's ruler drawn →, one row per move: the x leg first, the way back, its copy, the whole walk's dot at 0). Section 2: the x leg's move at a draggable K on the left part of the rim (u ≤ 0.46), table of 4 rows. Exercise at K₃ = (0.62, 0.34): the y leg toward the top moves the meeting point 0 − (−0.2412) = 0.2412 (camera yaw −110°, the y–L sheet; the way back's copy light orange).
+**Page shape.** Hero: the whole glass at K₂ (a floor “left” arrow) beside the zoom. Section 1, 3 steps (`st37`): 3D `back3D` (camera yaw −25°, pitch 30°, scale 178: the leg, the way back as an arc on the sheet, SE in light green with E and P), flat `backFlat` (L's line as a number line, drawn →, one row per leg: its two feet joined by an arrow: S to F₁, F₁ to S, S to P; the walk's end at S, at 0). Section 2 “Section 1's steps at a draggable K” on the left part of the rim (u ≤ 0.46), table of 4 rows (Gx; P; F₁ = 0 − P; the formula). Exercise at K₃ = (0.62, 0.34): “where on L's line is the foot of Gy?” → 0 − (−0.2412) = 0.2412 (camera yaw −110°, the y–L sheet; SE light orange).
+
+**Reworded 2026-11-12:** retitled “A leg toward the minus side: the foot of Gx is at (−0.302) × 0.48”; GxS is the arrow from Gx back to S (no “way back”), SE is GxS shifted to S, P the foot of E (were “the copy's end”, “its meeting point”); Step 2 says why: SE goes toward the plus side, where 10.35 applies; shifting keeps the feet as far apart, in the same order (10.33); the exercise ends with 0 + 0.2412, as Section 1 ends with 0 − 0.14496; the row “the walk … ends at S” was cut; Lesson 10.24 left Uses.
 
 ## Lesson 10.38 — The dot product formula
 
 ```text
-Step 1: the walk to the tip of N (10.24); each leg's move a product: x 0.302 × 0.48 = 0.14496 (10.35), y 0.402 × (−0.60) = −0.2412 (10.36), height 0.864 × 0.64 = 0.55296 (10.34 Section 2, grown by 0.864, 10.35; the leg's copy from S, 10.33)
-Step 2: F₂ = 0.14496 + (−0.2412) = −0.09624; F₃ = −0.09624 + 0.55296 = 0.45672; F₃ is F, dot(N, L) is the reading there (10.19)
+Step 1: the walk to the tip of N (10.24); F₁, F₂, F₃ the feet of the legs' ends on L's line; each leg goes along L's line by a product (shifted to S, 10.33): x 0.302 × 0.48 = 0.14496 (10.35), y 0.402 × (−0.60) = −0.2412 (10.36), height 0.864 × 0.64 = 0.55296 (10.34 Section 2, scaled by 0.864, 10.35)
+Step 2: F₂ on L's line = 0.14496 + (−0.2412) = −0.09624; F₃ on L's line = −0.09624 + 0.55296 = 0.45672; F₃ is F, dot(N, L) is where F is on L's line (10.19)
 so dot(N, L) = N's x part × L's x part + N's y part × L's y part + N's height part × L's height part; minus parts too (10.37)   (new: the one idea)
 code: float dotNL = N.x * L.x + N.y * L.y + N.z * L.z; (line table: .x .y .z, * before +, float from Lesson 8.7)
 ```
 
 **Page shape.** Hero: `makeHero3` beside the walk zoom. Section 1, 2 steps: 3D `walk3D` (Lesson 10.24's camera yaw −45°, pitch 24°; labels by `freeLab`), Step 2 adds an emerald bar from S to F₃ drawn over L's arrow; flat `prodFlat` (L's ruler, one row per leg with its product, the two sums in Step 2); the code box under the flat drawing in Step 2. Section 2: K draggable anywhere on the glass (the flat top too), table: three products, F₂, F₃ = dot(N, L). Exercise at W: b = (0.796, 0, −0.605): 0.48158 + 0 + (−0.48158) = 0, so N and b make a square corner (10.22); camera yaw −30°, pitch 22°.
+
+**Reworded 2026-11-12:** `prodFlat` is L's line as a number line; its rows “x leg along L's line, S to F₁: N's x part × L's x part = …” and the sums “F₂ on L's line: x leg + y leg = …”; the engine's `walk3D` tooltips name F₁–F₃ as feet (all five pages' engines). After review 1: no “leg along L's line”: each piece is named by its feet (“S to F₁ (x leg): N's x part × L's x part = …”, “F₂ at 0.14496 + (−0.2412) = −0.09624”); `walk3D`'s `op.ends` labels Gx and A; the products are printed once, in the flat drawing; the exercise's arrow is L₂ (was b), as Lesson 10.34's; the “This lesson” paragraph was cut.
 
 ## Lesson 10.39 — One light direction for every pixel: the dot map
 
@@ -929,11 +935,13 @@ code: float dotNL = N.x * L.x + N.y * L.y + N.z * L.z; (line table: .x .y .z, * 
 Step 1: a very far light: one L at every pixel (the directions toward it differ too little to matter)
 Step 2: each pixel's own N gives its own number; points 1–10 (1: C, flat top: 0.64; 2–9 at radius 0.20; 10 at (0.33, 0.67): −0.45284)
 Step 3: gray = dot(N, L) × 0.5 + 0.5 (Lesson 10.3's display rule): the dot map; point 2: 0.7944 → 0.3972 → 0.8972 on three number lines at one scale
-Step 4: reading the map: flat top 0.64 (gray 0.82); toward L's lean near 1; away, smaller, below 0 near the outline; red: where the number is 0   (new: the one idea: one L, a number per pixel, the map)
+Step 4: what the map shows: flat top 0.64 (gray 0.82); toward L's lean near 1; away, smaller, below 0 near the outline; red: where the number is 0   (new: the one idea: one L, a number per pixel, the map)
 Section 2: W = (0.71, 0.50) draggable on the map: 0.605 × 0.48 = 0.2904; 0 × (−0.60) = 0; 0.796 × 0.64 = 0.50944; 0.2904 + 0 = 0.2904; 0.2904 + 0.50944 = 0.79984; × 0.5 = 0.39992; + 0.5 = 0.89992
 ```
 
 **Page shape.** Hero: the 3D glass painted with its dot map beside the map from above. Section 1, 4 steps: 3D `dot3D` (the whole glass, camera yaw 50°, pitch 30°, seen across L's lean so N on the lower-left rim is drawn from the side, scale 820; point labels by `freeLab`: L and N arrows on a grid in Step 1, N and L at points 1–10 from Step 2, the surface painted gray from Step 3, the red zero curve in Step 4), flat `mapFlat` (UV 0.18–0.82, 400 px; the map image computed per pixel with N's every digit, inside the outline only: just outside it Lesson 10.3's slopes still lean, because their neighbours 0.01 away are on the glass, which drew a second red ring there; outside the glass there is nothing to light, drawn pale yellow, a color none of the map's grays has) and `rangeLines`. Section 2: W on the small map, `walk3D` zoom (yaw 50°, pitch 24°) with the emerald bar, `prodFlat` with the gray value and a swatch, table of 7 rows. Exercise: L₂ = (−0.48, 0.60, 0.64) on the other side, pixels a (0.67, 0.33), b (0.70, 0.50), c (0.50, 0.30): only a is darker than middle gray (−0.31248 + (−0.3906) + 0.25024 = −0.45284, gray 0.27358); question view yaw 34°, pitch 34° (a's N seen side-on); answer: the map made with L₂ and the three chains, no extra “reason” sentence (its first version claimed two minus products make a minus sum; point 5 is a counter-example).
+
+**Reworded 2026-11-12:** Step 4 “What the dot map shows” (point 9, 0.92892, for the upper right); no “S's height” side sentence; the hero label “light: dot(N, L) near 1 · dark: dot(N, L) below 0”; C's label clear of point 3; Section 2's table rows by feet (“S to F₁, the x leg”, “F₂ at …”), the leg ends Gx and A labelled, L's tick numbers shifted off the height leg (`walk3D` `tkDx`); chainLines names F₂ (was “two legs”).
 
 ## Lesson 10.40 — Build: the dot product in Metal (`B`, joins 10.4–10.39; made 2026-11-11)
 
@@ -954,6 +962,10 @@ Exercise 2: the stubs' gray 0.5 → the first check is dark only where dot(N, L)
 **Build.** Lesson 10.39's head (lines 1–71, plus CSS for code boxes, the record, the recall columns and the grids) and its script from the engine through `glassOrb` (lines 153–919), then Lesson 10.38's `CAMW`, `keepClear`, `walk38`, `LEG38`, then this page's script; assembled by a scratch `build.py` (deleted). The two screenshots were taken from a scratch copy of the lab with a `QA_OFFSET` launch offset.
 
 **Lab (built, iPhone 16 Pro simulator).** `DotExercise.metal`: new stubs and caller (`float3 L`, no light normalizing). `DotExerciseKey.metal`: `keyDotOfArrows` as the walk, `keyButtonDotGray`. `DotExerciseView.swift`: L passed as is, texts, previews “Lesson 10.40”. `DotMap.metal`: comment. `DotExplorer.swift`: header “BUILD · LESSONS 10.4–10.39”, “The dot map of the round glass”, the sheet view labels S and F (was P, and “behind P”), “drawn left to right” (was “level”), the trace names the legs' moves, no card marked new, the slider comment (0.9409, 0.243), previews. `Chapter10Screen.swift`: the 10.40 line “0.2904 + 0 = 0.2904; 0.2904 + 0.50944 = 0.79984; gray 0.89992”, the exercise heading. Checked in the simulator: the stubs give a red check with a thin dark line near the left and bottom outline; the answer (a scratch copy) gives a check with no red pixel. The real build was reinstalled, the simulator's appearance set back to dark and the simulator shut down, as before.
+
+**In all five pages (2026-11-12):** the corner box says “arrows, lengths, number lines” and the scale label “scale: 1 arrow unit = 0.15 UV” (was “rulers”, “arrow ruler”).
+
+**Reworded 2026-11-12** (`AGENTS.md` Rule 0, “Standard math words”): the recall lines of 10.16–10.37 and their ⓘ in standard words (feet, “at” a number on a line, 10.33–10.37's new titles); the group heading “Each leg along L's line”; `dotOfArrows`'s names `xProduct`, `yProduct`, `heightProduct` with “// S to F₁ on b's line (x leg)” in the page and in the lab (`DotExercise.metal` comments, `DotExerciseKey.metal`); `DotExplorer.swift`'s trace card “3 · the three legs, added” (lines “S to F₁ (x leg)”, “F₂ = …”), its two texts and its scale label. Lab rebuilt for the iPhone 16 Pro simulator: BUILD SUCCEEDED, no new warning. After the two reviews (`reviews/lesson-10-40-beginner-review-2026-11-12.md`): lines 10.4–10.15 name Gx; line 10.24 gives the sums with numbers; the 10.31 ⓘ gives 10.31's own reason (circles around L's line); the 10.33 ⓘ shifts at 90° to L's line, then along it; Exercise 1's answer uses the code names. Open: the two iPhone screenshots in Section 4 predate the rewording (old legend “L's ruler”, “Arrow ruler”) and need retaking.
 
 **Reviews and QA (2026-11-11).** Two fresh reviews (`reviews/lesson-10-40-beginner-review-2026-11-11.md`): the first found no new idea; the second counted one, a side sentence on dark specks just outside the outline, which was cut (it also contradicted N = (0, 0, 1) at T5). All slows items of both fixed. QA: no script errors from `file://`; JS syntax check; no horizontal overflow at 1920×1080; every link resolves; every choice, view button and Copy works; label sweep of all ten canvases: 0 overlapping or cut labels, no point under a label or a corner box, and 240 turned states of the four button views: one floor label over T1 at one turned angle (the default views are clean); Decimal audit of every calculation in the page text, the record and every tooltip: 0 wrong, one operation per “=”. Glossary: new entry `static` (Metal); the dot-product entry names `dotOfArrows`. QA files stayed in the scratchpad and were deleted.
 
