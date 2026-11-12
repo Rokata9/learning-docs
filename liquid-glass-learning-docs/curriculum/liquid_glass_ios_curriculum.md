@@ -4,9 +4,9 @@
 **Primary platform:** Swift + SwiftUI  
 **Minimum learning target:** iOS 17  
 **Physical test device:** iPhone 16 Pro  
-**Total lessons:** 322
+**Total lessons:** 323
 
-This file is the ordered 322-lesson plan plus frozen locks needed to generate later lessons. Teaching contracts and current file references live in `CURRENT_STATE.md`. Lesson HTML and Swift keep the full teaching prose. Do not add per-lesson implementation diaries here. Lesson completion is reported only in chat when a new lesson is generated; this file does not track it.
+This file is the ordered 323-lesson plan plus frozen locks needed to generate later lessons. Teaching contracts and current file references live in `CURRENT_STATE.md`. Lesson HTML and Swift keep the full teaching prose. Do not add per-lesson implementation diaries here. Lesson completion is reported only in chat when a new lesson is generated; this file does not track it.
 
 ## 1. How this file relates to the rule sources
 
@@ -18,7 +18,7 @@ This plan assumes a total beginner in graphics and mathematics. From Lesson 10.4
 - `E` engineering: SwiftUI, architecture, testing or performance; code first and short.
 An idea is a fact or method with its own reason that no earlier lesson taught. Every old lesson from 10.4 on was split into its ideas, one `C` lesson per idea; the heavy math may grow by any ratio (learner, 2026-11-02). Repeating an earlier mechanism in a new place is fine.
 
-## 2. Full 322-lesson plan
+## 2. Full 323-lesson plan
 
 ### Chapter 1 — A transparent panel is not yet Liquid Glass
 
@@ -240,41 +240,42 @@ An idea is a fact or method with its own reason that no earlier lesson taught. E
 33. **10.33 — A leg shifted to S keeps its move.** `C` Why: N's reading 0.45672 is the three legs' moves added (10.24); 10.34–10.35 get the move of a walk from S by one multiplication (0.864 up → 0.864 × 0.64), and the height leg AN starts at A, not at S. Shift AN without turning it (A and N the same way, the same distance): shift 1 along AF₂, inside the walls (10.31; the walls are parallel, 10.32): both readings stay; shift 2 along L's line by 0.09624: every wall moves 0.09624 further (10.32), both readings grow by 0.09624. AN becomes SH, H = (0, 0, 0.864): its move stays 0.55296. The 2D views are L's ruler as a number line. *(was 10.4, part 8)*
 34. **10.34 — X is 1 along x; its foot on L's line is L's x part from S.** `C` X is 1 along x from S; J, the foot of X on L's line, is asked. Q, the foot of the tip of L on the x line, has |SQ| = 0.48, L's x part (Lesson 10.16). The flip (10.27–10.30) takes △SLQ onto △SXJ: Q to Q′ on L's line with |SQ′| = |SQ| and a square corner, so Q′ = J and |SJ| = 0.48. Section 2: the same on the height line: U 1 up, |SJ₂| = 0.64, L's height part. *(was 10.4, part 10)*
 35. **10.35 — Scaling from S keeps the shape: |SF₁| = 0.302 × 0.48.** `C` Scale △SXJ from S by k: every point goes k times as far from S on its line through S, so |SX′| = k and |SJ′| = k × 0.48, and the triangle keeps its shape, so the corner at J′ stays square: J′ is the foot of X′. At k = 0.302, X′ = Gx (the end of the x leg), so J′ = F₁: |SF₁| = 0.302 × 0.48 = 0.14496, N's x part × L's x part. No full proof of the kept shape (learner's choice, 2026-11-11; an optional ⓘ gives the reason). *(was 10.4, part 11)*
-36. **10.36 — A part that points away: the minus case.** `C` L's y part is negative: a point 0.402 along y from S has its foot on L's line on the minus side of S: 0.402 × (−0.60) = −0.2412. *(was 10.4, part 12)*
-37. **10.37 — The dot product formula.** `C` Three products added: N's x part × L's x part + N's y part × L's y part + N's height part × L's height part = 0.45672 at K. *(was 10.4, part 13)*
-38. **10.38 — One light direction for every pixel: the dot map.** `C` A very far light gives the same L at every pixel; dot(N, L) at every pixel, shown as gray, with one pixel traced. *(was 10.4, part 14)*
-39. **10.39 — Build: the dot product in Metal.** `B` Write `dotOfArrows` and the dot map shader. Joins 10.4–10.38. Takes over the existing `DotExercise` files. *(was 10.4, its Metal exercise)*
-40. **10.40 — Why a tilted surface gets less light.** `C` A beam of light 1 wide spreads over a longer piece of a tilted surface, so each point gets beam width ÷ lit length of the light. *(was 10.5, part 1)*
-41. **10.41 — Brightness is dot(N, L).** `C` Turned a quarter turn (Lesson 10.3) and shrunk until its long side is 1 (10.35), the beam's triangle becomes the triangle S, F, tip of N, so beam width ÷ lit length = dot(N, L). *(was 10.5, part 2)*
-42. **10.42 — Facing away: max(dot, 0).** `C` A number below 0 means the surface faces away from the light; it gets no light, so it becomes 0. *(was 10.5, part 3)*
-43. **10.43 — Why N must be 1 long.** `C` A longer arrow would count as more light: rawNormal gives the wrong brightness order, N gives the right one. *(was 10.5, part 4)*
-44. **10.44 — Ambient light.** `C` A small floor so the side facing away is not black. *(was 10.5, part 5)*
-45. **10.45 — Light color and strength.** `C` Multiply the surface color by brightness, light color and strength, channel by channel. *(was 10.5, part 6)*
-46. **10.46 — Build: lit glass, version 0.** `B` One Metal function: height → slope → N → dot(N, L) → diffuse with ambient. Joins 10.40–10.45. *(new build)*
-47. **10.47 — The mirror direction and the viewer.** `C` Light bounces off a mirror at the same angle it arrives. We look straight at the screen, so the direction toward the viewer is V = (0, 0, 1) at every pixel, the same simplification as the far light (10.38). A highlight appears where the bounce goes toward V. *(was 10.6, part 1 · was 10.6, part 2)*
-48. **10.48 — The halfway arrow.** `C` L and V added make the diagonal of a rhombus; the diagonal cuts it into two triangles with three equal sides, so they match and the diagonal points halfway between L and V. Made 1 long, it is H. *(was 10.6, part 3)*
-49. **10.49 — Where N equals H.** `C` N equals H exactly where the mirror bounce of L reaches the viewer: that is where the highlight sits. *(was 10.6, part 4)*
-50. **10.50 — How close N is to H.** `C` dot(N, H) is 1 where N equals H and smaller around it. *(was 10.6, part 5)*
-51. **10.51 — Sharpening with a power.** `C` A number between 0 and 1 raised to a power shrinks, and the smaller it is, the faster: dot(N, H)ⁿ leaves only a small bright spot. The power n is a chosen dial: 8, 32 and 128 give a wide, a medium and a tight highlight. *(was 10.6, part 6 · was 10.6, part 7)*
-52. **10.52 — Adding light on top.** `C` The highlight is added to the color, not mixed, and each channel is clamped at 1. *(was 10.6, part 8)*
-53. **10.53 — Build: specular highlight.** `B` Joins 10.47–10.52, on the glass. *(was 10.6, build)*
-54. **10.54 — An edge measure: 1 − dot(N, V).** `C` dot(N, V) is N's height part, because V = (0, 0, 1): 1 on the flat top, smaller toward the outline. 1 − dot(N, V) turns it around: 0 on the flat top, growing toward the outline. *(was 10.7, part 1 · was 10.7, part 2)*
-55. **10.55 — Glancing light reflects more.** `C` What Fresnel means: a surface seen at a glancing angle reflects more of the light; a picture with numbers, no proof. *(was 10.7, part 3)*
-56. **10.56 — A Fresnel-like curve.** `C` (1 − dot(N, V))⁵ stays small, then rises fast near the outline; an approximation (Schlick's), not physics. *(was 10.7, part 4)*
-57. **10.57 — A base amount.** `C` F0 + (1 − F0) × curve: a chosen minimum reflection everywhere. *(was 10.7, part 5)*
-58. **10.58 — Build: rim on the glass.** `B` The rim together with the specular highlight. Joins 10.54–10.57. *(was 10.7, build)*
-59. **10.59 — An edge band inside the outline.** `C` From the distance field and smoothstep (Lessons 7.8 and 9.3 again): 1 at the outline, 0 a chosen width inside. *(was 10.8, part 1)*
-60. **10.60 — Darkening the band.** `C` Multiply the color by 1 − strength × band: a darkened edge. *(was 10.8, part 2)*
-61. **10.61 — A thin bright edge line.** `C` A narrower band with a higher power next to the dark band; dark beside bright reads as depth. *(was 10.9)*
-62. **10.62 — Build: edge contrast.** `B` Joins 10.59–10.61. *(new build)*
-63. **10.63 — One thickness dial.** `C` One value from 0 to 1; each property gets a range, and mix picks the value inside it. *(was 10.10)*
-64. **10.64 — Thickness changes refraction.** `C` A thicker material pushes the read point further (Lesson 9.11's push length). *(was 10.11, part 1)*
-65. **10.65 — Thickness changes diffusion.** `C` A thicker material blurs more. *(was 10.11, part 2)*
-66. **10.66 — Thickness changes shadow.** `C` Radius, opacity and offset of the shadow grow with thickness. *(was 10.12)*
-67. **10.67 — Build: thickness on the glass.** `B` One slider drives refraction, diffusion and shadow. Joins 10.63–10.66. *(new build)*
-68. **10.68 — Build: material shader v1, part 1 — optics.** `B` Mask, refraction and tint in one shader. *(was 10.13, part 1)*
-69. **10.69 — Build: material shader v1, part 2 — light.** `B` Add diffuse, specular, rim and edges. *(was 10.13, part 2)*
-70. **10.70 — Build: material shader v1, part 3 — thickness.** `B` The thickness dial drives everything; the chapter checkpoint. *(was 10.13, part 3)*
+36. **10.36 — A walk of 1 along y moves the meeting point to −0.60.** `C` L's y part is negative: Q, the foot of the tip of L on the y line, is on the other side of S from Y, so the flip (10.34) puts Y's meeting point J on the minus side of L's ruler, at −0.60. Grown by 0.402 (10.35): the y leg moves the meeting point 0.402 × (−0.60) = −0.2412. *(was 10.4, part 12; retitled from “A part that points away: the minus case” on 2026-11-11)*
+37. **10.37 — A leg the minus way: the plus leg's move, reversed.** `C` At K₂ = (0.38, 0.66) the x leg goes 0.302 to the left. Walk it there and back: the moves add up to 0 (10.24), and the way back moves the meeting point 0.14496 (10.33, 10.35), so the leg to the left moves it −0.14496 = (−0.302) × 0.48. *(split off on 2026-11-11: 10.35's handoff left N's minus part open, and its reason differs from 10.36's)*
+38. **10.38 — The dot product formula.** `C` Three products added: N's x part × L's x part + N's y part × L's y part + N's height part × L's height part = 0.45672 at K. *(was 10.4, part 13)*
+39. **10.39 — One light direction for every pixel: the dot map.** `C` A very far light gives the same L at every pixel; dot(N, L) at every pixel, shown as gray, with one pixel traced. *(was 10.4, part 14)*
+40. **10.40 — Build: the dot product in Metal.** `B` Write `dotOfArrows` and the dot map shader. Joins 10.4–10.39. Takes over the existing `DotExercise` files. *(was 10.4, its Metal exercise)*
+41. **10.41 — Why a tilted surface gets less light.** `C` A beam of light 1 wide spreads over a longer piece of a tilted surface, so each point gets beam width ÷ lit length of the light. *(was 10.5, part 1)*
+42. **10.42 — Brightness is dot(N, L).** `C` Turned a quarter turn (Lesson 10.3) and shrunk until its long side is 1 (10.35), the beam's triangle becomes the triangle S, F, tip of N, so beam width ÷ lit length = dot(N, L). *(was 10.5, part 2)*
+43. **10.43 — Facing away: max(dot, 0).** `C` A number below 0 means the surface faces away from the light; it gets no light, so it becomes 0. *(was 10.5, part 3)*
+44. **10.44 — Why N must be 1 long.** `C` A longer arrow would count as more light: rawNormal gives the wrong brightness order, N gives the right one. *(was 10.5, part 4)*
+45. **10.45 — Ambient light.** `C` A small floor so the side facing away is not black. *(was 10.5, part 5)*
+46. **10.46 — Light color and strength.** `C` Multiply the surface color by brightness, light color and strength, channel by channel. *(was 10.5, part 6)*
+47. **10.47 — Build: lit glass, version 0.** `B` One Metal function: height → slope → N → dot(N, L) → diffuse with ambient. Joins 10.41–10.46. *(new build)*
+48. **10.48 — The mirror direction and the viewer.** `C` Light bounces off a mirror at the same angle it arrives. We look straight at the screen, so the direction toward the viewer is V = (0, 0, 1) at every pixel, the same simplification as the far light (10.39). A highlight appears where the bounce goes toward V. *(was 10.6, part 1 · was 10.6, part 2)*
+49. **10.49 — The halfway arrow.** `C` L and V added make the diagonal of a rhombus; the diagonal cuts it into two triangles with three equal sides, so they match and the diagonal points halfway between L and V. Made 1 long, it is H. *(was 10.6, part 3)*
+50. **10.50 — Where N equals H.** `C` N equals H exactly where the mirror bounce of L reaches the viewer: that is where the highlight sits. *(was 10.6, part 4)*
+51. **10.51 — How close N is to H.** `C` dot(N, H) is 1 where N equals H and smaller around it. *(was 10.6, part 5)*
+52. **10.52 — Sharpening with a power.** `C` A number between 0 and 1 raised to a power shrinks, and the smaller it is, the faster: dot(N, H)ⁿ leaves only a small bright spot. The power n is a chosen dial: 8, 32 and 128 give a wide, a medium and a tight highlight. *(was 10.6, part 6 · was 10.6, part 7)*
+53. **10.53 — Adding light on top.** `C` The highlight is added to the color, not mixed, and each channel is clamped at 1. *(was 10.6, part 8)*
+54. **10.54 — Build: specular highlight.** `B` Joins 10.48–10.53, on the glass. *(was 10.6, build)*
+55. **10.55 — An edge measure: 1 − dot(N, V).** `C` dot(N, V) is N's height part, because V = (0, 0, 1): 1 on the flat top, smaller toward the outline. 1 − dot(N, V) turns it around: 0 on the flat top, growing toward the outline. *(was 10.7, part 1 · was 10.7, part 2)*
+56. **10.56 — Glancing light reflects more.** `C` What Fresnel means: a surface seen at a glancing angle reflects more of the light; a picture with numbers, no proof. *(was 10.7, part 3)*
+57. **10.57 — A Fresnel-like curve.** `C` (1 − dot(N, V))⁵ stays small, then rises fast near the outline; an approximation (Schlick's), not physics. *(was 10.7, part 4)*
+58. **10.58 — A base amount.** `C` F0 + (1 − F0) × curve: a chosen minimum reflection everywhere. *(was 10.7, part 5)*
+59. **10.59 — Build: rim on the glass.** `B` The rim together with the specular highlight. Joins 10.55–10.58. *(was 10.7, build)*
+60. **10.60 — An edge band inside the outline.** `C` From the distance field and smoothstep (Lessons 7.8 and 9.3 again): 1 at the outline, 0 a chosen width inside. *(was 10.8, part 1)*
+61. **10.61 — Darkening the band.** `C` Multiply the color by 1 − strength × band: a darkened edge. *(was 10.8, part 2)*
+62. **10.62 — A thin bright edge line.** `C` A narrower band with a higher power next to the dark band; dark beside bright reads as depth. *(was 10.9)*
+63. **10.63 — Build: edge contrast.** `B` Joins 10.60–10.62. *(new build)*
+64. **10.64 — One thickness dial.** `C` One value from 0 to 1; each property gets a range, and mix picks the value inside it. *(was 10.10)*
+65. **10.65 — Thickness changes refraction.** `C` A thicker material pushes the read point further (Lesson 9.11's push length). *(was 10.11, part 1)*
+66. **10.66 — Thickness changes diffusion.** `C` A thicker material blurs more. *(was 10.11, part 2)*
+67. **10.67 — Thickness changes shadow.** `C` Radius, opacity and offset of the shadow grow with thickness. *(was 10.12)*
+68. **10.68 — Build: thickness on the glass.** `B` One slider drives refraction, diffusion and shadow. Joins 10.64–10.67. *(new build)*
+69. **10.69 — Build: material shader v1, part 1 — optics.** `B` Mask, refraction and tint in one shader. *(was 10.13, part 1)*
+70. **10.70 — Build: material shader v1, part 2 — light.** `B` Add diffuse, specular, rim and edges. *(was 10.13, part 2)*
+71. **10.71 — Build: material shader v1, part 3 — thickness.** `B` The thickness dial drives everything; the chapter checkpoint. *(was 10.13, part 3)*
 
 **Checkpoint:** Move a virtual light and explain why the highlight travels around the silhouette.
 
@@ -334,7 +335,7 @@ An idea is a fact or method with its own reason that no earlier lesson taught. E
 9. **12.9 — Build: a distance-field morph.** `B` Circle to rounded rectangle. Joins 12.7–12.8. *(new build)*
 10. **12.10 — Union with min: a sharp crease.** `C` min of two distances joins two shapes with a sharp corner where they meet (Lesson 9.6 again). *(was 12.6, part 1)*
 11. **12.11 — Which shape is nearer: b − a.** `C` With a and b the distances to shapes A and B, b − a is plus where A is nearer, minus where B is nearer, and 0 halfway between them. *(was 12.6, part 2)*
-12. **12.12 — A weight from 0 to 1: h.** `C` Divide b − a by k, then × 0.5 + 0.5 (the dot map's mapping, 10.38) and clamp (Lesson 8.11): h is 1 where A is clearly nearer, 0 where B is, and in between only inside a band where the two distances differ by less than k. *(was 12.6, part 3)*
+12. **12.12 — A weight from 0 to 1: h.** `C` Divide b − a by k, then × 0.5 + 0.5 (the dot map's mapping, 10.39) and clamp (Lesson 8.11): h is 1 where A is clearly nearer, 0 where B is, and in between only inside a band where the two distances differ by less than k. *(was 12.6, part 3)*
 13. **12.13 — Mixing the two distances with h.** `C` Inside the band, mix takes a little of each shape. *(was 12.6, part 4)*
 14. **12.14 — A hump: h × (1 − h).** `C` h × (1 − h) is 0 where one shape wins (h = 0 or 1) and largest, 0.25, where both are equally near (h = 0.5). *(was 12.6, part 5)*
 15. **12.15 — Filling the gap: the bridge.** `C` Subtracting k × h × (1 − h) lowers the distance between the shapes, so the outline moves out into the gap: a bridge instead of a crease. *(was 12.6, part 6)*
@@ -357,7 +358,7 @@ An idea is a fact or method with its own reason that no earlier lesson taught. E
 32. **12.32 — Turning around an axis in 3D.** `C` A 3D turn is a turn in one plane that leaves the axis alone. *(was 12.11, part 2)*
 33. **12.33 — Build: tilt a glass layer in 3D.** `B` SwiftUI's `rotation3DEffect` with perspective, checked against the math. Joins 12.29–12.32. *(was 12.11, build)*
 34. **12.34 — Parallax.** `C` Layers at different depths move by different amounts for the same tilt. *(was 12.12)*
-35. **12.35 — Thickness from progress and size.** `C` Drive the thickness dial (10.63) from the transition's progress and the current size. *(was 12.13)*
+35. **12.35 — Thickness from progress and size.** `C` Drive the thickness dial (10.64) from the transition's progress and the current size. *(was 12.13)*
 36. **12.36 — Build: a growing panel with parallax and thickening.** `B` Joins 12.34–12.35. *(new build)*
 37. **12.37 — Moving the light.** `C` L turns around the shape over time (cos and sin from 12.25). *(was 12.14, part 1)*
 38. **12.38 — The highlight follows the silhouette.** `C` Where N meets the moving L, the highlight moves along the outline. *(was 12.14, part 2)*
