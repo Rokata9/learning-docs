@@ -79,7 +79,7 @@
 <div class="wrap">
 <h1>Lesson 10.38 — The dot product formula</h1>
 <p class="sub">Light theme · desktop · works from <code>file://</code>.</p>
-<p class="lead"><b>Why:</b> at K, F is at 0.45672 on L's line: that number is dot(N, L), how far N goes along L. For a leg that starts at S, Lessons 10.34–10.37 got the foot of its end as one multiplication. This lesson adds the three products 0.302 × 0.48, 0.402 × (−0.60) and 0.864 × 0.64.</p>
+<p class="lead"><b>Why:</b> at K, F is at 0.45672 on L's line: that number is dot(N, L), how far N goes along L. This lesson adds the three legs' products 0.302 × 0.48, 0.402 × (−0.60) and 0.864 × 0.64.</p>
 <p class="lead"><b>Where this is used.</b> Lesson 10.39 computes dot(N, L) at every pixel of the glass: the dot map. Lesson 10.40 writes the formula in Metal. dot(N, L) sets each pixel's brightness (Lesson 10.42) and the highlight (Lessons 10.48–10.52).</p>
 
 <figure>
@@ -114,6 +114,7 @@
   <div>
     <div class="stepnav"><button class="btn" id="ideaPrev">← Back</button><button class="btn" id="ideaNext">Next →</button><div class="dots" id="ideaDots"></div></div>
     <div class="stepcap ideaCap" id="ideaCap" aria-live="polite"></div>
+    <div class="ctl" id="unitCtl"><label><input type="checkbox" id="unitChk"> Show the triangles they are scaled from: X, Y and U are 1 along x, along y and up from S (outlines)</label></div>
     <div class="stage" id="ideaFlatStage" style="margin-top:10px"><canvas id="ideaFlat" width="760" height="440"></canvas></div>
     <div id="codeBox" hidden>
       <p style="margin:10px 0 4px"><b>In a shader</b>, as one line:</p>
@@ -128,7 +129,7 @@
 
 <!-- ============================ SECTION 2 ============================ -->
 <h2 id="s2"><span class="tag">Section 2 · one value, traced to the end</span>dot(N, L) at a draggable K</h2>
-<p><b>Drag K</b> on the map or in the 3D drawing, anywhere on the glass. L = (0.48, −0.60, 0.64) stays: its x part, y part and height part. To the left of C or above C, N's x part or y part is below 0 (Lesson 10.37).</p>
+<p><b>Drag K</b> on the map or in the 3D drawing, anywhere on the glass. L = (0.48, −0.60, 0.64) stays. To the left of C, or toward the top of the picture from C (smaller y in UV), N's x part or y part is below 0 (Lesson 10.37).</p>
 <figure id="traceFig" style="margin:12px 0 0"><div class="traceGrid">
   <div><div class="stage" id="traceStage"><canvas id="traceCv" width="760" height="700"></canvas></div><div class="viewbar" id="traceBar"></div>
     <div class="stage" id="tFlatStage"><canvas id="tFlat" width="760" height="440"></canvas></div></div>
@@ -851,8 +852,9 @@ function lenFlat(ctx,st,N,th,op={}){const cm=op.mode==='corner';const W=ctx.canv
 
 
 /* ================= Lesson 10.38: the dot product formula ================= */
-let st38=0;const ST38=2;
-const CAMW={yaw:-45,pitch:24};                        /* Lesson 10.24's walk view */
+let st38=0,unit38=false;const ST38=2;   /* unit38: Step 1's toggle, the 1-long triangles drawn as outlines */
+const CAMW={yaw:-45,pitch:24};                        /* Lesson 10.24's walk view: the hero and Section 2 */
+const CAM38={yaw:-80,pitch:38};                       /* Section 1: Step 1's three triangles (the x, y and height line each with L's line) all at least half face on, |view direction · each sheet's normal| ≥ 0.50; 10.24's view showed △SHJ₂′ edge-on (0.10) */
 const PARTN=['x part','y part','height part'],EM='#059669';
 const BV=[0.796,0,-0.605];                            /* b, at a square corner to N at W (NW = (0.605, 0, 0.796), from the engine) */
 const WTIP='<b>W = (0.71, 0.50)</b> in UV, on the screen (height 0): a pixel on the right of the rim.';
@@ -870,8 +872,8 @@ function freeLab(ctx,t,x,y,size,color,dots){ctx.font=`600 ${size}px -apple-syste
 const pjOf=(o,a)=>q=>{let R;o.label=(tt,pp)=>{R=o.proj(pp)};a.label('',q);delete o.label;return R};
 
 /* flat: L's line as a number line, drawn →; one row per leg: an arrow from the foot before to the next, labelled with its product; op.sum adds the two sums */
-function prodFlat(ctx,st,N,L,op={}){const W=ctx.canvas.width,ln=op.lName||'L',t=meets(N,L),lo=Math.min(-0.3,Math.floor((Math.min(...t)-0.08)*10)/10),hi=Math.max(0.7,Math.ceil((Math.max(...t)+0.08)*10)/10),K=Math.floor((W-120)/(hi-lo)),X=v=>60+(v-lo)*K,yR=116,rows=[188,254,320],ySum=378;ctx.__placed=[];
-  {const h1=`${ln}'s line as a number line, drawn →: the distance from S, a minus on the minus side`,h2='pale arrows: the same pieces from S (the legs shifted to S, Lesson 10.33)';plate(ctx,h1,8,16,W<700?12:12.5,'left','#334155');plate(ctx,h2,8,42,W<700?12:12.5,'left','#334155')}
+function prodFlat(ctx,st,N,L,op={}){const W=ctx.canvas.width,ln=op.lName||'L',t=meets(N,L),pr=[1,2].map(k=>R12(N[k]*L[k])),lo=Math.min(-0.3,Math.floor((Math.min(...t,...pr)-0.08)*10)/10),hi=Math.max(0.7,Math.ceil((Math.max(...t,...pr)+0.08)*10)/10),K=Math.floor((W-120)/(hi-lo)),X=v=>60+(v-lo)*K,yR=116,rows=[188,254,320],ySum=378;ctx.__placed=[];
+  {const h1=`${ln}'s line as a number line, drawn →: the distance from S, a minus on the minus side`,h2=op.tris?'pale arrows: S to J′ and S to J₂′, the y and height legs shifted to S (Lesson 10.33)':'pale arrows: the y and height legs shifted to S (Lesson 10.33)';plate(ctx,h1,8,16,W<700?12:12.5,'left','#334155');plate(ctx,h2,8,42,W<700?12:12.5,'left','#334155')}
   thin(ctx,X(lo),yR,X(hi),yR,COL.L,3);const every=K*0.1>=44?1:5;
   for(let k=Math.round(lo*10);k<=Math.round(hi*10);k++){const x=X(k/10),big=k%5===0;thin(ctx,x,yR-(big?7:4),x,yR+(big?7:4),'#475569',1.2);if(k%every===0)plate(ctx,f2n(k/10),x,yR+20,11,'center','#475569')}
   plate(ctx,'minus side',X(lo)+2,yR-22,12,'left',COL.LT);plate(ctx,'plus side',X(hi)-2,yR-22,12,'right',COL.LT);
@@ -882,7 +884,7 @@ function prodFlat(ctx,st,N,L,op={}){const W=ctx.canvas.width,ln=op.lName||'L',t=
     if(Math.abs(b-a)>1)arrow(ctx,a,y,b,y,col,4,12);else fdot(ctx,[a,y],col,5);
     mv.push(T.K(1,1).mul(W<700?`${k===1?'S':'F'+SUB[k-1]} to F${SUB[k]}, from the ${LEGN[k-1]}`:`${k===1?'S':'F'+SUB[k-1]} to F${SUB[k]}, from the ${LEGN[k-1]}: N's ${PARTN[k-1]} × ${ln}'s ${PARTN[k-1]}`,N[k-1],L[k-1]));const line=T.take()[0];
     {const d=document.createElement('div');d.innerHTML=line;plate(ctx,d.textContent+(Math.abs(mv[k-1])<1e-12?` (0: F${SUB[k]} is at ${k===1?'S':'F'+SUB[k-1]})`:mv[k-1]<0?' (toward the minus side)':''),12,y+22,12.5,'left',tc)}}
-  for(let k=2;k<=3;k++){const y=rows[k-1]-15,v=mv[k-1];if(Math.abs(v)>1e-9){ctx.save();ctx.globalAlpha=0.38;arrow(ctx,X(0),y,X(v),y,LEGCOL[k-1],3,10);ctx.restore()}}   /* the piece from S: the leg shifted to S (Lesson 10.33), as pale arrows */
+  for(let k=2;k<=3;k++){const y=rows[k-1]-15,v=mv[k-1];if(Math.abs(v)>1e-9){ctx.save();ctx.globalAlpha=0.38;arrow(ctx,X(0),y,X(v),y,LEGCOL[k-1],3,10);ctx.restore();if(op.tris)plate(ctx,`${TRI38[k-1].J}: ${fx(v)}`,X(v)+(v<0?-16:16),y,12.5,v<0?'right':'left',FCT[k])}}   /* op.tris (Step 1): the pale arrow ends at the foot of Gy or H, named as in the 3D view; the piece from S: the leg shifted to S (Lesson 10.33), as pale arrows */
   fdot(ctx,[X(0),yR],'#fff',5);plate(ctx,'S: 0',X(0),yR+44,12.5,'center');addPt(st,X(0),yR,'#fff',`<b>S</b>: at 0 on ${ln}'s line; the walk starts here.`,'S',{small:true});
   const seen=new Map();for(let k=1;k<=3;k++){const key=f4(t[k]);if(!seen.has(key))seen.set(key,[]);seen.get(key).push(k)}
   for(const [key,ks] of seen){const k=ks[ks.length-1],x=X(t[k]),nm=ks.map(q=>'F'+SUB[q]).join(', ');fdot(ctx,[x,yR],FCOL[k],6);plate(ctx,`${nm}: ${fx(t[k])}`,x,yR-26,12.5,'center',FCT[k]);
@@ -892,20 +894,39 @@ function prodFlat(ctx,st,N,L,op={}){const W=ctx.canvas.width,ln=op.lName||'L',t=
   ctx.__placed=null}
 
 /* 3D: the walk (Lesson 10.24's picture); op.sum: dot(N, L) as an emerald bar from S to F along L's line */
-function walk38(o,w,N,L,op={}){const r=walk3D(o,w,N,L,2,op);if(op.sum){const a=r.a,F=scale3(L,r.t[3]);a.seg(P0,F,'rgba(5,150,105,0.8)',7,true,2.45);const pj=pjOf(o,a),Q=pj(scale3(L,r.t[3]*0.5)),dots=[P0,F,L,N,[N[0],0,0],[N[0],N[1],0]].map(pj);o.labels.push(cc=>freeLab(cc,`dot(N, ${op.lName||'L'}) = ${fx(r.t[3])}: from S to F₃`,Q.x,Q.y,13,EM,dots))}return r}
+function walk38(o,w,N,L,op={}){const r=walk3D(o,w,N,L,2,op);if(op.tris)tris38(o,r.a,N,L,op.unit);if(op.sum){const a=r.a,F=scale3(L,r.t[3]);a.seg(P0,F,'rgba(5,150,105,0.8)',7,true,2.45);const pj=pjOf(o,a),Q=pj(scale3(L,r.t[3]*0.5)),dots=[P0,F,L,N,[N[0],0,0],[N[0],N[1],0]].map(pj);o.labels.push(cc=>freeLab(cc,`dot(N, ${op.lName||'L'}) = ${fx(r.t[3])}: from S to F₃`,Q.x,Q.y,13,EM,dots))}return r}
+
+/* 3D, Step 1: each leg shifted to S (Lesson 10.33) is a side of a right triangle with its foot on L's line: △SGxF₁, △SGyJ′, △SHJ₂′ (Lessons 10.35–10.36) */
+const TRI38=[{G:'Gx',J:'F₁',E:'X',Q:'foot of X',fill:'rgba(132,204,22,0.55)'},{G:'Gy',J:'J′',E:'Y',Q:'J',fill:'rgba(251,146,60,0.28)'},{G:'H',J:'J₂′',E:'U',Q:'J₂',fill:'rgba(56,189,248,0.26)'}];
+function tris38(o,a,N,L,unit){const pj=pjOf(o,a),ends=[0,1,2].map(k=>{const G=[0,0,0];G[k]=N[k];return G}),feet=[0,1,2].map(k=>scale3(L,R12(N[k]*L[k]))),
+    dots=[P0,L,N,...stops(N).slice(1),...meets(N,L).slice(1).map(v=>scale3(L,v)),...ends,...feet].map(pj),tc=[COL.xT,COL.yT,COL.hT];
+  for(let k=0;k<3;k++){if(Math.abs(N[k])<1e-9)continue;const G=ends[k],J=feet[k],T=TRI38[k],v=R12(N[k]*L[k]);
+    a.poly([P0,G,J],T.fill,LEGCOL[k],k?1.6:2.2,k?0.95:0.97);if(!k)continue;   /* △SGxF₁ above the blue fill: one lime tint */                              /* the x leg starts at S: △SGxF₁ uses the walk's own Gx, F₁ and cyan line */
+    a.seg(P0,G,LEGCOL[k],3,false,1.82);a.seg(G,J,COL.drop,2.2,false,1.88);a.corner(J,scale3(L,v>0?-1:1),nrm3(sub3(G,J)),0.07);a.dot(G,LEGCOL[k],4.5);a.dot(J,LEGCOL[k],4.5);
+    for(const [tx,p] of [[T.G,G],[`${T.J}: ${fx(v)}`,J]]){const Q=pj(p);o.labels.push(cc=>freeLab(cc,tx,Q.x,Q.y,13,tc[k],dots))}
+    a.pt('g'+k,G,LEGCOL[k],`<b>${T.G}</b>: the end of the ${LEGN[k]} shifted to S (Lesson 10.33): ${fx(N[k])} ${k===1?'along y':'up'} from S.`,T.G);
+    a.pt('j'+k,J,LEGCOL[k],`<b>${T.J}</b>, the foot of ${T.G} on L's line: at ${KN(fx(N[k]))} × ${KN(k===1&&L[k]<0?'('+fx(L[k])+')':fx(L[k]))} = ${fx(v)}, N's ${PARTN[k]} × L's ${PARTN[k]}.`,T.J)}
+  if(!unit)return;                                                                       /* the 1-long triangles they are scaled from (Lessons 10.34–10.36): outlines only */
+  for(let k=0;k<3;k++){const E=[0,0,0];E[k]=1;const Q=scale3(L,L[k]),U=TRI38[k];
+    a.poly([P0,E,Q],null,LEGCOL[k],1.6,1.3);a.seg(E,Q,COL.drop,1.6,true,1.3);a.corner(Q,scale3(L,L[k]>0?-1:1),nrm3(sub3(E,Q)),0.07);a.dot(E,'#fff',4);a.dot(Q,'#fff',4);
+    for(const [tx,p] of [[U.E,E],[`${U.Q}: ${fx(L[k])}`,Q]]){const P=pj(p);o.labels.push(cc=>freeLab(cc,tx,P.x,P.y,12.5,tc[k],dots))}
+    a.pt('u'+k,E,'#fff',`<b>${U.E}</b>: 1 ${['along x','along y','up'][k]} from S (Lesson ${k===1?'10.36':'10.34'}).`,U.E);
+    a.pt('q'+k,Q,'#fff',`${k?`<b>${U.Q}</b>: the foot of ${U.E} on L's line`:`<b>The foot of X</b> on L's line`}, at L's ${PARTN[k]}, ${fx(L[k])} (Lesson ${['10.34','10.36','10.34, Section 2'][k]}).`,U.Q)}}
 
 /* ================= Section 1 ================= */
 const CAP38=[
-  ()=>`<b>Step 1 · Each leg, from foot to foot.</b><ul class="capl"><li>F₁, F₂, F₃: the feet of Gx, A and the tip of N on L's line.</li><li>Shifted to S (Lesson 10.33), each leg's two feet are one product apart: N's part × L's part (Lessons 10.34–10.37). Pale in the picture on the right: the pieces from S.</li><li>So S to F₁ comes from the x leg, F₁ to F₂ from the y leg, F₂ to F₃ from the height leg.</li></ul>`,
+  ()=>`<b>Step 1 · Each leg, from foot to foot.</b><ul class="capl"><li>F₁, F₂, F₃: the feet of Gx, A and the tip of N on L's line.</li><li>Each leg is a side of its own right triangle: △SGxF₁, △SGyJ′, △SHJ₂′ (the y and height legs shifted to S, Lesson 10.33).</li><li>Each is a triangle with a side 1 long (Lessons 10.34–10.36), scaled from S by k = N's part, so its corner on L's line (F₁, J′, J₂′) is at N's part × L's part ${info('scale','Which triangle each one is scaled from')}.</li><li>Shifting keeps a leg's two feet as far apart (Lesson 10.33): S to F₁ comes from the x leg, F₁ to F₂ from the y leg, F₂ to F₃ from the height leg.</li></ul>`,
   ()=>`<b>Step 2 · Add them.</b><ul class="capl"><li>From S, at 0: the first two products added give F₂; all three give F₃ (picture on the right).</li><li>F₃ is F, at dot(N, L) on L's line (Lesson 10.19).</li><li>So dot(N, L) = N's x part × L's x part + N's y part × L's y part + N's height part × L's height part: the dot product of N and L.</li></ul>`];
-function ideaAll(){$('ideaCap').innerHTML=CAP38[st38]();bindTips($('ideaCap'));$('codeBox').hidden=st38!==1;
+function ideaAll(){$('ideaCap').innerHTML=CAP38[st38]();bindTips($('ideaCap'));$('codeBox').hidden=st38!==1;$('unitCtl').hidden=st38!==0;$('unitChk').checked=unit38;
   {const b=$('ideaDots');b.innerHTML='';for(let i=0;i<ST38;i++){const x=document.createElement('button');x.className='dot'+(i===st38?' on':'');x.setAttribute('aria-label','Step '+(i+1));x.onclick=()=>{st38=i;ideaAll()};b.appendChild(x)}}
   $('ideaPrev').disabled=st38===0;$('ideaNext').disabled=st38===ST38-1;ideaOrb.render();
-  const st=$('ideaFlatStage'),cv=$('ideaFlat'),ctx=cv.getContext('2d');clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);prodFlat(ctx,st,NK,LK,{sum:st38===1})}
+  const st=$('ideaFlatStage'),cv=$('ideaFlat'),ctx=cv.getContext('2d');clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);prodFlat(ctx,st,NK,LK,{sum:st38===1,tris:st38===0})}
+$('unitChk').onchange=e=>{unit38=e.target.checked;ideaOrb.render()};
 $('ideaPrev').onclick=()=>{if(st38>0){st38--;ideaAll()}};$('ideaNext').onclick=()=>{if(st38<ST38-1){st38++;ideaAll()}};
 function legend38(o,lines){o.labels.unshift(c=>{let y=16;for(const [t,col] of lines){plate(c,t,8,y,12.5,'left',col);y+=26}})}
 const LEG38=[["gold: L's line · pink: N · cyan: to L's line at 90°",'#334155'],['lime, orange, blue: the x leg, y leg, height leg','#334155'],['violet: the glass near S','#6b21a8']];
-const ideaOrb=new Orbit3D($('ideaStage'),$('ideaCv'),{yaw:CAMW.yaw,pitch:CAMW.pitch,zoom:1,scale:132,target:[0.25,0.0,0.15],dx:-30,dy:40,compassPos:'tr',coord:'UV, zoomed in at K',draw:o=>{walk38(o,KP,NK,LK,{Ktip:KTIP,sum:st38===1,free:true,ends:true});legend38(o,st38===1?LEG38.concat([['emerald: dot(N, L), from S to F₃',EM]]):LEG38)}});
+const ideaOrb=new Orbit3D($('ideaStage'),$('ideaCv'),{yaw:CAM38.yaw,pitch:CAM38.pitch,zoom:1,scale:132,target:[0.25,0.0,0.15],dx:-30,dy:40,compassPos:'tr',coord:'UV, zoomed in at K',draw:o=>{walk38(o,KP,NK,LK,{Ktip:KTIP,sum:st38===1,tris:st38===0,unit:st38===0&&unit38,free:true,ends:true,la:st38===0&&unit38?-0.68:-0.32,bottomLab:[-10,12,'right']});   /* L's line ends just past its last foot: J′ (−0.2412), or J (−0.60) with the outlines */
+  legend38(o,st38===1?LEG38.concat([['emerald: dot(N, L), from S to F₃',EM]]):LEG38.concat([['light fills: △SGxF₁, △SGyJ′, △SHJ₂′','#334155']],unit38?[['outlines: the triangles they are scaled from','#334155']]:[]))}});
 viewBar($('ideaBar'),ideaOrb,[]);
 
 /* ================= the hero ================= */
@@ -938,6 +959,7 @@ function exercises(){exQ3.render();exA3.render();
 /* ================= tooltips ================= */
 const TIPS={
   nw:()=>nTipW('W',0.71,0.50)(),
+  scale:'<b>The triangle each one is scaled from</b> (drawn as outlines when you tick the box under this caption).<ul><li>△SGxF₁: X is 1 along x from S; its foot on L\'s line is at 0.48 (Lesson 10.34). Scaling the triangle of S, X and the foot of X from S by k = 0.302, N\'s x part, takes X to Gx and the foot of X to F₁, at <span class="kn">0.302</span> × <span class="kn">0.48</span> = 0.14496 (Lesson 10.35).</li><li>△SGyJ′: Y is 1 along y from S; J, its foot on L\'s line, is at −0.60 (Lesson 10.36). Scaling △SYJ by k = 0.402 takes Y to Gy and J to J′, at <span class="kn">0.402</span> × <span class="kn">(−0.60)</span> = −0.2412.</li><li>△SHJ₂′: U is 1 up from S; J₂, its foot on L\'s line, is at 0.64 (Lesson 10.34, Section 2). Scaling △SUJ₂ by k = 0.864 takes U to H and J₂ to J₂′, at <span class="kn">0.864</span> × <span class="kn">0.64</span> = 0.55296.</li></ul>Each scaled triangle is similar to the one it comes from: the same shape, every side k times as long (Lesson 10.35). N\'s part is k; L\'s part is where the foot was before scaling. A part of N below 0 is Lesson 10.37\'s case.',
   blen:'<b>The length of L₂ = (0.796, 0, −0.605)</b>, shadow first (Lesson 10.3):<pre>x part² = <span class="kn">0.796</span> × <span class="kn">0.796</span> = 0.633616\ny part² = <span class="kn">0</span> × <span class="kn">0</span> = 0\nshadow² = 0.633616 + 0 = 0.633616\nheight part² = <span class="kn">(−0.605)</span> × <span class="kn">(−0.605)</span> = 0.366025\nlength² = 0.633616 + 0.366025 = 0.999641\nlength = √0.999641 = 0.99982</pre>Rounded to 3 decimals: 1.000, as N\'s parts are rounded.'
 };
 
