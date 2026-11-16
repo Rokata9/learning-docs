@@ -544,6 +544,40 @@ gray = dot(N, L) × 0.5 + 0.5     display only: the dot map
 #### Later in Chapter 10
 - Exercise 4 (rawNormal against N at W and V) moves to 10.44, “Why N must be 1 long”, with #28: from W to V the x product gains 0.456 − 0.2904 = 0.1656, but the height product loses 0.509 − 0.202 = 0.307, so the number drops from 0.7994 to 0.658.
 
+### Lessons 10.41–10.43 — brightness: the beam, dot(N, L), max (generated 2026-11-16)
+
+```text
+light:     rays parallel to L's line, travelling toward the glass; the ray that ends at S lies on L's line
+board:     the glass near S, Lesson 10.3's small board, at 90° to N, drawn larger (arrow units)
+beam:      the rays between L's line and the ray 1 away from it; P = the foot of S on that ray, |SP| = 1
+lit piece: SQ, Q where the ray through P ends on the board; △SPQ has its square corner at P
+at K:      |SQ| = 2.18953 (printed as measured, 5 decimals); brightness = |SP| ÷ |SQ| = 1 ÷ 2.18953 = 0.45672 = dot(N, L)
+flat top:  N = (0, 0, 1): |SQ| = 1.5625, brightness 0.64 (L's height part)
+at Z = (0.33, 0.67): N = (−0.651, 0.651, 0.391), dot(N, L) = −0.45284: the rays come from behind; brightness = max(−0.45284, 0) = 0
+code:      float brightness = max(dotNL, 0.0);
+```
+
+Contracts, page shapes, the shared kit and QA: `CURRENT_STATE.md`, “Lessons 10.41–10.43”. All three are `C`: HTML only.
+
+#### Lesson 10.41 — Why a tilted surface gets less light (`C`, made 2026-11-16)
+- **File:** `lesson-10-41-why-a-tilted-surface-gets-less-light.html`.
+- **One idea:** a beam 1 wide lands on a piece of the glass longer than 1, so the same light is spread thinner: brightness at S = beam width ÷ lit length. The lit length is measured (a number line along the board), not computed: Lesson 10.42 gets it from N and L.
+- **Not here:** dot(N, L) (10.42); pixels the light does not reach (10.43, the hatched part of Section 2's map); the width of a real beam across the sheet (one ⓘ).
+
+#### Lesson 10.42 — Brightness is dot(N, L) (`C`, made 2026-11-16)
+- **File:** `lesson-10-42-brightness-is-dot-n-l.html`.
+- **One idea:** the beam's △SPQ, turned a quarter turn around S and scaled from S by k = 1 ÷ |SQ|, is △SFN, so |SP| ÷ |SQ| = |SF| = dot(N, L).
+- **Uses N's length:** Step 3 says “N is 1 long, so Q″ is the tip of N”. Lesson 10.44 (“Why N must be 1 long”) can start there: with rawNormal, 1.157 long at K, Q″ is not its tip.
+
+#### Lesson 10.43 — Facing away: max(dot, 0) (`C`, made 2026-11-16)
+- **File:** `lesson-10-43-facing-away-max-dot-0.html`.
+- **One idea:** where dot(N, L) is below 0, L points to the back of the board, the rays reach the glass from behind and none lands on its front: brightness 0, so brightness = max(dot(N, L), 0). One code line with its table.
+- **For 10.45 (ambient):** the black part of the brightness map (between the red line and the outline, lower left) is what ambient light fills.
+
+#### Next: 10.44–10.47
+- 10.44–10.46 are `C`; 10.47 is `B` (needs Xcode and the lab): it joins 10.41–10.46 in one Metal function.
+- The three pages share one kit (rays, board, beam, the gold sheet seen straight on, a 3D view that fits itself, Section 2's map with a part K may not enter); cut it out of 10.43's script.
+
 ## Side lesson — Safari shortcut, Section 4 revised 2026-10-26
 
 The learner found the push ratio, the constant 24 and the exact-fold modal hard to follow. Section 4 now uses one 15-step visual workspace with new wording and original SVG/canvas figures. The rendering formulas are unchanged:
