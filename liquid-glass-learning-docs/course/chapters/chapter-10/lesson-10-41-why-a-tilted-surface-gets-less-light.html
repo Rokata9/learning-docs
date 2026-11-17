@@ -68,7 +68,8 @@
   .ctl input#aRange{width:330px}.ctl .val{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;min-width:64px}
   table.trace td.pl{border-left:6px solid #eab308}table.trace td.pc{border-left:6px solid #0891b2}table.trace td.pn{border-left:6px solid #ec4899}
 .kn{background:#dcfce7;color:#14532d;border-radius:3px;padding:0 2px}#tip .kn{background:#1f4d33;color:#bbf7d0}
-.ideaCap{min-height:214px}
+.ideaCap{min-height:406px}   /* the tallest caption, Step 5: the flat drawing keeps its place in every step */
+.ctl input#wRange{width:330px}
 </style>
 </head>
 <body>
@@ -80,7 +81,7 @@
 <div class="wrap">
 <h1>Lesson 10.41 — Why a tilted surface gets less light</h1>
 <p class="sub">Light theme · desktop · works from <code>file://</code>.</p>
-<p class="lead"><b>Why:</b> Point a flashlight straight at a wall: you get a small, bright spot. Tilt the wall: the same light covers a longer spot, so each part of the spot is darker. Tilted here means: the light does not hit the surface at 90°. This lesson does the same on the glass, at S above the pixel K. A beam of light 1 wide (1 = N's length) lands on a piece 2.18953 long. So each part of that piece gets 1 ÷ 2.18953 = 0.45672 as much light as when the light hits at 90°.</p>
+<p class="lead"><b>Why:</b> Point a flashlight straight at a wall: you get a small, bright spot. Tilt the wall: the same light covers a longer spot, so each part of the spot is darker. Tilted here means: the light does not hit the surface at 90°. This lesson does the same on the glass, at S above the pixel K. A beam of light 1 wide (1 = N's length) lands on a piece 2.18953 long. So each length of 1 on that piece gets 1 ÷ 2.18953 = 0.45672 as much light as when the light hits at 90°.</p>
 <p class="lead"><b>Where this is used.</b> Lesson 10.42 shows that this number is dot(N, L). Lessons 10.43–10.46 turn it into the color of the lit glass, and Lesson 10.47 builds that in Metal.</p>
 
 <figure>
@@ -113,17 +114,19 @@
   <div>
     <div class="stage" id="ideaStage"><canvas id="ideaCv" width="760" height="640"></canvas></div>
     <div class="viewbar" id="ideaBar"></div>
+    <table class="trace" id="wTab" style="display:none"></table>
   </div>
   <div>
     <div class="stepnav"><button class="btn" id="ideaPrev">← Back</button><button class="btn" id="ideaNext">Next →</button><div class="dots" id="ideaDots"></div></div>
     <div class="stepcap ideaCap" id="ideaCap" aria-live="polite"></div>
-    <div class="stage" id="ideaFlatStage" style="margin-top:10px"><canvas id="ideaFlat" width="760" height="410"></canvas></div>
+    <div class="ctl" id="wCtl" style="visibility:hidden"><label><span class="ctlname">the beam's width |SP|</span><input type="range" id="wRange" min="0" max="7" step="1" value="0" aria-label="The beam's width |SP|, in arrow units"><span class="val" id="wV"></span></label></div>
+    <div class="stage" id="ideaFlatStage"><canvas id="ideaFlat" width="760" height="410"></canvas></div>
   </div>
 </div>
 
 <!-- ============================ SECTION 2 ============================ -->
 <h2 id="s2"><span class="tag">Section 2 · one value, traced to the end</span>Section 1's steps at a draggable K</h2>
-<p><b>Drag K</b> on the map: Section 1's pictures and numbers follow it. With K near (0.64, 0.32), N points almost along L. So the rays run almost along N, at almost 90° to the board: Q is almost at P, and the brightness is almost 1. It is never more: |SQ| is never shorter than |SP| (Step 3). K cannot enter the hatched part of the map: there SQ is too long to draw, or the glass faces away from the light (Lesson 10.43).</p>
+<p><b>Drag K</b> on the map: Section 1's pictures and numbers follow it. With K near (0.64, 0.32), N points almost along L. So the rays run almost along N, at almost 90° to the board: Q is almost at P, and the brightness is almost 1. It is never more: |SQ| is never shorter than |SP| (Step 3). K cannot enter the hatched part of the map: there SQ is too long to draw, or the glass faces away from the light.</p>
 <figure id="traceFig" style="margin:12px 0 0"><div class="traceGrid">
   <div><div class="stage" id="traceStage"><canvas id="traceCv" width="760" height="640"></canvas></div><div class="viewbar" id="traceBar"></div>
     <div class="stage" id="tFlatStage"><canvas id="tFlat" width="760" height="410"></canvas></div></div>
@@ -1123,7 +1126,7 @@ function heroLight(stage,cv,bar,op={}){const o=new Orbit3D($(stage),$(cv),{yaw:o
   viewBar($(bar),o,[]);return o}
 
 /* ================= Lesson 10.41: why a tilted surface gets less light ================= */
-let st41=0;const ST41=4;
+let st41=0;const ST41=5;
 const CAM41={yaw:70,pitch:20};                         /* the gold sheet and the board both seen at about 45°, from the side where L is drawn to the right of N, as in the flat drawing */
 const RAY41=[-0.2,0,0.2,0.4,0.6,0.8,1,1.2];            /* the drawn rays: the beam's six, and one outside it on each side */
 const BK=beamOf(NK,LK),LITK=fmt5(BK.lit);
@@ -1131,25 +1134,132 @@ const LIM=0.33;                                        /* Section 2: K stays whe
 const CP=[0.5,0.5],NC=[0,0,1];
 const CTIP='<b>C = (0.50, 0.50)</b> in UV, on the screen (height 0): the center of the glass. The flat top is above it.';
 const op41=st=>({rays:RAY41,rayMax:1.2,beam:st>=1,lit:st>=2,share:st>=3});
-const LEG41=st=>[["gold: L and L's line · pink: N · violet curves: the real glass, curved"],['gold sheet: it holds S, the tip of N and the tip of L']].concat(st>=1?[[st>=2?'yellow band: the beam · cyan: SP · thick amber: SQ, the lit piece':'yellow band: the beam · cyan: SP']]:[],st>=3?[['indigo band: the light between two of the rays',COL.share]]:[]);
-/* one fifth of SQ, where the light between two neighbouring rays lands: one division, exact */
-const SHARE=`${KN('0.2')} ÷ ${KN(pieceTxt(BK))} = ${fx(sh5(0.2/R12(sh5(BK.lit)/5)))}`;   /* 0.2 ÷ 0.437906 = 0.45672, the same as 1 ÷ 2.18953 */
+/* Step 5: the beam's width |SP|, chosen stops from Step 4's beam (1) down to 0.01; the slider opens at 1 */
+const W41=[1,0.5,0.2,0.1,0.05,0.03,0.02,0.01];let wi41=0;
+const LEG41=(st,w=1)=>[["gold: L and L's line · pink: N · violet curves: the real glass, curved"],['gold sheet: it holds S, the tip of N and the tip of L']]
+  .concat(st===4?[[`yellow band: the beam, |SP| = ${fx(w)} · cyan: SP · thick amber: SQ`],['dark violet: where the gold sheet passes through the glass',CUTC]]:st>=1?[[st>=2?'yellow band: the beam · cyan: SP · thick amber: SQ, the lit piece':'yellow band: the beam · cyan: SP']]:[],
+    st===3?[['indigo band: one of the 5 gaps between the rays: 20 of the 100 units of light',COL.share]]:[]);
+/* Step 4 with 100 units of light: one division per line, 3 decimals for the light, 5 for the brightness */
+const PER=Math.round(100/sh5(BK.lit)*1000)/1000;                                   /* 100 ÷ 2.18953 = 45.672 */
 const pieceLine=B=>{const T=new Trace(6);T.K(1,1).div('|SQ| ÷ 5',sh5(B.lit),5);return T.take()[0]};
+const perTxt=B=>fx(Math.round(100/sh5(B.lit)*1000)/1000);
+/* Step 5: |SQ| = |SP| × 2.18953, exact: the width has 2 decimals, 2.18953 has 5, so the product has at most 7 */
+const litW=w=>Math.round(w*100)*Math.round(sh5(BK.lit)*1e5)/1e7;
+const fE=x=>{let s=x.toFixed(7).replace(/0+$/,'');if(s.endsWith('.'))s=s.slice(0,-1);return s.replace('-','−')};
+const r5=x=>Math.round(x*1e5)/1e5;                                                 /* a length in UV: 5 decimals */
+const trimN=x=>String(+x.toFixed(6)).replace('-','−');
+/* Step 5: the real glass on the gold sheet. At t along the board from S (arrow units, toward Q), the glass lies g away from the board, at 90° to it on the sheet
+   (g below 0: on the side N does not point to). The root nearest the board, within ±G; null where no glass is there (past the outline). */
+const S41=[KP[0],KP[1],heightAt(KP[0],KP[1],TP)];
+const sheetUV=(B,x,y)=>{const q=add3(scale3(LK,x),B.u,y);return[S41[0]+q[0]*AR,S41[1]+q[1]*AR,S41[2]+q[2]*AR]};
+function glassGap(B,t,G){const nu=unit2(B.nt[0],B.nt[1]),pos=g=>sheetUV(B,B.tb[0]*t+nu[0]*g,B.tb[1]*t+nu[1]*g),f=g=>{const p=pos(g);return p[2]-heightAt(p[0],p[1],TP)},
+    onGlass=g=>{const p=pos(g);return Math.hypot(p[0]-TP.c[0],p[1]-TP.c[1])<RAD};
+  const n=160;let best=null;for(let i=0;i<n;i++){const a=-G+2*G*i/n,b=a+2*G/n,fa=f(a),fb=f(b);if(fa*fb>0)continue;let lo=a,hi=b;for(let k=0;k<50;k++){const m=(lo+hi)/2;if(f(lo)*f(m)<=0)hi=m;else lo=m}
+    const r=(lo+hi)/2;if(onGlass(r)&&(best===null||Math.abs(r)<Math.abs(best)))best=r}return best}
+/* Step 5: where the cut of the glass ends on the toward-Q side: the outline (radius 0.25) on the screen (height 0), on the gold sheet */
+function outlineEnd(B){const L2=[LK[2],B.u[2]],c=-S41[2]/AR,n2=L2[0]*L2[0]+L2[1]*L2[1],p0=[L2[0]*c/n2,L2[1]*c/n2],dv=unit2(L2[1],-L2[0]),
+    r=s=>{const p=sheetUV(B,p0[0]+dv[0]*s,p0[1]+dv[1]*s);return Math.hypot(p[0]-TP.c[0],p[1]-TP.c[1])-RAD};let out=[];
+  for(let i=0;i<4000;i++){const a=-20+i*0.01,b=a+0.01;if(r(a)*r(b)<=0){let lo=a,hi=b;for(let k=0;k<50;k++){const m=(lo+hi)/2;if(r(lo)*r(m)<=0)hi=m;else lo=m}const s=(lo+hi)/2;out.push([p0[0]+dv[0]*s,p0[1]+dv[1]*s])}}
+  const along=q=>q[0]*B.tb[0]+q[1]*B.tb[1];out=out.filter(q=>along(q)>0).sort((p,q)=>along(p)-along(q));return out[0]||null}
+const OUT41=outlineEnd(BK);
+const CUTC='#6b21a8';                                  /* dark violet: where the gold sheet passes through the glass (Step 5, both pictures) */
+/* that curve on Step 4's drawn part of the sheet, in sheet numbers; null breaks it */
+const CUT41=(()=>{const B=BK,bx=sheetBox(B,{rayMax:1.2}),[tA,tB]=clipLine(B.tb,bx),nu=unit2(B.nt[0],B.nt[1]),out=[];for(let i=0;i<=300;i++){const t=tA+(tB-tA)*i/300,g=glassGap(B,t,0.6);out.push(g===null?null:[B.tb[0]*t+nu[0]*g,B.tb[1]*t+nu[1]*g])}return out})();
+/* Step 5's 3D view: Step 4's light and board, with the beam |SP| = w wide */
+function narrow3D(o,w){const r=light3D(o,KP,NK,LK,{rays:RAY41,rayMax:1.2,beam:false,lit:false,Ktip:KTIP,rayLab:'rays of light'}),a=r.a,B=r.B,at=B.at,pj=pjOf(o,a),xs=1.3,lit=litW(w);
+  const P3=at(0,w),Q3=at(B.Q[0]*w,w);
+  {let run=[];const flush=()=>{if(run.length>1)a.path(run.map(q=>at(q[0],q[1])),CUTC,3.5,false,1.97);run=[]};for(const q of CUT41){if(q)run.push(q);else flush()}if(OUT41&&run.length)run.push(OUT41);flush();
+    if(OUT41){const O3=at(OUT41[0],OUT41[1]);a.dot(O3,CUTC,4.5);a.pt('out',O3,CUTC,'<b>The outline</b>: here the glass ends; it meets the screen (height 0), 0.25 UV from C.','outline');const R=pj(O3);o.labels.push(cc=>freeLab(cc,'the glass ends: its outline',R.x,R.y,12.5,CUTC,[R],[[-12,18,'right'],[12,18,'left'],[-12,-16,'right']]))}}
+  a.poly([at(xs,0),P0,Q3,at(xs,w)],COL.beamF,null,1,1.44);
+  if(!RAY41.includes(w))a.seg(at(xs,w),Q3,COL.ray,1.8,false,1.5);
+  a.seg(P0,P3,COL.drop,2.8,false,1.9);a.seg(P0,Q3,COL.lit,w<0.2?3.5:5.5,false,1.93);
+  if(w>=0.5){a.dot(P3,COL.drop,5);a.dot(Q3,COL.lit,5);
+    a.pt('P',P3,COL.drop,`<b>P</b>: the foot of S on the ray ${fx(w)} away from L's line. |SP| = ${fx(w)}: the beam's width.`,'P');
+    a.pt('Q',Q3,COL.lit,`<b>Q</b>: where the ray through P ends on the board. |SQ| = ${fx(w)} × 2.18953 = ${fE(lit)}.`,'Q');
+    const dots=[P0,P3,Q3,NK,LK].map(pj);for(const [tx,p,col,pref] of [['P',P3,COL.dropT,[[10,-14,'left'],[-10,-14,'right']]],['Q',Q3,COL.litT,[[-10,-14,'right'],[10,-14,'left'],[0,24,'center']]]]){const R=pj(p);o.labels.push(cc=>freeLab(cc,tx,R.x,R.y,14,col,dots,pref))}}
+  else{const R=pj(P0);o.labels.push(cc=>freeLab(cc,`the beam, |SP| = ${fx(w)}: P and Q are next to S`,R.x,R.y,12.5,COL.litT,[R],[[-16,34,'right'],[16,34,'left'],[-16,-34,'right'],[16,-34,'left']]))}
+  return r}
+/* Step 5's flat drawing: Step 4's drawing scaled from S by 1 ÷ w, so the beam's △SPQ keeps its size on screen; the real glass on the gold sheet in violet */
+const flatS0b=(W,H)=>{const b0=sheetBox(BK,{rayMax:1.2});return Math.floor(Math.min((W-28)/(b0.x1-b0.x0),(H-106-34)/(b0.y1-b0.y0),230))};   /* px for 1 arrow unit at |SP| = 1 */
+function narrowFlat(ctx,st,w){const B=BK,W=ctx.canvas.width,H=ctx.canvas.height,top=106,b0=sheetBox(B,{rayMax:1.2}),
+    S0b=flatS0b(W,H),S0=S0b/w,
+    O={x:Math.round((W-(b0.x1-b0.x0)*S0b)/2-b0.x0*S0b),y:Math.round(top+b0.y1*S0b)},P=q=>[O.x+q[0]*S0,O.y-q[1]*S0],Sp=P([0,0]),
+    bx={x0:b0.x0*w,x1:b0.x1*w,y0:b0.y0*w,y1:b0.y1*w},xs=1.3*w,nu=unit2(B.nt[0],B.nt[1]),lit=litW(w),
+    inC=p=>p[0]>=6&&p[0]<=W-6&&p[1]>=6&&p[1]<=H-6,dots=[],labs=[],later=[],LB=(tx,q,size,col,pref)=>labs.push([tx,q,size,col,pref]),
+    dot=(q,col,r,html,name)=>{const p=P(q);dots.push({x:p[0],y:p[1]});later.push(()=>{fdot(ctx,p,col,r);addPt(st,p[0],p[1],col,html,name,{small:true})})};
+  ctx.__placed=[];
+  plate(ctx,`coordinates: the gold sheet seen straight on · arrow units, from S, 1 = ${Math.round(S0)} px`,8,16,12.5,'left','#334155');
+  plate(ctx,`→: along L's line, toward the light · ↑: at 90° to it on the sheet, toward the tip of N`,8,42,12.5,'left','#334155');
+  plate(ctx,w===1?'zoom: as in Step 4 · 1 arrow unit = 0.15 UV, as in the 3D view':`zoom: 1 ÷ ${fx(w)} = ${trimN(Math.round(1000/w)/1000)} times Step 4's · 1 arrow unit = 0.15 UV, as in the 3D view`,8,68,12.5,'left','#334155');
+  /* the drawn part of the gold sheet: Step 4's, scaled from S by w */
+  {ctx.beginPath();sheetPoly(B,b0).forEach((q,i)=>{const p=P([q[0]*w,q[1]*w]);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])});ctx.closePath();ctx.fillStyle='rgba(234,179,8,0.09)';ctx.fill();ctx.lineWidth=1;ctx.strokeStyle='#eab308';ctx.stroke()}
+  const Qs=[B.Q[0]*w,w],Pp=P([0,w]),Qp=P(Qs);
+  {const a=P([xs,0]),b=P([xs,w]);ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(Sp[0],Sp[1]);ctx.lineTo(Qp[0],Qp[1]);ctx.lineTo(b[0],b[1]);ctx.closePath();ctx.fillStyle=COL.beamF;ctx.fill()}
+  {const a=P([-0.35*w,0]),b=P([bx.x1,0]);thin(ctx,a[0],a[1],b[0],b[1],COL.L,3);plate(ctx,"L's line",b[0]-6,b[1]+18,12.5,'right',COL.LT)}
+  /* the board, with Step 3's number line, its numbers scaled by w */
+  const [tA,tB]=clipLine(B.tb,bx,0.04*w),bq=t=>P([B.tb[0]*t,B.tb[1]*t]);
+  {const a=bq(tA),b=bq(tB);ctx.save();ctx.lineCap='round';ctx.strokeStyle='rgba(59,130,246,0.28)';ctx.lineWidth=11;ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();ctx.restore();thin(ctx,a[0],a[1],b[0],b[1],COL.boardS,2);
+    const m=Math.min(tB/w,B.lit+0.3);for(let t=1;t<=Math.floor(m*10);t++){const q=bq(t/10*w),big=t%5===0,k=big?15:10;thin(ctx,q[0],q[1],q[0]-nu[0]*k,q[1]+nu[1]*k,'#1e3a8a',1.4);if(big)plate(ctx,trimN(t/10*w),q[0]-nu[0]*28,q[1]+nu[1]*28,11,'center','#1e3a8a')}}
+  /* the real glass, cut by the gold sheet */
+  const G=0.6*w,n=300,cut=[];for(let i=0;i<=n;i++){const t=tA+(tB-tA)*i/n,g=glassGap(B,t,G);cut.push(g===null?null:[B.tb[0]*t+nu[0]*g,B.tb[1]*t+nu[1]*g])}
+  {ctx.save();ctx.beginPath();sheetPoly(B,b0).forEach((q,i)=>{const p=P([q[0]*w,q[1]*w]);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])});ctx.closePath();ctx.clip();ctx.lineWidth=3;ctx.strokeStyle=CUTC;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();let on=false,last=null;for(const q of cut){if(!q){on=false;continue}const p=P(q);on?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]);on=true;last=q}
+    const op=OUT41?P(OUT41):null;if(OUT41&&inC(op)&&last){const lp=P(last);ctx.moveTo(lp[0],lp[1]);ctx.lineTo(op[0],op[1])}ctx.stroke();ctx.restore();
+    if(OUT41&&inC(op)){dot(OUT41,CUTC,4.5,'<b>The outline</b>: here the glass ends; it meets the screen (height 0), 0.25 UV from C. The board goes on past it.','outline');LB('the glass ends: its outline',OUT41,12.5,'#6b21a8',[[12,0,'left'],[0,24,'center'],[-12,0,'right']])}}
+  /* the glass under Q: how far it is from the board, at 90° to the board */
+  const gQ=glassGap(B,lit,G);if(gQ!==null){const gq=[Qs[0]+nu[0]*gQ,Qs[1]+nu[1]*gQ],gp=P(gq);thin(ctx,Qp[0],Qp[1],gp[0],gp[1],'#6b21a8',2);const far=Math.hypot(gp[0]-Qp[0],gp[1]-Qp[1])>=12;const gTxt=fx(r5(Math.abs(gQ)*AR));
+    if(far)dot(gq,CUTC,4,`<b>The glass under Q</b>: ${gTxt} UV from the board, measured at 90° to the board on the gold sheet (1 arrow unit = 0.15 UV).`,'glass under Q');LB(`dark violet segment at Q, board to glass: ${gTxt} UV`,gq,12.5,'#6b21a8',[[-10,-34,'left'],[10,-34,'left'],[-14,40,'left'],[0,40,'center']])}
+  /* the rays, scaled with the beam */
+  for(const y0 of RAY41){const y=y0*w,xe=rayEnd(B,y);if(xe>=xs-0.05*w)continue;const lands=xe>=bx.x0+0.03*w,a=P([xs,y]),b=P([lands?xe:bx.x0+0.03*w,y]);if(lands)grayArrow(ctx,a[0],a[1],b[0],b[1],COL.ray,1.8);else thin(ctx,a[0],a[1],b[0],b[1],COL.ray,1.8)}
+  /* L and N: arrows while their tips are in the drawing, N's line after that */
+  {const lt=P([1,0]),np=P(B.nt);if(inC(lt)){arrow(ctx,Sp[0],Sp[1],lt[0],lt[1],COL.L,4.2,13);LB('L',[1,0],14,COL.LT,[[0,-22,'center'],[0,22,'center']]);dot([1,0],COL.L,4.5,"<b>The tip of L</b>: 1 on L's line. L points from S toward the light.",'tip of L')}
+    if(inC(np)){arrow(ctx,Sp[0],Sp[1],np[0],np[1],COL.N,3.4,12);LB('N',B.nt,14,'#be185d');dot(B.nt,COL.N,4.5,`<b>The tip of N</b>, 1 from S. N = ${NTXT(NK)}; N is at 90° to the board.`,'tip of N')}
+    else{const e=clipLine(nu,bx,0.04*w)[1],ep=P([nu[0]*e,nu[1]*e]);thin(ctx,Sp[0],Sp[1],ep[0],ep[1],COL.N,2.6);LB("N's line: N's tip is off the drawing",[nu[0]*e*0.8,nu[1]*e*0.8],12.5,'#be185d',[[12,0,'left'],[-12,0,'right']])}}
+  /* the beam's △SPQ */
+  line(ctx,Sp[0],Sp[1],Pp[0],Pp[1],COL.drop,2.8);sqMark(ctx,Pp,[0,1],[-1,0],11);sqMark(ctx,Sp,[0,-1],[1,0],11);line(ctx,Sp[0],Sp[1],Qp[0],Qp[1],COL.lit,5.5);
+  LB('P',[0,w],14,COL.dropT,[[10,-14,'left'],[-10,-14,'right']]);LB(`|SP| = ${fx(w)}`,[0,0.55*w],13,COL.dropT,[[10,0,'left'],[-10,0,'right']]);
+  LB('Q',Qs,14,COL.litT,[[-10,-14,'right'],[10,-14,'left']]);LB(`|SQ| = ${fE(lit)}`,[Qs[0]*0.5,0.5*w],13,COL.litT,[[0,-24,'center'],[0,24,'center']]);
+  dot([0,w],COL.drop,5,`<b>P</b>: the foot of S on the ray ${fx(w)} away from L's line. |SP| = ${fx(w)}: the beam's width.`,'P');
+  dot(Qs,COL.lit,5,`<b>Q</b>: where the ray through P ends on the board. |SQ| = ${fx(w)} × 2.18953 = ${fE(lit)}.`,'Q');
+  dot([0,0],'#fff',5,"<b>S</b>: the glass above K. N and L start here; 0 on L's line.",'S');LB('S',[0,0],14,'#111827',[[10,18,'left'],[-10,18,'right'],[-10,-14,'right']]);
+  {const i=cut.findIndex((q,j)=>q&&j>n*0.08&&j<n*0.4);if(i>=0)LB('dark violet: where the gold sheet passes through the glass',cut[i],12.5,'#6b21a8',[[14,22,'left'],[14,40,'left'],[-14,24,'right']])}
+  LB('blue line: the board, seen edge-on',[B.tb[0]*tA*0.55,B.tb[1]*tA*0.55],12.5,COL.boardT,[[14,18,'left'],[-14,18,'right'],[14,-18,'left'],[-14,-18,'right']]);
+  LB('rays of light',[xs-0.02*w,0.5*w],12.5,COL.rayT,[[-8,-13,'right'],[-8,13,'right']]);
+  for(const f of later)f();
+  for(const [tx,q,size,col,pref] of labs){const p=P(q);freeLabF(ctx,tx,p[0],p[1],size,col,dots,pref||[])}
+  ctx.__placed=null}
+/* Step 5's numbers at the slider's width */
+function wTable(){const w=W41[wi41],lit=litW(w),F5=flatAt(w);
+  $('wTab').innerHTML=`<tr><th>Step 5, at this width</th><th>the number</th></tr>`
+    +`<tr><td class="pc">the beam's width (the slider)</td><td class="f">|SP| = ${KN(fx(w))}</td></tr>`
+    +`<tr><td class="pl">the lit piece: Step 4's △SPQ scaled from S by ${fx(w)}</td><td class="f">|SQ| = ${KN(LITK)} × ${KN(fx(w))} = ${fE(lit)}</td></tr>`
+    +`<tr><td class="pn">the brightness at S</td><td class="f">|SP| ÷ |SQ| = ${KN(fx(w))} ÷ ${KN(fE(lit))} = ${fx(sh5(w/lit))}</td></tr>`
+    +`<tr><td>SQ in UV: the 3D view draws 1 arrow unit 0.15 UV long (a chosen size)</td><td class="f">${KN(fE(lit))} × ${KN('0.15')} = ${fx(F5.uv)} UV</td></tr>`
+    +(F5.gap===null?`<tr><td>the short dark violet segment at Q, from the board to the glass</td><td class="f">no glass under Q: Q is past the outline</td></tr>`
+     :`<tr><td>the short dark violet segment at Q, from the board to the glass, at 90° to the board: measured ${info('gap','How the gap is measured')}</td><td class="f">${fx(F5.gap)} UV</td></tr>`
+     +`<tr><td>on the screen, in the flat drawing (measured)</td><td class="f">segment at Q: ${F5.gapPx} px · SQ: ${F5.sqPx} px</td></tr>`);
+  bindTips($('wTab'))}
+/* Step 5 at one width: SQ in UV, the gap under Q in UV, and the gap ÷ SQ's length, each from the printed numbers before it */
+function flatAt(w){const lit=litW(w),uv=r5(lit*AR),g=glassGap(BK,lit,0.6*w),gap=g===null?null:r5(Math.abs(g)*AR),S0=flatS0b(760,410)/w;return{lit,uv,gap,sqPx:Math.round(lit*S0),gapPx:g===null?null:Math.round(Math.abs(g)*S0)}}
+const W03=flatAt(0.03),W20=flatAt(0.2),W01=flatAt(0.01);
 
 /* ================= Section 1 ================= */
 const CAP41=[
-  ()=>`<b>Step 1 · Light from far away: parallel rays.</b><ul class="capl"><li>Light travels in straight lines, called rays (amber).</li><li>The light is very far away, like the sun ${info('far','Why the rays are parallel')}. So all rays come from one direction: they are parallel to L's line.</li><li>The rays travel toward the glass: the opposite way to L, which points from S to the light.</li><li>Near S the glass is almost flat: the blue board, at 90° to N (Lesson 10.3, Step 13). It is drawn longer than that almost flat part, so the beam of Step 2 fits on it.</li><li>The drawn rays lie on the gold sheet, which holds S, the tip of N and the tip of L (Lesson 10.19). The flat drawing shows that sheet straight on: there you see the angle at which the rays hit the board.</li></ul>`,
-  ()=>`<b>Step 2 · A beam 1 wide.</b><ul class="capl"><li>One ray runs along L's line (drawn gold) and ends at S.</li><li>A second ray runs parallel to it, 1 away. The 1 is chosen: Step 4 shows that the width does not change the result.</li><li>P is the foot of S on the second ray. So SP is at 90° to the rays, and |SP| = 1.</li><li>The beam (yellow): all rays between these two. |SP| is its width.</li><li>Sunlight on a table is equally bright all over it. So the rays are drawn evenly spaced: every gap between two neighbouring rays carries the same amount of light.</li></ul>`,
-  ()=>`<b>Step 3 · The beam lands on SQ.</b><ul class="capl"><li>The ray through P ends on the board at Q.</li><li>So the beam lands on the board from S to Q: SQ is the lit piece.</li><li>△SPQ has a square corner at P. So SQ is its long side, longer than SP (Lesson 9.1).</li><li>The number line along the board gives |SQ| = ${LITK}, a little less than 2.2 ${info('meas','How |SQ| is measured')}.</li></ul>`,
-  ()=>`<b>Step 4 · The same light on a longer piece.</b><ul class="capl"><li>All of the beam's light crosses SP and lands on SQ.</li><li>The beam's 6 evenly spaced rays (one along L's line) cut SP into 5 pieces: |SP| ÷ 5 = ${KN('1')} ÷ ${KN('5')} = 0.2 long. They cut the straight SQ into 5 equal pieces ${info('eq','Why equal pieces')}: ${pieceLine(BK)} long.</li><li>The light between two neighbouring rays (indigo) crosses a piece of SP 0.2 long. On the board it spreads over a piece of SQ 0.437906 long.</li><li>So a piece of SQ 0.2 long gets only ${SHARE} of that light. On SP, which the rays cross at 90°, a piece 0.2 long gets all of it.</li><li>The whole beam gives the same: ${brightLine(BK).line}. That number is the <b>brightness</b> at S: beam width ÷ lit length. A beam narrow enough to land only where the glass is almost flat gives 0.45672 too.</li></ul>`];
+  ()=>`<b>Step 1 · Light from far away: parallel rays.</b><ul class="capl"><li>Light travels in straight lines, called rays (amber).</li><li>The light is very far away, like the sun ${info('far','Why the rays are parallel')}. So all rays come from one direction: they are parallel to L's line.</li><li>The rays travel toward the glass: the opposite way to L, which points from S to the light.</li><li>Violet curves: the real glass. Very near S it is almost flat: almost the blue board through S, at 90° to N.</li><li>The board is drawn much longer than that almost flat part. Step 5 zooms in on S and shows why the result stays the same.</li><li>The drawn rays lie on the gold sheet, which holds S, the tip of N and the tip of L. The flat drawing shows that sheet straight on: there you see the angle at which the rays hit the board.</li></ul>`,
+  ()=>`<b>Step 2 · A beam 1 wide.</b><ul class="capl"><li>One ray runs along L's line (drawn gold) and ends at S.</li><li>A second ray runs parallel to it, 1 away. The 1 is chosen: Step 5 shows that a narrower beam gives the same result.</li><li>P is the foot of S on the second ray. So SP is at 90° to the rays, and |SP| = 1.</li><li>The beam (yellow): all rays between these two. |SP| is its width.</li><li>Sunlight on a table is equally bright all over it. So the rays are drawn evenly spaced: every gap between two neighbouring rays carries the same amount of light.</li></ul>`,
+  ()=>`<b>Step 3 · The beam lands on SQ.</b><ul class="capl"><li>The ray through P ends on the board at Q.</li><li>So the beam lands on the board from S to Q: SQ is the lit piece.</li><li>△SPQ has a square corner at P. So SQ, the side opposite the square corner, is the longest side: longer than SP.</li><li>The number line along the board gives |SQ| = ${LITK}, a little less than 2.2 ${info('meas','How |SQ| is measured')}.</li></ul>`,
+  ()=>`<b>Step 4 · The same light on a longer piece.</b><ul class="capl"><li>All of the beam's light crosses SP and lands on SQ. Say it is 100 units of light (100 is chosen).</li><li>The 6 evenly spaced rays split it into 5 gaps: ${KN('100')} ÷ ${KN('5')} = 20 units in each gap (indigo: one gap).</li><li>They cut SQ into 5 equal pieces ${info('eq','Why equal pieces')}: ${pieceLine(BK)} long. Each piece gets its gap's 20 units: the light is spread evenly along SQ.</li><li>On SP, which the rays cross at 90°: 100 units on a length of 1. So each length of 1 gets ${KN('100')} ÷ ${KN('1')} = 100.</li><li>On SQ: the same 100 units on a length of ${LITK}. So each length of 1 gets ${KN('100')} ÷ ${KN(LITK)} = ${fx(PER)}.</li><li>So each length of 1 on SQ gets ${KN(fx(PER))} ÷ ${KN('100')} = ${fx(sh5(PER/100))} as much light as on SP. That number is the <b>brightness</b> at S.</li><li>The chosen 100 cancels: 100 ÷ ${LITK} ÷ 100 is 1 ÷ ${LITK}. So brightness = ${brightLine(BK).line}: beam width ÷ lit length.</li></ul>`,
+  ()=>`<b>Step 5 · A narrower beam gives the same brightness.</b><ul class="capl"><li>The slider makes the beam narrower: it sets |SP|, from 1 (Step 4's beam) down to 0.01.</li><li>The narrower beam's △SPQ is Step 4's △SPQ scaled from S ${info('sc','Why a scaled copy')}. So |SQ| = |SP| × ${LITK}, and |SP| ÷ |SQ| stays 0.45672 (table under the 3D view).</li><li>Dark violet, in both pictures: where the gold sheet passes through the real glass. That curve is the glass itself, on the sheet.</li><li>At |SP| = 1: from S, the dark violet curve drops further and further below the blue board. It stops at the outline, the edge of the glass, 0.25 UV from C. Q is past that edge: there is no glass under Q.</li><li>Drag the slider to the right: the flat drawing zooms in on S. △SPQ keeps its size on the screen: SQ is always ${W03.sqPx} px long.</li><li>The dark violet curve comes closer to the board. The short dark violet segment at Q, from the board to the glass ${info('gap','How the gap is measured')}, is ${W20.gapPx} px long at |SP| = 0.20, ${W03.gapPx} px at 0.03 and ${W01.gapPx} px at 0.01.</li><li>That is “almost flat near S”: zoomed in far enough on S, the curved glass and the straight board look like one line.</li><li>The brightness stays 0.45672 at every width (table). So the long board of Steps 2–4 gives the brightness of the real glass at S.</li></ul>`];
 function ideaAll(){$('ideaCap').innerHTML=CAP41[st41]();bindTips($('ideaCap'));
   {const b=$('ideaDots');b.innerHTML='';for(let i=0;i<ST41;i++){const x=document.createElement('button');x.className='dot'+(i===st41?' on':'');x.setAttribute('aria-label','Step '+(i+1));x.onclick=()=>{st41=i;ideaAll()};b.appendChild(x)}}
-  $('ideaPrev').disabled=st41===0;$('ideaNext').disabled=st41===ST41-1;ideaOrb.render();
+  $('ideaPrev').disabled=st41===0;$('ideaNext').disabled=st41===ST41-1;
+  const s5=st41===4,w=W41[wi41];$('wCtl').style.visibility=s5?'visible':'hidden';$('wRange').value=wi41;$('wV').textContent=`|SP| = ${fx(w)}`;$('wTab').style.display=s5?'':'none';if(s5)wTable();
+  ideaOrb.render();
   const st=$('ideaFlatStage'),cv=$('ideaFlat'),ctx=cv.getContext('2d');clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
-  lightFlat(ctx,st,NK,LK,{...op41(st41),boardTicks:st41>=2,rayLab:'rays of light'})}
+  if(s5)narrowFlat(ctx,st,w);else lightFlat(ctx,st,NK,LK,{...op41(st41),boardTicks:st41>=2,rayLab:'rays of light'})}
 $('ideaPrev').onclick=()=>{if(st41>0){st41--;ideaAll()}};$('ideaNext').onclick=()=>{if(st41<ST41-1){st41++;ideaAll()}};
+$('wRange').addEventListener('input',e=>{wi41=Number(e.target.value);ideaAll()});
 const ideaOrb=new Orbit3D($('ideaStage'),$('ideaCv'),{yaw:CAM41.yaw,pitch:CAM41.pitch,zoom:1,scale:80,target:[0,0,0],compassPos:'tr',coord:'UV, zoomed in at K',draw:o=>{
-  light3D(o,KP,NK,LK,{...op41(st41),Ktip:KTIP,rayLab:'rays of light',});legendL(o,LEG41(st41))}});
+  if(st41===4){narrow3D(o,W41[wi41]);legendL(o,LEG41(4,W41[wi41]))}else{light3D(o,KP,NK,LK,{...op41(st41),Ktip:KTIP,rayLab:'rays of light',});legendL(o,LEG41(st41))}}});
 viewBar($('ideaBar'),ideaOrb,[]);
 
 /* ================= the hero ================= */
@@ -1172,6 +1282,7 @@ function traceAll(){const [u,v]=TW.w,N=nShown(u,v),B=beamOf(N,LK),br=brightLine(
   $('tTable').innerHTML=`<tr><th>Section 1's step, at this K</th><th>the number</th></tr>`
     +`<tr><td class="pc">Step 2: the beam's width</td><td class="f">|SP| = ${KN('1')}</td></tr>`
     +`<tr><td class="pl">Step 3: the lit piece, worked out on the sheet</td><td class="f">|SQ| = ${fmt5(B.lit)}</td></tr>`
+    +`<tr><td class="pn">Step 4: the light on each length of 1 on SQ, with 100 units in the beam</td><td class="f">${KN('100')} ÷ ${KN(fmt5(B.lit))} = ${perTxt(B)}</td></tr>`
     +`<tr><td class="pn">Step 4: the brightness at S</td><td class="f">${br.line}</td></tr>`;
   {const st=$('tFlatStage'),cv=$('tFlat'),ctx=cv.getContext('2d');clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);lightFlat(ctx,st,N,LK,{...op41(3),boardTicks:true,rayLab:'rays of light'})}}
 
@@ -1186,10 +1297,12 @@ function exercises(){exQ3.render();exA3.render();
 
 /* ================= tooltips ================= */
 const TIPS={
-  far:'<b>Why the rays are parallel</b> (Lesson 10.39). The sun is about 150 million km away. From two pixels 5 cm apart, the directions toward it differ by about 5 cm ÷ 150 million km ≈ 0.0000000000003: far below L\'s last decimal, 0.01. So every pixel uses one L = (0.48, −0.60, 0.64), and every ray is parallel to L.',
-  eq:'<b>Why equal pieces</b> (Lesson 10.35). Each smaller triangle at S, cut off by a ray, is △SPQ scaled from S. Scaling makes SP and SQ shorter by the same number. So equal pieces of SP give equal pieces of SQ.',
-  meas:`<b>How |SQ| is measured.</b> The flat drawing shows the gold sheet straight on, so it draws lengths on the sheet at their whole size (Lesson 10.7). The page measures SQ there, to 5 decimals: ${LITK}.<br>Lesson 10.42 gets this number from N and L.`,
-  nc:'<b>N at C.</b> The flat top has the same height everywhere, 0.10 UV. So both slopes are 0 at C, and N = (0, 0, 1): straight up (Lesson 10.3).'
+  far:'<b>Why the rays are parallel</b><br>Two pixels, A and B, are 5 cm apart. The sun is about 150 million km away.<br>The rays from the sun to A and to B start at one point, the sun. Over those 150 million km they spread apart by only 5 cm.<br>Rays are straight, so those 5 cm grow evenly along the 150 000 000 km: 0.00005 km ÷ 150 000 000 ≈ 0.0000000000003 km for each 1 km (5 cm = 0.00005 km).<br>So the two directions differ by 0.0000000000003 sideways for each 1 along. That changes L\'s parts only after their 12th decimal. L is given with 2 decimals: (0.48, −0.60, 0.64).<br>So A and B use the same L, and every ray is parallel to L.',
+  gap:'<b>How the gap is measured</b> (Step 5). The page starts at Q, on the board, and goes at 90° to the board, on the gold sheet, in tiny steps. It stops where the point lies on the surface of the glass. That length, in UV, is the gap. It is drawn as the short dark violet segment at Q; its length on the screen is that length ÷ 0.15, times the px the drawing uses for 1 arrow unit (its first line). No formula of the course gives it directly, so it is measured, as |SQ| was in Step 3.',
+  sc:'<b>Why a scaled copy</b> Scale Step 4\'s △SPQ from S by a number, for example 0.03. Every side becomes 0.03 times as long and keeps its direction. So SP is still at 90° to the rays, now 0.03 long; PQ still runs along a ray; SQ still lies on the board. That is the triangle of the beam 0.03 wide: its |SQ| is 2.18953 × 0.03.',
+  eq:'<b>Why equal pieces</b> Each smaller triangle at S, cut off by a ray, is △SPQ scaled from S. Scaling makes SP and SQ shorter by the same number. So equal pieces of SP give equal pieces of SQ.',
+  meas:`<b>How |SQ| is measured.</b> The flat drawing shows the gold sheet straight on, so it draws lengths on the sheet at their whole size. The page measures SQ there, to 5 decimals: ${LITK}.<br>The next lesson works this number out from N and L.`,
+  nc:'<b>N at C.</b> The flat top has the same height everywhere, 0.10 UV. So both slopes are 0 at C, and N = (0, 0, 1): straight up.'
 };
 
 /* ================= start ================= */

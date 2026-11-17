@@ -67,7 +67,7 @@ I am an experienced software engineer. I am a total beginner in graphics, render
 
 ## 5. Questions job
 
-1. Answer in the chat first. Quote the exact sentence or picture the question is about. Keep the answer short (`AGENTS.md` rule 17: no proof rounds).
+1. Answer in the chat first. Quote the exact sentence or picture the question is about. Keep the answer short (`AGENTS.md` rule 17: no proof rounds). Every number in the answer shows where it comes from (`AGENTS.md` rule 12). No Markdown table holds a length such as |SP|: its bars split the cells; use bullets.
 2. Decide whether the question shows a defect in the lesson: unclear, wrong, inconsistent names, or a missing picture.
 3. If it does, fix it in the same chat:
    - change the lesson as little as needed to remove the confusion; all `AGENTS.md` rules apply to the change;

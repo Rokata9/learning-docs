@@ -563,6 +563,7 @@ Contracts, page shapes, the shared kit and QA: `CURRENT_STATE.md`, “Lessons 10
 - **File:** `lesson-10-41-why-a-tilted-surface-gets-less-light.html`.
 - **One idea:** a beam 1 wide lands on a piece of the glass longer than 1, so the same light is spread thinner: brightness at S = beam width ÷ lit length. The lit length is measured (a number line along the board), not computed: Lesson 10.42 gets it from N and L.
 - **Not here:** dot(N, L) (10.42); pixels the light does not reach (10.43, the hatched part of Section 2's map); the width of a real beam at 90° to the gold sheet (a side fact: not on the page since 2026-11-16).
+- **Step 5 (2026-11-17):** a slider narrows the beam from |SP| = 1 to 0.01; △SPQ scaled from S keeps |SP| ÷ |SQ| = 0.45672; the flat drawing zooms in and draws the real glass (violet), which lies almost on the board at 0.03 (the glass under Q 0.00022 UV from it). Step 4 says the brightness with 100 units of light (45.672 on each length of 1 of SQ, ÷ 100). Contract: `CURRENT_STATE.md`, Lesson 10.41.
 
 #### Lesson 10.42 — Brightness is dot(N, L) (`C`, made 2026-11-16)
 - **File:** `lesson-10-42-brightness-is-dot-n-l.html`.
