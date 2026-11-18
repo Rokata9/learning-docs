@@ -575,9 +575,37 @@ Contracts, page shapes, the shared kit and QA: `CURRENT_STATE.md`, “Lessons 10
 - **One idea:** where dot(N, L) is below 0, L points to the back of the board, the rays reach the glass from behind and none lands on its front: brightness 0, so brightness = max(dot(N, L), 0). One code line with its table.
 - **For 10.45 (ambient):** the black part of the brightness map (between the red line and the outline, lower left) is what ambient light fills.
 
-#### Next: 10.44–10.47
-- 10.44–10.46 are `C`; 10.47 is `B` (needs Xcode and the lab): it joins 10.41–10.46 in one Metal function.
-- The three pages share one kit (rays, board, beam, the gold sheet seen straight on, a 3D view that fits itself, Section 2's map with a part K may not enter); cut it out of 10.43's script.
+### Lessons 10.44–10.45 — N 1 long, ambient light (generated 2026-11-18)
+
+```text
+10.44 at W = (0.71, 0.50): N = (0.605, 0, 0.796), |SQ| = 1.25025, brightness 0.79984 = |SF|
+      an arrow k long on N's line (k 0.5, 1, 1.5, 2, 2.5; opens at 2): tip R, foot G; △SGR = △SFN scaled from S by k: |SG| = k × 0.79984 (2 → 1.59968)
+      rawNormal (0.7595, 0, 1), 1.25572 long: 0.36456 + 0 = 0.36456; 0.36456 + 0.64 = 1.00456
+      V = (0.73, 0.50): N = (0.812, 0, 0.584), |SQ| = 1.30972, brightness 0.76352; rawNormal (1.391, 0, 1), 1.71315 long: 0.66768 + 0.64 = 1.30768 (wrong order)
+      exercise: L₂ = (1.2, −1.5, 1.6) = 2.5 × L at W: 0.726 + 0 = 0.726; 0.726 + 1.2736 = 1.9996
+10.45 total light = 0.15 + 0.85 × brightness (ambient 0.15 chosen; slider 0, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40)
+      Z = (0.33, 0.67): 0 → 0.15; U = (0.35, 0.64): 0.1102 → 0.24367; K: 0.45672 → 0.538212; M = (0.64, 0.32): 0.99956 → 0.999626
+      rejected: max(brightness, 0.15) (U shows 0.15 like Z: one even gray between the red line and brightness 0.15); 0.15 + brightness (M 1.14956, above 1: one even white patch)
+      code: float totalLight = ambient + (1.0 - ambient) * brightness;   exercise: ambient 0.30 at K: 0.30 + 0.70 × 0.45672 = 0.619704
+```
+
+Both `C`: HTML only. Contracts, page shapes and QA: `CURRENT_STATE.md`, “Lessons 10.44–10.45”.
+
+#### Lesson 10.44 — Why N must be 1 long (`C`, made 2026-11-18)
+- **File:** `lesson-10-44-why-n-must-be-1-long.html`. Reviews: `reviews/lesson-10-44-beginner-review-2026-11-18.md`.
+- **One idea:** dot(arrow, L) gives the foot of an arrow's tip (L 1 long); an arrow k long along N's line gives k × the brightness (Step 2 shows the scaled △SGR and the three products), but the light (P, Q, |SQ|) is the same. So the brightness needs N 1 long; rawNormal, longer, gives more than 1 at W (1.00456) and the bigger number at V, though V is darker: by Step 2, k = normalLength is larger at V (1.71315 against 1.25572).
+- **From the old 10.4 page:** Exercise 4 (rawNormal at W and V) became Steps 3–4; V moved from (0.74, 0.50) to (0.73, 0.50) so one camera (yaw 125°, pitch 12°) shows both gold sheets; #28's sums are now exact (1.00456; 0.79984).
+- **Not here:** why L must be 1 long is the exercise (a light 2.5 long gives 1.9996), not a step.
+
+#### Lesson 10.45 — Ambient light (`C`, made 2026-11-18)
+- **File:** `lesson-10-45-ambient-light.html`. Reviews: `reviews/lesson-10-45-beginner-review-2026-11-18.md`.
+- **One idea:** light from all around reaches every pixel; the model gives each the same chosen 0.15 and the lamp the rest, so the total stays at most 1: total light = 0.15 + 0.85 × brightness. The two simpler ways are steps of the argument (rule 5): max(brightness, 0.15) flattens a band of the rim, 0.15 + brightness passes 1.
+- **Names:** `brightness` stays the lamp's light, max(dot(N, L), 0); the total, ambient included, is “the total light”, `totalLight` in code (not “lit”: 10.41–10.43 use “lit piece” and “lit length”). The dim pixel is U and the brightest M, because the N chain's ⓘ names its neighbours A, B, D, E.
+- **For 10.46:** multiply the glass's color by the total light (and the light's color and strength), channel by channel. **For 10.47:** the build joins 10.41–10.46: N 1 long (10.44), max (10.43), the ambient line (10.45).
+
+#### Next: 10.46–10.47
+- 10.46 is `C`; 10.47 is `B` (needs Xcode and the lab): it joins 10.41–10.46 in one Metal function.
+- The pages 10.41–10.45 share one kit (rays, board, beam, the gold sheet seen straight on, a 3D view that fits itself, Section 2's map with a part K may not enter); cut it out of 10.45's script (10.44–10.45 add `op.more` in `light3D`/`lightFlat` and `op.paint` in `dot3D`).
 
 ## Side lesson — Safari shortcut, Section 4 revised 2026-10-26
 
