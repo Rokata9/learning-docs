@@ -593,7 +593,7 @@ Both `C`: HTML only. Contracts, page shapes and QA: `CURRENT_STATE.md`, “Lesso
 
 #### Lesson 10.44 — Why N must be 1 long (`C`, made 2026-11-18)
 - **File:** `lesson-10-44-why-n-must-be-1-long.html`. Reviews: `reviews/lesson-10-44-beginner-review-2026-11-18.md`.
-- **One idea:** dot(arrow, L) gives the foot of an arrow's tip (L 1 long); an arrow k long along N's line gives k × the brightness (Step 2 shows the scaled △SGR and the three products), but the light (P, Q, |SQ|) is the same. So the brightness needs N 1 long; rawNormal, longer, gives more than 1 at W (1.00456) and the bigger number at V, though V is darker: by Step 2, k = normalLength is larger at V (1.71315 against 1.25572).
+- **One idea:** dot(arrow, L) gives the foot of an arrow's tip (L 1 long); an arrow k long along N's line gives k × the brightness (Step 2: the scaled △SGR; Step 3, added 2026-11-18: the arrow in N's place, L kept; the 3D view walks it as the x leg ST and the height leg TR; the three named products as bars on L's line, from S to the foot of T and on to G), but the light (P, Q, |SQ|) is the same. So the brightness needs N 1 long; Step 4: a shader that skips the division uses rawNormal, longer, which gives more than 1 at W (1.00456); Step 5: the bigger number at V, though V is darker: rawNormal is longer at V (1.71315 against 1.25572). No k × |SF| line for rawNormal: N is rounded to 3 decimals, so it misses the exact sum.
 - **From the old 10.4 page:** Exercise 4 (rawNormal at W and V) became Steps 3–4; V moved from (0.74, 0.50) to (0.73, 0.50) so one camera (yaw 125°, pitch 12°) shows both gold sheets; #28's sums are now exact (1.00456; 0.79984).
 - **Not here:** why L must be 1 long is the exercise (a light 2.5 long gives 1.9996), not a step.
 
