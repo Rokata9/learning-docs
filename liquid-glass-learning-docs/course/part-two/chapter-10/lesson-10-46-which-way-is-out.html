@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 10.46 — Which way is out: the outward direction at a pixel</title>
+<link rel="icon" href="data:,">
+<style>
+  :root{--ink:#1f2937;--muted:#6b7280;--line:#d1d5db;--soft:#f6f7f9;--green:#059669;--indigo:#4338ca;--amber:#d97706;--blue:#1e40af;--red:#dc2626}
+  *{box-sizing:border-box}
+  body{margin:0;background:#fff;color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1600px;margin:0 auto;padding:0 24px 90px}
+  header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;border-bottom:1px solid var(--line);padding:14px 0}
+  header.top a,.navfoot a{color:var(--blue);text-decoration:none;font-size:14px}
+  header.top a:hover,.navfoot a:hover{text-decoration:underline}
+  .crumb,.sub{color:var(--muted);font-size:14px}
+  h1{font-size:27px;margin:20px 0 2px}h2{font-size:21px;margin:46px 0 8px;border-top:2px solid var(--line);padding-top:22px}
+  h2 .tag{display:block;font-size:13px;color:var(--muted);margin-bottom:2px;font-weight:600}
+  h3{font-size:16.5px;margin:26px 0 6px}p{font-size:15.5px;max-width:92ch;margin:8px 0}p.lead{font-size:17px;max-width:96ch}li{font-size:15.5px}
+  code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+  code{background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+  figure{margin:16px 0}canvas{display:block;border:1px solid var(--line);border-radius:8px;background:#fff}
+  figcaption{font-size:14px;color:#4b5563;max-width:100ch;margin-top:8px}.stage{position:relative}
+  .heroGrid{display:grid;grid-template-columns:760px 760px;gap:28px;align-items:start}
+  .grid3d{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start}
+  .ideaGrid{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start;margin-top:14px}.ideaCap{min-height:200px;margin-bottom:12px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .pair{display:grid;grid-template-columns:auto auto;gap:28px;justify-content:start;align-items:start}
+  .before{border:1px solid #a5b4fc;background:#eef2ff;border-radius:10px;padding:14px 18px;margin:20px 0}
+  .before h2{font-size:18px;border:0;margin:0 0 8px;padding:0}
+  .before p,.before li{font-size:14.5px}.before ul{margin:6px 0}
+  .info{display:inline-block;width:17px;height:17px;line-height:15px;border-radius:50%;border:1px solid var(--blue);color:var(--blue);background:#eef2ff;font-size:11px;text-align:center;cursor:pointer;padding:0;vertical-align:2px;font-family:inherit;margin-left:3px}
+  .info:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+  #tip{position:fixed;z-index:60;max-width:420px;max-height:calc(100vh - 20px);overflow:auto;background:#111827;color:#f9fafb;border-radius:8px;padding:10px 34px 10px 12px;font-size:13.5px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.28);display:none}
+  #tip.open{display:block}#tip.wide{max-width:600px}
+#tip.xwide{max-width:min(820px,calc(100vw - 20px))}
+#tip ul{margin:6px 0 0;padding-left:18px}#tip li{font-size:13.5px;margin:3px 0;line-height:1.4}#tip img{width:100%;display:block;border-radius:6px;margin-top:8px}
+#tip .tsec{color:#fde68a;font-weight:700;font-size:13px;margin:12px 0 0}
+#tip .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#tip .tgrid pre{font-size:11.5px}
+#tip .tnote{margin:10px 0 0}#tip .tclose{position:absolute;top:4px;right:6px;background:none;border:0;color:#9ca3af;font-size:15px;cursor:pointer;padding:2px 4px}
+  #tip b{color:#fde68a}#tip code{background:#1f2937;border-color:#374151;color:#e5e7eb}#tip pre{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;margin:8px 0 0;background:#1f2937;border:1px solid #374151;border-radius:6px;padding:8px 10px;color:#e5e7eb}
+  .ptdot{position:absolute;width:20px;height:20px;border-radius:50%;transform:translate(-50%,-50%);border:3px solid #111827;cursor:pointer;padding:0;z-index:5;touch-action:none}
+  .ptdot.drag{cursor:grab}.ptdot.drag:active{cursor:grabbing}.ptdot.sm{width:15px;height:15px;border-width:2.5px}
+  .ptdot:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
+  table.trace{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}table.trace th,table.trace td{border:1px solid var(--line);padding:6px 9px;vertical-align:top;text-align:left}
+  table.trace th{background:var(--soft);font-size:13.5px}table.trace td.f{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+  table.trace tr.new td{background:#f0fdf4}table.trace tr.grp td{background:#eef2ff;font-weight:700;font-size:13.5px}
+  .readout{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 14px;line-height:1.7;white-space:pre-wrap}
+  .ctl{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:10px 0}.ctl label{font-size:14px;display:flex;align-items:center;gap:8px}.ctl input[type=range]{width:150px}.ctlname{font-size:13.5px;font-weight:700;color:var(--muted);min-width:70px}
+  .btn{font-size:14px;padding:6px 14px;border-radius:7px;border:1.5px solid var(--blue);background:#fff;color:var(--blue);cursor:pointer}.btn:hover{background:#eef2ff}.btn[aria-pressed=true]{background:var(--blue);color:#fff;box-shadow:inset 0 2px 4px rgba(0,0,0,.25)}.btn:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}.btn:disabled{opacity:.45;cursor:default}
+  .viewbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}.viewbar .btn{font-size:13px;padding:4px 10px}.viewbar .hint{font-size:13px;color:var(--muted);margin-left:6px}
+  .note{border-left:4px solid var(--amber);background:#fffbeb;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:110ch;margin:12px 0}.iosnote{border-left:4px solid var(--indigo);background:#eef2ff;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:110ch;margin:12px 0}
+  details{border:1px solid var(--line);border-radius:8px;margin:10px 0;background:#fff}details>summary{cursor:pointer;padding:10px 14px;font-size:15px;font-weight:600}details>summary:hover{background:var(--soft)}details .body{padding:4px 14px 14px}details details{margin:8px 0;background:var(--soft)}
+  .stepnav{display:flex;gap:10px;align-items:center;margin:0 0 10px}.stepnav .dots{display:flex;gap:6px;margin-left:8px}.stepnav .dot{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--muted);background:#fff;padding:0;cursor:pointer}.stepnav .dot.on{background:var(--indigo);border-color:var(--indigo)}
+  .capl{margin:6px 0 0;padding-left:20px}.capl ul{list-style:circle;padding-left:24px;margin:2px 0 4px}.capl li{font-size:15px;line-height:1.45;margin:3px 0}
+  .stepcap{min-height:230px;font-size:15.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+  .legend{list-style:none;padding:0;margin:8px 0}.legend li{position:relative;padding-left:42px;margin:7px 0;font-size:15px;line-height:1.45}.legend.two{display:grid;grid-template-columns:1fr 1fr;column-gap:36px;max-width:1500px}.legend li>span:first-child{position:absolute;left:4px;top:.2em}
+  .sw{display:block;width:28px;height:18px;border:1px solid #111827;border-radius:3px}.swl{display:block;width:28px;height:6px;border-radius:3px;border:1px solid #111827;margin-top:6px}.swd{display:block;width:15px;height:15px;border-radius:50%;border:2.5px solid #111827;margin:1px 0 0 6px}
+  .verdict{font-size:15px;margin-top:8px;font-weight:600}.verdict.ok{color:var(--green)}.verdict.no{color:var(--red)}
+  .exq{display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px;align-items:start;margin:6px 0 10px}.choices{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:8px 0}.choices .btn{text-align:left}
+  .navfoot{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:50px;padding-top:16px;font-size:14px}.small{font-size:14px;color:#4b5563}.scale{font-size:13.5px;color:#4b5563;margin-top:6px}[hidden]{display:none!important}
+  .flatRow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 0}
+  .exq>div:first-child,.exfig>div:first-child,.pair>div:first-child{max-width:600px}
+  .traceGrid{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start;margin-top:12px}.mapRow{display:grid;grid-template-columns:302px minmax(0,1fr);gap:18px;align-items:start}.tRead{font-size:15px;margin:0 0 10px;line-height:1.6}
+  table.trace td.px{border-left:6px solid #84cc16}table.trace td.py{border-left:6px solid #fb923c}table.trace td.ph{border-left:6px solid #38bdf8}table.trace td.f{white-space:nowrap}table.trace .lg{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#4b5563;font-size:12.5px}
+  .ideaCap{min-height:0}
+  .ctl input#aRange{width:330px}.ctl .val{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;min-width:64px}
+  table.trace td.pl{border-left:6px solid #eab308}table.trace td.pc{border-left:6px solid #0891b2}table.trace td.pn{border-left:6px solid #ec4899}
+.kn{background:#dcfce7;color:#14532d;border-radius:3px;padding:0 2px}#tip .kn{background:#1f4d33;color:#bbf7d0}
+.ideaCap{min-height:204px}
+.ideaCap{min-height:272px}
+.tRead{font-size:15.5px}
+table.trace td.pl,table.trace td.px,table.trace td.py,table.trace td.pn,table.trace td.pc{font-weight:600;width:190px}
+table.trace td.f .lg{white-space:normal}
+.nb{white-space:nowrap}
+.ctl .flatRow .btn{font-size:13.5px;padding:5px 11px}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="crumb">Liquid Glass course</span>
+  <a href="../../../liquid-glass-course.html">Course home</a><a href="../../chapters/chapter-10/lesson-light-surface-direction-and-material-thickness.html">Chapter 10</a>
+  <a href="../../glossary.html">Glossary</a><a href="../../reference-number-forms.html">How numbers are written</a><a href="../../chapters/chapter-10/lesson-10-45-ambient-light.html">← Lesson 10.45</a>
+</header>
+<div class="wrap">
+<h1>Lesson 10.46 — Which way is out: the outward direction at a pixel</h1>
+<p class="sub">Light theme · desktop · works from <code>file://</code>.</p>
+<p class="lead"><b>Why:</b> the bright line along the menu's outline and the lens both need, at every pixel, the direction straight out of the glass. The shader has only sd there: the pixel's distance from the outline, with a minus inside. How does a distance give a direction? Through sd at four neighbors. At P, in the menu's top-left corner, they give <b>outward</b> = (−0.60, −0.80): an arrow 1 long, 0.60 to the left and 0.80 toward the top.</p>
+<p class="lead"><b>Where this is used.</b> Lesson 10.47 lights the bright line with outward. Lesson 11.2 shifts each pixel's read point along the line of outward: the lens. From Lesson 12.1 on, the glass is two shapes joined softly: no single circle or edge gives the direction, but the four neighbors still do.</p>
+
+<figure>
+  <div class="heroGrid">
+    <div><div class="stage" id="hero1Stage"><canvas id="hero1" width="760" height="420"></canvas></div>
+      <figcaption><b>Outward at 28 pixels of the menu's glass</b>, each 5.60 pt inside. The menu's size and place are measured <button class="info" data-tip="menu" aria-label="Where these numbers come from">ⓘ</button>.</figcaption></div>
+    <div><div class="stage" id="hero2Stage"><canvas id="hero2" width="760" height="620"></canvas></div>
+      <figcaption><b>At P, enlarged:</b> sd at the four neighbors A, B, D and E gives outward.</figcaption></div>
+  </div>
+</figure>
+
+<aside class="before">
+  <h2>Uses</h2>
+  <ul>
+    <li><a href="../../chapters/chapter-09/lesson-09-02-circle-signed-distance-field.html">Lesson 9.2</a>, <a href="../../chapters/chapter-09/lesson-09-04-rounded-rectangle-distance-field.html">Lesson 9.4</a>: sd, the signed distance: minus inside, 0 on the outline, plus outside. In a rounded corner: the distance from the center of the corner's circle, minus the corner radius.</li>
+    <li><a href="../../chapters/chapter-09/lesson-09-01-distance-between-two-points.html">Lesson 9.1</a>: a distance from its two legs, √(leg² + leg²); an arrow's length from its two parts, the same way.</li>
+    <li><a href="../../chapters/chapter-10/lesson-10-02-slope.html">Lesson 10.2</a>, <a href="../../chapters/chapter-10/lesson-10-03-surface-normal.html">Lesson 10.3</a>: the change of a number from A to B, divided by |AB|; the same from D to E. There: the glass's height. Here: sd.</li>
+    <li><a href="../../chapters/chapter-09/lesson-09-10-build-a-displacement-field.html">Lesson 9.10</a>: an arrow divided by its length is 1 long and keeps its direction.</li>
+  </ul>
+</aside>
+<p class="small">In a calculation, <span class="kn">green</span> marks a number known before the calculation starts: given, or found earlier. The other numbers are worked out in it.</p>
+
+<!-- ============================ SECTION 1 ============================ -->
+<h2 id="s1"><span class="tag">Section 1 · the idea in pictures</span>Four neighbors of P give the direction out of the glass</h2>
+<div class="ideaGrid">
+  <div>
+    <div class="stage" id="ideaStage"><canvas id="ideaCv" width="760" height="620"></canvas></div>
+  </div>
+  <div>
+    <div class="stepnav"><button class="btn" id="ideaPrev">← Back</button><button class="btn" id="ideaNext">Next →</button><div class="dots" id="ideaDots"></div></div>
+    <div class="stepcap ideaCap" id="ideaCap" aria-live="polite"></div>
+    <div class="stage" id="ovStage" style="margin-top:6px"><canvas id="ovCv" width="760" height="400"></canvas></div>
+  </div>
+</div>
+
+<!-- ============================ SECTION 2 ============================ -->
+<h2 id="s2"><span class="tag">Section 2 · one value, traced to the end</span>Section 1's steps at a draggable P</h2>
+<p><b>Drag P</b> in either picture, or press a button. P starts at Section 1's chosen pixel, (126.06, 660.28) pt, with the chosen step, 0.50 pt.</p>
+<figure id="traceFig" style="margin:12px 0 0"><div class="traceGrid">
+  <div>
+    <div class="stage" id="tMapStage"><canvas id="tMap" width="760" height="420"></canvas></div>
+    <div class="stage" id="tZoomStage" style="margin-top:10px"><canvas id="tZoom" width="760" height="455"></canvas></div>
+  </div>
+  <div>
+    <p class="tRead" id="tRead"></p>
+    <div class="ctl"><span class="ctlname">put P</span><span id="tPre" class="flatRow" style="margin:0"></span></div>
+    <div class="ctl"><span class="ctlname">step</span><span id="tSteps" class="flatRow" style="margin:0"></span></div>
+    <p class="note" id="tNote" hidden></p>
+    <table class="trace" id="tTable"></table>
+  </div>
+</div></figure>
+
+<!-- ============================ SECTION 3 ============================ -->
+<h2 id="s3"><span class="tag">Section 3 · exercises</span>Exercises</h2>
+
+<details class="ex"><summary>Exercise 1 — Which arrow is outward at P, under the menu's straight top edge?</summary><div class="body">
+  <div class="exq"><div><div class="stage" id="ex1qStage"><canvas id="ex1q" width="600" height="560"></canvas></div>
+      <figcaption><b>P = (257, 654.20) pt</b>, under the top edge of the menu's glass, with its four neighbors and their sd.</figcaption></div>
+    <div><p>Most pixels near the menu's outline lie under a straight edge, not in a corner. Take the four sd values from the picture and do Steps 2 to 5. The tip of outward is somewhere on the red circle.</p>
+      <p><b>Which arrow is outward at P, under the menu's straight top edge?</b></p>
+      <div class="choices"><button class="btn" data-ok="0" data-why="No. That is outward in the top-left corner. Here sd at A and sd at B are equal: −5.60 − (−5.60) = 0, so outward goes neither left nor right.">(−0.60, −0.80): 0.60 to the left, 0.80 toward the top</button><button class="btn" data-ok="1" data-why="Right. From A to B: −5.60 − (−5.60) = 0. From D to E: −6.10 − (−5.10) = −1. The arrow (0, −1) is 1 long: 1 toward the top.">(0, −1): 1 toward the top</button><button class="btn" data-ok="0" data-why="No. From D to E, sd changes by −6.10 − (−5.10) = −1: toward the bottom a pixel is further inside. A minus y part goes toward the top.">(0, 1): 1 toward the bottom</button></div><div class="verdict" aria-live="polite"></div>
+    </div></div>
+  <details><summary>Show the answer</summary><div class="body"><div class="exq"><div><div class="stage" id="ex1aStage"><canvas id="ex1a" width="600" height="560"></canvas></div></div>
+    <div><ul class="capl" id="ex1aText"></ul></div></div></div></details>
+</div></details>
+
+<details class="ex"><summary>Exercise 2 — Which arrow is outward at P on the “⋯” button?</summary><div class="body">
+  <div class="exq"><div><div class="stage" id="ex2qStage"><canvas id="ex2q" width="600" height="560"></canvas></div>
+      <figcaption><b>P = (358.30, 821.60) pt</b>, 5 pt inside the button's glass, with its four neighbors and their sd.</figcaption></div>
+    <div><p>Before the tap, the glass is the “⋯” button alone: a circle with its center at (342.30, 809.60) pt and a radius of 25 pt <button class="info" data-tip="menu" aria-label="Where these numbers come from">ⓘ</button>. There, sd at a pixel is its distance from that center, minus 25. The shader does the same four steps on this other outline. Take the four sd values from the picture and do Steps 2 to 5. The tip of outward is somewhere on the red circle.</p>
+      <p><b>Which arrow is outward at P on the “⋯” button?</b></p>
+      <div class="choices"><button class="btn" data-ok="0" data-why="No. Both changes are plus here: 0.80 from A to B and 0.60 from D to E. A plus part goes to the right, or toward the bottom.">(−0.80, −0.60): 0.80 to the left, 0.60 toward the top</button><button class="btn" data-ok="0" data-why="No. The x part is the change from A to B, −4.598 − (−5.398) = 0.80. The y part is the change from D to E, −4.696 − (−5.296) = 0.60.">(0.60, 0.80): 0.60 to the right, 0.80 toward the bottom</button><button class="btn" data-ok="1" data-why="Right. From A to B: −4.598 − (−5.398) = 0.80. From D to E: −4.696 − (−5.296) = 0.60. The arrow (0.80, 0.60) is 1 long.">(0.80, 0.60): 0.80 to the right, 0.60 toward the bottom</button></div><div class="verdict" aria-live="polite"></div>
+    </div></div>
+  <details><summary>Show the answer</summary><div class="body"><div class="exq"><div><div class="stage" id="ex2aStage"><canvas id="ex2a" width="600" height="560"></canvas></div></div>
+    <div><ul class="capl" id="ex2aText"></ul></div></div></div></details>
+</div></details>
+
+<div class="navfoot"><a href="../../chapters/chapter-10/lesson-10-45-ambient-light.html">← Lesson 10.45 — Ambient light</a><a href="../../chapters/chapter-10/lesson-light-surface-direction-and-material-thickness.html">Chapter 10 overview →</a></div>
+</div>
+<div id="tip" role="dialog" aria-modal="false"><button class="tclose" id="tipClose" aria-label="Close">✕</button><div id="tipBody"></div></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const clamp=(x,lo,hi)=>Math.min(Math.max(x,lo),hi);
+const R12=x=>{const a=Math.abs(x),d=a<1?1e12:10**(12-Math.ceil(Math.log10(a+1e-9)));return Math.round(x*d)/d};   /* numbers in pt reach 874 and their squares 160000: under 1, 12 decimals; above, one decimal fewer for each digit before the point */
+/* ---------- numbers: whole numbers bare, exact values up to 4 decimals kept, else 3 decimals half up ---------- */
+function f(x){
+  if(Math.abs(x)<1e-12)return '0';
+  const r4=Math.round(x*1e4)/1e4;let s;
+  if(Math.abs(x-r4)<1e-9){if(Number.isInteger(r4))s=String(r4);else{s=r4.toFixed(4).replace(/0+$/,'');if(/\.\d$/.test(s))s+='0'}}
+  else s=(Math.sign(x)*Math.floor(Math.abs(x)*1e3+0.5+1e-9)/1e3).toFixed(3);
+  if(/^-0(\.0+)?$/.test(s))s='0';return s.replace('-','−');
+}
+const pt=(u,v)=>`(${f(u)}, ${f(v)})`;
+/* ---------- a trace: one operation per line; every line rounded the same way; the next line uses the shown value ---------- */
+class Trace{
+  constructor(dec=3){this.dec=dec;this.lines=[];this.dm=new Map()}
+  shown(v){v=R12(v);if(v===0)return 0;const keep=10**(this.dec+1);if(R12(Math.round(v*keep)/keep)===v)return v;
+    const a=Math.abs(v);let dec=this.dec;if(a<0.01){let q=a,z=0;while(q<0.1){q*=10;z++}dec=z+this.dec}
+    const k=10**dec,r=R12(Math.sign(v)*Math.floor(a*k+0.5+1e-9)/k);this.dm.set(r,dec);return r}
+  t(v){v=R12(v);if(v===0)return '0';const neg=v<0,a=Math.abs(v);let s;if(this.dm.has(v))s=a.toFixed(this.dm.get(v));else{s=String(a);if(s.includes('e'))s=a.toFixed(14).replace(/0+$/,'');if(/\.\d$/.test(s))s+='0'}return (neg?'−':'')+s}
+  o(v){return R12(v)<0?`(${this.t(v)})`:this.t(v)}
+  K(...f){this.kf=f;return this}
+  k(i,s){return this.kf&&this.kf[i]?`<span class="kn">${s}</span>`:s}
+  G(s){return `<span class="kn">${s}</span>`}
+  push(s){this.lines.push(s);this.kf=null}
+  take(){const l=this.lines;this.lines=[];return l}
+  add(n,a,b,exact){const r=exact?R12(a+b):this.shown(a+b);this.push(`${n} = ${this.k(0,this.t(a))} + ${this.k(1,this.o(b))} = ${this.t(r)}`);return r}
+  sub(n,a,b,exact){const r=exact?R12(a-b):this.shown(a-b);this.push(`${n} = ${this.k(0,this.t(a))} − ${this.k(1,this.o(b))} = ${this.t(r)}`);return r}
+  mul(n,a,b){const r=this.shown(a*b);this.push(`${n} = ${this.k(0,this.o(a))} × ${this.k(1,this.o(b))} = ${this.t(r)}`);return r}
+  div(n,a,b){const r=this.shown(a/b);this.push(`${n} = ${this.k(0,this.t(a))} ÷ ${this.k(1,this.o(b))} = ${this.t(r)}`);return r}
+  sq(n,a){const r=R12(a*a);this.push(`${n} = ${this.k(0,this.o(a))} × ${this.k(0,this.o(a))} = ${this.t(r)}`);return r}
+  neg(n,a){const r=R12(-a);this.push(`${n} = −(${this.k(0,this.t(a))}) = ${this.t(r)}`);return r}
+  root(n,a){const raw=Math.sqrt(a),c=Math.round(raw*1e6)/1e6;const r=R12(c*c)===R12(a)?R12(c):this.shown(raw);this.push(`${n} = √${this.k(0,this.t(a))} = ${this.t(r)}`);return r}
+}
+const KN=x=>`<span class="kn">${x}</span>`;   /* green: known before the calculation starts */
+/* ---------- 2D drawing helpers (solid strokes, dark halo) ---------- */
+function halo(ctx,draw,color,w=2.5){for(const [lw,c] of [[w+3.5,COL.halo],[w,color]]){ctx.lineWidth=lw;ctx.strokeStyle=c;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();draw();ctx.stroke()}}
+function line(ctx,x1,y1,x2,y2,color,w=2.5){halo(ctx,()=>{ctx.moveTo(x1,y1);ctx.lineTo(x2,y2)},color,w)}
+function thin(ctx,x1,y1,x2,y2,color,w=1.5){ctx.lineWidth=w;ctx.strokeStyle=color;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}
+function arrow(ctx,x1,y1,x2,y2,color,w=3,head=13){const L=Math.hypot(x2-x1,y2-y1);if(L<0.5)return;head=Math.min(head,L*0.55);const a=Math.atan2(y2-y1,x2-x1),bx=x2-head*Math.cos(a),by=y2-head*Math.sin(a);line(ctx,x1,y1,bx,by,color,w);
+  const s=head*0.55;ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(bx+s*Math.sin(a),by-s*Math.cos(a));ctx.lineTo(bx-s*Math.sin(a),by+s*Math.cos(a));ctx.closePath();ctx.fillStyle=color;ctx.fill();ctx.lineWidth=1.6;ctx.strokeStyle='#111827';ctx.stroke()}
+function plate(ctx,t,x,y,size=14,align='left',color=COL.ink){ctx.font=`600 ${size}px -apple-system,"Segoe UI",Roboto,sans-serif`;const w=ctx.measureText(t).width,h=size+8;let x0=align==='right'?x-w:align==='center'?x-w/2:x;x0=clamp(x0,6,ctx.canvas.width-w-6);let yy=clamp(y,h/2+3,ctx.canvas.height-h/2-3);if(ctx.__placed){/* in a 3D view a label that would cover an earlier label or the corner box moves a little (at most 42 px up or down and 40 px sideways); an exact repeat stays */const hit=(X,Y)=>ctx.__placed.some(r=>!(r.t===t&&Math.abs(r.x-X+5)<1&&Math.abs(r.y-Y+h/2)<1)&&X-5<r.x+r.w-1&&r.x<X+w+4&&Y-h/2<r.y+r.h-1&&r.y<Y+h/2-1);if(hit(x0,yy))for(const [ex,ey] of [[0,-14],[0,14],[0,-28],[0,28],[0,-42],[0,42],[-40,0],[40,0],[-40,-14],[40,-14],[-40,14],[40,14],[-40,-28],[40,-28],[-40,28],[40,28]]){const X=clamp(x0+ex,6,ctx.canvas.width-w-6),Y=clamp(yy+ey,h/2+3,ctx.canvas.height-h/2-3);if(!hit(X,Y)){x0=X;yy=Y;break}}ctx.__placed.push({x:x0-5,y:yy-h/2,w:w+10,h,t})}ctx.fillStyle='rgba(255,255,255,0.94)';ctx.strokeStyle='#111827';ctx.lineWidth=1.1;ctx.beginPath();ctx.roundRect(x0-5,yy-h/2,w+10,h,4);ctx.fill();ctx.stroke();ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillStyle=color;ctx.fillText(t,x0,yy);return{x:x0-5,y:yy-h/2,w:w+10,h}}
+/* ---------- tooltips ---------- */
+const tipEl=$('tip'),tipBody=$('tipBody'),tipStore=new Map();let suppressAt=-1e9;const suppressNow=()=>{suppressAt=performance.now()};
+function setTip(el,html){el.classList.add('tk');tipStore.set(el,html);if(!el.hasAttribute('tabindex'))el.setAttribute('tabindex','0')}
+function showTip(el){const v=tipStore.get(el),html=typeof v==='function'?v():v;if(!html)return;tipBody.innerHTML=html;tipEl.classList.toggle('wide',!!tipBody.querySelector('pre'));tipEl.classList.toggle('xwide',!!tipBody.querySelector('.tgrid'));tipEl.classList.add('open');const r=el.getBoundingClientRect();tipEl.style.left='0px';tipEl.style.top='0px';const tw=tipEl.offsetWidth,th=tipEl.offsetHeight;let L=r.right+10,T=r.top-8;if(L+tw>innerWidth-10)L=r.left-tw-10;if(L<8)L=8;if(T+th>innerHeight-10)T=innerHeight-th-10;if(T<8)T=8;tipEl.style.left=L+'px';tipEl.style.top=T+'px'}
+function hideTip(){tipEl.classList.remove('open')}
+document.addEventListener('click',e=>{if(performance.now()-suppressAt<120){suppressAt=-1e9;e.stopPropagation();return}const t=e.target.closest('.tk');if(t){e.stopPropagation();showTip(t);return}if(!e.target.closest('#tip'))hideTip();},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){hideTip();return}if((e.key==='Enter'||e.key===' ')&&e.target.classList?.contains('tk')){e.preventDefault();showTip(e.target)}});$('tipClose').onclick=e=>{e.stopPropagation();hideTip()};
+/* clickable (and optionally draggable) points over a canvas */
+let pointDrag=null;
+document.addEventListener('pointermove',e=>{if(!pointDrag)return;if(!pointDrag.moved&&Math.hypot(e.clientX-pointDrag.x0,e.clientY-pointDrag.y0)<3)return;pointDrag.moved=true;hideTip();pointDrag.move(e.clientX,e.clientY)});
+document.addEventListener('pointerup',()=>{if(!pointDrag)return;if(pointDrag.moved)suppressNow();pointDrag=null});
+document.addEventListener('pointercancel',()=>{pointDrag=null});
+function addPt(stage,x,y,color,html,label,opt={}){const b=document.createElement('button');b.className='ptdot'+(opt.small?' sm':'')+(opt.move?' drag':'');b.style.left=(x+BORDER)+'px';b.style.top=(y+BORDER)+'px';b.style.background=color;b.setAttribute('aria-label',label);if(opt.key)b.dataset.key=opt.key;stage.appendChild(b);setTip(b,html);
+  {const cv=stage.querySelector('canvas');if(cv&&(x<-2||y<-2||x>cv.width+2||y>cv.height+2))b.hidden=true}   /* a point outside its own picture must not sit on a neighbouring one */
+  if(opt.move){b.addEventListener('pointerdown',e=>{pointDrag={x0:e.clientX,y0:e.clientY,moved:false,move:opt.move};e.preventDefault();e.stopPropagation()});
+    if(opt.keys)b.addEventListener('keydown',e=>{const d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(!d)return;e.preventDefault();opt.keys(d);stage.querySelector(`[data-key="${opt.key}"]`)?.focus()})}
+  return b}
+const clearPts=stage=>stage.querySelectorAll('.ptdot').forEach(b=>b.remove());
+const canvasPos=(cv,cx,cy)=>{const r=cv.getBoundingClientRect();return[(cx-r.left-cv.clientLeft)*cv.width/cv.clientWidth,(cy-r.top-cv.clientTop)*cv.height/cv.clientHeight]};
+const BORDER=1;   /* canvases have a 1-px border: a dot over canvas pixel x sits at x + 1 in its stage */
+const info=(k,l)=>`<button class="info" data-tip="${k}" aria-label="${l}">ⓘ</button>`;
+function bindTips(root){root.querySelectorAll('.info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip]))}
+/* ================= Lesson 10.46 · the glass: the resting menu and the “⋯” button, in pt on the 402 × 874 pt screen ================= */
+const COL={glass:'#a855f7',fill:'#f3e8ff',screen:'#f8fafc',P:'#fde047',A:'#2563eb',B:'#f97316',D:'#14b8a6',E:'#f43f5e',Q:'#c084fc',K:'#94a3b8',T:'#a5b4fc',rim:'#e0e7ff',out:'#4f46e5',ask:'#dc2626',ink:'#111827',halo:'rgba(17,24,39,0.92)'};
+const COLT={A:'#1d4ed8',B:'#9a3412',D:'#0f766e',E:'#be123c'};
+const MENU={kind:'rr',c:[238.8,742.6],half:[130.5,94],r:36};   /* measured on a screen recording of Safari, good to about ±4 pt */
+const BTN={kind:'circle',c:[342.3,809.6],r:25};
+const P0=[126.06,660.28],STEP0=0.5;
+const r2=v=>Math.round(v*100)/100,r3=v=>Math.round(v*1000)/1000;
+const EDGE={left:'left edge',right:'right edge',top:'top edge',bottom:'bottom edge'};
+/* sd: the distance to the outline, minus inside */
+function sdOf(S,x,y){
+  if(S.kind==='circle')return Math.hypot(x-S.c[0],y-S.c[1])-S.r;
+  const qx=Math.abs(x-S.c[0])-(S.half[0]-S.r),qy=Math.abs(y-S.c[1])-(S.half[1]-S.r);
+  if(qx>0&&qy>0)return Math.hypot(qx,qy)-S.r;
+  return Math.max(qx,qy)-S.r}
+/* the part of the outline nearest to a point, and the exact direction straight out there (drawn as Q; never used for outward) */
+function whereOf(S,x,y){
+  if(S.kind==='circle'){const dx=x-S.c[0],dy=y-S.c[1],d=Math.hypot(dx,dy);return{part:'circle',C:S.c,r:S.r,out:d>1e-9?[dx/d,dy/d]:[0,-1]}}
+  const sx=x<S.c[0]?-1:1,sy=y<S.c[1]?-1:1,ix=S.half[0]-S.r,iy=S.half[1]-S.r,qx=Math.abs(x-S.c[0])-ix,qy=Math.abs(y-S.c[1])-iy;
+  if(qx>0&&qy>0){const d=Math.hypot(qx,qy);return{part:'corner',C:[R12(S.c[0]+sx*ix),R12(S.c[1]+sy*iy)],r:S.r,out:[sx*qx/d,sy*qy/d]}}
+  if(qx>=qy)return{part:sx<0?'left':'right',edge:R12(S.c[0]+sx*S.half[0]),out:[sx,0]};
+  return{part:sy<0?'top':'bottom',edge:R12(S.c[1]+sy*S.half[1]),out:[0,sy]}}
+/* sd at one point, one operation per line */
+function sdChain(T,S,p,nm){const w=whereOf(S,p[0],p[1]);let sd,head;
+  if(w.part==='corner'||w.part==='circle'){
+    const lx=p[0]<=w.C[0]?T.K(1,1).sub(`from K to ${nm}, to the left`,w.C[0],p[0],true):T.K(1,1).sub(`from K to ${nm}, to the right`,p[0],w.C[0],true);
+    const ly=p[1]<=w.C[1]?T.K(1,1).sub(`from K to ${nm}, toward the top`,w.C[1],p[1],true):T.K(1,1).sub(`from K to ${nm}, toward the bottom`,p[1],w.C[1],true);
+    const a=T.sq(`${T.t(lx)}²`,lx),b=T.sq(`${T.t(ly)}²`,ly),s=T.add('sum',a,b,true),d=T.root(`|K${nm}|`,s);
+    sd=T.K(0,1).sub(`sd at ${nm}`,d,w.r);
+    head=`nearest part of the outline: the ${w.part==='circle'?'button':'corner'}'s circle, center K = ${pt(...w.C)} pt, radius ${f(w.r)} pt. sd = |K${nm}| − ${f(w.r)}, and |K${nm}| = √(leg² + leg²) from the two legs from K to ${nm}`}
+  else{const e=w.edge,v=w.part==='top'||w.part==='bottom'?p[1]:p[0],d=v>=e?T.K(1,1).sub(`distance from ${nm} to the ${EDGE[w.part]}`,v,e,true):T.K(1,1).sub(`distance from ${nm} to the ${EDGE[w.part]}`,e,v,true),raw=sdOf(S,p[0],p[1]);
+    if(d===0){sd=0;T.push(`sd at ${nm} = 0`)}else if(raw<0)sd=T.neg(`sd at ${nm}`,d);else{sd=d;T.push(`sd at ${nm} = ${T.t(d)}`)}
+    head=`nearest part of the outline: the ${EDGE[w.part]}, ${w.part==='top'||w.part==='bottom'?'y':'x'} = ${f(e)} pt: sd is the distance to it, ${raw<0?'with a minus (inside)':raw>0?'with a plus (outside)':'0 on the outline'}`}
+  return{lines:T.take(),sd,w,head,raw:sdOf(S,p[0],p[1])}}
+/* the lesson's chain at a pixel: four neighbors, two changes, the arrow, its length, outward */
+function measure(S,P,step){const T=new Trace(3),pts={A:[r3(P[0]-step),P[1]],B:[r3(P[0]+step),P[1]],D:[P[0],r3(P[1]-step)],E:[P[0],r3(P[1]+step)]};
+  const c={P:sdChain(T,S,P,'P')};for(const n of['A','B','D','E'])c[n]=sdChain(T,S,pts[n],n);
+  const dAB=T.K(1,1).add('|AB|',step,step),chX=T.K(1,1).sub('change from A to B',c.B.sd,c.A.sd),gx=T.div('for each 1 pt to the right',chX,dAB),lx=T.take();
+  const dDE=T.K(1,1).add('|DE|',step,step),chY=T.K(1,1).sub('change from D to E',c.E.sd,c.D.sd),gy=T.div('for each 1 pt toward the bottom',chY,dDE),ly=T.take();
+  const x2=T.K(1).sq('x part²',gx),y2=T.K(1).sq('y part²',gy),sum=T.add('sum',x2,y2,true),len=T.root('length',sum);let out=[0,0];
+  if(len>0)out=[T.K(1,0).div('outward, x part',gx,len),T.K(1,0).div('outward, y part',gy,len)];
+  const ll=T.take(),w=c.P.w,sdP=c.P.raw,Q=[r2(P[0]-w.out[0]*sdP),r2(P[1]-w.out[1]*sdP)];
+  return{S,P,step,pts,c,dAB,dDE,chX,chY,gx,gy,sum,len,out,lx,ly,ll,Q,T,t:v=>T.t(R12(v))}}
+function dirWords(o,t){const a=Math.abs(o[0]),b=Math.abs(o[1]);if(a<5e-4&&b<5e-4)return'no direction';
+  const hx=o[0]<0?'to the left':'to the right',hy=o[1]<0?'toward the top':'toward the bottom';
+  if(a<5e-4)return`${t(b)} ${hy}`;if(b<5e-4)return`${t(a)} ${hx}`;return`${t(a)} ${hx}, ${t(b)} ${hy}`}
+const insideWords=(sd,t)=>sd===0?'on the outline':sd<0?`${t(-sd)} pt inside the glass`:`${t(sd)} pt outside the glass`;
+const outTxt=M=>M.len>0?`(${M.t(M.out[0])}, ${M.t(M.out[1])})`:'(0, 0)';
+
+/* a root is printed as exact only when it has at most 4 decimals and its square is the number under the root, checked in whole numbers */
+Trace.prototype.root=function(n,a){const raw=Math.sqrt(a),c=Math.round(raw*1e4),r=c*c===Math.round(a*1e8)?c/1e4:this.shown(raw);this.push(`${n} = √${this.k(0,this.t(a))} = ${this.t(r)}`);return r};
+
+/* ================= drawing: flat pictures of the screen, in pt ================= */
+function mkView(cv,ox,oy,s){return{cv,ctx:cv.getContext('2d'),ox,oy,s,X:x=>(x-ox)*s,Y:y=>(y-oy)*s,ux:px=>ox+px/s,uy:py=>oy+py/s}}
+const zoomView=(cv,P,s,px,py)=>mkView(cv,P[0]-px/s,P[1]-py/s,s);
+function begin(V){const c=V.ctx;c.setTransform(1,0,0,1,0,0);c.setLineDash([]);c.globalAlpha=1;c.fillStyle=COL.screen;c.fillRect(0,0,V.cv.width,V.cv.height);c.__placed=[]}
+const reserve=(c,x,y,r)=>c.__placed.push({x:x-r,y:y-r,w:2*r,h:2*r,t:'\u0000'});
+const reserveBox=(c,x,y,w,h)=>c.__placed.push({x,y,w,h,t:'\u0000'});
+/* a label that is drawn only where it covers nothing placed before it */
+function plateIf(c,t,x,y,size,align,color){c.font=`600 ${size}px -apple-system,"Segoe UI",Roboto,sans-serif`;const w=c.measureText(t).width,h=size+8,x0=align==='right'?x-w:align==='center'?x-w/2:x;
+  if(x0<8||x0+w>c.canvas.width-8||y-h/2<4||y+h/2>c.canvas.height-4)return false;
+  if(c.__placed.some(r=>x0-7<r.x+r.w&&r.x<x0+w+7&&y-h/2-2<r.y+r.h&&r.y<y+h/2+2))return false;
+  plate(c,t,x,y,size,align,color);return true}
+function shapePath(V,S,inset=0){const c=V.ctx;c.beginPath();
+  if(S.kind==='circle'){const r=S.r-inset;if(r<=0)return false;c.arc(V.X(S.c[0]),V.Y(S.c[1]),r*V.s,0,Math.PI*2);return true}
+  const hx=S.half[0]-inset,hy=S.half[1]-inset;if(hx<=0||hy<=0)return false;
+  c.roundRect(V.X(S.c[0]-hx),V.Y(S.c[1]-hy),2*hx*V.s,2*hy*V.s,Math.max(S.r-inset,0)*V.s);return true}
+function drawGlass(V,S,a=1){const c=V.ctx;if(shapePath(V,S)){c.globalAlpha=a;c.fillStyle=COL.fill;c.fill();c.globalAlpha=1}}
+function drawOutline(V,S,w=3){const c=V.ctx;if(shapePath(V,S)){c.lineWidth=w;c.strokeStyle=COL.glass;c.lineJoin='round';c.stroke()}}
+/* a small picture of the bottom of the screen, with a red dot at P */
+const LOC={s:0.42,w:Math.round(402*0.42),h:Math.round(250*0.42),bw:Math.round(402*0.42)+10,bh:Math.round(250*0.42)+30};
+function locator(V,x0,y0,S,P){const c=V.ctx,s=LOC.s,L={ctx:c,s,X:x=>x0+5+x*s,Y:y=>y0+24+(y-624)*s};
+  c.fillStyle='#fff';c.strokeStyle='#111827';c.lineWidth=1.1;c.beginPath();c.roundRect(x0,y0,LOC.bw,LOC.bh,5);c.fill();c.stroke();
+  c.font='600 11.5px -apple-system,"Segoe UI",Roboto,sans-serif';c.fillStyle='#334155';c.textAlign='left';c.textBaseline='middle';c.fillText('bottom of the screen · red: P',x0+6,y0+12);
+  c.fillStyle=COL.screen;c.fillRect(x0+5,y0+24,LOC.w,LOC.h);c.strokeStyle='#94a3b8';c.lineWidth=1;c.strokeRect(x0+5,y0+24,LOC.w,LOC.h);
+  shapePath(L,S);c.fillStyle=COL.fill;c.fill();c.lineWidth=1.4;c.strokeStyle=COL.glass;c.stroke();
+  c.beginPath();c.arc(L.X(P[0]),L.Y(P[1]),4,0,7);c.fillStyle=COL.ask;c.fill();c.lineWidth=1.5;c.strokeStyle='#fff';c.stroke()}
+/* tooltips of the points */
+const SYS='pt from the screen’s top-left corner: x to the right, y toward the bottom';
+const cap1=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const r2q=M=>Math.round(M.c.P.raw*1e3)/1e3;
+const tipP=M=>`<b>P = ${pt(...M.P)} pt</b>, the pixel (${SYS}). sd at P = ${M.t(M.c.P.sd)} pt: ${insideWords(M.c.P.sd,M.t)}.<br>${cap1(M.c.P.head)}.<pre>${M.c.P.lines.join('\n')}</pre>`;
+const NB={A:'to the left of P',B:'to the right of P',D:'from P toward the top',E:'from P toward the bottom'};
+const tipN=(M,n)=>`<b>${n} = ${pt(...M.pts[n])} pt</b>: ${f(M.step)} pt ${NB[n]}. sd at ${n} = ${M.t(M.c[n].sd)} pt.<br>${cap1(M.c[n].head)}.<pre>${M.c[n].lines.join('\n')}</pre>`;
+const tipQ=M=>`<b>Q = ${pt(...M.Q)} pt</b>: the point of the outline nearest to P. |PQ| = ${f(Math.abs(r2q(M)))} pt, the size of sd at P.`;
+
+/* ---------- the enlarged picture around P ---------- */
+function zoomScene(V,st,M,o={}){const c=V.ctx,X=V.X,Y=V.Y,W=V.cv.width,H=V.cv.height,S=M.S,P=M.P,sh=o.show||{},px=X(P[0]),py=Y(P[1]),sdP=M.c.P.raw,u=M.c.P.w.out,has=M.len>0,out=M.out,L=V.s,sp=M.step*V.s;
+  begin(V);clearPts(st);drawGlass(V,S);
+  /* thin curves: pixels equally far from the outline, 1 pt apart */
+  {let lo=1e9,hi=-1e9;for(let i=0;i<=4;i++)for(let j=0;j<=4;j++){const v=sdOf(S,V.ux(W*i/4),V.uy(H*j/4));lo=Math.min(lo,v);hi=Math.max(hi,v)}
+    for(let d=Math.ceil(-hi)-1;d<=Math.floor(-lo)+1;d++){if(d===0||!shapePath(V,S,d))continue;c.lineWidth=1.2;c.strokeStyle=d>0?'#c4b5fd':'#cbd5e1';c.stroke()}}
+  drawOutline(V,S,4);
+  /* what this state holds */
+  const qx=X(M.Q[0]),qy=Y(M.Q[1]),far=Math.abs(sdP)>0.2,dq=Math.hypot(qx-px,qy-py),short=has&&Math.abs(M.len-1)>0.004,ar=sh.arrow&&has,lenTxt=`|PQ| = ${f(Math.abs(r2q(M)))} pt`;
+  const lg=(o.legend||[SYS,`enlarged: 1 pt = ${f(V.s)} px · thin curves: pixels equally far from the outline, 1 pt apart`]).slice();
+  const nl=lg.length+(sh.Q&&far?1:0)+(ar&&short?1:0),top0=H-15-25*(nl-1)-13;      /* the legend's upper side when it has every line it may get */
+  const qSeen=sh.Q&&far&&qx>12&&qy>12&&qx<W-12&&qy<top0-12,qNear=qSeen&&dq<200;   /* Q close to P: a short tag at Q, its name in the legend */
+  if(sh.Q&&far&&!qSeen)lg.push(`Q, the nearest point of the outline, is outside this picture · ${lenTxt}`);
+  else if(qNear)lg.push(`Q: the nearest point of the outline · ${lenTxt}`);
+  if(ar&&short)lg.push(`amber: the arrow of the two changes, ${M.t(M.len)} long · indigo: outward, 1 long`);
+  const top=H-15-25*(lg.length-1)-13,qIn=qSeen;
+  const ns=['A','B','D','E'].filter(n=>sh[n]),nb=ns.map(n=>[X(M.pts[n][0]),Y(M.pts[n][1])]);
+  const qDot=qIn&&dq>19&&nb.every(([x,y])=>Math.hypot(qx-x,qy-y)>16);  /* Q gets its own dot unless it sits on another point */
+  const locTL=u[0]>0.25&&u[1]<-0.1,loc=o.locator?{x:locTL?6:W-LOC.bw-6,y:6}:null;if(loc)reserveBox(c,loc.x-3,loc.y-3,LOC.bw+6,LOC.bh+6);
+  reserve(c,px,py,13);nb.forEach(([x,y])=>reserve(c,x,y,10));if(qDot)reserve(c,qx,qy,10);
+  const tip=has?[P[0]+out[0],P[1]+out[1]]:null,tx=tip?X(tip[0]):0,ty=tip?Y(tip[1]):0;if(sh.T&&tip)reserve(c,tx,ty,10);
+  /* lines and arrows */
+  if(sh.Q&&far)thin(c,px,py,qx,qy,'#334155',2);
+  if(qIn&&!qDot){c.beginPath();c.arc(qx,qy,5,0,7);c.fillStyle=COL.Q;c.fill();c.lineWidth=2;c.strokeStyle='#111827';c.stroke()}
+  let kEnd=null;if(o.toK){const C=M.c.P.w.C,dx=X(C[0])-px,dy=Y(C[1])-py,D=Math.hypot(dx,dy);let t=D;for(const [a,d,lo,hi] of [[px,dx/D,14,W-14],[py,dy/D,14,top-14]]){if(d<0)t=Math.min(t,(lo-a)/d);if(d>0)t=Math.min(t,(hi-a)/d)}
+    kEnd=[px+dx/D*t,py+dy/D*t];thin(c,px,py,kEnd[0],kEnd[1],'#94a3b8',2)}
+  if(sh.A&&sh.B)thin(c,X(M.pts.A[0]),py,X(M.pts.B[0]),py,'#64748b',2);
+  if(sh.D&&sh.E)thin(c,px,Y(M.pts.D[1]),px,Y(M.pts.E[1]),'#64748b',2);
+  if(ar){arrow(c,px,py,tx,ty,COL.out,4.5,sh.T?26:15);if(short)arrow(c,px,py,X(P[0]+M.gx),Y(P[1]+M.gy),'#fbbf24',2.2,10)}
+  if(sh.ask){c.lineWidth=3;c.strokeStyle=COL.ask;c.beginPath();c.arc(px,py,V.s,0,7);c.stroke()}
+  /* the legend, then the labels of the points */
+  lg.forEach((t,i)=>plate(c,t,8,H-15-25*(lg.length-1-i),12.5,'left','#334155'));
+  const perp=ar&&(Math.abs(out[0])>0.85||Math.abs(out[1])>0.85)&&sp>=L-12;      /* the arrow ends at or before a neighbor: its label goes beside it */
+  const toward=(dx,dy)=>ar&&!perp&&out[0]*dx+out[1]*dy>0.85,lab=(n,x,y,al)=>plate(c,`${n} · sd ${M.t(M.c[n].sd)}`,x,y,13.5,al,COLT[n]);
+  if(sh.A)lab('A',X(M.pts.A[0])-14,py-(toward(-1,0)?26:0),'right');
+  if(sh.B)lab('B',X(M.pts.B[0])+14,py-(toward(1,0)?26:0),'left');
+  {const dl=ar&&out[0]>0.2&&out[1]<-0.2,el=ar&&out[0]>0.2&&out[1]>0.2,up=ar&&out[1]>0.2;
+    if(sh.D)lab('D',px+(dl?-14:14),Y(M.pts.D[1])-4,dl?'right':'left');
+    if(sh.E)lab('E',px+(el?-14:14),Y(M.pts.E[1])+4,el?'right':'left');
+    plate(c,`P · sd ${M.t(M.c.P.sd)}`,px-14,py+(up?-30:30),14,'right',COL.ink)}
+  if(sh.Q&&far){const sg=sdP<0?1:-1,flat=Math.abs(u[0])>0.9,al=sg*u[0]<-0.2?'right':sg*u[0]>0.2?'left':'center';
+    if(qIn&&!qNear){plate(c,o.qLabel||'Q: the nearest point of the outline',qx+sg*u[0]*26,qy+sg*u[1]*26,13,al,'#6b21a8');
+      plate(c,lenTxt,(px+qx)/2+(flat?0:-14),(py+qy)/2+(flat?-18:6),13,flat?'center':'right','#334155')}
+    else if(qIn&&qDot)plate(c,'Q',qx+sg*u[0]*22,qy+sg*u[1]*22,13,al,'#6b21a8')}
+  /* the thick curve gets its name where the nearest point of the outline is in the picture */
+  if(far&&qx>12&&qy>12&&qx<W-12&&qy<top-12)for(const d of[130,-130,190,-190,250,-250]){if(plateIf(c,'the outline',qx-u[1]*d,qy+u[0]*d,12.5,'center','#6b21a8'))break}
+  if(ar){const txt=o.arrowLabel||`outward ${outTxt(M)}`;
+    if(perp&&Math.abs(out[0])>0.85)plate(c,txt,px+out[0]*L/2,py-26,13.5,'center','#3730a3');
+    else if(perp)plate(c,txt,px-14,py+out[1]*L/2+(out[1]<0?-8:8),13.5,'right','#3730a3');
+    else plate(c,txt,tx+out[0]*18,ty+out[1]*22,13.5,out[0]<-0.2?'right':out[0]>0.2?'left':'center','#3730a3')}
+  if(sh.T&&tip)plate(c,`T · sd ${M.t(o.sdT)}`,tx+14,ty-2,13.5,'left','#3730a3');
+  if(sh.ask)plate(c,'red circle: every point 1 pt from P',px-V.s*0.72-12,py-V.s*0.72-14,13,'right',COL.ask);
+  if(kEnd)plate(c,`to K, the button’s center: |KP| = ${f(Math.round(Math.hypot(M.c.P.w.C[0]-P[0],M.c.P.w.C[1]-P[1])*1e3)/1e3)} pt`,(px+kEnd[0])/2+16,(py+kEnd[1])/2-4,13,'left','#475569');
+  /* names on the thin curves, where they cross a line beside P */
+  if(o.curveLabels!==false){const pp=[[-u[1],u[0]],[u[1],-u[0]]].map(v=>({v,a:[px+v[0]*o.rail,py+v[1]*o.rail]})).map(q=>({...q,sc:Math.min(q.a[0],W-q.a[0],q.a[1],top-q.a[1])-(loc&&q.a[0]>loc.x-40&&q.a[0]<loc.x+LOC.bw+40&&q.a[1]<loc.y+LOC.bh+40?400:0)})).sort((a,b)=>b.sc-a.sc)[0];
+    let prev=null,n=0;for(let k=-560;k<=560&&n<9;k+=1){const x=pp.a[0]+u[0]*k,y=pp.a[1]+u[1]*k;if(x<40||x>W-40||y<16||y>top-14){prev=null;continue}
+      const v=-sdOf(S,V.ux(x),V.uy(y));if(prev!==null&&Math.floor(v)!==Math.floor(prev)){const d=Math.max(Math.floor(v),Math.floor(prev));if(plateIf(c,d===0?'the outline':d>0?`${d} pt inside`:`${-d} pt outside`,x,y,12.5,'center','#6d28d9'))n++}prev=v}}
+  if(loc)locator(V,loc.x,loc.y,S,P);
+  /* the points */
+  ns.forEach((n,i)=>addPt(st,nb[i][0],nb[i][1],COL[n],tipN(M,n),`Point ${n}`,{small:true}));
+  if(qDot)addPt(st,qx,qy,COL.Q,tipQ(M),'Point Q',{small:true});
+  if(sh.T&&tip)addPt(st,tx,ty,COL.T,o.tipT,'Point T',{small:true});
+  addPt(st,px,py,COL.P,o.pTip||tipP(M),'Point P',o.move?{move:o.move,keys:o.keys,key:o.key||'zp'}:{})}
+
+/* ---------- the whole menu ---------- */
+const mapView=cv=>mkView(cv,16,636.6,2);        /* 380 × 210 pt of the screen */
+function menuMap(V,st,legend){const c=V.ctx;begin(V);clearPts(st);drawGlass(V,MENU);drawOutline(V,MENU,3.5);
+  legend.forEach((t,i)=>plate(c,t,8,16+22*i,12,'left','#334155'))}
+const MAPLEG=['pt from the screen’s','top-left corner:','x to the right,','y toward the bottom','1 pt = 2 px'];
+
+/* ================= the model at Section 1's pixel ================= */
+const M0=measure(MENU,P0,STEP0),K0=M0.c.P.w.C,T0=[R12(P0[0]+M0.out[0]),R12(P0[1]+M0.out[1])];
+const TT=new Trace(3),CT=sdChain(TT,MENU,T0,'T');
+const DKP=R12(Math.hypot(K0[0]-P0[0],K0[1]-P0[1]));
+const LEGX=R12(K0[0]-P0[0]),LEGY=R12(K0[1]-P0[1]),KPL=new Trace(3),KFX=KPL.K(1,1).div('to the left',LEGX,-M0.gx),KFY=KPL.K(1,1).div('toward the top',LEGY,-M0.gy),KPLL=KPL.take().map(l=>l.replace(' = ',': '));
+const TCH=(()=>{const T=new Trace(3);T.K(1,1).sub('',CT.sd,M0.c.P.sd);return T.take().map(l=>l.replace(/^ = /,''))})();
+const tipTT=()=>`<b>T = ${pt(...T0)} pt</b>: the tip of the arrow, 1 pt from P. sd at T = ${TT.t(CT.sd)} pt.<br>${cap1(CT.head)}.<pre>${CT.lines.join('\n')}</pre>`;
+
+/* ================= the hero ================= */
+function rimPixels(d){const hx=MENU.half[0],hy=MENU.half[1],r=MENU.r,[cx,cy]=MENU.c,ix=hx-r,iy=hy-r,pts=[];
+  for(const t of[0.1,0.3,0.5,0.7,0.9]){const x=cx-ix+2*ix*t;pts.push([x,cy-hy+d],[x,cy+hy-d])}
+  for(const t of[0.17,0.5,0.83]){const y=cy-iy+2*iy*t;pts.push([cx-hx+d,y],[cx+hx-d,y])}
+  for(const [sx,sy] of[[-1,-1],[1,-1],[1,1],[-1,1]])for(const [ux,uy] of[[0.96,0.28],[0.6,0.8],[0.28,0.96]])pts.push([cx+sx*(ix+(r-d)*ux),cy+sy*(iy+(r-d)*uy)]);
+  return pts.map(p=>[r3(p[0]),r3(p[1])])}
+const RIM=rimPixels(5.6).map(p=>measure(MENU,p,STEP0)),ARW=14;
+function heroMap(){const V=mapView($('hero1')),st=$('hero1Stage'),c=V.ctx,X=V.X,Y=V.Y,H=V.cv.height;menuMap(V,st,MAPLEG);
+  const isP=M=>Math.abs(M.P[0]-P0[0])<0.02&&Math.abs(M.P[1]-P0[1])<0.02;
+  for(const M of RIM){const p=M.P,o=M.out,me=isP(M);reserve(c,X(p[0]),Y(p[1]),me?12:9);arrow(c,X(p[0]),Y(p[1]),X(p[0]+ARW*o[0]),Y(p[1]+ARW*o[1]),me?COL.out:'#818cf8',me?4:2.6,me?12:9)}
+  plate(c,'the menu’s glass, at rest',X(MENU.c[0]),Y(MENU.c[1])-13,14,'center','#6b21a8');
+  plate(c,'261 × 188 pt, corner radius 36 pt',X(MENU.c[0]),Y(MENU.c[1])+13,13,'center','#6b21a8');
+  plate(c,'P',X(P0[0])+16,Y(P0[1])+16,14,'left',COL.ink);
+  ['each arrow is drawn',`${ARW} pt long; outward`,'itself is 1 long'].forEach((t,i)=>plate(c,t,8,H-60+22*i,12,'left','#334155'));
+  for(const M of RIM){if(isP(M))continue;const p=M.P;
+    addPt(st,X(p[0]),Y(p[1]),COL.rim,`<b>A pixel at ${pt(...p)} pt</b> (${SYS}), ${insideWords(M.c.P.sd,M.t)}.<br>outward = ${outTxt(M)}: ${dirWords(M.out,M.t)}.`,`Pixel at ${pt(...p)}`,{small:true})}
+  addPt(st,X(P0[0]),Y(P0[1]),COL.P,tipP(M0)+`outward at P = ${outTxt(M0)}: ${dirWords(M0.out,M0.t)}.`,'Point P')}
+const ZW=[560,500,90],ZT=[380,195];                           /* P's place in an enlarged picture, and its scale in px per pt */
+function heroZoom(){zoomScene(zoomView($('hero2'),P0,ZW[2],ZW[0],ZW[1]),$('hero2Stage'),M0,{show:{A:1,B:1,D:1,E:1,Q:1,arrow:1},rail:150,arrowLabel:`outward ${outTxt(M0)}, 1 long`})}
+
+/* ================= Section 1 ================= */
+let st46=0;const ST46=5;
+const SHOW=[{Q:1},{Q:1,A:1,B:1},{Q:1,A:1,B:1,D:1,E:1},{Q:1,A:1,B:1,D:1,E:1,arrow:1},{Q:1,A:1,B:1,D:1,E:1,arrow:1,T:1}];
+const ZV1=()=>zoomView($('ideaCv'),P0,ZW[2],ZW[0],ZW[1]);
+function ideaZoom(){zoomScene(ZV1(),$('ideaStage'),M0,{show:SHOW[st46],rail:150,sdT:CT.sd,tipT:tipTT,arrowLabel:st46>=4?`outward ${outTxt(M0)}, 1 long`:`the arrow of the two changes: ${outTxt(M0)}`})}
+function ideaOverview(){const V=mkView($('ovCv'),96,640,6),c=V.ctx,X=V.X,Y=V.Y,st=$('ovStage'),W=V.cv.width,H=V.cv.height,Q=M0.Q,Z=ZV1();begin(V);clearPts(st);
+  drawGlass(V,MENU);
+  const kx=X(K0[0]),ky=Y(K0[1]),px=X(P0[0]),py=Y(P0[1]),qx=X(Q[0]),qy=Y(Q[1]),fx0=X(Z.ux(0)),fy0=Y(Z.uy(0)),fw=Z.cv.width/Z.s*V.s,fh=Z.cv.height/Z.s*V.s;
+  c.lineWidth=1.3;c.strokeStyle='#64748b';c.beginPath();c.arc(kx,ky,MENU.r*V.s,0,7);c.stroke();            /* the corner's circle, whole */
+  drawOutline(V,MENU,4);
+  const loc={x:W-LOC.bw-6,y:H-LOC.bh-6};reserveBox(c,loc.x-3,loc.y-3,LOC.bw+6,LOC.bh+6);
+  reserve(c,kx,ky,12);reserve(c,px,py,12);reserve(c,qx,qy,10);reserveBox(c,fx0,fy0,fw,fh);
+  /* the right triangle with long side KP */
+  c.lineWidth=2.4;c.strokeStyle='#0f766e';c.beginPath();c.moveTo(px,py);c.lineTo(px,ky);c.lineTo(kx,ky);c.stroke();
+  c.lineWidth=1.6;c.strokeStyle='#111827';c.beginPath();c.moveTo(px+12,ky);c.lineTo(px+12,ky-12);c.lineTo(px,ky-12);c.stroke();
+  thin(c,px,py,qx,qy,'#334155',2);
+  if(st46>=3)arrow(c,kx,ky,px+(kx-px)*0.07,py+(ky-py)*0.07,COL.out,3.5,13);else thin(c,kx,ky,px,py,'#334155',2);
+  c.lineWidth=1.5;c.strokeStyle='#111827';c.strokeRect(fx0,fy0,fw,fh);                                        /* the part that the left picture shows */
+  plate(c,`${SYS} · 1 pt = ${f(V.s)} px`,8,16,12.5,'left','#334155');
+  plate(c,'black frame: the part the left picture shows',fx0+fw+8,fy0+14,12.5,'left','#111827');
+  plate(c,`P ${pt(...P0)}`,fx0+fw+8,py+6,13.5,'left',COL.ink);
+  plate(c,'Q',qx-12,qy-4,13.5,'right','#6b21a8');
+  plate(c,`${f(LEGY)} pt`,px-10,(py+ky)/2+16,13,'right','#0f766e');plate(c,`${f(LEGX)} pt`,(px+kx)/2,ky+17,13,'center','#0f766e');
+  plate(c,st46>=3?`the arrow from K to P · |KP| = ${f(DKP)} pt`:`|KP| = ${f(DKP)} pt`,(kx+px)/2+16,(ky+py)/2-2,13,'left',st46>=3?'#3730a3':'#334155');
+  plate(c,`K ${pt(...K0)}`,kx+16,ky+17,13.5,'left','#334155');plate(c,'the center of the corner’s circle',kx+16,ky+41,12.5,'left','#475569');
+  plate(c,'thin circle: the corner’s circle, radius 36 pt',kx+70,ky-86,12.5,'left','#475569');
+  plate(c,'the menu’s glass',X(196),Y(657),13.5,'center','#6b21a8');
+  locator(V,loc.x,loc.y,MENU,P0);
+  addPt(st,kx,ky,COL.K,`<b>K = ${pt(...K0)} pt</b>: the center of the circle that rounds the menu's top-left corner. The circle's radius, the corner radius, is 36 pt.<br>K is 36 pt from the menu's left edge and 36 pt from its top edge:<pre>x = <span class="kn">108.30</span> + <span class="kn">36</span> = 144.30\ny = <span class="kn">648.60</span> + <span class="kn">36</span> = 684.60</pre>`,'Point K');
+  addPt(st,qx,qy,COL.Q,tipQ(M0)+' Q is on line KP, 36 pt from K.','Point Q',{small:true});
+  addPt(st,px,py,COL.P,tipP(M0),'Point P')}
+const cut=x=>x.split(' = ').slice(1).join(' = '),nb=x=>`<span class="nb">${x}</span>`;
+const CAP46=[
+  ()=>`<b>Step 1 · P is 5.60 pt inside the glass.</b><ul class="capl"><li>P is a chosen pixel in the menu's top-left corner.</li><li>The corner is a quarter of a circle: center K, radius ${KN('36')} pt.</li><li>In a corner, sd = the distance from K − the radius: ${nb(`|KP| − 36 = ${KN(M0.t(DKP))} − ${KN('36')} = ${M0.t(M0.c.P.sd)} pt`)} ${info('sdP','How |KP| and sd at P are found')}.</li><li>Minus means inside: P is 5.60 pt from Q, the nearest point of the outline. Q is on line KP.</li></ul>`,
+  ()=>`<b>Step 2 · From A to B, sd changes by ${M0.t(M0.chX)}.</b><ul class="capl"><li>The shader cannot see Q. It asks for sd at two neighbors of P.</li><li>A is ${f(STEP0)} pt to the left of P, B ${f(STEP0)} pt to the right: ${nb(M0.lx[0]+' pt')}. The ${f(STEP0)} is chosen ${info('step','Why 0.50 pt')}.</li><li>sd at A = ${M0.t(M0.c.A.sd)} ${info('sdA','How sd at A is found')}, sd at B = ${M0.t(M0.c.B.sd)} ${info('sdB','How sd at B is found')}.</li><li>Change from A to B: ${nb(cut(M0.lx[1]))}. Minus: B is further inside than A.</li><li>For each 1 pt to the right: ${nb(cut(M0.lx[2]))}, because |AB| = 1 pt.</li></ul>`,
+  ()=>`<b>Step 3 · From D to E, sd changes by ${M0.t(M0.chY)}.</b><ul class="capl"><li>The same toward the bottom, with two more neighbors.</li><li>D is ${f(STEP0)} pt from P toward the top, E ${f(STEP0)} pt toward the bottom: ${nb(M0.ly[0]+' pt')}.</li><li>sd at D = ${M0.t(M0.c.D.sd)} ${info('sdD','How sd at D is found')}, sd at E = ${M0.t(M0.c.E.sd)} ${info('sdE','How sd at E is found')}.</li><li>Change from D to E: ${nb(cut(M0.ly[1]))}. Minus: E is further inside than D.</li><li>For each 1 pt toward the bottom: ${nb(cut(M0.ly[2]))}, because |DE| = 1 pt.</li></ul>`,
+  ()=>`<b>Step 4 · The two changes are the parts of one arrow.</b><ul class="capl"><li>The shader makes an arrow from P. Its x part is the change to the right, ${M0.t(M0.gx)}. Its y part is the change toward the bottom, ${M0.t(M0.gy)}.</li><li>A minus part goes the opposite way: 0.60 to the left, 0.80 toward the top. That way sd grows, toward 0 on the outline.</li><li>This arrow points straight at Q. Check: the arrow from K to P goes ${M0.t(LEGX)} to the left and ${M0.t(LEGY)} toward the top (right picture).<ul><li>${nb(KPLL[0])}</li><li>${nb(KPLL[1])}</li></ul></li><li>So the arrow from K to P is this arrow made ${M0.t(KFX)} times as long: both point along line KQ.</li></ul>`,
+  ()=>`<b>Step 5 · The arrow of the two changes is 1 long. Divided by its length, it is outward.</b><ul class="capl"><li>Its length = √(x part² + y part²):<ul><li>${nb(M0.ll[0])} · ${nb(M0.ll[1])}</li><li>${nb(M0.ll[2])} · ${nb(M0.ll[3])}</li></ul></li><li>The length says how much sd changes over 1 pt along this arrow. T is 1 pt from P along it: ${nb('sd at T = '+TT.t(CT.sd))} ${info('tip','How sd at T is found')}, and ${nb(TCH[0])}.</li><li>Divide each part by the length: ${nb(M0.ll[4])} · ${nb(M0.ll[5])}.</li><li>Why divide? Later lessons need outward exactly 1 long, and at some pixels this arrow is shorter: Section 2's button “between two edges” gives 0.707.</li></ul>`];
+function ideaAll(){$('ideaCap').innerHTML=CAP46[st46]();bindTips($('ideaCap'));
+  {const b=$('ideaDots');b.innerHTML='';for(let i=0;i<ST46;i++){const x=document.createElement('button');x.className='dot'+(i===st46?' on':'');x.setAttribute('aria-label','Step '+(i+1));x.onclick=()=>{st46=i;ideaAll()};b.appendChild(x)}}
+  $('ideaPrev').disabled=st46===0;$('ideaNext').disabled=st46===ST46-1;ideaZoom();ideaOverview()}
+
+/* ================= Section 2: Section 1's steps at a draggable P ================= */
+const TW={p:[...P0],step:STEP0,zc:null};
+const PRESETS=[['Section 1’s pixel',P0],['under the top edge',[257,654.2]],['outside the glass',[104.3,654.6]],['between two edges',[164.3,704.6]]];
+const STEPS=[0.25,0.5,1,2],ZS=()=>TW.step>1?45:TW.step<0.5?120:ZW[2],LIM=p=>[r2(clamp(p[0],98,392)),r2(clamp(p[1],640,843))];      /* P stays clear of the map's legend */
+function noteFor(M){const n=[];
+  if(M.len===0)return'Both changes are 0: A and B are equally far from the outline, and so are D and E. The arrow (0, 0) has no direction and cannot be divided by its length, 0.';
+  if(M.c.P.sd>0)n.push(`sd at P is plus: P is ${M.t(M.c.P.sd)} pt outside the glass. Outward still points away from the glass.`);
+  if(M.gx===0)n.push('From A to B the change is 0: A and B are equally far from the outline. Outward goes neither left nor right.');
+  if(M.gy===0)n.push('From D to E the change is 0: D and E are equally far from the outline. Outward goes neither toward the top nor toward the bottom.');
+  if(Math.abs(M.len-1)>0.004)n.push(`Two parts of the outline are about equally near to P, and the neighbors do not all measure to the same one. So the arrow of the two changes (amber) is only ${M.t(M.len)} long. Divided by its length, outward is 1 long.`);
+  return n.join(' ')}
+function traceAll(){const M=measure(MENU,TW.p,TW.step),w=M.c.P.w,sdP=M.c.P.raw;
+  {const cv=$('tMap'),V=mapView(cv),st=$('tMapStage'),c=V.ctx,X=V.X,Y=V.Y,H=V.cv.height;menuMap(V,st,MAPLEG);
+    const px=X(TW.p[0]),py=Y(TW.p[1]),qx=X(M.Q[0]),qy=Y(M.Q[1]),far=Math.abs(sdP)>10,K0c=w.part==='corner'?w.C:null,K=K0c&&Math.hypot(X(K0c[0])-X(TW.p[0]),Y(K0c[1])-Y(TW.p[1]))>19?K0c:null,kx=K?X(K[0]):0,ky=K?Y(K[1]):0,o=M.out,u=w.out;
+    const n=u[0]>1e-9||(Math.abs(u[0])<=1e-9&&u[1]<0)?[-u[1],u[0]]:[u[1],-u[0]],al=n[0]>0.3?'left':n[0]<-0.3?'right':'center';     /* beside the line: the side that is lower in the picture */
+    reserve(c,px,py,13);if(far)reserve(c,qx,qy,10);if(K)reserve(c,kx,ky,10);
+    if(K)thin(c,kx,ky,px,py,'#64748b',2);if(far)thin(c,px,py,qx,qy,'#334155',2);
+    if(M.len>0)arrow(c,px,py,X(TW.p[0]+ARW*o[0]),Y(TW.p[1]+ARW*o[1]),COL.out,4,12);
+    ['outward is drawn',`${ARW} pt long;`,'itself it is 1 long'].forEach((t,i)=>plate(c,t,8,H-60+22*i,12,'left','#334155'));
+    plate(c,'P',px+n[0]*24,py+n[1]*24,14,al,COL.ink);if(far)plate(c,'Q',qx+n[0]*21,qy+n[1]*21,13,al,'#6b21a8');
+    if(K){plate(c,'K',kx+n[0]*21,ky+n[1]*21,13,al,'#334155');if(Math.hypot(kx-px,ky-py)>70)plate(c,`|KP| = ${f(Math.round(Math.hypot(K[0]-TW.p[0],K[1]-TW.p[1])*1e3)/1e3)} pt`,(kx+px)/2-n[0]*16,(ky+py)/2-n[1]*16,12,n[0]>0.3?'right':n[0]<-0.3?'left':'center','#334155')}
+    if(K)addPt(st,kx,ky,COL.K,`<b>K = ${pt(...K)} pt</b>: the center of the circle that rounds this corner of the menu. Its radius is 36 pt.`,'Point K',{small:true});
+    if(far)addPt(st,qx,qy,COL.Q,tipQ(M),'Point Q',{small:true});
+    addPt(st,px,py,COL.P,()=>tipP(M)+'Drag P, or move it 0.1 pt with the arrow keys.','Point P',{key:'mp',
+      move:(cx,cy)=>{const q=canvasPos(cv,cx,cy);TW.p=LIM([V.ux(q[0]),V.uy(q[1])]);TW.zc=null;traceAll()},
+      keys:d=>{TW.p=LIM([TW.p[0]+0.1*d[0],TW.p[1]+0.1*d[1]]);TW.zc=null;traceAll()}})}
+  {const cv=$('tZoom'),s=ZS(),V=zoomView(cv,TW.zc||TW.p,s,ZT[0],ZT[1]);
+    zoomScene(V,$('tZoomStage'),M,{show:{A:1,B:1,D:1,E:1,Q:1,arrow:1},rail:200,key:'zp',pTip:()=>tipP(M)+'Drag P here for a small move.',
+      move:(cx,cy)=>{if(!TW.zc)TW.zc=[...TW.p];const Vz=zoomView(cv,TW.zc,ZS(),ZT[0],ZT[1]),q=canvasPos(cv,cx,cy);TW.p=LIM([Vz.ux(q[0]),Vz.uy(q[1])]);traceAll()},
+      keys:d=>{TW.p=LIM([TW.p[0]+0.1*d[0],TW.p[1]+0.1*d[1]]);TW.zc=null;traceAll()}})}
+  const note=noteFor(M);
+  $('tRead').innerHTML=`<b>P = ${pt(...TW.p)} pt</b> · sd at P = ${M.t(M.c.P.sd)} pt: ${insideWords(M.c.P.sd,M.t)}<br><b>outward = ${outTxt(M)}</b>${M.len>0?': '+dirWords(M.out,M.t):''}`;
+  $('tNote').textContent=note;$('tNote').hidden=!note;
+  const ib=n=>`<button class="info" id="tI${n}" aria-label="How sd at ${n} is found">ⓘ</button>`;
+  $('tTable').innerHTML=`<tr><th>Section 1's step</th><th>at this P</th></tr>`
+    +`<tr><td class="pl">Step 1 · sd at P</td><td class="f">${M.c.P.lines.join('<br>')}<br><span class="lg">${M.c.P.head}</span></td></tr>`
+    +`<tr><td class="px">Step 2 · from A to B</td><td class="f">sd at A = ${M.t(M.c.A.sd)} ${ib('A')} · sd at B = ${M.t(M.c.B.sd)} ${ib('B')}<br>${M.lx.join('<br>')}</td></tr>`
+    +`<tr><td class="py">Step 3 · from D to E</td><td class="f">sd at D = ${M.t(M.c.D.sd)} ${ib('D')} · sd at E = ${M.t(M.c.E.sd)} ${ib('E')}<br>${M.ly.join('<br>')}</td></tr>`
+    +`<tr><td class="pn">Step 4 · the arrow of the two changes</td><td class="f">(${M.t(M.gx)}, ${M.t(M.gy)})<span class="lg"> · ${dirWords([M.gx,M.gy],M.t)}</span></td></tr>`
+    +`<tr><td class="pc">Step 5 · its length; outward</td><td class="f">${M.ll.join('<br>')}${M.len>0?'':'<br><span class="lg">length 0: no division; no direction</span>'}</td></tr>`;
+  for(const n of['A','B','D','E'])setTip($('tI'+n),tipN(M,n));
+  document.querySelectorAll('#tSteps button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.s===TW.step)));
+  document.querySelectorAll('#tPre button').forEach((b,i)=>b.setAttribute('aria-pressed',String(PRESETS[i][1][0]===TW.p[0]&&PRESETS[i][1][1]===TW.p[1])))}
+document.addEventListener('pointerup',()=>{if(TW.zc){TW.zc=null;traceAll()}});
+
+/* ================= the exercises ================= */
+const MT=measure(MENU,[257,654.2],STEP0),MR=measure(BTN,[358.3,821.6],STEP0);
+function exercises(){const s1={A:1,B:1,D:1,E:1},Z=(id,M,x,y)=>zoomView($(id),M.P,64,x,y);
+  zoomScene(Z('ex1q',MT,300,410),$('ex1qStage'),MT,{show:{...s1,ask:1},rail:190,locator:true});
+  zoomScene(Z('ex1a',MT,300,410),$('ex1aStage'),MT,{show:{...s1,Q:1,arrow:1},rail:190,locator:true,qLabel:'Q'});
+  zoomScene(Z('ex2q',MR,230,210),$('ex2qStage'),MR,{show:{...s1,ask:1},rail:160,locator:true});
+  zoomScene(Z('ex2a',MR,230,210),$('ex2aStage'),MR,{show:{...s1,Q:1,arrow:1},rail:160,locator:true,qLabel:'Q',toK:true});
+  $('ex1aText').innerHTML=`<li>From A to B, 1 pt apart: ${cut(MT.lx[1])}. A and B are equally far inside: outward goes neither left nor right.</li><li>From D to E, 1 pt apart: ${cut(MT.ly[1])}. Minus: outward goes toward the top.</li><li>Length: ${cut(MT.ll[0])}; ${cut(MT.ll[1])}; ${cut(MT.ll[2])}; ${cut(MT.ll[3])}.</li><li>outward = (0, −1): 1 toward the top, straight at Q on the top edge.</li>`;
+  $('ex2aText').innerHTML=`<li>From A to B, 1 pt apart: ${cut(MR.lx[1])}. Plus: to the right, a pixel is nearer the outline. So outward goes 0.80 to the right.</li><li>From D to E, 1 pt apart: ${cut(MR.ly[1])}. Plus: outward goes 0.60 toward the bottom.</li><li>Length: ${cut(MR.ll[0])}; ${cut(MR.ll[1])}; ${cut(MR.ll[2])}; ${cut(MR.ll[3])}.</li><li>outward = (0.80, 0.60): straight at Q, away from the button's center K (gray line).</li>`;
+  document.querySelectorAll('.choices').forEach(g=>{const out=g.nextElementSibling;g.querySelectorAll('button').forEach(b=>{b.setAttribute('aria-pressed','false');b.onclick=()=>{g.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));out.className='verdict '+(b.dataset.ok==='1'?'ok':'no');out.textContent=b.dataset.why}})})}
+
+/* ================= tooltips ================= */
+const chainTip=(n,lead)=>`<b>sd at ${n}.</b> ${lead}<br>${cap1(M0.c[n].head)}.<pre>${M0.c[n].lines.join('\n')}</pre>`;
+const TIPS={
+  sdP:()=>chainTip('P',`P = ${pt(...P0)} pt. The right picture draws the two legs and KP.`),
+  sdA:()=>chainTip('A',`A = ${pt(...M0.pts.A)} pt: ${f(STEP0)} pt to the left of P.`),
+  sdB:()=>chainTip('B',`B = ${pt(...M0.pts.B)} pt: ${f(STEP0)} pt to the right of P.`),
+  sdD:()=>chainTip('D',`D = ${pt(...M0.pts.D)} pt: ${f(STEP0)} pt from P toward the top.`),
+  sdE:()=>chainTip('E',`E = ${pt(...M0.pts.E)} pt: ${f(STEP0)} pt from P toward the bottom.`),
+  tip:()=>`<b>sd at T.</b> T = ${pt(...T0)} pt: from P, 0.60 pt to the left and 0.80 pt toward the top.<br>${cap1(CT.head)}.<pre>${CT.lines.join('\n')}</pre>`,
+  step:()=>`<b>Why 0.50 pt.</b> A chosen step. A and B must be near P, so that the change from A to B tells what happens at P: 0.50 pt is small beside the corner radius, 36 pt. And |AB| is then exactly 1 pt. On the iPhone 16 Pro, 0.50 pt is 1.5 pixels. Section 2 has buttons for other steps.`,
+  menu:()=>`<b>Where these numbers come from.</b> Measured on a screen recording of Safari on the iPhone 16 Pro, good to about ±4 pt. The menu's glass at rest: 261 × 188 pt, center (238.80, 742.60) pt, corner radius about 36 pt. The “⋯” button: a circle of radius 25 pt around (342.30, 809.60) pt. They are not numbers published by Apple.`};
+
+/* ================= start ================= */
+(function(){
+  {const b=$('tPre');PRESETS.forEach(([name,p])=>{const x=document.createElement('button');x.className='btn';x.textContent=name;x.onclick=()=>{TW.p=[...p];TW.zc=null;traceAll()};b.appendChild(x)})}
+  {const b=$('tSteps');STEPS.forEach(s=>{const x=document.createElement('button');x.className='btn';x.dataset.s=s;x.textContent=f(s)+' pt'+(s===STEP0?' (chosen)':'');x.onclick=()=>{TW.step=s;TW.zc=null;traceAll()};b.appendChild(x)})}
+  $('ideaPrev').onclick=()=>{if(st46>0){st46--;ideaAll()}};$('ideaNext').onclick=()=>{if(st46<ST46-1){st46++;ideaAll()}};
+  heroMap();heroZoom();ideaAll();traceAll();exercises();bindTips(document.body);
+})();
+</script>
+</body>
+</html>

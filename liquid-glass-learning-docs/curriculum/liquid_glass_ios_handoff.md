@@ -607,6 +607,27 @@ Both `C`: HTML only. Contracts, page shapes and QA: `CURRENT_STATE.md`, “Lesso
 - 10.46 is `C`; 10.47 is `B` (needs Xcode and the lab): it joins 10.41–10.46 in one Metal function.
 - The pages 10.41–10.45 share one kit (rays, board, beam, the gold sheet seen straight on, a 3D view that fits itself, Section 2's map with a part K may not enter); cut it out of 10.45's script (10.44–10.45 add `op.more` in `light3D`/`lightFlat` and `op.paint` in `dot3D`).
 
+### Part two — Lesson 10.46, the first lesson of the Safari spring menu plan (generated 2026-11-19)
+
+Part two follows `curriculum/safari_spring_menu_plan.md`, not the entries above for 10.46–10.47: those belong to the 323-lesson curriculum, which is unchanged until the learner says to switch. Files: `course/part-two/chapter-NN/`. Contracts, page shape and QA: `CURRENT_STATE.md`, “Part two” and “Lesson 10.46”.
+
+```text
+10.46 outward at P = (126.06, 660.28) pt, 5.60 pt inside the resting menu's top-left corner (K = (144.3, 684.6), radius 36, |KP| = 30.4)
+      A, B, D, E 0.50 pt from P: sd −5.297, −5.897, −5.199, −5.999; changes −0.60 and −0.80; the arrow (−0.60, −0.80) is 1 long; outward = (−0.60, −0.80)
+      check: 18.24 ÷ 0.60 = 30.40 and 24.32 ÷ 0.80 = 30.40 (the arrow from K to P); T = (125.46, 659.48): sd −4.60
+      exercises: (257, 654.2) under the top edge → (0, −1); (358.3, 821.6) on the “⋯” button → (0.80, 0.60)
+```
+
+#### Lesson 10.46 — Which way is out: the outward direction at a pixel (`C`, made 2026-11-19)
+- **File:** `course/part-two/chapter-10/lesson-10-46-which-way-is-out.html`. No review file.
+- **One idea:** the changes of sd from A to B and from D to E are the parts of an arrow that points straight out of the glass; divided by its length it is outward. Recalled, each stated where it is used: sd at a point (9.2, 9.4), the change between two neighbors (10.2, 10.3), an arrow's length (9.1), the division by it (9.10).
+- **Stated, not proved:** that this arrow points straight out (checked with the arrow from K to P) and that its length is the change of sd over 1 pt along it (checked at T).
+- **Flat pictures:** no surface is involved. The plan teaches 10.47, 11.2 and 11.3 in a 3D view.
+
+#### Next in part two: 10.47–10.48
+- 10.47 (`C`, the rim line): outward at P is (−0.60, −0.80); the plan's light is L = (−0.48, −0.60, 0.64) and light = 0.40 + 0.60 × |dot|. Reuse this page's helpers (`measure`, `sdChain`, `zoomScene`, `menuMap`) with its two changed helpers (`R12`, `Trace.prototype.root`).
+- 10.48 (`B`, needs Xcode and the lab) writes the code of outward: four more calls of the sd function, a step of 0.5 pt, and the division by the length with a guard for length 0. Lesson 10.46 has no code.
+
 ## Side lesson — Safari shortcut, Section 4 revised 2026-10-26
 
 The learner found the push ratio, the constant 24 and the exact-fold modal hard to follow. Section 4 now uses one 15-step visual workspace with new wording and original SVG/canvas figures. The rendering formulas are unchanged:
