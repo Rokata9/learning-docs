@@ -68,7 +68,7 @@
   .ctl input#aRange{width:330px}.ctl .val{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;min-width:64px}
   table.trace td.pl{border-left:6px solid #eab308}table.trace td.pc{border-left:6px solid #0891b2}table.trace td.pn{border-left:6px solid #ec4899}
 .kn{background:#dcfce7;color:#14532d;border-radius:3px;padding:0 2px}#tip .kn{background:#1f4d33;color:#bbf7d0}
-.ideaCap{min-height:364px}
+.ideaCap{min-height:252px}
 </style>
 </head>
 <body>
@@ -80,17 +80,17 @@
 <div class="wrap">
 <h1>Lesson 10.44 — Why N must be 1 long</h1>
 <p class="sub">Light theme · desktop · works from <code>file://</code>.</p>
-<p class="lead"><b>Why:</b> brightness = dot(N, L) uses N, which is 1 long. A shader that skips the division N = rawNormal ÷ normalLength uses rawNormal, which is longer. At W = (0.71, 0.50) it gives 1.00456 instead of 0.79984.</p>
+<p class="lead"><b>Why:</b> a shader finds rawNormal first, from the slopes, and must then divide it by its length: N = rawNormal ÷ normalLength, 1 long. Only then does it compute brightness = dot(N, L). This lesson shows why the division is needed: without it, rawNormal in the formula would give 1.00456 at W = (0.71, 0.50) instead of 0.79984.</p>
 <p class="lead"><b>Where this is used.</b> Lesson 10.47 makes N 1 long before dot(N, L) in the shader of the lit glass, and keeps L 1 long. Lesson 10.49 makes its halfway arrow 1 long for the same reason.</p>
 
 <figure>
   <div class="heroGrid">
     <div><div class="stage" id="hero3Stage"><canvas id="hero3" width="760" height="560"></canvas></div>
       <div class="viewbar" id="hero3Bar"></div>
-      <figcaption><b>With rawNormal.</b> The glass painted with max(dot(rawNormal, L), 0). Orange: more than 1, near the outline on the right.</figcaption></div>
+      <figcaption><b>Without the division: rawNormal in the formula.</b> The glass painted with max(dot(rawNormal, L), 0). Orange: more than 1, near the outline on the right.</figcaption></div>
     <div><div class="stage" id="hero4Stage"><canvas id="hero4" width="760" height="560"></canvas></div>
       <div class="viewbar" id="hero4Bar"></div>
-      <figcaption><b>With N: the brightness</b>, max(dot(N, L), 0). Near the outline on the right, the glass gets darker. W and V: the two pixels of Section 1.</figcaption></div>
+      <figcaption><b>With the division: N = rawNormal ÷ normalLength, then the brightness</b>, max(dot(N, L), 0). Near the outline on the right, the glass gets darker. W: the pixel of Section 1; V: a pixel nearer the outline.</figcaption></div>
   </div>
 </figure>
 
@@ -125,7 +125,7 @@
 
 <!-- ============================ SECTION 2 ============================ -->
 <h2 id="s2"><span class="tag">Section 2 · one value, traced to the end</span>Section 1's steps at a draggable K</h2>
-<p><b>Drag K</b> on the map. K starts at (0.62, 0.66). W and V stay where Section 1 put them: drag K toward V to see the two Step 5 rows differ.</p>
+<p><b>Drag K</b> on the map. K starts at (0.62, 0.66). W and V stay where they are (V is nearer the outline): drag K toward V to see the last two rows differ, the wrong order without the division.</p>
 <figure id="traceFig" style="margin:12px 0 0"><div class="traceGrid">
   <div><div class="stage" id="traceStage"><canvas id="traceCv" width="760" height="700"></canvas></div><div class="viewbar" id="traceBar"></div>
     <div class="stage" id="tFlatStage"><canvas id="tFlat" width="760" height="520"></canvas></div></div>
@@ -144,7 +144,7 @@
 <details class="ex"><summary>Exercise 1 — What is dot(N, L₂) at W, for L₂ = (1.2, −1.5, 1.6)?</summary><div class="body">
   <div class="exq"><div><div class="stage" id="ex1q3Stage"><canvas id="ex1q3" width="620" height="560"></canvas></div><div class="viewbar" id="ex1q3Bar"></div>
       <figcaption><b>The glass at W, with a longer light arrow.</b> Orange: L₂ = (1.2, −1.5, 1.6), each part 2.5 times L's part: it points the same way as L and is 2.5 long. N = (0.605, 0, 0.796), 1 long.</figcaption></div>
-    <div><p>The shader of the lit glass gets L from the Swift code. Here the code passed L₂ instead of L. To answer, compare each product N's part × L₂'s part with the product for L.</p>
+    <div><p>Steps 1–3 showed that N must be 1 long. Does L have to be 1 long too? L₂ points the same way as L, so its line is L's line, but it is 2.5 long. To answer, compare each product N's part × L₂'s part with the product for L.</p>
       <p><b>What is dot(N, L₂) at W, for L₂ = (1.2, −1.5, 1.6)?</b></p>
       <div class="choices"><button class="btn" data-ok="1" data-why="Right. Each of L₂'s parts is 2.5 times L's, so each product is 2.5 times: 0.726 + 0 + 1.2736 = 1.9996, not the brightness 0.79984.">1.9996</button><button class="btn" data-ok="0" data-why="No. L₂ points the same way as L, but the dot product counts its length: each product is 2.5 times, so the sum is 2.5 × 0.79984 = 1.9996.">0.79984: L₂ points the same way as L</button><button class="btn" data-ok="0" data-why="No. 2.5 is L₂'s length. The dot product multiplies L₂'s parts with N's parts: 0.726 + 0 + 1.2736 = 1.9996.">2.5</button></div><div class="verdict" aria-live="polite"></div>
     </div></div>
@@ -1127,7 +1127,7 @@ function heroLight(stage,cv,bar,op={}){const o=new Orbit3D($(stage),$(cv),{yaw:o
   viewBar($(bar),o,[]);return o}
 
 /* ================= Lesson 10.44: why N must be 1 long ================= */
-let st44=0;const ST44=5;
+let st44=0;const ST44=3;const CODE44=[0,1,3];   /* Section 1's 3 steps → longArrow's code: none, the arrow k long, rawNormal */
 const KS=[0.5,1,1.5,2,2.5];let ki44=3;                 /* Steps 2–3's slider: the arrow's length k (chosen stops); opens at 2 */
 const VP=[0.73,0.50];let px44='V';                      /* Step 5's pixel: V, nearer the outline than W */
 const CAM44={yaw:125,pitch:12};                         /* at W and at V the gold sheet and the board are both seen from the side where L is drawn to the right of N, as in the flat drawing */
@@ -1152,9 +1152,9 @@ const BOXV=boxFor(PXD.V.N,[sheetOf(PXD.V.raw,LK)]);
 function longArrow(st,p){const N=p.N,B=beamOf(N,LK);
   if(st===1||st===2){const k=KS[ki44];if(k===1)return null;const T=new Trace(5),g=T.K(1,1).mul('|SG| = k × |SF|',k,dotN(N,LK)),parts=scale3(N,k).map(R12);
     return{k,v:parts,f:[k*B.d,k*B.s],g,gLine:T.take()[0],tri:st===1,name:`the arrow ${f(k)} long`,
-      rLab:`R: the tip of the arrow ${f(k)} long`,gLab:st===1?'G':`G: ${fx(g)}`,
+      rLab:`R: the tip of the arrow ${f(k)} long`,gLab:`G: ${fx(g)}`,
       rTip:`<b>R</b>, the tip of the arrow ${f(k)} long. It starts at S and goes along N's line. Its parts are ${f(k)} × N's parts: ${v3(parts)}.`,
-      gTip:st===1?`<b>G</b>, the foot of R on L's line. △SGR is △SFN scaled from S by k = ${f(k)}: G is ${f(k)} times as far from S as F, and the corner at G is square, as at F.`:`<b>G</b>, the foot of R on L's line, at ${fx(g)}: dot(the arrow ${f(k)} long, L). △SGR is △SFN scaled from S by k = ${f(k)}, so the corner at G is square, as at F.`}}
+      gTip:st===1?`<b>G</b>, the foot of R on L's line. △SGR is △SFN scaled from S by k = ${f(k)}: G is ${f(k)} times as far from S as F, and the corner at G is square, as at F.`:`<b>G</b>, the foot of R on L's line, at ${fx(g)}: dot(the arrow from S to R, L). △SGR is △SFN scaled from S by k = ${f(k)}, so the corner at G is square, as at F.`}}
   if(st>=3){const c=rawLines(p.raw,LK),fq=sheetOf(p.raw,LK);
     return{k:p.len,v:p.raw,f:fq,g:c.d,tri:false,name:'rawNormal',rLab:`R: the tip of rawNormal, ${fx(p.len)} long`,gLab:`G: ${fx(c.d)}`,
       rTip:`<b>R</b>, the tip of rawNormal at ${p.name}. rawNormal = ${v3(p.raw)}, ${fx(p.len)} long, from S. It points the same way as N.`,
@@ -1174,18 +1174,21 @@ function more3D(L,arr,bars){return({a,at,LB,keys})=>{
 function moreFlat(arr,bars){return({ctx,P,B,LB,later,dot,S})=>{
   if(bars){const e=bars.e,off=-11;ctx.save();ctx.lineCap='butt';ctx.lineWidth=8;
     for(let i=0;i<3;i++){if(Math.abs(e[i+1]-e[i])<1e-9)continue;const p=P([e[i],0]),q=P([e[i+1],0]);ctx.strokeStyle=BARC[i][0];ctx.beginPath();ctx.moveTo(p[0]+1,p[1]+off);ctx.lineTo(q[0]-1,q[1]+off);ctx.stroke();
-      LB(`${PRODN[i]}: ${fx(bars.m[i])}`,[(e[i]+e[i+1])/2,0],13,BARC[i][1],[[0,-34,'center'],[0,-56,'center']])}
-    ctx.restore()}
+      LB(`${PRODN[i]}: ${fx(bars.m[i])}, from ${i?fx(e[i]):'S'}`,[(e[i]+e[i+1])/2,0],13,BARC[i][1],[[0,-34,'center'],[0,-56,'center']])}
+    ctx.restore();
+    /* where one bar ends and the next starts: a dark mark across the bars, down to L's line */
+    for(let i=1;i<3;i++){if(Math.abs(e[i]-e[i-1])<1e-9&&i>1)continue;if(Math.abs(e[i+1]-e[i])<1e-9&&i<2)continue;const q=P([e[i],0]);line(ctx,q[0],q[1]-17,q[0],q[1],'#111827',2)}}
   if(!arr)return;const rp=P(arr.f),g=[arr.g,0],gp=P(g);
   if(arr.tri){ctx.beginPath();ctx.moveTo(S[0],S[1]);ctx.lineTo(gp[0],gp[1]);ctx.lineTo(rp[0],rp[1]);ctx.closePath();ctx.fillStyle=COLR.tri;ctx.fill()}
   arrow(ctx,S[0],S[1],rp[0],rp[1],COLR.a,3.4,12);if(arr.k>1){const np=P(B.nt);arrow(ctx,S[0],S[1],np[0],np[1],COL.N,3.4,12)}   /* N stays on top of the longer arrow */
   line(ctx,rp[0],rp[1],gp[0],gp[1],COL.drop,2.6);sqMark(ctx,gp,[-1,0],[0,-1],11);
-  LB(arr.rLab,arr.f,13.5,COLR.t,[[10,-14,'left'],[-10,-14,'right'],[12,14,'left']]);LB(arr.gLab,g,13.5,COLR.t,[[0,40,'center'],[10,40,'left'],[-10,40,'right'],[0,62,'center']]);
+  LB(bars?'R':arr.rLab,arr.f,13.5,COLR.t,[[10,-14,'left'],[-10,-14,'right'],[12,14,'left']]);LB(arr.gLab,g,13.5,COLR.t,[[0,42,'center'],[10,42,'left'],[-10,42,'right'],[0,62,'center'],[14,-26,'left'],[-14,-26,'right'],[0,-48,'center']]);   /* Step 3: R's label short, and G may go above when F's label takes the space below */
   later.push(dot(arr.f,COLR.a,4.5,arr.rTip,'R'),dot(g,COLR.g,5,arr.gTip,'G'))}}
-const pxOf=st=>st===4?PXD[px44]:PXD.W;
+const pxOf=st=>PXD.W;
 const op44=(st,p,bx=BOXW)=>{const k1=(st===1||st===2)&&KS[ki44]===1,dark=st===2;   /* Step 3 draws no light: its caption uses only the arrow, F, G and L's line */
   return{fitAngle:[CAM44.yaw,CAM44.pitch],box:bx,xs:bx.x1-0.1,bottomLab:[10,-12,'left'],beam:!dark,lit:!dark,raysOn:!dark,board:!dark,sfn:true,sfnFill:st===1,ticks:true,K:p.name,lmin:-0.35,sqPref:[[0,24,'center'],[0,-24,'center']],
-    fLabText:B=>k1?`F = G: ${fx(B.d)}`:`F: ${fx(B.d)}`,fPref:dark?[[0,52,'center'],[-10,52,'right'],[10,52,'left']]:[[0,40,'center'],[-10,40,'right'],[10,40,'left'],[0,-28,'center']]}};   /* Step 3: F's label below the tick numbers, clear of the bars above L's line */
+    fLabText:B=>k1?`F = G: ${fx(B.d)}`:`F: ${fx(B.d)}`,fPref:dark?[[0,66,'center'],[-10,66,'right'],[10,66,'left']]:[[0,40,'center'],[-10,40,'right'],[10,40,'left'],[0,-28,'center']]}};   /* Step 3: F's label below the tick numbers, clear of the bars above L's line */
+const LEG1_44=st=>[["gold: L · L's line, numbers from S · the sheet holding N and L"],["pink: N, 1 long · cyan: to L's line at 90° · violet curves: the curved glass"]].concat(st===1?[[KS[ki44]===1?'pink fill: △SFN':'indigo: an arrow k long along N\'s line · light indigo: △SGR · pink fill: △SFN',COLR.t]]:st===2?[['indigo: rawNormal, from S',COLR.t]]:[]);   /* Section 1's legend: no board, rays or beam */
 const LEG44=st=>[["gold: L · L's line, numbers from S · the sheet holding N and L"],["pink: N, 1 long · cyan: to L's line at 90° · violet curves: the curved glass"]]
   .concat(st===2?[]:[['blue: the board · amber: rays · yellow band: the beam, 1 wide']])
   .concat(st===1?[[KS[ki44]===1?'pink fill: △SFN':'indigo: an arrow k long along N\'s line · light indigo: △SGR · pink fill: △SFN',COLR.t]]:st===2?(KS[ki44]===1?[]:[['indigo: an arrow k long along N\'s line',COLR.t]]).concat([['bars on L\'s line: the products · lime: x parts · sky blue: height parts',COL.hT]]):st>=3?[['indigo: rawNormal, from S',COLR.t]]:[]);
@@ -1197,28 +1200,22 @@ const subl=L=>`<ul>${L.map(x=>`<li>${x}</li>`).join('')}</ul>`;
 /* a formula's five lines in two: the three named products, then the two sums (each “=” still one operation) */
 const two=c=>{const n=named(c);return subl([n.slice(0,3).join(' · '),n.slice(3,5).join(' · ')])};
 const CAP44=[
-  ()=>{const p=PXD.W,B=beamOf(p.N,LK);return`<b>Step 1 · At W, the brightness is |SF|.</b><ul class="capl"><li>W = (0.71, 0.50) is on the right rim. S is the glass above W. N = ${NTXT(p.N)} ${info('nw','How N at W is found')}, 1 long.</li><li>The beam, 1 wide, lands on SQ, |SQ| = ${fmt5(B.lit)} (measured). Brightness = ${brightLine(B).line}.</li><li>F, the foot of the tip of N on L's line, is at dot(N, L) = 0.79984 ${info('dotw','dot(N, L) at W')}: the same number.</li></ul>`},
-  ()=>{const p=PXD.W,k=KS[ki44],a=longArrow(1,p);if(!a)return`<b>Step 2 · An arrow k long along N's line.</b><ul class="capl"><li>The slider sets k, the arrow's length (2 at the start, chosen). R is its tip, G the foot of R on L's line.</li><li>At k = 1 the arrow is N itself: R is the tip of N, and G is F, at 0.79984.</li><li>Move the slider: P, Q and |SQ| do not move, so the light stays the same.</li></ul>`;
-    return`<b>Step 2 · An arrow k long along N's line.</b><ul class="capl"><li>The slider sets k, the arrow's length (2 at the start, chosen). R is its tip, G the foot of R on L's line.</li><li>Its parts are k times N's parts: ${v3(a.v)} for k = ${f(k)}.</li><li>△SGR is △SFN scaled from S by k ${info('scale','What scaling from S does')}: G is ${f(k)} times as far from S as F.</li><li>P, Q and |SQ| do not move: the light, and the brightness 0.79984, stay.</li></ul>`},
-  ()=>{const p=PXD.W,b=prodBars(p),n=named(b.c),one=b.k===1,nm=one?'N':`the arrow ${f(b.k)} long`,kk=f(b.k),
-    calc=subl([`${n[0]} (lime bar)`,`${n[1]}: ${nm} does not go toward the bottom of the picture, so no bar`,`${n[2]} (sky blue bar)`,n[3]+' · '+n[4]]),
-    head=`<ul class="capl"><li>A shader computes the brightness as dot(N, L): N's parts times L's parts, then added.</li>`;
-    if(one)return`<b>Step 3 · dot(N, L), the products drawn on L's line.</b>`+head+`<li>At k = 1 the arrow of Step 2 is N itself:${calc}</li><li>The bars, end to end on L's line, end at F, at 0.79984: the brightness. Move the slider: the arrow of Step 2, k long, then takes N's place.</li></ul>`;
-    return`<b>Step 3 · The arrow ${kk} long in N's place.</b>`+head+`<li>Now it gets the arrow ${kk} long in place of N: the indigo arrow from S to R, parts ${v3(b.v)}. L, the direction to the light, stays. It computes dot(the arrow ${kk} long, L):${calc}</li><li>Why |SG|? Each part is ${kk} times N's part, so each product, and the sum, is ${kk} times N's: ${kk} times dot(N, L) = ${kk} times |SF|. G is ${kk} times as far from S as F (Step 2), so the sum is |SG|: the bars end at G.</li><li>The brightness is still 0.79984, at F. So the shader's number is the brightness only when the arrow in N's place is 1 long.</li></ul>`},
-  ()=>{const p=PXD.W,c=LN('W');return`<b>Step 4 · A shader that skips the division uses rawNormal.</b><ul class="capl"><li>Why rawNormal? A shader finds rawNormal first, from the slopes: at W, rawNormal = ${v3(p.raw)} ${info('rw','How rawNormal and normalLength at W are found')}.</li><li>N = rawNormal ÷ normalLength costs work at every pixel: a square root for normalLength, then three divisions. rawNormal already points the same way as N, so that line is easy to skip.</li><li>Without that line, rawNormal takes N's place: an arrow ${fx(p.len)} long along N's line, like the arrow of Steps 2–3. dot(rawNormal, L):${two(c)}</li><li>|SG| = ${fx(c.d)}: G is beyond F, more than 1 from S. No light gives more than 1: |SQ| is never shorter than |SP|.</li></ul>`},
-  ()=>{const w=PXD.W,v=PXD.V,cv=LN('V'),cw=LN('W'),Bv=beamOf(v.N,LK);return`<b>Step 5 · At V, rawNormal gives the bigger number, though V is darker.</b><ul class="capl"><li>V = (0.73, 0.50) is nearer the outline.</li><li>At V, with N = ${NTXT(v.N)} ${info('nv','How N at V is found')}: |SQ| = ${fmt5(Bv.lit)}, brightness = ${brightLine(Bv).line}, less than W's 0.79984.</li><li>At V, rawNormal = ${v3(v.raw)} ${info('rv','How rawNormal at V is found')}:${two(cv)}At V, |SG| = ${fx(cv.d)}, more than W's ${fx(cw.d)}.</li><li>Why? rawNormal is ${fx(v.len)} long at V and ${fx(w.len)} at W. By Step 2, a longer arrow puts G further from S: V's brightness is a little smaller, but its arrow is much longer.</li><li>So a shader makes the arrow 1 long first: N = rawNormal ÷ normalLength.</li></ul>`}];
-function stepCtl(){$('kCtl').hidden=st44!==1&&st44!==2;$('pxCtl').hidden=st44!==4;$('kRange').value=ki44;const k=KS[ki44];$('kVal').textContent=k===1?'1: the arrow is N':k===2?'2 (the start)':f(k);
+  ()=>{const p=PXD.W;return`<b>Step 1 · The brightness is where the tip of N lands on L's line.</b><ul class="capl"><li>W = (0.71, 0.50) is on the right rim; S is the glass above W. N = ${NTXT(p.N)} ${info('nw','How N at W is found')} is 1 long.</li><li>Drop a line from the tip of N to L's line, meeting it at 90° (cyan): it lands at F. Think of F as the tip's shadow on L's line.</li><li>F is 0.79984 from S. That number is the brightness: dot(N, L) ${info('dotw','dot(N, L) at W')}. L is 1 long too.</li></ul>`},
+  ()=>{const p=PXD.W,k=KS[ki44],a=longArrow(1,p);if(!a)return`<b>Step 2 · A longer arrow lands further.</b><ul class="capl"><li>The slider makes an arrow along N's line, k long (2 at the start, chosen). R is its tip; G is where R lands on L's line.</li><li>At k = 1 the arrow is N itself: G is F, at 0.79984.</li><li>Move the slider to make the arrow longer or shorter.</li></ul>`;
+    return`<b>Step 2 · ${k===2?'Twice as long, twice as far':`${f(k)} times as long, ${f(k)} times as far`}.</b><ul class="capl"><li>The slider makes an arrow along N's line, k long (2 at the start, chosen). R is its tip; G is where R lands on L's line.</li><li>The triangle SGR is the triangle SFN made ${f(k)} times as big, from S ${info('scale','What scaling from S does')}: |SG| = ${f(k)} × 0.79984 = ${fx(a.g)}.</li><li>The light did not change: only the arrow got ${k>1?'longer':'shorter'}. So ${fx(a.g)} is not the brightness. The formula gives the brightness only for an arrow 1 long.</li></ul>`},
+  ()=>{const p=PXD.W,c=LN('W');return`<b>Step 3 · rawNormal is too long, so the shader divides it first.</b><ul class="capl"><li>The shader first gets rawNormal = ${v3(p.raw)} from the slopes ${info('rw','How rawNormal and normalLength at W are found')}. It lies along N's line, but it is ${fx(p.len)} long, not 1.</li><li>So its tip, R, lands too far along L's line, at G: dot(rawNormal, L):${two(c)}More than 1: no light is brighter than 1.</li><li>Divided by ${fx(p.len)}, it becomes N = ${NTXT(p.N)}, 1 long, and its tip lands back at F, 0.79984. That is why the shader divides first: N = rawNormal ÷ normalLength, then dot(N, L).</li></ul>`}];
+function stepCtl(){$('kCtl').hidden=st44!==1;$('pxCtl').hidden=true;$('kRange').value=ki44;const k=KS[ki44];$('kVal').textContent=k===1?'1: the arrow is N':k===2?'2 (the start)':f(k);
   $('pxW').setAttribute('aria-pressed',String(px44==='W'));$('pxV').setAttribute('aria-pressed',String(px44==='V'))}
 function ideaAll(){$('ideaCap').innerHTML=CAP44[st44]();bindTips($('ideaCap'));stepCtl();
   {const b=$('ideaDots');b.innerHTML='';for(let i=0;i<ST44;i++){const x=document.createElement('button');x.className='dot'+(i===st44?' on':'');x.setAttribute('aria-label','Step '+(i+1));x.onclick=()=>{st44=i;ideaAll()};b.appendChild(x)}}
   $('ideaPrev').disabled=st44===0;$('ideaNext').disabled=st44===ST44-1;ideaOrb.render();
   const p=pxOf(st44),st=$('ideaFlatStage'),cv=$('ideaFlat'),ctx=cv.getContext('2d');clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
-  lightFlat(ctx,st,p.N,LK,{...op44(st44,p),rayLab:st44===2?null:'rays of light',sfnFill:st44===1,more:moreFlat(longArrow(st44,p),st44===2?prodBars(p):null)})}
+  lightFlat(ctx,st,p.N,LK,{...op44(CODE44[st44],p),beam:false,lit:false,raysOn:false,board:false,rayLab:null,fPref:[[0,40,'center'],[-10,40,'right'],[10,40,'left'],[0,62,'center']],sfnFill:st44===1,more:moreFlat(longArrow(CODE44[st44],p),null)})}
 $('ideaPrev').onclick=()=>{if(st44>0){st44--;ideaAll()}};$('ideaNext').onclick=()=>{if(st44<ST44-1){st44++;ideaAll()}};
 $('kRange').oninput=e=>{ki44=+e.target.value;ideaAll()};
 $('pxW').onclick=()=>{px44='W';ideaAll()};$('pxV').onclick=()=>{px44='V';ideaAll()};
 const ideaOrb=new Orbit3D($('ideaStage'),$('ideaCv'),{yaw:CAM44.yaw,pitch:CAM44.pitch,zoom:1,scale:80,target:[0,0,0],compassPos:'tr',coord:()=>`UV, zoomed in at ${pxOf(st44).name}`,draw:o=>{const p=pxOf(st44);
-  light3D(o,p.w,p.N,LK,{...op44(st44,p),Ktip:PTIP(p),rayLab:st44===2?null:'rays of light',more:more3D(LK,longArrow(st44,p),st44===2?prodBars(p):null)});legendL(o,LEG44(st44))}});
+  light3D(o,p.w,p.N,LK,{...op44(CODE44[st44],p),beam:false,lit:false,raysOn:false,board:false,rayLab:null,fPref:[[0,40,'center'],[-10,40,'right'],[10,40,'left'],[0,62,'center']],Ktip:PTIP(p),more:more3D(LK,longArrow(CODE44[st44],p),null)});legendL(o,LEG1_44(st44))}});
 viewBar($('ideaBar'),ideaOrb,[]);
 
 /* ================= the hero: the glass painted with rawNormal's number and with the brightness ================= */
@@ -1245,17 +1242,17 @@ function kPix(){const w=TW.w,r=rawOf(...w);return{name:'K',w,N:nShown(...w),raw:
 const opK=p=>{const bx=boxFor(p.N,[sheetOf(p.raw,LK)]);return{...op44(3,p,bx),sfnFill:false,K:'K'}};
 function traceAll(){const p=kPix(),B=beamOf(p.N,LK),cN=chainLines(p.N,LK),cR=rawLines(p.raw,LK),cW=LN('W');
   const P=kMap($('tMap'),$('tMapStage'),{w:TW.w,name:'K',img:mapImage(LK,230,true,true),mask:true,maskKey:'k44',maskOk:okK,set:(a,b)=>{TW.w=stayOk(okK,TW.w,[a,b]);traceAll()}});
-  {const cv=$('tMap'),ctx=cv.getContext('2d'),q=P(...WP),k=P(...TW.w),dx=k[0]<=q[0]?1:-1,dy=k[1]<=q[1]?1:-1;fdot(ctx,q,'#fff',5);plate(ctx,'W',q[0]-10,q[1]+(k[1]<q[1]-0.004*360?16:-16),12.5,'right','#111827');{const r=P(...VP);fdot(ctx,r,'#fff',5);plate(ctx,'V',r[0]+10,r[1]+(k[1]<r[1]-1.4?16:-16),12.5,'left','#111827');addPt($('tMapStage'),r[0],r[1],'#fff',PTIP(PXD.V)+' Section 1\'s pixel V; it does not move.','V',{small:true})}addPt($('tMapStage'),q[0],q[1],'#fff',PTIP(PXD.W)+' Section 1\'s pixel; it does not move.','W',{small:true})}
+  {const cv=$('tMap'),ctx=cv.getContext('2d'),q=P(...WP),k=P(...TW.w),dx=k[0]<=q[0]?1:-1,dy=k[1]<=q[1]?1:-1;fdot(ctx,q,'#fff',5);plate(ctx,'W',q[0]-10,q[1]+(k[1]<q[1]-0.004*360?16:-16),12.5,'right','#111827');{const r=P(...VP);fdot(ctx,r,'#fff',5);plate(ctx,'V',r[0]+10,r[1]+(k[1]<r[1]-1.4?16:-16),12.5,'left','#111827');addPt($('tMapStage'),r[0],r[1],'#fff',PTIP(PXD.V)+' A pixel nearer the outline; it does not move.','V',{small:true})}addPt($('tMapStage'),q[0],q[1],'#fff',PTIP(PXD.W)+' Section 1\'s pixel; it does not move.','W',{small:true})}
   traceOrb.render();
   $('tRead').innerHTML=`<b>K = ${pt(...p.w)}</b> in UV<br><b>N = ${NTXT(p.N)}</b> <button class="info" id="tNinfo" aria-label="How N and rawNormal are calculated">ⓘ</button><br><b>rawNormal = ${v3(p.raw)}</b><br><b>L = (0.48, −0.60, 0.64)</b><br><span class="small">x part, y part, height part, in arrow units</span><br><span class="small">map: gray is the brightness; hatched: K may not go there (SQ or rawNormal too long to draw, or the glass faces away from the light)</span>`;setTip($('tNinfo'),nTipW('K',...p.w));
   const cmp=(a,b)=>Math.abs(a-b)<1e-12?'as bright as W':a<b?'K darker than W':'K brighter than W',oN=cmp(cN.d,0.79984),oR=cmp(cR.d,cW.d),same=oN===oR;
   $('tTable').innerHTML=`<tr><th>Section 1's step, at this K</th><th>the number</th></tr>`
-    +`<tr><td class="pn">Step 1: brightness, |SP| ÷ |SQ|</td><td class="f">${cut2(brightLine(B).line)}</td></tr>`
+    +`<tr><td class="pn">brightness, |SP| ÷ |SQ|</td><td class="f">${cut2(brightLine(B).line)}</td></tr>`
     +`<tr><td class="pl">Step 1: F, dot(N, L)</td><td class="f">${named(cN).join('<br>')}</td></tr>`
-    +`<tr><td class="pc">Step 4: rawNormal's length</td><td class="f">${fx(p.len)} <button class="info" id="tRinfo" aria-label="How rawNormal's length is found">ⓘ</button></td></tr>`
-    +`<tr><td class="pc">Step 4: G, dot(rawNormal, L)</td><td class="f">${named(cR).join('<br>')}</td></tr>`
-    +`<tr><td class="pl">Step 5: against W, with N (W: 0.79984)</td><td class="f">${oN}</td></tr>`
-    +`<tr><td class="pl">Step 5: against W, with rawNormal (W: ${fx(cW.d)})</td><td class="f">${oR}${same?'':': the wrong order'}</td></tr>`;
+    +`<tr><td class="pc">Step 3: rawNormal's length</td><td class="f">${fx(p.len)} <button class="info" id="tRinfo" aria-label="How rawNormal's length is found">ⓘ</button></td></tr>`
+    +`<tr><td class="pc">Step 3: G, dot(rawNormal, L), without the division</td><td class="f">${named(cR).join('<br>')}</td></tr>`
+    +`<tr><td class="pl">against W, with N (W: 0.79984)</td><td class="f">${oN}</td></tr>`
+    +`<tr><td class="pl">against W, without the division (W: ${fx(cW.d)})</td><td class="f">${oR}${same?'':': the wrong order'}</td></tr>`;
   setTip($('tRinfo'),nTipW('K',...p.w));
   {const st=$('tFlatStage'),cv=$('tFlat'),ctx=cv.getContext('2d');clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);lightFlat(ctx,st,p.N,LK,{...opK(p),rayLab:'rays of light',more:moreFlat(longArrow(3,p))})}}
 
@@ -1272,7 +1269,7 @@ function exercises(){exQ.render();exA.render();
   {const cv=$('ex1a'),st=$('ex1aStage'),ctx=cv.getContext('2d');clearPts(st);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
     lightFlat(ctx,st,PXD.W.N,LK,{box:BOXE,xs:2.7,board:false,raysOn:false,sfn:true,ticks:true,K:'W',more:moreLight('L₂ = (1.2, −1.5, 1.6): 2.5 long').fl})}
   const c=rawLines(PXD.W.N,L25,'N');c.lines=c.lines.map(x=>x.replace(/L's/g,"L₂'s").replace('dot(N, L)','dot(N, L₂)'));
-  $('ex1aText').innerHTML=`<li>dot(N, L₂), part by part, then added:${two(c)}</li><li>Each product is 2.5 times the product with L: 0.605 × 0.48 = 0.2904, and 2.5 × 0.2904 = 0.726. So 1.9996 is 2.5 times the brightness 0.79984.</li><li>So L must be 1 long too, like N.</li>`;
+  $('ex1aText').innerHTML=`<li>dot(N, L₂), part by part, then added:${two(c)}</li><li>Each product is 2.5 times the product with L: 0.605 × 0.48 = 0.2904, and 2.5 × 0.2904 = 0.726. So 1.9996 is 2.5 times the brightness 0.79984.</li><li>The tip of N still lands at the same point F, 0.79984 from S: L₂'s line is L's line. The formula gives 2.5 times that distance, 2.5 being L₂'s length.</li><li>So the formula gives how far the tip lands along the line only when L is 1 long too, like N.</li>`;
   document.querySelectorAll('.choices').forEach(g=>{const out=g.nextElementSibling;g.querySelectorAll('button').forEach(b=>{b.setAttribute('aria-pressed','false');b.onclick=()=>{g.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));out.className='verdict '+(b.dataset.ok==='1'?'ok':'no');out.textContent=b.dataset.why}})})}
 
 /* ================= tooltips ================= */
