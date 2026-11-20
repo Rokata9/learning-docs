@@ -1,6 +1,6 @@
 # Fresh beginner review — prompt template
 
-Use this for every new lesson and every revision, before delivery (`AGENTS.md` rule 20).
+Run this only when the learner asks for a fresh review (learner, 2026-11-17: no review by default; `AGENTS.md` section 9).
 
 ## How to run it
 
@@ -16,7 +16,7 @@ Use this for every new lesson and every revision, before delivery (`AGENTS.md` r
    - Not a fork, and not the agent that wrote the lesson.
    - Give it the prompt below, with the six placeholders filled in.
    - It must not edit files.
-3. **Fix** every item marked `blocks` or `slows`. If the reviewer counts more new ideas than the lesson's type allows, split the lesson at once as it proposes, without asking the learner (`AGENTS.md` rule 16), and say in chat what was split. Then extract again and run a new fresh agent once more. Two fresh reviews per page at most (`AGENTS.md` rule 20); after the second, deliver with the open items named.
+3. **Fix** every item marked `blocks` or `slows`. If the reviewer counts more new ideas than the lesson's type allows, explain the extra step more clearly where it is; split only after asking the learner (`AGENTS.md` section 6). Then extract again and run a new fresh agent once more. Two fresh reviews per page at most; after the second, deliver with the open items named.
 4. **Deliver** the lesson with the reviewer's final list:
    - what was fixed;
    - what is left, and why;
@@ -77,7 +77,7 @@ The stepper sections and the traced value matter most. Then the exercises and th
 
 Be strict but honest: do not list what is clearly answered.
 
-### Also check the length and the language (`AGENTS.md` Rule 0)
+### Also check the length and the language (`AGENTS.md` sections 2–3)
 The learner is not a native English speaker. Long, wordy pages made the lessons fail (2026-11-05), so also list:
 - a sentence you had to read twice, or a phrase built from the lesson's nouns that no teacher would say (“lay the teal line along every line”, “up from Gx or level with it”);
 - a fact that the figure shows at a glance but the text proves in words;

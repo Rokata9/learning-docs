@@ -1,29 +1,17 @@
-# Liquid Glass on iOS — Learning Documents
+# Liquid Glass on iOS — learning documents
 
-Interactive, graphics-first lessons for building Liquid Glass effects on iOS from first principles.
+Interactive, picture-first lessons for building Liquid Glass effects on iOS from first principles. Open `liquid-glass-course.html` in a browser.
 
-## Start here
+## The documents
 
-Open `liquid-glass-course.html` in a browser.
+- `NEW_CHAT_PROMPT.md` — how a chat starts: the jobs, what to read, delivery.
+- `AGENTS.md` — the rules for writing lessons, with the checklist run before delivery.
+- `CURRENT_STATE.md` — where the course stands: files, the glass numbers, the newest lessons, what comes next.
+- `curriculum/safari_spring_menu_plan.md` — the plan for part two (the lessons after 10.45).
 
-Teaching contracts and current files live in `CURRENT_STATE.md`. The curriculum order lives in `curriculum/liquid_glass_ios_curriculum.md`. Lesson completion is reported only in chat when a new lesson is generated; project files do not track it.
+History (old per-lesson notes, the feedback log, the old handoff) is in git: see the top of `CURRENT_STATE.md`.
 
-To continue as a learner, paste `NEW_CHAT_PROMPT.md` (or tell the chat to read it from the repository) and name the job (questions or generate) in the same message. The prompt says what each job reads.
+## Repositories
 
-## Repos
-
-- Docs: this repository (`liquid-glass-learning-docs`). Edit in place. Do not copy this folder.
-- iOS lab: `/Users/rosen/Code/LiquidGlassLab-iOS` (sibling). Create and write only there.
-- Do not create an `ios/` or `android/` directory in this repo.
-
-## Rule sources
-
-- `AGENTS.md` — lesson quality, verification, Xcode `#Preview` rules.
-- `USER_PREFERENCES.md` — explanation calibration, visualization target, delivery preferences.
-- `curriculum/liquid_glass_ios_curriculum.md` — the 323-lesson plan and frozen locks.
-- `curriculum/liquid_glass_ios_handoff.md` — short continuation contracts for the current chapter.
-- `FEEDBACK_LOG.md` — learner corrections, newest first, each with its failure → rule link. Read on demand.
-
-## New-learning rule
-
-A full lesson must introduce a new mechanism, API behavior, mathematical operation, measurement method, or implementation step. Keep prerequisite recap brief. If planned material is mostly consolidation, make it a checkpoint or merge it into the next substantive lesson.
+- Docs: this repository. Edit in place.
+- iOS lab: `/Users/rosen/Code/LiquidGlassLab-iOS` (sibling, on the learner's Mac). Never create an `ios/` or `android/` folder here.

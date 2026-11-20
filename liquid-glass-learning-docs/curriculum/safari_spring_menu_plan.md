@@ -282,7 +282,7 @@ The test: a lesson stays only if, without it, one layer of the menu could not be
 
 ### 4.0 How every lesson of this plan is written
 
-- `AGENTS.md` and `USER_PREFERENCES.md` apply in full: Rule 0 (a few sentences, a picture, plain words), standard math words, concrete numbers, a stepper only when several facts lead to one result.
+- `AGENTS.md` applies in full: Rule 0 (a few sentences, a picture, plain words), standard math words, concrete numbers, a stepper only when several facts lead to one result.
 - **The real glass.** A lesson that involves the surface is taught on the menu's own glass, at a named pixel, in pt on the 402 × 874 pt screen, in a 3D view (10.47, 11.2, 11.3).
 - **Facts in place.** A new lesson states each fact it needs where it uses it. It never points back to an old lesson for it. 4.6 lists these facts.
 - **Two cases.** A formula is run on two cases, so that no number looks arranged: the resting rim (14 pt, 6 pt) and the in-flight rim (28 pt, 24 pt).
@@ -294,7 +294,7 @@ The test: a lesson stays only if, without it, one layer of the menu could not be
   - The 12 `B` and `E` lessons need the iOS lab and Xcode on your Mac.
 - **Builds only where two or three lessons give something to build** (your rule; see 5.3, item 2). One build, 12.2, follows a single new lesson: the motion of Chapter 13 needs the outline between button and menu first.
 
-What went wrong before (`FEEDBACK_LOG.md`), and what this plan does about it:
+What went wrong before, and what this plan does about it:
 
 | What went wrong | What this plan does |
 |---|---|

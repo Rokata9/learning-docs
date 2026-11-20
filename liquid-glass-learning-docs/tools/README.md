@@ -14,11 +14,11 @@ The script checks enabled local links. When Chromium is available, it also captu
 
 Interactive states still need a manual browser check or a purpose-built driver because a plain screenshot does not move sliders or press buttons.
 
-Screenshots go to a temp folder outside the repository and are deleted after QA (`AGENTS.md` rule 21). `tools/verify-lesson.mjs` stays as-is. Swift explorers are verified in Xcode (`#Preview`, then iPhone 16 Pro), not by this script.
+Screenshots go to a temp folder outside the repository and are deleted after QA (`AGENTS.md` section 9). `tools/verify-lesson.mjs` stays as-is. Swift explorers are verified in Xcode (`#Preview`, then iPhone 16 Pro), not by this script.
 
 ## Fresh beginner review (`tools/beginner-review/`)
 
-Before a new lesson or a revision is delivered, a separate agent that did not write it reads it as a total beginner and lists every claim the page does not answer (`AGENTS.md` rule 20).
+Only when the learner asks for it (no review by default since 2026-11-17): a separate agent that did not write the lesson reads it as a total beginner and lists every claim the page does not answer.
 
 - `extract_lesson.py` writes what the learner can read into a temp folder outside the repository:
   - every stepper state's caption, picture labels and tooltips;

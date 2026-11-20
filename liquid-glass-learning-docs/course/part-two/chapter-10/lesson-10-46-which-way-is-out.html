@@ -5,10 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lesson 10.46 — Which way is out: the outward direction at a pixel</title>
 <link rel="icon" href="data:,">
+<script>
+/* Theme block of the part-two pages: no selector. The system's light or dark setting is used, and follows it when it changes.
+   <html data-theme> is "light" or "dark". */
+(function(){var mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null,root=document.documentElement;
+  function apply(){root.dataset.theme=mq&&mq.matches?'dark':'light';if(window.onThemeChange)window.onThemeChange()}
+  if(mq){if(mq.addEventListener)mq.addEventListener('change',apply);else if(mq.addListener)mq.addListener(apply)}
+  apply()})();
+</script>
 <style>
-  :root{--ink:#1f2937;--muted:#6b7280;--line:#d1d5db;--soft:#f6f7f9;--green:#059669;--indigo:#4338ca;--amber:#d97706;--blue:#1e40af;--red:#dc2626}
+  /* Theme block: every color of the page is one of these variables. Dark: off-white text on a dark blue-gray; no pure white, no pure black. */
+  :root{--bg:#ffffff;--ink:#1f2937;--muted:#6b7280;--line:#d1d5db;--soft:#f6f7f9;--green:#059669;--indigo:#4338ca;--amber:#d97706;--blue:#1e40af;--red:#dc2626;
+    --cap:#4b5563;--tint:#eef2ff;--tintLine:#a5b4fc;--btnBg:#ffffff;--btnOn:#ffffff;--noteBg:#fffbeb;--newRow:#f0fdf4;--knBg:#dcfce7;--knInk:#14532d;--dot:#111827;
+    --tipBg:#111827;--tipInk:#f9fafb;--tipBox:#1f2937;--tipLine:#374151;--tipHi:#fde68a;--tipKnBg:#1f4d33;--tipKnInk:#bbf7d0;--paper:#ffffff}
+  :root[data-theme=dark]{--bg:#161d27;--ink:#ccd2dc;--muted:#9aa5b5;--line:#374253;--soft:#1e2733;--green:#34d399;--indigo:#a5b4fc;--amber:#fbbf24;--blue:#93c5fd;--red:#f87171;
+    --cap:#b6c0cd;--tint:#1f2a44;--tintLine:#4c5c8a;--btnBg:#1b2431;--btnOn:#0f172a;--noteBg:#2a2416;--newRow:#16281f;--knBg:#1f4d33;--knInk:#bbf7d0;--dot:#ccd2dc;
+    --tipBg:#2a3545;--tipInk:#ccd2dc;--tipBox:#1b2431;--tipLine:#4a586c;--tipHi:#fde68a;--tipKnBg:#1f4d33;--tipKnInk:#bbf7d0;--paper:#1b2431}
   *{box-sizing:border-box}
-  body{margin:0;background:#fff;color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  html{color-scheme:light}html[data-theme=dark]{color-scheme:dark}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
   .wrap{max-width:1600px;margin:0 auto;padding:0 24px 90px}
   header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;border-bottom:1px solid var(--line);padding:14px 0}
   header.top a,.navfoot a{color:var(--blue);text-decoration:none;font-size:14px}
@@ -19,59 +34,59 @@
   h3{font-size:16.5px;margin:26px 0 6px}p{font-size:15.5px;max-width:92ch;margin:8px 0}p.lead{font-size:17px;max-width:96ch}li{font-size:15.5px}
   code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
   code{background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:0 4px}
-  figure{margin:16px 0}canvas{display:block;border:1px solid var(--line);border-radius:8px;background:#fff}
-  figcaption{font-size:14px;color:#4b5563;max-width:100ch;margin-top:8px}.stage{position:relative}
+  figure{margin:16px 0}canvas{display:block;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+  figcaption{font-size:14px;color:var(--cap);max-width:100ch;margin-top:8px}.stage{position:relative}
   .heroGrid{display:grid;grid-template-columns:760px 760px;gap:28px;align-items:start}
   .grid3d{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start}
   .ideaGrid{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start;margin-top:14px}.ideaCap{min-height:200px;margin-bottom:12px}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .pair{display:grid;grid-template-columns:auto auto;gap:28px;justify-content:start;align-items:start}
-  .before{border:1px solid #a5b4fc;background:#eef2ff;border-radius:10px;padding:14px 18px;margin:20px 0}
+  .before{border:1px solid var(--tintLine);background:var(--tint);border-radius:10px;padding:14px 18px;margin:20px 0}
   .before h2{font-size:18px;border:0;margin:0 0 8px;padding:0}
   .before p,.before li{font-size:14.5px}.before ul{margin:6px 0}
-  .info{display:inline-block;width:17px;height:17px;line-height:15px;border-radius:50%;border:1px solid var(--blue);color:var(--blue);background:#eef2ff;font-size:11px;text-align:center;cursor:pointer;padding:0;vertical-align:2px;font-family:inherit;margin-left:3px}
+  .info{display:inline-block;width:17px;height:17px;line-height:15px;border-radius:50%;border:1px solid var(--blue);color:var(--blue);background:var(--tint);font-size:11px;text-align:center;cursor:pointer;padding:0;vertical-align:2px;font-family:inherit;margin-left:3px}
   .info:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
-  #tip{position:fixed;z-index:60;max-width:420px;max-height:calc(100vh - 20px);overflow:auto;background:#111827;color:#f9fafb;border-radius:8px;padding:10px 34px 10px 12px;font-size:13.5px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.28);display:none}
+  #tip{position:fixed;z-index:60;max-width:420px;max-height:calc(100vh - 20px);overflow:auto;background:var(--tipBg);color:var(--tipInk);border:1px solid var(--tipLine);border-radius:8px;padding:10px 34px 10px 12px;font-size:13.5px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.28);display:none}
   #tip.open{display:block}#tip.wide{max-width:600px}
 #tip.xwide{max-width:min(820px,calc(100vw - 20px))}
 #tip ul{margin:6px 0 0;padding-left:18px}#tip li{font-size:13.5px;margin:3px 0;line-height:1.4}#tip img{width:100%;display:block;border-radius:6px;margin-top:8px}
-#tip .tsec{color:#fde68a;font-weight:700;font-size:13px;margin:12px 0 0}
+#tip .tsec{color:var(--tipHi);font-weight:700;font-size:13px;margin:12px 0 0}
 #tip .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 #tip .tgrid pre{font-size:11.5px}
-#tip .tnote{margin:10px 0 0}#tip .tclose{position:absolute;top:4px;right:6px;background:none;border:0;color:#9ca3af;font-size:15px;cursor:pointer;padding:2px 4px}
-  #tip b{color:#fde68a}#tip code{background:#1f2937;border-color:#374151;color:#e5e7eb}#tip pre{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;margin:8px 0 0;background:#1f2937;border:1px solid #374151;border-radius:6px;padding:8px 10px;color:#e5e7eb}
-  .ptdot{position:absolute;width:20px;height:20px;border-radius:50%;transform:translate(-50%,-50%);border:3px solid #111827;cursor:pointer;padding:0;z-index:5;touch-action:none}
+#tip .tnote{margin:10px 0 0}#tip .tclose{position:absolute;top:4px;right:6px;background:none;border:0;color:var(--muted);font-size:15px;cursor:pointer;padding:2px 4px}
+  #tip b{color:var(--tipHi)}#tip code{background:var(--tipBox);border-color:var(--tipLine);color:var(--tipInk)}#tip pre{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;margin:8px 0 0;background:var(--tipBox);border:1px solid var(--tipLine);border-radius:6px;padding:8px 10px;color:var(--tipInk)}
+  .ptdot{position:absolute;width:20px;height:20px;border-radius:50%;transform:translate(-50%,-50%);border:3px solid var(--dot);cursor:pointer;padding:0;z-index:5;touch-action:none}
   .ptdot.drag{cursor:grab}.ptdot.drag:active{cursor:grabbing}.ptdot.sm{width:15px;height:15px;border-width:2.5px}
   .ptdot:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
   table.trace{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}table.trace th,table.trace td{border:1px solid var(--line);padding:6px 9px;vertical-align:top;text-align:left}
   table.trace th{background:var(--soft);font-size:13.5px}table.trace td.f{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
-  table.trace tr.new td{background:#f0fdf4}table.trace tr.grp td{background:#eef2ff;font-weight:700;font-size:13.5px}
+  table.trace tr.new td{background:var(--newRow)}table.trace tr.grp td{background:var(--tint);font-weight:700;font-size:13.5px}
   .readout{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 14px;line-height:1.7;white-space:pre-wrap}
   .ctl{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:10px 0}.ctl label{font-size:14px;display:flex;align-items:center;gap:8px}.ctl input[type=range]{width:150px}.ctlname{font-size:13.5px;font-weight:700;color:var(--muted);min-width:70px}
-  .btn{font-size:14px;padding:6px 14px;border-radius:7px;border:1.5px solid var(--blue);background:#fff;color:var(--blue);cursor:pointer}.btn:hover{background:#eef2ff}.btn[aria-pressed=true]{background:var(--blue);color:#fff;box-shadow:inset 0 2px 4px rgba(0,0,0,.25)}.btn:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}.btn:disabled{opacity:.45;cursor:default}
+  .btn{font-size:14px;padding:6px 14px;border-radius:7px;border:1.5px solid var(--blue);background:var(--btnBg);color:var(--blue);cursor:pointer}.btn:hover{background:var(--tint)}.btn[aria-pressed=true]{background:var(--blue);color:var(--btnOn);box-shadow:inset 0 2px 4px rgba(0,0,0,.25)}.btn:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}.btn:disabled{opacity:.45;cursor:default}
   .viewbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}.viewbar .btn{font-size:13px;padding:4px 10px}.viewbar .hint{font-size:13px;color:var(--muted);margin-left:6px}
-  .note{border-left:4px solid var(--amber);background:#fffbeb;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:110ch;margin:12px 0}.iosnote{border-left:4px solid var(--indigo);background:#eef2ff;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:110ch;margin:12px 0}
-  details{border:1px solid var(--line);border-radius:8px;margin:10px 0;background:#fff}details>summary{cursor:pointer;padding:10px 14px;font-size:15px;font-weight:600}details>summary:hover{background:var(--soft)}details .body{padding:4px 14px 14px}details details{margin:8px 0;background:var(--soft)}
-  .stepnav{display:flex;gap:10px;align-items:center;margin:0 0 10px}.stepnav .dots{display:flex;gap:6px;margin-left:8px}.stepnav .dot{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--muted);background:#fff;padding:0;cursor:pointer}.stepnav .dot.on{background:var(--indigo);border-color:var(--indigo)}
+  .note{border-left:4px solid var(--amber);background:var(--bg)beb;padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:110ch;margin:12px 0}.iosnote{border-left:4px solid var(--indigo);background:var(--tint);padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:110ch;margin:12px 0}
+  details{border:1px solid var(--line);border-radius:8px;margin:10px 0;background:var(--bg)}details>summary{cursor:pointer;padding:10px 14px;font-size:15px;font-weight:600}details>summary:hover{background:var(--soft)}details .body{padding:4px 14px 14px}details details{margin:8px 0;background:var(--soft)}
+  .stepnav{display:flex;gap:10px;align-items:center;margin:0 0 10px}.stepnav .dots{display:flex;gap:6px;margin-left:8px}.stepnav .dot{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--muted);background:var(--bg);padding:0;cursor:pointer}.stepnav .dot.on{background:var(--indigo);border-color:var(--indigo)}
   .capl{margin:6px 0 0;padding-left:20px}.capl ul{list-style:circle;padding-left:24px;margin:2px 0 4px}.capl li{font-size:15px;line-height:1.45;margin:3px 0}
   .stepcap{min-height:230px;font-size:15.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
   .legend{list-style:none;padding:0;margin:8px 0}.legend li{position:relative;padding-left:42px;margin:7px 0;font-size:15px;line-height:1.45}.legend.two{display:grid;grid-template-columns:1fr 1fr;column-gap:36px;max-width:1500px}.legend li>span:first-child{position:absolute;left:4px;top:.2em}
-  .sw{display:block;width:28px;height:18px;border:1px solid #111827;border-radius:3px}.swl{display:block;width:28px;height:6px;border-radius:3px;border:1px solid #111827;margin-top:6px}.swd{display:block;width:15px;height:15px;border-radius:50%;border:2.5px solid #111827;margin:1px 0 0 6px}
+  .sw{display:block;width:28px;height:18px;border:1px solid var(--dot);border-radius:3px}.swl{display:block;width:28px;height:6px;border-radius:3px;border:1px solid var(--dot);margin-top:6px}.swd{display:block;width:15px;height:15px;border-radius:50%;border:2.5px solid var(--dot);margin:1px 0 0 6px}
   .verdict{font-size:15px;margin-top:8px;font-weight:600}.verdict.ok{color:var(--green)}.verdict.no{color:var(--red)}
   .exq{display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px;align-items:start;margin:6px 0 10px}.choices{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:8px 0}.choices .btn{text-align:left}
-  .navfoot{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:50px;padding-top:16px;font-size:14px}.small{font-size:14px;color:#4b5563}.scale{font-size:13.5px;color:#4b5563;margin-top:6px}[hidden]{display:none!important}
+  .navfoot{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:50px;padding-top:16px;font-size:14px}.small{font-size:14px;color:var(--cap)}.scale{font-size:13.5px;color:var(--cap);margin-top:6px}[hidden]{display:none!important}
   .flatRow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 0}
   .exq>div:first-child,.exfig>div:first-child,.pair>div:first-child{max-width:600px}
   .traceGrid{display:grid;grid-template-columns:760px minmax(0,1fr);gap:24px;align-items:start;margin-top:12px}.mapRow{display:grid;grid-template-columns:302px minmax(0,1fr);gap:18px;align-items:start}.tRead{font-size:15px;margin:0 0 10px;line-height:1.6}
-  table.trace td.px{border-left:6px solid #84cc16}table.trace td.py{border-left:6px solid #fb923c}table.trace td.ph{border-left:6px solid #38bdf8}table.trace td.f{white-space:nowrap}table.trace .lg{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#4b5563;font-size:12.5px}
+  table.trace td.px{border-left:6px solid #84cc16}table.trace td.py{border-left:6px solid #fb923c}table.trace td.ph{border-left:6px solid #38bdf8}table.trace td.f{white-space:nowrap}table.trace .lg{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--cap);font-size:12.5px}
   .ideaCap{min-height:0}
   .ctl input#aRange{width:330px}.ctl .val{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;min-width:64px}
   table.trace td.pl{border-left:6px solid #eab308}table.trace td.pc{border-left:6px solid #0891b2}table.trace td.pn{border-left:6px solid #ec4899}
-.kn{background:#dcfce7;color:#14532d;border-radius:3px;padding:0 2px}#tip .kn{background:#1f4d33;color:#bbf7d0}
+.kn{background:var(--knBg);color:var(--knInk);border-radius:3px;padding:0 2px}#tip .kn{background:var(--tipKnBg);color:var(--tipKnInk)}
 .ideaCap{min-height:204px}
 .ideaCap{min-height:272px}
 .tRead{font-size:15.5px}
-table.trace td.pl,table.trace td.px,table.trace td.py,table.trace td.pn,table.trace td.pc{font-weight:600;width:190px}
+table.trace td.pl,table.trace td.ph,table.trace td.px,table.trace td.py,table.trace td.pn,table.trace td.pc{font-weight:600;width:190px}
 table.trace td.f .lg{white-space:normal}
 .nb{white-space:nowrap}
 .ctl .flatRow .btn{font-size:13.5px;padding:5px 11px}
@@ -85,8 +100,9 @@ table.trace td.f .lg{white-space:normal}
 </header>
 <div class="wrap">
 <h1>Lesson 10.46 — Which way is out: the outward direction at a pixel</h1>
-<p class="sub">Light theme · desktop · works from <code>file://</code>.</p>
-<p class="lead"><b>Why:</b> the bright line along the menu's outline and the lens both need, at every pixel, the direction straight out of the glass. The shader has only sd there: the pixel's distance from the outline, with a minus inside. How does a distance give a direction? Through sd at four neighbors. At P, in the menu's top-left corner, they give <b>outward</b> = (−0.60, −0.80): an arrow 1 long, 0.60 to the left and 0.80 toward the top.</p>
+<p class="sub">Follows the system’s light or dark setting · desktop · works from <code>file://</code>.</p>
+<p class="lead"><b>Why:</b> the bright line along the menu's outline and the lens both need, at every pixel, <b>outward</b>: an arrow 1 pt long that points straight out of the glass. The shader knows only sd: a pixel's distance from the outline, with a minus inside.</p>
+<p class="lead"><b>The idea:</b> straight out is the way in which sd grows the most, by 1 for each 1 pt. So the shader asks how much sd changes over 1 pt to the right and over 1 pt toward the bottom. These two changes are outward's two parts. At P, in the menu's top-left corner, they are −0.60 and −0.80: outward goes 0.60 pt to the left and 0.80 pt toward the top.</p>
 <p class="lead"><b>Where this is used.</b> Lesson 10.47 lights the bright line with outward. Lesson 11.2 shifts each pixel's read point along the line of outward: the lens. From Lesson 12.1 on, the glass is two shapes joined softly: no single circle or edge gives the direction, but the four neighbors still do.</p>
 
 <figure>
@@ -110,7 +126,7 @@ table.trace td.f .lg{white-space:normal}
 <p class="small">In a calculation, <span class="kn">green</span> marks a number known before the calculation starts: given, or found earlier. The other numbers are worked out in it.</p>
 
 <!-- ============================ SECTION 1 ============================ -->
-<h2 id="s1"><span class="tag">Section 1 · the idea in pictures</span>Four neighbors of P give the direction out of the glass</h2>
+<h2 id="s1"><span class="tag">Section 1 · the idea in pictures</span>Straight out, sd grows the most: four neighbors of P find that way</h2>
 <div class="ideaGrid">
   <div>
     <div class="stage" id="ideaStage"><canvas id="ideaCv" width="760" height="620"></canvas></div>
@@ -145,7 +161,7 @@ table.trace td.f .lg{white-space:normal}
 <details class="ex"><summary>Exercise 1 — Which arrow is outward at P, under the menu's straight top edge?</summary><div class="body">
   <div class="exq"><div><div class="stage" id="ex1qStage"><canvas id="ex1q" width="600" height="560"></canvas></div>
       <figcaption><b>P = (257, 654.20) pt</b>, under the top edge of the menu's glass, with its four neighbors and their sd.</figcaption></div>
-    <div><p>Most pixels near the menu's outline lie under a straight edge, not in a corner. Take the four sd values from the picture and do Steps 2 to 5. The tip of outward is somewhere on the red circle.</p>
+    <div><p>Most pixels near the menu's outline lie under a straight edge, not in a corner. Take the four sd values from the picture and do Steps 3 to 5. The tip of outward is somewhere on the red circle.</p>
       <p><b>Which arrow is outward at P, under the menu's straight top edge?</b></p>
       <div class="choices"><button class="btn" data-ok="0" data-why="No. That is outward in the top-left corner. Here sd at A and sd at B are equal: −5.60 − (−5.60) = 0, so outward goes neither left nor right.">(−0.60, −0.80): 0.60 to the left, 0.80 toward the top</button><button class="btn" data-ok="1" data-why="Right. From A to B: −5.60 − (−5.60) = 0. From D to E: −6.10 − (−5.10) = −1. The arrow (0, −1) is 1 long: 1 toward the top.">(0, −1): 1 toward the top</button><button class="btn" data-ok="0" data-why="No. From D to E, sd changes by −6.10 − (−5.10) = −1: toward the bottom a pixel is further inside. A minus y part goes toward the top.">(0, 1): 1 toward the bottom</button></div><div class="verdict" aria-live="polite"></div>
     </div></div>
@@ -156,7 +172,7 @@ table.trace td.f .lg{white-space:normal}
 <details class="ex"><summary>Exercise 2 — Which arrow is outward at P on the “⋯” button?</summary><div class="body">
   <div class="exq"><div><div class="stage" id="ex2qStage"><canvas id="ex2q" width="600" height="560"></canvas></div>
       <figcaption><b>P = (358.30, 821.60) pt</b>, 5 pt inside the button's glass, with its four neighbors and their sd.</figcaption></div>
-    <div><p>Before the tap, the glass is the “⋯” button alone: a circle with its center at (342.30, 809.60) pt and a radius of 25 pt <button class="info" data-tip="menu" aria-label="Where these numbers come from">ⓘ</button>. There, sd at a pixel is its distance from that center, minus 25. The shader does the same four steps on this other outline. Take the four sd values from the picture and do Steps 2 to 5. The tip of outward is somewhere on the red circle.</p>
+    <div><p>Before the tap, the glass is the “⋯” button alone: a circle with its center at (342.30, 809.60) pt and a radius of 25 pt <button class="info" data-tip="menu" aria-label="Where these numbers come from">ⓘ</button>. There, sd at a pixel is its distance from that center, minus 25. The shader does the same four steps on this other outline. Take the four sd values from the picture and do Steps 3 to 5. The tip of outward is somewhere on the red circle.</p>
       <p><b>Which arrow is outward at P on the “⋯” button?</b></p>
       <div class="choices"><button class="btn" data-ok="0" data-why="No. Both changes are plus here: 0.80 from A to B and 0.60 from D to E. A plus part goes to the right, or toward the bottom.">(−0.80, −0.60): 0.80 to the left, 0.60 toward the top</button><button class="btn" data-ok="0" data-why="No. The x part is the change from A to B, −4.598 − (−5.398) = 0.80. The y part is the change from D to E, −4.696 − (−5.296) = 0.60.">(0.60, 0.80): 0.60 to the right, 0.80 toward the bottom</button><button class="btn" data-ok="1" data-why="Right. From A to B: −4.598 − (−5.398) = 0.80. From D to E: −4.696 − (−5.296) = 0.60. The arrow (0.80, 0.60) is 1 long.">(0.80, 0.60): 0.80 to the right, 0.60 toward the bottom</button></div><div class="verdict" aria-live="polite"></div>
     </div></div>
@@ -233,6 +249,14 @@ const BORDER=1;   /* canvases have a 1-px border: a dot over canvas pixel x sits
 const info=(k,l)=>`<button class="info" data-tip="${k}" aria-label="${l}">ⓘ</button>`;
 function bindTips(root){root.querySelectorAll('.info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip]))}
 /* ================= Lesson 10.46 · the glass: the resting menu and the “⋯” button, in pt on the 402 × 874 pt screen ================= */
+/* ---------- theme: no selector, the system's setting. Every canvas color the drawing code names is the light one; in the dark theme the canvas swaps it for its row of this table ---------- */
+const DARKC={'#ffffff':'#1b2431','#f8fafc':'#222c3a','#f1f5f9':'#232d3b','#e2e8f0':'#2d3848','#cbd5e1':'#44516a','#fff':'#1b2431','#e0e7ff':'#2f3b63','#eef2ff':'#1f2a44','#c4b5fd':'#7c6bd6','#f9fafb':'#ccd2dc','#94a3b8':'#6f7d92','#64748b':'#8f9bab','#475569':'#aab4c2','#334155':'#c3ccd8','#111827':'#ccd2dc',
+  'rgba(255,255,255,0.94)':'rgba(22,29,39,0.94)','rgba(255,255,255,0.96)':'rgba(22,29,39,0.96)','rgba(17,24,39,0.92)':'rgba(8,12,18,0.92)',
+  '#f3e8ff':'#33264d','#a855f7':'#c084fc','#6b21a8':'#d8b4fe','rgba(233,213,255,0.62)':'rgba(140,105,205,0.34)','rgba(168,85,247,0.45)':'rgba(192,132,252,0.5)','rgba(221,214,254,0.86)':'rgba(72,56,112,0.9)',
+  '#3730a3':'#c7d2fe','#0f766e':'#5eead4','#92400e':'#fcd34d','#9d174d':'#f9a8d4','#854d0e':'#fde047','#1e40af':'#93c5fd','#1d4ed8':'#93c5fd','#be123c':'#fda4af','#155e75':'#67e8f9','#dc2626':'#f87171','#3f6212':'#bef264','#9a3412':'#fdba74','#075985':'#7dd3fc','#d97706':'#fbbf24','#047857':'#6ee7b7'};
+(function(){const D=()=>document.documentElement.dataset.theme==='dark';
+  for(const k of ['fillStyle','strokeStyle']){const ds=Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype,k);
+    Object.defineProperty(CanvasRenderingContext2D.prototype,k,{get:ds.get,set(v){ds.set.call(this,(D()&&typeof v==='string'&&DARKC[v.toLowerCase()])||v)},configurable:true})}})();
 const COL={glass:'#a855f7',fill:'#f3e8ff',screen:'#f8fafc',P:'#fde047',A:'#2563eb',B:'#f97316',D:'#14b8a6',E:'#f43f5e',Q:'#c084fc',K:'#94a3b8',T:'#a5b4fc',rim:'#e0e7ff',out:'#4f46e5',ask:'#dc2626',ink:'#111827',halo:'rgba(17,24,39,0.92)'};
 const COLT={A:'#1d4ed8',B:'#9a3412',D:'#0f766e',E:'#be123c'};
 const MENU={kind:'rr',c:[238.8,742.6],half:[130.5,94],r:36};   /* measured on a screen recording of Safari, good to about ±4 pt */
@@ -268,8 +292,8 @@ function sdChain(T,S,p,nm){const w=whereOf(S,p[0],p[1]);let sd,head;
 /* the lesson's chain at a pixel: four neighbors, two changes, the arrow, its length, outward */
 function measure(S,P,step){const T=new Trace(3),pts={A:[r3(P[0]-step),P[1]],B:[r3(P[0]+step),P[1]],D:[P[0],r3(P[1]-step)],E:[P[0],r3(P[1]+step)]};
   const c={P:sdChain(T,S,P,'P')};for(const n of['A','B','D','E'])c[n]=sdChain(T,S,pts[n],n);
-  const dAB=T.K(1,1).add('|AB|',step,step),chX=T.K(1,1).sub('change from A to B',c.B.sd,c.A.sd),gx=T.div('for each 1 pt to the right',chX,dAB),lx=T.take();
-  const dDE=T.K(1,1).add('|DE|',step,step),chY=T.K(1,1).sub('change from D to E',c.E.sd,c.D.sd),gy=T.div('for each 1 pt toward the bottom',chY,dDE),ly=T.take();
+  const dAB=T.K(1,1).add('|AB|',step,step),chX=T.K(1,1).sub('change from A to B',c.B.sd,c.A.sd),gx=T.div('change for each 1 pt to the right',chX,dAB),lx=T.take();
+  const dDE=T.K(1,1).add('|DE|',step,step),chY=T.K(1,1).sub('change from D to E',c.E.sd,c.D.sd),gy=T.div('change for each 1 pt toward the bottom',chY,dDE),ly=T.take();
   const x2=T.K(1).sq('x part²',gx),y2=T.K(1).sq('y part²',gy),sum=T.add('sum',x2,y2,true),len=T.root('length',sum);let out=[0,0];
   if(len>0)out=[T.K(1,0).div('outward, x part',gx,len),T.K(1,0).div('outward, y part',gy,len)];
   const ll=T.take(),w=c.P.w,sdP=c.P.raw,Q=[r2(P[0]-w.out[0]*sdP),r2(P[1]-w.out[1]*sdP)];
@@ -340,6 +364,9 @@ function zoomScene(V,st,M,o={}){const c=V.ctx,X=V.X,Y=V.Y,W=V.cv.width,H=V.cv.he
   const tip=has?[P[0]+out[0],P[1]+out[1]]:null,tx=tip?X(tip[0]):0,ty=tip?Y(tip[1]):0;if(sh.T&&tip)reserve(c,tx,ty,10);
   /* lines and arrows */
   if(sh.Q&&far)thin(c,px,py,qx,qy,'#334155',2);
+  if(sh.curveP&&shapePath(V,S,-sdP))halo(c,()=>shapePath(V,S,-sdP),'#06b6d4',2.6);
+  if(sh.unit){c.lineWidth=1.8;c.strokeStyle='#64748b';c.beginPath();c.arc(px,py,V.s,0,7);c.stroke()}
+  if(sh.walk&&tip&&!ar)line(c,px,py,tx,ty,'#10b981',4);
   if(qIn&&!qDot){c.beginPath();c.arc(qx,qy,5,0,7);c.fillStyle=COL.Q;c.fill();c.lineWidth=2;c.strokeStyle='#111827';c.stroke()}
   let kEnd=null;if(o.toK){const C=M.c.P.w.C,dx=X(C[0])-px,dy=Y(C[1])-py,D=Math.hypot(dx,dy);let t=D;for(const [a,d,lo,hi] of [[px,dx/D,14,W-14],[py,dy/D,14,top-14]]){if(d<0)t=Math.min(t,(lo-a)/d);if(d>0)t=Math.min(t,(hi-a)/d)}
     kEnd=[px+dx/D*t,py+dy/D*t];thin(c,px,py,kEnd[0],kEnd[1],'#94a3b8',2)}
@@ -368,6 +395,10 @@ function zoomScene(V,st,M,o={}){const c=V.ctx,X=V.X,Y=V.Y,W=V.cv.width,H=V.cv.he
     else if(perp)plate(c,txt,px-14,py+out[1]*L/2+(out[1]<0?-8:8),13.5,'right','#3730a3');
     else plate(c,txt,tx+out[0]*18,ty+out[1]*22,13.5,out[0]<-0.2?'right':out[0]>0.2?'left':'center','#3730a3')}
   if(sh.T&&tip)plate(c,`T · sd ${M.t(o.sdT)}`,tx+14,ty-2,13.5,'left','#3730a3');
+  if(sh.walk&&tip&&!ar){const nx=-out[1],ny=out[0];for(const k of[-1,1])if(plateIf(c,'1 pt straight out, toward Q',(px+tx)/2+k*nx*20,(py+ty)/2+k*ny*20,13,k*nx>0?'left':'right','#047857'))break}
+  if(sh.curveP&&M.c.P.w.C){const C=M.c.P.w.C,cx=X(C[0]),cy=Y(C[1]),R=Math.hypot(px-cx,py-cy),a0=Math.atan2(py-cy,px-cx);
+    let done=false;for(const d of[120,150,180,90,-120,-160])for(const e of[-18,18]){if(done)break;const a=a0+d/R;done=plateIf(c,'cyan: '+M.t(-sdP)+' pt inside, like P',cx+R*Math.cos(a)-e*Math.cos(a),cy+R*Math.sin(a)-e*Math.sin(a),12.5,'center','#155e75')}}
+  if(sh.unit)for(const [ex,ey,al] of[[-0.72,-0.72,'right'],[-0.72,0.72,'right'],[0.72,0.72,'left'],[0.72,-0.72,'left']])if(plateIf(c,'gray circle: 1 pt from P',px+ex*V.s+(ex<0?-12:12),py+ey*V.s+(ey<0?-14:14),13,al,'#334155'))break;
   if(sh.ask)plate(c,'red circle: every point 1 pt from P',px-V.s*0.72-12,py-V.s*0.72-14,13,'right',COL.ask);
   if(kEnd)plate(c,`to K, the button’s center: |KP| = ${f(Math.round(Math.hypot(M.c.P.w.C[0]-P[0],M.c.P.w.C[1]-P[1])*1e3)/1e3)} pt`,(px+kEnd[0])/2+16,(py+kEnd[1])/2-4,13,'left','#475569');
   /* names on the thin curves, where they cross a line beside P */
@@ -391,9 +422,10 @@ const MAPLEG=['pt from the screen’s','top-left corner:','x to the right,','y t
 const M0=measure(MENU,P0,STEP0),K0=M0.c.P.w.C,T0=[R12(P0[0]+M0.out[0]),R12(P0[1]+M0.out[1])];
 const TT=new Trace(3),CT=sdChain(TT,MENU,T0,'T');
 const DKP=R12(Math.hypot(K0[0]-P0[0],K0[1]-P0[1]));
-const LEGX=R12(K0[0]-P0[0]),LEGY=R12(K0[1]-P0[1]),KPL=new Trace(3),KFX=KPL.K(1,1).div('to the left',LEGX,-M0.gx),KFY=KPL.K(1,1).div('toward the top',LEGY,-M0.gy),KPLL=KPL.take().map(l=>l.replace(' = ',': '));
+const LEGX=R12(K0[0]-P0[0]),LEGY=R12(K0[1]-P0[1]),KPL=new Trace(3),KFX=KPL.K(1,1).mul('to the left',-M0.gx,DKP),KFY=KPL.K(1,1).mul('toward the top',-M0.gy,DKP),KPLL=KPL.take().map(l=>l.replace(' = ',': '));
+const KTT=new Trace(3),KT1=KTT.K(1,1).add('|KT|',DKP,1),SDT1=KTT.K(0,1).sub('sd at T',KT1,MENU.r),KTL=KTT.take();
 const TCH=(()=>{const T=new Trace(3);T.K(1,1).sub('',CT.sd,M0.c.P.sd);return T.take().map(l=>l.replace(/^ = /,''))})();
-const tipTT=()=>`<b>T = ${pt(...T0)} pt</b>: the tip of the arrow, 1 pt from P. sd at T = ${TT.t(CT.sd)} pt.<br>${cap1(CT.head)}.<pre>${CT.lines.join('\n')}</pre>`;
+const tipTT=()=>`<b>T = ${pt(...T0)} pt</b>: on line KP, 1 pt from P toward Q. sd at T = ${TT.t(CT.sd)} pt.<br>${cap1(CT.head)}.<pre>${CT.lines.join('\n')}</pre>`;
 
 /* ================= the hero ================= */
 function rimPixels(d){const hx=MENU.half[0],hy=MENU.half[1],r=MENU.r,[cx,cy]=MENU.c,ix=hx-r,iy=hy-r,pts=[];
@@ -417,7 +449,7 @@ function heroZoom(){zoomScene(zoomView($('hero2'),P0,ZW[2],ZW[0],ZW[1]),$('hero2
 
 /* ================= Section 1 ================= */
 let st46=0;const ST46=5;
-const SHOW=[{Q:1},{Q:1,A:1,B:1},{Q:1,A:1,B:1,D:1,E:1},{Q:1,A:1,B:1,D:1,E:1,arrow:1},{Q:1,A:1,B:1,D:1,E:1,arrow:1,T:1}];
+const SHOW=[{Q:1},{Q:1,T:1,walk:1,curveP:1},{Q:1,A:1,B:1,D:1,E:1},{Q:1,A:1,B:1,D:1,E:1,arrow:1},{Q:1,A:1,B:1,D:1,E:1,arrow:1,T:1,unit:1}];
 const ZV1=()=>zoomView($('ideaCv'),P0,ZW[2],ZW[0],ZW[1]);
 function ideaZoom(){zoomScene(ZV1(),$('ideaStage'),M0,{show:SHOW[st46],rail:150,sdT:CT.sd,tipT:tipTT,arrowLabel:st46>=4?`outward ${outTxt(M0)}, 1 long`:`the arrow of the two changes: ${outTxt(M0)}`})}
 function ideaOverview(){const V=mkView($('ovCv'),96,640,6),c=V.ctx,X=V.X,Y=V.Y,st=$('ovStage'),W=V.cv.width,H=V.cv.height,Q=M0.Q,Z=ZV1();begin(V);clearPts(st);
@@ -448,11 +480,11 @@ function ideaOverview(){const V=mkView($('ovCv'),96,640,6),c=V.ctx,X=V.X,Y=V.Y,s
   addPt(st,px,py,COL.P,tipP(M0),'Point P')}
 const cut=x=>x.split(' = ').slice(1).join(' = '),nb=x=>`<span class="nb">${x}</span>`;
 const CAP46=[
-  ()=>`<b>Step 1 · P is 5.60 pt inside the glass.</b><ul class="capl"><li>P is a chosen pixel in the menu's top-left corner.</li><li>The corner is a quarter of a circle: center K, radius ${KN('36')} pt.</li><li>In a corner, sd = the distance from K − the radius: ${nb(`|KP| − 36 = ${KN(M0.t(DKP))} − ${KN('36')} = ${M0.t(M0.c.P.sd)} pt`)} ${info('sdP','How |KP| and sd at P are found')}.</li><li>Minus means inside: P is 5.60 pt from Q, the nearest point of the outline. Q is on line KP.</li></ul>`,
-  ()=>`<b>Step 2 · From A to B, sd changes by ${M0.t(M0.chX)}.</b><ul class="capl"><li>The shader cannot see Q. It asks for sd at two neighbors of P.</li><li>A is ${f(STEP0)} pt to the left of P, B ${f(STEP0)} pt to the right: ${nb(M0.lx[0]+' pt')}. The ${f(STEP0)} is chosen ${info('step','Why 0.50 pt')}.</li><li>sd at A = ${M0.t(M0.c.A.sd)} ${info('sdA','How sd at A is found')}, sd at B = ${M0.t(M0.c.B.sd)} ${info('sdB','How sd at B is found')}.</li><li>Change from A to B: ${nb(cut(M0.lx[1]))}. Minus: B is further inside than A.</li><li>For each 1 pt to the right: ${nb(cut(M0.lx[2]))}, because |AB| = 1 pt.</li></ul>`,
-  ()=>`<b>Step 3 · From D to E, sd changes by ${M0.t(M0.chY)}.</b><ul class="capl"><li>The same toward the bottom, with two more neighbors.</li><li>D is ${f(STEP0)} pt from P toward the top, E ${f(STEP0)} pt toward the bottom: ${nb(M0.ly[0]+' pt')}.</li><li>sd at D = ${M0.t(M0.c.D.sd)} ${info('sdD','How sd at D is found')}, sd at E = ${M0.t(M0.c.E.sd)} ${info('sdE','How sd at E is found')}.</li><li>Change from D to E: ${nb(cut(M0.ly[1]))}. Minus: E is further inside than D.</li><li>For each 1 pt toward the bottom: ${nb(cut(M0.ly[2]))}, because |DE| = 1 pt.</li></ul>`,
-  ()=>`<b>Step 4 · The two changes are the parts of one arrow.</b><ul class="capl"><li>The shader makes an arrow from P. Its x part is the change to the right, ${M0.t(M0.gx)}. Its y part is the change toward the bottom, ${M0.t(M0.gy)}.</li><li>A minus part goes the opposite way: 0.60 to the left, 0.80 toward the top. That way sd grows, toward 0 on the outline.</li><li>This arrow points straight at Q. Check: the arrow from K to P goes ${M0.t(LEGX)} to the left and ${M0.t(LEGY)} toward the top (right picture).<ul><li>${nb(KPLL[0])}</li><li>${nb(KPLL[1])}</li></ul></li><li>So the arrow from K to P is this arrow made ${M0.t(KFX)} times as long: both point along line KQ.</li></ul>`,
-  ()=>`<b>Step 5 · The arrow of the two changes is 1 long. Divided by its length, it is outward.</b><ul class="capl"><li>Its length = √(x part² + y part²):<ul><li>${nb(M0.ll[0])} · ${nb(M0.ll[1])}</li><li>${nb(M0.ll[2])} · ${nb(M0.ll[3])}</li></ul></li><li>The length says how much sd changes over 1 pt along this arrow. T is 1 pt from P along it: ${nb('sd at T = '+TT.t(CT.sd))} ${info('tip','How sd at T is found')}, and ${nb(TCH[0])}.</li><li>Divide each part by the length: ${nb(M0.ll[4])} · ${nb(M0.ll[5])}.</li><li>Why divide? Later lessons need outward exactly 1 long, and at some pixels this arrow is shorter: Section 2's button “between two edges” gives 0.707.</li></ul>`];
+  ()=>`<b>Step 1 · P is 5.60 pt inside the glass. Straight out is from P toward Q.</b><ul class="capl"><li>P is a chosen pixel in the menu's top-left corner. The corner is a quarter of a circle: center K, radius ${KN('36')} pt.</li><li>sd at P = |KP| − 36 = ${nb(`${KN(M0.t(DKP))} − ${KN('36')} = ${M0.t(M0.c.P.sd)} pt`)} ${info('sdP','How |KP| and sd at P are found')}. Minus: P is 5.60 pt inside.</li><li>Q, the nearest point of the outline, is on line KP. Straight out of the glass at P is from P toward Q.</li><li>The lesson's goal, <b>outward</b>: the arrow 1 pt long from P toward Q.</li><li>The shader knows neither K nor Q. It knows only sd, at any pixel it asks for.</li></ul>`,
+  ()=>`<b>Step 2 · Straight out, sd grows by 1 for each 1 pt: more than in any other way.</b><ul class="capl"><li>The thin curves join pixels equally far from the outline. Straight across, they are 1 pt apart.</li><li>T is 1 pt from P toward Q. ${nb('sd at T = '+M0.t(SDT1))} ${info('tip','How sd at T is found')}. sd grew by ${nb(TCH[0])}.</li><li>Along the cyan curve through P, every pixel is 5.60 pt inside: there sd does not change.</li><li>A step of 1 pt in any other way goes across the curves at a slant: it gets less than 1 pt nearer the outline.</li><li>So the shader looks for the way in which sd grows the most. It must find it from sd alone.</li></ul>`,
+  ()=>`<b>Step 3 · Over 1 pt to the right, sd changes by ${M0.t(M0.gx)}. Over 1 pt toward the bottom, by ${M0.t(M0.gy)}.</b><ul class="capl"><li>The shader asks for sd at four neighbors of P, each ${f(STEP0)} pt away ${info('step','Why 0.50 pt')}: A to the left, B to the right, D toward the top, E toward the bottom.</li><li>From A to B, 1 pt to the right: sd goes from ${M0.t(M0.c.A.sd)} ${info('sdA','How sd at A is found')} to ${M0.t(M0.c.B.sd)} ${info('sdB','How sd at B is found')}. It changes by ${nb(cut(M0.lx[1]))}.</li><li>From D to E, 1 pt toward the bottom: sd goes from ${M0.t(M0.c.D.sd)} ${info('sdD','How sd at D is found')} to ${M0.t(M0.c.E.sd)} ${info('sdE','How sd at E is found')}. It changes by ${nb(cut(M0.ly[1]))}.</li><li>Minus: 1 pt further right, a pixel is 0.60 pt deeper inside. 1 pt further down, 0.80 pt deeper.</li><li>To the left and toward the top it is the other way round: sd grows by 0.60 and by 0.80.</li></ul>`,
+  ()=>`<b>Step 4 · The two changes, as the parts of one arrow, point straight out.</b><ul class="capl"><li>Take the two changes as the parts of an arrow from P: x part (to the right) ${M0.t(M0.gx)}, y part (toward the bottom) ${M0.t(M0.gy)}.</li><li>Minus means the other way: the arrow goes 0.60 pt to the left and 0.80 pt toward the top.</li><li>Does it point toward Q? The arrow from K to P goes ${M0.t(LEGX)} pt to the left and ${M0.t(LEGY)} pt toward the top (right picture):<ul><li>${nb(KPLL[0])}</li><li>${nb(KPLL[1])}</li></ul></li><li>So the arrow from K to P is this arrow made ${M0.t(DKP)} times as long, and ${M0.t(DKP)} = |KP|. Both lie on line KP: this arrow points from P toward Q.</li></ul>`,
+  ()=>`<b>Step 5 · The arrow is 1 long, so it is outward. The shader still divides it by its length.</b><ul class="capl"><li>Its length = √(x part² + y part²): <ul><li>${nb(M0.ll[0])} · ${nb(M0.ll[1])}</li><li>${nb(M0.ll[2])} · ${nb(M0.ll[3])}</li></ul></li><li>1 pt long, from P toward Q: it is outward. Its tip is T, on the gray circle of points 1 pt from P.</li><li>Why must outward be 1 long? The lens moves a pixel's read point along outward, for example by outward × 1.2. That move is 1.2 pt long only if outward is 1 long.</li><li>At a pixel equally far from the left edge and the top edge, A is nearest the left edge and B the top edge. There sd changes by only 0.50 from A to B, and the arrow is ${nb('(−0.50, −0.50)')}: 0.707 long (Section 2, “between two edges”).</li><li>So the shader always divides each part by the length: ${nb(M0.ll[4])} · ${nb(M0.ll[5])}. At P nothing changes.</li></ul>`];
 function ideaAll(){$('ideaCap').innerHTML=CAP46[st46]();bindTips($('ideaCap'));
   {const b=$('ideaDots');b.innerHTML='';for(let i=0;i<ST46;i++){const x=document.createElement('button');x.className='dot'+(i===st46?' on':'');x.setAttribute('aria-label','Step '+(i+1));x.onclick=()=>{st46=i;ideaAll()};b.appendChild(x)}}
   $('ideaPrev').disabled=st46===0;$('ideaNext').disabled=st46===ST46-1;ideaZoom();ideaOverview()}
@@ -466,9 +498,10 @@ function noteFor(M){const n=[];
   if(M.c.P.sd>0)n.push(`sd at P is plus: P is ${M.t(M.c.P.sd)} pt outside the glass. Outward still points away from the glass.`);
   if(M.gx===0)n.push('From A to B the change is 0: A and B are equally far from the outline. Outward goes neither left nor right.');
   if(M.gy===0)n.push('From D to E the change is 0: D and E are equally far from the outline. Outward goes neither toward the top nor toward the bottom.');
-  if(Math.abs(M.len-1)>0.004)n.push(`Two parts of the outline are about equally near to P, and the neighbors do not all measure to the same one. So the arrow of the two changes (amber) is only ${M.t(M.len)} long. Divided by its length, outward is 1 long.`);
+  if(Math.abs(M.len-1)>0.004)n.push(`Two parts of the outline are about equally near to P, and the neighbors are not all nearest the same part. So the changes are smaller, and the arrow of the two changes (amber) is only ${M.t(M.len)} long. Divided by its length, outward is 1 long. Along outward, sd grows by less than 1 over 1 pt: here no single way is straight out.`);
   return n.join(' ')}
-function traceAll(){const M=measure(MENU,TW.p,TW.step),w=M.c.P.w,sdP=M.c.P.raw;
+function traceAll(){const M=measure(MENU,TW.p,TW.step),w=M.c.P.w,sdP=M.c.P.raw,Tp=M.len>0?[R12(TW.p[0]+M.out[0]),R12(TW.p[1]+M.out[1])]:null,TT2=new Trace(3),CT2=Tp?sdChain(TT2,MENU,Tp,'T'):null,CH2=Tp?(TT2.K(1,1).sub('change from P to T',CT2.sd,M.c.P.sd),TT2.take()[0]):'';
+  const tipT2=()=>`<b>T = ${pt(...Tp)} pt</b>: 1 pt from P along outward. sd at T = ${TT2.t(CT2.sd)} pt.<br>${cap1(CT2.head)}.<pre>${CT2.lines.join('\n')}</pre>`;
   {const cv=$('tMap'),V=mapView(cv),st=$('tMapStage'),c=V.ctx,X=V.X,Y=V.Y,H=V.cv.height;menuMap(V,st,MAPLEG);
     const px=X(TW.p[0]),py=Y(TW.p[1]),qx=X(M.Q[0]),qy=Y(M.Q[1]),far=Math.abs(sdP)>10,K0c=w.part==='corner'?w.C:null,K=K0c&&Math.hypot(X(K0c[0])-X(TW.p[0]),Y(K0c[1])-Y(TW.p[1]))>19?K0c:null,kx=K?X(K[0]):0,ky=K?Y(K[1]):0,o=M.out,u=w.out;
     const n=u[0]>1e-9||(Math.abs(u[0])<=1e-9&&u[1]<0)?[-u[1],u[0]]:[u[1],-u[0]],al=n[0]>0.3?'left':n[0]<-0.3?'right':'center';     /* beside the line: the side that is lower in the picture */
@@ -484,7 +517,7 @@ function traceAll(){const M=measure(MENU,TW.p,TW.step),w=M.c.P.w,sdP=M.c.P.raw;
       move:(cx,cy)=>{const q=canvasPos(cv,cx,cy);TW.p=LIM([V.ux(q[0]),V.uy(q[1])]);TW.zc=null;traceAll()},
       keys:d=>{TW.p=LIM([TW.p[0]+0.1*d[0],TW.p[1]+0.1*d[1]]);TW.zc=null;traceAll()}})}
   {const cv=$('tZoom'),s=ZS(),V=zoomView(cv,TW.zc||TW.p,s,ZT[0],ZT[1]);
-    zoomScene(V,$('tZoomStage'),M,{show:{A:1,B:1,D:1,E:1,Q:1,arrow:1},rail:200,key:'zp',pTip:()=>tipP(M)+'Drag P here for a small move.',
+    zoomScene(V,$('tZoomStage'),M,{show:{A:1,B:1,D:1,E:1,Q:1,arrow:1,T:1},sdT:CT2?CT2.sd:0,tipT:tipT2,rail:200,key:'zp',pTip:()=>tipP(M)+'Drag P here for a small move.',
       move:(cx,cy)=>{if(!TW.zc)TW.zc=[...TW.p];const Vz=zoomView(cv,TW.zc,ZS(),ZT[0],ZT[1]),q=canvasPos(cv,cx,cy);TW.p=LIM([Vz.ux(q[0]),Vz.uy(q[1])]);traceAll()},
       keys:d=>{TW.p=LIM([TW.p[0]+0.1*d[0],TW.p[1]+0.1*d[1]]);TW.zc=null;traceAll()}})}
   const note=noteFor(M);
@@ -493,11 +526,12 @@ function traceAll(){const M=measure(MENU,TW.p,TW.step),w=M.c.P.w,sdP=M.c.P.raw;
   const ib=n=>`<button class="info" id="tI${n}" aria-label="How sd at ${n} is found">ⓘ</button>`;
   $('tTable').innerHTML=`<tr><th>Section 1's step</th><th>at this P</th></tr>`
     +`<tr><td class="pl">Step 1 · sd at P</td><td class="f">${M.c.P.lines.join('<br>')}<br><span class="lg">${M.c.P.head}</span></td></tr>`
-    +`<tr><td class="px">Step 2 · from A to B</td><td class="f">sd at A = ${M.t(M.c.A.sd)} ${ib('A')} · sd at B = ${M.t(M.c.B.sd)} ${ib('B')}<br>${M.lx.join('<br>')}</td></tr>`
+    +`<tr><td class="ph">Step 2 · 1 pt straight out, to T</td><td class="f">${Tp?`T = ${pt(...Tp)} pt · sd at T = ${TT2.t(CT2.sd)} <button class="info" id="tIT" aria-label="How sd at T is found">ⓘ</button><br>${CH2}`:'<span class="lg">no outward, so no T</span>'}</td></tr>`
+    +`<tr><td class="px">Step 3 · from A to B</td><td class="f">sd at A = ${M.t(M.c.A.sd)} ${ib('A')} · sd at B = ${M.t(M.c.B.sd)} ${ib('B')}<br>${M.lx.join('<br>')}</td></tr>`
     +`<tr><td class="py">Step 3 · from D to E</td><td class="f">sd at D = ${M.t(M.c.D.sd)} ${ib('D')} · sd at E = ${M.t(M.c.E.sd)} ${ib('E')}<br>${M.ly.join('<br>')}</td></tr>`
     +`<tr><td class="pn">Step 4 · the arrow of the two changes</td><td class="f">(${M.t(M.gx)}, ${M.t(M.gy)})<span class="lg"> · ${dirWords([M.gx,M.gy],M.t)}</span></td></tr>`
     +`<tr><td class="pc">Step 5 · its length; outward</td><td class="f">${M.ll.join('<br>')}${M.len>0?'':'<br><span class="lg">length 0: no division; no direction</span>'}</td></tr>`;
-  for(const n of['A','B','D','E'])setTip($('tI'+n),tipN(M,n));
+  for(const n of['A','B','D','E'])setTip($('tI'+n),tipN(M,n));if(Tp)setTip($('tIT'),tipT2);
   document.querySelectorAll('#tSteps button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.s===TW.step)));
   document.querySelectorAll('#tPre button').forEach((b,i)=>b.setAttribute('aria-pressed',String(PRESETS[i][1][0]===TW.p[0]&&PRESETS[i][1][1]===TW.p[1])))}
 document.addEventListener('pointerup',()=>{if(TW.zc){TW.zc=null;traceAll()}});
@@ -521,8 +555,8 @@ const TIPS={
   sdB:()=>chainTip('B',`B = ${pt(...M0.pts.B)} pt: ${f(STEP0)} pt to the right of P.`),
   sdD:()=>chainTip('D',`D = ${pt(...M0.pts.D)} pt: ${f(STEP0)} pt from P toward the top.`),
   sdE:()=>chainTip('E',`E = ${pt(...M0.pts.E)} pt: ${f(STEP0)} pt from P toward the bottom.`),
-  tip:()=>`<b>sd at T.</b> T = ${pt(...T0)} pt: from P, 0.60 pt to the left and 0.80 pt toward the top.<br>${cap1(CT.head)}.<pre>${CT.lines.join('\n')}</pre>`,
-  step:()=>`<b>Why 0.50 pt.</b> A chosen step. A and B must be near P, so that the change from A to B tells what happens at P: 0.50 pt is small beside the corner radius, 36 pt. And |AB| is then exactly 1 pt. On the iPhone 16 Pro, 0.50 pt is 1.5 pixels. Section 2 has buttons for other steps.`,
+  tip:()=>`<b>sd at T.</b> T is on line KP, 1 pt further from K than P. In the corner, sd = |KT| − 36:<pre>${KTL.join('\n')}</pre>`,
+  step:()=>`<b>Why 0.50 pt.</b> A chosen step. A and B must be near P, so that the change from A to B tells what happens at P: 0.50 pt is small beside the corner radius, 36 pt. And |AB| is then exactly 1 pt, so the change from A to B is the change over 1 pt. On the iPhone 16 Pro, 0.50 pt is 1.5 pixels. Section 2 has buttons for other steps: there |AB| is not 1 pt, and the change from A to B is divided by |AB| to give the change for each 1 pt.`,
   menu:()=>`<b>Where these numbers come from.</b> Measured on a screen recording of Safari on the iPhone 16 Pro, good to about ±4 pt. The menu's glass at rest: 261 × 188 pt, center (238.80, 742.60) pt, corner radius about 36 pt. The “⋯” button: a circle of radius 25 pt around (342.30, 809.60) pt. They are not numbers published by Apple.`};
 
 /* ================= start ================= */
@@ -530,7 +564,8 @@ const TIPS={
   {const b=$('tPre');PRESETS.forEach(([name,p])=>{const x=document.createElement('button');x.className='btn';x.textContent=name;x.onclick=()=>{TW.p=[...p];TW.zc=null;traceAll()};b.appendChild(x)})}
   {const b=$('tSteps');STEPS.forEach(s=>{const x=document.createElement('button');x.className='btn';x.dataset.s=s;x.textContent=f(s)+' pt'+(s===STEP0?' (chosen)':'');x.onclick=()=>{TW.step=s;TW.zc=null;traceAll()};b.appendChild(x)})}
   $('ideaPrev').onclick=()=>{if(st46>0){st46--;ideaAll()}};$('ideaNext').onclick=()=>{if(st46<ST46-1){st46++;ideaAll()}};
-  heroMap();heroZoom();ideaAll();traceAll();exercises();bindTips(document.body);
+  function redrawAll(){heroMap();heroZoom();ideaAll();traceAll();exercises()}
+  redrawAll();bindTips(document.body);window.onThemeChange=redrawAll;
 })();
 </script>
 </body>
