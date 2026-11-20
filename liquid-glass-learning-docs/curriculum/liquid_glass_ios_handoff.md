@@ -624,9 +624,28 @@ Part two follows `curriculum/safari_spring_menu_plan.md`, not the entries above 
 - **Stated, not proved:** that this arrow points straight out (checked with the arrow from K to P) and that its length is the change of sd over 1 pt along it (checked at T).
 - **Flat pictures:** no surface is involved. The plan teaches 10.47, 11.2 and 11.3 in a 3D view.
 
-#### Next in part two: 10.47–10.48
-- 10.47 (`C`, the rim line): outward at P is (−0.60, −0.80); the plan's light is L = (−0.48, −0.60, 0.64) and light = 0.40 + 0.60 × |dot|. Reuse this page's helpers (`measure`, `sdChain`, `zoomScene`, `menuMap`) with its two changed helpers (`R12`, `Trace.prototype.root`).
-- 10.48 (`B`, needs Xcode and the lab) writes the code of outward: four more calls of the sd function, a step of 0.5 pt, and the division by the length with a guard for length 0. Lesson 10.46 has no code.
+#### Lesson 10.47 — The rim line: a thin band on the outline, lit from both sides (`C`, made 2026-11-19)
+
+```text
+10.47 the rim line at P = (122.916, 656.088) pt, 0.36 pt inside the resting menu's top-left corner (sd −0.36, outward (−0.60, −0.80))
+      band = smoothstep(−1.20, 0, sd): fraction 0.84 ÷ 1.20 = 0.70; 0.49 × 1.60 = 0.784
+      N at P = (−0.60, −0.80, 0) (the N of the outline, where the rim stands straight up); L = (−0.48, −0.60, 0.64)
+      dot(N, L) = 0.288 + 0.48 + 0 = 0.768; at P′ = (354.684, 829.112): −0.768; at V = (354.684, 656.088): 0.192
+      light = 0.40 + 0.60 × |dot(N, L)|: 0.8608 at P and P′, 0.5152 at V
+      line = strength × band × light = 0.125 × 0.784 × 0.8608 = 0.0843584, added to each channel (0.10 → 0.1843584, 47 of 255)
+      exercise: R = (134.304, 834.872), outward (−0.28, 0.96): dot −0.4416, light 0.66496
+```
+
+- **File:** `course/part-two/chapter-10/lesson-10-47-the-rim-line.html`. Reviews: `reviews/lesson-10-47-beginner-review-2026-11-19.md`.
+- **One idea:** the line's light takes the absolute value of dot(N, L), so glass that faces away from the lamp is lit like glass that faces it (Step 4); max(dot, 0) is the solid body's rule. Steps of its argument: the band (smoothstep of sd, recalled), N level on the outline (the rim's quarter circle stands straight up there), dot(N, L) at P, the light and the line's color.
+- **Chosen here** (the plan gives none of these three): strength 0.125; the glass's channels 0.10 in the worked example; P 0.36 pt inside the outline. The plan's numbers are kept: 1.20 pt, L, 0.40 and 0.60, the corners' 0.768, −0.768 and 0.192.
+- **The first themed page:** light and dark, System | Light | Dark in the header. Lesson 10.46 has no theme block; `CURRENT_STATE.md`, “Part two”, describes the block to copy.
+- **In 3D:** the menu's glass near a pixel, cut straight down, with the rim's quarter circle (14 pt), on a turnable view; `rimScene`, `perimAt`, `hOf` and `chain` are meant for 11.2 and 11.3 too.
+
+#### Next in part two: 10.48, then 11.1
+- 10.48 (`B`, needs Xcode and the lab) joins 10.45–10.47 in one Metal function: the outline's soft edge, a flat tint, the rim line and the shadow. It writes the code of outward (four more calls of the sd function, a step of 0.5 pt, the division by the length with a guard for length 0; Lesson 10.46 has no code) and of this lesson's line: `band`, `abs(dot(N, L))`, the light, the added white. The lab's side-lesson shader (`LiquidGlassLab/shortcut/SafariMenuGlass.metal`) draws its rim with `mix(color, white, rim.x * rimBand)` and one even brightness (rim alpha 0.12, width 1.2 in dark mode): the build's key must add the lit line of 10.47 instead.
+- 10.47 says “a channel holds at most 1” in one line; 10.48 is where a sum above 1 can first be seen (a light glass).
+- 11.1 (`E`) is the first lesson of the lens: the glass picture and `layerEffect`.
 
 ## Side lesson — Safari shortcut, Section 4 revised 2026-10-26
 
