@@ -45,6 +45,8 @@
   .before p,.before li{font-size:14.5px}.before ul{margin:6px 0}
   .info{display:inline-block;width:17px;height:17px;line-height:15px;border-radius:50%;border:1px solid var(--blue);color:var(--blue);background:var(--tint);font-size:11px;text-align:center;cursor:pointer;padding:0;vertical-align:2px;font-family:inherit;margin-left:3px}
   .info:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+  .numberTip{border:0;background:transparent;color:inherit;font:inherit;padding:0;cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+  .numberTip:focus-visible,.numberTip:hover{outline:1px solid var(--blue);outline-offset:2px;border-radius:2px}
   #tip{position:fixed;z-index:60;max-width:420px;max-height:calc(100vh - 20px);overflow:auto;background:var(--tipBg);color:var(--tipInk);border:1px solid var(--tipLine);border-radius:8px;padding:10px 34px 10px 12px;font-size:13.5px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.28);display:none}
   #tip.open{display:block}#tip.wide{max-width:600px}
 #tip.xwide{max-width:min(820px,calc(100vw - 20px))}
@@ -56,6 +58,7 @@
   #tip b{color:var(--tipHi)}#tip code{background:var(--tipBox);border-color:var(--tipLine);color:var(--tipInk)}#tip pre{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;margin:8px 0 0;background:var(--tipBox);border:1px solid var(--tipLine);border-radius:6px;padding:8px 10px;color:var(--tipInk)}
   .ptdot{position:absolute;width:20px;height:20px;border-radius:50%;transform:translate(-50%,-50%);border:3px solid var(--dot);cursor:pointer;padding:0;z-index:5;touch-action:none}
   .ptdot.drag{cursor:grab}.ptdot.drag:active{cursor:grabbing}.ptdot.sm{width:15px;height:15px;border-width:2.5px}
+  .ptdot.compact{width:4px;height:4px;border-width:1px}
   .ptdot:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
   pre.code{font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:8px 0 12px;overflow-x:auto;color:var(--ink);max-width:1550px}pre.code .cm{color:var(--cap)}
   .codebar{display:flex;gap:12px;align-items:center;margin:10px 0 0}table.trace td.cl{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre;width:1%}#code46Table td:nth-child(3){width:27%}
@@ -239,7 +242,9 @@ let pointDrag=null;
 document.addEventListener('pointermove',e=>{if(!pointDrag)return;if(!pointDrag.moved&&Math.hypot(e.clientX-pointDrag.x0,e.clientY-pointDrag.y0)<3)return;pointDrag.moved=true;hideTip();pointDrag.move(e.clientX,e.clientY)});
 document.addEventListener('pointerup',()=>{if(!pointDrag)return;if(pointDrag.moved)suppressNow();pointDrag=null});
 document.addEventListener('pointercancel',()=>{pointDrag=null});
-function addPt(stage,x,y,color,html,label,opt={}){const b=document.createElement('button');b.className='ptdot'+(opt.small?' sm':'')+(opt.move?' drag':'');b.style.left=(x+BORDER)+'px';b.style.top=(y+BORDER)+'px';b.style.background=color;b.setAttribute('aria-label',label);if(opt.key)b.dataset.key=opt.key;stage.appendChild(b);setTip(b,html);addLab(stage,opt.name||(label.match(/^Point (\S+)$/)||[])[1],html,b,opt.lab);
+function addPt(stage,x,y,color,html,label,opt={}){const b=document.createElement('button');b.className='ptdot'+(opt.small?' sm':'')+(opt.move?' drag':'');b.style.left=(x+BORDER)+'px';b.style.top=(y+BORDER)+'px';b.style.background=color;b.setAttribute('aria-label',label);if(opt.key)b.dataset.key=opt.key;
+  if(opt.compact){b.classList.add('compact');b.tabIndex=-1}
+  stage.appendChild(b);setTip(b,html);addLab(stage,opt.name||(label.match(/^Point (\S+)$/)||[])[1],html,b,opt.lab);
   {const cv=stage.querySelector('canvas');if(cv&&(x<-2||y<-2||x>cv.width+2||y>cv.height+2))b.hidden=true}   /* a point outside its own picture must not sit on a neighbouring one */
   if(opt.move){b.addEventListener('pointerdown',e=>{pointDrag={x0:e.clientX,y0:e.clientY,moved:false,move:opt.move};e.preventDefault();e.stopPropagation()});
     if(opt.keys)b.addEventListener('keydown',e=>{const d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(!d)return;e.preventDefault();opt.keys(d);stage.querySelector(`[data-key="${opt.key}"]`)?.focus()})}
@@ -255,14 +260,16 @@ function linkLabels(stage){stage.querySelectorAll('.ptlab').forEach(b=>b.remove(
   for(const e of stage.__pts||[]){if(e.dot&&(e.dot.hidden||!e.dot.isConnected))continue;
     for(const r of placed){if(r.t==='\u0000'||!namesPoint(r.t,e))continue;
       const b=document.createElement('button');b.className='ptlab';b.style.left=(r.x+BORDER)+'px';b.style.top=(r.y+BORDER)+'px';b.style.width=r.w+'px';b.style.height=r.h+'px';
-      b.setAttribute('aria-label',`Label “${r.t}”: opens the popup of ${e.name?'point '+e.name:'this point'}`);b.tabIndex=-1;stage.appendChild(b);setTip(b,e.html)}}}
+      b.setAttribute('aria-label',`Label “${r.t}”: opens the popup of ${e.name?'point '+e.name:'this point'}`);b.tabIndex=e.dot?.classList.contains('compact')?0:-1;stage.appendChild(b);setTip(b,e.html)}}}
 const canvasPos=(cv,cx,cy)=>{const r=cv.getBoundingClientRect();return[(cx-r.left-cv.clientLeft)*cv.width/cv.clientWidth,(cy-r.top-cv.clientTop)*cv.height/cv.clientHeight]};
 const BORDER=1;   /* canvases have a 1-px border: a dot over canvas pixel x sits at x + 1 in its stage */
 const info=(k,l)=>`<button class="info" data-tip="${k}" aria-label="${l}">ⓘ</button>`;
-function bindTips(root){root.querySelectorAll('.info[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip]))}
+const numberTip=(k,n,label)=>`<button type="button" class="numberTip" data-tip="${k}" aria-label="${n}, ${label}">${n}</button>`;
+function bindTips(root){root.querySelectorAll('[data-tip]').forEach(b=>setTip(b,TIPS[b.dataset.tip]))}
 /* ================= Lesson 10.46 · the glass: the resting menu and the “⋯” button, in pt on the 402 × 874 pt screen ================= */
 /* ---------- theme: no selector, the system's setting. Every canvas color the drawing code names is the light one; in the dark theme the canvas swaps it for its row of this table ---------- */
 const DARKC={'#4f46e5':'#a5b4fc','#fbbf24':'#fcd34d','#ffffff':'#1b2431','#f8fafc':'#222c3a','#f1f5f9':'#232d3b','#e2e8f0':'#2d3848','#cbd5e1':'#44516a','#fff':'#1b2431','#e0e7ff':'#2f3b63','#eef2ff':'#1f2a44','#c4b5fd':'#7c6bd6','#f9fafb':'#ccd2dc','#94a3b8':'#6f7d92','#64748b':'#8f9bab','#475569':'#aab4c2','#334155':'#c3ccd8','#111827':'#ccd2dc',
+  '#2563eb':'#60a5fa','#f97316':'#fdba74','#14b8a6':'#5eead4','#f43f5e':'#fda4af',
   'rgba(255,255,255,0.94)':'rgba(22,29,39,0.94)','rgba(255,255,255,0.96)':'rgba(22,29,39,0.96)','rgba(17,24,39,0.92)':'rgba(8,12,18,0.92)',
   '#f3e8ff':'#33264d','#a855f7':'#c084fc','#6b21a8':'#d8b4fe','rgba(233,213,255,0.62)':'rgba(140,105,205,0.34)','rgba(168,85,247,0.45)':'rgba(192,132,252,0.5)','rgba(221,214,254,0.86)':'rgba(72,56,112,0.9)',
   '#3730a3':'#c7d2fe','#0f766e':'#5eead4','#92400e':'#fcd34d','#9d174d':'#f9a8d4','#854d0e':'#fde047','#1e40af':'#93c5fd','#1d4ed8':'#93c5fd','#be123c':'#fda4af','#155e75':'#67e8f9','#dc2626':'#f87171','#3f6212':'#bef264','#9a3412':'#fdba74','#075985':'#7dd3fc','#d97706':'#fbbf24','#047857':'#6ee7b7','#6d28d9':'#c4b5fd'};
@@ -383,10 +390,17 @@ function locator(V,x0,y0,S,P,nm='P'){const c=V.ctx,s=LOC.s,L={ctx:c,s,X:x=>x0+5+
   c.beginPath();c.arc(L.X(P[0]),L.Y(P[1]),4,0,7);c.fillStyle=COL.ask;c.fill();c.lineWidth=1.5;c.strokeStyle='#fff';c.stroke()}
 /* tooltips of the points */
 const SYS='pt from the screen’s top-left corner: x to the right, y toward the bottom';
-const tipP=M=>`<b>${M.nm} = ${pt(...M.P)} pt</b> (${SYS}). ${value('sd',M.c.P.sd,' pt')}.${calc(sampleLines(M.c.P,M.nm))}`;
+const tipP=M=>`<b>${M.nm} = ${pt(...M.P)} pt</b>. The marked pixel is ${insideWords(M.c.P.sd)}.`;
 const NB={A:'to the left of',B:'to the right of',D:'above',E:'below'};
-const tipN=(M,n)=>`<b>${n} = ${pt(...M.pts[n])} pt</b>. ${M.step.toFixed(2)} pt ${NB[n]} ${M.nm}.${calc(sampleLines(M.c[n],n))}`;
+const tipN=(M,n)=>`<b>${n} = ${pt(...M.pts[n])} pt</b>. This sample is ${M.step.toFixed(2)} pt ${NB[n]} ${M.nm}. ${value('Signed distance',M.c[n].sd,' pt')}.`;
 const tipQ=M=>`<b>${arrowTxt('Q',M.Q)} pt</b>. A nearest point of the outline to ${M.nm}. ${value('Distance',Math.abs(M.c.P.sd),' pt')}.`;
+
+function drawSampleDistances(V,M,names){
+  const [cx,cy]=M.c.P.w.C,kx=V.X(cx),ky=V.Y(cy);
+  const ends=names.map(n=>[V.X(M.pts[n][0]),V.Y(M.pts[n][1]),COL[n]]);
+  for(const [x,y] of ends)thin(V.ctx,kx,ky,x,y,COL.halo,4.8);
+  for(const [x,y,color] of ends)thin(V.ctx,kx,ky,x,y,color,2.2);
+}
 
 /* ---------- the enlarged picture around P ---------- */
 function zoomScene(V,st,M,o={}){const c=V.ctx,X=V.X,Y=V.Y,W=V.cv.width,H=V.cv.height,S=M.S,P=M.P,sh=o.show||{},px=X(P[0]),py=Y(P[1]),sdP=M.c.P.sd,u=M.c.P.w.out,has=M.len>0,out=M.out,L=V.s,sp=M.step*V.s;
@@ -411,6 +425,7 @@ function zoomScene(V,st,M,o={}){const c=V.ctx,X=V.X,Y=V.Y,W=V.cv.width,H=V.cv.he
   const tip=has?[P[0]+out[0],P[1]+out[1]]:null,tx=tip?X(tip[0]):0,ty=tip?Y(tip[1]):0;if(sh.T&&tip)reserve(c,tx,ty,10);
   /* lines and arrows */
   if(sh.Q&&far)thin(c,px,py,qx,qy,'#334155',2);
+  if(o.sampleDistances)drawSampleDistances(V,M,ns);
   if(qIn&&!qDot){c.beginPath();c.arc(qx,qy,5,0,7);c.fillStyle=COL.Q;c.fill();c.lineWidth=2;c.strokeStyle='#111827';c.stroke()}
   let kEnd=null;if(o.toK){const C=M.c.P.w.C,dx=X(C[0])-px,dy=Y(C[1])-py,D=Math.hypot(dx,dy);let t=D;for(const [a,d,lo,hi] of [[px,dx/D,14,W-14],[py,dy/D,14,top-14]]){if(d<0)t=Math.min(t,(lo-a)/d);if(d>0)t=Math.min(t,(hi-a)/d)}
     kEnd=[px+dx/D*t,py+dy/D*t];thin(c,px,py,kEnd[0],kEnd[1],'#94a3b8',2)}
@@ -427,16 +442,18 @@ function zoomScene(V,st,M,o={}){const c=V.ctx,X=V.X,Y=V.Y,W=V.cv.width,H=V.cv.he
   const toward=(dx,dy)=>ar&&!perp&&out[0]*dx+out[1]*dy>0.85,lab=(n,x,y,al)=>plate(c,o.nText?o.nText(n):`${n} · ${value('sd',M.c[n].sd)}`,x,y,14,al,COLT[n]);
   if(sh.A)lab('A',X(M.pts.A[0])-14,py-(toward(-1,0)?26:0),'right');
   if(sh.B)lab('B',X(M.pts.B[0])+14,py-(toward(1,0)?26:0),'left');
-  {const dl=ar&&out[0]>0.2&&out[1]<-0.2,el=ar&&out[0]>0.2&&out[1]>0.2,up=ar&&out[1]>0.2;
+  {const dl=ar&&out[0]>0.2&&out[1]<-0.2,el=o.gap==='y'||(ar&&out[0]>0.2&&out[1]>0.2),up=ar&&out[1]>0.2;
     if(sh.D)lab('D',px+(dl?-14:14),Y(M.pts.D[1])-4,dl?'right':'left');
-    if(sh.E)lab('E',px+(el?-14:14),Y(M.pts.E[1])+4,el?'right':'left');
-    plate(c,`${M.nm} · ${value('sd',M.c.P.sd)}`,px-14,py+(up?-30:30),14,'right',COL.ink)}
+    if(sh.E)lab('E',px+(el?-14:14),Y(M.pts.E[1])+(o.gap==='y'?12:4),el?'right':'left');
+    const label=`${M.nm} · ${value('sd',M.c.P.sd)}`;
+    if(o.gap==='x')plate(c,label,px+14,py-27,14,'left',COL.ink);
+    else plate(c,label,px-14,py+(up?-30:30),14,'right',COL.ink)}
   if(sh.legs&&has){
     plate(c,`x part ≈ ${display2(M.gx)}`,(px+hx)/2,py+34,14,'center','#0f766e');
     plate(c,`y part ≈ ${display2(M.gy)}`,hx-14,(py+gyY)/2,14,'right','#0f766e');
   }
-  if(o.gap==='x')plate(c,'A to B · 0.50 + 0.50 = 1.00 pt',px,py+64,14,'center');
-  if(o.gap==='y')plate(c,'D to E · 0.50 + 0.50 = 1.00 pt',px,py+88,14,'center');
+  if(o.gap==='x')plate(c,'A to B · 0.50 + 0.50 = 1.00 pt',px+14,py-54,14);
+  if(o.gap==='y')plate(c,'D to E · 0.50 + 0.50 = 1.00 pt',px-30,py+90,14,'right');
   if(sh.Q&&far){const sg=sdP<0?1:-1,flat=Math.abs(u[0])>0.9,al=sg*u[0]<-0.2?'right':sg*u[0]>0.2?'left':'center';
     if(qIn&&!qNear){plate(c,o.qLabel||'Q: the nearest point of the outline',qx+sg*u[0]*26,qy+sg*u[1]*26,13,al,'#6b21a8');
       plate(c,lenTxt,(px+qx)/2+(flat?0:-14),(py+qy)/2+(flat?-18:6),13,flat?'center':'right','#334155')}
@@ -471,7 +488,8 @@ const M0=measure(MENU,P0,STEP0),K0=M0.c.P.w.C;
 const S0=[164.3,704.6],MS=measure(MENU,S0,STEP0,'S');
 const U=[257,654.2],V0=[257,653.2],W0=[258,654.2];
 const TOP=R12(MENU.c[1]-MENU.half[1]),LEFT=R12(MENU.c[0]-MENU.half[0]);
-const ARW=14,ZW=[560,490,90],ZT=[380,195];
+const ARW=14,ZW=[520,460,90],ZT=[380,195];
+const SAMPLE_PAIRS={x:['A','B'],y:['D','E']};
 const pointTip=(n,p,description)=>`<b>${n} = ${pt(...p)} pt</b> (${SYS}). ${description}`;
 const shapeTip=pointTip('K',K0,'The center of the circle that rounds this corner. Its radius is 36 pt.');
 const display2=x=>x.toFixed(2).replace('-','−');
@@ -543,25 +561,37 @@ function straightOverview(){
   plate(c,'U · just below the top edge',x+16,y+20,14);
   addPt(st,x,y,COL.P,pointTip('U',U,'The straight-edge example is here on the menu.'),'Point U',{small:true});
 }
-function cornerOverview(){
-  const V=mkView($('ovCv'),96,640,6),c=V.ctx,st=$('ovStage'),Z=cornerView();
+function cornerOverview(axis){
+  const names=SAMPLE_PAIRS[axis];
+  const V=names?mkView($('ovCv'),101,646,8):mkView($('ovCv'),96,640,6);
+  const c=V.ctx,st=$('ovStage'),Z=cornerView();
   begin(V);clearPts(st);drawGlass(V,MENU);
   const px=V.X(P0[0]),py=V.Y(P0[1]),kx=V.X(K0[0]),ky=V.Y(K0[1]);
   c.strokeStyle='#64748b';c.lineWidth=1.4;c.beginPath();c.arc(kx,ky,MENU.r*V.s,0,2*Math.PI);c.stroke();
   drawOutline(V,MENU,4);
   c.strokeStyle='#111827';c.lineWidth=1.4;
   c.strokeRect(V.X(Z.ux(0)),V.Y(Z.uy(0)),Z.cv.width*V.s/Z.s,Z.cv.height*V.s/Z.s);
-  line(c,kx,ky,px,py,'#64748b',2);
   line(c,kx,ky,px,ky,'#0f766e',2.6);
   line(c,px,ky,px,py,'#0f766e',2.6);
-  plate(c,'Frame shows the enlarged area',px+34,py+22,14,'left');
-  plate(c,'P',px+15,py-15,15);
-  plate(c,'K · center of the corner’s circle',kx+16,ky+15,15);
+  if(names){
+    drawSampleDistances(V,M0,names);
+    names.forEach((n,i)=>{
+      const x=V.X(M0.pts[n][0]),y=V.Y(M0.pts[n][1]),side=i===0?-1:1;
+      thin(c,x,y,x+side*24,y+side*18,COLT[n],1.3);
+      plate(c,n,x+side*31,y+side*18,14,i===0?'right':'left',COLT[n]);
+      addPt(st,x,y,COL[n],tipN(M0,n),`Point ${n}`,{compact:true});
+    });
+    plate(c,`Left edge · x = ${display2(LEFT)} pt`,V.X(LEFT)+13,ky+11,14,'left','#6b21a8');
+    plate(c,`Top edge · y = ${display2(TOP)} pt`,kx+22,V.Y(TOP)-13,14,'left','#6b21a8');
+  }else line(c,kx,ky,px,py,'#64748b',2);
+  plate(c,'Frame shows the enlarged area',px+60,py-32,14,'left');
+  plate(c,'P',px+11,py-31,15);
+  plate(c,'K · center of the corner’s circle',kx+16,ky-12,15);
   plate(c,'Sideways gap', (px+kx)/2,ky+20,14,'center','#0f766e');
   plate(c,'Vertical gap',px-14,(py+ky)/2,14,'right','#0f766e');
   plate(c,'Corner radius · 36 pt',kx+68,ky-68,14,'left','#6b21a8');
-  plate(c,`${SYS} · 1 screen pt = 6 drawing px`,8,V.cv.height-18,14);
-  addPt(st,px,py,COL.P,tipP(M0),'Point P',{small:true});
+  plate(c,`${SYS} · 1 screen pt = ${V.s} drawing px`,8,V.cv.height-14,14);
+  addPt(st,px,py,COL.P,tipP(M0),'Point P',{small:true,compact:!!names});
   addPt(st,kx,ky,COL.K,shapeTip,'Point K',{small:true});
 }
 function betweenOverview(){
@@ -581,24 +611,25 @@ function zoomOptions(V){
 function ideaZoom(){
   if(st46===0){straightScene();straightOverview();return}
   const V=st46===5?zoomView($('ideaCv'),S0,150,400,380):cornerView(),opts=zoomOptions(V);
+  const axis=st46===1?'x':st46===2?'y':null;
   const show=[
     {A:1,B:1,Q:1},{D:1,E:1,Q:1},{legs:1,changes:1},{arrow:1},{A:1,B:1,D:1,E:1,arrow:1}
   ][st46-1];
   const M=st46===5?MS:M0;
-  zoomScene(V,$('ideaStage'),M,{...opts,show,gap:st46===1?'x':st46===2?'y':null,
+  zoomScene(V,$('ideaStage'),M,{...opts,show,gap:axis,sampleDistances:!!axis,
     arrowLabel:roundedArrow('Outward',M.out),
     nText:st46===5?n=>`${n} · ${value('sd',M.c[n].sd)} · ${EDGE[M.c[n].w.part]}`:null});
-  if(st46===5)betweenOverview();else cornerOverview();
+  if(st46===5)betweenOverview();else cornerOverview(axis);
 }
 function sampleTable(M,axis){
-  const horizontal=axis==='x',names=horizontal?['A','B']:['D','E'];
+  const horizontal=axis==='x',names=SAMPLE_PAIRS[axis],i=horizontal?0:1;
   const [[a,aa],[b,bb]]=names.map(n=>[n,M.c[n]]);
   const [px,py]=P0;
   const gap=(c,i)=>`${distanceExpression(c.p[i],K0[i])} = ${f(c.legs[i])}`;
   const sq=(c,i)=>`${f(c.legs[i])} × ${f(c.legs[i])} = ${f(c.sq[i])}`;
-  const pos=(n,c)=>`${KN(f(P0[horizontal?0:1]))} ${n==='A'||n==='D'?'−':'+'} ${KN(STEP0.toFixed(2))} = ${f(c.p[horizontal?0:1])}`;
+  const pos=(n,c,sign)=>`${KN(f(P0[i]))} ${sign} ${KN(STEP0.toFixed(2))} = ${numberTip('pos'+n,f(c.p[i]),`${axis} position of ${n}`)}`;
   const rows=[
-    [horizontal?'x position (pt)':'y position (pt)',pos(a,aa),pos(b,bb)],
+    [`${axis} position (pt)`,pos(a,aa,'−'),pos(b,bb,'+')],
     [horizontal?`y position (pt)`:`x position (pt)`,...names.map(()=>KN(f(horizontal?py:px)))],
     ['Sideways gap from K (pt)',gap(aa,0),gap(bb,0)],
     ['Vertical gap from K (pt)',gap(aa,1),gap(bb,1)],
@@ -619,18 +650,18 @@ const CAP46=[
     <p>The ordinary distance shrinks. The signed distance rises because the negative number moves closer to zero. Moving straight toward the nearest edge makes that number rise fastest.</p>`,
   ()=>`<h3>2. Sample across P from left to right</h3>
     <p>Back at the marked corner, choose P at ${KN(pt(...P0))} pt. The shader can ask for signed distance at any position. First ask at A, 0.50 pt left of P, and B, 0.50 pt right of P. We choose 0.50 pt so both samples stay close to P compared with the 36 pt corner radius.</p>
-    <p>The model uses a 36 pt corner radius and top and left edges measured from the Safari recording. K marks the center of the corner’s circle. The radius is the distance from K to the circle, so K sits 36 pt in from each edge.</p>
+    <p>The lower picture labels the menu’s straight left and top edges. Their positions and the 36 pt corner radius come from the Safari recording. K marks the center of the corner’s circle. The radius is the distance from K to the circle, so K sits 36 pt in from each edge.</p>
     ${calc([
-      `K’s x position = ${KN(display2(LEFT))} + ${KN(f(MENU.r))} = ${display2(K0[0])} pt`,
-      `K’s y position = ${KN(display2(TOP))} + ${KN(f(MENU.r))} = ${display2(K0[1])} pt`
+      `K’s x position = ${KN(numberTip('leftEdge',display2(LEFT),'x position of the left edge'))} + ${KN(f(MENU.r))} = ${display2(K0[0])} pt`,
+      `K’s y position = ${KN(numberTip('topEdge',display2(TOP),'y position of the top edge'))} + ${KN(f(MENU.r))} = ${display2(K0[1])} pt`
     ])}
-    <p>The lower picture shows the sideways and vertical gaps from K to P. For each sample, use its own position to find those two gaps. Square each gap (multiply it by itself), add the squares, and take the square root (√) to get the straight distance from K. This is the length that squares to the sum. The outline is 36 pt from K along the same direction. Subtract 36 pt from the sample’s distance from K to get its signed distance.</p>
+    <p>The blue and orange lines run from A and B to K. The close-up shows the start of each line. The lower picture shows both full lengths and uses P to mark the sideways and vertical gaps. For each sample, find those gaps from its own position. Square each gap (multiply it by itself), add the squares, and take the square root (√) to get the straight distance from K. The outline is 36 pt from K along the same direction. Subtract 36 pt from the sample’s distance from K to get its signed distance.</p>
     ${sampleTable(M0,'x')}
     <p>A to B goes 0.50 pt to reach P, then 0.50 pt more to reach B. Subtract the starting signed distance from the ending one. Divide that change by the entire gap to get the average change for 1 pt of movement to the right. The calculations carry more digits than are shown.</p>
     ${calc(pairLines(M0,'x'))}
     <p>Signed distance falls by about 0.60 pt per point to the right. Moving right here takes you deeper into the glass.</p>`,
   ()=>`<h3>3. Sample across P from top to bottom</h3>
-    <p>Now use D, 0.50 pt above P, and E, 0.50 pt below P. Both keep P’s x position. Use the same center K and the same 36 pt radius to find their signed distances.</p>
+    <p>Now use D, 0.50 pt above P, and E, 0.50 pt below P. Both keep P’s x position. Follow the teal and pink lines toward K in both pictures. Use the same center and the same 36 pt radius to find their signed distances.</p>
     ${sampleTable(M0,'y')}
     <p>Subtract the signed distance at D from the signed distance at E. Divide by the full gap again, this time for 1 pt of movement down the screen.</p>
     ${calc(pairLines(M0,'y'))}
@@ -657,6 +688,7 @@ const CAP46=[
 function ideaAll(){
   hideTip();
   $('ideaCap').innerHTML=CAP46[st46]();
+  bindTips($('ideaCap'));
   prediction.hidden=st46!==0;
   $('ideaDots').querySelectorAll('button').forEach((b,i)=>{
     b.classList.toggle('on',i===st46);
@@ -695,17 +727,17 @@ function traceAll(){
     if(K){plate(c,'K',kx+n[0]*21,ky+n[1]*21,13,al,'#334155');if(Math.hypot(kx-px,ky-py)>70)plate(c,value('K to P',M.c.P.d,' pt'),(kx+px)/2-n[0]*16,(ky+py)/2-n[1]*16,12,n[0]>0.3?'right':n[0]<-0.3?'left':'center','#334155')}
     if(K)addPt(st,kx,ky,COL.K,`<b>K = ${pt(...K)} pt</b>: the center of the circle that rounds this corner of the menu. Its radius is 36 pt.`,'Point K',{small:true});
     if(far)addPt(st,qx,qy,COL.Q,tipQ(M),'Point Q',{small:true});
-    addPt(st,px,py,COL.P,()=>tipP(M)+'Drag P, or move it 0.1 pt with the arrow keys.','Point P',{key:'mp',
+    addPt(st,px,py,COL.P,()=>tipP(M)+' Drag P, or move it 0.1 pt with the arrow keys.','Point P',{key:'mp',
       move:(cx,cy)=>{const q=canvasPos(cv,cx,cy);TW.p=LIM([V.ux(q[0]),V.uy(q[1])]);TW.zc=null;traceAll()},
       keys:d=>{TW.p=LIM([TW.p[0]+0.1*d[0],TW.p[1]+0.1*d[1]]);TW.zc=null;traceAll()}})}
   {const cv=$('tZoom'),s=ZS(),V=zoomView(cv,TW.zc||TW.p,s,ZT[0],ZT[1]);
-    zoomScene(V,$('tZoomStage'),M,{show:{A:1,B:1,D:1,E:1,Q:1,arrow:1,T:1},sdT:CT?CT.sd:0,tipT:tipT2,rail:200,key:'zp',pTip:()=>tipP(M)+'Drag P here for a small move.',
+    zoomScene(V,$('tZoomStage'),M,{show:{A:1,B:1,D:1,E:1,Q:1,arrow:1,T:1},sdT:CT?CT.sd:0,tipT:tipT2,rail:200,key:'zp',pTip:()=>tipP(M)+' Drag P here for a small move.',
       move:(cx,cy)=>{if(!TW.zc)TW.zc=[...TW.p];const Vz=zoomView(cv,TW.zc,ZS(),ZT[0],ZT[1]),q=canvasPos(cv,cx,cy);TW.p=LIM([Vz.ux(q[0]),Vz.uy(q[1])]);traceAll()},
       keys:d=>{TW.p=LIM([TW.p[0]+0.1*d[0],TW.p[1]+0.1*d[1]]);TW.zc=null;traceAll()}})}
   const note=noteFor(M);
   $('tRead').innerHTML=`<b>P = ${pt(...TW.p)} pt</b> · ${value('sd',sdP,' pt')} (${insideWords(sdP)})<br><b>${roundedArrow('Outward',M.out)}</b>`;
   $('tNote').textContent=note;$('tNote').hidden=!note;
-  const ib=n=>`<button class="info" id="tI${n}" aria-label="How sd at ${n} is found">ⓘ</button>`;
+  const ib=n=>`<button class="info" id="tI${n}" aria-label="About sample ${n}">ⓘ</button>`;
   const samples=(a,b)=>`${value(`sd at ${a}`,M.c[a].sd,' pt')} ${ib(a)}<br>${value(`sd at ${b}`,M.c[b].sd,' pt')} ${ib(b)}`;
   const observed=CT?[
     `${arrowTxt('T',Tp)} pt (1 pt along outward)`,
@@ -783,7 +815,7 @@ function codeSection(){$('code46').innerHTML=CODE46.map(codeHtml).join('\n');
   const M=M0,c=M.c,MC=measure(MENU,MENU.c,STEP0);
   const fromC=P0.map((v,i)=>equation(i===0?'x':'y',`${KN(f(v))} − ${KN(f(MENU.c[i]))}`,v-MENU.c[i],[],' pt'));
   const ln=i=>esc(CODE46[i].replace(/\s+\/\/.*$/,'').trim());
-  const sdRow=(i,n,step)=>[ln(i),`Step ${step}. Read signed distance 0.50 pt ${NB[n]} P.`,value(`sd at ${n}`,c[n].sd,' pt')+` ${info('sd'+n,`How sd at ${n} is found`)}`];
+  const sdRow=(i,n,step)=>[ln(i),`Step ${step}. Read signed distance 0.50 pt ${NB[n]} P.`,value(`sd at ${n}`,c[n].sd,' pt')+` ${info('sd'+n,`About sample ${n}`)}`];
   const rows=[
     ['/// … (3 lines)','The comments describe the inputs, units, and result.',''],
     [ln(3),'The function takes P and the menu’s shape. A <code>float2</code> holds two numbers. A <code>float4</code> holds four, here the center and half the size of the menu.',`P = ${KN(pt(...P0))}<br>box = ${KN(`(${[...MENU.c,...MENU.half].map(f).join(', ')})`)}<br>cornerRadius = ${KN(f(MENU.r))}<br>All in pt. ${info('menu','Where the menu measurements come from')}`],
@@ -805,6 +837,11 @@ function copyCode(){const txt=CODE46.join('\n'),done=()=>{$('copy46Done').textCo
 /* ================= tooltips ================= */
 const TIPS={
   ...Object.fromEntries(['A','B','D','E'].map(n=>['sd'+n,()=>tipN(M0,n)])),
+  ...Object.fromEntries(Object.entries(SAMPLE_PAIRS).flatMap(([axis,names])=>names.map(n=>[
+    'pos'+n,`<b>${f(M0.pts[n][axis==='x'?0:1])} pt is ${n}’s ${axis} position.</b> ${n} is ${STEP0.toFixed(2)} pt ${NB[n]} P. Its ${axis==='x'?'y':'x'} position stays the same.`
+  ]))),
+  leftEdge:`<b>${display2(LEFT)} pt is the x position of the menu’s left edge.</b> Subtract half the width from the center’s x position. ${display2(MENU.c[0])} − ${display2(MENU.half[0])} = ${display2(LEFT)} pt.`,
+  topEdge:`<b>${display2(TOP)} pt is the y position of the menu’s top edge.</b> Subtract half the height from the center’s y position. ${display2(MENU.c[1])} − ${display2(MENU.half[1])} = ${display2(TOP)} pt.`,
   menu:'<b>Menu model inputs</b> from measurements on a Safari screen recording, accurate to about ±4 pt. The resting menu is 261 × 188 pt, centered at (238.80, 742.60) pt, with a corner radius of about 36 pt.'
 };
 
