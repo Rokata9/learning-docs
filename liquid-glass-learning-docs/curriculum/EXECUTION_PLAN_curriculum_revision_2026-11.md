@@ -1,5 +1,7 @@
 # Execution plan — curriculum revision (2026-11), version 3
 
+> Historical migration plan from November 2026. For current work, start with [NEW_CHAT_PROMPT.md](../NEW_CHAT_PROMPT.md) and follow [AGENTS.md](../AGENTS.md).
+
 **For:** Claude Code (Desktop app) on the learner's Mac, with this repository and the iOS lab `/Users/rosen/Code/LiquidGlassLab-iOS`.
 
 **Why:** `curriculum/curriculum_review_2026-11-02.md` (read it first, it is short).

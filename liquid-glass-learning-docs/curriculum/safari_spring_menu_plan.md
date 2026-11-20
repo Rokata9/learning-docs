@@ -1,7 +1,7 @@
 # The Safari spring glass menu — plan for the rest of the course
 
 - **Written:** 2026-11-19
-- **Status:** a proposal. It changes no other file. `curriculum/liquid_glass_ios_curriculum.md` still gives the order that “generate the next lesson” follows (5.1, item 1).
+- **Status:** section 4 is the current lesson sequence after 10.45. See [CURRENT_STATE.md](../CURRENT_STATE.md) for what exists and which course navigation still uses the older sequence.
 - **Starts after:** Lesson 10.44, the boundary named in the request for this plan.
 - **Goal:** understand, and rebuild in SwiftUI + Metal, the menu that springs out of the “⋯” button of Safari on iOS 26. That means: name every visual layer, explain its maths with numbers, say why it is there and how to tune it, and run it smoothly on the iPhone 16 Pro.
 - **Size:** 22 lessons from 10.45 to the end: Lesson 10.45, whose page exists, and 21 new ones. The curriculum lists 179 from 10.45 on.
@@ -280,41 +280,18 @@ The test: a lesson stays only if, without it, one layer of the menu could not be
 
 ## 4. The new plan
 
-### 4.0 How every lesson of this plan is written
+### 4.0 How to use the lesson entries
 
-- `AGENTS.md` applies in full: Rule 0 (a few sentences, a picture, plain words), standard math words, concrete numbers, a stepper only when several facts lead to one result.
-- **The real glass.** A lesson that involves the surface is taught on the menu's own glass, at a named pixel, in pt on the 402 × 874 pt screen, in a 3D view (10.47, 11.2, 11.3).
-- **Facts in place.** A new lesson states each fact it needs where it uses it. It never points back to an old lesson for it. 4.6 lists these facts.
-- **Two cases.** A formula is run on two cases, so that no number looks arranged: the resting rim (14 pt, 6 pt) and the in-flight rim (28 pt, 24 pt).
-- **Fitted numbers.** Every motion and rim number below is a dial fitted to your recording for the side lesson. None is Apple's own value. Each lesson calls them chosen.
-- **Types.**
-  - `C`: one new idea, an HTML page only. 9 lessons.
-  - `B`: no new idea, one Metal or Swift exercise in the lab. 8 lessons.
-  - `E`: code first. 4 lessons.
-  - The 12 `B` and `E` lessons need the iOS lab and Xcode on your Mac.
-- **Builds only where two or three lessons give something to build** (your rule; see 5.3, item 2). One build, 12.2, follows a single new lesson: the motion of Chapter 13 needs the outline between button and menu first.
-
-What went wrong before, and what this plan does about it:
-
-| What went wrong | What this plan does |
-|---|---|
-| One formula proved over 35 lessons (10.4–10.38). On 2026-11-11 you chose to go without full proofs. | No proof chains. A standard fact is stated with numbers and its plainest picture. No fact of this plan takes more than one lesson. |
-| Coined words: “reading”, “meeting point”, “walk of 1” (10.33–10.35, 10.44). | The lesson lines below use a math teacher's words. The lab's code names stay in code. |
-| Facts justified by lesson numbers from 40 lessons back (10.41). | Each new lesson states its facts in place (4.6). |
-| A test board in place of the glass; flat drawings of a 3D surface (10.3, 10.33, 10.41). | The menu's own glass, at a named pixel, in 3D, in every lesson that involves the surface. |
-| A lesson with no stated purpose (10.33). | Each lesson names the layer it serves and what the next lesson can do with it. |
-| Numbers that happen to be 1, “conveniently” (10.44, the cheatsheet card). | Teaching numbers are never 0 or 1. Each formula is run on two cases. |
-| A simplification claimed, not shown (10.41). | Where a lesson simplifies (a step of 0.5 pt for the slope; steps of 1/960 s), a control runs it over its whole range. |
-| One number worked out twice, with two results (10.44). | One chain per number. A rounded number says that it is rounded. |
-| 14 ideas on one page (the old 10.4); then “meaningless splits … over-granular” (your words, 2026-11-11). | One idea per `C` lesson, and no split of one formula: joining two shapes softly is 1 lesson, not the 7 of the old 12.10–12.16. |
-| The side lesson's Section 4: 15 steps and the ratio 24 ÷ 28 for the fold. | 11.3 follows three pixels in one picture. The fold's place is stated once, with its numbers. |
+- Use [AGENTS.md](../AGENTS.md) for teaching, lesson formats, and delivery checks. Each entry below specifies the scope and glass layer. Section 4.6 lists facts to recall at the point of use.
+- The values in the entries are author reference values. Use section 1 and [CURRENT_STATE.md](../CURRENT_STATE.md) to trace them back to a measurement, model choice, or calculation before teaching them.
+- Use the planned builds to trace where each lesson’s result goes. For example, 10.47 uses the outward direction from 10.46 to light the rim line. The 10.48 build applies that rim line to the resting menu. The 12.2 build provides the changing outline used by Chapter 13.
 
 ### Chapter 10 — Light, surface direction, and material thickness (the rest of it)
 
 **Purpose:** End the light chapter with the only light the menu shows: a thin line on its outline.
 
 45. **10.45 — Ambient light.** `C` Light from all around gives every pixel the same chosen 0.15, and the lamp the rest: total light = 0.15 + 0.85 × brightness. *Layer: highlight and edges. The same formula keeps the rim line visible on the side away from the light.* *(kept as written; its page is in `course/chapters/chapter-10/`)*
-46. **10.46 — Which way is out: the outward direction at a pixel.** `C` P = (126.06, 660.28) pt is 5.6 pt inside the resting menu's top-left corner. Between its neighbours 0.5 pt to each side, sd falls by 0.6 for each 1 pt to the right and by 0.8 for each 1 pt toward the bottom. The arrow (−0.6, −0.8) points straight out of the glass, to the left and toward the top. It is 1 long here; where two shapes are joined softly (12.1) it is shorter, so the shader divides it by its length. It needs only sd, so it works for any outline. *Layers: highlight and edges; refraction.* *(new; also the side lesson's Section 2)*
+46. **10.46 — Which way is out: the outward direction at a pixel.** `C` P = (126.06, 660.28) pt is 5.6 pt inside the resting menu's top-left corner. Between its neighbours 0.5 pt to each side, sd falls by about 0.6 for each 1 pt to the right and about 0.8 for each 1 pt toward the bottom. These two changes estimate the outward direction near P. The arrow (−0.6, −0.8) points left and toward the top. The shader divides the arrow by its length so the result represents direction alone. If the samples give an arrow of length zero, the shader returns (0, 0). *Layers: highlight and edges; refraction.* *(new; also the side lesson's Section 2)*
 47. **10.47 — The rim line: a thin band on the outline, lit from both sides.** `C` The band: 1 on the outline, 0 from 1.2 pt inside (smoothstep of sd). On the outline the rim's surface stands straight up, so N lies flat: N = (outward's two parts, 0). With L = (−0.48, −0.60, 0.64), toward the top left: where outward = (−0.6, −0.8), dot(N, L) = 0.288 + 0.48 + 0 = 0.768; at the opposite corner, −0.768; where outward = (0.6, −0.8), 0.192. Safari's line is bright at both opposite corners, so the line uses the size of dot(N, L) without its sign: light = 0.40 + 0.60 × 0.768 = 0.8608 at those two corners, against 0.40 + 0.60 × 0.192 = 0.5152 at the top-right corner. Line color = white × strength × band × light, added to the pixel's color. *Layer: highlight and edges.* *(new; replaces 10.46, 10.53, 10.60, 10.62)*
 48. **10.48 — Build: the resting menu's outline, rim line and shadow.** `B` One Metal function in pt: the menu's rounded rectangle (middle (238.8, 742.6), half size 130.5 × 94, corner radius 36), its edge 1 px soft, a flat tint, the rim line, and a shadow: the outline's soft mask, 12 pt wide, read 4 pt lower. Joins 10.45–10.47. *Layers: shape, highlight and edges, shadow.* *(new; replaces the builds 10.47, 10.54, 10.59, 10.63)*
 
@@ -378,10 +355,10 @@ What went wrong before, and what this plan does about it:
 
 ### 4.6 The facts each new lesson states in place
 
-A lesson states these itself, with their numbers, where it uses them. It does not send the reader to an earlier lesson for them.
+Restate the fact and the numbers it uses beside the step that needs it. The entries below are author notes.
 
 - **10.46:** sd is minus inside, 0 on the outline, plus outside. In a rounded corner, sd = the distance from the corner circle's middle − the corner radius. The length of an arrow: √(x part² + y part²).
-- **10.47:** smoothstep goes from 0 to 1 between its two marks. dot(N, L) is the three products of the parts, added. N and L are 1 long. A color channel holds at most 1, so a sum above 1 shows as 1. Why a solid surface gets no light on the side away from it, and why glass differs.
+- **10.47:** within the glass, smoothstep makes the rim line fade in from its inner edge to full weight at the outline. A separate check skips the rim line outside the glass. dot(N, L) adds three products, one for each pair of arrow parts. N and L are 1 long. The rim uses the size of the alignment score to match the two bright corners in the recording. Multiply that size by the lamp’s share and add the light from all around. The usual direct-light model for a solid surface sets negative dot products to zero. A color channel holds at most 1, so a sum above 1 shows as 1.
 - **10.48:** the soft edge is the pixel's share inside the outline, from sd over 1 px. The shadow is the same mask, wider and read at a shifted point.
 - **11.1:** a view cannot read what is drawn behind it, so the app draws the page a second time. The shader's position is in pt. The color it returns is premultiplied. A UIKit view may not draw into this layer.
 - **11.2:** the rim's height from the distance inside (the quarter circle and its right triangle). read point = pixel − direction × length.
@@ -392,7 +369,6 @@ A lesson states these itself, with their numbers, where it uses them. It does no
 - **13.2:** “passes its target” is the overshoot. The square root of the stiffness sets the pace.
 - **13.3:** min(a, b) is the smaller of two numbers. mix(a, b, f) = a + (b − a) × f.
 - **13.4:** 13.1's four lines, written out again.
-- **Every `B` lesson:** one recall line per joined idea, with its numbers.
 
 ---
 
@@ -400,7 +376,7 @@ A lesson states these itself, with their numbers, where it uses them. It does no
 
 ### 5.1 Where the repository contradicts this goal
 
-1. **Two plans.** The curriculum, `NEW_CHAT_PROMPT.md` (sections 3 and 9), `AGENTS.md` rule 22, `README.md`, the course home and the Chapter 10 hub describe the 323-lesson plan. “Generate the next lesson” would make the old 10.46, “Light color and strength”, which this plan cuts. If you adopt this plan, one more patch must replace the curriculum from 10.45 on, the size 323, the hub's list and the “next lesson” rule. I did not touch them.
+1. **Course navigation.** The course home and the Chapter 10 hub still show the original sequence. See [CURRENT_STATE.md](../CURRENT_STATE.md#the-course) for the open navigation and progress-count decisions.
 2. **The old capstone contradicts the recording.**
    - 15.12 keeps labels out of the refraction. The frames from 0.213 s to 0.291 s show bent and folded labels.
    - 15.9 keeps one point attached to the source. In the frames the glass leaves the button, and its bottom edge is 35 pt above its end place at 0.213 s.
@@ -408,28 +384,23 @@ A lesson states these itself, with their numbers, where it uses them. It does no
 3. **The side lesson's model against the frames.**
    - Its rim line has one even brightness. The resting frame is brighter at two opposite corners (57 and 51 against 43 and 39).
    - Its press scale is still 1.12 at 0.10 s. The frame at 0.096 s shows a radius of 25 ± 1 pt, which is a scale of 1.
-4. **“The Chapter 7 frost constants are frozen”** (`NEW_CHAT_PROMPT.md` section 9: blur 18 pt, tint 0.25, rim 3 pt, shadow 12 pt and 4 pt). The menu needs its own values: a line of about 1 pt and a far stronger tint. I read “frozen” as “do not rebuild Chapter 7”, not as “the menu must use them”.
+4. **Frost constants.** Chapter 7’s frost stack is frozen. The Safari menu uses its own values. Both sets are recorded in [CURRENT_STATE.md](../CURRENT_STATE.md).
 5. **Minimum iOS 17.** `Shader.compile(as:)` needs iOS 18. On iOS 17 the first use of the shader may delay one frame. 14.1 must say so.
 
 ### 5.2 Where the repository contradicts itself
 
-1. **The size of the plan:** 323 (curriculum, `README.md`, `NEW_CHAT_PROMPT.md`, `AGENTS.md`, the course home); 313 (`CURRENT_STATE.md`, in the side lesson's section); 310 (the handoff, in the side lesson's section); 315 (the side lesson's own page).
+1. **The size of the plan.** The original curriculum and course home say 323. The side lesson’s page says 315. Earlier handoff notes also used 313 and 310. The chat progress format is recorded in [CURRENT_STATE.md](../CURRENT_STATE.md#the-course).
 2. **The count of lessons up to 10.44.** `course/chapters/` holds 144 numbered lesson pages up to 10.44. One of them, 5.9, is only a redirect to 5.8. That gives 143 teaching pages. Lesson 10.45 has a page as well.
-3. **Splitting a lesson.** `AGENTS.md` rule 16 says: no split for the idea count, and only after asking. The end of rule 20 and step 3 of `tools/beginner-review/REVIEWER_PROMPT.md` still say: split at once, without asking.
-4. **The fresh review.** `NEW_CHAT_PROMPT.md` section 5 asks for it on every revision. `AGENTS.md` rule 20 allows two per page. `FEEDBACK_LOG.md` (2026-11-17) records that you asked not to run it, and that the question “drop it for good?” is still open.
-5. **Exercises.** `AGENTS.md` rule 18 gives every `C` lesson 1–2 exercises. `USER_PREFERENCES.md` (“Exercises & grading”) asks for 2–4 in every lesson. The request for this plan allows exercises only where two or three lessons give something to build.
-6. **Dates.** The curriculum says “Updated 2026-11-08” and holds changes of 2026-11-11 and 2026-11-12. The handoff says “Updated 2026-10-31” and holds entries up to 2026-11-18.
-7. **Lesson 9.7 in two forms.** The curriculum's frozen lock writes it as `background.eval(fragCoord)`. The lesson's page calls a Metal function `background(fragCoord, resolution)` and says that the call is not a texture sample.
+3. **Lesson 9.7 in two forms.** The curriculum's frozen lock writes it as `background.eval(fragCoord)`. The lesson's page calls a Metal function `background(fragCoord, resolution)` and says that the call is not a texture sample.
 
 ### 5.3 What I assumed
 
 1. **The side lesson is not counted as taught.** Its Sections 2–5 and 8 already teach five ideas of this plan: 10.46, 11.2, 11.3, 12.1, 13.3. I kept them as new, short lessons on the real glass, because a new lesson must state its facts in place. If those sections are solid for you, say so: the five become one recall line each in the builds, and the plan has 16 new lessons.
-2. **“Exercises”** in your rules means the build exercises: a `B` lesson comes only after two or three `C` lessons. The short question exercises of `AGENTS.md` rule 18 stay on `C` pages. If you meant no exercises at all on `C` pages, rule 18 has to change.
+2. **Build exercises.** A build generally follows two or three lessons that give something to build. The 12.2 build follows a single new lesson because Chapter 13 needs its changing outline. The separate question about short exercises on concept pages is recorded in [CURRENT_STATE.md](../CURRENT_STATE.md#the-course).
 3. **The frames are the target:** iOS 26, Safari with its one-row bar at the bottom (the layout that iOS 26 calls Compact, as far as I can tell), dark mode, iPhone 16 Pro.
 4. **The light points to the top left:** L = (−0.48, −0.60, 0.64), which is the L of Lessons 10.4–10.45 mirrored left to right. This rests on one frame.
 5. **The lab's `shortcut/` files** (named in `CURRENT_STATE.md`; I cannot open the lab) serve as the answer keys of the builds, as `DotExercise` did for Lesson 10.40.
 6. **Lesson numbers.** The new lessons continue at 10.46 and reuse the chapter numbers 11–14. Forward pointers in earlier pages to old lesson numbers stay as they are.
-7. **This file stores no progress.** `AGENTS.md` forbids completion status in project files. The count check is in the chat only.
 
 ### 5.4 What I need to see
 

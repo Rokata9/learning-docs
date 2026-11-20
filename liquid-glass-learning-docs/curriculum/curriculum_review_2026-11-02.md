@@ -1,5 +1,7 @@
 # Curriculum review — from Lesson 10.4 to the end (2026-11-02, version 3, second pass)
 
+> Historical review of the original curriculum. For current teaching and review rules, see [AGENTS.md](../AGENTS.md).
+
 **Version 3** follows the learner's direction:
 - more and smaller lessons; repetition is fine;
 - “the heavy math is perfectly fine to grow by whatever ratio you like”.

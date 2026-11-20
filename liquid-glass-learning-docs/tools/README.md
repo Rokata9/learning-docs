@@ -2,7 +2,7 @@
 
 This helper is **browser-only**. It checks HTML lesson files (local links, optional Chromium screenshot). It does not build, run, or inspect `/Users/rosen/Code/LiquidGlassLab-iOS`.
 
-From the repository root:
+From the Liquid Glass project directory:
 
 ```bash
 node tools/verify-lesson.mjs \
@@ -14,11 +14,11 @@ The script checks enabled local links. When Chromium is available, it also captu
 
 Interactive states still need a manual browser check or a purpose-built driver because a plain screenshot does not move sliders or press buttons.
 
-Screenshots go to a temp folder outside the repository and are deleted after QA (`AGENTS.md` section 9). `tools/verify-lesson.mjs` stays as-is. Swift explorers are verified in Xcode (`#Preview`, then iPhone 16 Pro), not by this script.
+Keep screenshots in a temp folder outside the repository and delete them after QA. Run the other [delivery checks](../AGENTS.md#before-delivery) too. Verify Swift explorers in Xcode with the previews and the iPhone 16 Pro target.
 
-## Fresh beginner review (`tools/beginner-review/`)
+## Optional independent beginner review
 
-Only when the learner asks for it (no review by default since 2026-11-17): a separate agent that did not write the lesson reads it as a total beginner and lists every claim the page does not answer.
+When the learner explicitly asks for a separate review, use the [reviewer prompt](beginner-review/REVIEWER_PROMPT.md). It checks the lesson’s first read, number sources, and later use.
 
 - `extract_lesson.py` writes what the learner can read into a temp folder outside the repository:
   - every stepper state's caption, picture labels and tooltips;
@@ -28,5 +28,3 @@ Only when the learner asks for it (no review by default since 2026-11-17): a sep
   It needs Python 3 and Playwright: `python3 -m pip install playwright && python3 -m playwright install chromium`.
 
   It reads steppers by their `.stepnav` Back/Next buttons and tooltips through the page's `tipStore`. That is the Chapter 10 template; older pages give only the page text.
-- `REVIEWER_PROMPT.md` has the steps and the prompt for the fresh agent.
-- The reviewer's final list is saved as `reviews/lesson-NN-MM-beginner-review-YYYY-MM-DD.md`.

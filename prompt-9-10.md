@@ -1,3 +1,7 @@
+# Original Lesson 9.10 revision request
+
+> Historical task from the iOS migration branch. The current [Liquid Glass authoring rules](liquid-glass-learning-docs/AGENTS.md) incorporate the general teaching preferences from this request.
+
 Read @liquid-glass-learning-docs/NEW_CHAT_PROMPT.md to understand the project. You’re on an iOS migration branch, but the task is not iOS specific, it’s related to @liquid-glass-learning-docs/course/chapters/chapter-09/lesson-09-10-build-a-displacement-field.html which was written by another model and the qulity of the explanation in it. Apply the following 
 
 **Improvements**

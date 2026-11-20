@@ -6,17 +6,11 @@
 **Physical test device:** iPhone 16 Pro  
 **Total lessons:** 323
 
-This file is the ordered 323-lesson plan plus frozen locks needed to generate later lessons. Teaching contracts and current file references live in `CURRENT_STATE.md`. Lesson HTML and Swift keep the full teaching prose. Do not add per-lesson implementation diaries here. Lesson completion is reported only in chat when a new lesson is generated; this file does not track it.
+This file records the original 323-lesson sequence and frozen conventions. For current generation after Lesson 10.45, use the [Safari menu plan](safari_spring_menu_plan.md#4-the-new-plan). Lesson HTML and Swift keep the full teaching prose.
 
 ## 1. How this file relates to the rule sources
 
-Permanent teaching and delivery rules live in `AGENTS.md` and `USER_PREFERENCES.md`. Do not copy them here.
-
-This plan assumes a total beginner in graphics and mathematics. From Lesson 10.4 on, every lesson has a type:
-- `C` concept: one new idea, taught in pictures with one traced value, in at most 5 stepper steps; no Metal exercise, explorer, challenge or record.
-- `B` build: no new idea; one Metal or Swift exercise that joins the concept lessons before it, with an explorer and a record.
-- `E` engineering: SwiftUI, architecture, testing or performance; code first and short.
-An idea is a fact or method with its own reason that no earlier lesson taught. Every old lesson from 10.4 on was split into its ideas, one `C` lesson per idea; the heavy math may grow by any ratio (learner, 2026-11-02). Repeating an earlier mechanism in a new place is fine.
+The teaching and delivery rules, including the lesson types, live in [AGENTS.md](../AGENTS.md). Current file references and model inputs live in [CURRENT_STATE.md](../CURRENT_STATE.md).
 
 ## 2. Full 323-lesson plan
 

@@ -1,110 +1,37 @@
-# Fresh beginner review — prompt template
+# Independent beginner review
 
-Run this only when the learner asks for a fresh review (learner, 2026-11-17: no review by default; `AGENTS.md` section 9).
+Run this workflow when the learner explicitly requests a separate review. The author always runs the [ordinary delivery checks](../../AGENTS.md#before-delivery).
 
-## How to run it
+## Prepare the review
 
-1. **Extract** what the learner can read, into a temp folder outside the repository:
+1. From the Liquid Glass project directory, extract the named lesson and all relevant states into a temporary directory outside the repository.
+
    ```bash
    python3 tools/beginner-review/extract_lesson.py \
-     course/chapters/chapter-NN/lesson-NN-MM-name.html /tmp/review-NN-MM [--extra /tmp/extra-NN-MM.json]
+     course/part-two/chapter-NN/lesson-NN-MM-name.html /tmp/review-NN-MM
    ```
-   - `--extra` adds lesson-specific states: a button or slider inside a step.
-   - Each entry gives `stepper` (0-based), `step` (0-based), `name` and `js` (what to click or set).
-   - Example: `[{"stepper":0,"step":1,"name":"Step 2, y line","js":"document.querySelector('#lineBtns button[data-ln=\"1\"]').click()"}]`
-2. **Launch a fresh agent.**
-   - Not a fork, and not the agent that wrote the lesson.
-   - Give it the prompt below, with the six placeholders filled in.
-   - It must not edit files.
-3. **Fix** every item marked `blocks` or `slows`. If the reviewer counts more new ideas than the lesson's type allows, explain the extra step more clearly where it is; split only after asking the learner (`AGENTS.md` section 6). Then extract again and run a new fresh agent once more. Two fresh reviews per page at most; after the second, deliver with the open items named.
-4. **Deliver** the lesson with the reviewer's final list:
-   - what was fixed;
-   - what is left, and why;
-   - the new-idea count.
 
-   Save the list as `reviews/lesson-NN-MM-beginner-review-YYYY-MM-DD.md`.
+   Use the actual lesson path, including `course/chapters/` for part one. For extra control states, pass `--extra /tmp/extra-NN-MM.json`. Each array entry has a zero-based `stepper`, a zero-based `step`, a `name`, and `js` that sets the state.
+2. Give the prompt below to a reviewer who did not write the lesson. Fill in the lesson title and type, the extracted text and screenshots, and the relevant plan entry and follow-on lesson for checking the stated future use.
+3. Save the findings under `reviews/lesson-NN-MM-beginner-review-YYYY-MM-DD.md`. If revision is part of the requested task, fix the issues that block or slow the reader and recheck the affected states.
 
-Placeholders:
-- `{LESSON}`: e.g. `Lesson 10.19 — How far an arrow goes along any line`
-- `{TYPE}`: the lesson's type in the curriculum: `C`, `B` (with the lessons it joins, e.g. `B, joins 10.4–10.39`) or `E`
-- `{TEXT}`: `/tmp/review-NN-MM/lesson-text.md`
-- `{SHOTS}`: `/tmp/review-NN-MM/shots/`
-- `{HTML}`: the lesson file
-- `{PREREQ}`: the lessons the page's **Uses** line names
+## Prompt for the reviewer
 
----
+Review **{LESSON}**, type **{TYPE}**, for an experienced programmer who is starting from zero in math, geometry, graphics, and shaders. Follow the [authoring rules](../../AGENTS.md). Return findings with evidence. Leave lesson files to the author.
 
-## The prompt
+**Materials**
 
-You are reviewing one lesson of a self-study course as a total beginner. You did not write it. Your only job is to find every place where the lesson claims something but does not give the reason, so that a beginner would have to ask "why?" and cannot answer it from the page. Do not edit any file. Do not write a new lesson. Report a list.
+- Extracted visible text and states: {TEXT}
+- Screenshots: {SHOTS}
+- Target and follow-on entries: {PLAN}
 
-**The lesson:** {LESSON}
+**Read in learner order.** Keep tooltips and former lessons out of the first pass. Read the hero, each step and its picture, the trace, and the exercises including the revealed answers. Read the tooltips afterward to see whether the main explanation relied on one.
 
-**Its type:** {TYPE}. A `C` lesson teaches exactly one new idea. A `B` lesson teaches none: it joins earlier lessons in one exercise. An `E` lesson teaches one engineering practice.
+- Can you say what the lesson will teach you to do? Does the opening name a later task, the result it will take, and what that changes on screen? Check the claim against the plan.
+- At each step, can you identify the object in the diagram, explain why the action is taken, and tell what the result means? Flag the first sentence that needs a reread and identify the missing definition, fact, or connection.
+- Can you explain the first diagram before reading the formula? Flag a proof that comes before a simple case, a symbol used before its meaning is visible, or a view that changes the point, scale, or displayed color without saying so.
+- Follow each needed value back to its measurement, model choice, earlier result, or calculation. Can you reconstruct the main example from the visible inputs and intermediate values? Check units, scales, directions, and rounding across views, table, and answer.
+- Check that the explanation identifies any estimate, what happens at the relevant boundary, and which claims come from the recording versus the shader model. Attempt the exercise using just the visible givens.
+- Check the scope for the lesson type. A C lesson teaches one idea, a B lesson builds from earlier ideas, and an E lesson teaches one engineering practice. A reminder or a step in a worked example is part of the main idea. Point out any unrelated idea and where it distracts the learner.
 
-### Who the reader is
-- An experienced software engineer (web, some .NET).
-- A total beginner in mathematics, geometry and graphics. Knows arithmetic and only what earlier lessons of this course taught.
-- Gets angry at:
-  - claims stated as facts without reasons ("so", "because", "the same" with nothing behind them);
-  - sentences that point at things not drawn in the picture;
-  - coined words or metaphors, even defined ones, where a standard math word exists (“reading”, “meeting point”, “moves the meeting point”, “walk of 1” instead of the foot of a point on a line and a length |SJ|; 2026-11-11);
-  - numbers whose meaning is not said (what does this 0, 1 or minus mean here?);
-  - vague pointers ("the same", "it", "this").
-
-### What to read
-1. `{TEXT}`: every piece of text the learner can see.
-   - Each stepper state: the caption, the labels drawn in its pictures, and its tooltips.
-   - The whole page in reading order, with every hidden answer open.
-2. The screenshots in `{SHOTS}` (file names are given in the text file). Look at the picture of every stepper state, and at every card and exercise. A sentence may refer to something the picture does not show. Pictures outside the steppers have their labels only in the screenshots.
-3. Only to check whether a term or fact was taught earlier: the earlier lessons under `course/chapters/`. Search them with grep; do not read whole lessons. The page's **Uses** line lists what it takes from earlier lessons: {PREREQ}.
-
-Judge the lesson by what the learner sees, not by the code in `{HTML}`.
-
-### How to review
-Go through the lesson in reading order. At every claim, ask "why?" and "how do I know?". A claim is any sentence that says something is true, follows ("so …"), is the same, is equal, lands on, moves, is never past, means something, and so on.
-- Answered: the reason is on the same screen (caption, picture, a tooltip on that screen), or it was taught earlier. Do not list it.
-- Not answered: list it.
-
-Also list:
-- a sentence that refers to something the picture of that state does not draw or label;
-- a word, name or notation used before it is defined, or used with two meanings;
-- a number printed without saying what it measures or what its sign means;
-- an argument whose steps do not follow (a missing premise, like calling two triangles identical from only two facts);
-- two different values printed for the same quantity.
-
-The stepper sections and the traced value matter most. Then the exercises and their hidden answers. For a step or card that answers a learner's question, check that it really answers it with reasons. For code, Metal and record sections, flag only claims a beginner could not follow.
-
-Be strict but honest: do not list what is clearly answered.
-
-### Also check the length and the language (`AGENTS.md` sections 2–3)
-The learner is not a native English speaker. Long, wordy pages made the lessons fail (2026-11-05), so also list:
-- a sentence you had to read twice, or a phrase built from the lesson's nouns that no teacher would say (“lay the teal line along every line”, “up from Gx or level with it”);
-- a fact that the figure shows at a glance but the text proves in words;
-- a conclusion said more than once (title, lead, idea, heading, table);
-- a long wording where standard notation exists (“the line from A to B” instead of AB, “the distance between A and B” instead of |AB|);
-- page text over about 300 words before the exercises (labels and tooltips not counted), or a caption over 5 lines.
-
-Never propose removing or simplifying a picture: the learner wants the pictures kept as they are.
-
-For these items the **smallest fix is a cut or a shorter wording**, never an added sentence. Do not ask for a proof of something the figure shows.
-
-### Count the new ideas
-A new idea is a fact or method that the page explains with its own reason and that no earlier lesson taught (check with grep). Recalling an earlier lesson is not new. The words and numbers the idea is stated in (a pair of rulers such as along and across, a way of writing a point) are part of that idea, not a second one: if they are unclear, list that as a problem, not as an idea to split off. A sentence that only names a result without a reason is a problem for the list below, not an idea.
-- List every new idea, one line each, with the step where it first appears.
-- Say whether the count fits the type: `C` exactly one, `B` none, `E` one practice.
-- A step of the lesson's own argument (a reason its one idea needs) is part of that idea, not a second one. The learner does not want splits (2026-11-11): for a real extra idea, say which earlier lesson the step could rest on, or how to explain it more clearly where it is.
-
-### Report format (plain text, this shape)
-First line: roughly how many claims you checked, and how many you list.
-
-Then the new ideas (see above): the list, whether the count fits the type, and the proposed splits.
-
-Then one entry per problem, in reading order:
-- **Where:** section / step / state, and the screenshot file name if it is about a picture
-- **Text:** the exact sentence or picture label, quoted
-- **Why can't a beginner answer it:** one or two short sentences: the question the reader would ask, and what is missing
-- **Severity:** blocks (the reader cannot follow the next step without it) / slows (the reader can guess, but must stop) / minor
-- **Smallest fix:** at most one sentence: what fact or picture would answer it, or what to cut (not a rewrite)
-
-End with the 3–5 most serious problems.
+**Report in reading order.** For each finding, give the section and state, quote the exact sentence or label, state the question a reader cannot answer, and suggest the smallest fix. Mark it **blocks** if the next step depends on it, **slows** if the reader must stop and reconstruct it, or **minor** if it leaves the explanation usable. Group repeated symptoms with the first affected location. List what you checked and any state you could not see.

@@ -1,124 +1,82 @@
-# AGENTS.md — how to write the Liquid Glass lessons
+# Liquid Glass lesson authoring
 
-The one rulebook. It is short on purpose: every rule here is checked before delivery (the checklist at the end). The state of the course (files, glass numbers, the newest lessons) is in `CURRENT_STATE.md`; how a chat starts is in `NEW_CHAT_PROMPT.md`.
+Teach an experienced software engineer who is starting from zero in math, geometry, graphics, and shaders and reads English as a second language. Assume everyday arithmetic and basic programming. When a step needs a fact from an earlier lesson, give a short reminder where it is used. The reader should be able to follow the page in order without going back to an old lesson.
 
-When the learner corrects a lesson, fix the lesson. If the failure is general, change or add **one line** here, merged into the rule it belongs to. There is no log of past failures: git keeps the history.
+These are the authoring rules. [NEW_CHAT_PROMPT.md](NEW_CHAT_PROMPT.md) starts a task, [CURRENT_STATE.md](CURRENT_STATE.md) records the course and its implementation, and the [Safari menu plan](curriculum/safari_spring_menu_plan.md#4-the-new-plan) defines the current part-two sequence and each lesson’s scope.
 
-## 1. The learner
+## Design the lesson before writing HTML
 
-- An experienced software engineer (web, some .NET). A **total beginner** in maths, geometry, graphics, GPUs and shaders. Not a native English speaker.
-- Knows arithmetic and what the earlier lessons taught, nothing more. Does not go back to re-read passed lessons.
-- Wants: the idea first, in plain words; a reason for every claim; pictures that carry the explanation; short text; real numbers.
-- Gets angry at: claims without reasons; operations whose purpose is not said; words that point at nothing on the screen; coined terms; numbers whose meaning, sign, 0 or 1 is not said; the same thing said twice.
+1. Read the lesson’s plan entry and its closest prerequisite and follow-on entries. Identify one thing the learner will be able to work out, predict, or build. Find the first actual use of that result in the plan or lab.
+2. Draft the hero, then work through one example in learner order. Sketch what the reader will see at each step and trace every input to its source. Resolve gaps in the explanation and arithmetic before implementing the page.
+3. Reuse the latest lesson’s layout, interactions, and helpers. Use its prose only as a record of what was taught. Check the new wording against the rules below.
 
-## 2. The idea and the reasons — the rules that keep failing
+## Start with what the reader can see and do
 
-1. **The hero states the idea** in two or three plain sentences: what the lesson finds, how, and why that works. If you cannot write it plainly, the lesson is not ready. (10.46 never said why sd at four neighbors gives a direction.)
-2. **Every step says what it does and why, before its numbers.** A step's title is a full claim in words (“Over 1 pt to the right, sd changes by −0.60”), not a topic.
-3. **Every operation says why it is done**, in its own line or the line before: a division, a product, a subtraction, a check. A bare “18.24 ÷ 0.60 = 30.40” fails. A number reused from an earlier step says what it is and where it came from (“|KP| = 30.40 pt, Step 1”). A given or measured number is worked out in the caption where it first appears, never only in a tooltip (“the left edge: the line x = 238.80 − 130.50 = 108.30”).
-4. **A step that swaps the goal for another question** (outward → the way in which sd grows the most) **says why the new question gives the goal and why the shader can answer it.** **The goal object is defined at its first use** (“outward: the arrow 1 pt long from P toward Q”). When a later object turns out to be it, say so (“so this arrow is outward”). Never leave two candidate objects for one name.
-5. **A “why” line gives the real reason, with a concrete example and its number, built from what the learner already knows** (“brightness = dot(N, L), and an N 0.707 long gives a dot 0.707 times as large”). Never an object no lesson has taught yet (the lens), never “later lessons need it”.
-6. **Never mention a case without its reason and numbers** (“at some pixels this arrow is shorter” fails: say which pixels, why, and how long). A case at another pixel is a step of its own, with its own pictures and the reason for each of its numbers, never one caption line.
-7. **A claim is followed at once by its reason or by the picture that shows it.** A claim the figure shows at a glance gets one sentence, not a proof. A claim that two quantities are equal works each out from its own inputs. A claim that a choice does not change the result is shown with a control over the choice's whole range.
-8. **A result never comes before its reason.** A check is not a derivation; call a check a check.
-9. A step that computes with a wrong input says first why anyone would use it and that it is the reason for the right step; never present it as an allowed choice.
-10. **Step 1 says what the code knows, what it does not use and why, and what it must find**; never “does not know” about what the code could work out, and every example of the why is drawn in that step's picture; each later step adds one fact that brings the unknown within reach of the known. A step that looks for a largest value says first what that value gives (“the move with the biggest growth of sd has outward's direction”).
+- Open on one visible feature of the glass or one concrete problem in the app. Point to it in a picture or preview and say what the learner will be able to explain, calculate, or build by the end. Give the core idea in everyday words. Check the title, hero captions, labels, and buttons too. Save new symbols, formulas, and detailed results for the steps that explain them.
+- Put a short **Where this is used** line near the opening. Name the first relevant later lesson or build, say exactly what result it takes from this lesson and what it does with it, and name the difference the learner can see in the glass or the app. If the plan ends here, say what the result lets the learner check or tune in the finished menu. Use a lesson number or link for navigation after the explanation.
 
-## 3. Plain words
+> The rim-line lesson uses the outward arrow to tell which way the glass faces at its edge. The shader compares that direction with the direction of the lamp to work out which corners of the rim line look brightest.
 
-1. Short sentences, one idea each. A caption is a list of **at most 5 short lines**, each a **full sentence with a subject and a verb**. “For each 1 pt to the right: −0.60” has no subject; write “sd changes by −0.60 for each 1 pt to the right”. A line that announces items (“two things:”) has them as sub-points.
-2. **A sign is explained once, where it is printed, in direction words**: “x part −0.60: minus means to the left, so the arrow goes 0.60 pt to the left”. Never say “the opposite way”, “the other way” or “the other way round”: name the direction.
-3. Every printed 0, 1 and minus says what it means there (0: it does not go that way; minus: the other way; 1: which choice it comes from).
-4. Standard math words and notation: points are capital letters; segment AB, its length |AB|, line AB, ∠ABC, △ABC, P′ for the image of P; “the foot of P on line L”, “scaled from S by k”. A teacher's words, never coined ones: no “reading”, “reads”, “meeting point”, “walk of”, no metaphor names (seat, landing, stick, net), no phrases built from course nouns. Banned: `arctan`, “lattice”, “level-set”.
-5. **One object, one name**, from start to end. A colour name means one object. A view of an object is not a new object. Never rename mid-lesson.
-6. Point, arrow and line are three words. A point is a place, counted from the origin. An arrow goes from a start to a point; its parts are counted from its start: x part (to the right), y part (toward the bottom), height part (up). A line is endless both ways. The dot product takes two arrows.
-7. **No vague pointers**: “it”, “this”, “the same”, “that value”, “the arrow” when several are drawn. Repeat the name.
-8. Define every term and notation in the sentence where it first appears. A word that could describe the graph or the picture (linear, straight) says which.
-9. **No lesson numbers inside explanations**: say the fact. Lesson links appear only in the Uses box, the “Where this is used” line and the navigation.
-10. Physics starts from an everyday sight, then the model. A choice made for the pictures gets one plain line. Every chosen or fitted number is called **chosen** where it is used, with what another value would do.
-11. Never change the case of text that may hold a symbol (no `text-transform: uppercase`).
+## Teach one move at a time
 
-## 4. Numbers
+- Keep the main path on one named pixel or one visible case. Start with the information available to the code and the result it needs. If the code solves a different question to get that result, show the connection in the picture before doing the math. Make clear what the code takes as input, what it derives, and what is drawn to help explain it.
+- Give each step one question or one change the reader can point to. Name the object, state what to look at or do, and say why that action gets closer to the answer. Then show the calculation and say what the result means in the picture. Make the result available by name wherever a later step uses it.
+- Let the first diagram answer the simplest version of the question. To introduce a change in distance, show one move along an axis and two marked distances before asking the reader to combine directions. Introduce a second axis, point, view, or case when the learner can say what the first one showed. Keep a necessary derivation in short consecutive steps. Put an optional construction or proof after the worked example.
+- Use short, complete sentences with one job each. Break up a sentence that introduces a symbol, performs a calculation, and draws a conclusion. Use the same name and color for each object throughout. Use direction words such as “toward the top of the screen” and name the object again when a pronoun could refer to more than one thing.
+- Explain the picture in familiar words before giving the standard math or code name. Define a term or symbol where the learner first needs it. A point names a place. An arrow gives a move from its start. A line extends both ways. Write “the distance from K to P” before introducing `|KP|`. Introduce symbols one at a time and keep their original case.
+- Put the reason or observation beside the claim. Show why a rule works with a labeled diagram, a short comparison, or a small numeric example. A calculation that checks a result comes after the method that finds it. For a helper the learner already met, show what goes in and what comes out using a familiar input or the endpoints of its range. Include its internal formula when the lesson needs it.
+- Name each intermediate value by what it means before it becomes an input. For example, distinguish distance still to go from signed distance, and distinguish how much two arrows line up from how much light the shader finally adds. If a number goes up while the pictured distance shrinks, explain both changes together. Explain why the procedure subtracts in that order or combines values at that step.
+- Where a quick prediction would help, ask it before revealing the result. Change one input, keep the others fixed, and let the reader check the answer in the same view. For example, ask which of two equal moves gets closer to the marked edge. Use a second worked case when it clarifies how the effect extends to nearby pixels or where the method stops applying.
+- Put assumptions and limits beside the result they qualify. Say what a nearby sample estimates, what changes with sample spacing, and what the shader does if the samples give no usable direction. Distinguish a visible observation, the rule the shader uses to match it, and any proposed physical explanation. Test claims made about a control in the states where they matter.
+- Keep the main path complete with tooltips closed. Use short paragraphs or a visible calculation block when the next sentence needs one. Keep captions easy to scan and leave room for the essential explanation. Remove detours, repeated summaries, and precision the learner does not use. Tooltips can recall a fact or add optional detail. Use the diagram to show the relationship and the prose to help the reader see it.
 
-1. A calculation shows, in order: the named formula with its inputs and what it finds → the substitution → each intermediate value → the result → what uses the result. **One operation per “=”.** Each product is named by the parts it multiplies.
-2. All lines are rounded the same way (3 decimals by default) and are **calculator-exact from the displayed inputs**, at every slider position. More decimals where points are closer than 0.001.
-3. Inputs known before a calculation (given or found earlier) are green (`.kn`, `Trace.K`); the page says so once. A hidden answer writes its whole calculation, green inputs included.
-4. Every number says what it measures, on which scale and from where (pt from the screen's top-left corner, y toward the bottom; UV; a channel from 0 to 1), and whether it is chosen, measured or worked out. A distance names its two points; both are drawn.
-5. A number appears in the step that uses it, never earlier, not even in a tooltip. A result is worked out once.
-6. A division says what each of its numbers counts and what the result counts. A ratio between two scales draws both.
-7. Teaching numbers are never 0 or 1, and no two different quantities print the same number unless that is the point. A rule that holds for any length is also run on an arrow that is not 1 long. A formula is run on two cases.
-8. A scale factor is written as the ratio of matching sides, for each scaled triangle, with whether it grows or shrinks.
-9. A length needs no sign: work it out from lengths, not as a signed “end − start” whose minus then needs explaining.
+> Suppose the marked pixel is 5.60 screen points inside the menu. Move 1.00 screen point straight toward the nearest part of the outline. The distance still to go is `5.60 − 1.00 = 4.60` screen points. Inside the menu, signed distance puts a minus sign in front of the distance to the outline. The move brings that number from −5.60 up to −4.60, closer to zero at the outline.
 
-## 5. Pictures
+## Account for the numbers
 
-1. **Cut the text, never the pictures.** The picture carries the explanation; the caption says what it shows now.
-2. Every drawn element is labelled inside the picture. Every point the text, a table or a tooltip names is drawn and labelled in every picture of that state, the 3D view included. A legend only for marks too small to label, listing only what this state draws.
-3. Every point is clickable (a short popup: name, role, coordinates in a named system; Enter, Escape, ✕, outside click; kept on screen), and so is its name label in the picture, which opens the same popup: dots of close points overlap. A point the learner places is draggable in every picture that shows it and goes exactly where the pointer puts it; its numbers and calculation follow live.
-4. Every picture names its coordinate system inside it. A step that switches system says so.
-5. A step draws only the objects its caption uses, and its picture changes visibly from the step before.
-6. A moved point shows its way (a turn, a flip, a shift), not only its start and its end.
-7. **3D:** once a surface is involved, show it in a turnable 3D view (drag, wheel, preset views) with a corner box (the axes as drawn, the units). The page never turns the view between steps; the scale stays put while the learner turns it; the floor patch and its direction words stay in view. A flat view goes beside the 3D view, never instead of it. A side view is a slice along a named line, first shown with a 3D picture of the cut.
-8. No eye or viewpoint guidance (“your eye”, “stand at”). Views are named by the two directions they show.
-9. Where an effect moves pixels (the lens), draw arrows from output pixels to their read points on the source picture, and let the learner drag a pixel to see its whole chain. Show an effect on content whose mirror image looks different.
-10. A model that stands in for the real shape is drawn beside the real shape and zoomed until they meet, with the gap printed in screen lengths.
-11. Strokes are solid, with a dark halo, in a hue not in the picture. Labels are at least 14 px on screen, on plates, never overlapping or cut, inside the picture.
+- When you first show a value the learner needs, say what it measures, where it came from, and the unit or scale. Name the two endpoints for a distance and show them. For positions, show the origin and positive directions. Explain minus signs and the meaning of endpoints such as 0 or 1 when they first matter on that scale. Use easy numbers, including 0 or 1 when they make a useful baseline.
+- A **chosen** value is a setting or a teaching input. Say why that value was chosen and, for a setting that affects the result, what changing it does. A **measured** value comes from a named frame, recording, gesture, or device. Say what was measured and give the useful precision. A **fitted** value is a choice made to match an observation. Name the observation. If you can only estimate an input, state the estimate and its basis. Attribute the reconstruction’s values to Apple only when a source establishes that.
+- A **calculated** value comes from named inputs. For the first worked example, explain what the operation finds, substitute the inputs, and show each intermediate result the reader needs to reproduce the answer. Use one operation per equation line. For division, say what is being split or compared and what the quotient counts. For a scale factor, name the matching lengths. For a function, state what it takes and what it returns before using it. Supply essential origins and arithmetic in the main text or its visible calculation.
+- Follow one input from its original meaning to the calculation that uses it. For example, show that two samples taken 0.50 screen points from the center are 1.00 screen point apart. That full gap is the divisor when finding the change per screen point. When combining factors, say the job of each factor and what a zero does to the visible result.
+- When a number returns in a later step, name what it is and where it was found. Use a short pointer to the labeled calculation on the page. Give each result one source of truth across prose, figure, table, exercise, and code. Use green (`.kn`, `Trace.K`) for inputs known before the calculation and explain the cue once.
+- Show as many digits as the example needs. Use `=` for exact displayed arithmetic and `≈` for a rounded result. Keep a displayed trace reproducible from its inputs by exposing the precision it uses or labeling subsequent results as approximate. Keep the implementation’s full precision where the shader needs it.
 
-## 6. Lesson shape
+> We choose 0.40 as the light that every part of the rim line gets. On this scale, 0 means no light and 1 means full light. That leaves up to 0.60 for the lamp, because `1.00 − 0.40 = 0.60`. We chose 0.40 to keep the dimmer corners close to the recording. A smaller starting share would make the dim corners darker.
 
-The type comes from the plan.
+## Pictures and page style
 
-- **`C` — one new idea.** Hero (title, the idea in two or three sentences, “Where this is used”) → Uses box (one line per earlier fact, with links) → Section 1: the idea in pictures, one stepper of at most 6 steps (no stepper when the idea is one fact a picture shows) → Section 2: Section 1's own steps at a draggable point, one table row per step → 1–2 exercises → the code: the lines of the next build's Metal code that this lesson alone is responsible for (functions from earlier lessons are called, not shown), with a copy button and a line table giving each line's numbers at Section 1's point. About 300 words of page text before the exercises (labels and tooltips not counted).
-- **`B` — no new idea; joins the lessons its plan entry names.** Hero → one recall line per joined idea, each with ⓘ → short code → a Metal (or Swift) exercise in the lab: stubs that compile, a prepared caller, an answer key and a check view on the chapter screen that marks differences in red → the iOS explorer → 1–2 exercises → a copyable Markdown record.
-- **`E` — one engineering practice.** The problem in one paragraph and a picture → the code with a line table → a check (a test, a preview or a measurement) → 1–2 exercises → a record. Code first; no maths steppers.
-- **Exercises.** One plain full-sentence question in the lesson's words, the same as its title, 2–4 clickable choices; the right one's place varies. It tests the lesson's idea on a new case, never a side fact or something a step's picture already shows. The question shows the lesson's own 3D view (or its picture) with a red marker; the hidden answer draws the reason and writes the whole calculation.
-- **Tooltips (ⓘ)** recall one earlier fact in one to three lines. The page must be clear without them. A new computation is never only in a tooltip.
-- **Say each fact once.** No recap, no “New here” essay, no questions section. A learner's question is answered where the confusion arose; a fact the steps skipped becomes a step of its own.
-- No split for the idea count. A page that teaches two unrelated ideas is split only after asking the learner.
+- Preserve the picture-first layout. Within each state, draw and label the points and objects the caption, table, or tooltip refers to, including in its 3D view. Reveal each step’s relevant geometry and make the change visible. Show the path of a move when the lesson uses it. Label directly and reserve a legend for marks too small to label. Use solid strokes with a dark halo in a hue distinct from the picture and label plates at least 14 px, inside the view and clear of overlaps.
+- Name the coordinate system and units in each view. When switching views or scales, point to the same place in both and say what the switch helps the reader see. Distinguish screen points, device or recording pixels, and enlargement in the drawing. Label oversized arrows as display aids and any boosted colors as display-only. Part two uses the menu’s own glass on the 402 × 874 pt screen, with screen positions measured from the top left, x to the right and y toward the bottom.
+- Give points and their labels the same accessible popup for the point’s name, role, and coordinates. Support Enter, Escape, close, and outside click and keep the popup on screen. A learner-placed point follows the pointer in every view that shows it, with the figures and calculation updating live.
+- For a surface, pair the flat view with a turnable 3D view. Keep drag, wheel, presets, and the in-view axes and units. Open with the screen’s x axis horizontal (yaw 0°). Preserve the learner’s chosen view across steps, keep the scale steady during rotation, and keep the floor patch and direction labels in view. Name views by their axes. Show where a named slice cuts the surface in 3D before showing the side slice.
+- For pixel movement, draw the arrow from the output pixel to its source position. Let the learner drag the pixel through the whole calculation. Choose content whose mirror image looks different. When a model stands in for a real shape, show both and zoom in to label their gap in screen units.
+- Keep the existing system-controlled light and dark themes, with off-white text on dark blue-gray and no separate selector. Reuse the latest theme block and canvas palette. See the [part-two page kit](CURRENT_STATE.md#part-two-the-page-kit).
 
-## 7. Part two — the Safari spring menu (lessons after 10.45)
+## Lesson types and scope
 
-- The plan is `curriculum/safari_spring_menu_plan.md`, section 4 (not the old curriculum). A lesson stays only if, without it, one layer of the menu could not be explained or built.
-- Teach on the menu's real glass, at a named pixel, in pt on the 402 × 874 pt screen (from its top-left corner, x to the right, y toward the bottom), in 3D wherever a surface is involved. The glass numbers are in `CURRENT_STATE.md`.
-- Each fact the lesson needs is stated where it is used (the plan's 4.6 lists them).
-- **Themes:** light and dark, from the system setting only; no selector, no stored choice. Dark text is off-white, never pure white, on a dark blue-gray, never pure black. Copy the newest lesson's theme block (`CURRENT_STATE.md` describes it). Check both themes.
-- The newest part-two lesson is the template: reuse its helpers, do not rewrite them.
-- Open, the learner's call: the plan allows exercises “only when two or three lessons give something to build”; 10.46 and 10.47 have 1–2.
+- **C — one new idea.** Deliver the HTML. Use the hero and a **Uses** box with one line per relevant prior fact and links. Show the idea in pictures, using a stepper when successive states help. Then trace the same steps at a draggable point when the lesson varies an input. Use one row per step for the trace. Follow with 1–2 short questions and a copyable Metal snippet for this lesson’s contribution to the build, with a line table using the worked example. Call earlier helpers by name.
+- **B — combine earlier ideas.** Deliver the HTML, explorer, and prepared Metal or Swift exercise in the lab. Open with a brief reminder of the ideas being combined. Provide compiling stubs, a prepared caller, an answer key, and a chapter-screen check that marks differences in red. Include short code, the explorer, 1–2 questions, and a copyable Markdown record.
+- **E — one engineering practice.** Deliver the HTML and Swift files. Show the problem with a picture or preview, then the code and its line table, a test, preview, or measurement, 1–2 questions, and a record. Use the code and its observable result to teach the practice.
+- **Questions in a lesson.** Use a plain question as the title, 2–4 clickable choices with varying correct positions, and the lesson’s picture or 3D view with a red marker. Test the main idea on a new case. Show the values the reader starts with beside the question and say which one to find. In the revealed answer, match each step to the worked example, draw the reason, and explain the result in words. When an incorrect choice reflects a likely mistake, explain which step led to it.
+- Keep the planned type, order, and scope. Ask before splitting a lesson or editing earlier lessons, the plan, the course home, or the chapter hubs. Update the glossary for a new term and the number-forms reference for new notation.
 
-## 8. Files and scope
+## Files and implementation
 
-- Lessons: `course/chapters/chapter-NN/` (part one, done) and `course/part-two/chapter-NN/lesson-NN-MM-<short-name>.html`. One self-contained HTML file per lesson (inline CSS, JS and SVG; no CDN; works from `file://`), desktop at 1920 × 1080. Header links go to the course home, the chapter hub, the glossary and “How numbers are written”.
-- **Never edit a lesson before the one the job names.** The plan, the course home, the hubs and the old curriculum change only when the learner says so.
-- A lesson that adds a term adds it to `course/glossary.html`; one that adds a way of writing numbers adds a row to `course/reference-number-forms.html`.
-- iOS lab: `/Users/rosen/Code/LiquidGlassLab-iOS` (the learner's Mac only; never an `ios/` folder here). Only `B` and `E` lessons ship Swift or Metal, wired into the chapter screen and built in the same session; without the lab or Xcode, say so before starting. SwiftUI layout containers; previews light then dark, 402 × 874 pt, scrollable; never `ultraThinMaterial` or `glassEffect` as the glass.
-- Cheatsheet (`cheatsheet/`): one self-contained page per chapter, the same common style and script blocks in every page (`SECTIONS` identical everywhere). A card: the formula in LaTeX, a list naming every letter, a picture from the card's own example (a lesson step copied whole, drawn by the lesson's own code), known inputs green, links to the lab's Swift files.
-- No ZIP files, no archive folders, no lesson-completion counts in any file. Old versions live in git.
+- Keep one self-contained lesson HTML file with inline CSS, JS and SVG, usable from `file://` without a CDN. Part one lives in `course/chapters/chapter-NN/`. Part two uses `course/part-two/chapter-NN/lesson-NN-MM-<short-name>.html`. Keep header links to the course home, chapter hub, glossary, and “How numbers are written.”
+- Only `B` and `E` ship lab files. Work in the sibling iOS lab, wire the result into the chapter screen, and build in the same session. Use SwiftUI layout containers and scrollable 402 × 874 pt previews in light then dark. Build the glass with the techniques the course teaches. Reserve `ultraThinMaterial` and `glassEffect` for comparisons if explicitly requested.
+- Keep one self-contained cheatsheet per chapter with identical shared style, script, and `SECTIONS`. A card has the formula in LaTeX, each letter named, the lesson’s whole worked step and its picture reused, known inputs in green, and links to the relevant lab Swift files. Keep old versions in git.
 
-## 9. Before delivery
+## Before delivery
 
-1. **Cold read as the learner**, state by state: for every name, number and claim in the caption, table and tooltips, answer: where is it drawn? where was it defined? what is its reason? Any empty answer means rewrite, not a note.
-2. **The checklist below**, on every caption, table, tooltip and exercise.
-3. **Arithmetic:** audit every “a op b = c” on the page (text, tables, tooltips, labels), calculator-exact.
-4. **Browser QA at 1920 × 1080**, light and dark for part two: every step, control, preset, drag and exercise; every tooltip opens on screen; no script errors; no horizontal overflow; no overlapping or cut labels; the text matches the pictures.
-5. QA files live outside the repositories and are deleted afterwards.
-6. No fresh-agent “beginner review” (learner, 2026-11-17: “don't run the useless beginner-friendly review”), unless the learner asks for one.
+Run these checks yourself on the actual reader-facing page. Fix failures and recheck the affected states.
 
-## 10. When the learner asks or corrects
+- **First read.** Read from the hero through the answer with tooltips closed and without consulting earlier pages or source code. At each step, point to the thing being explained and say what is happening in ordinary words before reading the equation. If the explanation needs a later step or a second read to make sense, revise the first place the reader gets stuck. Confirm the opening names the result and shows how a later task uses it.
+- **Worked example.** Trace each necessary value in text, pictures, tables, tooltips, exercises, and code to its named source. Recalculate the displayed arithmetic. Check units, directions, rounding, and the meaning of the result in the picture. Where there is a control, try one changed input and the boundary case that affects the lesson’s claim. Solve the exercise with only its visible givens.
+- **Browser.** At 1920 × 1080, check steps, controls, presets, dragging, labels, tooltips, links, and exercises. Check for console errors and horizontal overflow. Check light and dark for part two. Keep temporary QA files outside both repositories and remove them after the checks. Build `B` and `E` in Xcode and verify the relevant previews or device behavior.
+- Report what you verified and any check you could not run. A separate [beginner review](tools/beginner-review/REVIEWER_PROMPT.md) is only for an explicit request.
 
-- Answer in chat first: quote the exact sentence or picture; keep it short; every number shows where it comes from; no Markdown table holding a length such as |SP| (its bars break the table).
-- Fix the lesson with the smallest change that removes the confusion, where it arose. Build a request as worded; an extra you think would help is named in chat, not built.
-- If the failure is general, change one line in this file (section 2 holds the rules that keep failing).
-- Grading exercises answered in chat: ✓ / partly / ✗ per item, quote where the reasoning went wrong, honestly.
+## When the learner asks a question
 
-## Checklist
+Answer the question in chat first, using the exact sentence or picture being discussed. Explain the missing step and trace the numbers. Keep math with vertical bars out of Markdown tables. If the question uncovers a defect, fix it where the reader first gets stuck and recheck that state. Grade submitted exercise answers as ✓, partly, or ✗ and name the reasoning that needs attention.
 
-- [ ] The hero states the idea plainly: what, how, and why it works.
-- [ ] Every caption line is a full sentence with a subject; at most 5 lines per caption.
-- [ ] Every operation says why it is done.
-- [ ] Every number says what it measures, what its sign, 0 or 1 means, and whether it is chosen, measured or worked out.
-- [ ] Every name in a caption is drawn and labelled in that state's picture, and was defined before.
-- [ ] Every claim has its reason on the same screen.
-- [ ] Every “why” line gives a concrete reason with a number; no case is mentioned without its reason.
-- [ ] No coined words, no vague pointers, no lesson numbers inside explanations.
-- [ ] Each fact is said once; about 300 words before the exercises.
-- [ ] Arithmetic audited; browser QA done in both themes.
+When revising a lesson or starting the next one, check the learner’s recent feedback for a repeatable improvement. If one emerges, merge it into the relevant rule here. Keep one rule per recurring issue.
