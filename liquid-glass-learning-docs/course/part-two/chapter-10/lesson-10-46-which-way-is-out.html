@@ -58,6 +58,9 @@
   .ptdot{position:absolute;width:20px;height:20px;border-radius:50%;transform:translate(-50%,-50%);border:3px solid var(--dot);cursor:pointer;padding:0;z-index:5;touch-action:none}
   .ptdot.drag{cursor:grab}.ptdot.drag:active{cursor:grabbing}.ptdot.sm{width:15px;height:15px;border-width:2.5px}
   .ptdot:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
+  pre.code{font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:8px 0 12px;overflow-x:auto;color:var(--ink);max-width:1550px}pre.code .cm{color:var(--cap)}
+  .codebar{display:flex;gap:12px;align-items:center;margin:10px 0 0}table.trace td.cl{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre;width:1%}#code46Table td:nth-child(3){width:27%}
+  .ptlab{position:absolute;background:transparent;border:0;border-radius:4px;padding:0;cursor:pointer;z-index:4}.ptlab:hover,.ptlab:focus-visible{outline:2px solid var(--indigo);outline-offset:1px}
   table.trace{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}table.trace th,table.trace td{border:1px solid var(--line);padding:6px 9px;vertical-align:top;text-align:left}
   table.trace th{background:var(--soft);font-size:13.5px}table.trace td.f{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
   table.trace tr.new td{background:var(--newRow)}table.trace tr.grp td{background:var(--tint);font-weight:700;font-size:13.5px}
@@ -103,7 +106,7 @@ table.trace td.f .lg{white-space:normal}
 <p class="sub">Follows the system’s light or dark setting · desktop · works from <code>file://</code>.</p>
 <p class="lead"><b>Why:</b> the bright line along the menu's outline and the lens both need, at every pixel, <b>outward</b>: an arrow 1 pt long that points straight out of the glass. The shader knows only sd: a pixel's distance from the outline, with a minus inside.</p>
 <p class="lead"><b>The idea:</b> the shader does not know where the outline is, only sd. But straight out is the way in which sd grows the most, by 1 for each 1 pt. The shader works out how much sd changes over 1 pt to the right and over 1 pt toward the bottom, and takes the two changes as the x part and the y part of one arrow. In any direction, sd grows by the dot product of that arrow and the direction, so it grows the most along the arrow itself: the arrow points straight out. Divided by its length, it is outward. At P, in the menu's top-left corner, the changes are −0.60 and −0.80. A minus x part goes to the left and a minus y part toward the top, so outward goes 0.60 pt to the left and 0.80 pt toward the top.</p>
-<p class="lead"><b>Where this is used.</b> Lesson 10.47 lights the bright line with outward. Lesson 11.2 shifts each pixel's read point along the line of outward: the lens. From Lesson 12.1 on, the glass is two shapes joined softly: no single circle or edge gives the direction, but the four neighbors still do.</p>
+<p class="lead"><b>Where this is used.</b> Lesson 10.47 lights the bright line with outward. Lesson 10.48 puts Section 4's code into the menu's Metal shader. Lesson 11.2 shifts each pixel's read point along the line of outward: the lens. From Lesson 12.1 on, the glass is two shapes joined softly: no single circle or edge gives the direction, but the four neighbors still do.</p>
 
 <figure>
   <div class="heroGrid">
@@ -182,6 +185,13 @@ table.trace td.f .lg{white-space:normal}
     <div><ul class="capl" id="ex2aText"></ul></div></div></div></details>
 </div></details>
 
+<!-- ============================ SECTION 4 ============================ -->
+<h2 id="s4"><span class="tag">Section 4 · the code</span>outward in Metal: this lesson's part of the menu's shader</h2>
+<p>The shader runs this function at every pixel of the glass. It does Steps 3, 4 and 6 with sd alone. It calls only <code>roundedRectSd</code> <button class="info" data-tip="rrsd" aria-label="What roundedRectSd gives">ⓘ</button>, the sd of a rounded rectangle, which is not this lesson's part. The right column shows each line at Section 1's P.</p>
+<div class="codebar"><button class="btn" id="copy46">Copy the code</button><span class="small" id="copy46Done" aria-live="polite"></span></div>
+<pre class="code" id="code46"></pre>
+<table class="trace" id="code46Table"></table>
+
 <div class="navfoot"><a href="../../chapters/chapter-10/lesson-10-45-ambient-light.html">← Lesson 10.45 — Ambient light</a><a href="../../chapters/chapter-10/lesson-light-surface-direction-and-material-thickness.html">Chapter 10 overview →</a></div>
 </div>
 <div id="tip" role="dialog" aria-modal="false"><button class="tclose" id="tipClose" aria-label="Close">✕</button><div id="tipBody"></div></div>
@@ -240,12 +250,23 @@ let pointDrag=null;
 document.addEventListener('pointermove',e=>{if(!pointDrag)return;if(!pointDrag.moved&&Math.hypot(e.clientX-pointDrag.x0,e.clientY-pointDrag.y0)<3)return;pointDrag.moved=true;hideTip();pointDrag.move(e.clientX,e.clientY)});
 document.addEventListener('pointerup',()=>{if(!pointDrag)return;if(pointDrag.moved)suppressNow();pointDrag=null});
 document.addEventListener('pointercancel',()=>{pointDrag=null});
-function addPt(stage,x,y,color,html,label,opt={}){const b=document.createElement('button');b.className='ptdot'+(opt.small?' sm':'')+(opt.move?' drag':'');b.style.left=(x+BORDER)+'px';b.style.top=(y+BORDER)+'px';b.style.background=color;b.setAttribute('aria-label',label);if(opt.key)b.dataset.key=opt.key;stage.appendChild(b);setTip(b,html);
+function addPt(stage,x,y,color,html,label,opt={}){const b=document.createElement('button');b.className='ptdot'+(opt.small?' sm':'')+(opt.move?' drag':'');b.style.left=(x+BORDER)+'px';b.style.top=(y+BORDER)+'px';b.style.background=color;b.setAttribute('aria-label',label);if(opt.key)b.dataset.key=opt.key;stage.appendChild(b);setTip(b,html);addLab(stage,opt.name||(label.match(/^Point (\S+)$/)||[])[1],html,b,opt.lab);
   {const cv=stage.querySelector('canvas');if(cv&&(x<-2||y<-2||x>cv.width+2||y>cv.height+2))b.hidden=true}   /* a point outside its own picture must not sit on a neighbouring one */
   if(opt.move){b.addEventListener('pointerdown',e=>{pointDrag={x0:e.clientX,y0:e.clientY,moved:false,move:opt.move};e.preventDefault();e.stopPropagation()});
     if(opt.keys)b.addEventListener('keydown',e=>{const d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(!d)return;e.preventDefault();opt.keys(d);stage.querySelector(`[data-key="${opt.key}"]`)?.focus()})}
   return b}
-const clearPts=stage=>stage.querySelectorAll('.ptdot').forEach(b=>b.remove());
+const clearPts=stage=>{stage.querySelectorAll('.ptdot,.ptlab').forEach(b=>b.remove());stage.__pts=[]};
+/* a point's label in the picture opens the same popup as its dot: a label whose text is the point's name, or starts with the name and a space, a comma or a colon
+   ("P", "P · sd −5.60", "K (144.30, 684.60)", "R: the point of …"); a point without a letter name gives the start of its label as lab.
+   The labels are linked after the picture is drawn (a microtask), so a label drawn after its dot is found too. */
+function addLab(stage,name,html,dot=null,lab=null){if(!name&&!lab)return;(stage.__pts||(stage.__pts=[])).push({name,html,dot,lab});
+  if(!stage.__linkSoon){stage.__linkSoon=true;queueMicrotask(()=>{stage.__linkSoon=false;linkLabels(stage)})}}
+const namesPoint=(t,e)=>e.lab?t.startsWith(e.lab):t===e.name||[' ',',',':'].some(s=>t.startsWith(e.name+s));
+function linkLabels(stage){stage.querySelectorAll('.ptlab').forEach(b=>b.remove());const cv=stage.querySelector('canvas'),placed=cv&&cv.getContext('2d').__placed;if(!placed)return;
+  for(const e of stage.__pts||[]){if(e.dot&&(e.dot.hidden||!e.dot.isConnected))continue;
+    for(const r of placed){if(r.t==='\u0000'||!namesPoint(r.t,e))continue;
+      const b=document.createElement('button');b.className='ptlab';b.style.left=(r.x+BORDER)+'px';b.style.top=(r.y+BORDER)+'px';b.style.width=r.w+'px';b.style.height=r.h+'px';
+      b.setAttribute('aria-label',`Label “${r.t}”: opens the popup of ${e.name?'point '+e.name:'this point'}`);b.tabIndex=-1;stage.appendChild(b);setTip(b,e.html)}}}
 const canvasPos=(cv,cx,cy)=>{const r=cv.getBoundingClientRect();return[(cx-r.left-cv.clientLeft)*cv.width/cv.clientWidth,(cy-r.top-cv.clientTop)*cv.height/cv.clientHeight]};
 const BORDER=1;   /* canvases have a 1-px border: a dot over canvas pixel x sits at x + 1 in its stage */
 const info=(k,l)=>`<button class="info" data-tip="${k}" aria-label="${l}">ⓘ</button>`;
@@ -418,7 +439,7 @@ function zoomScene(V,st,M,o={}){const c=V.ctx,X=V.X,Y=V.Y,W=V.cv.width,H=V.cv.he
   if(loc)locator(V,loc.x,loc.y,S,P);
   /* the points */
   ns.forEach((n,i)=>addPt(st,nb[i][0],nb[i][1],COL[n],tipN(M,n),`Point ${n}`,{small:true}));
-  if(qDot)addPt(st,qx,qy,COL.Q,tipQ(M),'Point Q',{small:true});
+  if(qDot)addPt(st,qx,qy,COL.Q,tipQ(M),'Point Q',{small:true});else if(qIn)addLab(st,'Q',tipQ(M));   /* Q too near another dot for its own: its label still opens its popup */
   if(sh.T&&tip)addPt(st,tx,ty,COL.T,o.tipT,'Point T',{small:true});
   addPt(st,px,py,COL.P,o.pTip||tipP(M),'Point '+M.nm,o.move?{move:o.move,keys:o.keys,key:o.key||'zp'}:{})}
 
@@ -460,12 +481,24 @@ const MENUTXT=`The menu, measured on a screen recording of Safari: center ${pt(.
 const X2=[R12(P0[0]-1),P0[1]],DKX=Math.hypot(X2[0]-K0[0],X2[1]-K0[1]),SDX=r3(DKX-MENU.r),R2=[K0[0]+(X2[0]-K0[0])*MENU.r/DKX,K0[1]+(X2[1]-K0[1])*MENU.r/DKX],DPR=Math.hypot(R2[0]-P0[0],R2[1]-P0[1]);
 const XR=M0.t(r3(-SDX)),PR=M0.t(r3(DPR)),XG=M0.t(r3(SDX-M0.c.P.sd)),XPATH=M0.t(r3(1-SDX));
 function step2Post(c,V){const px=V.X(P0[0]),py=V.Y(P0[1]),xx=V.X(X2[0]),xy=V.Y(X2[1]),rx=V.X(R2[0]),ry=V.Y(R2[1]);
-  line(c,px,py,rx,ry,'#334155',2);line(c,px,py,xx,xy,'#d97706',4);line(c,xx,xy,rx,ry,'#d97706',4);
+  line(c,px,py,rx,ry,'#334155',2);
+  /* line KX: K is far outside this picture, so the line runs from R through X toward K, to the legend or the picture's side */
+  const kl=(()=>{const L=Math.hypot(xx-rx,xy-ry),dx=(xx-rx)/L,dy=(xy-ry)/L,W=V.cv.width,bot=V.cv.height-67;let t=1e9;
+    if(dx>0)t=Math.min(t,(W-14-xx)/dx);if(dx<0)t=Math.min(t,(14-xx)/dx);if(dy>0)t=Math.min(t,(bot-xy)/dy);if(dy<0)t=Math.min(t,(14-xy)/dy);
+    const ex=xx+dx*t,ey=xy+dy*t;line(c,rx,ry,ex,ey,'#9d174d',2.4);return[ex,ey]})();
+  line(c,px,py,xx,xy,'#d97706',4);line(c,xx,xy,rx,ry,'#d97706',4);
   for(const [x,y,col] of[[xx,xy,'#d97706'],[rx,ry,'#6b21a8']]){c.beginPath();c.arc(x,y,7,0,7);c.fillStyle=col;c.fill();c.lineWidth=1.6;c.strokeStyle='#111827';c.stroke()}
   plate(c,`X, 1 pt to the left of P · sd ${M0.t(SDX)}`,xx-12,xy+26,13,'right','#92400e');
   plate(c,'R: the point of the outline nearest to X',rx+14,ry+16,13,'left','#6b21a8');
   plate(c,`|XR| = ${XR}`,(xx+rx)/2-14,(xy+ry)/2+10,13,'right','#92400e');
-  plate(c,`|PR| = ${PR}`,(px+rx)/2+30,(py+ry)/2+34,13,'left','#334155')}
+  plate(c,`|PR| = ${PR}`,(px+rx)/2+30,(py+ry)/2+34,13,'left','#334155');
+  {const t=`line KX, toward K: |KX| = ${M0.t(r3(DKX))} pt`;let ok=false;for(const [x,y,al] of[[kl[0]+14,kl[1]-6,'left'],[kl[0]-14,kl[1]-6,'right'],[kl[0]+14,kl[1]-30,'left']])if((ok=plateIf(c,t,x,y,13,al,'#9d174d')))break;if(!ok)plate(c,t,kl[0]+14,kl[1]-6,13,'left','#9d174d')}}
+/* X and R are clickable in both of Step 2's pictures, with one popup each */
+const XC=sdChain(new Trace(3),MENU,X2,'X');
+const tipX=()=>`<b>X = ${pt(...X2)} pt</b> (${SYS}): 1 pt to the left of P. sd at X = ${M0.t(XC.sd)} pt: ${insideWords(XC.sd,M0.t)}.<br>${cap1(XC.head)}.<pre>${XC.lines.join('\n')}</pre>`;
+const tipR=()=>`<b>R = ${pt(...R2)} pt</b> (${SYS}): the point of the outline nearest to X. R is on line KX, 36 pt from K, so |XR| = 36 − |KX| = ${XR} pt, the size of sd at X.`;
+const thc=col=>document.documentElement.dataset.theme==='dark'&&DARKC[col]||col;   /* a dot drawn over a canvas circle takes the circle's color in the theme */
+function xrPts(st,V){addPt(st,V.X(X2[0]),V.Y(X2[1]),thc('#d97706'),tipX,'Point X',{small:true});addPt(st,V.X(R2[0]),V.Y(R2[1]),thc('#6b21a8'),tipR,'Point R',{small:true})}
 const NEAR={A:'the left edge',B:'the top edge',D:'the top edge',E:'the left edge'};
 const KTT=new Trace(3),KT1=KTT.K(1,1).add('|KT|',DKP,1),SDT1=KTT.K(0,1).sub('sd at T',KT1,MENU.r),KTL=KTT.take();
 const TCH=(()=>{const T=new Trace(3);T.K(1,1).sub('',CT.sd,M0.c.P.sd);return T.take().map(l=>l.replace(/^ = /,''))})();
@@ -506,9 +539,10 @@ function ideaZoom(){
     plate(c,'from S to B: sd stays −56',sx+5,sy+24,13,'left','#334155');
     plate(c,'pink line: pixels equally far from the left edge and the top edge',8,18,12.5,'left','#9d174d');
     return}
-  zoomScene(ZVi(),$('ideaStage'),M0,{show:SHOW[st46],rail:150,sdT:CT.sd,tipT:tipTT,toK:st46===4,kLabel:'toward K, the corner circle’s center',post:st46===3?movesPost:st46===1?step2Post:null,pLab:st46===3?[16,-24]:null,
+  zoomScene(ZVi(),$('ideaStage'),M0,{show:SHOW[st46],rail:150,sdT:CT.sd,tipT:tipTT,toK:st46===4,kLabel:'toward K, the corner circle’s center',post:st46===3?movesPost:st46===1?step2Post:null,pLab:st46===3?[16,-24]:st46===1?[18,24]:null,
     legend:st46===3?[SYS,'enlarged: 1 pt = 150 px · thin curves: pixels equally far from the outline, 1 pt apart']:null,
-    arrowLabel:st46===4?`outward ${outTxt(M0)}, 1 long`:`the arrow of the two changes: ${outTxt(M0)}`})}
+    arrowLabel:st46===4?`outward ${outTxt(M0)}, 1 long`:`the arrow of the two changes: ${outTxt(M0)}`});
+  if(st46===1)xrPts($('ideaStage'),ZVi())}
 /* Step 1's right picture: the whole menu, the centers of its four corners' circles, and a pixel under the top edge with no K */
 function oneOverview(){const V=mkView($('ovCv'),40,637,1.9),c=V.ctx,X=V.X,Y=V.Y,st=$('ovStage');begin(V);clearPts(st);
   drawGlass(V,MENU);c.lineWidth=1.3;c.strokeStyle='#64748b';for(const k of CORNERS){c.beginPath();c.arc(X(k[0]),Y(k[1]),MENU.r*V.s,0,7);c.stroke()}
@@ -526,9 +560,10 @@ function oneOverview(){const V=mkView($('ovCv'),40,637,1.9),c=V.ctx,X=V.X,Y=V.Y,
   plate(c,`${pt(...EDGEPX)}: under the top edge`,ex+20,ey+16,13,'left','#0f766e');plate(c,'nearest part: a straight edge, no circle, no K',ex+20,ey+38,12.5,'left','#0f766e');
   plate(c,'gray dots: each corner has its own circle center',X(MENU.c[0]),Y(MENU.c[1])+6,12.5,'center','#334155');
   plate(c,`the left edge, x = ${f(EDGES[0])}`,X(EDGES[0])+10,Y(742.6)+40,12.5,'left','#6b21a8');plate(c,`the top edge, y = ${f(EDGES[1])}`,X(300),Y(EDGES[1])-10,12.5,'center','#6b21a8');
-  for(const [i,k] of CORNERS.entries())addPt(st,X(k[0]),Y(k[1]),COL.K,i===0?`<b>K = ${pt(...K0)} pt</b>: the center of the circle that rounds the menu's top-left corner, radius 36 pt. P's nearest part of the outline is on this circle.`:`<b>${pt(...k)} pt</b>: the center of another corner's circle, radius 36 pt. Pixels in that corner use this center, not K.`,i===0?'Point K':'A corner center',{small:true});
+  for(const [i,k] of CORNERS.entries())addPt(st,X(k[0]),Y(k[1]),COL.K,i===0?`<b>K = ${pt(...K0)} pt</b>: the center of the circle that rounds the menu's top-left corner, radius 36 pt. P's nearest part of the outline is on this circle.`:`<b>${pt(...k)} pt</b>: the center of another corner's circle, radius 36 pt. Pixels in that corner use this center, not K.`,i===0?'Point K':'A corner center',{small:true,lab:i===0?null:pt(...k)});
+  addPt(st,qx,qy,COL.Q,tipQ(M0)+' Q is on line KP, 36 pt from K.','Point Q',{small:true});
   addPt(st,px,py,COL.P,tipP(M0),'Point P',{small:true});
-  addPt(st,ex,ey,COL.P,`<b>${pt(...EDGEPX)} pt</b>, a pixel under the top edge (${SYS}). Its nearest part of the outline is the top edge, the line y = 742.60 − 94 = 648.60 (the menu's center y minus half its height), a straight line: there is no circle and no center K. sd there = −(654.20 − 648.60) = −5.60 pt.`,'A pixel under the top edge',{small:true})}
+  addPt(st,ex,ey,COL.P,`<b>${pt(...EDGEPX)} pt</b>, a pixel under the top edge (${SYS}). Its nearest part of the outline is the top edge, the line y = 742.60 − 94 = 648.60 (the menu's center y minus half its height), a straight line: there is no circle and no center K. sd there = −(654.20 − 648.60) = −5.60 pt.`,'A pixel under the top edge',{small:true,lab:pt(...EDGEPX)})}
 function sOverview(){const V=mkView($('ovCv'),97,639,4),c=V.ctx,X=V.X,Y=V.Y,st=$('ovStage'),W=V.cv.width,H=V.cv.height,Z=ZS1(),L=MENU.c[0]-MENU.half[0],Tp=MENU.c[1]-MENU.half[1];begin(V);clearPts(st);
   drawGlass(V,MENU);
   const kx=X(K0[0]),ky=Y(K0[1]),px=X(P0[0]),py=Y(P0[1]),sx=X(S0[0]),sy=Y(S0[1]),fx0=X(Z.ux(0)),fy0=Y(Z.uy(0)),fw=Z.cv.width/Z.s*V.s,fh=Z.cv.height/Z.s*V.s;
@@ -550,10 +585,13 @@ function sOverview(){const V=mkView($('ovCv'),97,639,4),c=V.ctx,X=V.X,Y=V.Y,st=$
   addPt(st,kx,ky,COL.K,`<b>K = ${pt(...K0)} pt</b>: the center of the circle that rounds the menu's top-left corner, radius 36 pt. It is 36 pt from the left edge and 36 pt from the top edge, so it is on the pink line too.`,'Point K',{small:true});
   addPt(st,px,py,COL.P,tipP(M0),'Point P',{small:true});
   addPt(st,sx,sy,COL.P,tipS,'Point S')}
-function ideaOverview(){ideaOverview0();if(st46!==1)return;const V=mkView($('ovCv'),96,640,6),c=V.ctx,X=V.X,Y=V.Y,px=X(P0[0]),py=Y(P0[1]),xx=X(X2[0]),xy=Y(X2[1]),rx=X(R2[0]),ry=Y(R2[1]);
+function ideaOverview(){ideaOverview0();if(st46!==1)return;const V=mkView($('ovCv'),96,640,6),c=V.ctx,X=V.X,Y=V.Y,px=X(P0[0]),py=Y(P0[1]),xx=X(X2[0]),xy=Y(X2[1]),rx=X(R2[0]),ry=Y(R2[1]),kx=X(K0[0]),ky=Y(K0[1]);
+  thin(c,kx,ky,rx,ry,'#9d174d',2.2);                                    /* line KX, from K through X to R */
   line(c,px,py,xx,xy,'#d97706',3);line(c,xx,xy,rx,ry,'#d97706',3);
   for(const [x,y,col] of[[xx,xy,'#d97706'],[rx,ry,'#6b21a8']]){c.beginPath();c.arc(x,y,5,0,7);c.fillStyle=col;c.fill();c.lineWidth=1.4;c.strokeStyle='#111827';c.stroke()}
-  plate(c,'X',xx-10,xy+16,13,'right','#92400e');plate(c,'R',rx-12,ry+4,13,'right','#6b21a8')}
+  plate(c,'X',xx-10,xy+16,13,'right','#92400e');plate(c,'R',rx-12,ry+4,13,'right','#6b21a8');
+  {const s=0.24,lx=kx+(rx-kx)*s,ly=ky+(ry-ky)*s;plate(c,'line KX',lx-10,ly,13,'right','#9d174d')}
+  xrPts($('ovStage'),V)}
 function ideaOverview0(){if(st46===5)return sOverview();if(st46===0)return oneOverview();const V=mkView($('ovCv'),96,640,6),c=V.ctx,X=V.X,Y=V.Y,st=$('ovStage'),W=V.cv.width,H=V.cv.height,Q=M0.Q,Z=ZVi();begin(V);clearPts(st);
   drawGlass(V,MENU);
   const kx=X(K0[0]),ky=Y(K0[1]),px=X(P0[0]),py=Y(P0[1]),qx=X(Q[0]),qy=Y(Q[1]),fx0=X(Z.ux(0)),fy0=Y(Z.uy(0)),fw=Z.cv.width/Z.s*V.s,fh=Z.cv.height/Z.s*V.s;
@@ -658,6 +696,54 @@ function exercises(){const s1={A:1,B:1,D:1,E:1},Z=(id,M,x,y)=>zoomView($(id),M.P
   $('ex2aText').innerHTML=`<li>From A to B, 1 pt apart: ${cut(MR.lx[1])}. Plus: to the right, a pixel is nearer the outline. So outward goes 0.80 to the right.</li><li>From D to E, 1 pt apart: ${cut(MR.ly[1])}. Plus: outward goes 0.60 toward the bottom.</li><li>Length: ${cut(MR.ll[0])}; ${cut(MR.ll[1])}; ${cut(MR.ll[2])}; ${cut(MR.ll[3])}.</li><li>outward = (0.80, 0.60): straight at Q, away from the button's center K (gray line).</li>`;
   document.querySelectorAll('.choices').forEach(g=>{const out=g.nextElementSibling;g.querySelectorAll('button').forEach(b=>{b.setAttribute('aria-pressed','false');b.onclick=()=>{g.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));out.className='verdict '+(b.dataset.ok==='1'?'ok':'no');out.textContent=b.dataset.why}})})}
 
+/* ================= Section 4: the code of outward, with its numbers at Section 1's P ================= */
+const CODE46=[
+ '/// outward at the pixel P: the arrow 1 pt long that points straight out of the glass.',
+ '/// P, box and cornerRadius are in pt. P is counted from the screen’s top-left corner: x to the right, y toward the bottom.',
+ '/// box: the menu’s center (box.x, box.y) and half its width and half its height (box.z, box.w).',
+ 'float2 outwardAt(float2 P, float4 box, float cornerRadius) {',
+ '    float stepPt = 0.5;                                                                  // chosen: A, B, D and E are 0.5 pt from P',
+ '    float2 fromCenter = P - box.xy;                                                      // P counted from the menu’s center',
+ '    float sdA = roundedRectSd(fromCenter - float2(stepPt, 0.0), box.zw, cornerRadius);   // A: to the left of P',
+ '    float sdB = roundedRectSd(fromCenter + float2(stepPt, 0.0), box.zw, cornerRadius);   // B: to the right of P',
+ '    float sdD = roundedRectSd(fromCenter - float2(0.0, stepPt), box.zw, cornerRadius);   // D: toward the top from P',
+ '    float sdE = roundedRectSd(fromCenter + float2(0.0, stepPt), box.zw, cornerRadius);   // E: toward the bottom from P',
+ '    float xPart = (sdB - sdA) / (2.0 * stepPt);                                          // the change of sd for each 1 pt to the right',
+ '    float yPart = (sdE - sdD) / (2.0 * stepPt);                                          // the change of sd for each 1 pt toward the bottom',
+ '    float len = length(float2(xPart, yPart));                                            // the arrow’s length: √(xPart² + yPart²)',
+ '    if (len == 0.0) { return float2(0.0); }                                              // no direction: no division by 0',
+ '    return float2(xPart, yPart) / len;                                                   // outward, 1 long',
+ '}'];
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const codeHtml=l=>{const i=l.indexOf('//');return i<0?esc(l):esc(l.slice(0,i))+`<span class="cm">${esc(l.slice(i))}</span>`};
+function codeSection(){$('code46').innerHTML=CODE46.map(codeHtml).join('\n');
+  const M=M0,T=new Trace(3),c=M.c,MC=measure(MENU,[238.8,742.6],STEP0);
+  const fx=T.K(1,1).sub('x',P0[0],MENU.c[0],true),fy=T.K(1,1).sub('y',P0[1],MENU.c[1],true),fromC=T.take().map(l=>l.replace(' = ',': '));
+  const ab=T.K(1,1).mul('2 × stepPt',2,STEP0),chX=T.K(1,1).sub('sdB − sdA',c.B.sd,c.A.sd),gx=T.div('xPart',chX,ab),lx=T.take();
+  const de=T.K(1,1).mul('2 × stepPt',2,STEP0),chY=T.K(1,1).sub('sdE − sdD',c.E.sd,c.D.sd),gy=T.div('yPart',chY,de),ly=T.take();
+  const x2=T.K(1).sq('xPart²',gx),y2=T.K(1).sq('yPart²',gy),sum=T.add('sum',x2,y2,true),len=T.root('len',sum),ll=T.take();
+  const ox=T.K(1,1).div('x part',gx,len),oy=T.K(1,1).div('y part',gy,len),lo=T.take().map(l=>l.replace(' = ',': '));
+  const ln=i=>esc(CODE46[i].replace(/\s+\/\/.*$/,'').trim()),sdRow=(i,n,w)=>[ln(i),`Step 3: sd at ${n}, ${f(STEP0)} pt ${w}.`,`sd at ${n} = ${M.t(c[n].sd)} ${info('sd'+n,`How sd at ${n} is found`)}`];
+  const rows=[
+    ['/// … (3 lines)','Comments that say what the function gives and in which units. Xcode shows lines that start with /// as the function’s help.',''],
+    [ln(3),'The function takes the pixel P and the menu, and gives outward. A <code>float2</code> holds two numbers: here outward’s x part and y part. A <code>float4</code> holds four: here the menu’s center and half its size.',`P = ${KN(pt(...P0))}<br>box = ${KN(`(${f(MENU.c[0])}, ${f(MENU.c[1])}, ${f(MENU.half[0])}, ${f(MENU.half[1])})`)}<br>cornerRadius = ${KN(f(MENU.r))}<br><span class="lg">all in pt; the menu is measured ${info('menu','Where these numbers come from')}</span>`],
+    [ln(4),`The step: A, B, D and E are this far from P. Chosen ${info('step','Why 0.50 pt')}.`,`stepPt = ${f(STEP0)}`],
+    [ln(5),'roundedRectSd counts a point from the rectangle’s center, so P is counted from the menu’s center: P minus the center.',fromC.join('<br>')],
+    sdRow(6,'A','to the left of P: fromCenter minus (0.50, 0)'),
+    sdRow(7,'B','to the right of P: fromCenter plus (0.50, 0)'),
+    sdRow(8,'D','toward the top from P: fromCenter minus (0, 0.50), because y counts toward the bottom'),
+    sdRow(9,'E','toward the bottom from P: fromCenter plus (0, 0.50)'),
+    [ln(10),'Step 3: the change from A to B, divided by |AB| = 2 × stepPt, is the change of sd for each 1 pt to the right. The division keeps this true for a step other than 0.50.',lx.join('<br>')],
+    [ln(11),'Step 3: the same from D to E: the change of sd for each 1 pt toward the bottom.',ly.join('<br>')],
+    [ln(12),'Step 4: the length of the arrow (xPart, yPart). <code>length</code> works out √(xPart² + yPart²).',ll.join('<br>')],
+    [ln(13),`Step 6: where both changes are 0, the arrow (0, 0) has no direction, and a division by 0 gives no number. Example: at the menu’s center, ${pt(...MC.P)} pt, sd at A and at B are both ${M.t(MC.c.A.sd)}, and sd at D and at E are both ${M.t(MC.c.D.sd)}. Then the function gives (0, 0).`,`len = ${T.t(len)}: not 0, so the next line runs`],
+    [ln(14),'Step 6: each part divided by the length: outward, 1 long.',`${lo.join('<br>')}<br>outward = (${T.t(ox)}, ${T.t(oy)})<span class="lg"> · ${dirWords([ox,oy],T.t.bind(T))}</span>`]];
+  $('code46Table').innerHTML=`<tr><th>Line</th><th>What it does</th><th>At Section 1’s P</th></tr>`+rows.map(([a,b,c])=>`<tr><td class="cl">${a}</td><td>${b}</td><td class="f">${c}</td></tr>`).join('');
+  bindTips($('code46Table'))}
+function copyCode(){const txt=CODE46.join('\n'),done=()=>{$('copy46Done').textContent='Copied.';setTimeout(()=>{$('copy46Done').textContent=''},2000)};
+  const fallback=()=>{const r=document.createRange();r.selectNodeContents($('code46'));const s=getSelection();s.removeAllRanges();s.addRange(r);try{document.execCommand('copy');done()}catch(e){$('copy46Done').textContent='Press ⌘C to copy the selected code.'}};
+  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(txt).then(done,fallback);else fallback()}
+
 /* ================= tooltips ================= */
 const chainTip=(n,lead)=>`<b>sd at ${n}.</b> ${lead}<br>${cap1(M0.c[n].head)}.<pre>${M0.c[n].lines.join('\n')}</pre>`;
 const TIPS={
@@ -668,6 +754,7 @@ const TIPS={
   sdE:()=>chainTip('E',`E = ${pt(...M0.pts.E)} pt: ${f(STEP0)} pt from P toward the bottom.`),
   tip:()=>`<b>sd at T.</b> T is on line KP, 1 pt further from K than P. In the corner, sd = |KT| − 36:<pre>${KTL.join('\n')}</pre>`,
   step:()=>`<b>Why 0.50 pt.</b> A chosen step. A and B must be near P, so that the change from A to B tells what happens at P: 0.50 pt is small beside the corner radius, 36 pt. And |AB| is then exactly 1 pt, so the change from A to B is the change over 1 pt. On the iPhone 16 Pro, 0.50 pt is 1.5 pixels. Section 2 has buttons for other steps: there |AB| is not 1 pt, and the change from A to B is divided by |AB| to give the change for each 1 pt.`,
+  rrsd:()=>`<b>roundedRectSd(p, outerHalf, cornerRadius)</b> gives sd for a rounded rectangle: minus inside, 0 on the outline, plus outside. p is the point counted from the rectangle's center; outerHalf is half its width and half its height; cornerRadius is the radius of its corners' circles. All in pt.`,
   menu:()=>`<b>Where these numbers come from.</b> Measured on a screen recording of Safari on the iPhone 16 Pro, good to about ±4 pt. The menu's glass at rest: 261 × 188 pt, center (238.80, 742.60) pt, corner radius about 36 pt. The “⋯” button: a circle of radius 25 pt around (342.30, 809.60) pt. They are not numbers published by Apple.`};
 
 /* ================= start ================= */
@@ -676,7 +763,7 @@ const TIPS={
   {const b=$('tSteps');STEPS.forEach(s=>{const x=document.createElement('button');x.className='btn';x.dataset.s=s;x.textContent=f(s)+' pt'+(s===STEP0?' (chosen)':'');x.onclick=()=>{TW.step=s;TW.zc=null;traceAll()};b.appendChild(x)})}
   $('ideaPrev').onclick=()=>{if(st46>0){st46--;ideaAll()}};$('ideaNext').onclick=()=>{if(st46<ST46-1){st46++;ideaAll()}};
   function redrawAll(){heroMap();heroZoom();ideaAll();traceAll();exercises()}
-  redrawAll();bindTips(document.body);window.onThemeChange=redrawAll;
+  redrawAll();codeSection();$('copy46').onclick=copyCode;bindTips(document.body);window.onThemeChange=redrawAll;
 })();
 </script>
 </body>
