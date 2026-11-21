@@ -431,10 +431,9 @@ function zoomScene(V,st,M,o={}){const c=V.ctx,X=V.X,Y=V.Y,W=V.cv.width,H=V.cv.he
     kEnd=[px+dx/D*t,py+dy/D*t];thin(c,px,py,kEnd[0],kEnd[1],'#94a3b8',2)}
   if(sh.A&&sh.B)thin(c,X(M.pts.A[0]),py,X(M.pts.B[0]),py,'#64748b',2);
   if(sh.D&&sh.E)thin(c,px,Y(M.pts.D[1]),px,Y(M.pts.E[1]),'#64748b',2);
-  const hx=X(P[0]+M.gx),gyY=Y(P[1]+M.gy);
-  if(sh.legs&&has){line(c,px,py,hx,py,'#0f766e',3);line(c,hx,py,hx,gyY,'#0f766e',3);const sx=hx<px?1:-1,sy=gyY<py?1:-1;c.lineWidth=1.6;c.strokeStyle='#111827';c.beginPath();c.moveTo(hx+sx*11,py);c.lineTo(hx+sx*11,py-sy*11);c.lineTo(hx,py-sy*11);c.stroke();reserveBox(c,Math.min(px,hx)-4,py-4,Math.abs(px-hx)+8,8);reserveBox(c,hx-4,Math.min(py,gyY)-4,8,Math.abs(py-gyY)+8)}
-  if(sh.changes&&has)arrow(c,px,py,hx,gyY,COL.out,4,14);
-  if(ar){arrow(c,px,py,tx,ty,COL.out,4.5,sh.T?26:15);if(short)arrow(c,px,py,hx,gyY,'#fbbf24',2.2,10)}
+  if(sh.rimExample)drawRimArrow(V,st);
+  if(sh.compareMoves)drawMoveComparison(V,st);
+  if(ar){arrow(c,px,py,tx,ty,COL.out,4.5,sh.T?26:15);if(short)arrow(c,px,py,X(P[0]+M.gx),Y(P[1]+M.gy),'#fbbf24',2.2,10)}
   if(sh.ask){c.lineWidth=3;c.strokeStyle=COL.ask;c.beginPath();c.arc(px,py,V.s,0,7);c.stroke()}
   /* the legend, then the labels of the points */
   lg.forEach((t,i)=>plate(c,t,8,H-15-25*(lg.length-1-i),14,'left','#334155'));
@@ -448,10 +447,6 @@ function zoomScene(V,st,M,o={}){const c=V.ctx,X=V.X,Y=V.Y,W=V.cv.width,H=V.cv.he
     const label=`${M.nm} · ${value('sd',M.c.P.sd)}`;
     if(o.gap==='x')plate(c,label,px+14,py-27,14,'left',COL.ink);
     else plate(c,label,px-14,py+(up?-30:30),14,'right',COL.ink)}
-  if(sh.legs&&has){
-    plate(c,`x part ≈ ${display2(M.gx)}`,(px+hx)/2,py+34,14,'center','#0f766e');
-    plate(c,`y part ≈ ${display2(M.gy)}`,hx-14,(py+gyY)/2,14,'right','#0f766e');
-  }
   if(o.gap==='x')plate(c,'A to B · 0.50 + 0.50 = 1.00 pt',px+14,py-54,14);
   if(o.gap==='y')plate(c,'D to E · 0.50 + 0.50 = 1.00 pt',px-30,py+90,14,'right');
   if(sh.Q&&far){const sg=sdP<0?1:-1,flat=Math.abs(u[0])>0.9,al=sg*u[0]<-0.2?'right':sg*u[0]>0.2?'left':'center';
@@ -485,6 +480,14 @@ function menuMap(V,st,legend){const c=V.ctx;begin(V);clearPts(st);drawGlass(V,ME
 const MAPLEG=['pt from the screen’s','top-left corner:','x to the right,','y toward the bottom','1 pt = 2 px'];
 
 const M0=measure(MENU,P0,STEP0),K0=M0.c.P.w.C;
+const RIM_PIXEL=measure(MENU,[122.916,656.088],STEP0,'R');  /* named P in Lesson 10.47 */
+const SAME_DEPTH=measure(MENU,[R12(K0[0]-M0.c.P.legs[1]),R12(K0[1]-M0.c.P.legs[0])],STEP0,'P′');
+const LEFT_MOVE=[-1,0];
+const DIAGONAL_MOVE=[M0.gx,M0.gy].map(rate=>Number(rate.toFixed(2)));
+const endOfMove=move=>P0.map((p,i)=>R12(p+move[i]));
+const LEFT_END=distanceSample(MENU,endOfMove(LEFT_MOVE));
+const DIAGONAL_END=endOfMove(DIAGONAL_MOVE);
+const DIAGONAL_REMAINDER=Math.hypot(DIAGONAL_END[0]-M0.Q[0],DIAGONAL_END[1]-M0.Q[1]);
 const S0=[164.3,704.6],MS=measure(MENU,S0,STEP0,'S');
 const U=[257,654.2],V0=[257,653.2],W0=[258,654.2];
 const TOP=R12(MENU.c[1]-MENU.half[1]),LEFT=R12(MENU.c[0]-MENU.half[0]);
@@ -498,6 +501,35 @@ function roundedArrow(name,xy){
   return `${name} ≈ (${xy.map(display2).join(', ')})`;
 }
 const scaleLabel=V=>`Enlarged · 1 screen pt = ${f(V.s)} drawing px`;
+
+function drawRimArrow(V,st){
+  const {ctx:c,X,Y}=V;
+  const [x,y]=RIM_PIXEL.P,[dx,dy]=RIM_PIXEL.out,px=X(x),py=Y(y);
+  arrow(c,px,py,X(x+dx),Y(y+dy),COL.out,4,14);
+  plate(c,'Outward at R',px+18,py-16,14,'left','#3730a3');
+  plate(c,`R · ${display2(-RIM_PIXEL.c.P.sd)} pt inside the outline`,px+18,py+13,14,'left','#0f766e');
+  addPt(st,px,py,COL.D,`${tipP(RIM_PIXEL)} This is the pixel colored in Lesson 10.47.`,'Point R',{small:true});
+  addLab(st,null,()=>`<b>Outward at R.</b> The four samples around R give ${roundedArrow('outward',RIM_PIXEL.out)}.`,null,'Outward at R');
+}
+
+function drawMoveComparison(V,st){
+  const {ctx:c,X,Y}=V,px=X(P0[0]),py=Y(P0[1]);
+  const leftX=X(LEFT_END.p[0]),dx=X(DIAGONAL_END[0]),dy=Y(DIAGONAL_END[1]);
+  const qx=X(M0.Q[0]),qy=Y(M0.Q[1]);
+  line(c,px,py,px,dy,'#0f766e',2.4);
+  line(c,px,dy,dx,dy,'#0f766e',2.4);
+  arrow(c,px,py,leftX,py,'#d97706',4,14);
+  arrow(c,px,py,dx,dy,COL.out,4,14);
+  plate(c,'1 pt left',leftX-14,py,14,'right','#92400e');
+  plate(c,'1 pt toward Q',dx-14,dy,14,'right','#3730a3');
+  plate(c,`Purple tip to Q · ${display2(DIAGONAL_REMAINDER)} pt`,(qx+dx)/2+16,(qy+dy)/2,14,'left','#3730a3');
+  plate(c,`${display2(-DIAGONAL_MOVE[0])} pt left`,(dx+px)/2,dy-24,14,'center','#0f766e');
+  plate(c,`${display2(-DIAGONAL_MOVE[1])} pt up`,px+14,(py+dy)/2,14,'left','#0f766e');
+  addPt(st,leftX,py,'#d97706',pointTip('End of the left move',LEFT_END.p,`${value('Signed distance',LEFT_END.sd,' pt')}.`),
+    'End of the left move',{compact:true,lab:'1 pt left'});
+  addPt(st,dx,dy,COL.out,pointTip('End of the diagonal move',DIAGONAL_END,`The tip is ${display2(DIAGONAL_REMAINDER)} pt short of Q.`),
+    'End of the diagonal move',{compact:true,lab:'1 pt toward Q'});
+}
 
 function heroMap(){
   const V=mapView($('hero1')),st=$('hero1Stage'),c=V.ctx,x=V.X(P0[0]),y=V.Y(P0[1]);
@@ -521,7 +553,7 @@ function heroZoom(){
 }
 
 /* ================= Section 1 ================= */
-let st46=0;
+let st46=0,showDirectionCheck=false;
 const prediction=$('prediction');
 const cornerView=()=>zoomView($('ideaCv'),P0,ZW[2],ZW[0],ZW[1]);
 function straightScene(){
@@ -561,18 +593,37 @@ function straightOverview(){
   plate(c,'U · just below the top edge',x+16,y+20,14);
   addPt(st,x,y,COL.P,pointTip('U',U,'The straight-edge example is here on the menu.'),'Point U',{small:true});
 }
-function cornerOverview(axis){
+function sameDepthOverview(){
+  const V=mkView($('ovCv'),96,642,8),{ctx:c,X,Y}=V,st=$('ovStage');
+  begin(V);clearPts(st);drawGlass(V,MENU);drawOutline(V,MENU,4);
+  const kx=X(K0[0]),ky=Y(K0[1]),radius=M0.c.P.d*V.s,drawnLength=7;
+  halo(c,()=>c.arc(kx,ky,radius,Math.PI,1.5*Math.PI),'#0f766e',2.4);
+  plate(c,`Inner arc · ${value('sd',M0.c.P.sd,' pt')}`,kx+14,ky-radius,14,'left','#0f766e');
+  for(const [M,color] of [[M0,COL.P],[SAME_DEPTH,COL.E]]){
+    const [x,y]=M.P,[dx,dy]=M.out,px=X(x),py=Y(y);
+    arrow(c,px,py,X(x+drawnLength*dx),Y(y+drawnLength*dy),COL.out,3,12);
+    plate(c,roundedArrow(`${M.nm} · outward`,M.out),px+16,py+9,14,'left','#3730a3');
+    addPt(st,px,py,color,tipP(M),`Point ${M.nm}`,{small:true});
+  }
+  plate(c,'K · center of both arcs',kx+14,ky-3,14);
+  addPt(st,kx,ky,COL.K,shapeTip,'Point K',{small:true});
+  plate(c,`Arrows enlarged · drawn ${drawnLength} pt long`,8,V.cv.height-40,14);
+  plate(c,`${SYS} · 1 screen pt = ${V.s} drawing px`,8,V.cv.height-14,14);
+}
+function cornerOverview(axis,showQ,Z){
   const names=SAMPLE_PAIRS[axis];
-  const V=names?mkView($('ovCv'),101,646,8):mkView($('ovCv'),96,640,6);
-  const c=V.ctx,st=$('ovStage'),Z=cornerView();
+  const V=names?mkView($('ovCv'),101,646,8):mkView($('ovCv'),96,640,showQ?4.5:6);
+  const c=V.ctx,st=$('ovStage');
   begin(V);clearPts(st);drawGlass(V,MENU);
   const px=V.X(P0[0]),py=V.Y(P0[1]),kx=V.X(K0[0]),ky=V.Y(K0[1]);
   c.strokeStyle='#64748b';c.lineWidth=1.4;c.beginPath();c.arc(kx,ky,MENU.r*V.s,0,2*Math.PI);c.stroke();
   drawOutline(V,MENU,4);
   c.strokeStyle='#111827';c.lineWidth=1.4;
   c.strokeRect(V.X(Z.ux(0)),V.Y(Z.uy(0)),Z.cv.width*V.s/Z.s,Z.cv.height*V.s/Z.s);
-  line(c,kx,ky,px,ky,'#0f766e',2.6);
-  line(c,px,ky,px,py,'#0f766e',2.6);
+  if(!showQ){
+    line(c,kx,ky,px,ky,'#0f766e',2.6);
+    line(c,px,ky,px,py,'#0f766e',2.6);
+  }
   if(names){
     drawSampleDistances(V,M0,names);
     names.forEach((n,i)=>{
@@ -584,12 +635,30 @@ function cornerOverview(axis){
     plate(c,`Left edge · x = ${display2(LEFT)} pt`,V.X(LEFT)+13,ky+11,14,'left','#6b21a8');
     plate(c,`Top edge · y = ${display2(TOP)} pt`,kx+22,V.Y(TOP)-13,14,'left','#6b21a8');
   }else line(c,kx,ky,px,py,'#64748b',2);
+  if(showQ){
+    const qx=V.X(M0.Q[0]),qy=V.Y(M0.Q[1]);
+    const ox=V.X(SAME_DEPTH.Q[0]),oy=V.Y(SAME_DEPTH.Q[1]);
+    const spx=V.X(SAME_DEPTH.P[0]),spy=V.Y(SAME_DEPTH.P[1]);
+    halo(c,()=>c.arc(kx,ky,M0.c.P.d*V.s,Math.PI,1.5*Math.PI),'#0f766e',2.4);
+    line(c,px,py,qx,qy,'#64748b',2);
+    line(c,kx,ky,ox,oy,'#d97706',2);
+    plate(c,'Q',qx-14,qy-3,14,'right','#6b21a8');
+    plate(c,'Q′',ox-14,oy+7,14,'right','#92400e');
+    plate(c,'P′',spx-14,spy+21,14,'right','#92400e');
+    plate(c,`K to P · ${display2(M0.c.P.d)} pt`,(px+kx)/2+22,(py+ky)/2+6,14,'left','#334155');
+    plate(c,`Corner circle · K to Q is ${f(MENU.r)} pt`,kx+68,ky-68,14,'left','#6b21a8');
+    addPt(st,qx,qy,COL.Q,tipQ(M0),'Point Q',{small:true});
+    addPt(st,spx,spy,COL.E,tipP(SAME_DEPTH),'Point P′',{small:true});
+    addPt(st,ox,oy,'#d97706',pointTip('Q′',SAME_DEPTH.Q,`The closest point on the outline to P′, ${display2(-SAME_DEPTH.c.P.sd)} pt away.`),'Point Q′',{small:true});
+  }
   plate(c,'Frame shows the enlarged area',px+60,py-32,14,'left');
   plate(c,'P',px+11,py-31,15);
   plate(c,'K · center of the corner’s circle',kx+16,ky-12,15);
-  plate(c,'Sideways gap', (px+kx)/2,ky+20,14,'center','#0f766e');
-  plate(c,'Vertical gap',px-14,(py+ky)/2,14,'right','#0f766e');
-  plate(c,'Corner radius · 36 pt',kx+68,ky-68,14,'left','#6b21a8');
+  if(!showQ){
+    plate(c,'Sideways gap', (px+kx)/2,ky+20,14,'center','#0f766e');
+    plate(c,'Vertical gap',px-14,(py+ky)/2,14,'right','#0f766e');
+    plate(c,'Corner radius · 36 pt',kx+68,ky-68,14,'left','#6b21a8');
+  }
   plate(c,`${SYS} · 1 screen pt = ${V.s} drawing px`,8,V.cv.height-14,14);
   addPt(st,px,py,COL.P,tipP(M0),'Point P',{small:true,compact:!!names});
   addPt(st,kx,ky,COL.K,shapeTip,'Point K',{small:true});
@@ -613,13 +682,17 @@ function ideaZoom(){
   const V=st46===5?zoomView($('ideaCv'),S0,150,400,380):cornerView(),opts=zoomOptions(V);
   const axis=st46===1?'x':st46===2?'y':null;
   const show=[
-    {A:1,B:1,Q:1},{D:1,E:1,Q:1},{legs:1,changes:1},{arrow:1},{A:1,B:1,D:1,E:1,arrow:1}
+    {A:1,B:1,Q:1},{D:1,E:1,Q:1},
+    showDirectionCheck?{Q:1,compareMoves:1,rimExample:1}:{arrow:1,rimExample:1},
+    {arrow:1},{A:1,B:1,D:1,E:1,arrow:1}
   ][st46-1];
   const M=st46===5?MS:M0;
   zoomScene(V,$('ideaStage'),M,{...opts,show,gap:axis,sampleDistances:!!axis,
-    arrowLabel:roundedArrow('Outward',M.out),
+    arrowLabel:roundedArrow(st46===3?'Outward at P':'Outward',M.out),
     nText:st46===5?n=>`${n} · ${value('sd',M.c[n].sd)} · ${EDGE[M.c[n].w.part]}`:null});
-  if(st46===5)betweenOverview();else cornerOverview(axis);
+  if(st46===5)betweenOverview();
+  else if(st46===3&&!showDirectionCheck)sameDepthOverview();
+  else cornerOverview(axis,show.compareMoves,V);
 }
 function sampleTable(M,axis){
   const horizontal=axis==='x',names=SAMPLE_PAIRS[axis],i=horizontal?0:1;
@@ -640,6 +713,26 @@ function sampleTable(M,axis){
     ['Signed distance (pt)',...([aa,bb].map(c=>`${f(c.d)} − ${KN(f(c.w.r))} ${rel(c.d,c.sd)} ${f(c.sd)}`))]
   ];
   return `<table class="trace"><tr><th>What we find</th><th>${a}</th><th>${b}</th></tr>${rows.map(([label,x,y])=>`<tr><th scope="row">${label}</th><td class="mono">${x}</td><td class="mono">${y}</td></tr>`).join('')}</table>`;
+}
+function moveComparison(){
+  const rates=[M0.gx,M0.gy],axes=['sideways','up or down'];
+  const moves=[['Amber',LEFT_MOVE],['Purple',DIAGONAL_MOVE]];
+  const number=v=>v===0?'0':display2(v);
+  const change=v=>v>0?`+${display2(v)}`:number(v);
+  const rows=[],totals=[];
+  for(const [name,move] of moves){
+    const terms=move.map((amount,i)=>amount*rates[i]);
+    move.forEach((amount,i)=>{
+      const rate=rates[i],result=terms[i],factor=amount<0?`(${number(amount)})`:number(amount);
+      rows.push(`<tr><th scope="row">${name}, ${axes[i]}</th>
+        <td class="mono">${KN(number(amount))}</td><td class="mono">${KN(display2(rate))}</td>
+        <td class="mono">${factor} × (${display2(rate)}) ${amount===0?'=':rel(rate,result)} ${change(result)} pt</td></tr>`);
+    });
+    totals.push(equation(`${name} · estimated change in sd`,`${number(terms[0])} + ${number(terms[1])}`,
+      terms[0]+terms[1],terms,' pt',change));
+  }
+  return `<table class="trace"><tr><th>Drawn move</th><th>Move (pt)</th><th>Change in sd per pt</th><th>Move × change per pt</th></tr>
+    ${rows.join('')}</table>${calc(totals)}`;
 }
 const CAP46=[
   ()=>`<h3>1. Move toward a straight edge</h3>
@@ -666,12 +759,26 @@ const CAP46=[
     <p>Subtract the signed distance at D from the signed distance at E. Divide by the full gap again, this time for 1 pt of movement down the screen.</p>
     ${calc(pairLines(M0,'y'))}
     <p>Signed distance falls by about 0.80 pt per point downward. Moving down here takes you deeper into the glass too.</p>`,
-  ()=>`<h3>4. Put the two changes into one arrow</h3>
-    <p>Use the rightward change from Step 2 as the x part, and the downward change from Step 3 as the y part. A negative x part takes the arrow left. A negative y part takes it up. The green lines show these two moves. The arrow joins their start at P to where you end up.</p>
-    ${calc([roundedArrow('Arrow of the two changes',[M0.gx,M0.gy])])}
-    <p>For a small move near P, multiply the sideways and downward movement by their changes per point, then add. The sum estimates how much signed distance rises along that move.</p>
-    <p>This sum measures the part of the move that goes along the arrow, multiplied by the arrow’s length. Compare moves of the same length. When you move along the arrow, the whole move counts. When you turn, less of the move goes along it. So the arrow estimates where signed distance rises fastest near P. That is the clue from Step 1 for finding straight out.</p>
-    <p>The samples measure across a gap. A larger gap can average changes over more of the curve. The arrow describes the local direction, and a full move along it can have a different change than the estimate.</p>`,
+  ()=>`<h3>4. Use the two changes to find straight out</h3>
+    <p><b>Get the arrow at P.</b> P is a pixel chosen for this example. Take the change per point to the right from Step 2 and the change per point down from Step 3. These are the two parts of the arrow, about ${pt(...DIAGONAL_MOVE)} at P. Step 5 gives the arrow length 1 so we can compare directions using arrows of the same size. The pixel stays at P.</p>
+    <p><b>Same signed distance, different arrows.</b> Look at P and the pink point P′ on the green arc in the lower picture. Both are ${display2(M0.c.P.d)} pt from the center K, so both have signed distance ${display2(M0.c.P.sd)} pt (${display2(M0.c.P.d)} − ${f(MENU.r)}). The four samples around each point tell the shader how the distance changes there. At P′ they give ${roundedArrow('outward',SAME_DEPTH.out)}, pointing more to the left than P’s arrow.</p>
+    <p><b>Use signed distance and the arrow to color a pixel.</b> The rim line in <a href="lesson-10-47-the-rim-line.html">Lesson 10.47</a> fades to zero at 1.20 pt inside the outline. Both P and P′ are ${display2(-M0.c.P.sd)} pt inside, so the rim line adds zero at both points. The teal dot R lies farther along the line from K through P, only ${display2(-RIM_PIXEL.c.P.sd)} pt inside the outline.</p>
+    <p>Read signed distance at R. The <a href="#s4">Metal function</a> reads four more signed distances around R and returns ${roundedArrow('arrowAtR',RIM_PIXEL.out)}. Pass both results into <code>addRimLine</code> with R’s starting gray of 0.10 per channel.</p>
+    <pre class="code">float sdAtR = roundedRectSd(R - box.xy, box.zw, cornerRadius);
+float2 arrowAtR = outwardAt(R, box, cornerRadius);
+half3 colorAtR = addRimLine(half3(0.10), sdAtR, arrowAtR);</pre>
+    <p><code>sdAtR</code> is ${display2(RIM_PIXEL.c.P.sd)} pt. It controls how much of the line appears at R. <code>arrowAtR</code> is compared with the lamp to set the line’s light. Together they give about 0.084 more in each color channel. The shader writes the new gray, about 0.184, at R.</p>
+    <p>Try the 1 pt sample step in Section 2. Each pair then spans 2.00 pt. Those readings are farther from P, which can change the estimated direction around a curved corner.</p>
+    <details id="directionCheck"><summary>Check the arrow against the outline</summary><div class="body">
+      <p><b>Q belongs to the chosen P.</b> Extend the line from K through P. It hits the outline at Q. Extend the line from K through P′ and it hits the outline at Q′. Both points on the outline are ${f(MENU.r)} pt from K, so both short segments from the inner arc to the outline are ${f(MENU.r)} − ${display2(M0.c.P.d)} = ${display2(-M0.c.P.sd)} pt. Q and Q′ are marks we draw to check the two directions. The shading code uses the sampled arrow.</p>
+      <p><b>The moves we drew.</b> Both start at P and are 1 pt long. Amber goes 1 pt left and 0 pt up or down. Purple goes ${display2(-DIAGONAL_MOVE[0])} pt left and ${display2(-DIAGONAL_MOVE[1])} pt up. We drew those two purple parts to follow P’s outward arrow. The purple tip is still ${display2(DIAGONAL_REMAINDER)} pt from Q.</p>
+      <p><b>The changes per point we measured.</b> Samples A and B in Step 2 gave about ${display2(M0.gx)} pt of signed-distance change per point to the right. Samples D and E in Step 3 gave about ${display2(M0.gy)} pt per point down. These are rates, or changes per point. Both moves use the same two rates because both start at P.</p>
+      <p>Multiply how far the arrow goes along each axis by the change per point on that axis. Going left or up gives a negative move, so multiplying by a negative rate gives a positive change in signed distance. Then add the sideways and vertical changes. In the purple rows, the move and the rate have the same numbers after rounding because we drew purple along the sampled arrow.</p>
+      ${moveComparison()}
+      <p><b>Check the amber estimate.</b> A fresh reading at Amber’s tip gives signed distance about ${display2(LEFT_END.sd)} pt. At P it was ${display2(M0.c.P.sd)} pt. Subtract the starting value from the ending value to get the actual change.</p>
+      ${calc([equation('Actual change in sd',`(${display2(LEFT_END.sd)}) − (${display2(M0.c.P.sd)})`,LEFT_END.sd-M0.c.P.sd,[LEFT_END.sd],' pt',display2)])}
+      <p>The signed number rose toward zero. In the picture, the distance still to go shrank from ${display2(-M0.c.P.sd)} pt to about ${display2(-LEFT_END.sd)} pt. Amber brought us about ${display2(LEFT_END.sd-M0.c.P.sd)} pt closer to the outline. The estimate uses Step 2’s sideways rate for the whole move. The curved edge makes the change per point vary slightly along that move.</p>
+    </div></details>`,
   ()=>`<h3>5. Make the arrow one unit long</h3>
     <p>The x and y parts also give the arrow’s length. Square each part, add the squares, then take the square root, just as for the distance from K to a sample.</p>
     ${calc(lengthLines(M0))}
@@ -689,6 +796,16 @@ function ideaAll(){
   hideTip();
   $('ideaCap').innerHTML=CAP46[st46]();
   bindTips($('ideaCap'));
+  const check=$('directionCheck');
+  if(check){
+    check.open=showDirectionCheck;
+    check.ontoggle=()=>{
+      if(!check.isConnected||showDirectionCheck===check.open)return;
+      showDirectionCheck=check.open;
+      hideTip();
+      ideaZoom();
+    };
+  }
   prediction.hidden=st46!==0;
   $('ideaDots').querySelectorAll('button').forEach((b,i)=>{
     b.classList.toggle('on',i===st46);
