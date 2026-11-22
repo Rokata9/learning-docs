@@ -44,6 +44,9 @@
   .info:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
   #tip{position:fixed;z-index:60;max-width:440px;max-height:calc(100vh - 20px);overflow:auto;background:var(--tipBg);color:var(--tipInk);border:1px solid var(--tipLine);border-radius:8px;padding:10px 34px 10px 12px;font-size:13.5px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.28);display:none}
   #tip.open{display:block}#tip.wide{max-width:620px}
+  #tip.xwide{width:min(980px,calc(100vw - 20px));max-width:none}
+  #tip.xwide p{font-size:inherit;margin:5px 0;max-width:none}
+  #tip .tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:12px}
   #tip ul{margin:6px 0 0;padding-left:18px}#tip li{font-size:13.5px;margin:3px 0;line-height:1.4}
   #tip .tclose{position:absolute;top:4px;right:6px;background:none;border:0;color:var(--muted);font-size:15px;cursor:pointer;padding:2px 4px}
   #tip b{color:var(--tipHi)}#tip code{background:var(--tipBox);border-color:var(--tipLine);color:var(--tipInk)}#tip pre{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;margin:8px 0 0;background:var(--tipBox);border:1px solid var(--tipLine);border-radius:6px;padding:8px 10px;color:var(--tipInk)}
@@ -64,7 +67,15 @@ pre.code{font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;back
   .viewbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}.viewbar .btn{font-size:13px;padding:4px 10px}.viewbar .hint{font-size:13px;color:var(--muted);margin-left:6px}
   .note{border-left:4px solid var(--amber);background:var(--noteBg);padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:110ch;margin:12px 0}
   details{border:1px solid var(--line);border-radius:8px;margin:10px 0;background:var(--bg)}details>summary{cursor:pointer;padding:10px 14px;font-size:15px;font-weight:600}details>summary:hover{background:var(--soft)}details .body{padding:4px 14px 14px}details details{margin:8px 0;background:var(--soft)}
-  .stepnav{display:flex;gap:10px;align-items:center;margin:0 0 10px}.stepnav .dots{display:flex;gap:6px;margin-left:8px}.stepnav .dot{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--muted);background:var(--bg);padding:0;cursor:pointer}.stepnav .dot.on{background:var(--indigo);border-color:var(--indigo)}
+  .stepnav{margin:18px 0 14px}
+  .stepControls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+  .stepControls .btn{min-height:36px}
+  .stepCount{color:var(--cap);font-size:14px;font-weight:650}
+  .stepCards{display:grid;grid-template-columns:repeat(var(--shown-steps,5),minmax(0,1fr));gap:8px;list-style:none;margin:0;padding:0}
+  .stepCard{width:100%;height:100%;min-height:64px;padding:8px 10px;text-align:left;line-height:1.25;overflow-wrap:anywhere;color:var(--ink);border-color:var(--line)}
+  .stepCard .stepNumber{display:block;margin-bottom:4px;color:var(--muted);font-size:12px;font-weight:650}
+  .stepCard[aria-current=step]{color:var(--blue);border-color:var(--blue);background:var(--tint);box-shadow:inset 0 -3px 0 var(--blue);font-weight:650}
+  .stepCard[aria-current=step] .stepNumber{color:inherit}
   .capl{margin:6px 0 0;padding-left:20px}.capl ul{list-style:circle;padding-left:24px;margin:2px 0 4px}.capl li{font-size:15px;line-height:1.45;margin:3px 0}
   .stepcap{min-height:296px;font-size:15.5px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin-bottom:12px}
    .stepcap h3{margin:0 0 8px}
@@ -115,29 +126,41 @@ pre.code{font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;back
 
 <!-- ============================ SECTION 1 ============================ -->
 <h2 id="s1"><span class="tag">Section 1 · the idea in pictures</span>Work out the rim line at P</h2>
+<div class="workedSteps">
+<nav class="stepnav" aria-label="Worked example steps">
+  <div class="stepControls">
+    <button type="button" class="btn" id="ideaPrev" aria-label="Previous step">← Back</button>
+    <span class="stepCount" id="ideaStepCount" aria-live="polite"></span>
+    <button type="button" class="btn" id="ideaNext">Next →</button>
+  </div>
+  <ol class="stepCards" id="ideaSteps"></ol>
+</nav>
 <div class="ideaGrid">
   <div>
     <div class="stage" id="ideaStage"><canvas id="ideaCv" width="760" height="640"></canvas></div>
     <div class="viewbar" id="ideaBar"></div>
+    <p class="small">The green x and orange y arrows lie flat on the phone screen. They turn with the 3D view. <b>Reset</b> puts x horizontal. <b>Screen x–y</b> looks straight down at the screen, with x to the right and y down.</p>
   </div>
   <div>
-    <div class="stepnav"><button class="btn" id="ideaPrev">← Back</button><button class="btn" id="ideaNext">Next →</button><div class="dots" id="ideaDots"></div></div>
     <div class="stepcap"><div id="ideaCap" aria-live="polite"></div><div class="flatRow" id="ideaSel" role="group" aria-label="Choose a corner" hidden></div><div id="ideaCompare" aria-live="polite" hidden></div></div>
     <div class="stage" id="flatStage"><canvas id="flatCv" width="760" height="400"></canvas></div>
   </div>
 </div>
+</div>
 
 <!-- ============================ SECTION 2 ============================ -->
 <h2 id="s2"><span class="tag">Section 2 · one value, traced to the end</span>Section 1's steps at a draggable P</h2>
-<p><b>Drag P</b> on the menu, in the close-up, or in the 3D view. The buttons jump to set positions. The explorer starts at P from Section 1. The trace uses the displayed values in the next calculation. Near a band boundary, the shader uses the full signed distance to decide which side P is on.</p>
+<p><b>Drag P</b> on the menu, in the close-up, or in the 3D view. P stays on the flat screen at height 0. The drawn glass rises above the screen. The buttons jump to set positions. The explorer starts at P from Section 1. The trace uses the displayed values in the next calculation. Near a band boundary, the shader uses the full signed distance to decide which side P is on.</p>
 <figure id="traceFig" style="margin:12px 0 0"><div class="traceGrid">
   <div>
+    <p class="small"><b>Whole menu, seen from above.</b> The preset corner names refer to this view.</p>
     <div class="stage" id="tMapStage"><canvas id="tMap" width="760" height="400"></canvas></div>
     <div class="stage" id="tZoomStage" style="margin-top:10px"><canvas id="tZoom" width="760" height="400"></canvas></div>
   </div>
   <div>
     <p class="tRead" id="tRead"></p>
     <div class="ctl"><span class="ctlname">put P</span><span id="tPre" class="flatRow"></span></div>
+    <p class="small"><b>3D close-up around P.</b> The drawn glass rises above the screen, so P can look low in the tilted view. Select <b>Screen x–y</b> below the drawing to look straight down at the same patch.</p>
     <div class="stage" id="t3dStage"><canvas id="t3d" width="760" height="520"></canvas></div>
     <div class="viewbar" id="t3dBar"></div>
     <p class="note" id="tNote" hidden></p>
@@ -242,7 +265,7 @@ function plate(ctx,t,x,y,size=14,align='left',color='#111827'){ctx.font=`600 ${s
 /* ---------- tooltips, and points over a canvas ---------- */
 const tipEl=$('tip'),tipBody=$('tipBody'),tipStore=new Map();let suppressAt=-1e9;const suppressNow=()=>{suppressAt=performance.now()};
 function setTip(el,html){el.classList.add('tk');tipStore.set(el,html);if(!el.hasAttribute('tabindex'))el.setAttribute('tabindex','0')}
-function showTip(el){const v=tipStore.get(el),html=typeof v==='function'?v():v;if(!html)return;tipBody.innerHTML=html;tipEl.classList.toggle('wide',!!tipBody.querySelector('pre'));tipEl.classList.toggle('xwide',!!tipBody.querySelector('.tgrid'));tipEl.classList.add('open');const r=el.getBoundingClientRect();tipEl.style.left='0px';tipEl.style.top='0px';const tw=tipEl.offsetWidth,th=tipEl.offsetHeight;let L=r.right+10,T=r.top-8;if(L+tw>innerWidth-10)L=r.left-tw-10;if(L<8)L=8;if(T+th>innerHeight-10)T=innerHeight-th-10;if(T<8)T=8;tipEl.style.left=L+'px';tipEl.style.top=T+'px'}
+function showTip(el){const v=tipStore.get(el),html=typeof v==='function'?v():v;if(!html)return;tipBody.innerHTML=html;tipEl.classList.toggle('wide',!!tipBody.querySelector('pre'));tipEl.classList.toggle('xwide',!!tipBody.querySelector('.tgrid'));tipEl.classList.add('open');tipEl.scrollTop=0;const r=el.getBoundingClientRect();tipEl.style.left='0px';tipEl.style.top='0px';const tw=tipEl.offsetWidth,th=tipEl.offsetHeight;let L=r.right+10,T=r.top-8;if(L+tw>innerWidth-10)L=r.left-tw-10;if(L<8)L=8;if(T+th>innerHeight-10)T=innerHeight-th-10;if(T<8)T=8;tipEl.style.left=L+'px';tipEl.style.top=T+'px'}
 function hideTip(){tipEl.classList.remove('open')}
 document.addEventListener('click',e=>{if(performance.now()-suppressAt<120){suppressAt=-1e9;e.stopPropagation();return}const t=e.target.closest('.tk');if(t){e.stopPropagation();showTip(t);return}if(!e.target.closest('#tip'))hideTip();},true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){hideTip();return}if((e.key==='Enter'||e.key===' ')&&e.target.classList?.contains('tk')){e.preventDefault();showTip(e.target)}});$('tipClose').onclick=e=>{e.stopPropagation();hideTip()};
@@ -422,7 +445,8 @@ Orbit3D.prototype.drawCompass=function(c){const a=this.yaw*DEG,b=this.pitch*DEG,
   c.save();c.fillStyle=C('rgba(255,255,255,0.96)');c.strokeStyle=C('#cbd5e1');c.lineWidth=1;c.beginPath();c.roundRect(B.x,B.y,B.w,B.h,8);c.fill();c.stroke();
   txt(c,'coordinates: pt on the screen, height in pt',B.x+10,B.y+13,12,'left','#111827',700);
   (this.notes||[]).forEach((t,i)=>txt(c,t,B.x+118,B.y+34+i*15,11.5,'left','#475569'));
-  const ox=B.x+62,oy=B.y+68,L=24;
+  const heightHidden=Math.cos(b)<=0.2;
+  const ox=B.x+62,oy=B.y+(heightHidden?48:68),L=24;
   for(const [v,col,tc,name] of [[[1,0,0],COL.x,'#3f6212','x'],[[0,1,0],COL.y,'#9a3412','y'],[[0,0,1],COL.h,'#075985','height']]){const X1=v[0]*Math.cos(a)-v[1]*Math.sin(a),Y1=v[0]*Math.sin(a)+v[1]*Math.cos(a),up=v[2]*Math.cos(b)-Y1*Math.sin(b),len=Math.hypot(X1,up);
     if(len>0.2){const q={x:[12,-3],y:[13,7],height:[-25,-5]}[name];arrow(c,ox,oy,ox+X1*L,oy-up*L,col,2.2,8);txt(c,name,ox+X1*L+q[0],oy-up*L+q[1],12,'center',tc,700)}
     else{c.beginPath();c.arc(ox,oy,5,0,7);c.fillStyle=col;c.fill();c.lineWidth=1.4;c.strokeStyle=C('#111827');c.stroke();txt(c,name+': not shown in this view',B.x+10,B.y+B.h-10,11.5,'left',tc,700)}}
@@ -474,11 +498,11 @@ function rimScene(o,S){const M=S.M,CH=S.ch,P=M.P,u=M.c.P.w.out,Q=qOf(M),s0=perim
     o.seg(tipN,F,COL.F,2.2,false,1.8);if(Math.abs(CH.dot)>0.08)o.corner(F,scale3(v,1/vl),scale3(LV,-w),0.42,C('#111827'));
     o.label('L’s line',add3(P3,scale3(LV,1.32*LEN)),side*8,-8,left?'right':'left','#1e40af',14);
     if(scr(F,P3)>=9&&(!qShow||scr(F,[Q[0],Q[1],0])>=9))o.pt('F',F,COL.F,S.tipF,`Point ${nm.F||'F'}`,{xs:1});o.label(`F · score ≈ ${CH.t(CH.dot)} at ${nm.P||'P'}`,F,-side*12,CH.dot<0?16:-4,left?'left':'right','#155e75',14)}
-  if(sh.L&&near){o.arrow(P3,tipL,COL.L,3.4,2.2);o.label('L',tipL,side*10,-12,left?'right':'left','#1e40af',14)}
-  if(sh.N&&N3){o.arrow(nStart,tipN,COL.N,3.4,2.3);o.label(sh.NatQ?'N at Q · straight out':`${nm.N||'N'} ≈ ${n3txt(N3,CH.t)}`,tipN,side*8,16,left?'right':'left','#9d174d',14)}
+  if(sh.L&&near){o.arrow(P3,tipL,COL.L,3.4,2.2);o.label(sh.lampLabel?'L · lamp direction':'L',tipL,side*10,-12,left?'right':'left','#1e40af',14)}
+  if(sh.N&&N3){o.arrow(nStart,tipN,COL.N,3.4,2.3);o.label(sh.NatQ?'N starts at Q':`${nm.N||'N'} ≈ ${n3txt(N3,CH.t)}`,tipN,side*8,16,left?'right':'left','#9d174d',14)}
   if(sh.ask)o.label('light = ?',P3,-side*14,34,left?'left':'right','#dc2626',14);
   if(qShow){o.pt('Q',Q3,COL.Q,S.tipQ,`Point ${nm.Q||'Q'}`,{xs:1});o.label('Q · nearest outline',Q3,side*12,-22,left?'right':'left','#6b21a8',14)}
-  if(near){o.pt('P',P3,sh.ask?COL.ask:COL.P,S.tipP,`Point ${nm.P||'P'}`,{xs:!S.moveP,move:S.moveP,keys:S.keysP});o.label(nm.P||'P',P3,-side*10,18,left?'left':'right',sh.ask?'#dc2626':'#111827',14)}
+  if(near){const name=nm.P||'P';o.pt('P',P3,sh.ask?COL.ask:COL.P,S.tipP,`Point ${name}`,{xs:!S.moveP,move:S.moveP,keys:S.keysP});o.label(sh.lampLabel?`${name} · both arrows start here`:name,P3,-side*10,18,left?'left':'right',sh.ask?'#dc2626':'#111827',14)}
   else o.label(`${nm.P||'P'} is ${CH.t(Math.abs(M.c.P.sd))} pt from the outline: outside this picture`,G(7,sg*2,RIMW*0.55),0,0,'center','#334155',12.5)}
 
 /* ================= flat pictures ================= */
@@ -602,8 +626,8 @@ function flatSlice(){const cv=$('flatCv'),st=$('flatStage'),c=cv.getContext('2d'
   /* labels */
   plate(c,'side view of the cut along line PQ, in pt · to the right: further into the glass · up: height above the screen',8,H-14,12,'left','#334155');
   plate(c,'outside the glass',14,60,12.5,'left','#334155');plate(c,'the screen',14,Y(0)+16,12.5,'left','#334155');
-  plate(c,'N at Q · straight out',X(-2.3),Y(0)-20,13,'center','#9d174d');
-  plate(c,'the surface at Q:',X(0)-10,Y(4.6),12.5,'right');plate(c,'straight up',X(0)-10,Y(3.5),12.5,'right');
+  plate(c,'N · along the screen',X(-2.3),Y(0)-20,14,'center','#9d174d');
+  plate(c,'glass rises here',X(0)-10,Y(3.5),14,'right','#6b21a8');
   plate(c,'the rim: a quarter of a circle, 14 pt wide and 14 pt high',X(2.4),Y(RIMW)-18,12.5,'left','#6b21a8');
   plate(c,'radius MQ lies flat, 14 pt',X(6.6),Y(0)-16,12.5,'center','#0f766e');plate(c,'14 pt',X(RIMW)-8,Y(8.6),12.5,'right','#0f766e');
   plate(c,'M: the center of the rim’s circle',X(RIMW)+12,Y(0)+16,12.5,'left','#0f766e');
@@ -613,8 +637,8 @@ function flatSlice(){const cv=$('flatCv'),st=$('flatStage'),c=cv.getContext('2d'
   c.__placed=[];
   plate(c,'around Q, enlarged 7 times',bx+bw-6,by+13,12,'right','#334155');
   plate(c,'Q',ZX(0)-12,ZY(0)-34,14,'right','#6b21a8');plate(c,'P',ZX(0.36)+4,ZY(0)-22,14,'left');
-  plate(c,'the surface at Q:',ZX(0)+10,by+44,12,'left');plate(c,'straight up',ZX(0)+10,by+66,12,'left');plate(c,'the rim line: 1.20 pt',ZX(0.66),ZY(0)-50,12,'center','#92400e');
-  plate(c,'N at Q',bx+34,ZY(0)+17,14,'center','#9d174d');
+  plate(c,'glass rises here',ZX(0)+10,by+44,14,'left','#6b21a8');plate(c,'the rim line: 1.20 pt',ZX(0.66),ZY(0)-50,12,'center','#92400e');
+  plate(c,'N starts at Q',bx+34,ZY(0)+17,14,'center','#9d174d');
   c.__placed=[...mainLabels,...c.__placed];
   addPt(st,ZX(0),ZY(0),COL.Q,tipQ47,'Point Q',{small:true});addPt(st,ZX(0.36),ZY(0),COL.P,tipPix('P',1),'Point P',{small:true});addPt(st,X(RIMW),Y(0),'#14b8a6',tipM47,'Point M',{small:true})}
 /* ---------- the three products as bars on L's line ---------- */
@@ -669,19 +693,20 @@ let st47=0,sel47='P';
 const SHOW47=[
   {band:1,Q:1},
   {band:1,Q:1,slice:1,N:1,NatQ:1,M:1},
-  {band:1,slice:1,N:1,L:1,F:1},
+  {band:1,slice:1,N:1,L:1,F:1,lampLabel:1},
   {band:1,slice:1,N:1,L:1,F:1},
   {band:1,slice:1,N:1,L:1,F:1}
 ];
 const SELS=[['P','P · top left'],['P′','P′ · bottom right'],['V','V · top right']];
 const ideaState=()=>({
-  M:MC[sel47],ch:CHN[sel47],show:SHOW47[st47],names:{P:sel47,Q:'Q',N:`N at ${sel47}`},
+  M:MC[sel47],ch:CHN[sel47],show:SHOW47[st47],names:{P:sel47,Q:'Q',N:`N for ${sel47}`},
   tipP:tipPix(sel47,st47<1?0:st47<3?1:2),tipQ:tipQ47,tipM:tipM47,tipF:tipF47(CHN[sel47],sel47)
 });
 const idea3=new Orbit3D($('ideaStage'),$('ideaCv'),{yaw:0,pitch:48,scale:20,target:targetOf(M0),draw:o=>rimScene(o,ideaState())});
 const L47=CHN.P,LP=CHN['P′'];
 const calc=lines=>`<div class="calc">${lines.join('<br>')}</div>`;
-const normalTxt=(CH,n)=>`N at ${n} ≈ ${n3txt(CH.N,CH.t)}`;
+const normalTxt=(CH,n)=>`N for pixel ${n} ≈ ${n3txt(CH.N,CH.t)}`;
+const STEP_LABELS=['Fade at P','Facing direction','Light at P','Opposite corner','Final color'];
 const CAP47=[
   ()=>`<h3>1. Find how much of the line reaches P</h3>
     <p>Look at the enlarged strip below. The fade starts at the orange curve, <b>${KN('1.20')} pt inside</b>, and reaches full weight at the purple outline. Outside the glass the shader skips the line. We fitted the width to the roughly 1 pt line in the recording.</p>
@@ -690,18 +715,40 @@ const CAP47=[
     <p>First find how far P is past the start of the fade. Divide by the full width to get the fraction across. Square the fraction by multiplying it by itself. Then multiply that square by three minus twice the fraction. The orange curve starts and ends more gently than the straight gray ramp.</p>
     ${calc(L47.bl)}`,
   ()=>`<h3>2. Find which way the glass faces at Q</h3>
-    <p>Find purple Q and yellow P in both pictures. The 3D view cuts straight down through them. The side view shows that same cut. The model rounds the thick edge of the glass into a quarter circle, using a chosen radius of 14 pt.</p>
-    <p>In the side view, the radius from the circle’s center M to Q lies flat along the screen. The curve meets that radius at a right angle. So the surface at Q stands straight up, and the pink arrow pointing straight out from it lies flat. We call that facing arrow <b>N</b>. It moves along the screen and has zero height change.</p>
-    <p>The rim line is thin. We use the facing direction at Q for the nearby pixel P across that strip. Lesson 10.46’s <code>outwardAt</code> samples the distance around P to estimate the direction straight out in the screen plane. Scale that arrow to one unit so its length stays the same wherever it points.</p>
-    <p>At P the first part goes left and the second goes toward the top of the screen. Add a zero for height to get N at P. The diagram enlarges the pink arrow so you can see it.</p>
-    ${calc([`Outward at P ≈ ${KN('(−0.60, −0.80)')}`,normalTxt(L47,'P')])}`,
+    <p>In the side view below, find purple Q on the line labeled “the screen.” Imagine a book standing on a table. Q is like the spot where the book’s cover touches the table. Just above Q, the glass rises like that cover.</p>
+    <p>Lay a pencil on the table with its eraser at Q and its tip pointing away from the book. That is the direction of the pink arrow <b>N</b>. In the side view, it points left from Q, away from the glass. Both ends of the arrow touch the screen line, so its height part is <b>0</b>.</p>
+    <p>The shader needs a facing arrow for pixel P to work out P’s light. Q is only 0.36 pt away, so the outward arrow that <code>outwardAt</code> already gave us for P is a close estimate of the facing direction at Q. Keep its two parts and add 0 for height. That gives us the pink arrow N to use for P.</p>
+    ${calc([`Outward arrow for P ≈ ${KN('(−0.60, −0.80)')}`,normalTxt(L47,'P')])}
+    <details><summary>Why does the glass rise straight up at Q?</summary><div class="body"><p>The model draws the glass edge as a quarter circle of radius 14 pt. In the side view, the green radius from center M to Q lies along the screen. A circle’s edge meets its radius at a right angle. That’s why the edge points up right at Q.</p></div></details>`,
   ()=>`<h3>3. Compare the arrows and find the light at P</h3>
-    <p>The blue arrow <b>L</b> points toward the lamp. Its three parts go ${KN('0.48')} left, ${KN('0.60')} toward the top of the screen, and ${KN('0.64')} up from the screen. We fitted the direction to one resting frame. Both L and N are one unit long so the score depends on direction.</p>
+    <p>In Step 2, the pink arrow started at Q to show which way the glass edge faces. Here, the pink arrow <b>N</b> and the blue arrow <b>L</b> both start at P. You can compare them there to work out P’s light.</p>
+    <p>L points toward the lamp. Its three numbers tell you how to get from yellow P to L’s tip. To locate P itself, count from the top-left corner of the phone screen. To follow L, start counting at P. Like every pixel on the screen, P starts at height 0.</p>
+    <p>Use the length of the whole arrow as one unit. Start at P and take these three moves.</p>
+    <ul class="capl">
+      <li>${KN(f(LV[0]))} along x. Go ${f(Math.abs(LV[0]))} units left. Positive x points right.</li>
+      <li>${KN(f(LV[1]))} along y. Go ${f(Math.abs(LV[1]))} units toward the top of the phone. Positive y points toward the bottom.</li>
+      <li>${KN(`+${f(LV[2])}`)} in height. Lift ${f(LV[2])} units off the screen. You’re now at L’s tip.</li>
+    </ul>
+    <p>These three numbers are inputs chosen to match the bright corners in a Safari frame ${info('Lfit','Why this lamp direction was chosen')}. Light from a very distant source comes from nearly the same direction anywhere on the menu. So at another pixel, start the blue arrow there and use the same three moves.</p>
     <p>Compare matching parts of N and L. Multiply the two x parts, the two y parts, and the two height parts, then add the three products. This is the <b>dot product</b>, a signed alignment score. It is +1 when the arrows point the same way, 0 when they meet at a right angle, and −1 when they point in opposite directions.</p>
     ${calc(L47.dl)}
-    <p>The three bars end at F on the score scale below. P’s positive score means the glass faces toward the lamp. To turn the score into light, start with ${KN('0.40')} from all around on a 0–1 light scale. We fitted that starting light to keep the dimmer parts visible in the frame. The lamp can contribute up to the rest of the scale. At P we multiply that maximum by the positive score.</p>
-    ${calc([`Lamp’s maximum share = ${KN('1.00')} − ${KN('0.40')} = 0.60`,...L47.ll])}
-    <p>The calculations use the rounded arrow from Step 2. The total light at P is about ${L47.t(L47.light)}.</p>`,
+    <p>In the height row, N’s 0 times L’s 0.64 gives 0. The left and top parts give the whole score at P.</p>
+    <p>The score diagram below marks P’s score at F. The positive score tells us the glass at P faces partly toward the lamp.</p>
+    <p>On our light scale, <b>0</b> means no light and <b>1</b> means full light. Every part of the rim starts with ${KN(f(AMB))} even if the lamp adds nothing there. We chose that amount to keep the dim corners visible, as in the Safari frame.</p>
+    <p>How much room is left for the lamp? Take full light and subtract the light we already gave the rim. The result is the most the lamp can add.</p>
+    ${calc([`Most the lamp can add = ${KN('1.00')} − ${KN(f(AMB))} = ${f(LAMP)}`])}
+    <p>A score of 0 uses none of the lamp’s share. A score of 1 uses all of it. At P the score is about <b>${L47.t(L47.dot)}</b>, so P gets about ${R12(L47.size*100)}% of the lamp’s ${f(LAMP)}. Multiply the share by the score to find what the lamp adds at P.</p>
+    ${calc([L47.ll[0]])}
+    <p>Add the light from the lamp to the starting light. This gives the <b>total light at P</b>, which Step 5 uses to work out how much white to add for the rim.</p>
+    ${calc([L47.ll[1]])}
+    <p>The total light is about ${L47.t(L47.light)} because the score uses the rounded arrow from Step 2.</p>
+    <details><summary>Why can every pixel use the same L?</summary><div class="body">
+      <p>Imagine two rays from the same spot on the Sun to two pixels 5 cm apart on the phone. At the Sun the rays start together. At the phone, about 150 million km away, their gap is 5 cm.</p>
+      <p>The rays are straight, so the gap grows evenly. Halfway to the phone the gap is half as wide, 2.5 cm. Think of the trip as 150,000,000 steps of 1 km each. Divide the final gap by the number of steps to find how much the gap grows in one step.</p>
+      ${calc(['Gap at the phone = 5 cm = 0.00005 km', 'Gap growth per 1 km of travel = 0.00005 km ÷ 150,000,000 ≈ 0.0000000000003 km'])}
+      <p>For each 1 km the rays travel toward the phone, the gap between them grows sideways by about 0.0000000000003 km. That is such a small change that the model treats the rays as parallel. Both pixels use the same direction toward the light, L.</p>
+      <p>See <a href="../../chapters/chapter-10/lesson-10-39-dot-map.html#s1">Lesson 10.39</a> for the original example.</p>
+    </div></details>`,
   ()=>`<h3>4. Predict what happens in the opposite corner</h3>
     <p>Keep the distance inside the outline at ${KN('0.36')} pt and the starting gray at ${KN('0.10')} per channel. At the bottom-right corner the facing arrow reverses. The lamp stays fixed. <b>Will the lamp still add the same amount of light?</b> Choose the bottom-right corner below to check.</p>
     <p>The recording below shows two brighter corners across from one another. The labels give approximate peak readings from that frame ${info('frame','How the frame was measured')}.</p>`,
@@ -709,7 +756,9 @@ const CAP47=[
     <p>The line adds the same amount to each of the red, green, and blue channels. We fitted the line’s strength, ${KN('0.125')}, to the recorded brightness. That is the amount added to each channel when both weight and light are 1.</p>
     <p>At P, use the band weight from Step 1 and the total light from Step 3. The starting gray is our chosen ${KN('0.10')} in each channel, close to the dark gray in the recording. A channel goes from 0 to 1. Multiply by 255 to read it on the recording’s scale, where 0 is black and 255 is white. A channel above 1 displays as 1.</p>
     ${calc(L47.cl)}
-    <p><b>Pixel P is about ${Math.round(L47.of)} of 255.</b> At Q, the outline beside P, the light and starting gray stay the same and the band weight reaches 1. That gives a brighter peak there.</p>
+    <p><b>Pixel P is about ${Math.round(L47.of)} of 255.</b> Now follow the fade from Step 1 to Q on the purple outline. Q’s signed distance is 0 pt. The fade started ${f(BANDW)} pt inside, so Q is the full ${f(BANDW)} pt from the start of the fade.</p>
+    ${calc([`Fraction across the fade at Q = ${f(BANDW)} ÷ ${KN(f(BANDW))} = 1`])}
+    <p><code>smoothstep</code> gives <b>band weight 1</b> at the end of the fade. For this comparison, use the same light and starting gray as at P. Multiplying by a band weight of 1 gives the full amount from strength × light.</p>
     ${calc(PEAK.P.lines)}
     <p><b>At Q, the model’s line peaks at about ${PEAK.P.v} of 255.</b> The gray ring below shows how the lighting varies around the menu.</p>`
 ];
@@ -724,11 +773,27 @@ function compareCorner(){
   const out=$('ideaCompare');
   const opposite=st47===3&&sel47==='P′';
   out.hidden=!opposite;
-  out.innerHTML=opposite?`<p>The left and up parts of N at P become right and down at P′. With the same L, both screen products change sign. The height product stays zero.</p>
+  out.innerHTML=opposite?`<p>The left and up parts of N for P become right and down for P′. With the same L, both screen products change sign. The height product stays zero.</p>
     ${calc([normalTxt(LP,'P′'),`Alignment score at P′ ≈ ${LP.t(LP.dot)}`])}
     <p>A usual direct-light rule for a solid surface gives an away-facing corner zero light from the lamp. Here we take the <b>size</b> of the score, called its absolute value. That drops the minus sign.</p>
     ${calc(LP.al)}
     <p>The model gives P′ the same lamp contribution as P, about ${LP.t(LP.lamp)}, and the same total light, about ${LP.t(LP.light)}. Light passing through the glass to the far edge is one possible explanation for the brightness pattern.</p>`:'';
+}
+function updateStepNav(){
+  const strip=$('ideaSteps'),count=STEP_LABELS.length;
+  const shown=Math.min(count,Math.max(3,Math.floor((strip.clientWidth+8)/148)));
+  const start=clamp(st47-Math.floor((shown-1)/2),0,count-shown);
+  strip.style.setProperty('--shown-steps',shown);
+  Array.from(strip.children).forEach((item,i)=>{
+    item.hidden=i<start||i>=start+shown;
+    const button=item.firstElementChild;
+    if(i===st47)button.setAttribute('aria-current','step');
+    else button.removeAttribute('aria-current');
+  });
+  const text=`Step ${st47+1} of ${count}`;
+  if($('ideaStepCount').textContent!==text)$('ideaStepCount').textContent=text;
+  $('ideaPrev').disabled=st47===0;
+  $('ideaNext').disabled=st47===count-1;
 }
 function ideaAll(){
   hideTip();
@@ -751,21 +816,24 @@ function ideaAll(){
   b.hidden=st47<3;
   compareCorner();
   bindTips($('ideaCap'));
-  $('ideaDots').querySelectorAll('button').forEach((b,i)=>{
-    b.classList.toggle('on',i===st47);
-    if(i===st47)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');
-  });
-  $('ideaPrev').disabled=st47===0;
-  $('ideaNext').disabled=st47===CAP47.length-1;
+  updateStepNav();
   ideaDraw();
 }
-function goStep(i){st47=i;sel47='P';ideaAll()}
+function selectStep(index){
+  const next=clamp(index,0,STEP_LABELS.length-1);
+  if(next===st47)return;
+  const focus=document.activeElement;
+  st47=next;
+  sel47='P';
+  ideaAll();
+  if(focus.disabled)$('ideaSteps').children[st47].firstElementChild.focus({preventScroll:true});
+}
 
 /* ================= Section 2: Section 1's steps at a draggable P ================= */
 const TW={p:[...P0],zc:null,keep3DTarget:false};let TWS={M:M0,CH:CH0};
 const PRESETS=[
   ['P from Section 1',P0],['Opposite corner',PP],['Top-right corner',PV],
-  ['Dim part of the line',[361.13,662.34]],['5.60 pt inside',[126.06,660.28]],
+  ['Little lamp light',[361.13,662.34]],['5.60 pt inside',[126.06,660.28]],
   ['On the outline',[220,648.6]],['Outside the glass',[220,647.8]]
 ];
 const LIM=p=>[r2(clamp(p[0],100,396)),r2(clamp(p[1],645,840))];
@@ -793,11 +861,35 @@ const t3d=new Orbit3D($('t3dStage'),$('t3d'),{yaw:0,pitch:48,scale:17,target:tar
   tipF:TWS.CH.has?tipF47(TWS.CH,'P'):null,moveP:moveTrace3D,keysP:shiftTrace
 })});
 const tipTW=()=>{const {M,CH}=TWS;return`<b>P = ${pt(...M.P)} pt</b>, the pixel (${SYS}). sd at P = ${CH.t(CH.sd)} pt: ${insideWords(CH.sd,CH.t)}.<br>${cap1(M.c.P.head)}.<pre>${M.c.P.lines.join('\n')}</pre>`};
+function outwardTraceTip(M){
+  const sample=name=>{
+    const {w,head,lines}=M.c[name];
+    const source=w.C
+      ?`The nearest outline is on the circle with center K = ${pt(...w.C)} pt and radius ${f(w.r)} pt. Find the distance from K to ${name}, written |K${name}|, and subtract the radius.`
+      :`${cap1(head)}.`;
+    return `<section><p><b>${name} = ${pt(...M.pts[name])} pt</b> · ${f(M.step)} pt ${NB[name]}.</p><p>${source}</p><pre>${lines.join('\n')}</pre></section>`;
+  };
+  return `<b>How outward is found for pixel P = ${pt(...M.P)} pt</b>
+    <p>Find the signed distance at each sample in the close-up. Each sample uses its own nearest part of the outline. A negative distance means inside and a positive distance means outside.</p>
+    <p><b>Rightward change from A to B</b></p>
+    <div class="tgrid">${sample('A')}${sample('B')}</div>
+    <p>Subtract A’s signed distance from B’s. Divide by the full gap from A to B, written |AB|, to find the change per screen point to the right.</p>
+    <pre>${M.lx.join('\n')}</pre>
+    <p><b>Downward change from D to E</b></p>
+    <div class="tgrid">${sample('D')}${sample('E')}</div>
+    <p>Subtract D’s signed distance from E’s. Divide by the full gap from D to E, written |DE|, to find the change per screen point toward the bottom.</p>
+    <pre>${M.ly.join('\n')}</pre>
+    <p><b>Set the arrow’s length to 1.</b> The rightward and downward rates are the two parts of the first arrow. Find its length, then divide each part by that length to get the outward arrow.</p>
+    <pre>${M.ll.join('\n')}</pre>`;
+}
 function noteFor(M,CH){const n=[];
   if(CH.zone==='out')n.push('P is outside the glass. There is no glass at P, so the shader draws no line there.');
   if(CH.zone==='deep')n.push(`sd at P is −1.20 or less: P is ${CH.t(-CH.sd)} pt inside, further than the rim line reaches. band = 0, and the line adds nothing.`);
   if(!CH.has)n.push('Both changes of sd are 0 at P: outward has no direction here, so there is no N.');
-  else if(CH.zone==='band'&&CH.size<0.01)n.push('Here N is at 90° to L, or almost: the dot product is about 0, and the line has only the 0.40 from all around. The line is dimmest here.');
+  else if(CH.zone==='band'){
+    if(R12(M.c.P.raw)===0)n.push(`P is on the outline, so its band weight is 1. The light here is about ${CH.t(CH.light)}, which gives a final channel value of about ${CH.t(CH.of)} on the 0–255 scale. At the brighter outline point Q in Section 1, the light is about ${L47.t(L47.light)} and the final channel value reaches about ${PEAK.P.v} of 255.`);
+    if(CH.size<0.01)n.push(`Look at the pink facing arrow N and the blue lamp arrow L. They meet at nearly a right angle, so their score is close to 0. The lamp adds almost nothing here. The rim stays visible because it still gets ${f(AMB)} light from all around.`);
+  }
   return n.join(' ')}
 function traceAll(){const M=measure(MENU,TW.p,STEP0),CH=chain(M),w=M.c.P.w,sdP=M.c.P.raw;TWS={M,CH};
   {const cv=$('tMap'),V=mapView(cv),st=$('tMapStage'),c=V.ctx,X=V.X,Y=V.Y;mapBase(V);clearPts(st);
@@ -832,7 +924,7 @@ function traceAll(){const M=measure(MENU,TW.p,STEP0),CH=chain(M),w=M.c.P.w,sdP=M
     +row('s4','4. Use the score’s size',lights?CH.al.join('<br>')+'<br>'+lg('The lamp contribution above uses this size.'):'—')
     +row('s5','5. Add the line to the color',lights?CH.cl.join('<br>'):lg('The line adds nothing here.'));
   setTip($('tIs'),()=>`<b>sd at P.</b> ${cap1(M.c.P.head)}.<pre>${M.c.P.lines.join('\n')}</pre>`);
-  if(lights)setTip($('tIo'),()=>`<b>outward at P</b>, from sd at four neighbors of P, each ${f(STEP0)} pt away (the points A, B, D and E of the lower left picture).<pre>${[...M.lx,...M.ly,...M.ll].join('\n')}</pre>`);
+  if(lights)setTip($('tIo'),()=>outwardTraceTip(M));
   document.querySelectorAll('#tPre button').forEach((b,i)=>b.setAttribute('aria-pressed',String(PRESETS[i][1][0]===TW.p[0]&&PRESETS[i][1][1]===TW.p[1])))}
 function finishTraceDrag(){
   if(!TW.zc&&!TW.keep3DTarget)return;
@@ -870,7 +962,7 @@ const TIPS={
   smooth:()=>`<b>smoothstep(a, b, x)</b> takes three numbers and gives one number from 0 to 1. Below a it gives 0. Above b it gives 1. Between them: fraction = (x − a) ÷ (b − a), then fraction × fraction × (3 − 2 × fraction). The result rises slowly near a and near b, so the rim line fades in without a visible start, 1.20 pt inside the outline. A straight ramp (the thin gray line of the chart) starts with a corner.`,
   rim:()=>`<b>Why 14 pt.</b> Chosen: with a rim this wide, the menu's rows of text bend near the outline as they do in the recording while the menu opens. It is not a number published by Apple.`,
   outP:()=>`<b>outward at P</b> comes from sd alone: for each 1 pt to the right, sd changes by −0.60; for each 1 pt toward the bottom, by −0.80. These two changes are the parts of an arrow, and this arrow is 1 long:<pre>${M0.ll.slice(0,4).join('\n')}</pre>At another pixel the two changes are other numbers; where their arrow is not 1 long, the shader divides it by its length. Section 2 shows the four neighbors of P that give the two changes.`,
-  Lfit:()=>`<b>Why this L.</b> Chosen: a lamp toward the top left makes the top-left and the bottom-right corners the brightest, as in Safari's frame. It is fitted to one frame; Apple's own light is not public. L is 1 long:<pre>${sqLines(LV,['x part','y part','height part']).join('\n')}</pre>`,
+  Lfit:()=>`<b>Why this lamp direction.</b> The model took the direction from Lesson 10.45 and flipped it from right to left. The other parts stayed the same, including the 0.64 lift. This choice puts the brightest light in the top-left and bottom-right corners, as in the Safari frame.<pre>${sqLines(LV,['x part','y part','height part']).join('\n')}</pre>`,
   amb:()=>`<b>Why 0.40.</b> Chosen: with it, the two dimmer corners of this lesson's line come out near Safari's 43 and 39, and the two brighter ones near 57 and 51. With 0, there would be no line where N is at 90° to L. The two shares add up to 1, so the light is at most 1.`,
   strength:()=>`<b>Why 0.125.</b> Chosen: with it, the brightest pixel of the rim line is about ${PEAK.P.v} of 255 in the corners of P and P′, and about ${PEAK.V.v} in the other two. Safari's frame has 57 and 51 there, and 43 and 39.`,
   outR:()=>`<b>outward at R</b> comes from sd at four neighbors of R, each 0.50 pt away. For each 1 pt to the right, sd changes by −0.28; for each 1 pt toward the bottom, by 0.96. The arrow (−0.28, 0.96) is 1 long:<pre>${MC.R.ll.slice(0,4).join('\n')}</pre>`};
@@ -913,15 +1005,27 @@ function redrawAll(){MAPIM=null;heroAll();ideaDraw();traceAll();exercises();}
 (function(){
   $('boost1').onclick=()=>{BOOST=1;heroAll()};$('boost4').onclick=()=>{BOOST=4;heroAll()};
   {const b=$('tPre');PRESETS.forEach(([name,p])=>{const x=document.createElement('button');x.className='btn';x.textContent=name;x.onclick=()=>{TW.p=[...p];TW.zc=null;traceAll()};b.appendChild(x)})}
-  for(let i=0;i<CAP47.length;i++){
-    const b=document.createElement('button');
-    b.className='dot';
-    b.setAttribute('aria-label','Step '+(i+1));
-    b.onclick=()=>goStep(i);
-    $('ideaDots').appendChild(b);
-  }
-  $('ideaPrev').onclick=()=>{if(st47>0)goStep(st47-1)};
-  $('ideaNext').onclick=()=>{if(st47<CAP47.length-1)goStep(st47+1)};
+  const stepList=$('ideaSteps');
+  STEP_LABELS.forEach((label,i)=>{
+    const item=document.createElement('li'),button=document.createElement('button');
+    button.type='button';
+    button.className='btn stepCard';
+    button.setAttribute('aria-controls','ideaCap');
+    button.innerHTML=`<span class="stepNumber">${i+1}</span>${label}`;
+    button.onclick=()=>selectStep(i);
+    button.onkeydown=e=>{
+      const delta={ArrowLeft:-1,ArrowRight:1}[e.key];
+      if(!delta)return;
+      e.preventDefault();
+      selectStep(st47+delta);
+      stepList.children[st47].firstElementChild.focus({preventScroll:true});
+    };
+    item.appendChild(button);
+    stepList.appendChild(item);
+  });
+  $('ideaPrev').onclick=()=>selectStep(st47-1);
+  $('ideaNext').onclick=()=>selectStep(st47+1);
+  new ResizeObserver(updateStepNav).observe(stepList);
   const views=[['Screen x–y',0,90],['x–height',0,0]];
   for(const [bar,view] of [['ideaBar',idea3],['t3dBar',t3d],['exqBar',exQ],['exaBar',exA]])viewBar($(bar),view,views);
   ideaAll();redrawAll();codeSection();$('copy47').onclick=copyCode;bindTips(document.body);
