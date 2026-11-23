@@ -1,6 +1,6 @@
 # CURRENT_STATE.md — where the course stands
 
-**Updated:** 2026-11-20. This file records what exists, where the model’s inputs come from, and what comes next. The lesson notes describe the existing pages. Use [AGENTS.md](AGENTS.md) for how to teach new or revised lessons.
+**Updated:** 2026-11-23. This file records what exists, where the model’s inputs come from, and what comes next. The lesson notes describe the existing pages. Use [AGENTS.md](AGENTS.md) for how to teach new or revised lessons.
 
 History is in git. The per-lesson notes of Lessons 9.1–10.45, the side lesson and the cheatsheet, the old handoff and the old feedback log are at commit `3715feb`:
 
@@ -66,7 +66,16 @@ File: `course/part-two/chapter-10/lesson-10-47-the-rim-line.html`. HTML only.
 - **Explorer and exercise.** The explorer follows P on the menu, in the enlarged strip, and in 3D. Presets include the outline and a point outside. The worked steps keep the chosen camera angle and zoom when changing steps or corners. The exercise gives outward at R = (134.304, 834.872) pt as (−0.28, 0.96), with the lamp direction and light inputs alongside. The answer shows the signed sum −0.4416, its size 0.4416, and total light about 0.66496.
 - **Code.** The copyable Metal snippet and its interface `half3 addRimLine(half3 color, float sd, float2 outward)` carry forward to 10.48. The line table works through P.
 
-## Next: 10.48, then 11.1
+## Lesson 10.48 — Build: the resting menu’s outline, rim line and shadow (`B`, 2026-11-23)
 
-- **10.48** (`B`, needs Xcode and the lab) joins 10.45–10.47 in one Metal function: the outline's soft edge, a flat tint, the rim line and the shadow. It takes the code of 10.46's and 10.47's Section 4 as written (`outwardAt`, `addRimLine`). The side lesson's shader draws its rim with one even brightness; the build's answer key adds 10.47's lit line instead. 10.48 is where a channel sum above 1 can first be seen.
-- **11.1** (`E`) starts the lens: the glass picture and `layerEffect`.
+File: `course/part-two/chapter-10/lesson-10-48-resting-menu.html`. The explorer is in Section 2.
+
+- **Result and first use.** `restingMenuColor` colors the stationary rounded rectangle in screen points. It clamps the lit tint before weighting it by one-pixel coverage and combines it with the shaded backing. Lesson 11.1 supplies the glass picture that replaces the flat tint in the 11.4 lens build, where the resting rim bends stripes and rows near the edge.
+- **Worked P.** P = (122.76, 655.88) pt and the upper-left corner center K = (144.3, 684.6) pt. The distance from K to P is 35.90 pt. At radius 36 pt, sd is −0.10 pt and coverage is 0.80 at 3 device px per pt. The four half-point samples give outward ≈ (−0.599990, −0.800008). The band weight is ≈ 0.980324 and the total light ≈ 0.860800, so the unchanged `addRimLine` adds ≈ 0.105483 per channel. The light tint of 0.94 reaches ≈ 1.045483 before the clamp, then 1. The dark tint of 0.10 follows the recorded dark interior of about 25/255.
+- **Shadow and composition.** The full 12 pt linear fade uses sd at the source S = (122.76, 651.88) pt, 4 pt above P. There, sd ≈ 3.173588 pt, mask ≈ 0.235534, and the black shadow takes ≈ 0.056528 of the backing with chosen maximum strength 0.24. The model uses backing gray 0.80 in light and 0.16 in dark. The light shaded page is ≈ 0.754777 per channel. P’s glass and page contributions sum to ≈ 0.950955 per channel in light. The shadow width and shift are course starting values. The light palette and shadow strength are teaching choices pending a light-mode Safari recording.
+- **Explorer and lab.** Drag P on the menu or in the close-up. Presets exercise the center, the opposite corner, the outline, just outside, and the shadow below the menu. At (240, 840.6) pt, shifting down 4 pt takes the shadow mask from 1/6 to 1/2. In the iOS lab’s `LiquidGlassLab/chapter10/`, `RestingMenuExercise.metal` has the stub and caller, `RestingMenuKey.metal` has the answer, and `RestingMenuHelpers.h` carries the two rim functions from 10.46 and 10.47 verbatim. `RestingMenuExerciseView.swift` appears first in `Chapter10Screen.swift` and uses the lab’s red difference check above 2/255.
+- **Verification.** Chrome at 1920 × 1080 in light and dark, including the carousel, both drag views, presets, popups, quiz and copy controls. Xcode built the lab after downloading the missing Metal Toolchain component. The iPhone 16 Pro simulator showed red with the starter and dark gray with a matching solution in both appearances.
+
+## Next: 11.1
+
+- **11.1** (`E`) starts the lens with the glass picture and `layerEffect`.
