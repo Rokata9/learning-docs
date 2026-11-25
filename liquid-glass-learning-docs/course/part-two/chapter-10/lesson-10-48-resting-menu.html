@@ -194,16 +194,16 @@ pre.code{font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;back
     <section class="step" aria-labelledby="rimColorTitle" hidden>
       <h3 id="rimColorTitle">Add the bright rim line</h3>
       <p>The rim line is the narrow streak just inside the menu edge. The shader draws it by adding the same amount to red, green, and blue near the outline. Equal additions move a gray toward white. We’ll work out that amount at P.</p>
-      <p><code>addRimLine</code> takes the starting gray, P’s signed distance, and the outward direction. The line affects a narrow band <span class="kn">1.20 pt</span> wide just inside the outline. Pixels on the outline get the full share of the line. Pixels 1.20 pt inside get none. This width fits the roughly 1 pt line in the recording. <code>smoothstep</code> rounds off both ends of the fade. It multiplies the fraction squared by a curve factor. The factor is 3 minus twice the fraction. The helper skips the line when signed distance is positive.</p>
+      <p><code>addRimLine</code> takes the starting gray, P’s signed distance, and the outward direction. For this comparison, the line fades over <span class="kn">2.00 pt</span> just inside the outline. Pixels on the outline get the full share of the line. Pixels 2.00 pt inside get none. <code>smoothstep</code> rounds off both ends of the fade. It multiplies the fraction squared by a curve factor. The factor is 3 minus twice the fraction. The helper skips the line when signed distance is positive.</p>
       <div id="bandCalc" class="calc"></div>
       <p>The outward direction estimates how the glass faces at the outline near P. That arrow lies flat on the screen, with height part 0. The fitted lamp arrow <span class="kn">(−0.48, −0.60, 0.64)</span> points left, up the screen, and out toward you. Multiply matching parts and add them to get the alignment. Use its size so the opposite corner can light up too.</p>
       <div id="lightCalc" class="calc"></div>
-      <p>The chosen all-around light gives every part of the line <span class="kn">0.40</span>. On this scale, 0 means no light and 1 means full light. The 0.40 keeps the dim corners visible. That leaves <span class="kn">1.00</span> − <span class="kn">0.40</span> = 0.60 for the lamp. The fitted strength <span class="kn">0.125</span> is the amount added to each channel at full band and full light. Multiply by the band to set how much line reaches P, and by the light to set how bright it is there.</p>
+      <p>The chosen all-around light gives every part of the line <span class="kn">0.40</span>. On this scale, 0 means no light and 1 means full light. The 0.40 keeps the dim corners visible. That leaves <span class="kn">1.00</span> − <span class="kn">0.40</span> = 0.60 for the lamp. The comparison uses a strength of <span class="kn">0.25</span>, the amount added to each channel at full band and full light. Multiply by the band to set how much line reaches P, and by the light to set how bright it is there.</p>
       <div id="rimColorCalc" class="calc"></div>
       <p>P’s addition fits within the 0.90 of room from Step 2. The shader limits each channel to the range from 0 to 1. At P it keeps the gray we just calculated.</p>
       <div class="tintSamples" aria-label="Menu gray before and after adding the rim line at P">
         <span class="tintSample"><span id="startingGraySample" aria-hidden="true"></span>0.10 starting gray</span>
-        <span class="tintSample"><span id="rimGraySample" aria-hidden="true"></span>≈ 0.205 after adding the rim line</span>
+        <span class="tintSample"><span id="rimGraySample" aria-hidden="true"></span>≈ 0.314 after adding the rim line</span>
       </div>
     </section>
     <section class="step" aria-labelledby="shadowTitle" hidden>
@@ -266,73 +266,79 @@ pre.code{font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;back
   </figure>
 </div>
 
-<h2 id="s4"><span class="tag">Section 4 · Metal lab</span>Build it in the Chapter 10 screen</h2>
-<p>Open <code>chapter10/RestingMenuExercise.metal</code>. Write the body of <code>restingMenuColor</code>. It takes the position <code>P</code> of the pixel you are coloring and returns its red, green, and blue values.</p>
+<h2 id="s4"><span class="tag">Section 4 · Metal lab</span>Preview the resting menu in Chapter 10</h2>
+<p>Open Chapter 10 → 10.48 in the lab to see the shader from <code>chapter10/RestingMenuExercise.metal</code>. Toggle <b>Shift shadow down 4 pt</b> to compare the shadow with and without the offset.</p>
 <h3 id="menu-dimensions">Inputs the caller gives you</h3>
-<p>Work in <b>the preview’s own coordinates</b>. <code>P</code> tells you how many points right and down the pixel is from the top-left of <code>ShaderRect</code>. Use <code>P</code> as passed to your function.</p>
-<p><code>box</code> is the second parameter, right after <code>P</code>. The prepared caller centers the menu in the preview and puts that center in <code>box.xy</code>. In the 300 × 226 pt preview, the center is <b>(150, 113) pt</b>. <code>box.zw</code> holds <b>(130.5, 94) pt</b>, half the menu’s width and height. The caller also gives you <code>radius</code>, the 36 pt corner radius.</p>
+<p><code>restingMenuColor</code> receives <code>P</code> in points counted from the <b>menu’s center</b>. Positive x goes right and positive y goes down. The caller supplies <code>halfSize</code>, which is <b>(130.5, 94) pt</b>, and <code>radius</code>, the 36 pt corner radius.</p>
 <p><code>pixelPt</code> is one device pixel’s width in points. <code>tint</code> and <code>page</code> are the starting colors. <code>shadowOffsetPt</code>, <code>shadowWidthPt</code>, and <code>shadowStrength</code> tell you how far to shift the shadow, how wide its fade is, and how much it darkens the page.</p>
 <p><code>RestingMenuHelpers.h</code> already provides <code>roundedRectSd</code>, <code>outwardAt</code>, and <code>addRimLine</code>. Here’s what to pass to each geometry call.</p>
 <table class="trace" style="max-width:1050px">
   <thead><tr><th scope="col">What to find</th><th scope="col">Call</th><th scope="col">Where the point is measured from</th></tr></thead>
   <tbody>
-    <tr><th scope="row">Signed distance at P</th><td><code>roundedRectSd(P - box.xy, box.zw, radius)</code></td><td>Subtract the menu center so the helper can count from that center.</td></tr>
-    <tr><th scope="row">Signed distance for the shadow</th><td><code>roundedRectSd(S - box.xy, box.zw, radius)</code></td><td>Find <code>S</code> by subtracting <code>shadowOffsetPt</code> from P’s y. Then count from the menu center as above.</td></tr>
-    <tr><th scope="row">Outward direction at P</th><td><code>outwardAt(P, box, radius)</code></td><td>Pass <code>P</code> as it arrived, counted from the preview’s top-left. The helper subtracts the menu center itself.</td></tr>
+    <tr><th scope="row">Signed distance at P</th><td><code>roundedRectSd(P, halfSize, radius)</code></td><td><code>P</code> is measured from the menu’s center.</td></tr>
+    <tr><th scope="row">Signed distance for the shadow</th><td><code>roundedRectSd(S, halfSize, radius)</code></td><td>For the shadow read <code>S</code>, subtract <code>shadowOffsetPt</code> from P’s y. S is also measured from the menu’s center.</td></tr>
+    <tr><th scope="row">Outward direction at P</th><td><code>outwardAt(P, halfSize, radius, 0.5)</code></td><td><code>P</code> is measured from the menu’s center. The helper samples 0.5 pt to either side of P.</td></tr>
   </tbody>
 </table>
-<h3 id="exercise-steps">What to write in the function</h3>
+<h3 id="exercise-steps">How the shader builds the menu</h3>
 <ol>
   <li>Find signed distance at P. Use the one-device-pixel width <code>pixelPt</code> to get the glass fraction from Step 2.</li>
   <li>Find signed distance at S. Use the supplied <code>shadowWidthPt</code> and <code>shadowStrength</code> to darken the page as in Step 5.</li>
   <li>Find the outward direction at P. Give <code>addRimLine</code> the starting gray <code>tint</code>, the signed distance at P, and that direction. Limit each resulting channel to 0 through 1.</li>
   <li>Mix that glass color with the darkened page using the two fractions from Step 6. Return the mixed color.</li>
 </ol>
-<p>Run the lab and open Chapter 10 → 10.48. View <b>Your shader</b>, then <b>Check</b>. Red marks a pixel whose largest channel difference from the key is more than 2/255. Look for dark gray throughout. Try both shadow offsets.</p>
 <details id="crop-coordinates">
   <summary>How the prepared caller centers the menu</summary>
   <div class="body">
-    <p>SwiftUI’s <code>colorEffect</code> gives the shader <code>position</code> and the incoming pixel color. The caller passes <code>position</code> straight through as <code>P</code>.</p>
-    <p>The first entry in Swift’s <code>render</code> list, <code>.boundingRect</code>, supplies the preview’s top-left position and size. The caller uses half the width and height to find the center of the preview. It also halves the menu size that Swift supplies, then puts the center and half-size in <code>box</code>.</p>
+    <p>SwiftUI’s <code>colorEffect</code> gives the shader <code>position</code> and the incoming pixel color. The first entry in Swift’s <code>render</code> list, <code>.boundingRect</code>, supplies the preview’s top-left position and size. The caller centers the menu in the preview and subtracts that center from <code>position</code> to get <code>P</code>. It also halves the menu size that Swift supplies.</p>
     <div class="calc">Center x = 300 ÷ 2 = 150 pt<br>Center y = 226 ÷ 2 = 113 pt<br>Menu half-width = 261 ÷ 2 = 130.5 pt<br>Menu half-height = 188 ÷ 2 = 94 pt</div>
     <p>The worked example in Section 1 places the menu on a full phone screen. To use the same spot on the menu in the preview, keep the same offset from its center. The offset tells you how far left and above the center P is.</p>
     <div class="calc">P’s x offset from the menu center = 122.76 − 238.8 = −116.04 pt<br>P’s y offset from the menu center = 655.88 − 742.6 = −86.72 pt<br>P’s x in the preview = 150 − 116.04 = 33.96 pt<br>P’s y in the preview = 113 − 86.72 = 26.28 pt</div>
   </div>
 </details>
 <details>
-  <summary>Answer key and the function line by line</summary>
+  <summary>Read the completed shader line by line</summary>
   <div class="body">
-    <p>The lab copy is in <code>RestingMenuKey.metal</code>. <code>half3</code> holds red, green, and blue in the GPU’s short number format. The finished pixel already includes the page color, so the caller returns full opacity.</p>
+    <p>This is the function from <code>RestingMenuExercise.metal</code>. <code>half3</code> holds red, green, and blue in the GPU’s short number format. The finished pixel already includes the page color, so the caller returns full opacity.</p>
     <div class="codebar"><button class="btn" type="button" data-copy="metal">Copy Metal</button><span class="small" role="status"></span></div>
-    <pre class="code"><code id="metal">half3 restingMenuColor(float2 P, float4 box, float radius, float pixelPt,
-                        half3 tint, half3 page, float shadowOffsetPt,
-                        float shadowWidthPt, float shadowStrength) {
-    float sd = roundedRectSd(P - box.xy, box.zw, radius);
-    float cover = clamp(0.5 - sd / pixelPt, 0.0, 1.0);
+    <pre class="code"><code id="metal">static half3 restingMenuColor(
+                       float2 P,
+                       float radius,
+                       float pixelPt,
+                       half3 tint,
+                       half3 page,
+                       float shadowOffsetPt,
+                       float shadowWidthPt,
+                       float shadowStrength,
+                       float2 halfSize) {
+    float sd = roundedRectSd(P, halfSize, radius);
+    float fractionGained = sd / pixelPt;
+    float fractionInside = clamp(0.5 - fractionGained, 0.0, 1.0);
+    float fractionOutside = 1 - fractionInside;
 
-    float2 source = P - float2(0.0, shadowOffsetPt);
-    float shadowSd = roundedRectSd(source - box.xy, box.zw, radius);
-    float shadowMask = clamp(0.5 - shadowSd / shadowWidthPt, 0.0, 1.0);
+    float2 outward = outwardAt(P, halfSize, radius, 0.5);
+
+    float3 rimGray = clamp(float3(addRimLine(tint, sd, outward)), 0.0, 1.0);
+
+    float shiftedSd = roundedRectSd(P + float2(0, -shadowOffsetPt), halfSize, radius);
+    float distanceFadeWidths = shiftedSd / shadowWidthPt;
+    float shadowMask = clamp(0.5 - distanceFadeWidths, 0.0, 1.0);
     float shadowAmount = shadowStrength * shadowMask;
-    float3 shadedPage = float3(page) * (1.0 - shadowAmount);
+    float3 pageGray = float3(page) * (1.0 - shadowAmount);
 
-    float2 outward = outwardAt(P, box, radius);
-    half3 colorWithRim = addRimLine(tint, sd, outward);
-    float3 glass = clamp(float3(colorWithRim), 0.0, 1.0);
-
-    return half3(glass * cover + shadedPage * (1.0 - cover));
+    return half3(float3(rimGray) * fractionInside + pageGray * fractionOutside);
 }</code></pre>
     <table class="trace"><thead><tr><th scope="col">Lines</th><th scope="col">What they do at P</th></tr></thead><tbody id="codeTrace"></tbody></table>
   </div>
 </details>
-<h2 id="s5"><span class="tag">Section 5 · build record</span>Record what you checked</h2>
+<h2 id="s5"><span class="tag">Section 5 · build record</span>Record what you saw</h2>
 <div class="codebar"><button class="btn" type="button" data-copy="record">Copy Markdown</button><span class="small" role="status"></span></div>
 <pre class="code" id="record">### 10.48 — Resting menu build
 - Pixel P (122.76, 655.88) pt: sd −0.10 pt, glass coverage 0.80 at 3 px/pt.
-- Starting menu gray 0.10. Adding the rim line gives ≈ 0.205 per channel.
+- Starting menu gray 0.10. The 2 pt rim with strength 0.25 gives ≈ 0.314 per channel at P.
 - Shadow read at (122.76, 651.88) pt: wider mask ≈ 0.236.
-- Final gray at P ≈ 0.195 per channel.
-- Chapter 10 check (offset 0 / 4 pt):
+- Final gray at P ≈ 0.281 per channel.
+- Chapter 10 preview (offset 0 / 4 pt):
 - What changed when I moved the shadow down:</pre>
 <div class="navfoot"><a href="lesson-10-47-the-rim-line.html">← Lesson 10.47 · The rim line</a><span>Next in the plan · 11.1 The glass picture</span></div>
 </main>
@@ -397,6 +403,8 @@ const SHADOW_STRENGTH = 0.24;
 const L = [-0.48, -0.60, 0.64];
 const MENU_GRAY = 0.10;
 const PAGE_GRAY = 0.16;
+const RIM_WIDTH = 2.0;
+const RIM_STRENGTH = 0.25;
 const PAINT = {P:'#fde047', outline:'#a855f7', shadow:'#155e75', quiz:'#dc2626'};
 const full = {x:88, y:634, scale:1.98};
 const show = (x,d=4) => Number(x.toFixed(d)).toString().replace('-', '−');
@@ -419,12 +427,12 @@ function shade(x,y,offset,stage=4) {
   const shadowMask = mask(shadowSd, SHADOW_WIDTH);
   const amount = SHADOW_STRENGTH * shadowMask;
   const shaded = PAGE_GRAY * (1 - amount);
-  const t = clamp((sd+1.2)/1.2,0,1);
+  const t = clamp((sd+RIM_WIDTH)/RIM_WIDTH,0,1);
   const band = sd > 1e-10 ? 0 : t*t*(3-2*t);
   const outward = band ? outwardAt(x,y) : [0,0];
   const alignment = outward[0]*L[0] + outward[1]*L[1];
   const light = 0.40 + 0.60 * Math.abs(alignment);
-  const add = 0.125 * band * light;
+  const add = RIM_STRENGTH * band * light;
   const colorWithRim = MENU_GRAY + add;
   const glass = clamp(colorWithRim,0,1);
   const color = glass*cover + shaded*(1-cover);
@@ -482,12 +490,12 @@ math('outwardCalc',[
   `Outward y ≈ ${show(dy,6)} ÷ ${show(len,6)} ≈ ${show(norm[1],6)}`
 ]);
 math('bandCalc',[
-  'Distance into the fade = −0.10 − (−1.20) = 1.10 pt',
-  'Fraction into the fade = 1.10 ÷ 1.20 = 11/12',
-  'Fraction squared = (11/12) × (11/12) = 121/144',
-  'Twice the fraction = 2 × (11/12) = 11/6',
-  'Curve factor = 3 − 11/6 = 7/6',
-  `Band weight = (121/144) × (7/6) ≈ ${show(worked.band,6)}`
+  'Distance into the fade = −0.10 − (−2.00) = 1.90 pt',
+  'Fraction into the fade = 1.90 ÷ 2.00 = 0.95',
+  'Fraction squared = 0.95 × 0.95 = 0.9025',
+  'Twice the fraction = 2 × 0.95 = 1.90',
+  'Curve factor = 3 − 1.90 = 1.10',
+  `Band weight = 0.9025 × 1.10 = ${show(worked.band,6)}`
 ]);
 math('lightCalc',[
   `x product ≈ (${show(norm[0],6)}) × ${KN('(−0.48)')} ≈ ${show(lightX,6)}`,
@@ -500,8 +508,8 @@ math('lightCalc',[
 math('rimColorCalc',[
   `Lamp light ≈ 0.60 × ${show(worked.alignment,6)} ≈ ${show(0.60*worked.alignment,6)}`,
   `Total light ≈ ${KN('0.40')} + ${show(0.60*worked.alignment,6)} ≈ ${show(worked.light,6)}`,
-  `Strength at P before lighting ≈ ${KN('0.125')} × ${show(worked.band,6)} ≈ ${show(0.125*worked.band,6)}`,
-  `White added ≈ ${show(0.125*worked.band,6)} × ${show(worked.light,6)} ≈ ${show(worked.add,6)}`,
+  `Strength at P before lighting = ${KN(RIM_STRENGTH.toFixed(2))} × ${show(worked.band,6)} = ${show(RIM_STRENGTH*worked.band,7)}`,
+  `White added ≈ ${show(RIM_STRENGTH*worked.band,7)} × ${show(worked.light,6)} ≈ ${show(worked.add,6)}`,
   `Gray after adding the rim line ≈ ${KN(MENU_GRAY.toFixed(2))} + ${show(worked.add,6)} ≈ ${show(worked.colorWithRim,6)} per channel`
 ]);
 for (const [id,gray] of [['startingGraySample',MENU_GRAY],['rimGraySample',worked.glass]]) {
@@ -543,9 +551,9 @@ function startPicture(v) {
   clearPts(v.stage);
 }
 const mapCache = new Map();
-function raster(v, offset=4, stage=4, rimGain=1) {
+function raster(v, offset=4, stage=4) {
   const cacheable = v.scale === full.scale;
-  const key = [v.cv.width,v.cv.height,offset,stage,rimGain].join('/');
+  const key = [v.cv.width,v.cv.height,offset,stage].join('/');
   let im = cacheable ? mapCache.get(key) : null;
   if (!im) {
     const w=v.cv.width,h=v.cv.height;
@@ -553,8 +561,7 @@ function raster(v, offset=4, stage=4, rimGain=1) {
     for (let iy=0;iy<h;iy++) for (let ix=0;ix<w;ix++) {
       const x=v.x+(ix+0.5)/v.scale,y=v.y+(iy+0.5)/v.scale;
       const sample=shade(x,y,offset,stage);
-      const shown=sample.shown+(rimGain-1)*sample.add*sample.cover;
-      const gray=Math.round(clamp(shown,0,1)*255);
+      const gray=Math.round(clamp(sample.shown,0,1)*255);
       const i=(iy*w+ix)*4;
       im.data[i]=im.data[i+1]=im.data[i+2]=gray;
       im.data[i+3]=255;
@@ -631,7 +638,7 @@ const stepText=[
   'P and K are in the enlarged upper-left corner. The purple arc is the outline. The two legs from P to K give the straight distance between those points.',
   'Same corner, with P and K in the same places. The close-ups below show how the menu boundary crosses a whole pixel near Q.',
   'The two pairs of neighboring positions give the outward arrow. Purple marks the outline and amber marks the inner limit of the rim line. K is below and to the right, beyond this close view. The arrow is enlarged to show its direction.',
-  'The dark menu has two brighter opposite corners. The picture uses four times the added white so you can see the line clearly. P and its opposite have the same band weight and opposite facing arrows.',
+  'Each dot is 0.10 pt inside the outline. The labels show how much white the rim adds to each color channel. The top-left and bottom-right match. The other two corners match at a lower value. The view uses the same rim as the lab over the flat page from before Step 5.',
   'The amber arrow goes from P to its source S. The original outline is purple and its shifted copy is teal. The shadow is shown by itself so its wider fade is visible.',
   'The finished menu puts the starting gray and the bright rim line over the shaded page. P is still just inside the upper-left edge.'
 ];
@@ -729,7 +736,7 @@ function drawWorked() {
     if (stepIndex===1) drawCoverageFigures();
   } else if (stepIndex===2) {
     v=close(id,[123.18,656.46],103);startPicture(v);raster(v,4,2);
-    arc(v);arc(v,1.2,0,'#92400e',1.5);
+    arc(v);arc(v,RIM_WIDTH,0,'#92400e',1.5);
     note(v,'Outline',505,85,'right');note(v,'Inner limit of line',568,250,'right');
     arrow(v.c,v.X(P0[0]),v.Y(P0[1]),v.X(P0[0]+1.6*norm[0]),v.Y(P0[1]+1.6*norm[1]),C(PAINT.shadow));
     note(v,'Outward',v.X(P0[0]-1.08),v.Y(P0[1]-1.34)-12,'right');
@@ -740,17 +747,23 @@ function drawWorked() {
     }
     units(v,'Rim and four samples · screen pt');
   } else if (stepIndex===3) {
-    v=view(id,88,624,1.98);startPicture(v);raster(v,4,2,4);
-    const opposite=[354.84,829.32];
-    for (const point of [P0,opposite]){
-      const direction=outwardAt(...point);
-      const end=point.map((n,i)=>n+17*direction[i]);
-      join(v,point,end,'#155e75',true);
+    v=view(id,88,624,1.98);startPicture(v);raster(v,4,2);
+    const [mirrorX,mirrorY]=MENU.c.map((center,i)=>2*center-P0[i]);
+    const corners=[
+      ['P',P0,PAINT.P],
+      ['P′',[mirrorX,mirrorY],PAINT.P],
+      ['C',[mirrorX,P0[1]],C(PAINT.shadow)],
+      ['C′',[P0[0],mirrorY],C(PAINT.shadow)]
+    ];
+    for (const [name,point,color] of corners) {
+      const added=shade(...point,4,2).add;
+      const label=`${name} · +${added.toFixed(3)}`;
+      mark(v,point,name,`The rim adds about ${added.toFixed(3)} to each color channel here.`,color,{
+        lx:point[0]<MENU.c[0]?17:-17,ly:point[1]<MENU.c[1]?17:-17,labelText:label
+      });
     }
-    mark(v,P0,'P','Rim light at the worked pixel.',PAINT.P,{ly:16});
-    mark(v,opposite,'P′','Opposite pixel with the same band and modeled light.',PAINT.P,{lx:-19,ly:16});
-    note(v,'Dark tint · rim brightness boosted for display',v.X(MENU.c[0]),v.Y(MENU.c[1]),'center');
-    units(v,'Rim light · screen pt',{axesTop:true});
+    note(v,'White added to each color channel',v.X(MENU.c[0]),v.Y(MENU.c[1]),'center');
+    units(v,'Rim light · screen pt');
   } else if (stepIndex===4) {
     const S=[P0[0],P0[1]-4];
     v=view(id,99,640,10.6);startPicture(v);raster(v,4,3);
@@ -923,11 +936,11 @@ $('choices').addEventListener('click',e=>{
 });
 
 traceRows('codeTrace',[
-  ['1–3 · Input parameters','The caller provides P in preview coordinates, the menu center and half-size in box, the radius, the pixel width, the starting colors, and the shadow settings.'],
-  ['4–5 · Outline and coverage','At P, sd = −0.10 pt. Dividing by ⅓ pt and subtracting from 0.50 gives coverage 0.80.'],
-  ['7–11 · Shadow and page',`In the preview, P is at (33.96, 26.28) pt, so the 4 pt shift puts S at (33.96, 22.28) pt. Its sd ≈ ${show(worked.shadowSd)} pt gives a 12 pt mask of about ${show(worked.shadowMask)}. The shaded page is about ${show(worked.shaded)} per channel.`],
-  ['13–15 · Rim and clamp',`Outward ≈ ${pair(norm)}. Add about ${show(worked.add)} to each starting channel of ${MENU_GRAY.toFixed(2)}. The result is about ${show(worked.glass)}, within the 0 to 1 range.`],
-  ['17 · Combine',`Use 0.80 glass and 0.20 shaded page. The result is about ${show(worked.color)} per channel.`]
+  ['1–10 · Input parameters','The caller provides P from the menu center, the menu half-size, the radius, the pixel width, the starting colors, and the shadow settings.'],
+  ['11–14 · Outline and coverage','At P, sd = −0.10 pt. Dividing by ⅓ pt and subtracting from 0.50 gives coverage 0.80. The page gets the remaining 0.20.'],
+  ['16–18 · Rim and clamp',`Outward ≈ ${pair(norm)}. Add about ${show(worked.add)} to each starting channel of ${MENU_GRAY.toFixed(2)}. The result is about ${show(worked.glass)}, within the 0 to 1 range.`],
+  ['20–24 · Shadow and page',`From the menu center, P is at (−116.04, −86.72) pt. The 4 pt shift puts S at (−116.04, −90.72) pt. Its sd ≈ ${show(worked.shadowSd)} pt gives a 12 pt mask of about ${show(worked.shadowMask)}. The shaded page is about ${show(worked.shaded)} per channel.`],
+  ['26 · Combine',`Use 0.80 glass and 0.20 shaded page. The result is about ${show(worked.color)} per channel.`]
 ]);
 document.querySelectorAll('[data-copy]').forEach(button=>{
   button.onclick=async()=>{
