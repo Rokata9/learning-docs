@@ -267,27 +267,52 @@ pre.code{font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;back
 </div>
 
 <h2 id="s4"><span class="tag">Section 4 · Metal lab</span>Build it in the Chapter 10 screen</h2>
-<p>Open <code>chapter10/RestingMenuExercise.metal</code> and fill in <code>restingMenuColor</code>. The prepared caller adds the crop’s screen origin to the position that SwiftUI supplies in points. Swift also supplies the width of a device pixel in points, the tint and backing colors, and the two shadow settings. The answer key is <code>RestingMenuKey.metal</code>. The prepared header contains the distance helper and the original <code>outwardAt</code> and <code>addRimLine</code>.</p>
+<p>Open <code>chapter10/RestingMenuExercise.metal</code>. Write the body of <code>restingMenuColor</code>. It takes the position <code>P</code> of the pixel you are coloring and returns its red, green, and blue values.</p>
+<h3 id="menu-dimensions">Inputs the caller gives you</h3>
+<p>Work in <b>the preview’s own coordinates</b>. <code>P</code> tells you how many points right and down the pixel is from the top-left of <code>ShaderRect</code>. Use <code>P</code> as passed to your function.</p>
+<p><code>box</code> is the second parameter, right after <code>P</code>. The prepared caller centers the menu in the preview and puts that center in <code>box.xy</code>. In the 300 × 226 pt preview, the center is <b>(150, 113) pt</b>. <code>box.zw</code> holds <b>(130.5, 94) pt</b>, half the menu’s width and height. The caller also gives you <code>radius</code>, the 36 pt corner radius.</p>
+<p><code>pixelPt</code> is one device pixel’s width in points. <code>tint</code> and <code>page</code> are the starting colors. <code>shadowOffsetPt</code>, <code>shadowWidthPt</code>, and <code>shadowStrength</code> tell you how far to shift the shadow, how wide its fade is, and how much it darkens the page.</p>
+<p><code>RestingMenuHelpers.h</code> already provides <code>roundedRectSd</code>, <code>outwardAt</code>, and <code>addRimLine</code>. Here’s what to pass to each geometry call.</p>
+<table class="trace" style="max-width:1050px">
+  <thead><tr><th scope="col">What to find</th><th scope="col">Call</th><th scope="col">Where the point is measured from</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Signed distance at P</th><td><code>roundedRectSd(P - box.xy, box.zw, radius)</code></td><td>Subtract the menu center so the helper can count from that center.</td></tr>
+    <tr><th scope="row">Signed distance for the shadow</th><td><code>roundedRectSd(S - box.xy, box.zw, radius)</code></td><td>Find <code>S</code> by subtracting <code>shadowOffsetPt</code> from P’s y. Then count from the menu center as above.</td></tr>
+    <tr><th scope="row">Outward direction at P</th><td><code>outwardAt(P, box, radius)</code></td><td>Pass <code>P</code> as it arrived, counted from the preview’s top-left. The helper subtracts the menu center itself.</td></tr>
+  </tbody>
+</table>
+<h3 id="exercise-steps">What to write in the function</h3>
 <ol>
-  <li>Compute the glass coverage and the shifted shadow mask. Shade the backing.</li>
-  <li>Call the two rim helpers at P. Limit each glass color channel to 0 through 1 after adding the rim line, then mix with the shaded page.</li>
-  <li>Run the lab and open Chapter 10 → 10.48. View <b>Your shader</b>, then <b>Check</b>. The starter draws the plain page. Red marks a pixel whose largest channel difference from the key is more than 2/255. Look for dark gray throughout after completing the function. Try both shadow offsets.</li>
+  <li>Find signed distance at P. Use the one-device-pixel width <code>pixelPt</code> to get the glass fraction from Step 2.</li>
+  <li>Find signed distance at S. Use the supplied <code>shadowWidthPt</code> and <code>shadowStrength</code> to darken the page as in Step 5.</li>
+  <li>Find the outward direction at P. Give <code>addRimLine</code> the starting gray <code>tint</code>, the signed distance at P, and that direction. Limit each resulting channel to 0 through 1.</li>
+  <li>Mix that glass color with the darkened page using the two fractions from Step 6. Return the mixed color.</li>
 </ol>
+<p>Run the lab and open Chapter 10 → 10.48. View <b>Your shader</b>, then <b>Check</b>. Red marks a pixel whose largest channel difference from the key is more than 2/255. Look for dark gray throughout. Try both shadow offsets.</p>
+<details id="crop-coordinates">
+  <summary>How the prepared caller centers the menu</summary>
+  <div class="body">
+    <p>SwiftUI’s <code>colorEffect</code> gives the shader <code>position</code> and the incoming pixel color. The caller passes <code>position</code> straight through as <code>P</code>.</p>
+    <p>The first entry in Swift’s <code>render</code> list, <code>.boundingRect</code>, supplies the preview’s top-left position and size. The caller uses half the width and height to find the center of the preview. It also halves the menu size that Swift supplies, then puts the center and half-size in <code>box</code>.</p>
+    <div class="calc">Center x = 300 ÷ 2 = 150 pt<br>Center y = 226 ÷ 2 = 113 pt<br>Menu half-width = 261 ÷ 2 = 130.5 pt<br>Menu half-height = 188 ÷ 2 = 94 pt</div>
+    <p>The worked example in Section 1 places the menu on a full phone screen. To use the same spot on the menu in the preview, keep the same offset from its center. The offset tells you how far left and above the center P is.</p>
+    <div class="calc">P’s x offset from the menu center = 122.76 − 238.8 = −116.04 pt<br>P’s y offset from the menu center = 655.88 − 742.6 = −86.72 pt<br>P’s x in the preview = 150 − 116.04 = 33.96 pt<br>P’s y in the preview = 113 − 86.72 = 26.28 pt</div>
+  </div>
+</details>
 <details>
   <summary>Answer key and the function line by line</summary>
   <div class="body">
-    <p><code>half3</code> holds red, green and blue in the GPU’s short number format. The shape and masks use <code>float</code> for position and distance arithmetic. The finished pixel already includes the page color, so the caller returns full opacity.</p>
+    <p>The lab copy is in <code>RestingMenuKey.metal</code>. <code>half3</code> holds red, green, and blue in the GPU’s short number format. The finished pixel already includes the page color, so the caller returns full opacity.</p>
     <div class="codebar"><button class="btn" type="button" data-copy="metal">Copy Metal</button><span class="small" role="status"></span></div>
-    <pre class="code"><code id="metal">half3 restingMenuColor(float2 P, float pixelPt, half3 tint, half3 page,
-                        float shadowOffsetPt, float shadowStrength) {
-    float4 box = float4(238.8, 742.6, 130.5, 94.0);
-    float radius = 36.0;
+    <pre class="code"><code id="metal">half3 restingMenuColor(float2 P, float4 box, float radius, float pixelPt,
+                        half3 tint, half3 page, float shadowOffsetPt,
+                        float shadowWidthPt, float shadowStrength) {
     float sd = roundedRectSd(P - box.xy, box.zw, radius);
     float cover = clamp(0.5 - sd / pixelPt, 0.0, 1.0);
 
     float2 source = P - float2(0.0, shadowOffsetPt);
     float shadowSd = roundedRectSd(source - box.xy, box.zw, radius);
-    float shadowMask = clamp(0.5 - shadowSd / 12.0, 0.0, 1.0);
+    float shadowMask = clamp(0.5 - shadowSd / shadowWidthPt, 0.0, 1.0);
     float shadowAmount = shadowStrength * shadowMask;
     float3 shadedPage = float3(page) * (1.0 - shadowAmount);
 
@@ -898,11 +923,11 @@ $('choices').addEventListener('click',e=>{
 });
 
 traceRows('codeTrace',[
-  ['3–4 · Menu shape','Center (238.8, 742.6) pt, half size (130.5, 94) pt, corner radius 36 pt.'],
-  ['5–6 · Outline and coverage','At P, sd = −0.10 pt. Dividing by ⅓ pt and subtracting from 0.50 gives coverage 0.80.'],
-  ['8–12 · Shadow and page',`Source ${pair([P0[0],P0[1]-4])} pt. Its sd ≈ ${show(worked.shadowSd)} pt gives a 12 pt mask of about ${show(worked.shadowMask)}. The shaded page is about ${show(worked.shaded)} per channel.`],
-  ['14–16 · Rim and clamp',`Outward ≈ ${pair(norm)}. Add about ${show(worked.add)} to each starting channel of ${MENU_GRAY.toFixed(2)}. The result is about ${show(worked.glass)}, within the 0 to 1 range.`],
-  ['18 · Combine',`Use 0.80 glass and 0.20 shaded page. The result is about ${show(worked.color)} per channel.`]
+  ['1–3 · Input parameters','The caller provides P in preview coordinates, the menu center and half-size in box, the radius, the pixel width, the starting colors, and the shadow settings.'],
+  ['4–5 · Outline and coverage','At P, sd = −0.10 pt. Dividing by ⅓ pt and subtracting from 0.50 gives coverage 0.80.'],
+  ['7–11 · Shadow and page',`In the preview, P is at (33.96, 26.28) pt, so the 4 pt shift puts S at (33.96, 22.28) pt. Its sd ≈ ${show(worked.shadowSd)} pt gives a 12 pt mask of about ${show(worked.shadowMask)}. The shaded page is about ${show(worked.shaded)} per channel.`],
+  ['13–15 · Rim and clamp',`Outward ≈ ${pair(norm)}. Add about ${show(worked.add)} to each starting channel of ${MENU_GRAY.toFixed(2)}. The result is about ${show(worked.glass)}, within the 0 to 1 range.`],
+  ['17 · Combine',`Use 0.80 glass and 0.20 shaded page. The result is about ${show(worked.color)} per channel.`]
 ]);
 document.querySelectorAll('[data-copy]').forEach(button=>{
   button.onclick=async()=>{
