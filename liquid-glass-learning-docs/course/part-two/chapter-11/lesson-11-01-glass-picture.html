@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 11.1 — The glass picture, and the shader that reads it.</title>
+<script>
+/* Theme block of the part-two pages: no selector. The system's light or dark setting is used, and follows it when it changes.
+   <html data-theme> is "light" or "dark". */
+(function(){var mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null,root=document.documentElement;
+  function apply(){root.dataset.theme=mq&&mq.matches?'dark':'light';if(window.onThemeChange)window.onThemeChange()}
+  if(mq){if(mq.addEventListener)mq.addEventListener('change',apply);else if(mq.addListener)mq.addListener(apply)}
+  apply()})();
+</script>
+<style>
+  /* Theme block: every color of the page is one of these variables. Dark: off-white text on a dark blue-gray; no pure white, no pure black. */
+  :root{--bg:#ffffff;--ink:#1f2937;--muted:#6b7280;--line:#d1d5db;--soft:#f6f7f9;--green:#059669;--indigo:#4338ca;--amber:#d97706;--blue:#1e40af;--red:#dc2626;
+    --cap:#4b5563;--tint:#eef2ff;--tintLine:#a5b4fc;--btnBg:#ffffff;--btnOn:#ffffff;--noteBg:#fffbeb;--newRow:#f0fdf4;--knBg:#dcfce7;--knInk:#14532d;--dot:#111827;
+    --tipBg:#111827;--tipInk:#f9fafb;--tipBox:#1f2937;--tipLine:#374151;--tipHi:#fde68a;--tipKnBg:#1f4d33;--tipKnInk:#bbf7d0;--paper:#ffffff}
+  :root[data-theme=dark]{--bg:#161d27;--ink:#ccd2dc;--muted:#9aa5b5;--line:#374253;--soft:#1e2733;--green:#34d399;--indigo:#a5b4fc;--amber:#fbbf24;--blue:#93c5fd;--red:#f87171;
+    --cap:#b6c0cd;--tint:#1f2a44;--tintLine:#4c5c8a;--btnBg:#1b2431;--btnOn:#0f172a;--noteBg:#2a2416;--newRow:#16281f;--knBg:#1f4d33;--knInk:#bbf7d0;--dot:#ccd2dc;
+    --tipBg:#2a3545;--tipInk:#ccd2dc;--tipBox:#1b2431;--tipLine:#4a586c;--tipHi:#fde68a;--tipKnBg:#1f4d33;--tipKnInk:#bbf7d0;--paper:#1b2431}
+  *{box-sizing:border-box}
+  html{color-scheme:light}html[data-theme=dark]{color-scheme:dark}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1600px;margin:0 auto;padding:0 24px 90px}
+  header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;border-bottom:1px solid var(--line);padding:14px 24px;max-width:1648px;margin:0 auto}
+  header.top a,.navfoot a{color:var(--blue);text-decoration:none;font-size:14px}
+  header.top a:hover,.navfoot a:hover{text-decoration:underline}
+    .crumb,.sub{color:var(--muted);font-size:14px}
+  h1{font-size:27px;margin:20px 0 2px}h2{font-size:21px;margin:46px 0 8px;border-top:2px solid var(--line);padding-top:22px}
+  h2 .tag{display:block;font-size:13px;color:var(--muted);margin-bottom:2px;font-weight:600}
+  h3{font-size:16.5px;margin:26px 0 6px}p{font-size:15.5px;max-width:92ch;margin:8px 0}p.lead{font-size:17px;max-width:96ch}li{font-size:15.5px}
+  code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+  code{background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+  figure{margin:16px 0}canvas{display:block;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+  figcaption{font-size:14px;color:var(--cap);max-width:100ch;margin-top:8px}.stage{position:relative}
+  .before{border:1px solid var(--tintLine);background:var(--tint);border-radius:10px;padding:14px 18px;margin:20px 0}
+  .before h2{font-size:18px;border:0;margin:0 0 8px;padding:0}
+  .before p,.before li{font-size:14.5px}.before ul{margin:6px 0}.before a{color:var(--blue)}
+  #tip{position:fixed;z-index:60;max-width:440px;max-height:calc(100vh - 20px);overflow:auto;background:var(--tipBg);color:var(--tipInk);border:1px solid var(--tipLine);border-radius:8px;padding:10px 34px 10px 12px;font-size:13.5px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.28);display:none}
+  #tip .tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:12px}
+  #tip ul{margin:6px 0 0;padding-left:18px}#tip li{font-size:13.5px;margin:3px 0;line-height:1.4}
+  #tip .tclose{position:absolute;top:4px;right:6px;background:none;border:0;color:var(--muted);font-size:15px;cursor:pointer;padding:2px 4px}
+  #tip b{color:var(--tipHi)}#tip code{background:var(--tipBox);border-color:var(--tipLine);color:var(--tipInk)}#tip pre{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;margin:8px 0 0;background:var(--tipBox);border:1px solid var(--tipLine);border-radius:6px;padding:8px 10px;color:var(--tipInk)}
+  .ptdot{position:absolute;width:20px;height:20px;border-radius:50%;transform:translate(-50%,-50%);border:3px solid var(--dot);cursor:pointer;padding:0;z-index:5;touch-action:none}
+  .ptdot.drag{cursor:grab}.ptdot.drag:active{cursor:grabbing}.ptdot.sm{width:15px;height:15px;border-width:2.5px}.ptdot.xs{width:10px;height:10px;border-width:2px}
+  .ptdot.onscreen{border-color:#f1f5f9}
+  .ptdot:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
+   .ptlab{position:absolute;z-index:4;border:0;background:none;padding:0;cursor:pointer}
+  table.trace{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}table.trace th,table.trace td{border:1px solid var(--line);padding:6px 9px;vertical-align:top;text-align:left}
+  table.trace th{background:var(--soft);font-size:13.5px}table.trace td.f{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+pre.code{font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:8px 0 12px;overflow-x:auto;color:var(--ink);max-width:1550px}pre.code .cm{color:var(--cap)}
+  table.trace .lg{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--cap);font-size:12.5px;white-space:normal}
+  .ctl{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:10px 0}.ctlname{font-size:13.5px;font-weight:700;color:var(--muted);min-width:56px}
+  .btn{font-size:14px;padding:6px 14px;border-radius:7px;border:1.5px solid var(--blue);background:var(--btnBg);color:var(--blue);cursor:pointer}.btn:hover{background:var(--tint)}.btn[aria-pressed=true]{background:var(--blue);color:var(--btnOn);box-shadow:inset 0 2px 4px rgba(0,0,0,.25)}.btn:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}.btn:disabled{opacity:.45;cursor:default}
+  .note{border-left:4px solid var(--amber);background:var(--noteBg);padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:110ch;margin:12px 0}
+  details{border:1px solid var(--line);border-radius:8px;margin:10px 0;background:var(--bg)}details>summary{cursor:pointer;padding:10px 14px;font-size:15px;font-weight:600}details>summary:hover{background:var(--soft)}details .body{padding:4px 14px 14px}details details{margin:8px 0;background:var(--soft)}
+  .stepnav{margin:18px 0 14px}
+  .stepControls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+  .stepControls .btn{min-height:36px}
+  .stepCount{color:var(--cap);font-size:14px;font-weight:650}
+  .stepCards{display:grid;grid-template-columns:repeat(var(--shown-steps,5),minmax(0,1fr));gap:8px;list-style:none;margin:0;padding:0}
+  .stepCard{width:100%;height:100%;min-height:64px;padding:8px 10px;text-align:left;line-height:1.25;overflow-wrap:anywhere;color:var(--ink);border-color:var(--line)}
+  .stepCard .stepNumber{display:block;margin-bottom:4px;color:var(--muted);font-size:12px;font-weight:650}
+  .stepCard[aria-current=step]{color:var(--blue);border-color:var(--blue);background:var(--tint);box-shadow:inset 0 -3px 0 var(--blue);font-weight:650}
+  .stepCard[aria-current=step] .stepNumber{color:inherit}
+   .stepcap h3{margin:0 0 8px}
+   .calc{font:14px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:8px 0}
+  .verdict{font-size:15px;margin-top:8px;font-weight:600}.verdict.ok{color:var(--green)}.verdict.no{color:var(--red)}
+  .navfoot{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:50px;padding-top:16px;font-size:14px}.small{font-size:14px;color:var(--cap)}[hidden]{display:none!important}
+  .kn{background:var(--knBg);color:var(--knInk);border-radius:3px;padding:0 2px}#tip .kn{background:var(--tipKnBg);color:var(--tipKnInk)}
+  .heroGrid,.ideaGrid,.traceGrid,.exq{display:grid;grid-template-columns:minmax(0,600px) minmax(0,720px);gap:24px;align-items:start}
+  .heroGrid{grid-template-columns:repeat(2,minmax(0,600px))}
+  .exq{grid-template-columns:minmax(0,580px) minmax(0,600px)}
+  .ideaGrid figure,.traceGrid figure,.exq figure{margin-top:0}
+  .stepcap{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+  canvas{width:100%;height:auto;border:0;border-radius:8px}
+  .stage{width:100%;box-shadow:0 0 0 1px var(--line);border-radius:8px}
+  #tip.open{display:block}
+  .codebar{display:flex;gap:12px;align-items:center;margin:10px 0}
+  .choices{display:flex;flex-wrap:wrap;gap:8px}
+  .codebar button{flex-shrink:0}
+  .step .calc,.trace{overflow-wrap:anywhere}
+  .sampleLegs{display:flex;flex-wrap:wrap;gap:0 12px}
+  .tintSamples{display:flex;flex-wrap:wrap;gap:12px;margin:10px 0}
+  .tintSample{display:inline-flex;align-items:center;gap:8px;font-size:14px}
+  .tintSample span{display:block;width:38px;height:26px;border:1px solid var(--muted);border-radius:4px}
+  @media(max-width:950px){.heroGrid,.ideaGrid,.traceGrid,.exq{grid-template-columns:minmax(0,600px)}}
+  @media(max-width:520px){.wrap{padding-inline:14px}.stepCard{padding:6px}.navfoot{flex-wrap:wrap;gap:8px}}
+  .chapter11 .heroGrid,.chapter11 .ideaGrid{grid-template-columns:repeat(2,minmax(0,570px))}
+  .chapter11 .heroGrid{margin-top:12px}
+  .chapter11 .stepCards{max-width:1164px}
+  .chapter11 .stepnav{max-width:1164px}
+  .chapter11 .stepcap{max-width:1164px}
+  .chapter11 .stage{overflow:hidden}
+  .chapter11 .ptdot{border-color:#111827}
+  .chapter11 .ptdot.drag{width:12px;height:12px;border-width:2px}
+  .chapter11 .ptdot.xs{width:9px;height:9px}
+  #tip{width:min(440px,calc(100vw - 16px))}
+  @media(max-width:520px){
+    .chapter11 .ptdot.drag{width:8px;height:8px}
+    .chapter11 .ptdot.xs{width:7px;height:7px}
+  }
+  .chapter11 .ptlab{transform:translate(-50%,-50%);white-space:nowrap;font:600 14px/1.25 system-ui,sans-serif;
+    padding:3px 7px;border:1px solid var(--line);border-radius:5px;background:var(--paper);color:var(--ink)}
+  .chapter11 .ptlab:focus-visible{outline:2px solid var(--indigo);outline-offset:1px}
+  .chapter11 .pointStage{touch-action:pan-y}
+  .chapter11 #readCalc{min-height:4.8em}
+  @media(max-width:950px){.chapter11 .heroGrid,.chapter11 .ideaGrid{grid-template-columns:minmax(0,570px)}}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="crumb">Liquid Glass course</span>
+  <a href="../../../liquid-glass-course.html">Course home</a>
+  <a href="../../../curriculum/safari_spring_menu_plan.md#chapter-11--the-lens-of-the-menus-glass">Chapter 11 plan</a>
+  <a href="../../glossary.html">Glossary</a>
+  <a href="../../reference-number-forms.html">How numbers are written</a>
+  <a href="../../../cheatsheet/chapter-11-the-lens-of-the-menus-glass.html">Chapter 11 cheatsheet</a>
+  <a href="../chapter-10/lesson-10-48-resting-menu.html">← Lesson 10.48</a>
+</header>
+<main class="wrap chapter11">
+<h1>Lesson 11.1 — The glass picture, and the shader that reads it.</h1>
+<p class="lead">Look at “New Tab” and the soft amber stripe behind it. Both can move inside the dark menu. Build the picture they share, then follow one output pixel to see how reading farther right puts the picture farther left.</p>
+<figure class="heroGrid">
+  <div>
+    <div class="stage"><canvas id="heroStill" width="570" height="420" role="img" aria-label="Dark menu over a sharp page with an amber shape and a blue block"></canvas></div>
+    <figcaption>The dark menu with the read at each pixel’s own place. The rounded line marks where the result covers the sharp page.</figcaption>
+  </div>
+  <div>
+    <div class="stage"><canvas id="heroShift" width="570" height="420" role="img" aria-label="The same menu with its text and soft amber stripe shifted toward the left"></canvas></div>
+    <figcaption>Preview of the shifted read. Watch the row text and the soft amber stripe move together. The upright guide stays fixed.</figcaption>
+  </div>
+</figure>
+<p><b>Where this is used.</b> Lesson 11.2 uses this same read with a different source point at each pixel near the rim, so the picture bends there. Lesson 11.4 uses the glass picture in place of the flat color inside the resting menu, so the lens can bend both the page and the rows.</p>
+
+<h2 id="s1"><span class="tag">Section 1 · build the source</span>Put the page, tint, and rows in one picture</h2>
+<p>The lab uses the resting menu’s <span class="kn">261 × 188 pt</span> size from the Safari recording. Here we enlarge that region of the phone screen so you can see the changes. Each view counts in points from the top-left corner of the pictured region. x goes right and y goes down. <span class="kn">Green</span> marks inputs we know before a calculation.</p>
+<nav class="stepnav" aria-label="Glass picture steps">
+  <div class="stepControls">
+    <button class="btn" type="button" id="stepBack">← Back</button>
+    <span class="stepCount" id="stepCount" aria-live="polite"></span>
+    <button class="btn" type="button" id="stepNext">Next →</button>
+  </div>
+  <ol class="stepCards" id="steps"></ol>
+</nav>
+<div class="ideaGrid">
+  <figure>
+    <div class="stage"><canvas id="sharp" width="570" height="420" role="img" aria-label="Sharp page in the chosen menu region"></canvas></div>
+    <figcaption>The page that stays on screen.</figcaption>
+  </figure>
+  <figure>
+    <div class="stage"><canvas id="build" width="570" height="420" role="img" aria-describedby="buildCaption"></canvas></div>
+    <figcaption id="buildCaption"></figcaption>
+  </figure>
+</div>
+<div class="stepcap" id="stepText">
+  <section class="step">
+    <h3>Draw the page again</h3>
+    <p>We choose an amber shape with a foot on its right and put a blue block on the other side. The picture looks different when it moves or flips. The sharp page in the first picture is a separate SwiftUI view. <code>layerEffect</code> can read only the view you apply it to. It cannot see the page already drawn behind that view.</p>
+    <p>The app owns the page, so it draws the same SwiftUI page again in the same place. The second picture shows that copy. The app can now change the copy while the page behind the menu stays sharp.</p>
+  </section>
+  <section class="step" hidden>
+    <h3>Soften the copy</h3>
+    <p>Look at the amber foot. Its sharp boundary becomes a soft patch. We apply a blur of <span class="kn">18 pt</span> to the copied page. This is the course’s starting setting. A larger radius spreads the softening over a wider area.</p>
+  </section>
+  <section class="step" hidden>
+    <h3>Lay dark gray over the blur</h3>
+    <p>The tint is a sheet of dark gray over the copied page. We use the shortcut lab’s dark menu gray and choose its opacity to be <span class="kn">0.55</span> so the colored marks remain visible in the demo. At opacity 0 the tint contributes nothing. At 1 the tint covers the copy. Watch the amber and blue get darker while their shapes remain visible.</p>
+  </section>
+  <section class="step" hidden>
+    <h3>Draw the rows on top</h3>
+    <p>Draw the rows last so they stay sharp. SwiftUI’s <code>ZStack</code> puts the blur at the back, the tint above it, and the rows in front. Apply <code>.compositingGroup()</code> to keep those children together, then apply <code>.layerEffect</code> to the group. The shader gets one flat <b>glass picture</b> with the blur, the tint, and the rows already drawn together.</p>
+    <p>Use SwiftUI views for this copy. Apple says a UIKit-backed view inside a layer effect may fail to draw into the layer. SwiftUI may show a placeholder and log a warning. For example, keep a wrapped UIKit web view outside this effect and supply a SwiftUI-rendered picture for the shader to read. <a href="https://developer.apple.com/documentation/swiftui/view/layereffect(_:maxsampleoffset:isenabled:)">Apple’s layerEffect documentation</a></p>
+  </section>
+</div>
+
+<h2 id="s2"><span class="tag">Section 2 · follow the read</span>Which point gives P its color?</h2>
+<p><b>P</b> is the output pixel we want to color. The center of P starts at <span class="kn">(174, 58) pt</span>, just to the left of the amber stripe’s center. The worked figures show the glass picture as a rectangle so you can follow P across it. A dot marks the center of a pixel or the exact place to read.</p>
+<p>SwiftUI runs the Metal function for each output pixel. SwiftUI passes the location of that pixel as <code>position</code> and the drawn glass picture as <code>layer</code>. In this lab <code>position</code> is in points from the top-left corner of the effect’s own view. The axes in both pictures show that local origin. The phone screen has its own top-left corner farther up and left.</p>
+<p>We choose <span class="kn">10 pt right</span> so the shift is easy to see. This is a move of +10 along x and 0 along y. Start at P and follow the arrow to <b>S</b>, the source point on the glass picture. Drag P in either picture or use the arrow keys on its dot. Then try a read of 0 pt.</p>
+<div class="ctl" role="group" aria-label="Horizontal read distance">
+  <span class="ctlname">Read distance</span>
+  <button class="btn" type="button" data-read="0">0 pt</button>
+  <button class="btn" type="button" data-read="10">10 pt right</button>
+  <button class="btn" type="button" id="reset">Reset P</button>
+</div>
+<div class="ideaGrid">
+  <figure>
+    <div class="stage pointStage" id="sourceStage"><canvas id="source" width="570" height="420" role="img" aria-label="Original glass picture with the read arrow from P to S"></canvas></div>
+    <figcaption>Source picture. The arrow starts at P and ends at S, where Metal reads.</figcaption>
+  </figure>
+  <figure>
+    <div class="stage pointStage" id="outputStage"><canvas id="output" width="570" height="420" role="img" aria-label="Shader output with the color from S drawn at P"></canvas></div>
+    <figcaption>Output picture. P stays in place and gets the color from S.</figcaption>
+  </figure>
+</div>
+<div class="calc" id="readCalc" aria-live="polite"></div>
+<p><code>layer.sample(S)</code> reads the color at S. When S falls between the centers of pixels in the picture, the sampler blends nearby colors. The function returns that color for P.</p>
+<p>Reset P and compare the two pictures at 10 pt. The amber stripe starts at x = 184 pt, at S. It appears at x = 174 pt, at P. To find how the stripe moved, subtract its starting x from its output x.</p>
+<div class="calc">Stripe’s shift = 174 − 184 = −10 pt</div>
+<p>The minus sign means left. Each output pixel looks 10 pt to the right for its color, so every feature lands 10 pt to the left of where it started, including the menu rows. The menu’s outline is a fixed cutout around the result.</p>
+
+<h2 id="s3"><span class="tag">Section 3 · Swift and Metal</span>Return the color that S supplies</h2>
+<h3>What the sample contains</h3>
+<p>The sample returns four numbers in one <code>half4</code>. They hold red, green, blue, and alpha, in that order. Alpha is opacity. It ranges from 0 for fully transparent to 1 for fully opaque. The sample’s color is <b>premultiplied</b>. Its red, green, and blue already include the color’s share of opacity.</p>
+<p>For a small example, choose red <span class="kn">0.80</span>, green <span class="kn">0.40</span>, blue <span class="kn">0.20</span>, and alpha <span class="kn">0.50</span>. To store the color’s contribution, multiply each color number by alpha. Keep alpha itself.</p>
+<div class="calc">
+  Stored red = <span class="kn">0.80 × 0.50</span> = 0.40<br>
+  Stored green = <span class="kn">0.40 × 0.50</span> = 0.20<br>
+  Stored blue = <span class="kn">0.20 × 0.50</span> = 0.10<br>
+  Premultiplied RGBA = (0.40, 0.20, 0.10, <span class="kn">0.50</span>)
+</div>
+<p>For P’s actual read, the copied page is opaque behind the tint and rows, so the finished color at S has alpha 1. The shader returns the sampled numbers as they are. At a translucent source the same return would preserve the alpha and the already weighted color.</p>
+
+<h3>Allow room for the read</h3>
+<p><code>maxSampleOffset</code> declares the allowed read distance from any output pixel in the layer. Its width is the farthest the shader may read left or right. Its height is the farthest it may read up or down. The value tells SwiftUI how far the shader can reach. The shader code still chooses each read point.</p>
+<p>We declare <span class="kn">24 pt</span> on both axes. In the course’s reconstruction, 24 pt is the chosen farthest read when the menu is opening or closing. The course fitted this setting to the visible bending of the rows in the Safari opening recording. A read that far might point along either axis, so the caller allows the full distance in each. The lab’s 10 pt rightward read is within that allowance. The lab extends the drawing past the right side of the visible menu so there is page color to read near that edge.</p>
+<div class="codebar"><button class="btn" type="button" data-copy="swift">Copy Swift</button><span class="small" role="status"></span></div>
+<pre class="code"><code id="swift">let readRightPt: Float = 10
+let readLimit: CGFloat = 24
+ZStack(alignment: .topLeading) {
+    page.drawingGroup(opaque: true)
+        .blur(radius: 18, opaque: true)
+    darkTint.opacity(0.55)
+    menuRows
+}
+.compositingGroup()
+.layerEffect(
+    ShaderLibrary.default.glassPictureShift(.float(readRightPt)),
+    maxSampleOffset: CGSize(width: readLimit, height: readLimit)
+)</code></pre>
+<div class="codebar"><button class="btn" type="button" data-copy="metal">Copy Metal</button><span class="small" role="status"></span></div>
+<pre class="code"><code id="metal">#include &lt;metal_stdlib&gt;
+#include &lt;SwiftUI/SwiftUI.h&gt;
+using namespace metal;
+
+[[ stitchable ]] half4 glassPictureShift(
+    float2 position, SwiftUI::Layer layer, float readRightPt
+) {
+    float2 source = position + float2(readRightPt, 0.0);
+    return layer.sample(source);
+}</code></pre>
+<table class="trace" style="max-width:1040px">
+  <thead><tr><th scope="col">Line</th><th scope="col">What it does for P in the 10 pt check</th></tr></thead>
+  <tbody>
+    <tr><th scope="row"><code>ZStack { … }</code></th><td>Draws the blurred copy, tint, and rows from back to front. The lab supplies the three SwiftUI views.</td></tr>
+    <tr><th scope="row"><code>.compositingGroup()</code></th><td>Keeps the three drawings together as one input to <code>layerEffect</code>.</td></tr>
+    <tr><th scope="row"><code>.layerEffect(…)</code></th><td>Binds the extra Metal input <code>readRightPt</code> to 10 through <code>.float</code>. Declares the 24 pt allowance on both axes.</td></tr>
+    <tr><th scope="row"><code>glassPictureShift(…)</code></th><td>SwiftUI calls Metal with P’s (174, 58) pt as <code>position</code>, the glass picture as <code>layer</code>, and the bound 10 pt.</td></tr>
+    <tr><th scope="row"><code>float2 source = …</code></th><td>A <code>float2</code> holds two numbers. Add 10 to x and 0 to y to get S at (184, 58) pt.</td></tr>
+    <tr><th scope="row"><code>return layer.sample(source)</code></th><td>Read the four premultiplied color numbers at S. Send those same four numbers to output pixel P.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s4"><span class="tag">Section 4 · lab check</span>Check the shift in Xcode</h2>
+<p>Run <b>LiquidGlassLab → Chapter 11</b>. Compare the two menus in <code>GlassPictureView.swift</code>. Both call <code>GlassPictureShift.metal</code>. Each menu has the same fixed guides at <span class="kn">x = 174 pt</span> (mint) and <span class="kn">x = 184 pt</span> (yellow). The first read is <span class="kn">0 pt</span>, so the amber stripe sits under the yellow guide. The second read is <span class="kn">10 pt right</span>, so the stripe moves to the mint guide. Look at “New Tab” to check that the sharp text moves by the same amount.</p>
+<p>An iPhone 16 Pro draws <span class="kn">3 device pixels per point</span>. In a screenshot from that device, the 10 pt shift covers <code>10 × 3 = 30</code> device pixels.</p>
+
+<h2 id="s5"><span class="tag">Section 5 · check your understanding</span>Which source point supplies R?</h2>
+<div class="exq">
+  <div>
+    <p>R is the red output pixel at <span class="kn">(132, 58) pt</span>. This time the shader reads <span class="kn">10 pt to the left</span>. The axes are the same as in the worked example. Find the source point for R.</p>
+    <div class="choices" role="group" aria-label="Answer choices">
+      <button class="btn" type="button" data-choice="right">(142, 58) pt</button>
+      <button class="btn" type="button" data-choice="left">(122, 58) pt</button>
+      <button class="btn" type="button" data-choice="down">(132, 68) pt</button>
+    </div>
+    <p class="verdict" id="verdict" aria-live="polite"></p>
+    <div id="answer" hidden>
+      <div class="calc">Source x = <span class="kn">132</span> − <span class="kn">10</span> = 122 pt<br>
+        Source y = <span class="kn">58</span> + <span class="kn">0</span> = 58 pt</div>
+      <p>Step through it as you did for P. Start at R. Move 10 pt left on x and stay on the same row. Read the color there and return it for R. The color at x = 122 pt appears at x = 132 pt, so this time the picture would slide right.</p>
+    </div>
+  </div>
+  <figure>
+    <div class="stage pointStage" id="quizStage"><canvas id="quiz" width="570" height="420" role="img" aria-label="Original glass picture with a red mark at output pixel R"></canvas></div>
+    <figcaption>The original glass picture. The red dot marks the output location on the same axes.</figcaption>
+  </figure>
+</div>
+
+<h2 id="s6"><span class="tag">Section 6 · build record</span>Record what you saw</h2>
+<div class="codebar"><button class="btn" type="button" data-copy="record">Copy Markdown</button><span class="small" role="status"></span></div>
+<pre class="code" id="record">### 11.1 — The glass picture
+- Source picture, back to front: blurred copy of the page, dark tint, menu rows.
+- P = (174, 58) pt in the effect’s local view. A 10 pt rightward read gives S = (184, 58) pt.
+- Return the premultiplied RGBA from S at P. The picture moves 10 pt left.
+- The allowed read distance is 24 pt on each axis, from the planned in-flight read.
+- Chapter 11 lab, amber stripe and first row at 0 pt / 10 pt:</pre>
+<div class="navfoot">
+  <a href="../chapter-10/lesson-10-48-resting-menu.html">← Lesson 10.48 · The resting menu</a>
+  <span>Next in the plan · 11.2 The push</span>
+</div>
+</main>
+<div id="tip" role="dialog" aria-label="Point details"><button class="tclose" id="tipClose" type="button" aria-label="Close point details">×</button><div id="tipBody"></div></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const clamp=(x,lo,hi)=>Math.min(Math.max(x,lo),hi);
+const KN=x=>`<span class="kn">${x}</span>`;
+const DARKC={'#ffffff':'#1b2431','#f8fafc':'#222c3a','#f1f5f9':'#232d3b','#e2e8f0':'#2d3848','#cbd5e1':'#44516a','#94a3b8':'#6f7d92','#64748b':'#8f9bab','#475569':'#aab4c2','#334155':'#c3ccd8','#111827':'#ccd2dc',
+  'rgba(255,255,255,0.94)':'rgba(22,29,39,0.94)','rgba(255,255,255,0.96)':'rgba(22,29,39,0.96)','rgba(17,24,39,0.92)':'rgba(8,12,18,0.92)',
+  '#f3e8ff':'#33264d','#a855f7':'#c084fc','#6b21a8':'#d8b4fe','rgba(233,213,255,0.62)':'rgba(140,105,205,0.34)','rgba(168,85,247,0.45)':'rgba(192,132,252,0.5)','rgba(221,214,254,0.86)':'rgba(72,56,112,0.9)',
+  '#3730a3':'#c7d2fe','#0f766e':'#5eead4','#92400e':'#fcd34d','#9d174d':'#f9a8d4','#854d0e':'#fde047','#1e40af':'#93c5fd','#1d4ed8':'#93c5fd','#be123c':'#fda4af','#155e75':'#67e8f9','#dc2626':'#f87171','#3f6212':'#bef264','#9a3412':'#fdba74','#075985':'#7dd3fc','#d97706':'#fbbf24'};
+const isDark=()=>document.documentElement.dataset.theme==='dark';
+const C=c=>isDark()?(DARKC[c]||c):c;
+/* ---------- 2D drawing helpers (solid strokes, dark halo) ---------- */
+const FT='-apple-system,"Segoe UI",Roboto,sans-serif';
+function halo(ctx,draw,color,w=2.5){for(const [lw,c] of [[w+3.5,C('rgba(17,24,39,0.92)')],[w,color]]){ctx.lineWidth=lw;ctx.strokeStyle=c;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();draw();ctx.stroke()}}
+function line(ctx,x1,y1,x2,y2,color,w=2.5){halo(ctx,()=>{ctx.moveTo(x1,y1);ctx.lineTo(x2,y2)},color,w)}
+function arrow(ctx,x1,y1,x2,y2,color,w=3,head=13){const L=Math.hypot(x2-x1,y2-y1);if(L<0.5)return;head=Math.min(head,L*0.55);const a=Math.atan2(y2-y1,x2-x1),bx=x2-head*Math.cos(a),by=y2-head*Math.sin(a);line(ctx,x1,y1,bx,by,color,w);
+  const s=head*0.55;ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(bx+s*Math.sin(a),by-s*Math.cos(a));ctx.lineTo(bx-s*Math.sin(a),by+s*Math.cos(a));ctx.closePath();ctx.fillStyle=color;ctx.fill();ctx.lineWidth=1.6;ctx.strokeStyle=C('#111827');ctx.stroke()}
+
+const picture = {width:261, height:188, extra:24, x:24, y:30, scale:2};
+const start = {x:174, y:58};
+const amberX = 184;
+const mint = '#5eead4';
+const gold = '#fde047';
+const red = '#fb7185';
+const p = {...start};
+let read = 10;
+const quiz = {x:132, y:58, dx:-10, choice:null};
+const panels = [
+  ['Draw the page again','The aligned copy of the sharp page.'],
+  ['Soften the copy','Only the copy has a blur.'],
+  ['Add the tint','Dark gray over the blurred copy.'],
+  ['Draw the rows','The finished glass picture, ready for the shader.']
+];
+
+function drawPage(ctx, width) {
+  ctx.fillStyle = '#19191b';
+  ctx.fillRect(-40,-40,width+80,picture.height+80);
+  ctx.fillStyle = '#3b9ce3';
+  ctx.fillRect(57-28,116-21,56,42);
+  ctx.fillStyle = '#ffab47';
+  ctx.fillRect(amberX-15,16,30,105);
+  ctx.fillRect(191,97,52,24);
+}
+
+function drawRows(ctx) {
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `17px ${FT}`;
+  ctx.textBaseline = 'middle';
+  ctx.fillText('New Tab',63,32.4);
+  ctx.fillText('New Private Tab',63,77);
+  ctx.font = `600 13px ${FT}`;
+  ctx.textAlign = 'center';
+  ctx.fillText('Bookmarks',70,164);
+  ctx.fillText('All Tabs',191.5,164);
+  ctx.fillStyle = 'rgba(255,255,255,0.12)';
+  ctx.fillRect(24,109,213,1);
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 1.6;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(30,32.4); ctx.lineTo(46,32.4);
+  ctx.moveTo(38,24.4); ctx.lineTo(38,40.4);
+  ctx.moveTo(35,84); ctx.quadraticCurveTo(32,82,29,76);
+  ctx.quadraticCurveTo(30,73,33,76); ctx.lineTo(33,70);
+  ctx.quadraticCurveTo(35,67,37,70); ctx.lineTo(37,75);
+  ctx.lineTo(37,67); ctx.quadraticCurveTo(39,64,41,67);
+  ctx.lineTo(41,75); ctx.lineTo(43,71);
+  ctx.quadraticCurveTo(46,69,46,73); ctx.lineTo(45,81);
+  ctx.quadraticCurveTo(42,87,35,84);
+  ctx.moveTo(70,133); ctx.quadraticCurveTo(66,130,61,133);
+  ctx.lineTo(61,144); ctx.quadraticCurveTo(66,141,70,145);
+  ctx.quadraticCurveTo(74,141,79,144); ctx.lineTo(79,133);
+  ctx.quadraticCurveTo(75,130,70,133); ctx.lineTo(70,145);
+  ctx.roundRect(184,137,13,10,2);
+  ctx.moveTo(189,133); ctx.lineTo(200,133);
+  ctx.lineTo(200,143);
+  ctx.stroke();
+}
+
+function makePageImage() {
+  const padded = document.createElement('canvas');
+  const pad = 64;
+  const scale = picture.scale;
+  padded.width = (picture.width+picture.extra+2*pad)*scale;
+  padded.height = (picture.height+2*pad)*scale;
+  const ctx = padded.getContext('2d');
+  ctx.scale(scale,scale);
+  ctx.translate(pad,pad);
+  ctx.fillStyle = '#19191b';
+  ctx.fillRect(-pad,-pad,padded.width/scale,padded.height/scale);
+  drawPage(ctx,picture.width+picture.extra);
+  return {image:padded,inset:pad*scale};
+}
+
+const pageImage = makePageImage();
+
+function makePicture(buildStep) {
+  const result = document.createElement('canvas');
+  const width = picture.width + picture.extra;
+  result.width = width*picture.scale;
+  result.height = picture.height*picture.scale;
+  const ctx = result.getContext('2d');
+  ctx.filter = buildStep >= 1 ? `blur(${18*picture.scale}px)` : 'none';
+  ctx.drawImage(pageImage.image,-pageImage.inset,-pageImage.inset);
+  ctx.filter = 'none';
+  ctx.scale(picture.scale,picture.scale);
+  if(buildStep >= 2){
+    ctx.fillStyle = 'rgba(25,25,27,0.55)';
+    ctx.fillRect(0,0,width,picture.height);
+  }
+  if(buildStep >= 3) drawRows(ctx);
+  return result;
+}
+
+const pictures = panels.map((_,index) => makePicture(index));
+
+function screen(id, buildStep, dx=0, isMenu=false) {
+  const canvas = $(id);
+  const ctx = canvas.getContext('2d');
+  const {x,y,width,height,scale} = picture;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = C('#ffffff');
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x,y,width*scale,height*scale);
+  ctx.clip();
+  if(isMenu){
+    ctx.drawImage(pictures[0],x,y);
+    ctx.beginPath();
+    ctx.roundRect(x,y,width*scale,height*scale,36*scale);
+    ctx.clip();
+  }
+  ctx.drawImage(pictures[buildStep],x-dx*scale,y);
+  ctx.restore();
+  if(isMenu){
+    ctx.beginPath();
+    ctx.roundRect(x+0.5,y+0.5,width*scale-1,height*scale-1,36*scale);
+    ctx.strokeStyle = 'rgba(255,255,255,0.28)';
+    ctx.stroke();
+  }
+  ctx.strokeStyle = C('#cbd5e1');
+  ctx.strokeRect(x-0.5,y-0.5,width*scale+1,height*scale+1);
+  ctx.beginPath();
+  ctx.moveTo(x-8,y);
+  ctx.lineTo(x,y);
+  ctx.lineTo(x,y-8);
+  ctx.strokeStyle = C('#334155');
+  ctx.stroke();
+  ctx.fillStyle = C('#334155');
+  ctx.font = `600 14px ${FT}`;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('(0, 0)  ·  x → (pt), y ↓ (pt)',x,15);
+  return ctx;
+}
+
+let step = 0;
+const stepButtons = panels.map(([title],index) => {
+  const item = document.createElement('li');
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'btn stepCard';
+  button.innerHTML = `<span class="stepNumber">Step ${index+1}</span>${title}`;
+  button.onclick = () => setStep(index);
+  item.append(button);
+  $('steps').append(item);
+  return button;
+});
+
+function drawBuild() {
+  screen('sharp',0);
+  screen('build',step);
+  $('buildCaption').textContent = panels[step][1];
+}
+
+function setStep(next) {
+  step = clamp(next,0,panels.length-1);
+  const stepsShown = window.matchMedia('(max-width:520px)').matches ? 3 : panels.length;
+  const first = clamp(step-1,0,panels.length-stepsShown);
+  $('steps').style.setProperty('--shown-steps',stepsShown);
+  $('stepCount').textContent = `Step ${step+1} of ${panels.length}`;
+  $('stepBack').disabled = step === 0;
+  $('stepNext').disabled = step === panels.length-1;
+  stepButtons.forEach((button,index) => {
+    button.parentElement.hidden = index < first || index >= first+stepsShown;
+    if(index === step) button.setAttribute('aria-current','step');
+    else button.removeAttribute('aria-current');
+  });
+  document.querySelectorAll('#stepText .step').forEach((section,index) => {
+    section.hidden = index !== step;
+  });
+  drawBuild();
+}
+$('stepBack').onclick = () => setStep(step-1);
+$('stepNext').onclick = () => setStep(step+1);
+document.querySelector('.stepnav').addEventListener('keydown',event => {
+  if(event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+  event.preventDefault();
+  setStep(step + (event.key === 'ArrowLeft' ? -1 : 1));
+  stepButtons[step].focus();
+});
+window.matchMedia('(max-width:520px)').addEventListener('change',() => setStep(step));
+
+const tip = $('tip');
+let tipOwner;
+function openTip(button, getDetails) {
+  const [name,role,x,y] = getDetails();
+  $('tipBody').textContent = `${name} · ${role} at (${x}, ${y}) pt from the top left.`;
+  tipOwner?.setAttribute('aria-expanded','false');
+  tipOwner = button;
+  button.setAttribute('aria-expanded','true');
+  tip.classList.add('open');
+  const rect = button.getBoundingClientRect();
+  tip.style.left = `${clamp(rect.left,8,innerWidth-tip.offsetWidth-8)}px`;
+  tip.style.top = `${rect.bottom+10+tip.offsetHeight <= innerHeight ?
+    rect.bottom+10 : Math.max(8,rect.top-tip.offsetHeight-10)}px`;
+}
+function closeTip(restoreFocus=false) {
+  tip.classList.remove('open');
+  tipOwner?.setAttribute('aria-expanded','false');
+  if(restoreFocus) tipOwner?.focus();
+  tipOwner = undefined;
+}
+$('tipClose').onclick = () => closeTip(true);
+document.addEventListener('keydown',event => {
+  if(event.key === 'Escape' && tipOwner) closeTip(true);
+});
+document.addEventListener('click',event => {
+  if(!event.target.closest('#tip, .ptdot, .ptlab')) closeTip();
+});
+window.addEventListener('resize',() => closeTip());
+
+function onScreen(x,y){
+  return [picture.x+x*picture.scale,picture.y+y*picture.scale];
+}
+
+function createPoint(stage, color, details, movable=false) {
+  const dot = document.createElement('button');
+  const label = document.createElement('button');
+  for(const button of [dot,label]){
+    button.type = 'button';
+    button.setAttribute('aria-expanded','false');
+    button.onclick = () => openTip(button,details);
+    button.addEventListener('keydown',event => {
+      if(event.key !== 'Enter') return;
+      event.preventDefault();
+      openTip(button,details);
+    });
+    stage.append(button);
+  }
+  dot.className = movable ? 'ptdot sm drag' : 'ptdot xs';
+  label.className = 'ptlab';
+  dot.style.background = color;
+  if(movable) enableMove(stage,dot);
+  return {
+    dot,label,
+    update(hidden=false,labelOffsetX=0) {
+      const [name,role,x,y] = details();
+      const [left,top] = onScreen(x,y);
+      const canvas = stage.querySelector('canvas');
+      dot.hidden = label.hidden = hidden;
+      dot.setAttribute('aria-label',`${name}, ${role}, (${x}, ${y}) pt`);
+      label.textContent = name;
+      dot.style.left = `${100*left/canvas.width}%`;
+      dot.style.top = `${100*top/canvas.height}%`;
+      const labelX = `calc(${dot.style.left} + (${labelOffsetX}px))`;
+      label.style.left = `clamp(32px, ${labelX}, calc(100% - 32px))`;
+      const labelY = `calc(${dot.style.top} - 21px)`;
+      label.style.top = `clamp(15px, ${labelY}, calc(100% - 15px))`;
+    }
+  };
+}
+
+function setPoint(x,y){
+  p.x = clamp(Math.round(x),8,picture.width-read-8);
+  p.y = clamp(Math.round(y),8,picture.height-8);
+  closeTip();
+  drawRead();
+}
+
+function enableMove(stage,dot){
+  let drag;
+  let suppressClick = false;
+  dot.addEventListener('click',event => {
+    if(event.detail && suppressClick) event.stopImmediatePropagation();
+    suppressClick = false;
+  },true);
+  dot.addEventListener('pointerdown',event => {
+    if(event.button !== 0) return;
+    suppressClick = false;
+    drag = {x:event.clientX,y:event.clientY,moved:false};
+    dot.setPointerCapture(event.pointerId);
+  });
+  dot.addEventListener('pointermove',event => {
+    if(!drag || (!drag.moved && Math.hypot(event.clientX-drag.x,event.clientY-drag.y) < 3)) return;
+    drag.moved = true;
+    const rect = stage.querySelector('canvas').getBoundingClientRect();
+    const [x,y] = [
+      (event.clientX-rect.left)*570/rect.width,
+      (event.clientY-rect.top)*420/rect.height
+    ];
+    setPoint((x-picture.x)/picture.scale,(y-picture.y)/picture.scale);
+  });
+  dot.addEventListener('pointerup',() => {
+    suppressClick = !!drag?.moved;
+    drag = undefined;
+  });
+  dot.addEventListener('pointercancel',() => { drag = undefined; });
+  dot.addEventListener('keydown',event => {
+    const delta = {ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[event.key];
+    if(!delta) return;
+    event.preventDefault();
+    setPoint(p.x+delta[0],p.y+delta[1]);
+  });
+}
+
+const sourceP = createPoint($('sourceStage'),mint,() =>
+  read ? ['P','output location on the source axes',p.x,p.y] : ['P = S','output location and source point',p.x,p.y],true);
+const sourceS = createPoint($('sourceStage'),gold,() => ['S','source point',p.x+read,p.y]);
+const outputP = createPoint($('outputStage'),mint,() => ['P','output pixel',p.x,p.y],true);
+const quizR = createPoint($('quizStage'),red,() => ['R','output pixel',quiz.x,quiz.y]);
+const quizS = createPoint($('quizStage'),gold,() => ['Source','source point for R',quiz.x+quiz.dx,quiz.y]);
+
+function drawHero() {
+  for(const [id,dx] of [['heroStill',0],['heroShift',10]]){
+    const ctx = screen(id,3,dx,true);
+    const [x,y] = onScreen(amberX,49);
+    line(ctx,x,y-11,x,y+11,gold,2);
+  }
+}
+
+function drawRead() {
+  const ctx = screen('source',3);
+  screen('output',3,read);
+  const [x,y] = onScreen(p.x,p.y);
+  const [sx] = onScreen(p.x+read,p.y);
+  if(read) arrow(ctx,x+5,y,sx-4,y,gold,2.5,7);
+  sourceP.update(false,read ? -14 : 0);
+  sourceS.update(read === 0,14);
+  outputP.update();
+  $('readCalc').innerHTML = [
+    `S.x = ${KN(p.x)} + ${KN(read)} = ${p.x+read} pt`,
+    `S.y = ${KN(p.y)} + ${KN(0)} = ${p.y} pt`,
+    `Return the color from S = (${p.x+read}, ${p.y}) pt for P = (${p.x}, ${p.y}) pt.`
+  ].join('<br>');
+  document.querySelectorAll('[data-read]').forEach(button =>
+    button.setAttribute('aria-pressed',String(Number(button.dataset.read) === read)));
+}
+
+document.querySelectorAll('[data-read]').forEach(button => {
+  button.onclick = () => {
+    read = Number(button.dataset.read);
+    setPoint(p.x,p.y);
+  };
+});
+$('reset').onclick = () => {
+  read = 10;
+  setPoint(start.x,start.y);
+};
+
+function drawQuiz(){
+  const ctx = screen('quiz',3);
+  quizR.update(false,quiz.choice ? 14 : 0);
+  quizS.update(!quiz.choice,-28);
+  if(quiz.choice){
+    const [x,y] = onScreen(quiz.x,quiz.y);
+    const [sx] = onScreen(quiz.x+quiz.dx,quiz.y);
+    arrow(ctx,x-4,y,sx+4,y,gold,2.5,7);
+  }
+}
+const choices = document.querySelectorAll('[data-choice]');
+choices.forEach(button => {
+  button.onclick = () => {
+    quiz.choice = button.dataset.choice;
+    const correct = quiz.choice === 'left';
+    $('verdict').className = correct ? 'verdict ok' : 'verdict no';
+    $('verdict').textContent = {
+      right:'Adding 10 to x reads to the right. A leftward read subtracts 10.',
+      left:'Correct. Read 10 pt left of R.',
+      down:'Adding 10 to y reads down. A leftward read changes x.'
+    }[quiz.choice];
+    $('answer').hidden = false;
+    choices.forEach(choice => choice.setAttribute('aria-pressed',String(choice === button)));
+    drawQuiz();
+  };
+});
+
+for(const button of document.querySelectorAll('[data-copy]')){
+  button.onclick = async () => {
+    const content = $(button.dataset.copy);
+    const status = button.nextElementSibling;
+    try {
+      await navigator.clipboard.writeText(content.textContent);
+      status.textContent = 'Copied.';
+    } catch {
+      const range = document.createRange();
+      range.selectNodeContents(content);
+      getSelection().removeAllRanges();
+      getSelection().addRange(range);
+      status.textContent = 'Selected. Use your copy shortcut.';
+    }
+  };
+}
+
+window.onThemeChange = () => {
+  closeTip();
+  drawHero();
+  drawBuild();
+  drawRead();
+  drawQuiz();
+};
+setStep(0);
+window.onThemeChange();
+</script>
+</body>
+</html>

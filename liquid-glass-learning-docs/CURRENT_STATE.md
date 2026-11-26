@@ -15,10 +15,10 @@ git show 3715feb:liquid-glass-learning-docs/CURRENT_STATE.md
 - Swift, SwiftUI, Metal (`.metal` + `ShaderLibrary`), iOS 17 or later. Test device: iPhone 16 Pro, 402 × 874 pt.
 - Part one, Lessons 1.1–10.45: `course/chapters/chapter-NN/`, done. Part two, from 10.46: `course/part-two/chapter-NN/`, following [the Safari menu plan, section 4](curriculum/safari_spring_menu_plan.md#4-the-new-plan).
 - Progress line after a generated lesson: `Course progress: X of 323 lessons completed.` X comes only from the learner. If X is unavailable, report `Course progress: unknown — tell me your current count.`
-- **Open, the learner's call:** the old curriculum (`curriculum/liquid_glass_ios_curriculum.md`), the Chapter 10 hub, the course home and the count 323 still describe the old plan; no page links to part two yet; Lesson 10.45's “Where this is used” still names the old 10.46 and 10.47.
+- **Open, the learner's call:** the old curriculum (`curriculum/liquid_glass_ios_curriculum.md`), the Chapter 10 hub, the course home and the count 323 still describe the old plan. The course home and hub still need links to part two. Lesson 10.45's “Where this is used” still names the old 10.46 and 10.47.
 - **Open, the learner’s call:** whether the restriction on lab build exercises also applies to short questions on concept pages. The current page format keeps the short questions, as in 10.46 and 10.47.
 - Frozen Chapter 7 frost stack (do not rebuild Chapter 7): blur 18 pt, tint 0.25, saturation 0.40, rim 3 pt, inner band 12 pt with band blur 6 pt, shadow blur 12 pt offset 4 pt; saturation weights 0.213 / 0.715 / 0.072. The menu uses its own values.
-- Pending iOS changes: none.
+- The sibling iOS lab opens Chapter 11, which contains the 11.1 glass picture and read check. Chapter 10 remains available from the chapter picker.
 
 ## Files
 
@@ -80,6 +80,15 @@ File: `course/part-two/chapter-10/lesson-10-48-resting-menu.html`. The explorer 
 - **Rim comparison verification (2026-11-25).** Step 4 draws and labels all four corner samples at equal depth. The learner’s shader gave gray 66/255 at a mirrored top-left and bottom-right sample and 50/255 at the other pair on the iPhone 16 Pro simulator.
 - **Completed preview verification (2026-11-25).** Xcode built the lab, and the iPhone 16 Pro simulator opened Chapter 10 with the completed shader and shadow toggle. The revised lab section loaded in both Chrome themes.
 
-## Next: 11.1
+## Lesson 11.1 — The glass picture, and the shader that reads it (`E`, 2026-11-25)
 
-- **11.1** (`E`) starts the lens with the glass picture and `layerEffect`.
+File: [`course/part-two/chapter-11/lesson-11-01-glass-picture.html`](course/part-two/chapter-11/lesson-11-01-glass-picture.html). Chapter 11 has a [cheatsheet card](cheatsheet/chapter-11-the-lens-of-the-menus-glass.html) for the same read.
+
+- **Source layer.** The sharp SwiftUI page stays behind the menu. A second drawing of the same page is blurred at the course’s starting 18 pt, covered with the shortcut palette’s dark menu gray at a chosen 0.55 opacity, then topped with the sharp menu rows. The colored marks and tint opacity make the shift easy to see. SwiftUI passes the grouped picture to Metal through `layerEffect`. The sharp page behind the group is outside its input. A UIKit-backed view can fail to draw into the input layer.
+- **Worked read.** The 261 × 188 pt menu uses local positions from the top left, with x to the right and y down. The chosen P = (174, 58) pt reads at S = (184, 58) pt with the 10 pt rightward read, or at P itself with the 0 pt read. `layer.sample` interpolates nearby samples for a position between them. Its four returned numbers are premultiplied RGBA and pass through unchanged to P. The separate alpha example takes straight RGBA (0.80, 0.40, 0.20, 0.50) to premultiplied (0.40, 0.20, 0.10, 0.50). The amber stripe starts at x = 184 pt and lands at x = 174 pt. The rows move left by the same 10 pt.
+- **Limit and first use.** The caller declares 24 pt on each axis, the course’s fitted maximum read during the opening and closing. The demo draws an extra 24 pt of source on the right beyond the menu crop. Lesson 11.2 varies the read point near the rim, and 11.4 reads this glass picture in place of the resting menu’s flat tint to bend the page and rows.
+- **Lab and checks.** `LiquidGlassLab/chapter11/GlassPictureView.swift`, `GlassPictureShift.metal`, and `Chapter11Screen.swift` provide the two Metal reads and fixed guides. Xcode built the project and the iPhone 16 Pro simulator showed a 30-device-pixel left shift of the amber stripe and first row in both app appearances. Chrome at 1920 × 1080 checked both themes, the drawing steps, the draggable point from each view, both read distances, point details, and the question and copy controls. Chapter 10’s shader and preview files have no diff.
+
+## Next: 11.2
+
+- **11.2** (`C`) uses the distance inside the rim and the outward direction to choose how far and in which direction to read. Begin with the planned resting example 5.6 pt inside the outline.
