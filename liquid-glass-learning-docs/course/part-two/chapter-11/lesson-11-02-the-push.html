@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 11.2 — The push: largest on the outline, 0 on the flat top.</title>
+<script>
+/* Theme block of the part-two pages: no selector. The system's light or dark setting is used, and follows it when it changes.
+   <html data-theme> is "light" or "dark". */
+(function(){var mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null,root=document.documentElement;
+  function apply(){root.dataset.theme=mq&&mq.matches?'dark':'light';if(window.onThemeChange)window.onThemeChange()}
+  if(mq){if(mq.addEventListener)mq.addEventListener('change',apply);else if(mq.addListener)mq.addListener(apply)}
+  apply()})();
+</script>
+<style>
+  /* Theme block: every color of the page is one of these variables. Dark: off-white text on a dark blue-gray; no pure white, no pure black. */
+  :root{--bg:#ffffff;--ink:#1f2937;--muted:#6b7280;--line:#d1d5db;--soft:#f6f7f9;--green:#059669;--indigo:#4338ca;--amber:#d97706;--blue:#1e40af;--red:#dc2626;
+    --cap:#4b5563;--tint:#eef2ff;--tintLine:#a5b4fc;--btnBg:#ffffff;--btnOn:#ffffff;--noteBg:#fffbeb;--newRow:#f0fdf4;--knBg:#dcfce7;--knInk:#14532d;--dot:#111827;
+    --tipBg:#111827;--tipInk:#f9fafb;--tipBox:#1f2937;--tipLine:#374151;--tipHi:#fde68a;--tipKnBg:#1f4d33;--tipKnInk:#bbf7d0;--paper:#ffffff}
+  :root[data-theme=dark]{--bg:#161d27;--ink:#ccd2dc;--muted:#9aa5b5;--line:#374253;--soft:#1e2733;--green:#34d399;--indigo:#a5b4fc;--amber:#fbbf24;--blue:#93c5fd;--red:#f87171;
+    --cap:#b6c0cd;--tint:#1f2a44;--tintLine:#4c5c8a;--btnBg:#1b2431;--btnOn:#0f172a;--noteBg:#2a2416;--newRow:#16281f;--knBg:#1f4d33;--knInk:#bbf7d0;--dot:#ccd2dc;
+    --tipBg:#2a3545;--tipInk:#ccd2dc;--tipBox:#1b2431;--tipLine:#4a586c;--tipHi:#fde68a;--tipKnBg:#1f4d33;--tipKnInk:#bbf7d0;--paper:#1b2431}
+  *{box-sizing:border-box}
+  html{color-scheme:light}html[data-theme=dark]{color-scheme:dark}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1600px;margin:0 auto;padding:0 24px 90px}
+  header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;border-bottom:1px solid var(--line);padding:14px 24px;max-width:1648px;margin:0 auto}
+  header.top a,.navfoot a{color:var(--blue);text-decoration:none;font-size:14px}
+  header.top a:hover,.navfoot a:hover{text-decoration:underline}
+    .crumb,.sub{color:var(--muted);font-size:14px}
+  h1{font-size:27px;margin:20px 0 2px}h2{font-size:21px;margin:46px 0 8px;border-top:2px solid var(--line);padding-top:22px}
+  h2 .tag{display:block;font-size:13px;color:var(--muted);margin-bottom:2px;font-weight:600}
+  h3{font-size:16.5px;margin:26px 0 6px}p{font-size:15.5px;max-width:92ch;margin:8px 0}p.lead{font-size:17px;max-width:96ch}li{font-size:15.5px}
+  code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+  code{background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+  figure{margin:16px 0}canvas{display:block;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+  figcaption{font-size:14px;color:var(--cap);max-width:100ch;margin-top:8px}.stage{position:relative}
+  .before{border:1px solid var(--tintLine);background:var(--tint);border-radius:10px;padding:14px 18px;margin:20px 0}
+  .before h2{font-size:18px;border:0;margin:0 0 8px;padding:0}
+  .before p,.before li{font-size:14.5px}.before ul{margin:6px 0}.before a{color:var(--blue)}
+  #tip{position:fixed;z-index:60;max-width:440px;max-height:calc(100vh - 20px);overflow:auto;background:var(--tipBg);color:var(--tipInk);border:1px solid var(--tipLine);border-radius:8px;padding:10px 34px 10px 12px;font-size:13.5px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.28);display:none}
+  #tip .tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:12px}
+  #tip ul{margin:6px 0 0;padding-left:18px}#tip li{font-size:13.5px;margin:3px 0;line-height:1.4}
+  #tip .tclose{position:absolute;top:4px;right:6px;background:none;border:0;color:var(--muted);font-size:15px;cursor:pointer;padding:2px 4px}
+  #tip b{color:var(--tipHi)}#tip code{background:var(--tipBox);border-color:var(--tipLine);color:var(--tipInk)}#tip pre{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;margin:8px 0 0;background:var(--tipBox);border:1px solid var(--tipLine);border-radius:6px;padding:8px 10px;color:var(--tipInk)}
+  .ptdot{position:absolute;width:20px;height:20px;border-radius:50%;transform:translate(-50%,-50%);border:3px solid var(--dot);cursor:pointer;padding:0;z-index:5;touch-action:none}
+  .ptdot.drag{cursor:grab}.ptdot.drag:active{cursor:grabbing}.ptdot.sm{width:15px;height:15px;border-width:2.5px}.ptdot.xs{width:10px;height:10px;border-width:2px}
+  .ptdot.onscreen{border-color:#f1f5f9}
+  .ptdot:focus-visible{outline:3px solid var(--indigo);outline-offset:2px}
+   .ptlab{position:absolute;z-index:4;border:0;background:none;padding:0;cursor:pointer}
+  table.trace{border-collapse:collapse;margin:12px 0;font-size:14px;width:100%}table.trace th,table.trace td{border:1px solid var(--line);padding:6px 9px;vertical-align:top;text-align:left}
+  table.trace th{background:var(--soft);font-size:13.5px}table.trace td.f{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+pre.code{font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:8px 0 12px;overflow-x:auto;color:var(--ink);max-width:1550px}pre.code .cm{color:var(--cap)}
+  table.trace .lg{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--cap);font-size:12.5px;white-space:normal}
+  .ctl{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:10px 0}.ctlname{font-size:13.5px;font-weight:700;color:var(--muted);min-width:56px}
+  .btn{font-size:14px;padding:6px 14px;border-radius:7px;border:1.5px solid var(--blue);background:var(--btnBg);color:var(--blue);cursor:pointer}.btn:hover{background:var(--tint)}.btn[aria-pressed=true]{background:var(--blue);color:var(--btnOn);box-shadow:inset 0 2px 4px rgba(0,0,0,.25)}.btn:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}.btn:disabled{opacity:.45;cursor:default}
+  .note{border-left:4px solid var(--amber);background:var(--noteBg);padding:10px 14px;border-radius:0 8px 8px 0;font-size:14.5px;max-width:110ch;margin:12px 0}
+  details{border:1px solid var(--line);border-radius:8px;margin:10px 0;background:var(--bg)}details>summary{cursor:pointer;padding:10px 14px;font-size:15px;font-weight:600}details>summary:hover{background:var(--soft)}details .body{padding:4px 14px 14px}details details{margin:8px 0;background:var(--soft)}
+  .stepnav{margin:18px 0 14px}
+  .stepControls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+  .stepControls .btn{min-height:36px}
+  .stepCount{color:var(--cap);font-size:14px;font-weight:650}
+  .stepCards{display:grid;grid-template-columns:repeat(var(--shown-steps,5),minmax(0,1fr));gap:8px;list-style:none;margin:0;padding:0}
+  .stepCard{width:100%;height:100%;min-height:64px;padding:8px 10px;text-align:left;line-height:1.25;overflow-wrap:anywhere;color:var(--ink);border-color:var(--line)}
+  .stepCard .stepNumber{display:block;margin-bottom:4px;color:var(--muted);font-size:12px;font-weight:650}
+  .stepCard[aria-current=step]{color:var(--blue);border-color:var(--blue);background:var(--tint);box-shadow:inset 0 -3px 0 var(--blue);font-weight:650}
+  .stepCard[aria-current=step] .stepNumber{color:inherit}
+   .stepcap h3{margin:0 0 8px}
+   .calc{font:14px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:8px 0}
+  .verdict{font-size:15px;margin-top:8px;font-weight:600}.verdict.ok{color:var(--green)}.verdict.no{color:var(--red)}
+  .navfoot{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:50px;padding-top:16px;font-size:14px}.small{font-size:14px;color:var(--cap)}[hidden]{display:none!important}
+  .kn{background:var(--knBg);color:var(--knInk);border-radius:3px;padding:0 2px}#tip .kn{background:var(--tipKnBg);color:var(--tipKnInk)}
+  .heroGrid,.ideaGrid,.traceGrid,.exq{display:grid;grid-template-columns:minmax(0,600px) minmax(0,720px);gap:24px;align-items:start}
+  .heroGrid{grid-template-columns:repeat(2,minmax(0,600px))}
+  .exq{grid-template-columns:minmax(0,580px) minmax(0,600px)}
+  .ideaGrid figure,.traceGrid figure,.exq figure{margin-top:0}
+  .stepcap{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+  canvas{width:100%;height:auto;border:0;border-radius:8px}
+  .stage{width:100%;box-shadow:0 0 0 1px var(--line);border-radius:8px}
+  #tip.open{display:block}
+  .codebar{display:flex;gap:12px;align-items:center;margin:10px 0}
+  .choices{display:flex;flex-wrap:wrap;gap:8px}
+  .codebar button{flex-shrink:0}
+  .step .calc,.trace{overflow-wrap:anywhere}
+  .navfoot{flex-wrap:wrap;gap:8px}
+  .heroGrid,.ideaGrid,.traceGrid{grid-template-columns:repeat(2,minmax(0,570px))}
+  .stepnav,.stepcap,.worked{max-width:1164px}
+  .worked .ideaGrid{margin-top:14px}
+  .stage{overflow:hidden}
+  .pointStage{touch-action:pan-y}
+  .ptdot{width:13px;height:13px;border:2px solid #111827}
+  .ptdot.xs{width:9px;height:9px;border-color:#111827}
+  .ptlab{transform:translate(-50%,-50%);white-space:nowrap;font:600 14px/1.25 system-ui,sans-serif;
+    padding:3px 7px;border:1px solid var(--line);border-radius:5px;background:var(--paper);color:var(--ink)}
+  .ptlab:focus-visible{outline:2px solid var(--indigo);outline-offset:1px}
+  #tip{width:min(440px,calc(100vw - 16px))}
+  .reading{max-width:920px}
+  .reading th:first-child{width:9em}
+  .trace td,.trace th{overflow-wrap:anywhere}
+  .eq{display:block}
+  .axisInput{width:min(300px,100%);accent-color:var(--blue)}
+  .evidence{display:grid;grid-template-columns:repeat(2,minmax(0,320px));gap:16px;max-width:656px}
+  .evidence figure{margin:0}
+  .evidence img{display:block;width:100%;border-radius:8px}
+  .orbitCtl{margin:0 0 10px;gap:6px}
+  .orbitCtl .btn{padding-inline:9px}
+  @media(max-width:950px){.heroGrid,.ideaGrid,.traceGrid,.exq{grid-template-columns:minmax(0,570px)}}
+  @media(max-width:520px){.wrap{padding-inline:14px}.stepCard{padding:6px}.reading th:first-child{width:auto}.calc{font-size:13px}.evidence{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="crumb">Liquid Glass course</span>
+  <a href="../../../liquid-glass-course.html">Course home</a>
+  <a href="../../../curriculum/safari_spring_menu_plan.md#chapter-11--the-lens-of-the-menus-glass">Chapter 11 plan</a>
+  <a href="../../glossary.html">Glossary</a>
+  <a href="../../reference-number-forms.html">How numbers are written</a>
+  <a href="../../../cheatsheet/chapter-11-the-lens-of-the-menus-glass.html">Chapter 11 cheatsheet</a>
+</header>
+<main class="wrap">
+<h1>Lesson 11.2 — The push: largest on the outline, 0 on the flat top.</h1>
+<p class="lead">Look at the blue stripe beside the amber mark. It bends near the menu’s edge. In Lesson 11.1, an output pixel stayed in place and took its color from another point in the glass picture. Here you’ll use the shape of the rim to work out how far one pixel reads and which point gives it its color.</p>
+<figure class="heroGrid">
+  <div>
+    <div class="stage"><canvas id="heroStill" width="570" height="234" role="img" aria-label="Straight diagonal stripe in the glass picture under the top edge of the menu"></canvas></div>
+    <figcaption>Glass picture under the straight top edge. The stripe is straight when each pixel reads at its own place.</figcaption>
+  </div>
+  <div>
+    <div class="stage"><canvas id="heroLens" width="570" height="234" role="img" aria-label="The same stripe bends a different amount near the outline and stays straight farther inside"></canvas></div>
+    <figcaption>Resting lens preview. The stripe shifts near the outline. On the flat top, below the dotted guide, it stays in place.</figcaption>
+  </div>
+</figure>
+<p>Imagine sliding the whole picture by the same amount. The stripe would stay straight. Here each row near the edge reads a different distance inward. Those rows show pieces of the stripe from different places, so the pieces no longer line up along a straight line. The distance a pixel reads is the <b>push</b>.</p>
+<p><b>Where this is used.</b> Lesson 11.3 compares the source points for neighboring pixels to explain the upside-down band in flight. The lens build in Lesson 11.4 reads those source points in the glass picture so you can see both the stripes and the menu rows bend.</p>
+<aside class="before">
+  <h2>Uses</h2>
+  <ul>
+    <li>The glass picture contains the blurred page, tint, and menu rows. The sample supplies a color for the output pixel. <a href="lesson-11-01-glass-picture.html#s2">Lesson 11.1</a></li>
+    <li>Signed distance is zero on the outline and negative inside. <code>outwardAt</code> gives an arrow pointing out, scaled to length 1 wherever the samples give a direction. <a href="../chapter-10/lesson-10-46-which-way-is-out.html">Lesson 10.46</a></li>
+    <li>In a triangle with a square corner, the two short sides squared and added give the longest side squared. <a href="../../chapters/chapter-10/lesson-10-01-height-map-idea.html">Lesson 10.1</a></li>
+  </ul>
+</aside>
+
+<h2 id="s1"><span class="tag">Section 1 · follow one pixel</span>Where does P read?</h2>
+<p>Start at the upper-left corner of the resting menu. On the screen, positions are in points (pt) from the top-left of the <span class="kn">402 × 874 pt</span> screen. x increases to the right and y increases toward the bottom. The drawings enlarge a small part of that screen. <span class="kn">Green</span> marks values we have before a calculation.</p>
+<div class="worked">
+  <nav class="stepnav" aria-label="Steps to find the source point">
+    <div class="stepControls">
+      <button class="btn" type="button" id="stepBack">← Back</button>
+      <span class="stepCount" id="stepCount" aria-live="polite"></span>
+      <button class="btn" type="button" id="stepNext">Next →</button>
+    </div>
+    <ol class="stepCards" id="steps"></ol>
+  </nav>
+  <div class="ideaGrid">
+    <figure>
+      <div class="stage" id="workMapStage"><canvas id="workMap" width="570" height="390" role="img" aria-label="Enlarged screen view of the top-left corner with the slice through P"></canvas></div>
+      <figcaption id="workMapCaption"></figcaption>
+    </figure>
+    <figure>
+      <div class="stage" id="orbitStage"><canvas id="orbit" width="570" height="390" role="img" aria-label="Turnable model of the glass showing the upright slice through P"></canvas></div>
+      <figcaption>Model showing where the side view cuts through the glass. Drag to turn it. Control-scroll or Command-scroll to zoom.</figcaption>
+      <div class="ctl orbitCtl" id="viewBar" role="group" aria-label="3D view presets"></div>
+    </figure>
+  </div>
+  <div class="ideaGrid" id="sideRow" hidden>
+    <figure>
+      <div class="stage" id="workSideStage"><canvas id="workSide" width="570" height="340" role="img" aria-label="Side view of the quarter-circle rim and the marked pixel"></canvas></div>
+      <figcaption id="workSideCaption"></figcaption>
+    </figure>
+    <figure id="flightFigure" hidden>
+      <div class="stage" id="flightStage"><canvas id="flightSide" width="570" height="340" role="img" aria-label="In-flight rim at the same scale and the same depth below P"></canvas></div>
+      <figcaption>In-flight profile at the same scale. P still sits 5.6 pt from the outline in this comparison.</figcaption>
+    </figure>
+  </div>
+  <div class="stepcap" id="stepText">
+    <section class="step">
+      <h3>Find the slice through P</h3>
+      <p><b>P</b> is the output pixel. Use the same chosen pixel as in the outward-arrow lesson. Its center is at <span class="kn">(126.06, 660.28) pt</span>. The rim is the curved edge of the glass. <b>Q</b> is the nearest point on the outline, at the foot of that curve. The rounded outline comes from the resting Safari frame. The signed-distance helper gives <span class="kn">−5.6 pt</span> at P. The minus says P is inside, so the distance from Q to P is <b>5.6 pt</b>.</p>
+      <p>The purple line in the screen view goes from Q through P. In the turnable model, the purple sheet stands up along that line. It cuts the rim through P so we can look straight at the cut from the side.</p>
+    </section>
+    <section class="step" hidden>
+      <h3>Find the height over P</h3>
+      <p>In the side view, start at Q and count right toward the inside of the glass. Height starts at the screen and increases upward. The model uses a quarter circle for this cut. We choose a resting rim <span class="kn">14 pt</span> wide to keep the bending close to the edge, as the recording shows when the menu settles. The circle’s radius is also 14 pt, so the flat top starts 14 pt from Q and is 14 pt high.</p>
+      <p><b>K</b> is the circle’s center on the screen, directly below the start of the flat top. <b>H</b> is the point where the curve sits directly above P. The line from K to H is a radius. The line from P to K runs along the screen and meets the height from P to H at a square corner. To get the height squared, take the radius squared and subtract the horizontal leg squared. The ² means multiply a length by itself.</p>
+      <div class="calc" id="heightCalc"></div>
+      <p>The square root finds the positive height whose square is 125.44. H is 11.2 pt above P.</p>
+    </section>
+    <section class="step" hidden>
+      <h3>Turn the height into a read distance</h3>
+      <p>At the resting outline, the model reads <span class="kn">6 pt</span> inward. The course chooses this small maximum push to match the faint bending as the menu settles. Between the outline and the flat top, the model scales those 6 pt by the share of height still left to climb. The full height is <span class="kn">14 pt</span>. We found <b>11.2 pt</b> over P in the previous step.</p>
+      <div class="calc" id="pushCalc"></div>
+      <p>The share runs from 1 at the bottom of the rim to 0 at the flat top. At P, 0.2 means one fifth of the largest read.</p>
+    </section>
+    <section class="step" hidden>
+      <h3>Read farther inside</h3>
+      <p>At P, the direction helper gives approximately <span class="kn">(−0.60, −0.80)</span>, shown by the amber arrow. It checks how signed distance changes for a small move to the right and a small move down. At P, both changes are negative, so the arrow points the other way. The helper scales the arrow to length 1. The drawn amber arrow is longer so you can see it.</p>
+      <p>The teal pixel P needs the color from <b>S</b>, the source point <b>1.2 pt</b> farther inside. Multiply each part of the outward arrow by the push from the previous step. Subtract those parts from P to go the other way. Subtracting a negative adds to that position.</p>
+      <div class="calc" id="sourceCalc"></div>
+      <p>The green read arrow starts at P and ends at S. <code>layer.sample(S)</code> takes the color from S and returns it for P. P stays at (126.06, 660.28) pt.</p>
+    </section>
+    <section class="step" hidden>
+      <h3>Check the outline and flat top</h3>
+      <p>At Q the rim has <span class="kn">0 pt</span> of height. At K the rim reaches the full <span class="kn">14 pt</span>. Compare their read distances with the read at P. Each arrow starts on the screen and points inward.</p>
+      <div class="calc" id="endpointCalc"></div>
+      <p>Farther inside, the height stays at 14 pt. Every pixel there keeps reading at its own place.</p>
+    </section>
+    <section class="step" hidden>
+      <h3>Compare the read in flight</h3>
+      <p>Keep the same <span class="kn">5.6 pt</span> from Q to P. This comparison holds the slice in place so we can see what the settings do. During flight, the model uses a <span class="kn">28 pt</span> rim and a <span class="kn">24 pt</span> maximum read on the outline. The course chooses these larger settings to match the wider, stronger bending during the opening. The quarter circle is 28 pt high at its flat top.</p>
+      <div class="calc" id="flightCalc"></div>
+      <p>P has reached a smaller share of the taller rim. That leaves more of a larger maximum read. The arrow grows from <b>1.2 pt</b> to <b>9.6 pt</b>.</p>
+    </section>
+  </div>
+</div>
+
+<h3 id="settings">Where the rim settings came from</h3>
+<p>The course fits this model by eye to the dark-mode Safari opening on an iPhone 16 Pro. At about <b>0.252 s</b> after the tap, text bends along the outline. By <b>0.291 s</b> the visible bending is down to roughly a 10–15 pt strip. The rows look straight at rest. The course chooses a 14 pt rim and a 6 pt maximum read for the small resting effect, and a 28 pt rim and a 24 pt maximum read for the wider, stronger effect in flight. A wider rim carries the effect farther into the glass. A larger maximum read makes the pixel look farther inward at the same share of height.</p>
+<div class="evidence" id="evidence">
+  <figure><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgFBgcGBQgHBgcJCAgJDBMMDAsLDBgREg4THBgdHRsYGxofIywlHyEqIRobJjQnKi4vMTIxHiU2OjYwOiwwMTD/2wBDAQgJCQwKDBcMDBcwIBsgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDD/wAARCAGKAoMDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDxiiiimAq8MCfWrisGGVORVKrNt/q/xoAlooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAqk/3j9au1Sf75+tACUUUUAFFFFABRRRQAVZtv9X+NVqntejUAT0UUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRmjNABRRmkzQAtFJmlVGkbCKWPtQAUVs2mgObX7TeSbIxzsjG5j+PQVbtdItbhCkcZQkY3FtzH+n6UAY1npl7eDdbW0jr/AHsYX8zUl3o95aqhePzC5I2xfORj1x0re0+GS0eW2lmeRSfl3HoMdKfo168WtzW0hyu0FRjp60Aci6NGxWRWRh2YYNNrd8ZQGLUlcggOvU/Ws7U7NbRojEzNHImQx7mgCnUkVvNKMxQyOPVUJH6VB5ozjBrrfBs+LaeLPH3hQBy8iGORkb7ykqfqKbV26t1N/Igc5Zyenqavx6ErRbvnJ64z1oAy9Pt1u7yKBnKCQ43AZxTbyA211LCd3yMVBYYyAetaWmWhi1mLPG1s4x7VoeItIluLwzxNlioAU9PzoA5eirF1Zz2v+uQD6HNU2lH8IzQBJRUJlbPAApfOP90fnQBLRUXnH+7+tIZm7ACgCaioPNb2pRMe4BoAmoqITDuv5UvnD0NAElFRecM9OKXzl9DQBJRTUkRuC20+/SnkEdRx60AJRRSE0ALRSUUALRRRQAUUUUAFFFFABRRRQAVXuQAVwAM1YqpI5cjdjj0oAZRRRQAUUUUAFFFFABU1swGQTgnpUNFAF4EHoQaKpIxQ5Bqykqt14NAElFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUABpKDRQAUUUUAFABYgKMk9qVE3gsTtRfvMegpslxtGy3G0d3PU0ASERxHErbm/uKen1NdBo9hFdQbh8pHYVyY4Oa2NC1VrSYAn5TQB1OlP+7a2kHK/KQaZ5gtbkqRgVnXGool4s6Nw3XFaUqpfxrJEQT3oAi1KdfOR1IHQ1NHAj3UV2o+YKQSO9ZWrRtBGCTnFa/hyZLixIYjcg4oAfrkS38MYAVmU5wQKxfEibbRAR0Faun3K3F88JPfFZXjRvLcRqeKAOVPXiup8GtlpB7VytdL4OcCZh7UAVrr5NXfHrXR2Vw7PEmzjvWMYFm10hv71dACLa8RFXj1oAhu7URavBIONx5FT6/qCWkqKMAkc/lUurH/AImFucd/6VjeLLOZ7pGjXIIoAfrcaXel+eoAOM1xbDBNdnMPs3h7ZNwxFcY5yxNACUUZozQAUhozRQAUUUUAFFFFABSUtBoASnJI8Z+U/h2ptFAFlJEk9Eb9DSsCpwRiqtSxzFRtb5l9D2oAkopcAruQ5H8qSgBaKSloAKWkooAWijNFABRSM6qOTVeWYsMLwKAJGnVTjBNVqKKACiiigAooooAKKKKACiiigAooooAUMR0JpwlcfxGmUUAP81/71Hmv/eplFAD/ADX/AL1HnP60yigB/nP60ec/rTKKAH+c/rR5z+tMooAf5z+tHnP60yigB/nP60ec/rTKKAH+a/qaPNf1NMooAf5r+po85/WmUUAP85/Wjzn9aZRQA/zn9aPOf1plFAD/ADn9aPOf1plFAD/Nf1o81/WmUUAP81/Wp4VZk82VisY6erH0FMt4l2mabiMdB3Y+gomlaVsnAA4CjoB6UALPO0pAxtQdFHQVHmkooAWgHHSkozQBKZXIAJq3Z6lNbDCOR+NUM0ZoAv3epS3Iw5JpbDU5bQEKxANZ+aM0AaEGpyxXRmBOaZqV+964ZyTVLNGaACrenXz2cm5Kp5ozQBof2jILrzwTuzmtY+JmZF3L8wHWuazRmgDcudfmmnV+fl96sHxPIxG8Bsetc1mjNAGxq2sSXqheijsKyTTc0uaACikooAWikzRmgBaM0maKADNGaKKADNFFFABRRRQAUUUUAOR2RsqakYl1LxnBHVfT6VDSqxU5U4IoATzX/vUea/8Aep7qJVLoMEfeX+tQ0AP81/71Hmv/AHqZRQA/zX/vGkLsepP502igBc+tJRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAVLbQ+axLHbGnLN/T60yNS7hVGWJwBVidgiiCM/KvU/3j60AMnl8xuOEXhV9BUdFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAKjFGDLwRSyoCPMT7p6j0NMp8b7TyMqeCPWgCKinypsbA5B5B9RTKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooqW2iM0yp68k+g70ASwjyIDJ/HJwvsO5qCrV0kjyFtpCAYX6Cq1ACUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABSUtJQAUUUUASL+8i2H7y8r/AIVDTwxUgjqKWZRkOvRhn8aAI6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACul8L6M09s106/K52L9B1Nc2is7qiDLMQqj1Jr0UX9pZQW9jGy7beMIT6nufzoAiutKiaLAA6VyWqWX2eQ46V3cc8cw+Vgc1m6xpDXCFkXNAHC0VdvdOltT86kVSoAKKWigCSK3kl/1aFvpTJI2jba6kGuw8BwwyTMZlDDHeo/FmkIk5lt1yvtQBywt5Cm4KcetR4rrrW1jOiM2Pm/+tWbZ6FLdDecKp9aAMKit288PywLuHK+1U59LkhjEhHBoAzqK2JdEnjtBOV+UioP7Nf7MZiMCgDPVdxwKtrpl06giNsHpTdPX/TEGM812eq6gLC2iCRjkelAHEz2c0H+sQioO9d1GY9W09yyAED0rHj8Nu6NICAvqaAMW3tZJ1JQZxULqUYg9RXSW2nywhliIOBVGfSpHR5gO/NAGPRV6y0+S6YgDBFXbbQXkYgsAB70AYlO2NjODit268PPFHvU7gPStzStAhm0hpWxuA6mgDhKMVrro8k168ceCAevarcvhpxGWRskDpQBztWLe0ln/wBWpamTxNDIUccir+l6o1kQFUH6igCL+yLv/nk1V7i1kgP7xSK9Bl1RRownEShiPSubWM6sSxAWgDmzxVhLOZ4vNVcqK2bnw6yxGRMECtTRtPE+kuoAyPWgDiyMUldHP4edwzRspxzgVgTxNDIUcYIoAjooooAKSiigAooooAKkX54mTuPmH9ajp0bbHDehoAjop8y7JGA6dR9KZQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQBd0hcXZmI4gQyfj2ppnkLs5Ykk5OTWr4Xto5bW9MhwX2xrn8zUs+gFiTGw/CgCjY6rLbup3HAPSuusNbjnhCDG4iuWOgzg9K07Cx+xAySsAR2oATxPOhXGeTzXKd609auvPnO05UdKzKAFooooA6zwexRJCOy1atb5bq4e2nbvgZrF0PUUs4nDdSMdapNckXhmQ4+bNAHey6d9m09gBlPWnzQww6WuDtJxWNN4oE+lLCwO4e9Q2euW8lube6U7fc0AaL3kC2Lox3N2qO1iGo2gCgHbzzWZe3tmkW23Oc03Q9aWxZw3RvWgDoZHSeAWQUZUVjeIMWVh5PGTVS21oR6mZz901W8SamuoTZToBQBnaYc3qE+td7rCWZs4vtBGdoxXn1nJ5Vwjnsa1tc1QXcaBT0FAGnc6raW1t5Nr95uMirM928eghl+8RnNcSrncCfWtuXVI20oW4IyBjrQBf8NzPOsxkOTg0/TZxJPPbtjkkCsjRdTSyDhhncMZzUNvqAi1HzlyAWzQB0kdoNOgkPGWplrbu6s7uQp5qhrOvJeRqsfGKnsdYtzaCKYHjjigDfEKHSZCG3YFULCeQaPOFY4Garya/axWDwRDqMdao6TrMEUMkU3Kn1NAGv4WjWVJXfr61NHNBBcPvkyPSsGx1eK0uXEbZiY9CatS6lp+0upBY84B6UAYfiKSN79jH0rNT7wqa+lE07MvQmoVOCKAOym58OIKg0aykSAsx2iqTauh0pbfGCO+ataXrEK2/kzjK/rQB0VnCjadMd2SOlU7Jmh0qcoOhNV0160traSOIE7hVfTtet4oZI5QCGPQmgCLQbuaTUWRiSp7VmeKVVdQO0YFbKarp9sGkhX58Y61y+oXRu7lpD3oArUmaDRQAUUUUAFFFFABRRRQA+X5o0fuPlNRVMvzQOPQhqhoAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAvxzPb2cIQkFiWp8WqXEZ++cVBccJCvpGKgoA1BrlwP4vzqG51WeYYLcGqBooAczFjk0lFFABSgUlKKAHgU8LTF61OAMUANwcUYp2BRgUANxRinYFGBQBHtpjdamqN6AIzSE0p6UhoASiiigApM0GigBc0BiO9JRQApYnrSZoooAXJpMnsaKKACjNFFAC5o3EdDSUUAKWPqabmlNJQAu6kzRRQAUUUUAFFFFABRRRQAUUUUASQcsV/vAioalg4mT61GwwxHvQAlFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUHpRRQBauuGQf7C/wAqhNTXf+sX/cX+VQGgAooooAKWkpaAClFJSigB4ODUqtxUGacGoAm3Ubqi3UbqAJd1G6ot1LuoAfmo3NG6mmgBDSUpppoAKKKKAENFFFABRRRQAUUUUAFFFFABRRRQAUlLSUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAOi/1i/UUk3+tf/eNLH/rF+opJv9c/1NADKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAsznIjPqgqE1M2Gt4T6Aio+BQA2inZozQAlFLmjNACUUuaXdQAnNAJpd1G6gAzRmkzRmgBc0ZpM0ZoAXNGTSZozQAnNFO3UbqAG0UpNGaAEopc0ZoASilzRmgBKDS5oLUANopc0ZoASilzRmgBKKXNGaAEopc0ZoASilzRmgBKKXNGaAEopc0ZoASilzRmgBKDS5oyKAFgXMyf7wpkv8ArG+pqe2x5wP93JqtnPNABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAE6c22P7rfzqM06353p/eXj6imnpzQAUUmaM0ALRSUUALRSZozQAtFJmloAKKKKACiiigAooooAKKKKACiikzQAtFJmigBc0ZpKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigCWH5YpX/wBnaPxqCpn+S2Ud3bP4CoaACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAHRP5cit6GpJhtcgdOoqGpj88Ct3X5T/SgCOiiigAooooAKKKfHGZGwoyTQAyir6aVdMm4Qtj6VXltZIm2upBoAgzRmr0OlXUy7o4WI+lQXNpNbnEsZX6igCDNGaKKADNGaKKADNGaKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoorQ0rSZ9TfZACTQBn0V1q+A9RKglTR/wgeoDqjflQByVFaOqaTPpz7Z0Kms0nmgBaKKKACiiigAoAJIA6k4oqW2wr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oAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKXNJRQAuaM0lFABRRRQAUUUUAFFFFABRmiigBc0ZpKKAFzSZoooAM0uaSigBc0ZpKKADNGaKKAFzRmkooAM0ZoooAXNGaSigBc0ZpKKAFzRmkooAXNJRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAf/2Q==" width="643" height="394" alt="Opening frame of the dark Safari menu with bent text along its edge"><figcaption>Safari at 0.252 s. The rows are bent near the outline.</figcaption></figure>
+  <figure><img src="data:image/jpeg;base64,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ZQgXap9T3rOooA6Pw/488QaBp/2CwuYns87lhuYVlVD6rnpVfU/GOv6rp9zYajfm5trqcXEiuozvAwMH+EAdhxWJikxQB0mn+PfEmnpYx2moCOKwhNvFH5YKNGTkq4PDc+tR+KPG2u+KIooNWu1NtCcpbwxiOMH12jqa540UAB60UUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAVJb/60fQ1HUlv/rl+tAEdFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAVLH/x7y/8AAaiqWP8A495fqtAEVFFFABRRRQAUUUUAFFFFABRRRQADmlxQBS0AFGKXFGKADFGKUClAoAbijFO20uKAG4oxTsUYoAZijFOxSUAJSU6kIoASmmnUhFACUUGigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACn2/+uT60yn2/wDrk+tADO9FB60UAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABUsf8Ax7y/VaiqWP8A495fqtAEVFFFABRRRQAUUUUAFFH9alurae0kEd3BLbyMAwWVChI7HBoAiooooAUUopBSigBaWkFKOtACgU4Ugp60AApcUopaAG7aTbT6KAIyKaRUhplADDQaU0lACUhpaaelACUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAVJb/65PrUdPt/9cn1oAYepooPU/WigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKlj/495fqtRVLH/wAe8v1WgCKiiigAooooAKltLeW7u4LW3XdNPIsSDPVmOAPzNRVp+FP+Rq0b/r/g/wDRgoA9V8K+F7LwjNp8d2uka7eXeux6fNIYy/2UBNzIoPRw2Oau6ZdrryaJa+IbO21dtS1LU7R7i8TfLFFHkqI2/hwQKz7vVrDT9bkN5dxQ/Z/G8lxKGblYwhyxHXFReC9VsrvWfCtpa3CTXEeranM0a9QjglD+NAHkMg2yOo6K7KPoCRTa7rX/AAdp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AKKKKACiiigAooooAKKKKACpI/8Aj3l+oqOpI/8Aj3l+ooAjooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKkt/wDXJ9ajqS2/16fWgCM9T9aKD1P1ooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACpI/+PeX6io6kj/1Ev1FAEdFFFABRRRQAq4z8w49qdmP+6350yigB+Y/7rfnRmP+6350yigB+Y/7rfnRmP8Aut+dMooAfmP+6350Zj/ut+dMooAfmP8Aut+dGY/7rfnTKKAH5j/ut+dGY/7rfnTKKAH5j/ut+dGY/wC6350yigB+Y/7rfnRmP+6350yigB+Y/wC6350Zj/ut+dMooAfmP+6350Zj/ut+dMooAfmP+6350Zj/ALrfnTKKAH5j/ut+dGY/7rfnTKKAH5j/ALrfnRmP+6350yigB+Y/7rfnRmP+6350yigB+Y/7rfnRmP8Aut+dMooAfmP+6350Zj/ut+dMooAfmP8Aut+dGY/7rfnTKKAH5j/ut+dGY/7rfnTKKAH5j/ut+dGY/wC6350yigB+Y/7rfnRmP+6350yigB+Y/wC6350Zj/ut+dMooAeTHjhWz9aZRRQAUUUUAFSW3+vT61HUlt/r0+tAEZ6n60UHqfrRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFSJ/qJPqKjqRP9TJ9RQBHRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAVJbf69PrUdSW3/Hwn1oAjPU/Wig9T9aKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAqRP9TJ9RUdSJ/qZPqKAI6KKKACiiigAooooAKKKKACiiigAoFFep/s6aLp+p+JtQur+3S4ewgR4BIMqrM2C2O544oA8/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" width="643" height="394" alt="Dark Safari menu near rest with straight rows"><figcaption>Safari at 0.409 s, within about 2 pt of its resting position.</figcaption></figure>
+</div>
+<p>The recording shows the picture bending. The quarter circle and the rule that scales the read by the height left to climb are choices for the reconstruction. The side profile is hidden in the recording, so there is no measured height to compare with the drawn profile. <a href="../../../curriculum/safari_spring_menu_plan.md#13-the-layers">Safari menu plan, refraction layer</a></p>
+
+<h2 id="s2"><span class="tag">Section 2 · try another depth</span>How far does P read as you drag it?</h2>
+<p>Drag P along the marked slice in either view. The slider and arrow keys on P do the same. Try the outline and then the flat top. Switch to In flight at the same depth and compare the two reads.</p>
+<div class="ctl" role="group" aria-label="Rim settings and pixel presets">
+  <button class="btn" type="button" data-mode="rest" aria-pressed="true">At rest</button>
+  <button class="btn" type="button" data-mode="flight" aria-pressed="false">In flight</button>
+  <button class="btn" type="button" id="outline">Outline</button>
+  <button class="btn" type="button" id="flat">Flat top</button>
+  <button class="btn" type="button" id="reset">Reset P</button>
+  <label class="ctlname" for="depth">Depth</label>
+  <input class="axisInput" type="range" id="depth" min="0" max="35" step="0.1" value="5.6">
+  <output id="depthValue" for="depth"></output>
+</div>
+<div class="traceGrid">
+  <figure>
+    <div class="stage pointStage" id="liveMapStage"><canvas id="liveMap" width="570" height="390" role="img" aria-label="Corner and slice with draggable output pixel P"></canvas></div>
+    <figcaption>Screen view. P and S lie on the slice through the corner.</figcaption>
+  </figure>
+  <figure>
+    <div class="stage pointStage" id="liveSideStage"><canvas id="liveSide" width="570" height="340" role="img" aria-label="Side view with draggable P and the resulting height and read distance"></canvas></div>
+    <figcaption>Side view. P slides on the screen below the profile.</figcaption>
+  </figure>
+</div>
+<table class="trace reading" id="liveTrace">
+  <thead><tr><th scope="col">Step</th><th scope="col">Work at P</th></tr></thead>
+  <tbody></tbody>
+</table>
+
+<h2 id="s3"><span class="tag">Section 3 · check your understanding</span>Which point supplies the color for R?</h2>
+<div class="exq">
+  <div>
+    <p>The red pixel R is under the straight top edge at <span class="kn">(200, 650) pt</span>. The outline there is 1.4 pt above it, so R is <span class="kn">1.4 pt</span> inside. x goes right and y goes down. Use the resting rim width <span class="kn">14 pt</span>, maximum read <span class="kn">6 pt</span>, and outward direction <span class="kn">(0, −1)</span>, straight up. Find R’s source point to the nearest 0.01 pt.</p>
+    <div class="choices" role="group" aria-label="Answer choices">
+      <button class="btn" type="button" data-choice="out">(200, 646.62) pt</button>
+      <button class="btn" type="button" data-choice="height">(200, 652.62) pt</button>
+      <button class="btn" type="button" data-choice="in">(200, 653.38) pt</button>
+    </div>
+    <p class="verdict" id="verdict" aria-live="polite"></p>
+    <div id="answer" hidden>
+      <div class="calc" id="questionCalc"></div>
+      <p>R reads about 3.38 pt straight down, away from the outline. The green mark shows the point where it reads. K marks the place directly below the start of the flat top, 14 pt inside.</p>
+    </div>
+  </div>
+  <figure>
+    <div class="stage" id="quizStage"><canvas id="quiz" width="570" height="340" role="img" aria-label="Screen view of the straight top edge with red pixel R"></canvas></div>
+    <figcaption>Screen view enlarged around R. The top edge is at y = 648.6 pt.</figcaption>
+  </figure>
+</div>
+
+<h2 id="s4"><span class="tag">Section 4 · Metal for the lens build</span>Calculate the source point and read its color</h2>
+<p>The function takes <code>position</code> and the glass picture from Lesson 11.1. The caller supplies the resting menu’s center, its half-size and corner radius, and the two rim settings. The settings are positive lengths in points. Pass <code>position</code> and <code>menuCenter</code> in the same coordinates. The existing geometry helpers take a position counted from the menu center. The sample still uses the layer’s coordinates.</p>
+<p>For the table, the screen and layer share an origin. The existing resting menu settings are center <span class="kn">(238.8, 742.6) pt</span>, half-size <span class="kn">(130.5, 94) pt</span>, and corner radius <span class="kn">36 pt</span>. They come from the outline fitted to the resting frame. Use the earlier helper’s <span class="kn">0.5 pt</span> sample step on each side of P. The caller from 11.1 allows a read of up to 24 pt along each axis.</p>
+<div class="codebar"><button class="btn" type="button" id="copyMetal">Copy Metal</button><span class="small" id="copyStatus" role="status"></span></div>
+<pre class="code"><code id="metal">#include &lt;metal_stdlib&gt;
+#include &lt;SwiftUI/SwiftUI.h&gt;
+#include "RestingMenuHelpers.h"
+using namespace metal;
+
+[[ stitchable ]] half4 readRim(
+    float2 position, SwiftUI::Layer layer, float2 menuCenter,
+    float2 halfSize, float radius, float bevel, float edgePush
+) {
+    float2 p = position - menuCenter;
+    float sd = restingMenu::roundedRectSd(p, halfSize, radius);
+    if (sd &gt; 0.0) return layer.sample(position);
+    float depth = -sd;
+    if (depth &gt;= bevel) return layer.sample(position);
+    float leg = bevel - depth;
+    float h = sqrt(bevel * bevel - leg * leg);
+    float push = edgePush * (1.0 - h / bevel);
+    float2 outward = restingMenu::outwardAt(p, halfSize, radius, 0.5);
+    float2 source = position - outward * push;
+    return layer.sample(source);
+}</code></pre>
+<table class="trace reading">
+  <thead><tr><th scope="col">Line</th><th scope="col">What it does at P</th></tr></thead>
+  <tbody>
+    <tr><th scope="row"><code>p = …</code></th><td>Subtracts the center’s two positions from (126.06, 660.28) pt. P is (−112.74, −82.32) pt from the menu center.</td></tr>
+    <tr><th scope="row"><code>sd = …</code></th><td>The distance helper gives approximately −5.6 pt. Outside the outline, the function leaves the layer’s sample at its original position.</td></tr>
+    <tr><th scope="row"><code>depth = …</code></th><td>Turns the signed distance into 5.6 pt inside. At or beyond the rim width the read stays at the pixel itself.</td></tr>
+    <tr><th scope="row"><code>leg</code> and <code>h</code></th><td>The line from P to K is 8.4 pt. The square root gives 11.2 pt over P.</td></tr>
+    <tr><th scope="row"><code>push = …</code></th><td>One fifth of the 6 pt maximum is 1.2 pt.</td></tr>
+    <tr><th scope="row"><code>outward = …</code></th><td>The earlier helper gives approximately (−0.60, −0.80). If the samples give no direction, the helper returns (0, 0) and the read stays at the pixel.</td></tr>
+    <tr><th scope="row"><code>source = …</code></th><td>Subtracts the outward move to read inward, at about (126.78, 661.24) pt.</td></tr>
+    <tr><th scope="row"><code>return layer.sample(source)</code></th><td>Returns the sampled color for P. The lens build applies the outline coverage to the result.</td></tr>
+  </tbody>
+</table>
+<div class="navfoot">
+  <a href="lesson-11-01-glass-picture.html">← Lesson 11.1 · The glass picture</a>
+  <span>Next in the plan · 11.3 The upside-down band</span>
+</div>
+</main>
+<div id="tip" role="dialog" aria-label="Point details"><button class="tclose" id="tipClose" type="button" aria-label="Close point details">×</button><div id="tipBody"></div></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const clamp=(x,lo,hi)=>Math.min(Math.max(x,lo),hi);
+const KN=x=>`<span class="kn">${x}</span>`;
+const DARKC={'#ffffff':'#1b2431','#f8fafc':'#222c3a','#f1f5f9':'#232d3b','#e2e8f0':'#2d3848','#cbd5e1':'#44516a','#94a3b8':'#6f7d92','#64748b':'#8f9bab','#475569':'#aab4c2','#334155':'#c3ccd8','#111827':'#ccd2dc',
+  'rgba(255,255,255,0.94)':'rgba(22,29,39,0.94)','rgba(255,255,255,0.96)':'rgba(22,29,39,0.96)','rgba(17,24,39,0.92)':'rgba(8,12,18,0.92)',
+  '#f3e8ff':'#33264d','#a855f7':'#c084fc','#6b21a8':'#d8b4fe','rgba(233,213,255,0.62)':'rgba(140,105,205,0.34)','rgba(168,85,247,0.45)':'rgba(192,132,252,0.5)','rgba(221,214,254,0.86)':'rgba(72,56,112,0.9)',
+  '#3730a3':'#c7d2fe','#0f766e':'#5eead4','#92400e':'#fcd34d','#9d174d':'#f9a8d4','#854d0e':'#fde047','#1e40af':'#93c5fd','#1d4ed8':'#93c5fd','#be123c':'#fda4af','#155e75':'#67e8f9','#dc2626':'#f87171','#3f6212':'#bef264','#9a3412':'#fdba74','#075985':'#7dd3fc','#d97706':'#fbbf24'};
+const isDark=()=>document.documentElement.dataset.theme==='dark';
+const C=c=>isDark()?(DARKC[c]||c):c;
+/* ---------- 2D drawing helpers (solid strokes, dark halo) ---------- */
+const FT='-apple-system,"Segoe UI",Roboto,sans-serif';
+function halo(ctx,draw,color,w=2.5){for(const [lw,c] of [[w+3.5,C('rgba(17,24,39,0.92)')],[w,color]]){ctx.lineWidth=lw;ctx.strokeStyle=c;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();draw();ctx.stroke()}}
+function line(ctx,x1,y1,x2,y2,color,w=2.5){halo(ctx,()=>{ctx.moveTo(x1,y1);ctx.lineTo(x2,y2)},color,w)}
+function arrow(ctx,x1,y1,x2,y2,color,w=3,head=13){const L=Math.hypot(x2-x1,y2-y1);if(L<0.5)return;head=Math.min(head,L*0.55);const a=Math.atan2(y2-y1,x2-x1),bx=x2-head*Math.cos(a),by=y2-head*Math.sin(a);line(ctx,x1,y1,bx,by,color,w);
+  const s=head*0.55;ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(bx+s*Math.sin(a),by-s*Math.cos(a));ctx.lineTo(bx-s*Math.sin(a),by+s*Math.cos(a));ctx.closePath();ctx.fillStyle=color;ctx.fill();ctx.lineWidth=1.6;ctx.strokeStyle=C('#111827');ctx.stroke()}
+
+const tip = $('tip');
+let tipOwner;
+function openTip(button, getDetails) {
+  const [name,role,coordinates] = getDetails();
+  $('tipBody').textContent = `${name} · ${role} · ${coordinates}`;
+  tipOwner?.setAttribute('aria-expanded','false');
+  tipOwner = button;
+  button.setAttribute('aria-expanded','true');
+  tip.classList.add('open');
+  const rect = button.getBoundingClientRect();
+  tip.style.left = `${clamp(rect.left,8,innerWidth-tip.offsetWidth-8)}px`;
+  tip.style.top = `${rect.bottom+10+tip.offsetHeight <= innerHeight ?
+    rect.bottom+10 : Math.max(8,rect.top-tip.offsetHeight-10)}px`;
+}
+function closeTip(restoreFocus=false) {
+  tip.classList.remove('open');
+  tipOwner?.setAttribute('aria-expanded','false');
+  if(restoreFocus) tipOwner?.focus();
+  tipOwner = undefined;
+}
+$('tipClose').onclick = () => closeTip(true);
+document.addEventListener('keydown',event => {
+  if(event.key === 'Escape' && tipOwner) closeTip(true);
+});
+document.addEventListener('click',event => {
+  if(!event.target.closest('#tip, .ptdot, .ptlab')) closeTip();
+});
+window.addEventListener('resize',() => closeTip());
+
+const rest = {width:14, max:6};
+const flight = {width:28, max:24};
+const menu = {left:108.3, top:648.6, width:261, height:188, radius:36};
+const Q = {x:122.7,y:655.8};
+const inward = {x:.6,y:.8};
+const startDepth = 5.6;
+const f = (n, digits=2) => String(Number(n.toFixed(digits))).replace('-', '−');
+const atDepth = d => ({x:Q.x+inward.x*d, y:Q.y+inward.y*d});
+const coords = ({x,y}) => `(${f(x)}, ${f(y)}) pt`;
+const color = {
+  p:'#5eead4', s:'#bef264', q:'#c084fc', h:'#93c5fd', k:'#e2e8f0',
+  gold:'#fbbf24', red:'#fb7185', screen:'#26344d', glass:'#131f31'
+};
+
+function rim(depth, {width,max}) {
+  const leg = width - clamp(depth,0,width);
+  const radiusSq = width * width;
+  const legSq = leg * leg;
+  const heightSq = radiusSq - legSq;
+  const height = Math.sqrt(heightSq);
+  const fraction = height / width;
+  const left = 1 - fraction;
+  const push = max * left;
+  return {depth,width,max,leg,radiusSq,legSq,heightSq,height,fraction,left,push};
+}
+function cut(depth, settings) {
+  const r = rim(depth,settings);
+  return {...r, p:atDepth(depth), s:atDepth(depth+r.push)};
+}
+const worked = cut(startDepth,rest);
+const inFlight = cut(startDepth,flight);
+const exercise = rim(1.4,rest);
+const exerciseY = 650 + exercise.push;
+
+function eq(lines) {
+  return lines.map(line=>`<span class="eq">${line}</span>`).join('');
+}
+function heightLines(r,known=false) {
+  const {depth,width,leg,radiusSq,legSq,heightSq,height} = r;
+  if(depth>=width) return eq([`P is at least ${KN(width+' pt')} inside. Height = ${width} pt on the flat top.`]);
+  const value = (x,digits=4) => known ? KN(f(x,digits)) : f(x,digits);
+  const relation = f(height,4) === f(Math.sqrt(heightSq),10) ? '=' : '≈';
+  return eq([
+    `P to K = ${value(width)} − ${value(depth)} = ${f(leg)} pt`,
+    `Radius squared = ${value(width)}² = ${f(radiusSq)} pt²`,
+    `P to K squared = ${f(leg)}² = ${f(legSq)} pt²`,
+    `Height squared = ${f(radiusSq)} − ${f(legSq)} = ${f(heightSq)} pt²`,
+    `Height = √${f(heightSq)} ${relation} ${f(height,4)} pt`
+  ]);
+}
+function pushLines(r) {
+  const {width,max,height,fraction,left,push} = r;
+  const rounded = Math.abs(height-Number(height.toFixed(4))) > 1e-9;
+  const sign = rounded ? '≈' : '=';
+  return eq([
+    `Share climbed = ${f(height,4)} ÷ ${KN(width)} ${sign} ${f(fraction,5)}`,
+    `Share left = ${KN(1)} − ${f(fraction,5)} ${sign} ${f(left,5)}`,
+    `Push = ${KN(max)} × ${f(left,5)} ${sign} ${f(push,4)} pt`
+  ]);
+}
+function sourceLines({p,s,push}) {
+  const rounded = Math.abs(push-Number(push.toFixed(2))) > 1e-9;
+  const sign = rounded ? '≈' : '=';
+  const parts = [inward.x,inward.y].map(n=>-n*push);
+  return eq([
+    `Outward x move = (${KN('−0.60')}) × ${f(push,4)} ${sign} ${f(parts[0],4)} pt`,
+    `Outward y move = (${KN('−0.80')}) × ${f(push,4)} ${sign} ${f(parts[1],4)} pt`,
+    `S’s x = ${KN(f(p.x))} − (${f(parts[0],4)}) ${sign} ${f(s.x,4)} pt`,
+    `S’s y = ${KN(f(p.y))} − (${f(parts[1],4)}) ${sign} ${f(s.y,4)} pt`
+  ]);
+}
+$('heightCalc').innerHTML = heightLines(worked,true);
+$('pushCalc').innerHTML = pushLines(worked);
+$('sourceCalc').innerHTML = sourceLines(worked);
+$('endpointCalc').innerHTML = [['Outline Q',0],['Start of the flat top K',rest.width]].map(([name,d]) => {
+  const r = rim(d,rest);
+  return `<b>${name}</b>${eq([
+    `Share climbed = ${KN(r.height)} ÷ ${KN(r.width)} = ${r.fraction}`,
+    `Share left = ${KN(1)} − ${r.fraction} = ${r.left}`,
+    `Push = ${KN(r.max)} × ${r.left} = ${r.push} pt`])}`;
+}).join('');
+$('flightCalc').innerHTML = heightLines(inFlight,true)+pushLines(inFlight);
+$('questionCalc').innerHTML = heightLines(exercise,true)+pushLines(exercise)+eq([
+  `Outward y move = (${KN('−1')}) × ${f(exercise.push,4)} ≈ ${f(-exercise.push,4)} pt`,
+  `Source y = ${KN(650)} − (${f(-exercise.push,4)}) ≈ ${f(exerciseY)} pt`,
+  `Source x stays at ${KN(200)} pt. The arrow has an x part of 0.`
+]).replace('P to K squared','R to K squared').replace('P to K','R to K');
+
+function canvasBackground(canvas) {
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = C('#ffffff');
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  return ctx;
+}
+function dot(ctx,x,y,fill,r=4) {
+  ctx.beginPath();
+  ctx.arc(x,y,r,0,Math.PI*2);
+  ctx.fillStyle = fill;
+  ctx.fill();
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = '#111827';
+  ctx.stroke();
+}
+function plate(ctx,text,x,y,ink=C('#111827')) {
+  ctx.font = '650 14px '+FT;
+  ctx.textBaseline = 'middle';
+  const width = ctx.measureText(text).width+16;
+  x = clamp(x,6,ctx.canvas.width-width-6);
+  y = clamp(y,5,ctx.canvas.height-29);
+  ctx.fillStyle = C('rgba(255,255,255,0.96)');
+  ctx.strokeStyle = C('#cbd5e1');
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.roundRect(x,y,width,24,5);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = ink;
+  ctx.fillText(text,x+8,y+12);
+}
+function mark(stage, key, xy, details, fill, offset=[0,-23], move) {
+  stage.points ??= new Map();
+  let controls = stage.points.get(key);
+  if(!controls) {
+    const dotButton = document.createElement('button');
+    const label = document.createElement('button');
+    for(const button of [dotButton,label]) {
+      button.type = 'button';
+      button.setAttribute('aria-expanded','false');
+      button.setAttribute('aria-haspopup','dialog');
+      const open = () => {
+        if(performance.now() >= (stage.suppressClick ?? 0)) openTip(button,()=>controls.details);
+      };
+      button.onclick = open;
+      button.addEventListener('keydown',e=>{
+        if(e.key!=='Enter') return;
+        e.preventDefault();
+        open();
+      });
+      stage.append(button);
+    }
+    dotButton.className = move ? 'ptdot drag' : 'ptdot xs';
+    label.className = 'ptlab';
+    label.textContent = key;
+    controls = {dotButton,label,details};
+    stage.points.set(key,controls);
+    if(move) {
+      let drag;
+      dotButton.addEventListener('pointerdown',e=>{
+        if(e.button!==0) return;
+        drag = {x:e.clientX,y:e.clientY,started:false};
+        dotButton.setPointerCapture(e.pointerId);
+      });
+      dotButton.addEventListener('pointermove',e=>{
+        if(!drag) return;
+        if(!drag.started && Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<3) return;
+        drag.started = true;
+        closeTip();
+        const cv = stage.querySelector('canvas');
+        const box = cv.getBoundingClientRect();
+        move((e.clientX-box.left)*cv.width/box.width,(e.clientY-box.top)*cv.height/box.height);
+      });
+      const end = ()=>{
+        if(drag?.started) stage.suppressClick = performance.now()+250;
+        drag = undefined;
+      };
+      dotButton.addEventListener('pointerup',end);
+      dotButton.addEventListener('pointercancel',end);
+      dotButton.addEventListener('keydown',e=>{
+        const step = {ArrowLeft:-.1,ArrowUp:-.1,ArrowRight:.1,ArrowDown:.1}[e.key];
+        if(step === undefined) return;
+        e.preventDefault();
+        setDepth(depth+step);
+      });
+    }
+  }
+  controls.details = details;
+  controls.used = true;
+  const {dotButton,label} = controls;
+  const cv = stage.querySelector('canvas');
+  const [x,y] = xy;
+  const left = `${100*x/cv.width}%`, top = `${100*y/cv.height}%`;
+  dotButton.style.left = left;
+  dotButton.style.top = top;
+  dotButton.style.background = fill;
+  label.style.left = `clamp(17px, calc(${left} + ${offset[0]}px), calc(100% - 17px))`;
+  label.style.top = `clamp(16px, calc(${top} + ${offset[1]}px), calc(100% - 16px))`;
+  for(const button of [dotButton,label]) {
+    button.hidden = false;
+    button.setAttribute('aria-label',details.join(', '));
+  }
+}
+function beginPoints(stage) {
+  stage.points?.forEach(p=>p.used=false);
+}
+function endPoints(stage) {
+  stage.points?.forEach(p=>{if(!p.used) p.dotButton.hidden = p.label.hidden = true});
+}
+
+function drawHero(id,lens) {
+  const canvas = $(id);
+  const ctx = canvasBackground(canvas);
+  const edge = 28, scale = 5.5;
+  const image = ctx.createImageData(canvas.width,canvas.height-edge);
+  for(let y=0;y<image.height;y++) {
+    const depth = y/scale;
+    const sampleY = y+(lens ? rim(depth,rest).push*scale : 0);
+    for(let x=0;x<image.width;x++) {
+      const stripe = x-1.24*sampleY;
+      let rgb = [21,33,50];
+      if(stripe>=139 && stripe<=152) rgb = [118,194,250];
+      if(stripe>=160 && stripe<=163) rgb = [64,111,165];
+      if((x>=81 && x<=95 && sampleY>=18 && sampleY<=129) ||
+         (x>=81 && x<=119 && sampleY>=117 && sampleY<=129)) rgb = [207,136,52];
+      image.data.set([...rgb,255],(y*image.width+x)*4);
+    }
+  }
+  ctx.putImageData(image,0,edge);
+  line(ctx,0,edge,canvas.width,edge,color.q,2);
+  const flatY = edge+rest.width*scale;
+  ctx.save();
+  ctx.setLineDash([4,6]);
+  line(ctx,0,flatY,canvas.width,flatY,C('#94a3b8'),1);
+  ctx.restore();
+  plate(ctx,'Menu outline',400,7);
+  plate(ctx,'Start of flat top',400,flatY-12);
+  plate(ctx,'Screen crop · x →   y ↓ · pt',318,202);
+}
+const mapScale = 7.7, mapLeft = 101, mapTop = 641;
+const screenXY = ({x,y}) => [(x-mapLeft)*mapScale,(y-mapTop)*mapScale];
+const depthOnMap = (x,y) => {
+  const px = x/mapScale+mapLeft-Q.x, py = y/mapScale+mapTop-Q.y;
+  return px*inward.x+py*inward.y;
+};
+function menuPath(ctx) {
+  const [x,y] = screenXY({x:menu.left,y:menu.top});
+  ctx.beginPath();
+  ctx.roundRect(x,y,menu.width*mapScale,menu.height*mapScale,menu.radius*mapScale);
+}
+function map(id,r,{showRead=false,showOut=false,interactive=false}={}) {
+  const canvas = $(id), ctx = canvasBackground(canvas), stage = canvas.parentElement;
+  beginPoints(stage);
+  ctx.save();
+  menuPath(ctx);
+  ctx.clip();
+  ctx.fillStyle = color.glass;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  for(let x=95;x<570;x+=125) line(ctx,x,-20,x+350,430,'#30486a',4);
+  ctx.restore();
+  halo(ctx,()=>{const [x,y]=screenXY({x:menu.left,y:menu.top});
+    ctx.roundRect(x,y,menu.width*mapScale,menu.height*mapScale,menu.radius*mapScale);
+  },color.q,2.5);
+  const a = screenXY(Q), p = screenXY(r.p), s = screenXY(r.s);
+  line(ctx,...a,...screenXY(atDepth(38)),color.q,1.5);
+  if(showOut) {
+    const end = screenXY(atDepth(r.depth-8));
+    arrow(ctx,...p,...end,color.gold,2.5);
+    plate(ctx,'Outward',end[0]-90,end[1]-19);
+  }
+  if(showRead && r.push>0) {
+    arrow(ctx,...p,...s,color.s,2.5,10);
+    plate(ctx,`Read ${f(r.push)} pt`,s[0]+22,s[1]+8);
+  }
+  if(!showRead) plate(ctx,`Q to P · ${f(r.depth)} pt`,p[0]+12,p[1]+8);
+  if(r.depth>0.7) mark(stage,'Q',a,['Q','nearest point on outline',coords(Q)],color.q,[-25,10]);
+  mark(stage,'P',p,['P','output pixel',coords(r.p)],color.p,[22,-19],
+    interactive ? (x,y)=>setDepth(depthOnMap(x,y)) : undefined);
+  if(showOut) {
+    const x = 374, y = 202, size = r.push*mapScale*6;
+    const tx = x+20+inward.x*size, ty = y+48+inward.y*size;
+    ctx.fillStyle = color.glass;
+    ctx.strokeStyle = C('#94a3b8');
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(x,y,183,136,8);
+    ctx.fill();
+    ctx.stroke();
+    arrow(ctx,x+20,y+48,tx,ty,color.s,3,12);
+    dot(ctx,x+20,y+48,color.p,4);
+    dot(ctx,tx,ty,color.s,4);
+    plate(ctx,'P',x+30,y+29);
+    plate(ctx,'S',tx+12,ty-5);
+    plate(ctx,'Read arrow · 6× larger',x+6,y+106);
+  }
+  if(showRead && r.push===0) plate(ctx,'S is at P · read 0 pt',p[0]+22,p[1]+8);
+  if(showRead && r.push>0) {
+    if(Math.hypot(s[0]-p[0],s[1]-p[1])<11) dot(ctx,...s,color.s,3);
+    const separated = Math.hypot(s[0]-p[0],s[1]-p[1])>=11;
+    if(!separated) {
+      // Keep the source label available where its dot would overlap the draggable dot.
+      mark(stage,'S',s,['S','source point',coords(r.s)],color.s,[-23,22]);
+      stage.points.get('S').dotButton.hidden = true;
+    } else {
+      mark(stage,'S',s,['S','source point',coords(r.s)],color.s,[-23,17]);
+    }
+  }
+  if(r.depth<=0.7) plate(ctx,r.depth===0 ? 'P is on Q' : 'Q · outline',a[0]-104,a[1]+5);
+  plate(ctx,'Screen crop · x →   y ↓ · pt',10,9);
+  endPoints(stage);
+}
+
+const sideScale = 8.4, sideOrigin = 120, sideFloor = 276;
+const sideX = d=>sideOrigin+d*sideScale;
+const sideY = h=>sideFloor-h*sideScale;
+function side(id,r,{read=false,triangle=false,endpoints=false,interactive=false}={}) {
+  const canvas = $(id), ctx = canvasBackground(canvas), stage = canvas.parentElement;
+  beginPoints(stage);
+  const corner = sideX(r.width), top = sideY(r.width);
+  const px = sideX(r.depth), hy = sideY(r.height), sx = sideX(r.depth+r.push);
+  function profile() {
+    ctx.moveTo(sideOrigin,sideFloor);
+    ctx.arc(corner,sideFloor,r.width*sideScale,Math.PI,Math.PI*1.5);
+    ctx.lineTo(510,top);
+  }
+  ctx.beginPath();
+  profile();
+  ctx.lineTo(510,sideFloor);
+  ctx.closePath();
+  ctx.fillStyle = C('#e2e8f0');
+  ctx.fill();
+  halo(ctx,profile,color.q,3);
+  line(ctx,26,sideFloor,526,sideFloor,C('#64748b'),1.5);
+  plate(ctx,'Height ↑ · pt',8,7);
+  plate(ctx,'Depth from Q → · pt',385,303);
+  plate(ctx,'Flat top',427,top-37);
+  if(triangle && r.depth<r.width && r.height>0) {
+    line(ctx,px,sideFloor,px,hy,color.h);
+    line(ctx,px,sideFloor,corner,sideFloor,color.k);
+    line(ctx,corner,sideFloor,px,hy,color.gold);
+    if(px+10<corner && hy<sideFloor-11) {
+      halo(ctx,()=>{ctx.moveTo(px,sideFloor-9);ctx.lineTo(px+9,sideFloor-9);ctx.lineTo(px+9,sideFloor)},color.h,1.3);
+    }
+    plate(ctx,`Radius ${r.width} pt`,(px+corner)/2+8,(sideFloor+hy)/2-28);
+    plate(ctx,`Height ${f(r.height)} pt`,12,(sideFloor+hy)/2-12);
+    plate(ctx,`Leg ${f(r.leg)} pt`,corner+20,sideFloor-36);
+  } else if(r.height>0 && !endpoints) {
+    line(ctx,px,sideFloor,px,hy,color.h,2);
+    plate(ctx,`Height ${f(r.height)} pt`,px+12,hy+30);
+  }
+  if(r.depth>0.7) {
+    mark(stage,'Q',[sideOrigin,sideFloor],['Q','outline at the screen','depth 0 pt, height 0 pt'],color.q,[-5,22]);
+  }
+  if(r.height>1 && !endpoints) {
+    mark(stage,'H',[px,hy],['H','rim directly above P',`depth ${f(r.depth)} pt, height ${f(r.height)} pt`],color.h,[0,-20]);
+  }
+  if(Math.abs(r.depth-r.width)>1.4) {
+    mark(stage,'K',[corner,sideFloor],['K','center of the quarter circle',`depth ${r.width} pt, height 0 pt`],color.k,[5,22]);
+  }
+  mark(stage,'P',[px,sideFloor],['P','output pixel on the screen',`depth ${f(r.depth)} pt, height 0 pt`],color.p,[0,22],
+    interactive ? x=>setDepth((x-sideOrigin)/sideScale) : undefined);
+  if(read && r.push>0) {
+    arrow(ctx,px,sideFloor,sx,sideFloor,color.s,2.6,12);
+    const sxOffset = r.depth<1 ? 14 : 23;
+    mark(stage,'S',[sx,sideFloor],['S','source point',`depth ${f(r.depth+r.push)} pt, height 0 pt`],color.s,[sxOffset,endpoints ? 22 : -16]);
+    if(sx-px<12) {
+      dot(ctx,sx,sideFloor,color.s,3);
+      stage.points.get('S').dotButton.hidden = true;
+    }
+    if(!endpoints) {
+      const labelX = triangle ? px+9 : Math.max(sx+sxOffset+20,corner+20);
+      const labelY = triangle ? sideFloor-63 : sideFloor-30;
+      plate(ctx,`Read ${f(r.push)} pt`,labelX,labelY);
+    }
+  }
+  if(read && r.push===0) plate(ctx,'S is at P · read 0 pt',px+20,sideFloor-32);
+  if(endpoints) {
+    // Move Q's arrow up a little to leave P's short arrow readable on the screen line.
+    const readY = sideFloor-82;
+    line(ctx,sideOrigin,sideFloor,sideOrigin,readY,color.q,1.5);
+    arrow(ctx,sideOrigin,readY,sideX(rest.max),readY,color.s,2.6);
+    plate(ctx,'At Q · 6 pt',sideOrigin+6,readY-31);
+    plate(ctx,'At P · 1.2 pt',corner+14,sideFloor-38);
+    line(ctx,corner,sideFloor,corner,top,color.k,1.5);
+    dot(ctx,corner,top,color.k);
+    plate(ctx,'At K · 0 pt read',corner+14,top+15);
+  }
+  endPoints(stage);
+}
+
+/* Orthographic projection and trackball controls from the rim-line lesson. */
+class Orbit3D {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.yaw = 0;
+    this.pitch = 48;
+    this.zoom = 1;
+    this.target = {...atDepth(17),z:10};
+    this.drag = null;
+    canvas.style.cursor = 'grab';
+    canvas.style.touchAction = 'none';
+    canvas.addEventListener('pointerdown',e=>{
+      if(e.button!==0) return;
+      this.drag = {x:e.clientX,y:e.clientY,yaw:this.yaw,pitch:this.pitch};
+      canvas.setPointerCapture(e.pointerId);
+      canvas.style.cursor = 'grabbing';
+    });
+    canvas.addEventListener('pointermove',e=>{
+      if(!this.drag) return;
+      this.yaw = this.drag.yaw-(e.clientX-this.drag.x)*.45;
+      this.pitch = clamp(this.drag.pitch+(e.clientY-this.drag.y)*.45,0,90);
+      this.render();
+    });
+    const end = ()=>{
+      this.drag = null;
+      canvas.style.cursor = 'grab';
+    };
+    canvas.addEventListener('pointerup',end);
+    canvas.addEventListener('pointercancel',end);
+    canvas.addEventListener('wheel',e=>{
+      if(!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      this.changeZoom(Math.exp(-e.deltaY*.0015));
+    },{passive:false});
+  }
+
+  project({x,y,z}) {
+    const a = this.yaw*Math.PI/180, b = this.pitch*Math.PI/180;
+    const dx = x-this.target.x, dy = y-this.target.y, dz = z-this.target.z;
+    const horizontal = dx*Math.cos(a)-dy*Math.sin(a);
+    const away = dx*Math.sin(a)+dy*Math.cos(a);
+    const up = dz*Math.cos(b)-away*Math.sin(b);
+    const scale = 5.6*this.zoom;
+    return {x:285+horizontal*scale,y:176-up*scale,depth:away*Math.cos(b)+dz*Math.sin(b)};
+  }
+
+  setView(yaw,pitch,zoom=this.zoom) {
+    Object.assign(this,{yaw,pitch,zoom});
+    this.render();
+  }
+
+  changeZoom(ratio) {
+    this.zoom = clamp(this.zoom*ratio,.65,1.4);
+    this.render();
+  }
+
+  render() {
+    const {canvas} = this, stage = canvas.parentElement;
+    const ctx = canvasBackground(canvas);
+    beginPoints(stage);
+    const model = step===5 ? flight : rest;
+    const r = step===5 ? inFlight : worked;
+    const project = point=>this.project(point);
+    const zAt = d=>rim(d,model).height;
+    const vertex = (d,theta,z) => ({
+      x:144.3 + (36-d)*Math.cos(theta),
+      y:684.6 + (36-d)*Math.sin(theta),
+      z
+    });
+    const phi = Math.atan2(-inward.y,-inward.x);
+    const slice = (d,z) => vertex(d,phi,z);
+    function polygon(vertices,fill,outline) {
+      ctx.beginPath();
+      vertices.forEach(({x,y},index)=>index ? ctx.lineTo(x,y) : ctx.moveTo(x,y));
+      ctx.closePath();
+      ctx.fillStyle = fill;
+      ctx.fill();
+      if(outline) {
+        ctx.strokeStyle = outline;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    }
+    function path(points,fill,width=2) {
+      const vertices = points.map(project);
+      halo(ctx,()=>vertices.forEach(({x,y},i)=>i ? ctx.lineTo(x,y) : ctx.moveTo(x,y)),fill,width);
+    }
+    const lo = phi-.52, hi = phi+.52;
+    const floor = Array.from({length:19},(_,i)=>vertex(0,lo+i*(hi-lo)/18,0));
+    polygon([...floor,vertex(34,hi,0),vertex(34,lo,0)].map(project),C('#e2e8f0'),C('#94a3b8'));
+    path(floor,color.q,1.8);
+    const faces = [];
+    for(let index=0;index<14;index++) {
+      const a = lo+index*(hi-lo)/14, b = lo+(index+1)*(hi-lo)/14;
+      for(let n=0;n<14;n++) {
+        const d = n*model.width/14, next = (n+1)*model.width/14;
+        const face = [vertex(d,a,zAt(d)),vertex(next,a,zAt(next)),
+          vertex(next,b,zAt(next)),vertex(d,b,zAt(d))].map(project);
+        faces.push({face,depth:face.reduce((sum,p)=>sum+p.depth,0)/4});
+      }
+      const face = [vertex(model.width,a,model.width),vertex(34,a,model.width),
+        vertex(34,b,model.width),vertex(model.width,b,model.width)].map(project);
+      faces.push({face,depth:face.reduce((sum,p)=>sum+p.depth,0)/4});
+    }
+    faces.sort((a,b)=>a.depth-b.depth);
+    for(const {face} of faces) polygon(face,C('rgba(168,85,247,0.45)'));
+    for(const theta of [lo,hi]) {
+      const profile = Array.from({length:25},(_,i)=>vertex(i*model.width/24,theta,zAt(i*model.width/24)));
+      path([...profile,vertex(34,theta,model.width)],color.q,1.2);
+    }
+    const profile = Array.from({length:43},(_,i)=>slice(i*model.width/42,zAt(i*model.width/42)));
+    profile.push(slice(34,model.width));
+    polygon([...profile,slice(34,0)].map(project),C('rgba(233,213,255,0.62)'));
+    path(profile,color.q,2.4);
+    path([slice(0,0),slice(34,0)],color.q,1.8);
+    if(step>=1) path([slice(r.depth,0),slice(r.depth,r.height)],color.h,2);
+    const mark3D = (name,d,z,fill,role,offset) => {
+      const p = project(slice(d,z));
+      mark(stage,name,[p.x,p.y],[name,role,`screen position ${coords(atDepth(d))}, height ${f(z)} pt`],fill,offset);
+    };
+    const p = project(slice(r.depth,0)), q = project(slice(0,0)), h = project(slice(r.depth,r.height));
+    if(Math.hypot(p.x-q.x,p.y-q.y)>=11) mark3D('Q',0,0,color.q,'outline',[-18,-19]);
+    mark3D('P',r.depth,0,color.p,'output pixel',[13,22]);
+    if(step>=1 && Math.hypot(p.x-h.x,p.y-h.y)>=12) mark3D('H',r.depth,r.height,color.h,'rim above P',[-15,-22]);
+    if(step>=3 && r.push>0) {
+      const s = project(slice(r.depth+r.push,0));
+      arrow(ctx,p.x,p.y,s.x,s.y,color.s,2.6,9);
+      if(Math.hypot(p.x-s.x,p.y-s.y)>=12) mark3D('S',r.depth+r.push,0,color.s,'source point',[22,-17]);
+    }
+    const captionAnchor = project(slice(28,zAt(28)));
+    plate(ctx,'Slice through P',captionAnchor.x+15,captionAnchor.y-35);
+    plate(ctx,'Height above screen · pt',8,7);
+    plate(ctx,'Screen x and y · pt',370,351);
+    this.axes(ctx);
+    endPoints(stage);
+  }
+
+  axes(ctx) {
+    const base = this.project({x:0,y:0,z:0});
+    const x = 70, y = 324;
+    for(const [name,v,ink] of [
+      ['x',{x:5,y:0,z:0},color.q],
+      ['y',{x:0,y:5,z:0},color.p],
+      ['height',{x:0,y:0,z:5},color.h]
+    ]) {
+      const p = this.project(v);
+      const dx = p.x-base.x, dy = p.y-base.y;
+      if(Math.hypot(dx,dy)<3) continue;
+      arrow(ctx,x,y,x+dx,y+dy,ink,2,7);
+      plate(ctx,name,x+dx+(dx<0?-30:4),y+dy+(dy<0?-22:4));
+    }
+  }
+}
+
+let step = 0, depth = startDepth, mode = 'rest';
+const orbit = new Orbit3D($('orbit'));
+for(const [name,action] of [
+  ['Angled',()=>orbit.setView(0,48)],
+  ['Screen x–y',()=>orbit.setView(0,90)],
+  ['x–height',()=>orbit.setView(0,0)],
+  ['y–height',()=>orbit.setView(-90,0)],
+  ['Zoom in',()=>orbit.changeZoom(1.25)],
+  ['Zoom out',()=>orbit.changeZoom(.8)],
+  ['Reset view',()=>orbit.setView(0,48,1)]
+]) {
+  const b = document.createElement('button');
+  b.className = 'btn';
+  b.type = 'button';
+  b.textContent = name;
+  b.onclick = action;
+  $('viewBar').append(b);
+}
+const sections = [...document.querySelectorAll('#stepText .step')];
+const stepButtons = sections.map((section,index)=>{
+  const li = document.createElement('li');
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'btn stepCard';
+  button.innerHTML = `<span class="stepNumber">${index+1}</span>${section.querySelector('h3').textContent}`;
+  button.onclick = ()=>setStep(index);
+  li.append(button);
+  $('steps').append(li);
+  return button;
+});
+const narrowSteps = matchMedia('(max-width: 650px)');
+function drawWorked() {
+  const read = step>=3;
+  map('workMap',worked,{showRead:read,showOut:step===3});
+  $('workMapCaption').textContent = read ?
+    'Screen view at rest. The green arrow leads from P to its source S.' :
+    'Screen view at rest. The purple line follows the shortest route from Q to P, then continues inside.';
+  $('sideRow').hidden = step===0;
+  $('flightFigure').hidden = step!==5;
+  $('workSideCaption').textContent = step===4 ?
+    'Side view at rest. The display lifts Q’s read arrow off the screen line so you can also see P’s arrow.' :
+    'Side view at rest. The horizontal line is the screen. The curve shows the glass above it.';
+  orbit.render();
+  if(step>0) side('workSide',worked,{read,triangle:step===1,endpoints:step===4});
+  if(step===5) side('flightSide',inFlight,{read:true,triangle:true});
+}
+function setStep(next) {
+  closeTip();
+  step = clamp(next,0,sections.length-1);
+  const count = narrowSteps.matches ? 3 : sections.length;
+  const first = clamp(step-1,0,sections.length-count);
+  $('steps').style.setProperty('--shown-steps',count);
+  $('stepCount').textContent = `Step ${step+1} of ${sections.length}`;
+  $('stepBack').disabled = step===0;
+  $('stepNext').disabled = step===sections.length-1;
+  sections.forEach((section,index)=>{
+    section.hidden = index!==step;
+    const button = stepButtons[index];
+    button.parentElement.hidden = index<first || index>=first+count;
+    if(index===step) button.setAttribute('aria-current','step');
+    else button.removeAttribute('aria-current');
+  });
+  drawWorked();
+}
+$('stepBack').onclick = ()=>setStep(step-1);
+$('stepNext').onclick = ()=>setStep(step+1);
+document.querySelector('.stepnav').addEventListener('keydown',e=>{
+  if(e.key!=='ArrowLeft' && e.key!=='ArrowRight') return;
+  e.preventDefault();
+  setStep(step+(e.key==='ArrowLeft' ? -1 : 1));
+  stepButtons[step].focus();
+});
+narrowSteps.addEventListener('change',()=>setStep(step));
+
+function drawLive() {
+  const settings = mode==='rest' ? rest : flight;
+  const r = cut(depth,settings);
+  map('liveMap',r,{showRead:true,interactive:true});
+  side('liveSide',r,{read:true,triangle:false,interactive:true});
+  $('depth').value = depth;
+  $('depthValue').textContent = f(depth)+' pt';
+  const same = r.push===0;
+  const rows = [
+    ['1 · Find the slice',`P = ${KN(coords(r.p))}. Q to P = ${KN(f(r.depth)+' pt')}.`],
+    ['2 · Find the height',heightLines(r,true)],
+    ['3 · Find the push',pushLines(r)],
+    ['4 · Read inside',same ? `S = P = ${coords(r.p)}.` :
+      `Outward ≈ ${KN('(−0.60, −0.80)')}.${sourceLines(r)}Read at approximately ${coords(r.s)}.`]
+  ];
+  $('liveTrace').tBodies[0].innerHTML = rows.map(([label,work])=>
+    `<tr><th scope="row">${label}</th><td class="mono">${work}</td></tr>`).join('');
+}
+function setDepth(value) {
+  depth = Math.round(clamp(value,0,35)*10)/10;
+  drawLive();
+}
+$('depth').oninput = e=>setDepth(Number(e.target.value));
+$('outline').onclick = ()=>setDepth(0);
+$('flat').onclick = ()=>setDepth(mode==='rest' ? rest.width : flight.width);
+$('reset').onclick = ()=>setDepth(startDepth);
+const modes = [...document.querySelectorAll('[data-mode]')];
+for(const button of modes) {
+  button.onclick = ()=>{
+    mode = button.dataset.mode;
+    for(const item of modes) item.setAttribute('aria-pressed',item===button);
+    drawLive();
+  };
+}
+
+let answered = false;
+const choices = [...document.querySelectorAll('[data-choice]')];
+function drawQuiz() {
+  const canvas = $('quiz'), ctx = canvasBackground(canvas), stage = canvas.parentElement;
+  beginPoints(stage);
+  const edge = 80, px = 238, scale = 15;
+  ctx.fillStyle = color.glass;
+  ctx.fillRect(0,edge,canvas.width,canvas.height-edge);
+  line(ctx,0,edge,570,edge,color.q,3);
+  plate(ctx,'Top edge · y = 648.6 pt',10,37);
+  plate(ctx,'Screen crop · x →   y ↓ · pt',332,303);
+  const py = edge+1.4*scale, sy = py+exercise.push*scale;
+  mark(stage,'R',[px,py],['R','output pixel','(200, 650) pt'],color.red,[-22,-14]);
+  if(answered) {
+    const kY = edge+rest.width*scale;
+    line(ctx,px,edge,px,kY,color.q,1.5);
+    mark(stage,'Q',[px,edge],['Q','nearest point on outline','(200, 648.6) pt'],color.q,[27,-12]);
+    mark(stage,'K',[px,kY],['K','below the start of the flat top','(200, 662.6) pt'],color.k,[25,0]);
+    arrow(ctx,px,py,px,sy,color.s,3,12);
+    mark(stage,'S',[px,sy],['S','source point',coords({x:200,y:exerciseY})],color.s,[22,8]);
+    plate(ctx,`Read ≈ ${f(exercise.push)} pt`,px+32,(py+sy)/2-12);
+  }
+  endPoints(stage);
+}
+const feedback = {
+  out:'That moves in the outward direction. Subtract the outward move to read farther inside.',
+  height:'That uses the share already climbed. The push uses the share still left to climb.',
+  in:'Correct. R reads farther inside, toward the bottom of the screen.'
+};
+for(const button of choices) {
+  button.onclick = ()=>{
+    answered = true;
+    const correct = button.dataset.choice==='in';
+    for(const item of choices) item.setAttribute('aria-pressed',item===button);
+    $('verdict').textContent = feedback[button.dataset.choice];
+    $('verdict').className = 'verdict '+(correct ? 'ok' : 'no');
+    $('answer').hidden = false;
+    drawQuiz();
+  };
+}
+$('copyMetal').onclick = async ()=>{
+  const content = $('metal'), status = $('copyStatus');
+  try {
+    await navigator.clipboard.writeText(content.textContent);
+    status.textContent = 'Copied.';
+  } catch {
+    const range = document.createRange();
+    range.selectNodeContents(content);
+    getSelection().removeAllRanges();
+    getSelection().addRange(range);
+    status.textContent = 'Selected. Use your copy shortcut.';
+  }
+};
+
+window.onThemeChange = ()=>{
+  closeTip();
+  drawHero('heroStill',false);
+  drawHero('heroLens',true);
+  drawWorked();
+  drawLive();
+  drawQuiz();
+};
+setStep(0);
+window.onThemeChange();
+</script>
+</body>
+</html>

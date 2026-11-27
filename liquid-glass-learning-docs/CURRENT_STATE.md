@@ -1,6 +1,6 @@
 # CURRENT_STATE.md — where the course stands
 
-**Updated:** 2026-11-25. This file records what exists, where the model’s inputs come from, and what comes next. The lesson notes describe the existing pages. Use [AGENTS.md](AGENTS.md) for how to teach new or revised lessons.
+**Updated:** 2026-11-27. This file records what exists, where the model’s inputs come from, and what comes next. The lesson notes describe the existing pages. Use [AGENTS.md](AGENTS.md) for how to teach new or revised lessons.
 
 History is in git. The per-lesson notes of Lessons 9.1–10.45, the side lesson and the cheatsheet, the old handoff and the old feedback log are at commit `3715feb`:
 
@@ -89,6 +89,16 @@ File: [`course/part-two/chapter-11/lesson-11-01-glass-picture.html`](course/part
 - **Limit and first use.** The caller declares 24 pt on each axis, the course’s fitted maximum read during the opening and closing. The demo draws an extra 24 pt of source on the right beyond the menu crop. Lesson 11.2 varies the read point near the rim, and 11.4 reads this glass picture in place of the resting menu’s flat tint to bend the page and rows.
 - **Lab and checks.** `LiquidGlassLab/chapter11/GlassPictureView.swift`, `GlassPictureShift.metal`, and `Chapter11Screen.swift` provide the two Metal reads and fixed guides. Xcode built the project and the iPhone 16 Pro simulator showed a 30-device-pixel left shift of the amber stripe and first row in both app appearances. Chrome at 1920 × 1080 checked both themes, the drawing steps, the draggable point from each view, both read distances, point details, and the question and copy controls. Chapter 10’s shader and preview files have no diff.
 
-## Next: 11.2
+## Lesson 11.2 — The push: largest on the outline, 0 on the flat top (`C`, 2026-11-27)
 
-- **11.2** (`C`) uses the distance inside the rim and the outward direction to choose how far and in which direction to read. Begin with the planned resting example 5.6 pt inside the outline.
+File: [`course/part-two/chapter-11/lesson-11-02-the-push.html`](course/part-two/chapter-11/lesson-11-02-the-push.html). The [Chapter 11 cheatsheet](cheatsheet/chapter-11-the-lens-of-the-menus-glass.html#rim-push) records the same calculation.
+
+- **Result and first use.** The output pixel keeps its place and samples at `position - outward * push`. The stripe preview shows how a changing read distance bends a straight feature. Lesson 11.3 uses source positions for neighboring output pixels to find the upside-down band in flight. Lesson 11.4 joins the read with the glass picture from 11.1 and the resting menu from 10.48.
+- **At rest.** P = (126.06, 660.28) pt and Q = (122.7, 655.8) pt in screen coordinates. P is 5.6 pt inside. The 14 pt quarter circle gives a horizontal leg of 8.4 pt and a height of 11.2 pt. The height left is 0.2 of the full height, so the push is 1.2 pt from the 6 pt maximum. With outward approximately (−0.60, −0.80), S is approximately (126.78, 661.24) pt. Read at S and return its color for P. Q has the full 6 pt read. The flat top starts 14 pt inside and has a 0 pt read.
+- **In flight.** Use the same 5.6 pt depth with the 28 pt quarter circle and 24 pt maximum. The leg is 22.4 pt, height is 16.8 pt, and the share left is 0.4. The resulting push is 9.6 pt. The profile and height rule are model choices, and the two sets of lengths are fitted to the visible bending in the Safari recording.
+- **Interaction and code.** P moves along the same slice in the screen and side views. The depth slider, outline and flat-top presets, and at-rest and in-flight settings update the trace. The exercise uses R = (200, 650) pt under the straight top edge at 1.4 pt depth. The resting push is approximately 3.38 pt down and the source is approximately (200, 653.38) pt. The copyable `readRim` Metal snippet calls the existing Chapter 10 geometry helpers and the layer sample from 11.1.
+- **Checks.** Chrome at 1920 × 1080 passed the lesson and cheatsheet in system light and dark modes. Checked the worked numbers, view and depth controls, the question, copy, local links, and page width. The lesson’s compact stepper also passed at 390 px.
+
+## Next: 11.3
+
+- **11.3** (`C`) compares the in-flight reads at 0, 5.6, and 11.2 pt inside a straight top edge. Use the 28 pt rim and 24 pt maximum from 11.2 to locate the upside-down band.
